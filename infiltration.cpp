@@ -223,7 +223,7 @@ void TWorld::Infiltration(void)
       WHinf->Drc = WH->Drc;
       // net rainfall on soil surface
 
-      if (SwitchInfilGrass)
+      if (GrassPresent->Drc > 0)
           WHGrass->Drc += RainNet->Drc;
       // net rainfall on grass strips
 
@@ -267,7 +267,7 @@ void TWorld::Infiltration(void)
       Fcum->Drc += fact->Drc;
       // cumulative infil in m
 
-      if (SwitchInfilGrass)
+      if (GrassPresent->Drc > 0)
       {
           WHGrass->Drc -= factgr->Drc;
           if (WHGrass->Drc < 0) // in case of rounding of errors
@@ -278,14 +278,14 @@ void TWorld::Infiltration(void)
           Fcumgr->Drc += factgr->Drc;
       }
 
-      if (SwitchInfilGrass)
+      if (GrassPresent->Drc > 0)
         WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
       // average water height is grasstrip present
 
       FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
       // negative surplus of infiltration in m for kinematic wave in m
 
-      if (SwitchInfilGrass)
+      if (GrassPresent->Drc > 0)
         FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
       // if grasstrip present use grasstrip surplus as entire surplus
 

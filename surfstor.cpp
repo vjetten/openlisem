@@ -59,6 +59,10 @@ void TWorld::SurfaceStorage(void)
        WaterVolRunoff->Drc = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
        // total volume available for flow, surface + road
 
+       if (GrassPresent->Drc == 1)
+         FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
+       // assume grassstrip spreads water over entire width
+
        if (FlowWidth->Drc > 0)
          WHrunoff->Drc = WaterVolRunoff->Drc/(DX->Drc*FlowWidth->Drc);
        else

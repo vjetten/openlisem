@@ -91,9 +91,9 @@ public:
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep,
       *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-      *PointMap;
+      *PointMap, *GrassPresent;
 
-    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent, SwitchGrassPresent,
+    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRunoffPerM, SwitchInfilCompact,
@@ -118,6 +118,7 @@ public:
     double ChnCalibration;
     double ChKsatCalibration;
     double SplashDelivery;
+    double StripN;
 
     // totals for mass balance checks
     double MB, Qtot, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;

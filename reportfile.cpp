@@ -17,7 +17,6 @@
 // - TO BE DONE: if runs are interrupted the number of lines win the SOBEK output wioll not be correct!
 void TWorld::ReportTimeseries()
 {
-   int r, c;
    FILE *fileout;
    int nr = 0;
    char *ext, base[128], newname[128], SOBEKstr[11];
@@ -54,8 +53,7 @@ void TWorld::ReportTimeseries()
    {
       if (SwitchSeparateOutput) // each point separate file
       {
-       for(r = 0; r < nrRows; r++)
-        for(c = 0; c < nrCols; c++)
+        FOR_ROW_COL_MV
          if ( PointMap->Drc > 0 )
          {
              sprintf(newname,"%s_%d%s",base, (int)PointMap->Drc, ext);
@@ -111,8 +109,7 @@ void TWorld::ReportTimeseries()
       else   // HEADERS: all points in one file
       {
         // count nr of points
-        for(r = 0; r < nrRows; r++)
-         for(c = 0; c < nrCols; c++)
+        FOR_ROW_COL_MV
           if ( PointMap->Drc > 0 )
             nr++;
 
@@ -127,8 +124,7 @@ void TWorld::ReportTimeseries()
             // number of variables = 2 + (1 or 2) * number of points
             fprintf(fileout,"Time (min)%s",after);
             fprintf(fileout,"%sPavg (mm)",sep);
-            for(r = 0; r < nrRows; r++)
-             for(c = 0; c < nrCols; c++)
+            FOR_ROW_COL_MV
               if ( PointMap->Drc > 0 )
               {
                  fprintf(fileout,"%s%sQ #%d (l/s)",after,sep,(int)PointMap->Drc);
@@ -140,8 +136,7 @@ void TWorld::ReportTimeseries()
         else // SOBEK format
         if (SwitchSOBEKoutput) //note: sobek input does not have rainfall
         {
-          for(r = 0; r < nrRows; r++)
-           for(c = 0; c < nrCols; c++)
+          FOR_ROW_COL_MV
             if ( PointMap->Drc > 0 )
             {
                fprintf(fileout,"%s%sQ #%d",after,sep,(int)PointMap->Drc);
@@ -149,8 +144,7 @@ void TWorld::ReportTimeseries()
                if (SwitchErosion) fprintf(fileout,"%s%sC #%d",after,sep,(int)PointMap->Drc);
             }
           fprintf(fileout,"\n");
-          for(r = 0; r < nrRows; r++)
-           for(c = 0; c < nrCols; c++)
+          FOR_ROW_COL_MV
             if ( PointMap->Drc > 0 )
             {
                fprintf(fileout,"%s%sm3/s #%d",after,sep,(int)PointMap->Drc);
@@ -165,8 +159,7 @@ void TWorld::ReportTimeseries()
            fprintf(fileout,"#LISEM total flow and sed output file for all reporting points in map\n");
            fprintf(fileout,"Time%s",after);
            fprintf(fileout,"%sPavg",sep);
-           for(r = 0; r < nrRows; r++)
-            for(c = 0; c < nrCols; c++)
+           FOR_ROW_COL_MV
              if ( PointMap->Drc > 0 )
              {
                  fprintf(fileout,"%s%sQ #%d",after,sep,(int)PointMap->Drc);
@@ -176,8 +169,7 @@ void TWorld::ReportTimeseries()
            fprintf(fileout,"\n");
            fprintf(fileout,"min%s",after);
            fprintf(fileout,"%smm",sep);
-           for(r = 0; r < nrRows; r++)
-            for(c = 0; c < nrCols; c++)
+           FOR_ROW_COL_MV
              if ( PointMap->Drc > 0 )
              {
                  fprintf(fileout,"%s%sl/s #%d",after,sep,(int)PointMap->Drc);
@@ -193,8 +185,7 @@ void TWorld::ReportTimeseries()
    // write all the values
    if (SwitchSeparateOutput)
    {
-    for(r = 0; r < nrRows; r++)
-     for(c = 0; c < nrCols; c++)
+     FOR_ROW_COL_MV
       if ( PointMap->Drc > 0 )
       {
         sprintf(newname,"%s_%d%s",base, (int)PointMap->Drc, ext);
@@ -227,29 +218,27 @@ void TWorld::ReportTimeseries()
       if (!SwitchSOBEKoutput)
       {
         fprintf(fileout,"%8.3f",time);
-        fprintf(fileout,"%s%s%8.3f",after, sep, Rain->Drc);
-         for(r = 0; r < nrRows; r++)
-           for(c = 0; c < nrCols; c++)
-            if ( PointMap->Drc > 0 )
-            {
-               fprintf(fileout,"%s%s%8.3g", after, sep, Q->Drc);
-               if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, Qs->Drc);
-               if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, SedVol->Drc);
-             }
+        FOR_ROW_COL_MV
+          if ( PointMap->Drc > 0 )
+          {
+             fprintf(fileout,"%s%s%8.3f",after, sep, Rain->Drc);
+             fprintf(fileout,"%s%s%8.3g", after, sep, Q->Drc);
+             if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, Qs->Drc);
+             if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, SedVol->Drc);
+          }
         fprintf(fileout,"\n");
       }
       else
       {
         fprintf(fileout,"\"%s; %02d:%02d:%02d\"", SOBEKstr, hour, min, sec);
-        for(r = 0; r < nrRows; r++)
-         for(c = 0; c < nrCols; c++)
+        FOR_ROW_COL_MV
           if ( PointMap->Drc > 0 )
           {
              fprintf(fileout,"%s%s%8.3g", after, sep, Q->Drc);
              if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, Qs->Drc);
              if (SwitchErosion) fprintf(fileout,"%s%s%8.3g", after, sep, SedVol->Drc);
-           }
-             fprintf(fileout," < \n");
+          }
+        fprintf(fileout," < \n");
       }
    }
 

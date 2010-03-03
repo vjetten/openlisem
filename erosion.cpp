@@ -81,6 +81,10 @@ void TWorld::SplashDetachment(void)
        DETSplash->Drc = (1-StoneFraction->Drc) * DETSplash->Drc;
        // no splash on stone surfaces
 
+       if (GrassPresent->Drc > 0)
+          DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
+       // no splash on grass strips
+
    }
 }
 //---------------------------------------------------------------------------
@@ -123,6 +127,10 @@ void TWorld::FlowDetachment(void)
       DETFlow->Drc = min(DETFlow->Drc, maxTC * WaterVol->Drc);
       // cannot have more detachment than remaining capacity in flow
 
+      if (GrassPresent->Drc > 0)
+        DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
+      // no flow detachment on grass strips
+
       double deposition = minTC * TransportFactor;
       // max deposition in kg/s  < 0
       deposition = max(deposition, minTC * WaterVol->Drc);
@@ -137,6 +145,10 @@ void TWorld::FlowDetachment(void)
       }
       else //Sed volume exists, increase SedVol with flow det
          SedVol->Drc += DETFlow->Drc;
+
+      if (GrassPresent->Drc > 0)
+        DEP->Drc = -SedVol->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*DEP->Drc;
+        // total deposition on grassstrips
 
       Conc->Drc = MaxConcentration(r, c);
    }

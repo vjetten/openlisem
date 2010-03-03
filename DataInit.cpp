@@ -125,12 +125,23 @@ void TWorld::GetInputData(void)
   }
   else
     CompactFraction = NewMap(0);
+
+  GrassPresent = NewMap(0);
   if (SwitchInfilGrass)
   {
-    KsatGrass = ReadMap(getvaluename("ksatgras"));
-    GrassWidthDX = ReadMap(getvaluename("grasswidth"));
-    GrassFraction->copy(GrassWidthDX);
-    GrassFraction->calcV(_dx, DIV);
+      KsatGrass = ReadMap(getvaluename("ksatgras"));
+      GrassWidthDX = ReadMap(getvaluename("grasswidth"));
+      GrassFraction->copy(GrassWidthDX);
+      GrassFraction->calcV(_dx, DIV);
+      StripN = getvaluedouble("Grassstrip Mannings n");
+      FOR_ROW_COL_MV
+      {
+        if (GrassWidthDX > 0)
+        {
+          GrassPresent->Drc = 1;
+          N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
+        }
+      }
   }
   else
     GrassFraction = NewMap(0);
@@ -418,7 +429,6 @@ void TWorld::IntializeOptions(void)
     SwatreInitialized =
     SwitchInfilGA2 =
     SwitchCrustPresent =
-    SwitchGrassPresent =
     SwitchWheelPresent =
     SwitchCompactPresent =
     SwitchIncludeChannel =
