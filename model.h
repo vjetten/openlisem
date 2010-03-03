@@ -189,7 +189,7 @@ public:
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);
     void MassBalance(void);
     void Output(void);
-    void ReportMap();
+    void ReportTimeseries();
 
     MapListStruct maplist[NUMNAMES];
     int maplistnr;
