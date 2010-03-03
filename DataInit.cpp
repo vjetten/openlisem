@@ -43,7 +43,7 @@ TMMap *TWorld::ReadMap(QString name)
 
     for (int r = 0; r < nrRows; r++)
      for (int c = 0; c < nrCols; c++)
-     if (IS_MV_REAL4(&Mask->Drc) && IS_MV_REAL4(&_M->Drc))
+     if (!IS_MV_REAL4(&Mask->Drc) && IS_MV_REAL4(&_M->Drc))
      {
        QString sr, sc;
        sr.setNum(r); sc.setNum(c);
@@ -170,6 +170,10 @@ void TWorld::GetInputData(void)
     ChannelWidth->cover(0);
     ChannelN->cover(0);
   }
+
+  PointMap = ReadMap(getvaluename("outpoint"));
+
+
 /*
 LDD->mwrite("ldd.map");
 Grad->mwrite("grad.map");
@@ -465,5 +469,7 @@ void TWorld::IntializeOptions(void)
     SwitchInterceptionLAI =
     SwitchTwoLayer =
     SwitchSimpleSedKinWave =
+    SwitchSOBEKoutput =
+    SwitchPCRoutput =
     SwitchSoilwater = false;
 }
