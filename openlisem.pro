@@ -12,7 +12,8 @@ HEADERS += error.h \
     model.h \
     global.h \
     ifacebasic.h
-SOURCES += runfile.cpp \
+SOURCES += reportfile.cpp \
+    runfile.cpp \
     CsfMap.cpp \
     DataInit.cpp \
     channelflow.cpp \

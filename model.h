@@ -63,14 +63,8 @@ typedef struct Liststruct {
 }  Liststruct;
 //---------------------------------------------------------------------------
 typedef struct _nameList{
-     //char name[64];
-     //char value[256];
      QString name;
      QString value;
- //    int type;
- //    int iii;
- //    float vvv;
-     bool done;
 } _nameList;
 //---------------------------------------------------------------------------
 class TWorld: public QThread
@@ -96,7 +90,8 @@ public:
       *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep,
-      *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY;
+      *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
+      *PointMap;
 
     bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent, SwitchGrassPresent,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
@@ -108,10 +103,11 @@ public:
     SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
-    SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater;
+    SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
+    SwitchPCRoutput;
 
+    QString SOBEKdatestring;
     char ErosionUnits;
-    char SOBEKdatestring[12];
     int SOBEKnrlines;
     int InterceptionLAIType;
     int InfilMethod;
@@ -193,6 +189,7 @@ public:
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);
     void MassBalance(void);
     void Output(void);
+    void ReportMap();
 
     MapListStruct maplist[NUMNAMES];
     int maplistnr;

@@ -51,6 +51,7 @@ void TWorld::InfilSmithParlange1(void)
 
       if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
           Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+      // smallest of the two ksats in two laters blocks the flow
 
       Cdexp = exp(Fcum->Drc/B);
       fpot->Drc = Ks*Cdexp/(Cdexp-1);
@@ -277,9 +278,16 @@ void TWorld::Infiltration(void)
           Fcumgr->Drc += factgr->Drc;
       }
 
+      if (SwitchInfilGrass)
+        WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
+      // average water height is grasstrip present
 
-      FSurplus->Drc = min(0, fact->Drc-fpot->Drc);
+      FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
       // negative surplus of infiltration in m for kinematic wave in m
+
+      if (SwitchInfilGrass)
+        FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
+      // if grasstrip present use grasstrip surplus as entire surplus
 
       InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
       // infil volume is WH before - water after

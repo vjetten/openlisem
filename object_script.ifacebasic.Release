@@ -1,4 +1,5 @@
 INPUT(
+./release\reportfile.o
 ./release\runfile.o
 ./release\CsfMap.o
 ./release\DataInit.o

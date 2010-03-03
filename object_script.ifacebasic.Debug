@@ -1,4 +1,5 @@
 INPUT(
+./debug\reportfile.o
 ./debug\runfile.o
 ./debug\CsfMap.o
 ./debug\DataInit.o
