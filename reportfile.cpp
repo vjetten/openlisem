@@ -15,7 +15,7 @@
 // - all points in one file or each point in a separate file
 // - the types should be mututally exclusive in the interface and run file
 // - TO BE DONE: if runs are interrupted the number of lines win the SOBEK output wioll not be correct!
-void TWorld::ReportMap()
+void TWorld::ReportTimeseries()
 {
    int r, c;
    FILE *fileout;

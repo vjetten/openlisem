@@ -102,6 +102,8 @@ void TWorld::Output()
 
 	emit show(runstep);
 
+	ReportTimeseries();
+
 	//   RainCum->report("rainc", runstep);
     // Fcum->report("fcum", runstep);
     // WHstore->report("sstor", runstep);
