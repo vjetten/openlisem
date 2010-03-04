@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ifacebasic.ui'
 **
-** Created: Thu Mar 4 20:00:17 2010
+** Created: Thu Mar 4 22:07:01 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
