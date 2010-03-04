@@ -1,6 +1,21 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisChannelflow.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisChannelflow.cpp:
+- fraction of water and sediment flowing into the channel
+- calc V, alpha and Q in the channel
+- calc channelflow, channelheight, kin wave
+---------------------------------------------------------------------------*/
+
 #include "model.h"
 
 //---------------------------------------------------------------------------
+//fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
 {
    if (SwitchIncludeChannel)
@@ -27,6 +42,7 @@ void TWorld::ToChannel(void)
    }
 }
 //---------------------------------------------------------------------------
+// V, alpha and Q in the channel
 void TWorld::CalcVelDischChannel()
 {
    FOR_ROW_COL_MV_CH
@@ -72,6 +88,7 @@ void TWorld::CalcVelDischChannel()
     }
 }
 //---------------------------------------------------------------------------
+//- calc channelflow, channelheight, kin wave
 void TWorld::ChannelFlow(void)
 {
    if (!SwitchIncludeChannel)

@@ -1,3 +1,16 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisSurfstor.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisSurfstor.cpp:
+- gridcell fractions
+- surface storage + call velocity and discharge
+---------------------------------------------------------------------------*/
+
 #include "model.h"
 
 

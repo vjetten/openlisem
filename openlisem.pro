@@ -12,19 +12,19 @@ HEADERS += error.h \
     model.h \
     global.h \
     ifacebasic.h
-SOURCES += reportfile.cpp \
-    runfile.cpp \
+SOURCES += lisRunfile.cpp \
+    lisReportfile.cpp \
+    lisDataInit.cpp \
+    lisModel.cpp \
+    lisKinematic.cpp \
+    lisChannelflow.cpp \
+    lisSurfstor.cpp \
+    lisOverlandflow.cpp \
+    lisRainintc.cpp \
+    lisInfiltration.cpp \
+    lisErosion.cpp \
     CsfMap.cpp \
-    DataInit.cpp \
-    channelflow.cpp \
-    erosion.cpp \
-    infiltration.cpp \
-    kinematic.cpp \
     mmath.cpp \
-    overlandflow.cpp \
-    rainintc.cpp \
-    surfstor.cpp \
-    model.cpp \
     main.cpp \
     ifacebasic.cpp
 FORMS += ifacebasic.ui

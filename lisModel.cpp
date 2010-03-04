@@ -1,9 +1,23 @@
-//---------------------------------------------------------------------------
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisModel.cpp:
+- creating and destroying TWorld
+- mass balance calculations
+- link to simple interface output
+- main model time loop calling process functions
+- run and stop thread functions
+---------------------------------------------------------------------------*/
+
 #include <QtGui>
 #include "ifacebasic.h"
 #include "model.h"
 #include "global.h"
-
 
 
 //---------------------------------------------------------------------------

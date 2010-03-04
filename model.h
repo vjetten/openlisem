@@ -1,4 +1,16 @@
-//---------------------------------------------------------------------------
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: model.h
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in model.h:
+- TWorld class that combines all model variables and processes
+- global defines Drc, MV, FOR_ROW_COL_MV etc
+- global defines for lisem type; infiltration type etc.
+---------------------------------------------------------------------------*/
 
 #ifndef modelH
 #define modelH
@@ -19,13 +31,13 @@
 #define mwrite(name) WriteMap(QString(resultdir+name))
 #define report(name, step) WriteMapSeries(QString(resultDir+name), step)
 
-#define    Drc     Data[r][c]
-#define    MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
-#define    FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
+#define Drc     Data[r][c]
+#define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
+#define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
                             for (int c = 0; c < nrCols; c++)\
                               if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
-#define    FOR_ROW_COL_MV_CH for (int r = 0; r < nrRows; r++)\
+#define FOR_ROW_COL_MV_CH for (int r = 0; r < nrRows; r++)\
                             for (int c = 0; c < nrCols; c++)\
                               if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 

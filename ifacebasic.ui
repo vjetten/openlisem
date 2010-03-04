@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>625</width>
-    <height>240</height>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>118</x>
@@ -293,49 +293,70 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>11</x>
-     <y>181</y>
-     <width>591</width>
-     <height>45</height>
+     <x>10</x>
+     <y>180</y>
+     <width>589</width>
+     <height>24</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="label_31">
-        <property name="text">
-         <string>Runfile: </string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="E_runfilename"/>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButton_runfilename">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../lisemqt/lisemqt.qrc">
-          <normaloff>:/resources/ofolderopen.png</normaloff>:/resources/ofolderopen.png</iconset>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QLabel" name="label_31">
+      <property name="text">
+       <string>Runfile: </string>
+      </property>
+     </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_28">
+     <widget class="QLineEdit" name="E_runfilename"/>
+    </item>
+    <item>
+     <widget class="QToolButton" name="toolButton_runfilename">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string>...</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../lisemqt/lisemqt.qrc">
+        <normaloff>:/resources/ofolderopen.png</normaloff>:/resources/ofolderopen.png</iconset>
       </property>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QProgressBar" name="progressBar">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>601</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="format">
+    <string>%p% (%v-%m)</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_28">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>210</y>
+     <width>46</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

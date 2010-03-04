@@ -1,3 +1,16 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisOverland.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisOverland.cpp:
+- calculate velocity and discharge
+- calculate overland flow, calls kinematic wave
+---------------------------------------------------------------------------*/
+
 #include "model.h"
 
 //---------------------------------------------------------------------------

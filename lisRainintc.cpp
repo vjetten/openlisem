@@ -1,3 +1,17 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisRainintc.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisRainintc.cpp:
+- read rainfall file
+- transfer rainfall to a map
+- calc interception
+---------------------------------------------------------------------------*/
+
 #include "model.h"
 
 //---------------------------------------------------------------------------
