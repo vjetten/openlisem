@@ -12,7 +12,7 @@ struct output{
     int runstep;
     int maxstep;
     double t;
-    double time;
+    double time, maxtime;
 
     double MB, Qtot, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
     double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot;

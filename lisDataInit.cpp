@@ -1,3 +1,16 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisDatainit.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+Functionality in lisDatainit.cpp:
+- newmap, readmap, destoy data
+- get inputdata, init data, init boolean options (SwitchSomething)
+---------------------------------------------------------------------------*/
+
 #include "model.h"
 #include <qstring.h>
 
@@ -47,7 +60,7 @@ TMMap *TWorld::ReadMap(QString name)
      {
        QString sr, sc;
        sr.setNum(r); sc.setNum(c);
-       ErrorString = "Missing value at row="+sr+"and col="+sc+" in map: "+name;
+       ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name;
        throw 1;
      }
 
@@ -55,6 +68,42 @@ TMMap *TWorld::ReadMap(QString name)
     {
     	maplist[maplistnr].m = _M;
     	maplistnr++;
+    }
+
+    //msleep(100);
+    //emit debug(_M->PathName);
+
+    return(_M);
+
+}
+//---------------------------------------------------------------------------
+TMMap *TWorld::ReadMapMask(cTMap *Mask, QString name)
+{
+
+    TMMap *_M = new TMMap();
+
+    _M->PathName = /*inputdir + */name;
+    bool res = _M->LoadFromFile();
+    if (!res)
+    {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+    }
+
+    for (int r = 0; r < nrRows; r++)
+     for (int c = 0; c < nrCols; c++)
+     if (!IS_MV_REAL4(&Mask->Drc) && IS_MV_REAL4(&_M->Drc))
+     {
+       QString sr, sc;
+       sr.setNum(r); sc.setNum(c);
+       ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name;
+       throw 1;
+     }
+
+    if (_M)
+    {
+        maplist[maplistnr].m = _M;
+        maplistnr++;
     }
 
     //msleep(100);
@@ -82,6 +131,7 @@ void TWorld::DestroyData(void)
   }
 }
 //---------------------------------------------------------------------------
+/*
 void TWorld::InitMask(cTMap *M)
 {
     Mask = new TMMap();
@@ -92,11 +142,78 @@ void TWorld::InitMask(cTMap *M)
     nrRows = Mask->nrRows;
     nrCols = Mask->nrCols;
 }
+*/
+//---------------------------------------------------------------------------
+TMMap *TWorld::InitMask(QString name)
+{
+
+    TMMap *_M = new TMMap();
+
+    _M->PathName = /*inputdir + */name;
+    bool res = _M->LoadFromFile();
+    if (!res)
+    {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+    }
+
+    if (_M)
+    {
+        maplist[maplistnr].m = _M;
+        maplistnr++;
+    }
+
+    Mask = new TMMap();
+    Mask->_MakeMap(_M, 1.0);
+    maplist[maplistnr].m = Mask;
+    maplistnr++;
+    _dx = Mask->MH.cellSizeX*1.0000000;
+    nrRows = Mask->nrRows;
+    nrCols = Mask->nrCols;
+
+    //msleep(100);
+    //emit debug(_M->PathName);
+
+    return(_M);
+
+}
+//---------------------------------------------------------------------------
+TMMap *TWorld::InitMaskChannel(QString name)
+{
+
+    TMMap *_M = new TMMap();
+
+    _M->PathName = /*inputdir + */name;
+    bool res = _M->LoadFromFile();
+    if (!res)
+    {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+    }
+
+    if (_M)
+    {
+        maplist[maplistnr].m = _M;
+        maplistnr++;
+    }
+
+    MaskChannel = new TMMap();
+    MaskChannel->_MakeMap(_M, 1.0);
+    maplist[maplistnr].m = MaskChannel;
+    maplistnr++;
+
+    //msleep(100);
+    //emit debug(_M->PathName);
+
+    return(_M);
+
+}
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
-  LDD = ReadMap(getvaluename("ldd"));
-  InitMask(LDD);
+//  LDD = ReadMap(getvaluename("ldd"));
+//  InitMask(LDD);
+  LDD = InitMask(getvaluename("ldd"));
   Grad = ReadMap(getvaluename("grad"));
   Outlet = ReadMap(getvaluename("outlet"));
   RainZone = ReadMap(getvaluename("id"));
@@ -168,13 +285,14 @@ void TWorld::GetInputData(void)
 
   if (SwitchIncludeChannel)
   {
-    LDDChannel = ReadMap(getvaluename("lddchan"));
-    ChannelWidth = ReadMap(getvaluename("chanwidth"));
-    ChannelSide = ReadMap(getvaluename("chanside"));
-    ChannelGrad = ReadMap(getvaluename("changrad"));
+    LDDChannel = InitMaskChannel(getvaluename("lddchan"));
+    //ReadMapMask(getvaluename("lddchan"));
+    ChannelWidth = ReadMapMask(LDDChannel, getvaluename("chanwidth"));
+    ChannelSide = ReadMapMask(LDDChannel, getvaluename("chanside"));
+    ChannelGrad = ReadMapMask(LDDChannel, getvaluename("changrad"));
     ChannelGrad->calcV(0.001, ADD);
-    ChannelN = ReadMap(getvaluename("chanman"));
-    ChannelCohesion = ReadMap(getvaluename("chancoh"));
+    ChannelN = ReadMapMask(LDDChannel, getvaluename("chanman"));
+    ChannelCohesion = ReadMapMask(LDDChannel, getvaluename("chancoh"));
 
     ChannelGrad->cover(0);
     ChannelSide->cover(0);
@@ -183,42 +301,6 @@ void TWorld::GetInputData(void)
   }
 
   PointMap = ReadMap(getvaluename("outpoint"));
-
-
-/*
-LDD->mwrite("ldd.map");
-Grad->mwrite("grad.map");
-Outlet->mwrite("outlet.map");
-RainZone->mwrite("id.map");
-N->mwrite("manning.map");
-RR->mwrite("RR.map");
-PlantHeight->mwrite("CH.map");
-LAI->mwrite("lai.map");
-Cover->mwrite("cover.map");
-if (SwitchErosion)
-{
-Cohesion->mwrite("coh.map");
-RootCohesion->mwrite("cohadd.map");
-AggrStab->mwrite("AggrStab.map");
-D50->mwrite("D50.map");
-}
-ThetaS1->mwrite("ThetaS1.map");
-ThetaI1->mwrite("ThetaI1.map");
-Psi1->mwrite("Psi1.map");
-Ksat1->mwrite("Ksat1.map");
-SoilDepth1->mwrite("SoilDep1.map");
-StoneFraction ->mwrite("stonefrc.map");
-RoadWidthDX ->mwrite("road.map");
-if (SwitchIncludeChannel)
-{
-LDDChannel->mwrite("lddchan.map");
-ChannelWidth->mwrite("chanwidth.map");
-ChannelSide->mwrite("chanside.map");
-ChannelGrad->mwrite("changrad.map");
-ChannelN->mwrite("chanman.map");
-ChannelCohesion->mwrite("chancoh.map");
-}
-*/
 
 }
 //---------------------------------------------------------------------------

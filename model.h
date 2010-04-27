@@ -87,7 +87,7 @@ public:
       TWorld(QObject *parent = 0);
      ~TWorld();
 
-     TMMap *tm, *Mask, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
+     TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
       *Rain, *RainCum, *RainNet, *RainIntensity, *RainM3, *CStor, *Interc,
       *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVol, *WaterVolRunoff, *InfilVolKinWave, *InfilVol, *fpa,
       *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qs, *Qsn, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
@@ -165,8 +165,11 @@ public:
     void GetRainfallData(void);
     void IntializeData(void);
     void GetInputData(void);
-    void InitMask(cTMap *M);
+    //void InitMask(cTMap *M);
+    TMMap *InitMask(QString name);
+    TMMap *InitMaskChannel(QString name);
     TMMap *ReadMap(QString name);
+    TMMap *ReadMapMask(cTMap *Mask, QString name);
     TMMap *NewMap(double value);
     void InitMapList(void);
     void DestroyData(void);

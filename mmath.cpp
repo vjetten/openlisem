@@ -42,9 +42,9 @@ void TMMap::cover(double value)
 //---------------------------------------------------------------------------
 void TMMap::calc(cTMap *M, int oper)
 {
-     for (int r = 0; r < M->nrRows; r++)
-      for (int c = 0; c < M->nrCols; c++)
-      if (!IS_MV_REAL4(&Data[r][c]))
+  for (int r = 0; r < M->nrRows; r++)
+   for (int c = 0; c < M->nrCols; c++)
+  if (!IS_MV_REAL4(&Data[r][c]))
   {
       if (!IS_MV_REAL4(&M->Data[r][c]))
       {

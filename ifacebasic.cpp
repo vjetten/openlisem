@@ -77,6 +77,7 @@ void ifacebasic::Showit(const int step)
 	}
 	label_9->setNum(op.t);
 	label_8->setNum(op.time);
+        label_32->setNum(op.maxtime);
 	progressBar->setMaximum(op.maxstep);
 	progressBar->setValue(step);
 }

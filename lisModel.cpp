@@ -111,8 +111,9 @@ void TWorld::Output()
 	op.SoilLossTot=SoilLossTot*0.001;
 	op.SedVolTot=SedVolTot*0.001;
 	op.DepTot=DepTot*0.001;
-	op.t = time_ms.elapsed()*0.001;
+	op.t = time_ms.elapsed()*0.001/60.0;
 	op.time = time/60;
+	op.maxtime = op.t/runstep * op.maxstep;
 
 	emit show(runstep);
 
@@ -134,10 +135,13 @@ void TWorld::DoModel()
 
      IntializeOptions(); // all switches to false, clear names
      GetRunFile();
+     QString sss;
+     sss.setNum(nrnamelist) + " variables read from runfile";
+     DEBUG(sss);
      ParseInputData();
 
-     SwitchIncludeChannel = op.SwitchIncludeChannel;// from interface
-     SwitchErosion = op.SwitchErosion;
+    // SwitchIncludeChannel = op.SwitchIncludeChannel;// from interface
+    // SwitchErosion = op.SwitchErosion;
 
      InitMapList();
      GetInputData();
@@ -148,7 +152,7 @@ void TWorld::DoModel()
      _dt = getvaluedouble("Timestep");
 
      emit debug("running");
-     DEBUG(resultDir);
+
      runstep = 0;
      for (time = BeginTime; time < EndTime; time += _dt)
      {
