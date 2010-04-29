@@ -85,6 +85,7 @@ void TWorld::OverlandFlow(void)
      {
         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolRunoff, SedVol);
         Qoutflow->Drc = Qn->Drc * _dt;
+        Qpeak = max(Qpeak,Qn->Drc);
         // sum all outflow m3 for this timestep
         if (SwitchErosion)
            Qsoutflow->Drc = Qsn->Drc * _dt;

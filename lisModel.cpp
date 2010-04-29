@@ -33,34 +33,39 @@ TWorld::~TWorld()
 //---------------------------------------------------------------------------
 void TWorld::MassBalance(void)
 {
-// WATER
-
+// WATER in m3
+     double areafac = 1000/(DX->MapTotal()*_dx);
      tm->copy(Rain);
+     //RainTotmm += tm->MapTotal() *1000/nrCells; // avg in mm
      tm->calc(DX, MUL);
      tm->calcV(_dx, MUL);
-     RainTot += tm->MapTotal();
+     RainTot += tm->MapTotal(); // in m3
+     RainTotmm = RainTot*areafac;
 
      IntercTot = Interc->MapTotal();
+     IntercTotmm = IntercTot*areafac;
 
-     InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal();
+     InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
      InfilKWTot += InfilVolKinWave->MapTotal();
+     InfilTotmm = InfilTot*areafac;
 
      tm->calc2(WHstore, FlowWidth, MUL); //m2
      tm->calcV(_dx, MUL); //m3
      SurfStorTot = tm->MapTotal();
 
-     WaterVolTot = WaterVol->MapTotal();
-     //m3
+     WaterVolTot = WaterVol->MapTotal();//m3
+     WaterVolTotmm = WaterVolTot*areafac;
 
      Qtot += Qoutflow->MapTotal();
-     // sum all outflow m3/s for all timesteps
+     // sum all outflow m3 for all timesteps, is already mult by dt
+     Qtotmm = Qtot*areafac;
 
-// SEDIMENT
+// SEDIMENT in kg
      if (SwitchErosion)
      {
         DetTotSplash += DETSplash->MapTotal();
-        DetTotFlow += DETFlow->MapTotal();// + (SwitchIncludeChannel ? ChannelDetFlow->MapTotal(): 0);
-        DepTot += DEP->MapTotal();// + (SwitchIncludeChannel ? ChannelDep->MapTotal() : 0);
+        DetTotFlow += DETFlow->MapTotal();
+        DepTot += DEP->MapTotal();
         DetTot += DETSplash->MapTotal() + DETFlow->MapTotal();
         SoilLossTot += Qsoutflow->MapTotal();
         SedVolTot = SedVol->MapTotal();
@@ -98,11 +103,13 @@ void TWorld::Output()
 	op.runstep = runstep;
 	op.maxstep = (int) ((EndTime-BeginTime)/_dt);
 
-	op.RainTot=RainTot;
-	op.WaterVolTot=WaterVolTot;
+	op.RainTot=RainTotmm;
+	op.WaterVolTot=WaterVolTotmm;
+	op.Qtotmm=Qtotmm;
 	op.Qtot=Qtot;
-	op.InfilTot=InfilTot;
-	op.IntercTot=IntercTot;
+	op.Qpeak=Qpeak;
+	op.InfilTot=InfilTotmm;
+	op.IntercTot=IntercTotmm;
 	op.InfilKWTot=InfilKWTot;
 
 	op.MBs = MBs;
@@ -119,6 +126,8 @@ void TWorld::Output()
 
 	ReportTimeseries();
 
+	//fpot->report("fpot",runstep);
+	//fact->report("fact",runstep);
 	//   RainCum->report("rainc", runstep);
     // Fcum->report("fcum", runstep);
     // WHstore->report("sstor", runstep);
@@ -136,8 +145,8 @@ void TWorld::DoModel()
      IntializeOptions(); // all switches to false, clear names
      GetRunFile();
      QString sss;
-     sss.setNum(nrnamelist) + " variables read from runfile";
-     DEBUG(sss);
+     sss.setNum(nrnamelist);
+     DEBUG(sss+ " variables read from runfile");
      ParseInputData();
 
     // SwitchIncludeChannel = op.SwitchIncludeChannel;// from interface

@@ -41,7 +41,7 @@ TMMap *TWorld::NewMap(double value)
     return(_M);
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::ReadMap(QString name)
+TMMap *TWorld::ReadMapMask(QString name)
 {
 
     TMMap *_M = new TMMap();
@@ -77,7 +77,7 @@ TMMap *TWorld::ReadMap(QString name)
 
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::ReadMapMask(cTMap *Mask, QString name)
+TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
     TMMap *_M = new TMMap();
@@ -211,34 +211,34 @@ TMMap *TWorld::InitMaskChannel(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
-//  LDD = ReadMap(getvaluename("ldd"));
-//  InitMask(LDD);
-  LDD = InitMask(getvaluename("ldd"));
-  Grad = ReadMap(getvaluename("grad"));
-  Outlet = ReadMap(getvaluename("outlet"));
-  RainZone = ReadMap(getvaluename("id"));
-  N = ReadMap(getvaluename("manning"));
-  RR = ReadMap(getvaluename("RR"));
-  PlantHeight = ReadMap(getvaluename("CH"));
-  LAI = ReadMap(getvaluename("lai"));
-  Cover = ReadMap(getvaluename("cover"));
 
-  ThetaS1 = ReadMap(getvaluename("ThetaS1"));
-  ThetaI1 = ReadMap(getvaluename("ThetaI1"));
-  Psi1 = ReadMap(getvaluename("Psi1"));
-  Ksat1 = ReadMap(getvaluename("Ksat1"));
-  SoilDepth1 = ReadMap(getvaluename("SoilDep1"));
+  LDD = InitMask(getvaluename("ldd"));
+
+  Grad = ReadMap(LDD,getvaluename("grad"));
+  Outlet = ReadMap(LDD,getvaluename("outlet"));
+  RainZone = ReadMap(LDD,getvaluename("id"));
+  N = ReadMap(LDD,getvaluename("manning"));
+  RR = ReadMap(LDD,getvaluename("RR"));
+  PlantHeight = ReadMap(LDD,getvaluename("CH"));
+  LAI = ReadMap(LDD,getvaluename("lai"));
+  Cover = ReadMap(LDD,getvaluename("cover"));
+
+  ThetaS1 = ReadMap(LDD,getvaluename("ThetaS1"));
+  ThetaI1 = ReadMap(LDD,getvaluename("ThetaI1"));
+  Psi1 = ReadMap(LDD,getvaluename("Psi1"));
+  Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
+  SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
   if (SwitchInfilCrust)
   {
-    CrustFraction = ReadMap(getvaluename("crustfrc"));
-    KsatCrust = ReadMap(getvaluename("ksatcrst"));
+    CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+    KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
   }
   else
     CrustFraction = NewMap(0);
   if (SwitchInfilCompact)
   {
-    CompactFraction = ReadMap(getvaluename("compfrc"));
-    KsatCompact = ReadMap(getvaluename("ksatcomp"));
+    CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+    KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
   }
   else
     CompactFraction = NewMap(0);
@@ -246,8 +246,8 @@ void TWorld::GetInputData(void)
   GrassPresent = NewMap(0);
   if (SwitchInfilGrass)
   {
-      KsatGrass = ReadMap(getvaluename("ksatgras"));
-      GrassWidthDX = ReadMap(getvaluename("grasswidth"));
+      KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
+      GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
       GrassFraction->copy(GrassWidthDX);
       GrassFraction->calcV(_dx, DIV);
       StripN = getvaluedouble("Grassstrip Mannings n");
@@ -265,34 +265,34 @@ void TWorld::GetInputData(void)
 
   if (SwitchTwoLayer)
   {
-      ThetaS2 = ReadMap(getvaluename("ThetaS2"));
-      ThetaI2 = ReadMap(getvaluename("ThetaI2"));
-      Psi2 = ReadMap(getvaluename("Psi2"));
-      Ksat2 = ReadMap(getvaluename("Ksat2"));
-      SoilDepth2 = ReadMap(getvaluename("SoilDep2"));
+      ThetaS2 = ReadMap(LDD,getvaluename("ThetaS2"));
+      ThetaI2 = ReadMap(LDD,getvaluename("ThetaI2"));
+      Psi2 = ReadMap(LDD,getvaluename("Psi2"));
+      Ksat2 = ReadMap(LDD,getvaluename("Ksat2"));
+      SoilDepth2 = ReadMap(LDD,getvaluename("SoilDep2"));
   }
-  StoneFraction  = ReadMap(getvaluename("stonefrc"));
- // WheelWidth  = ReadMap(getvaluename("wheelwidth"));
-  RoadWidthDX  = ReadMap(getvaluename("road"));
+  StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
+ // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
+  RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
 
   if (SwitchErosion)
   {
-    Cohesion = ReadMap(getvaluename("coh"));
-    RootCohesion = ReadMap(getvaluename("cohadd"));
-    AggrStab = ReadMap(getvaluename("AggrStab"));
-    D50 = ReadMap(getvaluename("D50"));
+    Cohesion = ReadMap(LDD,getvaluename("coh"));
+    RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+    AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+    D50 = ReadMap(LDD,getvaluename("D50"));
   }
 
   if (SwitchIncludeChannel)
   {
     LDDChannel = InitMaskChannel(getvaluename("lddchan"));
-    //ReadMapMask(getvaluename("lddchan"));
-    ChannelWidth = ReadMapMask(LDDChannel, getvaluename("chanwidth"));
-    ChannelSide = ReadMapMask(LDDChannel, getvaluename("chanside"));
-    ChannelGrad = ReadMapMask(LDDChannel, getvaluename("changrad"));
+
+    ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
+    ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
+    ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
     ChannelGrad->calcV(0.001, ADD);
-    ChannelN = ReadMapMask(LDDChannel, getvaluename("chanman"));
-    ChannelCohesion = ReadMapMask(LDDChannel, getvaluename("chancoh"));
+    ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
+    ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
 
     ChannelGrad->cover(0);
     ChannelSide->cover(0);
@@ -300,7 +300,7 @@ void TWorld::GetInputData(void)
     ChannelN->cover(0);
   }
 
-  PointMap = ReadMap(getvaluename("outpoint"));
+  PointMap = ReadMap(LDD,getvaluename("outpoint"));
 
 }
 //---------------------------------------------------------------------------
@@ -311,12 +311,17 @@ void TWorld::IntializeData(void)
 
       //totals for mass balance
       Qtot = 0;
+      Qpeak = 0;
       MB = 0;
       InfilTot = 0;
+      InfilTotmm = 0;
       InfilKWTot = 0;
       IntercTot = 0;
+      IntercTotmm = 0;
       WaterVolTot = 0;
+      WaterVolTotmm = 0;
       RainTot = 0;
+      RainTotmm = 0;
       DetTotSplash = 0;
       DetTotFlow = 0;
       DepTot = 0;
@@ -330,6 +335,7 @@ void TWorld::IntializeData(void)
       ChannelDepTot = 0;
 
       tm = NewMap(0); // temp map for aux calculations
+      nrCells = Mask->MapTotal();
 
       //terrain maps
       Grad->calcV(0.001, ADD);
@@ -360,6 +366,9 @@ void TWorld::IntializeData(void)
       Interc = NewMap(0);
 
       // infiltration maps
+      InfilMethod = getvalueint("Infil Method");
+      if (InfilMethod == INFIL_GREENAMPT2)
+    	  SwitchTwoLayer = true;
       InfilVolKinWave = NewMap(0);
       InfilVol = NewMap(0);
       Fcum = NewMap(1e-10);
@@ -377,9 +386,10 @@ void TWorld::IntializeData(void)
       Soilwater = NewMap(0);
       Soilwater->calc2(ThetaI1, SoilDepth1, MUL);
       if (SwitchTwoLayer)
+      {
+          Soilwater2 = NewMap(0);
           Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
-      InfilMethod = getvalueint("Infil Method");
-
+      }
       // runoff maps
       WH = NewMap(0);
       WHrunoff = NewMap(0);
@@ -406,6 +416,12 @@ void TWorld::IntializeData(void)
       ChnCalibration = getvaluedouble("Channel Ksat calibration");
       ChKsatCalibration = getvaluedouble("Channel N calibration");
       SplashDelivery = getvaluedouble("Splash Delivery Ratio");
+
+      N->calcV(nCalibration, MUL);
+      if (SwitchIncludeChannel)
+      {
+          ChannelN->calcV(ChnCalibration, MUL);
+      }
 
       CanopyStorage = NewMap(0); //m
       FOR_ROW_COL_MV

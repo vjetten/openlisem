@@ -33,7 +33,7 @@ void TWorld::InfilMorelSeytoux1(void)
       fact1 = min(fpot->Drc, fwh);
       // actual infil in m, cannot have more infil than water on the surface
 
-      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1->Drc, L2->Drc);
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
 
    }
 }
@@ -60,7 +60,7 @@ void TWorld::InfilSmithParlange1(void)
       fact1 = min(fpot->Drc, fwh);
       // actual infil in m, cannot have more infil than water on the surface
 
-      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1->Drc, L2->Drc);
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
       // adjust fact->Drc for twolayer, impermeable etc
 
       if(SwitchInfilGrass)
@@ -79,9 +79,16 @@ void TWorld::InfilSmithParlange1(void)
 
           fact1 = min(fpotgr->Drc, fwh);
 
-          factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1gr->Drc, L2gr->Drc);
+          factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
       }
    }
+}
+void tryout (REAL4 *v)
+{
+   REAL4 vv;
+   vv = *v;
+   vv += 0.1;
+   *v = vv;
 }
 //---------------------------------------------------------------------------
 void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
@@ -102,9 +109,9 @@ void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
       fact1 = min(fpot->Drc, fwh);
       // actual infil in m, cannot have more infil than water on the surface
 
-      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1->Drc, L2->Drc);
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
       // adjust fact for twolayer, impermeable etc
-
+//tryout(&L1->Drc);
       if(SwitchInfilGrass)
       {
           fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
@@ -117,7 +124,7 @@ void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
 
           fact1 = min(fpotgr->Drc, fwh);
 
-          factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1gr->Drc, L2gr->Drc);
+          factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
       }
    }
 }
@@ -138,7 +145,7 @@ void TWorld::InfilKsat(void)
     fact1 = min(fpot->Drc, fwh);
     // actual infil in m, cannot have more infil than water on the surface
 
-    fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1->Drc, L2->Drc);
+    fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
     // adjust fact for twolayer, impermeable etc
     if(SwitchInfilGrass)
     {
@@ -152,17 +159,19 @@ void TWorld::InfilKsat(void)
 
         fact1 = min(fpotgr->Drc, fwh);
 
-        factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, L1gr->Drc, L2gr->Drc);
+        factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
     }
-
   }
 }
 //---------------------------------------------------------------------------
 // function to increase wetting front and deal with 2nd layer
 // returns actual infiltration
-double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double L1, double L2)
+double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, REAL4 *L2p)
 {
      double dL1, dL2;
+     double L1, L2;
+     L1 = *L1p;
+     L2 = *L2p;
 
      dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
      // increase in depth is infiltration/available porespace
@@ -212,6 +221,9 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double L1, d
        // increase infiltration depth L2  = fact/avail pore space
      }
 
+     *L1p = (REAL4)L1;
+     *L2p = (REAL4)L2;
+
      return fact; //m
 }
 //---------------------------------------------------------------------------
@@ -235,6 +247,10 @@ void TWorld::Infiltration(void)
       // vol before infil
 
       Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
+      // avg ksat with crusting and compaction fraction
+      Ksateff->Drc *= ksatCalibration;
+      // apply runfile/iface calibration factor
+
       if (SwitchInfilCrust)
           Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
       if (SwitchInfilCompact)
@@ -247,8 +263,8 @@ void TWorld::Infiltration(void)
      case INFIL_NONE : fact->fill(0); break;
      case INFIL_SWATRE : break;
      case INFIL_HOLTAN : break;
-     case INFIL_GREENAMPT2 : SwitchTwoLayer = true;
      case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
+     case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
      case INFIL_KSAT : InfilKsat(); break;
      case INFIL_MOREL : InfilMorelSeytoux1(); break;
      case INFIL_SMITH : InfilSmithParlange1(); break;

@@ -28,8 +28,8 @@ Functionality in model.h:
 #define DEBUGv(x) emit debug("debug: "+QString::setNum(x)+"<=");msleep(300)
 #define DEBUG(s) emit debug(s);msleep(300)
 
-#define mwrite(name) WriteMap(QString(resultdir+name))
-#define report(name, step) WriteMapSeries(QString(resultDir+name), step)
+#define mwrite(name) WriteMap(QString(resultDir+name))
+#define report(name, step) WriteMapSeries(resultDir,QString(name), step)
 
 #define Drc     Data[r][c]
 #define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
@@ -136,6 +136,8 @@ public:
     double MB, Qtot, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
     double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot;
+    double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak;
+    double nrCells;
 
     double time, BeginTime, EndTime;
     double _dt, _dx;
@@ -168,8 +170,8 @@ public:
     //void InitMask(cTMap *M);
     TMMap *InitMask(QString name);
     TMMap *InitMaskChannel(QString name);
-    TMMap *ReadMap(QString name);
-    TMMap *ReadMapMask(cTMap *Mask, QString name);
+    TMMap *ReadMapMask(QString name);
+    TMMap *ReadMap(cTMap *Mask, QString name);
     TMMap *NewMap(double value);
     void InitMapList(void);
     void DestroyData(void);
@@ -178,6 +180,7 @@ public:
     QString getvaluename(const char *vname);
     double getvaluedouble(const char *vname);
     int getvalueint(const char *vname);
+    QString CheckDir(QString p, QString p1);
 
     // process functions
     void Rainfall(void);
@@ -188,7 +191,7 @@ public:
     void InfilMorelSeytoux1(void);
     void InfilKsat(void);
     void SoilWater(void);
-    double IncreaseInfiltrationDepth(int r, int c, double fact, double L1, double L2);
+    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, REAL4 *L2p);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void ChannelFlow(void);

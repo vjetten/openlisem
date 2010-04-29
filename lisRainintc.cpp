@@ -18,11 +18,13 @@ Functionality in lisRainintc.cpp:
 void TWorld::GetRainfallData(void)
 {
     QFile fff(rainFileName);
+    QFileInfo fi(rainFileName);
     QString S;
     bool ok;
     int j = 0;
 
-    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
+
+    if (!fi.exists())
     {
         ErrorString = "Rainfall file not found: " + rainFileName;
         throw 1;        
@@ -30,6 +32,8 @@ void TWorld::GetRainfallData(void)
 
     nrstations = 0;
     nrrainfallseries = 0;
+
+    fff.open(QIODevice::ReadOnly | QIODevice::Text);
     S = fff.readLine();
 
     // read the header
@@ -91,7 +95,7 @@ void TWorld::GetRainfallData(void)
     for (int i = 1; i < nrstations+1; i++)
       RainfallSeries[nrrainfallseries-1][i] = 0;
     // end series with 0 value and extreme time
-
+    fff.close();
 }
 //---------------------------------------------------------------------------
 void TWorld::Rainfall(void)
@@ -112,7 +116,9 @@ void TWorld::Rainfall(void)
          int col = (int) RainZone->Drc;
 
          Rain->Drc = RainfallSeries[place][col]/3600000 * _dt * _dx/DX->Drc;
-         //TO DO: weitghted average if dt larger than table dt
+         // Rain in m per timestep
+         //TO DO: weighted average if dt larger than table dt
+         // correction for slope dx/DX
 
          RainCum->Drc += Rain->Drc;
          // cumulative rainfall
@@ -124,7 +130,7 @@ void TWorld::Interception(void)
     FOR_ROW_COL_MV
     {
         double CS = CStor->Drc;
-        // et actual canopy storage in m
+        //actual canopy storage in m
         double rain = Rain->Drc;
         double Smax = CanopyStorage->Drc;
         //max canopy storage in m

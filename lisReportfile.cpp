@@ -19,10 +19,12 @@ void TWorld::ReportTimeseries()
 {
    FILE *fileout;
    int nr = 0;
-   char *ext, base[128], newname[128], SOBEKstr[11];
+   //char *ext, base[128], newname[128];
+   char SOBEKstr[11];
    char sep[4], after[4];
    int hour, min, sec;
    int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
+   QString newname1;
 
    if (SwitchSOBEKOutput && time > 0)
    {
@@ -41,12 +43,14 @@ void TWorld::ReportTimeseries()
    if (SwitchWritePCRtimeplot) strcpy(after,"\n\0");
      else after[0] = '\0';
 
-   base[0]='\0';
-   newname[0]='\0';
+   //base[0]='\0';
+   //newname[0]='\0';
 
-   strcpy(base, outflowFileName.toLatin1());
-   ext = strrchr(outflowFileName.toLatin1(),'.');
-   base[outflowFileName.length()- strlen(ext)]= '\0';
+   QFileInfo fi(outflowFileName);
+
+   //strcpy(base, outflowFileName.toLatin1());
+   //ext = strrchr(outflowFileName.toLatin1(),'.');
+   //base[outflowFileName.length()- strlen(ext)]= '\0';
 
    //SOBEK, PCRaster and flat format are mutually exclusive
    if (time <= BeginTime) //  make file at first timestep
@@ -56,9 +60,11 @@ void TWorld::ReportTimeseries()
         FOR_ROW_COL_MV
          if ( PointMap->Drc > 0 )
          {
-             sprintf(newname,"%s_%d%s",base, (int)PointMap->Drc, ext);
+
+           //  sprintf(newname,"%s_%d.%s",fi.baseName().toLatin1(), (int)PointMap->Drc, fi.suffix().toLatin1());
+             newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
              // make filename using point number
-             fileout = fopen(newname, "w");
+             fileout = fopen(newname1.toLatin1(), "w");
 
              // HEADERS for the 3 types
              if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
@@ -188,8 +194,9 @@ void TWorld::ReportTimeseries()
      FOR_ROW_COL_MV
       if ( PointMap->Drc > 0 )
       {
-        sprintf(newname,"%s_%d%s",base, (int)PointMap->Drc, ext);
-        fileout = fopen(newname, "a");
+        newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+       // sprintf(newname,"%s_%d.%s",base, (int)PointMap->Drc, ext);
+        fileout = fopen(newname1.toLatin1(), "a");
 
         if (!SwitchSOBEKoutput)   //PCRaster timeplot and flat format
         {

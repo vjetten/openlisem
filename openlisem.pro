@@ -30,4 +30,4 @@ SOURCES += lisRunfile.cpp \
 FORMS += ifacebasic.ui
 LIBS += -L"d:\prgc\libcsfs\release" \
     -llibcsfs
-RESOURCES += 
+RESOURCES += resources/openlisem.qrc

@@ -13,16 +13,19 @@ ifacebasic::ifacebasic(QWidget *parent)
       setupUi(this);
       W = NULL;
       // set up interface
-      E_runfilename->setText("D:\\data\\yen bai\\data\\run\\storm_15.run");
-      op.runfilename = E_runfilename->text();
+      GetStorePath();
 
+      //E_runfilename->setText("D:\\data\\yen bai\\data\\run\\storm_15.run");
+      E_runfilename->setText(op.runfilename);
+//      label_28->setText(op.LisemDir);
 }
 //---------------------------------------------------------------------------
 ifacebasic::~ifacebasic()
 {
-
+  StorePath();
 }
 //---------------------------------------------------------------------------
+/*
 void ifacebasic::on_checkChannel_clicked()
 {
 	op.SwitchIncludeChannel = checkChannel->isChecked();
@@ -31,7 +34,7 @@ void ifacebasic::on_checkChannel_clicked()
 void ifacebasic::on_checkErosion_clicked()
 {
 	op.SwitchErosion = checkErosion->isChecked();
-}
+}*/
 //---------------------------------------------------------------------------
 void ifacebasic::on_runButton_clicked()
 {
@@ -56,15 +59,19 @@ void ifacebasic::on_runButton_clicked()
 //---------------------------------------------------------------------------
 void ifacebasic::Showit(const int step)
 {
+// copy the run results from the output structure op to the ui labels
+// op is filled in the model run each timestep
 
 	label->setNum(op.MB);
 	label_2->setNum(op.RainTot);
 	label_3->setNum(op.WaterVolTot);
-	label_4->setNum(op.Qtot);
+	label_4->setNum(op.Qtotmm);
 	label_5->setNum(op.InfilTot);
 	label_6->setNum(op.IntercTot);
-	label_7->setNum(op.InfilKWTot);
+	//label_7->setNum(op.InfilKWTot);
 	//label_8->setNum(step);
+    label_34->setNum(op.Qtot);
+    label_36->setNum(op.Qpeak);
 
 	if (op.SwitchErosion)
 	{
@@ -109,4 +116,53 @@ void ifacebasic::on_toolButton_runfilename_clicked()
   E_runfilename->setText( path );
   op.runfilename = path;
 }
+
 //---------------------------------------------------------------------------
+void ifacebasic::StorePath()
+{
+  QFile fff(op.LisemDir + "openlisem.ini");
+  if (!fff.open(QIODevice::WriteOnly | QIODevice::Text))
+      return;
+
+  QTextStream ts( &fff );
+
+  ts << op.runfilename;// << endl;
+
+  fff.close();
+}
+//---------------------------------------------------------------------------
+void ifacebasic::GetStorePath()
+{
+  QFile fff(op.LisemDir + "openlisem.ini");
+  if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
+      return;
+
+  op.runfilename = fff.readLine();
+
+  fff.close();
+}
+//---------------------------------------------------------------------------
+void ifacebasic::on_toolButton_ShowRunfile_clicked()
+{
+
+        QFile file(op.runfilename);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+                QMessageBox::warning(this, tr("Application"),
+                                                         tr("Cannot read file %1:\n%2.")
+                                                         .arg(op.runfilename)
+                                                         .arg(file.errorString()));
+                return;
+        }
+
+
+        QTextStream in(&file);
+
+        QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
+        view->setWindowTitle(op.runfilename);
+        view->setMinimumWidth(400);
+        view->setMinimumHeight(500);
+        view->setAttribute(Qt::WA_DeleteOnClose);
+        view->show();
+
+        file.close();
+}

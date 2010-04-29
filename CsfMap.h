@@ -31,7 +31,7 @@ public:
     void CreateMap(QString Name);
     void _MakeMap(cTMap *dup, REAL4 value);
     void WriteMap(QString Name);
-    void WriteMapSeries(QString Name, int count);
+    void WriteMapSeries(QString Dir, QString Name, int count);
     bool LoadFromFile();
     void ResetMinMax(void);
 

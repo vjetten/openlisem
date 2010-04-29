@@ -7,7 +7,6 @@
 
 #include "model.h"
 
-#define addslash(_s) (!_s.endsWith("\\")? _s += "\\" : _s)
 
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(const char *vname)
@@ -23,7 +22,12 @@ QString TWorld::getvaluename(const char *vname)
              throw 1;
          }
          else
-             return namelist[i].value;
+         {
+           QFileInfo info(namelist[i].value);
+
+           namelist[i].value = inputDir + info.fileName();
+           return namelist[i].value;
+         }
        }
    ErrorString = "wrong internal map ID "+vvname;
    throw 3;
@@ -90,6 +94,29 @@ void TWorld::GetRunFile()
     }
 }
 //---------------------------------------------------------------------------
+QString TWorld::CheckDir(QString p, QString p1)
+{
+   QFileInfo fi(p);
+//  DEBUG(fi.filePath()+"/");
+   if (fi.exists() && fi.isDir())
+   {
+     QString SS = fi.filePath()+"/";
+      return SS;
+   }
+   else
+   {
+      if (p.isEmpty())
+         ErrorString = p1 + " is empty.";
+      else
+      if (!fi.exists())
+         ErrorString = p1 +": "+p+ " not found!";
+      else
+      if (!fi.isDir())
+         ErrorString = p1 +": "+p+ " is not a directory!";
+      throw 1;
+   }
+}
+//---------------------------------------------------------------------------
 void TWorld::ParseInputData()
 {
     int j=0;
@@ -109,19 +136,6 @@ void TWorld::ParseInputData()
               SwitchGullies = iii == LISEMGULLIES;
           }
 
-          // input ourput dirs and file names
-          if (p1.compare("Map Directory")==0) inputDir=addslash(p);
-          if (p1.compare("Result Directory")==0) resultDir = addslash(p);
-          if (p1.compare("Table Directory")==0) tableDir = addslash(p);
-          if (p1.compare("Main results file")==0) resultFileName = p + resultDir;
-          if (p1.compare("Erosion map")==0) totalErosionFileName =  p + resultDir;
-          if (p1.compare("Deposition map")==0) totalDepositionFileName =  p + resultDir;
-          if (p1.compare("Soilloss map")==0) totalSoillossFileName =  p + resultDir;
-          if (p1.compare("Filename point output")==0) outflowFileName =  p + resultDir;
-          if (p1.compare("Rainfall Directory")==0) rainFileDir = addslash(p);
-          if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
-          if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = addslash(p);
-          if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
 
           //options in the main code, order is not important
           if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
@@ -153,6 +167,27 @@ void TWorld::ParseInputData()
           if (p1.compare("SOBEK date string")==0)              SOBEKdatestring = p;
           SOBEKdatestring.remove(10,100);
           if (p1.compare("Use canopy storage map")==0)   SwitchInterceptionLAI =        iii == 0;
+
+          // input ourput dirs and file names
+          if (p1.compare("Map Directory")==0) inputDir=CheckDir(p, p1);
+          if (p1.compare("Result Directory")==0) resultDir = CheckDir(p, p1);
+       //   if (p1.compare("Table Directory")==0) tableDir = CheckDir(p, p1);
+       // move to swatre later when infiltration method is known!
+          if (p1.compare("Main results file")==0) resultFileName = resultDir + p;
+          if (p1.compare("Filename point output")==0) outflowFileName =  resultDir + p;
+          if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p, p1);
+          if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
+          if (SwitchErosion)
+          {
+            if (p1.compare("Erosion map")==0) totalErosionFileName =  resultDir + p;
+            if (p1.compare("Deposition map")==0) totalDepositionFileName =  resultDir + p;
+            if (p1.compare("Soilloss map")==0) totalSoillossFileName =  resultDir + p;
+          }
+          if (SwitchSnowmelt)
+          {
+            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p, p1);
+            if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
+          }
 
     }
 

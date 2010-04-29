@@ -12,6 +12,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 //    iface = new ifacebasic();
+    QFileInfo info(argv[0]);
+    op.LisemDir = info.path() + "/";
 
     ifacebasic iface;
     iface.show();

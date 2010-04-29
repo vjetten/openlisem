@@ -72,10 +72,12 @@ void cTMap::CreateMap(QString Name)
 bool cTMap::LoadFromFile()
 {
     MAP *m;
-    QFile fff(PathName);
+    //QFile fff(PathName);
+    QFileInfo fi(PathName);
 
-    if (!fff.exists())
+    if (!fi.exists())
       return(false);
+    //fff.close();
 
     // make map structure
     CreateMap(PathName);
@@ -228,31 +230,35 @@ void cTMap::WriteMap(QString Name)
      Mclose(out);
 }
 //---------------------------------------------------------------------------
-void cTMap::WriteMapSeries(QString Name, int count)
+void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
 {
-    QString n = Name + "00000000";
-    QString path = n;
-    QString dig;
-    char dg[10];
+    QString path;
+    QString nam, dig;
 
-    while(!path.endsWith("\\"))
-      path.remove(path.length()-1, 2);
-    n.remove(0,path.length());
-    n.remove(8, n.length()-8);
-    if (count <= 999)
+    nam = Name + "00000000";
+
+//    QFileInfo fi(Name);
+//    nam = fi.baseName();
+    nam.remove(8, 80);
+    dig.setNum(count);
+
+    if (count > 999)
     {
-       sprintf(dg,"%03d",count);
-       dig = dg;
-       n = n + "." + dig;
+       nam.remove(8,1);
+       nam = nam + dig;
+       nam.insert(9,QString("."));
     }
     else
-    {
-       n.remove(n.length()-1,1);
-       sprintf(dg,"%05d",count);
-       dig = dg;
-       n.append(dig.insert(3,QString(".")));
-    }
-    WriteMap(path+n);
+    if (count > 99)
+       nam = nam + "." + dig;
+    else
+    if (count > 9)
+       nam = nam + "." + "0" + dig;
+    else
+       nam = nam + "." + "00" + dig;
+
+    path = Dir + nam;
+    WriteMap(path);
 }
 
 
