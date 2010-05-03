@@ -127,6 +127,8 @@ void TWorld::Rainfall(void)
 //---------------------------------------------------------------------------
 void TWorld::Interception(void)
 {
+// all variables are in m
+
     FOR_ROW_COL_MV
     {
         double CS = CStor->Drc;
@@ -141,6 +143,7 @@ void TWorld::Interception(void)
         else
            CS = 0;
         // 0.9 is canopy openess, is not the same as canopy cover
+        //possible to use equation from Ahston but for very open Eucalypt
 
         drain = max(0, rain - (CS - CStor->Drc));
         // diff between new and old strage is subtracted from rainfall
@@ -150,6 +153,8 @@ void TWorld::Interception(void)
         // put new storage back in map
         Interc->Drc = CS * Cover->Drc * SoilWidthDX->Drc * DX->Drc;
         // only on soil surface, not channels or roads, in m3
+
+        LeafDrain->Drc = Cover->Drc*drain;
 
         RainNet->Drc = Cover->Drc*drain + (1-Cover->Drc)*rain;
         // net rainfall is direct rainfall + drainage

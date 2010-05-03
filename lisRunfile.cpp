@@ -1,9 +1,3 @@
-/*
- * runfile.cpp
- *
- *  Created on: Feb 23, 2010
- *      Author: jetten
- */
 
 #include "model.h"
 
@@ -18,7 +12,7 @@ QString TWorld::getvaluename(const char *vname)
        {
          if (namelist[i].name.trimmed().isEmpty())
          {
-             ErrorString = "Map filename not found for : " + vvname;
+             ErrorString = "Variable not found for : " + vvname;
              throw 1;
          }
          else
@@ -92,6 +86,9 @@ void TWorld::GetRunFile()
             }
         }
     }
+    QString sss;
+    sss.setNum(nrnamelist);
+    DEBUG(sss + " variables read from runfile");
 }
 //---------------------------------------------------------------------------
 QString TWorld::CheckDir(QString p, QString p1)
@@ -100,8 +97,10 @@ QString TWorld::CheckDir(QString p, QString p1)
 //  DEBUG(fi.filePath()+"/");
    if (fi.exists() && fi.isDir())
    {
-     QString SS = fi.filePath()+"/";
-      return SS;
+     QString SS = fi.filePath();
+     if (!SS.endsWith("/"))
+        SS = SS + '/';
+     return SS;
    }
    else
    {
@@ -117,17 +116,29 @@ QString TWorld::CheckDir(QString p, QString p1)
    }
 }
 //---------------------------------------------------------------------------
+QString TWorld::GetName(QString p)
+{
+	QFileInfo fi(p);
+	QStringList ss = fi.filePath().split("/");
+    int n = ss.count();
+    return(ss[n-1]);
+}
+//---------------------------------------------------------------------------
 void TWorld::ParseInputData()
 {
     int j=0;
+    //FILE *fout = fopen("c:\\try.txt","w");
 
+    // do all switches first
     for (j = 0; j < nrnamelist; j++)
     {
          int iii = namelist[j].value.toInt();
          QString p1 = namelist[j].name;
          QString p = namelist[j].value;
 
-          // main lisem types
+         //fprintf(fout,"%s=%s\n",(const char *)p1.toLatin1(),(const char *)p.toLatin1());
+
+         // main lisem types
           if (p1.compare("LISEM Type")==0)
           {
               SwitchWheelAsChannel = iii == LISEMWHEELTRACKS;
@@ -135,7 +146,6 @@ void TWorld::ParseInputData()
               SwitchNutrients = iii == LISEMNUTRIENTS;
               SwitchGullies = iii == LISEMGULLIES;
           }
-
 
           //options in the main code, order is not important
           if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
@@ -168,20 +178,31 @@ void TWorld::ParseInputData()
           SOBEKdatestring.remove(10,100);
           if (p1.compare("Use canopy storage map")==0)   SwitchInterceptionLAI =        iii == 0;
 
+          if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
+    }
+
+    for (j = 0; j < nrnamelist; j++)
+    {
+         QString p1 = namelist[j].name;
+         QString p = namelist[j].value;
+
           // input ourput dirs and file names
           if (p1.compare("Map Directory")==0) inputDir=CheckDir(p, p1);
           if (p1.compare("Result Directory")==0) resultDir = CheckDir(p, p1);
        //   if (p1.compare("Table Directory")==0) tableDir = CheckDir(p, p1);
        // move to swatre later when infiltration method is known!
-          if (p1.compare("Main results file")==0) resultFileName = resultDir + p;
-          if (p1.compare("Filename point output")==0) outflowFileName =  resultDir + p;
+          if (p1.compare("Main results file")==0) resultFileName = p;
+          if (p1.compare("Filename point output")==0) outflowFileName =  p;
+          // resultDir is added in report operation
+
           if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p, p1);
           if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
           if (SwitchErosion)
           {
-            if (p1.compare("Erosion map")==0) totalErosionFileName =  resultDir + p;
-            if (p1.compare("Deposition map")==0) totalDepositionFileName =  resultDir + p;
-            if (p1.compare("Soilloss map")==0) totalSoillossFileName =  resultDir + p;
+            if (p1.compare("Erosion map")==0) totalErosionFileName =  p;
+            if (p1.compare("Deposition map")==0) totalDepositionFileName =  p;
+            if (p1.compare("Soilloss map")==0) totalSoillossFileName =  p;
+          // resultDir is added in report operation
           }
           if (SwitchSnowmelt)
           {
@@ -189,7 +210,19 @@ void TWorld::ParseInputData()
             if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
           }
 
-    }
+          if (p1.compare("OUTRUNOFF")==0)  Outrunoff = GetName(p);
+          if (p1.compare("OUTCONC"  )==0)  Outconc   = GetName(p);
+          if (p1.compare("OUTWH"    )==0)  Outwh     = GetName(p);
+          if (p1.compare("OUTRWH"   )==0)  Outrwh    = GetName(p);
+          if (p1.compare("OUTTC"    )==0)  Outtc     = GetName(p);
+          if (p1.compare("OUTEROS"  )==0)  Outeros   = GetName(p);
+          if (p1.compare("OUTDEPO"  )==0)  Outdepo   = GetName(p);
+          if (p1.compare("OUTVELO"  )==0)  Outvelo   = GetName(p);
+          if (p1.compare("OUTINF"   )==0)  Outinf    = GetName(p);
+          if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
+          if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 
+    }
+    //fclose(fout);
 }
 //------------------------------------------------------------------------------

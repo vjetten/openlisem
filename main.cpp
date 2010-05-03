@@ -15,8 +15,12 @@ int main(int argc, char *argv[])
     QFileInfo info(argv[0]);
     op.LisemDir = info.path() + "/";
 
+       QApplication::setStyle("Cleanlooks");
+   //  QApplication::setStyle("WindowsVista");
+
     ifacebasic iface;
     iface.show();
+
 
     return a.exec();
 }

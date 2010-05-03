@@ -131,19 +131,6 @@ void TWorld::DestroyData(void)
   }
 }
 //---------------------------------------------------------------------------
-/*
-void TWorld::InitMask(cTMap *M)
-{
-    Mask = new TMMap();
-    Mask->_MakeMap(M, 1.0);
-    maplist[maplistnr].m = Mask;
-    maplistnr++;
-    _dx = Mask->MH.cellSizeX*1.0000000;
-    nrRows = Mask->nrRows;
-    nrCols = Mask->nrCols;
-}
-*/
-//---------------------------------------------------------------------------
 TMMap *TWorld::InitMask(QString name)
 {
 
@@ -202,9 +189,6 @@ TMMap *TWorld::InitMaskChannel(QString name)
     maplist[maplistnr].m = MaskChannel;
     maplistnr++;
 
-    //msleep(100);
-    //emit debug(_M->PathName);
-
     return(_M);
 
 }
@@ -214,7 +198,7 @@ void TWorld::GetInputData(void)
 
   LDD = InitMask(getvaluename("ldd"));
 
-  Grad = ReadMap(LDD,getvaluename("grad"));
+  Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
   Outlet = ReadMap(LDD,getvaluename("outlet"));
   RainZone = ReadMap(LDD,getvaluename("id"));
   N = ReadMap(LDD,getvaluename("manning"));
@@ -293,6 +277,8 @@ void TWorld::GetInputData(void)
     ChannelGrad->calcV(0.001, ADD);
     ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
     ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
+    if (SwitchChannelInfil)
+      ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
 
     ChannelGrad->cover(0);
     ChannelSide->cover(0);
@@ -322,6 +308,7 @@ void TWorld::IntializeData(void)
       WaterVolTotmm = 0;
       RainTot = 0;
       RainTotmm = 0;
+      Rainpeak = 0;
       DetTotSplash = 0;
       DetTotFlow = 0;
       DepTot = 0;
@@ -333,17 +320,21 @@ void TWorld::IntializeData(void)
       ChannelVolTot=0;
       ChannelSedTot = 0;
       ChannelDepTot = 0;
+      ChannelDetTot = 0;
 
       tm = NewMap(0); // temp map for aux calculations
       nrCells = Mask->MapTotal();
 
       //terrain maps
-      Grad->calcV(0.001, ADD);
+//      Grad->calcV(0.0001, ADD);
       DX = NewMap(0);
       FOR_ROW_COL_MV
       {
-          DX->Drc = _dx/cos(Grad->Drc);
+    	  Grad->Drc = max(0.0001, Grad->Drc);
+          DX->Drc = _dx/cos(asin(Grad->Drc));
       }
+      CatchmentArea = DX->MapTotal() * _dx;
+
       WheelWidthDX = NewMap(0);
       SoilWidthDX = NewMap(0);
       GullyWidthDX = NewMap(0);
@@ -352,7 +343,7 @@ void TWorld::IntializeData(void)
       FOR_ROW_COL_MV
       {
          double RRmm = 10* RR->Drc;
-         MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*Grad->Drc*100);
+         MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
          MDS->Drc /= 1000; // convert to m
       }
 
@@ -360,6 +351,7 @@ void TWorld::IntializeData(void)
       Rain = NewMap(0);
       RainCum = NewMap(0);
       RainNet = NewMap(0);
+      LeafDrain = NewMap(0);
       RainIntensity = NewMap(0);
       RainM3 = NewMap(0);
       CStor = NewMap(0);
@@ -408,7 +400,8 @@ void TWorld::IntializeData(void)
       R = NewMap(0);
       Perim = NewMap(0);
       WaterVol = NewMap(0);
-      WaterVolRunoff = NewMap(0);
+      WaterVolin = NewMap(0);
+      WaterVolall = NewMap(0);
 
       // calibration
       ksatCalibration = getvaluedouble("Ksat calibration");
@@ -416,19 +409,46 @@ void TWorld::IntializeData(void)
       ChnCalibration = getvaluedouble("Channel Ksat calibration");
       ChKsatCalibration = getvaluedouble("Channel N calibration");
       SplashDelivery = getvaluedouble("Splash Delivery Ratio");
+      StemflowFraction = getvaluedouble("Stemflow fraction");
+
+      QString output = getvaluename("CheckOutputMaps");
 
       N->calcV(nCalibration, MUL);
       if (SwitchIncludeChannel)
       {
           ChannelN->calcV(ChnCalibration, MUL);
+          if (SwitchChannelInfil)
+             ChannelKsat->calcV(ChKsatCalibration, MUL);
+
       }
 
-      CanopyStorage = NewMap(0); //m
-      FOR_ROW_COL_MV
+      if (SwitchInterceptionLAI)
       {
-         CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*pow(LAI->Drc, 2);
-         CanopyStorage->Drc *= 0.001; // to m
+    	  CanopyStorage = NewMap(0); //m
+    	  InterceptionLAIType = getvalueint("Canopy storage equation");
+    	  FOR_ROW_COL_MV
+    	  {
+    		  switch (InterceptionLAIType)
+    		  {
+    		  case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*pow(LAI->Drc, 2);
+    		  case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+    		  case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+    		  case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+    		  case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+    		  case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+    		  case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+    		  case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+    		  }
+    	  }
       }
+      else
+    	  CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+
+
+	  FOR_ROW_COL_MV
+	  {
+     	  CanopyStorage->Drc *= 0.001; // to m
+	  }
 
       // erosion maps
       Qs = NewMap(0);
@@ -454,8 +474,9 @@ void TWorld::IntializeData(void)
            CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
            DG->Drc = pow((D50->Drc+5)/300, 0.25);
            SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
-           CohesionSoil->Drc = (1.0-Cover->Drc)*Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
-  //         CohesionSoil->Drc = Cohesion->Drc + RootCohesion->Drc;
+           //           CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+           // soil cohesion everywhere, plantcohesion only where plants
+           CohesionSoil->Drc = Cohesion->Drc + RootCohesion->Drc;
            Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
         }
       }
@@ -503,6 +524,9 @@ void TWorld::IntializeData(void)
                ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
            }
       }
+      TotalDetMap = NewMap(0);
+      TotalDepMap = NewMap(0);
+      TotalSoillossMap = NewMap(0);
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -581,3 +605,16 @@ void TWorld::IntializeOptions(void)
     SwitchPCRoutput =
     SwitchSoilwater = false;
 }
+//---------------------------------------------------------------------------
+/*
+void TWorld::InitMask(cTMap *M)
+{
+    Mask = new TMMap();
+    Mask->_MakeMap(M, 1.0);
+    maplist[maplistnr].m = Mask;
+    maplistnr++;
+    _dx = Mask->MH.cellSizeX*1.0000000;
+    nrRows = Mask->nrRows;
+    nrCols = Mask->nrCols;
+}
+*/

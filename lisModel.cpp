@@ -34,13 +34,18 @@ TWorld::~TWorld()
 void TWorld::MassBalance(void)
 {
 // WATER in m3
-     double areafac = 1000/(DX->MapTotal()*_dx);
+     double areafac = 1000/CatchmentArea;
      tm->copy(Rain);
-     //RainTotmm += tm->MapTotal() *1000/nrCells; // avg in mm
      tm->calc(DX, MUL);
      tm->calcV(_dx, MUL);
-     RainTot += tm->MapTotal(); // in m3
+     double rainfall = tm->MapTotal(); // in m3
+     RainTot += rainfall; // in m3
      RainTotmm = RainTot*areafac;
+
+     double oldpeak = Rainpeak;
+     Rainpeak = max(Rainpeak, rainfall);
+     if (oldpeak < Rainpeak)
+    	 RainpeakTime = time;
 
      IntercTot = Interc->MapTotal();
      IntercTotmm = IntercTot*areafac;
@@ -59,6 +64,8 @@ void TWorld::MassBalance(void)
      Qtot += Qoutflow->MapTotal();
      // sum all outflow m3 for all timesteps, is already mult by dt
      Qtotmm = Qtot*areafac;
+
+     // NOTE peak time is detected in lisOverlandlfow.cpp
 
 // SEDIMENT in kg
      if (SwitchErosion)
@@ -79,10 +86,11 @@ void TWorld::MassBalance(void)
 
        if (SwitchErosion)
        {
-          DetTot += ChannelDetFlow->MapTotal();
-          DepTot += ChannelDep->MapTotal();
+          ChannelDetTot += ChannelDetFlow->MapTotal();
+          ChannelDepTot += ChannelDep->MapTotal();
+          ChannelSedTot = ChannelSedVol->MapTotal();
+
           SoilLossTot += ChannelQsoutflow->MapTotal();
-          SedVolTot += ChannelSedVol->MapTotal();
        }
      }
 
@@ -91,48 +99,67 @@ void TWorld::MassBalance(void)
        MB = (RainTot - IntercTot - InfilTot - WaterVolTot - Qtot)/RainTot*100;
 
      if (SwitchErosion && DetTot > 0)
-       MBs = (DetTot - SoilLossTot - SedVolTot + DepTot)/DetTot*100;
+       MBs = (DetTot + ChannelDetTot - SoilLossTot - SedVolTot - ChannelSedTot + DepTot + ChannelDepTot)/DetTot*100;
 }
 //---------------------------------------------------------------------------
+// fill output structure to talk to interface
+// op is declared in ifacebasic
 void TWorld::Output()
 {
-        runstep++;
-        // for display and write timeseries maps to disk
+    runstep++;
 
-	op.MB = MB;
+    op.dx = _dx;
+    op.SwitchErosion = SwitchErosion;
+    op.SwitchIncludeChannel = SwitchIncludeChannel;
+    op.MB = MB;
 	op.runstep = runstep;
 	op.maxstep = (int) ((EndTime-BeginTime)/_dt);
+	op.EndTime = EndTime/60.0;
+	op.CatchmentArea = CatchmentArea;
 
-	op.RainTot=RainTotmm;
-	op.WaterVolTot=WaterVolTotmm;
+	op.RainTotmm=RainTotmm;
+	op.WaterVolTotmm=WaterVolTotmm;
 	op.Qtotmm=Qtotmm;
 	op.Qtot=Qtot;
-	op.Qpeak=Qpeak;
-	op.InfilTot=InfilTotmm;
-	op.IntercTot=IntercTotmm;
-	op.InfilKWTot=InfilKWTot;
+	op.Qpeak=Qpeak*1000;
+	op.InfilTotmm=InfilTotmm;
+	op.IntercTotmm=IntercTotmm;
+	op.InfilKWTotmm=InfilKWTot; // infil part in kin wave not used
+	op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
 
 	op.MBs = MBs;
 	op.DetTotSplash=DetTotSplash*0.001;
 	op.DetTotFlow=DetTotFlow*0.001;
-	op.SoilLossTot=SoilLossTot*0.001;
-	op.SedVolTot=SedVolTot*0.001;
 	op.DepTot=DepTot*0.001;
+	op.SedVolTot=SedVolTot*0.001;
+
+	op.ChannelDetTot=ChannelDetTot*0.001;
+	op.ChannelDepTot=ChannelDepTot*0.001;
+	op.ChannelSedTot=ChannelSedTot*0.001;
+
+	op.SoilLossTot=SoilLossTot*0.001;
+
 	op.t = time_ms.elapsed()*0.001/60.0;
 	op.time = time/60;
 	op.maxtime = op.t/runstep * op.maxstep;
 
 	emit show(runstep);
 
-	ReportTimeseries();
+    printstep = runstep;
+    // for display and write timeseries maps to disk
 
-	//fpot->report("fpot",runstep);
-	//fact->report("fact",runstep);
-	//   RainCum->report("rainc", runstep);
-    // Fcum->report("fcum", runstep);
-    // WHstore->report("sstor", runstep);
-    //  Qn->report("Qn", runstep);
-}//---------------------------------------------------------------------------
+	ReportTimeseries();
+	// report hydrographs ande swdigraophs at all points in outpoint.map
+
+	ReportTotals();
+    // report totals to a text file
+
+	ReportMaps();
+	// report all maps and mapseries
+
+}
+//---------------------------------------------------------------------------
+// the actual model with the main loop
 void TWorld::DoModel()
 {
   time_ms.start();
@@ -140,36 +167,35 @@ void TWorld::DoModel()
 
   try
   {
-     emit debug("reading data");
+     emit debug("reading and initializing data");
 
-     IntializeOptions(); // all switches to false, clear names
+     IntializeOptions();
+     // set all to 0 and false
      GetRunFile();
-     QString sss;
-     sss.setNum(nrnamelist);
-     DEBUG(sss+ " variables read from runfile");
      ParseInputData();
-
-    // SwitchIncludeChannel = op.SwitchIncludeChannel;// from interface
-    // SwitchErosion = op.SwitchErosion;
-
+     // get and parse runfile
      InitMapList();
      GetInputData();
      IntializeData();
      GetRainfallData();
-     BeginTime = getvaluedouble("Begin time") * 60; //read min and convert to sec
+     // get all input data and create and initialize all maps and variables
+
+     BeginTime = getvaluedouble("Begin time") * 60;
      EndTime = getvaluedouble("End time") * 60;
      _dt = getvaluedouble("Timestep");
+     //time vraiables in sec
 
-     emit debug("running");
-
+    // emit debug("running");
+    // DEBUG(totalErosionFileName);
      runstep = 0;
      for (time = BeginTime; time < EndTime; time += _dt)
      {
        mutex.lock();
        if(stopRequested) break;
        mutex.unlock();
+       // check if user wants to quit
 
-       GridCell();
+       GridCell();          // set channel widths, flowwidths road widths etc
        Rainfall();
        Interception();
        Infiltration();
@@ -184,12 +210,12 @@ void TWorld::DoModel()
        Output();
     }
 
-    DestroyData();
+    DestroyData();  // destroy all maps automatically
 
     emit done("finished");
 
   }
-  catch(int i)
+  catch(int i)  // if an error occurred
   {
     DestroyData();
     emit done("ERROR STOP: "+ErrorString);
@@ -208,3 +234,4 @@ void TWorld::stop()
     QMutexLocker locker(&mutex);
     stopRequested = true;
 }
+//---------------------------------------------------------------------------

@@ -17,15 +17,17 @@ double TWorld::MaxChannelConcentration(int r, int c)
 //---------------------------------------------------------------------------
 double TWorld::MaxConcentration(int r, int c)
 {
-     double conc = (WaterVol->Drc > 0 ? SedVol->Drc/WaterVol->Drc: 0);
-      if (conc > MAXCONC)
-      {
-         double sedvolnew = MAXCONC*WaterVol->Drc;
-         DEP->Drc += sedvolnew-SedVol->Drc;
+     // VJ 100502 changed to watervolall
+     double conc = (WaterVolall->Drc > 0 ? SedVol->Drc/WaterVolall->Drc : 1000);
+//     double conc = (WaterVol->Drc > 0 ? SedVol->Drc/WaterVol->Drc : 1000);
+     if (conc > MAXCONC)
+     {
+         double sedvolnew = MAXCONC*WaterVolall->Drc; //!!
+         DEP->Drc += min(0, sedvolnew-SedVol->Drc);
          SedVol->Drc = sedvolnew;
          conc = MAXCONC;
-      }
-      return(conc);
+     }
+     return(conc);
 }
 //---------------------------------------------------------------------------
 void TWorld::SplashDetachment(void)
@@ -35,24 +37,34 @@ void TWorld::SplashDetachment(void)
 
    FOR_ROW_COL_MV
    {
-       double Int = Rain->Drc * 3600000/_dt * DX->Drc/_dx;
-       // intensity in mm/h
-       double KErain = 28.3*(1-(0.52*exp(-0.042*Int)));
-       // kin energy in J/m2/mm
-       double directrain = (1-Cover->Drc)*RainNet->Drc;
-       double KE_DT = KErain;// * directrain;
-       // kin energy direct throughfall, in J/m2
-       double KEdrain = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
-       // kin energy in J/m2/mm
-       double throughfall = Cover->Drc*RainNet->Drc;
-       double KE_LD = KEdrain;// * throughfall;
-       // kin energy leaf drainage, in J/m2
-       double WH0 = exp(-1.48*WH->Drc);
-       // water buffer effect on surface
-       // ponded area fraction
-      // double CohesionSoil = (1-Cover->Drc)*Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
-       // total soil cohesion
        double b, strength, DetDT1, DetDT2, DetLD1, DetLD2;
+       double g_to_kg = 0.001;
+
+	   double Int = Rain->Drc * 3600/_dt * DX->Drc/_dx * 1000;
+       // intensity in mm/h, uncorrect for slope, Rain is in m corrected for slope
+
+       double KE_DT = 28.3*(1-(0.52*exp(-0.042*Int)));
+       // kin energy in J/m2/mm, Van DIjk general equation 2002
+
+      // TO DO: allow many different equations here, interface choice
+      /* equation in LISEM, based on Eurosem, Morgan 1998
+       if (Int > 1)
+           KE_DT = 8.95+8.44*log10(Int);
+       else
+    	   KE_DT = 0;
+      */
+
+       double directrain = (1-Cover->Drc)*Rain->Drc * 1000;
+       // rainfall between plants in mm
+
+       double KE_LD = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
+       // kin energy in J/m2/mm
+       double throughfall = LeafDrain->Drc * (1-StemflowFraction) * 1000;
+       // leaf drip in mm is already calculated with plant covern in interception function
+
+       double WH0 = exp(-1.48*WH->Drc*1000);
+       // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
+
 
        if (AggrStab > 0)
        {
@@ -63,18 +75,21 @@ void TWorld::SplashDetachment(void)
           strength = 0.1033/CohesionSoil->Drc; b = 3.58;
        }
 
-       DetDT1 = fpa->Drc*(strength*KE_DT*WH0+b) * directrain;
-       //ponded areas between plants, kg/m2/mm * mm = kg/m2
-       DetDT2 = (1-fpa->Drc)*(strength*KE_DT+b) * directrain * SplashDelivery;
-       //dry areas between plants, kg/m2/mm * mm = kg/m2
+       // Between plants, directrain is already with 1-cover
+       DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * directrain;
+       //ponded areas, kg/m2/mm * mm = kg/m2
+       DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * directrain * SplashDelivery;
+       //dry areas, kg/m2/mm * mm = kg/m2
 
-       DetLD1 = fpa->Drc*(strength*KE_LD*WH0+b) * throughfall;
-       //ponded areas under plants, kg/m2/mm * mm = kg/m2
-       DetLD2 = (1-fpa->Drc)*(strength*KE_LD+b) * throughfall * SplashDelivery;
-       //dry areas under plants, kg/m2/mm * mm = kg/m2
+       // Under plants, throughfall is already with cover
+       DetLD1 = g_to_kg * fpa->Drc*(strength*KE_LD*WH0+b) * throughfall;
+       //ponded areas, kg/m2/mm * mm = kg/m2
+       DetLD2 = g_to_kg * (1-fpa->Drc)*(strength*KE_LD+b) * throughfall * SplashDelivery;
+       //dry areas, kg/m2/mm * mm = kg/m2
 
-       DETSplash->Drc = Cover->Drc*(DetLD1 + DetLD2) + (1-Cover->Drc)*(DetDT1 + DetDT2);
-       // kg/m2
+       DETSplash->Drc = DetLD1 + DetLD2 + DetDT1 + DetDT2;
+       // Total splash kg/m2
+
        DETSplash->Drc *= (SoilWidthDX->Drc*DX->Drc);
        // kg/cell, only splash over soilwidth, not roads and channels
 
@@ -95,46 +110,76 @@ void TWorld::FlowDetachment(void)
 
    FOR_ROW_COL_MV
    {
+	  //### Calc transport capacity
+
       double omega = 100*V->Drc*Grad->Drc;
+      // V in cm/s in this formula assuming grad is SINE
       double omegacrit = 0.4;
-
-      DEP->Drc = 0;
-      // init deposition for this timestep
-
+      // critical unit streampower in cm/s
       TC->Drc = min(MAXCONC, 2650 * CG->Drc * pow(max(0, omega - omegacrit), DG->Drc));
       // not more than 2650*0.32 = 848 kg/m3
 
-      if (WH->Drc < 0.00001)
+	  //### Add splash to sediment
+      DEP->Drc = 0;
+      // init deposition for this timestep
+
+      SedVol->Drc += DETSplash->Drc;
+      // add splash to sed volume
+      /*
+      if (WH->Drc <= MIN_HEIGHT)  //or TC == 0 ?????
       {
-         DETSplash->Drc = 0;
-         DETFlow->Drc = 0;
+         //DETSplash->Drc = 0;
+         //DETFlow->Drc = 0;
          DEP->Drc = -SedVol->Drc;
          SedVol->Drc = 0;
-         continue;
+         //continue;
       }
-      SedVol->Drc += DETSplash->Drc;
-       // no streampower no detachment
-       // add splash to sed volume
+      */
+      // no water height, then all splash is deposited
 
+	  //### calc concentration and net transport capacity
       Conc->Drc = MaxConcentration(r, c);
-
-      double TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+      // sed concentration
       double maxTC = max(TC->Drc - Conc->Drc,0);
       double minTC = min(TC->Drc - Conc->Drc,0);
+      // unit kg/m3
+
+	  //### detachment
+      double TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+      // detachment can only come from soil, not roads (so do not use flowwidth)
+      // units s * m/s * m * m = m3
 
       DETFlow->Drc = Y->Drc * maxTC * TransportFactor;
-      // unit = m/s * m*m = m3/s,  detachment in kg/s : kg/m3 * m3/s
+      // unit = kg/m3 * m3 = kg
       DETFlow->Drc = min(DETFlow->Drc, maxTC * WaterVol->Drc);
       // cannot have more detachment than remaining capacity in flow
 
       if (GrassPresent->Drc > 0)
-        DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
+         DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
       // no flow detachment on grass strips
+	  //### deposition
+
+      if (WH->Drc > MIN_HEIGHT)
+         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/WH->Drc)) * WaterVol->Drc;
+      else
+         TransportFactor = WaterVol->Drc;
+
+      TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
+      //DEBUGv(TransportFactor);
+      // deposition can occur on roads and on soil (so use flowwidth)
 
       double deposition = minTC * TransportFactor;
-      // max deposition in kg/s  < 0
-      deposition = max(deposition, minTC * WaterVol->Drc);
+      // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+      //deposition = max(deposition, minTC * WaterVol->Drc);
       // cannot be more than sediment above capacity
+      deposition = max(deposition, -SedVol->Drc);
+      // cannot have more depo than sediment present
+
+      if (GrassPresent->Drc > 0)
+    	  deposition = -SedVol->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+      // generate deposition on grassstrips
+
+	  //### sediment balance
 
       double sedvolume = SedVol->Drc + DETFlow->Drc + deposition;
       // temp sed balance
@@ -145,10 +190,6 @@ void TWorld::FlowDetachment(void)
       }
       else //Sed volume exists, increase SedVol with flow det
          SedVol->Drc += DETFlow->Drc;
-
-      if (GrassPresent->Drc > 0)
-        DEP->Drc = -SedVol->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*DEP->Drc;
-        // total deposition on grassstrips
 
       Conc->Drc = MaxConcentration(r, c);
    }
@@ -170,7 +211,7 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSedVol->Drc += SedToChannel->Drc;
       // add sed flow into channel from slope
      
-      if (ChannelWH->Drc < 0.00001)
+      if (ChannelWH->Drc < MIN_HEIGHT)
       {
          ChannelDep->Drc -= ChannelSedVol->Drc;
          ChannelSedVol->Drc = 0;
@@ -182,19 +223,21 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelConc->Drc = MaxChannelConcentration(r, c);
 
       double TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * ChannelWidth->Drc;
+      // units s * m/s * m * m = m3
       double maxTC = max(ChannelTC->Drc - ChannelConc->Drc,0);
       double minTC = min(ChannelTC->Drc - ChannelConc->Drc,0);
+      // unit kg/m3
 
       ChannelDetFlow->Drc = ChannelY->Drc * maxTC * TransportFactor;
-      // unit = m/s * m*m = m3/s,  detachment in kg/s : kg/m3 * m3/s
+      // unit kg/m3 * m3 = kg
       ChannelDetFlow->Drc = min(ChannelDetFlow->Drc, maxTC * ChannelWaterVol->Drc);
 //or:? ChannelDetFlow->Drc = ChannelY->Drc * maxTC * Q->Drc*_dt;
       // cannot have more detachment than remaining capacity in flow
 
       double deposition = minTC * TransportFactor;
       // max deposition in kg/s  < 0
-      deposition = max(deposition, minTC * ChannelWaterVol->Drc);
-  //or:?    deposition = max(deposition, -ChannelSedVol->Drc);
+ //or:?     deposition = max(deposition, minTC * ChannelWaterVol->Drc);
+      deposition = max(deposition, -ChannelSedVol->Drc);
       // cannot be more than sediment above capacity
 
       double sedvolume = ChannelSedVol->Drc + ChannelDetFlow->Drc + deposition;

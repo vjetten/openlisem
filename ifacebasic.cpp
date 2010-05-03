@@ -61,30 +61,38 @@ void ifacebasic::Showit(const int step)
 {
 // copy the run results from the output structure op to the ui labels
 // op is filled in the model run each timestep
+	label_dx->setText(QString::number(op.dx,'f',3));
+	label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
+	label_time->setText(QString::number(op.time,'f',3));
+    label_endtime->setText(QString::number(op.EndTime,'f',3));
+	label_runtime->setText(QString::number(op.t,'f',3));
+    label_endruntime->setText(QString::number(op.maxtime,'f',3));
 
-	label->setNum(op.MB);
-	label_2->setNum(op.RainTot);
-	label_3->setNum(op.WaterVolTot);
-	label_4->setNum(op.Qtotmm);
-	label_5->setNum(op.InfilTot);
-	label_6->setNum(op.IntercTot);
-	//label_7->setNum(op.InfilKWTot);
-	//label_8->setNum(step);
-    label_34->setNum(op.Qtot);
-    label_36->setNum(op.Qpeak);
+	label_MB->setText(QString::number(op.MB,'e',3));
+	label_raintot->setText(QString::number(op.RainTotmm,'f',3));
+	label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',3));
+	label_qtot->setText(QString::number(op.Qtotmm,'f',3));
+	label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
+	label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
+    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
+    label_qpeak->setText(QString::number(op.Qpeak,'f',3));
 
 	if (op.SwitchErosion)
 	{
-          label_13->setNum(op.MBs);
-          label_18->setNum(op.DetTotSplash);
-          label_20->setNum(op.DetTotFlow);
-          label_22->setNum(op.SoilLossTot);
-          label_24->setNum(op.SedVolTot);
-          label_26->setNum(op.DepTot);
+          label_MBs->setText(QString::number(op.MBs,'e',3));
+          label_splashdet->setText(QString::number(op.DetTotSplash,'f',3));
+          label_flowdet->setText(QString::number(op.DetTotFlow,'f',3));
+          label_sedvol->setText(QString::number(op.SedVolTot,'f',3));
+          label_dep->setText(QString::number(op.DepTot,'f',3));
+
+          label_detch->setText(QString::number(op.ChannelDetTot,'f',3));
+          label_depch->setText(QString::number(op.ChannelDepTot,'f',3));
+          label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',3));
+
+          label_soilloss->setText(QString::number(op.SoilLossTot,'f',3));
+          label_soillosskgha->setText(QString::number(op.SoilLossTot/op.CatchmentArea*10000*1000,'f',3));
 	}
-	label_9->setNum(op.t);
-	label_8->setNum(op.time);
-        label_32->setNum(op.maxtime);
+
 	progressBar->setMaximum(op.maxstep);
 	progressBar->setValue(step);
 }

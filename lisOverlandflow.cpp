@@ -49,9 +49,9 @@ void TWorld::OverlandFlow(void)
    FOR_ROW_COL_MV
    {
        /*---- Water ----*/
-
-       WaterVolRunoff->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
-       // total water volume in m3 before kin wave, runoff may be adjusted in tochannel
+       // recalculate after subtractions in "to channel"
+       WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
+       // WaterVolin total water volume in m3 before kin wave, runoff may be adjusted in tochannel
        q->Drc = FSurplus->Drc*_dx/_dt;
        // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
        Qoutflow->Drc = 0;
@@ -83,9 +83,16 @@ void TWorld::OverlandFlow(void)
    {
      if (LDD->Drc == 5) // if outflow point, pit
      {
-        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolRunoff, SedVol);
+    	 //TO DO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
+        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol);
+
         Qoutflow->Drc = Qn->Drc * _dt;
-        Qpeak = max(Qpeak,Qn->Drc);
+
+        double oldpeak = Qpeak;
+        Qpeak = max(Qpeak, Qn->Drc);
+        if (oldpeak < Qpeak)
+           QpeakTime = time;
+
         // sum all outflow m3 for this timestep
         if (SwitchErosion)
            Qsoutflow->Drc = Qsn->Drc * _dt;
@@ -107,7 +114,7 @@ void TWorld::OverlandFlow(void)
       WaterVol->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
       // water volume after kin wave
 
-      InfilVolKinWave->Drc = q->Drc*_dt + WaterVolRunoff->Drc - WaterVol->Drc - Qn->Drc*_dt;
+      InfilVolKinWave->Drc = q->Drc*_dt + WaterVolin->Drc - WaterVol->Drc - Qn->Drc*_dt;
       //infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
       if (SwitchErosion)

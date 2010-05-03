@@ -203,7 +203,7 @@ TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_
               }
         } /* eof all incoming cells */
 
-	temp=list;
+        temp=list;
     	list=list->prev;
         free(temp);
 
@@ -226,10 +226,10 @@ TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_
 
       if (SwitchErosion)
       {
-        _Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr),Sin+_SedVol->D(rowNr,colNr)/_dt);
-      // no more sediment outflow than total sed in cell
+        _Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr), Sin+_SedVol->D(rowNr,colNr)/_dt);
+        // no more sediment outflow than total sed in cell
         _SedVol->D(rowNr,colNr) = max(0, Sin*_dt + _SedVol->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
-      // new sed volume based on all fluxes and org sed present
+        // new sed volume based on all fluxes and org sed present
       }
 
 		/* cell rowNr, colNr is now done */

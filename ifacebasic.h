@@ -11,12 +11,14 @@
 struct output{
     int runstep;
     int maxstep;
-    double t;
-    double time, maxtime;
+    double CatchmentArea, dx, t,
+      time, maxtime, EndTime;
 
-    double MB, Qtot, Qtotmm, Qpeak, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
-    double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot;
-    double ChannelVolTot, ChannelSedTot, ChannelDepTot;
+    double MB, Qtot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,
+      RainTotmm, SurfStorTotmm, InfilKWTotmm,
+      MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot,
+      ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
+      RunoffFraction, RainpeakTime, QpeakTime;
 
     bool SwitchErosion;
     bool SwitchIncludeChannel;

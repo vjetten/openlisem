@@ -234,28 +234,34 @@ void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
 {
     QString path;
     QString nam, dig;
+    QFileInfo fi(Name);
 
-    nam = Name + "00000000";
-
-//    QFileInfo fi(Name);
-//    nam = fi.baseName();
-    nam.remove(8, 80);
-    dig.setNum(count);
-
-    if (count > 999)
+    if (Name.indexOf(".") < 0)
     {
-       nam.remove(8,1);
-       nam = nam + dig;
-       nam.insert(9,QString("."));
+
+    	nam = Name + "00000000";
+
+    	//    nam = fi.baseName();
+    	nam.remove(8, 80);
+    	dig.setNum(count);
+
+    	if (count > 999)
+    	{
+    		nam.remove(8,1);
+    		nam = nam + dig;
+    		nam.insert(9,QString("."));
+    	}
+    	else
+    		if (count > 99)
+    			nam = nam + "." + dig;
+    		else
+    			if (count > 9)
+    				nam = nam + "." + "0" + dig;
+    			else
+    				nam = nam + "." + "00" + dig;
     }
     else
-    if (count > 99)
-       nam = nam + "." + dig;
-    else
-    if (count > 9)
-       nam = nam + "." + "0" + dig;
-    else
-       nam = nam + "." + "00" + dig;
+       nam = Name;
 
     path = Dir + nam;
     WriteMap(path);

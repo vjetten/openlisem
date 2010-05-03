@@ -83,13 +83,6 @@ void TWorld::InfilSmithParlange1(void)
       }
    }
 }
-void tryout (REAL4 *v)
-{
-   REAL4 vv;
-   vv = *v;
-   vv += 0.1;
-   *v = vv;
-}
 //---------------------------------------------------------------------------
 void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
 {
@@ -111,7 +104,7 @@ void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
 
       fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
       // adjust fact for twolayer, impermeable etc
-//tryout(&L1->Drc);
+
       if(SwitchInfilGrass)
       {
           fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
