@@ -16,4 +16,5 @@ INPUT(
 ./debug\ifacebasic.o
 ./debug\moc_model.o
 ./debug\moc_ifacebasic.o
+./debug\qrc_openlisem.o
 );

@@ -16,4 +16,5 @@ INPUT(
 ./release\ifacebasic.o
 ./release\moc_model.o
 ./release\moc_ifacebasic.o
+./release\qrc_openlisem.o
 );

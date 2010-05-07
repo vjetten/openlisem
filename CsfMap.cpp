@@ -38,8 +38,10 @@ void cTMap::KillMap()
 //---------------------------------------------------------------------------
 void cTMap::GetMapHeader(QString Name)
 {
-   MAP *m = Mopen(Name.toLatin1(), M_READ);
+   //MAP *m = Mopen(Name.toLatin1(), M_READ);
+   MAP *m = Mopen(Name.toAscii().constData(), M_READ);
    MH = m->raster;
+   projection = m->main.projection;
 
    // easier to separate these
    nrRows = (int)MH.nrRows;
@@ -57,15 +59,16 @@ void cTMap::CreateMap(QString Name)
      // now get the header for nrrows and nrcols
      GetMapHeader(Name);
 
-//     if (MH.cellRepr == CR_REAL4)
-//     {
-        Data = new REAL4*[nrRows];
-        for(int r=0; r < nrRows; r++)
-           Data[r] = new REAL4[nrCols];
-//     }
+      Data = new REAL4*[nrRows];
+      for(int r=0; r < nrRows; r++)
+         Data[r] = new REAL4[nrCols];
 
      if (Data == NULL)
-        return;
+     {
+    	 ErrorString = "Cannot create data structure for map: " + Name;
+    	 throw 1;
+     }
+
      Created = true;
 }
 //---------------------------------------------------------------------------
@@ -87,9 +90,12 @@ bool cTMap::LoadFromFile()
 
     MapName = PathName;
 
-    m = Mopen(MapName.toLatin1(), M_READ);
+//    m = Mopen(MapName.toLatin1(), M_READ);
+    m = Mopen(MapName.toAscii().constData(), M_READ);
+
     if (!m)
        return(false);
+
     RuseAs(m, CR_REAL4); //RgetCellRepr(m));//CR_REAL4);
     for(int r=0; r < nrRows; r++)
        RgetSomeCells(m, (UINT4)r*nrCols, (UINT4)nrCols, Data[r]);
@@ -115,10 +121,11 @@ void cTMap::_MakeMap(cTMap *dup, REAL4 value)
      MH.valueScale = dup->MH.valueScale;
      MH.cellRepr = dup->MH.cellRepr;
      MH.xUL = dup->MH.xUL;
-	  MH.yUL = dup->MH.yUL;
+	 MH.yUL = dup->MH.yUL;
      MH.cellSizeX  = dup->MH.cellSizeX;
      MH.cellSizeY  = dup->MH.cellSizeX;
      MH.angle = dup->MH.angle;
+     projection = dup->projection;
 
      Data = new REAL4*[nrRows];
      for(int r=0; r < nrRows; r++)
@@ -162,73 +169,62 @@ void cTMap::ResetMinMax(void)
 void cTMap::WriteMap(QString Name)
 {
     MAP *out;
-    int r;//, c;
-    REAL4 *buf;
-    REAL8 *buf8;
-    UINT1 *bufi1;
-    INT4  *bufi4;
+    long r;
+    REAL4 *mapData;
+    QFile ftry(Name);
+    if (ftry.exists())
+    	ftry.remove();
 
     if (!Created)
-      {
         return;
-      }
+
     MH.cellRepr = CR_REAL4; 
     if (MH.cellRepr == CR_REAL4)    
-    ResetMinMax();
+       ResetMinMax();
 
-   out = Rcreate(Name.toLatin1(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
-                 PT_YINCT2B, MH.xUL, MH.yUL, MH.angle, MH.cellSizeX);
-    RputAllMV(out);
+    out = Rcreate(Name.toAscii().constData(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
+                  (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSizeX);
+    (void)RuseAs(out, CR_REAL4);
 
-    if (out == NULL)
+    mapData = (REAL4 *) Rmalloc(out, nrCols);
+    for(r=0; r < nrRows; r++)
     {
-      ErrorString = "Cannot write file: " + Name;
-      throw 4;
+       memcpy(mapData, Data[r], sizeof(REAL4)*nrCols);
+       if (RputRow(out, r, mapData) != nrCols)
+       {
+    	   ErrorString = "rputrow write error";
+    	   throw 1;
+       }
     }
-    //return;
 
-    switch (MH.cellRepr)
-    {
-      case CR_REAL4 :
-        buf = (REAL4 *)Rmalloc(out, nrCols);
-        for(r=0; r < nrRows; r++)
-        {
-           memcpy(buf, Data[r], sizeof(REAL4)*nrCols);
-           RputRow(out, r, buf);
-        }
-        free(buf);
-        break;
-      case CR_REAL8 :
-        buf8 = (REAL8 *)Rmalloc(out, nrCols);
-        for(r=0; r < nrRows; r++)
-        {
-           memcpy(buf8, Data[r], sizeof(REAL8)*nrCols);
-           RputRow(out, r, buf8);
-        }
-        free(buf8);
-        break;
-      case CR_INT4 :
-        bufi4 = (INT4 *)Rmalloc(out, nrCols);
-        for(r=0; r < nrRows; r++)
-        {
-           memcpy(bufi4, Data[r], sizeof(INT4)*nrCols);
-           RputRow(out, r, bufi4);
-        }
-        free(bufi4);
-        break;
-      case CR_UINT1 :
-        bufi1 = (UINT1 *)Rmalloc(out, nrCols);
-        for(r=0; r < nrRows; r++)
-        {
-           memcpy(bufi1, Data[r], sizeof(UINT1)*nrCols);
-           RputRow(out, r, bufi1);
-        }
-        free(bufi1);
-        break;
-      }
+    Mclose(out);
+    free(mapData);
 
-     Mclose(out);
 }
+/*
+void cTMap::WriteMap(QString basename, QString Name)
+{
+	MAP *m, *out;
+	REAL4 *mapData;
+
+	m = Mopen(basename.toAscii().constData(),M_READ);
+	if (m == NULL)
+		throw 1;
+	(void)RuseAs(m, CR_REAL4);
+	out = Rcreate(Name.toAscii().constData(),RgetNrRows(m), RgetNrCols(m), CR_REAL4, VS_SCALAR,
+			MgetProjection(m), RgetX0(m), RgetY0(m), RgetAngle(m), RgetCellSize(m));
+
+	(void)RuseAs(out, CR_REAL4);
+	for(UINT4 r=0; r < RgetNrRows(m); r++)
+	{
+			if (RputRow(out, r, Data[r]) != RgetNrCols(m))
+			throw 1;
+	}
+
+	Mclose(out);
+	Mclose(m);
+}
+*/
 //---------------------------------------------------------------------------
 void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
 {

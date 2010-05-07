@@ -176,7 +176,7 @@ void TWorld::ParseInputData()
           if (p1.compare("Report point output for SOBEK")==0)  SwitchSOBEKOutput =      iii == 1;
           if (p1.compare("SOBEK date string")==0)              SOBEKdatestring = p;
           SOBEKdatestring.remove(10,100);
-          if (p1.compare("Use canopy storage map")==0)   SwitchInterceptionLAI =        iii == 0;
+          if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =        iii == 0;
 
           if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
     }

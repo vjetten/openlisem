@@ -27,10 +27,10 @@ Functionality in model.h:
 
 #define DEBUGv(x) {QString sss; sss.setNum(x);emit debug("debug: " + sss);}
 //msleep(300)
-#define DEBUG(s) emit debug("debug: "+s);msleep(10)
+#define DEBUG(s) emit debug(QString("debug: "+s));msleep(10)
 
 #define mwrite(name) WriteMap(QString(resultDir+name))
-#define report(name) WriteMapSeries(resultDir,QString(name), printstep)
+#define report(name) WriteMapSeries(resultDir,QString(name), printstep+1)
 
 #define Drc     Data[r][c]
 #define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
@@ -100,7 +100,7 @@ public:
      TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
       *Rain, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
       *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVol, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
-      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qs, *Qsn, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
+      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
       *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50, *DETSplash, *DETFlow,
@@ -177,6 +177,7 @@ public:
     QString temprunname;
     QStringList outputcheck;
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
+    QString baseNameMap;
 
     // data initialization, runfile reading and parsing
     _nameList namelist[NUMNAMES]; // structire for runfile variables and names
@@ -226,9 +227,11 @@ public:
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);
     void MassBalance(void);
     void Output(void);
-    void ReportTimeseries();
+    //void ReportTimeseries();
+    void ReportTimeseriesNew();
     void ReportTotals();
     void ReportMaps();
+    void ReportTotalsNew();
 
     // thread management variables
     bool stopRequested;
@@ -243,7 +246,7 @@ protected:
 signals:
     void done(const QString &results);
     void debug(const QString &results);
-    void show(const int i);
+    void show();
 
 private slots:
     void DoModel();

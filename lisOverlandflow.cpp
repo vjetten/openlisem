@@ -111,6 +111,9 @@ void TWorld::OverlandFlow(void)
       WH->Drc = WHstore->Drc + WHoutavg;
       // add new average waterlevel (A/dx) to stored water
 
+      //V->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
+      // recalc velocity for output to map ????
+
       WaterVol->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
       // water volume after kin wave
 
@@ -118,8 +121,14 @@ void TWorld::OverlandFlow(void)
       //infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
       if (SwitchErosion)
+      {
          Conc->Drc = MaxConcentration(r, c);
-      // correct for very high concentrations, 850 after Govers et al
+         // correct for very high concentrations, 850 after Govers et al
+
+       //  SedVol->Drc = Conc->Drc * WaterVol->Drc;
+
+         // recalc sediment volume
+      }
    }
 }
 //---------------------------------------------------------------------------

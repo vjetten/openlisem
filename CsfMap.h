@@ -19,6 +19,7 @@ protected:
 
 public:
     CSF_RASTER_HEADER MH;
+    UINT2 projection;
     REAL4 **Data;
 
     QString MapName;

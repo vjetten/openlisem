@@ -15,7 +15,6 @@ ifacebasic::ifacebasic(QWidget *parent)
       // set up interface
       GetStorePath();
 
-      //E_runfilename->setText("D:\\data\\yen bai\\data\\run\\storm_15.run");
       E_runfilename->setText(op.runfilename);
 //      label_28->setText(op.LisemDir);
 }
@@ -45,7 +44,7 @@ void ifacebasic::on_runButton_clicked()
     W = new TWorld();
     label_28->setText("debug");
 
-     connect(W, SIGNAL(show(int)),this, SLOT(Showit(int)),Qt::QueuedConnection);
+     connect(W, SIGNAL(show(void)),this, SLOT(Showit(void)),Qt::QueuedConnection);
      connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
      connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
      // connect emitted signals from the model to the interface routines that handle them
@@ -57,7 +56,7 @@ void ifacebasic::on_runButton_clicked()
   }
 }
 //---------------------------------------------------------------------------
-void ifacebasic::Showit(const int step)
+void ifacebasic::Showit()
 {
 // copy the run results from the output structure op to the ui labels
 // op is filled in the model run each timestep
@@ -90,11 +89,12 @@ void ifacebasic::Showit(const int step)
           label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',3));
 
           label_soilloss->setText(QString::number(op.SoilLossTot,'f',3));
-          label_soillosskgha->setText(QString::number(op.SoilLossTot/op.CatchmentArea*10000*1000,'f',3));
+          label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',3));
 	}
 
 	progressBar->setMaximum(op.maxstep);
-	progressBar->setValue(step);
+	progressBar->setValue(op.runstep);
+
 }
 //---------------------------------------------------------------------------
 void ifacebasic::worldDone(const QString &results)
@@ -164,7 +164,6 @@ void ifacebasic::on_toolButton_ShowRunfile_clicked()
 
 
         QTextStream in(&file);
-
         QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
         view->setWindowTitle(op.runfilename);
         view->setMinimumWidth(400);

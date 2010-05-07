@@ -143,16 +143,22 @@ void TWorld::Output()
 	op.time = time/60;
 	op.maxtime = op.t/runstep * op.maxstep;
 
-	emit show(runstep);
+	emit show();
 
-    printstep = runstep;
+    if (runstep > 0 && runstep % 4 == 0)
+    	printstep++;
+
+	DEBUGv(printstep);
     // for display and write timeseries maps to disk
 
-	ReportTimeseries();
+//	ReportTimeseries();
+   	ReportTimeseriesNew();
 	// report hydrographs ande swdigraophs at all points in outpoint.map
 
-	ReportTotals();
+//	ReportTotals();
     // report totals to a text file
+	ReportTotalsNew();
+
 
 	ReportMaps();
 	// report all maps and mapseries
@@ -162,6 +168,18 @@ void TWorld::Output()
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    /*
+
+	for (int i = 0; i < 1000; i++)
+    {
+    	DEBUGv(i);
+    	WMap();
+        mutex.lock();
+        if(stopRequested) {emit debug("User interrupt...");}
+        if(stopRequested) break;
+        mutex.unlock();
+    }
+    */
   time_ms.start();
   temprunname = op.runfilename;
 
@@ -174,6 +192,7 @@ void TWorld::DoModel()
      GetRunFile();
      ParseInputData();
      // get and parse runfile
+
      InitMapList();
      GetInputData();
      IntializeData();
@@ -185,12 +204,14 @@ void TWorld::DoModel()
      _dt = getvaluedouble("Timestep");
      //time vraiables in sec
 
-    // emit debug("running");
-    // DEBUG(totalErosionFileName);
+     DEBUG(QString("running"));
+
      runstep = 0;
+     printstep = 0;
      for (time = BeginTime; time < EndTime; time += _dt)
      {
        mutex.lock();
+       if(stopRequested) {emit debug("User interrupt...");}
        if(stopRequested) break;
        mutex.unlock();
        // check if user wants to quit
@@ -213,14 +234,12 @@ void TWorld::DoModel()
     DestroyData();  // destroy all maps automatically
 
     emit done("finished");
-
   }
-  catch(int i)  // if an error occurred
+  catch(...)  // if an error occurred
   {
     DestroyData();
     emit done("ERROR STOP: "+ErrorString);
   }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::run()
@@ -235,3 +254,37 @@ void TWorld::stop()
     stopRequested = true;
 }
 //---------------------------------------------------------------------------
+
+/*
+void WMap()
+{
+	MAP *m, *out;
+	REAL4 *mapData;
+	m = Mopen("D:\\data\\jantiene\\Trier_17Oct03\\grad_tor_20m.map",M_READ);
+	if (m == NULL)
+		throw 1;
+	UINT4 nrCols = RgetNrCols(m);
+	UINT4 nrRows = RgetNrRows(m);
+
+
+	(void)RuseAs(m, CR_REAL4);
+	out = Rcreate("D:\\data\\jantiene\\Trier_17Oct03\\res\\try.map",RgetNrRows(m), RgetNrCols(m), CR_REAL4, VS_SCALAR,
+			MgetProjection(m), RgetX0(m), RgetY0(m), RgetAngle(m), RgetCellSize(m));
+
+	(void)RuseAs(out, CR_REAL4);
+	mapData = (REAL4 *) Rmalloc(out, RgetNrCols(m));
+	for (int c = 0; c < nrCols; c++)
+		mapData[c] = 0;
+	for(UINT4 r=0; r < nrRows; r++)
+	{
+		RgetRow(m, r, mapData);
+	//	RputSomeCells(out,r*nrCols, nrCols, mapData);
+			if (RputRow(out, r, mapData) != RgetNrCols(m))
+			throw 1;
+	}
+
+	free(mapData);
+	Mclose(out);
+	Mclose(m);
+}
+*/

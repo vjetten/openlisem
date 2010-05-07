@@ -174,8 +174,8 @@ void TWorld::ChannelFlow(void)
         ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
      }
    }
-//   ChannelQn->cover(0);
- //  ChannelQs->cover(0);
+   ChannelQn->cover(0); // avoid missing values around channel for adding to Qn for output
+   ChannelQs->cover(0);
 
    FOR_ROW_COL_MV_CH
    {

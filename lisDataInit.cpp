@@ -52,6 +52,7 @@ TMMap *TWorld::ReadMapMask(QString name)
     {
       ErrorString = "Cannot find map " +_M->PathName;
       throw 1;
+
     }
 
     for (int r = 0; r < nrRows; r++)
@@ -133,6 +134,7 @@ void TWorld::DestroyData(void)
 //---------------------------------------------------------------------------
 TMMap *TWorld::InitMask(QString name)
 {
+	// read map and make a mask map
 
     TMMap *_M = new TMMap();
 
@@ -197,7 +199,7 @@ void TWorld::GetInputData(void)
 {
 
   LDD = InitMask(getvaluename("ldd"));
-
+  baseNameMap = getvaluename("grad");
   Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
   Outlet = ReadMap(LDD,getvaluename("outlet"));
   RainZone = ReadMap(LDD,getvaluename("id"));
@@ -297,6 +299,7 @@ void TWorld::IntializeData(void)
 
       //totals for mass balance
       Qtot = 0;
+      Qtotmm = 0;
       Qpeak = 0;
       MB = 0;
       InfilTot = 0;
@@ -376,10 +379,10 @@ void TWorld::IntializeData(void)
       fpotgr = NewMap(0);
       Ksateff = NewMap(0);
       Soilwater = NewMap(0);
+      Soilwater2 = NewMap(0);
       Soilwater->calc2(ThetaI1, SoilDepth1, MUL);
       if (SwitchTwoLayer)
       {
-          Soilwater2 = NewMap(0);
           Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
       }
       // runoff maps
@@ -395,7 +398,8 @@ void TWorld::IntializeData(void)
       Alpha = NewMap(0);
       Q = NewMap(0);
       Qn = NewMap(0);
-      Qoutflow = NewMap(0);
+      Qoutput = NewMap(0);
+      Qoutflow = NewMap(0); // value of Qn*dt in pits only
       q = NewMap(0);
       R = NewMap(0);
       Perim = NewMap(0);
@@ -443,12 +447,7 @@ void TWorld::IntializeData(void)
       }
       else
     	  CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-
-
-	  FOR_ROW_COL_MV
-	  {
-     	  CanopyStorage->Drc *= 0.001; // to m
-	  }
+      CanopyStorage->calcV(0.001, MUL); // to m
 
       // erosion maps
       Qs = NewMap(0);
@@ -459,16 +458,16 @@ void TWorld::IntializeData(void)
       DEP = NewMap(0);
       SedVol = NewMap(0);
 
+      TC = NewMap(0);
+      Conc = NewMap(0);
+      CG = NewMap(0);
+      DG = NewMap(0);
+      SettlingVelocity = NewMap(0);
+      CohesionSoil = NewMap(0);
+      Y = NewMap(0);
+
       if (SwitchErosion)
       {
-        TC = NewMap(0);
-        Conc = NewMap(0);
-        CG = NewMap(0);
-        DG = NewMap(0);
-        SettlingVelocity = NewMap(0);
-        CohesionSoil = NewMap(0);
-        Y = NewMap(0);
-
         FOR_ROW_COL_MV
         {
            CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
@@ -482,32 +481,31 @@ void TWorld::IntializeData(void)
       }
 
       // channel maps
+      SedToChannel = NewMap(0);
       ChannelWidthUpDX = NewMap(0);
       ChannelWaterVol = NewMap(0);
       ChannelQoutflow = NewMap(0);
       RunoffVolinToChannel = NewMap(0);
-      SedToChannel = NewMap(0);
       ChannelQsoutflow = NewMap(0);
+      ChannelQ = NewMap(0);
+      ChannelQn = NewMap(0);
+      ChannelQs = NewMap(0);
+      ChannelQsn = NewMap(0);
+      ChannelV = NewMap(0);
+      ChannelWH = NewMap(0);
+      Channelq = NewMap(0);
+      ChannelAlpha = NewMap(0);
+      ChannelMask = NewMap(0);
+      ChannelDX = NewMap(0);
+      ChannelDetFlow = NewMap(0);
+      ChannelDep = NewMap(0);
+      ChannelSedVol = NewMap(0);
+      ChannelConc = NewMap(0);
+      ChannelTC = NewMap(0);
+      ChannelY = NewMap(0);
 
       if (SwitchIncludeChannel)
       {
-           ChannelQ = NewMap(0);
-           ChannelQn = NewMap(0);
-           ChannelQs = NewMap(0);
-           ChannelQsn = NewMap(0);
-           ChannelV = NewMap(0);
-           ChannelWH = NewMap(0);
-           Channelq = NewMap(0);
-           ChannelAlpha = NewMap(0);
-           ChannelMask = NewMap(0);
-           ChannelDX = NewMap(0);
-
-           ChannelDetFlow = NewMap(0);
-           ChannelDep = NewMap(0);
-           ChannelSedVol = NewMap(0);
-           ChannelConc = NewMap(0);
-           ChannelTC = NewMap(0);
-           ChannelY = NewMap(0);
 
            ChannelWidthUpDX->copy(ChannelWidth);
            ChannelWidthUpDX->cover(0);
@@ -524,6 +522,7 @@ void TWorld::IntializeData(void)
                ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
            }
       }
+
       TotalDetMap = NewMap(0);
       TotalDepMap = NewMap(0);
       TotalSoillossMap = NewMap(0);
