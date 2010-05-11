@@ -361,7 +361,7 @@ void TWorld::ReportMaps()
     {
         Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);
     }
-    Qoutput->report(Outrunoff);
+ //   Qoutput->report(Outrunoff);
 
 //SedVol->report("sedvol");
 

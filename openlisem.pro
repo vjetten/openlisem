@@ -1,8 +1,9 @@
 TEMPLATE = app
-TARGET = ifacebasic
+TARGET = openLisem
 QT += core \
     gui
-HEADERS += error.h \
+HEADERS += stable.h \
+    error.h \
     CsfMap.h \
     csf.h \
     csfattr.h \
@@ -28,8 +29,11 @@ SOURCES += lisRunfile.cpp \
     main.cpp \
     ifacebasic.cpp
 FORMS += ifacebasic.ui
-#LIBS += -L"d:\prgc\libcsfs\debug" \
-#    -llibcsfs    
+
+# LIBS += -L"d:\prgc\libcsfs\debug" \
+# -llibcsfs
 LIBS += -L"d:\prgc\libcsf\debug" \
-    -llibcsf 
+    -llibcsf
 RESOURCES += resources/openlisem.qrc
+CONFIG += precompile_header
+PRECOMPILED_HEADER = stable.h

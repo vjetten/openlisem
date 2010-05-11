@@ -114,6 +114,7 @@ QString TWorld::CheckDir(QString p, QString p1)
          ErrorString = p1 +": "+p+ " is not a directory!";
       throw 1;
    }
+   return "";
 }
 //---------------------------------------------------------------------------
 QString TWorld::GetName(QString p)

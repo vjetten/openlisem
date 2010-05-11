@@ -125,6 +125,12 @@ void TWorld::Rainfall(void)
       }
 }
 //---------------------------------------------------------------------------
+//- interception seen as rigid storage SMax filling up and overflowing
+//- overflow flux is identical to rainfall flux in intensity
+//- SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell
+// so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2
+// - therefore the same goes for LAI: the LAI of the plants inside the gridcell
+// this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
 void TWorld::Interception(void)
 {
 // all variables are in m
@@ -136,29 +142,39 @@ void TWorld::Interception(void)
         double rain = Rain->Drc;
         double Smax = CanopyStorage->Drc;
         //max canopy storage in m
-        double drain = 0;
+        double LAIv;
+        if (SwitchInterceptionLAI)
+        	LAIv = LAI->Drc;
+        else
+        	LAIv = (log(1-Cover->Drc)/-0.4)/Cover->Drc;
+
+        //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
+        // a low cover means a low LAI means little interception
 
         if (Smax > 0)
-           CS = max(0, Smax*(1-exp(-0.9*RainCum->Drc/Smax)));
+           CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
         else
            CS = 0;
-        // 0.9 is canopy openess, is not the same as canopy cover
+        // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
+        // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
         //possible to use equation from Ahston but for very open Eucalypt
 
-        drain = max(0, rain - (CS - CStor->Drc));
+        LeafDrain->Drc = max(0, Cover->Drc*(rain - (CS - CStor->Drc)));
         // diff between new and old strage is subtracted from rainfall
         // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
 
         CStor->Drc = CS;
         // put new storage back in map
-        Interc->Drc = CS * Cover->Drc * SoilWidthDX->Drc * DX->Drc;
+        Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc; //*
         // only on soil surface, not channels or roads, in m3
+        // cover already implicit in CS, Smax
 
-        LeafDrain->Drc = Cover->Drc*drain;
 
-        RainNet->Drc = Cover->Drc*drain + (1-Cover->Drc)*rain;
+//        RainNet->Drc = Cover->Drc*drain + (1-Cover->Drc)*rain;
+        RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*rain;
         // net rainfall is direct rainfall + drainage
-        // rainfall that falls on the soil
+        // rainfall that falls on the soil, used in infiltration
     }
 }
 //---------------------------------------------------------------------------

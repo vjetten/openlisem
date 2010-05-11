@@ -27,7 +27,7 @@ void TWorld::CalcVelDisch(void)
        Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
        if (Perim > 0)
           R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
-        else
+       else
           R->Drc = 0;
 
        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, _23),beta);
@@ -55,7 +55,7 @@ void TWorld::OverlandFlow(void)
        q->Drc = FSurplus->Drc*_dx/_dt;
        // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
        Qoutflow->Drc = 0;
-       // init current outflow in all pits, rst is 0,  in m3/s
+       // init current outflow in all pits, rst is 0,  in m3
 
     }
 
@@ -104,6 +104,7 @@ void TWorld::OverlandFlow(void)
    {
       double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);
       // WH based on A/dx = alpha Q^beta / dx
+      //TODO _dx also needs to be corrected for wheeltracks and gullies
 
       WHroad->Drc = WHoutavg;
       // set road to average outflowing wh, no surface storage.

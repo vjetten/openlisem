@@ -434,7 +434,7 @@ void TWorld::IntializeData(void)
     	  {
     		  switch (InterceptionLAIType)
     		  {
-    		  case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*pow(LAI->Drc, 2);
+    		  case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
     		  case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
     		  case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
     		  case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
@@ -448,6 +448,7 @@ void TWorld::IntializeData(void)
       else
     	  CanopyStorage = ReadMap(LDD,getvaluename("smax"));
       CanopyStorage->calcV(0.001, MUL); // to m
+      //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
 
       // erosion maps
       Qs = NewMap(0);

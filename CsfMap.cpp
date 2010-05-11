@@ -38,7 +38,6 @@ void cTMap::KillMap()
 //---------------------------------------------------------------------------
 void cTMap::GetMapHeader(QString Name)
 {
-   //MAP *m = Mopen(Name.toLatin1(), M_READ);
    MAP *m = Mopen(Name.toAscii().constData(), M_READ);
    MH = m->raster;
    projection = m->main.projection;
@@ -75,12 +74,10 @@ void cTMap::CreateMap(QString Name)
 bool cTMap::LoadFromFile()
 {
     MAP *m;
-    //QFile fff(PathName);
     QFileInfo fi(PathName);
 
     if (!fi.exists())
       return(false);
-    //fff.close();
 
     // make map structure
     CreateMap(PathName);
@@ -90,13 +87,12 @@ bool cTMap::LoadFromFile()
 
     MapName = PathName;
 
-//    m = Mopen(MapName.toLatin1(), M_READ);
     m = Mopen(MapName.toAscii().constData(), M_READ);
 
     if (!m)
        return(false);
 
-    RuseAs(m, CR_REAL4); //RgetCellRepr(m));//CR_REAL4);
+    RuseAs(m, CR_REAL4); //RgetCellRepr(m));
     for(int r=0; r < nrRows; r++)
        RgetSomeCells(m, (UINT4)r*nrCols, (UINT4)nrCols, Data[r]);
 
@@ -170,10 +166,6 @@ void cTMap::WriteMap(QString Name)
 {
     MAP *out;
     long r;
-    REAL4 *mapData;
-    QFile ftry(Name);
-    if (ftry.exists())
-    	ftry.remove();
 
     if (!Created)
         return;
@@ -184,47 +176,19 @@ void cTMap::WriteMap(QString Name)
 
     out = Rcreate(Name.toAscii().constData(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
                   (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSizeX);
-    (void)RuseAs(out, CR_REAL4);
 
-    mapData = (REAL4 *) Rmalloc(out, nrCols);
     for(r=0; r < nrRows; r++)
     {
-       memcpy(mapData, Data[r], sizeof(REAL4)*nrCols);
-       if (RputRow(out, r, mapData) != nrCols)
+       if (RputRow(out, r, Data[r]) != (UINT4)nrCols)
        {
-    	   ErrorString = "rputrow write error";
+           ErrorString = "rputrow write error with" + Name;
     	   throw 1;
        }
     }
 
     Mclose(out);
-    free(mapData);
 
 }
-/*
-void cTMap::WriteMap(QString basename, QString Name)
-{
-	MAP *m, *out;
-	REAL4 *mapData;
-
-	m = Mopen(basename.toAscii().constData(),M_READ);
-	if (m == NULL)
-		throw 1;
-	(void)RuseAs(m, CR_REAL4);
-	out = Rcreate(Name.toAscii().constData(),RgetNrRows(m), RgetNrCols(m), CR_REAL4, VS_SCALAR,
-			MgetProjection(m), RgetX0(m), RgetY0(m), RgetAngle(m), RgetCellSize(m));
-
-	(void)RuseAs(out, CR_REAL4);
-	for(UINT4 r=0; r < RgetNrRows(m); r++)
-	{
-			if (RputRow(out, r, Data[r]) != RgetNrCols(m))
-			throw 1;
-	}
-
-	Mclose(out);
-	Mclose(m);
-}
-*/
 //---------------------------------------------------------------------------
 void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
 {
@@ -237,7 +201,6 @@ void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
 
     	nam = Name + "00000000";
 
-    	//    nam = fi.baseName();
     	nam.remove(8, 80);
     	dig.setNum(count);
 
