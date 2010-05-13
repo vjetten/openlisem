@@ -16,12 +16,41 @@ ifacebasic::ifacebasic(QWidget *parent)
       GetStorePath();
 
       E_runfilename->setText(op.runfilename);
-//      label_28->setText(op.LisemDir);
+
+      SetStyleUI();
 }
 //---------------------------------------------------------------------------
 ifacebasic::~ifacebasic()
 {
   StorePath();
+}
+//---------------------------------------------------------------------------
+void ifacebasic::SetStyleUI()
+{
+	label_dx->setStyleSheet("* { background-color: #ffffff }");
+	label_area->setStyleSheet("* { background-color: #ffffff }");
+	label_time->setStyleSheet("* { background-color: #ffffff }");
+	label_endtime->setStyleSheet("* { background-color: #ffffff }");
+	label_runtime->setStyleSheet("* { background-color: #ffffff }");
+	label_endruntime->setStyleSheet("* { background-color: #ffffff }");
+	label_raintot->setStyleSheet("* { background-color: #ffff77 }");
+	label_watervoltot->setStyleSheet("* { background-color: #ffff77 }");
+	label_qtot->setStyleSheet("* { background-color: #ffff77 }");
+	label_infiltot->setStyleSheet("* { background-color: #ffff77 }");
+	label_interctot->setStyleSheet("* { background-color: #ffff77 }");
+	label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
+	label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
+	label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
+
+	label_splashdet->setStyleSheet("* { background-color: #ffff77 }");
+	label_flowdet->setStyleSheet("* { background-color: #ffff77 }");
+	label_sedvol->setStyleSheet("* { background-color: #ffff77 }");
+	label_dep->setStyleSheet("* { background-color: #ffff77 }");
+	label_detch->setStyleSheet("* { background-color: #ffff77 }");
+	label_depch->setStyleSheet("* { background-color: #ffff77 }");
+	label_sedvolch->setStyleSheet("* { background-color: #ffff77 }");
+	label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
+	label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
 }
 //---------------------------------------------------------------------------
 /*
@@ -75,6 +104,7 @@ void ifacebasic::Showit()
 	label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
     label_qtotm3->setText(QString::number(op.Qtot,'f',3));
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
+    label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
 
 	if (op.SwitchErosion)
 	{

@@ -82,17 +82,15 @@ void TWorld::OverlandFlow(void)
     	 //TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol);
 
-        Qoutflow->Drc = Qn->Drc * _dt;
+        if (Outlet->Drc == 1)
+        {
+        	Qoutflow->Drc = Qn->Drc * _dt;
 
-        double oldpeak = Qpeak;
-        Qpeak = max(Qpeak, Qn->Drc);
-        if (oldpeak < Qpeak)
-           QpeakTime = time;
-
-        // sum all outflow m3 for this timestep
-        if (SwitchErosion)
-           Qsoutflow->Drc = Qsn->Drc * _dt;
-        // sum all sed outflow m3 for this timestep
+        	// sum all outflow m3 for this timestep
+        	if (SwitchErosion)
+        		Qsoutflow->Drc = Qsn->Drc * _dt;
+        	// sum all sed outflow m3 for this timestep
+        }
      }
    }
 

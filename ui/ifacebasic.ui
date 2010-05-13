@@ -61,7 +61,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset resource="resources/openlisem.qrc">
+       <iconset resource="../resources/openlisem.qrc">
         <normaloff>:/fileopen.bmp</normaloff>:/fileopen.bmp</iconset>
       </property>
      </widget>
@@ -72,7 +72,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset resource="resources/openlisem.qrc">
+       <iconset resource="../resources/openlisem.qrc">
         <normaloff>:/new.png</normaloff>:/new.png</iconset>
       </property>
      </widget>
@@ -580,13 +580,13 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>90</x>
      <y>100</y>
      <width>221</width>
-     <height>181</height>
+     <height>191</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -771,7 +771,7 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="8" column="0">
      <widget class="QLabel" name="label_14">
       <property name="palette">
        <palette>
@@ -818,7 +818,7 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="8" column="1">
      <widget class="QLabel" name="label_MB">
       <property name="palette">
        <palette>
@@ -875,12 +875,38 @@
       </property>
      </widget>
     </item>
+    <item row="7" column="1">
+     <widget class="QLabel" name="label_qpeaktime">
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>           peak time (min)</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resources/openlisem.qrc"/>
+  <include location="../resources/openlisem.qrc"/>
  </resources>
  <connections/>
 </ui>

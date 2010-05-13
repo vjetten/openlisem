@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ifacebasic.ui'
 **
-** Created: Thu May 13 13:32:44 2010
+** Created: Thu May 13 21:06:42 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -74,7 +74,7 @@ public:
     QLabel *label;
     QLabel *label_soillosskgha;
     QLabel *label_21;
-    QWidget *widget;
+    QWidget *layoutWidget3;
     QGridLayout *gridLayout;
     QLabel *label_raintot;
     QLabel *label_15;
@@ -92,6 +92,8 @@ public:
     QLabel *label_14;
     QLabel *label_MB;
     QLabel *label_11;
+    QLabel *label_qpeaktime;
+    QLabel *label_2;
 
     void setupUi(QWidget *ifacebasicClass)
     {
@@ -385,15 +387,15 @@ public:
 
         gridLayout_2->addWidget(label_21, 1, 0, 1, 1);
 
-        widget = new QWidget(ifacebasicClass);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(90, 100, 221, 181));
-        gridLayout = new QGridLayout(widget);
+        layoutWidget3 = new QWidget(ifacebasicClass);
+        layoutWidget3->setObjectName(QString::fromUtf8("layoutWidget3"));
+        layoutWidget3->setGeometry(QRect(90, 100, 221, 191));
+        gridLayout = new QGridLayout(layoutWidget3);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        label_raintot = new QLabel(widget);
+        label_raintot = new QLabel(layoutWidget3);
         label_raintot->setObjectName(QString::fromUtf8("label_raintot"));
         label_raintot->setAutoFillBackground(false);
         label_raintot->setFrameShape(QFrame::StyledPanel);
@@ -404,13 +406,13 @@ public:
 
         gridLayout->addWidget(label_raintot, 0, 1, 1, 1);
 
-        label_15 = new QLabel(widget);
+        label_15 = new QLabel(layoutWidget3);
         label_15->setObjectName(QString::fromUtf8("label_15"));
         label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_15, 1, 0, 1, 1);
 
-        label_watervoltot = new QLabel(widget);
+        label_watervoltot = new QLabel(layoutWidget3);
         label_watervoltot->setObjectName(QString::fromUtf8("label_watervoltot"));
         label_watervoltot->setFrameShape(QFrame::StyledPanel);
         label_watervoltot->setFrameShadow(QFrame::Sunken);
@@ -418,13 +420,13 @@ public:
 
         gridLayout->addWidget(label_watervoltot, 1, 1, 1, 1);
 
-        label_16 = new QLabel(widget);
+        label_16 = new QLabel(layoutWidget3);
         label_16->setObjectName(QString::fromUtf8("label_16"));
         label_16->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_16, 2, 0, 1, 1);
 
-        label_infiltot = new QLabel(widget);
+        label_infiltot = new QLabel(layoutWidget3);
         label_infiltot->setObjectName(QString::fromUtf8("label_infiltot"));
         label_infiltot->setFrameShape(QFrame::StyledPanel);
         label_infiltot->setFrameShadow(QFrame::Sunken);
@@ -432,13 +434,13 @@ public:
 
         gridLayout->addWidget(label_infiltot, 2, 1, 1, 1);
 
-        label_12 = new QLabel(widget);
+        label_12 = new QLabel(layoutWidget3);
         label_12->setObjectName(QString::fromUtf8("label_12"));
         label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_12, 3, 0, 1, 1);
 
-        label_interctot = new QLabel(widget);
+        label_interctot = new QLabel(layoutWidget3);
         label_interctot->setObjectName(QString::fromUtf8("label_interctot"));
         label_interctot->setFrameShape(QFrame::StyledPanel);
         label_interctot->setFrameShadow(QFrame::Sunken);
@@ -446,13 +448,13 @@ public:
 
         gridLayout->addWidget(label_interctot, 3, 1, 1, 1);
 
-        label_10 = new QLabel(widget);
+        label_10 = new QLabel(layoutWidget3);
         label_10->setObjectName(QString::fromUtf8("label_10"));
         label_10->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_10, 4, 0, 1, 1);
 
-        label_qtot = new QLabel(widget);
+        label_qtot = new QLabel(layoutWidget3);
         label_qtot->setObjectName(QString::fromUtf8("label_qtot"));
         label_qtot->setFrameShape(QFrame::StyledPanel);
         label_qtot->setFrameShadow(QFrame::Sunken);
@@ -460,13 +462,13 @@ public:
 
         gridLayout->addWidget(label_qtot, 4, 1, 1, 1);
 
-        label_7 = new QLabel(widget);
+        label_7 = new QLabel(layoutWidget3);
         label_7->setObjectName(QString::fromUtf8("label_7"));
         label_7->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_7, 5, 0, 1, 1);
 
-        label_qtotm3 = new QLabel(widget);
+        label_qtotm3 = new QLabel(layoutWidget3);
         label_qtotm3->setObjectName(QString::fromUtf8("label_qtotm3"));
         label_qtotm3->setFrameShape(QFrame::StyledPanel);
         label_qtotm3->setFrameShadow(QFrame::Sunken);
@@ -474,13 +476,13 @@ public:
 
         gridLayout->addWidget(label_qtotm3, 5, 1, 1, 1);
 
-        label_35 = new QLabel(widget);
+        label_35 = new QLabel(layoutWidget3);
         label_35->setObjectName(QString::fromUtf8("label_35"));
         label_35->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_35, 6, 0, 1, 1);
 
-        label_qpeak = new QLabel(widget);
+        label_qpeak = new QLabel(layoutWidget3);
         label_qpeak->setObjectName(QString::fromUtf8("label_qpeak"));
         label_qpeak->setFrameShape(QFrame::StyledPanel);
         label_qpeak->setFrameShadow(QFrame::Sunken);
@@ -488,7 +490,7 @@ public:
 
         gridLayout->addWidget(label_qpeak, 6, 1, 1, 1);
 
-        label_14 = new QLabel(widget);
+        label_14 = new QLabel(layoutWidget3);
         label_14->setObjectName(QString::fromUtf8("label_14"));
         QPalette palette2;
         QBrush brush2(QColor(129, 129, 129, 255));
@@ -499,9 +501,9 @@ public:
         label_14->setPalette(palette2);
         label_14->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout->addWidget(label_14, 7, 0, 1, 1);
+        gridLayout->addWidget(label_14, 8, 0, 1, 1);
 
-        label_MB = new QLabel(widget);
+        label_MB = new QLabel(layoutWidget3);
         label_MB->setObjectName(QString::fromUtf8("label_MB"));
         QPalette palette3;
         palette3.setBrush(QPalette::Active, QPalette::WindowText, brush2);
@@ -510,13 +512,27 @@ public:
         label_MB->setPalette(palette3);
         label_MB->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout->addWidget(label_MB, 7, 1, 1, 1);
+        gridLayout->addWidget(label_MB, 8, 1, 1, 1);
 
-        label_11 = new QLabel(widget);
+        label_11 = new QLabel(layoutWidget3);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout->addWidget(label_11, 0, 0, 1, 1);
+
+        label_qpeaktime = new QLabel(layoutWidget3);
+        label_qpeaktime->setObjectName(QString::fromUtf8("label_qpeaktime"));
+        label_qpeaktime->setLayoutDirection(Qt::RightToLeft);
+        label_qpeaktime->setFrameShape(QFrame::StyledPanel);
+        label_qpeaktime->setFrameShadow(QFrame::Sunken);
+
+        gridLayout->addWidget(label_qpeaktime, 7, 1, 1, 1);
+
+        label_2 = new QLabel(layoutWidget3);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setLayoutDirection(Qt::LeftToRight);
+
+        gridLayout->addWidget(label_2, 7, 0, 1, 1);
 
 
         retranslateUi(ifacebasicClass);
@@ -581,6 +597,8 @@ public:
         label_14->setText(QApplication::translate("ifacebasicClass", "MB (%)", 0, QApplication::UnicodeUTF8));
         label_MB->setText(QApplication::translate("ifacebasicClass", "0", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifacebasicClass", "Rain tot (mm)", 0, QApplication::UnicodeUTF8));
+        label_qpeaktime->setText(QApplication::translate("ifacebasicClass", "0", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("ifacebasicClass", "           peak time (min)", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

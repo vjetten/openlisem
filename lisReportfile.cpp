@@ -359,7 +359,16 @@ void TWorld::ReportMaps()
     //Qoutput->report(Outrunoff);
     FOR_ROW_COL_MV
     {
+
         Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);
+        if (Outlet->Drc == 1)
+        {
+        	double oldpeak = Qpeak;
+        	Qpeak = max(Qpeak, Qoutput->Drc);
+        	if (oldpeak < Qpeak)
+        		QpeakTime = time;
+        }
+
     }
  //   Qoutput->report(Outrunoff);
 

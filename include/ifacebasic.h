@@ -47,7 +47,7 @@ private slots:
     void on_toolButton_runfilename_clicked();
     void StorePath();
     void GetStorePath();
-
+    void SetStyleUI();
 
 private:
     TWorld *W;

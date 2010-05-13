@@ -121,7 +121,8 @@ void TWorld::Output()
 	op.WaterVolTotmm=WaterVolTotmm;
 	op.Qtotmm=Qtotmm;
 	op.Qtot=Qtot;
-	op.Qpeak=Qpeak*1000;
+	op.Qpeak=Qpeak;
+	op.QpeakTime=QpeakTime/60;
 	op.InfilTotmm=InfilTotmm;
 	op.IntercTotmm=IntercTotmm;
 	op.InfilKWTotmm=InfilKWTot; // infil part in kin wave not used

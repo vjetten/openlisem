@@ -43,7 +43,6 @@ Functionality in model.h:
                               if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 #define NUMNAMES 300
-
 #define MIN_FLUX 1e-12
 #define MIN_HEIGHT 1e-6
 #define MAXCONC 848
@@ -221,7 +220,6 @@ public:
     void SplashDetachment(void);
     void FlowDetachment(void);
     double MaxConcentration(double watvol, double sedvol, double dep);
-
     void ChannelFlowDetachment(void);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);

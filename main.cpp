@@ -12,13 +12,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 //    iface = new ifacebasic();
-//    QFileInfo info(argv[0]);
-//    op.LisemDir = info.path() + "/";
     op.LisemDir = QCoreApplication::applicationDirPath() + QDir::separator();
 
    //    QApplication::setStyle("Cleanlooks");
      QApplication::setStyle("WindowsVista");
-     a.setStyleSheet("QLabel# { background-color: yellow }");
+     //a.setStyleSheet("QLabel# { background-color: yellow }");
+    //a.addLibraryPath("./libs/debug");
 
     ifacebasic iface;
     iface.show();

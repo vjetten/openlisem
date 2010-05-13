@@ -116,6 +116,9 @@
 </buildTargets>
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.pathentry">
+<pathentry kind="src" path=""/>
+<pathentry kind="out" path=""/>
+<pathentry kind="lib" library="D:/prgc/openlisem/libs/debug/liblibcsf.dll" path=""/>
 <pathentry base-path="C:/Qt/4.6.2/include" include="" kind="inc" path="" system="true"/>
 <pathentry base-path="C:/Qt/4.6.2/include" include="ActiveQt" kind="inc" path="" system="true"/>
 <pathentry base-path="C:/Qt/4.6.2/include" include="phonon" kind="inc" path="" system="true"/>
@@ -144,9 +147,6 @@
 <pathentry base-path="C:/Qt/4.6.2/include" include="QtXmlPatterns" kind="inc" path="" system="true"/>
 <pathentry include="C:/MinGW/include" kind="inc" path="" system="true"/>
 <pathentry include="include" kind="inc" path="" system="true"/>
-<pathentry kind="src" path=""/>
-<pathentry kind="out" path=""/>
-<pathentry kind="lib" library="D:/prgc/libcsf/Debug/liblibcsf.dll" path=""/>
 </storageModule>
 </cconfiguration>
 	</storageModule>

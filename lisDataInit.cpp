@@ -197,11 +197,19 @@ TMMap *TWorld::InitMaskChannel(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
-
   LDD = InitMask(getvaluename("ldd"));
   baseNameMap = getvaluename("grad");
   Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
   Outlet = ReadMap(LDD,getvaluename("outlet"));
+
+  FOR_ROW_COL_MV
+  {
+	  if (Outlet->Drc == 1 && LDD->Drc != 5)
+	  {
+	      ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
+	      throw 1;
+	  }
+  }
   RainZone = ReadMap(LDD,getvaluename("id"));
   N = ReadMap(LDD,getvaluename("manning"));
   RR = ReadMap(LDD,getvaluename("RR"));
