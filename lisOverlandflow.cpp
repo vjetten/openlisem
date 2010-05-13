@@ -46,9 +46,9 @@ void TWorld::OverlandFlow(void)
    ToChannel();
    // calculate what goes in the channel is used
 
+   /*---- Water ----*/
    FOR_ROW_COL_MV
    {
-       /*---- Water ----*/
        // recalculate after subtractions in "to channel"
        WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
        // WaterVolin total water volume in m3 before kin wave, runoff may be adjusted in tochannel
@@ -59,31 +59,27 @@ void TWorld::OverlandFlow(void)
 
     }
 
-       /*---- Sediment ----*/
+    /*---- Sediment ----*/
     if (SwitchErosion)
     {
        FOR_ROW_COL_MV
        {
 
-           if (WH->Drc > 0.00001)
-              Qs->Drc =  Q->Drc * Conc->Drc;
-           else
-              Qs->Drc = 0;
-           // calc sed flux as sed conc/volume *m3/s
+           Qs->Drc =  Q->Drc * Conc->Drc;
+           // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
            Qsoutflow->Drc = 0;
            // init outflow of sed in pits
        }
     }
 
    Qn->setMV();
-
-   // flag all Qn gridcell with MV
+   // flag all Qn gridcell with MV for in kin wave
 
    FOR_ROW_COL_MV
    {
      if (LDD->Drc == 5) // if outflow point, pit
      {
-    	 //TO DO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
+    	 //TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol);
 
         Qoutflow->Drc = Qn->Drc * _dt;
@@ -115,19 +111,18 @@ void TWorld::OverlandFlow(void)
       //V->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
       // recalc velocity for output to map ????
 
-      WaterVol->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
-      // water volume after kin wave
+      WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
+       // new water volume after kin wave, all water incl depr storage
 
-      InfilVolKinWave->Drc = q->Drc*_dt + WaterVolin->Drc - WaterVol->Drc - Qn->Drc*_dt;
+      InfilVolKinWave->Drc = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
       //infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
       if (SwitchErosion)
       {
-         Conc->Drc = MaxConcentration(r, c);
+         Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
          // correct for very high concentrations, 850 after Govers et al
 
-       //  SedVol->Drc = Conc->Drc * WaterVol->Drc;
-
+         //SedVol->Drc = Conc->Drc * WaterVolall->Drc;
          // recalc sediment volume
       }
    }

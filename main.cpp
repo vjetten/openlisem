@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 
    //    QApplication::setStyle("Cleanlooks");
      QApplication::setStyle("WindowsVista");
+     a.setStyleSheet("QLabel# { background-color: yellow }");
 
     ifacebasic iface;
     iface.show();

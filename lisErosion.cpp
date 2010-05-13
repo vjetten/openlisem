@@ -2,31 +2,16 @@
 
 
 //---------------------------------------------------------------------------
-double TWorld::MaxChannelConcentration(int r, int c)
+double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
 {
-     double conc = (ChannelWaterVol->Drc > 0 ? ChannelSedVol->Drc/ChannelWaterVol->Drc: 0);
-      if (conc > MAXCONC)
-      {
-         double sedvolnew = MAXCONC*ChannelWaterVol->Drc;
-         ChannelDep->Drc += sedvolnew-ChannelSedVol->Drc;
-         ChannelSedVol->Drc = sedvolnew;
-         conc = MAXCONC;
-      }
-      return(conc);
-}
-//---------------------------------------------------------------------------
-double TWorld::MaxConcentration(int r, int c)
-{
-     // VJ 100502 changed to watervolall
-     double conc = (WaterVolall->Drc > 0 ? SedVol->Drc/WaterVolall->Drc : 1000);
-//     double conc = (WaterVol->Drc > 0 ? SedVol->Drc/WaterVol->Drc : 1000);
+     double conc = (watvol > 0 ? sedvol/watvol : 1000);
      if (conc > MAXCONC)
      {
-         double sedvolnew = MAXCONC*WaterVolall->Drc; //!!
-         DEP->Drc += min(0, sedvolnew-SedVol->Drc);
-         SedVol->Drc = sedvolnew;
+         dep += min(0, MAXCONC*watvol - sedvol);
          conc = MAXCONC;
      }
+     sedvol = conc*watvol;
+
      return(conc);
 }
 //---------------------------------------------------------------------------
@@ -100,6 +85,11 @@ void TWorld::SplashDetachment(void)
           DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
        // no splash on grass strips
 
+       DETSplash->Drc = (1-StoneFraction->Drc)*DETSplash->Drc;
+       // no splash on stony surfaces
+
+       DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
+       // no splash on hard surfaces
    }
 }
 //---------------------------------------------------------------------------
@@ -127,7 +117,8 @@ void TWorld::FlowDetachment(void)
       // add splash to sed volume
 
 	  //### calc concentration and net transport capacity
-      Conc->Drc = MaxConcentration(r, c);
+      Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
+
       // sed concentration
       double maxTC = max(TC->Drc - Conc->Drc,0);
       double minTC = min(TC->Drc - Conc->Drc,0);
@@ -147,8 +138,11 @@ void TWorld::FlowDetachment(void)
          DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
       // no flow detachment on grass strips
 
-      //TODO no detachment with stoniness
+      DETFlow->Drc = (1-StoneFraction->Drc) * DETFlow->Drc ;
+      // no flow detachment on stony surfaces
 
+      DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
+      // no flow detachment on hard surfaces
 
 	  //### deposition
 
@@ -170,8 +164,7 @@ void TWorld::FlowDetachment(void)
       if (GrassPresent->Drc > 0)
     	  deposition = -SedVol->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
       // generate deposition on grassstrips
-      /*
-
+/*
 	  //### sediment balance
       double sedvolume = SedVol->Drc + DETFlow->Drc + deposition;
       // temp sed balance
@@ -187,7 +180,7 @@ void TWorld::FlowDetachment(void)
       SedVol->Drc += DETFlow->Drc;
       SedVol->Drc += deposition;
 
-      Conc->Drc = MaxConcentration(r, c);
+      Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
    }
 }
 //---------------------------------------------------------------------------
@@ -211,7 +204,7 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSedVol->Drc += SedToChannel->Drc;
       // add sed flow into channel from slope
 
-      ChannelConc->Drc = MaxChannelConcentration(r, c);
+	  ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
       // set conc to max and add surplus sed to ChannelDep
 
       double maxTC = max(ChannelTC->Drc - ChannelConc->Drc,0);
@@ -250,7 +243,7 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSedVol->Drc += deposition;
       ChannelSedVol->Drc += ChannelDetFlow->Drc;
 
-      ChannelConc->Drc = MaxChannelConcentration(r, c);
+	  ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
    }
 }
 //---------------------------------------------------------------------------

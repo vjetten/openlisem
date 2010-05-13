@@ -260,6 +260,7 @@ void TWorld::GetInputData(void)
   StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
  // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
   RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+  HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
 
   if (SwitchErosion)
   {
@@ -403,7 +404,7 @@ void TWorld::IntializeData(void)
       q = NewMap(0);
       R = NewMap(0);
       Perim = NewMap(0);
-      WaterVol = NewMap(0);
+      WaterVolrunoff = NewMap(0);
       WaterVolin = NewMap(0);
       WaterVolall = NewMap(0);
 

@@ -99,11 +99,11 @@ public:
      // All maps are declared here, no lacal declarations
      TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
       *Rain, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-      *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVol, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
+      *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
       *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
-      *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50, *DETSplash, *DETFlow,
+      *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50, *DETSplash, *DETFlow, *HardSurface,
       *DEP, *TC, *Conc, *SedVol, *Qsoutflow, *CG, *DG, *SettlingVelocity, *Fcum, *FSurplus, *fact, *fpot,
       *ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
       *ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
@@ -220,8 +220,8 @@ public:
     void GridCell(void);
     void SplashDetachment(void);
     void FlowDetachment(void);
-    double MaxConcentration(int r, int c);
-    double MaxChannelConcentration(int r, int c);
+    double MaxConcentration(double watvol, double sedvol, double dep);
+
     void ChannelFlowDetachment(void);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);

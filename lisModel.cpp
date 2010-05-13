@@ -58,7 +58,7 @@ void TWorld::MassBalance(void)
      tm->calcV(_dx, MUL); //m3
      SurfStorTot = tm->MapTotal();
 
-     WaterVolTot = WaterVol->MapTotal();//m3
+     WaterVolTot = WaterVolall->MapTotal();//m3
      WaterVolTotmm = WaterVolTot*areafac;
 
      Qtot += Qoutflow->MapTotal();

@@ -61,7 +61,7 @@ void TWorld::SurfaceStorage(void)
        WHstore->Drc = wh - whflow;
        // average water stored on flowwidth and not available for flow, in m
 
-       WaterVol->Drc = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+       WaterVolrunoff->Drc = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
        // runoff volume available for flow, surface + road
        WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
        // all water in the cell incl storage
@@ -77,7 +77,7 @@ void TWorld::SurfaceStorage(void)
        // assume grassstrip spreads water over entire width
 
        if (FlowWidth->Drc > 0)
-          WHrunoff->Drc = WaterVol->Drc/(DX->Drc*FlowWidth->Drc);
+          WHrunoff->Drc = WaterVolrunoff->Drc/(DX->Drc*FlowWidth->Drc);
        else
           WHrunoff->Drc = 0;
        // average WHrunoff from soil surface + roads, because kin wave can only do one discharge

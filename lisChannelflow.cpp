@@ -152,11 +152,7 @@ void TWorld::ChannelFlow(void)
 
      FOR_ROW_COL_MV_CH
      {
-        if (ChannelWH->Drc > 0.00001)
-            ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;//ChannelSedVol->Drc/ChannelWaterVol->Drc;
-        else
-            ChannelQs->Drc = 0;
-
+            ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
      }
    }
 
@@ -187,7 +183,9 @@ void TWorld::ChannelFlow(void)
       // total water vol after kin wave in m3, going to the next timestep
 
       if (SwitchErosion)
-        ChannelConc->Drc = MaxChannelConcentration(r, c);
+      {
+    	  ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
+      }
       // correct for very high concentrations, 850 after Govers et al
    }
 }
