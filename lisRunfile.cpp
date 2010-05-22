@@ -58,7 +58,7 @@ int TWorld::getvalueint(const char *vname)
 void TWorld::GetRunFile()
 {
     QFile fin(temprunname);
-
+DEBUGs(temprunname);
     if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         ErrorString = "Cannot open runfile: " + temprunname;
@@ -180,6 +180,7 @@ void TWorld::ParseInputData()
           if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =        iii == 0;
 
           if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
+          if (p1.compare("Output interval")==0)   printinterval = iii;
     }
 
     for (j = 0; j < nrnamelist; j++)

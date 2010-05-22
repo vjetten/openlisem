@@ -163,7 +163,7 @@ void TWorld::ChannelFlow(void)
      if (LDDChannel->Drc == 5)
      {
         Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-                  ChannelWaterVol, ChannelSedVol);
+                  ChannelWaterVol, ChannelSedVol, ChannelBufferVol, ChannelBufferSed);
 
         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
         // sum all channel outflow m3 for all timesteps

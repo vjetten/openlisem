@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
 //    iface = new ifacebasic();
     op.LisemDir = QCoreApplication::applicationDirPath() + QDir::separator();
 
-   //    QApplication::setStyle("Cleanlooks");
-     QApplication::setStyle("WindowsVista");
+  //       QApplication::setStyle("Cleanlooks");
+    QApplication::setStyle("WindowsVista");
      //a.setStyleSheet("QLabel# { background-color: yellow }");
     //a.addLibraryPath("./libs/debug");
 

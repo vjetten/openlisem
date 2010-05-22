@@ -80,7 +80,7 @@ void TWorld::OverlandFlow(void)
      if (LDD->Drc == 5) // if outflow point, pit
      {
     	 //TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
-        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol);
+        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol, BufferVol, BufferSed);
 
         if (Outlet->Drc == 1)
         {
@@ -119,17 +119,8 @@ void TWorld::OverlandFlow(void)
       {
          Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
          // correct for very high concentrations, 850 after Govers et al
-
-         //SedVol->Drc = Conc->Drc * WaterVolall->Drc;
          // recalc sediment volume
       }
    }
 }
 //---------------------------------------------------------------------------
-
-
-
-
-
-
-

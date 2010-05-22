@@ -108,6 +108,7 @@ public:
       *ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
       *KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
       *WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
+      *BufferSedInit, *BufferVol, *BufferSed, *BufferID, *BufferVolInit, *BufferSedBulkDensity, *ChannelBufferSed, *ChannelBufferVol,
       *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
@@ -151,7 +152,7 @@ public:
     // time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
-    long runstep, printstep;
+    long runstep, printstep, printinterval;
 
     // timeseries variables and output strings
     double **RainfallSeries;
@@ -176,7 +177,6 @@ public:
     QString temprunname;
     QStringList outputcheck;
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
-    QString baseNameMap;
 
     // data initialization, runfile reading and parsing
     _nameList namelist[NUMNAMES]; // structire for runfile variables and names
@@ -222,7 +222,8 @@ public:
     double MaxConcentration(double watvol, double sedvol, double dep);
     void ChannelFlowDetachment(void);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol);
+                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+                   TMMap *_StorVol, TMMap*_StorVolSed);
     void MassBalance(void);
     void Output(void);
     //void ReportTimeseries();
@@ -239,6 +240,7 @@ public:
 protected:
     void run();
     QTime time_ms;
+    void DEBUGs(QString SSS);
 
 // talk to the interface with the output structure "op" declared in ifacebasic
 signals:
