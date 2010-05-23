@@ -16,14 +16,20 @@
 // - 3 types of output: PCRaster timeplot format; SOBEK input format; flat comma delimited format
 // - all points in one file or each point in a separate file
 // - the types should be mututally exclusive in the interface and run file
-// - TO BE DONE: if runs are interrupted the number of lines win the SOBEK output will not be correct!
+// - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
 void TWorld::ReportTimeseriesNew()
 {
 	int nr = 0;
 	int hour, min, sec;
 	int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
-	QString newname1, pnr;
+	double RainIntavg = RainAvgmm * 3600/_dt;
+	QString newname1, pnr, sep;
 	QFileInfo fi(resultDir + outflowFileName);
+
+	if (SwitchWritePCRtimeplot)
+		sep = " ";
+	else
+		sep = ",";
 
 	if (SwitchSOBEKOutput && time > 0)
 	{
@@ -33,9 +39,13 @@ void TWorld::ReportTimeseriesNew()
 		sec = (int)(sec - hour * 3600 - min * 60);
 	}
 
+
+	//######  open files and write headers #####//
+
 	//SOBEK, PCRaster and flat format are mutually exclusive
-	if (time <= BeginTime) //  make file at first timestep
+	if (SwitchWriteHeaders) //  make file at first timestep
 	{
+		SwitchWriteHeaders = false;
 		if (SwitchSeparateOutput) // each point separate file
 		{
 			FOR_ROW_COL_MV
@@ -60,10 +70,10 @@ void TWorld::ReportTimeseriesNew()
 						out << "#LISEM total flow and sed output file for point " << pnr << "\n";
 						SwitchErosion ? out << "5\n" : out << "3\n";
 						out << "run step\n";
-						out << "Pavg (mm)\n";
+						out << "Pavg (mm/h)\n";
 						out << "Q (l/s)\n";
 						if (SwitchErosion) out << "Qs (kg/s)\n";
-						if (SwitchErosion) out << "C conc (g/l)\n";
+						if (SwitchErosion) out << "C (g/l)\n";
 					}
 					else // SOBEK format
 						if (SwitchSOBEKoutput)
@@ -80,11 +90,11 @@ void TWorld::ReportTimeseriesNew()
 						else // flat format, comma delimited
 						{
 							pnr.setNum((int)PointMap->Drc);
-							out << "#LISEM total flow and sed output file for point " << pnr << "\n";
+							out << "LISEM total flow and sed output file for point " << pnr << "\n";
 							out << "Time,Pavg";
 							if (SwitchErosion) out << ",Qs,C";
 							out << "\n";
-							out << "min,mm,l/s";
+							out << "min,mm/h,l/s";
 							if (SwitchErosion) out << ",kg/s,g/l";
 							out << "\n";
 						}
@@ -108,14 +118,14 @@ void TWorld::ReportTimeseriesNew()
 			{
 				// count nr of points
 				FOR_ROW_COL_MV
-				if ( PointMap->Drc > 0 )
-					nr++;
+				if ( PointMap->Drc > 0 ) nr++;
+
 				int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
 				pnr.setNum(nrs);
 				out << "#LISEM total flow and sed output file for all reporting points\n";
 				out <<  pnr << "\n";
 				out << "Time (min)\n";
-				out << "Pavg (mm)\n";
+				out << "Pavg (mm/h)\n";
 				FOR_ROW_COL_MV
 				if ( PointMap->Drc > 0 )
 				{
@@ -164,7 +174,7 @@ void TWorld::ReportTimeseriesNew()
 					}
 					out << "\n";
 					out << "min";
-					out << ",mm";
+					out << ",mm/h";
 					FOR_ROW_COL_MV
 					if ( PointMap->Drc > 0 )
 					{
@@ -179,9 +189,7 @@ void TWorld::ReportTimeseriesNew()
 		} // all in one
 	}  // opening files and writing header
 
-	//######  write all the values #####//
-	//######  write all the values #####//
-	//######  write all the values #####//
+	//######  open files and append values #####//
 
 	if (SwitchSeparateOutput)
 	{
@@ -193,40 +201,35 @@ void TWorld::ReportTimeseriesNew()
 						QString::number((int)PointMap->Drc) + "." +  fi.suffix();
 				QFile fout(newname1);
 				fout.open(QIODevice::Append | QIODevice::Text);
+
 				QTextStream out(&fout);
 				out.setRealNumberPrecision(3);
 				out.setFieldWidth(8);
 				out.setRealNumberNotation(QTextStream::FixedNotation);
 
-				if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
+				if (!SwitchSOBEKoutput)   //PCRaster timeplot and flat CSV format
 				{
-					out << runstep;
-					out << Rain->Drc;
-					out << Qoutput->Drc;
-					if (SwitchErosion) out << Qs->Drc;
-					if (SwitchErosion) out << SedVol->Drc;
+
+					if (SwitchWritePCRtimeplot)
+						out << runstep;
+					else
+						out << time/60;
+					out << sep << RainIntavg;
+					out << sep << Qoutput->Drc;
+					if (SwitchErosion) out << sep << Qsoutput->Drc;
+					if (SwitchErosion) out << sep << TotalConc->Drc;
 					out << "\n";
 				}
 				else  //SOBEK format
-					if (SwitchSOBEKoutput)   //PCRaster timeplot and flat format
-					{
-						out.setFieldWidth(2);
-						out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
-						out.setFieldWidth(8);
-						out << Qoutput->Drc;
-						if (SwitchErosion) out << " " << Qs->Drc;
-						if (SwitchErosion) out << " " << SedVol->Drc;
-						out << " <\n";
-					}
-					else
-					{
-						out << time/60;
-						out << "," << Rain->Drc;
-						out << "," << Qoutput->Drc;
-						if (SwitchErosion) out << "," << Qs->Drc;
-						if (SwitchErosion) out << "," << SedVol->Drc;
-						out << "\n";
-					}
+				{
+					out.setFieldWidth(2);
+					out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
+					out.setFieldWidth(8);
+					out << Qoutput->Drc;
+					if (SwitchErosion) out << " " << Qsoutput->Drc;
+					if (SwitchErosion) out << " " << TotalConc->Drc;
+					out << " <\n";
+				}
 				fout.close();
 			}  // if point
 		}  //rows cols
@@ -243,18 +246,21 @@ void TWorld::ReportTimeseriesNew()
 		out.setFieldWidth(8);
 		out.setRealNumberNotation(QTextStream::FixedNotation);
 
-		if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
+		if (!SwitchSOBEKoutput)
 		{
-			out << runstep;
-			// not time but step in PCRaster timeplot
+			if (SwitchWritePCRtimeplot)
+				out << runstep;
+			else
+				out << time/60;
+
 			FOR_ROW_COL_MV
 			{
 				if ( PointMap->Drc > 0 )
 				{
-					out << Rain->Drc;
-					out << Qoutput->Drc;
-					if (SwitchErosion) out << Qs->Drc;
-					if (SwitchErosion) out << SedVol->Drc;
+					out << sep << RainIntavg;
+					out << sep << Qoutput->Drc;
+					if (SwitchErosion) out << sep << Qsoutput->Drc;
+					if (SwitchErosion) out << sep << TotalConc->Drc;
 				}
 			}
 			out << "\n";
@@ -270,26 +276,11 @@ void TWorld::ReportTimeseriesNew()
 					if ( PointMap->Drc > 0 )
 					{
 						out << " " << Qoutput->Drc;
-						if (SwitchErosion) out << " " << Qs->Drc;
-						if (SwitchErosion) out << " " << SedVol->Drc;
+						if (SwitchErosion) out << " " << Qsoutput->Drc;
+						if (SwitchErosion) out << " " << TotalConc->Drc;
 					}
 				}
 				out << " < \n";
-			}
-			else // flat comma delimited
-			{
-				out << time/60;
-				FOR_ROW_COL_MV
-				{
-					if ( PointMap->Drc > 0 )
-					{
-						out << "," << Rain->Drc;
-						out << "," << Qoutput->Drc;
-						if (SwitchErosion) out << "," << Qs->Drc;
-						if (SwitchErosion) out << "," << SedVol->Drc;
-					}
-				}
-				out << "\n";
 			}
 		fout.close();
 	}
@@ -355,6 +346,7 @@ void TWorld::ReportMaps()
 		TotalSoillossMap->mwrite(totalSoillossFileName);
 	}
 
+	// output fluxes for reporting
 	FOR_ROW_COL_MV
 	{
 
@@ -367,6 +359,8 @@ void TWorld::ReportMaps()
 				QpeakTime = time;
 		}
 
+		if (SwitchErosion)
+			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;
 	}
 
 	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff);

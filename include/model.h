@@ -99,7 +99,7 @@ public:
      TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
       *Rain, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
       *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
-      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
+      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
       *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50, *DETSplash, *DETFlow, *HardSurface,
@@ -113,7 +113,7 @@ public:
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
       *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-      *PointMap, *TotalDetMap, *TotalDepMap, *TotalSoillossMap;
+      *PointMap, *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSedvol, *TotalWatervol, *TotalConc;
 
      // boolean options that are set in interface and runfile, initialized in DataInit
      bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
@@ -127,7 +127,7 @@ public:
       SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
       SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
       SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-      SwitchPCRoutput;
+      SwitchPCRoutput, SwitchWriteHeaders;
 
      // multiple options that are set in interface or runfile, see defines above
     int InterceptionLAIType;
@@ -147,7 +147,7 @@ public:
     double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
     double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
-    double nrCells, CatchmentArea, RainpeakTime, QpeakTime;
+    double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
 
     // time and dx parameters
     double time, BeginTime, EndTime;

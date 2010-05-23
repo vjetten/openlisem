@@ -422,6 +422,7 @@ void TWorld::IntializeData(void)
 	Q = NewMap(0);
 	Qn = NewMap(0);
 	Qoutput = NewMap(0);
+	Qsoutput = NewMap(0);
 	Qoutflow = NewMap(0); // value of Qn*dt in pits only
 	q = NewMap(0);
 	R = NewMap(0);
@@ -549,6 +550,9 @@ void TWorld::IntializeData(void)
 	TotalDetMap = NewMap(0);
 	TotalDepMap = NewMap(0);
 	TotalSoillossMap = NewMap(0);
+	TotalSedvol = NewMap(0);
+	TotalWatervol = NewMap(0);
+	TotalConc = NewMap(0);
 
 	//TODO program link between sedbuffers and sedtraps
 	BufferSed = NewMap(0);
@@ -642,6 +646,7 @@ void TWorld::IntializeOptions(void)
 	SwitchPCRoutput =
    SwitchSoilwater =
    		false;
+   SwitchWriteHeaders = true; // write headers in output files in first timestep
 }
 //---------------------------------------------------------------------------
 /*

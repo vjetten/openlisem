@@ -22,7 +22,7 @@ void TWorld::GridCell(void)
       if (SwitchIncludeChannel)
       if (RoadWidthDX->Drc > 0)
           ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
-      // channel cannot be wider than _dx-road
+      // channel cannot be wider than 0.9*_dx-road
 
       WheelWidthDX->Drc = 0;
       if (SwitchWheelPresent)

@@ -42,13 +42,18 @@ void TWorld::DEBUGs(QString SSS)
 void TWorld::MassBalance(void)
 {
 	// WATER in m3
-	double areafac = 1000/CatchmentArea;
+
+	double areafac = 1000/CatchmentArea; // conversion from m3 total to mm area average
+//	double rainfall = Rain->MapTotal() * CatchmentArea;
+
+	RainAvgmm = Rain->MapTotal()/nrCells * 1000; // avg mm over whole area
+	RainTotmm = RainTotmm + RainAvgmm;
+
 	tm->copy(Rain);
-	tm->calc(DX, MUL);
-	tm->calcV(_dx, MUL);
-	double rainfall = tm->MapTotal(); // in m3
-	RainTot += rainfall; // in m3
-	RainTotmm = RainTot*areafac;
+   tm->calc(DX, MUL);
+   tm->calcV(_dx, MUL);
+   double rainfall = tm->MapTotal(); // in m3
+   RainTot += rainfall; // in m3
 
 	double oldpeak = Rainpeak;
 	Rainpeak = max(Rainpeak, rainfall);
@@ -75,6 +80,10 @@ void TWorld::MassBalance(void)
 
 	// NOTE peak time is detected in lisOverlandlfow.cpp
 
+	FOR_ROW_COL_MV
+	{
+		TotalWatervol->Drc = WaterVolall->Drc;
+	}
 	// SEDIMENT in kg
 	if (SwitchErosion)
 	{
@@ -84,13 +93,25 @@ void TWorld::MassBalance(void)
 		DetTot += DETSplash->MapTotal() + DETFlow->MapTotal();
 		SoilLossTot += Qsoutflow->MapTotal();
 		SedVolTot = SedVol->MapTotal();
+
+		FOR_ROW_COL_MV
+		{
+			TotalSedvol->Drc = SedVol->Drc;
+			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSedvol->Drc/TotalWatervol->Drc : 0);
+		}
 	}
 
+	// needed for output conc
 	// Channel
 	if (SwitchIncludeChannel)
 	{
 		WaterVolTot += ChannelWaterVol->MapTotal(); //m3
 		Qtot += ChannelQoutflow->MapTotal();
+
+		FOR_ROW_COL_MV
+		{
+			TotalWatervol->Drc += ChannelWaterVol->Drc;
+		}
 
 		if (SwitchErosion)
 		{
@@ -99,6 +120,13 @@ void TWorld::MassBalance(void)
 			ChannelSedTot = ChannelSedVol->MapTotal();
 
 			SoilLossTot += ChannelQsoutflow->MapTotal();
+
+			FOR_ROW_COL_MV
+			{
+				TotalSedvol->Drc += ChannelSedVol->Drc;
+				TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSedvol->Drc/TotalWatervol->Drc : 0);
+				//TODO add gully, wheeltracks etc
+			}
 		}
 	}
 

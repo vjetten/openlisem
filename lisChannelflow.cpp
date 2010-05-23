@@ -45,6 +45,12 @@ void TWorld::ToChannel(void)
 // V, alpha and Q in the channel
 void TWorld::CalcVelDischChannel()
 {
+   /*
+    dw      FW      dw
+   \  |            |  /
+    \ |         wh | /
+     \|____________|/
+   */
    FOR_ROW_COL_MV_CH
    {
        double Perim, Radius, Area, beta = 0.6;
@@ -53,11 +59,12 @@ void TWorld::CalcVelDischChannel()
        double wh = ChannelWH->Drc;
        double FW = ChannelWidth->Drc;
        double grad = sqrt(ChannelGrad->Drc);
-       double dw = 0.5*(ChannelWidthUpDX->Drc - FW);
+       double dw = 0.5*(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
 
        if (dw > 0)
        {
          Perim = FW + 2*sqrt(wh*wh + dw*dw);
+ //        Perim = FW + 2*wh/cos(atan(ChannelSide->Drc));
          Area = FW*wh + wh*dw*2;
        }
        else
@@ -107,19 +114,19 @@ void TWorld::ChannelFlow(void)
       ChannelWH->Drc = 0;
 
       ChannelWaterVol->Data[r][c] += RunoffVolinToChannel->Drc;
-      // add inflow tp channel
+      // add inflow to channel
       if (ChannelWidth->Drc > 0)
          ChannelWaterVol->Drc += Rain->Drc*ChannelWidthUpDX->Drc*DX->Drc;
       // add rainfall in m3, no interception
 
-      if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)
+      if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel
       {
           ChannelWidthUpDX->Drc = ChannelWidth->Drc;
           ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*DX->Drc);
       }
-      else
+      else  // non-rectangular
       {
-         if (ChannelWaterVol->Drc > 0)// && ChannelSide->Drc > 0)
+         if (ChannelWaterVol->Drc > 0)
          {
             double a = ChannelSide->Drc*DX->Drc/ChannelWaterVol->Drc;
             double b = ChannelWidth->Drc*DX->Drc/ChannelWaterVol->Drc;
@@ -131,6 +138,7 @@ void TWorld::ChannelFlow(void)
          }
         // new WH with abc method
       }
+
       if (ChannelWidth->Drc > 0)
          ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidth->Drc+2*ChannelSide->Drc*ChannelWH->Drc);
          // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
@@ -139,6 +147,7 @@ void TWorld::ChannelFlow(void)
       if (RoadWidthDX->Drc > 0)
           ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
       // channel cannot be wider than _dx-road
+      //TODO zit al in gridcell, nodig hier?
 
    }
 

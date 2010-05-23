@@ -100,8 +100,8 @@ void TWorld::GetRainfallData(void)
 //---------------------------------------------------------------------------
 void TWorld::Rainfall(void)
 {
-     double timemin = time / 60;
-     double timeminp = (time-_dt) / 60;
+     double timemin = time / 60;  //time in minutes
+     double timeminp = (time-_dt) / 60; //prev time in minutes
      int placep, place;
 
      for (placep = 0; placep < nrrainfallseries; placep++)
