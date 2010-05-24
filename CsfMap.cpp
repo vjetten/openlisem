@@ -1,3 +1,15 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
+
+/*
+ * CsfMap basic fucntionality to read and write PCRaster CSF maps
+ */
+
 //---------------------------------------------------------------------------
 #include <stdlib.h>
 #include <math.h>

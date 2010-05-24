@@ -1,17 +1,17 @@
 /*---------------------------------------------------------------------------
 project: openLISEM
-name: model.h
 author: Victor Jetten
 licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/Eclipse
-website SVN: http://sourceforge.net/projects/lisem
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
 
+/*
 Functionality in model.h:
 - TWorld class that combines all model variables and processes
 - global defines Drc, MV, FOR_ROW_COL_MV etc
 - global defines for lisem type; infiltration type etc.
----------------------------------------------------------------------------*/
-
+*/
 #ifndef modelH
 #define modelH
 
@@ -63,23 +63,29 @@ Functionality in model.h:
 #define INFIL_MOREL 21
 #define INFIL_SMITH 22
 
+#define SEDIMENTBULKD 2000
 
 //---------------------------------------------------------------------------
+// structure containing pointers to all maps for automatic destruction after runs
+// so memory doesn't have to be freed for each map
 typedef struct MapListStruct {
    TMMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------
+// linked list structure for network in kin wave
 typedef struct Liststruct {
     int rowNr;
     int colNr;
     struct Liststruct *prev;
 }  Liststruct;
 //---------------------------------------------------------------------------
+// name list structure used to read run file
 typedef struct _nameList{
      QString name;
      QString value;
 } _nameList;
 //---------------------------------------------------------------------------
+// The world: main class containing all variables, maps, options, filenames etc etc
 class TWorld: public QThread
 {
 	Q_OBJECT
@@ -98,7 +104,7 @@ public:
      // All maps are declared here, no lacal declarations
      TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
       *Rain, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-      *WH, *WHinf, *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
+      *WH, /* *WHinf, not used ! */ *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
       *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
@@ -143,8 +149,8 @@ public:
     double StemflowFraction;
 
     // totals for mass balance checks and output
-    double MB, Qtot, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
-    double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot;
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
+    double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SoilLossTotOutlet, SedVolTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
     double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
     double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;

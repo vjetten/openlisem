@@ -74,16 +74,22 @@ void TWorld::MassBalance(void)
 	WaterVolTot = WaterVolall->MapTotal();//m3
 	WaterVolTotmm = WaterVolTot*areafac;
 
+	// NOTE peak time is detected in lisOverlandlfow.cpp
+
 	Qtot += Qoutflow->MapTotal();
-	// sum all outflow m3 for all timesteps, is already mult by dt
+	// sum outflow m3 for all timesteps for all pits, is already mult by dt
+	// needed for mass balance
 	Qtotmm = Qtot*areafac;
 
-	// NOTE peak time is detected in lisOverlandlfow.cpp
 
 	FOR_ROW_COL_MV
 	{
+		if (Outlet->Drc == 1)
+			QtotOutlet += Qoutflow->Drc;
+		// for screen output, total main outlet
 		TotalWatervol->Drc = WaterVolall->Drc;
 	}
+
 	// SEDIMENT in kg
 	if (SwitchErosion)
 	{
@@ -91,11 +97,17 @@ void TWorld::MassBalance(void)
 		DetTotFlow += DETFlow->MapTotal();
 		DepTot += DEP->MapTotal();
 		DetTot += DETSplash->MapTotal() + DETFlow->MapTotal();
-		SoilLossTot += Qsoutflow->MapTotal();
 		SedVolTot = SedVol->MapTotal();
+
+		SoilLossTot += Qsoutflow->MapTotal();
+		// sum all sed in all pits (in kg), needed for mass balance
 
 		FOR_ROW_COL_MV
 		{
+			if (Outlet->Drc == 1)
+				SoilLossTot += Qsoutflow->Drc;
+			// for screen output, total main outlet
+
 			TotalSedvol->Drc = SedVol->Drc;
 			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSedvol->Drc/TotalWatervol->Drc : 0);
 		}
@@ -106,10 +118,16 @@ void TWorld::MassBalance(void)
 	if (SwitchIncludeChannel)
 	{
 		WaterVolTot += ChannelWaterVol->MapTotal(); //m3
+
 		Qtot += ChannelQoutflow->MapTotal();
+		// add channel outflow (in m3) to total for all pits
 
 		FOR_ROW_COL_MV
 		{
+			if (Outlet->Drc == 1)
+				QtotOutlet += ChannelQoutflow->Drc;
+			// add channel outflow (in m3) to total for main outlet
+
 			TotalWatervol->Drc += ChannelWaterVol->Drc;
 		}
 
@@ -120,9 +138,14 @@ void TWorld::MassBalance(void)
 			ChannelSedTot = ChannelSedVol->MapTotal();
 
 			SoilLossTot += ChannelQsoutflow->MapTotal();
+			// add sed outflow for all pits to total soil loss
 
 			FOR_ROW_COL_MV
 			{
+				if (Outlet->Drc == 1)
+					SoilLossTotOutlet += ChannelQsoutflow->Drc;
+				// add channel outflow (in kg) to total for main outlet
+
 				TotalSedvol->Drc += ChannelSedVol->Drc;
 				TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSedvol->Drc/TotalWatervol->Drc : 0);
 				//TODO add gully, wheeltracks etc
@@ -157,7 +180,7 @@ void TWorld::Output()
 	op.RainTotmm=RainTotmm;
 	op.WaterVolTotmm=WaterVolTotmm;
 	op.Qtotmm=Qtotmm;
-	op.Qtot=Qtot;
+	op.Qtot=QtotOutlet;
 	op.Qpeak=Qpeak;
 	op.QpeakTime=QpeakTime/60;
 	op.InfilTotmm=InfilTotmm;
@@ -175,7 +198,7 @@ void TWorld::Output()
 	op.ChannelDepTot=ChannelDepTot*0.001;
 	op.ChannelSedTot=ChannelSedTot*0.001;
 
-	op.SoilLossTot=SoilLossTot*0.001;
+	op.SoilLossTot=SoilLossTotOutlet*0.001;
 
 	op.t = time_ms.elapsed()*0.001/60.0;
 	op.time = time/60;

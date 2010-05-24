@@ -55,8 +55,7 @@ void TWorld::OverlandFlow(void)
        q->Drc = FSurplus->Drc*_dx/_dt;
        // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
        Qoutflow->Drc = 0;
-       // init current outflow in all pits, rst is 0,  in m3
-
+      // init current outflow in all pits, rst is 0,  in m3
     }
 
     /*---- Sediment ----*/
@@ -82,15 +81,10 @@ void TWorld::OverlandFlow(void)
     	 //TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol, BufferVol, BufferSed);
 
-        if (Outlet->Drc == 1)
-        {
-        	Qoutflow->Drc = Qn->Drc * _dt;
-
-        	// sum all outflow m3 for this timestep
+     	  Qoutflow->Drc = Qn->Drc * _dt;
         	if (SwitchErosion)
         		Qsoutflow->Drc = Qsn->Drc * _dt;
-        	// sum all sed outflow m3 for this timestep
-        }
+			// these maps now contain m3 and kg per timestep in pit cells
      }
    }
 

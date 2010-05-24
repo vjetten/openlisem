@@ -1,7 +1,20 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
+
+/*
+ * Infiltration: all 1 and 2 layer infiltration functions: G&A, S&P, ksat
+ */
+
 #include "model.h"
 
 #define tiny 1e-8
 //---------------------------------------------------------------------------
+// DOESN'T WORK YET
 void TWorld::InfilMorelSeytoux1(void)
 {
 	FOR_ROW_COL_MV
@@ -15,6 +28,7 @@ void TWorld::InfilMorelSeytoux1(void)
 
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
 
 		B = (fwh+Psi1->Drc*0.01)*(ThetaS1->Drc-ThetaI1->Drc); //m
 		tp = max(0, Ks*B/(rt*rt - Ks*rt)); //sec
@@ -38,7 +52,7 @@ void TWorld::InfilMorelSeytoux1(void)
 	}
 }
 //---------------------------------------------------------------------------
-// following Eurosem v2 manual page 10
+// Solution Eurosem v2 manual page 10, Morgan et al 1998
 void TWorld::InfilSmithParlange1(void)
 {
 	FOR_ROW_COL_MV
@@ -84,7 +98,8 @@ void TWorld::InfilSmithParlange1(void)
 	}
 }
 //---------------------------------------------------------------------------
-void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
+// Solution Kutilek and Nielsen 2004 pag 138
+void TWorld::InfilGreenAmpt1(void)
 {
 	FOR_ROW_COL_MV
 	{
@@ -94,6 +109,7 @@ void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
 
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
 
 		fpot->Drc = Ks*(1+(Psi1->Drc*0.01+fwh)/(L1->Drc+L2->Drc));
 		// potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
@@ -122,6 +138,7 @@ void TWorld::InfilGreenAmpt1(void)     // kutilek and nielsen pag 138
 	}
 }
 //---------------------------------------------------------------------------
+// Direct subtraction of Ksat, added for testing purposes!
 void TWorld::InfilKsat(void)
 {
 	FOR_ROW_COL_MV
@@ -134,12 +151,14 @@ void TWorld::InfilKsat(void)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 
 		fpot->Drc = Ks;
+		// potential infil equals Ksat
 
 		fact1 = min(fpot->Drc, fwh);
 		// actual infil in m, cannot have more infil than water on the surface
 
 		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
 		// adjust fact for twolayer, impermeable etc
+
 		if(SwitchInfilGrass)
 		{
 			fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
@@ -159,6 +178,7 @@ void TWorld::InfilKsat(void)
 //---------------------------------------------------------------------------
 // function to increase wetting front and deal with 2nd layer
 // returns actual infiltration
+// this function is called form all infiltration functions
 double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, REAL4 *L2p)
 {
 	double dL1, dL2;
@@ -220,17 +240,23 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, 
 	return fact; //m
 }
 //---------------------------------------------------------------------------
+/*
+ * main function:
+ * add rain to WH, calc effective Ksat
+ */
 void TWorld::Infiltration(void)
 {
 	FOR_ROW_COL_MV
 	{
 		WH->Drc += RainNet->Drc;
-		WHinf->Drc = WH->Drc;
 		// net rainfall on soil surface
+
+		//WHinf->Drc = WH->Drc;
+		// not used really, to calc infiltrated water in this timestep
 
 		if (GrassPresent->Drc > 0)
 			WHGrass->Drc += RainNet->Drc;
-		// net rainfall on grass strips
+		// net rainfall on grass strips, infil is calculated separately for grassstrips
 
 		if (RoadWidthDX->Drc > 0)
 			WHroad->Drc += Rain->Drc;
@@ -240,34 +266,40 @@ void TWorld::Infiltration(void)
 		// vol before infil
 
 		Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
-		// avg ksat with crusting and compaction fraction
-		Ksateff->Drc *= ksatCalibration;
-		// apply runfile/iface calibration factor
+		// avg ksat of "normal" surface with crusting and compaction fraction, fractions are 0 when there is none
 
 		if (SwitchInfilCrust)
 			Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
 		if (SwitchInfilCompact)
 			Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
+		// adjust effective infil for crusting and compaction
+
+		Ksateff->Drc *= ksatCalibration;
+		// apply runfile/iface calibration factor
+
 	}
 
-	//switch infil type here
+	//select an infiltration type
 	switch (InfilMethod)
 	{
-	case INFIL_NONE : fact->fill(0); break;
-	case INFIL_SWATRE : break;
-	case INFIL_HOLTAN : break;
-	case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
-	case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
-	case INFIL_KSAT : InfilKsat(); break;
-	case INFIL_MOREL : InfilMorelSeytoux1(); break;
-	case INFIL_SMITH : InfilSmithParlange1(); break;
+		case INFIL_NONE : fact->fill(0); break;
+		case INFIL_SWATRE : break;
+		case INFIL_HOLTAN : break;
+		case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
+		case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
+		case INFIL_KSAT : InfilKsat(); break;
+		case INFIL_MOREL : InfilMorelSeytoux1(); break; //TODO: DOESN'T WORK YET
+		case INFIL_SMITH : InfilSmithParlange1(); break;
 	}
+	// these function result in an actual infiltration "fact" (in m)
+	// and potential infiltration "fpot" (in m)
+	// each function deals with grass strips as a separate infiltration process
 
 	FOR_ROW_COL_MV
 	{
-		if (SwitchBuffers)
+		if (SwitchBuffers && !SwitchSedtrap)
 			fact->Drc = 0;
-		//VJ 100514 no infil in buffers
+		//VJ 100514 no infil in buffers, but sedtrap can have infil
 
 		WH->Drc -= fact->Drc;
 		if (WH->Drc < 0) // in case of rounding of errors
@@ -290,10 +322,11 @@ void TWorld::Infiltration(void)
 			}
 			Fcumgr->Drc += factgr->Drc;
 		}
+		// calculate and correct water height on grass strips
 
 		if (GrassPresent->Drc > 0)
 			WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
-		// average water height is grasstrip present
+		// average water height if grasstrip present
 
 		FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
 		// negative surplus of infiltration in m for kinematic wave in m
@@ -305,7 +338,9 @@ void TWorld::Infiltration(void)
 		InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 		// infil volume is WH before - water after
 
-		WHinf->Drc = max(0, WHinf->Drc - WH->Drc);
+		//WHinf->Drc = max(0, WHinf->Drc - WH->Drc);
+		// infiltrated water in this timestep
+		// NOT USED IN FURTHER MDOEL!
 	}
 
 }

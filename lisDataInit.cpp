@@ -320,10 +320,12 @@ void TWorld::IntializeData(void)
 
 	//TO DO add units and descriptions
 
-	//totals for mass balance
+	//totals for mass balance and file/screen output
 	Qtot = 0;
+	QtotOutlet = 0;
 	Qtotmm = 0;
 	Qpeak = 0;
+	QpeakTime = 0;
 	MB = 0;
 	InfilTot = 0;
 	InfilTotmm = 0;
@@ -341,6 +343,7 @@ void TWorld::IntializeData(void)
 	DetTot = 0;
 	DepTot = 0;
 	SoilLossTot = 0;
+	SoilLossTotOutlet = 0;
 	SedVolTot = 0;
 	MBs = 0;
 	ChannelVolTot=0;
@@ -413,7 +416,7 @@ void TWorld::IntializeData(void)
 	WHrunoff = NewMap(0);
 	WHstore = NewMap(0);
 	WHroad = NewMap(0);
-	WHinf = NewMap(0);
+	// WHinf = NewMap(0); // not used!
 	WHGrass = NewMap(0);
 	FlowWidth = NewMap(0);
 	fpa = NewMap(0);

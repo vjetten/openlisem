@@ -1,3 +1,15 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
+
+/*
+ * Kinematic wave for overland flow and channel
+ */
+
 #include "model.h"
 
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -211,7 +223,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			{
 				if (BufferID->D(rowNr,colNr) > 0)
 				{
-					if (!SwitchSedtrap) // if buffer but not sed trap
+					// if buffer but not sed trap, sed trap catches no water only sed
+					//TODO: trap efficiency? or high Manning's n ?
+					if (!SwitchSedtrap)
 					{
 						// fill up storage with incoming water
 						_StorVol->D(rowNr,colNr) -= Qin*_dt;
@@ -224,14 +238,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					}
 
 					// fill up with sediment, decreasing volume
-					_StorVol->D(rowNr,colNr) -= Sin/2650.000*_dt;
+					_StorVol->D(rowNr,colNr) -= Sin/SEDIMENTBULKD*_dt;
 					Sin = 0;
 					if (_StorVol->D(rowNr,colNr) < 0)
 					{
-						Sin = -_StorVol->D(rowNr,colNr)*2650.000/_dt;
+						Sin = -_StorVol->D(rowNr,colNr)*SEDIMENTBULKD/_dt;
 						_StorVol->D(rowNr,colNr) = 0;
 					}
-					_StorVolSed->D(rowNr,colNr) = _StorVol->D(rowNr,colNr)*2650.000;
+					_StorVolSed->D(rowNr,colNr) = _StorVol->D(rowNr,colNr)*SEDIMENTBULKD;
 				}
 			}
 
