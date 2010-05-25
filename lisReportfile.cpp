@@ -30,14 +30,16 @@ void TWorld::ReportTimeseriesNew()
 	int hour, min, sec;
 	int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
 	double RainIntavg = RainAvgmm * 3600/_dt;
-	QString newname1, pnr, sep;
-	QFileInfo fi(resultDir + outflowFileName);
+	QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
+	int width = (!SwitchWritePCRtimeplot ? 0 : 9);
 
+	QFileInfo fi(resultDir + outflowFileName);
+/*
 	if (SwitchWritePCRtimeplot)
 		sep = " ";
 	else
 		sep = ",";
-
+*/
 	if (SwitchSOBEKOutput && time > 0)
 	{
 		sec = (int)(time*60);
@@ -67,7 +69,7 @@ void TWorld::ReportTimeseriesNew()
 					fout.open(QIODevice::WriteOnly | QIODevice::Text);
 					QTextStream out(&fout);
 					out.setRealNumberPrecision(3);
-					out.setFieldWidth(8);
+					out.setFieldWidth(width);
 					out.setRealNumberNotation(QTextStream::FixedNotation);
 
 					// HEADERS for the 3 types
@@ -118,7 +120,7 @@ void TWorld::ReportTimeseriesNew()
 			fout.open(QIODevice::WriteOnly | QIODevice::Text);
 			QTextStream out(&fout);
 			out.setRealNumberPrecision(3);
-			out.setFieldWidth(8);
+			out.setFieldWidth(width);
 			out.setRealNumberNotation(QTextStream::FixedNotation);
 
 			if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
@@ -211,7 +213,7 @@ void TWorld::ReportTimeseriesNew()
 
 				QTextStream out(&fout);
 				out.setRealNumberPrecision(3);
-				out.setFieldWidth(8);
+				out.setFieldWidth(width);
 				out.setRealNumberNotation(QTextStream::FixedNotation);
 
 				if (!SwitchSOBEKoutput)   //PCRaster timeplot and flat CSV format
@@ -250,7 +252,7 @@ void TWorld::ReportTimeseriesNew()
 		fout.open(QIODevice::Append | QIODevice::Text);
 		QTextStream out(&fout);
 		out.setRealNumberPrecision(3);
-		out.setFieldWidth(8);
+		out.setFieldWidth(width);
 		out.setRealNumberNotation(QTextStream::FixedNotation);
 
 		if (!SwitchSOBEKoutput)

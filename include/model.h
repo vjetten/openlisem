@@ -103,7 +103,7 @@ public:
 
      // All maps are declared here, no lacal declarations
      TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
-      *Rain, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
+     *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
       *WH, /* *WHinf, not used ! */ *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
       *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,

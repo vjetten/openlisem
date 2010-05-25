@@ -45,11 +45,15 @@ void TWorld::MassBalance(void)
 
 	double areafac = 1000/CatchmentArea; // conversion from m3 total to mm area average
 //	double rainfall = Rain->MapTotal() * CatchmentArea;
-
-	RainAvgmm = Rain->MapTotal()/nrCells * 1000; // avg mm over whole area
+	RainAvgmm = 0;
+	FOR_ROW_COL_MV
+	{
+		RainAvgmm += Rain->Drc*1000; // avg mm over whole area
+	}
+	RainAvgmm = RainAvgmm /nrCells;
 	RainTotmm = RainTotmm + RainAvgmm;
 
-	tm->copy(Rain);
+	tm->copy(Rainc);
    tm->calc(DX, MUL);
    tm->calcV(_dx, MUL);
    double rainfall = tm->MapTotal(); // in m3

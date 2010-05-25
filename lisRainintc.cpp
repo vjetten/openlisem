@@ -15,6 +15,7 @@ Functionality in lisRainintc.cpp:
 #include "model.h"
 
 //---------------------------------------------------------------------------
+// read rainfall files of different types
 void TWorld::GetRainfallData(void)
 {
 	QFile fff(rainFileName);
@@ -22,7 +23,6 @@ void TWorld::GetRainfallData(void)
 	QString S;
 	bool ok;
 	int j = 0;
-
 
 	if (!fi.exists())
 	{
@@ -35,17 +35,27 @@ void TWorld::GetRainfallData(void)
 
 	fff.open(QIODevice::ReadOnly | QIODevice::Text);
 	S = fff.readLine();
-
 	// read the header
-	QStringList SL = S.split(QRegExp("\\s+"));
-	nrstations = SL[SL.size()-2].toInt(&ok, 10);
+	if (S.contains("RUU CSF TIMESERIE", Qt::CaseInsensitive)) // file is old lisem file
+	{
+		QStringList SL = S.split(QRegExp("\\s+"));
+		nrstations = SL[SL.size()-2].toInt(&ok, 10);
+	}
+
+	else // file is PCRaster timeseries
+	{
+		S = fff.readLine();
+		nrstations = S.toInt(&ok, 10);
+	}
 	if (!ok)
 	{
 		ErrorString = "Cannot read nr rainfall stations in header rainfall file";
 		throw 1;
 	}
+
 	for(int r=0; r < nrstations+1; r++)
 		S = fff.readLine();
+	// read column headers
 
 	while (!fff.atEnd())
 	{
@@ -53,6 +63,7 @@ void TWorld::GetRainfallData(void)
 		if (!S.trimmed().isEmpty())
 			nrrainfallseries++;
 	}
+	// count rainfall records, skip empty lines
 	if (nrrainfallseries <= 1)
 	{
 		ErrorString = "rainfall records <= 1!";
@@ -63,8 +74,11 @@ void TWorld::GetRainfallData(void)
 	RainfallSeries = new double*[nrrainfallseries];
 	for(int r=0; r < nrrainfallseries; r++)
 		RainfallSeries[r] = new double[nrstations+1];
-	fff.close();
+	// make structure to contain rainfall
 	//RainfallSeries is matrix with rows is data and 1st column is time, other columns are stations
+
+	fff.close();
+	// close file and start again
 
 	fff.open(QIODevice::ReadOnly | QIODevice::Text);
 	S = fff.readLine();
@@ -98,6 +112,11 @@ void TWorld::GetRainfallData(void)
 	fff.close();
 }
 //---------------------------------------------------------------------------
+// rainfall intensity read is that reported with the next line: example
+// 0 0
+// 5 2.3   ->from 0 to 5 minutes intensity is 2.3
+// 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5
+// etc.
 void TWorld::Rainfall(void)
 {
 	double timemin = time / 60;  //time in minutes
@@ -115,13 +134,15 @@ void TWorld::Rainfall(void)
 	{
 			int col = (int) RainZone->Drc;
 
-			Rain->Drc = RainfallSeries[place][col]/3600000 * _dt * _dx/DX->Drc;
+			Rain->Drc = RainfallSeries[place][col]/3600000 * _dt;
 			// Rain in m per timestep
-			//TO DO: weighted average if dt larger than table dt
-			// correction for slope dx/DX
+			Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+			// correction for slope dx/DX, water spreads out over larger area
 
-			RainCum->Drc += Rain->Drc;
-			// cumulative rainfall
+			//TODO: weighted average if dt larger than table dt
+
+			RainCum->Drc += Rainc->Drc;
+			// cumulative rainfall corrected for slope, used in interception
 	}
 }
 //---------------------------------------------------------------------------
@@ -139,7 +160,6 @@ void TWorld::Interception(void)
 	{
 		double CS = CStor->Drc;
 		//actual canopy storage in m
-		double rain = Rain->Drc;
 		double Smax = CanopyStorage->Drc;
 		//max canopy storage in m
 		double LAIv;
@@ -162,7 +182,7 @@ void TWorld::Interception(void)
 		// is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
 		//possible to use equation from Ahston but for very open Eucalypt
 
-		LeafDrain->Drc = max(0, Cover->Drc*(rain - (CS - CStor->Drc)));
+		LeafDrain->Drc = max(0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
 		// diff between new and old strage is subtracted from rainfall
 		// rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
 		// note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
@@ -173,9 +193,7 @@ void TWorld::Interception(void)
 		// only on soil surface, not channels or roads, in m3
 		// cover already implicit in CS, Smax
 
-
-		//        RainNet->Drc = Cover->Drc*drain + (1-Cover->Drc)*rain;
-		RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*rain;
+		RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
 		// net rainfall is direct rainfall + drainage
 		// rainfall that falls on the soil, used in infiltration
 	}

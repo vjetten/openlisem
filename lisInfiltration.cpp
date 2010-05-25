@@ -259,7 +259,7 @@ void TWorld::Infiltration(void)
 		// net rainfall on grass strips, infil is calculated separately for grassstrips
 
 		if (RoadWidthDX->Drc > 0)
-			WHroad->Drc += Rain->Drc;
+			WHroad->Drc += Rainc->Drc;
 		// assume no interceprion on roads, gross rainfall
 
 		InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);

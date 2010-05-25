@@ -119,7 +119,7 @@ void TWorld::ChannelFlow(void)
 		ChannelWaterVol->Data[r][c] += RunoffVolinToChannel->Drc;
 		// add inflow to channel
 		if (ChannelWidth->Drc > 0)
-			ChannelWaterVol->Drc += Rain->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+			ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
 		// add rainfall in m3, no interception
 
 		if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel

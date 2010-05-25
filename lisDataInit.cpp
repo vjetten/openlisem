@@ -378,6 +378,7 @@ void TWorld::IntializeData(void)
 
 	// rainfall and interception maps
 	Rain = NewMap(0);
+	Rainc = NewMap(0);
 	RainCum = NewMap(0);
 	RainNet = NewMap(0);
 	LeafDrain = NewMap(0);

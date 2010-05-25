@@ -40,8 +40,8 @@ void TWorld::SplashDetachment(void)
 		double b, strength, DetDT1, DetDT2, DetLD1, DetLD2;
 		double g_to_kg = 0.001;
 
-		double Int = Rain->Drc * 3600/_dt * DX->Drc/_dx * 1000;
-		// intensity in mm/h, uncorrect for slope, Rain is in m corrected for slope
+		double Int = Rain->Drc * 3600/_dt * 1000;
+		// intensity in mm/h, Rain is in m
 
 		double KE_DT = 28.3*(1-(0.52*exp(-0.042*Int)));
 		// kin energy in J/m2/mm, Van DIjk general equation 2002
@@ -54,7 +54,7 @@ void TWorld::SplashDetachment(void)
     	   KE_DT = 0;
 		 */
 
-		double directrain = (1-Cover->Drc)*Rain->Drc * 1000; //
+		double directrain = (1-Cover->Drc)*Rainc->Drc * 1000; //
 		// rainfall between plants in mm
 
 		double KE_LD = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
