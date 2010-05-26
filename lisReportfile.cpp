@@ -15,7 +15,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "ifacebasic.h"
 #include "model.h"
 #include "global.h"
-//#include <qstring.h>
 
 
 //---------------------------------------------------------------------------
@@ -372,19 +371,53 @@ void TWorld::ReportMaps()
 			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;
 	}
 
-	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff);
-	if (outputcheck[1].toInt() == 1) Conc->report(Outconc); // in overland flow, not channels
-	if (outputcheck[2].toInt() == 1) WH->report(Outwh);
-	//if (outputcheck[3].toInt() == 1) WHrunoff->report(Outrwh);
-	// CUMULATIVE RUNOFF?
-	if (outputcheck[4].toInt() == 1) TC->report(Outtc);
-	if (outputcheck[5].toInt() == 1) TotalDetMap->report(Outeros);
-	if (outputcheck[6].toInt() == 1) TotalDepMap->report(Outdepo);
-	if (outputcheck[7].toInt() == 1) V->report(Outvelo);
-	if (outputcheck[8].toInt() == 1) fact->report(Outinf);
-	if (outputcheck[9].toInt() == 1) WHstore->report(Outss);
-	if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
+	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s
+	if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
+	if (outputcheck[2].toInt() == 1)
+	{
+		tm->calc2V(WH, 1000, MUL);// WH in mm
+		tm->report(Outwh);
+	}
+	if (outputcheck[3].toInt() == 1)	WHrunoffCum->report(Outrwh); // in mm
+	if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
 
+	if (outputcheck[5].toInt() == 1)
+	{
+		tm->calc2(TotalDetMap, CellArea, DIV);
+		tm->report(Outeros); // in kg/m2
+	}
+	if (outputcheck[6].toInt() == 1)
+	{
+		tm->calc2(TotalDepMap, CellArea, DIV);
+		tm->report(Outdepo); // in kg/m2
+	}
+	if (outputcheck[7].toInt() == 1) V->report(Outvelo);
+	FOR_ROW_COL_MV
+	{
+		InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;
+		tm->Drc = InfilVolCum->Drc*1000/CellArea->Drc;
+	}
+	if (outputcheck[8].toInt() == 1) tm->report(Outinf);
+
+	if (outputcheck[9].toInt() == 1)
+	{
+		tm->calc2V(WHstore, 1000, MUL);// in mm
+		tm->report(Outss);
+	}
+	if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
+/*
+   char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutWHC   = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutTC    = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutEros  = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutDepo  = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutV     = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutInf   = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
+   q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
+	*/
 	//fpot->report("fpot",runstep);
 	//fact->report("fact",runstep);
 	//RainCum->report("rainc", runstep);

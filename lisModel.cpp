@@ -53,9 +53,7 @@ void TWorld::MassBalance(void)
 	RainAvgmm = RainAvgmm /nrCells;
 	RainTotmm = RainTotmm + RainAvgmm;
 
-	tm->copy(Rainc);
-   tm->calc(DX, MUL);
-   tm->calcV(_dx, MUL);
+   tm->calc2(CellArea, Rainc, MUL); //in m3
    double rainfall = tm->MapTotal(); // in m3
    RainTot += rainfall; // in m3
 
@@ -239,12 +237,13 @@ void TWorld::DoModel()
 
 		IntializeOptions();
 		// set all to 0 and false
+		InitMapList();
+		// map structure to destroy data automatically
+
 		GetRunFile();
 		ParseInputData();
 		// get and parse runfile
 
-		InitMapList();
-		// map structure to destroy data automatically
 		GetInputData();
 		IntializeData();
 		GetRainfallData();

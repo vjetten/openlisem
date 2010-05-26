@@ -30,7 +30,7 @@ Functionality in model.h:
 #define DEBUG(s) emit debug(QString("debug: "+s));msleep(10)
 
 #define mwrite(name) WriteMap(QString(resultDir+name))
-#define report(name) WriteMapSeries(resultDir,QString(name), printstep+1)
+#define report(name) WriteMapSeries(resultDir,QString(name), printstep)
 
 #define Drc     Data[r][c]
 #define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
@@ -102,9 +102,9 @@ public:
      int maplistnr;
 
      // All maps are declared here, no lacal declarations
-     TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
+     TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
      *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-      *WH, /* *WHinf, not used ! */ *WHroad, *WHrunoff, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *fpa,
+      *WH, /* *WHinf, not used ! */ *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *InfilVolCum, *fpa,
       *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
       *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
@@ -114,7 +114,7 @@ public:
       *ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
       *KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
       *WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
-      *BufferSedInit, *BufferVol, *BufferSed, *BufferID, *BufferVolInit, *BufferSedBulkDensity, *ChannelBufferSed, *ChannelBufferVol,
+      *BufferSedInit, *BufferVol, *BufferSed, *BufferID, *BufferVolInit, *ChannelBufferSed, *ChannelBufferVol,
       *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,

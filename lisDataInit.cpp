@@ -306,6 +306,21 @@ void TWorld::GetInputData(void)
 	{
 		BufferID = ReadMap(LDD,getvaluename("bufferID"));
 		BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
+
+		FOR_ROW_COL_MV
+		{
+			if (BufferID->Drc > 0)
+			{
+				Grad->Drc = 0.001;
+				RR->Drc = 0.01;
+				N->Drc = 0.5;
+				if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
+				{
+					ChannelGrad->Drc = 0.001;
+					ChannelN->Drc = 0.5;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -355,14 +370,15 @@ void TWorld::IntializeData(void)
 	nrCells = Mask->MapTotal();
 
 	//terrain maps
-	//      Grad->calcV(0.0001, ADD);
 	DX = NewMap(0);
+	CellArea = NewMap(0);
 	FOR_ROW_COL_MV
 	{
 		Grad->Drc = max(0.0001, Grad->Drc);
 		DX->Drc = _dx/cos(asin(Grad->Drc));
+		CellArea->Drc = DX->Drc * _dx;
 	}
-	CatchmentArea = DX->MapTotal() * _dx;
+	CatchmentArea = CellArea->MapTotal();
 
 	WheelWidthDX = NewMap(0);
 	SoilWidthDX = NewMap(0);
@@ -393,6 +409,7 @@ void TWorld::IntializeData(void)
 		SwitchTwoLayer = true;
 	InfilVolKinWave = NewMap(0);
 	InfilVol = NewMap(0);
+	InfilVolCum = NewMap(0);
 	Fcum = NewMap(1e-10);
 	L1 = NewMap(1e-10);
 	L2 = NewMap(1e-10);
@@ -415,6 +432,7 @@ void TWorld::IntializeData(void)
 	// runoff maps
 	WH = NewMap(0);
 	WHrunoff = NewMap(0);
+	WHrunoffCum = NewMap(0);
 	WHstore = NewMap(0);
 	WHroad = NewMap(0);
 	// WHinf = NewMap(0); // not used!
@@ -462,14 +480,14 @@ void TWorld::IntializeData(void)
 		{
 			switch (InterceptionLAIType)
 			{
-			case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-			case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-			case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-			case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-			case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-			case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-			case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-			case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+				case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+				case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+				case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+				case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+				case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+				case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+				case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+				case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 			}
 		}
 	}
@@ -564,7 +582,6 @@ void TWorld::IntializeData(void)
 	{
 		BufferSedInit = NewMap(0);
 		BufferVolInit = NewMap(0);
-		BufferSedBulkDensity = NewMap(0);
 		if (SwitchIncludeChannel)
 		{
 			ChannelBufferSed = NewMap(0);
@@ -576,6 +593,7 @@ void TWorld::IntializeData(void)
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
 {
+	nrrainfallseries = 0;
 
 	//dirs and names
 	resultDir.clear();
@@ -593,64 +611,64 @@ void TWorld::IntializeOptions(void)
 	resultFileName.clear();
 
 	SwitchHardsurface =
-	SwatreInitialized =
-	SwitchInfilGA2 =
-	SwitchCrustPresent =
-	SwitchWheelPresent =
-	SwitchCompactPresent =
-	SwitchIncludeChannel =
-	SwitchChannelBaseflow =
-	startbaseflowincrease =
-	SwitchChannelInfil =
-	SwitchAllinChannel =
-	SwitchErosion =
-	SwitchAltErosion =
-	SwitchSimpleDepression =
-	SwitchBuffers =
-	SwitchSedtrap =
-	SwitchSnowmelt =
-	SwitchRunoffPerM =
-	SwitchInfilCompact =
-	SwitchInfilCrust =
-	SwitchInfilGrass =
-	SwitchImpermeable =
-	SwitchDumphead =
-	SwitchGeometricMean =
-	SwitchWheelAsChannel =
-	SwitchMulticlass =
-	SwitchNutrients =
-	SwitchGullies =
-	SwitchGullyEqualWD =
-	SwitchGullyInfil =
-	SwitchGullyInit =
-	SwitchOutputTimeStep =
-	SwitchOutputTimeUser =
-	SwitchMapoutRunoff =
-	SwitchMapoutConc =
-	SwitchMapoutWH =
-	SwitchMapoutWHC =
-	SwitchMapoutTC =
-	SwitchMapoutEros =
-	SwitchMapoutDepo =
-	SwitchMapoutV =
-	SwitchMapoutInf =
-	SwitchMapoutSs =
-	SwitchMapoutChvol =
-	SwitchWritePCRnames =
-	SwitchWritePCRtimeplot =
-	SwitchNoErosionOutlet =
-	SwitchDrainage =
-	SwitchPestout =
-	SwitchSeparateOutput =
-	SwitchSOBEKOutput =
-	SwitchInterceptionLAI =
-	SwitchTwoLayer =
-	SwitchSimpleSedKinWave =
-	SwitchSOBEKoutput =
-	SwitchPCRoutput =
-   SwitchSoilwater =
-   		false;
-   SwitchWriteHeaders = true; // write headers in output files in first timestep
+			SwatreInitialized =
+					SwitchInfilGA2 =
+							SwitchCrustPresent =
+									SwitchWheelPresent =
+											SwitchCompactPresent =
+													SwitchIncludeChannel =
+															SwitchChannelBaseflow =
+																	startbaseflowincrease =
+																			SwitchChannelInfil =
+																					SwitchAllinChannel =
+																							SwitchErosion =
+																									SwitchAltErosion =
+																											SwitchSimpleDepression =
+																													SwitchBuffers =
+																															SwitchSedtrap =
+																																	SwitchSnowmelt =
+																																			SwitchRunoffPerM =
+																																					SwitchInfilCompact =
+																																							SwitchInfilCrust =
+																																									SwitchInfilGrass =
+																																											SwitchImpermeable =
+																																													SwitchDumphead =
+																																															SwitchGeometricMean =
+																																																	SwitchWheelAsChannel =
+																																																			SwitchMulticlass =
+																																																					SwitchNutrients =
+																																																							SwitchGullies =
+																																																									SwitchGullyEqualWD =
+																																																											SwitchGullyInfil =
+																																																													SwitchGullyInit =
+																																																															SwitchOutputTimeStep =
+																																																																	SwitchOutputTimeUser =
+																																																																			SwitchMapoutRunoff =
+																																																																					SwitchMapoutConc =
+																																																																							SwitchMapoutWH =
+																																																																									SwitchMapoutWHC =
+																																																																											SwitchMapoutTC =
+																																																																													SwitchMapoutEros =
+																																																																															SwitchMapoutDepo =
+																																																																																	SwitchMapoutV =
+																																																																																			SwitchMapoutInf =
+																																																																																					SwitchMapoutSs =
+																																																																																							SwitchMapoutChvol =
+																																																																																									SwitchWritePCRnames =
+																																																																																											SwitchWritePCRtimeplot =
+																																																																																													SwitchNoErosionOutlet =
+																																																																																															SwitchDrainage =
+																																																																																																	SwitchPestout =
+																																																																																																			SwitchSeparateOutput =
+																																																																																																					SwitchSOBEKOutput =
+																																																																																																							SwitchInterceptionLAI =
+																																																																																																									SwitchTwoLayer =
+																																																																																																											SwitchSimpleSedKinWave =
+																																																																																																													SwitchSOBEKoutput =
+																																																																																																															SwitchPCRoutput =
+																																																																																																																	SwitchSoilwater =
+																																																																																																																			false;
+	SwitchWriteHeaders = true; // write headers in output files in first timestep
 }
 //---------------------------------------------------------------------------
 /*

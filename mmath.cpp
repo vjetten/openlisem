@@ -147,4 +147,27 @@ void TMMap::setMV()
 	   SetMemMV(Data[r],nrCols,CR_REAL4);
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void TMMap::calc2V(cTMap *M1, double V, int oper)
+{
+   for (int r = 0; r < nrRows; r++)
+    for (int c = 0; c < nrCols; c++)
+    if (!IS_MV_REAL4(&Data[r][c]))
+    {
+      if (!IS_MV_REAL4(&M1->Data[r][c]))
+      {
+          switch (oper)
+          {
+          case ADD: Data[r][c] = M1->Data[r][c] + V; break;
+          case SUB: Data[r][c] = M1->Data[r][c] - V; break;
+          case MUL: Data[r][c] = M1->Data[r][c] * V; break;
+          case DIV: if (V > 0) Data[r][c] = M1->Data[r][c] / V;
+                       else SET_MV_REAL4(&Data[r][c]); break;
+          case POW: Data[r][c] = pow(M1->Data[r][c],V); break;
+          }
+      }
+      else
+          SET_MV_REAL4(&Data[r][c]);
+    }
+}
 

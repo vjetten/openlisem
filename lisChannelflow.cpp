@@ -31,6 +31,11 @@ void TWorld::ToChannel(void)
 					fractiontochannel = 1.0;
 			// in catchment outlet cell, throw everything in channel
 
+			if (SwitchBuffers)
+				if (BufferID->Drc > 0)
+					fractiontochannel = 1.0;
+			// where there is a buffer in the channel, all goes in the channel
+
 			RunoffVolinToChannel->Drc = fractiontochannel*Volume;
 			// water diverted to the channel
 			WHrunoff->Drc *= (1-fractiontochannel);

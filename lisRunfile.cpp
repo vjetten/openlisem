@@ -65,7 +65,7 @@ int TWorld::getvalueint(const char *vname)
 void TWorld::GetRunFile()
 {
     QFile fin(temprunname);
-DEBUGs(temprunname);
+
     if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         ErrorString = "Cannot open runfile: " + temprunname;
@@ -100,25 +100,16 @@ DEBUGs(temprunname);
 //---------------------------------------------------------------------------
 QString TWorld::CheckDir(QString p, QString p1)
 {
-   QFileInfo fi(p);
-//  DEBUG(fi.filePath()+"/");
-   if (fi.exists() && fi.isDir())
+   if (QDir(p).exists())
    {
-     QString SS = fi.filePath();
-     if (!SS.endsWith("/"))
-        SS = SS + '/';
-     return SS;
+     if (!p.endsWith("/"))
+        p = p + '/';
+     return p;
    }
    else
    {
-      if (p.isEmpty())
-         ErrorString = p1 + " is empty.";
-      else
-      if (!fi.exists())
-         ErrorString = p1 +": "+p+ " not found!";
-      else
-      if (!fi.isDir())
-         ErrorString = p1 +": "+p+ " is not a directory!";
+	   if (!QDir(p).exists())
+         ErrorString = p1 +": "+p+ " is not an existing directory!";
       throw 1;
    }
    return "";
@@ -161,6 +152,9 @@ void TWorld::ParseInputData()
           if (p1.compare("Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
           if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
           if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
+          SwitchAllinChannel = true;
+          //VJ 100526 always true in old LISEM
+
           if (p1.compare("Include snowmelt")==0)               SwitchSnowmelt =         iii == 1;
           if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
           if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
@@ -198,7 +192,8 @@ void TWorld::ParseInputData()
 
           // input ourput dirs and file names
           if (p1.compare("Map Directory")==0) inputDir=CheckDir(p, p1);
-          if (p1.compare("Result Directory")==0) resultDir = CheckDir(p, p1);
+          if (p1.compare("Result Directory")==0) p = resultDir = CheckDir(p, p1);
+
        //   if (p1.compare("Table Directory")==0) tableDir = CheckDir(p, p1);
        // move to swatre later when infiltration method is known!
           if (p1.compare("Main results file")==0) resultFileName = p;
@@ -232,7 +227,9 @@ void TWorld::ParseInputData()
           if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
           if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 
+
     }
+
     //fclose(fout);
 }
 //------------------------------------------------------------------------------
