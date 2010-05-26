@@ -26,6 +26,11 @@ void TWorld::ToChannel(void)
 			double fractiontochannel = min(_dt*V->Drc/(0.5*(_dx-ChannelWidthUpDX->Drc)), 1.0);
 			double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
+			if (SwitchAllinChannel)
+				if (Outlet->Drc == 1)
+					fractiontochannel = 1.0;
+			// in catchment outlet cell, throw everything in channel
+
 			RunoffVolinToChannel->Drc = fractiontochannel*Volume;
 			// water diverted to the channel
 			WHrunoff->Drc *= (1-fractiontochannel);

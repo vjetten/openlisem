@@ -160,6 +160,7 @@ void TWorld::ParseInputData()
           if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
           if (p1.compare("Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
           if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
+          if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
           if (p1.compare("Include snowmelt")==0)               SwitchSnowmelt =         iii == 1;
           if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
           if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
