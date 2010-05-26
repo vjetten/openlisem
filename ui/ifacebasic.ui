@@ -14,7 +14,7 @@
    <string>openLisem (1.0 beta)</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">Cleanlooks</string>
+   <string notr="true"/>
   </property>
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
@@ -61,7 +61,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset resource="../resources/openlisem.qrc">
+       <iconset>
         <normaloff>:/fileopen.bmp</normaloff>:/fileopen.bmp</iconset>
       </property>
      </widget>
@@ -72,7 +72,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset resource="../resources/openlisem.qrc">
+       <iconset>
         <normaloff>:/new.png</normaloff>:/new.png</iconset>
       </property>
      </widget>

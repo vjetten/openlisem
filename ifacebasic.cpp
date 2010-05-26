@@ -6,6 +6,10 @@ Developed in: MingW/Qt/Eclipse
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
+/*
+ * This is the simple interface, reads a run file and starts working
+ */
+
 #include "ifacebasic.h"
 #include "model.h"
 #include "global.h"
@@ -19,13 +23,16 @@ ifacebasic::ifacebasic(QWidget *parent)
 : QWidget(parent)
 {
 	setupUi(this);
-	W = NULL;
 	// set up interface
-	GetStorePath();
+	W = NULL;
+	// initalize pointer to the world, created whe run button is pushed
 
+	GetStorePath();
 	E_runfilename->setText(op.runfilename);
+	// open openlisem.ini and read last runfile name
 
 	SetStyleUI();
+	// do some style things
 }
 //---------------------------------------------------------------------------
 ifacebasic::~ifacebasic()
@@ -35,6 +42,8 @@ ifacebasic::~ifacebasic()
 //---------------------------------------------------------------------------
 void ifacebasic::SetStyleUI()
 {
+	// make some labels yellow
+
 	label_dx->setStyleSheet("* { background-color: #ffffff }");
 	label_area->setStyleSheet("* { background-color: #ffffff }");
 	label_time->setStyleSheet("* { background-color: #ffffff }");
@@ -61,51 +70,49 @@ void ifacebasic::SetStyleUI()
 	label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
 }
 //---------------------------------------------------------------------------
-/*
-void ifacebasic::on_checkChannel_clicked()
-{
-	op.SwitchIncludeChannel = checkChannel->isChecked();
-}
-//---------------------------------------------------------------------------
-void ifacebasic::on_checkErosion_clicked()
-{
-	op.SwitchErosion = checkErosion->isChecked();
-}*/
-//---------------------------------------------------------------------------
 void ifacebasic::on_runButton_clicked()
 {
 	if(W)
 		W->stopRequested = true;
+	   // user pushed stop button
 	else
 	{
+		// user pushed run button
+
 		QFile file(op.runfilename);
-		if (!file.open(QFile::ReadOnly | QFile::Text)) {
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
 			QMessageBox::warning(this, "openLISEM",
 					QString("Cannot read file \"%1\":\n%2.")
 					.arg(op.runfilename)
 					.arg(file.errorString()));
 			return;
 		}
+		// check run file
 
 		W = new TWorld();
-		label_28->setText("debug");
+		// make the world
+		//label_28->setText("debug");
 
 		connect(W, SIGNAL(show(void)),this, SLOT(Showit(void)),Qt::QueuedConnection);
 		connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
 		connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-		// connect emitted signals from the model to the interface routines that handle them
+		// connect emitted signals from the model thread to the interface routines that handle them
 		W->stopRequested = false;
 		// stoprequested is used to stop the thread with the interface
 		W->start();
 		// start the model thread, executes W->run()
 		runButton->setText("stop");
+		// change the button text to stop
 	}
 }
 //---------------------------------------------------------------------------
 void ifacebasic::Showit()
 {
-	// copy the run results from the output structure op to the ui labels
-	// op is filled in the model run each timestep
+	// copy the run results from the "output structure op" to the ui labels
+	// "op" is filled in the model run each timestep
+	// "op" struct is declared in ifacebasic.h
+
 	label_dx->setText(QString::number(op.dx,'f',3));
 	label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
 	label_time->setText(QString::number(op.time,'f',3));
@@ -153,8 +160,9 @@ void ifacebasic::worldDone(const QString &results)
 		delete W;
 		W=NULL;
 	}
+	//free the world instance
 	runButton->setText("run");
-	//free the model instance
+	// set run button back to "run"
 }
 //---------------------------------------------------------------------------
 void ifacebasic::worldDebug(const QString &results)
@@ -162,6 +170,7 @@ void ifacebasic::worldDebug(const QString &results)
 
 	label_28->setText(results);
 	// arrive here after model emits done signal
+	// results is a string with some message from the model
 }
 //---------------------------------------------------------------------------
 void ifacebasic::on_toolButton_runfilename_clicked()
@@ -220,3 +229,4 @@ void ifacebasic::on_toolButton_ShowRunfile_clicked()
 
 	file.close();
 }
+//---------------------------------------------------------------------------

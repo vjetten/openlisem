@@ -11,6 +11,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 #include "ifacebasic.h"
 #include "global.h"
+#include "version.h"
 
 QString ErrorString;    // declare here, referenced by error.h
 
@@ -29,7 +30,9 @@ int main(int argc, char *argv[])
     //QApplication::setStyle("Cleanlooks");
 
     ifacebasic iface;
+    iface.setWindowTitle(QString("openLISEM ") + VERSION + DATE);
     iface.show();
+    // make an instance of the interface and show it
 
     return a.exec();
 }
