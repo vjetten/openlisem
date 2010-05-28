@@ -70,9 +70,9 @@ void cTMap::CreateMap(QString Name)
      // now get the header for nrrows and nrcols
      GetMapHeader(Name);
 
-      Data = new REAL4*[nrRows];
+      Data = new REAL8*[nrRows];
       for(int r=0; r < nrRows; r++)
-         Data[r] = new REAL4[nrCols];
+         Data[r] = new REAL8[nrCols];
 
      if (Data == NULL)
      {
@@ -104,18 +104,18 @@ bool cTMap::LoadFromFile()
     if (!m)
        return(false);
 
-    RuseAs(m, CR_REAL4); //RgetCellRepr(m));
+    RuseAs(m, CR_REAL8); //RgetCellRepr(m));
     for(int r=0; r < nrRows; r++)
        RgetSomeCells(m, (UINT4)r*nrCols, (UINT4)nrCols, Data[r]);
 
-    if (RgetCellRepr(m) == CR_REAL4)
+    if (RgetCellRepr(m) == CR_REAL8)
        ResetMinMax();
 
     Mclose(m);
     return(true);
 }
 //---------------------------------------------------------------------------
-void cTMap::_MakeMap(cTMap *dup, REAL4 value)
+void cTMap::_MakeMap(cTMap *dup, REAL8 value)
 {
      if (dup == NULL)
         return;
@@ -129,25 +129,25 @@ void cTMap::_MakeMap(cTMap *dup, REAL4 value)
      MH.valueScale = dup->MH.valueScale;
      MH.cellRepr = dup->MH.cellRepr;
      MH.xUL = dup->MH.xUL;
-	 MH.yUL = dup->MH.yUL;
+	  MH.yUL = dup->MH.yUL;
      MH.cellSizeX  = dup->MH.cellSizeX;
      MH.cellSizeY  = dup->MH.cellSizeX;
      MH.angle = dup->MH.angle;
      projection = dup->projection;
 
-     Data = new REAL4*[nrRows];
+     Data = new REAL8*[nrRows];
      for(int r=0; r < nrRows; r++)
-        Data[r] = new REAL4[nrCols];
+        Data[r] = new REAL8[nrCols];
 
      if (Data == NULL)
         return;
 
      for(int r = 0; r < nrRows; r++)
-	 SetMemMV(Data[r],nrCols,CR_REAL4);
+	       SetMemMV(Data[r],nrCols,CR_REAL8);
 
      for(int r=0; r < nrRows; r++)
       for(int c=0; c < nrCols; c++)
-      if (!IS_MV_REAL4(&dup->Data[r][c]))
+      if (!IS_MV_REAL8(&dup->Data[r][c]))
       {
           Data[r][c] = value;
       }
@@ -164,7 +164,7 @@ void cTMap::ResetMinMax(void)
 
       for(int r=0; r < nrRows; r++)
         for(int c=0; c < nrCols; c++)
-        if (!IS_MV_REAL4(&Data[r][c]))
+        if (!IS_MV_REAL8(&Data[r][c]))
         {
            if (maxv < Data[r][c]) maxv = Data[r][c];
            if (minv > Data[r][c]) minv = Data[r][c];
@@ -177,26 +177,36 @@ void cTMap::ResetMinMax(void)
 void cTMap::WriteMap(QString Name)
 {
     MAP *out;
-    long r;
+    long r, c;
+    REAL4 *Dt;
 
     if (!Created)
         return;
 
-    MH.cellRepr = CR_REAL4; 
-    if (MH.cellRepr == CR_REAL4)    
-       ResetMinMax();
+    ResetMinMax();
 
+    Dt = new REAL4[nrCols];
+    // make an array for output
+
+    MH.cellRepr = CR_REAL4;
     out = Rcreate(Name.toAscii().constData(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
                   (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSizeX);
+    RuseAs(out, CR_REAL4);
 
     for(r=0; r < nrRows; r++)
     {
-       if (RputRow(out, r, Data[r]) != (UINT4)nrCols)
+       for(c=0; c < nrCols; c++)
+      	 Dt[c] = (REAL4)Data[r][c];
+
+
+   	 if (RputRow(out, r, Dt) != (UINT4)nrCols)
        {
-           ErrorString = "rputrow write error with" + Name;
+         ErrorString = "rputrow write error with" + Name;
     	   throw 1;
        }
     }
+
+    delete Dt;
 
     Mclose(out);
 

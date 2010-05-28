@@ -71,6 +71,7 @@ void TWorld::OverlandFlow(void)
        }
     }
 
+
    Qn->setMV();
    // flag all Qn gridcell with MV for in kin wave
 
@@ -79,7 +80,7 @@ void TWorld::OverlandFlow(void)
      if (LDD->Drc == 5) // if outflow point, pit
      {
     	 //TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT
-        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol, BufferVol, BufferSed);
+        Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, SedVol, BufferVol, BufferSedVol);
 
      	  Qoutflow->Drc = Qn->Drc * _dt;
         	if (SwitchErosion)

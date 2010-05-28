@@ -166,7 +166,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			c = colNr+dx[i];
 
 			if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-					!IS_MV_REAL4(&_LDD->Drc))
+					!IS_MV_REAL8(&_LDD->Drc))
 				ldd = (int) _LDD->Drc;
 			else
 				continue;

@@ -312,8 +312,8 @@ void TWorld::ReportTotalsNew()
 	out << "Total discharge             (mm):," << op.Qtotmm<< "\n";
 	out << "Total interception          (mm):," << op.IntercTotmm<< "\n";
 	out << "Total infiltration          (mm):," << op.InfilTotmm<< "\n";
-	out << "Average surface storage     (mm):," << op.SurfStorTotmm<< "\n";
-	out << "Water in runoff             (mm):," << op.WaterVolTotmm<< "\n";
+	out << "Surface storage             (mm):," << op.SurfStormm<< "\n";
+	out << "Water in runoff + channel   (mm):," << op.WaterVolTotmm<< "\n";
 	out << "Total discharge             (m3):," << op.Qtot<< "\n";
 	out << "Peak discharge             (l/s):," << op.Qpeak<< "\n";
 	out << "Peak time rainfall         (min):," << op.RainpeakTime<< "\n";
@@ -335,62 +335,34 @@ void TWorld::ReportTotalsNew()
 //---------------------------------------------------------------------------
 void TWorld::ReportMaps()
 {
-	if (SwitchErosion)
+	if(SwitchErosion)
 	{
-		FOR_ROW_COL_MV
-		{
-			TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
-			TotalDepMap->Drc += DEP->Drc;
-			if (SwitchIncludeChannel)
-			{
-				TotalDetMap->Drc += ChannelDetFlow->Drc;
-				TotalDepMap->Drc += ChannelDep->Drc;
-			}
-			TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
-		}
-
 		TotalDetMap->mwrite(totalErosionFileName);
 		TotalDepMap->mwrite(totalDepositionFileName);
 		TotalSoillossMap->mwrite(totalSoillossFileName);
-	}
 
-	// output fluxes for reporting
-	FOR_ROW_COL_MV
-	{
-
-		Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);
-		if (Outlet->Drc == 1)
+		if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
+		if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
+		if (outputcheck[5].toInt() == 1)
 		{
-			double oldpeak = Qpeak;
-			Qpeak = max(Qpeak, Qoutput->Drc);
-			if (oldpeak < Qpeak)
-				QpeakTime = time;
+			tm->calc2(TotalDetMap, CellArea, DIV);
+			tm->report(Outeros); // in kg/m2
 		}
-
-		if (SwitchErosion)
-			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;
+		if (outputcheck[6].toInt() == 1)
+		{
+			tm->calc2(TotalDepMap, CellArea, DIV);
+			tm->report(Outdepo); // in kg/m2
+		}
 	}
 
 	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s
-	if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
 	if (outputcheck[2].toInt() == 1)
 	{
 		tm->calc2V(WH, 1000, MUL);// WH in mm
 		tm->report(Outwh);
 	}
 	if (outputcheck[3].toInt() == 1)	WHrunoffCum->report(Outrwh); // in mm
-	if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
 
-	if (outputcheck[5].toInt() == 1)
-	{
-		tm->calc2(TotalDetMap, CellArea, DIV);
-		tm->report(Outeros); // in kg/m2
-	}
-	if (outputcheck[6].toInt() == 1)
-	{
-		tm->calc2(TotalDepMap, CellArea, DIV);
-		tm->report(Outdepo); // in kg/m2
-	}
 	if (outputcheck[7].toInt() == 1) V->report(Outvelo);
 	FOR_ROW_COL_MV
 	{
@@ -403,9 +375,12 @@ void TWorld::ReportMaps()
 	{
 		tm->calc2V(WHstore, 1000, MUL);// in mm
 		tm->report(Outss);
+		//TODO check this: surf store in volume m3 is multiplied by flowwidth?
 	}
+
 	if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
-/*
+
+	/* from old LISEM: order in run file
    char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
@@ -418,17 +393,6 @@ void TWorld::ReportMaps()
    q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
 	*/
-	//fpot->report("fpot",runstep);
-	//fact->report("fact",runstep);
-	//RainCum->report("rainc", runstep);
-	//Fcum->report("fcum", runstep);
-	//WHstore->report("sstor", runstep);
-	//Qn->report("Qn", runstep);
-	//LeafDrain->report("ld", runstep);
-	//SettlingVelocity->report("sv", runstep);
-	//SedVol->report("sedvol");
-
-
 
 }
 //---------------------------------------------------------------------------

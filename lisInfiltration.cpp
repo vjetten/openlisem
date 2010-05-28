@@ -179,7 +179,7 @@ void TWorld::InfilKsat(void)
 // function to increase wetting front and deal with 2nd layer
 // returns actual infiltration
 // this function is called form all infiltration functions
-double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, REAL4 *L2p)
+double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p)
 {
 	double dL1, dL2;
 	double L1, L2;
@@ -234,8 +234,8 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, 
 		// increase infiltration depth L2  = fact/avail pore space
 	}
 
-	*L1p = (REAL4)L1;
-	*L2p = (REAL4)L2;
+	*L1p = (REAL8)L1;
+	*L2p = (REAL8)L2;
 
 	return fact; //m
 }

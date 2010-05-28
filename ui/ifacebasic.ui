@@ -61,7 +61,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset>
+       <iconset resource="../resources/openlisem.qrc">
         <normaloff>:/fileopen.bmp</normaloff>:/fileopen.bmp</iconset>
       </property>
      </widget>
@@ -72,7 +72,7 @@
        <string>...</string>
       </property>
       <property name="icon">
-       <iconset>
+       <iconset resource="../resources/openlisem.qrc">
         <normaloff>:/new.png</normaloff>:/new.png</iconset>
       </property>
      </widget>
@@ -245,7 +245,7 @@
     <rect>
      <x>340</x>
      <y>100</y>
-     <width>251</width>
+     <width>231</width>
      <height>221</height>
     </rect>
    </property>
@@ -583,10 +583,10 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>50</x>
      <y>100</y>
-     <width>221</width>
-     <height>191</height>
+     <width>271</width>
+     <height>221</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -617,8 +617,11 @@
     </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_15">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="text">
-       <string>Water Vol (mm)</string>
+       <string>Water Vol (incl surfstor &amp; chan)(mm)</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -667,7 +670,7 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="4" column="0">
      <widget class="QLabel" name="label_12">
       <property name="text">
        <string>Interception (mm)</string>
@@ -677,7 +680,7 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
+    <item row="4" column="1">
      <widget class="QLabel" name="label_interctot">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -693,7 +696,7 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="label_10">
       <property name="text">
        <string>Qtot (mm)</string>
@@ -703,7 +706,7 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="5" column="1">
      <widget class="QLabel" name="label_qtot">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -719,7 +722,7 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
        <string>Qtot (m3)</string>
@@ -729,7 +732,7 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="QLabel" name="label_qtotm3">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -745,7 +748,7 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
+    <item row="7" column="0">
      <widget class="QLabel" name="label_35">
       <property name="text">
        <string>Qpeak (l/s)</string>
@@ -755,7 +758,7 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="1">
+    <item row="7" column="1">
      <widget class="QLabel" name="label_qpeak">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -771,7 +774,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="label_14">
       <property name="palette">
        <palette>
@@ -818,7 +821,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="QLabel" name="label_MB">
       <property name="palette">
        <palette>
@@ -875,7 +878,7 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="8" column="1">
      <widget class="QLabel" name="label_qpeaktime">
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -891,13 +894,42 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="8" column="0">
      <widget class="QLabel" name="label_2">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
        <string>           peak time (min)</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="label_surfstor">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Surface Store (mm)</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>

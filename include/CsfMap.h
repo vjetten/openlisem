@@ -29,7 +29,7 @@ protected:
 public:
     CSF_RASTER_HEADER MH;
     UINT2 projection;
-    REAL4 **Data;
+    REAL8 **Data;
 
     QString MapName;
     QString PathName;
@@ -39,7 +39,7 @@ public:
     void KillMap();
     void GetMapHeader(QString Name);
     void CreateMap(QString Name);
-    void _MakeMap(cTMap *dup, REAL4 value);
+    void _MakeMap(cTMap *dup, REAL8 value);
     void WriteMap(QString Name);
     void WriteMapSeries(QString Dir, QString Name, int count);
     bool LoadFromFile();

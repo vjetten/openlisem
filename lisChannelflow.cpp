@@ -186,7 +186,7 @@ void TWorld::ChannelFlow(void)
 		if (LDDChannel->Drc == 5)
 		{
 			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-					ChannelWaterVol, ChannelSedVol, ChannelBufferVol, ChannelBufferSed);
+					ChannelWaterVol, ChannelSedVol, ChannelBufferVol, ChannelBufferSedVol);
 
 			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
         	if (SwitchErosion)

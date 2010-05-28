@@ -54,6 +54,7 @@ void ifacebasic::SetStyleUI()
 	label_watervoltot->setStyleSheet("* { background-color: #ffff77 }");
 	label_qtot->setStyleSheet("* { background-color: #ffff77 }");
 	label_infiltot->setStyleSheet("* { background-color: #ffff77 }");
+	label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
 	label_interctot->setStyleSheet("* { background-color: #ffff77 }");
 	label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
 	label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
@@ -125,6 +126,7 @@ void ifacebasic::Showit()
 	label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',3));
 	label_qtot->setText(QString::number(op.Qtotmm,'f',3));
 	label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
+	label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
 	label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
 	label_qtotm3->setText(QString::number(op.Qtot,'f',3));
 	label_qpeak->setText(QString::number(op.Qpeak,'f',3));

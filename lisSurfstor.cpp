@@ -28,6 +28,7 @@ void TWorld::GridCell(void)
       if (SwitchWheelPresent)
          WheelWidthDX->Drc = max(0,_dx-RoadWidthDX->Drc-ChannelWidthUpDX->Drc)/_dx * WheelWidth->Drc;
       // adjust wheelwidth in cells with other surfaces
+      //TODO is wheelsidth needed or just an extra map
 
       SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
                                     - GullyWidthDX->Drc

@@ -144,7 +144,7 @@ void TMMap::copy(cTMap *M)
 void TMMap::setMV()
 {
    for(int r = 0; r < nrRows; r++)
-	   SetMemMV(Data[r],nrCols,CR_REAL4);
+	   SetMemMV(Data[r],nrCols,CR_REAL8);
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

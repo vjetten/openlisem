@@ -57,7 +57,7 @@ TMMap *TWorld::ReadMapMask(QString name)
 
 	for (int r = 0; r < nrRows; r++)
 		for (int c = 0; c < nrCols; c++)
-			if (!IS_MV_REAL4(&Mask->Drc) && IS_MV_REAL4(&_M->Drc))
+			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
 			{
 				QString sr, sc;
 				sr.setNum(r); sc.setNum(c);
@@ -93,7 +93,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 
 	for (int r = 0; r < nrRows; r++)
 		for (int c = 0; c < nrCols; c++)
-			if (!IS_MV_REAL4(&Mask->Drc) && IS_MV_REAL4(&_M->Drc))
+			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
 			{
 				QString sr, sc;
 				sr.setNum(r); sc.setNum(c);
@@ -352,8 +352,8 @@ void TWorld::IntializeData(void)
 	RainTot = 0;
 	RainTotmm = 0;
 	Rainpeak = 0;
-	DetTotSplash = 0;
-	DetTotFlow = 0;
+	DetSplashTot = 0;
+	DetFlowTot = 0;
 	DepTot = 0;
 	DetTot = 0;
 	DepTot = 0;
@@ -365,6 +365,8 @@ void TWorld::IntializeData(void)
 	ChannelSedTot = 0;
 	ChannelDepTot = 0;
 	ChannelDetTot = 0;
+	BufferVolTot = 0;
+	BufferSedVolTot = 0;
 
 	tm = NewMap(0); // temp map for aux calculations
 	nrCells = Mask->MapTotal();
@@ -380,10 +382,10 @@ void TWorld::IntializeData(void)
 	}
 	CatchmentArea = CellArea->MapTotal();
 
+	WheelWidth = NewMap(0);
 	WheelWidthDX = NewMap(0);
 	SoilWidthDX = NewMap(0);
 	GullyWidthDX = NewMap(0);
-	StoneWidthDX = NewMap(0);
 	MDS = NewMap(0);
 	FOR_ROW_COL_MV
 	{
@@ -557,10 +559,10 @@ void TWorld::IntializeData(void)
 		ChannelWidthUpDX->cover(0);
 		FOR_ROW_COL_MV
 		{
-			if (!IS_MV_REAL4(&LDDChannel->Data[r][c]))
+			if (!IS_MV_REAL8(&LDDChannel->Data[r][c]))
 				ChannelMask->Drc = 1;
 			else
-				SET_MV_REAL4(&ChannelMask->Data[r][c]);
+				SET_MV_REAL8(&ChannelMask->Data[r][c]);
 		}
 		FOR_ROW_COL_MV_CH
 		{
@@ -577,14 +579,12 @@ void TWorld::IntializeData(void)
 	TotalConc = NewMap(0);
 
 	//TODO program link between sedbuffers and sedtraps
-	BufferSed = NewMap(0);
+	BufferSedVol = NewMap(0);
 	if (SwitchBuffers)
 	{
-		BufferSedInit = NewMap(0);
-		BufferVolInit = NewMap(0);
 		if (SwitchIncludeChannel)
 		{
-			ChannelBufferSed = NewMap(0);
+			ChannelBufferSedVol = NewMap(0);
 			ChannelBufferVol = NewMap(0);
 		}
 	}

@@ -101,25 +101,39 @@ public:
      MapListStruct maplist[NUMNAMES];
      int maplistnr;
 
-     // All maps are declared here, no lacal declarations
-     TMMap *tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet, *RainZone, *N, *RR, *MDS,
-     *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-      *WH, /* *WHinf, not used ! */ *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall, *InfilVolKinWave, *InfilVol, *InfilVolCum, *fpa,
-      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim, *WheelWidthDX, *StoneWidthDX,
-      *SoilWidthDX, *GullyWidthDX, *RoadWidthDX, *WheelWidth, *StoneFraction, *CompactFraction, *CrustFraction,
+     // All maps are declared here, no lacal declarations of maps are done
+     TMMap
+      // terrain
+      *tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
+      // rainfall and interception
+      *RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
+      // runoff
+      *WH, *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall,
+      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim,
+      // soil surface, storage and cover
+      *N, *RR, *MDS,*fpa,
+      *SoilWidthDX, *RoadWidthDX, *StoneFraction, *CompactFraction, *CrustFraction,
       *PlantHeight, *Cover, *CanopyStorage, *LAI,
-      *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50, *DETSplash, *DETFlow, *HardSurface,
-      *DEP, *TC, *Conc, *SedVol, *Qsoutflow, *CG, *DG, *SettlingVelocity, *Fcum, *FSurplus, *fact, *fpot,
+      // not used yet:
+      *WheelWidth, *WheelWidthDX, *GullyWidthDX,
+       //erosion
+      *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
+      *DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *SedVol, *Qsoutflow, *CG, *DG, *SettlingVelocity,
+      //infiltration
+      *Fcum, *FSurplus, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
       *ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
       *ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
       *KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
       *WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
-      *BufferSedInit, *BufferVol, *BufferSed, *BufferID, *BufferVolInit, *ChannelBufferSed, *ChannelBufferVol,
+      // Channels
       *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
       *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-      *PointMap, *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSedvol, *TotalWatervol, *TotalConc;
+      // buffers
+      *BufferVol, *BufferSedVol, *BufferID, *ChannelBufferSedVol, *ChannelBufferVol,
+      // totals for output
+      *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSedvol, *TotalWatervol, *TotalConc;
 
      // boolean options that are set in interface and runfile, initialized in DataInit
      bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
@@ -149,11 +163,12 @@ public:
     double StemflowFraction;
 
     // totals for mass balance checks and output
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStorTot, InfilKWTot;
-    double MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SoilLossTotOutlet, SedVolTot;
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStoremm, InfilKWTot;
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedVolTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
     double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
     double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
+    double BufferVolTot, BufferSedVolTot;
 
     // time and dx parameters
     double time, BeginTime, EndTime;
@@ -215,7 +230,7 @@ public:
     void InfilMorelSeytoux1(void);
     void InfilKsat(void);
     void SoilWater(void);
-    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL4 *L1p, REAL4 *L2p);
+    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void ChannelFlow(void);
@@ -230,6 +245,7 @@ public:
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                    TMMap *_StorVol, TMMap*_StorVolSed);
+    void Totals(void);
     void MassBalance(void);
     void Output(void);
     //void ReportTimeseries();
