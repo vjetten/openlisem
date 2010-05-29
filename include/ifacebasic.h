@@ -25,7 +25,7 @@ struct output{
 
     double MB, Qtot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,
       RainTotmm, SurfStormm, InfilKWTotmm,
-      MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedVolTot,
+      MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
       ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
       RunoffFraction, RainpeakTime, QpeakTime;
 

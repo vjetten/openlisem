@@ -103,7 +103,8 @@ void TWorld::SplashDetachment(void)
 		// no splash on grass strips
 
 		if (SwitchBuffers && !SwitchSedtrap)
-			DETSplash->Drc = 0;
+			if(BufferID->Drc > 0)
+				DETSplash->Drc = 0;
 		// no splash in buffers, but sedtrap can have splash
 
 		DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
@@ -127,13 +128,13 @@ void TWorld::FlowDetachment(void)
 		// not more than 2650*0.32 = 848 kg/m3
 
 		//### Add splash to sediment
-		SedVol->Drc += DETSplash->Drc;
+		Sed->Drc += DETSplash->Drc;
 		// add splash to sed volume
 
 		//### calc concentration and net transport capacity
 		DEP->Drc = 0;
 		// init deposition for this timestep
-		Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
+		Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
 		// limit sed concentration to max
 
 		double maxTC = max(TC->Drc - Conc->Drc,0);
@@ -173,20 +174,20 @@ void TWorld::FlowDetachment(void)
 		// max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 		//deposition = max(deposition, minTC * WaterVol->Drc);
 		// cannot be more than sediment above capacity
-		deposition = max(deposition, -SedVol->Drc);
+		deposition = max(deposition, -Sed->Drc);
 		// cannot have more depo than sediment present
 
 		if (GrassPresent->Drc > 0)
-			deposition = -SedVol->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
 		// generate 100% deposition on grassstrips
 		//? bit tricky, maximizes effect on grassstrips ?
 
 	  //### sediment balance
 		DEP->Drc += deposition;
-		SedVol->Drc += DETFlow->Drc;
-		SedVol->Drc += deposition;
+		Sed->Drc += DETFlow->Drc;
+		Sed->Drc += deposition;
 
-		Conc->Drc = MaxConcentration(WaterVolall->Drc, SedVol->Drc, DEP->Drc);
+		Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
 		// limit concentration to 850 and throw rest in deposition
 	}
 }
@@ -208,10 +209,10 @@ void TWorld::ChannelFlowDetachment(void)
 		ChannelDep->Drc = 0;
 		ChannelDetFlow->Drc = 0;
 
-		ChannelSedVol->Drc += SedToChannel->Drc;
+		ChannelSed->Drc += SedToChannel->Drc;
 		// add sed flow into channel from slope
 
-		ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
+		ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
 		// set conc to max and add surplus sed to ChannelDep
 
 		double maxTC = max(ChannelTC->Drc - ChannelConc->Drc,0);
@@ -230,7 +231,7 @@ void TWorld::ChannelFlowDetachment(void)
 
 		double deposition = minTC * TransportFactor;
 		// max deposition in kg/s  < 0
-		deposition = max(deposition, -ChannelSedVol->Drc);
+		deposition = max(deposition, -ChannelSed->Drc);
 		// cannot be more than sediment above capacity
 		//or:?     deposition = max(deposition, minTC * ChannelWaterVol->Drc);
 
@@ -247,10 +248,10 @@ void TWorld::ChannelFlowDetachment(void)
 		 */
 
 		ChannelDep->Drc += deposition;
-		ChannelSedVol->Drc += deposition;
-		ChannelSedVol->Drc += ChannelDetFlow->Drc;
+		ChannelSed->Drc += deposition;
+		ChannelSed->Drc += ChannelDetFlow->Drc;
 
-		ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
+		ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
 	}
 }
 //---------------------------------------------------------------------------

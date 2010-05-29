@@ -63,8 +63,6 @@ Functionality in model.h:
 #define INFIL_MOREL 21
 #define INFIL_SMITH 22
 
-#define SEDIMENTBULKD 2000
-
 //---------------------------------------------------------------------------
 // structure containing pointers to all maps for automatic destruction after runs
 // so memory doesn't have to be freed for each map
@@ -118,7 +116,7 @@ public:
       *WheelWidth, *WheelWidthDX, *GullyWidthDX,
        //erosion
       *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
-      *DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *SedVol, *Qsoutflow, *CG, *DG, *SettlingVelocity,
+      *DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *Sed, *Qsoutflow, *CG, *DG, *SettlingVelocity,
       //infiltration
       *Fcum, *FSurplus, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
       *ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
@@ -129,11 +127,13 @@ public:
       *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
       *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
       *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
-      *ChannelSedVol, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
+      *ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
       // buffers
-      *BufferVol, *BufferSedVol, *BufferID, *ChannelBufferSedVol, *ChannelBufferVol,
+      *BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
+      *BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
+//      *BufferSedVolMax, *ChannelBufferSedVolMax,
       // totals for output
-      *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSedvol, *TotalWatervol, *TotalConc;
+      *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSed, *TotalWatervol, *TotalConc;
 
      // boolean options that are set in interface and runfile, initialized in DataInit
      bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
@@ -164,11 +164,12 @@ public:
 
     // totals for mass balance checks and output
     double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStoremm, InfilKWTot;
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedVolTot;
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
     double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
     double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
-    double BufferVolTot, BufferSedVolTot;
+    double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit;
+    double BulkDens;
 
     // time and dx parameters
     double time, BeginTime, EndTime;

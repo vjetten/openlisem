@@ -42,9 +42,9 @@ void TWorld::ToChannel(void)
 			// adjust water height
 			if (SwitchErosion)
 			{
-				SedToChannel->Drc = fractiontochannel*SedVol->Drc;
+				SedToChannel->Drc = fractiontochannel*Sed->Drc;
 				//sediment diverted to the channel
-				SedVol->Drc -= SedToChannel->Drc;
+				Sed->Drc -= SedToChannel->Drc;
 				// adjust sediment in suspension
 			}
 		}
@@ -186,7 +186,7 @@ void TWorld::ChannelFlow(void)
 		if (LDDChannel->Drc == 5)
 		{
 			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-					ChannelWaterVol, ChannelSedVol, ChannelBufferVol, ChannelBufferSedVol);
+					ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
 
 			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
         	if (SwitchErosion)
@@ -208,7 +208,7 @@ void TWorld::ChannelFlow(void)
 
 		if (SwitchErosion)
 		{
-			ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSedVol->Drc, ChannelDep->Drc);
+			ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
 			// correct for very high concentrations, max 850 g/l
 		}
 	}

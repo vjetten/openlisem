@@ -137,7 +137,7 @@ void ifacebasic::Showit()
 		label_MBs->setText(QString::number(op.MBs,'e',3));
 		label_splashdet->setText(QString::number(op.DetTotSplash,'f',3));
 		label_flowdet->setText(QString::number(op.DetTotFlow,'f',3));
-		label_sedvol->setText(QString::number(op.SedVolTot,'f',3));
+		label_sedvol->setText(QString::number(op.SedTot,'f',3));
 		label_dep->setText(QString::number(op.DepTot,'f',3));
 
 		label_detch->setText(QString::number(op.ChannelDetTot,'f',3));

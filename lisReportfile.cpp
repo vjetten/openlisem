@@ -322,7 +322,7 @@ void TWorld::ReportTotalsNew()
 	out << "Splash detachment (land)   (ton):," << op.DetTotSplash<< "\n";
 	out << "Flow detachment (land)     (ton):," << op.DetTotFlow<< "\n";
 	out << "Deposition (land)          (ton):," << op.DepTot<< "\n";
-	out << "Suspended Sediment (land)  (ton):," << op.SedVolTot<< "\n";
+	out << "Suspended Sediment (land)  (ton):," << op.SedTot<< "\n";
 	out << "Flow detachment (channels) (ton):," << op.ChannelDetTot<< "\n";
 	out << "Deposition (channels)      (ton):," << op.ChannelDepTot<< "\n";
 	out << "Susp. Sediment (channels)  (ton):," << op.ChannelSedTot<< "\n";

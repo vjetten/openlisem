@@ -166,12 +166,14 @@ void TWorld::Interception(void)
 		if (SwitchInterceptionLAI)
 			LAIv = LAI->Drc;
 		else
-			LAIv = (log(1-Cover->Drc)/-0.4)/Cover->Drc;
+			LAIv = (log(1-Cover->Drc)/-0.4)/max(0.9,Cover->Drc);
 		//Smax is based on LAI and LAI is the average of a gridcell, already including the cover
 		// a low cover means a low LAI means little interception
+		// avoid division by 0
 
 		if (SwitchBuffers && !SwitchSedtrap)
-			Smax = 0;
+			if(BufferID->Drc > 0)
+				Smax = 0;
 		// no interception with buffers, but sedtrap can have interception
 
 		if (Smax > 0)

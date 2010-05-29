@@ -35,10 +35,10 @@ static double CalcS2(
 		double Sj1i,   /* Sj+1,i : som van alle bovenstroomse sediment */
 		double dt,
 		double vol,
-		double sedvol)
+		double sed)
 {
 	double Qsn = 0;
-	double totsed = sedvol + Sj1i*dt;  // add upstream sed to sed present in cell
+	double totsed = sed + Sj1i*dt;  // add upstream sed to sed present in cell
 	double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
 	if (totwater <= 1e-10)
 		return (Qsn);
@@ -133,8 +133,7 @@ static double IterateToQnew(
 
 void TWorld::Kinematic(int pitRowNr, int pitColNr,
 		TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX
-		,TMMap *_Vol, TMMap*_SedVol, TMMap *_StorVol, TMMap *_StorVolSed
-)
+		,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed)
 {
 	int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
 	int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -151,6 +150,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 		bool  subCachDone = true; /* are sub-catchment cells done ? */
 		int rowNr = list->rowNr;
 		int colNr = list->colNr;
+		bool isBufferCell = false;
 		/* put all points that have to be calculated to
       calculate the current point in the list,
 	   before the current point */
@@ -221,6 +221,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 			if(SwitchBuffers)
 			{
+				//_StorVol is remaingin space in buffers, not water inbuffers. _StorVol will go to 0
 				if (BufferID->D(rowNr,colNr) > 0)
 				{
 					// if buffer but not sed trap, sed trap catches no water only sed
@@ -230,50 +231,73 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 						// fill up storage with incoming water
 						_StorVol->D(rowNr,colNr) -= Qin*_dt;
 						Qin = 0;
-						if (_StorVol->D(rowNr,colNr) < 0)
+						isBufferCell = true;
+						// buffer is not full, no outflow
+						if (_StorVol->D(rowNr,colNr) < 0)  // store overflowing
 						{
 							Qin = -_StorVol->D(rowNr,colNr)/_dt;
+							// overflow part becomes flux again
 							_StorVol->D(rowNr,colNr) = 0;
+							// remaining store = 0
+							isBufferCell = false;
+							//buffer is full, outflow
 						}
 					}
 
-					// fill up with sediment, decreasing volume
-					_StorVol->D(rowNr,colNr) -= Sin/SEDIMENTBULKD*_dt;
+					//TODO if sed trap this is only correct is there is a max sedment
+					_StorSed->D(rowNr,colNr) -= Sin*_dt;
+					// add incoming to sed store
+					//(note: sed store is max store, decreasing like water vol!)
 					Sin = 0;
-					if (_StorVol->D(rowNr,colNr) < 0)
+					_StorVol->D(rowNr,colNr) -= Sin/BulkDens*_dt * (1-BulkDens/2650);
+					_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
+					// fill store up with sediment, decreasing volume
+					// in the sedimented part is still pore volume to store water:
+					// pore volume is 1-bulkdens/partdens
+
+					if (_StorSed->D(rowNr,colNr) < 0)
 					{
-						Sin = -_StorVol->D(rowNr,colNr)*SEDIMENTBULKD/_dt;
-						_StorVol->D(rowNr,colNr) = 0;
+						Sin = -_StorSed->D(rowNr,colNr)/_dt;
+						_StorSed->D(rowNr,colNr) = 0;
 					}
-					_StorVolSed->D(rowNr,colNr) = _StorVol->D(rowNr,colNr)*SEDIMENTBULKD;
 				}
 			}
 
-			_Qn->D(rowNr,colNr) = IterateToQnew(Qin, _Q->D(rowNr,colNr), _q->D(rowNr,colNr),
-					_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
-			// Newton Rapson iteration for water of current cell
-			if (SwitchErosion)
+			if (isBufferCell)
 			{
-				if (!SwitchSimpleSedKinWave)
-					_Qsn->D(rowNr, colNr) = CalcS1(_Qn->D(rowNr,colNr), Qin, _Q->D(rowNr,colNr), Sin, _Qs->D(rowNr,colNr),
-							_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
-				else
-					_Qsn->D(rowNr, colNr) = CalcS2(_Qn->D(rowNr,colNr), Qin, Sin, _dt,
-							_Vol->D(rowNr,colNr), _SedVol->D(rowNr,colNr));
+				_Qn->D(rowNr,colNr) = 0;
+				_Qsn->D(rowNr, colNr) = 0;
+				_Sed->D(rowNr,colNr) = 0;
+				_q->D(rowNr,colNr) = 0;
 			}
-
-			_q->D(rowNr,colNr) = Qin;
-			//VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation
-			// q is now in m3/s
-
-			if (SwitchErosion)
+			else
 			{
-				_Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr), Sin+_SedVol->D(rowNr,colNr)/_dt);
-				// no more sediment outflow than total sed in cell
-				_SedVol->D(rowNr,colNr) = max(0, Sin*_dt + _SedVol->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
-				// new sed volume based on all fluxes and org sed present
-			}
 
+				_Qn->D(rowNr,colNr) = IterateToQnew(Qin, _Q->D(rowNr,colNr), _q->D(rowNr,colNr),
+						_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
+				// Newton Rapson iteration for water of current cell
+				if (SwitchErosion)
+				{
+					if (!SwitchSimpleSedKinWave)
+						_Qsn->D(rowNr, colNr) = CalcS1(_Qn->D(rowNr,colNr), Qin, _Q->D(rowNr,colNr), Sin, _Qs->D(rowNr,colNr),
+								_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
+					else
+						_Qsn->D(rowNr, colNr) = CalcS2(_Qn->D(rowNr,colNr), Qin, Sin, _dt,
+								_Vol->D(rowNr,colNr), _Sed->D(rowNr,colNr));
+				}
+
+				_q->D(rowNr,colNr) = Qin;
+				//VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation
+				// q is now in m3/s
+
+				if (SwitchErosion)
+				{
+					_Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr), Sin+_Sed->D(rowNr,colNr)/_dt);
+					// no more sediment outflow than total sed in cell
+					_Sed->D(rowNr,colNr) = max(0, Sin*_dt + _Sed->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
+					// new sed volume based on all fluxes and org sed present
+				}
+			}
 			/* cell rowNr, colNr is now done */
 		}/* eof subcatchment done */
 	} /* eowhile list != NULL */

@@ -306,6 +306,7 @@ void TWorld::GetInputData(void)
 	{
 		BufferID = ReadMap(LDD,getvaluename("bufferID"));
 		BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
+		BulkDens = getvaluedouble("Sediment bulk density");
 
 		FOR_ROW_COL_MV
 		{
@@ -313,11 +314,12 @@ void TWorld::GetInputData(void)
 			{
 				Grad->Drc = 0.001;
 				RR->Drc = 0.01;
-				N->Drc = 0.5;
+				N->Drc = 0.25;
+				Cover->Drc = 0;
 				if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
 				{
 					ChannelGrad->Drc = 0.001;
-					ChannelN->Drc = 0.5;
+					ChannelN->Drc = 0.25;
 				}
 			}
 		}
@@ -327,7 +329,6 @@ void TWorld::GetInputData(void)
 		BufferID = NewMap(0);
 		BufferVol = NewMap(0);
 	}
-
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeData(void)
@@ -359,14 +360,15 @@ void TWorld::IntializeData(void)
 	DepTot = 0;
 	SoilLossTot = 0;
 	SoilLossTotOutlet = 0;
-	SedVolTot = 0;
+	SedTot = 0;
 	MBs = 0;
 	ChannelVolTot=0;
 	ChannelSedTot = 0;
 	ChannelDepTot = 0;
 	ChannelDetTot = 0;
 	BufferVolTot = 0;
-	BufferSedVolTot = 0;
+	BufferVolTotInit = 0;
+	BufferSedTot = 0;
 
 	tm = NewMap(0); // temp map for aux calculations
 	nrCells = Mask->MapTotal();
@@ -505,7 +507,7 @@ void TWorld::IntializeData(void)
 	DETSplash = NewMap(0);
 	DETFlow = NewMap(0);
 	DEP = NewMap(0);
-	SedVol = NewMap(0);
+	Sed = NewMap(0);
 
 	TC = NewMap(0);
 	Conc = NewMap(0);
@@ -547,7 +549,7 @@ void TWorld::IntializeData(void)
 	ChannelDX = NewMap(0);
 	ChannelDetFlow = NewMap(0);
 	ChannelDep = NewMap(0);
-	ChannelSedVol = NewMap(0);
+	ChannelSed = NewMap(0);
 	ChannelConc = NewMap(0);
 	ChannelTC = NewMap(0);
 	ChannelY = NewMap(0);
@@ -574,19 +576,53 @@ void TWorld::IntializeData(void)
 	TotalDetMap = NewMap(0);
 	TotalDepMap = NewMap(0);
 	TotalSoillossMap = NewMap(0);
-	TotalSedvol = NewMap(0);
+	TotalSed = NewMap(0);
 	TotalWatervol = NewMap(0);
 	TotalConc = NewMap(0);
 
 	//TODO program link between sedbuffers and sedtraps
-	BufferSedVol = NewMap(0);
+	//TODO how calculate max sed store is only sed traps?
+	// use slope of cell:        | /
+	//                           |/
+	// then max store is _dx/cos = DX*height fence!
+	BufferSed = NewMap(0);
 	if (SwitchBuffers)
 	{
+		BufferVolInit = NewMap(0);
+		ChannelBufferVolInit = NewMap(0);
+		BufferSedInit = NewMap(0);
+		ChannelBufferSedInit = NewMap(0);
+		//IS ALWAYS 0?
+
+		BufferSed->calc2V(BufferVol, BulkDens, MUL);
+		//NOTE: buffer sed vol is maximum store in kg and will decrease while it
+		// fills up it is assumed that the sedimented part contains a pore volume
+		// that can contain water, and the rest decreases the water store volume
+		// the pore space is the bulkdens/2650
 		if (SwitchIncludeChannel)
 		{
-			ChannelBufferSedVol = NewMap(0);
 			ChannelBufferVol = NewMap(0);
+			ChannelBufferSed = NewMap(0);
+			FOR_ROW_COL_MV_CH
+			if (BufferID->Drc > 0)
+			{
+				ChannelBufferVol->Drc = BufferVol->Drc;
+				BufferVol->Drc = 0;
+				ChannelBufferSed->Drc = BufferSed->Drc;
+				BufferSed->Drc = 0;
+			}
+			//split buffers in channel buffers and slope buffers
+			// in "ToCHannel" all flow in a buffer is dumped in the channel
+			ChannelBufferVolInit->copy(ChannelBufferVol);
+			ChannelBufferSedInit->copy(ChannelBufferSed);
+			// copy initial max volume of buffers in channels
 		}
+		BufferVolInit->copy(BufferVol);
+		BufferSedInit->copy(BufferSed);
+		// copy initial max volume of remaining buffers on slopes
+		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
+		BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
+		// sum up total initial volume available in buffers
 	}
 	//VJ 100514 buffer maps
 }
@@ -610,64 +646,64 @@ void TWorld::IntializeOptions(void)
 	tableDir.clear();
 	resultFileName.clear();
 
-	SwitchHardsurface =
-			SwatreInitialized =
-					SwitchInfilGA2 =
-							SwitchCrustPresent =
-									SwitchWheelPresent =
-											SwitchCompactPresent =
-													SwitchIncludeChannel =
-															SwitchChannelBaseflow =
-																	startbaseflowincrease =
-																			SwitchChannelInfil =
-																					SwitchAllinChannel =
-																							SwitchErosion =
-																									SwitchAltErosion =
-																											SwitchSimpleDepression =
-																													SwitchBuffers =
-																															SwitchSedtrap =
-																																	SwitchSnowmelt =
-																																			SwitchRunoffPerM =
-																																					SwitchInfilCompact =
-																																							SwitchInfilCrust =
-																																									SwitchInfilGrass =
-																																											SwitchImpermeable =
-																																													SwitchDumphead =
-																																															SwitchGeometricMean =
-																																																	SwitchWheelAsChannel =
-																																																			SwitchMulticlass =
-																																																					SwitchNutrients =
-																																																							SwitchGullies =
-																																																									SwitchGullyEqualWD =
-																																																											SwitchGullyInfil =
-																																																													SwitchGullyInit =
-																																																															SwitchOutputTimeStep =
-																																																																	SwitchOutputTimeUser =
-																																																																			SwitchMapoutRunoff =
-																																																																					SwitchMapoutConc =
-																																																																							SwitchMapoutWH =
-																																																																									SwitchMapoutWHC =
-																																																																											SwitchMapoutTC =
-																																																																													SwitchMapoutEros =
-																																																																															SwitchMapoutDepo =
-																																																																																	SwitchMapoutV =
-																																																																																			SwitchMapoutInf =
-																																																																																					SwitchMapoutSs =
-																																																																																							SwitchMapoutChvol =
-																																																																																									SwitchWritePCRnames =
-																																																																																											SwitchWritePCRtimeplot =
-																																																																																													SwitchNoErosionOutlet =
-																																																																																															SwitchDrainage =
-																																																																																																	SwitchPestout =
-																																																																																																			SwitchSeparateOutput =
-																																																																																																					SwitchSOBEKOutput =
-																																																																																																							SwitchInterceptionLAI =
-																																																																																																									SwitchTwoLayer =
-																																																																																																											SwitchSimpleSedKinWave =
-																																																																																																													SwitchSOBEKoutput =
-																																																																																																															SwitchPCRoutput =
-																																																																																																																	SwitchSoilwater =
-																																																																																																																			false;
+	SwitchHardsurface = false;
+	SwatreInitialized = false;
+	SwitchInfilGA2 = false;
+	SwitchCrustPresent = false;
+	SwitchWheelPresent = false;
+	SwitchCompactPresent = false;
+	SwitchIncludeChannel = false;
+	SwitchChannelBaseflow = false;
+	startbaseflowincrease = false;
+	SwitchChannelInfil = false;
+	SwitchAllinChannel = false;
+	SwitchErosion = false;
+	SwitchAltErosion = false;
+	SwitchSimpleDepression = false;
+	SwitchBuffers = false;
+	SwitchSedtrap = false;
+	SwitchSnowmelt = false;
+	SwitchRunoffPerM = false;
+	SwitchInfilCompact = false;
+	SwitchInfilCrust = false;
+	SwitchInfilGrass = false;
+	SwitchImpermeable = false;
+	SwitchDumphead = false;
+	SwitchGeometricMean = false;
+	SwitchWheelAsChannel = false;
+	SwitchMulticlass = false;
+	SwitchNutrients = false;
+	SwitchGullies = false;
+	SwitchGullyEqualWD = false;
+	SwitchGullyInfil = false;
+	SwitchGullyInit = false;
+	SwitchOutputTimeStep = false;
+	SwitchOutputTimeUser = false;
+	SwitchMapoutRunoff = false;
+	SwitchMapoutConc = false;
+	SwitchMapoutWH = false;
+	SwitchMapoutWHC = false;
+	SwitchMapoutTC = false;
+	SwitchMapoutEros = false;
+	SwitchMapoutDepo = false;
+	SwitchMapoutV = false;
+	SwitchMapoutInf = false;
+	SwitchMapoutSs = false;
+	SwitchMapoutChvol = false;
+	SwitchWritePCRnames = false;
+	SwitchWritePCRtimeplot = false;
+	SwitchNoErosionOutlet = false;
+	SwitchDrainage = false;
+	SwitchPestout = false;
+	SwitchSeparateOutput = false;
+	SwitchSOBEKOutput = false;
+	SwitchInterceptionLAI = false;
+	SwitchTwoLayer = false;
+	SwitchSimpleSedKinWave = false;
+	SwitchSOBEKoutput = false;
+	SwitchPCRoutput = false;
+	SwitchSoilwater = false;
+
 	SwitchWriteHeaders = true; // write headers in output files in first timestep
 }
 //---------------------------------------------------------------------------

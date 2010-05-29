@@ -298,7 +298,8 @@ void TWorld::Infiltration(void)
 	FOR_ROW_COL_MV
 	{
 		if (SwitchBuffers && !SwitchSedtrap)
-			fact->Drc = 0;
+			if(BufferID->Drc > 0)
+				fact->Drc = 0;
 		//VJ 100514 no infil in buffers, but sedtrap can have infil
 
 		WH->Drc -= fact->Drc;

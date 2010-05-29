@@ -119,9 +119,13 @@ void TWorld::Totals(void)
 
 	if (SwitchBuffers)
 	{
-		BufferVolTot += BufferVol->MapTotal(); // in m3
+		BufferVolTot = BufferVol->MapTotal(); // in m3
 		if (SwitchIncludeChannel)
 			BufferVolTot += ChannelBufferVol->MapTotal();
+		//sum up all volume remaining in all buffers (so the non-water!)
+		BufferVolTot = BufferVolTotInit - BufferVolTot;
+		//subtract this from the initial volume to get the water in the buffers
+		DEBUGv(BufferVolTot);
 	}
 
 	// output fluxes for reporting
@@ -146,7 +150,7 @@ void TWorld::Totals(void)
 		DetFlowTot += DETFlow->MapTotal();
 		DepTot += DEP->MapTotal();
 		DetTot += DETSplash->MapTotal() + DETFlow->MapTotal();
-		SedVolTot = SedVol->MapTotal();
+		SedTot = Sed->MapTotal();
 		// all in kg/cell
 
 		SoilLossTot += Qsoutflow->MapTotal();
@@ -157,7 +161,7 @@ void TWorld::Totals(void)
 			if (Outlet->Drc == 1)
 				SoilLossTotOutlet += Qsoutflow->Drc;
 			// for screen output, total main outlet sed loss
-			TotalSedvol->Drc = SedVol->Drc;
+			TotalSed->Drc = Sed->Drc;
 			// for sed conc
 		}
 
@@ -165,7 +169,7 @@ void TWorld::Totals(void)
 		{
 			ChannelDetTot += ChannelDetFlow->MapTotal();
 			ChannelDepTot += ChannelDep->MapTotal();
-			ChannelSedTot = ChannelSedVol->MapTotal();
+			ChannelSedTot = ChannelSed->MapTotal();
 
 			SoilLossTot += ChannelQsoutflow->MapTotal();
 			// add sed outflow for all pits to total soil loss
@@ -176,20 +180,21 @@ void TWorld::Totals(void)
 					SoilLossTotOutlet += ChannelQsoutflow->Drc;
 				// add channel outflow (in kg) to total for main outlet
 
-				TotalSedvol->Drc += ChannelSedVol->Drc;
+				TotalSed->Drc += ChannelSed->Drc;
 				// for sed conc file output
 			}
 		}
 
 		FOR_ROW_COL_MV
-			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSedvol->Drc/TotalWatervol->Drc : 0);
+			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSed->Drc/TotalWatervol->Drc : 0);
 		// for file output
 
 		if (SwitchBuffers)
 		{
-			BufferSedVolTot += BufferSedVol->MapTotal();
+			BufferSedTot = BufferSed->MapTotal();
 			if (SwitchIncludeChannel)
-				BufferSedVolTot += ChannelBufferSedVol->MapTotal();
+				BufferSedTot += ChannelBufferSed->MapTotal();
+			BufferSedTot = BufferSedTotInit - BufferSedTot;
 		}
 		//TODO add gully, wheeltracks etc
 
@@ -218,7 +223,7 @@ void TWorld::MassBalance()
 
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)
-		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedVolTot - ChannelSedTot + DepTot + ChannelDepTot - BufferSedVolTot)/DetTot*100;
+		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot + DepTot + ChannelDepTot - BufferSedTot)/DetTot*100;
 }
 //---------------------------------------------------------------------------
 // fill output structure to talk to interface
@@ -254,7 +259,7 @@ void TWorld::Output()
 	op.DetTotSplash=DetSplashTot*0.001;
 	op.DetTotFlow=DetFlowTot*0.001;
 	op.DepTot=DepTot*0.001;
-	op.SedVolTot=SedVolTot*0.001;
+	op.SedTot=SedTot*0.001;
 
 	op.ChannelDetTot=ChannelDetTot*0.001;
 	op.ChannelDepTot=ChannelDepTot*0.001;
