@@ -15,7 +15,8 @@ Functionality in lisModel.cpp:
 ---------------------------------------------------------------------------*/
 
 #include <QtGui>
-#include "ifacebasic.h"
+//#include "ifacebasic.h"
+#include "lisemqt.h"
 #include "model.h"
 #include "global.h"
 

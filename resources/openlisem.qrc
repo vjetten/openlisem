@@ -1,6 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>fileopen.bmp</file>
-        <file>new.png</file>
+        <file>start1.png</file>
+        <file>onewfile.png</file>
+        <file>filesave.png</file>
+        <file>filesaveas.png</file>
+        <file>fileopen.png</file>
+        <file>openLisem.png</file>
+        <file>openLisem25.png</file>
     </qresource>
 </RCC>

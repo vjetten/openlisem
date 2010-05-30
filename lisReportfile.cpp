@@ -12,7 +12,8 @@ website, information and code: http://sourceforge.net/projects/lisem
  *      Author: jetten
  */
 
-#include "ifacebasic.h"
+//#include "ifacebasic.h"
+#include "lisemqt.h"
 #include "model.h"
 #include "global.h"
 
