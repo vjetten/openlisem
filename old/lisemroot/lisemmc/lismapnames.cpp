@@ -112,7 +112,7 @@ void __fastcall TLisIFace::InitMapNames()
 //    FillMapNames(MapsCatchment,i,"LDDtill","lddtill.map","Local Drain Direction network, tillage","lddtill");i++;
     FillMapNames(MapsCatchment,i,"Outlet","outlet.map","Main catchment outlet, corresponding to LDD map","outlet");i++;
     FillMapNames(MapsCatchment,i,"ID","id.map","Raingauge zone ID numbers","ID");i++;
-//    FillMapNames(MapsCatchment,i,"OutPoint","outpoint.map","Reporting points for runoff (for cells with value > 0)","outpoint");i++;
+    FillMapNames(MapsCatchment,i,"OutPoint","outpoint.map","Reporting points for runoff (for cells with value > 0)","outpoint");i++;
     n = i-1;
     i = 1;
     SizeMapNames(MapsLanduse,w1,w2,w3);
@@ -320,8 +320,8 @@ void __fastcall TLisIFace::InitOutMapNames()
     FillMapNamesO(MapsOutputBASIC,i,"Water height","wh"," water height on surface (mm)","outwh");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Runoff height","rwh","runoff water height on surface (mm)","outrwh");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Transport cap.","tc"," transport capacity (excl. channels)(g/l)","outtc");i++;
-    FillMapNamesO(MapsOutputBASIC,i,"erosion","eros"," erosion (kg)","outeros");i++;
-    FillMapNamesO(MapsOutputBASIC,i,"deposition","depo"," deposition (kg)","outdepo");i++;
+    FillMapNamesO(MapsOutputBASIC,i,"Detachment","det"," detachment (kg)","outeros");i++;
+    FillMapNamesO(MapsOutputBASIC,i,"Deposition","depo"," deposition (kg)","outdepo");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Velocity","velo"," velocity (m/s)","outvelo");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Infiltration","inf","Cumulative infil (mm)","outinf");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Surface Storage","sstor"," Surface storage (mm)","outss");i++;

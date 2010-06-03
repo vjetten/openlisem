@@ -246,7 +246,7 @@ void __fastcall LisThread::UpdateTotals()
 
      if (LisIFace->SpinOutletValues->Value != 0)
      {
-   	  sprintf(s,"    %5d %8.3f\t%6.2f\t%12.3f\t%8.3f",StepCounter, CurrentTime,AVGRainMM,OutputDischarge,OutputSedConc);
+   	  sprintf(s,"    %5d %8.3f\t%6.2f\t%12.3f\t%12.3f\t%8.3f",StepCounter, CurrentTime,AVGRainMM,OutputDischarge,OutputSediment,OutputSedConc);
 	     LisIFace->OutletValues->Lines->Add((AnsiString)s);
      }
 }

@@ -9,10 +9,11 @@
 #include "lisabout.h"
 #include "lisrunf.h"
 #include "lisrainf.h"
-#include "lisdirv.h"
+//#include "lisdirv.h"
 #include "lisstart.h"
 #include "ifaceinit.h"
 #include "ifacethread.h"
+#include "lishint.h"
 
 
 #include "mprolog.h"
@@ -23,6 +24,9 @@
 
 #pragma link "JvExMask"
 #pragma link "JvSpin"
+#pragma link "JvBaseDlg"
+#pragma link "JvBrowseFolder"
+#pragma link "JvSelectDirectory"
 #pragma resource "*.dfm"
 TLisIFace *LisIFace;
 //---------------------------------------------------------------------------
@@ -35,7 +39,8 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
     batchrun = false;
     CheckPestout = false;
     PestoutTimeinterval = 0;
-    ListRunfilesa->Items->Append(" ");
+    ListRunfilesa->Items->Clear();
+    //ListRunfilesa->Items->Append(" ");
 
     // run directly from commandline, get name and lisemtype
 //VJ 080925 behaviour when double clicking on run file
@@ -99,8 +104,8 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
     //    }
     }
 
-    Application->HintPause = 200;
-    Application->HintHidePause = 50000;
+ //   Application->HintPause = 200;
+ //   Application->HintHidePause = 50000;
 
     HorzScrollBar->Visible = true;
     VertScrollBar->Visible = true;
@@ -138,7 +143,7 @@ void __fastcall TLisIFace::LoadRunFile(AnsiString RunFilename)
     lrun->LoadFromFile(RunFilename);
     //RunForm->RunEdit->Lines->LoadFromFile(RunFilename);
     //gaat mis bij automatic run (pest) want runform bestaat nog niet
-    RunFileButton->Caption = "Acitive: " + ExtractFileName(RunFilename);
+    //RunFileButton->Caption = "Acitive: " + ExtractFileName(RunFilename);
 
     if(lrun->Strings[0] == "[LISEM for WINDOWS run file]")
     {
@@ -170,7 +175,7 @@ AnsiString FromInt(AnsiString txt)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::ParseOldRunfile()
 {
-/*
+
     TStrings *tmp = RunForm->RunEdit->Lines;
     int vi;
 
@@ -228,7 +233,7 @@ void __fastcall TLisIFace::ParseOldRunfile()
     }
     i++;
     //E_RunoffName->Text = tmp->Strings[i];
-*/
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::FileOpenClick(TObject *Sender)
@@ -308,7 +313,7 @@ bool __fastcall TLisIFace::DumpScreen(bool saveio)
         AnsiString savename = ExtractFileName(RunFilename);
         if (savename.IsEmpty())
         {
-//           LisemWarning("Load a runfile first.");
+           if(Application->MessageBox("Load a runfile first","LISEM Warning", MB_OK+MB_ICONWARNING)==IDOK)
            return (doit);
         }
 
@@ -471,7 +476,7 @@ void __fastcall TLisIFace::FormClose(TObject *Sender, TCloseAction &Action)
       Messages->Lines->Append("PROGRAM HALT, PLEASE WAIT ...");
    }
    else
-      Action=caFree;
+      Action=caFree;   
 }
 //---------------------------------------------------------------------------
 
@@ -578,7 +583,7 @@ void __fastcall TLisIFace::E_RainfallNameClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::RunFileButtonClick(TObject *Sender)
 {
-       if (ListRunfilesa->Items->Count == 0)
+       if (ListRunfilesa->Items->Count == 0 || ListRunfilesa->Items->Strings[0].IsEmpty())
           (void) CheckError("Load RUN file first !");
        else
        {
@@ -640,14 +645,22 @@ void __fastcall TLisIFace::RainViewButtonClick(TObject *Sender)
 void __fastcall TLisIFace::GetDirEdit(TEdit *E)
 {
      ActiveControl = E;
+/*
      if (E->Text.IsEmpty())
-     
-     DirView->DirectoryListBox->Directory = (AnsiString)workdir;
+         DirView->DirectoryListBox->Directory = (AnsiString)workdir;
      else
-     DirView->DirectoryListBox->Directory = E->Text;
+         DirView->DirectoryListBox->Directory = E->Text;
+
      DirView->ShowModal();
      DirView->DirectoryListBox->OpenCurrent();
      E->Text = DirView->DirectoryListBox->Directory;
+*/
+     if (E->Text.IsEmpty())
+         JvGetDirDialog->Directory = (AnsiString)workdir;
+     else
+         JvGetDirDialog->Directory = E->Text;
+     JvGetDirDialog->Execute();
+     E->Text = JvGetDirDialog->Directory;
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::LoadRainfileClick(TObject *Sender)
@@ -674,14 +687,6 @@ void __fastcall TLisIFace::LoadMapDirClick(TObject *Sender)
 {
     GetDirEdit(E_MapDir);
     DoMapDir(true, true);
-//    E_MapDirDblClick(Sender);
-
-//    OldMapDir = E_MapDir->Text;
-//    GetDirEdit(E_MapDir);
-//    ButtonRestoreClick(Sender);
-//    InitMapNames();
-//    CheckMapsEnabled();
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::LoadWorkDirClick(TObject *Sender)
@@ -693,18 +698,8 @@ void __fastcall TLisIFace::LoadWorkDirClick(TObject *Sender)
 void __fastcall TLisIFace::LoadResultDirClick(TObject *Sender)
 {
 //VJ 030626 Changed
-  //  if (E_ResultDir->Text.IsEmpty())
-//    {
-//       GetDirEdit(E_ResultDir);
-//       return;
-//    }
+   GetDirEdit(E_ResultDir);
 
-
-   if (E_ResultDir->Text.IsEmpty())
-   {
-       GetDirEdit(E_ResultDir);
-       return;
-   }
    if (!DirectoryExists(E_ResultDir->Text))
    {
 /*
@@ -713,10 +708,8 @@ void __fastcall TLisIFace::LoadResultDirClick(TObject *Sender)
        if (button == IDOK)
 */
        ForceDirectories(E_ResultDir->Text);
-//          if (button == IDCANCEL)
        return;
     }
-//    GetDirEdit(E_ResultDir);
     E_ResultDirDblClick(Sender);
 }
 //---------------------------------------------------------------------------
@@ -730,7 +723,7 @@ void __fastcall TLisIFace::EraseListButtonClick(TObject *Sender)
    if (!LisemRun)// || done)
    {
        ResetIFace();
-       RunFileButton->Caption = "Show active";
+       //RunFileButton->Caption = "Show active";
    }
    else
       Application->MessageBox("Cannot apply changes while running, stop first!",
@@ -937,13 +930,6 @@ void __fastcall TLisIFace::TextureClassKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TLisIFace::ButtonRestoreClick(TObject *Sender)
 {
     DoMapDir(false, true);
-/*
-    Application->MessageBox("Caution: default names and values are restored with map directory name","LISEM message",MB_OK+MB_ICONEXCLAMATION);
-    ForceMapdir = true;
-    CheckAdjustMapDirectoryName = false;
-    InitMapNames();
-    ForceMapdir = false;
-*/
 }
 //---------------------------------------------------------------------------
 
@@ -992,14 +978,6 @@ void __fastcall TLisIFace::CheckLisemType()
 
 void __fastcall TLisIFace::CheckWheelAsChannelModel()
 {
-/*
-   if (CheckNutrients || CheckMulticlass)
-   {
-      CheckError("Wheeltracks cannot be simulated with nutrient lsses or multiclass sediment");
-      CheckWheelAsChannel = false;
-   }
-*/
-
    TabWheeltracks->TabVisible=CheckWheelAsChannel;
    MapsWheeltrack->Enabled = CheckWheelAsChannel;
    CheckMapsEnabled();
@@ -1012,29 +990,9 @@ void __fastcall TLisIFace::CheckMulticlassModel()
 {
 
        TabMulticlass->TabVisible = CheckMulticlass;
-       MapsOutputMC->Visible = CheckMulticlass;
+       MapsOutputMC->Visible = false;//CheckMulticlass;
        GroupMapsoutMC->Visible = CheckMulticlass;
        TabMapOutMC->TabVisible = CheckMulticlass;
-
-       /*       if (!CheckMulticlass && CheckNutrients)
-       {
-           CheckNutrients = false;
-           CheckError("Nutrient losses only with multiclass sediment");
-       }
-       if (CheckMulticlass && CheckWheelAsChannel)
-       {
-           CheckMulticlass = false;
-           CheckError("Multiclass sediment cannot be simulated with wheeltracks");
-       }
-       if (CheckMulticlass)
-          TextureClassCheck();
-//       if (!CheckMulticlass->Checked)
-//          CheckNutrientsClick(Sender);
-//       MapsTexture->Enabled = CheckMulticlass;
-//       TextureClass->Enabled = CheckMulticlass;
-//
-CheckMapsEnabled();
-*/
 }
 //---------------------------------------------------------------------------
 
@@ -1042,39 +1000,20 @@ void __fastcall TLisIFace::CheckNutrientsModel()
 {
        TabMulticlass->TabVisible = CheckNutrients;
        TabNutrients->TabVisible = CheckNutrients;
-       MapsOutputNut->Visible = CheckNutrients;
+       MapsOutputNut->Visible = false;//CheckNutrients;
        GroupMapsoutNut->Visible = CheckNutrients;
        TabMapOutNut->TabVisible = CheckNutrients;
        TabMapOutNut2->TabVisible = CheckNutrients;
 
-       MapsOutputMC->Visible = CheckNutrients;//false;
+       MapsOutputMC->Visible = false;//CheckNutrients;//false;
        GroupMapsoutMC->Visible = CheckNutrients;//false;
        TabMapOutMC->TabVisible = CheckNutrients;//false;
-/*
-       CheckMulticlass = CheckNutrients;
-       if (CheckNutrients && !CheckMulticlass)
-       {
-           CheckNutrients = false;
-           CheckError("Nutrient losses only with multiclass sediment");
-       }
-       if (CheckNutrients && CheckWheelAsChannel)
-       {
-           CheckNutrients = false;
-           CheckError("Nutrient losses cannot be simulated with wheeltracks");
-       }
-       MapsTexture->Enabled = CheckNutrients;
-       TextureClass->Enabled = CheckNutrients;
-       MapsNutsP->Enabled = CheckNutrients;
-       MapsNutsNH4->Enabled = CheckNutrients;
-       MapsNutsNO3->Enabled = CheckNutrients;
-       CheckMapsEnabled();
-*/
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::CheckGulliesModel()
 {
      TabGullies->TabVisible = CheckGullies;
-     MapsOutputGul->Visible = CheckGullies;
+     MapsOutputGul->Visible = false;//CheckGullies;
      GroupMapsoutGul->Visible = CheckGullies;
      TabMapOutGul->TabVisible = CheckGullies;
 }
@@ -1160,7 +1099,8 @@ void __fastcall TLisIFace::E_WorkdirDblClick(TObject *Sender)
 void __fastcall TLisIFace::E_ResultDirDblClick(TObject *Sender)
 {
 //VJ 030626 changed behaviour
-   if (!DirectoryExists(E_ResultDir->Text))
+//VJ 091216 empty result dir check
+   if (!E_ResultDir->Text.IsEmpty() && !DirectoryExists(E_ResultDir->Text))
    {
        AnsiString S = "Result Directory: \"" + E_ResultDir->Text + "\" does not exist, create it?";
        if (Application->MessageBox(S.c_str(), "LISEM Warning", MB_OKCANCEL+MB_ICONERROR) == IDOK)
@@ -1459,7 +1399,7 @@ void __fastcall TLisIFace::CheckSedtrapClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::DisplayHint(TObject *Sender)
 {
-    expl->Text = GetLongHint(Application->Hint);
+    HintForm->expl->Text = GetLongHint(Application->Hint);
 }
 //---------------------------------------------------------------------------
 
@@ -1468,5 +1408,32 @@ void __fastcall TLisIFace::FormCreate(TObject *Sender)
     Application->OnHint = DisplayHint;
 }
 //---------------------------------------------------------------------------
+void __fastcall TLisIFace::ToolButtonHintClick(TObject *Sender)
+{
+   if (ToolButtonHint->Down)
+   {
+   HintForm->Show();
+   HintForm->expl->Color = 0x00bbffff;
+   }
+   else
+   HintForm->Close();
+}
+//---------------------------------------------------------------------------
 
+
+void __fastcall TLisIFace::CheckWritePCRtimeplotClick(TObject *Sender)
+{
+   if(CheckWritePCRtimeplot->Checked)
+   CheckSOBEKOutput->Checked = false;
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CheckSOBEKOutputClick(TObject *Sender)
+{
+   if(CheckSOBEKOutput->Checked)
+   CheckWritePCRtimeplot->Checked = false;
+
+}
+//---------------------------------------------------------------------------
 

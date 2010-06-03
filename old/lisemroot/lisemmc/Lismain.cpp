@@ -152,9 +152,9 @@ void __fastcall LisThread::ParseInputData()
     buf[0] = '\0';
     j = 0;
     outflowFileName[0] = '\0';
-    outflowFileName2[0] = '\0';
-    outflowFileName3[0] = '\0';
-    outPointFileName[0] = '\0';
+   // outflowFileName2[0] = '\0';
+   // outflowFileName3[0] = '\0';
+   // outPointFileName[0] = '\0';
 
     for (j = 0; j < nrnamelist; j++)//do
     {
@@ -177,7 +177,7 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "Main results file")==0 && p) strcpy(resultFileName, CatPath(p, RESPATH));
           if (strcmp(p1, "Erosion map")==0 && p) strcpy(totalErosionFileName, CatPath(p, RESPATH));
           if (strcmp(p1, "Deposition map")==0 && p) strcpy(totalDepositionFileName, CatPath(p, RESPATH));
-
+          if (strcmp(p1, "Soilloss map")==0 && p) strcpy(totalSoillossFileName,CatPath(p, RESPATH));
           if (strcmp(p1, "Filename point output")==0 && p) strcpy(outflowFileName, CatPath(p, RESPATH));
           /*
           if (strcmp(p1, "Outlet 1 file")==0 && p){
@@ -229,7 +229,7 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
           if (strcmp(p1, "Include snowmelt")==0)               SwitchSnowmelt =         iii == 1;
           if (strcmp(p1, "Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
-          if (strcmp(p1, "Alternative depression storage")==0) SwitchAltDepression =    iii == 1;
+          if (strcmp(p1, "Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
           if (strcmp(p1, "Include buffers")==0)                SwitchBuffers =          iii == 1;
           if (strcmp(p1, "Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
           if (strcmp(p1, "Include grass strips")==0)           SwitchInfilGrass =       iii == 1;
@@ -244,61 +244,62 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
           if (strcmp(p1, "No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
           if (strcmp(p1, "Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
-          if (strcmp(p1, "Gully infiltration")==0)             SwitchGullyInfil =        iii == 1;
-          if (strcmp(p1, "Use initial gully dimensions")==0)   SwitchGullyInit =       iii == 1;
+          if (strcmp(p1, "Gully infiltration")==0)             SwitchGullyInfil =       iii == 1;
+          if (strcmp(p1, "Use initial gully dimensions")==0)   SwitchGullyInit =        iii == 1;
 //VJ  091211
-          if (strcmp(p1, "Report point output separate")==0)   SwitchSeparateOutput =       iii == 1;
+          if (strcmp(p1, "Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
+          if (strcmp(p1, "Report point output for SOBEK")==0)   SwitchSOBEKOutput =   iii == 1;
 
           //outputmaps that are selected (1) or not (0)
           if (strcmp(p1, "CheckOutputMaps")==0)
           {
-              char *q = strtok(p,",");SwitchMapoutRunoff= q == "1";
-              q = strtok(NULL,",");   SwitchMapoutConc  = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutWH    = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutRWH   = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutTC    = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutEros  = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutDepo  = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutV     = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutInf   = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutSs    = q == "1";
-              q = strtok(NULL,",");   SwitchMapoutChvol = q == "1";
+              char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutRWH   = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutTC    = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutEros  = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutDepo  = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutV     = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutInf   = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
           }
           if (strcmp(S, "CheckOutputMapsMC")==0)
           {
-                char *q = strtok(p,","); SwitchMapoutMC0 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC1 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC2 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC3 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC4 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC5 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutMC6 = q == "1";
+                char *q = strtok(p,","); SwitchMapoutMC0 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC1 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC2 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC3 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC4 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC5 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutMC6 = strcmp(q,"1") == 0;
           }
           if (strcmp(S, "CheckOutputMapsNUT")==0)
           {
-                char *q = strtok(p,","); SwitchMapoutPsol =   q == "1";
-                q = strtok(NULL,",");   SwitchMapoutPsus =   q == "1";
-                q = strtok(NULL,",");   SwitchMapoutPinf =   q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNH4sol = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNH4sus = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNH4inf = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNO3sol = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNO3sus = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNO3inf = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutPdep =   q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNH4dep = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNO3dep = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutPdet =   q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNH4det = q == "1";
-                q = strtok(NULL,",");   SwitchMapoutNO3det = q == "1";
+                char *q = strtok(p,","); SwitchMapoutPsol =   strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutPsus =   strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutPinf =   strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNH4sol = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNH4sus = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNH4inf = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNO3sol = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNO3sus = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNO3inf = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutPdep =   strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNH4dep = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNO3dep = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutPdet =   strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNH4det = strcmp(q,"1") == 0;
+                q = strtok(NULL,",");   SwitchMapoutNO3det = strcmp(q,"1") == 0;
           }
           if (strcmp(S, "CheckOutputMapsGUL")==0)
           {
-                char *q = strtok(p,",");SwitchMapoutGul0 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutGul1 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutGul2 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutGul3 = q == "1";
-                q = strtok(NULL,","); SwitchMapoutGul4 = q == "1";
+                char *q = strtok(p,",");SwitchMapoutGul0 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutGul1 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutGul2 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutGul3 = strcmp(q,"1") == 0;
+                q = strtok(NULL,","); SwitchMapoutGul4 = strcmp(q,"1") == 0;
           }
      }
 }
@@ -370,12 +371,12 @@ void __fastcall LisThread::GetRunFile()
        }
     }
     fclose(fin);
-
+/*
     FILE *fout=fopen("try.txt","w");
     for (i=0; i < vars; i++)
     fprintf(fout,"%s = %s; %d %f %d\n",namelist[i].name,namelist[i].value, namelist[i].type,namelist[i].vvv,namelist[i].iii);
     fclose(fout);
-
+*/
 }
 //---------------------------------------------------------------------------
 char* __fastcall LisThread::Lmapname(char *vname, int nr)
@@ -432,9 +433,6 @@ void __fastcall LisThread::Execute()
 //"begin_model{" and "}end_model" keep track of how deep you are for the map structures
 //defined in csf.h
 {
-     //char ErosionUnits = LisIFace->E_OutputUnits->ItemIndex;
-     //VJ 090520 wordt helemaal niet gebruikt !!!!!
-
      InitDone = false;
      // mark start of loop, is set to true after first timestep
      //used to initialize totals
@@ -467,10 +465,10 @@ void __fastcall LisThread::Execute()
        // last timestep for setting min and max values of saved mapseries when run is stopped
 
      GetRunFile();
-      // make an input/output mapname list from the temp runfile written by the interface
+      // get variable list from temp runfile, ansi C
 
      ParseInputData();
-      // get all switches (booleans) from the temp runfile written by the interface
+      // parse variable list: get all switches (booleans)
 
 
 //VJ 031218 added try..__finally loop to ensure cleanup of memory structures

@@ -4,12 +4,12 @@
 
            _spatial(REAL4, RunoffHin);
              // water depth of moving water
-           calc(" RunoffHin = mif(WH le MDS, 0, WH-MDS)");
+           calc(" RunoffHin = mif(MDS-SDS gt 0, (WH-SDS) * (1-exp(-WH*(WH-SDS)/(MDS-SDS))), WH)");
+           calc(" RunoffHin = mif(WH le SDS, 0, RunoffHin)");
 
-           if(SwitchAltDepression)
+           if(SwitchSimpleDepression)
            {
-              calc(" RunoffHin = mif(MDS-SDS gt 0, (WH-SDS) * (1-exp(-WH*(WH-SDS)/(MDS-SDS))), WH)");
-              calc(" RunoffHin = mif(WH le SDS, 0, RunoffHin)");
+              calc(" RunoffHin = mif(WH le MDS, 0, WH-MDS)");
            }
 
            _spatial(REAL4, PondAreaFract);

@@ -95,6 +95,9 @@
 
      }
 
+
+// WH is now the water height after infiltration !!!
+
 //VJ 040823 include buffers, no infil in buffer cells
      if (SwitchBuffers){
         calc(" WH = mif(BufferID gt 0, WHinf, WH) ");
@@ -105,16 +108,19 @@
 
 //we now have potentially five waterheights: WH, WHGrass, WHCrust, WHCompact, WHWheel
 //in case of WHWheel, it is a separate channel and already accounted for in the fractions
-// if wheeltrack version is not used it is simply a fraction compacted, so wheels are kept separate 
+// if wheeltrack version is not used it is simply a fraction compacted, so wheels are kept separate
 
 //calculate weigthed average WH
 
-     calc(" WH = WH*(1-CrustFraction-GrassFraction-CompactFraction) + WHGrass*GrassFraction "
-           "      + WHCrust*CrustFraction + WHCompact*CompactFraction ");
+
+     calc(" WH = mif(hardsurface le 0, \
+            WH*(1-CrustFraction-GrassFraction-CompactFraction) + WHGrass*GrassFraction \
+            + WHCrust*CrustFraction + WHCompact*CompactFraction, 0) ");
+
         // new gridcell WH as weighted average of surface type fractions and WHs
 
 //MAXIMIZE infiluence of grassstrip, in the sense that when a gstrip is present, its potential infil
-// determines that of the cell    
+// determines that of the cell
      if (SwitchGrassPresent)
      begin{
         _spatial(REAL4, oldWH);

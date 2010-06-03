@@ -66,6 +66,7 @@
                   //in all functions concentration is calculated as sed/volume, NOT Qsed/Q
 
            	//VJ 050822 three units to choose from
+               int ErosionUnits = GetInt("Erosion map units (0/1/2)");
                _spatial(REAL4, unitfactor);
                if (ErosionUnits == 0)
 	               calc(" unitfactor = 1.0 ");
@@ -76,7 +77,6 @@
 
                _spatial(REAL4, Erosion);
                calc(" Erosion = SumTotErosion * unitfactor");
-
                write(Erosion, totalErosionFileName);
 
                if (SwitchMapoutEros)
@@ -84,8 +84,11 @@
 
                _spatial(REAL4, Deposition);
                calc(" Deposition = SumTotDeposition * unitfactor ");
-
                write(Deposition, totalDepositionFileName);
+
+               _spatial(REAL4, soilloss);
+               calc(" soilloss = (SumTotErosion + SumTotDeposition)* unitfactor");
+                write(soilloss, totalSoillossFileName);
 
                if (SwitchMapoutDepo)
                     writeTimeseries(Deposition, mapname("outdepo"));
@@ -115,7 +118,7 @@
                  if (SwitchMapoutNO3sus) writeTimeseries(NutNO3Suspension, mapname("outno3sus"));
                  if (SwitchMapoutNO3inf) writeTimeseries(NutNO3Infiltration, mapname("outno3inf"));
 						//timeseries
-						
+
                  if (SwitchMapoutPdep)   write(SumTotNutPdep, mapname("outpdep"));
                  if (SwitchMapoutNH4dep) write(SumTotNutNH4dep, mapname("outnh4dep"));
                  if (SwitchMapoutNO3dep) write(SumTotNutNO3dep, mapname("outno3dep"));
@@ -236,6 +239,7 @@
        calc(" QOutlet1 = sum(mif(Outlet1 eq 1, Qout, 0)) ");
        _nonspatial(REAL4, QSEDOutlet1);
        QSEDOutlet1 = QOutlet1*SCOutlet1 ;
+       // needed for screen output
 /*
 //OULET 2
        _nonspatial(REAL4, SCOutlet2);
@@ -270,17 +274,24 @@
        }
        //defined in lisheadin.h
 
-       _spatial(REAL4, Qoutr);
-       calc(" Qoutr = Qout*sedconcfile");
+       _spatial(REAL4, Qouttemp);
+       calc(" Qouttemp = Qout ");
+       if (!SwitchSOBEKOutput)
+          calc(" Qouttemp = Qout * 1000");
 
        _spatial(REAL4, QSout);
        calc(" QSout = Qout*sedconcfile");
 
-       _spatial(REAL4, RainAvgOut);
+       _nonspatial(REAL4, RainAvgOut);
        calc(" RainAvgOut = RainfallAverageH*3600.0/DTSEC ");
 
 // VJ 091211 NEW REPORTING
- //      reportPointMap(outflowFileName, Outlet, timestepindex, RainAvgOut, Qoutr, QSout, sedconcfile, SwitchSeparateOutput);
+     if (SwitchNoErosion)
+       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, Qouttemp,
+             NULL_MAP, NULL_MAP, SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+     else
+       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, Qouttemp,
+            QSout, sedconcfile, SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
 
 /*
        if (SwitchOutlet1)

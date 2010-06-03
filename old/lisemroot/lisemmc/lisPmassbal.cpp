@@ -18,7 +18,7 @@
               // total discharge outlet
 
            // **** peak flow detection
-           if ((QOutflow*1000) > PeakDischarge)
+           if ((QOutflow*1000) > PeakDischarge)      //qoutflow contains all outflows, channel surface gully etc
            {
                 PeakTime = timestepindex ;
                 PeakDischarge = QOutflow*1000;

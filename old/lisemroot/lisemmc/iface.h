@@ -33,10 +33,13 @@
 #include <ImgList.hpp>
 #include "JvExMask.hpp"
 #include "JvSpin.hpp"
+#include "JvBaseDlg.hpp"
+#include "JvBrowseFolder.hpp"
+#include "JvSelectDirectory.hpp"
 
 #define ProgName "LISEM"
-#define ProgVersion "version 2.60 beta"
-#define DateVersion "Compiled: 09/12/09"
+#define ProgVersion "version 2.61 BETA"
+#define DateVersion "Compiled: 09/12/13"
 
 #define LISEMBASIC 0
 #define LISEMWHEELTRACKS 1
@@ -46,6 +49,7 @@
 #define wWidth 912
 #define wHeight 660
 
+
 //---------------------------------------------------------------------------
 class TLisIFace : public TForm
 {
@@ -54,7 +58,6 @@ __published:	// IDE-managed Components
    TSaveDialog *SaveDialog;
    TToolBar *ToolBar;
    TSplitter *Splitter1;
-        TSpeedButton *PrintButton;
 	TSpeedButton *AboutButton;
         TSplitter *Splitter3;
 	TSplitter *Splitter4;
@@ -149,10 +152,6 @@ __published:	// IDE-managed Components
     TEdit *E_begintime;
     TEdit *E_Endtime;
     TEdit *E_Timestep;
-    TGroupBox *GroupRunbatch;
-    TBevel *Bevel28;
-    TSpeedButton *EraseListButton;
-    TBitBtn *RunFileButton;
     TButton *ButtonRestore;
         TGroupBox *GroupOptionsInfil;
         TRadioGroup *E_InfilMethod;
@@ -170,17 +169,6 @@ __published:	// IDE-managed Components
         TStringGrid *MapsNutsNO3;
         TStringGrid *MapsNutsNH4;
         TTabSheet *TabGullies;
-        TGroupBox *GroupSwatreOptions;
-        TBevel *Bevel31;
-        TLabel *Label56;
-        TBevel *Bevel26;
-        TLabel *Label52;
-        TSpeedButton *LoadTableDir;
-        TBevel *Bevel33;
-        TEdit *E_SwatreDTSEC;
-        TCheckBox *CheckDumphead;
-        TCheckBox *CheckGeometric;
-        TEdit *E_TableDir;
         TStringGrid *MapsInfilMorel;
         TStringGrid *MapsInfilSmith;
         TLabel *Label53;
@@ -239,13 +227,11 @@ __published:	// IDE-managed Components
         TLabel *LO_ChSedSuspended;
         TLabel *LO_Sedbal;
     TCSpinEdit *SpinOutletValues;
-    TBevel *Bevel19;
    TCheckBox *CheckNoErosionOutlet;
    TStringGrid *MapsGullyInit;
    TCheckBox *CheckGullyInit;
    TStringGrid *MapsBuffers;
    TLabel *Label55;
-   TCheckBox *CheckBuffers;
    TLabel *Label58;
    TLabel *Label60;
    TLabel *Label57;
@@ -303,24 +289,12 @@ __published:	// IDE-managed Components
    TLabel *LO_SedSuspended;
    TLabel *LO_splash;
    TLabel *Label77;
-   TCheckBox *CheckAltDepression;
+   TCheckBox *CheckSimpleDepression;
    TComboBox *E_InfilMethoda;
    TCheckBox *CheckInfilCrust;
-   TCheckBox *CheckInfilGrass;
    TCheckBox *CheckInfilCompact;
    TCheckBox *CheckSubsoilDrainage;
    TCheckBox *CheckImpermeable;
-   TComboBox *ListRunfilesa;
-   TCheckBox *CheckSedtrap;
-   TBevel *Bevel4;
-   TLabel *Label44;
-   TBevel *Bevel27;
-   TEdit *E_ManningsNGrass;
-   TLabel *Label59;
-   TEdit *E_SplashDelivery;
-   TBevel *Bevel14;
-   TBevel *Bevel17;
-   TMemo *expl;
    TImageList *ImageList1;
    TToolButton *ToolButtonFileopen;
    TToolButton *ToolButtonFilesave;
@@ -331,7 +305,6 @@ __published:	// IDE-managed Components
    TToolButton *ButtonPauseProg;
    TToolButton *ButtonStopProg;
    TToolButton *ButtonStopAll;
-   TPanel *Panel11;
    TBevel *Bevel29;
    TGroupBox *GroupDirsOutput;
    TLabel *Label41;
@@ -348,13 +321,53 @@ __published:	// IDE-managed Components
    TEdit *E_DepositionName;
    TEdit *E_OutletName;
    TEdit *E_TotalName;
-   TCheckBox *CheckSeparateOutput;
    TEdit *E_ResultDir;
    TGroupBox *GroupOptionsOutTime;
    TMemo *E_OutputTimes;
    TRadioButton *E_OutputTimeUser;
    TRadioButton *E_OutputTimeStep;
    TCSpinEdit *E_OutputTimeSteps;
+   TGroupBox *GroupBox1;
+   TCheckBox *CheckWritePCRtimeplot;
+   TTabSheet *TabSheet1;
+   TCheckBox *CheckAllinChannel;
+   TEdit *E_Workdir;
+   TCGauge *CGauge;
+   TGroupBox *GroupBox2;
+   TLabel *Label64;
+   TJvSpinEdit *CalibrateKsat;
+   TJvSpinEdit *CalibrateN;
+   TLabel *Label22;
+   TLabel *Label46;
+   TJvSpinEdit *CalibrateChN;
+   TLabel *Label47;
+   TLabel *Label78;
+   TLabel *Label50;
+   TCheckBox *CheckSeparateOutput;
+   TEdit *E_SoillossName;
+   TToolButton *ToolButtonHint;
+   TLabel *Label79;
+   TLabel *Label80;
+   TJvSpinEdit *CalibrateChKsat;
+   TLabel *Label81;
+   TBevel *Bevel33;
+   TLabel *Label56;
+   TBevel *Bevel26;
+   TLabel *Label52;
+   TSpeedButton *LoadTableDir;
+   TEdit *E_SwatreDTSEC;
+   TCheckBox *CheckDumphead;
+   TCheckBox *CheckGeometric;
+   TEdit *E_TableDir;
+   TBevel *Bevel30;
+   TLabel *Label82;
+   TJvBrowseForFolderDialog *JvGetDirDialog;
+   TLabel *Label83;
+   TCheckBox *CheckSOBEKOutput;
+   TRadioGroup *E_OutputUnits;
+   TCheckBox *CheckRunoffPerM;
+   TCheckBox *CheckWritePCRnames;
+   TGroupBox *GroupBox3;
    TPageControl *MapOutControl;
    TTabSheet *TabMapOutBasic;
    TCheckBox *CheckMapout10;
@@ -392,8 +405,9 @@ __published:	// IDE-managed Components
    TCheckBox *CheckMapoutNut0;
    TStringGrid *MapsOutputNut;
    TTabSheet *TabMapOutNut2;
-   TLabel *Label50;
    TPanel *GroupMaspoutNutErosDepo;
+   TLabel *Label84;
+   TLabel *Label85;
    TCheckBox *CheckMapoutNut10;
    TCheckBox *CheckMapoutNut12;
    TCheckBox *CheckMapoutNut11;
@@ -409,24 +423,24 @@ __published:	// IDE-managed Components
    TCheckBox *CheckMapoutGul0;
    TCheckBox *CheckMapoutGul4;
    TStringGrid *MapsOutputGul;
-   TRadioGroup *E_OutputUnits;
-   TGroupBox *GroupBox1;
-   TCheckBox *CheckWritePCRtimeplot;
-   TCheckBox *CheckWritePCRnames;
-   TCheckBox *CheckRunoffPerM;
-   TTabSheet *TabSheet1;
-   TCheckBox *CheckAllinChannel;
-   TEdit *E_Workdir;
-   TCGauge *CGauge;
-   TGroupBox *GroupBox2;
-   TLabel *Label64;
-   TJvSpinEdit *CalibrateKsat;
-   TJvSpinEdit *CalibrateN;
-   TLabel *Label22;
-   TLabel *Label46;
-   TJvSpinEdit *CalibrateChN;
-   TLabel *Label47;
-   TLabel *Label78;
+   TBevel *Bevel31;
+   TGroupBox *GroupBox4;
+   TCheckBox *CheckBuffers;
+   TCheckBox *CheckSedtrap;
+   TCheckBox *CheckInfilGrass;
+   TLabel *Label44;
+   TEdit *E_ManningsNGrass;
+   TBevel *Bevel27;
+   TSpeedButton *EraseListButton;
+   TBevel *Bevel19;
+   TComboBox *ListRunfilesa;
+   TSpeedButton *RunFileButton;
+   TLabel *Label86;
+   TLabel *Label59;
+   TBevel *Bevel14;
+   TEdit *E_SplashDelivery;
+   TBevel *Bevel4;
+   TLabel *Label87;
 //        TNMPOP3 *NMPOP31;
     void __fastcall ButtonRunprogClick(TObject *Sender);
     void __fastcall FileOpenClick(TObject *Sender);
@@ -520,6 +534,9 @@ __published:	// IDE-managed Components
    void __fastcall DisplayHint(TObject *Sender);
    void __fastcall FormCreate(TObject *Sender);
    void __fastcall SetHelpIFace();
+   void __fastcall ToolButtonHintClick(TObject *Sender);
+   void __fastcall CheckWritePCRtimeplotClick(TObject *Sender);
+   void __fastcall CheckSOBEKOutputClick(TObject *Sender);
 
 private:	// User declarations
    AnsiString __fastcall TLisIFace::CheckDir(AnsiString Comment, AnsiString dir);

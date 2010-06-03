@@ -10,7 +10,7 @@ USEFORM("lishelp.cpp", HelpForm);
 USEFORM("lisabout.cpp", AboutBox);
 USEFORM("lisrunf.cpp", RunForm);
 USEFORM("lisrainf.cpp", RainForm);
-USEFORM("lisdirv.cpp", DirView);
+USEFORM("lishint.cpp", HintForm);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
@@ -23,7 +23,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
        Application->CreateForm(__classid(THelpForm), &HelpForm);
        Application->CreateForm(__classid(TAboutBox), &AboutBox);
        Application->CreateForm(__classid(TRainForm), &RainForm);
-       Application->CreateForm(__classid(TDirView), &DirView);
+       Application->CreateForm(__classid(THintForm), &HintForm);
        Application->Run();
         
     }

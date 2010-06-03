@@ -39,11 +39,13 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("Main results file="+E_TotalName->Text);
     IniOp->Add("Filename point output="+E_OutletName->Text);
     IniOp->Add("Report point output separate="+(AnsiString)(short)CheckSeparateOutput->Checked);
+    IniOp->Add("Report point output for SOBEK="+(AnsiString)(short)CheckSOBEKOutput->Checked);
 
 //    IniOp->Add("Outlet 2 file="+E_Outlet1Name->Text);
 //    IniOp->Add("Outlet 3 file="+E_Outlet2Name->Text);
     IniOp->Add("Erosion map="+E_ErosionName->Text);
     IniOp->Add("Deposition map="+E_DepositionName->Text);
+    IniOp->Add("Soilloss map="+E_SoillossName->Text);
     IniOp->Add("");
     IniOp->Add("[Simulation times]");
     IniOp->Add("Begin time="+E_begintime->Text);
@@ -71,7 +73,7 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
 //VJ 050301 alternative erosion
     IniOp->Add("Alternative flow detachment="+(AnsiString)(short)CheckAltErosion->Checked);
 //VJ 090214 alternative depr storage
-    IniOp->Add("Alternative depression storage="+(AnsiString)(short)CheckAltDepression->Checked);
+    IniOp->Add("Simple depression storage="+(AnsiString)(short)CheckSimpleDepression->Checked);
     IniOp->Add("");
     IniOp->Add("[Additional options]");
     IniOp->Add("Grassstrip Mannings n="+E_ManningsNGrass->Text);
@@ -102,6 +104,7 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("[Calibration]");
     IniOp->Add("Ksat calibration="+(AnsiString)(double)CalibrateKsat->Value);
     IniOp->Add("N calibration="+(AnsiString)(double)CalibrateN->Value);
+    IniOp->Add("Channel Ksat calibration="+(AnsiString)(double)CalibrateChKsat->Value);
     IniOp->Add("Channel N calibration="+(AnsiString)(double)CalibrateChN->Value);
 
     IniOp->Add("");
@@ -258,6 +261,7 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         }
 
         CheckSeparateOutput->Checked = IniOp->Values[(AnsiString)"Report point output separate"] == "1";
+        CheckSOBEKOutput->Checked = IniOp->Values[(AnsiString)"Report point output for SOBEK"] == "1";
 
         CheckWritePCRnames->Checked = IniOp->Values[(AnsiString)"Timeseries as PCRaster"] == "1";
         CheckWritePCRtimeplot->Checked = IniOp->Values[(AnsiString)"Timeplot as PCRaster"] == "1";
@@ -283,7 +287,9 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 //VJ 050301 alternative erosion
 	     CheckAltErosion->Checked = IniOp->Values[(AnsiString)"Alternative flow detachment"] == "1";
 //VJ 090214 alternative depr storage
-	     CheckAltDepression->Checked = IniOp->Values[(AnsiString)"Alternative depression storage"] == "1";
+	     CheckSimpleDepression->Checked = IniOp->Values[(AnsiString)"Simple depression storage"] == "1";
+        // to read old run files:
+	     CheckSimpleDepression->Checked = IniOp->Values[(AnsiString)"Alternative depression storage"] == "1";
 
         E_begintime->Text = IniOp->Values[(AnsiString)"Begin time"];
         E_Endtime->Text = IniOp->Values[(AnsiString)"End time"];
@@ -314,6 +320,8 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 
         AnsiString tmp = IniOp->Values[(AnsiString)"N calibration"];
         if (!tmp.IsEmpty()) CalibrateN->Value = tmp.ToDouble();
+        tmp = IniOp->Values[(AnsiString)"Channel Ksat calibration"];
+        if (!tmp.IsEmpty()) CalibrateChKsat->Value = tmp.ToDouble();
         tmp = IniOp->Values[(AnsiString)"Channel N calibration"];
         if (!tmp.IsEmpty()) CalibrateChN->Value = tmp.ToDouble();
 
@@ -410,6 +418,7 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 
         E_ErosionName->Text = ParseValue(IniOp ,"Erosion map");
         E_DepositionName->Text = ParseValue(IniOp ,"Deposition map");
+        E_SoillossName->Text = ParseValue(IniOp ,"Soilloss map");
 
 //VJ 050822 three units to choose from, kg/cell, kg/m2, ton/ha
 	     E_OutputUnits->ItemIndex = IniOp->Values[(AnsiString)"Erosion map units (0/1/2)"].ToIntDef(2);

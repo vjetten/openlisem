@@ -3,9 +3,16 @@
 // ******** OPEN and print first line output files *****************************
 // *****************************************************************************
 
-//       reportPointMap(outPointFileName, OutPoint, OutPoint, -1);
-//       reportMap(outflowFileName, Outlet, -1, NULL_MAP, NULL_MAP, NULL_MAP, NULL_MAP, SwitchSeparateOutput);
-//       reportPointMap(outflowFileName, OutPoint, -1, OutPoint, OutPoint, OutPoint, SwitchSeparateOutput);
+  //     int timeoutformat = 0;
+    //   if (SwitchWritePCRtimeplot) timeoutformat = 1;
+      // if (SwitchWriteSOBEKtimeplot) timeoutformat = 2;
+
+       if (SwitchNoErosion)
+       reportMap(outflowFileName, OutPoint, -1, 0, OutPoint, NULL_MAP, NULL_MAP,
+                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+       else
+       reportMap(outflowFileName, OutPoint, -1, 0, OutPoint, OutPoint, OutPoint,
+                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
 
 /*
        if (SwitchOutlet1)

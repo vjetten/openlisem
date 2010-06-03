@@ -137,16 +137,17 @@
      _spatial_input(REAL4, Outlet, mapname("Outlet"));
      celltest(LDD, Outlet);
 
-//     _spatial_input(REAL4, OutPoint, mapname("outpoint"));
-//     celltest(LDD, OutPoint);
+     _spatial_input(REAL4, OutPoint, mapname("outpoint"));
+     celltest(LDD, OutPoint);
 
-     
+      /*
      {
        char p[256];
        strcpy(outPointFileName, CatPath(p, RESPATH));
-       strcat(outPointFileName, mapnameonly("outpoint"));\
+       strcat(outPointFileName, mapnameonly("outpoint"));
        strcat(outPointFileName, ".csv");
      }
+     */
 
      _spatial_input(REAL4, RoadWidthDX, mapname("Road"));
      celltest(LDD, RoadWidthDX);
@@ -154,6 +155,12 @@
      calc(" NR_VALS_NOW = count(RoadWidthDX)");
      if (NR_VALS_NOW < NR_VALS_START)
         LisemError("wrong number of pixels in Roadwidt.map, non roads must have value 0!");
+
+     _spatial_input(REAL4, hardsurface,mapname("hardsurf"));
+     celltest(LDD, hardsurface);
+       //VJ 080613 include hard surfaces
+       //VJ 091216 moved to general, influences infiltration too!!!
+
 
      //-------------------------------------------------------------------------
      // ******** land use variables ********************
@@ -329,9 +336,10 @@
      //      "@Cohesion values must be > 0.196 (detachment efficiency coef. Y < 1) "
      //      " error in CHANCOH.MAP (enter large values, e.g. 9999 for non-erodible surfaces)");
 
-       _spatial_input(REAL4, hardsurface,mapname("hardsurf"));
-       celltest(LDD, hardsurface);
+//       _spatial_input(REAL4, hardsurface,mapname("hardsurf"));
+//       celltest(LDD, hardsurface);
        //VJ 080613 include hard surfaces
+       //VJ 091216 moved to general, influences infiltration too!!!
     }
 
 

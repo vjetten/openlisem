@@ -104,8 +104,11 @@
 
       calc(" WH += RunoffHout");
       calc(" WHRoad = RunoffHout");
+      calc(" WHRoad = RunoffHout");
        // add new WH to surfaces
       //hier
+
+
       _spatial(REAL4, WaterHVolout);
       calc(" WaterHVolout = (RoadWidthDX*WHRoad+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
 

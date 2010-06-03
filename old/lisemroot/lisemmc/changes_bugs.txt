@@ -1,3 +1,13 @@
+Lisem 2.6.1 (VJ 091213)
+- hard surfaces also no infiltration now
+- output text files for all points in outlet.map even if more than 3, reported as one file or as name_#1.ext etc.
+- deleted outlet 2 and 3 names in interface
+- buf fix: switched surf storage: simple storage means max depr is hard limit, if unselected old depr storage calculation
+- added soilloss map = sum detachment and deposition
+- added quick and dirty calibration
+- forgot read erosion map units in temp run file, version 2.6
+- added empty result dir check
+- changed interface, output mapnames select only, names not changeable except edit of runfile
 lisem 2.6.0 (VJ 090521)
 - noprocess changes but further decouplingof interface and model
 - model now clled with temp run file that is parsed

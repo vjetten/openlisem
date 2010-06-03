@@ -6,19 +6,6 @@
 #include "iface.h"
 #include "lisstart.h"
 
-#define hintlisemstart "Goto startscreen LISEM: undo all changes, reset the interface and unload runfiles."
-#define hintfileopen "Open one or more runfiles. They are added to a drop down list at the bottom. Each file is executed in sequence, when stopped the next runfile is stared. Press the stop-all button to end all runs."
-#define hintfilesave "Save the current run file, all changes made in the interface will be stored."
-#define hintfilesaveas "Save the current run file under a different name. This is the easiest way to make a new runfile."
-#define hintE_MapDir       "Directory of the input maps. This name will we added to all mapnames. If this is changed all input map pathnames will be changed too."
-#define hintE_RainfallName "Rainfall file in LISEM format (not the same as PCRaster format). The first column is\
- the time in minutes. Other columns have rainfall intensity in mm/h (one column per station). The intensity is\
- assigned to the interval as follows: if the first line is \"0.0 0.0\" and the second is \"10.0 15.0\", LISEM assumes 15 mm/h from minute 0 to 10."
-#define hintE_SnowmeltName "Snowmelt file in LISEM format. The format is the same as the rainfall format."
-#define hintE_begintime    ""
-#define hintE_Endtime      ""
-#define hintE_Timestep     ""
-
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
@@ -111,6 +98,11 @@ void __fastcall TLisIFace::ResetMain()
 
    SnowmeltViewButton->Enabled = CheckSnowmelt->Checked;
    LoadSnowmeltfile->Enabled = CheckSnowmelt->Checked;
+
+   MapsInfilExtra->Visible = CheckInfilGrass->Checked;
+   E_ManningsNGrass->Enabled = CheckInfilGrass->Checked;
+   Label44->Enabled = CheckInfilGrass->Checked;
+
 }
 
 //---------------------------------------------------------------------------
@@ -153,11 +145,28 @@ void __fastcall TLisIFace::ResetInfil()
 #define INFIL_SMITH 22
 */
      MapsInfilSwatre->Visible = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
-     GroupSwatreOptions->Visible = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+//     GroupSwatreOptions->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     Label52->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     Label56->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     Label81->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     CheckDumphead->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     CheckGeometric->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     LoadTableDir->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     E_TableDir->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     E_SwatreDTSEC->Enabled = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+
+     if (E_InfilMethoda->ItemIndex == INFIL_SWATRE && !E_Timestep->Text.IsEmpty())
+     {
+        double value = E_Timestep->Text.ToDouble();
+        AnsiString S;
+        E_SwatreDTSEC->Text = S.sprintf("%6.2f",value/5.0);
+     }
+
+
      MapsInfilSwatre->Top = _top;
      MapsInfilSwatre->Left = _left;
-     GroupSwatreOptions->Top = _top+12 + MapsInfilSwatre->Height;
-     GroupSwatreOptions->Left = _left;
+//     GroupSwatreOptions->Top = _top+12 + MapsInfilSwatre->Height;
+//     GroupSwatreOptions->Left = _left;
 
      MapsInfilHoltan->Visible = E_InfilMethoda->ItemIndex == INFIL_HOLTAN;
      MapsInfilHoltan->Top = _top;
@@ -257,6 +266,7 @@ void __fastcall TLisIFace::ResetIFace()
 //    E_Outlet2Name->Text = "";
     E_ErosionName->Text = "";
     E_DepositionName->Text = "";
+    E_SoillossName->Text = "";
 //        E_RunoffName->Text = "";
     RunFilename = "";
 

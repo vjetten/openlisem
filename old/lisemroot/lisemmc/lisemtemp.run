@@ -18,10 +18,12 @@ Snowmelt file=
 [Output main]
 Result Directory=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\
 Main results file=totals_prado_20m_1.txt
-Filename point output=
+Filename point output=try.csv
 Report point output separate=0
+Report point output for SOBEK=0
 Erosion map=ero_prado_20m_1.map
 Deposition map=depo_prado_20m_1.map
+Soilloss map=try.map
 
 [Simulation times]
 Begin time=0
@@ -38,7 +40,7 @@ Include snowmelt=0
 No erosion at outlet=0
 Include buffers=0
 Alternative flow detachment=0
-Alternative depression storage=0
+Simple depression storage=0
 
 [Additional options]
 Grassstrip Mannings n=0.3
@@ -67,6 +69,7 @@ Geometric mean Ksat=0
 [Calibration]
 Ksat calibration=1
 N calibration=1
+Channel Ksat calibration=1
 Channel N calibration=1
 
 [Output maps]
@@ -94,7 +97,7 @@ OUTCONC=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\conc
 OUTWH=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\wh
 OUTRWH=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\rwh
 OUTTC=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\tc
-OUTEROS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\eros
+OUTEROS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\det
 OUTDEPO=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\depo
 OUTVELO=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\velo
 OUTINF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\inf
@@ -141,6 +144,7 @@ grad=D:\data\jantiene\run_prado_20m_1\grad_prado_20m.map
 ldd=D:\data\jantiene\run_prado_20m_1\ldd_prado_20m.map
 outlet=D:\data\jantiene\run_prado_20m_1\outlet_prado_20m.map
 ID=D:\data\jantiene\run_prado_20m_1\id_prado_20m.map
+outpoint=D:\data\jantiene\run_prado_20m_1\outlet_prado_20m.map
 
 [Landuse]
 cover=D:\data\jantiene\run_prado_20m_1\per_prado_20m.map

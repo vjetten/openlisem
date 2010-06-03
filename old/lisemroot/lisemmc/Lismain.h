@@ -123,9 +123,9 @@ public:
 //VJ 080423 add snowmelt
      char snowmeltFileName[128];
      char outflowFileName[128];
-     char outflowFileName2[128];
-     char outflowFileName3[128];
-     char outPointFileName[128];
+   //  char outflowFileName2[128];
+   //  char outflowFileName3[128];
+   //  char outPointFileName[128];
 
 //VJ 040823 add buffer output
      char BufferFileName[128];
@@ -134,6 +134,7 @@ public:
 
      char totalErosionFileName[128];
      char totalDepositionFileName[128];
+     char totalSoillossFileName[128];
      char resultFileName[128];
 //     char periodFileName[100];
      char tableDir[128];
@@ -210,7 +211,7 @@ public:
       bool SwitchKinwaveInfil;
       bool SwitchNoErosion;
       bool SwitchAltErosion;
-      bool SwitchAltDepression;
+      bool SwitchSimpleDepression;
       bool SwitchBuffers;
       bool SwitchSedtrap;
       bool SwitchSnowmelt;
@@ -278,10 +279,12 @@ public:
       char ErosionUnits;
       bool SwitchPestout;
       bool SwitchSeparateOutput;
+      bool SwitchSOBEKOutput;
 
       float ksatCalibration;
       float nCalibration;
       float ChnCalibration;
+      float ChKsatCalibration;
       double runtimelength;
 
   // these are vars that link the model to the interface
