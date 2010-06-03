@@ -14,8 +14,6 @@
 #include <vcl\ExtCtrls.hpp>
 #include "JvExControls.hpp"
 #include "JvLinkLabel.hpp"
-#include "LMDCustomComponent.hpp"
-#include "LMDStarter.hpp"
 //----------------------------------------------------------------------------
 class TAboutBox : public TForm
 {
@@ -37,9 +35,7 @@ __published:
         TButton *Button1;
    TLabel *Label1;
    TLabel *Label2;
-   TLMDStarter *LMDStarter1;
         void __fastcall Button1Click(TObject *Sender);
-   void __fastcall Label4Click(TObject *Sender);
 private:
 public:
 	virtual __fastcall TAboutBox(TComponent* AOwner);

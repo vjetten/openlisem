@@ -6,27 +6,24 @@
      //******************get SWATRE infil parameters****************************
      //-------------------------------------------------------------------------
 
-     INFIL_METHOD = LisIFace->E_InfilMethod->ItemIndex;
+     INFIL_METHOD = GetInt("Infil Method");
+
+     ksatCalibration = GetFloat("Ksat calibration"); ///100.0;
 
      _nonspatial(REAL4, precisionSwatre);
      precisionSwatre = 5;
 
      _nonspatial(REAL4, minDtSwatre);
         // minimum timestep for Swatre submodel, in days
-//VJ 080622 this line was ignored!
      if (INFIL_METHOD == INFIL_SWATRE)
      {
-        minDtSwatre = LisIFace->E_SwatreDTSEC->Text.ToDouble();
+        minDtSwatre = GetFloat("SWATRE internal minimum timestep"); 
         if (minDtSwatre > DTSEC)
            minDtSwatre = DTSEC;
         minDtSwatre/=86400;
      }
 
      //-------------------------------------------------------------------------
-
-    // if (ksatCalibration == 0)
-      //  ksatCalibration  ==  1.0;
-    //VJ 080622 why??? ksat can be shut off!  
 
      _spatial(REAL4, InfilSurplus);
      calc(" InfilSurplus = 0 ");

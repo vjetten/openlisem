@@ -8,8 +8,7 @@
      MinimumHeight = 0.001;
         //0.01 mm is minimum water height acceptable to avoid divisaion by near zero
 
-
-     calc(" NrDefinedCells = count(Gradient)");
+     _nonspatial(REAL4, CatchmentArea);   // total catchment area in m2
      calc(" CatchmentArea = sum(DXc * DX) ");
      // using real slope
 

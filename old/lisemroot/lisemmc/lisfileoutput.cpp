@@ -33,7 +33,7 @@
            ((WRITETIME[timeIndex]<= timestepindex) && !(WRITETIME[timeIndex] == 0))
           )
         {
-           LisIFace->LastPCRTimestep++;
+           LastPCRTimestep++;
              // increase sequential timestepnr for pcraster output
           //VJ
           // toggle between output in discharge l/s or unit discharge l/s/m
@@ -139,58 +139,58 @@
        } //if periodmaps
 
 //VJ 031218 set timeseries also when not PCRaster output
-       if(timestepindex >= ENDINTERVAL)// && LisIFace->CheckWritePCRnames->Checked)
+       if(timestepindex >= ENDINTERVAL)
        {
            LisIFace->Messages->Lines->Append("Setting timeseries min and max, please wait ...");
 
-           if (SwitchMapoutRunoff) 	LisIFace->SetTimeseriesMinmax(mapname("outrunoff"));
-           if (SwitchMapoutWH) 		LisIFace->SetTimeseriesMinmax(mapname("outwh"));
-           if (SwitchMapoutRWH) 	LisIFace->SetTimeseriesMinmax(mapname("outrwh"));
-           if (SwitchMapoutTC) 		LisIFace->SetTimeseriesMinmax(mapname("outtc"));
-           if (SwitchMapoutV) 		LisIFace->SetTimeseriesMinmax(mapname("outvelo"));
-           if (SwitchMapoutInf) 	LisIFace->SetTimeseriesMinmax(mapname("outinf"));
-           if (SwitchMapoutSs) 		LisIFace->SetTimeseriesMinmax(mapname("outss"));
+           if (SwitchMapoutRunoff) 	SetTimeseriesMinmax(mapname("outrunoff"));
+           if (SwitchMapoutWH) 		SetTimeseriesMinmax(mapname("outwh"));
+           if (SwitchMapoutRWH) 	SetTimeseriesMinmax(mapname("outrwh"));
+           if (SwitchMapoutTC) 		SetTimeseriesMinmax(mapname("outtc"));
+           if (SwitchMapoutV) 		SetTimeseriesMinmax(mapname("outvelo"));
+           if (SwitchMapoutInf) 	SetTimeseriesMinmax(mapname("outinf"));
+           if (SwitchMapoutSs) 		SetTimeseriesMinmax(mapname("outss"));
 //?????????
            if (SwitchChannelBaseflow)
-            if (SwitchMapoutChvol) LisIFace->SetTimeseriesMinmax(mapname("outchvol"));
+            if (SwitchMapoutChvol) SetTimeseriesMinmax(mapname("outchvol"));
 
            if (!SwitchNoErosion)
            {
-               if (SwitchMapoutConc)    LisIFace->SetTimeseriesMinmax(mapname("outconc"));
+               if (SwitchMapoutConc)    SetTimeseriesMinmax(mapname("outconc"));
                //in all functions concentration is calculated as sed/volume, NOT Qsed/Q
 
-               if (SwitchMapoutEros)    LisIFace->SetTimeseriesMinmax(mapname("outeros"));
-               if (SwitchMapoutDepo)    LisIFace->SetTimeseriesMinmax(mapname("outdepo"));
+               if (SwitchMapoutEros)    SetTimeseriesMinmax(mapname("outeros"));
+               if (SwitchMapoutDepo)    SetTimeseriesMinmax(mapname("outdepo"));
 
                if (SwitchMulticlass)
                {
-                 if (SwitchMapoutMC0) LisIFace->SetTimeseriesMinmax(mapname("outmu0"));
-                 if (SwitchMapoutMC1) LisIFace->SetTimeseriesMinmax(mapname("outmu1"));
-                 if (SwitchMapoutMC2) LisIFace->SetTimeseriesMinmax(mapname("outmu2"));
-                 if (SwitchMapoutMC3) LisIFace->SetTimeseriesMinmax(mapname("outmu3"));
-                 if (SwitchMapoutMC4) LisIFace->SetTimeseriesMinmax(mapname("outmu4"));
-                 if (SwitchMapoutMC5) LisIFace->SetTimeseriesMinmax(mapname("outmu5"));
-                 if (SwitchMapoutMC6) LisIFace->SetTimeseriesMinmax(mapname("outD50susp"));
+                 if (SwitchMapoutMC0) SetTimeseriesMinmax(mapname("outmu0"));
+                 if (SwitchMapoutMC1) SetTimeseriesMinmax(mapname("outmu1"));
+                 if (SwitchMapoutMC2) SetTimeseriesMinmax(mapname("outmu2"));
+                 if (SwitchMapoutMC3) SetTimeseriesMinmax(mapname("outmu3"));
+                 if (SwitchMapoutMC4) SetTimeseriesMinmax(mapname("outmu4"));
+                 if (SwitchMapoutMC5) SetTimeseriesMinmax(mapname("outmu5"));
+                 if (SwitchMapoutMC6) SetTimeseriesMinmax(mapname("outD50susp"));
                }
                if (SwitchNutrients)
                {
-                 if (SwitchMapoutPsol)   LisIFace->SetTimeseriesMinmax(mapname("outpsolut"));
-                 if (SwitchMapoutPsus)   LisIFace->SetTimeseriesMinmax(mapname("outpsus"));
-                 if (SwitchMapoutPinf)   LisIFace->SetTimeseriesMinmax(mapname("outpinf"));
-                 if (SwitchMapoutNH4sol) LisIFace->SetTimeseriesMinmax(mapname("outnh4solut"));
-                 if (SwitchMapoutNH4sus) LisIFace->SetTimeseriesMinmax(mapname("outnh4sus"));
-                 if (SwitchMapoutNH4inf) LisIFace->SetTimeseriesMinmax(mapname("outnh4inf"));
-                 if (SwitchMapoutNO3sol) LisIFace->SetTimeseriesMinmax(mapname("outno3solut"));
-                 if (SwitchMapoutNO3sus) LisIFace->SetTimeseriesMinmax(mapname("outno3sus"));
-                 if (SwitchMapoutNO3inf) LisIFace->SetTimeseriesMinmax(mapname("outno3inf"));
+                 if (SwitchMapoutPsol)   SetTimeseriesMinmax(mapname("outpsolut"));
+                 if (SwitchMapoutPsus)   SetTimeseriesMinmax(mapname("outpsus"));
+                 if (SwitchMapoutPinf)   SetTimeseriesMinmax(mapname("outpinf"));
+                 if (SwitchMapoutNH4sol) SetTimeseriesMinmax(mapname("outnh4solut"));
+                 if (SwitchMapoutNH4sus) SetTimeseriesMinmax(mapname("outnh4sus"));
+                 if (SwitchMapoutNH4inf) SetTimeseriesMinmax(mapname("outnh4inf"));
+                 if (SwitchMapoutNO3sol) SetTimeseriesMinmax(mapname("outno3solut"));
+                 if (SwitchMapoutNO3sus) SetTimeseriesMinmax(mapname("outno3sus"));
+                 if (SwitchMapoutNO3inf) SetTimeseriesMinmax(mapname("outno3inf"));
                }
                if (SwitchGullies)
                {
-                 if (SwitchMapoutGul0) LisIFace->SetTimeseriesMinmax(mapname("outguld"));
-                 if (SwitchMapoutGul1) LisIFace->SetTimeseriesMinmax(mapname("outgulw"));
-                 if (SwitchMapoutGul2) LisIFace->SetTimeseriesMinmax(mapname("outgula"));
-                 if (SwitchMapoutGul3) LisIFace->SetTimeseriesMinmax(mapname("outgulf"));
-                 if (SwitchMapoutGul4) LisIFace->SetTimeseriesMinmax(mapname("outguldem"));
+                 if (SwitchMapoutGul0) SetTimeseriesMinmax(mapname("outguld"));
+                 if (SwitchMapoutGul1) SetTimeseriesMinmax(mapname("outgulw"));
+                 if (SwitchMapoutGul2) SetTimeseriesMinmax(mapname("outgula"));
+                 if (SwitchMapoutGul3) SetTimeseriesMinmax(mapname("outgulf"));
+                 if (SwitchMapoutGul4) SetTimeseriesMinmax(mapname("outguldem"));
                }
            } // if !noerosion
            LisIFace->Messages->Lines->Append("Done!");
@@ -236,7 +236,7 @@
        calc(" QOutlet1 = sum(mif(Outlet1 eq 1, Qout, 0)) ");
        _nonspatial(REAL4, QSEDOutlet1);
        QSEDOutlet1 = QOutlet1*SCOutlet1 ;
-
+/*
 //OULET 2
        _nonspatial(REAL4, SCOutlet2);
        calc(" SCOutlet2 = sum(mif(Outlet2 eq 1, sedconcfile, 0)) ");
@@ -252,6 +252,7 @@
        calc(" QOutlet3 = sum(mif(Outlet3 eq 1, Qout, 0)) ");
        _nonspatial(REAL4, QSEDOutlet3);
        QSEDOutlet3 = QOutlet3*SCOutlet3 ;
+*/
 
 //=========------- output to files-------===========//
 
@@ -269,6 +270,19 @@
        }
        //defined in lisheadin.h
 
+       _spatial(REAL4, Qoutr);
+       calc(" Qoutr = Qout*sedconcfile");
+
+       _spatial(REAL4, QSout);
+       calc(" QSout = Qout*sedconcfile");
+
+       _spatial(REAL4, RainAvgOut);
+       calc(" RainAvgOut = RainfallAverageH*3600.0/DTSEC ");
+
+// VJ 091211 NEW REPORTING
+ //      reportPointMap(outflowFileName, Outlet, timestepindex, RainAvgOut, Qoutr, QSout, sedconcfile, SwitchSeparateOutput);
+
+/*
        if (SwitchOutlet1)
        {
            fpoutflow1 = fopen(outflowFileName,"a");
@@ -284,10 +298,6 @@
                      QOutlet1*1000,
                      QSEDOutlet1,
                      SCOutlet1 );
-                     /*
-                     QOutflow*1000,
-                     SedOutflow,
-                     SCOutlet1 */
            }
            else  //MULTICLASS
            {
@@ -399,7 +409,7 @@
        else
           SCOutlet2 = 0;
 */
-
+/*
        if (SwitchOutlet2)
        {
            fpoutflow2 = fopen(outflowFileName2,"a");
@@ -415,7 +425,7 @@
            fclose(fpoutflow2);
            POSTCOND(oR > 5);
        }
-
+*/
 
        // ***** outlet subcatchment 3 ****/
 
@@ -438,7 +448,7 @@
           SCOutlet3 = 0;
 
 */
-
+ /*
        if (SwitchOutlet3)
        {
            fpoutflow3 = fopen(outflowFileName3,"a");
@@ -454,6 +464,7 @@
            fclose(fpoutflow3);
            POSTCOND(oR > 5);
        }
+*/
 
 //VJ 050913 add pestout possibility
       if (SwitchPestout)
@@ -493,7 +504,7 @@
         fprintf(fp," Mass balance error (water)(%%):,  %12.5f\n",MassBalanceError);
         fprintf(fp,"Total discharge           (m3):, %12.5f\n",TotalDischarge);
         fprintf(fp,"Peak discharge           (l/s):,  %12.5f\n",PeakDischarge);
-//VJ 080217 add baseflow        
+//VJ 080217 add baseflow
 //        fprintf(fp,"Baseflow discharge           (l/s):,  %12.5f\n",BaseflowDischarge);
         fprintf(fp,"Peak time                (min):,  %12.5f\n",PeakTime);
       if (TotalRainVol > 0)

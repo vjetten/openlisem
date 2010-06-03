@@ -14,7 +14,7 @@ void __fastcall TLisIFace::SizeMapNames(TStringGrid *N, int w1, int w2,int w3)
      N->ColWidths[0]=w1;
      N->ColWidths[1]=w2;
      N->ColWidths[2]=w3;
-     N->ColWidths[3]=PageControl->Width-(w1+w2+w3)-48;
+     N->ColWidths[3]=0;//PageControl->Width-(w1+w2+w3)-48;
      N->ColWidths[4]=0;
      N->ColWidths[5]=0;
 
@@ -29,7 +29,7 @@ void __fastcall TLisIFace::SizeMapNamesL(TStringGrid *N, int w1, int w2,int w3, 
      N->ColWidths[0]=w1;
      N->ColWidths[1]=w2;
      N->ColWidths[2]=w3;
-     N->ColWidths[3]=w4;//PageControl->Width-(w1+w2+w3)-32-N->Left;
+     N->ColWidths[3]=0;//w4;//PageControl->Width-(w1+w2+w3)-32-N->Left;
      N->ColWidths[4]=0;
      N->ColWidths[5]=0;
 
@@ -112,6 +112,7 @@ void __fastcall TLisIFace::InitMapNames()
 //    FillMapNames(MapsCatchment,i,"LDDtill","lddtill.map","Local Drain Direction network, tillage","lddtill");i++;
     FillMapNames(MapsCatchment,i,"Outlet","outlet.map","Main catchment outlet, corresponding to LDD map","outlet");i++;
     FillMapNames(MapsCatchment,i,"ID","id.map","Raingauge zone ID numbers","ID");i++;
+//    FillMapNames(MapsCatchment,i,"OutPoint","outpoint.map","Reporting points for runoff (for cells with value > 0)","outpoint");i++;
     n = i-1;
     i = 1;
     SizeMapNames(MapsLanduse,w1,w2,w3);
@@ -126,8 +127,8 @@ void __fastcall TLisIFace::InitMapNames()
     SizeMapNames(MapsBuffers,w1,w2,w3);
     FillMapNames(MapsBuffers,i,"Buffer ID nr","bufferid.map","ID number for each buffer starting with 1 (0 is outside area)","bufferID");i++;
     FillMapNames(MapsBuffers,i,"Buffer volume","buffervol.map","Buffer volumes at the locations of the buffers (m3)","bufferVolume");i++;
-    FillMapNames(MapsBuffers,i,"Buffer area","bufferarea.map","Buffer area at locations of the buffers (m2)","bufferarea");i++;
-    FillMapNames(MapsBuffers,i,"Buffer outflow","bufferQ.map","Buffer gage outflow discharge (m3/s)","bufferdischarge");i++;
+ //   FillMapNames(MapsBuffers,i,"Buffer area","bufferarea.map","Buffer area at locations of the buffers (m2)","bufferarea");i++;
+//    FillMapNames(MapsBuffers,i,"Buffer outflow","bufferQ.map","Buffer gage outflow discharge (m3/s)","bufferdischarge");i++;
     n = n+i-1;
 //VJ 080423 Snowmelt
     i = 1;
@@ -244,16 +245,6 @@ void __fastcall TLisIFace::InitMapNames()
     FillMapNames(MapsChannelBaseflow,i,"Increase in baseflow","chanincrease.map","Increase in basevolume during rainstorm (-)","chanincrease");i++;
     FillMapNames(MapsChannelBaseflow,i,"Initial volume","chanvini.map","Initial baseflow water volume in channel (m3)","chanvolini");i++;
 
-//VJ 070909 add macropore network
-/*
-    i = 1;
-    SizeMapNames(MapsMacropore,w1,w2,w3);
-    FillMapNames(MapsMacropore,i,"LDD ","lddmacro.map","LDD of macropore network","lddmacro");i++;
-    FillMapNames(MapsMacropore,i,"Width","macrowidth.map","macropore width width (mm)","macrowidth");i++;
-    FillMapNames(MapsMacropore,i,"Depth","macrodepth.map","macropore depth (mm)","macrodepth");i++;
-    FillMapNames(MapsMacropore,i,"Velocity","macrovel.map","velocity in macropores (mm/h)","macroV");i++;
-    FillMapNames(MapsMacropore,i,"Fraction","macrofrac.map","Fraction of macropores per gricell (0-1)","macrofrac");i++;
-*/    
     i = 1;
     SizeMapNames(MapsWheeltrack,w1,w2,w3);
     FillMapNames(MapsWheeltrack,i,"LDD ","lddwheel.map","LDD of wheeltrack network (can be separate branches with pits)","lddwheel");i++;
@@ -322,7 +313,7 @@ void __fastcall TLisIFace::InitMapNames()
 void __fastcall TLisIFace::InitOutMapNames()
 {
     int i = 1;
-    int w1 = 80, w2=80, w3= 240, w4 = 250;
+    int w1 = 86, w2=60, w3= 230, w4 = 250;
     SizeMapNamesL(MapsOutputBASIC,w1,w2,w3,w4);
     FillMapNamesO(MapsOutputBASIC,i,"Runoff","ro"," runoff (l/s)","outrunoff");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Concentration","conc"," sediment concentration (g/l)","outconc");i++;

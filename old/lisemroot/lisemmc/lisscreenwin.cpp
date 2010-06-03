@@ -42,8 +42,8 @@
        TOTSoilLoss = TotalSedDischarge/1000.0;
        AVGSoilLoss = TotalSedDischarge/(CatchmentArea/10000.0);
        OutputDischarge = QOutflow*1000.0;
-       OutputDischarge1 = QOutlet2*1000.0;
-       OutputDischarge2 = QOutlet3*1000.0;
+//       OutputDischarge1 = QOutlet2*1000.0;
+//       OutputDischarge2 = QOutlet3*1000.0;
 
        if (QOutflow > 0)
           OutputSedConc = SCOutlet1;

@@ -267,17 +267,6 @@ void __fastcall LisThread::DumpScreenSync()
    LisIFace->CheckDumpScreen = LisIFace->DumpScreen(false);
 }
 //---------------------------------------------------------------------------
-/*
-void __fastcall LisThread::GetNewRunfile()
-{
-   LisIFace->RunFilename = LisIFace->ListRunfiles->Items->Strings[LisIFace->thisrun];
-   LisIFace->SaveDialog->FileName = LisIFace->RunFilename;
-   RunForm->RunEdit->Lines->LoadFromFile(LisIFace->RunFilename);
-   LisIFace->ReadNewRunfile(LisIFace->RunFilename);
-   LisIFace->PageControl->ActivePage = LisIFace->TabSheetTot;
-   LisIFace->LabelRunfile->Caption = "Active run file: " + LisIFace->RunFilename;
-}
-//---------------------------------------------------------------------------
-*/
+
 
 

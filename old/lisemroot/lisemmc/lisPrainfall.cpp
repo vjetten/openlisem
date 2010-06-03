@@ -33,7 +33,7 @@
                // height corrected for surface because water spreads out
 
            //_nonspatial(REAL4, RainfallAverageH); moved to lisparamtotals.cpp
-           calc(" RainfallAverageH = sum(RainH)/NrDefinedCells ");
+           calc(" RainfallAverageH = sum(RainH)/count(RainH) ");
            // used in file and screen output, correct back to dx*dx for good intensities
 
            // **** peak rainfall detection
@@ -109,7 +109,7 @@
              // add coorected snowmelt height to rainfall
 
          _nonspatial(REAL4, SnowmeltAverageH);
-         calc(" SnowmeltAverageH = sum(SnowmeltH)/NrDefinedCells ");
+         calc(" SnowmeltAverageH = sum(SnowmeltH)/count(SnowmeltH) ");
          // used in file and screen output, correct back to dx*dx for good intensities
 
          calc(" RainfallAverageH += SnowmeltAverageH ");

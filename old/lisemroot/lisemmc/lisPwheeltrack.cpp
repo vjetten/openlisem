@@ -159,7 +159,7 @@
      kineDX(WheelQout,WheelQin, infilWT,
             WheelQsedout,WheelQsedin, stempWT,
             BufferVolumeCurrent, BufferSedVolumeCurrent,
-            WheelLDD, WheelAlpha, WheelBeta, DTSEC, DXc);
+            WheelLDD, WheelAlpha, WheelBeta, DTSEC, DXc, int(SwitchSedtrap));
 //VJ 050831 CHANGED: infil changes: it is the sum of all fluxes in the cell. Needed for infiltration calc
 
        calc("WheelQOutflow = sum(mif(Outlet1 eq 1,WheelQout,0))");

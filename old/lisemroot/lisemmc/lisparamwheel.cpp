@@ -65,7 +65,6 @@
          calc(" WheelGradient = cover(WheelGradient, 0)");
          calc(" WheelN = cover(WheelN, 0)");
 
-//         calc(" NR_VALS_START = count(AREA)");
 //         calc(" NR_VALS_NOW = count(WheelWidth)");
 //         if (NR_VALS_NOW < NR_VALS_START)
 //           LisemError("wrong number of pixels in Wheelwid.map, non wheeltracks must have value 0!");

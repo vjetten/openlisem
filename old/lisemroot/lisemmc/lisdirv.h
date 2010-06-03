@@ -22,7 +22,7 @@ __published:
         TDriveComboBox *DriveComboBox1;
 	void __fastcall Button2Click(TObject *Sender);
 	void __fastcall FormActivate(TObject *Sender);
-        void __fastcall FormCreate(TObject *Sender);
+   void __fastcall FormShow(TObject *Sender);
 private:
 public:
 	virtual __fastcall TDirView(TComponent *Owner);

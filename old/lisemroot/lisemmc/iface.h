@@ -30,18 +30,21 @@
 #include "CSPIN.h"
 #include <Grids.hpp>
 #include <Mask.hpp>
+#include <ImgList.hpp>
+#include "JvExMask.hpp"
+#include "JvSpin.hpp"
 
 #define ProgName "LISEM"
-#define ProgVersion "version 2.58"
-#define DateVersion "Compiled: 14/02/09"
+#define ProgVersion "version 2.60 beta"
+#define DateVersion "Compiled: 09/12/09"
 
 #define LISEMBASIC 0
 #define LISEMWHEELTRACKS 1
 #define LISEMMULTICLASS 2
 #define LISEMNUTRIENTS 3
 #define LISEMGULLIES 4
-#define wWidth 800
-#define wHeight 600
+#define wWidth 912
+#define wHeight 660
 
 //---------------------------------------------------------------------------
 class TLisIFace : public TForm
@@ -50,20 +53,10 @@ __published:	// IDE-managed Components
    TOpenDialog *OpenDialog;
    TSaveDialog *SaveDialog;
    TToolBar *ToolBar;
-   TSpeedButton *FileOpenButton;
-   TSpeedButton *FileSaveButton;
-   TSpeedButton *FileSaveAsButton;
-   TSpeedButton *ButtonRunprog;
    TSplitter *Splitter1;
-   TSpeedButton *ButtonStopprog;
-        TPanel *Panel5;
-        TCGauge *CGauge;
-        TSpeedButton *ButtonPauseprog;
         TSpeedButton *PrintButton;
-        TSpeedButton *DumpScreenButton;
 	TSpeedButton *AboutButton;
         TSplitter *Splitter3;
-        TSpeedButton *StopAllButton;
 	TSplitter *Splitter4;
 	TSplitter *Splitter5;
 	TSpeedButton *HelpButton;
@@ -144,13 +137,9 @@ __published:	// IDE-managed Components
     TCheckBox *CheckNoErosion;
     TCheckBox *CheckIncludeChannel;
     TGroupBox *GroupDirsInput;
-    TBevel *Bevel29;
     TLabel *Label51;
     TSpeedButton *LoadMapDir;
-    TLabel *Label22;
-    TSpeedButton *LoadWorkDir;
     TBevel *Bevel16;
-    TEdit *E_Workdir;
     TEdit *E_MapDir;
     TGroupBox *GroupOptionsSimTime;
     TLabel *Label38;
@@ -164,16 +153,9 @@ __published:	// IDE-managed Components
     TBevel *Bevel28;
     TSpeedButton *EraseListButton;
     TBitBtn *RunFileButton;
-    TListBox *ListRunfiles;
     TButton *ButtonRestore;
-    TTabSheet *TabMapsOutput;
-        TCheckBox *CheckWritePCRnames;
         TGroupBox *GroupOptionsInfil;
         TRadioGroup *E_InfilMethod;
-        TGroupBox *GroupOptionsInfilExtra;
-        TLabel *Label64;
-        TCSpinEdit *CSpinEditKsat;
-        TSpeedButton *SpeedButton1;
         TTabSheet *TabWheeltracks;
         TStringGrid *MapsWheeltrack;
         TTabSheet *TabMulticlass;
@@ -201,17 +183,7 @@ __published:	// IDE-managed Components
         TEdit *E_TableDir;
         TStringGrid *MapsInfilMorel;
         TStringGrid *MapsInfilSmith;
-        TGroupBox *GroupSurfacetype;
-        TCheckBox *CheckInfilCompact;
-        TCheckBox *CheckInfilCrust;
-        TCheckBox *CheckInfilGrass;
-        TCheckBox *CheckRunoffPerM;
         TLabel *Label53;
-    TGroupBox *GroupOptionsOutTime;
-    TMemo *E_OutputTimes;
-    TRadioButton *E_OutputTimeUser;
-    TRadioButton *E_OutputTimeStep;
-    TCSpinEdit *E_OutputTimeSteps;
     TLabel *Label62;
     TLabel *Label68;
     TBevel *Bevel36;
@@ -227,9 +199,6 @@ __published:	// IDE-managed Components
     TEdit *E_QWparamb;
     TPanel *Panel9;
     TStringGrid *MapsNutsBD;
-    TBevel *Bevel39;
-    TBevel *Bevel40;
-    TBevel *Bevel41;
         TPanel *Panel10;
         TChart *Qgraph;
         TLineSeries *Series1;
@@ -247,36 +216,6 @@ __published:	// IDE-managed Components
         TCheckBox *ShowSedConcentration;
         TRichEdit *OutletValues;
         TCheckBox *CheckChannelInfil;
-        TPageControl *MapOutControl;
-        TTabSheet *TabMapOutMC;
-        TTabSheet *TabMapOutNut;
-        TTabSheet *TabMapOutGul;
-        TStringGrid *MapsOutputMC;
-        TStringGrid *MapsOutputGul;
-        TPanel *GroupMapsoutGul;
-        TCheckBox *CheckMapoutGul1;
-        TCheckBox *CheckMapoutGul3;
-        TCheckBox *CheckMapoutGul2;
-        TCheckBox *CheckMapoutGul0;
-        TCheckBox *CheckMapoutGul4;
-        TPanel *GroupMapsoutNut;
-        TCheckBox *CheckMapoutNut1;
-        TCheckBox *CheckMapoutNut3;
-        TCheckBox *CheckMapoutNut2;
-        TCheckBox *CheckMapoutNut5;
-        TCheckBox *CheckMapoutNut4;
-        TCheckBox *CheckMapoutNut6;
-        TCheckBox *CheckMapoutNut8;
-        TCheckBox *CheckMapoutNut7;
-        TCheckBox *CheckMapoutNut0;
-        TStringGrid *MapsOutputNut;
-        TPanel *GroupMapsoutMC;
-        TCheckBox *CheckMapoutMC1;
-        TCheckBox *CheckMapoutMC3;
-        TCheckBox *CheckMapoutMC2;
-        TCheckBox *CheckMapoutMC5;
-        TCheckBox *CheckMapoutMC4;
-        TCheckBox *CheckMapoutMC0;
         TLabel *LO_catcharea;
         TLabel *LO_Tstart;
         TLabel *LO_dtcurr;
@@ -299,57 +238,13 @@ __published:	// IDE-managed Components
         TLabel *LO_chandepo;
         TLabel *LO_ChSedSuspended;
         TLabel *LO_Sedbal;
-    TTabSheet *TabMapOutBasic;
-    TStringGrid *MapsOutputBASIC;
-    TCheckBox *CheckMapout7;
-    TCheckBox *CheckMapout4;
-    TCheckBox *CheckMapout0;
-    TCheckBox *CheckMapout1;
-    TCheckBox *CheckMapout2;
-    TCheckBox *CheckMapout5;
-    TCheckBox *CheckMapout3;
-    TCheckBox *CheckMapout6;
-    TCheckBox *CheckMapout8;
-    TCheckBox *CheckMapout9;
-    TCheckBox *CheckWritePCRtimeplot;
-    TCheckBox *CheckMapoutMC6;
-    TStringGrid *MapsOutputNutErosDep;
-    TLabel *Label50;
-    TPanel *GroupMaspoutNutErosDepo;
-    TCheckBox *CheckMapoutNut10;
-    TCheckBox *CheckMapoutNut12;
-    TCheckBox *CheckMapoutNut11;
-    TCheckBox *CheckMapoutNut14;
-    TCheckBox *CheckMapoutNut13;
-    TCheckBox *CheckMapoutNut9;
-//	TLMDSpinEdit *LMDSpinOutletValues;
-    TGroupBox *GroupDirsOutput;
-    TLabel *Label41;
-    TLabel *Label43;
-    TLabel *Label45;
-    TLabel *Label46;
-    TLabel *Label47;
-    TLabel *Label48;
-    TBevel *Bevel15;
-    TBevel *Bevel6;
-    TBevel *Bevel32;
-    TEdit *E_ErosionName;
-    TEdit *E_DepositionName;
-    TEdit *E_OutletName;
-    TEdit *E_Outlet1Name;
-    TEdit *E_Outlet2Name;
-    TEdit *E_TotalName;
     TCSpinEdit *SpinOutletValues;
-    TLabel *Label40;
-    TSpeedButton *LoadResultDir;
-    TEdit *E_ResultDir;
     TBevel *Bevel19;
    TCheckBox *CheckNoErosionOutlet;
    TStringGrid *MapsGullyInit;
    TCheckBox *CheckGullyInit;
    TStringGrid *MapsBuffers;
    TLabel *Label55;
-   TCheckBox *CheckImpermeable;
    TCheckBox *CheckBuffers;
    TLabel *Label58;
    TLabel *Label60;
@@ -375,22 +270,15 @@ __published:	// IDE-managed Components
    TBevel *Bevel43;
    TBevel *Bevel44;
 	TCheckBox *CheckAltErosion;
-    TCheckBox *CheckSubsoilDrainage;
     TStringGrid *MapsInfilDrainage;
-	TRadioGroup *E_OutputUnits;
    TBevel *Bevel45;
    TCheckBox *CheckGullyInfil;
-   TTabSheet *Macropores;
-   TStringGrid *MapsMacropore;
    TLabel *Label66;
-   TCheckBox *CheckMacroporeFlow;
    TCheckBox *CheckChannelBaseflow;
    TStringGrid *MapsChannelBaseflow;
    TLabel *LO_baseflow;
    TLabel *Label72;
-   TCheckBox *CheckMapout10;
    TCheckBox *CheckSnowmelt;
-   TBevel *Bevel30;
    TLabel *Label54;
    TSpeedButton *RainViewButton;
    TSpeedButton *LoadRainfile;
@@ -415,14 +303,130 @@ __published:	// IDE-managed Components
    TLabel *LO_SedSuspended;
    TLabel *LO_splash;
    TLabel *Label77;
-   TLabel *Label59;
-   TLabel *Label44;
-   TEdit *E_SplashDelivery;
-   TEdit *E_ManningsNGrass;
-   TBevel *Bevel27;
-   TBevel *Bevel4;
    TCheckBox *CheckAltDepression;
+   TComboBox *E_InfilMethoda;
+   TCheckBox *CheckInfilCrust;
+   TCheckBox *CheckInfilGrass;
+   TCheckBox *CheckInfilCompact;
+   TCheckBox *CheckSubsoilDrainage;
+   TCheckBox *CheckImpermeable;
+   TComboBox *ListRunfilesa;
+   TCheckBox *CheckSedtrap;
+   TBevel *Bevel4;
+   TLabel *Label44;
+   TBevel *Bevel27;
+   TEdit *E_ManningsNGrass;
+   TLabel *Label59;
+   TEdit *E_SplashDelivery;
+   TBevel *Bevel14;
+   TBevel *Bevel17;
+   TMemo *expl;
+   TImageList *ImageList1;
+   TToolButton *ToolButtonFileopen;
+   TToolButton *ToolButtonFilesave;
+   TToolButton *ToolButtonFilesaveAs;
+   TToolButton *ToolButtonLisemstart;
+   TToolButton *ToolButtonDumpScreen;
+   TToolButton *ButtonRunProg;
+   TToolButton *ButtonPauseProg;
+   TToolButton *ButtonStopProg;
+   TToolButton *ButtonStopAll;
+   TPanel *Panel11;
+   TBevel *Bevel29;
+   TGroupBox *GroupDirsOutput;
+   TLabel *Label41;
+   TLabel *Label43;
+   TLabel *Label45;
+   TLabel *Label48;
+   TBevel *Bevel15;
+   TBevel *Bevel6;
+   TBevel *Bevel32;
+   TSpeedButton *LoadResultDir;
+   TLabel *Label40;
+   TBevel *Bevel22;
+   TEdit *E_ErosionName;
+   TEdit *E_DepositionName;
+   TEdit *E_OutletName;
+   TEdit *E_TotalName;
+   TCheckBox *CheckSeparateOutput;
+   TEdit *E_ResultDir;
+   TGroupBox *GroupOptionsOutTime;
+   TMemo *E_OutputTimes;
+   TRadioButton *E_OutputTimeUser;
+   TRadioButton *E_OutputTimeStep;
+   TCSpinEdit *E_OutputTimeSteps;
+   TPageControl *MapOutControl;
+   TTabSheet *TabMapOutBasic;
+   TCheckBox *CheckMapout10;
+   TCheckBox *CheckMapout9;
+   TCheckBox *CheckMapout8;
+   TCheckBox *CheckMapout7;
+   TCheckBox *CheckMapout4;
+   TCheckBox *CheckMapout0;
+   TCheckBox *CheckMapout1;
+   TCheckBox *CheckMapout2;
+   TCheckBox *CheckMapout5;
+   TCheckBox *CheckMapout3;
+   TCheckBox *CheckMapout6;
+   TStringGrid *MapsOutputBASIC;
+   TTabSheet *TabMapOutMC;
+   TPanel *GroupMapsoutMC;
+   TCheckBox *CheckMapoutMC1;
+   TCheckBox *CheckMapoutMC3;
+   TCheckBox *CheckMapoutMC2;
+   TCheckBox *CheckMapoutMC5;
+   TCheckBox *CheckMapoutMC4;
+   TCheckBox *CheckMapoutMC0;
+   TCheckBox *CheckMapoutMC6;
+   TStringGrid *MapsOutputMC;
+   TTabSheet *TabMapOutNut;
+   TPanel *GroupMapsoutNut;
+   TCheckBox *CheckMapoutNut1;
+   TCheckBox *CheckMapoutNut3;
+   TCheckBox *CheckMapoutNut2;
+   TCheckBox *CheckMapoutNut5;
+   TCheckBox *CheckMapoutNut4;
+   TCheckBox *CheckMapoutNut6;
+   TCheckBox *CheckMapoutNut8;
+   TCheckBox *CheckMapoutNut7;
+   TCheckBox *CheckMapoutNut0;
+   TStringGrid *MapsOutputNut;
+   TTabSheet *TabMapOutNut2;
+   TLabel *Label50;
+   TPanel *GroupMaspoutNutErosDepo;
+   TCheckBox *CheckMapoutNut10;
+   TCheckBox *CheckMapoutNut12;
+   TCheckBox *CheckMapoutNut11;
+   TCheckBox *CheckMapoutNut14;
+   TCheckBox *CheckMapoutNut13;
+   TCheckBox *CheckMapoutNut9;
+   TStringGrid *MapsOutputNutErosDep;
+   TTabSheet *TabMapOutGul;
+   TPanel *GroupMapsoutGul;
+   TCheckBox *CheckMapoutGul1;
+   TCheckBox *CheckMapoutGul3;
+   TCheckBox *CheckMapoutGul2;
+   TCheckBox *CheckMapoutGul0;
+   TCheckBox *CheckMapoutGul4;
+   TStringGrid *MapsOutputGul;
+   TRadioGroup *E_OutputUnits;
+   TGroupBox *GroupBox1;
+   TCheckBox *CheckWritePCRtimeplot;
+   TCheckBox *CheckWritePCRnames;
+   TCheckBox *CheckRunoffPerM;
+   TTabSheet *TabSheet1;
    TCheckBox *CheckAllinChannel;
+   TEdit *E_Workdir;
+   TCGauge *CGauge;
+   TGroupBox *GroupBox2;
+   TLabel *Label64;
+   TJvSpinEdit *CalibrateKsat;
+   TJvSpinEdit *CalibrateN;
+   TLabel *Label22;
+   TLabel *Label46;
+   TJvSpinEdit *CalibrateChN;
+   TLabel *Label47;
+   TLabel *Label78;
 //        TNMPOP3 *NMPOP31;
     void __fastcall ButtonRunprogClick(TObject *Sender);
     void __fastcall FileOpenClick(TObject *Sender);
@@ -433,7 +437,7 @@ __published:	// IDE-managed Components
     void __fastcall ButtonPauseprogClick(TObject *Sender);
     void __fastcall MakeIniButtonClick(TObject *Sender);
     void __fastcall PrintButtonClick(TObject *Sender);
-    void __fastcall DumpScreenButtonClick(TObject *Sender);
+    void __fastcall ButtonDumpScreenClick(TObject *Sender);
     void __fastcall RunThread();
     void __fastcall ThreadDone(TObject *Sender);
     void __fastcall AboutButtonClick(TObject *Sender);
@@ -457,7 +461,6 @@ __published:	// IDE-managed Components
         void __fastcall LoadResultDirClick(TObject *Sender);
         void __fastcall E_InfilMethodClick(TObject *Sender);
         void __fastcall EraseListButtonClick(TObject *Sender);
-    void __fastcall ListRunfilesDblClick(TObject *Sender);
         void __fastcall MapsCatchmentDblClick(TObject *Sender);
         void __fastcall MapsErosionDblClick(TObject *Sender);
         void __fastcall MapsSurfaceDblClick(TObject *Sender);
@@ -478,7 +481,7 @@ __published:	// IDE-managed Components
     void __fastcall TextureClassKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
     void __fastcall ButtonRestoreClick(TObject *Sender);
-    void __fastcall SpeedButton1Click(TObject *Sender);
+    void __fastcall LisemstartButtonClick(TObject *Sender);
         void __fastcall MapsInfilSmithDblClick(TObject *Sender);
         void __fastcall MapsInfilMorelDblClick(TObject *Sender);
         void __fastcall CheckInfilGrassClick(TObject *Sender);
@@ -502,8 +505,6 @@ __published:	// IDE-managed Components
     void __fastcall CheckSubsoilDrainageClick(TObject *Sender);
     void __fastcall CheckImpermeableClick(TObject *Sender);
     void __fastcall MapsInfilDrainageDblClick(TObject *Sender);
-   void __fastcall CheckMacroporeFlowClick(TObject *Sender);
-   void __fastcall MapsMacroporeDblClick(TObject *Sender);
    void __fastcall CheckChannelBaseflowClick(TObject *Sender);
    void __fastcall CheckChannelInfilClick(TObject *Sender);
    void __fastcall CheckSnowmeltClick(TObject *Sender);
@@ -513,6 +514,12 @@ __published:	// IDE-managed Components
    void __fastcall MapsInfilKsatDblClick(TObject *Sender);
    void __fastcall MapsChannelBaseflowDblClick(TObject *Sender);
    void __fastcall CheckAllinChannelClick(TObject *Sender);
+   void __fastcall ListRunfilesaClick(TObject *Sender);
+   void __fastcall E_InfilMethodaClick(TObject *Sender);
+   void __fastcall CheckSedtrapClick(TObject *Sender);
+   void __fastcall DisplayHint(TObject *Sender);
+   void __fastcall FormCreate(TObject *Sender);
+   void __fastcall SetHelpIFace();
 
 private:	// User declarations
    AnsiString __fastcall TLisIFace::CheckDir(AnsiString Comment, AnsiString dir);
@@ -551,8 +558,6 @@ public:		// User declarations
 
    void __fastcall TLisIFace::GetNewRunfile();
 
-   void __fastcall TLisIFace::SetTimeseriesMinmax(char *filename);
-
    void __fastcall TLisIFace::CheckMapsEnabled();
    void __fastcall TLisIFace::TextureClassCheck();
    void __fastcall TLisIFace::CheckLisemType();
@@ -579,9 +584,10 @@ public:		// User declarations
    char RainfallNamePath[128];
    char SnowmeltNamePath[128];
    bool ForceMapdir;
-   bool CheckPestout;
-   float PestoutTimeinterval;
    LisThread *LisemRun;
+   bool CheckPestout; // to see if lisem is called with for pest batch running
+   float PestoutTimeinterval;
+
 
    AnsiString RunFilename;
    AnsiString RainfallDir;
@@ -590,10 +596,6 @@ public:		// User declarations
    __fastcall ~TLisIFace();
 
    int LisemType;
-
-//   void __fastcall TLisIFace::MakeNamelist();
-//   void __fastcall TLisIFace::KillNamelist();
-   int LastPCRTimestep;
 
    void __fastcall TLisIFace::ResetIFace();
    void __fastcall TLisIFace::ResetInfil();

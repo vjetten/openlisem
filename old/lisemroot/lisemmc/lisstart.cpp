@@ -65,10 +65,10 @@ void __fastcall TStartForm::BitBtn5Click(TObject *Sender)
 void __fastcall TStartForm::Image2Click(TObject *Sender)
 {
    int hoi = spawnl(P_NOWAIT, "c:\\program files\\internet explorer\\iexplore.exe",
-   "c:\\program files\\internet explorer\\iexplore.exe","http://www.geog.uu.nl/lisem",NULL);
+   "c:\\program files\\internet explorer\\iexplore.exe","http://www.itc.nl/lisem",NULL);
    if (hoi == -1)
     spawnl(P_NOWAIT, "c:\\program files\\netscape\\netscape.exe",
-   "c:\\program files\\netscape\\netscape.exe","http://www.geog.uu.nl/lisem",NULL);
+   "c:\\program files\\netscape\\netscape.exe","http://www.itc.nl/lisem",NULL);
 }
 //---------------------------------------------------------------------------
 

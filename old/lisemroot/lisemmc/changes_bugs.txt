@@ -1,3 +1,9 @@
+lisem 2.6.0 (VJ 090521)
+- noprocess changes but further decouplingof interface and model
+- model now clled with temp run file that is parsed
+lisem 2.5.9
+- made RR start-storage or fullstorage an option
+- minor changes nd cleaning up code
 lisem 2.5.8 (VJ 090226)
 - added 'celltest' function in cpstest.c where the cell is found that gioves a problem compared to the LDD
   (infamous kinematic wave error)

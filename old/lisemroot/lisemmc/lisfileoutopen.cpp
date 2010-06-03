@@ -3,6 +3,11 @@
 // ******** OPEN and print first line output files *****************************
 // *****************************************************************************
 
+//       reportPointMap(outPointFileName, OutPoint, OutPoint, -1);
+//       reportMap(outflowFileName, Outlet, -1, NULL_MAP, NULL_MAP, NULL_MAP, NULL_MAP, SwitchSeparateOutput);
+//       reportPointMap(outflowFileName, OutPoint, -1, OutPoint, OutPoint, OutPoint, SwitchSeparateOutput);
+
+/*
        if (SwitchOutlet1)
        {
          fpoutflow1 = fopen(outflowFileName,"w");
@@ -77,7 +82,7 @@
            fprintf(fpoutflow3,commaformat,STARTINTERVAL, 0.0, 0.0, 0.0, 0.0);
          fclose(fpoutflow3);
        }
-
+ */
 // *****************************************************************************
 // ******** OPEN and print first line output files *****************************
 // *****************************************************************************
@@ -93,7 +98,7 @@
                fprintf(BufferFout,timeplotoutputstrBuffer);
            else
                fprintf(BufferFout,commaoutputstrBuffer);
-               
+
            if (SwitchWritePCRtimeplot)
                fprintf(BufferFout,ncommaformat4,STARTINTERVAL, 0.0, 0.0, 0.0);
            else
@@ -114,4 +119,6 @@
           fprintf(fpestout," %.3f %.3f\n",0,0);
           fclose(fpestout);
        }
+
+
 

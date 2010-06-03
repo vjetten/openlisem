@@ -35,9 +35,12 @@ void __fastcall TLisIFace::RunThread()
 void __fastcall TLisIFace::ButtonStopprogClick(TObject *Sender)
 {
     Beep();
-    LisemRun->RunDone = true;
-    if (LisemRun->Suspended)
-       LisemRun->Resume();
+    if (LisemRun)
+    {
+       LisemRun->RunDone = true;
+       if (LisemRun->Suspended)
+          LisemRun->Resume();
+    }      
 
 //    done = true;
     LisIFace->Messages->Lines->Append("User Interrupt, please wait ...");
@@ -78,8 +81,8 @@ void __fastcall TLisIFace::ButtonRunprogClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::ThreadDone(TObject *Sender)
 {
-    ButtonRunprog->Down = false;
-    ButtonStopprog->Down = true;
+    ButtonRunProg->Down = false;
+    ButtonStopProg->Down = true;
     take5 = false;
 
 
@@ -89,26 +92,25 @@ void __fastcall TLisIFace::ThreadDone(TObject *Sender)
           GetNewRunfile();    //load first or next runfile in list if multiple runs
 
         //       RunThread();
-       ButtonRunprog->Down = true;
-       ButtonStopprog->Down = false;
+       ButtonRunProg->Down = true;
+       ButtonStopProg->Down = false;
 
        t_begin = Time();
        runduration = TimeToStr(t_begin);
        // fill a Tstringlist with in and output map names
-       // last timestep for setting min and max values of saved mapseries when run is stopped
-       LastPCRTimestep = 0;
 
-       LisemRun = new LisThread(false);    // mke and run the thread, the old LISEM model!
+
+       LisemRun = new LisThread(true);    // mke and run the thread, the old LISEM model!
        LisemRun->FreeOnTerminate = true;
        LisemRun->RunDone = false;
        LisemRun->OnTerminate = ThreadDone;
        LisIFace->LabelRunfile->Caption = "Active run file: " + LisIFace->RunFilename;
        LisIFace->Messages->Clear();
        LisIFace->Messages->Lines->Append("Preparing input data ...");
-
        strcpy(LisemRun->temprunname, ExtractFilePath(ParamStr(0)).c_str());
        strcat(LisemRun->temprunname,"lisemtemp.run");
        MakeNewRunfile(LisemRun->temprunname);
+       LisemRun->Resume();
        // dump the current configuration to a temp run file to be read by the model itself
 
        thisrun++;

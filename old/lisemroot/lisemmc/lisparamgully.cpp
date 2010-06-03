@@ -78,23 +78,24 @@
 //?????????     calc(" GullyWidthDX = GullyWidthInit ");
 
      _spatial(REAL4, FCrit);
-     if (LisIFace->E_Fcritical->ItemIndex == 0)
+     int fcrittype = GetInt("Fcrit relation");
+     if (fcrittype == 0)
         calc(" FCrit = mif((Gradient*(UPSarea/DX)**0.4 gt 0.5),1,0)");
 //        calc(" FCrit = mif((Gradient*(UPSarea/DX)**0.4 gt 0.5) and (Gradient gt 0.04),1,0)");
-     if (LisIFace->E_Fcritical->ItemIndex == 1)
+     if (fcrittype == 1)
         calc(" FCrit = mif((Gradient*(UPSarea/DX) gt 18) and (ln(UPSarea/Gradient) gt 6.8),1,0)");
-     if (LisIFace->E_Fcritical->ItemIndex == 2)
+     if (fcrittype == 2)
         calc(" FCrit = mif(Gradient gt 0.025*(UPSarea*0.0001)**-0.4,1,0)");
-     if (LisIFace->E_Fcritical->ItemIndex == 3)
+     if (fcrittype == 3)
         calc(" FCrit = mif(Gradient*(UPSarea/DX)**0.4 gt 0.72,1,0)");
-     if (LisIFace->E_Fcritical->ItemIndex == 4)
+     if (fcrittype == 4)
         calc(" FCrit = mif((Gradient*(UPSarea/DX) gt 40) and (ln(UPSarea/Gradient) gt 9.8),1,0)");
-     if (LisIFace->E_Fcritical->ItemIndex == 5)
+     if (fcrittype == 5)
         calc(" FCrit = 1 ");
 
      _nonspatial(REAL4, tgrad);
-     tgrad = atof(LisIFace->E_ThresholdGrad->Text.c_str());
-     if (LisIFace->E_Fcritical->ItemIndex == 5)
+     tgrad = GetFloat("Threshold gradient");
+     if (fcrittype == 5)
         tgrad = 0;
      _spatial(REAL4, FCrittemp1);
      _spatial(REAL4, FCrittemp2);
@@ -122,42 +123,43 @@
 
      _nonspatial(REAL4, qwa);
      _nonspatial(REAL4, qwb);
-     if (LisIFace->E_QWrelation->ItemIndex == 0)
+     int QWrelation = GetInt("QW relation");
+     if (QWrelation == 0)
      {
          SwitchGullyEqualWD = true;
 //VJ 040329 added equal erosion over width and depth in gully, set in paramgully
      }
-     if (LisIFace->E_QWrelation->ItemIndex == 1)
+     if (QWrelation == 1)
      {
           qwa = 12.85; qwb=0.59;
      }
-     if (LisIFace->E_QWrelation->ItemIndex == 2)
+     if (QWrelation == 2)
      {
           qwa = 2.65; qwb=0.37;
      }
-     if (LisIFace->E_QWrelation->ItemIndex == 3)
+     if (QWrelation == 3)
      {
-            qwa = atof(LisIFace->E_QWparama->Text.c_str());
-            qwb = atof(LisIFace->E_QWparamb->Text.c_str());
+            qwa = (REAL4)GetFloat("QW param A");
+            qwb = (REAL4)GetFloat("QW param B");
      }
 
-       _spatial(REAL4,GullyVolin);
-       calc("GullyVolin = 0");
-       _spatial(REAL4,GullySedin);
-       calc("GullySedin = 0");
-       _spatial(REAL4, GullyWH);
-       calc(" GullyWH = 0");
+     _spatial(REAL4,GullyVolin);
+     calc("GullyVolin = 0");
+     _spatial(REAL4,GullySedin);
+     calc("GullySedin = 0");
+     _spatial(REAL4, GullyWH);
+     calc(" GullyWH = 0");
 
-       _spatial(REAL4, GullyY);
-       calc(" GullyY = mif(GullyCohesion gt 0.2, 1/(0.89+0.56*GullyCohesion), 1)");
-       //     calc(" GullyY = 0.79*exp(-0.85*GullyCohesion) ");
+     _spatial(REAL4, GullyY);
+     calc(" GullyY = mif(GullyCohesion gt 0.2, 1/(0.89+0.56*GullyCohesion), 1)");
+     //     calc(" GullyY = 0.79*exp(-0.85*GullyCohesion) ");
 
-       calc(" GullyDepth2 /= 100 ");
-       // convert to meters
+     calc(" GullyDepth2 /= 100 ");
+     // convert to meters
 
 
-       _spatial(REAL4, DEM2);
-       calc(" DEM2 = DEM-GullyDepth2 ");
+     _spatial(REAL4, DEM2);
+     calc(" DEM2 = DEM-GullyDepth2 ");
 /*
      _spatial(REAL4, MaxDepressionStorage);
            calc(" MaxDepressionStorage = max(0, 0.243*RR + 0.010*RR*RR - 0.012*RR*Gradient*100) ");

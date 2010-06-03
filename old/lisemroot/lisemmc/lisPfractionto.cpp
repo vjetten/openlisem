@@ -151,14 +151,3 @@
             }end
 
 
-    // -------------------------------------------------------------------------
-    //***** transport to MACROPORE system ******************************************
-    // -------------------------------------------------------------------------
-     //UNDER CONSTRUCTION
-
-         /*
-           if (SwitchMacroporeFlow)
-           begin{
-              //_spatial_if(REAL4, RunoffVolinToChannel, SwitchMacroporeFlow);
-           }end
-           */

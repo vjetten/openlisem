@@ -7,74 +7,25 @@
      //******************variable declarations *********************************
      //-------------------------------------------------------------------------
 
-     char rainFileName[128];
-//VJ 080423 add snowmelt
-     char snowmeltFileName[128];
-     char outflowFileName[128];
-     char outflowFileName2[128];
-     char outflowFileName3[128];
-//VJ 040823 add buffer output
-     char BufferFileName[128];
-//VJ 050913 add pest output
-     char PestoutFileName[128];
-
-     char totalErosionFileName[128];
-     char totalDepositionFileName[128];
-     char resultFileName[128];
-//     char periodFileName[100];
-     char tableDir[128];
-     char PATH[128];
-     char RESPATH[128];
-
-     char FileName[128]; //used in writeList
-
-
-     REAL4 WRITETIME[100];
-     //maxtimes is defined in lisheadwin.h is the number of user specvified
-     // output moments in the ineterface, so write maps at 1, 10, 24, 36 etc.
-
-     _nonspatial(REAL4,  NR_VALS_START);  // number of cells that have a value
-                                           //that is not MV, in initial maps
-     _nonspatial(REAL4, NR_VALS_NOW);
      _nonspatial(REAL4, STARTINTERVAL);   // in minutes
      _nonspatial(REAL4, ENDINTERVAL);     // in minutes
-     _nonspatial(REAL4, DX);              // elementsize in meters
      _nonspatial(REAL4, DTSEC);           // timeinterval in seconds
+
+     _nonspatial(REAL4, DX);              // elementsize in meters
      _nonspatial(REAL4, DTMIN);           // timeinterval in minutes
      _nonspatial(REAL4, DTHOUR);           // timeinterval in days
      _nonspatial(REAL4, DTDAY);           // timeinterval in days
-     _nonspatial(REAL4, CatchmentArea);   // total catchment area in m2
-     _nonspatial(REAL4, NrDefinedCells);
 
+     _nonspatial(REAL4, NR_VALS_START);  // number of cells that have not MV
+     _nonspatial(REAL4, NR_VALS_NOW);
 
      //-------------------------------------------------------------------------
      //******************get directories and paths******************************
      //-------------------------------------------------------------------------
 
-     strcpy(PATH, LisIFace->E_MapDir->Text.c_str());
-     strcpy(tableDir, LisIFace->E_TableDir->Text.c_str());
-     strcpy(RESPATH, LisIFace->E_ResultDir->Text.c_str());
-     if (!DirectoryExists(LisIFace->E_ResultDir->Text))
-           ForceDirectories(LisIFace->E_ResultDir->Text);
-
-     strcpy(rainFileName, LisIFace->RainfallNamePath);
-//VJ 080423 snowmelt
-     strcpy(snowmeltFileName, LisIFace->SnowmeltNamePath);
-
-
-     strcpy(totalErosionFileName, LisIFace->E_ErosionName->Text.c_str());
-     strcpy(totalDepositionFileName, LisIFace->E_DepositionName->Text.c_str());
-     strcpy(resultFileName, LisIFace->E_TotalName->Text.c_str());
-     if (SwitchOutlet1)
-      strcpy(outflowFileName, LisIFace->E_OutletName->Text.c_str());
-     if (SwitchOutlet2)
-      strcpy(outflowFileName2, LisIFace->E_Outlet1Name->Text.c_str());
-     if (SwitchOutlet3)
-      strcpy(outflowFileName3, LisIFace->E_Outlet2Name->Text.c_str());
-
      if (SwitchOutputTimeStep)
      {
-        PERIOD = (size_t)LisIFace->E_OutputTimeSteps->Value;
+        PERIOD = GetInt("Output interval");
         PERIODMAPS = TRUE;
      }
 
@@ -83,26 +34,17 @@
         for (int i = 0; i < LisIFace->E_OutputTimes->Lines->Count; i++)
              WRITETIME[i] = LisIFace->E_OutputTimes->Lines->Strings[i].ToDouble();
      }
-//     strcpy(periodFileName, mapname("ro"));
 
-     if (SwitchOutlet1)
-        strcpy(outflowFileName, CatPath(outflowFileName, RESPATH));
-     if (SwitchOutlet2)
-        strcpy(outflowFileName2, CatPath(outflowFileName2, RESPATH));
-     if (SwitchOutlet3)
-        strcpy(outflowFileName3, CatPath(outflowFileName3, RESPATH));
-     strcpy(totalErosionFileName, CatPath(totalErosionFileName, RESPATH));
-     strcpy(totalDepositionFileName, CatPath(totalDepositionFileName, RESPATH));
-     strcpy(resultFileName, CatPath(resultFileName, RESPATH));
-//     strcpy(periodFileName, CatPath(periodFileName, RESPATH));
+
+
 
      //-------------------------------------------------------------------------
      //******************get run time and timestep *****************************
      //-------------------------------------------------------------------------
 
-     STARTINTERVAL = atof(LisIFace->E_begintime->Text.c_str());
-     ENDINTERVAL =  atof(LisIFace->E_Endtime->Text.c_str());
-     DTSEC = atof(LisIFace->E_Timestep->Text.c_str());
+     STARTINTERVAL = (REAL4)GetFloat("Begin time");
+     ENDINTERVAL =  (REAL4)GetFloat("End time");
+     DTSEC = (REAL4)GetFloat("Timestep");
      timestep = DTSEC/60.0;
      // needed for output window
 
@@ -126,13 +68,13 @@
         // 0.4, according to Govers, 1990
 
      _nonspatial(REAL4, SplashDelivery);
-     SplashDelivery = atof(LisIFace->E_SplashDelivery->Text.c_str());
+     SplashDelivery = (REAL4)GetFloat("Splash Delivery Ratio");
 //     SplashDelivery = 0.1;
      // Splash delivery ratio, determining the fraction of splash
      // transported into the flow system
 
      _nonspatial(REAL4, StripN);
-     StripN = atof(LisIFace->E_ManningsNGrass->Text.c_str());
+     StripN = (REAL4)GetFloat("Grassstrip Mannings n");
         // Manning's n for grass-strips on slopes as a soil conservation tool
 
 
@@ -141,7 +83,8 @@
      //-------------------------------------------------------------------------
 
 //     InitMask(mapname("area"));
-     InitMask(mapname("ID"));
+     InitMask(mapname("LDD"));
+     //VJ 090521 changed this from ID map to LDD
 
      DX = RgiveCellSizeX();
      // initialize immediately after InitMask
@@ -158,10 +101,10 @@
 
        // VJ-> NOT ANY MORE: type LDD has a check on nr. of pits
        _spatial_input(LDD, LDD, mapname("LDD"));
-      calc(" NR_VALS_START = count(LDD)");
+       calc(" NR_VALS_START = count(LDD)");
        //VJ 090208 most important map, all is checked agains LDD or chanLDD
 
-//VJ 090208 
+//VJ 090208
 // AREA no longer needed, function replaced by LDD
 //     _spatial_input(UINT1, AREA, mapname("ID"));//Area"));
 //     calc(" NR_VALS_START = count(AREA)");
@@ -183,7 +126,6 @@
       _spatial_input(REAL4, Gradient,mapname("Grad"));
       celltest(LDD, Gradient);
       rangetest(Gradient,R_GE_LE,0.0001,1,"Slope gradient values must be sin(angle)");
-      calc(" NR_VALS_START = count(Gradient)");
 
       _spatial(REAL4, DXc);
       calc(" DXc = DX/cos(asin(Gradient)) ");
@@ -194,6 +136,17 @@
 
      _spatial_input(REAL4, Outlet, mapname("Outlet"));
      celltest(LDD, Outlet);
+
+//     _spatial_input(REAL4, OutPoint, mapname("outpoint"));
+//     celltest(LDD, OutPoint);
+
+     
+     {
+       char p[256];
+       strcpy(outPointFileName, CatPath(p, RESPATH));
+       strcat(outPointFileName, mapnameonly("outpoint"));\
+       strcat(outPointFileName, ".csv");
+     }
 
      _spatial_input(REAL4, RoadWidthDX, mapname("Road"));
      celltest(LDD, RoadWidthDX);
@@ -231,6 +184,15 @@
      _spatial_input(REAL4, N,mapname("manning"));
      celltest(LDD, N);
      rangetest(N,R_GE_LE, 0.00001,10, "Manning's n");
+
+     nCalibration = -1.0;
+     nCalibration = GetFloat("N calibration");
+     _nonspatial(REAL4, n_cal);
+     n_cal = nCalibration;
+     if (nCalibration >= 0)
+     {
+       calc(" N = N * n_cal ");
+     }
 
      _spatial_input(REAL4, StoneFraction,mapname("Stonefrc"));
      celltest(LDD, StoneFraction);
@@ -277,7 +239,6 @@
        }
      }
 
-//     _spatial_input_if(REAL4, StripN, mapname("grassman"), SwitchInfilGrass);
      _spatial(REAL4, GrassWidth);
      calc("GrassWidth = 0");
      if (SwitchInfilGrass)
@@ -296,10 +257,6 @@
        }
 
      }
-     else
-      SwitchGrassPresent = 0;
-
-//     calc("GrassWidth = mif(GrassWidth gt 0,min(DX, GrassWidth+(DX-GrassWidth)/2),0)");
 
        // needed for swatre
      _spatial(REAL4, GrassFraction);
@@ -310,6 +267,9 @@
      // ******** GRASS-STRIPS **************************************************
      // ************************************************************************
 
+     _spatial(REAL4, N_org);
+     //VJ 090529 needed for sed trap, Nstrip stops when trap is full
+     calc("N_org = N");
      if (SwitchGrassPresent)
         calc("N = mif(GrassWidth gt 0, N*(1-GrassFraction)+StripN*GrassFraction, N)");
 
@@ -319,18 +279,18 @@
 //VJ 040823 include buffers
      _spatial_input_if(UINT1, BufferID, mapname("bufferID"), SwitchBuffers);
      _spatial_input_if(REAL4, BufferVolume, mapname("bufferVolume"), SwitchBuffers);
-     _spatial_input_if(REAL4, BufferArea, mapname("bufferArea"), SwitchBuffers);
-     _spatial_input_if(REAL4, BufferDis, mapname("bufferdischarge"), SwitchBuffers);
+//     _spatial_input_if(REAL4, BufferArea, mapname("bufferArea"), SwitchBuffers);
+//     _spatial_input_if(REAL4, BufferDis, mapname("bufferdischarge"), SwitchBuffers);
      if (SwitchBuffers)
      {
         celltest(LDD, BufferID);
         celltest(LDD, BufferVolume);
-        celltest(LDD, BufferArea);
-        celltest(LDD, BufferDis);
+  //      celltest(LDD, BufferArea);
+  //      celltest(LDD, BufferDis);
         calc(" BufferID = cover(BufferID,0) ");
         calc(" BufferVolume = cover(BufferVolume,0) ");
-        calc(" BufferArea = cover(BufferArea,0) ");
-        calc(" BufferDis = cover(BufferDis,0) ");
+    //    calc(" BufferArea = cover(BufferArea,0) ");
+   //     calc(" BufferDis = cover(BufferDis,0) ");
 
 //        _nonspatial(REAL4, BufferSedBulkDensity);
 //        BufferSedBulkDensity = atof(LisIFace->E_SedBulkDensity->Text.c_str());

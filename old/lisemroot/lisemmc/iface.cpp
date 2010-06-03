@@ -21,6 +21,8 @@
 #pragma link "cgauges"
 #pragma link "CSPIN"
 
+#pragma link "JvExMask"
+#pragma link "JvSpin"
 #pragma resource "*.dfm"
 TLisIFace *LisIFace;
 //---------------------------------------------------------------------------
@@ -33,13 +35,16 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
     batchrun = false;
     CheckPestout = false;
     PestoutTimeinterval = 0;
+    ListRunfilesa->Items->Append(" ");
+
     // run directly from commandline, get name and lisemtype
 //VJ 080925 behaviour when double clicking on run file
     if (ParamCount() == 1)
     {
   	     RunFilename = ParamStr(1);
-        ListRunfiles->Items->Strings[0] = RunFilename;
+        ListRunfilesa->Items->Strings[0] = RunFilename;
         batchrun = true;
+        LisemType = 0;
     }
 //VJ 050913 cleaned pestout possibility
     if (ParamCount() >= 2){
@@ -53,7 +58,7 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
         	  } else {
              // runfile exists and lisemtype is good
 			    batchrun = true;
-	   	    ListRunfiles->Items->Strings[0] = RunFilename;
+	   	    ListRunfilesa->Items->Strings[0] = RunFilename;
 //             CheckLisemType();
              //check for pestout
              if (ParamCount() >= 3)
@@ -83,15 +88,15 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
         nrruns = 1;
         thisrun = 0;
         multipleRuns = false;
-        ButtonRunprog->Enabled = true;
-        ButtonStopprog->Enabled = true;
-        ButtonPauseprog->Enabled = true;
+        ButtonRunProg->Enabled = true;
+        ButtonStopProg->Enabled = true;
+        ButtonPauseProg->Enabled = true;
 	     Messages->Clear();
-        if (ParamCount() != 1)
-        {
+//        if (ParamCount() != 1)
+  //      {
        	  PageControl->ActivePage = TabSheetTot;
    	     ThreadDone(NULL);
-        }   
+    //    }
     }
 
     Application->HintPause = 200;
@@ -101,6 +106,8 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
     VertScrollBar->Visible = true;
     HorzScrollBar->Range = 100;
     VertScrollBar->Range = 100;
+
+    SetHelpIFace();
 
 }
 //---------------------------------------------------------------------------
@@ -163,6 +170,7 @@ AnsiString FromInt(AnsiString txt)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::ParseOldRunfile()
 {
+/*
     TStrings *tmp = RunForm->RunEdit->Lines;
     int vi;
 
@@ -186,14 +194,14 @@ void __fastcall TLisIFace::ParseOldRunfile()
          value = E_Timestep->Text.ToDouble()/10;
     E_SwatreDTSEC->Text = value;
 
-    E_InfilMethod->ItemIndex = vi;
+    E_InfilMethoda->ItemIndex = vi;
 
     E_ErosionName->Text = tmp->Strings[17];
     E_DepositionName->Text = tmp->Strings[18];
     E_TotalName->Text = tmp->Strings[19];
     E_OutletName->Text = tmp->Strings[20];
-    E_Outlet1Name->Text = tmp->Strings[21];
-    E_Outlet2Name->Text = tmp->Strings[22];
+//    E_Outlet1Name->Text = tmp->Strings[21];
+//    E_Outlet2Name->Text = tmp->Strings[22];
 //        tmp->Strings[24] = tmp->Strings[24].LowerCase();
     int i = 23;
     tmp->Strings[i] = tmp->Strings[i].LowerCase();
@@ -220,7 +228,7 @@ void __fastcall TLisIFace::ParseOldRunfile()
     }
     i++;
     //E_RunoffName->Text = tmp->Strings[i];
-
+*/
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::FileOpenClick(TObject *Sender)
@@ -238,33 +246,21 @@ void __fastcall TLisIFace::FileOpenClick(TObject *Sender)
     RunForm->RunEdit->Clear();
     E_OutputTimes->Clear();
 
-    ListRunfiles->Items->AddStrings(OpenDialog->Files);
-    RunFilename = ListRunfiles->Items->Strings[0];//ListRunfiles->Items->Count-1];
+    ListRunfilesa->Items->Assign(OpenDialog->Files);
+    ListRunfilesa->ItemIndex = 0;
+
+    RunFilename = ListRunfilesa->Items->Strings[0];
       // strings are added to the top added
     LoadRunFile(RunFilename);
-/*
-    SaveDialog->FileName = RunFilename;
-    RunForm->RunEdit->Lines->LoadFromFile(RunFilename);
-    RunFileButton->Caption = "Acitive " + ExtractFileName(RunFilename);
 
-    if(RunForm->RunEdit->Lines->Strings[0] == "[LISEM for WINDOWS run file]")
-       ReadNewRunfile(RunFilename);
-    else
-    {
-       if(Application->MessageBox("Loading a DOS type run file, will be saved as new type",
-       "LISEM Warning", MB_OKCANCEL+MB_ICONWARNING)==IDOK)
-         ParseOldRunfile();
-    }
-*/
-
-    nrruns = ListRunfiles->Items->Count;
+    nrruns = ListRunfilesa->Items->Count;
     thisrun = 0;
     multipleRuns = nrruns > 1;
 
-    ButtonRunprog->Enabled = true;
-    ButtonStopprog->Enabled = true;
-    ButtonPauseprog->Enabled = true;
-    StopAllButton->Enabled = nrruns > 1;
+    ButtonRunProg->Enabled = true;
+    ButtonStopProg->Enabled = true;
+    ButtonPauseProg->Enabled = true;
+    ButtonStopAll->Enabled = nrruns > 1;
   }
 }
 //---------------------------------------------------------------------------
@@ -272,15 +268,6 @@ void __fastcall TLisIFace::FileSaveClick(TObject *Sender)
 {
   if (SaveDialog->FileName != "")
     MakeNewRunfile(SaveDialog->FileName);
-
-/*
-  if (ParseRunPage() && SaveDialog->FileName != "")
-  {
-    RunForm->RunEdit->Lines->SaveToFile(SaveDialog->FileName);
-    RunForm->RunEdit->Modified = false;
-  }
-  else FileSaveAsClick(Sender);
-*/
 }
 //---------------------------------------------------------------------------
 
@@ -289,8 +276,6 @@ void __fastcall TLisIFace::FileSaveAsClick(TObject *Sender)
   SaveDialog->Title = "Save As";
   if (SaveDialog->Execute())
     MakeNewRunfile(SaveDialog->FileName);
-//    RunForm->RunEdit->Lines->SaveToFile(SaveDialog->FileName);
-//    RunForm->RunEdit->Modified = false;
 }
 //---------------------------------------------------------------------------
 
@@ -311,24 +296,28 @@ void __fastcall TLisIFace::FileCloseClick(TObject *Sender)
 
 void __fastcall TLisIFace::PrintButtonClick(TObject *Sender)
 {
-     PrintScale = poPrintToFit;
-     if (PrintDialog->Execute())
-        Print();
+//     PrintScale = poPrintToFit;
+ //    if (PrintDialog->Execute())
+   //     Print();
 }
 //---------------------------------------------------------------------------
 bool __fastcall TLisIFace::DumpScreen(bool saveio)
 {
-        TJPEGImage *J = new TJPEGImage;
         bool doit = false;
+
+        AnsiString savename = ExtractFileName(RunFilename);
+        if (savename.IsEmpty())
+        {
+//           LisemWarning("Load a runfile first.");
+           return (doit);
+        }
 
         PageControl->ActivePage = TabSheetTot;
 
         try{
+          TJPEGImage *J = new TJPEGImage;
           J->Assign(GetFormImage());
 
-          AnsiString savename = ExtractFileName(RunFilename);
-          if (savename.IsEmpty())
-             return (doit);
           savename.Delete(savename.Length() - 3, 4);
           if (!E_ResultDir->Text.IsDelimiter("\\/",E_ResultDir->Text.Length()))
             E_ResultDir->Text = E_ResultDir->Text + "\\";
@@ -341,18 +330,18 @@ bool __fastcall TLisIFace::DumpScreen(bool saveio)
           }
           else
                 J->SaveToFile(SavePictureDialog->FileName);
+          delete J;
         }catch(...)
         {
            CheckError("Could not make jpeg");
         }
-        delete J;
         doit = true;
 
         return (doit);
         // VJ 031218 boolean check dumpscreen to halt processes to finish dumpscreen in lismain
 }
 //---------------------------------------------------------------------------
-void __fastcall TLisIFace::DumpScreenButtonClick(TObject *Sender)
+void __fastcall TLisIFace::ButtonDumpScreenClick(TObject *Sender)
 {
     bool check = DumpScreen(true);
 }
@@ -361,9 +350,7 @@ void __fastcall TLisIFace::MakeIni(AnsiString name)
 {
     TStringList *IniOp = new TStringList;
 
-//    char *workdir = (char *) malloc(128);
     IniOp->Clear();
-//    IniOp->Add("[Work Directory]");
     if (E_Workdir->Text.IsEmpty())
     {
        getcwd(workdir, 127);
@@ -371,15 +358,7 @@ void __fastcall TLisIFace::MakeIni(AnsiString name)
     }
     else
        IniOp->Add("WorkDir="+E_Workdir->Text);
-/*
-    switch (LisemType){
-       case LISEMBASIC : IniOp->Add("Lisem type=BASIC"); break;
-       case LISEMWHEELTRACKS : IniOp->Add("Lisem type=WHEELTRACKS"); break;
-       case LISEMMULTICLASS : IniOp->Add("Lisem type=MULTICLASS"); break;
-       case LISEMNUTRIENTS : IniOp->Add("Lisem type=NUTRIENTS"); break;
-       case LISEMGULLIES : IniOp->Add("Lisem type=GULLIES"); break;
-    }
-*/
+
     IniOp->Add("LisemType=-1");
     IniOp->Add("[Startup]");
     IniOp->Add("Runfile0=");
@@ -420,52 +399,19 @@ bool __fastcall TLisIFace::ProcessIni(AnsiString name)
 
 
         AnsiString S = IniOp->Values[(AnsiString)"Runfile0"];
-        if (!S.IsEmpty()) ListRunfiles->Items->Insert(0,S);
+        if (!S.IsEmpty()) ListRunfilesa->Items->Insert(0,S);
         S = IniOp->Values[(AnsiString)"Runfile1"];
-        if (!S.IsEmpty()) ListRunfiles->Items->Insert(0,S);
+        if (!S.IsEmpty()) ListRunfilesa->Items->Insert(0,S);
         S = IniOp->Values[(AnsiString)"Runfile2"];
-        if (!S.IsEmpty()) ListRunfiles->Items->Insert(0,S);
+        if (!S.IsEmpty()) ListRunfilesa->Items->Insert(0,S);
         S = IniOp->Values[(AnsiString)"Runfile3"];
-        if (!S.IsEmpty()) ListRunfiles->Items->Insert(0,S);
+        if (!S.IsEmpty()) ListRunfilesa->Items->Insert(0,S);
 
 //VJ 050817 fixed batch runs
-        if (ListRunfiles->Items->Count > 0)
+        if (ListRunfilesa->Items->Count > 0)
         {
-            RunFilename = ListRunfiles->Items->Strings[0];
+            RunFilename = ListRunfilesa->Items->Strings[0];
             SaveDialog->FileName = RunFilename;
-      
-//analyze names only, do not load runfile yet            
-/*
-            RunForm->RunEdit->Lines->LoadFromFile(RunFilename);
-            RunFileButton->Caption = "Acitive: " + ExtractFileName(RunFilename);
-//            RunForm->RunEdit->
-            if(lrun->Lines->Strings[0] == "[LISEM for WINDOWS run file]")
-               ReadNewRunfile(RunFilename);
-            else
-            {
-               if(Application->MessageBox("Loading a DOS type run file, will be saved as new type",
-               "LISEM Warning", MB_OKCANCEL+MB_ICONWARNING)==IDOK)
-                 ParseOldRunfile();
-            }
-
-			   LoadRunFile(RunFilename);
-
-            nrruns = ListRunfiles->Items->Count;
-            thisrun = 0;
-            multipleRuns = nrruns > 1;
-
-            ButtonRunprog->Enabled = true;
-            ButtonStopprog->Enabled = true;
-            ButtonPauseprog->Enabled = true;
-            StopAllButton->Enabled = nrruns > 1;
-            batchrun = true;
-
-		      Messages->Clear();
-
-      		PageControl->ActivePage = TabSheetTot;
-		      ThreadDone(NULL);
-*/
-
         }
         delete IniOp;
     }
@@ -522,7 +468,7 @@ void __fastcall TLisIFace::FormClose(TObject *Sender, TCloseAction &Action)
    //   done = true;
       Action=caNone;
       closeapp = true;
-      LisIFace->Messages->Lines->Append("PROGRAM HALT, PLEASE WAIT ...");
+      Messages->Lines->Append("PROGRAM HALT, PLEASE WAIT ...");
    }
    else
       Action=caFree;
@@ -532,9 +478,6 @@ void __fastcall TLisIFace::FormClose(TObject *Sender, TCloseAction &Action)
 
 void __fastcall TLisIFace::HelpButtonClick(TObject *Sender)
 {
-    if (LisemRun)
-       LisemRun->ShowHelp();
-    else
        HelpForm->ShowModal();
 }
 //---------------------------------------------------------------------------
@@ -635,7 +578,7 @@ void __fastcall TLisIFace::E_RainfallNameClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::RunFileButtonClick(TObject *Sender)
 {
-       if (ListRunfiles->Items->Count == 0)
+       if (ListRunfilesa->Items->Count == 0)
           (void) CheckError("Load RUN file first !");
        else
        {
@@ -696,8 +639,9 @@ void __fastcall TLisIFace::RainViewButtonClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::GetDirEdit(TEdit *E)
 {
-     LisIFace->ActiveControl = E;
+     ActiveControl = E;
      if (E->Text.IsEmpty())
+     
      DirView->DirectoryListBox->Directory = (AnsiString)workdir;
      else
      DirView->DirectoryListBox->Directory = E->Text;
@@ -786,37 +730,12 @@ void __fastcall TLisIFace::EraseListButtonClick(TObject *Sender)
    if (!LisemRun)// || done)
    {
        ResetIFace();
+       RunFileButton->Caption = "Show active";
    }
    else
       Application->MessageBox("Cannot apply changes while running, stop first!",
        "LISEM Warning", MB_OK+MB_ICONWARNING);
 
-}
-//---------------------------------------------------------------------------
-void __fastcall TLisIFace::ListRunfilesDblClick(TObject *Sender)
-{
-    for (int i = 0; i < ListRunfiles->Items->Count; i++)
-    {
-       if (ListRunfiles->Selected[i])
-       {
-         thisrun = i;
-         RunFilename = ListRunfiles->Items->Strings[thisrun];
-         LoadRunFile(RunFilename);
-/*
-         SaveDialog->FileName = RunFilename;
-         RunForm->RunEdit->Lines->LoadFromFile(RunFilename);
-         RunFileButton->Caption = "Acitive: " + ExtractFileName(RunFilename);
-         if (RunForm->RunEdit->Lines->Strings[0] == "[LISEM for WINDOWS run file]")
-            ReadNewRunfile(RunFilename);
-         else
-         {
-            Application->MessageBox("Loading a very OLD type run file, will be saved as new type",
-            "LISEM Warning", MB_OK+MB_ICONERROR);
-            ParseOldRunfile();
-         }
-*/
-       }
-    }
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::GetMapname(TStrings *S)
@@ -931,7 +850,7 @@ void __fastcall TLisIFace::CheckMapsEnabled()
    for (int i = 0; i < ComponentCount; i++)
     if (Components[i]->Name.SubString(0,4) == "Maps")
     {
-         TStringGrid* S =(TStringGrid *)LisIFace->Components[i];
+         TStringGrid* S =(TStringGrid *)Components[i];
          if (!S->Enabled)
          {
             S->Font->Color = clGrayText;
@@ -1028,7 +947,7 @@ void __fastcall TLisIFace::ButtonRestoreClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TLisIFace::SpeedButton1Click(TObject *Sender)
+void __fastcall TLisIFace::LisemstartButtonClick(TObject *Sender)
 {
     if (!LisemRun)
     {
@@ -1113,7 +1032,8 @@ void __fastcall TLisIFace::CheckMulticlassModel()
 //          CheckNutrientsClick(Sender);
 //       MapsTexture->Enabled = CheckMulticlass;
 //       TextureClass->Enabled = CheckMulticlass;
-//       CheckMapsEnabled();
+//
+CheckMapsEnabled();
 */
 }
 //---------------------------------------------------------------------------
@@ -1125,6 +1045,7 @@ void __fastcall TLisIFace::CheckNutrientsModel()
        MapsOutputNut->Visible = CheckNutrients;
        GroupMapsoutNut->Visible = CheckNutrients;
        TabMapOutNut->TabVisible = CheckNutrients;
+       TabMapOutNut2->TabVisible = CheckNutrients;
 
        MapsOutputMC->Visible = CheckNutrients;//false;
        GroupMapsoutMC->Visible = CheckNutrients;//false;
@@ -1175,6 +1096,8 @@ void __fastcall TLisIFace::MapsInfilMorelDblClick(TObject *Sender)
 void __fastcall TLisIFace::CheckInfilGrassClick(TObject *Sender)
 {
     MapsInfilExtra->Visible = CheckInfilGrass->Checked;
+    E_ManningsNGrass->Enabled = CheckInfilGrass->Checked;
+    Label44->Enabled = CheckInfilGrass->Checked;
 }
 
 //---------------------------------------------------------------------------
@@ -1334,6 +1257,7 @@ void __fastcall TLisIFace::CheckBuffersClick(TObject *Sender)
 //VJ 040823 include buffers
    Label55->Visible = CheckBuffers->Checked;
    MapsBuffers->Visible = CheckBuffers->Checked;
+ //  CheckSedtrap->Checked = !CheckBuffers->Checked;
    //output screen
    Label61->Enabled = CheckBuffers->Checked;
    Label63->Enabled = CheckBuffers->Checked;
@@ -1346,7 +1270,7 @@ void __fastcall TLisIFace::CheckBuffersClick(TObject *Sender)
 void __fastcall TLisIFace::CheckSubsoilDrainageClick(TObject *Sender)
 {
      //VJ 050812 included impermeable and drainage checks
-     if (E_InfilMethod->ItemIndex != INFIL_GREENAMPT && E_InfilMethod->ItemIndex != INFIL_GREENAMPT2)
+     if (E_InfilMethoda->ItemIndex != INFIL_GREENAMPT && E_InfilMethoda->ItemIndex != INFIL_GREENAMPT2)
         CheckSubsoilDrainage->Checked = false;
     MapsInfilDrainage->Visible = CheckSubsoilDrainage->Checked;
     if (CheckSubsoilDrainage->Checked)
@@ -1365,19 +1289,6 @@ void __fastcall TLisIFace::CheckImpermeableClick(TObject *Sender)
 void __fastcall TLisIFace::MapsInfilDrainageDblClick(TObject *Sender)
 {
      GetMapname(MapsInfilDrainage->Rows[MapsInfilDrainage->Row]);
-}
-//---------------------------------------------------------------------------
-//VJ 070909 add macropore network
-void __fastcall TLisIFace::CheckMacroporeFlowClick(TObject *Sender)
-{
-    MapsMacropore->Visible = CheckMacroporeFlow->Checked;
-}
-//---------------------------------------------------------------------------
-
-//VJ 070909 add macropore network
-void __fastcall TLisIFace::MapsMacroporeDblClick(TObject *Sender)
-{
-        GetMapname(MapsMacropore->Rows[MapsMacropore->Row]);
 }
 //---------------------------------------------------------------------------
 
@@ -1503,7 +1414,7 @@ void __fastcall TLisIFace::CheckAllinChannelClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::GetNewRunfile()
 {
-   LisIFace->RunFilename = LisIFace->ListRunfiles->Items->Strings[thisrun];
+   LisIFace->RunFilename = LisIFace->ListRunfilesa->Items->Strings[thisrun];
    LisIFace->SaveDialog->FileName = LisIFace->RunFilename;
    RunForm->RunEdit->Lines->LoadFromFile(LisIFace->RunFilename);
    LisIFace->ReadNewRunfile(LisIFace->RunFilename);
@@ -1511,4 +1422,51 @@ void __fastcall TLisIFace::GetNewRunfile()
    LisIFace->LabelRunfile->Caption = "Active run file: " + LisIFace->RunFilename;
 }
 //---------------------------------------------------------------------------
+
+
+
+void __fastcall TLisIFace::ListRunfilesaClick(TObject *Sender)
+{
+         thisrun = ListRunfilesa->ItemIndex;
+         RunFilename = ListRunfilesa->Items->Strings[thisrun];
+         LoadRunFile(RunFilename);
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TLisIFace::E_InfilMethodaClick(TObject *Sender)
+{
+     ResetInfil();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CheckSedtrapClick(TObject *Sender)
+{
+
+//VJ 090527 include sedtrap
+   Label55->Visible = CheckSedtrap->Checked;
+   MapsBuffers->Visible = CheckSedtrap->Checked;
+   CheckBuffers->Checked = CheckSedtrap->Checked;
+   //output screen
+   Label61->Enabled = CheckSedtrap->Checked;
+   Label63->Enabled = CheckSedtrap->Checked;
+   Label75->Enabled = CheckSedtrap->Checked;
+   LO_buffervol->Enabled = CheckSedtrap->Checked;
+   LO_buffersedvol->Enabled = CheckSedtrap->Checked;
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::DisplayHint(TObject *Sender)
+{
+    expl->Text = GetLongHint(Application->Hint);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::FormCreate(TObject *Sender)
+{
+    Application->OnHint = DisplayHint;
+}
+//---------------------------------------------------------------------------
+
 

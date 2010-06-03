@@ -89,7 +89,7 @@
      kineDX(Qout, Qin, infil,
             Qsedout, Qsedin, stemp,
             BufferVolumeCurrent, BufferSedVolumeCurrent,
-            LDD, Alpha, Beta, DTSEC, DXc);
+            LDD, Alpha, Beta, DTSEC, DXc, int(SwitchSedtrap));
 //VJ 050831 CHANGED: infil changes in the kin wave:
 //          it is the sum of all fluxes in the cell in m3/s. Needed for infiltration calc
 
@@ -151,6 +151,10 @@
         calc(" buffersize =  buffersize - sum(BufferVolumeCurrent) ");
         calc(" SumBufferVolume = sum(BufferVolumeInit) - sum(BufferVolumeCurrent) ");
         calc(" TotalInfilVol -= buffersize ");
+        if (SwitchSedtrap) {
+          calc("N = mif(BufferVolumeCurrent ge BufferVolumeInit*0.99, N_org, N");
+          //VJ 090529 whe buffer is full, N no longer grassstrip N but original N
+        }  
      }
 
      if (!SwitchNoErosion)

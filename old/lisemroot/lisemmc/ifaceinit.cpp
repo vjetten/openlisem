@@ -6,7 +6,18 @@
 #include "iface.h"
 #include "lisstart.h"
 
-
+#define hintlisemstart "Goto startscreen LISEM: undo all changes, reset the interface and unload runfiles."
+#define hintfileopen "Open one or more runfiles. They are added to a drop down list at the bottom. Each file is executed in sequence, when stopped the next runfile is stared. Press the stop-all button to end all runs."
+#define hintfilesave "Save the current run file, all changes made in the interface will be stored."
+#define hintfilesaveas "Save the current run file under a different name. This is the easiest way to make a new runfile."
+#define hintE_MapDir       "Directory of the input maps. This name will we added to all mapnames. If this is changed all input map pathnames will be changed too."
+#define hintE_RainfallName "Rainfall file in LISEM format (not the same as PCRaster format). The first column is\
+ the time in minutes. Other columns have rainfall intensity in mm/h (one column per station). The intensity is\
+ assigned to the interval as follows: if the first line is \"0.0 0.0\" and the second is \"10.0 15.0\", LISEM assumes 15 mm/h from minute 0 to 10."
+#define hintE_SnowmeltName "Snowmelt file in LISEM format. The format is the same as the rainfall format."
+#define hintE_begintime    ""
+#define hintE_Endtime      ""
+#define hintE_Timestep     ""
 
 //---------------------------------------------------------------------------
 
@@ -47,6 +58,7 @@ void __fastcall TLisIFace::ResetMain()
     MapsOutputNut->Visible = false;
     GroupMapsoutNut->Visible = false;
     TabMapOutNut->TabVisible = false;
+    TabMapOutNut2->TabVisible = false;
 
     MapsOutputGul->Visible = false;
     GroupMapsoutGul->Visible = false;
@@ -108,18 +120,18 @@ void __fastcall TLisIFace::ResetInfil()
       int _top = 22, _left = 8;
 
      //VJ 050812 included impermeable check here
-     if (E_InfilMethod->ItemIndex == INFIL_NONE){
+     if (E_InfilMethoda->ItemIndex == INFIL_NONE){
         CheckImpermeable->Checked = false;
      }
 
      //VJ 050812 included drainage check here
-     if (E_InfilMethod->ItemIndex != INFIL_GREENAMPT && E_InfilMethod->ItemIndex != INFIL_GREENAMPT2)
+     if (E_InfilMethoda->ItemIndex != INFIL_GREENAMPT && E_InfilMethoda->ItemIndex != INFIL_GREENAMPT2)
         CheckSubsoilDrainage->Checked = false;
 
-     Label58->Visible = E_InfilMethod->ItemIndex == 0;
+     Label58->Visible = E_InfilMethoda->ItemIndex == 0;
      Label58->Caption = "Choose an infiltration method on the Start screen";
 
-     switch (E_InfilMethod->ItemIndex) {
+     switch (E_InfilMethoda->ItemIndex) {
        case INFIL_NONE : LabelInfilName->Caption = "Infiltration maps";break;
        case INFIL_SWATRE : LabelInfilName->Caption = "SWATRE";break;
        case INFIL_HOLTAN : LabelInfilName->Caption = "Holtan";break;
@@ -140,38 +152,41 @@ void __fastcall TLisIFace::ResetInfil()
 #define INFIL_MOREL 21
 #define INFIL_SMITH 22
 */
-     MapsInfilSwatre->Visible = E_InfilMethod->ItemIndex == INFIL_SWATRE;
-     GroupSwatreOptions->Visible = E_InfilMethod->ItemIndex == INFIL_SWATRE;
+     MapsInfilSwatre->Visible = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
+     GroupSwatreOptions->Visible = E_InfilMethoda->ItemIndex == INFIL_SWATRE;
      MapsInfilSwatre->Top = _top;
      MapsInfilSwatre->Left = _left;
      GroupSwatreOptions->Top = _top+12 + MapsInfilSwatre->Height;
      GroupSwatreOptions->Left = _left;
 
-     MapsInfilHoltan->Visible = E_InfilMethod->ItemIndex == INFIL_HOLTAN;
+     MapsInfilHoltan->Visible = E_InfilMethoda->ItemIndex == INFIL_HOLTAN;
      MapsInfilHoltan->Top = _top;
      MapsInfilHoltan->Left = _left;
 
-     MapsInfilGA1->Visible = E_InfilMethod->ItemIndex == INFIL_GREENAMPT ||
-                             E_InfilMethod->ItemIndex == INFIL_GREENAMPT2;
+     MapsInfilGA1->Visible = E_InfilMethoda->ItemIndex == INFIL_GREENAMPT ||
+                             E_InfilMethoda->ItemIndex == INFIL_GREENAMPT2;
      MapsInfilGA1->Top = _top;
      MapsInfilGA1->Left = _left;
 
-     MapsInfilGA2->Visible = E_InfilMethod->ItemIndex == INFIL_GREENAMPT2;
+     MapsInfilGA2->Visible = E_InfilMethoda->ItemIndex == INFIL_GREENAMPT2;
      MapsInfilGA2->Top = _top+12 + MapsInfilGA1->Height;
      MapsInfilGA2->Left = _left;
 
-     MapsInfilMorel->Visible = E_InfilMethod->ItemIndex == INFIL_MOREL;
+     MapsInfilMorel->Visible = E_InfilMethoda->ItemIndex == INFIL_MOREL;
      MapsInfilMorel->Top = _top;
      MapsInfilMorel->Left = _left;
 
-     MapsInfilSmith->Visible = E_InfilMethod->ItemIndex == INFIL_SMITH;
+     MapsInfilSmith->Visible = E_InfilMethoda->ItemIndex == INFIL_SMITH;
      MapsInfilSmith->Top = _top;
      MapsInfilSmith->Left = _left;
 
-     MapsInfilKsat->Visible = E_InfilMethod->ItemIndex == INFIL_KSAT;
+     MapsInfilKsat->Visible = E_InfilMethoda->ItemIndex == INFIL_KSAT;
      MapsInfilKsat->Top = _top;
      MapsInfilKsat->Left = _left;
 
+     MapsInfilExtra->Visible =( CheckInfilCompact->Checked ||
+     CheckInfilCrust->Checked ||
+     CheckInfilGrass->Checked);
      MapsInfilExtra->Top = 280;
      MapsInfilExtra->Left = _left;
      if (!CheckSubsoilDrainage->Checked)
@@ -179,16 +194,16 @@ void __fastcall TLisIFace::ResetInfil()
 //VJ 050812 drainage with GA
      MapsInfilDrainage->Top = 380;
      MapsInfilDrainage->Left = _left;
-     if (E_InfilMethod->ItemIndex == 1)
+     if (E_InfilMethoda->ItemIndex == 1)
         MapsInfilDrainage->Visible = false;
      MapsInfilDrainage->Visible = CheckSubsoilDrainage->Checked;
 
-     if (E_InfilMethod->ItemIndex == INFIL_MOREL || E_InfilMethod->ItemIndex == INFIL_SMITH)
+     if (E_InfilMethoda->ItemIndex == INFIL_MOREL || E_InfilMethoda->ItemIndex == INFIL_SMITH)
      {
         CheckError("Not implemented yet");
      }
 
-     if (E_InfilMethod->ItemIndex == INFIL_SWATRE && E_SwatreDTSEC->Text.IsEmpty())
+     if (E_InfilMethoda->ItemIndex == INFIL_SWATRE && E_SwatreDTSEC->Text.IsEmpty())
      {
         Application->MessageBox("Swatre options (min dt) not specified",
         "LISEM Warning", MB_OK+MB_ICONWARNING);
@@ -199,8 +214,14 @@ void __fastcall TLisIFace::ResetInfil()
 
 void __fastcall TLisIFace::ResetIFace()
 {
-    ListRunfiles->Items->Clear();
     LabelRunfile->Caption = "Active run file: NONE";
+    ListRunfilesa->Items->Clear();
+    SetHelpIFace();
+
+    ButtonRunProg->Enabled = false;
+    ButtonPauseProg->Enabled = false;
+    ButtonStopProg->Enabled = false;
+    ButtonStopAll->Enabled = false;
 
     CheckRunoffPerM->Checked = false;
     CheckChannelInfil->Checked = false;
@@ -213,13 +234,16 @@ void __fastcall TLisIFace::ResetIFace()
     E_Endtime->Text = "";
     E_Timestep->Text = "";
 
-    E_InfilMethod->ItemIndex = 0;
+    E_InfilMethoda->ItemIndex = 0;
     CheckImpermeable->Checked = false;
-    CSpinEditKsat->Value = 100;
+    CalibrateKsat->Value = 1.00;
+    CalibrateN->Value = 1.00;
+    CalibrateChN->Value = 1.00;
     E_SwatreDTSEC->Text = "";
     CheckDumphead->Checked = false;
     CheckGeometric->Checked = false;
 
+    E_Workdir->Text = "";
     E_MapDir->Text = "";
     E_MapDir->Text = "";
     E_TableDir->Text = "";
@@ -229,11 +253,12 @@ void __fastcall TLisIFace::ResetIFace()
     E_ResultDir->Text = "";
     E_TotalName->Text = "";
     E_OutletName->Text = "";
-    E_Outlet1Name->Text = "";
-    E_Outlet2Name->Text = "";
+//    E_Outlet1Name->Text = "";
+//    E_Outlet2Name->Text = "";
     E_ErosionName->Text = "";
     E_DepositionName->Text = "";
 //        E_RunoffName->Text = "";
+    RunFilename = "";
 
     E_OutputTimeStep->Checked = true;
     if (E_OutputTimeStep->Checked)
@@ -260,6 +285,21 @@ void __fastcall TLisIFace::ResetIFace()
     MapsBuffers->Visible = CheckBuffers->Checked;
     E_SedBulkDensity->Visible = CheckBuffers->Checked;
     Bevel7->Visible = CheckBuffers->Checked;
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::SetHelpIFace()
+{
+    LisIFace->ToolButtonLisemstart->Hint = hintlisemstart;
+    LisIFace->ToolButtonFileopen->Hint = hintfileopen;
+    LisIFace->ToolButtonFilesave->Hint = hintfilesave;
+    LisIFace->ToolButtonFilesaveAs->Hint = hintfilesaveas;
+    LisIFace->E_MapDir->Hint = hintE_MapDir;
+    LisIFace->E_RainfallName->Hint = hintE_RainfallName;
+    LisIFace->E_SnowmeltName->Hint = hintE_SnowmeltName;
+    LisIFace->E_begintime->Hint = hintE_begintime;
+    LisIFace->E_Endtime->Hint = hintE_Endtime;
+    LisIFace->E_Timestep->Hint = hintE_Timestep;
 
 }
 

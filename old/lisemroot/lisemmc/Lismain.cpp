@@ -58,38 +58,70 @@ simple, but it is not very flexible or elegant.
 
 #pragma package(smart_init)
 
-
 //------------------------------------------------------------------------------
-
-#include "lisheadwin.h"
-// writeTimeseries etc definitions
-// get map names
-
-//------------------------------------------------------------------------------
-
-void OldMain( void )
+extern "C" void myHandler(const char *msg)
 {
+// myHandler is linked to Errorhandler and MerrorHandler that is called from calc, cps, csf
+// and replaces stderr (dos only) so when something goes wrong an exeption
+// is thrown in the try...catch loop in lismain
+    throw Exception(msg);
 }
+//---------------------------------------------------------------------------
+void __fastcall LisThread::LisemWarn(AnsiString s, AnsiString s1)
+{
+   WarningText = s+s1;
+   Synchronize(LisemWarningV);
+}
+//---------------------------------------------------------------------------
+void __fastcall LisThread::SetTimeseriesMinmax(char *filename)
+{
+    int i = 0;
+    MAP *m;
+    REAL8 minsv=+1e30, maxsv=-1e30;
 
-void __fastcall LisThread::MakeSwitchList()
+    for (i = 1; i <= LastPCRTimestep; i ++)
+    {
+        REAL8 minv, maxv;
+        char *fn = MakePCRFileName(filename,i);
+        m = Mopen(fn, M_READ);
+        if (m == NULL)
+        {
+           return;
+        }
+
+        RgetMaxVal(m, &maxv);
+        RgetMinVal(m, &minv);
+        if (maxsv < maxv) maxsv = maxv;
+        if (minsv > minv) minsv = minv;
+        Mclose(m);
+    }
+
+    for (i = 1; i <= LastPCRTimestep; i ++)
+    {
+        char *fn = MakePCRFileName(filename,i);
+        m = Mopen(fn, M_WRITE);
+        if (m == NULL)
+        {
+
+           return;
+        }
+        RputMaxVal(m, &maxsv);
+        RputMinVal(m, &minsv);
+        Mclose(m);
+    }
+}
+//---------------------------------------------------------------------------
+void __fastcall LisThread::ParseInputData()
 {
     char S[256], buf[256];
-    FILE *fin = fopen(temprunname, "r");
-    char IS = '=';
     int i, nrmaps = 0, j=0;
     bool go= false;
 
-    // MAIN CHOICES OF lisem TYPE
-    SwitchWheelAsChannel = LisIFace->LisemType == LISEMWHEELTRACKS;
-    SwitchMulticlass = LisIFace->LisemType == LISEMMULTICLASS;
-    SwitchNutrients = LisIFace->LisemType == LISEMNUTRIENTS;
-    SwitchGullies = LisIFace->LisemType == LISEMGULLIES;
-
-     SwitchCorrectMass = true;
+    SwitchCorrectMass = true;
     //VJ 080217:
     //NOTE: normal kinematic OF and kinematic channel have no mas balance correction
     //only used now in gully mass balance and wheeltrack water mass balance
-     SwitchCorrectMassSED = true;
+    SwitchCorrectMassSED = true;
     // correct mass balanc of sediment after kin wave for all verions:
     // normal, gully, wheeltrack, nutrients, multiclass sediment etc.
     //applyDiagonalInKinematic = false;//()LisIFace->CheckDiagonalDX->Checked;
@@ -106,41 +138,118 @@ void __fastcall LisThread::MakeSwitchList()
      SwitchAllinChannel = true;
      SwitchGullyEqualWD = false;
 
-    do
+//comments on added switches ported from the older code
+//VJ 080214 include baseflow
+//VJ 090225 throw all water and sed in channel in outletcell, in ftaction to channel
+//VJ 040514 include buffers
+//VJ 080423 Snowmelt
+//VJ 040224 added if outlet no detachment
+//VJ 040329 added equal erosion over width and depth in gully, set in paramgully
+//VJ 060404 added gully infiltration
+//VJ 040331 Included init gully dimensions
+//VJ 050812 Included drainage from subsoil in G&A
+//VJ 050822 three units to choose from, kg/cell, kg/m2, ton/ha
+    buf[0] = '\0';
+    j = 0;
+    outflowFileName[0] = '\0';
+    outflowFileName2[0] = '\0';
+    outflowFileName3[0] = '\0';
+    outPointFileName[0] = '\0';
+
+    for (j = 0; j < nrnamelist; j++)//do
     {
-      i = fscanf(fin,"%[^\n]\n", S);
-      if (strchr(S,IS))
-      {
-          char *p1 = strtok(S,"=");
-          char *p = strtok(NULL,"=");
+          char p1[128],p[128];
+          int iii = namelist[j].iii;
+          float vvv = namelist[j].vvv;
+          strcpy(p1, namelist[j].name);
+          strcpy(p, namelist[j].value);
 
-          if (strcmp(p1, "Outlet 1 file")==0) SwitchOutlet1 = p[0] != '\0';
-          if (strcmp(p1, "Outlet 2 file")==0) SwitchOutlet2 = p[0] != '\0';
-          if (strcmp(p1, "Outlet 3 file")==0) SwitchOutlet3 = p[0] != '\0';
+          if (strcmp(p1, "LISEM Type")==0 && p)
+          {
+              SwitchWheelAsChannel = iii == LISEMWHEELTRACKS;
+              SwitchMulticlass = iii == LISEMMULTICLASS;
+              SwitchNutrients = iii == LISEMNUTRIENTS;
+              SwitchGullies = iii == LISEMGULLIES;
+          }
+          if (strcmp(p1, "Map Directory")==0 && p) strcpy(PATH, p);
+          if (strcmp(p1, "Result Directory")==0 && p) strcpy(RESPATH, p);
+          if (strcmp(p1, "Table Directory")==0 && p) strcpy(tableDir, p);
+          if (strcmp(p1, "Main results file")==0 && p) strcpy(resultFileName, CatPath(p, RESPATH));
+          if (strcmp(p1, "Erosion map")==0 && p) strcpy(totalErosionFileName, CatPath(p, RESPATH));
+          if (strcmp(p1, "Deposition map")==0 && p) strcpy(totalDepositionFileName, CatPath(p, RESPATH));
 
-          if (strcmp(p1, "No Erosion simulation")==0)          SwitchNoErosion =        p == "1";
-          if (strcmp(p1, "Include main channels")==0)          SwitchIncludeChannel =   p == "1";
-          if (strcmp(p1, "Include channel infil")==0)          SwitchChannelInfil =     p == "1";
-          if (strcmp(p1, "Include channel baseflow")==0)       SwitchChannelBaseflow =  p == "1";
-          if (strcmp(p1, "Include snowmelt")==0)               SwitchSnowmelt =         p == "1";
-          if (strcmp(p1, "Alternative flow detachment")==0)    SwitchAltErosion =       p == "1";
-          if (strcmp(p1, "Alternative depression storage")==0) SwitchAltDepression =    p == "1";
-          if (strcmp(p1, "Include buffers")==0)                SwitchBuffers =          p == "1";
-          if (strcmp(p1, "Include wheeltracks")==0)            SwitchInfilCompact =     p == "1";
-          if (strcmp(p1, "Include grass strips")==0)           SwitchInfilGrass =       p == "1";
-          if (strcmp(p1, "Include crusts")==0)                 SwitchInfilCrust =       p == "1";
-          if (strcmp(p1, "Impermeable sublayer")==0)           SwitchImpermeable =      p == "1";
-          if (strcmp(p1, "Matric head files")==0)              SwitchDumphead =         p == "1";
-          if (strcmp(p1, "Geometric mean Ksat")==0)            SwitchGeometricMean =    p == "1";
-          if (strcmp(p1, "Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       p == "1";
-          if (strcmp(p1, "Timeseries as PCRaster")==0)         SwitchWritePCRnames =    p == "1";
-          if (strcmp(p1, "Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = p == "1";
-          if (strcmp(p1, "Regular runoff output")==0)          SwitchOutputTimeStep =   p == "1";
-          if (strcmp(p1, "User defined output")==0)            SwitchOutputTimeUser =   p == "1";
-          if (strcmp(p1, "No erosion at outlet")==0)           SwitchNoErosionOutlet =  p == "1";
-          if (strcmp(p1, "Subsoil drainage")==0)               SwitchDrainage =         p == "1";
-          if (strcmp(p1, "Gully infiltration")==0)             SwitchGullyInit =        p == "1";
-          if (strcmp(p1, "Use initial gully dimensions")==0)   SwitchGullyInfil =       p == "1";
+          if (strcmp(p1, "Filename point output")==0 && p) strcpy(outflowFileName, CatPath(p, RESPATH));
+          /*
+          if (strcmp(p1, "Outlet 1 file")==0 && p){
+            strcpy(outflowFileName, CatPath(p, RESPATH));
+            SwitchOutlet1 = p[0] != '\0';
+          }
+          if (strcmp(p1, "Outlet 2 file")==0 && p) {
+            strcpy(outflowFileName2, CatPath(p, RESPATH));
+            SwitchOutlet2 = p[0] != '\0';
+          }
+          if (strcmp(p1, "Outlet 3 file")==0 && p) {
+            strcpy(outflowFileName3, CatPath(p, RESPATH));
+            SwitchOutlet3 = p[0] != '\0';
+          }
+          */
+          if (strcmp(p1, "Rainfall Directory")==0 && p) strcpy(buf, p);
+          if (strcmp(p1, "Rainfall file")==0 && p) strcpy(rainFileName, CatPath(p, buf));
+          if (strcmp(p1, "Snowmelt Directory")==0 && p) strcpy(buf, p);
+          if (strcmp(p1, "Snowmelt file")==0 && p) strcpy(snowmeltFileName, CatPath(p, buf));
+
+          memset(WRITETIME,0,100);
+          if (strcmp(p1, "Output times")==0 && p)
+          {
+              int l = 0;
+              char *q = strtok(p,","); if (q) { WRITETIME[l] = atof(q); l++; }
+              while (q) {
+                q = strtok(NULL,",");
+                if (q) {
+                   WRITETIME[l] = atof(q);
+                   l++;
+                 }
+              }
+          }
+
+          if (strcmp(p1, "ClassMu")==0 && p)
+          {
+              char *q = strtok(p,","); if (q) { mu_cl[0] = atof(q); }
+              q = strtok(NULL,","); if (q) { mu_cl[1] = atof(q); }
+              q = strtok(NULL,","); if (q) { mu_cl[2] = atof(q); }
+              q = strtok(NULL,","); if (q) { mu_cl[3] = atof(q); }
+              q = strtok(NULL,","); if (q) { mu_cl[4] = atof(q); }
+              q = strtok(NULL,","); if (q) { mu_cl[5] = atof(q); }
+          }
+
+          //options in the main code
+          if (strcmp(p1, "No Erosion simulation")==0)          SwitchNoErosion =        iii == 1;
+          if (strcmp(p1, "Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
+          if (strcmp(p1, "Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
+          if (strcmp(p1, "Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
+          if (strcmp(p1, "Include snowmelt")==0)               SwitchSnowmelt =         iii == 1;
+          if (strcmp(p1, "Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
+          if (strcmp(p1, "Alternative depression storage")==0) SwitchAltDepression =    iii == 1;
+          if (strcmp(p1, "Include buffers")==0)                SwitchBuffers =          iii == 1;
+          if (strcmp(p1, "Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
+          if (strcmp(p1, "Include grass strips")==0)           SwitchInfilGrass =       iii == 1;
+          if (strcmp(p1, "Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
+          if (strcmp(p1, "Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
+          if (strcmp(p1, "Matric head files")==0)              SwitchDumphead =         iii == 1;
+          if (strcmp(p1, "Geometric mean Ksat")==0)            SwitchGeometricMean =    iii == 1;
+          if (strcmp(p1, "Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       iii == 1;
+          if (strcmp(p1, "Timeseries as PCRaster")==0)         SwitchWritePCRnames =    iii == 1;
+          if (strcmp(p1, "Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = iii == 1;
+          if (strcmp(p1, "Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
+          if (strcmp(p1, "User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
+          if (strcmp(p1, "No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
+          if (strcmp(p1, "Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
+          if (strcmp(p1, "Gully infiltration")==0)             SwitchGullyInfil =        iii == 1;
+          if (strcmp(p1, "Use initial gully dimensions")==0)   SwitchGullyInit =       iii == 1;
+//VJ  091211
+          if (strcmp(p1, "Report point output separate")==0)   SwitchSeparateOutput =       iii == 1;
+
+          //outputmaps that are selected (1) or not (0)
           if (strcmp(p1, "CheckOutputMaps")==0)
           {
               char *q = strtok(p,",");SwitchMapoutRunoff= q == "1";
@@ -155,7 +264,6 @@ void __fastcall LisThread::MakeSwitchList()
               q = strtok(NULL,",");   SwitchMapoutSs    = q == "1";
               q = strtok(NULL,",");   SwitchMapoutChvol = q == "1";
           }
-
           if (strcmp(S, "CheckOutputMapsMC")==0)
           {
                 char *q = strtok(p,","); SwitchMapoutMC0 = q == "1";
@@ -192,223 +300,140 @@ void __fastcall LisThread::MakeSwitchList()
                 q = strtok(NULL,","); SwitchMapoutGul3 = q == "1";
                 q = strtok(NULL,","); SwitchMapoutGul4 = q == "1";
           }
-        }
-    }while (i >= 0);
+     }
 }
 
 //------------------------------------------------------------------------------
-
-void __fastcall LisThread::MakeMapnameList()
+void __fastcall LisThread::GetRunFile()
 {
     char S[256], buf[256];
     FILE *fin = fopen(temprunname, "r");
     char IS = '=';
-    int i, nrmaps = 0, j=0;
-    bool go= false;
+    int i, j, k;
+    int lines = 0, vars = 0;
+    char ch = '\0';
 
     do
     {
-      i = fscanf(fin,"%[^\n]\n", S);
-      if (strstr(S,"[map names]"))
-         go = true;
-      if (go && strchr(S,IS))
-         nrmaps++;
-    }while (i >= 0);
-    // count nr of maps
+       ch = fgetc(fin);
+       if (ch == '=')
+          vars++;
+       if (ch == '\n')
+          lines++;
+    }while (ch != EOF);
+    lines++;
+    vars++;
+    fclose(fin);
 
     if (namelist)
     {
        free(namelist);
        namelist = NULL;
     }
+
+    namelist = (nameList *)malloc(vars*sizeof(nameList));
+    for (i = 0; i < vars; i++)
+    {
+        namelist[i].name[0] = '\0';
+        namelist[i].value[0] = '\0';
+        namelist[i].type = 0;
+        namelist[i].vvv = 0;
+        namelist[i].iii = 0;
+    }
+    nrnamelist = vars;
+    
+    fin = fopen(temprunname, "r");
+    k = 0;
+    for (i = 0; i < lines; i++)
+    {
+       memset(S,'\0',255);
+       j = fscanf(fin,"%[^\n]\n", S);
+       if (strchr(S, '=') > 0 && k < vars)
+       {
+
+          char *p = strtok(S,"=");
+          if (p) strcpy(namelist[k].name, p);
+          p = strtok(NULL,"=");
+          if (p) strcpy(namelist[k].value, p);
+          if (namelist[k].value[0] == '\0')
+             namelist[k].type = 0; //empty
+          else
+          {
+             int res = 0;
+             namelist[k].type = 1; //string
+             res = sscanf (namelist[k].value,"%f", &namelist[k].vvv);
+             res = sscanf (namelist[k].value,"%d", &namelist[k].iii);
+             if (res > 0)
+                namelist[k].type = 2; //number
+          }
+          k++;
+       }
+    }
     fclose(fin);
 
-    nrnamelist = nrmaps;
-    namelist = (nameList *)malloc(nrnamelist*sizeof(nameList));
-    go = false;
-    fin = fopen(temprunname, "r");
-    do
-    {
-      i = fscanf(fin,"%[^\n]\n", S);
-      if (strstr(S,"[map names]"))
-         go = true;
-      if (go && strchr(S,IS))
-      {
-         char *p;
-         p = strtok(S,"=");
-         strcpy(namelist[j].ID, strupr(p));
-         p = strtok(NULL,"=");
-         strcpy(namelist[j].fullname, strlwr(p));
-         j++;
-      }
-    }while (i >= 0);
+    FILE *fout=fopen("try.txt","w");
+    for (i=0; i < vars; i++)
+    fprintf(fout,"%s = %s; %d %f %d\n",namelist[i].name,namelist[i].value, namelist[i].type,namelist[i].vvv,namelist[i].iii);
+    fclose(fout);
 
-   fclose(fin);
 }
 //---------------------------------------------------------------------------
-char* __fastcall LisThread::Lmapname(char *vname)
+char* __fastcall LisThread::Lmapname(char *vname, int nr)
 {
    vname = strupr(vname);
    for (int i = 0; i < nrnamelist; i++)
-     if (strcmp(vname, namelist[i].ID) == 0)
+     if (strcmp(vname, strupr(namelist[i].name)) == 0)
      {
-       AnsiString mapname = ExtractFileName(namelist[i].fullname);
-       if (mapname.IsEmpty())
-       {
-         char *p;
-         p = (char *) malloc(128);
-         sprintf(p,"map variable <%s> has no filename attached to it",vname);
-         return(p);
+        char *split = strrchr(namelist[i].value,DIR_PATH_DELIM_CHAR);
+        if (split == NULL)
+        {
+          char *p;
+          p = (char *) malloc(128);
+          sprintf(p,"map variable <%s> has no filename attached to it",vname);
+          return(p);
          //return("NO MAPNAME DEFINED");
        }
        else
-         return(namelist[i].fullname);
+       {
+         if (nr == 0)
+            return(namelist[i].value);
+         else
+         if (nr == 1)
+         {
+            *split++;
+            split[strlen(split)-4] = '\0';
+            return(split);
+         }
+        }
       }
    return "wrong internal map ID";
 //VJ 040220 added return error to check for coding error of filename
 }
 //---------------------------------------------------------------------------
-
+float __fastcall LisThread::GetFloat(char *vname)
+{
+   vname = strupr(vname);
+   for (int i = 0; i < nrnamelist; i++)
+     if (strcmp(vname, strupr(namelist[i].name)) == 0)
+        return (namelist[i].vvv);
+}
+//---------------------------------------------------------------------------
+int __fastcall LisThread::GetInt(char *vname)
+{
+   vname = strupr(vname);
+   for (int i = 0; i < nrnamelist; i++)
+     if (strcmp(vname, strupr(namelist[i].name)) == 0)
+        return (namelist[i].iii);
+}
+//---------------------------------------------------------------------------
 // start of main program
 void __fastcall LisThread::Execute()
 //begin_model{
 //"begin_model{" and "}end_model" keep track of how deep you are for the map structures
 //defined in csf.h
 {
-
-     /************************
-      all booleans here are options and selections from the interface, given
-      to a boolean in the main loop. This is to separate the interface from
-      the model as much as possible
-      ***********************/
-/*
-      bool SwitchCorrectMass = true;
-      //VJ 080217:
-      //NOTE: normal kinematic OF and kinematic channel have no mas balance correction
-      //only used now in gully mass balance and wheeltrack water mass balance
-
-      bool SwitchCorrectMassSED = true;
-      // correct mass balanc of sediment after kin wave for all verions:
-      // normal, gully, wheeltrack, nutrients, multiclass sediment etc.
-
-      //applyDiagonalInKinematic = false;//(BOOL)LisIFace->CheckDiagonalDX->Checked;
-      ///OBSOLETE
-        // never use diagonal in kin wave, causes huge mass balance errors
-
-      bool SwatreInitialized = false;
-      bool SwitchCrustPresent = false;
-      bool SwitchGrassPresent = false;
-      bool SwitchWheelPresent = false;
-      bool SwitchCompactPresent = false;
-      bool SwitchInfilGA2 = false;
-        // infiltration booleans
-
-// ****** Switches to try different options, link with interface
-      bool SwitchIncludeChannel = LisIFace->CheckIncludeChannel->Checked;
-   //VJ 080214 include baseflow
-      bool SwitchChannelBaseflow = LisIFace->CheckChannelBaseflow->Checked;
-      bool startbaseflowincrease = false; // needed to start increase of baseflo after OF start into channel
-      bool SwitchChannelInfil = LisIFace->CheckChannelInfil->Checked;
-//VJ 090225 throw all water and sed in channel in outletcell, in ftaction to channel
-      bool SwitchAllinChannel = true; //LisIFace->CheckAllinChannel->Checked;
-
-      bool SwitchKinwaveInfil = true;//LisIFace->CheckKinwaveInfil->Checked;
-      bool SwitchNoErosion   =  LisIFace->CheckNoErosion->Checked;
-      bool SwitchAltErosion   =  LisIFace->CheckAltErosion->Checked;
-      bool SwitchAltDepression   =  LisIFace->CheckAltDepression->Checked;
-
-//VJ 070909 add macropore network
-// NOT IMPLEMENTED
-//      bool SwitchMacroporeFlow   =  LisIFace->CheckMacroporeFlow->Checked;
-
-// VJ 040514 include buffers
-      bool SwitchBuffers   =  LisIFace->CheckBuffers->Checked;
-// VJ 080423 Snowmelt
-      bool SwitchSnowmelt   =  LisIFace->CheckSnowmelt->Checked;
-
-      bool SwitchRunoffPerM = LisIFace->CheckRunoffPerM->Checked;
-      bool SwitchInfilCompact = LisIFace->CheckInfilCompact->Checked;
-      bool SwitchInfilCrust = LisIFace->CheckInfilCrust->Checked;
-      bool SwitchInfilGrass = LisIFace->CheckInfilGrass->Checked;
-
-      bool SwitchImpermeable =  LisIFace->CheckImpermeable->Checked;
-      bool SwitchDumphead = LisIFace->CheckDumphead->Checked;
-      bool SwitchGeometricMean = LisIFace->CheckGeometric->Checked;
-
-      bool SwitchWheelAsChannel = LisIFace->CheckWheelAsChannel;
-      bool SwitchMulticlass = LisIFace->CheckMulticlass;
-      bool SwitchNutrients = LisIFace->CheckNutrients;
-      bool SwitchGullies = LisIFace->CheckGullies;
-
-      bool SwitchMapoutRunoff = LisIFace->CheckMapout0->Checked;
-      bool SwitchMapoutConc = LisIFace->CheckMapout1->Checked;
-      bool SwitchMapoutWH = LisIFace->CheckMapout2->Checked;
-      bool SwitchMapoutRWH = LisIFace->CheckMapout3->Checked;
-      bool SwitchMapoutTC = LisIFace->CheckMapout4->Checked;
-      bool SwitchMapoutEros = LisIFace->CheckMapout5->Checked;
-      bool SwitchMapoutDepo = LisIFace->CheckMapout6->Checked;
-      bool SwitchMapoutV = LisIFace->CheckMapout7->Checked;
-      bool SwitchMapoutInf = LisIFace->CheckMapout8->Checked;
-      bool SwitchMapoutSs = LisIFace->CheckMapout9->Checked;
-      bool SwitchMapoutChvol = LisIFace->CheckMapout10->Checked;
-
-      bool SwitchMapoutMC0 = LisIFace->CheckMapoutMC0->Checked;
-      bool SwitchMapoutMC1 = LisIFace->CheckMapoutMC1->Checked;
-      bool SwitchMapoutMC2 = LisIFace->CheckMapoutMC2->Checked;
-      bool SwitchMapoutMC3 = LisIFace->CheckMapoutMC3->Checked;
-      bool SwitchMapoutMC4 = LisIFace->CheckMapoutMC4->Checked;
-      bool SwitchMapoutMC5 = LisIFace->CheckMapoutMC5->Checked;
-      bool SwitchMapoutMC6 = LisIFace->CheckMapoutMC6->Checked;
-
-      bool SwitchMapoutPsol = LisIFace->CheckMapoutNut0->Checked;
-      bool SwitchMapoutPsus = LisIFace->CheckMapoutNut1->Checked;
-      bool SwitchMapoutPinf = LisIFace->CheckMapoutNut2->Checked;
-      bool SwitchMapoutNH4sol = LisIFace->CheckMapoutNut3->Checked;
-      bool SwitchMapoutNH4sus = LisIFace->CheckMapoutNut4->Checked;
-      bool SwitchMapoutNH4inf = LisIFace->CheckMapoutNut5->Checked;
-      bool SwitchMapoutNO3sol = LisIFace->CheckMapoutNut6->Checked;
-      bool SwitchMapoutNO3sus = LisIFace->CheckMapoutNut7->Checked;
-      bool SwitchMapoutNO3inf = LisIFace->CheckMapoutNut8->Checked;
-      bool SwitchMapoutPdep = LisIFace->CheckMapoutNut9->Checked;
-      bool SwitchMapoutNH4dep = LisIFace->CheckMapoutNut10->Checked;
-      bool SwitchMapoutNO3dep = LisIFace->CheckMapoutNut11->Checked;
-      bool SwitchMapoutPdet = LisIFace->CheckMapoutNut12->Checked;
-      bool SwitchMapoutNH4det = LisIFace->CheckMapoutNut13->Checked;
-      bool SwitchMapoutNO3det = LisIFace->CheckMapoutNut14->Checked;
-
-      bool SwitchMapoutGul0 = LisIFace->CheckMapoutGul0->Checked;
-      bool SwitchMapoutGul1 = LisIFace->CheckMapoutGul1->Checked;
-      bool SwitchMapoutGul2 = LisIFace->CheckMapoutGul2->Checked;
-      bool SwitchMapoutGul3 = LisIFace->CheckMapoutGul3->Checked;
-      bool SwitchMapoutGul4 = LisIFace->CheckMapoutGul4->Checked;
-
-      bool SwitchWritePCRnames = LisIFace->CheckWritePCRnames->Checked;
-      bool SwitchWritePCRtimeplot = LisIFace->CheckWritePCRtimeplot->Checked;
-//VJ 080621 better check for output
-      bool SwitchOutlet1 = !LisIFace->E_OutletName->Text.IsEmpty();
-      bool SwitchOutlet2 = !LisIFace->E_Outlet1Name->Text.IsEmpty();
-      bool SwitchOutlet3 = !LisIFace->E_Outlet2Name->Text.IsEmpty();
-
-      bool SwitchNoErosionOutlet = LisIFace->CheckNoErosionOutlet->Checked;
-//VJ 040224 added if outlet no detachment
-      bool SwitchGullyEqualWD = false;
-//VJ 040329 added equal erosion over width and depth in gully, set in paramgully
-      bool SwitchGullyInit = LisIFace->CheckGullyInit->Checked;
-//VJ 060404 added gully infiltration
-      bool SwitchGullyInfil = LisIFace->CheckGullyInfil->Checked;
-//VJ 040331 Included init gully dimensions
-      bool SwitchDrainage = LisIFace->CheckSubsoilDrainage->Checked;
-//VJ 050812 Included drainage from subsoil in G&A
-      char ErosionUnits = LisIFace->E_OutputUnits->ItemIndex;
-//VJ 050822 three units to choose from, kg/cell, kg/m2, ton/ha
-      bool SwitchPestout = LisIFace->CheckPestout;
-
-     bool SwitchOutputTimeStep = LisIFace->E_OutputTimeStep->Checked;
-     bool SwitchOutputTimeUser = LisIFace->E_OutputTimeUser->Checked;
-*/
-      /*********** end bool options ****************************/
-
-     ksatCalibration = (double)LisIFace->CSpinEditKsat->Value/100.0;
+     //char ErosionUnits = LisIFace->E_OutputUnits->ItemIndex;
+     //VJ 090520 wordt helemaal niet gebruikt !!!!!
 
      InitDone = false;
      // mark start of loop, is set to true after first timestep
@@ -417,7 +442,6 @@ void __fastcall LisThread::Execute()
      setmem(ErrorMessage,'\0',sizeof(ErrorMessage));
        // errormessage is used in the cps, calc and csf libraries
        // is used with the try...catch loops below
-
      exitOnError = 0;
      // avoid exiting with fatal error
      errorHandler = myHandler;
@@ -425,45 +449,28 @@ void __fastcall LisThread::Execute()
      MerrorHandler = myHandler;
      // alternative for mperror.c in csf.lib
 
-     void *soilModelcrackV = NULL;
-     void *soilModelwheelV = NULL;
-     void *soilModelcrustV = NULL;
-     void *soilModelcompactV = NULL;
-     void *soilModelgrassV = NULL;
+     soilModelcrackV = NULL;
+     soilModelwheelV = NULL;
+     soilModelcrustV = NULL;
+     soilModelcompactV = NULL;
+     soilModelgrassV = NULL;
      // declaration pointers needed here for cleanup at end of this file, not very elegant
 
-     double *mu_cl;
-     mu_cl=(double *)malloc(sizeof(double)*6);
-     // texture classes (size in mu), declaration needed here for cleanup
-
-      //void *SortLDD = NULL;
-      // currently not used!!
-
-      FILE *fpoutflow1;
-      FILE *fpoutflow2;
-      FILE *fpoutflow3;
-      FILE *BufferFout;
-      // hydrograph output files declaration
-
-      int INFIL_METHOD; //infiltration method number, see lisparaminfil.cpp
-
-      bool PERIODMAPS = false;
-      size_t PERIOD;
-      size_t PERIODCOUNT = 1;
+     PERIODMAPS = false;
+     PERIODCOUNT = 1;
 
 //VJ 050913 commandline param pestout
-		float pestreport = 0;
-      int pestcounter = 0;
-      FILE *fpestout;
+	  pestreport = 0;
+     pestcounter = 0;
+     SwitchPestout = LisIFace->CheckPestout;
+     LastPCRTimestep = 0;
+       // last timestep for setting min and max values of saved mapseries when run is stopped
 
-      float timestepindex = 0;
-
-      MakeMapnameList();
+     GetRunFile();
       // make an input/output mapname list from the temp runfile written by the interface
 
-      MakeSwitchList();
+     ParseInputData();
       // get all switches (booleans) from the temp runfile written by the interface
-
 
 
 //VJ 031218 added try..__finally loop to ensure cleanup of memory structures
@@ -509,12 +516,6 @@ begin_model{
 #include "lisfileoutopen.cpp"
 
 // -----------------------------------------------------------------------------
-// ******** Infiltration initialisation ****************************************
-// -----------------------------------------------------------------------------
-
-//#include "lisparaminfil.cpp"
-
-// -----------------------------------------------------------------------------
 // ******** TOTALS FOR MASS BALANCE ETC ****************************************
 // -----------------------------------------------------------------------------
 
@@ -529,7 +530,7 @@ begin_model{
  //    LisIFace->Messages->Lines->Append("Starting Loop...");
 
      int stepNr = 0;    // to flag first step for initialization of some variables
-     size_t timeIndex = 0; // for output of maps 
+     size_t timeIndex = 0; // for output of maps, used in writetimeseries
 
      pestreport = LisIFace->PestoutTimeinterval/DTMIN;
 
@@ -551,7 +552,7 @@ begin_model{
 // ****** set up sub-gridcell land use *****************************************
 // *****************************************************************************
 
-       #include "lisPgridcell.inc"
+       #include "lisPgridcell.cpp"
 
 // *****************************************************************************
 // ****** rainfall & interception **********************************************
@@ -734,7 +735,7 @@ begin_model{
            LisIFace->Messages->Lines->Clear();
         stepNr++;
 
-     }end // end of the the timeloop 
+     }end // end of the the timeloop
 
  }end_model
 // *****************************************************************************
@@ -818,9 +819,6 @@ __finally // do this even if an exception occurred:
     timeSerie[1] = NULL;
     timeSerie[2] = NULL;
      // clean up rainfall files
-
-    free(mu_cl);
-      // free memory used for texture classes
 
     RunDone = true; // tread is finished
 

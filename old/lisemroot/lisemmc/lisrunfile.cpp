@@ -4,7 +4,7 @@
 #pragma hdrstop
 
 #include "lisrunfile.h"
-#include "lisinit.h"
+//#include "lisinit.h"
 #include "iface.h"
 
 //---------------------------------------------------------------------------
@@ -19,6 +19,9 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Clear();
     IniOp->Add("[LISEM for WINDOWS run file]");
     IniOp->Add("");
+    IniOp->Add("[LISEM main type]");
+    IniOp->Add("LISEM Type="+(AnsiString)LisemType);
+    IniOp->Add("");
     IniOp->Add("[Work Directory]");
     IniOp->Add("WorkDir="+(AnsiString)workdir);
     IniOp->Add("");
@@ -27,15 +30,18 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("Table Directory="+E_TableDir->Text);
     IniOp->Add("Rainfall Directory="+RainfallDir);
     IniOp->Add("Rainfall file="+E_RainfallName->Text);
+    IniOp->Add("Incude Snowmelt="+(AnsiString)(short)CheckSnowmelt->Checked);
     IniOp->Add("Snowmelt Directory="+SnowmeltDir);
     IniOp->Add("Snowmelt file="+E_SnowmeltName->Text);
     IniOp->Add("");
     IniOp->Add("[Output main]");
     IniOp->Add("Result Directory="+E_ResultDir->Text);
     IniOp->Add("Main results file="+E_TotalName->Text);
-    IniOp->Add("Outlet 1 file="+E_OutletName->Text);
-    IniOp->Add("Outlet 2 file="+E_Outlet1Name->Text);
-    IniOp->Add("Outlet 3 file="+E_Outlet2Name->Text);
+    IniOp->Add("Filename point output="+E_OutletName->Text);
+    IniOp->Add("Report point output separate="+(AnsiString)(short)CheckSeparateOutput->Checked);
+
+//    IniOp->Add("Outlet 2 file="+E_Outlet1Name->Text);
+//    IniOp->Add("Outlet 3 file="+E_Outlet2Name->Text);
     IniOp->Add("Erosion map="+E_ErosionName->Text);
     IniOp->Add("Deposition map="+E_DepositionName->Text);
     IniOp->Add("");
@@ -82,16 +88,22 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
 
     IniOp->Add("");
     IniOp->Add("[Infiltration]");
-    IniOp->Add("Method="+(AnsiString)E_InfilMethod->ItemIndex);
+    IniOp->Add("Infil Method="+(AnsiString)E_InfilMethoda->ItemIndex);
     IniOp->Add("Include wheeltracks="+(AnsiString)(short)CheckInfilCompact->Checked);
     IniOp->Add("Include grass strips="+(AnsiString)(short)CheckInfilGrass->Checked);
     IniOp->Add("Include crusts="+(AnsiString)(short)CheckInfilCrust->Checked);
-    IniOp->Add("Ksat calibration="+(AnsiString)(int)CSpinEditKsat->Value);
     IniOp->Add("Impermeable sublayer="+(AnsiString)(short)CheckImpermeable->Checked);
     IniOp->Add("Subsoil drainage="+(AnsiString)(short)CheckSubsoilDrainage->Checked);
     IniOp->Add("SWATRE internal minimum timestep="+E_SwatreDTSEC->Text);
     IniOp->Add("Matric head files="+(AnsiString)(short)CheckDumphead->Checked);
     IniOp->Add("Geometric mean Ksat="+(AnsiString)(short)CheckGeometric->Checked);
+
+    IniOp->Add("");
+    IniOp->Add("[Calibration]");
+    IniOp->Add("Ksat calibration="+(AnsiString)(double)CalibrateKsat->Value);
+    IniOp->Add("N calibration="+(AnsiString)(double)CalibrateN->Value);
+    IniOp->Add("Channel N calibration="+(AnsiString)(double)CalibrateChN->Value);
+
     IniOp->Add("");
     IniOp->Add("[Output maps]");
     IniOp->Add("Runoff maps in l/s/m="+(AnsiString)(short)CheckRunoffPerM->Checked);
@@ -234,8 +246,9 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
            delete IniOp;
            return false;
         }
+        _workdir = ExtractFilePath(name);
 
-        _workdir = IniOp->Values[(AnsiString)"WorkDir"];
+//        _workdir = IniOp->Values[(AnsiString)"WorkDir"];
         _workdir = CheckDir("Work Directory",_workdir);
         if (DirectoryExists(_workdir))
         {
@@ -243,7 +256,9 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
            strcpy(workdir, _workdir.c_str());
            E_Workdir->Text = _workdir;
         }
-       
+
+        CheckSeparateOutput->Checked = IniOp->Values[(AnsiString)"Report point output separate"] == "1";
+
         CheckWritePCRnames->Checked = IniOp->Values[(AnsiString)"Timeseries as PCRaster"] == "1";
         CheckWritePCRtimeplot->Checked = IniOp->Values[(AnsiString)"Timeplot as PCRaster"] == "1";
         CheckRunoffPerM->Checked = IniOp->Values[(AnsiString)"Runoff maps in l/s/m"] == "1";
@@ -274,13 +289,17 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         E_Endtime->Text = IniOp->Values[(AnsiString)"End time"];
         E_Timestep->Text = IniOp->Values[(AnsiString)"Timestep"];
 
-        int item = IniOp->Values[(AnsiString)"Method"].ToInt();
+        if (IniOp->Values[(AnsiString)"Infil Method"].IsEmpty())
+        {
+           E_InfilMethoda->ItemIndex = IniOp->Values[(AnsiString)"Method"].ToInt();
+        }
+        else
+           E_InfilMethoda->ItemIndex = IniOp->Values[(AnsiString)"Infil Method"].ToInt();
 
         E_SwatreDTSEC->Text = ParseValue(IniOp, "SWATRE internal minimum timestep");
         CheckDumphead->Checked = IniOp->Values[(AnsiString)"Matric head files"] == "1";
         CheckGeometric->Checked = IniOp->Values[(AnsiString)"Geometric mean Ksat"] == "1";
 
-        E_InfilMethod->ItemIndex = item;
         ResetInfil();
 
         CheckInfilCompact->Checked = IniOp->Values[(AnsiString)"Include wheeltracks"] == "1";
@@ -289,7 +308,14 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         CheckImpermeable->Checked = IniOp->Values[(AnsiString)"Impermeable sublayer"] == "1";
 		  CheckSubsoilDrainage->Checked = IniOp->Values[(AnsiString)"Subsoil drainage="] == "1";
 
-        CSpinEditKsat->Value = IniOp->Values[(AnsiString)"Ksat calibration"].ToInt();
+        CalibrateKsat->Value = IniOp->Values[(AnsiString)"Ksat calibration"].ToDouble();
+        if (CalibrateKsat->Value >= 100) CalibrateKsat->Value /= 100;
+
+
+        AnsiString tmp = IniOp->Values[(AnsiString)"N calibration"];
+        if (!tmp.IsEmpty()) CalibrateN->Value = tmp.ToDouble();
+        tmp = IniOp->Values[(AnsiString)"Channel N calibration"];
+        if (!tmp.IsEmpty()) CalibrateChN->Value = tmp.ToDouble();
 
         E_SplashDelivery->Text = ParseValue(IniOp, "Splash Delivery Ratio");
         E_ManningsNGrass->Text = ParseValue(IniOp, "Grassstrip Mannings n");
@@ -326,12 +352,14 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         strcpy(RainfallNamePath, RainfallDir.c_str());
         strcat(RainfallNamePath,E_RainfallName->Text.c_str());
  //VJ 080614 include snowmelt
+        CheckSnowmelt->Checked = IniOp->Values[(AnsiString)"Incude Snowmelt="] == "1";
         SnowmeltDir = ParseValue(IniOp,"Snowmelt Directory");
         SnowmeltDir = CheckDir("Snowmelt Directory",SnowmeltDir);
         if (SnowmeltDir == "DIR_NOT_EXIST")
         {
            SnowmeltDir = "";
            E_SnowmeltName->Text = "";
+           CheckSnowmelt->Checked =false;
         }
         else
         {
@@ -374,9 +402,12 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         }
 */
         E_TotalName->Text = ParseValue(IniOp ,"Main results file");
-        E_OutletName->Text = ParseValue(IniOp ,"Outlet 1 file");
-        E_Outlet1Name->Text = ParseValue(IniOp ,"Outlet 2 file");
-        E_Outlet2Name->Text = ParseValue(IniOp ,"Outlet 3 file");
+        E_OutletName->Text = ParseValue(IniOp ,"Outlet 1 file");// leave old filename for old run files 
+        //E_Outlet1Name->Text = ParseValue(IniOp ,"Outlet 2 file");
+        //E_Outlet2Name->Text = ParseValue(IniOp ,"Outlet 3 file");
+
+        E_OutletName->Text = ParseValue(IniOp ,"Filename point output"); // if newer fould do that
+
         E_ErosionName->Text = ParseValue(IniOp ,"Erosion map");
         E_DepositionName->Text = ParseValue(IniOp ,"Deposition map");
 
@@ -442,14 +473,15 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
        if (Components[i]->Name.SubString(0,4) == "Maps")
        {
          TStringGrid* S =(TStringGrid *)LisIFace->Components[i];
+//         S->ColCount = 3;
          for (int j = 1; j < S->RowCount; j++)
          {
            S->Cells[4][j] = IniOp->Values[S->Cells[5][j]];
            S->Cells[1][j] = ExtractFileName(S->Cells[4][j]);
 //VJ 030606 added expandfilename
-           S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
-           if (S->Cells[3][j].IsEmpty())
-              S->Cells[3][j] = E_MapDir->Text;
+  //         S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
+    //       if (S->Cells[3][j].IsEmpty())
+      //        S->Cells[3][j] = E_MapDir->Text;
          }
        }
 

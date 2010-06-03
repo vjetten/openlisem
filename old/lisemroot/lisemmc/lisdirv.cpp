@@ -14,21 +14,17 @@ __fastcall TDirView::TDirView(TComponent *Owner)
 //----------------------------------------------------------------------------
 void __fastcall TDirView::Button2Click(TObject *Sender)
 {
-    DirView->DirectoryListBox->Directory =backupdir;
+    DirView->DirectoryListBox->Directory = backupdir;
 }
 //---------------------------------------------------------------------------
-
-
 void __fastcall TDirView::FormActivate(TObject *Sender)
 {
      backupdir = DirView->DirectoryListBox->Directory;
 }
 //---------------------------------------------------------------------------
-
-
-void __fastcall TDirView::FormCreate(TObject *Sender)
+void __fastcall TDirView::FormShow(TObject *Sender)
 {
-     DriveComboBox1->DirList = DirectoryListBox;        
+       DriveComboBox1->DirList = DirectoryListBox;
 }
 //---------------------------------------------------------------------------
 

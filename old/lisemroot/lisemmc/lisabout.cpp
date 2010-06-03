@@ -6,8 +6,6 @@
 //--------------------------------------------------------------------- 
 #pragma link "JvExControls"
 #pragma link "JvLinkLabel"
-#pragma link "LMDCustomComponent"
-#pragma link "LMDStarter"
 #pragma resource "*.dfm"
 TAboutBox *AboutBox;
 //--------------------------------------------------------------------- 
@@ -30,10 +28,4 @@ void __fastcall TAboutBox::Button1Click(TObject *Sender)
 
 
 
-void __fastcall TAboutBox::Label4Click(TObject *Sender)
-{
-    LMDStarter1->Command = "http://www.itc.nl/lisem";
-    LMDStarter1->Execute();
-}
-//---------------------------------------------------------------------------
 

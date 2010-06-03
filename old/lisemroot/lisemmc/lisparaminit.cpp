@@ -118,8 +118,9 @@
        calc(" BufferVolumeInit = BufferVolumeCurrent ");
 
        // adapt parameters for buffer, avoid errors in kin wave
-       calc(" Gradient = mif(BufferID gt 0, 0.001, Gradient) ");
-       calc(" N = mif(BufferID gt 0, 0.5, N) ");
+       if (!SwitchSedtrap)
+          calc(" Gradient = mif(BufferID gt 0, 0.001, Gradient) ");
+      //VJ oei: calc(" N = mif(BufferID gt 0, 0.5, N) ");
 
        if (SwitchIncludeChannel) {
          calc(" ChannelGradient = mif(BufferID gt 0, 0.001, ChannelGradient) ");
