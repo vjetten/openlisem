@@ -58,8 +58,34 @@
        StepCounter = stepNr;
 
        //functions called by synchronize, safe method to call a function from a thread
-       //functions InitializeTotals(void) and  UpdateTotals(void) are in lisscreenoutput.cpp
-      if (!InitDone)
-          Synchronize(InitializeTotals);
-       Synchronize(UpdateTotals);
+       //functions InitializeTotalsSync(void) and  UpdateTotalsSync(void) are in lisscreenoutput.cpp
+
+       if (!InitDone)
+       {
+          Mout = &QoutOut;
+          Synchronize(DrawMapInitSync);
+       }
+       else
+       {
+          switch (LisIFace->GroupDisplayMap->ItemIndex)
+          {
+           case 0: Mout = &QoutOut;  break;
+           case 1: Mout = &WHOut;  break;
+           case 2: Mout = &VOut;  break;
+           case 3: Mout = &InfilOut;  break;
+           case 4: Mout = &SoilLossOut; break;
+           case 5: Mout = &DetOut; break;
+           case 6: Mout = &DepOut; break;
+           case 7: Mout = &TCOut; break;
+           case 8: Mout = &SCOut; break;
+         }
+         Synchronize(DrawMapSync);
+       }
+
+       if (!InitDone)
+          Synchronize(InitializeTotalsSync);
+       Synchronize(UpdateTotalsSync);
+
+
+
 

@@ -26,8 +26,6 @@
 
       calc(" Alpha = ( N/sqrt(Gradient) *(Perimeter**(2.0/3.0)) )**Beta ");
       calc(" Qin = mif(Alpha gt 0 , ((FlowWidth * RunoffMeanHin/1000)/Alpha)**(1/Beta) , 0) ");
-  write(Qin,"qin.map");
-  write(Alpha,"alpha.map");
 
      _spatial(REAL4, DeprSedin);
      calc(" DeprSedin = mif(WH gt 0, Sedin*SurfStorH/WH,0) ");
@@ -59,9 +57,6 @@
      calc(" SumSedin = sum(Sedin) ");
      //calc total for sed mass balance error correction, kg
 
- //    _spatial(REAL4, QoutTill);
- //   _spatial(REAL4, QsedoutTill);
-
      _spatial(REAL4, Qout);
      _spatial(REAL4, Qsedout);
      _spatial(REAL4, infil);
@@ -89,7 +84,8 @@
      kineDX(Qout, Qin, infil,
             Qsedout, Qsedin, stemp,
             BufferVolumeCurrent, BufferSedVolumeCurrent,
-            LDD, Alpha, Beta, DTSEC, DXc, int(SwitchSedtrap));
+            LDD, Alpha, Beta, DTSEC, DXc,
+            int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil changes in the kin wave:
 //          it is the sum of all fluxes in the cell in m3/s. Needed for infiltration calc
 
@@ -151,10 +147,6 @@
         calc(" buffersize =  buffersize - sum(BufferVolumeCurrent) ");
         calc(" SumBufferVolume = sum(BufferVolumeInit) - sum(BufferVolumeCurrent) ");
         calc(" TotalInfilVol -= buffersize ");
-        if (SwitchSedtrap) {
-          calc("N = mif(BufferVolumeCurrent ge BufferVolumeInit*0.99, N_org, N");
-          //VJ 090529 whe buffer is full, N no longer grassstrip N but original N
-        }  
      }
 
      if (!SwitchNoErosion)

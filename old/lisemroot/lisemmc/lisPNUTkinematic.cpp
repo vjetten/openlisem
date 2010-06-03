@@ -63,7 +63,6 @@
 		  NutPQout, NutNH4Qout, NutNO3Qout, NutPQouts, NutNH4Qouts, NutNO3Qouts,
 		  NutPQin, NutNH4Qin, NutNO3Qin, NutPQins, NutNH4Qins, NutNO3Qins,
 		  LDD, Alpha, Beta, DTSEC, DXc);
-//VJ 051005 changed DXc back to DXx        
 //NOTE infil is just for the correct kin wave here, it is already accounted for in MCkinwave
           // fluxes after kin wave
           

@@ -4,7 +4,7 @@
 
 #include "ifaceinit.h"
 #include "iface.h"
-#include "lisstart.h"
+//#include "lisstart.h"
 
 //---------------------------------------------------------------------------
 
@@ -100,9 +100,17 @@ void __fastcall TLisIFace::ResetMain()
    LoadSnowmeltfile->Enabled = CheckSnowmelt->Checked;
 
    MapsInfilExtra->Visible = CheckInfilGrass->Checked;
-   E_ManningsNGrass->Enabled = CheckInfilGrass->Checked;
+   CalibrateGrassN->Enabled = CheckInfilGrass->Checked;
    Label44->Enabled = CheckInfilGrass->Checked;
 
+   ToolButtonDisplay->Down = true;
+   SwitchDisplayMaps = true;//ToolButtonDisplay->Down;
+   zoomin = false;
+   ToolButtonZoomin->Down = false;
+
+   SOBEKDateString->Enabled = false;
+
+   DisplayMapItems = GroupDisplayMap->Items->DelimitedText;
 }
 
 //---------------------------------------------------------------------------
@@ -267,6 +275,7 @@ void __fastcall TLisIFace::ResetIFace()
     E_ErosionName->Text = "";
     E_DepositionName->Text = "";
     E_SoillossName->Text = "";
+    E_TotalRunoffName->Text = "";
 //        E_RunoffName->Text = "";
     RunFilename = "";
 
@@ -291,10 +300,9 @@ void __fastcall TLisIFace::ResetIFace()
     if(CheckInfilCompact->Checked)  MapsInfilExtra->Visible = true;
     if(CheckInfilGrass->Checked)  MapsInfilExtra->Visible = true;
     Label55->Visible = CheckBuffers->Checked;
-    Label57->Visible = CheckBuffers->Checked;
+    Label57->Enabled = CheckBuffers->Checked;
     MapsBuffers->Visible = CheckBuffers->Checked;
-    E_SedBulkDensity->Visible = CheckBuffers->Checked;
-    Bevel7->Visible = CheckBuffers->Checked;
+    E_SedBulkDensity->Enabled = CheckBuffers->Checked;
 
 }
 //---------------------------------------------------------------------------

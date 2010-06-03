@@ -43,15 +43,25 @@
            else
                 calc(" QOVERLANDPLUSCHANNEL = Qout*1000 ");
 
+
            if (SwitchMapoutRunoff) writeTimeseries(QOVERLANDPLUSCHANNEL, mapname("outrunoff"));
            if (SwitchMapoutWH) writeTimeseries(WH, mapname("outwh"));
-           if (SwitchMapoutRWH) writeTimeseries(RunoffMeanHin, mapname("outrwh"));
+calc(" WHOut = WH ");
+//VJ 100115 total runoff
+            calc("WHCum = WHCum + Qout/(DX*DXc) * 1000 * DTSEC");
+//            write(WHCum, totalRunoffFileName);
+           if (SwitchMapoutWHC) writeTimeseries(WHCum /*RunoffMeanHin*/, mapname("outrwh"));
 
            if (SwitchMapoutTC) writeTimeseries(TransportCapOUT, mapname("outtc"));
+calc(" TCOut = TransportCapOUT ");
 
            if (SwitchMapoutV) writeTimeseries(V, mapname("outvelo"));
+calc(" VOut = V ");
+
            _spatial(REAL4, InfilOutput);
            calc(" InfilOutput = InfilVol/(DX*DXc)*1000 ");
+calc(" InfilOut = InfilOutput ");
+
            if (SwitchMapoutInf) writeTimeseries(InfilOutput, mapname("outinf"));
            if (SwitchMapoutSs) writeTimeseries(SurfStorH, mapname("outss"));
 
@@ -64,6 +74,7 @@
                if (SwitchMapoutConc)
                   writeTimeseries(sedconcfile, mapname("outconc"));
                   //in all functions concentration is calculated as sed/volume, NOT Qsed/Q
+calc(" SCOut = sedconcfile ");
 
            	//VJ 050822 three units to choose from
                int ErosionUnits = GetInt("Erosion map units (0/1/2)");
@@ -78,6 +89,7 @@
                _spatial(REAL4, Erosion);
                calc(" Erosion = SumTotErosion * unitfactor");
                write(Erosion, totalErosionFileName);
+calc(" DetOut = Erosion ");
 
                if (SwitchMapoutEros)
                     writeTimeseries(Erosion, mapname("outeros"));
@@ -85,10 +97,12 @@
                _spatial(REAL4, Deposition);
                calc(" Deposition = SumTotDeposition * unitfactor ");
                write(Deposition, totalDepositionFileName);
+calc(" DepOut = Deposition ");
 
                _spatial(REAL4, soilloss);
                calc(" soilloss = (SumTotErosion + SumTotDeposition)* unitfactor");
                 write(soilloss, totalSoillossFileName);
+calc(" SoilLossOut = soilloss ");
 
                if (SwitchMapoutDepo)
                     writeTimeseries(Deposition, mapname("outdepo"));
@@ -148,7 +162,7 @@
 
            if (SwitchMapoutRunoff) 	SetTimeseriesMinmax(mapname("outrunoff"));
            if (SwitchMapoutWH) 		SetTimeseriesMinmax(mapname("outwh"));
-           if (SwitchMapoutRWH) 	SetTimeseriesMinmax(mapname("outrwh"));
+           if (SwitchMapoutWHC) 	SetTimeseriesMinmax(mapname("outrwh"));
            if (SwitchMapoutTC) 		SetTimeseriesMinmax(mapname("outtc"));
            if (SwitchMapoutV) 		SetTimeseriesMinmax(mapname("outvelo"));
            if (SwitchMapoutInf) 	SetTimeseriesMinmax(mapname("outinf"));
@@ -274,10 +288,9 @@
        }
        //defined in lisheadin.h
 
-       _spatial(REAL4, Qouttemp);
-       calc(" Qouttemp = Qout ");
+       calc(" QoutOut = Qout ");
        if (!SwitchSOBEKOutput)
-          calc(" Qouttemp = Qout * 1000");
+          calc(" QoutOut = Qout * 1000");
 
        _spatial(REAL4, QSout);
        calc(" QSout = Qout*sedconcfile");
@@ -287,11 +300,17 @@
 
 // VJ 091211 NEW REPORTING
      if (SwitchNoErosion)
-       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, Qouttemp,
-             NULL_MAP, NULL_MAP, SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, QoutOut,
+             NULL_MAP, NULL_MAP, SwitchWritePCRtimeplot, SwitchSOBEKOutput,
+             SwitchSeparateOutput, SOBEKdatestring, SOBEKnrlines);
      else
-       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, Qouttemp,
-            QSout, sedconcfile, SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+       reportMap(outflowFileName, OutPoint, timestepindex, RainAvgOut, QoutOut,
+            QSout, sedconcfile, SwitchWritePCRtimeplot, SwitchSOBEKOutput,
+            SwitchSeparateOutput, SOBEKdatestring, SOBEKnrlines);
+
+     // do this for screen output to l/s
+     if (SwitchSOBEKOutput)
+          calc(" QoutOut = Qout * 1000");
 
 /*
        if (SwitchOutlet1)

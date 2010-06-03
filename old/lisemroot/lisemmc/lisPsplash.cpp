@@ -79,7 +79,8 @@
      calc(" RainfallDirectH = RainHc ");
 
      _spatial(REAL4, ThroughfallH);
-     calc(" ThroughfallH = (RainHc-InterceptionH)*0.6 ");
+     calc(" ThroughfallH = (RainHc-InterceptionH)*(1-StemflowFraction) ");
+//VJ 100116 CHANGED TO STEMFLOW FRACTION     
         // factor 0.6 = stemflow 40% !
         // this corresponds to an leaf to ground surface angle of 36.87 degrees
         // the effect of leaf drainage is neglegible when CH<0.15 m.

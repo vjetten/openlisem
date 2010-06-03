@@ -12,6 +12,9 @@
               calc(" RunoffHin = mif(WH le MDS, 0, WH-MDS)");
            }
 
+// VJ 100131 include no surface storage on hard surfaces
+           calc(" RunoffHin = mif(hardsurface gt 0, WH, RunoffHin) ");
+
            _spatial(REAL4, PondAreaFract);
 //           calc(" PondAreaFract = mif(RR gt 0.013, 1-exp(-PAFcoeff*WH), 1)");
 //VJ 040224 BUG FIX WH was given as WH/10 which is 0.1mm!!!!!!!!
@@ -43,6 +46,7 @@
            calc(" FlowWidth = RoadWidthDX+(SoilWidthDX+StoneWidthDX)*PondAreaFract ");
            calc(" RunoffVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
                 " RunoffHin*(SoilWidthDX+StoneWidthDX))*DXc/1000 , 0) ");
+//why flowwidth > 0??? not necessary but no harm either                
                // RunoffVolin is the amount of runoff water in a cell, m3
                // on roads, in wheeltracks
            calc(" WaterHVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
@@ -75,6 +79,8 @@
 
            _spatial(REAL4, RunoffMeanHin);
            calc(" RunoffMeanHin = mif(FlowWidth gt 0, RunoffVolin*1000/(FlowWidth*DXc), 0) ");
+           // average out WH with all surface types in a cell, roads etc
+           // so here the WH is increased because in fact it is devided by flowwith causing all the water to flow on a fpa surface 
 
            _spatial(REAL4, Perimeter);
            calc(" Perimeter = FlowWidth+2*RunoffMeanHin/1000 ");

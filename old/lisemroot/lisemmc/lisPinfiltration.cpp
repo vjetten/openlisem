@@ -6,6 +6,10 @@
       calc(" WHinf = WH ");
         // WH before infiltration
 
+      _spatial(REAL4, WHnoinf);
+      calc(" WHnoinf = WH ");
+        // WH before infiltration
+
       if (SwitchWheelPresent)
       {
           _spatial(REAL4, WHWTinf);
@@ -112,12 +116,12 @@
 
 //calculate weigthed average WH
 
+     calc(" WH = WH*(1-CrustFraction-GrassFraction-CompactFraction) + WHGrass*GrassFraction "
+            "+ WHCrust*CrustFraction + WHCompact*CompactFraction ");
+     // new gridcell WH as weighted average of surface type fractions and WHs
 
-     calc(" WH = mif(hardsurface le 0, \
-            WH*(1-CrustFraction-GrassFraction-CompactFraction) + WHGrass*GrassFraction \
-            + WHCrust*CrustFraction + WHCompact*CompactFraction, 0) ");
-
-        // new gridcell WH as weighted average of surface type fractions and WHs
+     calc(" WH = mif(hardsurface gt 0, WHnoinf, WH) ");
+     // VJ 100130 fixed bug here to do with hardsurf
 
 //MAXIMIZE infiluence of grassstrip, in the sense that when a gstrip is present, its potential infil
 // determines that of the cell

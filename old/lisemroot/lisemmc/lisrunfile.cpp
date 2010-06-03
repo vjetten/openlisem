@@ -17,7 +17,7 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     strcpy(workdir, E_Workdir->Text.c_str());
 
     IniOp->Clear();
-    IniOp->Add("[LISEM for WINDOWS run file]");
+    IniOp->Add("[LISEM for WINDOWS run file v3]");
     IniOp->Add("");
     IniOp->Add("[LISEM main type]");
     IniOp->Add("LISEM Type="+(AnsiString)LisemType);
@@ -34,15 +34,14 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("Snowmelt Directory="+SnowmeltDir);
     IniOp->Add("Snowmelt file="+E_SnowmeltName->Text);
     IniOp->Add("");
-    IniOp->Add("[Output main]");
+    IniOp->Add("[Output]");
     IniOp->Add("Result Directory="+E_ResultDir->Text);
     IniOp->Add("Main results file="+E_TotalName->Text);
     IniOp->Add("Filename point output="+E_OutletName->Text);
     IniOp->Add("Report point output separate="+(AnsiString)(short)CheckSeparateOutput->Checked);
     IniOp->Add("Report point output for SOBEK="+(AnsiString)(short)CheckSOBEKOutput->Checked);
-
-//    IniOp->Add("Outlet 2 file="+E_Outlet1Name->Text);
-//    IniOp->Add("Outlet 3 file="+E_Outlet2Name->Text);
+    IniOp->Add("SOBEK date string="+SOBEKDateString->Text);
+//    IniOp->Add("Total Runoff map="+E_TotalRunoffName->Text);
     IniOp->Add("Erosion map="+E_ErosionName->Text);
     IniOp->Add("Deposition map="+E_DepositionName->Text);
     IniOp->Add("Soilloss map="+E_SoillossName->Text);
@@ -63,21 +62,41 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("All water and sediment to outlet="+(AnsiString)(short)CheckAllinChannel->Checked);
 //VJ 080614 include snowmelt
     IniOp->Add("Include snowmelt="+(AnsiString)(short)CheckSnowmelt->Checked);
-
-    //VJ 030702 changed channel infil to kin wave infil
-//    IniOp->Add("Kinematic wave infil="+(AnsiString)(short)CheckKinwaveInfil->Checked);
 //VJ 040224 added if outlet no erosion or deposition
     IniOp->Add("No erosion at outlet="+(AnsiString)(short)CheckNoErosionOutlet->Checked);
-//VJ 040514 added if buffers yes or no
-    IniOp->Add("Include buffers="+(AnsiString)(short)CheckBuffers->Checked);
 //VJ 050301 alternative erosion
     IniOp->Add("Alternative flow detachment="+(AnsiString)(short)CheckAltErosion->Checked);
 //VJ 090214 alternative depr storage
     IniOp->Add("Simple depression storage="+(AnsiString)(short)CheckSimpleDepression->Checked);
+//VJ 100202 include hard surface switch
+    IniOp->Add("Hard Surfaces="+(AnsiString)(short)CheckHardsurface->Checked);
+
     IniOp->Add("");
-    IniOp->Add("[Additional options]");
-    IniOp->Add("Grassstrip Mannings n="+E_ManningsNGrass->Text);
-    IniOp->Add("Splash Delivery Ratio="+E_SplashDelivery->Text);
+    IniOp->Add("[Interception]");
+    //VJ 100116 Use canopy storage map
+    IniOp->Add("Use canopy storage map="+(AnsiString)(short)!CheckInterceptionLAI->Checked);
+   //VJ 100116 8 equations to choose
+    IniOp->Add("Canopy storage equation="+(AnsiString)(short)E_InterceptionLAIType->ItemIndex);
+    IniOp->Add("Stemflow fraction="+(AnsiString)(double)FractionStemflow->Value);
+
+//VJ 040514 added if buffers yes or no
+    IniOp->Add("");
+    IniOp->Add("[Conservation]");
+    IniOp->Add("Include grass strips="+(AnsiString)(short)CheckInfilGrass->Checked);
+    IniOp->Add("Grassstrip Mannings n="+(AnsiString)(double)CalibrateGrassN->Value);
+    IniOp->Add("Include buffers="+(AnsiString)(short)CheckBuffers->Checked);
+    IniOp->Add("Sediment bulk density="+E_SedBulkDensity->Text);
+    IniOp->Add("Include Sediment traps="+(AnsiString)(short)CheckSedtrap->Checked);
+
+    IniOp->Add("");
+    IniOp->Add("[Calibration]");
+    IniOp->Add("Ksat calibration="+(AnsiString)(double)CalibrateKsat->Value);
+    IniOp->Add("N calibration="+(AnsiString)(double)CalibrateN->Value);
+    IniOp->Add("Channel Ksat calibration="+(AnsiString)(double)CalibrateChKsat->Value);
+    IniOp->Add("Channel N calibration="+(AnsiString)(double)CalibrateChN->Value);
+    IniOp->Add("Splash Delivery Ratio="+(AnsiString)(double)CalibrateSplashDelivery->Value);
+    //+E_SplashDelivery->Text);
+
     IniOp->Add("");
     IniOp->Add("[Gully options]");
     IniOp->Add("Fcrit relation="+(AnsiString)(int)E_Fcritical->ItemIndex);
@@ -92,20 +111,12 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
     IniOp->Add("[Infiltration]");
     IniOp->Add("Infil Method="+(AnsiString)E_InfilMethoda->ItemIndex);
     IniOp->Add("Include wheeltracks="+(AnsiString)(short)CheckInfilCompact->Checked);
-    IniOp->Add("Include grass strips="+(AnsiString)(short)CheckInfilGrass->Checked);
     IniOp->Add("Include crusts="+(AnsiString)(short)CheckInfilCrust->Checked);
     IniOp->Add("Impermeable sublayer="+(AnsiString)(short)CheckImpermeable->Checked);
     IniOp->Add("Subsoil drainage="+(AnsiString)(short)CheckSubsoilDrainage->Checked);
     IniOp->Add("SWATRE internal minimum timestep="+E_SwatreDTSEC->Text);
     IniOp->Add("Matric head files="+(AnsiString)(short)CheckDumphead->Checked);
     IniOp->Add("Geometric mean Ksat="+(AnsiString)(short)CheckGeometric->Checked);
-
-    IniOp->Add("");
-    IniOp->Add("[Calibration]");
-    IniOp->Add("Ksat calibration="+(AnsiString)(double)CalibrateKsat->Value);
-    IniOp->Add("N calibration="+(AnsiString)(double)CalibrateN->Value);
-    IniOp->Add("Channel Ksat calibration="+(AnsiString)(double)CalibrateChKsat->Value);
-    IniOp->Add("Channel N calibration="+(AnsiString)(double)CalibrateChN->Value);
 
     IniOp->Add("");
     IniOp->Add("[Output maps]");
@@ -220,7 +231,7 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
              if (!S->Cells[0][j].IsEmpty())
              IniOp->Add(S->Cells[5][j]+"="+S->Cells[4][j]);
     }
- 
+
     IniOp->SaveToFile(name);
 
     delete IniOp;
@@ -239,9 +250,10 @@ char *ParseValue(TStringList *ts, char *text)
 bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 {
     TStringList *IniOp = new TStringList;
-    AnsiString _workdir;
     try
     {
+        AnsiString _workdir, tmp;
+
         if (FileExists(name))
            IniOp->LoadFromFile(name);
         else
@@ -249,6 +261,9 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
            delete IniOp;
            return false;
         }
+
+        bool runv3 = IniOp->Strings[0] == "[LISEM for WINDOWS run file v3]";
+
         _workdir = ExtractFilePath(name);
 
 //        _workdir = IniOp->Values[(AnsiString)"WorkDir"];
@@ -262,6 +277,7 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 
         CheckSeparateOutput->Checked = IniOp->Values[(AnsiString)"Report point output separate"] == "1";
         CheckSOBEKOutput->Checked = IniOp->Values[(AnsiString)"Report point output for SOBEK"] == "1";
+        SOBEKDateString->Text = IniOp->Values["SOBEK date string"];
 
         CheckWritePCRnames->Checked = IniOp->Values[(AnsiString)"Timeseries as PCRaster"] == "1";
         CheckWritePCRtimeplot->Checked = IniOp->Values[(AnsiString)"Timeplot as PCRaster"] == "1";
@@ -282,14 +298,37 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 //        CheckKinwaveInfil->Checked = IniOp->Values[(AnsiString)"Kinematic wave infil"] == "1";
 //VJ 040224 added if outlet no erosion or deposition
         CheckNoErosionOutlet->Checked = IniOp->Values[(AnsiString)"No erosion at outlet"] == "1";
+
+        CheckInfilGrass->Checked = IniOp->Values[(AnsiString)"Include grass strips"] == "1";
+        tmp = ParseValue(IniOp, "Grassstrip Mannings n");
+        if (!tmp.IsEmpty()) CalibrateGrassN->Value = tmp.ToDouble();
 //VJ 040214 added if buffers
         CheckBuffers->Checked = IniOp->Values[(AnsiString)"Include buffers"] == "1";
+        CheckSedtrap->Checked = IniOp->Values[(AnsiString)"Include Sediment traps"] == "1";
+        if (runv3)
+         E_SedBulkDensity->Text = IniOp->Values[(AnsiString)"Sediment bulk density"];
+        else
+         E_SedBulkDensity->Text = "1800";
+
 //VJ 050301 alternative erosion
 	     CheckAltErosion->Checked = IniOp->Values[(AnsiString)"Alternative flow detachment"] == "1";
 //VJ 090214 alternative depr storage
 	     CheckSimpleDepression->Checked = IniOp->Values[(AnsiString)"Simple depression storage"] == "1";
         // to read old run files:
 	     CheckSimpleDepression->Checked = IniOp->Values[(AnsiString)"Alternative depression storage"] == "1";
+//VJ 100202 include hard surface switch
+	     CheckHardsurface->Checked = IniOp->Values[(AnsiString)"Hard Surfaces"] == "1";
+
+//VJ 100116 Use canopy storage map
+        if (runv3)
+           CheckInterceptionLAI->Checked = IniOp->Values[(AnsiString)"Use canopy storage map"] == "0";
+        else
+           CheckInterceptionLAI->Checked = true;
+//VJ 100116 8 equations to choose
+        if (runv3)
+          E_InterceptionLAIType->ItemIndex = IniOp->Values[(AnsiString)"Canopy storage equation"].ToInt();
+        else
+          E_InterceptionLAIType->ItemIndex = 0;
 
         E_begintime->Text = IniOp->Values[(AnsiString)"Begin time"];
         E_Endtime->Text = IniOp->Values[(AnsiString)"End time"];
@@ -309,28 +348,24 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         ResetInfil();
 
         CheckInfilCompact->Checked = IniOp->Values[(AnsiString)"Include wheeltracks"] == "1";
-        CheckInfilGrass->Checked = IniOp->Values[(AnsiString)"Include grass strips"] == "1";
         CheckInfilCrust->Checked = IniOp->Values[(AnsiString)"Include crusts"] == "1";
         CheckImpermeable->Checked = IniOp->Values[(AnsiString)"Impermeable sublayer"] == "1";
 		  CheckSubsoilDrainage->Checked = IniOp->Values[(AnsiString)"Subsoil drainage="] == "1";
 
         CalibrateKsat->Value = IniOp->Values[(AnsiString)"Ksat calibration"].ToDouble();
-        if (CalibrateKsat->Value >= 100) CalibrateKsat->Value /= 100;
-
-
-        AnsiString tmp = IniOp->Values[(AnsiString)"N calibration"];
+    //    if (!runv3) CalibrateKsat->Value /= 100;
+        tmp = IniOp->Values[(AnsiString)"N calibration"];
         if (!tmp.IsEmpty()) CalibrateN->Value = tmp.ToDouble();
         tmp = IniOp->Values[(AnsiString)"Channel Ksat calibration"];
         if (!tmp.IsEmpty()) CalibrateChKsat->Value = tmp.ToDouble();
         tmp = IniOp->Values[(AnsiString)"Channel N calibration"];
         if (!tmp.IsEmpty()) CalibrateChN->Value = tmp.ToDouble();
+        tmp = IniOp->Values[(AnsiString)"Splash Delivery Ratio"];
+        if (!tmp.IsEmpty()) CalibrateSplashDelivery->Value = tmp.ToDouble();
 
-        E_SplashDelivery->Text = ParseValue(IniOp, "Splash Delivery Ratio");
-        E_ManningsNGrass->Text = ParseValue(IniOp, "Grassstrip Mannings n");
-        if (E_ManningsNGrass->Text.IsEmpty())
-           E_ManningsNGrass->Text = 0.3;
-        if (E_SplashDelivery->Text.IsEmpty())
-           E_SplashDelivery->Text = 0.1;
+        if (CalibrateKsat->Value != 1.0 || CalibrateN->Value != 1.0 ||
+           CalibrateChKsat->Value != 1.0 || CalibrateChN->Value != 1.0)
+             JvLookOut1->ActivePage = LookOutPage4;
 
 /******* DIR CHECKING **********/
 
@@ -361,61 +396,59 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
         strcat(RainfallNamePath,E_RainfallName->Text.c_str());
  //VJ 080614 include snowmelt
         CheckSnowmelt->Checked = IniOp->Values[(AnsiString)"Incude Snowmelt="] == "1";
-        SnowmeltDir = ParseValue(IniOp,"Snowmelt Directory");
-        SnowmeltDir = CheckDir("Snowmelt Directory",SnowmeltDir);
-        if (SnowmeltDir == "DIR_NOT_EXIST")
+        if (CheckSnowmelt->Checked)
         {
-           SnowmeltDir = "";
-           E_SnowmeltName->Text = "";
-           CheckSnowmelt->Checked =false;
+          SnowmeltDir = ParseValue(IniOp,"Snowmelt Directory");
+          SnowmeltDir = CheckDir("Snowmelt Directory",SnowmeltDir);
+          if (SnowmeltDir == "DIR_NOT_EXIST")
+          {
+             SnowmeltDir = "";
+             E_SnowmeltName->Text = "";
+             CheckSnowmelt->Checked =false;
+          }
+          else
+          {
+              E_SnowmeltName->Text = ParseValue(IniOp,"Snowmelt file");
+              E_SnowmeltName->Text = ExtractFileName(E_SnowmeltName->Text);
+          }
+          strcpy(SnowmeltNamePath, SnowmeltDir.c_str());
+          strcat(SnowmeltNamePath,E_SnowmeltName->Text.c_str());
         }
-        else
-        {
-            E_SnowmeltName->Text = ParseValue(IniOp,"Snowmelt file");
-            E_SnowmeltName->Text = ExtractFileName(E_SnowmeltName->Text);
-        }
-        strcpy(SnowmeltNamePath, SnowmeltDir.c_str());
-        strcat(SnowmeltNamePath,E_SnowmeltName->Text.c_str());
-
 
 
         E_ResultDir->Text = ExpandFileName(ParseValue(IniOp ,"Result Directory"));
         if (!DirectoryExists(E_ResultDir->Text))
         {
-
 //VJ 031105 2.159 do not ask otherwise batch operations will hold on this question
 // forcedirectory cannot handle emty strings, throws exception
 
           if(!E_ResultDir->Text.IsEmpty())
-          { 
+          {
+            if (!batchrun)
+            {
+               AnsiString S = "Result Directory: \"" + E_ResultDir->Text + "\" does not exist, create it?";
+               if (Application->MessageBox(S.c_str(), "LISEM Warning", MB_OKCANCEL+MB_ICONERROR) == IDOK)
+                ForceDirectories(E_ResultDir->Text);
+               else
+                E_ResultDir->Text = "";
+            }
+            else
             if (!ForceDirectories(E_ResultDir->Text))
             {
         			CheckError(AnsiString("Result cannot be created: ")+E_ResultDir->Text);
             }
-          } 
-/*
-             AnsiString S = "Result Directory: \"" + E_ResultDir->Text + "\" does not exist, create it?";
-             if (Application->MessageBox(S.c_str(), "LISEM Warning", MB_OKCANCEL+MB_ICONERROR) == IDOK)
-              ForceDirectories(E_ResultDir->Text);
-             else
-              E_ResultDir->Text = "";
-*/              
-   }
-        // no further checking
-/*
-        if (!ForceDirectories(E_ResultDir->Text))
-        {
-           CheckError(AnsiString("Result dir does not exist: ")+E_ResultDir->Text);
-           E_ResultDir->Text = "";
+          }
         }
-*/
+        // no further checking
+
         E_TotalName->Text = ParseValue(IniOp ,"Main results file");
         E_OutletName->Text = ParseValue(IniOp ,"Outlet 1 file");// leave old filename for old run files 
         //E_Outlet1Name->Text = ParseValue(IniOp ,"Outlet 2 file");
         //E_Outlet2Name->Text = ParseValue(IniOp ,"Outlet 3 file");
 
         E_OutletName->Text = ParseValue(IniOp ,"Filename point output"); // if newer fould do that
-
+//        E_TotalRunoffName->Text = ParseValue(IniOp ,"Total Runoff map");
+//VJ 100115 total runoff map
         E_ErosionName->Text = ParseValue(IniOp ,"Erosion map");
         E_DepositionName->Text = ParseValue(IniOp ,"Deposition map");
         E_SoillossName->Text = ParseValue(IniOp ,"Soilloss map");
@@ -487,10 +520,17 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
          {
            S->Cells[4][j] = IniOp->Values[S->Cells[5][j]];
            S->Cells[1][j] = ExtractFileName(S->Cells[4][j]);
+//           S->Cells[1][j] = IniOp->Values[S->Cells[5][j]];
+  //         if (E_MapDir->Text.IsPathDelimiter(E_MapDir->Text.Length()))
+    //       S->Cells[4][j] = E_MapDir->Text + S->Cells[1][j];
+      //     else
+        //   S->Cells[4][j] = E_MapDir->Text + "\\" + S->Cells[1][j];
+
+
 //VJ 030606 added expandfilename
-  //         S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
-    //       if (S->Cells[3][j].IsEmpty())
-      //        S->Cells[3][j] = E_MapDir->Text;
+         S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
+           if (S->Cells[3][j].IsEmpty())
+              S->Cells[3][j] = E_MapDir->Text;
          }
        }
 

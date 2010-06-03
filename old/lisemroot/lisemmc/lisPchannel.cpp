@@ -205,7 +205,8 @@
      kineDX(ChannelQout,ChannelQin, chinfil,
                ChannelQsedout,ChannelQsedin, chtemp,
                BufferVolumeCurrentChannel, BufferSedVolumeCurrentChannel,
-               ChannelLDD, ChannelAlpha, ChannelBeta, DTSEC, DXc, int(SwitchSedtrap));
+               ChannelLDD, ChannelAlpha, ChannelBeta, DTSEC, DXc,
+               int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil map changes during run: after the kin wave
 // it contains the sum of all fluxes in the cell! Needed for infiltration calc
 

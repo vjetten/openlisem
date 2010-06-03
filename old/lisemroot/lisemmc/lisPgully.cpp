@@ -139,7 +139,8 @@
            kineDX(GullyQout,GullyQin,ginfil,
                   GullyQsedout,GullyQsedin, gtemp,
                   Bufferdummy, Bufferdummy,
-                  LDD, GullyAlpha, GullyBeta, DTSEC,DXc,int(SwitchSedtrap));
+                  LDD, GullyAlpha, GullyBeta, DTSEC,DXc,
+                  int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil changes: it is the sum of all fluxes in the cell. Needed for infiltration calc
               // N.B. gullyout not restricted to gullies, outflow over normal LDD
            calc(" GullyQOutflow = sum(mif(Outlet1 eq 1,GullyQout, 0))");

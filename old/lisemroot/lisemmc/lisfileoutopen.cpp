@@ -2,17 +2,37 @@
 // *****************************************************************************
 // ******** OPEN and print first line output files *****************************
 // *****************************************************************************
+      // maps for drawing global declaration
+       _spatial(REAL4, QoutOut);
+       calc(" QoutOut = 0 ");
+       _spatial(REAL4, WHOut);
+       calc(" WHOut = 0 ");
+       _spatial(REAL4, InfilOut);
+       calc(" InfilOut = 0 ");
+       _spatial(REAL4, VOut);
+       calc(" VOut = 0 ");
+       _spatial(REAL4, TCOut);
+       calc(" TCOut = 0 ");
+       _spatial(REAL4, SoilLossOut);
+       calc(" SoilLossOut = 0 ");
+       _spatial(REAL4, DetOut);
+       calc(" DetOut = 0 ");
+       _spatial(REAL4, DepOut);
+       calc(" DepOut = 0 ");
+       _spatial(REAL4, SCOut);
+       calc(" SCOut = 0 ");
 
-  //     int timeoutformat = 0;
-    //   if (SwitchWritePCRtimeplot) timeoutformat = 1;
-      // if (SwitchWriteSOBEKtimeplot) timeoutformat = 2;
+
+      // create output files for point output at non zero cells in point map
+       SOBEKnrlines = (int) (ENDINTERVAL - STARTINTERVAL)/DTMIN + 1;
+
 
        if (SwitchNoErosion)
        reportMap(outflowFileName, OutPoint, -1, 0, OutPoint, NULL_MAP, NULL_MAP,
-                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput, SOBEKdatestring, SOBEKnrlines);
        else
        reportMap(outflowFileName, OutPoint, -1, 0, OutPoint, OutPoint, OutPoint,
-                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput);
+                 SwitchWritePCRtimeplot, SwitchSOBEKOutput, SwitchSeparateOutput, SOBEKdatestring, SOBEKnrlines);
 
 /*
        if (SwitchOutlet1)

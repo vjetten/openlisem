@@ -60,6 +60,12 @@ void __fastcall TLisIFace::ButtonPauseprogClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::ButtonRunprogClick(TObject *Sender)
 {
+    if (E_OutletName->Text.IsEmpty())
+      if (Application->MessageBox("No \'Point Output\' filename, please give a name", "LISEM Warning", MB_OK+MB_ICONERROR) == IDOK)
+          return;
+    if (E_SoillossName->Text.IsEmpty())
+      if (Application->MessageBox("No \'Soil Loss map\' filename, please give a name", "LISEM Warning", MB_OK+MB_ICONERROR) == IDOK)
+          return;
     if (take5)
     {
        LisemRun->Resume();
@@ -84,6 +90,8 @@ void __fastcall TLisIFace::ThreadDone(TObject *Sender)
     ButtonRunProg->Down = false;
     ButtonStopProg->Down = true;
     take5 = false;
+
+    KillDrawMapStructure();
 
 
     if (thisrun < nrruns)

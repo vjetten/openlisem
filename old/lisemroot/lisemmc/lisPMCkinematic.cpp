@@ -77,7 +77,6 @@
                 Qsedout0, Qsedout1, Qsedout2, Qsedout3, Qsedout4, Qsedout5,
                 Qsedin0, Qsedin1, Qsedin2, Qsedin3, Qsedin4, Qsedin5,
                 LDD, Alpha, Beta, DTSEC, DXc);
-//VJ 051005: changed DXc back to DXx
 
       calc(" QOutflow = sum(mif(Outlet1 eq 1, Qout, 0))");
       mcalc(" SedOutflow# = sum(mif(Outlet1 eq 1, Qsedout#, 0))",6);

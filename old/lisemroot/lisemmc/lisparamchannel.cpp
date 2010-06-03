@@ -66,7 +66,7 @@
            calc(" ChannelN = ChannelN * chn_cal ");
          }
 
-         ChKsatCalibration = -1.0;
+         ChKsatCalibration = 1.0;
          ChKsatCalibration = GetFloat("Channel Ksat calibration");
          _nonspatial(REAL4, chksat_cal);
          chksat_cal = ChnCalibration;

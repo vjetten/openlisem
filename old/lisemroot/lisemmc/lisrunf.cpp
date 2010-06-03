@@ -3,7 +3,7 @@
 #include <algorithm.h>
 #pragma hdrstop
 
-#include "lisrunf.h"
+//#include "lisrunf.h"
 #include "iface.h"
 
 //---------------------------------------------------------------------------

@@ -1,3 +1,17 @@
+Lisem 2.6.4 (VJ 100131)
+- fixed hardsurf bug in infiltration
+- added no inetrception on hard surfaces
+- added no surface storage on hard surfaces
+Lisem 2.6.3 (VJ 100116)
+- added multiple interception storage funtions, ater Dejong and Jetten 2007
+- added possibility canopy storage map Smax  (mm)
+- added stemflow fraction 5.4% default (Bruinzeel, van dijk), stemflow was fixed at 40% since the beginning of LISEM!!!
+- changed interface, better organized
+- added JPEG dump of map display screen, each timestep
+- Bug fix: buffer sediment bulk density, was not used in kineDX
+- !!!CHANGED!!!: changed linked list in kineDX to try to memory problems with very large maps and long runs!
+Lisem 2.6.2 BETA (VJ 100101)
+- Added map display
 Lisem 2.6.1 (VJ 091213)
 - hard surfaces also no infiltration now
 - output text files for all points in outlet.map even if more than 3, reported as one file or as name_#1.ext etc.
@@ -13,7 +27,7 @@ lisem 2.6.0 (VJ 090521)
 - model now clled with temp run file that is parsed
 lisem 2.5.9
 - made RR start-storage or fullstorage an option
-- minor changes nd cleaning up code
+- minor changes and cleaning up code
 lisem 2.5.8 (VJ 090226)
 - added 'celltest' function in cpstest.c where the cell is found that gioves a problem compared to the LDD
   (infamous kinematic wave error)

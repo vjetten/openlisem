@@ -3,7 +3,37 @@
 //==============================================================================
      if (!SwitchNoErosion)
     {
-           // ***** NON SPATIAL *****
+       // ***** SPATIAL *****
+
+           calc(" SumTotErosion += DetachmentSplash+DetachmentFlow");
+
+           if (SwitchIncludeChannel)
+              calc(" SumTotErosion += mif(ChannelWidthUpDX gt 0, ChannelDetachmentFlow, 0) ");
+           if (SwitchWheelPresent)
+              calc(" SumTotErosion += mif(WheelWidthDX gt 0, WheelDetachmentFlow, 0) ");
+           if (SwitchGullies)
+              calc(" SumTotErosion += mif(GullyWidthDX gt 0, GullyDetachmentFlow, 0) ");
+
+           calc(" SumTotDeposition += (DepositionSplash+DepositionFlow)");//+DepositionGrassStrip)");
+
+           if (SwitchIncludeChannel)
+              calc(" SumTotDeposition += mif(ChannelWidthUpDX gt 0, ChannelDeposition, 0) ");
+           if (SwitchWheelPresent)
+              calc(" SumTotDeposition += mif(WheelWidthDX gt 0, WheelDeposition, 0) ");
+           if (SwitchGullies)
+              calc(" SumTotDeposition += mif(GullyWidthDX gt 0, GullyDeposition, 0) ");
+
+           // ***** SPATIAL *****
+           //VJ 050831  added spatial totals
+           if (SwitchIncludeChannel)
+              calc(" Qsedout += cover(ChannelQsedout,0) ");
+           if (SwitchWheelPresent)
+              calc(" Qsedout += cover(WheelQsedout,0) ");
+           if (SwitchGullies)
+              calc(" Qsedout += cover(GullyQsedout,0) ");
+           // add for map output
+
+	// ***** NON SPATIAL *****
 
            if (SwitchIncludeChannel)
               SedOutflow += ChannelSedOutflow;
@@ -12,7 +42,10 @@
            if (SwitchGullies)
               SedOutflow += GullySedOutflow;
 
-           TotalSedDischarge += SedOutflow*DTSEC;
+//           TotalSedDischarge += SedOutflow*DTSEC;
+           calc(" TotalSedDischarge = TotalSedDischarge + sum(mif(LDD eq 5, Qsedout*DTSEC, 0)) ");
+//VJ 100116 changed to sum of all pits
+
              // vj : sediment combined for total outflow through outlet channel,
              // before: was added to ChannelVolin and ChannelSedin before kinematic wave !
             // total soil loss outlet
@@ -70,33 +103,4 @@
               SedMassBalanceError = 0;
 
 
-           // ***** SPATIAL *****
-
-           calc(" SumTotErosion += DetachmentSplash+DetachmentFlow");
-
-           if (SwitchIncludeChannel)
-              calc(" SumTotErosion += mif(ChannelWidthUpDX gt 0, ChannelDetachmentFlow, 0) ");
-           if (SwitchWheelPresent)
-              calc(" SumTotErosion += mif(WheelWidthDX gt 0, WheelDetachmentFlow, 0) ");
-           if (SwitchGullies)
-              calc(" SumTotErosion += mif(GullyWidthDX gt 0, GullyDetachmentFlow, 0) ");
-
-           calc(" SumTotDeposition += (DepositionSplash+DepositionFlow)");//+DepositionGrassStrip)");
-
-           if (SwitchIncludeChannel)
-              calc(" SumTotDeposition += mif(ChannelWidthUpDX gt 0, ChannelDeposition, 0) ");
-           if (SwitchWheelPresent)
-              calc(" SumTotDeposition += mif(WheelWidthDX gt 0, WheelDeposition, 0) ");
-           if (SwitchGullies)
-              calc(" SumTotDeposition += mif(GullyWidthDX gt 0, GullyDeposition, 0) ");
-
-           // ***** SPATIAL *****
-           //VJ 050831  added spatial totals
-           if (SwitchIncludeChannel)
-              calc(" Qsedout += cover(ChannelQsedout,0) ");
-           if (SwitchWheelPresent)
-              calc(" Qsedout += cover(WheelQsedout,0) ");
-           if (SwitchGullies)
-              calc(" Qsedout += cover(GullyQsedout,0) ");
-           // add for map output
  }

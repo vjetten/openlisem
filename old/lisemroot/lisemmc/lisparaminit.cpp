@@ -4,11 +4,9 @@
 
      //------------depression storage-------------------------------------------
 
-     _spatial(REAL4, CanopyStorage);
-     calc(" CanopyStorage = 0.935 + (0.498*LAI) - (0.00575 * sqr(LAI) ) ");
-        // Van Hoyningen-Huene (1981), p.46; maximum interception (mm)
 
 // RR is given in cm in the maps !!!!!!!
+/* OBSOLETE in surfstor3
      _spatial(REAL4, DeprStoreMaxH);
      calc(" DeprStoreMaxH = max(10*(0.112*RR + 0.031*sqr(RR) - "
           "           0.012*RR*(Gradient*100)),0) ");
@@ -35,7 +33,7 @@
         // Onstad (1984); maximum fraction of surface covered with water
         // PondAreaFractMax is assumed not to be less than 0.10; lower values give
         // mass balance error for steep slopes!)
-
+*/
 
   //   _spatial(REAL4, PAFcoeff);
 //     calc(" PAFcoeff = 1.4057*(RR*10)**-0.9422 ");
@@ -48,7 +46,7 @@
      calc(" MDS = max(0, 0.243*RR*10 + 0.010*RR*RR*100 - 0.012*RR*10*Gradient*100) ");
         // new threshold var according to kamphorst et al.  in MM !!!!!!
 //VJ 050302 simplified this
-    _spatial(REAL4, SDS);
+     _spatial(REAL4, SDS);
 //     calc(" SDS = -log10(0.9)/PAFcoeff ");
 //     calc(" SDS = min(SDS, MDS*0.9)");
      calc(" SDS = 0.1*MDS ");
@@ -60,6 +58,7 @@
 
 //     calc(" SDS = max(MDS*(0.0527*RR - 0.0049*(Gradient*100)),0) ");
        // based on previous, in MM !!!!!!
+       
 
      //------------overland flow------------------------------------------------
 
@@ -110,7 +109,8 @@
 
      if (SwitchBuffers)
      {
-       if (SwitchIncludeChannel) {
+       if (SwitchIncludeChannel)
+       {
           calc(" BufferVolumeCurrentChannel = cover(mif(ChannelLDD, BufferVolume, 0),0) ");
           calc(" BufferVolumeInitChannel = BufferVolumeCurrentChannel ");
        }
@@ -119,10 +119,15 @@
 
        // adapt parameters for buffer, avoid errors in kin wave
        if (!SwitchSedtrap)
+       {
           calc(" Gradient = mif(BufferID gt 0, 0.001, Gradient) ");
-      //VJ oei: calc(" N = mif(BufferID gt 0, 0.5, N) ");
+          calc(" MDS = mif(BufferID gt 0, 0.1, MDS) ");
+          calc(" SDS = mif(BufferID gt 0, 0, SDS) ");
+          calc(" RR = mif(BufferID gt 0, 0.05, RR) ");
+       }
 
-       if (SwitchIncludeChannel) {
+       if (SwitchIncludeChannel)
+       {
          calc(" ChannelGradient = mif(BufferID gt 0, 0.001, ChannelGradient) ");
          calc(" ChannelN = mif(BufferID gt 0, 0.5, ChannelN) ");
        }  
@@ -230,6 +235,5 @@
     */
 
 }
-
 
 

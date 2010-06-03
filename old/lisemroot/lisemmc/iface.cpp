@@ -4,19 +4,7 @@
 #pragma hdrstop
 
 #include "iface.h"
-#include "lismain.h"
-#include "lishelp.h"
-#include "lisabout.h"
-#include "lisrunf.h"
-#include "lisrainf.h"
-//#include "lisdirv.h"
-#include "lisstart.h"
-#include "ifaceinit.h"
-#include "ifacethread.h"
-#include "lishint.h"
 
-
-#include "mprolog.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "cgauges"
@@ -27,6 +15,28 @@
 #pragma link "JvBaseDlg"
 #pragma link "JvBrowseFolder"
 #pragma link "JvSelectDirectory"
+#pragma link "JvButton"
+#pragma link "JvExStdCtrls"
+#pragma link "JvRecentMenuButton"
+#pragma link "JvCheckedMaskEdit"
+#pragma link "JvMaskEdit"
+#pragma link "JvToolEdit"
+#pragma link "JvExControls"
+#pragma link "JvExExtCtrls"
+#pragma link "JvOutlookBar"
+#pragma link "JvRadioGroup"
+#pragma link "JvExtComponent"
+#pragma link "JvItemsPanel"
+#pragma link "JvAVICapture"
+#pragma link "JvLookOut"
+#pragma link "JvStaticText"
+#pragma link "JvComponentBase"
+#pragma link "JvFormAutoSize"
+#pragma link "JvSpecialProgress"
+#pragma link "JvProgressBar"
+#pragma link "JvMenus"
+#pragma link "JvFormMagnet"
+#pragma link "JvRadioButton"
 #pragma resource "*.dfm"
 TLisIFace *LisIFace;
 //---------------------------------------------------------------------------
@@ -145,7 +155,7 @@ void __fastcall TLisIFace::LoadRunFile(AnsiString RunFilename)
     //gaat mis bij automatic run (pest) want runform bestaat nog niet
     //RunFileButton->Caption = "Acitive: " + ExtractFileName(RunFilename);
 
-    if(lrun->Strings[0] == "[LISEM for WINDOWS run file]")
+    if(lrun->Strings[0].Pos("LISEM for WINDOWS run file") > 0)
     {
        ReadNewRunfile(RunFilename);
     }
@@ -251,7 +261,7 @@ void __fastcall TLisIFace::FileOpenClick(TObject *Sender)
     RunForm->RunEdit->Clear();
     E_OutputTimes->Clear();
 
-    ListRunfilesa->Items->Assign(OpenDialog->Files);
+    ListRunfilesa->Items->AddStrings(OpenDialog->Files);
     ListRunfilesa->ItemIndex = 0;
 
     RunFilename = ListRunfilesa->Items->Strings[0];
@@ -463,6 +473,16 @@ void __fastcall TLisIFace::CheckIncludeChannelClick(TObject *Sender)
     MapsChannelBaseflow->Visible = CheckChannelBaseflow->Checked && CheckIncludeChannel->Checked;
     Label49->Visible = !CheckIncludeChannel->Checked;
     Label49->Caption = "Activate \"Include main channels\" on the start screen";
+
+        // totals
+        LO_chanflow->Enabled = CheckIncludeChannel->Checked;
+        LO_chandepo->Enabled = CheckIncludeChannel->Checked;
+        LO_ChSedSuspended->Enabled = CheckIncludeChannel->Checked;
+        Label17->Enabled = CheckIncludeChannel->Checked;
+        Label18->Enabled = CheckIncludeChannel->Checked;
+        Label32->Enabled = CheckIncludeChannel->Checked;
+        Label93->Enabled = CheckIncludeChannel->Checked;
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::FormClose(TObject *Sender, TCloseAction &Action)
@@ -509,25 +529,57 @@ void __fastcall TLisIFace::FormResize(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::CheckNoErosionClick(TObject *Sender)
 {
+   if (!LisemRun)
+   {
       //VJ 080217 changed behaviour of sedigraph on screen
         //Panel3->Visible=!CheckNoErosion->Checked;
+        /*
         if (!CheckNoErosion->Checked)
         {
             ShowQsed->Checked = false;
         }
         ShowSedConcentration->Checked = (!CheckNoErosion->Checked);
-
+        */
         if (CheckNoErosion->Checked && CheckMulticlass)
         {
            CheckError("Simulation of multiple class sediment or nutrient losses only with erosion");
            CheckNutrients = false;
            CheckMulticlass = false;
         }
+
+        //interface
+        E_OutputUnits->Enabled = !CheckNoErosion->Checked;
+        E_ErosionName->Enabled = !CheckNoErosion->Checked;
+        E_DepositionName->Enabled = !CheckNoErosion->Checked;
+        E_SoillossName->Enabled = !CheckNoErosion->Checked;
+        Label41->Enabled = !CheckNoErosion->Checked;
+        Label43->Enabled = !CheckNoErosion->Checked;
+        Label78->Enabled = !CheckNoErosion->Checked;
+
+        //graph
+        ShowQsed->Checked = !CheckNoErosion->Checked;
+        ShowSedConcentration->Checked = !CheckNoErosion->Checked;
+
+        //input map list
         MapsErosion->Visible = !CheckNoErosion->Checked;
         //Label92->Visible = !CheckNoErosion->Checked;
         Label60->Visible = CheckNoErosion->Checked;
         Label60->Caption = "Deactivate \"Runoff only\" calculation on Start screen";
 //        CheckMapsEnabled();
+
+        // DIsplaymaps
+        GroupDisplayMap->Items->DelimitedText = DisplayMapItems;
+        Panel5->Height = 230;
+        if (CheckNoErosion->Checked)
+        {
+           GroupDisplayMap->Items->Delete(4);
+           GroupDisplayMap->Items->Delete(4);
+           GroupDisplayMap->Items->Delete(4);
+           GroupDisplayMap->Items->Delete(4);
+           GroupDisplayMap->Items->Delete(4);
+           Panel5->Height = 120;
+        }
+   }
 }
 //---------------------------------------------------------------------------
 AnsiString __fastcall TLisIFace::CheckDir(AnsiString Comment, AnsiString dir)
@@ -538,7 +590,7 @@ AnsiString __fastcall TLisIFace::CheckDir(AnsiString Comment, AnsiString dir)
 //VJ 030626 changed
       if (dir.c_str()[dir.Length()-1] != '\\')
          dir=dir+"\\";
-//VJ 080613 added expandfilename         
+//VJ 080613 added expandfilename
       dir = ExtractFileDir(ExpandFileName(dir));
       if (dir.c_str()[dir.Length()-1] != '\\')
          dir=dir+"\\";
@@ -656,7 +708,7 @@ void __fastcall TLisIFace::GetDirEdit(TEdit *E)
      E->Text = DirView->DirectoryListBox->Directory;
 */
      if (E->Text.IsEmpty())
-         JvGetDirDialog->Directory = (AnsiString)workdir;
+        JvGetDirDialog->Directory = (AnsiString)workdir;
      else
          JvGetDirDialog->Directory = E->Text;
      JvGetDirDialog->Execute();
@@ -716,19 +768,6 @@ void __fastcall TLisIFace::LoadResultDirClick(TObject *Sender)
 void __fastcall TLisIFace::E_InfilMethodClick(TObject *Sender)
 {
      ResetInfil();
-}
-//---------------------------------------------------------------------------
-void __fastcall TLisIFace::EraseListButtonClick(TObject *Sender)
-{
-   if (!LisemRun)// || done)
-   {
-       ResetIFace();
-       //RunFileButton->Caption = "Show active";
-   }
-   else
-      Application->MessageBox("Cannot apply changes while running, stop first!",
-       "LISEM Warning", MB_OK+MB_ICONWARNING);
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TLisIFace::GetMapname(TStrings *S)
@@ -982,7 +1021,7 @@ void __fastcall TLisIFace::CheckWheelAsChannelModel()
    MapsWheeltrack->Enabled = CheckWheelAsChannel;
    CheckMapsEnabled();
    if (CheckWheelAsChannel)
-      Panel4->Caption = "Wheeltrack and Chan. erosion";
+      Label93->Caption = "Wheeltrack and Chan. erosion";
 }
 //---------------------------------------------------------------------------
 
@@ -1035,7 +1074,7 @@ void __fastcall TLisIFace::MapsInfilMorelDblClick(TObject *Sender)
 void __fastcall TLisIFace::CheckInfilGrassClick(TObject *Sender)
 {
     MapsInfilExtra->Visible = CheckInfilGrass->Checked;
-    E_ManningsNGrass->Enabled = CheckInfilGrass->Checked;
+    CalibrateGrassN->Enabled = CheckInfilGrass->Checked;
     Label44->Enabled = CheckInfilGrass->Checked;
 }
 
@@ -1074,7 +1113,9 @@ void __fastcall TLisIFace::MapsNutsBDDblClick(TObject *Sender)
 void __fastcall TLisIFace::E_MapDirDblClick(TObject *Sender)
 {
 //VJ 030626 changed behaviour
-     DoMapDir(true, false);
+//     DoMapDir(true, false);
+//VJ 100202 do not understand!!!
+       DoMapDir(true, true);
 /*
      E_MapDir->Text = CheckDir("Map Directory",E_MapDir->Text);
      if (OldMapDir != E_MapDir->Text && E_MapDir->Text != "DIR_NOT_EXIST")
@@ -1139,7 +1180,7 @@ void __fastcall TLisIFace::E_WorkdirKeyPress(TObject *Sender, char &Key)
 void __fastcall TLisIFace::DoMapDir(bool CheckName, bool CheckForce)
 {
    int res = 0;
-    if (CheckName)
+    if (CheckName)  // checkname: if true do NOT replace names with defaults
     {
     if (OldMapDir != E_MapDir->Text)
        res = Application->MessageBox("Caution: new map Directory name added to old mapnames","LISEM message",MB_OKCANCEL+MB_ICONEXCLAMATION);
@@ -1154,7 +1195,22 @@ void __fastcall TLisIFace::DoMapDir(bool CheckName, bool CheckForce)
      {
         ForceMapdir = CheckForce;
         CheckAdjustMapDirectoryName = CheckName;
-        InitMapNames();
+        if (CheckName)
+        {
+           for (int i = 0; i < ComponentCount; i++)
+           if (Components[i]->Name.SubString(0,4) == "Maps" &&
+               Components[i]->Name.SubString(0,10) != "MapsOutput")
+           {
+             TStringGrid* S =(TStringGrid *)LisIFace->Components[i];
+             for (int j = 1; j < S->RowCount; j++)
+             {
+               S->Cells[4][j] = E_MapDir->Text + S->Cells[1][j];
+               S->Cells[3][j] = E_MapDir->Text;
+             }
+           }
+         }
+        else
+         InitMapNames();
      }
      if (E_MapDir->Text == "DIR_NOT_EXIST")
         E_MapDir->Text = OldMapDir;
@@ -1171,6 +1227,7 @@ void __fastcall TLisIFace::E_ResultDirExit(TObject *Sender)
 void __fastcall TLisIFace::E_MapDirExit(TObject *Sender)
 {
         E_MapDirDblClick(Sender);
+        // needed to rpevent user from being able to give wrong path
 }
 //---------------------------------------------------------------------------
 
@@ -1198,6 +1255,10 @@ void __fastcall TLisIFace::CheckBuffersClick(TObject *Sender)
    Label55->Visible = CheckBuffers->Checked;
    MapsBuffers->Visible = CheckBuffers->Checked;
  //  CheckSedtrap->Checked = !CheckBuffers->Checked;
+
+   Label57->Enabled = CheckBuffers->Checked;
+   E_SedBulkDensity->Enabled = CheckBuffers->Checked;
+
    //output screen
    Label61->Enabled = CheckBuffers->Checked;
    Label63->Enabled = CheckBuffers->Checked;
@@ -1238,8 +1299,8 @@ void __fastcall TLisIFace::CheckChannelBaseflowClick(TObject *Sender)
 //VJ 080614 why?????
     if (!CheckIncludeChannel->Checked)
        CheckChannelBaseflow->Checked = false;
- //   if (CheckChannelBaseflow->Checked)
-   //    CheckChannelInfil->Checked = false;
+    if (CheckChannelBaseflow->Checked)
+       CheckChannelInfil->Checked = false;
     MapsChannelBaseflow->Visible = CheckChannelBaseflow->Checked && CheckIncludeChannel->Checked;
 }
 //---------------------------------------------------------------------------
@@ -1247,11 +1308,11 @@ void __fastcall TLisIFace::CheckChannelBaseflowClick(TObject *Sender)
 void __fastcall TLisIFace::CheckChannelInfilClick(TObject *Sender)
 {
 //VJ 080412 baseflow is mutually exclusive with infil
-//VJ 080616 why??????
+//VJ 080616 why?????? because baseflow adds water it makes no sense to subtract it again
     if (!CheckIncludeChannel->Checked)
        CheckChannelInfil->Checked = false;
- //   if (CheckChannelInfil->Checked)
-   //    CheckChannelBaseflow->Checked = false;
+   if (CheckChannelInfil->Checked)
+       CheckChannelBaseflow->Checked = false;
     MapsChannelinfil->Visible = CheckChannelInfil->Checked && CheckIncludeChannel->Checked;
 }
 //---------------------------------------------------------------------------
@@ -1419,21 +1480,703 @@ void __fastcall TLisIFace::ToolButtonHintClick(TObject *Sender)
    HintForm->Close();
 }
 //---------------------------------------------------------------------------
-
-
 void __fastcall TLisIFace::CheckWritePCRtimeplotClick(TObject *Sender)
 {
    if(CheckWritePCRtimeplot->Checked)
+   {
    CheckSOBEKOutput->Checked = false;
-
+   }
+   if(CheckWritePCRtimeplot->Checked)
+     CheckRunoffPerM->Enabled = true;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TLisIFace::CheckSOBEKOutputClick(TObject *Sender)
 {
+
    if(CheckSOBEKOutput->Checked)
+   {
    CheckWritePCRtimeplot->Checked = false;
+   }
+
+   SOBEKDateString->Enabled = CheckSOBEKOutput->Checked;
+   CheckRunoffPerM->Enabled = !CheckSOBEKOutput->Checked;
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::DrawMapandLegend()
+{
+    if (SwitchDisplayMaps)
+    {
+        CsfMap->c1 = Pdraw[0].c;
+        CsfMap->r1 = Pdraw[0].r;
+        CsfMap->c2 = Pdraw[1].c;
+        CsfMap->r2 = Pdraw[1].r;
+
+        CsfMap->Title = GroupDisplayMap->Items->Strings[GroupDisplayMap->ItemIndex];
+        CsfMap->DrawMapLegend();
+        CsfMap->DrawMap();
+        // fill screen bmps with data
+
+        Draw();
+        //blit bmps to screen
+//        ShowCellInfo(X, Y);
+    }
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::EraseScreen()
+{
+    MapImage->Canvas->Brush->Color = clBtnFace;
+    MapImage->Canvas->Brush->Style = bsSolid;
+    MapImage->Canvas->FillRect(Rect(0, 0, ScrollImage->Width, ScrollImage->Height));
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::Draw()
+{
+    //blit bmps to screen
+    if (CsfMap && CsfMap->Created)
+    {
+       MapImage->Canvas->Draw(0, 0, CsfMap->bmp);
+       LegendBox->Canvas->Draw(0, 0, CsfMap->bmpleg);
+    }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::StartDrawMap(MEM_HANDLE *M, double timestep)
+{
+       bool start = false;
+
+       if (timestep < 0)
+       {
+          CleanUpAll();
+          if (CsfMap == NULL)
+             CsfMap = new TMapDraw(this);
+          if (CsfMap == NULL)
+             Application->MessageBox("Could not reserve enough memory","MapEdit error",MB_OK);
+          start = true;
+       }
+       // get the map and create necessary aux maps
+       CsfMap->LoadFromFile(M, start);
+       if (ToolButtonClassType->Down)
+       CsfMap->ClassType = 1;
+       else
+       CsfMap->ClassType = 0;
+       // classify map to show
+       CsfMap->Classify();
+
+       // save for drawing options
+       oldClassMinV = ClassMinV = CsfMap->MinV;
+       oldClassMaxV = ClassMaxV = CsfMap->MaxV;
+
+
+       MapImage->Width = ScrollImage->Width;
+       MapImage->Height = ScrollImage->Height;
+
+       //set bitmap size
+       CsfMap->bmp->Width = ScrollImage->Width;
+       CsfMap->bmp->Height = ScrollImage->Height;
+
+       CsfMap->bmpleg->Width = LegendBox->Width;
+       CsfMap->bmpleg->Height = LegendBox->Height;
+
+       // draw it on the csfmap->bitmap
+       CsfMap->backgroundcolor = clWhite;//LMDColorEdit1->SelectedColor;
+
+
+       if (timestep < 0)
+       {
+          Pdraw[0].c = 0;
+          Pdraw[0].r = 0;
+          Pdraw[1].c = CsfMap->nrCols;
+          Pdraw[1].r = CsfMap->nrRows;
+       }
+
+       DrawMapandLegend();
+      // ShowCellInfo(Mouse->CursorPos.x, Mouse->CursorPos.y);
+
+    if (ToolButton3->Down && CsfMap && CsfMap->Created && LisemRun)
+    {
+        DumpScreenMaps();
+    }
+
+//check when xooming?????????????       
+       MapWidth = CsfMap->bmp->Width;
+       MapHeight = CsfMap->bmp->Height;
+       ScrollImage->HorzScrollBar->Range = MapWidth;
+       ScrollImage->VertScrollBar->Range = MapHeight;
+       ScrollImage->HorzScrollBar->Visible = false;
+       ScrollImage->VertScrollBar->Visible = false;
+
+      // InitAllEditing();   ???? init ZOOM ???
+
+}
+//---------------------------------------------------------------------
+void __fastcall TLisIFace::CleanUpAll()
+{
+  if (CsfMap)
+  {
+     // this takes care of all the map cleaning via the destructors
+     delete CsfMap;
+     CsfMap = NULL;
+  }
+}
+//---------------------------------------------------------------------
+
+
+
+void __fastcall TLisIFace::PageControlChange(TObject *Sender)
+{
+   if (PageControl->ActivePage == TabSheetDrawmap)
+      LisIFace->MapImagePaint(Sender);
+}
+
+//---------------------------------------------------------------------------
+
+
+void __fastcall TLisIFace::MapImagePaint(TObject *Sender)
+{
+   Draw();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonGridClick(TObject *Sender)
+{
+  if (CsfMap && CsfMap->Created)
+  {
+      CsfMap->ShowGrid = ToolButtonGrid->Down;
+      DrawMapandLegend();
+  }
+  else
+      ToolButtonGrid->Down=false;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonPaletteMouseDown(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+    if (CsfMap && CsfMap->Created)
+    {
+       if (Shift.Contains(ssCtrl))
+       {
+          CsfMap->ReversePalette();
+       }
+       else
+       {
+        CsfMap->PaletteNr++;
+        CsfMap->PaletteNr = CsfMap->PaletteNr % 4;
+       }
+       DrawMapandLegend();
+    }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonNrClassClick(TObject *Sender)
+{
+   CsfMap->NrClasses ++;
+   CsfMap->NrClasses /= 2;
+   if (CsfMap->NrClasses < 4) CsfMap->NrClasses = MAXCLASS;
+   CsfMap->Classify();
+   DrawMapandLegend();
+   Draw();
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TLisIFace::ToolButtonZoominClick(TObject *Sender)
+{
+  if (CsfMap && CsfMap->Created)
+  {
+     zoomin = ToolButtonZoomin->Down;
+     ToolButtonZoom0->Down = false;
+     ToolButtonZoomout->Down = false;
+   }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonZoomoutClick(TObject *Sender)
+{
+  if (CsfMap && CsfMap->Created)
+  {
+    ToolButtonZoomin->Down = false;
+    ToolButtonZoom0->Down = false;
+    zoomin = ToolButtonZoomin->Down;
+
+    int dr = Pdraw[1].r - Pdraw[0].r;
+    int dc = Pdraw[1].c - Pdraw[0].c;
+
+    if (Pdraw[0].c == 0 &&
+        Pdraw[0].r == 0 &&
+        Pdraw[1].c == CsfMap->nrCols &&
+        Pdraw[1].r == CsfMap->nrRows)
+    return;
+
+    Pdraw[0].c -= dc;
+    Pdraw[0].r -= dr;
+    Pdraw[1].c += dc;
+    Pdraw[1].r += dr;
+
+    Pdraw[0].c = max(0, Pdraw[0].c);
+    Pdraw[0].r = max(0, Pdraw[0].r);
+    Pdraw[1].c = min(CsfMap->nrCols, Pdraw[1].c);
+    Pdraw[1].r = min(CsfMap->nrRows, Pdraw[1].r);
+
+    DrawMapandLegend();
+  }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonZoom0Click(TObject *Sender)
+{
+  if (CsfMap && CsfMap->Created)
+  {
+    if (Pdraw[1].r - Pdraw[0].r == CsfMap->nrRows &&
+        Pdraw[1].c - Pdraw[0].c == CsfMap->nrCols)
+       return;
+
+    ToolButtonZoomin->Down = false;
+    ToolButtonZoomout->Down = false;
+    zoomin = ToolButtonZoomin->Down;
+
+
+    Pdraw[0].c = 0;
+    Pdraw[0].r = 0;
+    Pdraw[1].c = CsfMap->nrCols;
+    Pdraw[1].r = CsfMap->nrRows;
+
+    DrawMapandLegend();
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::MapImageMouseDown(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+ ButtonPauseprogClick(Sender);
+ if (CsfMap && CsfMap->Created && zoomin)
+  {
+      ShowCellInfo(X, Y);
+
+      MapImage->Canvas->Brush->Style = bsClear;
+      MapImage->Canvas->Pen->Width = 1;
+      MapImage->Canvas->Pen->Color = clBlack;
+      MapImage->Canvas->Pen->Style = psDot;
+      MapImage->Canvas->Pen->Mode = pmNotXor;
+
+    if (Shift.Contains(ssLeft))
+    {
+        Pdraw[0].x = X;
+        Pdraw[0].y = Y;
+        Pdraw[1].x = X + CsfMap->CellInfo.dx;
+        Pdraw[1].y = Y + CsfMap->CellInfo.dy;
+
+        MapImage->Canvas->Rectangle(Pdraw[0].x, Pdraw[0].y, Pdraw[1].x, Pdraw[1].y);
+    }
+
+    if (Shift.Contains(ssRight))
+    {
+         Pzoom.x = X;
+         Pzoom.y = Y;
+         Screen->Cursor = TCursor(crHandPoint);
+    }
+
+  } //if CsfMap
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::MapImageMouseMove(TObject *Sender,
+      TShiftState Shift, int X, int Y)
+{
+
+  if (CsfMap && CsfMap->Created && zoomin)
+  {
+      ShowCellInfo(X, Y);
+      if (Shift.Contains(ssLeft))
+      {
+         MapImage->Canvas->Rectangle(Pdraw[0].x, Pdraw[0].y, Pdraw[1].x, Pdraw[1].y);
+          if (X == -1 && Y == -1)
+          {
+              Pdraw[1].x = Pdraw[0].x + CsfMap->CellInfo.dx;
+              Pdraw[1].y = Pdraw[0].y + CsfMap->CellInfo.dy;
+          }
+          else
+          {
+              Pdraw[1].x = X;
+              Pdraw[1].y = Y;
+          }
+          MapImage->Canvas->Rectangle(Pdraw[0].x, Pdraw[0].y, Pdraw[1].x, Pdraw[1].y);
+      }
+  } //CsfMap
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::MapImageMouseUp(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+  if (CsfMap && CsfMap->Created && zoomin)
+  {
+    ShowCellInfo(X, Y);
+    if (Button== mbLeft)// Shift.Contains(ssLeft))
+    {
+        MapImage->Canvas->Rectangle(Pdraw[0].x, Pdraw[0].y,
+                                    Pdraw[1].x, Pdraw[1].y);
+          if (X == -1 && Y == -1)
+          {
+              Pdraw[1].x = Pdraw[0].x + CsfMap->CellInfo.dx;
+              Pdraw[1].y = Pdraw[0].y + CsfMap->CellInfo.dy;
+          }
+          else
+          {
+              Pdraw[1].x = X;
+              Pdraw[1].y = Y;
+          }
+        GetSelection();
+        MapImage->Canvas->Rectangle(Pdraw[0].x, Pdraw[0].y,
+                                    Pdraw[1].x, Pdraw[1].y);
+        DrawMapandLegend();
+        ToolButtonZoomin->Down = false;
+        zoomin = false;
+
+    }
+
+    if (Button == mbRight)
+    {
+           Pzoom.x = Pzoom.x-X;
+           Pzoom.y = Pzoom.y-Y;
+
+           Pdraw[0].c += (int)(double)Pzoom.x/CsfMap->CellInfo.dx;
+           Pdraw[0].r += (int)(double)Pzoom.y/CsfMap->CellInfo.dy;
+           Pdraw[1].c += (int)(double)Pzoom.x/CsfMap->CellInfo.dx;
+           Pdraw[1].r += (int)(double)Pzoom.y/CsfMap->CellInfo.dy;
+           if (Pdraw[1].r > CsfMap->nrRows)
+           {
+               Pdraw[0].r += CsfMap->nrRows-Pdraw[1].r;
+               Pdraw[1].r = CsfMap->nrRows;
+           }
+           if (Pdraw[0].r < 0)
+           {
+               Pdraw[1].r += -Pdraw[0].r;
+               Pdraw[0].r = 0;
+           }
+           if (Pdraw[1].c > CsfMap->nrCols)
+           {
+               Pdraw[0].c += CsfMap->nrCols-Pdraw[1].c;
+               Pdraw[1].c = CsfMap->nrCols;
+           }
+           if (Pdraw[0].c < 0)
+           {
+               Pdraw[1].c += -Pdraw[0].c;
+               Pdraw[0].c = 0;
+           }
+           Screen->Cursor = TCursor(crArrow);
+           DrawMapandLegend();
+
+    }
+    ButtonRunprogClick(Sender);
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::ShowCellInfo(int X, int Y)
+{
+    char buff[255];
+    String S;
+
+    CsfMap->GetCellInfo(X, Y);
+
+    sprintf(buff," X,Y[%8.1f,%8.1f]   col,row[%3d,%3d] ",
+                  CsfMap->CellInfo.X,
+                  CsfMap->CellInfo.Y,
+                  CsfMap->CellInfo.c,
+                  CsfMap->CellInfo.r);
+    S = buff;
+    if (!CsfMap->CellInfo.MV)
+    {
+       sprintf(buff,"value => %g",CsfMap->CellInfo.V);
+       S += buff;
+    }
+    else
+       S += " => missing";
+
+    StatusBar1->SimpleText = S;
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::GetSelection()
+{
+    int X, Y, i, r, c;
+    double dx, dy;
+    EPoint minv, maxv;
+    EPoint EP[2];
+
+    memcpy(EP, Pdraw, 8*sizeof(int));
+
+    // find edit rectangle rounded to whole rows and cols
+
+    //x and y are pixel coordinates in bitmap
+    minv = EP[0]; //init min and max
+    maxv = EP[1];
+    minv.x = min(EP[0].x, EP[1].x);
+    minv.y = min(EP[0].y, EP[1].y);
+    maxv.x = max(EP[0].x, EP[1].x);
+    maxv.y = max(EP[0].y, EP[1].y);
+    EP[0] = minv;
+    EP[1] = maxv;
+    dx = CsfMap->CellInfo.dx;
+    dy = CsfMap->CellInfo.dy;
+
+    CsfMap->GetCellInfo(EP[0].x, EP[0].y);
+    EP[0].r = CsfMap->CellInfo.r;
+    EP[0].c = CsfMap->CellInfo.c;
+    EP[0].x = (EP[0].c-CsfMap->c1)*dx;
+    EP[0].y = (EP[0].r-CsfMap->r1)*dy;
+    CsfMap->GetCellInfo(EP[1].x, EP[1].y);
+    EP[1].r = CsfMap->CellInfo.r;
+    EP[1].c = CsfMap->CellInfo.c;
+    EP[1].x = (EP[1].c-CsfMap->c1+1)*dx;
+    EP[1].y = (EP[1].r-CsfMap->r1+1)*dy;
+
+    memcpy(Pdraw, EP, 8*sizeof(int));
 
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButtonDisplayClick(TObject *Sender)
+{
+   SwitchDisplayMaps = ToolButtonDisplay->Down;
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::GroupDisplayMapClick(TObject *Sender)
+{
+    //SwitchDisplayMaps = true;
+    switch (LisIFace->GroupDisplayMap->ItemIndex)
+    {
+     case 0: CsfMap->PaletteNr = 1; break; //CsfMap->ClassType = 0; break;
+     case 1: CsfMap->PaletteNr = 1; break; //CsfMap->ClassType = 0; break;
+     case 2: CsfMap->PaletteNr = 1; break; //CsfMap->ClassType = 0; break;
+     case 3: CsfMap->PaletteNr = 1; break; //CsfMap->ClassType = 0; break;
+     case 4: CsfMap->PaletteNr = 2; break; //CsfMap->ClassType = 1; break;
+     case 5: CsfMap->PaletteNr = 2; break; //CsfMap->ClassType = 1; break;
+     case 6: CsfMap->PaletteNr = 2; break; //CsfMap->ClassType = 1; break;
+     case 7: CsfMap->PaletteNr = 0; break; //CsfMap->ClassType = 1; break;
+     case 8: CsfMap->PaletteNr = 0; break; //CsfMap->ClassType = 1; break;
+//     case 9: SwitchDisplayMaps = false;
+   }
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::E_OutputUnitsClick(TObject *Sender)
+{
+   switch (E_OutputUnits->ItemIndex)
+   {
+     case 0 :
+      GroupDisplayMap->Items->Strings[4] = "Soil Loss (ton/ha)";
+      GroupDisplayMap->Items->Strings[5] = "Detachment (ton/ha)";
+      GroupDisplayMap->Items->Strings[6] = "Deposition (ton/ha)";
+      break;
+     case 1 :
+      GroupDisplayMap->Items->Strings[4] = "Soil Loss (kg/m2)";
+      GroupDisplayMap->Items->Strings[5] = "Detachment (kg/m2)";
+      GroupDisplayMap->Items->Strings[6] = "Deposition (kg/m2)";
+      break;
+     case 2 :
+      GroupDisplayMap->Items->Strings[4] = "Soil Loss (kg/cell)";
+      GroupDisplayMap->Items->Strings[5] = "Detachment (kg/cell)";
+      GroupDisplayMap->Items->Strings[6] = "Deposition (kg/cell)";
+      break;
+   }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::KillDrawMapStructure()
+{
+    if (CsfMap && CsfMap->Created)
+    {
+        CsfMap->KillDrawMap();
+        CsfMap->KillMap();
+        CsfMap = NULL;
+    }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::ToolButton1Click(TObject *Sender)
+{
+   if (!LisemRun)// || done)
+   {
+       ResetIFace();
+       //RunFileButton->Caption = "Show active";
+   }
+   else
+      Application->MessageBox("Cannot apply changes while running, stop first!",
+       "LISEM Warning", MB_OK+MB_ICONWARNING);
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::DumpScreenMaps()
+{
+//        PageControl->ActivePage = TabSheetDrawmap;
+
+        try{
+          TJPEGImage *J = new TJPEGImage;
+          Graphics::TBitmap *bmpj = new Graphics::TBitmap();
+          bmpj->Height = CsfMap->bmp->Height;
+          bmpj->Width = CsfMap->bmp->Width + CsfMap->bmpleg->Width;
+
+
+       bmpj->Canvas->Draw(0, 0, CsfMap->bmpleg);
+       bmpj->Canvas->Draw(CsfMap->bmpleg->Width+1, 0, CsfMap->bmp);
+
+          J->Assign(bmpj);//GetFormImage());
+
+          AnsiString savename = ExtractFileName(RunFilename);
+          savename.Delete(savename.Length() - 3, 4);
+          if (!E_ResultDir->Text.IsDelimiter("\\/",E_ResultDir->Text.Length()))
+            E_ResultDir->Text = E_ResultDir->Text + "\\";
+          MapdumpFilename = ExtractFilePath(E_ResultDir->Text)+savename+"_"+LisemRun->StepCounter+".jpg";
+
+          J->SaveToFile(MapdumpFilename);
+          delete J;
+          delete bmpj;
+        }catch(...)
+        {
+           CheckError("Could not make jpeg");
+           ToolButton3->Down = false;
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::ToolButton3Click(TObject *Sender)
+{
+    if (!ToolButtonDisplay->Down)
+       ToolButton3->Down = false;
+}
+//---------------------------------------------------------------------------
+void __fastcall TLisIFace::E_ClassifyMaxCheckClick(TObject *Sender)
+{
+    if (CsfMap && CsfMap->Created && !E_ClassifyMax->Text.IsEmpty())
+    {
+      CsfMap->DoUserMax = E_ClassifyMax->Checked;
+      CsfMap->UserMax = E_ClassifyMax->Text.ToDouble();
+      if (ToolButtonClassType->Down && CsfMap->UserMax <= 0)
+      {
+          CsfMap->UserMax = 1.0;
+          E_ClassifyMax->Text = "1.0";
+      }
+
+    }
+    else
+    E_ClassifyMax->Checked = false;
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::E_ClassifyMaxChange(TObject *Sender)
+{
+    if (CsfMap && CsfMap->Created && !E_ClassifyMax->Text.IsEmpty() && E_ClassifyMax->Checked)
+    {
+      CsfMap->DoUserMax = E_ClassifyMax->Checked;
+      CsfMap->UserMax = E_ClassifyMax->Text.ToDouble();
+    }
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TLisIFace::CheckInterceptionLAIClick(TObject *Sender)
+{
+   E_InterceptionLAIType->Enabled = CheckInterceptionLAI->Checked;
+}
+//---------------------------------------------------------------------------
+/*
+void __fastcall TLisIFace::CalibrateKsatChange(TObject *Sender)
+{
+     TColor ccc = clWindowText;
+     if (CalibrateKsat->Value != 1.0)
+        ccc = clRed;
+     if ((CalibrateKsat->Value == 1.0)
+          && (CalibrateN->Value == 1.0)
+          && (CalibrateChKsat->Value == 1.0)
+          && (CalibrateChN->Value == 1.0)
+          && (CalibrateSplashDelivery->Value == 0.1))
+         LookOutPage4->Font->Color = clWindowText;
+         else
+         LookOutPage4->Font->Color = clRed;
+
+     CalibrateKsat->Font->Color = ccc;
+     LookOutPage4->Repaint();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CalibrateNChange(TObject *Sender)
+{
+     TColor ccc = clWindowText;
+     if (CalibrateN->Value != 1.0)
+        ccc = clRed;
+     if ((CalibrateKsat->Value == 1.0)
+          && (CalibrateN->Value == 1.0)
+          && (CalibrateChKsat->Value == 1.0)
+          && (CalibrateChN->Value == 1.0)
+          && (CalibrateSplashDelivery->Value == 0.1))
+         LookOutPage4->Font->Color = clWindowText;
+         else
+         LookOutPage4->Font->Color = clRed;
+
+     CalibrateN->Font->Color = ccc;
+     LookOutPage4->Repaint();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CalibrateChKsatChange(TObject *Sender)
+{
+     TColor ccc = clWindowText;
+     if (CalibrateChKsat->Value != 1.0)
+        ccc = clRed;
+     if ((CalibrateKsat->Value == 1.0)
+          && (CalibrateN->Value == 1.0)
+          && (CalibrateChKsat->Value == 1.0)
+          && (CalibrateChN->Value == 1.0)
+          && (CalibrateSplashDelivery->Value == 0.1))
+         LookOutPage4->Font->Color = clWindowText;
+         else
+         LookOutPage4->Font->Color = clRed;
+
+     CalibrateChKsat->Font->Color = ccc;
+     LookOutPage4->Repaint();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CalibrateChNChange(TObject *Sender)
+{
+     TColor ccc = clWindowText;
+     if (CalibrateChN->Value != 1.0)
+        ccc = clRed;
+     if ((CalibrateKsat->Value == 1.0)
+          && (CalibrateN->Value == 1.0)
+          && (CalibrateChKsat->Value == 1.0)
+          && (CalibrateChN->Value == 1.0)
+          && (CalibrateSplashDelivery->Value == 0.1))
+         LookOutPage4->Font->Color = clWindowText;
+         else
+         LookOutPage4->Font->Color = clRed;
+
+
+     CalibrateChN->Font->Color = ccc;
+     LookOutPage4->Repaint();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TLisIFace::CalibrateSplashDeliveryChange(TObject *Sender)
+{
+     TColor ccc = clWindowText;
+     if (CalibrateSplashDelivery->Value != 0.1)
+        ccc = clRed;
+
+     if ((CalibrateKsat->Value == 1.0)
+          && (CalibrateN->Value == 1.0)
+          && (CalibrateChKsat->Value == 1.0)
+          && (CalibrateChN->Value == 1.0)
+          && (CalibrateSplashDelivery->Value == 0.1))
+         LookOutPage4->Font->Color = clWindowText;
+         else
+         LookOutPage4->Font->Color = clRed;
+
+
+     CalibrateSplashDelivery->Font->Color = ccc;
+     LookOutPage4->Repaint();
+}
+*/
+//---------------------------------------------------------------------------
+
+
 

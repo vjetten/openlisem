@@ -70,7 +70,6 @@
       		ChanNutPSusQout,ChanNutNH4SusQout,ChanNutNO3SusQout,ChanNutPSolQout,ChanNutNH4SolQout,ChanNutNO3SolQout,
       		ChanNutPSusQin,ChanNutNH4SusQin,ChanNutNO3SusQin,ChanNutPSolQin,ChanNutNH4SolQin,ChanNutNO3SolQin,
            	ChannelLDD, ChannelAlpha, ChannelBeta, DTSEC, DXc, EPSILON);
-//VJ 051005 changed DXc back to DXx        
 
        calc(" ChanNutPOutflow    = sum(mif(Outlet1 eq 1, ChanNutPSusQout  , 0))");  
        calc(" ChanNutNH4Outflow  = sum(mif(Outlet1 eq 1, ChanNutNH4SusQout, 0))"); 

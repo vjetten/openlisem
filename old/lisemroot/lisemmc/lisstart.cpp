@@ -3,7 +3,7 @@
 #pragma hdrstop
 #include <process.h>
 
-#include "lisstart.h"
+//#include "lisstart.h"
 #include "iface.h"
 
 

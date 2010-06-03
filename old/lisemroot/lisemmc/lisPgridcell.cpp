@@ -22,7 +22,7 @@
       {
          calc(" WheelWidthDX = cover(max(DX-RoadWidthDX-ChannelWidthUpDX,0)/DX*WheelWidth,0) ");
       }
-      calc(" StoneWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX,0)*StoneFraction ");
+      calc(" StoneWidthDX = 0");// max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX,0)*StoneFraction ");
       calc(" SoilWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX-StoneWidthDX,0) ");
 
 

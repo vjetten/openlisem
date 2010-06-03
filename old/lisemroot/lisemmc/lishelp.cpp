@@ -2,7 +2,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "lishelp.h"
+//#include "lishelp.h"
 #include "iface.h"
 
 

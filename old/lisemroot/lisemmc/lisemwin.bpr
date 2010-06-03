@@ -6,7 +6,8 @@
     <PROJECT value="lisemwin.exe"/>
     <OBJFILES value="lisemwin.obj iface.obj lisstart.obj lisscreenoutput.obj lishelp.obj 
       lisabout.obj Lismain.obj lisrunf.obj lisrainf.obj lisrunfile.obj 
-      lismapnames.obj ifaceinit.obj ifacethread.obj lishint.obj"/>
+      lismapnames.obj ifaceinit.obj ifacethread.obj lishint.obj CsfMap.obj 
+      CsfMapDraw.obj"/>
     <RESFILES value="lisemwin.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -16,12 +17,14 @@
     <LIBFILES value="..\libsrc\cps\cps_bcb.lib ..\libsrc\swa\swa_bcb.lib 
       ..\libsrc\lmisc\misc_bcb.lib ..\libsrc\lcalc\calc_bcb.lib 
       ..\libsrc\libcsf\src\csf_bcb.lib"/>
-    <LIBRARIES value="JvDlgsC6R.lib JvSystemC6R.lib JvStdCtrlsC6R.lib JvCustomC6R.lib Jcl.lib 
-      JclVcl.lib JvCoreC6R.lib tee.lib nmfast.lib qrpt.lib vcljpg.lib dclocx.lib 
-      vclx.lib bcbsmp.lib bdertl.lib vcldb.lib dbrtl.lib vcl.lib rtl.lib"/>
+    <LIBRARIES value="JvAppFrmC6R.lib JvMMC6R.lib JvCtrlsC6R.lib JvDlgsC6R.lib JvSystemC6R.lib 
+      JvStdCtrlsC6R.lib JvCustomC6R.lib Jcl.lib JclVcl.lib JvCoreC6R.lib tee.lib 
+      nmfast.lib qrpt.lib vcljpg.lib dclocx.lib vclx.lib bcbsmp.lib bdertl.lib 
+      vcldb.lib dbrtl.lib vcl.lib rtl.lib"/>
     <SPARELIBS value="rtl.lib vcl.lib dbrtl.lib vcldb.lib bdertl.lib bcbsmp.lib vclx.lib 
       dclocx.lib vcljpg.lib qrpt.lib nmfast.lib tee.lib JvCoreC6R.lib JclVcl.lib 
-      Jcl.lib JvCustomC6R.lib JvStdCtrlsC6R.lib JvSystemC6R.lib JvDlgsC6R.lib"/>
+      Jcl.lib JvCustomC6R.lib JvStdCtrlsC6R.lib JvSystemC6R.lib JvDlgsC6R.lib 
+      JvCtrlsC6R.lib JvMMC6R.lib JvAppFrmC6R.lib"/>
     <PACKAGES value="vclsmp.bpi rtl.bpi vcl.bpi vclx.bpi bcbsmp.bpi dclocx.bpi dbrtl.bpi 
       vcldb.bpi bdertl.bpi ibsmp.bpi"/>
     <PATHCPP value=".;"/>
@@ -34,8 +37,8 @@
     <USERDEFINES value="_DUMPVI;DUMP;_DEBUG"/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="lisemwin.cpp"/>
-    <INCLUDEPATH value="&quot;C:\Program Files\Borland\CBuilder6\Include&quot;;&quot;C:\Program Files\Borland\CBuilder6\Include\Vcl&quot;;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;&quot;C:\Program Files\Borland\CBuilder6\Projects\Lib&quot;;D:\prgc\lisemroot\include"/>
-    <LIBPATH value="D:\prgc\jvcj\jcl\lib\c6;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6;D:\prgc\jvcj\jvcl\resources"/>
+    <INCLUDEPATH value="&quot;C:\Program Files\Borland\CBuilder6\Include&quot;;&quot;C:\Program Files\Borland\CBuilder6\Include\Vcl&quot;;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;&quot;C:\Program Files\Borland\CBuilder6\Projects\Lib&quot;;..\include"/>
+    <LIBPATH value="&quot;..\..\JVCL339CompleteJCL211-Build3536\jvcl\lib\c6&quot;;..\..\mapedit;&quot;D:\prgc\JVCL339CompleteJCL211-Build3536\jcl\lib\c6&quot;;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;&quot;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\resources&quot;"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
     <OTHERFILES value=""/>
@@ -44,8 +47,8 @@
     <IDLCFLAGS value="-I&quot;C:\Program Files\Borland\CBuilder6\Include&quot; 
       -I&quot;C:\Program Files\Borland\CBuilder6\Include\Vcl&quot; 
       -I&quot;C:\Program Files\Borland\CBuilder6\Projects&quot; 
-      -I&quot;C:\Program Files\Borland\CBuilder6\Projects\Lib&quot; 
-      -ID:\prgc\lisemroot\include -src_suffix cpp -D_DUMPVI -DDUMP -D_DEBUG -boa"/>
+      -I&quot;C:\Program Files\Borland\CBuilder6\Projects\Lib&quot; -I..\include 
+      -src_suffix cpp -D_DUMPVI -DDUMP -D_DEBUG -boa"/>
     <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- -k -y 
       -v -vi- -c -tW -tWM"/>
     <PFLAGS value="-$Y+ -$W -$R -$O- -$A8 -v -M -JPHNE"/>
@@ -83,6 +86,8 @@
       <FILE FILENAME="..\libsrc\lcalc\calc_bcb.lib" FORMNAME="" UNITNAME="calc_bcb" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="..\libsrc\libcsf\src\csf_bcb.lib" FORMNAME="" UNITNAME="csf_bcb.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lishint.cpp" FORMNAME="HintForm" UNITNAME="lishint" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="CsfMap.cpp" FORMNAME="" UNITNAME="CsfMap" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="CsfMapDraw.cpp" FORMNAME="" UNITNAME="CsfMapDraw" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -115,59 +120,69 @@ ProductName=
 ProductVersion=1.0.0.0
 Comments=
 
+[Excluded Packages]
+c:\program files\borland\cbuilder6\Bin\dclite60.bpl=Borland Integrated Translation Environment
+
 [HistoryLists\hlIncludePath]
-Count=24
-Item0=C:\Program Files\Borland\CBuilder6\Include;C:\Program Files\Borland\CBuilder6\Include\Vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;D:\prgc\lisemroot\include
-Item1=$(BCB)\include;$(BCB)\include\vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;..\include
-Item2=$(BCB)\include;$(BCB)\include\vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;..\include;D:\prgc\lisemroot\include
-Item3=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item4=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;D:\prgc\lisemroot\include
-Item5=..\..;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item6=..\..;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
-Item7=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
-Item8=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
-Item9=$(BCB)\include;$(BCB)\include\vcl;..\include
-Item10=$(BCB)\include;$(BCB)\include\vcl;C:\lisem\lisemroot\include
-Item11=$(BCB)\include;$(BCB)\include\vcl;..\include;C:\lisem\lisemroot\include
-Item12=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item13=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item14=..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item15=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item16=..\..\CBuilder4\Projects;..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item17=..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item18=..\..\..\MemProof\CPP_NoVCL;..\libsrc\swa;..\csf;..\..\..\Common Files\Borland Shared\Images\Buttons;..\libsrc\lcalc;..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item19=..\libsrc\lcalc;..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item20=..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item21=..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item22=..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
-Item23=..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Count=26
+Item0=C:\Program Files\Borland\CBuilder6\Include;C:\Program Files\Borland\CBuilder6\Include\Vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;..\include
+Item1=..\..\mapedit;C:\Program Files\Borland\CBuilder6\Include;C:\Program Files\Borland\CBuilder6\Include\Vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;D:\prgc\lisemroot\include
+Item2=C:\Program Files\Borland\CBuilder6\Include;C:\Program Files\Borland\CBuilder6\Include\Vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;D:\prgc\lisemroot\include
+Item3=$(BCB)\include;$(BCB)\include\vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;..\include
+Item4=$(BCB)\include;$(BCB)\include\vcl;C:\Program Files\Borland\CBuilder6\Projects;C:\Program Files\Borland\CBuilder6\Projects\Lib;..\include;D:\prgc\lisemroot\include
+Item5=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item6=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;D:\prgc\lisemroot\include
+Item7=..\..;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item8=..\..;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
+Item9=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
+Item10=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Include
+Item11=$(BCB)\include;$(BCB)\include\vcl;..\include
+Item12=$(BCB)\include;$(BCB)\include\vcl;C:\lisem\lisemroot\include
+Item13=$(BCB)\include;$(BCB)\include\vcl;..\include;C:\lisem\lisemroot\include
+Item14=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item15=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item16=..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item17=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item18=..\..\CBuilder4\Projects;..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item19=..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item20=..\..\..\MemProof\CPP_NoVCL;..\libsrc\swa;..\csf;..\..\..\Common Files\Borland Shared\Images\Buttons;..\libsrc\lcalc;..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item21=..\libsrc\lcalc;..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item22=..\libsrc\lmisc;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item23=..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item24=..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
+Item25=..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\include;$(BCB)\include\vcl;..\include
 
 [HistoryLists\hlLibraryPath]
-Count=24
-Item0=D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6;D:\prgc\jvcj\jvcl\resources
-Item1=D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6
-Item2=..\..;..\..\JVCL33~2\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
-Item3=..\..\JVCL33~2\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
-Item4=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
-Item5=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj
-Item6=$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj
-Item7=$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
-Item8=$(BCB)\Projects\Lib;..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
-Item9=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
-Item10=..\..\CBuilder6\Bin;..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
-Item11=..\..\CBuilder6\Bin;..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
-Item12=..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
-Item13=..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
-Item14=$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
-Item15=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\lib;$(BCB)\lib\obj
-Item16=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\lib;$(BCB)\lib\obj;..\..\CBuilder4\Projects
-Item17=..\..\CBuilder4\Projects;..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item18=..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item19=..\..\..\MemProof\CPP_NoVCL;..\libsrc\swa;..\csf;..\..\..\Common Files\Borland Shared\Images\Buttons;..\libsrc\lcalc;..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item20=..\libsrc\lcalc;..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item21=..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item22=..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
-Item23=$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Count=29
+Item0=..\..\JVCL339CompleteJCL211-Build3536\jvcl\lib\c6;..\..\mapedit;D:\prgc\JVCL339CompleteJCL211-Build3536\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\resources
+Item1=..\..\JVCL339CompleteJCL211-Build3536\jvcl\lib\c6;..\..\mapedit;D:\prgc\JVCL339CompleteJCL211-Build3536\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\resources;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\lib\c6
+Item2=..\..\mapedit;D:\prgc\JVCL339CompleteJCL211-Build3536\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\resources;D:\prgc\JVCL339CompleteJCL211-Build3536\jvcl\lib\c6
+Item3=..\..\jvcj\jvcl\lib\c6;..\..\mapedit;D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\resources
+Item4=..\..\jvcj\jvcl\lib\c6;..\..\mapedit;D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6;D:\prgc\jvcj\jvcl\resources
+Item5=D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6;D:\prgc\jvcj\jvcl\resources
+Item6=D:\prgc\jvcj\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;D:\prgc\jvcj\jvcl\lib\c6
+Item7=..\..;..\..\JVCL33~2\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
+Item8=..\..\JVCL33~2\jcl\lib\c6;C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
+Item9=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\TeeChart Standard 705 for Builder 6\Builder6\Lib
+Item10=C:\Program Files\Borland\CBuilder6\Projects;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj
+Item11=$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj
+Item12=$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
+Item13=$(BCB)\Projects\Lib;..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
+Item14=..\..\CBuilder6\Bin;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;C:\Program Files\Borland\Projects\libsrc
+Item15=..\..\CBuilder6\Bin;..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
+Item16=..\..\CBuilder6\Bin;..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
+Item17=..\include;..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
+Item18=..\..\CBuilder6\Projects;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
+Item19=$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj
+Item20=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\lib;$(BCB)\lib\obj
+Item21=..\..\..\Common Files\Borland Shared\Images\Buttons;$(BCB)\lib;$(BCB)\lib\obj;..\..\CBuilder4\Projects
+Item22=..\..\CBuilder4\Projects;..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item23=..\..\..\MemProof\CPP_NoVCL;..\..\..\Common Files\Borland Shared\Images\Buttons;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item24=..\..\..\MemProof\CPP_NoVCL;..\libsrc\swa;..\csf;..\..\..\Common Files\Borland Shared\Images\Buttons;..\libsrc\lcalc;..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item25=..\libsrc\lcalc;..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item26=..\libsrc\lcsf;..\libsrc\lmisc;..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item27=..\bitmaps\simple;..\..\CBuilder4\Bin;$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
+Item28=$(BCB)\lib;$(BCB)\lib\obj;$(BCB)\libj;..\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=2
@@ -220,10 +235,5 @@ LinkCGLIB=0
 AddServerUnit=1
 AddClientUnit=1
 PrecompiledHeaders=1
-
-[Language]
-ActiveLang=
-ProjectLang=
-RootDir=
   </IDEOPTIONS>
 </PROJECT>

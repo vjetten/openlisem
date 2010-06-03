@@ -104,7 +104,7 @@ void __fastcall TLisIFace::InitMapNames()
 //VJ 050812: soildepth text indicated cm should be mm 
     int i = 1;
     int n = 0;
-    int w1 = 80, w2=80, w3=380;
+    int w1 = 80, w2=140, w3=380;
     SizeMapNames(MapsCatchment,w1,w2,w3);
  //   FillMapNames(MapsCatchment,i,"Area","area.map","Catchment area mask, boundary check for all other maps","area");i++;
     FillMapNames(MapsCatchment,i,"Gradient","grad.map","Slope gradient in direction of flow","grad");i++;
@@ -112,13 +112,14 @@ void __fastcall TLisIFace::InitMapNames()
 //    FillMapNames(MapsCatchment,i,"LDDtill","lddtill.map","Local Drain Direction network, tillage","lddtill");i++;
     FillMapNames(MapsCatchment,i,"Outlet","outlet.map","Main catchment outlet, corresponding to LDD map","outlet");i++;
     FillMapNames(MapsCatchment,i,"ID","id.map","Raingauge zone ID numbers","ID");i++;
-    FillMapNames(MapsCatchment,i,"OutPoint","outpoint.map","Reporting points for runoff (for cells with value > 0)","outpoint");i++;
+    FillMapNames(MapsCatchment,i,"OutPoint","outpoint.map","Reporting points (cells > 0) for runoff, main outlet must have value 1","outpoint");i++;
     n = i-1;
     i = 1;
     SizeMapNames(MapsLanduse,w1,w2,w3);
     FillMapNames(MapsLanduse,i,"Cover","per.map","Fraction surface cover by vegetation and residue","cover");i++;
     FillMapNames(MapsLanduse,i,"LAI","lai.map","Leaf area index of the plant cover in a gridcell (m2/m2)","lai");i++;
     FillMapNames(MapsLanduse,i,"Height","ch.map","Plant height (m)","ch");i++;
+    FillMapNames(MapsLanduse,i,"Smax","smax.map","Plant canopy storage (mm)","smax");i++;
     FillMapNames(MapsLanduse,i,"Road width","roadwidt.map","Width of impermeable roads (m)","road");i++;
     FillMapNames(MapsLanduse,i,"Grass strips","grasswid.map","Width of grass strips (m)","grasswidth");i++;
     n = n+i-1;
@@ -145,6 +146,7 @@ void __fastcall TLisIFace::InitMapNames()
     FillMapNames(MapsSurface,i,"Crust","crustfrc.map","Fraction of gridcell covered with Crust (-)","crustfrc");i++;
     FillMapNames(MapsSurface,i,"Compacted","compfrc.map","Fraction of gridcell compacted (-)","compfrc");i++;
     FillMapNames(MapsSurface,i,"Stoniness","stonefrc.map","Fraction of gridcell covered by stones (-)","stonefrc");i++;
+    FillMapNames(MapsSurface,i,"Hard Surface","hardsurf.map","no interc/infil/detach (1); normal surface (0), do not use for roads","hardsurf");i++;
     n = n+i-1;
     i = 1;
     SizeMapNames(MapsErosion,w1,w2,w3);
@@ -152,7 +154,6 @@ void __fastcall TLisIFace::InitMapNames()
     FillMapNames(MapsErosion,i,"Cohesion","cohadd.map","Extra cohesion factor by e.g. plant roots (kPa)","cohadd");i++;
     FillMapNames(MapsErosion,i,"Aggregates","aggrstab.map","Aggregate stability for splash erosion (-)","aggrstab");i++;
     FillMapNames(MapsErosion,i,"D50","d50.map","Median of the texture of the suspendeed matter (mu)","d50");i++;
-    FillMapNames(MapsErosion,i,"Hard Surface","hardsurf.map","non-erodible (=1) and erodible surface (=0)","hardsurf");i++;
     n = n+i-1;
     i = 1;
     SizeMapNames(MapsTexture,w1,w2,200);
@@ -318,7 +319,7 @@ void __fastcall TLisIFace::InitOutMapNames()
     FillMapNamesO(MapsOutputBASIC,i,"Runoff","ro"," runoff (l/s)","outrunoff");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Concentration","conc"," sediment concentration (g/l)","outconc");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Water height","wh"," water height on surface (mm)","outwh");i++;
-    FillMapNamesO(MapsOutputBASIC,i,"Runoff height","rwh","runoff water height on surface (mm)","outrwh");i++;
+    FillMapNamesO(MapsOutputBASIC,i,"Cumulative WH","whc","Cumulative runoff water height on surface (mm)","outrwh");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Transport cap.","tc"," transport capacity (excl. channels)(g/l)","outtc");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Detachment","det"," detachment (kg)","outeros");i++;
     FillMapNamesO(MapsOutputBASIC,i,"Deposition","depo"," deposition (kg)","outdepo");i++;

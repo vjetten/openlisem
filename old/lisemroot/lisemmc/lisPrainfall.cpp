@@ -51,6 +51,9 @@
            if (SwitchBuffers)
               calc(" CanopyStorage = mif(BufferID gt 0, 0, CanopyStorage) ");
 
+// VJ 100131 include no interception on hard surfaces
+           calc(" CanopyStorage = mif(hardsurface gt 0, 0, CanopyStorage) ");
+
            _spatial(REAL4, InterceptionH);
            calc(" InterceptionH = InterceptionHCum ");
            // save momentarily because equation is for cumulative interception

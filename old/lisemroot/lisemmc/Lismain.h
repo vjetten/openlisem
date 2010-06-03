@@ -3,7 +3,7 @@
 #define LisnewH
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
-#include "stddefx.h"
+#include "mprolog.h"   // <=== links to all header files, cps.h etc
 //---------------------------------------------------------------------------
 
 #define INFIL_NONE 0
@@ -86,18 +86,19 @@
                               else write(v, MakeFileName(s,timestepindex))
 
 //#define mapname(s) LisIFace->Lmapname(s)
-#define mapname(s) Lmapname(s, 0)
-#define mapnameonly(s) Lmapname(s, 1)
+#define mapname(s) Lmapname(s, 1)
+#define mapnameonly(s) Lmapname(s, 0)
 
 bool swatreBottomClosed = false;//(bool)SwitchImpermeable;
 
 
 typedef struct {
-   char name[128];
-   char value[128];
+   char name[64];
+   char value[256];
    int type;
    int iii;
    float vvv;
+   bool done;
 } nameList;
 
 
@@ -132,6 +133,8 @@ public:
 //VJ 050913 add pest output
      char PestoutFileName[128];
 
+//VJ 100115 add total runoff     
+//     char totalRunoffFileName[128];
      char totalErosionFileName[128];
      char totalDepositionFileName[128];
      char totalSoillossFileName[128];
@@ -168,6 +171,7 @@ public:
      FILE *fpoutflow2;
      FILE *fpoutflow3;
      FILE *BufferFout;
+     MEM_HANDLE *Mout;
       // hydrograph output files declaration
 
 
@@ -180,8 +184,8 @@ public:
 
      void __fastcall LisThread::LisemWarningV();
      void __fastcall LisThread::LisemWarn(AnsiString s, AnsiString s1 = "");
-     void __fastcall LisThread::UpdateTotals();
-     void __fastcall LisThread::InitializeTotals();
+     void __fastcall LisThread::UpdateTotalsSync();
+     void __fastcall LisThread::InitializeTotalsSync();
      void __fastcall LisThread::DumpScreenSync();
      char* __fastcall LisThread::Lmapname(char *vname, int nr);
      float __fastcall LisThread::GetFloat(char *vname);
@@ -189,6 +193,8 @@ public:
      void __fastcall LisThread::ParseInputData();
      void __fastcall LisThread::GetRunFile();
      void __fastcall LisThread::SetTimeseriesMinmax(char *filename);
+     void __fastcall LisThread::DrawMapSync(void);//MEM_HANDLE *M, double timestep);
+     void __fastcall LisThread::DrawMapInitSync(void);//(MEM_HANDLE *M, double timestep);
 
       AnsiString Convert(double f, int dig = 3);
 
@@ -212,6 +218,7 @@ public:
       bool SwitchNoErosion;
       bool SwitchAltErosion;
       bool SwitchSimpleDepression;
+      bool SwitchHardsurface;
       bool SwitchBuffers;
       bool SwitchSedtrap;
       bool SwitchSnowmelt;
@@ -231,7 +238,7 @@ public:
       bool SwitchMapoutRunoff;
       bool SwitchMapoutConc;
       bool SwitchMapoutWH;
-      bool SwitchMapoutRWH;
+      bool SwitchMapoutWHC;
       bool SwitchMapoutTC;
       bool SwitchMapoutEros;
       bool SwitchMapoutDepo;
@@ -280,6 +287,11 @@ public:
       bool SwitchPestout;
       bool SwitchSeparateOutput;
       bool SwitchSOBEKOutput;
+      char SOBEKdatestring[12];
+      int SOBEKnrlines;
+      bool SwitchInterceptionLAI;
+      int  InterceptionLAIType;
+      bool runv3;
 
       float ksatCalibration;
       float nCalibration;

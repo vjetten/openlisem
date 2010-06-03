@@ -26,6 +26,10 @@
      //cumulative interception per cell in mm
 //VJ030415 changed names to cum
 
+     _spatial(REAL4, WHCum);
+     calc("WHCum = 0.0");
+//VJ 100115 cumulative runoff
+
 
      _nonspatial(REAL4, TotalInterceptionVol);
      TotalInterceptionVol = 0.0;

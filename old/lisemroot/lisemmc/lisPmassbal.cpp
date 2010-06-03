@@ -3,6 +3,16 @@
 //==============================================================================
 
 
+           // ***** SPATIAL *****
+
+           if (SwitchIncludeChannel)
+              calc(" Qout += cover(ChannelQout,0) ");
+           if (SwitchWheelPresent)
+              calc(" Qout += cover(WheelQout,0) ");
+           if (SwitchGullies)
+              calc(" Qout += cover(GullyQout,0) ");
+           // sum for map output
+
             // ***** NON SPATIAL *****
 
            if (SwitchIncludeChannel)
@@ -12,7 +22,10 @@
            if (SwitchGullies)
                QOutflow += GullyQOutflow;
 
-           TotalDischarge += QOutflow*DTSEC;
+           //TotalDischarge += QOutflow*DTSEC;
+           calc(" TotalDischarge += sum(mif(LDD eq 5, Qout*DTSEC, 0)) ");
+//VJ 100116 changed to sum of all pits
+
               // VJ: water combined for total outflow through outlet point,
               // before: was added to ChannelVolin and ChannelSedin before kinematic wave !
               // total discharge outlet
@@ -41,16 +54,6 @@
               MassBalanceError = 0;
            // note: SumWaterHVolout has all the water, incl depression storage
 
-
-           // ***** SPATIAL *****
-
-           if (SwitchIncludeChannel)
-              calc(" Qout += cover(ChannelQout,0) ");
-           if (SwitchWheelPresent)
-              calc(" Qout += cover(WheelQout,0) ");
-           if (SwitchGullies)
-              calc(" Qout += cover(GullyQout,0) ");
-           // sum for map output
 
 
 

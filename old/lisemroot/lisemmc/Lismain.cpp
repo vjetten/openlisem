@@ -46,15 +46,12 @@ simple, but it is not very flexible or elegant.
 ******************************************************************************/
 
 #include <vcl.h>
+#include <string.h>
 #include <series.hpp>
 
 #pragma hdrstop
 
 #include "iface.h"
-#include "lisrunf.h"
-#include "lismain.h"
-#include "lishelp.h"
-#include "mprolog.h"
 
 #pragma package(smart_init)
 
@@ -111,11 +108,13 @@ void __fastcall LisThread::SetTimeseriesMinmax(char *filename)
     }
 }
 //---------------------------------------------------------------------------
+// LET OP, ONLY SWITCHES, VALUES ARE READ BY GETFLOAT AND GETINT
 void __fastcall LisThread::ParseInputData()
 {
     char S[256], buf[256];
     int i, nrmaps = 0, j=0;
     bool go= false;
+
 
     SwitchCorrectMass = true;
     //VJ 080217:
@@ -175,6 +174,8 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "Result Directory")==0 && p) strcpy(RESPATH, p);
           if (strcmp(p1, "Table Directory")==0 && p) strcpy(tableDir, p);
           if (strcmp(p1, "Main results file")==0 && p) strcpy(resultFileName, CatPath(p, RESPATH));
+//          if (strcmp(p1, "Total Runoff map")==0 && p) strcpy(totalRunoffFileName, CatPath(p, RESPATH));
+//VJ 100115 total runoff map
           if (strcmp(p1, "Erosion map")==0 && p) strcpy(totalErosionFileName, CatPath(p, RESPATH));
           if (strcmp(p1, "Deposition map")==0 && p) strcpy(totalDepositionFileName, CatPath(p, RESPATH));
           if (strcmp(p1, "Soilloss map")==0 && p) strcpy(totalSoillossFileName,CatPath(p, RESPATH));
@@ -222,7 +223,7 @@ void __fastcall LisThread::ParseInputData()
               q = strtok(NULL,","); if (q) { mu_cl[5] = atof(q); }
           }
 
-          //options in the main code
+          //options in the main code, order is not important
           if (strcmp(p1, "No Erosion simulation")==0)          SwitchNoErosion =        iii == 1;
           if (strcmp(p1, "Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
           if (strcmp(p1, "Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
@@ -230,6 +231,7 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "Include snowmelt")==0)               SwitchSnowmelt =         iii == 1;
           if (strcmp(p1, "Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
           if (strcmp(p1, "Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
+          if (strcmp(p1, "Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
           if (strcmp(p1, "Include buffers")==0)                SwitchBuffers =          iii == 1;
           if (strcmp(p1, "Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
           if (strcmp(p1, "Include grass strips")==0)           SwitchInfilGrass =       iii == 1;
@@ -250,13 +252,22 @@ void __fastcall LisThread::ParseInputData()
           if (strcmp(p1, "Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
           if (strcmp(p1, "Report point output for SOBEK")==0)   SwitchSOBEKOutput =   iii == 1;
 
+          if (strcmp(p1, "SOBEK date string")==0)
+          {
+              char *q = strtok(p,",");
+              strncpy(SOBEKdatestring, q, 10);
+
+          }
+//VJ 100116 Interception
+          if (strcmp(p1, "Use canopy storage map")==0)   SwitchInterceptionLAI =        iii == 0;
+
           //outputmaps that are selected (1) or not (0)
           if (strcmp(p1, "CheckOutputMaps")==0)
           {
               char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
               q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
               q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
-              q = strtok(NULL,",");   SwitchMapoutRWH   = strcmp(q,"1") == 0;
+              q = strtok(NULL,",");   SwitchMapoutWHC   = strcmp(q,"1") == 0;
               q = strtok(NULL,",");   SwitchMapoutTC    = strcmp(q,"1") == 0;
               q = strtok(NULL,",");   SwitchMapoutEros  = strcmp(q,"1") == 0;
               q = strtok(NULL,",");   SwitchMapoutDepo  = strcmp(q,"1") == 0;
@@ -340,6 +351,7 @@ void __fastcall LisThread::GetRunFile()
         namelist[i].type = 0;
         namelist[i].vvv = 0;
         namelist[i].iii = 0;
+        namelist[i].done = false;
     }
     nrnamelist = vars;
     
@@ -349,6 +361,8 @@ void __fastcall LisThread::GetRunFile()
     {
        memset(S,'\0',255);
        j = fscanf(fin,"%[^\n]\n", S);
+       if (i == 0)
+          runv3 = (strstr(S, "[LISEM for WINDOWS run file v3]") > 0);
        if (strchr(S, '=') > 0 && k < vars)
        {
 
@@ -362,8 +376,12 @@ void __fastcall LisThread::GetRunFile()
           {
              int res = 0;
              namelist[k].type = 1; //string
-             res = sscanf (namelist[k].value,"%f", &namelist[k].vvv);
-             res = sscanf (namelist[k].value,"%d", &namelist[k].iii);
+             float _v;
+             int _i;
+             res = sscanf (namelist[k].value,"%f", &_v);   
+             res = sscanf (namelist[k].value,"%d", &_i);
+             namelist[k].vvv = _v;
+             namelist[k].iii = _i;
              if (res > 0)
                 namelist[k].type = 2; //number
           }
@@ -371,12 +389,6 @@ void __fastcall LisThread::GetRunFile()
        }
     }
     fclose(fin);
-/*
-    FILE *fout=fopen("try.txt","w");
-    for (i=0; i < vars; i++)
-    fprintf(fout,"%s = %s; %d %f %d\n",namelist[i].name,namelist[i].value, namelist[i].type,namelist[i].vvv,namelist[i].iii);
-    fclose(fout);
-*/
 }
 //---------------------------------------------------------------------------
 char* __fastcall LisThread::Lmapname(char *vname, int nr)
@@ -386,25 +398,31 @@ char* __fastcall LisThread::Lmapname(char *vname, int nr)
      if (strcmp(vname, strupr(namelist[i].name)) == 0)
      {
         char *split = strrchr(namelist[i].value,DIR_PATH_DELIM_CHAR);
-        if (split == NULL)
+//        if (split == NULL)
+        if (strlen(namelist[i].value) == 0)
         {
           char *p;
           p = (char *) malloc(128);
           sprintf(p,"map variable <%s> has no filename attached to it",vname);
           return(p);
          //return("NO MAPNAME DEFINED");
-       }
-       else
-       {
-         if (nr == 0)
-            return(namelist[i].value);
-         else
+        }
+        else
+        {
+          if (nr > 0 && !namelist[i].done && split == NULL)
+          {
+            strcpy(namelist[i].value, CatPath(namelist[i].value, PATH));
+            namelist[i].done = true;
+          }
+          return(namelist[i].value);
+/*         else
          if (nr == 1)
          {
             *split++;
             split[strlen(split)-4] = '\0';
             return(split);
          }
+*/         
         }
       }
    return "wrong internal map ID";
@@ -429,9 +447,6 @@ int __fastcall LisThread::GetInt(char *vname)
 //---------------------------------------------------------------------------
 // start of main program
 void __fastcall LisThread::Execute()
-//begin_model{
-//"begin_model{" and "}end_model" keep track of how deep you are for the map structures
-//defined in csf.h
 {
      InitDone = false;
      // mark start of loop, is set to true after first timestep
@@ -713,7 +728,6 @@ begin_model{
 //VJ 031218 moved to before file and screen output to have the map series set to minmax
 // even when interrupted                         
         if (RunDone || Terminated)
-//        if (LisIFace->done || Terminated)
         {
            timestepindex = ENDINTERVAL+1;
  //          lastStep = true;
@@ -812,6 +826,7 @@ __finally // do this even if an exception occurred:
 
 
     FreeTimeSerieInput((timeSerie[1]));
+
     FreeTimeSerieInput((timeSerie[2]));
     //VJ 080617 added = NULL to fix loop for missing map
     timeSerie[1] = NULL;
@@ -822,8 +837,7 @@ __finally // do this even if an exception occurred:
 
   } // end loop try..__finally
 }
-//}end_model
-// "}end_model" is a define in csf.h
+
 
 
 

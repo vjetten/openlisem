@@ -9,6 +9,8 @@
      INFIL_METHOD = GetInt("Infil Method");
 
      ksatCalibration = GetFloat("Ksat calibration"); ///100.0;
+  //   if (!runv3)
+    //    ksatCalibration /= 100;
 
      _nonspatial(REAL4, precisionSwatre);
      precisionSwatre = 5;

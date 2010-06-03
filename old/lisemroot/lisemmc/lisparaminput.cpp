@@ -101,7 +101,7 @@
 
        // VJ-> NOT ANY MORE: type LDD has a check on nr. of pits
        _spatial_input(LDD, LDD, mapname("LDD"));
-       calc(" NR_VALS_START = count(LDD)");
+       calc(" NR_VALS_START = count(mif(LDD gt 0, 1, 0))");
        //VJ 090208 most important map, all is checked agains LDD or chanLDD
 
 //VJ 090208
@@ -156,8 +156,16 @@
      if (NR_VALS_NOW < NR_VALS_START)
         LisemError("wrong number of pixels in Roadwidt.map, non roads must have value 0!");
 
-     _spatial_input(REAL4, hardsurface,mapname("hardsurf"));
-     celltest(LDD, hardsurface);
+     _spatial(REAL4, hardsurface);
+     calc (" hardsurface = 0.0 ");
+
+     if (SwitchHardsurface)
+     {
+        _spatial_input(REAL4, hardsurf,mapname("hardsurf"));
+        celltest(LDD, hardsurf);
+        rangetest(hardsurf,R_GE_LE,0,1, "hard surface");
+        calc (" hardsurface = 1.0*hardsurf ");
+     }
        //VJ 080613 include hard surfaces
        //VJ 091216 moved to general, influences infiltration too!!!
 
@@ -166,11 +174,59 @@
      // ******** land use variables ********************
      //-------------------------------------------------------------------------
 
+//VJ 100116 Interception
+     // Van Hoyningen-Huene (1981), p.46; maximum interception (mm)
+/*
+Orig. LISEM (crops): S = 0.935+0.498*LAI-0.00575*LAI^2
+Pinus:         S = 0.2331*LAI          (n=12,R2=0.88)
+Douglas Fir:   S = 0.3165*LAI          (n=4, R2=0.83)
+Olive:         S = 1.46 * LAI^0.56     (n=5, R2=0.87)
+Eucalypt:      S = 0.0918*LAI^1.04     (n=8, R2=0.51)
+Rainforest:    S = 0.2856*LAI          (n=5, R2=0.60)
+Bracken:       S = 0.1713*LAI          (n=8, R2=0.98)
+Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)
+*/
+
      _spatial_input(REAL4, LAI,mapname("LAI"));
      celltest(LDD, LAI);
      rangetest(LAI,R_GE_LE,0,12, "Leaf area index");
          // LAI should be entered for the crop/vegetation,
          // not as a pixel average, VegetatFraction deals with that
+
+     _spatial(REAL4, CanopyStorage);
+     calc(" CanopyStorage = 0");
+     InterceptionLAIType = 0;
+
+     if (!SwitchInterceptionLAI)
+     {
+        _spatial_input(REAL4, Smax,mapname("smax"));
+        celltest(LDD, Smax);
+        rangetest(Smax,R_GE_LE,0,100, "Max Canopy Storage");
+        calc(" CanopyStorage = Smax ");
+     }
+     else
+     {
+         InterceptionLAIType = GetInt("Canopy storage equation");
+     }
+
+     if (SwitchInterceptionLAI)
+     {
+
+         switch (InterceptionLAIType)
+         {
+          case 0: calc(" CanopyStorage = 0.935 + (0.498*LAI) - (0.00575 * sqr(LAI) ) ");break;
+          case 1: calc(" CanopyStorage = 0.2331 * LAI "); break;
+          case 2: calc(" CanopyStorage = 0.3165 * LAI "); break;
+          case 3: calc(" CanopyStorage = 1.46 * (LAI^0.56)"); break;
+          case 4: calc(" CanopyStorage = 0.0918 * (LAI^1.04) "); break;
+          case 5: calc(" CanopyStorage = 0.2856 * LAI "); break;
+          case 6: calc(" CanopyStorage = 0.1713 * LAI "); break;
+          case 7: calc(" CanopyStorage = 0.59 * (LAI^0.88) "); break;
+         }
+     }
+
+     _nonspatial(REAL4, StemflowFraction);
+     StemflowFraction = GetFloat("Stemflow fraction");
 
      _spatial_input(REAL4, VegetatFraction, mapname("cover"));
      celltest(LDD, VegetatFraction);
@@ -288,6 +344,9 @@
      _spatial_input_if(REAL4, BufferVolume, mapname("bufferVolume"), SwitchBuffers);
 //     _spatial_input_if(REAL4, BufferArea, mapname("bufferArea"), SwitchBuffers);
 //     _spatial_input_if(REAL4, BufferDis, mapname("bufferdischarge"), SwitchBuffers);
+     _nonspatial(REAL4, BufferSedBulkDensity);
+     BufferSedBulkDensity = GetFloat("Sediment bulk density");
+
      if (SwitchBuffers)
      {
         celltest(LDD, BufferID);
@@ -298,9 +357,6 @@
         calc(" BufferVolume = cover(BufferVolume,0) ");
     //    calc(" BufferArea = cover(BufferArea,0) ");
    //     calc(" BufferDis = cover(BufferDis,0) ");
-
-//        _nonspatial(REAL4, BufferSedBulkDensity);
-//        BufferSedBulkDensity = atof(LisIFace->E_SedBulkDensity->Text.c_str());
      }
 
      //-------------------------------------------------------------------------
@@ -335,11 +391,6 @@
      //  rangetest(CohesionTotal,R_GE, 0.196, R_DUMMY,
      //      "@Cohesion values must be > 0.196 (detachment efficiency coef. Y < 1) "
      //      " error in CHANCOH.MAP (enter large values, e.g. 9999 for non-erodible surfaces)");
-
-//       _spatial_input(REAL4, hardsurface,mapname("hardsurf"));
-//       celltest(LDD, hardsurface);
-       //VJ 080613 include hard surfaces
-       //VJ 091216 moved to general, influences infiltration too!!!
     }
 
 
