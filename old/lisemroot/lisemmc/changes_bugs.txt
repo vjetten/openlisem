@@ -1,0 +1,185 @@
+lisem 2.5.8 (VJ 090226)
+- added 'celltest' function in cpstest.c where the cell is found that gioves a problem compared to the LDD
+  (infamous kinematic wave error)
+lisem 2.5.7 (VJ 090214)
+- added option to switch between old and new depression storage modelling
+- added option to force all overlabd flow water and sediment into the channel in the outet
+  cell. In principle LISEM kept these fluxes separate although the reporting was the sum of all
+  fluxes. But that is not the same
+lisem 2.5.7 (VJ 090207)
+- added robust MV checking against LDD with function celltest (in cpstest.c, chkdata.c)
+- all checking id now done against ldd which is the main map, area.map obsolete 
+lisem 2.5.6 (VJ 080812)
+- fixed bug in surfstorage, asking for non existing map
+lisem 2.5.5 (VJ 080804)
+- fixed bug access error when running automatic batch files
+lisem 2.5.4 (VJ 080622-080630)
+- small changes ininterface
+- timesries input changed: more relaxed checking of header:  <some text><space><nr stations/columns>
+- try-until loop in rainfall reading deleted: if interval exceeds the input then simply stop, instead of going on with 0
+- fixed bug output hydrograph when no output filename is given
+- fixed bug link mindt swatre interface to code, interface value was ignored
+- added runtime length in message
+lisem 2.5.3 (VJ 080620)
+- fixed bug sed concentration to screen
+- changed sed concentration in all output to be calculated as tot sed/volume of water in the cell
+  not as Qsed/Q
+- fixed bug in infiltration, caused in version 2.5.2 
+lisem 2.5.2 (VJ 080423-080614)
+- fixed bug with endless loop when missing map
+- baseflow: NOT mutually exclusive with channel infiltration!
+- fixed small bugs baseflow maps
+- improved dir name checking of interface
+- added non-erodible surfaces (0 = erodible, > 0 is non-erodible)
+- Added snowmelt
+- no more Smith and Parlange or Morel Seytoux
+lisem 2.5.0-2.5.1 (VJ 080217)
+- Added baseflow to channelflow, mutually exclusive with channel infiltration
+- Split masbalance correction for water (only gully and wheeltracks) and sediment (all instances)
+- deleted screen variable infiltration in kin wave
+- added check for empty name in maplist
+- added chanvol in m3 for baseflow estimation
+- removed EPSILON from kinematic wave functions
+- removed outlet fluxes form kinematic wave functions
+- corrected MC and NUT code 
+lisem 2.4.0 (VJ 060817)
+- for safety: inithead is read as -abs(inithead)
+lisem 2.3.96 (VJ 060508)
+- corrected some errors with ginfil in lispgully
+lisem 2.3.95 (VJ 060404)
+- added infil to gullies, like channel infil
+lisem 2.3.94 (VJ 060404)
+- bug fixes in Gully kin wave
+lisem 2.3.92 (VJ 060109)
+- bug fixes in GA: green and ampt 2 was not activated and Soildepth1 typing error in stead of SoilDepth1
+- bug fix in commandline running, wrong check for lisemtype
+- bug fix in checkpestout, listens to cammndline only
+lisem 2.3.9 (VJ 051005)
+- adjusted Green and Ampt wheeltrack and grassstrip infiltration according to latest changes
+  (such as drainage)
+- added kinematic wave and channel infiltration correctly to multiple class and nutrient kine wave
+- cleaned up minematic.c function
+- added calc(" Qsedout += cover(ChannelQsedout,0) "); etc for channel, gully and wheeltrack to mass balance sediment
+- cleaned up library warnings, include string.h, pre-compile etc
+- deleted kinematic and ninematic functions form cps lib
+lisem 2.3.8 (VJ 050913)
+- add better controlled pestout possibility:
+  syntax: lisemwin [runfilename] [lisemtype] [pestout 0/1] [pest time interval]
+lisem 2.3.7 (VJ 050907)
+- removed lisemwin.ini file, useless file. Replaced with batch file run: syntax: lisemwin [lisemtype] [runfile]
+	where lisemtype = 0-4 (basic, wheeltrack, multiclass, nutrients, gully)
+- Added cancel option to restore default names button
+- 2.362: fixed infiltration map bug -> now infil in kin wave (incl channel and gully) is added so totals match screen and output
+	note: both vars have terrain slope included
+  THIS NOT INCLUDED YET in nutrient and multiclass versions
+- 2.361: fixed bugs in GA, impermeable layer, soildepth has no effect unless drainage or impermeable layer is chosen
+lisem 2.3.6 (VJ 050812)
+- units of output erosion in kg/cell; kg/m2; ton/ha
+- fixed batch runs with lisemwin.ini
+- decreased minimum n to 1e-5
+- added drainage to green and ampt from 1st (G&A 1 layer) or second (G&A 2 layer), incl GAgrass and GAWheel. Drainage is
+  calclated as dt*k where k = ksat*(moisture/porosity)**d. d is a user defined drainage factor
+- fixed bug: Green and Ampt: when impermeable soildepth was limited but this did not influence infiltration rate!
+- fixed bug: text in interface infiltration for soildepth says cm should be mm
+lisem 2.3.5 (VJ 050808)
+- fixed bug in cpstimin.c, wrong assumption to deal with rounding of errors
+- fixed small bug in fileoutput, calculation of sed conc for outlet2 and 3
+lisem 2.3.4 (VJ 050704)
+- surplus infil fluxes into kin wave wrong, must be multiplied by DX and not by DXc
+- added channel infiltration = ksat*dt*perimeter
+lisem 2.3.3 (VJ 050301)
+- fixed a bug so channels can run with wheeltracks
+- changed: new analysis PondAreaFract = 1-exp(-1.875*WH/(RR*10))
+lisem 2.3.2 (VJ 050301)
+- can choose alternative simplified flow detachment: Df=Q*dt(TC-C)*Y instead of Df=w*h*vs*dt(TC-C)*Y
+- new ponded area: simplified to calc(" PondAreaFract = 1-exp(-1.88*WH/(RR*10)) ");
+- bug fix: V was not recalculated in channel cells after subtraction of tochannel,
+	so wrong stream power in channel cells
+lisem 2.300 (VJ 040823)
+- changed version numbering: major ver 2, minor ver 3, release 0, build = 2.3.0.0
+- added rainwater buffers
+lisem 2.230 (VJ 040329) (old version nr 2.162 to 2.164)
+!!! new version nr: major 2, minor 2 (gullies), release 3, build 0 !!!
+- rewritten gully incision
+- added gully initial width and depth maps and option for equal distribution of erosion
+  along gully perimeter (instead of Q-W relation)
+- fixed small bug when double click on input map now go to map directory
+- FIXED BUG (040224) in area ponding calculation, /10 or *10. /10 gives very smooth
+  surfaces and area is 100% very quickly, should be *10 (cm to mm)
+lisem 2.161 VJ 031218
+- removed coh=100 limit in Y
+- bug fix: changed Y to ChannelY in LisPMCChannel
+- fixed dumscreen syncronize and clean up loop after run in lismain
+- added "exit" behaviour to directory fields: when you leave a directory field
+  (e.g. click run) a double click or enter behaviour is called
+- added try.._finally loop in lismain to ensure cleanup of memory, screendump etc.
+- map series are now set to min max of whole serie always, not only for PCRaster output
+- map series et to min max serie also when interrupted by user
+lisem 2.160 VJ 031104
+- added stone fraction to flow detchment (needs more work)
+- fixed batch run result dir force make
+- jpeg synchronized
+lisem 2.159 VJ 031104
+- just an interface change: moved result dir to first screen
+lisem 2.158 VJ 030702
+- redone the wheeltrack module,
+- moved pwheeltrack to before surface storage because of changes in WH
+- mass error below 1 %!
+- added kin wave infil check to ini file instead of channel infil
+lisem 2.157 VJ 030630
+- fixed typo: mixed suspended for nh4 and no3 in lisPMCNUTerosdepo
+lisem 2.156 VJ 030627
+- fixed typo xxxPdep = xxxPDep in all the code
+lisem 2.155 VJ 030626
+- changed checking of DirExist in all input dirs
+- added max lines for Richedit OutputValues field, -1 = show all, nr > 0 is show nr lines
+lisem 2.154 VJ 0340414 (?)
+- FIXED channel bug , factor 1000
+- added nutrient in channels
+- added eros and depo totals for nutrients
+- redesigned NUT kinematic
+- added NUTmassbalsed for calculation of totals
+- NOTE: changed calculation of MC sediment and NUTs to flux/flux
+lisem 2.153
+- ??? correct nutX_Q by nuXinfil adding? This goes into the soil so should be added
+- corrected error display rainfall intensity in file and onscreen (was including DXc correction)
+- corrected output sediment loss classes, was sum of suspended sed instead of sum sedoutflowMu#
+- added nutrient infiltration loss to output (in mm = total/catchment area)
+- corrected nutrient output
+//- added check impossible result dir (e.g. drive that doesn't exist)
+- function load runfile in IFace
+- uses new csf dir and added error handling to "mperror.c" and "kernlcsf.c" to avoid
+  output to stderr
+- changed dumpscreen
+lisem 2.152
+- added lisinit.cpp for intialisation of main, iface and infiltration
+- if no infiltration check then no kin wave infiltration
+- corrected outflowname = '\0'
+- removed TCCAL from interface and ini
+- corrected start with different lisem type (resets all now)
+lisem 2.15
+- changed sediment routing in kineDX, minematic and ninematic
+- mcalc does not seem to work as: mcalc("try += kkk#",6);
+must be: calc("try += kkk0");calc("try += kkk1"); etc
+- fixed bug in PMCsedmassbal.cpp -> sed discharge was reinitialised each timestep and divided by DTSEC!!!
+- changed calculation of totals in lisfileoutput
+lisem 2.14
+- added option of profile = -1 as non-defined. in swatre init -1 circumvents the error notion of non existing profile and in swatstep it given a WH = 0 and infil = 0
+  in lispinfswa: if grasswidth > 0 then profgras else -1
+ - LisIFace + lismain : added switch for timeplot output
+- LisIFace: SetTimeseriesMinmax function added, is called before the last timestep
+- lisPgully & lispgullyparams: added
+- lisperosdepo:
+   calc("TransportFactor = mif(WH gt 0,...,0)");
+to
+   calc("TransportFactor = mif(WH gt 0,...,1)");
+- interface: changed all memos to labels
+lisem 2.13
+- LisIFace + lismain: FreeTimeSerieInput(timeSerie) added
+- cps_lib : cpstimin.c -> Serie2map function changed:
+        startInterval=intervalEnd-intervalLenght;
+        si = (startInterval*1000000)+1;
+	startInterval=si;
+        startInterval/=1000000;
+        void FreeTimeSeries(TIMESERIE *serie): now used
+

@@ -1,0 +1,313 @@
+[Main Window]
+Create=1
+Visible=1
+State=2
+Left=3
+Top=-2
+Width=626
+Height=105
+MaxLeft=-4
+MaxTop=-4
+MaxWidth=1032
+MaxHeight=105
+ClientWidth=1024
+ClientHeight=78
+
+[ProjectManager]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=11
+Width=498
+Height=540
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=498
+ClientHeight=540
+TBDockHeight=540
+LRDockWidth=643
+Dockable=1
+
+[PropertyInspector]
+Create=1
+Visible=1
+State=0
+Left=3
+Top=119
+Width=252
+Height=591
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=242
+ClientHeight=565
+TBDockHeight=564
+LRDockWidth=252
+Dockable=1
+SplitPos=118
+
+[ThreadStatusWindow]
+Create=1
+Visible=0
+State=0
+Left=96
+Top=11
+Width=402
+Height=540
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=402
+ClientHeight=540
+TBDockHeight=540
+LRDockWidth=421
+Dockable=1
+Column0Width=95
+Column1Width=87
+Column2Width=75
+Column3Width=230
+
+[Closed Files]
+File_0=SourceModule,'C:\PROGRA~1\BORLAND\CBUILD~1\INCLUDE\VCL\dstring.h',0,1,46,1,60,0,0
+File_1=SourceModule,'C:\Program Files\Borland\Projects\libsrc\cps\cpslang.c',0,1,65,1,79,0,0
+File_2=SourceModule,'C:\Program Files\Borland\Projects\libsrc\lmisc\error.c',0,1,87,1,131,0,0
+File_3=SourceModule,'C:\Program Files\Borland\Projects\lisem\lisinfm4.in',0,1,1,1,6,0,0
+File_4=SourceModule,'c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\Classes.pas',0,1,6810,1,6827,0,0
+File_5=SourceModule,'C:\Program Files\Borland\Projects\lisem\lisscreenwin.in',0,1,1,47,4,0,0
+File_6=SourceModule,'C:\Program Files\Borland\Projects\lisem\lisoutput.cpp',0,1,122,36,132,0,0
+File_7=SourceModule,'C:\Program Files\Borland\Projects\lisem\Pre615.run',0,1,1,1,1,0,0
+
+[Modules]
+Module0=C:\Program Files\Borland\Projects\lisem\iface.cpp
+Module1=c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\sysutils.pas
+Module2=C:\Program Files\Borland\Projects\lisem\lisdirv.cpp
+Module3=C:\Program Files\Borland\Projects\lisem\Lismain.cpp
+Module4=c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\Graphics.pas
+Module5=C:\Program Files\Borland\Projects\lisem\lisheadwin.in
+Module6=C:\Program Files\Borland\Projects\lisem\lisparamwin.in
+Module7=C:\Program Files\Borland\Projects\lisem\lisinfm1.in
+Count=8
+EditWindowCount=1
+
+[C:\Program Files\Borland\Projects\lisem\iface.cpp]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=1
+
+[c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\sysutils.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisdirv.cpp]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\Lismain.cpp]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\Graphics.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisheadwin.in]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisparamwin.in]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisinfm1.in]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisemgrp.bpg]
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\lisemwin.bpr]
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Projects\lisem\compiledos.bat]
+FormState=0
+FormOnTop=0
+
+[EditWindow0]
+CodeExplorer=CodeExplorer@EditWindow0
+MessageView=MessageView@EditWindow0
+ClassHierarchy=ClassHierarchy@EditWindow0
+Create=1
+Visible=1
+State=2
+Left=203
+Top=141
+Width=696
+Height=482
+MaxLeft=-4
+MaxTop=97
+MaxWidth=1032
+MaxHeight=647
+ClientWidth=1024
+ClientHeight=620
+LeftPanelSize=0
+LeftPanelClients=CodeExplorer@EditWindow0
+LeftPanelData=00000400010000000C000000436F64654578706C6F7265720000000000000000000000000000000000FFFFFFFF
+RightPanelSize=0
+BottomPanelSize=121
+BottomPanelClients=MessageView@EditWindow0
+BottomPanelData=000004000000000000000000000000000000000000000000000100000000000000000B0000004D65737361676556696577FFFFFFFF
+ViewCount=9
+CurrentView=1
+View0=0
+View1=1
+View2=2
+View3=3
+View4=4
+View5=5
+View6=6
+View7=7
+View8=8
+
+[ClassHierarchy@EditWindow0]
+TreeWidth=228
+FieldListHeigth=149
+
+[CodeExplorer@EditWindow0]
+Create=1
+Visible=0
+State=0
+Left=0
+Top=11
+Width=170
+Height=418
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=170
+ClientHeight=418
+TBDockHeight=388
+LRDockWidth=170
+Dockable=1
+ClassViewDisplayMode=0
+
+[MessageView@EditWindow0]
+Create=1
+Visible=1
+State=0
+Left=11
+Top=0
+Width=1013
+Height=121
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1013
+ClientHeight=121
+TBDockHeight=121
+LRDockWidth=443
+Dockable=1
+
+[View0]
+Module=C:\Program Files\Borland\Projects\lisem\lisparamwin.in
+CursorX=1
+CursorY=61
+TopLine=34
+LeftCol=1
+
+[View1]
+Module=C:\Program Files\Borland\Projects\lisem\iface.cpp
+CursorX=9
+CursorY=761
+TopLine=747
+LeftCol=1
+
+[View2]
+Module=C:\Program Files\Borland\Projects\lisem\lisdirv.cpp
+CursorX=48
+CursorY=31
+TopLine=28
+LeftCol=1
+
+[View3]
+Module=c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\sysutils.pas
+CursorX=1
+CursorY=2096
+TopLine=2085
+LeftCol=1
+
+[View4]
+Module=c:\PROGRA~1\BORLAND\CBUILD~1\source\vcl\Graphics.pas
+CursorX=40
+CursorY=2513
+TopLine=2503
+LeftCol=1
+
+[View5]
+Module=C:\Program Files\Borland\Projects\lisem\lisheadwin.in
+CursorX=59
+CursorY=46
+TopLine=33
+LeftCol=1
+
+[View6]
+Module=C:\Program Files\Borland\Projects\lisem\Lismain.cpp
+CursorX=95
+CursorY=1421
+TopLine=1404
+LeftCol=1
+
+[View7]
+Module=C:\Program Files\Borland\Projects\lisem\iface.h
+CursorX=34
+CursorY=32
+TopLine=25
+LeftCol=1
+
+[View8]
+Module=C:\Program Files\Borland\Projects\lisem\lisinfm1.in
+CursorX=1
+CursorY=46
+TopLine=44
+LeftCol=1
+
+[DockHosts]
+DockHostCount=1
+
+[DockSite0]
+DockSiteType=0
+Create=1
+Visible=1
+State=0
+Left=188
+Top=109
+Width=506
+Height=575
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=498
+ClientHeight=551
+TBDockHeight=104
+LRDockWidth=201
+Dockable=1
+DockClients=ThreadStatusWindow,ProjectManager
+DockSiteData=00000400010000000C000000546872656164537461747573F2010000000000000227020000000000000100000000F20100001200000050726F6A6563744D616E61676572466F726DFFFFFFFF
+
+[Watches]
+Count=4
+Watch0='p',256,0,18,1
+Watch1='value',256,0,18,1
+Watch2='notrunning',256,0,18,1
+Watch3='ParamStr(1)',256,0,18,1
+
+[Breakpoints]
+Count=0
+
+[AddressBreakpoints]
+Count=0
+

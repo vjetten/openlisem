@@ -1,0 +1,294 @@
+[LISEM for WINDOWS run file]
+
+[Work Directory]
+WorkDir=D:\data\sen\ganspoel\
+
+[Input]
+Map Directory=D:\data\sen\ganspoel\maps97j\
+Table Directory=
+Rainfall Directory=D:\data\sen\ganspoel\rain\
+Rainfall file=p970711.txt
+Snowmelt Directory=
+Snowmelt file=
+
+[Output main]
+Result Directory=d:\data\sen\ganspoel\res97j251\
+Main results file=tot.txt
+Outlet 1 file=outmain.txt
+Outlet 2 file=
+Outlet 3 file=
+Erosion map=eros.map
+Deposition map=depo.map
+
+[Simulation times]
+Begin time=100
+End time=400
+Timestep=20
+
+[General options]
+No Erosion simulation=0
+Include main channels=1
+Include channel infil=0
+Include channel baseflow=1
+All water and sediment to outlet=0
+Include snowmelt=0
+No erosion at outlet=0
+Include buffers=0
+Alternative flow detachment=0
+Alternative depression storage=0
+
+[Additional options]
+Grassstrip Mannings n=0.3
+Splash Delivery Ratio=0.1
+
+[Gully options]
+Fcrit relation=0
+Threshold gradient=0.04
+QW relation=3
+QW param A=
+QW param B=
+Gully infiltration=0
+Use initial gully dimensions=0
+
+[Infiltration]
+Method=3
+Include wheeltracks=0
+Include grass strips=0
+Include crusts=0
+Ksat calibration=98
+Impermeable sublayer=0
+Subsoil drainage=0
+SWATRE internal minimum timestep=5
+Matric head files=0
+Geometric mean Ksat=0
+
+[Output maps]
+Runoff maps in l/s/m=0
+Timeseries as PCRaster=1
+Timeplot as PCRaster=1
+Regular runoff output=1
+Erosion map units (0/1/2)=2
+Output interval=3
+User defined output=0
+Output times=
+CheckOutputMaps=1,0,1,1,0,0,1,1,0,0,0
+CheckOutputMapsNUT=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+CheckOutputMapsMC=0,0,0,0,0,0,0
+CheckOutputMapsGUL=0,0,0,0,0
+
+[Texture classes]
+ClassMu=2,16,32,53,75,105
+
+[map names]
+
+[Catchment]
+grad=D:\data\sen\ganspoel\maps97j\grad.map
+ldd=D:\data\sen\ganspoel\maps97j\ldd.map
+outlet=D:\data\sen\ganspoel\maps97j\outlet.map
+ID=D:\data\sen\ganspoel\maps97j\id.map
+
+[Landuse]
+cover=D:\data\sen\ganspoel\maps97j\per.map
+lai=D:\data\sen\ganspoel\maps97j\lai.map
+ch=D:\data\sen\ganspoel\maps97j\ch.map
+road=D:\data\sen\ganspoel\maps97j\roadwidt.map
+grasswidth=D:\data\sen\ganspoel\maps97j\grasswid.map
+
+[Buffers]
+bufferID=D:\data\sen\ganspoel\maps97j\bufferid.map
+bufferVolume=D:\data\sen\ganspoel\maps97j\buffervol.map
+bufferarea=D:\data\sen\ganspoel\maps97j\bufferarea.map
+bufferdischarge=D:\data\sen\ganspoel\maps97j\bufferQ.map
+
+[Snowmelt]
+SnowID=D:\data\sen\ganspoel\maps97j\snowid.map
+
+[Erosion]
+coh=D:\data\sen\ganspoel\maps97j\coh.map
+cohadd=D:\data\sen\ganspoel\maps97j\cohadd.map
+aggrstab=D:\data\sen\ganspoel\maps97j\aggrstab.map
+d50=D:\data\sen\ganspoel\maps97j\d50.map
+hardsurf=D:\data\sen\ganspoel\maps97j\hardsurf.map
+
+[Surface]
+rr=D:\data\sen\ganspoel\maps97j\rr.map
+manning=D:\data\sen\ganspoel\maps97j\n.map
+crustfrc=D:\data\sen\ganspoel\maps97j\crustfrc.map
+compfrc=D:\data\sen\ganspoel\maps97j\compfrc.map
+stonefrc=D:\data\sen\ganspoel\maps97j\stonefrc.map
+
+[InfilHoltan]
+A=D:\data\sen\ganspoel\maps97j\A
+FP=D:\data\sen\ganspoel\maps97j\FP
+P=D:\data\sen\ganspoel\maps97j\P
+
+[InfilExtra]
+ksatcrst=D:\data\sen\ganspoel\maps97j\ksatcrst.map
+ksatcomp=D:\data\sen\ganspoel\maps97j\ksatcomp.map
+ksatgras=D:\data\sen\ganspoel\maps97j\ksatgras.map
+
+[InfilGA2]
+ksat2=D:\data\sen\ganspoel\maps97j\ksat2.map
+psi2=D:\data\sen\ganspoel\maps97j\psi2.map
+thetas2=D:\data\sen\ganspoel\maps97j\thetas2.map
+thetai2=D:\data\sen\ganspoel\maps97j\thetai2.map
+soildep2=D:\data\sen\ganspoel\maps97j\soildep2.map
+
+[InfilGA1]
+ksat1=D:\data\sen\ganspoel\maps97j\ksat1.map
+psi1=D:\data\sen\ganspoel\maps97j\psi1.map
+thetas1=D:\data\sen\ganspoel\maps97j\thetas1.map
+thetai1=D:\data\sen\ganspoel\maps97j\thetai1.map
+soildep1=D:\data\sen\ganspoel\maps97j\soildep1.map
+
+[InfilSmith]
+ksat1=D:\data\sen\ganspoel\maps97j\ksat1.map
+psi1=D:\data\sen\ganspoel\maps97j\psi1.map
+thetas1=D:\data\sen\ganspoel\maps97j\thetas1.map
+thetai1=D:\data\sen\ganspoel\maps97j\thetai1.map
+soildep1=D:\data\sen\ganspoel\maps97j\soildep1.map
+
+[InfilMorel]
+ksat1=D:\data\sen\ganspoel\maps97j\ksat1.map
+psi1=D:\data\sen\ganspoel\maps97j\psi1.map
+thetas1=D:\data\sen\ganspoel\maps97j\thetas1.map
+thetai1=D:\data\sen\ganspoel\maps97j\thetai1.map
+soildep1=D:\data\sen\ganspoel\maps97j\soildep1.map
+
+[InfilSwatre]
+profinp=D:\data\sen\ganspoel\maps97j\profile.inp
+profmap=D:\data\sen\ganspoel\maps97j\profile.map
+profcrst=D:\data\sen\ganspoel\maps97j\profcrst.map
+profwltr=D:\data\sen\ganspoel\maps97j\profwltr.map
+profgras=D:\data\sen\ganspoel\maps97j\profgras.map
+inithead=D:\data\sen\ganspoel\maps97j\inithead
+headout=D:\data\sen\ganspoel\maps97j\headout.map
+
+[InfilDrainage]
+drfactor=D:\data\sen\ganspoel\maps97j\drfactor.map
+
+[InfilKsat]
+ksat1=D:\data\sen\ganspoel\maps97j\ksat1.map
+
+[Channelinfil]
+chanksat=D:\data\sen\ganspoel\maps97j\chanksat.map
+
+[Channels]
+lddchan=D:\data\sen\ganspoel\maps97j\lddchan.map
+chanwidth=D:\data\sen\ganspoel\maps97j\chanwidt.map
+chanside=D:\data\sen\ganspoel\maps97j\chanside.map
+changrad=D:\data\sen\ganspoel\maps97j\changrad.map
+chanman=D:\data\sen\ganspoel\maps97j\chanman.map
+chancoh=D:\data\sen\ganspoel\maps97j\chancoh.map
+
+[ChannelBaseflow]
+chanbaseflux=D:\data\sen\ganspoel\maps97j\chanbaseflux.map
+chanincrease=D:\data\sen\ganspoel\maps97j\chanincrease.map
+chanvolini=D:\data\sen\ganspoel\maps97j\chanvini.map
+
+[Macropore]
+
+[Wheeltrack]
+lddwheel=D:\data\sen\ganspoel\maps97j\lddwheel.map
+wheelnbr=D:\data\sen\ganspoel\maps97j\wheelnbr.map
+wheelwidth=D:\data\sen\ganspoel\maps97j\wheelwid.map
+wheeldepth=D:\data\sen\ganspoel\maps97j\wheeldep.map
+wheelgradient=D:\data\sen\ganspoel\maps97j\wheelgrd.map
+wheelman=D:\data\sen\ganspoel\maps97j\wheelman.map
+wheelcohesion=D:\data\sen\ganspoel\maps97j\wheelcoh.map
+ksatwt=D:\data\sen\ganspoel\maps97j\ksatwt.map
+
+[Texture]
+fractionmu0=D:\data\sen\ganspoel\maps97j\mu0.map
+fractionmu1=D:\data\sen\ganspoel\maps97j\mu1.map
+fractionmu2=D:\data\sen\ganspoel\maps97j\mu2.map
+fractionmu3=D:\data\sen\ganspoel\maps97j\mu3.map
+fractionmu4=D:\data\sen\ganspoel\maps97j\mu4.map
+fractionmu5=D:\data\sen\ganspoel\maps97j\mu5.map
+
+[NutsP]
+pcont=D:\data\sen\ganspoel\maps97j\pcont.map
+psolute=D:\data\sen\ganspoel\maps97j\psolut.map
+pefficiency=D:\data\sen\ganspoel\maps97j\peff.map
+psorp=D:\data\sen\ganspoel\maps97j\Psorp.map
+pconv=D:\data\sen\ganspoel\maps97j\Pconv.map
+
+[NutsNO3]
+no3cont=D:\data\sen\ganspoel\maps97j\NO3cont.map
+no3solute=D:\data\sen\ganspoel\maps97j\NO3solut.map
+no3efficiency=D:\data\sen\ganspoel\maps97j\NO3eff.map
+no3sorp=D:\data\sen\ganspoel\maps97j\NO3sorp.map
+no3conv=D:\data\sen\ganspoel\maps97j\NO3conv.map
+
+[NutsNH4]
+nh4cont=D:\data\sen\ganspoel\maps97j\nh4cont.map
+nh4solute=D:\data\sen\ganspoel\maps97j\nh4solut.map
+nh4efficiency=D:\data\sen\ganspoel\maps97j\nh4eff.map
+nh4sorp=D:\data\sen\ganspoel\maps97j\NH4sorp.map
+nh4conv=D:\data\sen\ganspoel\maps97j\NH4conv.map
+
+[NutsBD]
+bulk=D:\data\sen\ganspoel\maps97j\bulkdens.map
+
+[Gully]
+dem=D:\data\sen\ganspoel\maps97j\dem.map
+gullyn=D:\data\sen\ganspoel\maps97j\gullyman.map
+bulkdens1=D:\data\sen\ganspoel\maps97j\bulkdens.map
+gulksat1=D:\data\sen\ganspoel\maps97j\gulksat1.map
+gullydep=D:\data\sen\ganspoel\maps97j\soilDep2.map
+gullycoh=D:\data\sen\ganspoel\maps97j\coh2.map
+bulkdens2=D:\data\sen\ganspoel\maps97j\bulkden2.map
+gulksat2=D:\data\sen\ganspoel\maps97j\gulksat2.map
+nonfcrit=D:\data\sen\ganspoel\maps97j\noncrit.map
+
+[GullyInit]
+gulwinit=D:\data\sen\ganspoel\maps97j\gulwinit.map
+guldinit=D:\data\sen\ganspoel\maps97j\guldinit.map
+
+[OutputBASIC]
+OUTRUNOFF=d:\data\sen\ganspoel\res97j251\ro
+OUTCONC=d:\data\sen\ganspoel\res97j251\conc
+OUTWH=d:\data\sen\ganspoel\res97j251\wh
+OUTRWH=d:\data\sen\ganspoel\res97j251\rwh
+OUTTC=d:\data\sen\ganspoel\res97j251\tc
+OUTEROS=d:\data\sen\ganspoel\res97j251\eros
+OUTDEPO=d:\data\sen\ganspoel\res97j251\depo
+OUTVELO=d:\data\sen\ganspoel\res97j251\velo
+OUTINF=d:\data\sen\ganspoel\res97j251\inf
+OUTSS=d:\data\sen\ganspoel\res97j251\sstor
+OUTCHVOL=d:\data\sen\ganspoel\res97j251\chanvol
+
+[OutputMC]
+OUTMU0=d:\data\sen\ganspoel\res97j251\smu0
+OUTMU1=d:\data\sen\ganspoel\res97j251\smu1
+OUTMU2=d:\data\sen\ganspoel\res97j251\smu2
+OUTMU3=d:\data\sen\ganspoel\res97j251\smu3
+OUTMU4=d:\data\sen\ganspoel\res97j251\smu4
+OUTMU5=d:\data\sen\ganspoel\res97j251\smu5
+OUTD50SUSP=d:\data\sen\ganspoel\res97j251\D50s
+
+[OutputNut]
+OUTPSOLUT=d:\data\sen\ganspoel\res97j251\NPsol
+OUTPSUS=d:\data\sen\ganspoel\res97j251\NPsus
+OUTPINF=d:\data\sen\ganspoel\res97j251\NPinf
+OUTNH4SOLUT=d:\data\sen\ganspoel\res97j251\NNH4sol
+OUTNH4SUS=d:\data\sen\ganspoel\res97j251\NNH4sus
+OUTNH4INF=d:\data\sen\ganspoel\res97j251\NNH4inf
+OUTNO3SOLUT=d:\data\sen\ganspoel\res97j251\NNO3sol
+OUTNO3SUS=d:\data\sen\ganspoel\res97j251\NNO3sus
+OUTNO3INF=d:\data\sen\ganspoel\res97j251\NNO3inf
+
+[OutputNutErosDep]
+OUTPDEP=d:\data\sen\ganspoel\res97j251\NPdep.map
+OUTNH4DEP=d:\data\sen\ganspoel\res97j251\NNH4dep.map
+OUTNO3DEP=d:\data\sen\ganspoel\res97j251\NNO3dep.map
+OUTPDET=d:\data\sen\ganspoel\res97j251\NPdet.map
+OUTNH4DET=d:\data\sen\ganspoel\res97j251\NNH4det.map
+OUTNO3DET=d:\data\sen\ganspoel\res97j251\NNO3det.map
+
+[OutputGul]
+OUTGULD=d:\data\sen\ganspoel\res97j251\guld
+OUTGULW=d:\data\sen\ganspoel\res97j251\gulw
+OUTGULA=d:\data\sen\ganspoel\res97j251\gula
+OUTGULF=d:\data\sen\ganspoel\res97j251\gulf
+OUTGULDEM=d:\data\sen\ganspoel\res97j251\guldem

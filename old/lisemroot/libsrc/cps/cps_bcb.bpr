@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="cps_bcb.lib"/>
+    <OBJFILES value="cps_bcb.obj edge.obj chkdata.obj compress.obj cpslang.obj cpsmem.obj 
+      cpsparam.obj cpstest.obj cpstimin.obj cpswarn.obj initmaps.obj lddutil.obj 
+      sprdldd.obj stdlibx.obj timeoutp.obj calcheig.obj cpsio.obj mask.obj 
+      minemati.obj accuflux.obj upstream.obj findd50.obj kineDX.obj"/>
+    <RESFILES value=""/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="tee.lib bdertl.lib vcldb.lib dbrtl.lib dclocx.lib vclx.lib bcbsmp.lib 
+      vcl.lib rtl.lib"/>
+    <SPARELIBS value="rtl.lib vcl.lib bcbsmp.lib vclx.lib dclocx.lib dbrtl.lib vcldb.lib 
+      bdertl.lib tee.lib"/>
+    <PACKAGES value=""/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value=""/>
+    <RELEASELIBPATH value=""/>
+    <LINKER value="TLib"/>
+    <USERDEFINES value="_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_NO_VCL"/>
+    <MAINSOURCE value="cps_bcb.cpp"/>
+    <INCLUDEPATH value="$(BCB)\include;$(BCB)\include\vcl;..\..\include"/>
+    <LIBPATH value=""/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <WARNOPTSTR value=""/>
+    <LISTFILE value=""/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I$(BCB)\include -I$(BCB)\include\vcl -I..\..\include -src_suffix cpp 
+      -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- -k -y -v -vi- -c -tWM"/>
+    <PFLAGS value="-$Y+ -$W -$O- -$A8 -v -M -JPHNE"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value=""/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="$(OBJFILES)"/>
+    <ALLRES value=""/>
+    <ALLLIB value=""/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="cps_bcb.cpp" FORMNAME="" UNITNAME="cps_bcb" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="edge.c" FORMNAME="" UNITNAME="edge" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="chkdata.c" FORMNAME="" UNITNAME="chkdata" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="compress.c" FORMNAME="" UNITNAME="compress" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpslang.c" FORMNAME="" UNITNAME="cpslang" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpsmem.c" FORMNAME="" UNITNAME="cpsmem" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpsparam.c" FORMNAME="" UNITNAME="cpsparam" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpstest.c" FORMNAME="" UNITNAME="cpstest" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpstimin.c" FORMNAME="" UNITNAME="cpstimin" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpswarn.c" FORMNAME="" UNITNAME="cpswarn" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="initmaps.c" FORMNAME="" UNITNAME="initmaps" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lddutil.c" FORMNAME="" UNITNAME="lddutil" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="sprdldd.c" FORMNAME="" UNITNAME="sprdldd" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="stdlibx.c" FORMNAME="" UNITNAME="stdlibx" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="timeoutp.c" FORMNAME="" UNITNAME="timeoutp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="calcheig.c" FORMNAME="" UNITNAME="calcheig" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="cpsio.c" FORMNAME="" UNITNAME="cpsio" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="mask.c" FORMNAME="" UNITNAME="mask" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="minemati.c" FORMNAME="" UNITNAME="minemati" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="accuflux.c" FORMNAME="" UNITNAME="accuflux" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="upstream.c" FORMNAME="" UNITNAME="upstream" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="findd50.c" FORMNAME="" UNITNAME="findd50" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="kineDX.c" FORMNAME="" UNITNAME="kineDX" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <FILES>
+    <FILE type="override" value="cps_bcb.cpp" translator="Auto">
+      <CFLAG1 value=" -vGc- -vGt- -vGd- -H- -Hc- -Tkh30000"/>
+    </FILE>
+  </FILES>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1033
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=7
+Item0=$(BCB)\include;$(BCB)\include\vcl;..\..\include
+Item1=$(BCB)\include;$(BCB)\include\vcl;C:\lisem\lisemroot\include
+Item2=..\..\..\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\..\include
+Item3=..\lcalc;..\..\lisemMC;$(BCB)\include;$(BCB)\include\vcl;..\..\include
+Item4=..\..\lisemMC;$(BCB)\include;$(BCB)\include\vcl;..\..\include
+Item5=..\..\lisemMC;..\lcalc;$(BCB)\include;$(BCB)\include\vcl;..\..\include
+Item6=$(BCB)\include;$(BCB)\include\vcl;..\include
+
+[HistoryLists\hlLibraryPath]
+Count=5
+Item0=..\..\..\CBuilder6\Projects
+Item1=..\..\..\CBuilder6\Projects;
+Item2=..\lcalc;
+Item3=..\lcalc
+Item4=..\..\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=5
+Item0=_DEBUG
+Item1=DUMPNAMES
+Item2=COMPDOS
+Item3=COMPWIN
+Item4=_NO_VCL
+
+[HistoryLists\hlFinalOutputDir]
+Count=12
+Item0=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=..\..\libItem1=C:\Program Files\Borland\Projects\libItem1=..\..\libItem1=C:\Program Files\Borland\Projects\libItem1=..\..\libItem1=..\..\lib
+Item1=
+Item2=
+Item3=
+Item4=
+Item5=
+Item6=
+Item7=
+Item8=
+Item9=
+Item10=
+Item11=
+
+[HistoryLists\hIBPIOutputDir]
+Count=21
+Item0=C:\Program Files\Borland\Projects\lib
+Item1=C:\Program Files\Borland\Projects\lib\
+Item2=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=C:\Program Files\Borland\Projects\libItem1=..\..\lib
+Item3=
+Item4=
+Item5=
+Item6=
+Item7=
+Item8=
+Item9=
+Item10=
+Item11=
+Item12=
+Item13=
+Item14=
+Item15=
+Item16=
+Item17=
+Item18=
+Item19=
+Item20=
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=1
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+  </IDEOPTIONS>
+</PROJECT>

@@ -1,0 +1,13 @@
+Error 00050. 0x820000 (Thread 0x0404):
+Function failure:
+fscanf(0x401A35DC, 0x4019B991 ["%[^\n]\n"], ...)=0x0 [0]
+
+Call Tree:
+   0x40046251(=lisemwin.exe:0x01:045251) C:\Program Files\Borland\Projects\libsrc\cps\cpstimin.c#71
+   0x40046778(=lisemwin.exe:0x01:045778) C:\Program Files\Borland\Projects\libsrc\cps\cpstimin.c#240
+   0x40020003(=lisemwin.exe:0x01:01F003) C:\Program Files\Borland\Projects\lisemMC\Lismain.cpp#344
+   0x4013CA7D(=lisemwin.exe:0x01:13BA7D) classes.pas#9008
+   0x40158C1A(=lisemwin.exe:0x01:157C1A) system.pas#11218
+   0x77E802ED(=kernel32.dll:0x01:01F2ED)
+
+------------------------------------------
