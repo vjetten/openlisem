@@ -202,7 +202,7 @@ void TWorld::Totals(void)
 		// spatial totals for output
 		FOR_ROW_COL_MV
 		{
-			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg
+			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
 
 			TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
 			TotalDepMap->Drc += DEP->Drc;
@@ -241,6 +241,8 @@ void TWorld::Output()
 	op.runstep = runstep;
 	op.maxstep = (int) ((EndTime-BeginTime)/_dt);
 	op.EndTime = EndTime/60.0;
+//	op.BeginTime = BeginTime/60.0;
+
 	op.CatchmentArea = CatchmentArea;
 
 	op.RainTotmm=RainTotmm;
@@ -271,6 +273,14 @@ void TWorld::Output()
 	op.t = time_ms.elapsed()*0.001/60.0;
 	op.time = time/60;
 	op.maxtime = op.t/runstep * op.maxstep;
+
+	op.P = RainAvgmm* 3600/_dt;
+	op.Q = Qoutput->DrcOutlet;
+	op.Qs = Qsoutput->DrcOutlet;
+	op.C = TotalConc->DrcOutlet;
+
+	op.BufferVolTot = BufferVolTot;
+	op.BufferSedTot = BufferSedTot;
 
 	emit show();
 
@@ -322,7 +332,7 @@ void TWorld::DoModel()
 
 		DEBUG(QString("running"));
 
-		runstep = 0;
+		runstep = 0; // NOTE runstep is used to initialize graph!
 		printstep = 0;
 		for (time = BeginTime; time < EndTime; time += _dt)
 		{

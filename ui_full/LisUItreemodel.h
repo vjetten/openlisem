@@ -1,12 +1,15 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
 
 #ifndef TREEMODEL_H
 #define TREEMODEL_H
 
 #include <QtGui>
-
-//#include <QAbstractItemModel>
-//#include <QModelIndex>
-//#include <QVariant>
 
 #include "LisUItreeitem.h"
 

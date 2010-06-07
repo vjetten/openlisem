@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     // exe path, used for ini file
 
     QApplication::setStyle("WindowsVista");
-    //QApplication::setStyle("Cleanlooks");
+ //   QApplication::setStyle("Cleanlooks");
 
 #ifdef __BASIC__
     ifacebasic iface;

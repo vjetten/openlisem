@@ -206,10 +206,18 @@ void TWorld::GetInputData(void)
 	Outlet = ReadMap(LDD,getvaluename("outlet"));
 	FOR_ROW_COL_MV
 	{
-		if (Outlet->Drc == 1 && LDD->Drc != 5)
+		if (Outlet->Drc == 1)
 		{
-			ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
-			throw 1;
+			if (LDD->Drc != 5)
+			{
+				ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
+				throw 1;
+			}
+			else
+			{
+				c_outlet = c;
+				r_outlet = r;
+			}
 		}
 	}
 

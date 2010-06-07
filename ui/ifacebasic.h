@@ -15,25 +15,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 #include "ui_ifacebasic.h"
 #include "model.h"
-
-struct output{
-    int runstep;
-    int printstep;
-    int maxstep;
-    double CatchmentArea, dx, t,
-      time, maxtime, EndTime;
-
-    double MB, Qtot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,
-      RainTotmm, SurfStormm, InfilKWTotmm,
-      MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
-      ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
-      RunoffFraction, RainpeakTime, QpeakTime;
-
-    bool SwitchErosion;
-    bool SwitchIncludeChannel;
-    QString runfilename;
-    QString LisemDir;
-};
+#include "lisuioutput.h"
 
 
 class ifacebasic : public QWidget, public Ui::ifacebasicClass
@@ -60,5 +42,6 @@ private slots:
 private:
     TWorld *W;
 };
+
 
 #endif // ifacebasic_H

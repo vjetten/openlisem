@@ -7,13 +7,15 @@ website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
 /*
- * This is the extensive interface
+ * This is the extensive interface, with toolbar, initialization of graph
+ * and options
  */
 
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
 
+output op;
 
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent)
@@ -21,11 +23,12 @@ lisemqt::lisemqt(QWidget *parent)
 {
 	setupUi(this);
 	// set up interface
-   resize(920, 700);
+	resize(856, 674);
 
 	MapNameModel = NULL;
+	HPlot = NULL;
 	LisemReset();
-	DefaultMapnames();
+	SetToolBar();
 	FillMapList();
 	// initalize interface
 
@@ -33,21 +36,66 @@ lisemqt::lisemqt(QWidget *parent)
 	// initalize pointer to the world, created when run button is pushed
 
 	GetStorePath();
-//	E_runfilename->setText(op.runfilename);
-	// open openlisem.ini and read last runfile name
-	E_runFileList->addItem(op.runfilename);
+	// get last place visited by opneLISEM and go there
 
-//	SetStyleUI();
+	SetStyleUI();
 	// do some style things
+
+   SetGraph();
+
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
 	StorePath();
+
+	if (HPlot)
+		delete HPlot;
+   //delete QGraph;
+   //delete QsGraph;
+   //delete CGraph;
+
+}
+//--------------------------------------------------------------------
+void lisemqt::SetToolBar()
+{
+	openAct = new QAction(QIcon(":/fileopen.png"), "&Open...", this);
+	openAct->setShortcuts(QKeySequence::Open);
+	openAct->setStatusTip("Open a run file");
+	connect(openAct, SIGNAL(triggered()), this, SLOT(openRunFile()));
+	toolBar->addAction(openAct);
+
+	saveAct = new QAction(QIcon(":/filesave.png"), "&Save...", this);
+	saveAct->setShortcuts(QKeySequence::Save);
+	saveAct->setStatusTip("Save a run file");
+	connect(saveAct, SIGNAL(triggered()), this, SLOT(savefile()));
+	toolBar->addAction(saveAct);
+
+	saveasAct = new QAction(QIcon(":/filesaveas.png"), "Save &As...", this);
+	saveasAct->setShortcuts(QKeySequence::SaveAs);
+	saveasAct->setStatusTip("Save a run file as ...");
+	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefile()));
+	toolBar->addAction(saveasAct);
+
+	runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
+//	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
+	runAct->setStatusTip("run the model ...");
+	connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
+	toolBar->addAction(runAct);
+
+	stopAct = new QAction(QIcon(":/stop16_2.png"), "Stop the model...", this);
+//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
+	stopAct->setStatusTip("stop the model run ...");
+	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
+	toolBar->addAction(stopAct);
+	toolBar->addSeparator();
+
 }
 //--------------------------------------------------------------------
 void lisemqt::LisemReset()
 {
+	DefaultMapnames();
+
 	/*
 	E_LisemType->addItem("LISEM Basic");
 	E_LisemType->addItem("LISEM Wheeltracks");
@@ -61,15 +109,131 @@ void lisemqt::LisemReset()
 	E_InfiltrationMethod->addItem("Smith and Parlange");
 	E_InfiltrationMethod->addItem("Subtract Ksat");
 
-	prevsel = 0;
-	prevselinf = 0;
-	RainFileName = "";
+	RunFileNames.clear();
 
-	SetMenuandToolBar();
-
+	RainFileName.clear();
+	rainFileDir.clear();
+	SnowmeltFileName.clear();
+	snowmeltFileDir.clear();
 
 }
-//--------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void lisemqt::SetGraph()
+{
+	QwtText title;
+	title.setText("Hydrograph/Sedigraph outlet");
+	HPlot = new QwtPlot(title, widgetGraph);
+	// make the plot window
+
+	PGraph = new QwtPlotCurve("Rainfall");
+	QGraph = new QwtPlotCurve("Discharge");
+	QsGraph = new QwtPlotCurve("Sediment discharge");
+	CGraph = new QwtPlotCurve("Concentration");
+   PGraph->attach(HPlot);
+   QGraph->attach(HPlot);
+   QsGraph->attach(HPlot);
+   CGraph->attach(HPlot);
+   // order determines order of display in Legend
+   PGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
+   QGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
+   QsGraph->setAxis(HPlot->xBottom, HPlot->yRight);
+   CGraph->setAxis(HPlot->xBottom, HPlot->yRight);
+   QColor col;
+   col.setRgb( 200,0,0,255 );
+   CGraph->setPen(QPen(col));
+   QsGraph->setPen(QPen(Qt::red));
+   col.setRgb( 60,100,160,255 );
+   QGraph->setPen(QPen(col));
+   PGraph->setPen(QPen("#000000"));
+   //PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //PGraph->setStyle(QwtPlotCurve::Steps);
+   // make all graphs to be drawn and link them to HPlot
+   // set colors
+
+   QwtLegend *legend = new QwtLegend(widgetGraph);
+   legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+   HPlot->insertLegend(legend, QwtPlot::BottomLegend);
+
+   //legend
+
+   HPlot->resize(450,380);
+	HPlot->setCanvasBackground("#FFFFFF");
+	// size and white graph
+
+	HPlot->enableAxis(HPlot->yRight,true);
+	HPlot->enableAxis(HPlot->yLeft,true);
+	HPlot->enableAxis(HPlot->xBottom,true);
+	HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
+	HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)/P (mm/h)");
+	HPlot->setAxisTitle(HPlot->yRight, "Qs(kg/s)/C(g/l)");
+	HPlot->setAxisScale(HPlot->yRight, 0, 1);
+	HPlot->setAxisScale(HPlot->yLeft, 0, 100);
+	HPlot->setAxisScale(HPlot->xBottom, 0, 100);
+
+	// set axes
+
+	QwtPlotGrid *grid = new QwtPlotGrid();
+   grid->enableXMin(true);
+   grid->enableYMin(true);
+   col.setRgb( 180,180,180,180 );
+   grid->setMajPen(QPen(col, 0, Qt::DashLine));
+   col.setRgb( 210,210,210,180 );
+   grid->setMinPen(QPen(col, 0 , Qt::DotLine));
+   grid->attach(HPlot);
+   // set gridlines
+
+
+   HPlot->replot();
+   // draw empty plot
+
+   QData = NULL; //discharge
+	QsData = NULL;  //sed discharge
+	CData = NULL; //conc
+	PData = NULL; //rainfall
+	timeData = NULL;  //time
+	// init data arrays for plot data
+
+}
+//---------------------------------------------------------------------------
+void lisemqt::SetStyleUI()
+{
+	// make some labels yellow
+
+	label_dx->setStyleSheet("* { background-color: #ffffff }");
+	label_area->setStyleSheet("* { background-color: #ffffff }");
+	label_time->setStyleSheet("* { background-color: #ffffff }");
+	label_endtime->setStyleSheet("* { background-color: #ffffff }");
+	//label_runtime->setStyleSheet("* { background-color: #ffffff }");
+	//label_endruntime->setStyleSheet("* { background-color: #ffffff }");
+	label_raintot->setStyleSheet("* { background-color: #ffff77 }");
+	label_watervoltot->setStyleSheet("* { background-color: #ffff77 }");
+	label_qtot->setStyleSheet("* { background-color: #ffff77 }");
+	label_infiltot->setStyleSheet("* { background-color: #ffff77 }");
+	label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
+	label_interctot->setStyleSheet("* { background-color: #ffff77 }");
+	label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
+	label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
+	label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
+	label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
+	label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
+	label_discharge->setStyleSheet("* { background-color: #ffff77 }");
+
+	label_splashdet->setStyleSheet("* { background-color: #ffff77 }");
+	label_flowdet->setStyleSheet("* { background-color: #ffff77 }");
+	label_sedvol->setStyleSheet("* { background-color: #ffff77 }");
+	label_dep->setStyleSheet("* { background-color: #ffff77 }");
+	label_detch->setStyleSheet("* { background-color: #ffff77 }");
+	label_depch->setStyleSheet("* { background-color: #ffff77 }");
+	label_sedvolch->setStyleSheet("* { background-color: #ffff77 }");
+	label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
+	label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
+
+	label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
+	label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
+}//--------------------------------------------------------------------
 void lisemqt::on_E_LisemType_currentIndexChanged(int)
 {
 	if (MapNameModel)
@@ -83,6 +247,15 @@ void lisemqt::on_E_LisemType_currentIndexChanged(int)
 		prevsel = selrow;
 		 */
 	}
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_fileOpen_clicked()
+{
+	openRunFile();
+	GetRunfile();
+	ParseInputData();
+	FillMapList();
+	RunAllChecks();
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_MapDir_clicked()
@@ -134,10 +307,10 @@ void lisemqt::on_toolButton_SnowmeltShow_clicked()
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
 		QMessageBox::warning(this,
-			QString("Snowmelt fluxes"),
-			QString("Cannot read file %1:\n%2.")
-			.arg(SnowmeltFileName)
-			.arg(file.errorString()));
+				QString("openLISEM"),
+				QString("Cannot read file %1:\n%2.")
+				.arg(SnowmeltFileName)
+				.arg(file.errorString()));
 		return;
 	}
 
@@ -157,8 +330,9 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
 {
 
 	QFile file(RainFileName);
-	if (!file.open(QFile::ReadOnly | QFile::Text)) {
-		QMessageBox::warning(this, tr("Application"),
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		QMessageBox::warning(this, QString("openLISEM"),
 				tr("Cannot read file %1:\n%2.")
 				.arg(RainFileName)
 				.arg(file.errorString()));
@@ -177,195 +351,9 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
 	file.close();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkNoErosion_clicked()
-{
-	change_MapNameModel(3, 0, !checkNoErosion->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int)
-{
-	if (MapNameModel)
-	{
-		int selrow = E_InfiltrationMethod->currentIndex() + 9;
-		if (E_InfiltrationMethod->currentIndex() == 0)
-		{
-			selrow = -1;
-			treeView->collapse(MapNameModel->index(4,0));
-		}
-
-		if (prevselinf > 0)
-			change_MapNameModel(4, prevselinf, false);
-		prevselinf = selrow;
-
-		change_MapNameModel(4,selrow, true);
-
-	}
-	groupBox_SwatreOptions->setEnabled(E_InfiltrationMethod->currentIndex() == 1);
-
-}
-//--------------------------------------------------------------------
-void lisemqt::on_toolButton_SwatreTable_clicked()
-{
-	QString path;
-	path = QFileDialog::getExistingDirectory(
-			this,
-			tr("Select directory with SWATRE tables"),
-			QString::null,
-			QFileDialog::ShowDirsOnly);
-
-	E_SWATRETableDir->setText( path );
-	//SWATRETableDir = path;
-}   // E_SwatreDTSEC->Text = value;
-
-//--------------------------------------------------------------------
-void lisemqt::on_checkIncludeChannel_clicked()
-{
-	if (checkIncludeChannel->isChecked())
-	{
-		change_MapNameModel(5, 11, checkChannelInfil->isChecked());
-		change_MapNameModel(5, 12, checkChannelBaseflow->isChecked());
-	}
-	change_MapNameModel(5, 10, checkIncludeChannel->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkChannelInfil_clicked()
-{
-	if (checkChannelBaseflow->isChecked())
-		checkChannelBaseflow->setChecked(false);
-	change_MapNameModel(5, 12, checkChannelBaseflow->isChecked());
-	change_MapNameModel(5, 11, checkChannelInfil->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkChannelBaseflow_clicked()
-{
-	if (checkChannelInfil->isChecked())
-		checkChannelInfil->setChecked(false);
-	change_MapNameModel(5, 11, checkChannelInfil->isChecked());
-	change_MapNameModel(5, 12, checkChannelBaseflow->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkInfilCompact_clicked()
-{
-	if (E_InfiltrationMethod->currentIndex() > 0)
-		change_MapNameModel(4, 15, checkInfilCompact->isChecked());
-	else
-	{
-		checkInfilCompact->setChecked(false);
-		QMessageBox msgBox;
-		msgBox.setText("Select an infiltration method first.");
-		msgBox.exec();
-	}
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkInfilCrust_clicked()
-{
-	if (E_InfiltrationMethod->currentIndex()> 0)
-		change_MapNameModel(4, 15, checkInfilCrust->isChecked());
-	else
-	{
-		checkInfilCrust->setChecked(false);
-		QMessageBox msgBox;
-		msgBox.setText("Select an infiltration method first.");
-		msgBox.exec();
-	}
-
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkInfilGrass_clicked()
-{
-	if (E_InfiltrationMethod->currentIndex()> 0)
-		change_MapNameModel(4, 15, checkInfilGrass->isChecked());
-	else
-	{
-		checkInfilGrass->setChecked(false);
-		QMessageBox msgBox;
-		msgBox.setText("Select an infiltration method first.");
-		msgBox.exec();
-	}
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkBuffers_clicked()
-{
-	change_MapNameModel(6, 0, checkBuffers->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkSedtrap_clicked()
-{
-	change_MapNameModel(6, 0, checkSedtrap->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkSnowmelt_clicked()
-{
-	change_MapNameModel(7, 0, checkSnowmelt->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkExpandActive_clicked()
-{
-	if (!checkExpandActive->isChecked())
-		treeView->collapseAll();
-	else
-		for (int i = 0; i < MapNameModel->rowCount(); i++)
-		{
-			if (MapNameModel->getflag(i))
-				treeView->expand(MapNameModel->index(i,0));
-			/*
-                QModelIndex indexParent = MapNameModel->index(i, 0);
-                QModelIndex indexChild = MapNameModel->index(i, 0, indexParent);
-
-                for (int k = 0; k < MapNameModel->rowCount(indexChild); k++)
-                        if (MapNameModel->getflag(k, indexChild))
-                                treeView->expand(MapNameModel->index(k,0));
-			 */
-		}
-
-	//  treeView->resizeColumnToContents(0);
-	//    treeView->resizeColumnToContents(1);
-	//treeView->resizeColumnToContents(1);
-}
-
-//--------------------------------------------------------------------
-void lisemqt::SetMenuandToolBar()
-{
-	//QSize is = QSize(21,21);
-	//toolBar->setIconSize(is);
-
-	openAct = new QAction(QIcon(":/fileopen.png"), "&Open...", this);
-	openAct->setShortcuts(QKeySequence::Open);
-	openAct->setStatusTip("Open a run file");
-	connect(openAct, SIGNAL(triggered()), this, SLOT(openRunFile()));
-	menu_File->addAction(openAct);
-	toolBar->addAction(openAct);
-
-	saveAct = new QAction(QIcon(":/filesave.png"), "&Save...", this);
-	saveAct->setShortcuts(QKeySequence::Save);
-	saveAct->setStatusTip("Save a run file");
-	connect(saveAct, SIGNAL(triggered()), this, SLOT(savefile()));
-	menu_File->addAction(saveAct);
-	toolBar->addAction(saveAct);
-
-	saveasAct = new QAction(QIcon(":/filesaveas.png"), "Save &As...", this);
-	saveasAct->setShortcuts(QKeySequence::SaveAs);
-	saveasAct->setStatusTip("Save a run file as ...");
-	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefile()));
-	menu_File->addAction(saveasAct);
-	toolBar->addAction(saveasAct);
-
-	runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
-	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
-	runAct->setStatusTip("run the model ...");
-	connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
-	menu_File->addAction(runAct);
-	toolBar->addAction(runAct);
-
-}
-//--------------------------------------------------------------------
-void lisemqt::runmodel()
-{
-	StorePath();
-}
-//--------------------------------------------------------------------
 void lisemqt::savefile()
 {
+	/*
 	//label->setText("saving ...");
 	QFile fout("hup.txt");
 	fout.open(QIODevice::ReadWrite);
@@ -402,7 +390,7 @@ void lisemqt::savefile()
 		fout.write(line);
 	}
 	fout.close();
-
+	 */
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()
@@ -410,10 +398,29 @@ void lisemqt::openRunFile()
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
 			QString("Select run file(s)"),
-			QString("c:/lisemcourse"),
+			currentDir,
 			QString("*.run"));
-	E_RainfallName->setText( path );
-	RainFileName = path;
+
+	if (path.isEmpty())
+		return;
+	E_runFileList->setInsertPolicy(QComboBox::InsertAtTop);
+
+	bool exst = false;
+	for (int i = 0; i < E_runFileList->count(); i++)
+		if (E_runFileList->itemText(i) == path)
+			exst = true;
+	if (!exst)
+		E_runFileList->insertItem(0,path);
+	E_runFileList->setCurrentIndex(0);
+
+	RunFileNames.clear();
+	for (int i = 0; i <= E_runFileList->count(); i++)
+		RunFileNames << E_runFileList->itemText(i);
+
+	RunFileNames.removeDuplicates();
+	op.runfilename = E_runFileList->itemText(0);
+
+	//DoTree();
 }
 //---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
@@ -421,9 +428,10 @@ void lisemqt::GetStorePath()
 	QFile fff(op.LisemDir + "openlisem.ini");
 	if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
-
-	op.runfilename = fff.readLine();
-
+	QFileInfo fi(fff.readLine());
+	QDir dir = fi.absoluteDir();
+	currentDir = dir.absolutePath();
+	//label_debug->setText(currentDir);
 	fff.close();
 }
 //---------------------------------------------------------------------------
@@ -437,12 +445,12 @@ void lisemqt::StorePath()
 
 	ts << op.runfilename;// << endl;
 
+
 	fff.close();
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_ShowRunfile_clicked()
 {
-
 	QFile file(op.runfilename);
 	if (!file.open(QFile::ReadOnly | QFile::Text)) {
 		QMessageBox::warning(this, "openLISEM",
@@ -459,12 +467,22 @@ void lisemqt::on_toolButton_ShowRunfile_clicked()
 	view->setMinimumWidth(400);
 	view->setMinimumHeight(500);
 	view->setAttribute(Qt::WA_DeleteOnClose);
+
 	view->show();
 
 	file.close();
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_E_runFileList_currentIndexChanged(int)
+{
+	CurrentRunFile = E_runFileList->currentIndex();
+	op.runfilename = E_runFileList->currentText();
+	//RunFileNames.at(CurrentRunFile);
+	GetRunfile();
+	ParseInputData();
+	FillMapList();
+	RunAllChecks();
+}
 //--------------------------------------------------------------------
-
 
 

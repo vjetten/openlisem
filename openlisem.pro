@@ -2,7 +2,8 @@ TEMPLATE = app
 TARGET = openLisem
 QT += core \
     gui
-HEADERS += ui/ifacebasic.h \
+HEADERS += include/LisUIoutput.h \
+    ui/ifacebasic.h \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
     ui_full/lisemqt.h \
@@ -17,7 +18,10 @@ HEADERS += ui/ifacebasic.h \
     include/mmath.h \
     include/model.h \
     include/stable.h
-SOURCES += ui/ifacebasic.cpp \
+SOURCES += ui_full/LisUItreecheck.cpp \
+    ui_full/LisUIModel.cpp \
+    ui_full/LisUIrunfile.cpp \
+    ui/ifacebasic.cpp \
     ui_full/LisUImapnames.cpp \
     ui_full/LisUItreeitem.cpp \
     ui_full/LisUItreemodel.cpp \
@@ -38,10 +42,12 @@ SOURCES += ui/ifacebasic.cpp \
     mmath.cpp
 FORMS += ui_full/lisemqt.ui \
     ui/ifacebasic.ui
-LIBS += -L"libs/debug/" \
-    -llibcsf
+LIBS += -L"libs" \
+    -llibcsfd \
+    -lqwtd5 
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"
+INCLUDEPATH += "d:\prgc\qwt-5.2.1\src"
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h

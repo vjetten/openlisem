@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'lisemqt.ui'
 **
-** Created: Sun May 30 12:32:26 2010
+** Created: Sun Jun 6 11:03:17 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -24,8 +24,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QProgressBar>
 #include <QtGui/QRadioButton>
 #include <QtGui/QSpinBox>
 #include <QtGui/QStatusBar>
@@ -57,7 +57,7 @@ public:
     QCheckBox *checkSnowmelt;
     QCheckBox *checkNoErosionOutlet;
     QCheckBox *checkAltErosion;
-    QCheckBox *checkAltDepression;
+    QCheckBox *checkSimpleDepression;
     QCheckBox *checkHardsurface;
     QCheckBox *checkChannelInfil;
     QCheckBox *checkChannelBaseflow;
@@ -67,11 +67,11 @@ public:
     QGridLayout *gridLayout_8;
     QCheckBox *checkInfilCompact;
     QCheckBox *checkInfilCrust;
-    QCheckBox *checkInfilClosebottom;
+    QCheckBox *checkImpermeable;
     QCheckBox *checkInfil2layer;
     QGroupBox *groupBox_SwatreOptions;
     QGridLayout *gridLayout_7;
-    QCheckBox *checkGeometric;
+    QCheckBox *checkGeometricMean;
     QCheckBox *checkDumphead;
     QLabel *label_13;
     QLineEdit *E_SWATRETableDir;
@@ -86,6 +86,18 @@ public:
     QCheckBox *checkInfilGrass;
     QLabel *label_15;
     QLineEdit *E_GrassStripN;
+    QWidget *page_2;
+    QCheckBox *checkInterceptionLAI;
+    QGroupBox *groupInterception;
+    QGridLayout *gridLayout_5;
+    QRadioButton *radioButton_1;
+    QRadioButton *radioButton_2;
+    QRadioButton *radioButton_3;
+    QRadioButton *radioButton_4;
+    QRadioButton *radioButton_5;
+    QRadioButton *radioButton_6;
+    QRadioButton *radioButton_7;
+    QRadioButton *radioButton_8;
     QWidget *page;
     QFrame *frame3;
     QGridLayout *gridLayout_6;
@@ -97,18 +109,17 @@ public:
     QDoubleSpinBox *E_calibrateChKsat;
     QLabel *label_12;
     QDoubleSpinBox *E_CalibrateChN;
-    QWidget *page_2;
     QTabWidget *tabWidget_OutputMaps;
     QWidget *tab_4;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QVBoxLayout *verticalLayout;
     QCheckBox *checkBox_OutRunoff;
     QCheckBox *checkBox_OutWH;
     QCheckBox *checkBox_OutWHC;
     QCheckBox *checkBox_OutInf;
     QCheckBox *checkBox_OutV;
-    QCheckBox *checkBox_OutDep;
     QCheckBox *checkBox_OutDet;
+    QCheckBox *checkBox_OutDep;
     QCheckBox *checkBox_OutConc;
     QCheckBox *checkBox_OutTC;
     QCheckBox *checkBox_OutSurfStor;
@@ -117,17 +128,19 @@ public:
     QWidget *tab_5;
     QWidget *tab_7;
     QGroupBox *groupBox_4;
-    QSpinBox *spinBox;
+    QSpinBox *printinterval;
+    QRadioButton *checkOutputTimeStep;
+    QRadioButton *checkOutputTimeUser;
     QLabel *label_16;
-    QRadioButton *radioButton;
+    QPlainTextEdit *plainTextEdit;
     QGroupBox *groupBoxTime;
     QGridLayout *gridLayout_3;
     QLabel *label_6;
     QLineEdit *E_BeginTime;
     QLabel *label_7;
-    QLineEdit *E_EndTIme;
+    QLineEdit *E_EndTime;
     QLabel *label_8;
-    QLineEdit *E_TimeStep;
+    QLineEdit *E_Timestep;
     QGroupBox *groupBox;
     QGridLayout *gridLayout_2;
     QLabel *label_2;
@@ -142,8 +155,9 @@ public:
     QToolButton *toolButton_SnowmeltShow;
     QToolButton *toolButton_SnowmeltNameS;
     QLabel *label;
-    QToolButton *toolButton_ShowRunfile;
     QComboBox *E_runFileList;
+    QToolButton *toolButton_ShowRunfile;
+    QToolButton *toolButton_fileOpen;
     QGroupBox *groupOutputMain;
     QLabel *label_17;
     QLineEdit *E_DetachmentMap;
@@ -152,41 +166,123 @@ public:
     QLabel *label_19;
     QLineEdit *E_SoillossMap;
     QLabel *label_22;
-    QLineEdit *E_DetachmentMap_2;
-    QLineEdit *E_DepositionMap_2;
+    QLineEdit *E_MainTotals;
+    QLineEdit *E_PointResults;
     QLabel *label_20;
     QLabel *label_3;
     QLineEdit *E_ResultDir;
     QToolButton *toolButton_ResultDir;
     QFrame *line_2;
-    QCheckBox *checkBox_4;
+    QCheckBox *checkSeparateOutput;
     QGroupBox *groupBox_2;
     QRadioButton *checkUnits_kgcell;
     QRadioButton *checkUnits_kgm2;
     QRadioButton *checkUnits_tonha;
     QGroupBox *groupOutputFormat;
     QVBoxLayout *verticalLayout_2;
-    QCheckBox *checkBox;
-    QCheckBox *checkBox_2;
-    QCheckBox *checkBox_3;
+    QFrame *frame4;
+    QGridLayout *gridLayout_4;
+    QCheckBox *checkSOBEKOutput;
+    QLineEdit *SOBEKdatestring;
+    QCheckBox *checkWritePCRtimeplot;
+    QCheckBox *checkWritePCRnames;
+    QLabel *label_49;
     QWidget *tab_12;
     QGridLayout *gridLayout_12;
-    QGroupBox *groupBox_3;
+    QGroupBox *groupBox_InputMaps;
     QGridLayout *gridLayout_10;
     QTreeView *treeView;
     QCheckBox *checkExpandActive;
+    QLabel *label_47;
     QWidget *tab_3;
-    QMenuBar *menubar;
-    QMenu *menu_File;
+    QGroupBox *sedgroup;
+    QGridLayout *gridLayout_9;
+    QLabel *label_50;
+    QLabel *label_21;
+    QLabel *label_splashdet;
+    QLabel *label_41;
+    QLabel *label_detch;
+    QLabel *label_23;
+    QLabel *label_flowdet;
+    QLabel *label_43;
+    QLabel *label_depch;
+    QLabel *label_27;
+    QLabel *label_dep;
+    QLabel *label_39;
+    QLabel *label_sedvolch;
+    QLabel *label_25;
+    QLabel *label_sedvol;
+    QLabel *label_45;
+    QLabel *label_MBs;
+    QLabel *label_51;
+    QGroupBox *groupTime;
+    QGridLayout *gridLayout_13;
+    QLabel *label_endtime;
+    QLabel *label_area;
+    QLabel *label_time;
+    QLabel *label_29;
+    QLabel *label_dx;
+    QLabel *label_46;
+    QLabel *label_38;
+    QLabel *label_48;
+    QLabel *label_30;
+    QLabel *label_endruntime;
+    QLabel *label_runtime;
+    QGroupBox *watergroup;
+    QGridLayout *gridLayout_15;
+    QLabel *label_32;
+    QLabel *label_raintot;
+    QLabel *label_34;
+    QLabel *label_interctot;
+    QLabel *label_36;
+    QLabel *label_infiltot;
+    QLabel *label_37;
+    QLabel *label_surfstor;
+    QLabel *label_40;
+    QLabel *label_watervoltot;
+    QLabel *label_42;
+    QLabel *label_qtot;
+    QLabel *label_MB;
+    QLabel *label_44;
+    QLabel *label_24;
+    QLabel *label_qpeaktime;
+    QLabel *label_52;
+    QLabel *label_QPfrac;
+    QLabel *label_35;
+    QLabel *label_qpeak;
+    QLabel *label_53;
+    QLabel *label_ppeaktime;
+    QProgressBar *progressBar;
+    QLabel *label_debug;
+    QWidget *widgetGraph;
+    QPlainTextEdit *textGraph;
+    QGroupBox *outletgroup_2;
+    QGridLayout *gridLayout_16;
+    QLabel *label_buffervol;
+    QLabel *label_56;
+    QLabel *label_buffersed;
+    QLabel *label_57;
+    QGroupBox *outletgroup;
+    QGridLayout *gridLayout_14;
+    QLabel *label_26;
+    QLabel *label_qtotm3;
+    QLabel *label_28;
+    QLabel *label_soilloss;
+    QLabel *label_discharge;
+    QLabel *label_54;
+    QLabel *label_soillosskgha;
+    QLabel *label_31;
     QToolBar *toolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup_2;
+    QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *lisemqtClass)
     {
         if (lisemqtClass->objectName().isEmpty())
             lisemqtClass->setObjectName(QString::fromUtf8("lisemqtClass"));
-        lisemqtClass->resize(920, 700);
+        lisemqtClass->resize(852, 676);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -219,12 +315,12 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         line = new QFrame(tab);
         line->setObjectName(QString::fromUtf8("line"));
-        line->setGeometry(QRect(380, 0, 20, 591));
+        line->setGeometry(QRect(400, 0, 20, 581));
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         toolBox = new QToolBox(tab);
         toolBox->setObjectName(QString::fromUtf8("toolBox"));
-        toolBox->setGeometry(QRect(10, 240, 371, 351));
+        toolBox->setGeometry(QRect(10, 240, 391, 341));
         QFont font;
         font.setBold(true);
         font.setUnderline(false);
@@ -238,7 +334,7 @@ public:
         toolBox->setMidLineWidth(1);
         page_3 = new QWidget();
         page_3->setObjectName(QString::fromUtf8("page_3"));
-        page_3->setGeometry(QRect(0, 0, 369, 244));
+        page_3->setGeometry(QRect(0, 0, 389, 229));
         frame = new QFrame(page_3);
         frame->setObjectName(QString::fromUtf8("frame"));
         frame->setGeometry(QRect(10, 10, 348, 201));
@@ -249,6 +345,8 @@ public:
         font1.setBold(false);
         font1.setWeight(50);
         checkNoErosion->setFont(font1);
+        checkNoErosion->setCheckable(true);
+        checkNoErosion->setChecked(false);
         checkIncludeChannel = new QCheckBox(frame);
         checkIncludeChannel->setObjectName(QString::fromUtf8("checkIncludeChannel"));
         checkIncludeChannel->setGeometry(QRect(1, 24, 231, 17));
@@ -266,10 +364,10 @@ public:
         checkAltErosion->setObjectName(QString::fromUtf8("checkAltErosion"));
         checkAltErosion->setGeometry(QRect(1, 134, 312, 17));
         checkAltErosion->setFont(font1);
-        checkAltDepression = new QCheckBox(frame);
-        checkAltDepression->setObjectName(QString::fromUtf8("checkAltDepression"));
-        checkAltDepression->setGeometry(QRect(1, 156, 330, 17));
-        checkAltDepression->setFont(font1);
+        checkSimpleDepression = new QCheckBox(frame);
+        checkSimpleDepression->setObjectName(QString::fromUtf8("checkSimpleDepression"));
+        checkSimpleDepression->setGeometry(QRect(1, 156, 330, 17));
+        checkSimpleDepression->setFont(font1);
         checkHardsurface = new QCheckBox(frame);
         checkHardsurface->setObjectName(QString::fromUtf8("checkHardsurface"));
         checkHardsurface->setGeometry(QRect(1, 178, 346, 17));
@@ -287,7 +385,7 @@ public:
         toolBox->addItem(page_3, QString::fromUtf8("Global Options"));
         page_4 = new QWidget();
         page_4->setObjectName(QString::fromUtf8("page_4"));
-        page_4->setGeometry(QRect(0, 0, 369, 244));
+        page_4->setGeometry(QRect(0, 0, 389, 229));
         E_InfiltrationMethod = new QComboBox(page_4);
         E_InfiltrationMethod->setObjectName(QString::fromUtf8("E_InfiltrationMethod"));
         E_InfiltrationMethod->setGeometry(QRect(9, 4, 351, 22));
@@ -310,11 +408,11 @@ public:
 
         gridLayout_8->addWidget(checkInfilCrust, 1, 0, 1, 1);
 
-        checkInfilClosebottom = new QCheckBox(frame1);
-        checkInfilClosebottom->setObjectName(QString::fromUtf8("checkInfilClosebottom"));
-        checkInfilClosebottom->setFont(font1);
+        checkImpermeable = new QCheckBox(frame1);
+        checkImpermeable->setObjectName(QString::fromUtf8("checkImpermeable"));
+        checkImpermeable->setFont(font1);
 
-        gridLayout_8->addWidget(checkInfilClosebottom, 2, 0, 1, 1);
+        gridLayout_8->addWidget(checkImpermeable, 2, 0, 1, 1);
 
         checkInfil2layer = new QCheckBox(frame1);
         checkInfil2layer->setObjectName(QString::fromUtf8("checkInfil2layer"));
@@ -329,12 +427,12 @@ public:
         gridLayout_7->setSpacing(4);
         gridLayout_7->setContentsMargins(4, 4, 4, 4);
         gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
-        checkGeometric = new QCheckBox(groupBox_SwatreOptions);
-        checkGeometric->setObjectName(QString::fromUtf8("checkGeometric"));
-        checkGeometric->setEnabled(true);
-        checkGeometric->setFont(font1);
+        checkGeometricMean = new QCheckBox(groupBox_SwatreOptions);
+        checkGeometricMean->setObjectName(QString::fromUtf8("checkGeometricMean"));
+        checkGeometricMean->setEnabled(true);
+        checkGeometricMean->setFont(font1);
 
-        gridLayout_7->addWidget(checkGeometric, 0, 0, 1, 2);
+        gridLayout_7->addWidget(checkGeometricMean, 0, 0, 1, 2);
 
         checkDumphead = new QCheckBox(groupBox_SwatreOptions);
         checkDumphead->setObjectName(QString::fromUtf8("checkDumphead"));
@@ -392,10 +490,10 @@ public:
         toolBox->addItem(page_4, QString::fromUtf8("Infiltration"));
         page_5 = new QWidget();
         page_5->setObjectName(QString::fromUtf8("page_5"));
-        page_5->setGeometry(QRect(0, 0, 369, 244));
+        page_5->setGeometry(QRect(0, 0, 389, 229));
         frame2 = new QFrame(page_5);
         frame2->setObjectName(QString::fromUtf8("frame2"));
-        frame2->setGeometry(QRect(19, 13, 283, 91));
+        frame2->setGeometry(QRect(19, 13, 231, 91));
         gridLayout_11 = new QGridLayout(frame2);
         gridLayout_11->setContentsMargins(4, 4, 4, 4);
         gridLayout_11->setObjectName(QString::fromUtf8("gridLayout_11"));
@@ -405,7 +503,7 @@ public:
         checkBuffers->setSizePolicy(sizePolicy);
         checkBuffers->setFont(font1);
 
-        gridLayout_11->addWidget(checkBuffers, 0, 0, 1, 2);
+        gridLayout_11->addWidget(checkBuffers, 0, 0, 1, 3);
 
         checkSedtrap = new QCheckBox(frame2);
         checkSedtrap->setObjectName(QString::fromUtf8("checkSedtrap"));
@@ -413,7 +511,7 @@ public:
         checkSedtrap->setSizePolicy(sizePolicy);
         checkSedtrap->setFont(font1);
 
-        gridLayout_11->addWidget(checkSedtrap, 1, 0, 1, 2);
+        gridLayout_11->addWidget(checkSedtrap, 1, 0, 1, 3);
 
         checkInfilGrass = new QCheckBox(frame2);
         checkInfilGrass->setObjectName(QString::fromUtf8("checkInfilGrass"));
@@ -431,6 +529,8 @@ public:
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(label_15->sizePolicy().hasHeightForWidth());
         label_15->setSizePolicy(sizePolicy1);
+        label_15->setFont(font1);
+        label_15->setTextFormat(Qt::PlainText);
         label_15->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
         gridLayout_11->addWidget(label_15, 3, 0, 1, 1);
@@ -440,13 +540,87 @@ public:
         E_GrassStripN->setEnabled(false);
         sizePolicy.setHeightForWidth(E_GrassStripN->sizePolicy().hasHeightForWidth());
         E_GrassStripN->setSizePolicy(sizePolicy);
+        E_GrassStripN->setFont(font1);
 
         gridLayout_11->addWidget(E_GrassStripN, 3, 1, 1, 1);
 
         toolBox->addItem(page_5, QString::fromUtf8("Conservation measures"));
+        page_2 = new QWidget();
+        page_2->setObjectName(QString::fromUtf8("page_2"));
+        page_2->setGeometry(QRect(0, 0, 389, 229));
+        checkInterceptionLAI = new QCheckBox(page_2);
+        checkInterceptionLAI->setObjectName(QString::fromUtf8("checkInterceptionLAI"));
+        checkInterceptionLAI->setGeometry(QRect(10, 10, 341, 17));
+        checkInterceptionLAI->setFont(font1);
+        checkInterceptionLAI->setChecked(true);
+        groupInterception = new QGroupBox(page_2);
+        groupInterception->setObjectName(QString::fromUtf8("groupInterception"));
+        groupInterception->setGeometry(QRect(10, 40, 331, 181));
+        gridLayout_5 = new QGridLayout(groupInterception);
+        gridLayout_5->setContentsMargins(4, 4, 4, 4);
+        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
+        radioButton_1 = new QRadioButton(groupInterception);
+        buttonGroup_3 = new QButtonGroup(lisemqtClass);
+        buttonGroup_3->setObjectName(QString::fromUtf8("buttonGroup_3"));
+        buttonGroup_3->addButton(radioButton_1);
+        radioButton_1->setObjectName(QString::fromUtf8("radioButton_1"));
+        radioButton_1->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_1, 0, 0, 1, 1);
+
+        radioButton_2 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_2);
+        radioButton_2->setObjectName(QString::fromUtf8("radioButton_2"));
+        radioButton_2->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_2, 1, 0, 1, 1);
+
+        radioButton_3 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_3);
+        radioButton_3->setObjectName(QString::fromUtf8("radioButton_3"));
+        radioButton_3->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_3, 2, 0, 1, 1);
+
+        radioButton_4 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_4);
+        radioButton_4->setObjectName(QString::fromUtf8("radioButton_4"));
+        radioButton_4->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_4, 3, 0, 1, 1);
+
+        radioButton_5 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_5);
+        radioButton_5->setObjectName(QString::fromUtf8("radioButton_5"));
+        radioButton_5->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_5, 4, 0, 1, 1);
+
+        radioButton_6 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_6);
+        radioButton_6->setObjectName(QString::fromUtf8("radioButton_6"));
+        radioButton_6->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_6, 5, 0, 1, 1);
+
+        radioButton_7 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_7);
+        radioButton_7->setObjectName(QString::fromUtf8("radioButton_7"));
+        radioButton_7->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_7, 6, 0, 1, 1);
+
+        radioButton_8 = new QRadioButton(groupInterception);
+        buttonGroup_3->addButton(radioButton_8);
+        radioButton_8->setObjectName(QString::fromUtf8("radioButton_8"));
+        radioButton_8->setFont(font1);
+
+        gridLayout_5->addWidget(radioButton_8, 7, 0, 1, 1);
+
+        toolBox->addItem(page_2, QString::fromUtf8("Interception"));
         page = new QWidget();
         page->setObjectName(QString::fromUtf8("page"));
-        page->setGeometry(QRect(0, 0, 369, 244));
+        page->setGeometry(QRect(0, 0, 389, 229));
         frame3 = new QFrame(page);
         frame3->setObjectName(QString::fromUtf8("frame3"));
         frame3->setGeometry(QRect(10, 10, 281, 108));
@@ -515,74 +689,70 @@ public:
         gridLayout_6->addWidget(E_CalibrateChN, 3, 1, 1, 1);
 
         toolBox->addItem(page, QString::fromUtf8("Calibration"));
-        page_2 = new QWidget();
-        page_2->setObjectName(QString::fromUtf8("page_2"));
-        page_2->setGeometry(QRect(0, 0, 369, 244));
-        toolBox->addItem(page_2, QString::fromUtf8("Interception"));
         tabWidget_OutputMaps = new QTabWidget(tab);
         tabWidget_OutputMaps->setObjectName(QString::fromUtf8("tabWidget_OutputMaps"));
         tabWidget_OutputMaps->setEnabled(true);
-        tabWidget_OutputMaps->setGeometry(QRect(400, 290, 291, 301));
+        tabWidget_OutputMaps->setGeometry(QRect(420, 300, 291, 281));
         tab_4 = new QWidget();
         tab_4->setObjectName(QString::fromUtf8("tab_4"));
-        widget = new QWidget(tab_4);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(10, 10, 271, 246));
-        verticalLayout = new QVBoxLayout(widget);
+        layoutWidget = new QWidget(tab_4);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(10, 10, 281, 246));
+        verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setSpacing(4);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
-        checkBox_OutRunoff = new QCheckBox(widget);
+        checkBox_OutRunoff = new QCheckBox(layoutWidget);
         checkBox_OutRunoff->setObjectName(QString::fromUtf8("checkBox_OutRunoff"));
 
         verticalLayout->addWidget(checkBox_OutRunoff);
 
-        checkBox_OutWH = new QCheckBox(widget);
+        checkBox_OutWH = new QCheckBox(layoutWidget);
         checkBox_OutWH->setObjectName(QString::fromUtf8("checkBox_OutWH"));
 
         verticalLayout->addWidget(checkBox_OutWH);
 
-        checkBox_OutWHC = new QCheckBox(widget);
+        checkBox_OutWHC = new QCheckBox(layoutWidget);
         checkBox_OutWHC->setObjectName(QString::fromUtf8("checkBox_OutWHC"));
 
         verticalLayout->addWidget(checkBox_OutWHC);
 
-        checkBox_OutInf = new QCheckBox(widget);
+        checkBox_OutInf = new QCheckBox(layoutWidget);
         checkBox_OutInf->setObjectName(QString::fromUtf8("checkBox_OutInf"));
 
         verticalLayout->addWidget(checkBox_OutInf);
 
-        checkBox_OutV = new QCheckBox(widget);
+        checkBox_OutV = new QCheckBox(layoutWidget);
         checkBox_OutV->setObjectName(QString::fromUtf8("checkBox_OutV"));
 
         verticalLayout->addWidget(checkBox_OutV);
 
-        checkBox_OutDep = new QCheckBox(widget);
-        checkBox_OutDep->setObjectName(QString::fromUtf8("checkBox_OutDep"));
-
-        verticalLayout->addWidget(checkBox_OutDep);
-
-        checkBox_OutDet = new QCheckBox(widget);
+        checkBox_OutDet = new QCheckBox(layoutWidget);
         checkBox_OutDet->setObjectName(QString::fromUtf8("checkBox_OutDet"));
 
         verticalLayout->addWidget(checkBox_OutDet);
 
-        checkBox_OutConc = new QCheckBox(widget);
+        checkBox_OutDep = new QCheckBox(layoutWidget);
+        checkBox_OutDep->setObjectName(QString::fromUtf8("checkBox_OutDep"));
+
+        verticalLayout->addWidget(checkBox_OutDep);
+
+        checkBox_OutConc = new QCheckBox(layoutWidget);
         checkBox_OutConc->setObjectName(QString::fromUtf8("checkBox_OutConc"));
 
         verticalLayout->addWidget(checkBox_OutConc);
 
-        checkBox_OutTC = new QCheckBox(widget);
+        checkBox_OutTC = new QCheckBox(layoutWidget);
         checkBox_OutTC->setObjectName(QString::fromUtf8("checkBox_OutTC"));
 
         verticalLayout->addWidget(checkBox_OutTC);
 
-        checkBox_OutSurfStor = new QCheckBox(widget);
+        checkBox_OutSurfStor = new QCheckBox(layoutWidget);
         checkBox_OutSurfStor->setObjectName(QString::fromUtf8("checkBox_OutSurfStor"));
 
         verticalLayout->addWidget(checkBox_OutSurfStor);
 
-        checkBox_OutChanVol = new QCheckBox(widget);
+        checkBox_OutChanVol = new QCheckBox(layoutWidget);
         checkBox_OutChanVol->setObjectName(QString::fromUtf8("checkBox_OutChanVol"));
 
         verticalLayout->addWidget(checkBox_OutChanVol);
@@ -599,18 +769,31 @@ public:
         tabWidget_OutputMaps->addTab(tab_7, QString());
         groupBox_4 = new QGroupBox(tab);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setGeometry(QRect(700, 290, 101, 311));
+        groupBox_4->setGeometry(QRect(720, 300, 101, 281));
         groupBox_4->setFlat(false);
-        spinBox = new QSpinBox(groupBox_4);
-        spinBox->setObjectName(QString::fromUtf8("spinBox"));
-        spinBox->setGeometry(QRect(60, 20, 42, 22));
+        printinterval = new QSpinBox(groupBox_4);
+        printinterval->setObjectName(QString::fromUtf8("printinterval"));
+        printinterval->setGeometry(QRect(8, 44, 37, 22));
+        printinterval->setMinimum(1);
+        checkOutputTimeStep = new QRadioButton(groupBox_4);
+        buttonGroup_2 = new QButtonGroup(lisemqtClass);
+        buttonGroup_2->setObjectName(QString::fromUtf8("buttonGroup_2"));
+        buttonGroup_2->addButton(checkOutputTimeStep);
+        checkOutputTimeStep->setObjectName(QString::fromUtf8("checkOutputTimeStep"));
+        checkOutputTimeStep->setGeometry(QRect(8, 16, 91, 31));
+        checkOutputTimeStep->setChecked(true);
+        checkOutputTimeUser = new QRadioButton(groupBox_4);
+        buttonGroup_2->addButton(checkOutputTimeUser);
+        checkOutputTimeUser->setObjectName(QString::fromUtf8("checkOutputTimeUser"));
+        checkOutputTimeUser->setEnabled(true);
+        checkOutputTimeUser->setGeometry(QRect(9, 72, 91, 31));
         label_16 = new QLabel(groupBox_4);
         label_16->setObjectName(QString::fromUtf8("label_16"));
-        label_16->setGeometry(QRect(10, 11, 51, 41));
-        label_16->setWordWrap(true);
-        radioButton = new QRadioButton(groupBox_4);
-        radioButton->setObjectName(QString::fromUtf8("radioButton"));
-        radioButton->setGeometry(QRect(10, 50, 91, 31));
+        label_16->setGeometry(QRect(48, 48, 46, 13));
+        plainTextEdit = new QPlainTextEdit(groupBox_4);
+        plainTextEdit->setObjectName(QString::fromUtf8("plainTextEdit"));
+        plainTextEdit->setEnabled(false);
+        plainTextEdit->setGeometry(QRect(10, 100, 81, 171));
         groupBoxTime = new QGroupBox(tab);
         groupBoxTime->setObjectName(QString::fromUtf8("groupBoxTime"));
         groupBoxTime->setGeometry(QRect(10, 140, 181, 91));
@@ -644,11 +827,11 @@ public:
 
         gridLayout_3->addWidget(label_7, 1, 0, 1, 1);
 
-        E_EndTIme = new QLineEdit(groupBoxTime);
-        E_EndTIme->setObjectName(QString::fromUtf8("E_EndTIme"));
-        E_EndTIme->setFont(font1);
+        E_EndTime = new QLineEdit(groupBoxTime);
+        E_EndTime->setObjectName(QString::fromUtf8("E_EndTime"));
+        E_EndTime->setFont(font1);
 
-        gridLayout_3->addWidget(E_EndTIme, 1, 1, 1, 1);
+        gridLayout_3->addWidget(E_EndTime, 1, 1, 1, 1);
 
         label_8 = new QLabel(groupBoxTime);
         label_8->setObjectName(QString::fromUtf8("label_8"));
@@ -657,15 +840,15 @@ public:
 
         gridLayout_3->addWidget(label_8, 2, 0, 1, 1);
 
-        E_TimeStep = new QLineEdit(groupBoxTime);
-        E_TimeStep->setObjectName(QString::fromUtf8("E_TimeStep"));
-        E_TimeStep->setFont(font1);
+        E_Timestep = new QLineEdit(groupBoxTime);
+        E_Timestep->setObjectName(QString::fromUtf8("E_Timestep"));
+        E_Timestep->setFont(font1);
 
-        gridLayout_3->addWidget(E_TimeStep, 2, 1, 1, 1);
+        gridLayout_3->addWidget(E_Timestep, 2, 1, 1, 1);
 
         groupBox = new QGroupBox(tab);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 10, 371, 121));
+        groupBox->setGeometry(QRect(10, 10, 391, 121));
         groupBox->setFont(font3);
         gridLayout_2 = new QGridLayout(groupBox);
         gridLayout_2->setSpacing(2);
@@ -759,76 +942,95 @@ public:
 
         gridLayout_2->addWidget(label, 0, 0, 1, 1);
 
+        E_runFileList = new QComboBox(groupBox);
+        E_runFileList->setObjectName(QString::fromUtf8("E_runFileList"));
+        E_runFileList->setFont(font1);
+        E_runFileList->setEditable(true);
+        E_runFileList->setDuplicatesEnabled(false);
+
+        gridLayout_2->addWidget(E_runFileList, 0, 1, 1, 1);
+
         toolButton_ShowRunfile = new QToolButton(groupBox);
         toolButton_ShowRunfile->setObjectName(QString::fromUtf8("toolButton_ShowRunfile"));
         toolButton_ShowRunfile->setIcon(icon2);
 
-        gridLayout_2->addWidget(toolButton_ShowRunfile, 0, 3, 1, 1);
+        gridLayout_2->addWidget(toolButton_ShowRunfile, 0, 2, 1, 1);
 
-        E_runFileList = new QComboBox(groupBox);
-        E_runFileList->setObjectName(QString::fromUtf8("E_runFileList"));
-        E_runFileList->setFont(font1);
+        toolButton_fileOpen = new QToolButton(groupBox);
+        toolButton_fileOpen->setObjectName(QString::fromUtf8("toolButton_fileOpen"));
+        toolButton_fileOpen->setIcon(icon1);
 
-        gridLayout_2->addWidget(E_runFileList, 0, 1, 1, 2);
+        gridLayout_2->addWidget(toolButton_fileOpen, 0, 3, 1, 1);
 
         groupOutputMain = new QGroupBox(tab);
         groupOutputMain->setObjectName(QString::fromUtf8("groupOutputMain"));
-        groupOutputMain->setGeometry(QRect(400, 10, 401, 181));
+        groupOutputMain->setGeometry(QRect(420, 10, 401, 281));
         groupOutputMain->setFont(font3);
         label_17 = new QLabel(groupOutputMain);
         label_17->setObjectName(QString::fromUtf8("label_17"));
-        label_17->setGeometry(QRect(5, 54, 81, 16));
+        label_17->setGeometry(QRect(5, 56, 81, 16));
         label_17->setFont(font1);
-        label_17->setLayoutDirection(Qt::RightToLeft);
+        label_17->setLayoutDirection(Qt::LeftToRight);
+        label_17->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         E_DetachmentMap = new QLineEdit(groupOutputMain);
         E_DetachmentMap->setObjectName(QString::fromUtf8("E_DetachmentMap"));
         E_DetachmentMap->setGeometry(QRect(91, 54, 271, 20));
+        E_DetachmentMap->setFont(font1);
         label_18 = new QLabel(groupOutputMain);
         label_18->setObjectName(QString::fromUtf8("label_18"));
-        label_18->setGeometry(QRect(5, 79, 73, 16));
+        label_18->setGeometry(QRect(5, 81, 81, 16));
         label_18->setFont(font1);
-        label_18->setLayoutDirection(Qt::RightToLeft);
+        label_18->setLayoutDirection(Qt::LeftToRight);
+        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         E_DepositionMap = new QLineEdit(groupOutputMain);
         E_DepositionMap->setObjectName(QString::fromUtf8("E_DepositionMap"));
         E_DepositionMap->setGeometry(QRect(91, 79, 271, 20));
+        E_DepositionMap->setFont(font1);
         label_19 = new QLabel(groupOutputMain);
         label_19->setObjectName(QString::fromUtf8("label_19"));
-        label_19->setGeometry(QRect(5, 104, 57, 16));
+        label_19->setGeometry(QRect(5, 106, 81, 16));
         label_19->setFont(font1);
-        label_19->setLayoutDirection(Qt::RightToLeft);
+        label_19->setLayoutDirection(Qt::LeftToRight);
+        label_19->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         E_SoillossMap = new QLineEdit(groupOutputMain);
         E_SoillossMap->setObjectName(QString::fromUtf8("E_SoillossMap"));
         E_SoillossMap->setGeometry(QRect(91, 104, 271, 20));
+        E_SoillossMap->setFont(font1);
         label_22 = new QLabel(groupOutputMain);
         label_22->setObjectName(QString::fromUtf8("label_22"));
-        label_22->setGeometry(QRect(5, 129, 69, 16));
+        label_22->setGeometry(QRect(5, 131, 81, 16));
         label_22->setFont(font1);
-        label_22->setLayoutDirection(Qt::RightToLeft);
-        E_DetachmentMap_2 = new QLineEdit(groupOutputMain);
-        E_DetachmentMap_2->setObjectName(QString::fromUtf8("E_DetachmentMap_2"));
-        E_DetachmentMap_2->setGeometry(QRect(91, 129, 271, 20));
-        E_DepositionMap_2 = new QLineEdit(groupOutputMain);
-        E_DepositionMap_2->setObjectName(QString::fromUtf8("E_DepositionMap_2"));
-        E_DepositionMap_2->setGeometry(QRect(91, 154, 211, 20));
+        label_22->setLayoutDirection(Qt::LeftToRight);
+        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        E_MainTotals = new QLineEdit(groupOutputMain);
+        E_MainTotals->setObjectName(QString::fromUtf8("E_MainTotals"));
+        E_MainTotals->setGeometry(QRect(91, 129, 271, 20));
+        E_MainTotals->setFont(font1);
+        E_PointResults = new QLineEdit(groupOutputMain);
+        E_PointResults->setObjectName(QString::fromUtf8("E_PointResults"));
+        E_PointResults->setGeometry(QRect(91, 154, 211, 20));
+        E_PointResults->setFont(font1);
         label_20 = new QLabel(groupOutputMain);
         label_20->setObjectName(QString::fromUtf8("label_20"));
-        label_20->setGeometry(QRect(5, 154, 59, 16));
+        label_20->setGeometry(QRect(5, 156, 81, 16));
         label_20->setFont(font1);
-        label_20->setLayoutDirection(Qt::RightToLeft);
+        label_20->setLayoutDirection(Qt::LeftToRight);
+        label_20->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         label_3 = new QLabel(groupOutputMain);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(5, 19, 82, 16));
+        label_3->setGeometry(QRect(5, 22, 82, 16));
         label_3->setFont(font1);
         label_3->setLayoutDirection(Qt::RightToLeft);
         label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         E_ResultDir = new QLineEdit(groupOutputMain);
         E_ResultDir->setObjectName(QString::fromUtf8("E_ResultDir"));
-        E_ResultDir->setGeometry(QRect(91, 20, 271, 20));
+        E_ResultDir->setGeometry(QRect(91, 21, 271, 20));
         QSizePolicy sizePolicy3(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(E_ResultDir->sizePolicy().hasHeightForWidth());
         E_ResultDir->setSizePolicy(sizePolicy3);
+        E_ResultDir->setFont(font1);
         toolButton_ResultDir = new QToolButton(groupOutputMain);
         toolButton_ResultDir->setObjectName(QString::fromUtf8("toolButton_ResultDir"));
         toolButton_ResultDir->setGeometry(QRect(370, 20, 23, 22));
@@ -840,16 +1042,17 @@ public:
         toolButton_ResultDir->setIcon(icon1);
         line_2 = new QFrame(groupOutputMain);
         line_2->setObjectName(QString::fromUtf8("line_2"));
-        line_2->setGeometry(QRect(5, 40, 391, 16));
+        line_2->setGeometry(QRect(9, 40, 381, 16));
         line_2->setFrameShape(QFrame::HLine);
         line_2->setFrameShadow(QFrame::Sunken);
-        checkBox_4 = new QCheckBox(groupOutputMain);
-        checkBox_4->setObjectName(QString::fromUtf8("checkBox_4"));
-        checkBox_4->setGeometry(QRect(307, 155, 89, 17));
-        checkBox_4->setFont(font1);
-        groupBox_2 = new QGroupBox(tab);
+        checkSeparateOutput = new QCheckBox(groupOutputMain);
+        checkSeparateOutput->setObjectName(QString::fromUtf8("checkSeparateOutput"));
+        checkSeparateOutput->setGeometry(QRect(310, 155, 89, 17));
+        checkSeparateOutput->setFont(font1);
+        groupBox_2 = new QGroupBox(groupOutputMain);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(720, 200, 81, 80));
+        groupBox_2->setGeometry(QRect(320, 180, 71, 80));
+        groupBox_2->setFont(font1);
         checkUnits_kgcell = new QRadioButton(groupBox_2);
         buttonGroup = new QButtonGroup(lisemqtClass);
         buttonGroup->setObjectName(QString::fromUtf8("buttonGroup"));
@@ -865,42 +1068,64 @@ public:
         checkUnits_tonha->setObjectName(QString::fromUtf8("checkUnits_tonha"));
         checkUnits_tonha->setGeometry(QRect(10, 15, 61, 17));
         checkUnits_tonha->setChecked(true);
-        groupOutputFormat = new QGroupBox(tab);
+        groupOutputFormat = new QGroupBox(groupOutputMain);
         groupOutputFormat->setObjectName(QString::fromUtf8("groupOutputFormat"));
-        groupOutputFormat->setGeometry(QRect(400, 200, 311, 81));
+        groupOutputFormat->setGeometry(QRect(10, 180, 301, 91));
+        groupOutputFormat->setFont(font1);
         verticalLayout_2 = new QVBoxLayout(groupOutputFormat);
         verticalLayout_2->setContentsMargins(4, 4, 4, 4);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        checkBox = new QCheckBox(groupOutputFormat);
-        checkBox->setObjectName(QString::fromUtf8("checkBox"));
+        frame4 = new QFrame(groupOutputFormat);
+        frame4->setObjectName(QString::fromUtf8("frame4"));
+        gridLayout_4 = new QGridLayout(frame4);
+        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
+        checkSOBEKOutput = new QCheckBox(frame4);
+        checkSOBEKOutput->setObjectName(QString::fromUtf8("checkSOBEKOutput"));
+        sizePolicy.setHeightForWidth(checkSOBEKOutput->sizePolicy().hasHeightForWidth());
+        checkSOBEKOutput->setSizePolicy(sizePolicy);
 
-        verticalLayout_2->addWidget(checkBox);
+        gridLayout_4->addWidget(checkSOBEKOutput, 3, 0, 1, 1);
 
-        checkBox_2 = new QCheckBox(groupOutputFormat);
-        checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
+        SOBEKdatestring = new QLineEdit(frame4);
+        SOBEKdatestring->setObjectName(QString::fromUtf8("SOBEKdatestring"));
+        SOBEKdatestring->setEnabled(false);
+        SOBEKdatestring->setMaxLength(10);
+        SOBEKdatestring->setFrame(true);
+        SOBEKdatestring->setCursorPosition(10);
 
-        verticalLayout_2->addWidget(checkBox_2);
+        gridLayout_4->addWidget(SOBEKdatestring, 3, 1, 1, 1);
 
-        checkBox_3 = new QCheckBox(groupOutputFormat);
-        checkBox_3->setObjectName(QString::fromUtf8("checkBox_3"));
+        checkWritePCRtimeplot = new QCheckBox(frame4);
+        checkWritePCRtimeplot->setObjectName(QString::fromUtf8("checkWritePCRtimeplot"));
 
-        verticalLayout_2->addWidget(checkBox_3);
+        gridLayout_4->addWidget(checkWritePCRtimeplot, 0, 0, 1, 2);
 
+        checkWritePCRnames = new QCheckBox(frame4);
+        checkWritePCRnames->setObjectName(QString::fromUtf8("checkWritePCRnames"));
+
+        gridLayout_4->addWidget(checkWritePCRnames, 1, 0, 1, 2);
+
+
+        verticalLayout_2->addWidget(frame4);
+
+        label_49 = new QLabel(tab);
+        label_49->setObjectName(QString::fromUtf8("label_49"));
+        label_49->setGeometry(QRect(195, 150, 211, 20));
         tabWidget->addTab(tab, QString());
         tab_12 = new QWidget();
         tab_12->setObjectName(QString::fromUtf8("tab_12"));
         gridLayout_12 = new QGridLayout(tab_12);
         gridLayout_12->setObjectName(QString::fromUtf8("gridLayout_12"));
-        groupBox_3 = new QGroupBox(tab_12);
-        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        groupBox_InputMaps = new QGroupBox(tab_12);
+        groupBox_InputMaps->setObjectName(QString::fromUtf8("groupBox_InputMaps"));
         QSizePolicy sizePolicy5(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(groupBox_3->sizePolicy().hasHeightForWidth());
-        groupBox_3->setSizePolicy(sizePolicy5);
-        gridLayout_10 = new QGridLayout(groupBox_3);
+        sizePolicy5.setHeightForWidth(groupBox_InputMaps->sizePolicy().hasHeightForWidth());
+        groupBox_InputMaps->setSizePolicy(sizePolicy5);
+        gridLayout_10 = new QGridLayout(groupBox_InputMaps);
         gridLayout_10->setObjectName(QString::fromUtf8("gridLayout_10"));
-        treeView = new QTreeView(groupBox_3);
+        treeView = new QTreeView(groupBox_InputMaps);
         treeView->setObjectName(QString::fromUtf8("treeView"));
         treeView->setFrameShape(QFrame::StyledPanel);
         treeView->setFrameShadow(QFrame::Sunken);
@@ -909,33 +1134,651 @@ public:
 
         gridLayout_10->addWidget(treeView, 0, 1, 1, 1);
 
-        checkExpandActive = new QCheckBox(groupBox_3);
+        checkExpandActive = new QCheckBox(groupBox_InputMaps);
         checkExpandActive->setObjectName(QString::fromUtf8("checkExpandActive"));
 
         gridLayout_10->addWidget(checkExpandActive, 1, 1, 1, 1);
 
 
-        gridLayout_12->addWidget(groupBox_3, 0, 0, 1, 1);
+        gridLayout_12->addWidget(groupBox_InputMaps, 1, 0, 1, 1);
+
+        label_47 = new QLabel(tab_12);
+        label_47->setObjectName(QString::fromUtf8("label_47"));
+
+        gridLayout_12->addWidget(label_47, 0, 0, 1, 1);
 
         tabWidget->addTab(tab_12, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
-        tabWidget->addTab(tab_3, QString());
+        sedgroup = new QGroupBox(tab_3);
+        sedgroup->setObjectName(QString::fromUtf8("sedgroup"));
+        sedgroup->setGeometry(QRect(10, 220, 351, 111));
+        sedgroup->setFont(font3);
+        gridLayout_9 = new QGridLayout(sedgroup);
+        gridLayout_9->setObjectName(QString::fromUtf8("gridLayout_9"));
+        gridLayout_9->setHorizontalSpacing(6);
+        gridLayout_9->setVerticalSpacing(2);
+        gridLayout_9->setContentsMargins(6, 0, 6, 6);
+        label_50 = new QLabel(sedgroup);
+        label_50->setObjectName(QString::fromUtf8("label_50"));
+        label_50->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout->addWidget(tabWidget, 0, 1, 1, 1);
+        gridLayout_9->addWidget(label_50, 0, 2, 1, 1);
 
-        lisemqtClass->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(lisemqtClass);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 920, 21));
-        menu_File = new QMenu(menubar);
-        menu_File->setObjectName(QString::fromUtf8("menu_File"));
-        lisemqtClass->setMenuBar(menubar);
-        toolBar = new QToolBar(lisemqtClass);
-        toolBar->setObjectName(QString::fromUtf8("toolBar"));
+        label_21 = new QLabel(sedgroup);
+        label_21->setObjectName(QString::fromUtf8("label_21"));
+        label_21->setFont(font1);
+        label_21->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_21, 1, 0, 1, 1);
+
+        label_splashdet = new QLabel(sedgroup);
+        label_splashdet->setObjectName(QString::fromUtf8("label_splashdet"));
+        label_splashdet->setFont(font1);
+        label_splashdet->setFrameShape(QFrame::StyledPanel);
+        label_splashdet->setFrameShadow(QFrame::Sunken);
+        label_splashdet->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_splashdet, 1, 1, 1, 1);
+
+        label_41 = new QLabel(sedgroup);
+        label_41->setObjectName(QString::fromUtf8("label_41"));
+        label_41->setFont(font1);
+        label_41->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_41, 1, 2, 1, 1);
+
+        label_detch = new QLabel(sedgroup);
+        label_detch->setObjectName(QString::fromUtf8("label_detch"));
+        label_detch->setFont(font1);
+        label_detch->setFrameShape(QFrame::StyledPanel);
+        label_detch->setFrameShadow(QFrame::Sunken);
+        label_detch->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_detch, 1, 3, 1, 1);
+
+        label_23 = new QLabel(sedgroup);
+        label_23->setObjectName(QString::fromUtf8("label_23"));
+        label_23->setFont(font1);
+        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_23, 2, 0, 1, 1);
+
+        label_flowdet = new QLabel(sedgroup);
+        label_flowdet->setObjectName(QString::fromUtf8("label_flowdet"));
+        label_flowdet->setFont(font1);
+        label_flowdet->setFrameShape(QFrame::StyledPanel);
+        label_flowdet->setFrameShadow(QFrame::Sunken);
+        label_flowdet->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_flowdet, 2, 1, 1, 1);
+
+        label_43 = new QLabel(sedgroup);
+        label_43->setObjectName(QString::fromUtf8("label_43"));
+        label_43->setFont(font1);
+        label_43->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_43, 2, 2, 1, 1);
+
+        label_depch = new QLabel(sedgroup);
+        label_depch->setObjectName(QString::fromUtf8("label_depch"));
+        label_depch->setFont(font1);
+        label_depch->setFrameShape(QFrame::StyledPanel);
+        label_depch->setFrameShadow(QFrame::Sunken);
+        label_depch->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_depch, 2, 3, 1, 1);
+
+        label_27 = new QLabel(sedgroup);
+        label_27->setObjectName(QString::fromUtf8("label_27"));
+        label_27->setFont(font1);
+        label_27->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_27, 3, 0, 1, 1);
+
+        label_dep = new QLabel(sedgroup);
+        label_dep->setObjectName(QString::fromUtf8("label_dep"));
+        label_dep->setFont(font1);
+        label_dep->setFrameShape(QFrame::StyledPanel);
+        label_dep->setFrameShadow(QFrame::Sunken);
+        label_dep->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_dep, 3, 1, 1, 1);
+
+        label_39 = new QLabel(sedgroup);
+        label_39->setObjectName(QString::fromUtf8("label_39"));
+        label_39->setFont(font1);
+        label_39->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_39, 3, 2, 1, 1);
+
+        label_sedvolch = new QLabel(sedgroup);
+        label_sedvolch->setObjectName(QString::fromUtf8("label_sedvolch"));
+        label_sedvolch->setFont(font1);
+        label_sedvolch->setFrameShape(QFrame::StyledPanel);
+        label_sedvolch->setFrameShadow(QFrame::Sunken);
+        label_sedvolch->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_sedvolch, 3, 3, 1, 1);
+
+        label_25 = new QLabel(sedgroup);
+        label_25->setObjectName(QString::fromUtf8("label_25"));
+        label_25->setFont(font1);
+        label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_25, 4, 0, 1, 1);
+
+        label_sedvol = new QLabel(sedgroup);
+        label_sedvol->setObjectName(QString::fromUtf8("label_sedvol"));
+        label_sedvol->setFont(font1);
+        label_sedvol->setFrameShape(QFrame::StyledPanel);
+        label_sedvol->setFrameShadow(QFrame::Sunken);
+        label_sedvol->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_sedvol, 4, 1, 1, 1);
+
+        label_45 = new QLabel(sedgroup);
+        label_45->setObjectName(QString::fromUtf8("label_45"));
+        QPalette palette1;
+        QBrush brush2(QColor(128, 128, 128, 255));
+        brush2.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::WindowText, brush2);
+        palette1.setBrush(QPalette::Inactive, QPalette::WindowText, brush2);
+        palette1.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_45->setPalette(palette1);
+        label_45->setFont(font1);
+        label_45->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_45, 4, 2, 1, 1);
+
+        label_MBs = new QLabel(sedgroup);
+        label_MBs->setObjectName(QString::fromUtf8("label_MBs"));
+        QPalette palette2;
+        palette2.setBrush(QPalette::Active, QPalette::WindowText, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::WindowText, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_MBs->setPalette(palette2);
+        label_MBs->setFont(font1);
+        label_MBs->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_MBs, 4, 3, 1, 1);
+
+        label_51 = new QLabel(sedgroup);
+        label_51->setObjectName(QString::fromUtf8("label_51"));
+        label_51->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_9->addWidget(label_51, 0, 0, 1, 1);
+
+        groupTime = new QGroupBox(tab_3);
+        groupTime->setObjectName(QString::fromUtf8("groupTime"));
+        groupTime->setGeometry(QRect(10, 0, 351, 76));
+        groupTime->setFont(font3);
+        gridLayout_13 = new QGridLayout(groupTime);
+        gridLayout_13->setObjectName(QString::fromUtf8("gridLayout_13"));
+        gridLayout_13->setHorizontalSpacing(6);
+        gridLayout_13->setVerticalSpacing(2);
+        gridLayout_13->setContentsMargins(6, 0, 6, 6);
+        label_endtime = new QLabel(groupTime);
+        label_endtime->setObjectName(QString::fromUtf8("label_endtime"));
+        label_endtime->setFont(font1);
+        label_endtime->setFrameShape(QFrame::StyledPanel);
+        label_endtime->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_endtime, 0, 3, 1, 1);
+
+        label_area = new QLabel(groupTime);
+        label_area->setObjectName(QString::fromUtf8("label_area"));
+        label_area->setFont(font1);
+        label_area->setFrameShape(QFrame::StyledPanel);
+        label_area->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_area, 2, 3, 1, 1);
+
+        label_time = new QLabel(groupTime);
+        label_time->setObjectName(QString::fromUtf8("label_time"));
+        label_time->setFont(font1);
+        label_time->setFrameShape(QFrame::StyledPanel);
+        label_time->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_time, 0, 1, 1, 1);
+
+        label_29 = new QLabel(groupTime);
+        label_29->setObjectName(QString::fromUtf8("label_29"));
+        label_29->setFont(font1);
+        label_29->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_29, 0, 0, 1, 1);
+
+        label_dx = new QLabel(groupTime);
+        label_dx->setObjectName(QString::fromUtf8("label_dx"));
+        label_dx->setFont(font1);
+        label_dx->setFrameShape(QFrame::StyledPanel);
+        label_dx->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_dx, 2, 1, 1, 1);
+
+        label_46 = new QLabel(groupTime);
+        label_46->setObjectName(QString::fromUtf8("label_46"));
+        label_46->setFont(font1);
+        label_46->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_46, 2, 0, 1, 1);
+
+        label_38 = new QLabel(groupTime);
+        label_38->setObjectName(QString::fromUtf8("label_38"));
+        label_38->setFont(font1);
+        label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_38, 0, 2, 1, 1);
+
+        label_48 = new QLabel(groupTime);
+        label_48->setObjectName(QString::fromUtf8("label_48"));
+        label_48->setFont(font1);
+        label_48->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_48, 2, 2, 1, 1);
+
+        label_30 = new QLabel(groupTime);
+        label_30->setObjectName(QString::fromUtf8("label_30"));
+        QPalette palette3;
+        QBrush brush3(QColor(129, 129, 129, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette3.setBrush(QPalette::Active, QPalette::WindowText, brush3);
+        palette3.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
+        palette3.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_30->setPalette(palette3);
+        label_30->setFont(font1);
+        label_30->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_30, 3, 0, 1, 2);
+
+        label_endruntime = new QLabel(groupTime);
+        label_endruntime->setObjectName(QString::fromUtf8("label_endruntime"));
+        QPalette palette4;
+        palette4.setBrush(QPalette::Active, QPalette::WindowText, brush3);
+        palette4.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
+        palette4.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_endruntime->setPalette(palette4);
+        label_endruntime->setFont(font1);
+        label_endruntime->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_endruntime, 3, 3, 1, 1);
+
+        label_runtime = new QLabel(groupTime);
+        label_runtime->setObjectName(QString::fromUtf8("label_runtime"));
+        QPalette palette5;
+        palette5.setBrush(QPalette::Active, QPalette::WindowText, brush3);
+        palette5.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
+        palette5.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_runtime->setPalette(palette5);
+        label_runtime->setFont(font1);
+        label_runtime->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_13->addWidget(label_runtime, 3, 2, 1, 1);
+
+        watergroup = new QGroupBox(tab_3);
+        watergroup->setObjectName(QString::fromUtf8("watergroup"));
+        watergroup->setGeometry(QRect(10, 80, 351, 131));
         QSizePolicy sizePolicy6(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy6.setHorizontalStretch(0);
         sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(watergroup->sizePolicy().hasHeightForWidth());
+        watergroup->setSizePolicy(sizePolicy6);
+        watergroup->setFont(font3);
+        watergroup->setFlat(false);
+        gridLayout_15 = new QGridLayout(watergroup);
+        gridLayout_15->setSpacing(2);
+        gridLayout_15->setObjectName(QString::fromUtf8("gridLayout_15"));
+        gridLayout_15->setContentsMargins(6, 0, 6, 6);
+        label_32 = new QLabel(watergroup);
+        label_32->setObjectName(QString::fromUtf8("label_32"));
+        label_32->setFont(font1);
+        label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_32, 0, 0, 1, 1);
+
+        label_raintot = new QLabel(watergroup);
+        label_raintot->setObjectName(QString::fromUtf8("label_raintot"));
+        label_raintot->setFont(font1);
+        label_raintot->setAutoFillBackground(false);
+        label_raintot->setFrameShape(QFrame::StyledPanel);
+        label_raintot->setFrameShadow(QFrame::Sunken);
+        label_raintot->setLineWidth(1);
+        label_raintot->setMidLineWidth(0);
+        label_raintot->setScaledContents(false);
+        label_raintot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_raintot->setMargin(0);
+
+        gridLayout_15->addWidget(label_raintot, 0, 1, 1, 1);
+
+        label_34 = new QLabel(watergroup);
+        label_34->setObjectName(QString::fromUtf8("label_34"));
+        label_34->setFont(font1);
+        label_34->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_34, 1, 0, 1, 1);
+
+        label_interctot = new QLabel(watergroup);
+        label_interctot->setObjectName(QString::fromUtf8("label_interctot"));
+        label_interctot->setFont(font1);
+        label_interctot->setFrameShape(QFrame::StyledPanel);
+        label_interctot->setFrameShadow(QFrame::Sunken);
+        label_interctot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_interctot->setMargin(0);
+
+        gridLayout_15->addWidget(label_interctot, 1, 1, 1, 1);
+
+        label_36 = new QLabel(watergroup);
+        label_36->setObjectName(QString::fromUtf8("label_36"));
+        label_36->setFont(font1);
+        label_36->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_36, 2, 0, 1, 1);
+
+        label_infiltot = new QLabel(watergroup);
+        label_infiltot->setObjectName(QString::fromUtf8("label_infiltot"));
+        label_infiltot->setFont(font1);
+        label_infiltot->setFrameShape(QFrame::StyledPanel);
+        label_infiltot->setFrameShadow(QFrame::Sunken);
+        label_infiltot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_infiltot->setMargin(0);
+
+        gridLayout_15->addWidget(label_infiltot, 2, 1, 1, 1);
+
+        label_37 = new QLabel(watergroup);
+        label_37->setObjectName(QString::fromUtf8("label_37"));
+        label_37->setFont(font1);
+        label_37->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_37, 3, 0, 1, 1);
+
+        label_surfstor = new QLabel(watergroup);
+        label_surfstor->setObjectName(QString::fromUtf8("label_surfstor"));
+        label_surfstor->setFont(font1);
+        label_surfstor->setFrameShape(QFrame::StyledPanel);
+        label_surfstor->setFrameShadow(QFrame::Sunken);
+        label_surfstor->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_surfstor->setMargin(0);
+
+        gridLayout_15->addWidget(label_surfstor, 3, 1, 1, 1);
+
+        label_40 = new QLabel(watergroup);
+        label_40->setObjectName(QString::fromUtf8("label_40"));
+        label_40->setFont(font1);
+        label_40->setFrameShape(QFrame::NoFrame);
+        label_40->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_40, 4, 0, 1, 1);
+
+        label_watervoltot = new QLabel(watergroup);
+        label_watervoltot->setObjectName(QString::fromUtf8("label_watervoltot"));
+        label_watervoltot->setFont(font1);
+        label_watervoltot->setFrameShape(QFrame::StyledPanel);
+        label_watervoltot->setFrameShadow(QFrame::Sunken);
+        label_watervoltot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_watervoltot->setMargin(0);
+
+        gridLayout_15->addWidget(label_watervoltot, 4, 1, 1, 1);
+
+        label_42 = new QLabel(watergroup);
+        label_42->setObjectName(QString::fromUtf8("label_42"));
+        label_42->setFont(font1);
+        label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_42, 5, 0, 1, 1);
+
+        label_qtot = new QLabel(watergroup);
+        label_qtot->setObjectName(QString::fromUtf8("label_qtot"));
+        label_qtot->setFont(font1);
+        label_qtot->setFrameShape(QFrame::StyledPanel);
+        label_qtot->setFrameShadow(QFrame::Sunken);
+        label_qtot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_qtot->setMargin(0);
+
+        gridLayout_15->addWidget(label_qtot, 5, 1, 1, 1);
+
+        label_MB = new QLabel(watergroup);
+        label_MB->setObjectName(QString::fromUtf8("label_MB"));
+        QPalette palette6;
+        palette6.setBrush(QPalette::Active, QPalette::WindowText, brush3);
+        palette6.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
+        palette6.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_MB->setPalette(palette6);
+        label_MB->setFont(font1);
+        label_MB->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_MB, 5, 3, 1, 1);
+
+        label_44 = new QLabel(watergroup);
+        label_44->setObjectName(QString::fromUtf8("label_44"));
+        QPalette palette7;
+        palette7.setBrush(QPalette::Active, QPalette::WindowText, brush3);
+        palette7.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
+        palette7.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+        label_44->setPalette(palette7);
+        label_44->setFont(font1);
+        label_44->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_44, 5, 2, 1, 1);
+
+        label_24 = new QLabel(watergroup);
+        label_24->setObjectName(QString::fromUtf8("label_24"));
+        sizePolicy6.setHeightForWidth(label_24->sizePolicy().hasHeightForWidth());
+        label_24->setSizePolicy(sizePolicy6);
+        label_24->setFont(font1);
+        label_24->setLayoutDirection(Qt::LeftToRight);
+        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_24, 2, 2, 1, 1);
+
+        label_qpeaktime = new QLabel(watergroup);
+        label_qpeaktime->setObjectName(QString::fromUtf8("label_qpeaktime"));
+        sizePolicy6.setHeightForWidth(label_qpeaktime->sizePolicy().hasHeightForWidth());
+        label_qpeaktime->setSizePolicy(sizePolicy6);
+        label_qpeaktime->setFont(font1);
+        label_qpeaktime->setLayoutDirection(Qt::RightToLeft);
+        label_qpeaktime->setFrameShape(QFrame::StyledPanel);
+        label_qpeaktime->setFrameShadow(QFrame::Sunken);
+
+        gridLayout_15->addWidget(label_qpeaktime, 2, 3, 1, 1);
+
+        label_52 = new QLabel(watergroup);
+        label_52->setObjectName(QString::fromUtf8("label_52"));
+        label_52->setFont(font1);
+        label_52->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_52, 0, 2, 1, 1);
+
+        label_QPfrac = new QLabel(watergroup);
+        label_QPfrac->setObjectName(QString::fromUtf8("label_QPfrac"));
+        label_QPfrac->setFont(font1);
+        label_QPfrac->setFrameShape(QFrame::StyledPanel);
+        label_QPfrac->setFrameShadow(QFrame::Plain);
+        label_QPfrac->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_QPfrac, 0, 3, 1, 1);
+
+        label_35 = new QLabel(watergroup);
+        label_35->setObjectName(QString::fromUtf8("label_35"));
+        sizePolicy6.setHeightForWidth(label_35->sizePolicy().hasHeightForWidth());
+        label_35->setSizePolicy(sizePolicy6);
+        label_35->setFont(font1);
+        label_35->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_35, 3, 2, 1, 1);
+
+        label_qpeak = new QLabel(watergroup);
+        label_qpeak->setObjectName(QString::fromUtf8("label_qpeak"));
+        sizePolicy6.setHeightForWidth(label_qpeak->sizePolicy().hasHeightForWidth());
+        label_qpeak->setSizePolicy(sizePolicy6);
+        label_qpeak->setFont(font1);
+        label_qpeak->setFrameShape(QFrame::StyledPanel);
+        label_qpeak->setFrameShadow(QFrame::Sunken);
+        label_qpeak->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_qpeak, 3, 3, 1, 1);
+
+        label_53 = new QLabel(watergroup);
+        label_53->setObjectName(QString::fromUtf8("label_53"));
+        label_53->setFont(font1);
+        label_53->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_53, 1, 2, 1, 1);
+
+        label_ppeaktime = new QLabel(watergroup);
+        label_ppeaktime->setObjectName(QString::fromUtf8("label_ppeaktime"));
+        label_ppeaktime->setFont(font1);
+        label_ppeaktime->setFrameShape(QFrame::StyledPanel);
+        label_ppeaktime->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_15->addWidget(label_ppeaktime, 1, 3, 1, 1);
+
+        progressBar = new QProgressBar(tab_3);
+        progressBar->setObjectName(QString::fromUtf8("progressBar"));
+        progressBar->setGeometry(QRect(10, 560, 811, 21));
+        progressBar->setValue(0);
+        progressBar->setAlignment(Qt::AlignCenter);
+        label_debug = new QLabel(tab_3);
+        label_debug->setObjectName(QString::fromUtf8("label_debug"));
+        label_debug->setGeometry(QRect(10, 470, 351, 81));
+        label_debug->setFrameShape(QFrame::Panel);
+        label_debug->setFrameShadow(QFrame::Sunken);
+        label_debug->setWordWrap(true);
+        widgetGraph = new QWidget(tab_3);
+        widgetGraph->setObjectName(QString::fromUtf8("widgetGraph"));
+        widgetGraph->setGeometry(QRect(370, 10, 451, 401));
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Calibri"));
+        font4.setPointSize(10);
+        widgetGraph->setFont(font4);
+        textGraph = new QPlainTextEdit(tab_3);
+        textGraph->setObjectName(QString::fromUtf8("textGraph"));
+        textGraph->setGeometry(QRect(400, 440, 391, 111));
+        outletgroup_2 = new QGroupBox(tab_3);
+        outletgroup_2->setObjectName(QString::fromUtf8("outletgroup_2"));
+        outletgroup_2->setGeometry(QRect(10, 340, 351, 38));
+        outletgroup_2->setFont(font3);
+        gridLayout_16 = new QGridLayout(outletgroup_2);
+        gridLayout_16->setSpacing(6);
+        gridLayout_16->setObjectName(QString::fromUtf8("gridLayout_16"));
+        gridLayout_16->setContentsMargins(6, 0, 6, 6);
+        label_buffervol = new QLabel(outletgroup_2);
+        label_buffervol->setObjectName(QString::fromUtf8("label_buffervol"));
+        label_buffervol->setFont(font1);
+        label_buffervol->setFrameShape(QFrame::StyledPanel);
+        label_buffervol->setFrameShadow(QFrame::Plain);
+        label_buffervol->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_16->addWidget(label_buffervol, 0, 1, 1, 1);
+
+        label_56 = new QLabel(outletgroup_2);
+        label_56->setObjectName(QString::fromUtf8("label_56"));
+        label_56->setFont(font1);
+        label_56->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_16->addWidget(label_56, 0, 0, 1, 1);
+
+        label_buffersed = new QLabel(outletgroup_2);
+        label_buffersed->setObjectName(QString::fromUtf8("label_buffersed"));
+        label_buffersed->setFont(font1);
+        label_buffersed->setFrameShape(QFrame::StyledPanel);
+        label_buffersed->setFrameShadow(QFrame::Sunken);
+        label_buffersed->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_16->addWidget(label_buffersed, 0, 3, 1, 1);
+
+        label_57 = new QLabel(outletgroup_2);
+        label_57->setObjectName(QString::fromUtf8("label_57"));
+        label_57->setFont(font1);
+        label_57->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_16->addWidget(label_57, 0, 2, 1, 1);
+
+        outletgroup = new QGroupBox(tab_3);
+        outletgroup->setObjectName(QString::fromUtf8("outletgroup"));
+        outletgroup->setGeometry(QRect(10, 380, 351, 56));
+        outletgroup->setFont(font3);
+        gridLayout_14 = new QGridLayout(outletgroup);
+        gridLayout_14->setObjectName(QString::fromUtf8("gridLayout_14"));
+        gridLayout_14->setHorizontalSpacing(6);
+        gridLayout_14->setVerticalSpacing(2);
+        gridLayout_14->setContentsMargins(6, 0, 6, 6);
+        label_26 = new QLabel(outletgroup);
+        label_26->setObjectName(QString::fromUtf8("label_26"));
+        sizePolicy6.setHeightForWidth(label_26->sizePolicy().hasHeightForWidth());
+        label_26->setSizePolicy(sizePolicy6);
+        label_26->setFont(font1);
+        label_26->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_26, 1, 0, 1, 1);
+
+        label_qtotm3 = new QLabel(outletgroup);
+        label_qtotm3->setObjectName(QString::fromUtf8("label_qtotm3"));
+        sizePolicy6.setHeightForWidth(label_qtotm3->sizePolicy().hasHeightForWidth());
+        label_qtotm3->setSizePolicy(sizePolicy6);
+        label_qtotm3->setMinimumSize(QSize(0, 15));
+        label_qtotm3->setFont(font1);
+        label_qtotm3->setFrameShape(QFrame::StyledPanel);
+        label_qtotm3->setFrameShadow(QFrame::Sunken);
+        label_qtotm3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_qtotm3, 1, 1, 1, 1);
+
+        label_28 = new QLabel(outletgroup);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
+        label_28->setFont(font1);
+        label_28->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_28, 1, 2, 1, 1);
+
+        label_soilloss = new QLabel(outletgroup);
+        label_soilloss->setObjectName(QString::fromUtf8("label_soilloss"));
+        label_soilloss->setFont(font1);
+        label_soilloss->setFrameShape(QFrame::StyledPanel);
+        label_soilloss->setFrameShadow(QFrame::Sunken);
+        label_soilloss->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_soilloss, 1, 3, 1, 1);
+
+        label_discharge = new QLabel(outletgroup);
+        label_discharge->setObjectName(QString::fromUtf8("label_discharge"));
+        label_discharge->setFont(font1);
+        label_discharge->setFrameShape(QFrame::StyledPanel);
+        label_discharge->setFrameShadow(QFrame::Plain);
+        label_discharge->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_discharge, 0, 1, 1, 1);
+
+        label_54 = new QLabel(outletgroup);
+        label_54->setObjectName(QString::fromUtf8("label_54"));
+        label_54->setFont(font1);
+        label_54->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_54, 0, 0, 1, 1);
+
+        label_soillosskgha = new QLabel(outletgroup);
+        label_soillosskgha->setObjectName(QString::fromUtf8("label_soillosskgha"));
+        label_soillosskgha->setFont(font1);
+        label_soillosskgha->setFrameShape(QFrame::StyledPanel);
+        label_soillosskgha->setFrameShadow(QFrame::Sunken);
+        label_soillosskgha->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_soillosskgha, 0, 3, 1, 1);
+
+        label_31 = new QLabel(outletgroup);
+        label_31->setObjectName(QString::fromUtf8("label_31"));
+        label_31->setFont(font1);
+        label_31->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_14->addWidget(label_31, 0, 2, 1, 1);
+
+        tabWidget->addTab(tab_3, QString());
+
+        gridLayout->addWidget(tabWidget, 0, 0, 1, 1);
+
+        lisemqtClass->setCentralWidget(centralwidget);
+        toolBar = new QToolBar(lisemqtClass);
+        toolBar->setObjectName(QString::fromUtf8("toolBar"));
         sizePolicy6.setHeightForWidth(toolBar->sizePolicy().hasHeightForWidth());
         toolBar->setSizePolicy(sizePolicy6);
         toolBar->setIconSize(QSize(18, 18));
@@ -950,20 +1793,34 @@ public:
         QWidget::setTabOrder(E_MapDir, E_RainfallName);
         QWidget::setTabOrder(E_RainfallName, E_SnowmeltName);
         QWidget::setTabOrder(E_SnowmeltName, E_BeginTime);
-        QWidget::setTabOrder(E_BeginTime, E_TimeStep);
-        QWidget::setTabOrder(E_TimeStep, E_InfiltrationMethod);
+        QWidget::setTabOrder(E_BeginTime, E_Timestep);
+        QWidget::setTabOrder(E_Timestep, E_InfiltrationMethod);
         QWidget::setTabOrder(E_InfiltrationMethod, checkInfilCrust);
         QWidget::setTabOrder(checkInfilCrust, checkInfilCompact);
-        QWidget::setTabOrder(checkInfilCompact, checkInfilClosebottom);
-        QWidget::setTabOrder(checkInfilClosebottom, E_EndTIme);
-
-        menubar->addAction(menu_File->menuAction());
+        QWidget::setTabOrder(checkInfilCompact, checkImpermeable);
+        QWidget::setTabOrder(checkImpermeable, E_EndTime);
 
         retranslateUi(lisemqtClass);
+        QObject::connect(checkIncludeChannel, SIGNAL(toggled(bool)), checkChannelInfil, SLOT(setEnabled(bool)));
+        QObject::connect(checkIncludeChannel, SIGNAL(toggled(bool)), checkChannelBaseflow, SLOT(setEnabled(bool)));
+        QObject::connect(checkChannelInfil, SIGNAL(toggled(bool)), checkChannelBaseflow, SLOT(setDisabled(bool)));
+        QObject::connect(checkChannelBaseflow, SIGNAL(toggled(bool)), checkChannelInfil, SLOT(setDisabled(bool)));
+        QObject::connect(checkSnowmelt, SIGNAL(toggled(bool)), E_SnowmeltName, SLOT(setEnabled(bool)));
+        QObject::connect(checkSnowmelt, SIGNAL(toggled(bool)), label_5, SLOT(setEnabled(bool)));
+        QObject::connect(checkSnowmelt, SIGNAL(toggled(bool)), toolButton_SnowmeltShow, SLOT(setEnabled(bool)));
+        QObject::connect(groupBox, SIGNAL(toggled(bool)), toolButton_SnowmeltNameS, SLOT(setEnabled(bool)));
+        QObject::connect(checkSnowmelt, SIGNAL(toggled(bool)), toolButton_SnowmeltNameS, SLOT(setEnabled(bool)));
+        QObject::connect(checkNoErosion, SIGNAL(toggled(bool)), checkAltErosion, SLOT(setDisabled(bool)));
+        QObject::connect(checkOutputTimeStep, SIGNAL(toggled(bool)), printinterval, SLOT(setEnabled(bool)));
+        QObject::connect(checkOutputTimeStep, SIGNAL(toggled(bool)), label_16, SLOT(setEnabled(bool)));
+        QObject::connect(checkInfilGrass, SIGNAL(toggled(bool)), label_15, SLOT(setEnabled(bool)));
+        QObject::connect(checkInfilGrass, SIGNAL(toggled(bool)), E_GrassStripN, SLOT(setEnabled(bool)));
+        QObject::connect(checkOutputTimeUser, SIGNAL(toggled(bool)), plainTextEdit, SLOT(setEnabled(bool)));
+        QObject::connect(checkInterceptionLAI, SIGNAL(toggled(bool)), groupInterception, SLOT(setEnabled(bool)));
 
-        tabWidget->setCurrentIndex(0);
-        toolBox->setCurrentIndex(0);
-        toolBox->layout()->setSpacing(0);
+        tabWidget->setCurrentIndex(2);
+        toolBox->setCurrentIndex(2);
+        toolBox->layout()->setSpacing(1);
         tabWidget_OutputMaps->setCurrentIndex(0);
 
 
@@ -980,17 +1837,17 @@ public:
         checkSnowmelt->setText(QApplication::translate("lisemqtClass", "Include snowmelt (needs sowmelt file and additional maps)", 0, QApplication::UnicodeUTF8));
         checkNoErosionOutlet->setText(QApplication::translate("lisemqtClass", "Exclude outlet erosion/deposition ", 0, QApplication::UnicodeUTF8));
         checkAltErosion->setText(QApplication::translate("lisemqtClass", "Alternative flow detachment (no settling vel. in detachment)", 0, QApplication::UnicodeUTF8));
-        checkAltDepression->setText(QApplication::translate("lisemqtClass", "Simple surface storage (no runoff below max storage threshold)", 0, QApplication::UnicodeUTF8));
+        checkSimpleDepression->setText(QApplication::translate("lisemqtClass", "Simple surface storage (no runoff below max storage threshold)", 0, QApplication::UnicodeUTF8));
         checkHardsurface->setText(QApplication::translate("lisemqtClass", "Include hard surfaces (no interc, infil, detach, needs hardsurf.map)", 0, QApplication::UnicodeUTF8));
         checkChannelInfil->setText(QApplication::translate("lisemqtClass", "Channel infiltration (needs aditional map)", 0, QApplication::UnicodeUTF8));
         checkChannelBaseflow->setText(QApplication::translate("lisemqtClass", "Channel baseflow (needs additional maps)", 0, QApplication::UnicodeUTF8));
         toolBox->setItemText(toolBox->indexOf(page_3), QApplication::translate("lisemqtClass", "Global Options", 0, QApplication::UnicodeUTF8));
         checkInfilCompact->setText(QApplication::translate("lisemqtClass", "Include compacted areas", 0, QApplication::UnicodeUTF8));
         checkInfilCrust->setText(QApplication::translate("lisemqtClass", "Include crusts", 0, QApplication::UnicodeUTF8));
-        checkInfilClosebottom->setText(QApplication::translate("lisemqtClass", "Impermeable lower soil boundary", 0, QApplication::UnicodeUTF8));
+        checkImpermeable->setText(QApplication::translate("lisemqtClass", "Impermeable lower soil boundary", 0, QApplication::UnicodeUTF8));
         checkInfil2layer->setText(QApplication::translate("lisemqtClass", "Include 2nd soil layer", 0, QApplication::UnicodeUTF8));
         groupBox_SwatreOptions->setTitle(QApplication::translate("lisemqtClass", "Swatre", 0, QApplication::UnicodeUTF8));
-        checkGeometric->setText(QApplication::translate("lisemqtClass", "geometric average Ksat", 0, QApplication::UnicodeUTF8));
+        checkGeometricMean->setText(QApplication::translate("lisemqtClass", "geometric average Ksat", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkDumphead->setToolTip(QApplication::translate("lisemqtClass", "Specify pixels 1,2,3,4 in HEADOUT.MAP", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -1006,12 +1863,21 @@ public:
         checkBuffers->setText(QApplication::translate("lisemqtClass", "Include water buffers", 0, QApplication::UnicodeUTF8));
         checkSedtrap->setText(QApplication::translate("lisemqtClass", "Include sediment traps", 0, QApplication::UnicodeUTF8));
         checkInfilGrass->setText(QApplication::translate("lisemqtClass", "Include grasstrips", 0, QApplication::UnicodeUTF8));
-        label_15->setText(QApplication::translate("lisemqtClass", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Mannings n grass strip</span></p></body></html>", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("lisemqtClass", "Mannings n grass strip", 0, QApplication::UnicodeUTF8));
+        E_GrassStripN->setInputMask(QApplication::translate("lisemqtClass", "9.99; ", 0, QApplication::UnicodeUTF8));
+        E_GrassStripN->setText(QApplication::translate("lisemqtClass", "0.30", 0, QApplication::UnicodeUTF8));
         toolBox->setItemText(toolBox->indexOf(page_5), QApplication::translate("lisemqtClass", "Conservation measures", 0, QApplication::UnicodeUTF8));
+        checkInterceptionLAI->setText(QApplication::translate("lisemqtClass", "Use storage equation below (else use Smax map directly)", 0, QApplication::UnicodeUTF8));
+        groupInterception->setTitle(QApplication::translate("lisemqtClass", "Storage equation", 0, QApplication::UnicodeUTF8));
+        radioButton_1->setText(QApplication::translate("lisemqtClass", "Orig. LISEM (crops): S = 0.935+0.498*LAI-0.00575*LAI^2", 0, QApplication::UnicodeUTF8));
+        radioButton_2->setText(QApplication::translate("lisemqtClass", "Pinus:         S = 0.2331*LAI          (n=12,R2=0.88)", 0, QApplication::UnicodeUTF8));
+        radioButton_3->setText(QApplication::translate("lisemqtClass", "Douglas Fir:   S = 0.3165*LAI          (n=4, R2=0.83)", 0, QApplication::UnicodeUTF8));
+        radioButton_4->setText(QApplication::translate("lisemqtClass", "Olive:         S = 1.46 * LAI^0.56     (n=5, R2=0.87)", 0, QApplication::UnicodeUTF8));
+        radioButton_5->setText(QApplication::translate("lisemqtClass", "Eucalypt:      S = 0.0918*LAI^1.04     (n=8, R2=0.51)", 0, QApplication::UnicodeUTF8));
+        radioButton_6->setText(QApplication::translate("lisemqtClass", "Rainforest:    S = 0.2856*LAI          (n=5, R2=0.60)", 0, QApplication::UnicodeUTF8));
+        radioButton_7->setText(QApplication::translate("lisemqtClass", "Bracken:       S = 0.1713*LAI          (n=8, R2=0.98)", 0, QApplication::UnicodeUTF8));
+        radioButton_8->setText(QApplication::translate("lisemqtClass", "Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)", 0, QApplication::UnicodeUTF8));
+        toolBox->setItemText(toolBox->indexOf(page_2), QApplication::translate("lisemqtClass", "Interception", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("lisemqtClass", "Multiplication factor Ksat slopes", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("lisemqtClass", "Multiplication factor Manning N slopes", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("lisemqtClass", "Multiplication factor Ksat Channel", 0, QApplication::UnicodeUTF8));
@@ -1021,7 +1887,6 @@ public:
 "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Multiplication factor Manning N Channel</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         toolBox->setItemText(toolBox->indexOf(page), QApplication::translate("lisemqtClass", "Calibration", 0, QApplication::UnicodeUTF8));
-        toolBox->setItemText(toolBox->indexOf(page_2), QApplication::translate("lisemqtClass", "Interception", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkBox_OutRunoff->setToolTip(QApplication::translate("lisemqtClass", "mapseries saved as is \"ro\"", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -1030,8 +1895,8 @@ public:
         checkBox_OutWHC->setText(QApplication::translate("lisemqtClass", "whc - cumulative runof depth (mm", 0, QApplication::UnicodeUTF8));
         checkBox_OutInf->setText(QApplication::translate("lisemqtClass", "inf - cumulative infilktration (mm)", 0, QApplication::UnicodeUTF8));
         checkBox_OutV->setText(QApplication::translate("lisemqtClass", "velo - velocity (m/s)", 0, QApplication::UnicodeUTF8));
-        checkBox_OutDep->setText(QApplication::translate("lisemqtClass", "dep - deposition (select units)", 0, QApplication::UnicodeUTF8));
         checkBox_OutDet->setText(QApplication::translate("lisemqtClass", "det - detachment (selected units)", 0, QApplication::UnicodeUTF8));
+        checkBox_OutDep->setText(QApplication::translate("lisemqtClass", "dep - deposition (select units)", 0, QApplication::UnicodeUTF8));
         checkBox_OutConc->setText(QApplication::translate("lisemqtClass", "conc - sediment concentration (g/l)", 0, QApplication::UnicodeUTF8));
         checkBox_OutTC->setText(QApplication::translate("lisemqtClass", "tc - transport capacity (kg/m3)", 0, QApplication::UnicodeUTF8));
         checkBox_OutSurfStor->setText(QApplication::translate("lisemqtClass", "sstor - surface storage (mm)", 0, QApplication::UnicodeUTF8));
@@ -1041,8 +1906,10 @@ public:
         tabWidget_OutputMaps->setTabText(tabWidget_OutputMaps->indexOf(tab_5), QApplication::translate("lisemqtClass", "Nutrient Output", 0, QApplication::UnicodeUTF8));
         tabWidget_OutputMaps->setTabText(tabWidget_OutputMaps->indexOf(tab_7), QApplication::translate("lisemqtClass", "Gully Output", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("lisemqtClass", "Output times", 0, QApplication::UnicodeUTF8));
-        label_16->setText(QApplication::translate("lisemqtClass", "Skip timesteps", 0, QApplication::UnicodeUTF8));
-        radioButton->setText(QApplication::translate("lisemqtClass", "Skip timesteps", 0, QApplication::UnicodeUTF8));
+        checkOutputTimeStep->setText(QApplication::translate("lisemqtClass", "Report every:", 0, QApplication::UnicodeUTF8));
+        checkOutputTimeUser->setText(QApplication::translate("lisemqtClass", "User defined:", 0, QApplication::UnicodeUTF8));
+        label_16->setText(QApplication::translate("lisemqtClass", "timesteps", 0, QApplication::UnicodeUTF8));
+        plainTextEdit->setPlainText(QString());
         groupBoxTime->setTitle(QApplication::translate("lisemqtClass", "Simulation times", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("lisemqtClass", "Begin time (min)", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("lisemqtClass", "End time (min)", 0, QApplication::UnicodeUTF8));
@@ -1058,6 +1925,7 @@ public:
         toolButton_SnowmeltNameS->setText(QApplication::translate("lisemqtClass", "...", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("lisemqtClass", "Run file(s)  ", 0, QApplication::UnicodeUTF8));
         toolButton_ShowRunfile->setText(QApplication::translate("lisemqtClass", "...", 0, QApplication::UnicodeUTF8));
+        toolButton_fileOpen->setText(QApplication::translate("lisemqtClass", "...", 0, QApplication::UnicodeUTF8));
         groupOutputMain->setTitle(QApplication::translate("lisemqtClass", "Output", 0, QApplication::UnicodeUTF8));
         label_17->setText(QApplication::translate("lisemqtClass", "Detachment Map", 0, QApplication::UnicodeUTF8));
         label_18->setText(QApplication::translate("lisemqtClass", "Deposition Map", 0, QApplication::UnicodeUTF8));
@@ -1066,21 +1934,94 @@ public:
         label_20->setText(QApplication::translate("lisemqtClass", "Point output", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("lisemqtClass", "Result directory  ", 0, QApplication::UnicodeUTF8));
         toolButton_ResultDir->setText(QApplication::translate("lisemqtClass", "...", 0, QApplication::UnicodeUTF8));
-        checkBox_4->setText(QApplication::translate("lisemqtClass", "Separate files", 0, QApplication::UnicodeUTF8));
+        checkSeparateOutput->setText(QApplication::translate("lisemqtClass", "Separate files", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("lisemqtClass", "Map units", 0, QApplication::UnicodeUTF8));
         checkUnits_kgcell->setText(QApplication::translate("lisemqtClass", "kg/cell", 0, QApplication::UnicodeUTF8));
         checkUnits_kgm2->setText(QApplication::translate("lisemqtClass", "kg/m2", 0, QApplication::UnicodeUTF8));
         checkUnits_tonha->setText(QApplication::translate("lisemqtClass", "ton/ha", 0, QApplication::UnicodeUTF8));
         groupOutputFormat->setTitle(QApplication::translate("lisemqtClass", "Output format", 0, QApplication::UnicodeUTF8));
-        checkBox->setText(QApplication::translate("lisemqtClass", "hydrographs PCRaster format (else comma delimited)", 0, QApplication::UnicodeUTF8));
-        checkBox_2->setText(QApplication::translate("lisemqtClass", "Hydrographs SOBEK format, date string: ", 0, QApplication::UnicodeUTF8));
-        checkBox_3->setText(QApplication::translate("lisemqtClass", "Mapseries as PCRaster filenames (.001, .002)", 0, QApplication::UnicodeUTF8));
+        checkSOBEKOutput->setText(QApplication::translate("lisemqtClass", "Hydrographs SOBEK format, date string:", 0, QApplication::UnicodeUTF8));
+        SOBEKdatestring->setInputMask(QApplication::translate("lisemqtClass", "99\\\\99\\\\9999; ", 0, QApplication::UnicodeUTF8));
+        SOBEKdatestring->setText(QApplication::translate("lisemqtClass", "01\\01\\2000", 0, QApplication::UnicodeUTF8));
+        checkWritePCRtimeplot->setText(QApplication::translate("lisemqtClass", "hydrographs PCRaster format (else comma delimited)", 0, QApplication::UnicodeUTF8));
+        checkWritePCRnames->setText(QApplication::translate("lisemqtClass", "Mapseries as PCRaster filenames (.001, .002)", 0, QApplication::UnicodeUTF8));
+        label_49->setText(QApplication::translate("lisemqtClass", "TextLabel", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("lisemqtClass", "Input/Output", 0, QApplication::UnicodeUTF8));
-        groupBox_3->setTitle(QApplication::translate("lisemqtClass", "Input Maps", 0, QApplication::UnicodeUTF8));
+        groupBox_InputMaps->setTitle(QApplication::translate("lisemqtClass", "Input Maps", 0, QApplication::UnicodeUTF8));
         checkExpandActive->setText(QApplication::translate("lisemqtClass", "Expand activated maps categories", 0, QApplication::UnicodeUTF8));
+        label_47->setText(QApplication::translate("lisemqtClass", "TextLabel", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_12), QApplication::translate("lisemqtClass", "Maps", 0, QApplication::UnicodeUTF8));
+        sedgroup->setTitle(QApplication::translate("lisemqtClass", "Sediment", 0, QApplication::UnicodeUTF8));
+        label_50->setText(QApplication::translate("lisemqtClass", "Channel", 0, QApplication::UnicodeUTF8));
+        label_21->setText(QApplication::translate("lisemqtClass", "Splash (ton)", 0, QApplication::UnicodeUTF8));
+        label_splashdet->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_41->setText(QApplication::translate("lisemqtClass", "Detachment (ton)", 0, QApplication::UnicodeUTF8));
+        label_detch->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_23->setText(QApplication::translate("lisemqtClass", "Flow detachment (ton)", 0, QApplication::UnicodeUTF8));
+        label_flowdet->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_43->setText(QApplication::translate("lisemqtClass", "Deposition (ton)", 0, QApplication::UnicodeUTF8));
+        label_depch->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_27->setText(QApplication::translate("lisemqtClass", "Deposition (ton)", 0, QApplication::UnicodeUTF8));
+        label_dep->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_39->setText(QApplication::translate("lisemqtClass", "Sed in flow (ton)", 0, QApplication::UnicodeUTF8));
+        label_sedvolch->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_25->setText(QApplication::translate("lisemqtClass", "Sediment in flow (ton)", 0, QApplication::UnicodeUTF8));
+        label_sedvol->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_45->setText(QApplication::translate("lisemqtClass", "MBs (%)", 0, QApplication::UnicodeUTF8));
+        label_MBs->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_51->setText(QApplication::translate("lisemqtClass", "Slope", 0, QApplication::UnicodeUTF8));
+        groupTime->setTitle(QApplication::translate("lisemqtClass", "Time", 0, QApplication::UnicodeUTF8));
+        label_endtime->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_area->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_time->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_29->setText(QApplication::translate("lisemqtClass", "                     time (min)", 0, QApplication::UnicodeUTF8));
+        label_dx->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_46->setText(QApplication::translate("lisemqtClass", "Cellsize (m)", 0, QApplication::UnicodeUTF8));
+        label_38->setText(QApplication::translate("lisemqtClass", "   End time (min)", 0, QApplication::UnicodeUTF8));
+        label_48->setText(QApplication::translate("lisemqtClass", "ha", 0, QApplication::UnicodeUTF8));
+        label_30->setText(QApplication::translate("lisemqtClass", "model runtime & est.end (min)", 0, QApplication::UnicodeUTF8));
+        label_endruntime->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_runtime->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        watergroup->setTitle(QApplication::translate("lisemqtClass", "Water", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QApplication::translate("lisemqtClass", "Rain tot (mm)", 0, QApplication::UnicodeUTF8));
+        label_raintot->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_34->setText(QApplication::translate("lisemqtClass", "Interception (mm)", 0, QApplication::UnicodeUTF8));
+        label_interctot->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_36->setText(QApplication::translate("lisemqtClass", "Infil (mm)", 0, QApplication::UnicodeUTF8));
+        label_infiltot->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_37->setText(QApplication::translate("lisemqtClass", "Surface Store (mm)", 0, QApplication::UnicodeUTF8));
+        label_surfstor->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_40->setText(QApplication::translate("lisemqtClass", "Runoff (incl chan) (mm)", 0, QApplication::UnicodeUTF8));
+        label_watervoltot->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_42->setText(QApplication::translate("lisemqtClass", "Qtot (mm)", 0, QApplication::UnicodeUTF8));
+        label_qtot->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_MB->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_44->setText(QApplication::translate("lisemqtClass", "MB (%)", 0, QApplication::UnicodeUTF8));
+        label_24->setText(QApplication::translate("lisemqtClass", "peak time Q (min)", 0, QApplication::UnicodeUTF8));
+        label_qpeaktime->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_52->setText(QApplication::translate("lisemqtClass", "Q/P (%)", 0, QApplication::UnicodeUTF8));
+        label_QPfrac->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_35->setText(QApplication::translate("lisemqtClass", "Qpeak (l/s)", 0, QApplication::UnicodeUTF8));
+        label_qpeak->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_53->setText(QApplication::translate("lisemqtClass", "peak time P (min)", 0, QApplication::UnicodeUTF8));
+        label_ppeaktime->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        progressBar->setFormat(QApplication::translate("lisemqtClass", "%p% (%v-%m)", 0, QApplication::UnicodeUTF8));
+        label_debug->setText(QApplication::translate("lisemqtClass", "!!!", 0, QApplication::UnicodeUTF8));
+        outletgroup_2->setTitle(QApplication::translate("lisemqtClass", "Buffers", 0, QApplication::UnicodeUTF8));
+        label_buffervol->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_56->setText(QApplication::translate("lisemqtClass", "                   Water (m3)", 0, QApplication::UnicodeUTF8));
+        label_buffersed->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_57->setText(QApplication::translate("lisemqtClass", "     Sediment (ton)", 0, QApplication::UnicodeUTF8));
+        outletgroup->setTitle(QApplication::translate("lisemqtClass", "Outlet", 0, QApplication::UnicodeUTF8));
+        label_26->setText(QApplication::translate("lisemqtClass", "Qtot (m3)", 0, QApplication::UnicodeUTF8));
+        label_qtotm3->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_28->setText(QApplication::translate("lisemqtClass", "Soil loss (ton)", 0, QApplication::UnicodeUTF8));
+        label_soilloss->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_discharge->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_54->setText(QApplication::translate("lisemqtClass", "                           Q (l/s)", 0, QApplication::UnicodeUTF8));
+        label_soillosskgha->setText(QApplication::translate("lisemqtClass", "0", 0, QApplication::UnicodeUTF8));
+        label_31->setText(QApplication::translate("lisemqtClass", "    Soil loss (kg/ha)", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_3), QApplication::translate("lisemqtClass", "Simulation", 0, QApplication::UnicodeUTF8));
-        menu_File->setTitle(QApplication::translate("lisemqtClass", "&File", 0, QApplication::UnicodeUTF8));
         toolBar->setWindowTitle(QApplication::translate("lisemqtClass", "toolBar", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

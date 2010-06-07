@@ -172,10 +172,12 @@ void TWorld::FlowDetachment(void)
 
 		double deposition = minTC * TransportFactor;
 		// max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+
 		//deposition = max(deposition, minTC * WaterVol->Drc);
 		// cannot be more than sediment above capacity
 		deposition = max(deposition, -Sed->Drc);
 		// cannot have more depo than sediment present
+		//TODO what about this: which one to choose
 
 		if (GrassPresent->Drc > 0)
 			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;

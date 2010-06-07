@@ -11,7 +11,7 @@ Functionality in model.h:
 - TWorld class that combines all model variables and processes
 - global defines Drc, MV, FOR_ROW_COL_MV etc
 - global defines for lisem type; infiltration type etc.
-*/
+ */
 #ifndef modelH
 #define modelH
 
@@ -33,14 +33,15 @@ Functionality in model.h:
 #define report(name) WriteMapSeries(resultDir,QString(name), printstep)
 
 #define Drc     Data[r][c]
+#define DrcOutlet     Data[r_outlet][c_outlet]
 #define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
 #define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
-                            for (int c = 0; c < nrCols; c++)\
-                              if(!IS_MV_REAL4(&Mask->Data[r][c]))
+		for (int c = 0; c < nrCols; c++)\
+		if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
-#define FOR_ROW_COL_MV_CH for (int r = 0; r < nrRows; r++)\
-                            for (int c = 0; c < nrCols; c++)\
-                              if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
+#define FOR_ROW_COL_MV_CH for (int  r = 0; r < nrRows; r++)\
+		for (int  c = 0; c < nrCols; c++)\
+		if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 #define NUMNAMES 300
 #define MIN_FLUX 1e-12
@@ -67,20 +68,20 @@ Functionality in model.h:
 // structure containing pointers to all maps for automatic destruction after runs
 // so memory doesn't have to be freed for each map
 typedef struct MapListStruct {
-   TMMap *m;
+	TMMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------
 // linked list structure for network in kin wave
 typedef struct Liststruct {
-    int rowNr;
-    int colNr;
-    struct Liststruct *prev;
+	int rowNr;
+	int colNr;
+	struct Liststruct *prev;
 }  Liststruct;
 //---------------------------------------------------------------------------
 // name list structure used to read run file
 typedef struct _nameList{
-     QString name;
-     QString value;
+	QString name;
+	QString value;
 } _nameList;
 //---------------------------------------------------------------------------
 // The world: main class containing all variables, maps, options, filenames etc etc
@@ -89,190 +90,193 @@ class TWorld: public QThread
 	Q_OBJECT
 
 public:
-      TWorld(QObject *parent = 0);
-     ~TWorld();
+	TWorld(QObject *parent = 0);
+	~TWorld();
 
-     // copy of overall rows and columns, set in initmask
-     long nrRows, nrCols;
+	// copy of overall rows and columns, set in initmask
+	long nrRows, nrCols;
 
-     // map management structure
-     MapListStruct maplist[NUMNAMES];
-     int maplistnr;
+	// map management structure
+	MapListStruct maplist[NUMNAMES];
+	int maplistnr;
 
-     // All maps are declared here, no lacal declarations of maps are done
-     TMMap
-      // terrain
-      *tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
-      // rainfall and interception
-      *RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-      // runoff
-      *WH, *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall,
-      *FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim,
-      // soil surface, storage and cover
-      *N, *RR, *MDS,*fpa,
-      *SoilWidthDX, *RoadWidthDX, *StoneFraction, *CompactFraction, *CrustFraction,
-      *PlantHeight, *Cover, *CanopyStorage, *LAI,
-      // not used yet:
-      *WheelWidth, *WheelWidthDX, *GullyWidthDX,
-       //erosion
-      *Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
-      *DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *Sed, *Qsoutflow, *CG, *DG, *SettlingVelocity,
-      //infiltration
-      *Fcum, *FSurplus, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
-      *ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
-      *ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
-      *KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
-      *WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
-      // Channels
-      *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
-      *ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
-      *ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
-      *ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-      // buffers
-      *BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
-      *BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
-//      *BufferSedVolMax, *ChannelBufferSedVolMax,
-      // totals for output
-      *TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSed, *TotalWatervol, *TotalConc;
+	// All maps are declared here, no lacal declarations of maps are done
+	TMMap
+	// terrain
+	*tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
+	// rainfall and interception
+	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
+	// runoff
+	*WH, *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall,
+	*FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim,
+	// soil surface, storage and cover
+	*N, *RR, *MDS,*fpa,
+	*SoilWidthDX, *RoadWidthDX, *StoneFraction, *CompactFraction, *CrustFraction,
+	*PlantHeight, *Cover, *CanopyStorage, *LAI,
+	// not used yet:
+	*WheelWidth, *WheelWidthDX, *GullyWidthDX,
+	//erosion
+	*Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
+	*DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *Sed, *Qsoutflow, *CG, *DG, *SettlingVelocity,
+	//infiltration
+	*Fcum, *FSurplus, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
+	*ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
+	*ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
+	*KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
+	*WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
+	// Channels
+	*RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
+	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
+	*ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
+	*ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
+	// buffers
+	*BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
+	*BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
+	//      *BufferSedVolMax, *ChannelBufferSedVolMax,
+	// totals for output
+	*TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSed, *TotalWatervol, *TotalConc;
 
-     // boolean options that are set in interface and runfile, initialized in DataInit
-     bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
-      SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
-      startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
-      SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRunoffPerM, SwitchInfilCompact,
-      SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead, SwitchGeometricMean,
-      SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
-      SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
-      SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
-      SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
-      SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
-      SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-      SwitchPCRoutput, SwitchWriteHeaders;
+	// boolean options that are set in interface and runfile, initialized in DataInit
+	bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
+	SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+	startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
+	SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRunoffPerM, SwitchInfilCompact,
+	SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead, SwitchGeometricMean,
+	SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
+	SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
+	SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
+	SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
+	SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
+	SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
+	SwitchPCRoutput, SwitchWriteHeaders;
 
-     // multiple options that are set in interface or runfile, see defines above
-    int InterceptionLAIType;
-    int InfilMethod;
+	// multiple options that are set in interface or runfile, see defines above
+	int InterceptionLAIType;
+	int InfilMethod;
 
-    // calibration factors
-    double ksatCalibration;
-    double nCalibration;
-    double ChnCalibration;
-    double ChKsatCalibration;
-    double SplashDelivery;
-    double StripN;
-    double StemflowFraction;
+	// calibration factors
+	double ksatCalibration;
+	double nCalibration;
+	double ChnCalibration;
+	double ChKsatCalibration;
+	double SplashDelivery;
+	double StripN;
+	double StemflowFraction;
 
-    // totals for mass balance checks and output
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStoremm, InfilKWTot;
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;
-    double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
-    double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
-    double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
-    double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit;
-    double BulkDens;
+	// totals for mass balance checks and output
+	double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStoremm, InfilKWTot;
+	double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;
+	double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
+	double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
+	double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
+	double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit;
+	double BulkDens;
 
-    // time and dx parameters
-    double time, BeginTime, EndTime;
-    double _dt, _dx;
-    long runstep, printstep, printinterval;
+	int c_outlet;  // outlet row and col
+	int r_outlet;
 
-    // timeseries variables and output strings
-    double **RainfallSeries;
-    int nrstations, nrrainfallseries, placerainfallseries;
-    QString SOBEKdatestring;
-    int SOBEKnrlines;
-    char ErosionUnits;
+	// time and dx parameters
+	double time, BeginTime, EndTime;
+	double _dt, _dx;
+	long runstep, printstep, printinterval;
 
-    // file and directory names
-    QString resultDir;
-    QString inputDir;
-    QString outflowFileName;
-    QString totalErosionFileName;
-    QString totalDepositionFileName;
-    QString totalSoillossFileName;
-    QString rainFileName;
-    QString rainFileDir;
-    QString snowmeltFileName;
-    QString snowmeltFileDir;
-    QString tableDir;
-    QString resultFileName;
-    QString temprunname;
-    QStringList outputcheck;
-    QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
+	// timeseries variables and output strings
+	double **RainfallSeries;
+	int nrstations, nrrainfallseries, placerainfallseries;
+	QString SOBEKdatestring;
+	int SOBEKnrlines;
+	char ErosionUnits;
 
-    // data initialization, runfile reading and parsing
-    _nameList namelist[NUMNAMES]; // structire for runfile variables and names
-    int nrnamelist;
-    void IntializeOptions(void);  // set all options to false etc
-    void IntializeData(void);     // make all non-input maps
-    void GetRainfallData(void);   // get input timeseries
-    void GetInputData(void);      // get and make input maps
-    TMMap *InitMask(QString name);
-    TMMap *InitMaskChannel(QString name);
-    TMMap *ReadMapMask(QString name);
-    TMMap *ReadMap(cTMap *Mask, QString name);
-    TMMap *NewMap(double value);
-    void InitMapList(void);
-    void DestroyData(void);
-    void ParseInputData();
-    void GetRunFile();
-    QString GetName(QString p);
-    QString getvaluename(const char *vname);
-    double getvaluedouble(const char *vname);
-    int getvalueint(const char *vname);
-    QString CheckDir(QString p, QString p1);
+	// file and directory names
+	QString resultDir;
+	QString inputDir;
+	QString outflowFileName;
+	QString totalErosionFileName;
+	QString totalDepositionFileName;
+	QString totalSoillossFileName;
+	QString rainFileName;
+	QString rainFileDir;
+	QString snowmeltFileName;
+	QString snowmeltFileDir;
+	QString tableDir;
+	QString resultFileName;
+	QString temprunname;
+	QStringList outputcheck;
+	QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
 
-    // LISEM model processes
-    void Rainfall(void);
-    void Interception(void);
-    void Infiltration(void);
-    void InfilGreenAmpt1(void);
-    void InfilSmithParlange1(void);
-    void InfilMorelSeytoux1(void);
-    void InfilKsat(void);
-    void SoilWater(void);
-    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
-    void SurfaceStorage(void);
-    void OverlandFlow(void);
-    void ChannelFlow(void);
-    void ToChannel(void);
-    void CalcVelDisch(void);
-    void CalcVelDischChannel();
-    void GridCell(void);
-    void SplashDetachment(void);
-    void FlowDetachment(void);
-    double MaxConcentration(double watvol, double sedvol, double dep);
-    void ChannelFlowDetachment(void);
-    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
-                   TMMap *_StorVol, TMMap*_StorVolSed);
-    void Totals(void);
-    void MassBalance(void);
-    void Output(void);
-    //void ReportTimeseries();
-    void ReportTimeseriesNew();
-    void ReportTotals();
-    void ReportMaps();
-    void ReportTotalsNew();
+	// data initialization, runfile reading and parsing
+	_nameList namelist[NUMNAMES]; // structire for runfile variables and names
+	int nrnamelist;
+	void IntializeOptions(void);  // set all options to false etc
+	void IntializeData(void);     // make all non-input maps
+	void GetRainfallData(void);   // get input timeseries
+	void GetInputData(void);      // get and make input maps
+	TMMap *InitMask(QString name);
+	TMMap *InitMaskChannel(QString name);
+	TMMap *ReadMapMask(QString name);
+	TMMap *ReadMap(cTMap *Mask, QString name);
+	TMMap *NewMap(double value);
+	void InitMapList(void);
+	void DestroyData(void);
+	void ParseInputData();
+	void GetRunFile();
+	QString GetName(QString p);
+	QString getvaluename(const char *vname);
+	double getvaluedouble(const char *vname);
+	int getvalueint(const char *vname);
+	QString CheckDir(QString p, QString p1);
 
-    // thread management variables
-    bool stopRequested;
-    QMutex mutex;
-    void stop();
+	// LISEM model processes
+	void Rainfall(void);
+	void Interception(void);
+	void Infiltration(void);
+	void InfilGreenAmpt1(void);
+	void InfilSmithParlange1(void);
+	void InfilMorelSeytoux1(void);
+	void InfilKsat(void);
+	void SoilWater(void);
+	double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
+	void SurfaceStorage(void);
+	void OverlandFlow(void);
+	void ChannelFlow(void);
+	void ToChannel(void);
+	void CalcVelDisch(void);
+	void CalcVelDischChannel();
+	void GridCell(void);
+	void SplashDetachment(void);
+	void FlowDetachment(void);
+	double MaxConcentration(double watvol, double sedvol, double dep);
+	void ChannelFlowDetachment(void);
+	void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+			TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+			TMMap *_StorVol, TMMap*_StorVolSed);
+	void Totals(void);
+	void MassBalance(void);
+	void Output(void);
+	//void ReportTimeseries();
+	void ReportTimeseriesNew();
+	void ReportTotals();
+	void ReportMaps();
+	void ReportTotalsNew();
+
+	// thread management variables
+	bool stopRequested;
+	QMutex mutex;
+	void stop();
 
 protected:
-    void run();
-    QTime time_ms;
-    void DEBUGs(QString SSS);
+	void run();
+	QTime time_ms;
+	void DEBUGs(QString SSS);
 
-// talk to the interface with the output structure "op" declared in ifacebasic
-signals:
-    void done(const QString &results);
-    void debug(const QString &results);
-    void show();
+	// talk to the interface with the output structure "op" declared in ifacebasic
+	signals:
+	void done(const QString &results);
+	void debug(const QString &results);
+	void show();
 
 private slots:
-    void DoModel();
+void DoModel();
 
 };
 

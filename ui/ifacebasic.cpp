@@ -15,7 +15,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "global.h"
 
 //---------------------------------------------------------------------------
-output op;
+//output op;
 // in and output structure to link model output to interface
 
 //---------------------------------------------------------------------------
@@ -232,3 +232,4 @@ void ifacebasic::on_toolButton_ShowRunfile_clicked()
 	file.close();
 }
 //---------------------------------------------------------------------------
+

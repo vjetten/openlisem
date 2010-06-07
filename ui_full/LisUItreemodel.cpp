@@ -1,3 +1,15 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website, information and code: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
+
+/*
+ * treemodel basic funtions. treemodel is the tree structure with input map names
+ */
+
 #include "lisemqt.h"
 
 //-----------------------------------------------------------------------------------------------
@@ -34,10 +46,10 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 
     TreeItem *item = getItem(index);
 
-    int dt = item->getDatatype();
+   // int dt = item->getDatatype();
 
-    if (dt == 3 && role == Qt::CheckStateRole && index.column() == 1)
-        return (item->data(1).toInt() != 0) ? Qt::Checked : Qt::Unchecked;
+   // if (dt == 3 && role == Qt::CheckStateRole && index.column() == 1)
+   //     return (item->data(1).toInt() != 0) ? Qt::Checked : Qt::Unchecked;
 
     return item->data(index.column());
 

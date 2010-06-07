@@ -47,9 +47,9 @@ void TWorld::OverlandFlow(void)
    // calculate what goes in the channel is used
 
    /*---- Water ----*/
+   // recalculate water vars after subtractions in "to channel"
    FOR_ROW_COL_MV
    {
-       // recalculate after subtractions in "to channel"
        WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
        // WaterVolin total water volume in m3 before kin wave, runoff may be adjusted in tochannel
        q->Drc = FSurplus->Drc*_dx/_dt;
@@ -61,9 +61,9 @@ void TWorld::OverlandFlow(void)
     /*---- Sediment ----*/
     if (SwitchErosion)
     {
+   	 // calc seediment flux going in kin wave as Qs = Q*C
        FOR_ROW_COL_MV
        {
-
            Qs->Drc =  Q->Drc * Conc->Drc;
            // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
            Qsoutflow->Drc = 0;
@@ -75,6 +75,7 @@ void TWorld::OverlandFlow(void)
    Qn->setMV();
    // flag all Qn gridcell with MV for in kin wave
 
+   // do kin wave for all pits
    FOR_ROW_COL_MV
    {
      if (LDD->Drc == 5) // if outflow point, pit
@@ -89,6 +90,7 @@ void TWorld::OverlandFlow(void)
      }
    }
 
+   // calculate resulting flux Qn back to water height on surface
    FOR_ROW_COL_MV
    {
       double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);

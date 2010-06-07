@@ -7,5 +7,7 @@
         <file>fileopen.png</file>
         <file>openLisem.png</file>
         <file>openLisem25.png</file>
+        <file>stop16_2.png</file>
+        <file>pause2.png</file>
     </qresource>
 </RCC>
