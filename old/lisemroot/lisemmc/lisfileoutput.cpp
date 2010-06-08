@@ -108,7 +108,7 @@ calc(" SoilLossOut = soilloss ");
                     writeTimeseries(Deposition, mapname("outdepo"));
 
                if (SwitchMulticlass || SwitchNutrients)
-                  mcalc(" SedConc# = mif(WaterHVolin gt 0 ,SedinMu#/WaterHVolin,0) ",6);
+                  mcalc(" SedConc# = mif(WaterHVolin gt 0 ,SedinMu#/WaterHVolin,1000) ",6);
 
                if (SwitchMulticlass)
                {

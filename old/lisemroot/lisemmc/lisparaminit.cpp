@@ -5,8 +5,8 @@
      //------------depression storage-------------------------------------------
 
 
-// RR is given in cm in the maps !!!!!!!
-/* OBSOLETE in surfstor3
+/* OBSOLETE =====> moved to surfstor3.cpp
+
      _spatial(REAL4, DeprStoreMaxH);
      calc(" DeprStoreMaxH = max(10*(0.112*RR + 0.031*sqr(RR) - "
           "           0.012*RR*(Gradient*100)),0) ");
@@ -33,8 +33,6 @@
         // Onstad (1984); maximum fraction of surface covered with water
         // PondAreaFractMax is assumed not to be less than 0.10; lower values give
         // mass balance error for steep slopes!)
-*/
-
   //   _spatial(REAL4, PAFcoeff);
 //     calc(" PAFcoeff = 1.4057*(RR*10)**-0.9422 ");
      //RR in MM in this equation!
@@ -42,6 +40,9 @@
 //VJ 050302 mag weg, is vervangen door de formule
 //      calc(" PondAreaFract = 1-exp(-1.88*WH/(RR*10)) ");
 
+====> OBSOLETE */
+
+// RR is given in cm in the maps
      _spatial(REAL4, MDS);
      calc(" MDS = max(0, 0.243*RR*10 + 0.010*RR*RR*100 - 0.012*RR*10*Gradient*100) ");
         // new threshold var according to kamphorst et al.  in MM !!!!!!

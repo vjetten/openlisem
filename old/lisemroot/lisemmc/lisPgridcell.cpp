@@ -1,8 +1,8 @@
 //VJ 090520
 //setting up sub-pixel gridcell surfaces
 
+//      _spatial(REAL4, StoneWidthDX);
       _spatial(REAL4, WheelWidthDX);
-      _spatial(REAL4, StoneWidthDX);
       _spatial(REAL4, SoilWidthDX);
 
      // LISEM discrimates the following surfaces within DX:
@@ -22,8 +22,9 @@
       {
          calc(" WheelWidthDX = cover(max(DX-RoadWidthDX-ChannelWidthUpDX,0)/DX*WheelWidth,0) ");
       }
-      calc(" StoneWidthDX = 0");// max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX,0)*StoneFraction ");
-      calc(" SoilWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX-StoneWidthDX,0) ");
+//      calc(" StoneWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX,0)*StoneFraction ");
+//      calc(" SoilWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX-StoneWidthDX,0) ");
+      calc(" SoilWidthDX = max(DX-ChannelWidthUpDX-GullyWidthDX-RoadWidthDX-WheelWidthDX,0) ");
 
 
             /* old junk, MOGELIJK WEL EEN GOED IDEE!
@@ -35,5 +36,3 @@
            calc(" WheelWidthDX = WheelNumber*WheelWidthDX ");
            */
 
-
- 

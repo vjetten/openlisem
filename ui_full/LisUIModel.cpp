@@ -27,6 +27,10 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::runmodel()
 {
+	//TODO if run from commandline this name must exist
+	// this assumes runfilename is correct
+	savefile(QString(op.LisemDir+"openlisemtmp.run"));
+
 	tabWidget->setCurrentIndex(2);
 
    startplot = true;
@@ -36,18 +40,6 @@ void lisemqt::runmodel()
 	PData = NULL;
 	timeData = NULL;
 	//intialize plot stuff for this run
-
-	//TODO replace with temp run file
-	QFile file(op.runfilename);
-	if (!file.open(QFile::ReadOnly | QFile::Text))
-	{
-		QMessageBox::warning(this, "openLISEM",
-				QString("Cannot read file \"%1\":\n%2.")
-				.arg(op.runfilename)
-				.arg(file.errorString()));
-		return;
-	}
-	// check run file
 
 	W = new TWorld();
 	// make the world
@@ -138,6 +130,7 @@ void lisemqt::ShowGraph()
 		QsData = new double[op.maxstep+2];
 		CData = new double[op.maxstep+2];
 		PData = new double[op.maxstep+2];
+		/* gives problems
 		for (int i = 0; i < op.maxstep; i++)
 		{
 			timeData[i] = 0;
@@ -146,19 +139,29 @@ void lisemqt::ShowGraph()
 			CData[i] = 0;
 			PData[i] = 0;
 		}
-
+		 */
 		HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 	}
-	QGraph->setRawData(timeData,QData,op.runstep);
-	QsGraph->setRawData(timeData,QsData,op.runstep);
-	CGraph->setRawData(timeData,CData,op.runstep);
-	PGraph->setRawData(timeData,PData,op.runstep);
 
 	timeData[op.runstep] = op.time;
+	PData[op.runstep] = op.P;
 	QData[op.runstep] = op.Q;
 	QsData[op.runstep] = op.Qs;
 	CData[op.runstep] = op.C;
-	PData[op.runstep] = op.P;
+	timeData[op.runstep+1] = op.time;
+	PData[op.runstep+1] = op.P;
+	QData[op.runstep+1] = op.Q;
+	QsData[op.runstep+1] = op.Qs;
+	CData[op.runstep+1] = op.C;
+
+	QGraph->setRawData(timeData,QData,op.runstep);
+	PGraph->setRawData(timeData,PData,op.runstep);
+	if(!checkNoErosion->isChecked())
+	{
+		QsGraph->setRawData(timeData,QsData,op.runstep);
+		CGraph->setRawData(timeData,CData,op.runstep);
+	}
+
 
 
 	y2as = max(y2as, op.Qs);
@@ -174,7 +177,7 @@ void lisemqt::ShowGraph()
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
 {
-	label_28->setText(results);
+	label_debug->setText(results);
 	// arrive here after model emits done signal
 	if (W)
 	{
@@ -195,6 +198,7 @@ void lisemqt::worldDone(const QString &results)
 	timeData = NULL;
 	// free data structures graph
 
+	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDebug(const QString &results)

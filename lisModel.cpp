@@ -49,7 +49,7 @@ void TWorld::Totals(void)
 	RainTotmm = RainTotmm + RainAvgmm;
 	// avg area rainfall in mm
 
-	tm->calc2(Rainc, CellArea, MUL); //in m3
+	tm->calc2V(Rain, (_dx*_dx), MUL); //in m3
 	double rainfall = tm->MapTotal(); // in m3
 	RainTot += rainfall; // in m3
 
@@ -64,12 +64,9 @@ void TWorld::Totals(void)
 
 	InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
 	InfilKWTot += InfilVolKinWave->MapTotal(); // not really used, available for output when needed
-	InfilTotmm = InfilTot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+	InfilTotmm = max(0,InfilTot*1000/(_dx*_dx*nrCells));//CatchmentArea;
 	// infiltration mm and m3
 
-	//	tm->calc2(WHstore, FlowWidth, MUL); //m2
-	// tm->calcV(_dx, MUL); //m3	// MOET ZIJN DX???
-	//	tm->calc(DX, MUL); //m3
 	tm->calc2V(WHstore, 1000, MUL); //mm
 	SurfStoremm = tm->MapTotal()/nrCells;
 	// surface storage CHECK THIS
@@ -85,7 +82,7 @@ void TWorld::Totals(void)
 	// needed for mass balance
 	Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 	// in mm for screen output
-
+/*
 	FOR_ROW_COL_MV
 	{
 		if (Outlet->Drc == 1)
@@ -94,6 +91,12 @@ void TWorld::Totals(void)
 		TotalWatervol->Drc = WaterVolall->Drc;
 		// for sed conc calc output
 	}
+	*/
+	QtotOutlet += Qoutflow->DrcOutlet;
+	// for screen output, total main outlet in m3
+	TotalWatervol->copy(WaterVolall);
+	// for sed conc calc output
+
 
 	if (SwitchIncludeChannel)
 	{
@@ -107,6 +110,12 @@ void TWorld::Totals(void)
 		Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 		// recalc in mm for screen output
 
+		QtotOutlet += ChannelQoutflow->DrcOutlet;
+		// add channel outflow (in m3) to total for main outlet
+		TotalWatervol->calc(ChannelWaterVol,ADD);
+		// add channel volume to total for sed conc calc
+
+		/*
 		FOR_ROW_COL_MV
 		{
 			if (Outlet->Drc == 1)
@@ -116,6 +125,7 @@ void TWorld::Totals(void)
 			TotalWatervol->Drc += ChannelWaterVol->Drc;
 			// add channel volume to total for sed conc calc
 		}
+		*/
 	}
 
 	if (SwitchBuffers)
@@ -126,22 +136,19 @@ void TWorld::Totals(void)
 		//sum up all volume remaining in all buffers (so the non-water!)
 		BufferVolTot = BufferVolTotInit - BufferVolTot;
 		//subtract this from the initial volume to get the water in the buffers
-		DEBUGv(BufferVolTot);
 	}
 
 	// output fluxes for reporting
 	FOR_ROW_COL_MV
 	{
 		Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc); // in l/s
-		if (Outlet->Drc == 1)
-		{
-			double oldpeak = Qpeak;
-			Qpeak = max(Qpeak, Qoutput->Drc);
-			if (oldpeak < Qpeak)
-				QpeakTime = time;
-		}
-		// peak flow and peak time calculation, based on sum channel and runoff
 	}
+
+	oldpeak = Qpeak;
+	Qpeak = max(Qpeak, Qoutput->DrcOutlet);
+	if (oldpeak < Qpeak)
+		QpeakTime = time;
+	// peak flow and peak time calculation, based on sum channel and runoff
 
 	//***** SEDIMENT *****//
 
@@ -157,14 +164,10 @@ void TWorld::Totals(void)
 		SoilLossTot += Qsoutflow->MapTotal();
 		// sum all sed in all pits (in kg), needed for mass balance
 
-		FOR_ROW_COL_MV
-		{
-			if (Outlet->Drc == 1)
-				SoilLossTotOutlet += Qsoutflow->Drc;
-			// for screen output, total main outlet sed loss
-			TotalSed->Drc = Sed->Drc;
-			// for sed conc
-		}
+		SoilLossTotOutlet += Qsoutflow->DrcOutlet;
+		// for screen output, total main outlet sed loss
+		TotalSed->copy(Sed);
+		// for sed conc
 
 		if (SwitchIncludeChannel)
 		{
@@ -175,15 +178,11 @@ void TWorld::Totals(void)
 			SoilLossTot += ChannelQsoutflow->MapTotal();
 			// add sed outflow for all pits to total soil loss
 
-			FOR_ROW_COL_MV
-			{
-				if (Outlet->Drc == 1)
-					SoilLossTotOutlet += ChannelQsoutflow->Drc;
+			SoilLossTotOutlet += ChannelQsoutflow->DrcOutlet;
 				// add channel outflow (in kg) to total for main outlet
 
-				TotalSed->Drc += ChannelSed->Drc;
+			TotalSed->calc(ChannelSed, ADD);
 				// for sed conc file output
-			}
 		}
 
 		FOR_ROW_COL_MV
@@ -220,7 +219,7 @@ void TWorld::MassBalance()
 {
 	// Mass Balance water
 	if (RainTot > 0)
-		MB = (RainTot - IntercTot - InfilTot - WaterVolTot - BufferVolTot - Qtot)/RainTot*100;
+		MB = (RainTot - IntercTot - InfilTot - WaterVolTot  - BufferVolTot- Qtot)/RainTot*100;
 
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)
@@ -232,6 +231,9 @@ void TWorld::MassBalance()
 // report to screen, hydrographs and maps
 void TWorld::Output()
 {
+	if (runstep > 0 && runstep % printinterval == 0)
+		printstep++;
+	// printstep determines map reporting frequency
 	runstep++;
 
 	op.dx = _dx;
@@ -246,7 +248,7 @@ void TWorld::Output()
 	op.CatchmentArea = CatchmentArea;
 
 	op.RainTotmm=RainTotmm;
-	op.WaterVolTotmm=WaterVolTotmm;
+	op.WaterVolTotmm=WaterVolTotmm-SurfStoremm;
 	op.Qtotmm=Qtotmm;
 	op.Qtot=QtotOutlet;
 	op.Qpeak=Qpeak;
@@ -280,13 +282,9 @@ void TWorld::Output()
 	op.C = TotalConc->DrcOutlet;
 
 	op.BufferVolTot = BufferVolTot;
-	op.BufferSedTot = BufferSedTot;
+	op.BufferSedTot = BufferSedTot*0.001; //ton
 
 	emit show();
-
-	if (runstep > 0 && runstep % printinterval == 0)
-		printstep++;
-	// printstep determines map reporting frequency
 
 	ReportTimeseriesNew();
 	// report hydrographs ande swdigraophs at all points in outpoint.map
@@ -305,11 +303,11 @@ void TWorld::DoModel()
 
 	time_ms.start();
 	// get time to calc run length
-	temprunname = op.runfilename;
+	temprunname = QString(op.LisemDir+"openlisemtmp.run");
 
 	try
 	{
-		emit debug("reading and initializing data");
+		DEBUG("reading and initializing data");
 
 		IntializeOptions();
 		// set all to 0 and false
@@ -319,21 +317,22 @@ void TWorld::DoModel()
 		GetRunFile();
 		ParseInputData();
 		// get and parse runfile
-
 		GetInputData();
 		IntializeData();
 		GetRainfallData();
 		// get all input data and create and initialize all maps and variables
+
 
 		BeginTime = getvaluedouble("Begin time") * 60;
 		EndTime = getvaluedouble("End time") * 60;
 		_dt = getvaluedouble("Timestep");
 		//time vraiables in sec
 
-		DEBUG(QString("running"));
-
 		runstep = 0; // NOTE runstep is used to initialize graph!
-		printstep = 0;
+		printstep = 1;
+
+		DEBUG("Running...");
+
 		for (time = BeginTime; time < EndTime; time += _dt)
 		{
 			mutex.lock();
@@ -346,12 +345,15 @@ void TWorld::DoModel()
 			Rainfall();
 			Interception();
 			Infiltration();
-			SoilWater();
+			//SoilWater();
 			SurfaceStorage();
 			SplashDetachment();
 			FlowDetachment();
-			OverlandFlow();
-			ChannelFlow();
+
+			ToChannel();    // fraction going into channel
+			OverlandFlow(); // slope kin wave
+			ChannelFlow();  // channel erosion and kin wave
+
 			Totals();
 			MassBalance();
 

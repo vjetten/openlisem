@@ -74,9 +74,9 @@
 		calc(" NutNO3Outflows = sum(mif(Outlet1 eq 1, NutNO3Qouts, 0)) ");
 
 
-		calc(" NutWaterVolin = WH*(SoilWidthDX+StoneWidthDX)*DXc/1000 ");
+		calc(" NutWaterVolin = WH*(SoilWidthDX)*DXc/1000 ");
 		// recalc volume  in cell because after kinematic wave for water
-		//THIS IS WH AFTER THE MC KIN WAVE WATER
+		//THIS IS WH AFTER THE MC KIN WAVE WATER         +StoneWidthDX
 
 		calc("qfactor = mif(Qout gt 0.00001, NutWaterVolin/Qout,0)"); 
 		calc("NutPSolution = NutPQout * qfactor "); 

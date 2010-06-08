@@ -38,19 +38,6 @@
      // splash is calculated seperately for ponded and non ponded areas;
      // 1 - for ponded areas: WHall is all WH concentrated on the ponded surface
 
-     _spatial(REAL4, WHall);
-/*
-     if (SwitchWheelPresent)
-       calc(" WHall = mif(PondAreaFract gt 0, (WH/PondAreaFract*(SoilWidthDX+StoneWidthDX)"
-            "+WHWheelTrack*WheelWidthDX)/(StoneWidthDX+SoilWidthDX+WheelWidthDX), 0) ");
-     else
-       calc(" WHall = mif(PondAreaFract gt 0, WH/PondAreaFract, 0) ");
-*/
-//VJ 030701 wat een bullshit, WH is gewwon gemiddelde water hoogte in de cell waar er water is
-//dus:
-     calc(" WHall = WH ");
-
-
      _spatial(REAL4, DetachmentSplash);
      _spatial(REAL4, DepositionSplash);
      calc(" DetachmentSplash = 0 ");
@@ -62,35 +49,38 @@
         // splash detachment leaf drip
 
      _spatial(REAL4, WH0);
-     calc(" WH0 = exp(-1.48*WHall) ");
-        // water height factor
+     calc(" WH0 = exp(-1.48*WH) ");
+        // water height factor, WH in mm, splash buffering
 
-//hier
      _spatial(REAL4, PondedAreaSplash);
      if (SwitchWheelPresent)
        calc(" PondedAreaSplash = (WheelWidthDX+PondAreaFract*SoilWidthDX)*DXc/1000 ");
      else
        calc(" PondedAreaSplash = PondAreaFract*SoilWidthDX*DXc/1000 ");
-        // wet splash area
+        // wet splash area in m2
 
      _spatial(REAL4, RainfallDirectH);
         // direct rainfall
 //VJ 040823 use corrected rainfall height here
-     calc(" RainfallDirectH = RainHc ");
+//VJ 051005 added vegetation fraction here!
+     calc(" RainfallDirectH = RainHc*(1-VegetatFraction) ");
 
+//VJ 100510 moved to interception
+/*
      _spatial(REAL4, ThroughfallH);
      calc(" ThroughfallH = (RainHc-InterceptionH)*(1-StemflowFraction) ");
-//VJ 100116 CHANGED TO STEMFLOW FRACTION     
+//VJ 100116 CHANGED TO STEMFLOW FRACTION
         // factor 0.6 = stemflow 40% !
-        // this corresponds to an leaf to ground surface angle of 36.87 degrees
+        // this corresponds to an leaf to ground surface angle of
+// 36.87 degrees   <== what does this mean? that part is not caught? but that is the canopy openess!!! and very plant specific
         // the effect of leaf drainage is neglegible when CH<0.15 m.
         // InterceptionH is already taking VegetatFraction into account
-
+*/
 
 // WAT EEN ROTZOOI IS DIT !!!!!!
 // GEEN DOCUMENTATIE
 
-     // **** 1) direct rainfall on ponded areas
+     // **** 1) direct rainfall on ponded areas in J/mm/m2*mm*m2 = kg/cell
 
      calc(" DetachmentDirectThroughfall = mif(KEDirectThroughfall gt 10 and AggregateStab gt 0,  "
           "(2.82/AggregateStab*KEDirectThroughfall*WH0 + 2.96)*RainfallDirectH*PondedAreaSplash,"
@@ -118,14 +108,17 @@
           "KELeafDrainage/10*(0.1033/CohesionSoil*10*WH0 + 3.58)*ThroughfallH*PondedAreaSplash, "
           "DetachmentLeafDrainage) ");
 
-     calc(" DetachmentSplash = (1-VegetatFraction)*DetachmentDirectThroughfall "
-                       " + VegetatFraction*DetachmentLeafDrainage ");
+//     calc(" DetachmentSplash = (1-VegetatFraction)*DetachmentDirectThroughfall "
+//                       " + VegetatFraction*DetachmentLeafDrainage ");
+     calc(" DetachmentSplash = DetachmentDirectThroughfall + DetachmentLeafDrainage ");
+     //VJ 051005 vegetation vfraction already accounted for in fluxes
+
 // the types of splash detachment are added
 
      // **** 3 - direct rainfall for non-ponded areas: WH0 = 1
 
      calc(" PondedAreaSplash = (1-PondAreaFract)*SoilWidthDX*DX/1000 ");
-     // dry area
+     // dry area, wheeltracks are assumed wet
 
      calc(" DetachmentDirectThroughfall = mif(KEDirectThroughfall gt 10 and AggregateStab gt 0,     "
           "    (2.82/AggregateStab*KEDirectThroughfall+2.96) * RainfallDirectH * PondedAreaSplash, "
@@ -147,8 +140,10 @@
           "    KELeafDrainage/10*(0.1033/CohesionSoil*10+3.58) * ThroughfallH * PondedAreaSplash, DetachmentLeafDrainage) ");
 
 
-     calc(" DetachmentSplash += SplashDelivery*((1-VegetatFraction)*DetachmentDirectThroughfall "
-                             "+ VegetatFraction*DetachmentLeafDrainage) ");
+//     calc(" DetachmentSplash += SplashDelivery*((1-VegetatFraction)*DetachmentDirectThroughfall "
+//                             "+ VegetatFraction*DetachmentLeafDrainage) ");
+     calc(" DetachmentSplash += SplashDelivery*(DetachmentDirectThroughfall + DetachmentLeafDrainage) ");
+     // VJ 051005 the vegetation fraction is already added to the fluxes
     // the types of splash detachment are added
 
      if (SwitchGrassPresent)
@@ -158,7 +153,7 @@
      calc("DetachmentSplash *= (1 - StoneFraction) ");
      // NO SPLASH ON STONES
 
-//VJ 080423 Snowmelt, no splash activity on snowcover     
+//VJ 080423 Snowmelt, no splash activity on snowcover
      calc(" DetachmentSplash *= (1 - SnowCover) ");
 
 //VJ 080614 no splash on hard surfaces

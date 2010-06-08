@@ -20,9 +20,10 @@ void TWorld::GridCell(void)
    FOR_ROW_COL_MV
    {
       if (SwitchIncludeChannel)
-      if (RoadWidthDX->Drc > 0)
+      if (RoadWidthDX->Drc > 0 && BufferID->Drc == 0)
           ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
       // channel cannot be wider than 0.9*_dx-road
+      //VJ 100608 no road in buffer
 
       WheelWidthDX->Drc = 0;
       if (SwitchWheelPresent)
@@ -45,24 +46,28 @@ void TWorld::SurfaceStorage(void)
        double wh = WH->Drc, whflow = 0;
        double SDS;
        double mds = MDS->Drc;
+       double WaterVolrunoff;
 
        //### surface storage
-       SDS = 0.1*MDS->Drc;
+       SDS = 0.2*mds;
        // arbitrary minimum depression storage is 10% of max depr storage
+
        if (mds > 0)
-          whflow = (wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
+      	 whflow = (wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
+			 //could be: whflow = (wh-SDS) * (1-exp(-wh/mds));
           // non-linear release fo water from depression storage
+			 // resemples curves from GIS surface tests, unpublished
        else
           whflow = wh;
-       if (wh < SDS)
-          whflow = 0;
+
+      // whflow = max(0, wh-SDS);
        // subtract surface storage and calc water available for runoff, in m
        // assumed on soilsurface because there is the roughness
 
        WHstore->Drc = wh - whflow;
        // average water stored on flowwidth and not available for flow, in m
 
-       WaterVolrunoff->Drc = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+       WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
        // runoff volume available for flow, surface + road
        WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
        // all water in the cell incl storage
@@ -78,7 +83,7 @@ void TWorld::SurfaceStorage(void)
        // assume grassstrip spreads water over entire width
 
        if (FlowWidth->Drc > 0)
-          WHrunoff->Drc = WaterVolrunoff->Drc/(DX->Drc*FlowWidth->Drc);
+          WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);
        else
           WHrunoff->Drc = 0;
        // average WHrunoff from soil surface + roads, because kin wave can only do one discharge

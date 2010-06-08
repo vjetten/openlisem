@@ -6,8 +6,8 @@
 #pragma hdrstop
 
 #include "CsfMapDraw.h"
-//#include "CsfMapLeg.h"
-//#include "CsfMapEdit.h"
+#include "CsfMapLeg.h"
+#include "CsfMapEdit.h"
 
 //---------------------------------------------------------------------
 __fastcall TMapDraw::TMapDraw(TComponent* Owner)

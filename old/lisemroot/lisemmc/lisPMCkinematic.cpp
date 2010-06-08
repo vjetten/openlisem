@@ -15,7 +15,7 @@
           // Qout, and will be added after that to WH
 
 //       calc(" SumDeprStoreVol = sum(WH*(SoilWidthDX+StoneWidthDX)*DXc/1000.0) ");
-       calc(" SumDeprStoreVol = sum(SurfStorH*(SoilWidthDX+StoneWidthDX)*DXc/1000.0) ");
+       calc(" SumDeprStoreVol = sum(SurfStorH*(SoilWidthDX)*DXc/1000.0) ");
           // spatial total depression storage for mass balance, for one DT
 
      _spatial(REAL4, DeprSedin0);
@@ -109,7 +109,7 @@
 
 
       _spatial(REAL4, WaterHVolout);
-      calc(" WaterHVolout = (RoadWidthDX*WHRoad+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
+      calc(" WaterHVolout = (RoadWidthDX*WHRoad+(SoilWidthDX)*WH)*DXc/1000 ");
 
       calc(" SumWaterHVolout = sum(WaterHVolout) ");
       // spatial total amount of water on surface in m3 after kin wave

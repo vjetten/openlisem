@@ -15,7 +15,6 @@
 #include "model.h"
 #include "lisuioutput.h"
 
-
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
 {
 	Q_OBJECT
@@ -35,8 +34,11 @@ public:
 	void SetGraph();
 	void GetRunfile();
 	void ParseInputData();
+	void UpdateModelData();
 	QString CheckDir(QString p, QString p1);
 	void RunAllChecks();
+	void savefile(QString name);
+
 
 	// graph variables
 	QwtPlot *HPlot;
@@ -66,6 +68,7 @@ public:
 	QStringList OUTGULmaps;
 	QStringList RunFileNames;
 	int CurrentRunFile;
+	int uiInfilMethod;
 
 	// runfile read structure
 	_nameList namelist[NUMNAMES]; // structure for runfile variables and names
@@ -76,7 +79,8 @@ public:
 
 public slots:
 // functions linked to actions
-void savefile();
+void SaveRunFile();
+void savefileas();
 void openRunFile();
 void runmodel();
 void stopmodel();

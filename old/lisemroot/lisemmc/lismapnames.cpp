@@ -358,7 +358,8 @@ void __fastcall TLisIFace::InitOutMapNames()
     SizeMapNamesL(MapsOutputMC,w1,w2,w3,w4);
     FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu0","smu0","suspended sediment flux class 0 (mu)","outmu0");i++;
     FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu1","smu1","suspended sediment flux class 1 (mu)","outmu1");i++;
-    FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu2","smu2","suspended sediment flux class 2 (mu)","outmu2");i++;    FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu3","smu3","suspended sediment flux class 3 (mu)","outmu3");i++;
+    FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu2","smu2","suspended sediment flux class 2 (mu)","outmu2");i++;
+    FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu3","smu3","suspended sediment flux class 3 (mu)","outmu3");i++;
     FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu4","smu4","suspended sediment flux class 4 (mu)","outmu4");i++;
     FillMapNamesO(MapsOutputMC,i,"Sed. Conc mu5","smu5","suspended sediment flux class 5 (mu)","outmu5");i++;
     FillMapNamesO(MapsOutputMC,i,"D50","D50s","D50 suspended sediment (mu)","outD50susp");i++;

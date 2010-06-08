@@ -143,6 +143,7 @@ void TWorld::Rainfall(void)
 
 			RainCum->Drc += Rainc->Drc;
 			// cumulative rainfall corrected for slope, used in interception
+			RainNet->Drc = Rainc->Drc;
 	}
 }
 //---------------------------------------------------------------------------

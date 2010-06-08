@@ -336,6 +336,7 @@ void TWorld::ReportTotalsNew()
 //---------------------------------------------------------------------------
 void TWorld::ReportMaps()
 {
+	InfilVolKinWave->report("ikw");
 	if(SwitchErosion)
 	{
 		TotalDetMap->mwrite(totalErosionFileName);
@@ -368,7 +369,7 @@ void TWorld::ReportMaps()
 	FOR_ROW_COL_MV
 	{
 		InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;
-		tm->Drc = InfilVolCum->Drc*1000/CellArea->Drc;
+		tm->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
 	}
 	if (outputcheck[8].toInt() == 1) tm->report(Outinf);
 

@@ -234,3 +234,41 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
 //-----------------------------------------------------------------------------------------------
 
 
+/*
+//label->setText("saving ...");
+QFile fout("hup.txt");
+fout.open(QIODevice::ReadWrite);
+for (int i = 0; i < MapNameModel->rowCount(); i++)
+{
+	QVariant d;
+	int _r = MapNameModel->index(i,0).row();
+	QString S = "["+QString::number(_r)+"-" + QString::number(0) + "] ";
+	for (int j = 0; j < 2; j++)
+	{
+		d = MapNameModel->data(MapNameModel->index(i,j),0); // parent
+		S = S + d.toString()+";";
+	}
+	S = S + "\n";
+	QModelIndex indexParent = MapNameModel->index(i, 0);
+	for (int j = 0; j < MapNameModel->rowCount(indexParent); j++)
+	{
+		int _r = MapNameModel->index(i,j).row();
+		int _c = MapNameModel->index(i,j).column();
+		S = S + "["+QString::number(_r)+"-" + QString::number(_c) + "] ";
+
+		for (int k = 0; k < MapNameModel->columnCount(indexParent); k++)
+		{
+			int _rr = MapNameModel->index(j, k, indexParent).row();
+			int _cc = MapNameModel->index(j, k, indexParent).column();
+			d = MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
+			S = S + "["+QString::number(_rr)+"-" + QString::number(_cc) + "] ";
+			S = S + d.toString()+";";
+		}
+		S = S + "\n";
+	}
+	S = S + "\n";
+	QByteArray line(S.toAscii());
+	fout.write(line);
+}
+fout.close();
+ */

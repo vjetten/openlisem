@@ -71,8 +71,8 @@
 
 
 #define ProgName "LISEM"
-#define ProgVersion "version 2.64"
-#define DateVersion "Compiled: 10/01/21"
+#define ProgVersion "version 2.65"
+#define DateVersion "Compiled: 10/05/11"
 
 #define LISEMBASIC 0
 #define LISEMWHEELTRACKS 1
@@ -82,6 +82,7 @@
 #define wWidth 920
 #define wHeight 700
 
+#define MAXCONC 848
 
 //---------------------------------------------------------------------------
 typedef struct _VPoint {int x, y;} VPoint;
@@ -507,6 +508,8 @@ __published:	// IDE-managed Components
    TLabel *Label91;
    TLabel *Label93;
    TCheckBox *CheckHardsurface;
+   TLabel *Label94;
+   TLabel *EstRuntime;
 //        TNMPOP3 *NMPOP31;
     void __fastcall ButtonRunprogClick(TObject *Sender);
     void __fastcall FileOpenClick(TObject *Sender);
@@ -518,7 +521,6 @@ __published:	// IDE-managed Components
     void __fastcall MakeIniButtonClick(TObject *Sender);
     void __fastcall PrintButtonClick(TObject *Sender);
     void __fastcall ButtonDumpScreenClick(TObject *Sender);
-    void __fastcall RunThread();
     void __fastcall ThreadDone(TObject *Sender);
     void __fastcall AboutButtonClick(TObject *Sender);
     void __fastcall StopAllButtonClick(TObject *Sender);
@@ -697,6 +699,7 @@ public:		// User declarations
    bool ForceMapdir;
    LisThread *LisemRun;
    bool CheckPestout; // to see if lisem is called with for pest batch running
+   bool CheckMinimumdisplay;
    float PestoutTimeinterval;
 
 
@@ -717,6 +720,7 @@ public:		// User declarations
    TDateTime t_begin;
    TDateTime t_end;
    AnsiString runduration;
+   AnsiString Estrunduration;
    double runlength;
    TMouse *mouse;
 

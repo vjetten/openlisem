@@ -43,59 +43,35 @@
 
 //VJ 030701 if wheeltracks as channels then not in flowwidth (same as Channels),
 //if not wheeltracks then only compacted areas so only in infiltration and affecting
-           calc(" FlowWidth = RoadWidthDX+(SoilWidthDX+StoneWidthDX)*PondAreaFract ");
-           calc(" RunoffVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
-                " RunoffHin*(SoilWidthDX+StoneWidthDX))*DXc/1000 , 0) ");
-//why flowwidth > 0??? not necessary but no harm either                
+//           calc(" FlowWidth = max(0.01*DX, RoadWidthDX+(SoilWidthDX+StoneWidthDX)*PondAreaFract) ");
+           calc(" FlowWidth = max(0.01*DX, RoadWidthDX + SoilWidthDX*PondAreaFract) ");
+           //VJ 100502 added min 0.01DX here
+//           calc(" RunoffVolin = (WHRoad*RoadWidthDX + RunoffHin*(SoilWidthDX+StoneWidthDX))*DXc/1000 ");
+           calc(" RunoffVolin = (WHRoad*RoadWidthDX + RunoffHin*SoilWidthDX)*DXc/1000 ");
                // RunoffVolin is the amount of runoff water in a cell, m3
                // on roads, in wheeltracks
-           calc(" WaterHVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
-                "       WH*(SoilWidthDX+StoneWidthDX) )*DXc/1000 , 0) ");
-/* OBSOLETE
-           if (!SwitchWheelAsChannel)
-           {
-             calc(" FlowWidth = RoadWidthDX+(SoilWidthDX+StoneWidthDX)*PondAreaFract ");
-             calc(" RunoffVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
-                  " RunoffHin*(SoilWidthDX+StoneWidthDX))*DXc/1000 , 0) ");
-                 // RunoffVolin is the amount of runoff water in a cell, m3
-                 // on roads, in wheeltracks
-             calc(" WaterHVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
-                  "       WH*(SoilWidthDX+StoneWidthDX) )*DXc/1000 , 0) ");
-           }
-           else
-           {
-             calc(" FlowWidth = RoadWidthDX+(SoilWidthDX+StoneWidthDX)*PondAreaFract ");
-             calc(" RunoffVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + WHWheelTrack*WheelWidthDX + "
-                  "       RunoffHin*(SoilWidthDX+StoneWidthDX) )*DXc/1000 , 0) ");
-                 // RunoffVolin is the amount of runoff water in a cell, m3
-                 // on roads, in wheeltracks
-             calc(" WaterHVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + WHWheelTrack*WheelWidthDX + "
-                  "       WH*(SoilWidthDX+StoneWidthDX) )*DXc/1000 , 0) ");
-           }
-*/
+//           calc(" WaterHVolin = mif(FlowWidth gt 0, (WHRoad*RoadWidthDX + "
+//                "       WH*(SoilWidthDX+StoneWidthDX) )*DXc/1000 , 0) ");
+           calc(" WaterHVolin = (WHRoad*RoadWidthDX + WH*SoilWidthDX)*DXc/1000 ");
+               // watervolin is total water (including storage)
 
            if (SwitchGrassPresent)
               calc(" FlowWidth = mif(GrassWidth gt 0, GrassFraction*DX+(1-GrassFraction)*FlowWidth, FlowWidth) ");
 
+// *****************************************************************************
+// ******** overland flow rate calculation *************************************
+// *****************************************************************************
+
            _spatial(REAL4, RunoffMeanHin);
            calc(" RunoffMeanHin = mif(FlowWidth gt 0, RunoffVolin*1000/(FlowWidth*DXc), 0) ");
            // average out WH with all surface types in a cell, roads etc
-           // so here the WH is increased because in fact it is devided by flowwith causing all the water to flow on a fpa surface 
+           // so here the WH is increased because in fact it is devided by flowwith causing all the water to flow on a fpa surface
 
            _spatial(REAL4, Perimeter);
            calc(" Perimeter = FlowWidth+2*RunoffMeanHin/1000 ");
 
            _spatial(REAL4, HydrRadius);
            calc(" HydrRadius = mif(Perimeter gt 0,(FlowWidth*RunoffMeanHin/1000)/Perimeter, 0) ");
-// just some tryouts
-//           calc(" Perimeter = FlowWidth ");
-//           calc(" HydrRadius = RunoffMeanHin/1000 ");
-//           calc(" HydrRadius = mif(PondAreaFract gt 0, 0.001*(-0.0084*RR*10 + 0.7966)/PondAreaFract "
-//                "* (RunoffMeanHin**(0.0027*RR*10 + 1.0124)),0) ");
-//           writeTimeseries(PondAreaFract , "fpa");
-// *****************************************************************************
-// ******** overland flow rate calculation *************************************
-// *****************************************************************************
 
            _spatial(REAL4, V);
            _spatial(REAL4, Beta);

@@ -16,43 +16,6 @@ Functionality in lisChannelflow.cpp:
 #include "model.h"
 
 //---------------------------------------------------------------------------
-//fraction of water and sediment flowing into the channel
-void TWorld::ToChannel(void)
-{
-	if (SwitchIncludeChannel)
-	{
-		FOR_ROW_COL_MV_CH
-		{
-			double fractiontochannel = min(_dt*V->Drc/(0.5*(_dx-ChannelWidthUpDX->Drc)), 1.0);
-			double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
-
-			if (SwitchAllinChannel)
-				if (Outlet->Drc == 1)
-					fractiontochannel = 1.0;
-			// in catchment outlet cell, throw everything in channel
-
-			if (SwitchBuffers)
-				if (BufferID->Drc > 0)
-					fractiontochannel = 1.0;
-			// where there is a buffer in the channel, all goes in the channel
-
-			RunoffVolinToChannel->Drc = fractiontochannel*Volume;
-			// water diverted to the channel
-			WHrunoff->Drc *= (1-fractiontochannel);
-			// adjust water height
-			if (SwitchErosion)
-			{
-				SedToChannel->Drc = fractiontochannel*Sed->Drc;
-				//sediment diverted to the channel
-				Sed->Drc -= SedToChannel->Drc;
-				// adjust sediment in suspension
-			}
-		}
-		CalcVelDisch();
-		// recalc velocity and discharge
-	}
-}
-//---------------------------------------------------------------------------
 // V, alpha and Q in the channel
 void TWorld::CalcVelDischChannel()
 {
@@ -180,7 +143,6 @@ void TWorld::ChannelFlow(void)
 	}
 
 	ChannelQn->setMV();
-
 	FOR_ROW_COL_MV_CH
 	{
 		if (LDDChannel->Drc == 5)

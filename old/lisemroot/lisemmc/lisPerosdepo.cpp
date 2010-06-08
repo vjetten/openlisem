@@ -2,7 +2,6 @@
 // ******** FLOW detachment **************************************************
 // *****************************************************************************
 
-
     if (!SwitchNoErosion)
     {
        _spatial(REAL4, streampower);
@@ -17,30 +16,44 @@
           // in (cm3 soil)/(cm3 water)
           // V is flow rate in m/s; formula requires cm/s, thus factor 100
 
-       calc(" TransportCapacity = 2650*min(TransportCapacity,0.32) ");
+       calc(" TransportCapacity = min(2650*TransportCapacity, 848) ");
           // 2650 is the particle density in kg/m3
           // the unit of TransportCapacity is now in kg/m3
 
        calc(" TransportCapOUT = TransportCapacity ");
           // copied here for timeseries output
 
-       calc(" DepositionSplash = mif(TransportCapacity == 0, -DetachmentSplash, 0) ");
+//       calc(" DepositionSplash = mif(TransportCapacity == 0, -DetachmentSplash, 0) ");
+//       calc(" Sedin += DetachmentSplash ");
+//       calc(" Sedin += DepositionSplash ");
+// VJ 100501 changed here, taken care of by concentration check
+
        calc(" Sedin += DetachmentSplash ");
-       calc(" Sedin += DepositionSplash ");
+       // add splash to sed load
 
        // **** sediment concentration ****
-       calc(" SedConcentration = mif( WaterHVolin gt 0, Sedin/WaterHVolin, 0) ");
+       _spatial(REAL4, sedvoltemp);
+       calc(" SedConcentration = mif( WaterHVolin gt 0, Sedin/WaterHVolin, 1000) ");
+       calc(" SedConcentration = min(SedConcentration, 848) ");
+       calc(" sedvoltemp = SedConcentration*WaterHVolin ");
+       calc(" DepositionSplash = min(0, sedvoltemp-Sedin) ");
+       calc(" Sedin = WaterHVolin * SedConcentration ");
+       // VJ 100501 added conc check
+
           // sediment concentration in kg/m3
 
        // **** settling velocity ****
 
-       _spatial(REAL4, RoadWidthFactor);
-       calc(" RoadWidthFactor = mif(FlowWidth gt 0,1.0-RoadWidthDX/FlowWidth,0) ");
+  //     _spatial(REAL4, RoadWidthFactor);
+  //     calc(" RoadWidthFactor = mif(FlowWidth gt 0,1.0-RoadWidthDX/FlowWidth,0) ");
           // roadwidthfactor: no flow detachment on roads
+  // VJ 100502 excluded, used directly
 
        _spatial(REAL4, TransportFactor);
-       calc("TransportFactor = DTSEC*SettlingVelocity*DXc*FlowWidth ");
-//       calc("TransportFactor = mif(Qin gt 0,(1-exp(-SettlingVelocity/Qin*DXc*FlowWidth)),0)");
+//       calc("TransportFactor = DTSEC*SettlingVelocity*DXc*(SoilWidthDX+StoneWidthDX+WheelWidthDX)*PondAreaFract ");
+       calc("TransportFactor = DTSEC*SettlingVelocity*DXc*(SoilWidthDX+WheelWidthDX)*PondAreaFract ");
+       // detachment can take place on soil + wheeltrack area that is ponded (exclude roads)
+       // wheelwidth is 0 normally only a value in wheel track version of LISEM
 
        _spatial(REAL4, DetachmentFlow);
        if (SwitchAltErosion)
@@ -49,7 +62,7 @@
        }
        else
        {
-	       calc(" DetachmentFlow = Y*max(TransportCapacity-SedConcentration,0)*TransportFactor*RoadWidthFactor");
+	       calc(" DetachmentFlow = Y*max(TransportCapacity-SedConcentration,0)*TransportFactor ");
        }
 
    	 calc(" DetachmentFlow = min(DetachmentFlow, max(0,TransportCapacity-SedConcentration)*WaterHVolin)");
@@ -65,7 +78,8 @@
        }
 //VJ 040224 added if outlet no detachment
 
-       calc("TransportFactor = mif(WH gt 0,(1-exp(-DTSEC*SettlingVelocity/(0.001*WH)))*WaterHVolin,1)");
+       calc("TransportFactor = mif(WH gt 0,(1-exp(-DTSEC*SettlingVelocity/(0.001*WH)))*WaterHVolin, WaterHVolin)");
+       // VJ 100501  dit moet in m3 dus als wh erg klein dan e macht 1 en factor = WaterHvolin
        //MOET 1 ZIJN ALS WH = 0 -> voledige depositie!
 
        _spatial(REAL4, DepositionFlow);
@@ -77,7 +91,6 @@
           // DepositionFlow is the amount of deposition (negative!)
           // deposition cannot be larger than the amount of available sediment
           // =max because of negative values
-          // if the flow is 0, than all sediment is deposited
 
  /* discussie met Mike Kirkby
        _spatial(REAL4, DepositionFlow);
@@ -90,7 +103,7 @@
        {
           calc(" DepositionFlow = mif(Outlet1 eq 1, 0,DepositionFlow) ");
        }
-//VJ 040224 added if outlet no detachment
+//VJ 040224 added if outlet no deposition
 
        if (SwitchGrassPresent)
          calc(" DepositionFlow = mif(GrassWidth gt 0, "
@@ -101,7 +114,7 @@
         //VJ 031112 no erosion where stones
 
 //VJ 080423 Snowmelt
-       if (SwitchSnowmelt) //if is actually not necesary, snowcoveris 0 when no snow or switched off
+       if (SwitchSnowmelt) //if is actually not necessary, snow cover is 0 when no snow or switched off
        {
            calc(" DetachmentFlow *= (1-SnowCover) ");
            calc(" DepositionFlow *= (1-SnowCover) ");
@@ -112,18 +125,26 @@
 // ******** Combine all fluxes for Sedin *********************************
 // *****************************************************************************
 
-       calc(" DetachmentFlow = mif(RunoffMeanHin gt MinimumHeight, DetachmentFlow, 0) ");
-       calc(" DepositionFlow = mif(RunoffMeanHin gt MinimumHeight, DepositionFlow, -Sedin) ");
+//       calc(" DetachmentFlow = mif(RunoffMeanHin gt MinimumHeight, DetachmentFlow, 0) ");
+//       calc(" DepositionFlow = mif(RunoffMeanHin gt MinimumHeight, DepositionFlow, -Sedin) ");
 
-//       calc(" DepositionSplash = mif(TransportCapacity == 0, -DetachmentSplash, 0) ");
-          // none delivered splash is counted with deposition
-
-//       calc(" Sedin += DetachmentSplash ");
-//       calc(" Sedin += DepositionSplash ");
-// add here or before flow erosion, implicit or explicit!!!
+       _spatial(REAL4, sedbal);
+       calc(" sedbal = Sedin + DetachmentFlow + DepositionFlow");
+       // sediment balance to flag
+       calc(" DepositionFlow = mif(sedbal le 0, DepositionFlow, 0) ");
+       calc(" DetachmentFlow = mif(sedbal gt 0, DetachmentFlow, 0) ");
+//       calc(" Sedin = mif(sedbal gt 0, Sedin + DetachmentFlow, 0) ");
 
        calc(" Sedin += DetachmentFlow ");
        calc(" Sedin += DepositionFlow ");
+
+       // **** sediment concentration ****
+       calc(" SedConcentration = mif( WaterHVolin gt 0, Sedin/WaterHVolin, 1000) ");
+       calc(" SedConcentration = min(SedConcentration, 848) ");
+       calc(" sedvoltemp = SedConcentration*WaterHVolin ");
+       calc(" DepositionFlow += min(0, sedvoltemp-Sedin) ");
+       calc(" Sedin = WaterHVolin * SedConcentration ");
+       // VJ 100501 added conc check
 
     } //not no erosion
 

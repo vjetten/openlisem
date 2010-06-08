@@ -40,14 +40,25 @@ SOURCES += ui_full/LisUItreecheck.cpp \
     lisSurfstor.cpp \
     main.cpp \
     mmath.cpp
-FORMS += ui_full/lisemqt.ui \
-    ui/ifacebasic.ui
+FORMS += ui_full/lisemqt.ui 
+    #ui/ifacebasic.ui
+CONFIG(debug, debug|release) {
 LIBS += -L"libs" \
     -llibcsfd \
-    -lqwtd5 
+    -lqwtd5  
+} else {
+LIBS += -L"libs" \
+    -llibcsf \
+    -lqwt5 
+}
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"
 INCLUDEPATH += "d:\prgc\qwt-5.2.1\src"
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
+CONFIG(debug, debug|release) {
+    DESTDIR = debug
+} else {
+    DESTDIR = bin
+}

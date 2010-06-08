@@ -185,6 +185,7 @@ public:
      void __fastcall LisThread::LisemWarningV();
      void __fastcall LisThread::LisemWarn(AnsiString s, AnsiString s1 = "");
      void __fastcall LisThread::UpdateTotalsSync();
+     void __fastcall LisThread::UpdateTotalsPestSync();
      void __fastcall LisThread::InitializeTotalsSync();
      void __fastcall LisThread::DumpScreenSync();
      char* __fastcall LisThread::Lmapname(char *vname, int nr);
@@ -287,6 +288,7 @@ public:
       bool SwitchPestout;
       bool SwitchSeparateOutput;
       bool SwitchSOBEKOutput;
+      bool SwitchMinimumdisplay;
       char SOBEKdatestring[12];
       int SOBEKnrlines;
       bool SwitchInterceptionLAI;

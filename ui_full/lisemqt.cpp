@@ -41,7 +41,7 @@ lisemqt::lisemqt(QWidget *parent)
 	SetStyleUI();
 	// do some style things
 
-   SetGraph();
+	SetGraph();
 
 }
 //--------------------------------------------------------------------
@@ -51,9 +51,9 @@ lisemqt::~lisemqt()
 
 	if (HPlot)
 		delete HPlot;
-   //delete QGraph;
-   //delete QsGraph;
-   //delete CGraph;
+	//delete QGraph;
+	//delete QsGraph;
+	//delete CGraph;
 
 }
 //--------------------------------------------------------------------
@@ -68,23 +68,23 @@ void lisemqt::SetToolBar()
 	saveAct = new QAction(QIcon(":/filesave.png"), "&Save...", this);
 	saveAct->setShortcuts(QKeySequence::Save);
 	saveAct->setStatusTip("Save a run file");
-	connect(saveAct, SIGNAL(triggered()), this, SLOT(savefile()));
+	connect(saveAct, SIGNAL(triggered()), this, SLOT(SaveRunFile()));
 	toolBar->addAction(saveAct);
 
 	saveasAct = new QAction(QIcon(":/filesaveas.png"), "Save &As...", this);
 	saveasAct->setShortcuts(QKeySequence::SaveAs);
 	saveasAct->setStatusTip("Save a run file as ...");
-	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefile()));
+	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefileas()));
 	toolBar->addAction(saveasAct);
 
 	runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
-//	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
+	//	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
 	runAct->setStatusTip("run the model ...");
 	connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
 	toolBar->addAction(runAct);
 
 	stopAct = new QAction(QIcon(":/stop16_2.png"), "Stop the model...", this);
-//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
+	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
 	stopAct->setStatusTip("stop the model run ...");
 	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
 	toolBar->addAction(stopAct);
@@ -129,37 +129,39 @@ void lisemqt::SetGraph()
 	QGraph = new QwtPlotCurve("Discharge");
 	QsGraph = new QwtPlotCurve("Sediment discharge");
 	CGraph = new QwtPlotCurve("Concentration");
-   PGraph->attach(HPlot);
-   QGraph->attach(HPlot);
-   QsGraph->attach(HPlot);
-   CGraph->attach(HPlot);
-   // order determines order of display in Legend
-   PGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
-   QGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
-   QsGraph->setAxis(HPlot->xBottom, HPlot->yRight);
-   CGraph->setAxis(HPlot->xBottom, HPlot->yRight);
-   QColor col;
-   col.setRgb( 200,0,0,255 );
-   CGraph->setPen(QPen(col));
-   QsGraph->setPen(QPen(Qt::red));
-   col.setRgb( 60,100,160,255 );
-   QGraph->setPen(QPen(col));
-   PGraph->setPen(QPen("#000000"));
-   //PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //PGraph->setStyle(QwtPlotCurve::Steps);
-   // make all graphs to be drawn and link them to HPlot
-   // set colors
+	PGraph->attach(HPlot);
+	QGraph->attach(HPlot);
+	if(!checkNoErosion->isChecked())
+	{
+		QsGraph->attach(HPlot);
+		CGraph->attach(HPlot);
+	}
+	// order determines order of display in Legend
+	PGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
+	QGraph->setAxis(HPlot->xBottom, HPlot->yLeft);
+	QsGraph->setAxis(HPlot->xBottom, HPlot->yRight);
+	CGraph->setAxis(HPlot->xBottom, HPlot->yRight);
+	QColor col;
+	col.setRgb( 200,0,0,255 );
+	CGraph->setPen(QPen(col));
+	QsGraph->setPen(QPen(Qt::red));
+	col.setRgb( 60,100,160,255 );
+	QGraph->setPen(QPen(col));
+	PGraph->setPen(QPen("#000000"));
+	PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+	QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+	QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+	CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+	// make all graphs to be drawn and link them to HPlot
+	// set colors
 
-   QwtLegend *legend = new QwtLegend(widgetGraph);
-   legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-   HPlot->insertLegend(legend, QwtPlot::BottomLegend);
+	QwtLegend *legend = new QwtLegend(widgetGraph);
+	legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+	HPlot->insertLegend(legend, QwtPlot::BottomLegend);
 
-   //legend
+	//legend
 
-   HPlot->resize(450,380);
+	HPlot->resize(450,380);
 	HPlot->setCanvasBackground("#FFFFFF");
 	// size and white graph
 
@@ -176,20 +178,20 @@ void lisemqt::SetGraph()
 	// set axes
 
 	QwtPlotGrid *grid = new QwtPlotGrid();
-   grid->enableXMin(true);
-   grid->enableYMin(true);
-   col.setRgb( 180,180,180,180 );
-   grid->setMajPen(QPen(col, 0, Qt::DashLine));
-   col.setRgb( 210,210,210,180 );
-   grid->setMinPen(QPen(col, 0 , Qt::DotLine));
-   grid->attach(HPlot);
-   // set gridlines
+	grid->enableXMin(true);
+	grid->enableYMin(true);
+	col.setRgb( 180,180,180,180 );
+	grid->setMajPen(QPen(col, 0, Qt::DashLine));
+	col.setRgb( 210,210,210,180 );
+	grid->setMinPen(QPen(col, 0 , Qt::DotLine));
+	grid->attach(HPlot);
+	// set gridlines
 
 
-   HPlot->replot();
-   // draw empty plot
+	HPlot->replot();
+	// draw empty plot
 
-   QData = NULL; //discharge
+	QData = NULL; //discharge
 	QsData = NULL;  //sed discharge
 	CData = NULL; //conc
 	PData = NULL; //rainfall
@@ -306,8 +308,7 @@ void lisemqt::on_toolButton_SnowmeltShow_clicked()
 	QFile file(SnowmeltFileName);
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		QMessageBox::warning(this,
-				QString("openLISEM"),
+		QMessageBox::warning(this,"openLISEM",
 				QString("Cannot read file %1:\n%2.")
 				.arg(SnowmeltFileName)
 				.arg(file.errorString()));
@@ -351,46 +352,54 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
 	file.close();
 }
 //--------------------------------------------------------------------
-void lisemqt::savefile()
+void lisemqt::savefileas()
 {
-	/*
-	//label->setText("saving ...");
-	QFile fout("hup.txt");
-	fout.open(QIODevice::ReadWrite);
-	for (int i = 0; i < MapNameModel->rowCount(); i++)
+	if (op.runfilename.isEmpty())
 	{
-		QVariant d;
-		int _r = MapNameModel->index(i,0).row();
-		QString S = "["+QString::number(_r)+"-" + QString::number(0) + "] ";
-		for (int j = 0; j < 2; j++)
-		{
-			d = MapNameModel->data(MapNameModel->index(i,j),0); // parent
-			S = S + d.toString()+";";
-		}
-		S = S + "\n";
-		QModelIndex indexParent = MapNameModel->index(i, 0);
-		for (int j = 0; j < MapNameModel->rowCount(indexParent); j++)
-		{
-			int _r = MapNameModel->index(i,j).row();
-			int _c = MapNameModel->index(i,j).column();
-			S = S + "["+QString::number(_r)+"-" + QString::number(_c) + "] ";
-
-			for (int k = 0; k < MapNameModel->columnCount(indexParent); k++)
-			{
-				int _rr = MapNameModel->index(j, k, indexParent).row();
-				int _cc = MapNameModel->index(j, k, indexParent).column();
-				d = MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
-				S = S + "["+QString::number(_rr)+"-" + QString::number(_cc) + "] ";
-				S = S + d.toString()+";";
-			}
-			S = S + "\n";
-		}
-		S = S + "\n";
-		QByteArray line(S.toAscii());
-		fout.write(line);
+		QMessageBox::warning(this, "openLISEM","Select a runfile first.");
+		return;
 	}
-	fout.close();
-	 */
+
+   QString selectedFilter;
+   QString fileName = QFileDialog::getSaveFileName(this,
+                               tr("Give a new runfile name"),
+                               op.runfilename,
+                               tr("Text Files (*.run);;All Files (*)"),
+                               &selectedFilter);
+                               //options);
+   if (!fileName.isEmpty())
+       savefile(fileName);
+
+}
+//--------------------------------------------------------------------
+void lisemqt::SaveRunFile()
+{
+	savefile(op.runfilename);
+}
+//--------------------------------------------------------------------
+void lisemqt::savefile(QString name)
+{
+	UpdateModelData();
+	// change runfile strings with current interface options
+
+	QFile fp(name);
+	if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QMessageBox::warning(this, QString("openLISEM"),
+				tr("Cannot write file %1:\n%2.").arg(name).arg(fp.errorString()));
+		return;
+	}
+
+	QTextStream out(&fp);
+	out << QString("[openLISEM runfile version 4]\n");
+	for (int i = 1; i < nrnamelist; i++)
+	{
+		if (namelist[i].name.contains("["))
+			out << "\n" << namelist[i].name; // already contains \n
+		else
+			out << namelist[i].name << "=" << namelist[i].value << "\n";
+	}
+	fp.close();
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()

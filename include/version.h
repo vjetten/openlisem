@@ -8,8 +8,8 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR 1.03
-#define VERSION QString(" 1.04 beta")
-#define DATE QString(" - 2010/05/30")
+#define VERSIONNR 1.05
+#define VERSION QString(" 1.06")
+#define DATE QString(" - 2010/06/08")
 
 #endif /* VERSION_H_ */

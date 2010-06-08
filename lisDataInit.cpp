@@ -84,6 +84,8 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 	TMMap *_M = new TMMap();
 
 	_M->PathName = /*inputdir + */name;
+//	DEBUG(_M->PathName);
+
 	bool res = _M->LoadFromFile();
 	if (!res)
 	{
@@ -594,7 +596,7 @@ void TWorld::IntializeData(void)
 	//                           |/
 	// then max store is _dx/cos = DX*height fence!
 	BufferSed = NewMap(0);
-	if (SwitchBuffers)
+	if (SwitchBuffers || SwitchSedtrap)
 	{
 		BufferVolInit = NewMap(0);
 		ChannelBufferVolInit = NewMap(0);

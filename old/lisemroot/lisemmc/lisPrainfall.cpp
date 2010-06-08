@@ -47,12 +47,19 @@
            calc(" TotalRainVol += sum((RainH*DX*DX)/1000) ");
            // rainfall cum spatial in m3
 
-//VJ 040823 include buffers, no interception in buffers
+//- interception seen as rigid storage SMax filling up and overflowing
+//- overflow flux is identical to rainfall flux in intensity
+//- SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell
+// so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2
+// - therefore the same goes for LAI: the LAI of the plants inside the gridcell
+// this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
+
            if (SwitchBuffers)
               calc(" CanopyStorage = mif(BufferID gt 0, 0, CanopyStorage) ");
+//VJ 040823 include buffers, no interception in buffers
 
-// VJ 100131 include no interception on hard surfaces
            calc(" CanopyStorage = mif(hardsurface gt 0, 0, CanopyStorage) ");
+// VJ 100131 include no interception on hard surfaces
 
            _spatial(REAL4, InterceptionH);
            calc(" InterceptionH = InterceptionHCum ");
@@ -61,22 +68,32 @@
 //VJ 040823: use corrected rainfall height
            calc(" RainHCum += RainHc ");
            // total rainfall depth
-           calc(" InterceptionHCum = mif(CanopyStorage gt 0,VegetatFraction*CanopyStorage* "
-                 "(1-exp(-0.046*LAI*RainHCum/CanopyStorage) ),0) ");
-             //cumulative interception for grid cell, corrected for veg. cover
-             // TotalRainH is the total rainfall on a point!
-             // CanopyStorage is calculated from LAI as a constant map (above)
-             // according to Aston (1979), based on Merriam (1960/1973)
+           calc(" InterceptionHCum = mif(CanopyStorage gt 0, VegetatFraction*CanopyStorage* "
+                 "(1-exp(-0.0653*LAI*RainHCum/CanopyStorage) ),0) ");
+             //cumulative interception for grid cell,
+             // CanopyStorage is calculated from LAI
+             // canopy openess according to Aston (1979), based on Merriam (1960/1973)
              // 0.046*LAI = k = (1-p); p = 1-0.046*LAI ; Aston (1979)
-             // the cumulative interception at time = t-1 is subtracted
-             // from the cum. interception at time = t (TOTALRAINFALL)
+             // REEVALUATED BY DE JONG AND JETTEN
              // note: LAI is not a pixel average, but the average for PER!
 
            calc(" InterceptionH = InterceptionHCum - InterceptionH ");
              // interception in this timestep
-           calc(" TotalInterceptionVol += sum((InterceptionH*(SoilWidthDX+StoneWidthDX)*DXc)/1000) ");
+//           calc(" TotalInterceptionVol = sum((InterceptionHCum*(SoilWidthDX+StoneWidthDX)*DXc)/1000) ");
+           calc(" TotalInterceptionVol = sum(InterceptionHCum*SoilWidthDX*DXc/1000) ");
                // total momentary interception in m3, no interception on roads
 //VJ030415 changed names to cum
+
+
+           _spatial(REAL4, ThroughfallH);
+           calc(" ThroughfallH = (VegetatFraction * RainHc - InterceptionH)*(1-StemflowFraction) ");
+//VJ 100510 if LAI already is the avertage LAI for a gridcell with cover included, the part falling on the LAI is the rainfall*cover
+//VJ 100510 moved veg fraction to this formula else drainage is all rain - fraction of interception, overestimate!
+//VJ 100116 CHANGED TO STEMFLOW FRACTION
+        // factor 0.6 = stemflow 40% !
+        // this corresponds to an leaf to ground surface angle of 36.87 degrees
+        // the effect of leaf drainage is neglegible when CH<0.15 m.
+        // InterceptionH is already taking VegetatFraction into account
 
 
 // *****************************************************************************
@@ -89,7 +106,7 @@
   {
          _spatial(REAL4, SnowmeltIntensity);
          calc("SnowmeltIntensity = 0");
-//VJ 080628 try until now the main loop. If interval exceeds the input then simply stop, not go on with 0         
+//VJ 080628 try until now the main loop. If interval exceeds the input then simply stop, not go on with 0
 //         try{
             if(timestepindex >= ENDINTERVAL+DTMIN)
                 timestepindex--;

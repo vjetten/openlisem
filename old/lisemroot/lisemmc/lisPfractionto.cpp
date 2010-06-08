@@ -44,11 +44,12 @@
 
                  // depends on overall velocity in cell
 
-               calc(" RunoffMeanHin -= cover(FractionToChannel*RunoffMeanHin,0)");
-               calc(" WH -= cover(FractionToChannel*RunoffMeanHin,0)");
+               calc(" RunoffMeanHin -= FractionToChannel*RunoffMeanHin ");
+               // fraction of runoff water flowing into channel
+               //calc(" WH -= cover(FractionToChannel*RunoffMeanHin,0)");
                calc(" RunoffVolinToChannel = FractionToChannel*RunoffVolin ");
                calc(" RunoffVolin -= cover(RunoffVolinToChannel,0)");
-               calc(" WaterHVolin -= cover(RunoffVolinToChannel,0)");
+               //calc(" WaterHVolin -= cover(RunoffVolinToChannel,0)");
 
                if (!SwitchMulticlass)
                {
@@ -112,11 +113,11 @@
                // sum fraction le 1.0
 
                calc(" RunoffMeanHin -= FractionToWheel*RunoffMeanHin");
-               calc(" WH -= FractionToWheel*RunoffMeanHin");
+//               calc(" WH -= FractionToWheel*RunoffMeanHin");
 
                calc(" RunoffVolinToWheel = FractionToWheel*RunoffVolin ");
                calc(" RunoffVolin -= RunoffVolinToWheel ");
-               calc(" WaterHVolin -= RunoffVolinToWheel");
+//               calc(" WaterHVolin -= RunoffVolinToWheel");
 
                calc(" SedinToWheel = FractionToWheel*Sedin ");
                calc(" Sedin -= SedinToWheel ");
@@ -142,9 +143,9 @@
 
                calc(" RunoffVolinToGully = FractionToGully*RunoffVolin ");
                calc(" RunoffMeanHin -= cover(FractionToGully*RunoffMeanHin,0)");
-               calc(" WH -= cover(FractionToGully*RunoffMeanHin,0)");
+//               calc(" WH -= cover(FractionToGully*RunoffMeanHin,0)");
                calc(" RunoffVolin -= cover(RunoffVolinToGully,0)");
-               calc(" WaterHVolin -= cover(RunoffVolinToGully,0)");
+//               calc(" WaterHVolin -= cover(RunoffVolinToGully,0)");
 
                calc(" SedinToGully = FractionToGully*Sedin ");
                calc(" Sedin -= SedinToGully ");

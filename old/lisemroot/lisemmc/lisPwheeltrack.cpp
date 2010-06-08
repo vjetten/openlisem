@@ -138,30 +138,25 @@
        _spatial(REAL4, WheelQout);
        _spatial(REAL4, WheelQsedout);
 
-      _spatial(REAL4, infilWT);
+      _spatial(REAL4, wtq);
       if (SwitchKinwaveInfil)
-     //VJ 050704 changed DXc to DX
-     //VJ 051005 changed back to DXc !!
-        calc(" infilWT = InfilSurplusWT/(1000*DTSEC)*DX ");
+        calc(" wtq = InfilSurplusWT/(1000*DTSEC)*DX ");
       else
-        calc(" infilWT = 0 ");
-     _spatial(REAL4, stempWT);
-     calc(" stempWT = 0");
-
-     calc(" InfilVolinKinWave = max(-InfilSurplusWT/(1000)*DX*DXc,0) ");
-     //VJ 050831 volume available for infil in m3
-
+        calc(" wtq = 0 ");
+     _spatial(REAL4, wtqs);
+     calc(" wtqs = 0");
 
      //VJ 040823 include buffers, needed to correct infil in kin wave
      if (SwitchBuffers)
         calc(" buffersize = sum(BufferVolumeCurrent) ");
 
-     kineDX(WheelQout,WheelQin, infilWT,
-            WheelQsedout,WheelQsedin, stempWT,
+     kineDX(WheelQout,WheelQin, wtq,
+            WheelQsedout,WheelQsedin, wtqs,
             BufferVolumeCurrent, BufferSedVolumeCurrent,
             WheelLDD, WheelAlpha, WheelBeta, DTSEC, DXc,
             int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil changes: it is the sum of all fluxes in the cell. Needed for infiltration calc
+     calc(" WheelQsedout = min(WheelQsedout, WheelSedin/DTSEC + wtqs)");
 
        calc("WheelQOutflow = sum(mif(Outlet1 eq 1,WheelQout,0))");
        calc("WheelSedOutflow = sum(mif(Outlet1 eq 1,WheelQsedout,0))");
@@ -192,21 +187,19 @@
 
        calc(" WheelVolout = max(WheelVolout, 0) ");
        calc(" WheelVolin = WheelVolout ");
+
        _spatial(REAL4, WHWheelin);
        calc("WHWheelin = WHWheelTrack ");
-//       calc(" WHWheelTrack = mif(WheelWidthDX gt 0, WheelVolout*1000/(DXc*WheelWidthDX/WheelNumber), 0)");
        calc(" WHWheelTrack = mif(WheelWidthDX gt 0, WheelVolout*1000/(DXc*WheelWidthDX), 0)");
             // recalc WH from volume
+//       calc(" WHWheelTrack = mif(WheelWidthDX gt 0, WheelVolout*1000/(DXc*WheelWidthDX/WheelNumber), 0)");
 
      //VJ 050831 made changes here
      if (SwitchKinwaveInfil){
-        //calc(" TotalInfilVol += sum(min(infil*DTSEC+WaterHVolin, InfilVolinKinWave)) ");
-        //nonspatial infil adjustment in m3
-        calc(" InfilVol += cover(min(infil*DTSEC+WaterHVolin, InfilVolinKinWave),0) ");
-        //spatial infil adjustment in m3
-
-        calc(" TotalInfilVol += max(0,SumWheelVolin - SumWheelVolout - sum(pitsout*DTSEC)) ");
-       // old stuff
+        calc(" InfilKinWave =(wtq*DTSEC + WheelVolin - WheelVolout - WheelQout*DTSEC) ");
+        calc(" InfilVol += InfilKinWave ");
+        calc(" TotalInfilVol += sum(InfilKinWave)");
+//VJ 100206 changed to infil per cell = sum inflow (q) + (volume before - after) - outflow)
      }
 
 
@@ -223,10 +216,10 @@
      {
          // **** correct mass balance error SED
          _spatial(REAL4, WheelSedout);
-         calc(" WheelSedout = mif(WheelQout gt 0, WheelQsedout/WheelQout*WheelVolout, 0) ");
+         calc(" WheelSedout = max(0, stempWT*DTSEC + WheelSedin - WheelQsedout*DTSEC) ");
 
          // sediment discharge
-
+/*
          calc(" pitsoutsed = cover(mif(WheelLDD eq 5, WheelQsedout),0)");
          if (SwitchCorrectMassSED)
          {
@@ -234,8 +227,7 @@
              if (SumWheelSedout > 0)
                 calc(" WheelSedout += (SumWheelSedin-SumWheelSedout-pitsoutsed*DTSEC)*WheelSedout/SumWheelSedout ");
          }
-
-         calc(" WheelSedout = max(WheelSedout, 0) ");
+*/
          calc(" WheelSedin = mif(WheelWidthDX gt 0,WheelSedout, 0) ");
 
          calc(" SumWheelSedout = sum(WheelSedin) ");

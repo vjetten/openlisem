@@ -17,7 +17,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 				rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 #define    D(r,c)  Data[r][c]
-#define MAX_ITERS 20
+#define MAX_ITERS 50
 
 /*
   local drain direction maps have values for directions as following:
@@ -95,11 +95,11 @@ static double IterateToQnew(
 	double Qkx; //iterated discharge, becomes Qnew
 	double fQkx; //function
 	double dfQkx;  //derivative
-	double _epsilon = 1e-9;
+	double _epsilon = 1e-12;
 	double beta = 0.6;
 
 	/* if no input then output = 0 */
-	if ((Qin + Qold) <= 0)
+	if ((Qin + Qold) <= q*deltaX)//0)
 		return(0);
 
 	/* common terms */
@@ -150,7 +150,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 		bool  subCachDone = true; /* are sub-catchment cells done ? */
 		int rowNr = list->rowNr;
 		int colNr = list->colNr;
-		bool isBufferCell = false;
+
 		/* put all points that have to be calculated to
       calculate the current point in the list,
 	   before the current point */
@@ -186,13 +186,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 		if (subCachDone)
 		{
+			bool isBufferCell = false;
 			double Qin=0.0, Sin=0.0;
-			for (i=1;i<=9;i++) /* for all incoming cells */
+			for (i=1;i<=9;i++) // for all incoming cells of this cell
 			{
 				int r, c;
 				int ldd = 0;
 
-				if (i==5)  /* Skip current cell */
+				if (i==5)  // Skip current cell itself
 					continue;
 
 				r = rowNr+dy[i];
@@ -213,25 +214,26 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					if (SwitchErosion)
 						Sin += _Qsn->Drc;
 				}
-			} /* eof all incoming cells */
+			} // all incoming cells
 
 			temp=list;
 			list=list->prev;
 			free(temp);
+			// go to the next cell
 
 			if(SwitchBuffers)
 			{
-				//_StorVol is remaingin space in buffers, not water inbuffers. _StorVol will go to 0
-				if (BufferID->D(rowNr,colNr) > 0)
+				//_StorVol is remaining space in buffers, not water inbuffers. _StorVol will go to 0
+				if (BufferID->D(rowNr,colNr) > 0 && _StorVol->D(rowNr,colNr) > 0)
 				{
 					// if buffer but not sed trap, sed trap catches no water only sed
 					//TODO: trap efficiency? or high Manning's n ?
+					isBufferCell = true;
 					if (!SwitchSedtrap)
 					{
 						// fill up storage with incoming water
 						_StorVol->D(rowNr,colNr) -= Qin*_dt;
 						Qin = 0;
-						isBufferCell = true;
 						// buffer is not full, no outflow
 						if (_StorVol->D(rowNr,colNr) < 0)  // store overflowing
 						{
@@ -246,29 +248,32 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 					//TODO if sed trap this is only correct is there is a max sedment
 					_StorSed->D(rowNr,colNr) -= Sin*_dt;
+
 					// add incoming to sed store
 					//(note: sed store is max store, decreasing like water vol!)
-					Sin = 0;
 					_StorVol->D(rowNr,colNr) -= Sin/BulkDens*_dt * (1-BulkDens/2650);
 					_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
 					// fill store up with sediment, decreasing volume
 					// in the sedimented part is still pore volume to store water:
 					// pore volume is 1-bulkdens/partdens
-
+					Sin = 0;
 					if (_StorSed->D(rowNr,colNr) < 0)
 					{
 						Sin = -_StorSed->D(rowNr,colNr)/_dt;
 						_StorSed->D(rowNr,colNr) = 0;
+						isBufferCell = false;
 					}
 				}
 			}
 
 			if (isBufferCell)
 			{
+				// buffer not full yet, no outflow
 				_Qn->D(rowNr,colNr) = 0;
 				_Qsn->D(rowNr, colNr) = 0;
-				_Sed->D(rowNr,colNr) = 0;
-				_q->D(rowNr,colNr) = 0;
+			//	_Sed->D(rowNr,colNr) = 0;
+			//	_Vol->D(rowNr,colNr) = 0;
+			//	_q->D(rowNr,colNr) = 0;
 			}
 			else
 			{

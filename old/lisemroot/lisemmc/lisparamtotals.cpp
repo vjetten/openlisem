@@ -46,10 +46,8 @@
      calc(" InfilVol = 0.0 ");
       // total m3 of water infiltrated, spatial
 
-     _spatial(REAL4, InfilVolinKinWave);
-     calc(" InfilVolinKinWave = 0.0 ");
+     _spatial(REAL4, InfilKinWave);
      //VJ 050831 aux variable needed for calc of infil in kin wave
-
 
      _nonspatial(REAL4, SumWaterHVolout);
      SumWaterHVolout = 0;

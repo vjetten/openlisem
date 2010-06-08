@@ -115,34 +115,37 @@
            // used in mass balance error
 
 //VJ 060404 added Gully infil in m2/s
-           _spatial(REAL4, ginfil);
+           _spatial(REAL4, gq);
            if (SwitchGullyInfil)
            {
               _spatial(REAL4, GullyKsat );
               calc(" GullyKsat = GullyKsat1 ");
               calc(" GullyKsat = mif(GullyDepth gt SoilDepth2, GullyKsat2, GullyKsat) ");
-              calc(" ginfil = -(GullyKsat *  GullyPerimeter /3600000.0) ");
+              calc(" gq = -(GullyKsat *  GullyPerimeter /3600000.0) ");
            }
           //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
            else
-             calc(" ginfil = 0 ");
+             calc(" gq = 0 ");
 
-           //ginfil is < 0 if calculated, corrected 060508  
-           calc(" InfilVolinKinWave = -ginfil*DTSEC*DXc ");
+           //ginfil is < 0 if calculated, corrected 060508
+           //calc(" InfilVolinKinWave = -ginfil*DTSEC*DXc ");
            //VJ 060817 added DXc because it is a volume m2/s * m * s = m3
 
-           _spatial(REAL4, gtemp);
-           calc(" gtemp = 0");
+           _spatial(REAL4, gqs);
+           calc(" gqs = 0");
 
            _spatial(REAL4, GullyQout);
            _spatial(REAL4, GullyQsedout);
-           kineDX(GullyQout,GullyQin,ginfil,
-                  GullyQsedout,GullyQsedin, gtemp,
+           kineDX(GullyQout, GullyQin, gq,
+                  GullyQsedout,GullyQsedin, gqs,
                   Bufferdummy, Bufferdummy,
                   LDD, GullyAlpha, GullyBeta, DTSEC,DXc,
                   int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil changes: it is the sum of all fluxes in the cell. Needed for infiltration calc
               // N.B. gullyout not restricted to gullies, outflow over normal LDD
+//VJ 100206 CHANGED again, q contains Qin in KineDX, only incoming fluxes
+           calc(" GullyQsedout = min(GullyQsedout, GullySedin/DTSEC + gqs)");
+
            calc(" GullyQOutflow = sum(mif(Outlet1 eq 1,GullyQout, 0))");
            calc(" GullySedOutflow = sum(mif(Outlet1 eq 1, GullyQsedout, 0))");
 
@@ -158,6 +161,7 @@
 
            calc(" SumGullyVolout = sum(GullyVolout) ");
            // spatial total of water in Gully, m3 , after kin wave
+           /*
            if (SwitchCorrectMass)
            {
                _nonspatial(REAL4, GullyError);
@@ -167,24 +171,25 @@
                calc(" GullyVolout = max(GullyVolout, 0) ");
                // divide error caused by pits over network
            }
-
+           */
            calc(" SumGullyVolout = sum(GullyVolout) ");
            calc(" GullyVolin = GullyVolout ");
 
 //VJ 060404 added gully infil in m2/s
      if (SwitchKinwaveInfil){
-        calc(" InfilVol += cover(min(ginfil*DTSEC+GullyVolout, InfilVolinKinWave),0) ");
-        //spatial infil adjustment in m3
-	     calc(" TotalInfilVol += max(0,SumGullyVolin - SumGullyVolout - GullyQOutflow*DTSEC) ");
+        calc(" InfilVolinKinWave = gq*DTSEC + GullyVolin - ginfilVolout - ginfilQout*DTSEC ");
+        calc(" InfilVol += cover(InfilVolinKinWave,0) ");
+	     calc(" TotalInfilVol += sum(cover(InfilVolinKinWave,0)) ");
+//VJ 100206 changed to infil per cell = sum inflow (q) + (volume before - after) - outflow)
 	  }
 
            // **** correct mass balance error SED
            _spatial(REAL4, GullySedout);
-           calc(" GullySedout = mif(GullyQout gt 0, GullyQsedout*GullyVolout/GullyQout, 0) ");
+           calc(" GullySedout = max(0, gqs*DTSEC + GullySedin - GullyQsedout*DTSEC) ");
            calc(" SumGullySedout = sum(GullySedout) ");
            // sediment discharge
 
-
+/*
            if (SwitchCorrectMassSED)
            {
                _nonspatial(REAL4, GullySedError);
@@ -194,6 +199,7 @@
                calc(" GullySedout = max(GullySedout, 0) ");
 
            }
+*/
            calc(" GullySedin = mif(GullyWidthDX gt 0,GullySedout, 0) ");
            calc(" SumGullySedout = sum(GullySedin) ");
 

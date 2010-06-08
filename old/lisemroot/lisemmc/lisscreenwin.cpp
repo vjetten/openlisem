@@ -1,6 +1,6 @@
 //these variables link the output of lisem to the screen, in units that are showed on the screen
 //the purpose is to make the lisem model and the interfce as seperate as possible so that a
-//change of model does not affect the interface too much and vice versa 
+//change of model does not affect the interface too much and vice versa
 
        StartTime = STARTINTERVAL;
        EndTime = ENDINTERVAL;
@@ -60,32 +60,33 @@
        //functions called by synchronize, safe method to call a function from a thread
        //functions InitializeTotalsSync(void) and  UpdateTotalsSync(void) are in lisscreenoutput.cpp
 
-       if (!InitDone)
+       if (!SwitchMinimumdisplay)
        {
-          Mout = &QoutOut;
-          Synchronize(DrawMapInitSync);
-       }
-       else
-       {
-          switch (LisIFace->GroupDisplayMap->ItemIndex)
-          {
-           case 0: Mout = &QoutOut;  break;
-           case 1: Mout = &WHOut;  break;
-           case 2: Mout = &VOut;  break;
-           case 3: Mout = &InfilOut;  break;
-           case 4: Mout = &SoilLossOut; break;
-           case 5: Mout = &DetOut; break;
-           case 6: Mout = &DepOut; break;
-           case 7: Mout = &TCOut; break;
-           case 8: Mout = &SCOut; break;
+         if (!InitDone)
+         {
+            Mout = &QoutOut;
+            Synchronize(DrawMapInitSync);
          }
-         Synchronize(DrawMapSync);
+         else
+         {
+            switch (LisIFace->GroupDisplayMap->ItemIndex)
+            {
+             case 0: Mout = &QoutOut;  break;
+             case 1: Mout = &WHOut;  break;
+             case 2: Mout = &VOut;  break;
+             case 3: Mout = &InfilOut;  break;
+             case 4: Mout = &SoilLossOut; break;
+             case 5: Mout = &DetOut; break;
+             case 6: Mout = &DepOut; break;
+             case 7: Mout = &TCOut; break;
+             case 8: Mout = &SCOut; break;
+           }
+           Synchronize(DrawMapSync);
+         }
        }
 
        if (!InitDone)
           Synchronize(InitializeTotalsSync);
        Synchronize(UpdateTotalsSync);
-
-
 
 

@@ -32,7 +32,7 @@
 
          // algorithm: CLX = MLX / zl
          // assumed that zl is thickness of water layer * water surface = m3
-      calc(" NutWaterVolin = WH*(SoilWidthDX+StoneWidthDX)*DXc/1000 ");
+      calc(" NutWaterVolin = WH*(SoilWidthDX)*DXc/1000 ");
          //NOTE also used before kin wave, this is WH before kin wave
 
       calc(" NutPConcentration = mif (WH gt 0, NutPSolution/NutWaterVolin, 0) ");
@@ -46,9 +46,9 @@
 //------------------------------------------------------------------------------
 
          // algorithm: MinfiltX = CLX*q
-      calc(" NutPInfiltration = NutPConcentration*WHinf*(SoilWidthDX+StoneWidthDX)*DXc/1000 ");
-      calc(" NutNH4Infiltration = NutNH4Concentration*WHinf*(SoilWidthDX+StoneWidthDX)*DXc/1000 ");
-      calc(" NutNO3Infiltration = NutNO3Concentration*WHinf*(SoilWidthDX+StoneWidthDX)*DXc/1000 ");
+      calc(" NutPInfiltration = NutPConcentration*WHinf*(SoilWidthDX)*DXc/1000 ");
+      calc(" NutNH4Infiltration = NutNH4Concentration*WHinf*(SoilWidthDX)*DXc/1000 ");
+      calc(" NutNO3Infiltration = NutNO3Concentration*WHinf*(SoilWidthDX)*DXc/1000 ");
         // infiltrated nutrients in solution: kg/m3 concentration * m3 infiltrated water = kg
         // in this timestep: WHInf/1000*DX*DX = m3/s*dtsec
 

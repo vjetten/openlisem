@@ -19,11 +19,9 @@
      /* total volume before infiltration */
 //VJ 030701 no difference WT vars are 0 anyway
      _spatial(REAL4, InfilVolin);
-//     if (SwitchWheelPresent)
-      calc(" InfilVolin = (RoadWidthDX*WHRoad+WheelWidthDX*WHWheelTrack+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
-//     else
-//      calc(" InfilVolin = (RoadWidthDX*WHRoad+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
-        // rainfall/water on channels is treated in the channel section of LISEM
+//      calc(" InfilVolin = (RoadWidthDX*WHRoad+WheelWidthDX*WHWheelTrack+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
+     calc(" InfilVolin = (RoadWidthDX*WHRoad + WheelWidthDX*WHWheelTrack + SoilWidthDX*WH) * DXc/1000 ");
+      // rainfall/water on channels is treated in the channel section of LISEM
 
      calc(" WHCompact = WH ");
      calc(" WHCrust = WH ");
@@ -151,18 +149,19 @@
           calc(" WHWTinf -= WHWheelTrack ");
           calc(" InfilSurplusWT = WHWTinf + min(InfilPotWheel, 0) ");
       }
-      //wheeltracks separate
+      //for kin wave of wheeltracks version
 
      _spatial(REAL4, InfilVolout);
-     calc(" InfilVolout = (RoadWidthDX*WHRoad+WheelWidthDX*WHWheelTrack+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
+//     calc(" InfilVolout = (RoadWidthDX*WHRoad+WheelWidthDX*WHWheelTrack+(SoilWidthDX+StoneWidthDX)*WH)*DXc/1000 ");
+     calc(" InfilVolout = (RoadWidthDX*WHRoad + WheelWidthDX*WHWheelTrack + SoilWidthDX*WH)*DXc/1000 ");
      //volume in cell after infiltration, in m3
 
-     calc(" TotalInfilVol += sum(InfilVolin - InfilVolout) "); /* + ChannelInfilVol */
-     // non spatial infil total. This has to adjusted for infil in kin wave
+     calc(" TotalInfilVol += sum(InfilVolin - InfilVolout) ");
+     // non spatial cumulative infil total. This has to adjusted for infil in kin wave
      // needed for mass balance and screen output
 
-     calc(" InfilVol += InfilVolin - InfilVolout");// + ChannelInfilVol) ");
-     //spatial infiltration volume needed for map output
+     calc(" InfilVol += InfilVolin - InfilVolout");
+     //spatial infiltration volume of this timestep needed for map output
 
        // rainfall/water on channels is treated in the channel section of LISEM
        // volume infiltrated water in m3

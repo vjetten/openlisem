@@ -11,27 +11,6 @@
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
-void __fastcall TLisIFace::RunThread()
-{
-/*
-     ButtonRunprog->Down = true;
-     ButtonStopprog->Down = false;
-
-     t_begin = Time();
-     runduration = TimeToStr(LisIFace->t_begin);
-     // fill a Tstringlist with in and output map names
-     MakeNamelist();     //is deleted in lismain, bd progrmming
-     // last timestep for setting min and max values of saved mapseries when run is stopped
-     LastPCRTimestep = 0;
-
-
-     LisemRun = new LisThread(false);    // mke and run the thread, the old LISEM model!
-     LisemRun->FreeOnTerminate = true;
-     LisemRun->OnTerminate = ThreadDone;
-     LisIFace->LabelRunfile->Caption = "Active run file: " + LisIFace->RunFilename;
- */
-}
-//---------------------------------------------------------------------------
 void __fastcall TLisIFace::ButtonStopprogClick(TObject *Sender)
 {
     Beep();
@@ -99,7 +78,6 @@ void __fastcall TLisIFace::ThreadDone(TObject *Sender)
        if (multipleRuns)
           GetNewRunfile();    //load first or next runfile in list if multiple runs
 
-        //       RunThread();
        ButtonRunProg->Down = true;
        ButtonStopProg->Down = false;
 

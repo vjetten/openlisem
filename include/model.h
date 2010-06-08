@@ -27,7 +27,7 @@ Functionality in model.h:
 
 #define DEBUGv(x) {QString sss; sss.setNum(x);emit debug("debug: " + sss);}
 //msleep(300)
-#define DEBUG(s) emit debug(QString("debug: "+s));msleep(10)
+#define DEBUG(s) emit debug(QString(s));msleep(10)
 
 #define mwrite(name) WriteMap(QString(resultDir+name))
 #define report(name) WriteMapSeries(resultDir,QString(name), printstep)
@@ -221,9 +221,10 @@ public:
 	void ParseInputData();
 	void GetRunFile();
 	QString GetName(QString p);
-	QString getvaluename(const char *vname);
-	double getvaluedouble(const char *vname);
-	int getvalueint(const char *vname);
+	//QString getvaluename(const char *vname);
+	QString getvaluename(QString vname);
+	double getvaluedouble(QString vname);
+	int getvalueint(QString vname);
 	QString CheckDir(QString p, QString p1);
 
 	// LISEM model processes

@@ -277,12 +277,17 @@ void TWorld::Infiltration(void)
 		Ksateff->Drc *= ksatCalibration;
 		// apply runfile/iface calibration factor
 
+		if (SwitchBuffers && !SwitchSedtrap)
+			if(BufferID->Drc > 0)
+				Ksateff->Drc = 0;
+		//VJ 1000608 no infil in buffers, , but sedtrap can have infil
+
 	}
 
 	//select an infiltration type
 	switch (InfilMethod)
 	{
-		case INFIL_NONE : fact->fill(0); break;
+		case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
 		case INFIL_SWATRE : break;
 		case INFIL_HOLTAN : break;
 		case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
@@ -298,9 +303,10 @@ void TWorld::Infiltration(void)
 	FOR_ROW_COL_MV
 	{
 		if (SwitchBuffers && !SwitchSedtrap)
-			if(BufferID->Drc > 0)
-				fact->Drc = 0;
-		//VJ 100514 no infil in buffers, but sedtrap can have infil
+			if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+				WH->Drc = 0;
+		//VJ 100608 no infil in buffers until it is full
+		//TODO NOTE CORRECT FOR RAINFALL IF WH IS 0
 
 		WH->Drc -= fact->Drc;
 		if (WH->Drc < 0) // in case of rounding of errors
@@ -344,7 +350,6 @@ void TWorld::Infiltration(void)
 		// infiltrated water in this timestep
 		// NOT USED IN FURTHER MDOEL!
 	}
-
 }
 //---------------------------------------------------------------------------
 void TWorld::SoilWater()

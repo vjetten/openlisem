@@ -48,58 +48,91 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
     LisemType = -1;
     batchrun = false;
     CheckPestout = false;
+    CheckMinimumdisplay = false;
     PestoutTimeinterval = 0;
     ListRunfilesa->Items->Clear();
-    //ListRunfilesa->Items->Append(" ");
+    RunFilename = "";
 
     // run directly from commandline, get name and lisemtype
 //VJ 080925 behaviour when double clicking on run file
     if (ParamCount() == 1)
     {
-  	     RunFilename = ParamStr(1);
-        ListRunfilesa->Items->Strings[0] = RunFilename;
-        batchrun = true;
-        LisemType = 0;
+       if (!FileExists(ParamStr(1)))
+       {
+          AnsiString S = "Run file \"" + ParamStr(1) + "\" not found. Starting with interface.\nsyntax: \nlisemwin [runfilename] [pest 0/1] [pest time in min] [min display 0/1]";
+          Application->MessageBox(S.c_str(), "LISEM Error", MB_OK+MB_ICONERROR);
+          batchrun = false;
+       }
+       else
+       {
+          RunFilename = ParamStr(1);
+          ListRunfilesa->Items->Append(RunFilename);
+          ListRunfilesa->ItemIndex = 0;
+          batchrun = true;
+       }
+//        LisemType = 0; read from run file
     }
 //VJ 050913 cleaned pestout possibility
-    if (ParamCount() >= 2){
-  	     RunFilename = ParamStr(1);
-  	     if (FileExists(RunFilename)){
+//VJ 100209 changes, lisemtype obsolete
+    if (ParamCount() >= 2)
+    {
+        // more than 1 parameter means pestout checks
+
+  	     if (FileExists(ParamStr(1)))
+        {
+/* OBSOLETE, lisem type is in runfile
   	        LisemType = ParamStr(2).ToIntDef(-1);
 //VJ 060109 fixed bug, changed to < basic instead of <= basic
            if (LisemType < LISEMBASIC || LisemType > LISEMGULLIES) {
          	  Application->MessageBox("Invalid Lisem type (must be 0-4)", "LISEM Error", MB_OK+MB_ICONERROR);
               RunFilename = "";
         	  } else {
-             // runfile exists and lisemtype is good
+*/
+     	       RunFilename = ParamStr(1);
 			    batchrun = true;
-	   	    ListRunfilesa->Items->Strings[0] = RunFilename;
-//             CheckLisemType();
+             ListRunfilesa->Items->Append(RunFilename);
+             ListRunfilesa->ItemIndex = 0;
+             // runfile exists
+
+             CheckPestout = ParamStr(2).ToIntDef(0) == 1;
              //check for pestout
-             if (ParamCount() >= 3)
-				    CheckPestout = ParamStr(3).ToIntDef(0) == 1;
-             if (CheckPestout) {
-	             if (ParamCount() == 4)
-   	             PestoutTimeinterval = ParamStr(4).ToDouble();
-                else {
-      	     	    Application->MessageBox("Pest output asked but no timeinterval given, syntax: \nlisemwin [runfilename] [lisem type] [pestout 0/1] [pest time in min]", "LISEM Error", MB_OK+MB_ICONERROR);
+             if (CheckPestout)
+             {
+	             if (ParamCount() >= 3)
+   	             PestoutTimeinterval = ParamStr(3).ToDouble();
+                else
+                {
+      	     	    Application->MessageBox("Pest output asked but no timeinterval given,\nsyntax: \nlisemwin [runfilename] [pest 0/1] [pest time in min] [min display 0/1]", "LISEM Error", MB_OK+MB_ICONERROR);
                    CheckPestout = false;
                 }
-             }
-           }
-        } else {
-      	  AnsiString S = "File \"" + RunFilename + "\" not found.";
+	             if (ParamCount() == 4)
+                  CheckMinimumdisplay = ParamStr(3).ToIntDef(0) == 1;
+             } //checkpestout
+
+        }
+        else
+        {
+      	  AnsiString S = "Run file \"" + ParamStr(1) + "\" not found. Starting with interface.\nsyntax: \nlisemwin [runfilename] [pest 0/1] [pest time in min] [min display 0/1]";
            Application->MessageBox(S.c_str(), "LISEM Error", MB_OK+MB_ICONERROR);
-	        RunFilename = "";
+           batchrun = false;
         }
     }//paramcount >= 2
 
     ResetMain();
 
-	 CheckLisemType();
+ //	 CheckLisemType();
+ // now done in ResetMain();
 
-    if (batchrun) {
+        if (CheckPestout)
+        {
+           ToolButtonDisplay->Down = false;
+           SwitchDisplayMaps = false;
+        }
+
+    if (batchrun)
+    {
         LoadRunFile(RunFilename);
+        CheckLisemType();
         nrruns = 1;
         thisrun = 0;
         multipleRuns = false;
@@ -107,22 +140,20 @@ __fastcall TLisIFace::TLisIFace(TComponent* Owner)
         ButtonStopProg->Enabled = true;
         ButtonPauseProg->Enabled = true;
 	     Messages->Clear();
-//        if (ParamCount() != 1)
-  //      {
-       	  PageControl->ActivePage = TabSheetTot;
-   	     ThreadDone(NULL);
-    //    }
-    }
 
- //   Application->HintPause = 200;
- //   Application->HintHidePause = 50000;
+  	     ThreadDone(NULL);
+        // run lisem bypassing the interface
+    }
 
     HorzScrollBar->Visible = true;
     VertScrollBar->Visible = true;
     HorzScrollBar->Range = 100;
     VertScrollBar->Range = 100;
 
-    SetHelpIFace();
+ //   Application->HintPause = 200;
+ //   Application->HintHidePause = 50000;
+   // SetHelpIFace();
+   // tryout, for future: elaborate hints/help in interface
 
 }
 //---------------------------------------------------------------------------
@@ -1620,9 +1651,6 @@ void __fastcall TLisIFace::CleanUpAll()
   }
 }
 //---------------------------------------------------------------------
-
-
-
 void __fastcall TLisIFace::PageControlChange(TObject *Sender)
 {
    if (PageControl->ActivePage == TabSheetDrawmap)

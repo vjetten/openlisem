@@ -27,6 +27,7 @@ void __fastcall LisThread::LisemWarningV()
 //---------------------------------------------------------------------------
 void __fastcall LisThread::InitializeTotalsSync()
 {
+     LisIFace->PageControl->ActivePage = LisIFace->TabSheetTot;
 
      LisIFace->LO_Tstart->Caption = Format("%.3f",&TVarRec(StartTime), 0);
      LisIFace->LO_Tend->Caption = Format("%.3f",&TVarRec(EndTime), 0);
@@ -94,6 +95,9 @@ void __fastcall LisThread::InitializeTotalsSync()
 //---------------------------------------------------------------------------
 void __fastcall LisThread::UpdateTotalsSync()
 {
+     LisIFace->EstRuntime->Caption = LisIFace->runduration + " of " + LisIFace->Estrunduration;
+
+
      LisIFace->LO_dtcurr->Caption = Format("%.3f",&TVarRec(CurrentTime), 0);
      LisIFace->LO_totrain->Caption = Format("%.3f",&TVarRec(TOTRainMM), 0);
      LisIFace->LO_interception->Caption = Format("%.3f",&TVarRec(TOTInterceptionMM), 0);
@@ -132,56 +136,50 @@ void __fastcall LisThread::UpdateTotalsSync()
      maxrain = max(AVGRainMM, maxrain);
 
      MaxOutputSediment = max(MaxOutputSediment, OutputSediment);
+     MaxOutputSediment = max(MaxOutputSediment, OutputSedConc);
      MaxOutlet2 = max(MaxOutlet2, OutputDischarge1);
      MaxOutlet3 = max(MaxOutlet3, OutputDischarge1);
 
-     //add factor 1.05 to show top axis above top graph value
-      if (LisIFace->ShowOutlet1->Checked)
-           LisIFace->Qgraph->LeftAxis->Maximum = max(PeakDischargeQ,maxrain) * 1.05;
- /*     else
-      if (LisIFace->ShowOutlet2->Checked)
-           LisIFace->Qgraph->LeftAxis->Maximum = max(MaxOutlet2,maxrain) * 1.05;
-      else
-      if (LisIFace->ShowOutlet3->Checked)
-           LisIFace->Qgraph->LeftAxis->Maximum = max(MaxOutlet3,maxrain) * 1.05;
- */
-      if (LisIFace->ShowRainfall->Checked)
-           LisIFace->Series4->AddXY(CurrentTime, AVGRainMM,"",clBlack);
-      if (LisIFace->ShowOutlet1->Checked)
-           LisIFace->Series1->AddXY(CurrentTime, OutputDischarge,"",clNavy);
-
-     if (!LisIFace->CheckNoErosion->Checked)
+     if (!LisIFace->CheckMinimumdisplay) // switch display off when pest runs to save time
      {
-        if (LisIFace->ShowQsed->Checked)
-        {
-             LisIFace->Series2->AddXY(CurrentTime, OutputSediment,"",clMaroon);
-             LisIFace->Qgraph->RightAxis->Maximum = MaxOutputSediment * 1.05;
-        }
-        if (LisIFace->ShowSedConcentration->Checked)
-        {
-             LisIFace->Series3->AddXY(CurrentTime, OutputSedConc,"",clRed);
-             LisIFace->Qgraph->RightAxis->Maximum = max(LisIFace->Qgraph->RightAxis->Maximum,
-                         OutputSedConc * 1.05);
-        }
-     }
-/*
-      if (LisIFace->ShowOutlet2->Checked)
-           LisIFace->Series6->AddXY(CurrentTime, OutputDischarge1,"",clBlue);
-      if (LisIFace->ShowOutlet3->Checked)
-           LisIFace->Series7->AddXY(CurrentTime, OutputDischarge2,"",clFuchsia);
-*/
+       //add factor 1.05 to show top axis above top graph value
+        if (LisIFace->ShowOutlet1->Checked)
+             LisIFace->Qgraph->LeftAxis->Maximum = max(PeakDischargeQ,maxrain) * 1.05;
+        if (LisIFace->ShowRainfall->Checked)
+             LisIFace->Series4->AddXY(CurrentTime, AVGRainMM,"",clBlack);
+        if (LisIFace->ShowOutlet1->Checked)
+             LisIFace->Series1->AddXY(CurrentTime, OutputDischarge,"",clNavy);
+
+         if (!LisIFace->CheckNoErosion->Checked)
+         {
+            LisIFace->Qgraph->RightAxis->Maximum = MaxOutputSediment * 1.05;
+
+            if (LisIFace->ShowQsed->Checked)
+            {
+                 LisIFace->Series2->AddXY(CurrentTime, OutputSediment,"",clMaroon);
+//                 LisIFace->Qgraph->RightAxis->Maximum = MaxOutputSediment * 1.05;
+            }
+            if (LisIFace->ShowSedConcentration->Checked)
+            {
+                 LisIFace->Series3->AddXY(CurrentTime, OutputSedConc,"",clRed);
+//                 LisIFace->Qgraph->RightAxis->Maximum = max(LisIFace->Qgraph->RightAxis->Maximum,
+  //                           OutputSedConc * 1.05);
+            }
+         }
+
 //VJ 030624 added outlet values lijnes displayed, saves memory, -1 is display all
 
 
-     if (LisIFace->SpinOutletValues->Value > -1)
-	     if (LisIFace->OutletValues->Lines->Count+1 > LisIFace->SpinOutletValues->Value)
-     		     LisIFace->OutletValues->Lines->Delete(0);
+       if (LisIFace->SpinOutletValues->Value > -1)
+          if (LisIFace->OutletValues->Lines->Count+1 > LisIFace->SpinOutletValues->Value)
+                LisIFace->OutletValues->Lines->Delete(0);
 
-     if (LisIFace->SpinOutletValues->Value != 0)
-     {
-        TVarRec args[6] = {StepCounter, CurrentTime,AVGRainMM,OutputDischarge,OutputSediment,OutputSedConc};
-        AnsiString s = Format("%5d %8.3f\t%6.2f\t%10.3f\t%10.3f\t%8.3f",args, 5);
-	     LisIFace->OutletValues->Lines->Add(s);
+       if (LisIFace->SpinOutletValues->Value != 0)
+       {
+          TVarRec args[6] = {StepCounter, CurrentTime,AVGRainMM,OutputDischarge,OutputSediment,OutputSedConc};
+          AnsiString s = Format("%5d %8.3f\t%6.2f\t%10.3f\t%10.3f\t%8.3f",args, 5);
+          LisIFace->OutletValues->Lines->Add(s);
+       }
      }
 }
 //---------------------------------------------------------------------------

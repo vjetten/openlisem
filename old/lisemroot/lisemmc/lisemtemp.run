@@ -1,49 +1,65 @@
-[LISEM for WINDOWS run file]
+[LISEM for WINDOWS run file v3]
 
 [LISEM main type]
 LISEM Type=0
 
 [Work Directory]
-WorkDir=D:\data\jantiene\
+WorkDir=C:\lisemcourse\ganspoel\run\
 
 [Input]
-Map Directory=D:\data\jantiene\run_prado_20m_1\
+Map Directory=C:\lisemcourse\ganspoel\maps97j\
 Table Directory=
-Rainfall Directory=D:\data\jantiene\
-Rainfall file=rainfall_18_nov_2003.txt
+Rainfall Directory=C:\lisemcourse\ganspoel\rainfall\
+Rainfall file=p970711a.txt
 Incude Snowmelt=0
 Snowmelt Directory=
 Snowmelt file=
 
-[Output main]
-Result Directory=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\
-Main results file=totals_prado_20m_1.txt
-Filename point output=try.csv
+[Output]
+Result Directory=C:\lisemcourse\ganspoel\res97j\
+Main results file=totals.csv
+Filename point output=outall.csv
 Report point output separate=0
 Report point output for SOBEK=0
-Erosion map=ero_prado_20m_1.map
-Deposition map=depo_prado_20m_1.map
-Soilloss map=try.map
+SOBEK date string=09/  /    
+Erosion map=eros.map
+Deposition map=depo.map
+Soilloss map=soilloss.map
 
 [Simulation times]
 Begin time=0
-End time=700
-Timestep=60
+End time=200
+Timestep=15
 
 [General options]
 No Erosion simulation=0
-Include main channels=0
+Include main channels=1
 Include channel infil=0
 Include channel baseflow=0
-All water and sediment to outlet=1
+All water and sediment to outlet=0
 Include snowmelt=0
 No erosion at outlet=0
-Include buffers=0
 Alternative flow detachment=0
 Simple depression storage=0
+Hard Surfaces=0
 
-[Additional options]
+[Interception]
+Use canopy storage map=0
+Canopy storage equation=0
+Stemflow fraction=0.054
+
+[Conservation]
+Include grass strips=0
 Grassstrip Mannings n=0.3
+Include buffers=0
+Sediment bulk density=1800
+Include Sediment traps=0
+
+[Calibration]
+Ksat calibration=0.3
+N calibration=1
+Channel Ksat calibration=1
+Channel N calibration=1
 Splash Delivery Ratio=0.1
 
 [Gully options]
@@ -58,19 +74,12 @@ Use initial gully dimensions=0
 [Infiltration]
 Infil Method=3
 Include wheeltracks=0
-Include grass strips=0
 Include crusts=0
-Impermeable sublayer=1
+Impermeable sublayer=0
 Subsoil drainage=0
 SWATRE internal minimum timestep=
 Matric head files=0
 Geometric mean Ksat=0
-
-[Calibration]
-Ksat calibration=1
-N calibration=1
-Channel Ksat calibration=1
-Channel N calibration=1
 
 [Output maps]
 Runoff maps in l/s/m=0
@@ -81,7 +90,7 @@ Erosion map units (0/1/2)=2
 Output interval=1
 User defined output=0
 Output times=
-CheckOutputMaps=0,0,0,0,0,0,0,0,0,0,0
+CheckOutputMaps=1,1,0,0,1,0,0,1,0,0,0
 CheckOutputMapsNUT=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 CheckOutputMapsMC=0,0,0,0,0,0,0
 CheckOutputMapsGUL=0,0,0,0,0
@@ -92,212 +101,213 @@ ClassMu=2,16,32,53,75,105
 [map names]
 
 [OutputBASIC]
-OUTRUNOFF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\ro
-OUTCONC=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\conc
-OUTWH=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\wh
-OUTRWH=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\rwh
-OUTTC=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\tc
-OUTEROS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\det
-OUTDEPO=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\depo
-OUTVELO=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\velo
-OUTINF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\inf
-OUTSS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\sstor
-OUTCHVOL=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\chanvol
+OUTRUNOFF=ro
+OUTCONC=conc
+OUTWH=wh
+OUTRWH=whc
+OUTTC=tc
+OUTEROS=det
+OUTDEPO=depo
+OUTVELO=velo
+OUTINF=inf
+OUTSS=sstor
+OUTCHVOL=chanvol
 
 [OutputMC]
-OUTMU0=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu0
-OUTMU1=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu1
-OUTMU2=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu2
-OUTMU3=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu3
-OUTMU4=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu4
-OUTMU5=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\smu5
-OUTD50SUSP=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\D50s
+OUTMU0=smu0
+OUTMU1=smu1
+OUTMU2=smu2
+OUTMU3=smu3
+OUTMU4=smu4
+OUTMU5=smu5
+OUTD50SUSP=D50s
 
 [OutputNut]
-OUTPSOLUT=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NPsol
-OUTPSUS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NPsus
-OUTPINF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NPinf
-OUTNH4SOLUT=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNH4sol
-OUTNH4SUS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNH4sus
-OUTNH4INF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNH4inf
-OUTNO3SOLUT=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNO3sol
-OUTNO3SUS=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNO3sus
-OUTNO3INF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNO3inf
+OUTPSOLUT=NPsol
+OUTPSUS=NPsus
+OUTPINF=NPinf
+OUTNH4SOLUT=NNH4sol
+OUTNH4SUS=NNH4sus
+OUTNH4INF=NNH4inf
+OUTNO3SOLUT=NNO3sol
+OUTNO3SUS=NNO3sus
+OUTNO3INF=NNO3inf
 
 [OutputNutErosDep]
-OUTPDEP=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NPdep.map
-OUTNH4DEP=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNH4dep.map
-OUTNO3DEP=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNO3dep.map
-OUTPDET=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NPdet.map
-OUTNH4DET=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNH4det.map
-OUTNO3DET=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\NNO3det.map
+OUTPDEP=NPdep.map
+OUTNH4DEP=NNH4dep.map
+OUTNO3DEP=NNO3dep.map
+OUTPDET=NPdet.map
+OUTNH4DET=NNH4det.map
+OUTNO3DET=NNO3det.map
 
 [OutputGul]
-OUTGULD=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\guld
-OUTGULW=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\gulw
-OUTGULA=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\gula
-OUTGULF=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\gulf
-OUTGULDEM=D:\data\Jantiene\Prado\runs\run_prado_20m_1\results_run_prado_20m_1\guldem
+OUTGULD=guld
+OUTGULW=gulw
+OUTGULA=gula
+OUTGULF=gulf
+OUTGULDEM=guldem
 
 [Catchment]
-grad=D:\data\jantiene\run_prado_20m_1\grad_prado_20m.map
-ldd=D:\data\jantiene\run_prado_20m_1\ldd_prado_20m.map
-outlet=D:\data\jantiene\run_prado_20m_1\outlet_prado_20m.map
-ID=D:\data\jantiene\run_prado_20m_1\id_prado_20m.map
-outpoint=D:\data\jantiene\run_prado_20m_1\outlet_prado_20m.map
+grad=grad.map
+ldd=ldd.map
+outlet=outlet.map
+ID=id.map
+outpoint=outlet.map
 
 [Landuse]
-cover=D:\data\jantiene\run_prado_20m_1\per_prado_20m.map
-lai=D:\data\jantiene\run_prado_20m_1\lai_prado_20m.map
-ch=D:\data\jantiene\run_prado_20m_1\ch_prado_20m.map
-road=D:\data\jantiene\run_prado_20m_1\roadwidth_prado_20m_8m.map
-grasswidth=D:\data\jantiene\run_prado_20m_1\grasswid.map
+cover=per.map
+lai=lai.map
+ch=ch.map
+smax=
+road=roadwidt.map
+grasswidth=grasswid.map
 
 [Buffers]
-bufferID=D:\data\jantiene\run_prado_20m_1\bufferid.map
-bufferVolume=D:\data\jantiene\run_prado_20m_1\buffervol.map
+bufferID=bufferid.map
+bufferVolume=buffervol.map
 
 [Snowmelt]
-SnowID=D:\data\jantiene\run_prado_20m_1\snowid.map
+SnowID=snowid.map
 
 [Erosion]
-coh=D:\data\jantiene\run_prado_20m_1\coh_prado_20m.map
-cohadd=D:\data\jantiene\run_prado_20m_1\cohadd_prado_20m.map
-aggrstab=D:\data\jantiene\run_prado_20m_1\aggrstab_prado_20m.map
-d50=D:\data\jantiene\run_prado_20m_1\d50_prado_20m.map
-hardsurf=D:\data\jantiene\run_prado_20m_1\road_prado_20m.map
+coh=coh.map
+cohadd=cohadd.map
+aggrstab=aggrstab.map
+d50=d50.map
 
 [Surface]
-rr=D:\data\jantiene\run_prado_20m_1\rr_prado_20m.map
-manning=D:\data\jantiene\run_prado_20m_1\n_prado_20m.map
-crustfrc=D:\data\jantiene\run_prado_20m_1\crustfrc.map
-compfrc=D:\data\jantiene\run_prado_20m_1\compfrc.map
-stonefrc=D:\data\jantiene\run_prado_20m_1\stonefrc_prado_20m.map
+rr=rr.map
+manning=n.map
+crustfrc=crustfrc.map
+compfrc=compfrc.map
+stonefrc=stonefrc.map
+hardsurf=hardsurf.map
 
 [InfilHoltan]
-A=D:\data\jantiene\run_prado_20m_1\A
-FP=D:\data\jantiene\run_prado_20m_1\FP
-P=D:\data\jantiene\run_prado_20m_1\P
+A=A
+FP=FP
+P=P
 
 [InfilExtra]
-ksatcrst=D:\data\jantiene\run_prado_20m_1\ksatcrst.map
-ksatcomp=D:\data\jantiene\run_prado_20m_1\ksatcomp.map
-ksatgras=D:\data\jantiene\run_prado_20m_1\ksatgras.map
+ksatcrst=ksatcrst.map
+ksatcomp=ksatcomp.map
+ksatgras=ksatgras.map
 
 [InfilGA2]
-ksat2=D:\data\jantiene\run_prado_20m_1\ksat2.map
-psi2=D:\data\jantiene\run_prado_20m_1\psi2.map
-thetas2=D:\data\jantiene\run_prado_20m_1\thetas2.map
-thetai2=D:\data\jantiene\run_prado_20m_1\thetai2.map
-soildep2=D:\data\jantiene\run_prado_20m_1\soildep2.map
+ksat2=ksat2.map
+psi2=psi2.map
+thetas2=thetas2.map
+thetai2=thetai2.map
+soildep2=soildep2.map
 
 [InfilGA1]
-ksat1=D:\data\jantiene\run_prado_20m_1\ksat_prado_20m.map
-psi1=D:\data\jantiene\run_prado_20m_1\psi_prado_20m.map
-thetas1=D:\data\jantiene\run_prado_20m_1\thetas_prado_20m.map
-thetai1=D:\data\jantiene\run_prado_20m_1\thetai_prado_20m.map
-soildep1=D:\data\jantiene\run_prado_20m_1\soildep_prado_20m.map
+ksat1=ksat1.map
+psi1=psi1.map
+thetas1=thetas1.map
+thetai1=thetai1.map
+soildep1=soildep1.map
 
 [InfilSmith]
-ksat1=D:\data\jantiene\run_prado_20m_1\ksat_prado_20m.map
-psi1=D:\data\jantiene\run_prado_20m_1\psi_prado_20m.map
-thetas1=D:\data\jantiene\run_prado_20m_1\thetas_prado_20m.map
-thetai1=D:\data\jantiene\run_prado_20m_1\thetai_prado_20m.map
-soildep1=D:\data\jantiene\run_prado_20m_1\soildep_prado_20m.map
+ksat1=ksat1.map
+psi1=psi1.map
+thetas1=thetas1.map
+thetai1=thetai1.map
+soildep1=soildep1.map
 
 [InfilMorel]
-ksat1=D:\data\jantiene\run_prado_20m_1\ksat_prado_20m.map
-psi1=D:\data\jantiene\run_prado_20m_1\psi_prado_20m.map
-thetas1=D:\data\jantiene\run_prado_20m_1\thetas_prado_20m.map
-thetai1=D:\data\jantiene\run_prado_20m_1\thetai_prado_20m.map
-soildep1=D:\data\jantiene\run_prado_20m_1\soildep_prado_20m.map
+ksat1=ksat1.map
+psi1=psi1.map
+thetas1=thetas1.map
+thetai1=thetai1.map
+soildep1=soildep1.map
 
 [InfilSwatre]
-profinp=D:\data\jantiene\run_prado_20m_1\profile.inp
-profmap=D:\data\jantiene\run_prado_20m_1\profile.map
-profcrst=D:\data\jantiene\run_prado_20m_1\profcrst.map
-profwltr=D:\data\jantiene\run_prado_20m_1\profwltr.map
-profgras=D:\data\jantiene\run_prado_20m_1\profgras.map
-inithead=D:\data\jantiene\run_prado_20m_1\inithead
-headout=D:\data\jantiene\run_prado_20m_1\headout.map
+profinp=profile.inp
+profmap=profile.map
+profcrst=profcrst.map
+profwltr=profwltr.map
+profgras=profgras.map
+inithead=inithead
+headout=headout.map
 
 [InfilDrainage]
-drfactor=D:\data\jantiene\run_prado_20m_1\drfactor.map
+drfactor=drfactor.map
 
 [InfilKsat]
-ksat1=D:\data\jantiene\run_prado_20m_1\ksat_prado_20m.map
+ksat1=ksat1.map
 
 [Channelinfil]
-chanksat=D:\data\jantiene\run_prado_20m_1\chanksat.map
+chanksat=chanksat.map
 
 [Channels]
-lddchan=D:\data\jantiene\run_prado_20m_1\lddchan.map
-chanwidth=D:\data\jantiene\run_prado_20m_1\chanwidt.map
-chanside=D:\data\jantiene\run_prado_20m_1\chanside.map
-changrad=D:\data\jantiene\run_prado_20m_1\changrad.map
-chanman=D:\data\jantiene\run_prado_20m_1\chanman.map
-chancoh=D:\data\jantiene\run_prado_20m_1\chancoh.map
+lddchan=lddchan.map
+chanwidth=chanwidt.map
+chanside=chanside.map
+changrad=changrad.map
+chanman=chanman.map
+chancoh=chancoh.map
 
 [ChannelBaseflow]
-chanbaseflux=D:\data\jantiene\run_prado_20m_1\chanbaseflux.map
-chanincrease=D:\data\jantiene\run_prado_20m_1\chanincrease.map
-chanvolini=D:\data\jantiene\run_prado_20m_1\chanvini.map
+chanbaseflux=chanbaseflux.map
+chanincrease=chanincrease.map
+chanvolini=chanvini.map
 
 [Macropore]
 
 [Wheeltrack]
-lddwheel=D:\data\jantiene\run_prado_20m_1\lddwheel.map
-wheelnbr=D:\data\jantiene\run_prado_20m_1\wheelnbr.map
-wheelwidth=D:\data\jantiene\run_prado_20m_1\wheelwid.map
-wheeldepth=D:\data\jantiene\run_prado_20m_1\wheeldep.map
-wheelgradient=D:\data\jantiene\run_prado_20m_1\wheelgrd.map
-wheelman=D:\data\jantiene\run_prado_20m_1\wheelman.map
-wheelcohesion=D:\data\jantiene\run_prado_20m_1\wheelcoh.map
-ksatwt=D:\data\jantiene\run_prado_20m_1\ksatwt.map
+lddwheel=lddwheel.map
+wheelnbr=wheelnbr.map
+wheelwidth=wheelwid.map
+wheeldepth=wheeldep.map
+wheelgradient=wheelgrd.map
+wheelman=wheelman.map
+wheelcohesion=wheelcoh.map
+ksatwt=ksatwt.map
 
 [Texture]
-fractionmu0=D:\data\jantiene\run_prado_20m_1\mu0.map
-fractionmu1=D:\data\jantiene\run_prado_20m_1\mu1.map
-fractionmu2=D:\data\jantiene\run_prado_20m_1\mu2.map
-fractionmu3=D:\data\jantiene\run_prado_20m_1\mu3.map
-fractionmu4=D:\data\jantiene\run_prado_20m_1\mu4.map
-fractionmu5=D:\data\jantiene\run_prado_20m_1\mu5.map
+fractionmu0=mu0.map
+fractionmu1=mu1.map
+fractionmu2=mu2.map
+fractionmu3=mu3.map
+fractionmu4=mu4.map
+fractionmu5=mu5.map
 
 [NutsP]
-pcont=D:\data\jantiene\run_prado_20m_1\pcont.map
-psolute=D:\data\jantiene\run_prado_20m_1\psolut.map
-pefficiency=D:\data\jantiene\run_prado_20m_1\peff.map
-psorp=D:\data\jantiene\run_prado_20m_1\Psorp.map
-pconv=D:\data\jantiene\run_prado_20m_1\Pconv.map
+pcont=pcont.map
+psolute=psolut.map
+pefficiency=peff.map
+psorp=Psorp.map
+pconv=Pconv.map
 
 [NutsNO3]
-no3cont=D:\data\jantiene\run_prado_20m_1\NO3cont.map
-no3solute=D:\data\jantiene\run_prado_20m_1\NO3solut.map
-no3efficiency=D:\data\jantiene\run_prado_20m_1\NO3eff.map
-no3sorp=D:\data\jantiene\run_prado_20m_1\NO3sorp.map
-no3conv=D:\data\jantiene\run_prado_20m_1\NO3conv.map
+no3cont=NO3cont.map
+no3solute=NO3solut.map
+no3efficiency=NO3eff.map
+no3sorp=NO3sorp.map
+no3conv=NO3conv.map
 
 [NutsNH4]
-nh4cont=D:\data\jantiene\run_prado_20m_1\nh4cont.map
-nh4solute=D:\data\jantiene\run_prado_20m_1\nh4solut.map
-nh4efficiency=D:\data\jantiene\run_prado_20m_1\nh4eff.map
-nh4sorp=D:\data\jantiene\run_prado_20m_1\NH4sorp.map
-nh4conv=D:\data\jantiene\run_prado_20m_1\NH4conv.map
+nh4cont=nh4cont.map
+nh4solute=nh4solut.map
+nh4efficiency=nh4eff.map
+nh4sorp=NH4sorp.map
+nh4conv=NH4conv.map
 
 [NutsBD]
-bulk=D:\data\jantiene\run_prado_20m_1\bulkdens.map
+bulk=bulkdens.map
 
 [Gully]
-dem=D:\data\jantiene\run_prado_20m_1\dem.map
-gullyn=D:\data\jantiene\run_prado_20m_1\gullyman.map
-bulkdens1=D:\data\jantiene\run_prado_20m_1\bulkdens.map
-gulksat1=D:\data\jantiene\run_prado_20m_1\gulksat1.map
-gullydep=D:\data\jantiene\run_prado_20m_1\soilDep2.map
-gullycoh=D:\data\jantiene\run_prado_20m_1\coh2.map
-bulkdens2=D:\data\jantiene\run_prado_20m_1\bulkden2.map
-gulksat2=D:\data\jantiene\run_prado_20m_1\gulksat2.map
-nonfcrit=D:\data\jantiene\run_prado_20m_1\noncrit.map
+dem=dem.map
+gullyn=gullyman.map
+bulkdens1=bulkdens.map
+gulksat1=gulksat1.map
+gullydep=soilDep2.map
+gullycoh=coh2.map
+bulkdens2=bulkden2.map
+gulksat2=gulksat2.map
+nonfcrit=noncrit.map
 
 [GullyInit]
-gulwinit=D:\data\jantiene\run_prado_20m_1\gulwinit.map
-guldinit=D:\data\jantiene\run_prado_20m_1\guldinit.map
+gulwinit=gulwinit.map
+guldinit=guldinit.map

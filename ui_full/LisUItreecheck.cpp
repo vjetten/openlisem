@@ -23,6 +23,17 @@ website, information and code: http://sourceforge.net/projects/lisem
 void lisemqt::on_checkNoErosion_clicked()
 {
 	change_MapNameModel(3, 0, !checkNoErosion->isChecked());
+	sedgroup->setEnabled(!checkNoErosion->isChecked());
+}
+//--------------------------------------------------------------------
+void lisemqt::on_checkIncludeChannel_clicked()
+{
+	if (checkIncludeChannel->isChecked())
+	{
+		change_MapNameModel(5, 11, checkChannelInfil->isChecked());
+		change_MapNameModel(5, 12, checkChannelBaseflow->isChecked());
+	}
+	change_MapNameModel(5, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
@@ -49,6 +60,8 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int)
 	int nr = E_InfiltrationMethod->currentIndex();
 	checkInfil2layer->setEnabled(bool(nr ==2 || nr == 3));
 	groupBox_SwatreOptions->setEnabled(nr == 1);
+
+	uiInfilMethod = nr;
 
 	change_MapNameModel(4, 0, true);
 	change_MapNameModel(4, 10, false);//SW
@@ -92,28 +105,15 @@ void lisemqt::on_toolButton_SwatreTable_clicked()
 }
 
 //--------------------------------------------------------------------
-void lisemqt::on_checkIncludeChannel_clicked()
-{
-	if (checkIncludeChannel->isChecked())
-	{
-		change_MapNameModel(5, 11, checkChannelInfil->isChecked());
-		change_MapNameModel(5, 12, checkChannelBaseflow->isChecked());
-	}
-	change_MapNameModel(5, 10, checkIncludeChannel->isChecked());
-}
-//--------------------------------------------------------------------
 void lisemqt::on_checkInfil2layer_clicked()
 {
 	if (E_InfiltrationMethod->currentIndex() == 2 ||
 			E_InfiltrationMethod->currentIndex() == 3)
 		change_MapNameModel(4, 12, checkInfil2layer->isChecked());
-	else
-	{
-		checkInfil2layer->setChecked(false);
-		QMessageBox msgBox;
-		msgBox.setText("Select an infiltration method first.");
-		msgBox.exec();
-	}
+//	else
+//	{
+//		checkInfil2layer->setChecked(false);
+//	}
 }//--------------------------------------------------------------------
 void lisemqt::on_checkInfilCompact_clicked()
 {
@@ -121,13 +121,10 @@ void lisemqt::on_checkInfilCompact_clicked()
 		change_MapNameModel(4, 14, checkInfilCrust->isChecked()
 				|| checkInfilCompact->isChecked()
 				|| checkInfilGrass->isChecked());
-	else
-	{
-		checkInfilCompact->setChecked(false);
-		QMessageBox msgBox;
-		msgBox.setText("Select an infiltration method first.");
-		msgBox.exec();
-	}
+//	else
+//	{
+//		checkInfilCompact->setChecked(false);
+//	}
 }
 
 //--------------------------------------------------------------------
@@ -144,11 +141,13 @@ void lisemqt::on_checkInfilGrass_clicked()
 void lisemqt::on_checkBuffers_clicked()
 {
 	change_MapNameModel(6, 0, checkBuffers->isChecked());
+	buffergroup->setEnabled(checkBuffers->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
 	change_MapNameModel(6, 0, checkSedtrap->isChecked());
+	buffergroup->setEnabled(checkSedtrap->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSnowmelt_clicked()

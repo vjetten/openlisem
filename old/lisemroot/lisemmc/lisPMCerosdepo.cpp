@@ -17,8 +17,6 @@
            _spatial(REAL4, TCMu4);
            _spatial(REAL4, TCMu5);
 
-
-
            _spatial(REAL4, StreamPower);
            calc(" StreamPower = Gradient*V*100 ");
 

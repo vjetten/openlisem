@@ -227,7 +227,7 @@
      else
        calc(" chinfil = 0 ");
 
-     calc(" InfilVolinKinWave = -chinfil * DTSEC * DXc ");
+     //calc(" InfilVolinKinWave = -chinfil * DTSEC * DXc ");
      //VJ 050831 calc basic input infil vol kin wave
      //VJ 060817 added DXc because it is a volume m2/s * m * s = m3     
 

@@ -1,11 +1,22 @@
 // *****************************************************************************
 // ******** channel flow calculations ******************************************
 // *****************************************************************************
+
+   /*
+   <-  chan widthUp  ->
+   \  |            |  /
+    \ |      chan h| /
+     \|____________|/ ->side angle, 0 = rectangular
+        chan width
+   */
+
+
      calc(" ChannelVolin += RunoffVolinToChannel ");
         // add overland flow in channel cells
-        
+
 //VJ 040823: bug fix : rainfall volume added over projected cell DX and not DXc
      calc(" ChannelVolin += mif(ChannelWidthDX gt 0, (RainH*ChannelWidthUpDX*DX)/1000, 0) ");
+     // add rainfall on channel, no interception
 
 //VJ 080217 add baseflow
      if (SwitchChannelBaseflow)
@@ -58,22 +69,22 @@
        // ChannelWH is the water depth in the channel in mm
 
      calc(" ChannelWidthUpDX = mif(ChannelWidthDX gt 0, ChannelWidthDX+2*ChannelSide*ChannelWH/1000,0) ");
-     calc(" ChannelWidthUpDX = cover(min(ChannelWidthUpDX, 0.9*DX), 0)");
+     // up width is width + 2*tan angle * wh
+     calc(" ChannelWidthUpDX = cover(min(ChannelWidthUpDX, 0.9*DX-RoadWidthDX), 0)");
       // channelwidth cannot be larger than 90% of the grid cell
-
-     _nonspatial(REAL4,MAXWIDTH);
-     calc(" MAXWIDTH = maxcell(ChannelWidthUpDX+RoadWidthDX) ");
-     if (MAXWIDTH > DX)
-     {
-        LisemError("TOTAL ChannelWidthDX + RoadWidthDX exceeds cell width\
-                      error in CHANWIDT.MAP or ROADWIDT.MAP");
-     }
+      //VJ 100206 added roadwidth here
 
      // **** flow rate and flux in channel
+     _spatial(REAL4, cosside);
+     calc(" cosside = cos(atan(ChannelSide))");
      _spatial(REAL4, ChannelPerimeter);
-     calc(" ChannelPerimeter = ChannelWidthDX+2*ChannelWH/1000*sqrt(ChannelSide*ChannelSide+1) ");
+     calc(" ChannelPerimeter = ChannelWidthDX+2*0.001*ChannelWH/cosside ");
+
      _spatial(REAL4, ChannelCSArea);
-     calc(" ChannelCSArea = ChannelWidthDX*ChannelWH/1000+ChannelSide*sqr(ChannelWH/1000)");
+//     calc(" ChannelCSArea = (ChannelWidthDX+0.5*(ChannelWidthUpDX-ChannelWidthDX)) * ChannelWH/1000");
+     calc(" ChannelCSArea = (ChannelWidthDX+(ChannelWidthUpDX-ChannelWidthDX)) * ChannelWH/1000");
+     //BUG NOT 0.5! but 2* 0.5
+//VJ 100206 changed calculations of channel A and P
      _spatial(REAL4, ChannelV);
      calc(" ChannelV = mif(ChannelPerimeter gt 0, sqrt(ChannelGradient)/ChannelN * (ChannelCSArea/ChannelPerimeter)**(2.0/3.0), 0) ");
         // ChannelV is the channel flow rate, in meters per second
@@ -106,7 +117,13 @@
 
          // **** sediment concentration
          _spatial(REAL4, ChannelSedConcentration);
-         calc(" ChannelSedConcentration = mif(ChannelVolin gt 0 ,ChannelSedin/ChannelVolin, 0) ");
+         calc(" ChannelSedConcentration = mif( ChannelVolin gt 0, ChannelSedin/ChannelVolin, 1000) ");
+         calc(" ChannelSedConcentration = min(ChannelSedConcentration, 848) ");
+          _spatial(REAL4, sedvoltemp);
+         calc(" sedvoltemp = ChannelSedConcentration*ChannelVolin ");
+         _spatial(REAL4, ChannelDeposition);
+         calc(" ChannelDeposition = min(0, sedvoltemp-ChannelSedin) ");
+         calc(" ChannelSedin = ChannelVolin * ChannelSedConcentration ");
 
          // **** transport capacity
          _spatial(REAL4, ChannelTransportCapacity);
@@ -115,12 +132,9 @@
          calc(" ChannelTransportCapacity = 2650*min(ChannelTransportCapacity,0.32) ");
             // TransportCapacity is the volumetric transport capacity of sediment
             // in (cm3 soil)/(cm3 water)
-            // ChannelV is the channel flow rate in m/s
-            // formula requires cm/s, thus factor 100
-            // CriticalStreamPower is the critical unit stream power
-            // condition Gradient*V*100>CriticalStreamPower is to prevent not allowed operation
-            // 2650 is the particle density in kg/m3
-            // the unit of TransportCapacity is now in kg/m3
+            // ChannelV is the channel flow rate in m/s formula requires cm/s, thus factor 100
+            // CriticalStreamPower is the critical unit stream power = 0.4 cm/s
+            // 2650 is the particle density in kg/m3, the unit of TransportCapacity is now in kg/m3
 
          // **** detachment in channels
 
@@ -134,7 +148,8 @@
 	      }
     	   else
          {
-	         calc(" ChannelDetachmentFlow = ChannelY*max(0, ChannelTransportCapacity-ChannelSedConcentration)*TransportFactor ");
+	         calc(" ChannelDetachmentFlow = ChannelY * "
+                 " max(0, ChannelTransportCapacity-ChannelSedConcentration)*TransportFactor ");
          }
             // ChannelDetachmentFlow is detachment by overland flow (kg)
             // ChannelY is the flow detachment efficiency coefficient (constant map)
@@ -142,88 +157,77 @@
             // ChannelVolin is the amount of channel water, in m3
             // which can transport an amount of sediment in m3
 
-         calc(" ChannelDetachmentFlow = min(ChannelDetachmentFlow,max(0, ChannelTransportCapacity-ChannelSedConcentration)*ChannelVolin) ");
+         calc(" ChannelDetachmentFlow = min(ChannelDetachmentFlow, "
+              " max(0, ChannelTransportCapacity-ChannelSedConcentration)*ChannelVolin) ");
             // detachment cannot be larger than the remaining transp.capacit
 
-//         calc(" TransportFactor = mif(ChannelWH gt 0, (1-exp(-DTSEC*SettlingVelocity/(0.001*ChannelWH)))*ChannelVolin, 0) ");
-         calc(" TransportFactor = mif(ChannelWH gt 0, (1-exp(-DTSEC*SettlingVelocity/(0.001*ChannelWH)))*ChannelVolin, 1) ");
+//         calc(" TransportFactor = mif(ChannelWH gt 0, (1-exp(-DTSEC*SettlingVelocity/(0.001*ChannelWH)))*ChannelVolin, ChannelVolin) ");
 
-         _spatial(REAL4, ChannelDeposition);
          calc(" ChannelDeposition = min(0, ChannelTransportCapacity-ChannelSedConcentration)*TransportFactor");
-         calc(" ChannelDeposition = max(ChannelDeposition, min(0,ChannelTransportCapacity-ChannelSedConcentration)*ChannelVolin) ");
+//         calc(" ChannelDeposition = max(ChannelDeposition, min(0,ChannelTransportCapacity-ChannelSedConcentration)*ChannelVolin) ");
+         calc(" ChannelDeposition = max(ChannelDeposition, -ChannelSedin) ");
             // Deposition amount (kg)
             // (positive = supply to the flow; negative = deposition)
-            // DepositionFlow is the amount of deposition (negative!)
-            // deposition cannot be larger than the amount of
-            //  available sediment
-
-         calc(" ChannelDetachmentFlow = mif(ChannelWH gt MinimumHeight, ChannelDetachmentFlow, 0)");
-         calc(" ChannelDeposition = mif(ChannelWH gt MinimumHeight, ChannelDeposition, -ChannelSedin)");
+            // deposition cannot be larger than the amount of available sediment
 
           calc(" ChannelSedin += ChannelDetachmentFlow ");
           calc(" ChannelSedin += ChannelDeposition ");
-          //calc(" ChannelSedin = max(ChannelSedin, 0) ");
             // ChannelSedin is the amount of sediment in kg available for transport
-            // ChannelDeposition (negative value) is added, so ChannelSedin decreases!
+            // ChannelDeposition  = negative
 
+          calc(" ChannelSedConcentration = mif(ChannelVolin gt 0, ChannelSedin/ChannelVolin, 1000) ");
+          calc(" ChannelSedConcentration = min(ChannelSedConcentration, 848) ");
+          calc(" sedvoltemp = ChannelSedConcentration*ChannelVolin ");
+          calc(" ChannelDeposition += min(0, sedvoltemp-ChannelSedin) ");
+          calc(" ChannelSedin = ChannelVolin * ChannelSedConcentration ");
+          //VJ 100509 channel sed concentration check
      }// switch no erosion
 
 // *****************************************************************************
 // ******** kinematic wave calculation for CHANNEL flow ************************
 // *****************************************************************************
 
-     _nonspatial(REAL4, SumChannelVolin);
-     calc(" SumChannelVolin = sum(ChannelVolin) ");
+//     _nonspatial(REAL4, SumChannelVolin);
+//     calc(" SumChannelVolin = sum(ChannelVolin) ");
      // used in mass balance error
 
      _spatial(REAL4, ChannelQsedin);
-     calc(" ChannelQsedin = mif(ChannelVolin gt 0, ChannelSedin*ChannelQin/ChannelVolin, 0) ");
-        // ChannelQsedin is the sediment discharge in kg/s (kg*m3/s/m3)
+//     calc(" ChannelQsedin = mif(ChannelVolin gt 0, ChannelSedin*ChannelQin/ChannelVolin, 0) ");
+     calc(" ChannelQsedin = ChannelQin * ChannelSedConcentration ");
+        // ChannelQsedin is the sediment discharge in kg/s (m3/s*kg*m3)
 
      _nonspatial(REAL4, SumChannelSedin);
      calc(" SumChannelSedin = sum(ChannelSedin) ");
      // used in mass balance error
 
 //VJ 050704 added channel infil in m2/s
-     _spatial(REAL4, chinfil);
+     _spatial(REAL4, chq);
      if (SwitchChannelInfil)
-       calc(" chinfil = -(ChannelKsat *  ChannelPerimeter /3600000.0) ");
+       calc(" chq = -(ChannelKsat *  ChannelPerimeter /3600000.0) ");
        //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
      else
-       calc(" chinfil = 0 ");
+       calc(" chq = 0 ");
 
-     calc(" InfilVolinKinWave = -chinfil * DTSEC * DXc ");
-     //VJ 050831 calc basic input infil vol kin wave
-     //VJ 060817 added DXc because it is a volume m2/s * m * s = m3     
-
-     _spatial(REAL4, chtemp);
-     calc(" chtemp = 0");//(DepositionFlow+DetachmentFlow+DetachmentSplash+DepositionSplash)/DXc ");
+     _spatial(REAL4, chqs);
+     calc(" chqs = 0");//(DepositionFlow+DetachmentFlow+DetachmentSplash+DepositionSplash)/DXc ");
 
      _spatial(REAL4, ChannelQout);
      _spatial(REAL4, ChannelQsedout);
 
-     kineDX(ChannelQout,ChannelQin, chinfil,
-               ChannelQsedout,ChannelQsedin, chtemp,
+     kineDX(ChannelQout,ChannelQin, chq,
+               ChannelQsedout,ChannelQsedin, chqs,
                BufferVolumeCurrentChannel, BufferSedVolumeCurrentChannel,
                ChannelLDD, ChannelAlpha, ChannelBeta, DTSEC, DXc,
                int(SwitchSedtrap), BufferSedBulkDensity);
 //VJ 050831 CHANGED: infil map changes during run: after the kin wave
-// it contains the sum of all fluxes in the cell! Needed for infiltration calc
+// it contains the sum of all incoming fluxes in the cell! Needed for infiltration calc
+//VJ 100206 CHANGED again, q contains Qin in KineDX, only incoming fluxes
 
+     calc(" ChannelQsedout = min(ChannelQsedout, ChannelSedin/DTSEC + chqs)");
+     // no more sedoutflow than sum inflow in a cell plus what is in the cell/dt
      calc(" ChannelQOutflow = sum(mif(Outlet1 eq 1,ChannelQout, 0))");
      calc(" ChannelSedOutflow = sum(mif(Outlet1 eq 1, ChannelQsedout, 0))");
      // recalc outlet discharge, kin wave can handle more pits
-
-//VJ 080217 estimate baseflow at outlet, not very good, unable to separate base from peak     
-/* cannot be done because all is mixed
-     if (SwitchChannelBaseflow)
-     {
-        if (!startbaseflowincrease)
-            ChannelQBaseflow = ChannelQOutflow;
-        if (startbaseflowincrease)
-           calc(" ChannelQBaseflow += sum(mif(Outlet1 eq 1,ChannelBaseflux*ChannelBaseincrease, 0))");
-     }
-*/
 
      calc(" ChannelCSArea = ChannelAlpha*(ChannelQout**ChannelBeta)");
      // ChannelCSArea is A (cross section) in m2
@@ -235,27 +239,17 @@
 
      calc(" SumChannelVolout = sum(ChannelVolout) ");
      // spatial total of water in channel, m3 , after kin wave
-
-//VJ 040823 not needed, works
-/*
-     if (SwitchCorrectMass)
-     {
-         if (SumChannelVolout > 0)
-            calc(" ChannelVolout += ChannelVolout*"
-                 "(SumChannelVolin-SumChannelVolout-ChannelQOutflow*DTSEC)/SumChannelVolout ");
-            // divide error caused by pits over network
-         calc(" SumChannelVolout = sum(ChannelVolout) ");
-     }
-*/
+     // needed in screen output
 
 //VJ 050704 added channel infil in m2/s
 //VJ 050831 corrected channel infil calc
      if (SwitchKinwaveInfil)
      {
-        //nonspatial infil adjustment in m3
-        calc(" InfilVol += cover(min(chinfil*DTSEC+ChannelVolout, InfilVolinKinWave),0) ");
-        //spatial infil adjustment in m3
-	     calc(" TotalInfilVol += max(0,SumChannelVolin - SumChannelVolout - ChannelQOutflow*DTSEC) ");
+//VJ 100206 changed to infil per cell = sum inflow (q) + (volume before - after) - outflow)
+        calc(" InfilVolinKinWave = chq*DTSEC + ChannelVolin - ChannelVolout - ChannelQout*DTSEC ");
+        calc(" InfilVol += cover(InfilVolinKinWave,0) ");
+	     calc(" TotalInfilVol += sum(cover(InfilVolinKinWave,0)) ");
+        // add to totals
 	   }
 
      calc(" ChannelVolout = max(ChannelVolout, 0) ");
@@ -268,8 +262,10 @@
      {
          // **** correct mass balance error SED
          _spatial(REAL4, ChannelSedout);
-         calc(" ChannelSedout = mif(ChannelQout gt 0, ChannelQsedout/ChannelQout*ChannelVolout, 0) ");
+         calc(" ChannelSedout = max(0, chqs*DTSEC + ChannelSedin - ChannelQsedout*DTSEC) ");
 
+/*
+         calc(" ChannelSedout = mif(ChannelQout gt 0, ChannelQsedout/ChannelQout*ChannelVolout, 0) ");
          // sediment discharge
          if (SwitchCorrectMassSED)
          {
@@ -277,9 +273,13 @@
              if (SumChannelSedout > 0)
                 calc(" ChannelSedout += (SumChannelSedin-SumChannelSedout-ChannelSedOutflow*DTSEC)*ChannelSedout/SumChannelSedout ");
          }
-
-         calc(" ChannelSedout = max(ChannelSedout, 0) ");
+*/
          calc(" ChannelSedin = mif(ChannelWidthUpDX gt 0,ChannelSedout, 0) ");
+         calc(" ChannelSedConcentration = mif( ChannelVolout gt 0, ChannelSedin/ChannelVolout, 1000) ");
+         calc(" ChannelSedConcentration = min(ChannelSedConcentration, 848) ");
+         calc(" sedvoltemp = ChannelSedConcentration*ChannelVolout ");
+         calc(" ChannelDeposition += min(0, sedvoltemp-ChannelSedin) ");
+         calc(" ChannelSedin = ChannelVolout * ChannelSedConcentration ");
 
          calc(" SumChannelSedout = sum(ChannelSedin) ");
 

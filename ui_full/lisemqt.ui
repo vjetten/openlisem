@@ -57,7 +57,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/openlisem.qrc">
+   <iconset>
     <normaloff>:/openLisem25.png</normaloff>:/openLisem25.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -68,7 +68,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -80,7 +80,7 @@
           <x>400</x>
           <y>0</y>
           <width>20</width>
-          <height>581</height>
+          <height>591</height>
          </rect>
         </property>
         <property name="orientation">
@@ -91,9 +91,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>240</y>
+          <y>220</y>
           <width>391</width>
-          <height>341</height>
+          <height>371</height>
          </rect>
         </property>
         <property name="font">
@@ -120,10 +120,10 @@
          <number>1</number>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <property name="tabSpacing">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page_3">
          <property name="geometry">
@@ -131,7 +131,7 @@
            <x>0</x>
            <y>0</y>
            <width>389</width>
-           <height>229</height>
+           <height>243</height>
           </rect>
          </property>
          <attribute name="label">
@@ -142,196 +142,170 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>348</width>
+            <width>364</width>
             <height>201</height>
            </rect>
           </property>
-          <widget class="QCheckBox" name="checkNoErosion">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>2</y>
-             <width>140</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Runoff only (no erosion)</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkIncludeChannel">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>24</y>
-             <width>231</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Include main channel (needs channel maps)</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkSnowmelt">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>90</y>
-             <width>303</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Include snowmelt (needs sowmelt file and additional maps)</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkNoErosionOutlet">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>112</y>
-             <width>185</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Exclude outlet erosion/deposition </string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkAltErosion">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>134</y>
-             <width>312</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Alternative flow detachment (no settling vel. in detachment)</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkSimpleDepression">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>156</y>
-             <width>330</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Simple surface storage (no runoff below max storage threshold)</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkHardsurface">
-           <property name="geometry">
-            <rect>
-             <x>1</x>
-             <y>178</y>
-             <width>346</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkChannelInfil">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="geometry">
-            <rect>
-             <x>24</x>
-             <y>46</y>
-             <width>241</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Channel infiltration (needs aditional map)</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkChannelBaseflow">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="geometry">
-            <rect>
-             <x>24</x>
-             <y>68</y>
-             <width>225</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Channel baseflow (needs additional maps)</string>
-           </property>
-          </widget>
+          <layout class="QGridLayout" name="gridLayout_17">
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNoErosion">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Runoff only (no erosion)</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkIncludeChannel">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Include main channel (needs channel maps)</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_49">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="checkChannelInfil">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Channel infiltration (needs aditional map)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_55">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="checkChannelBaseflow">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Channel baseflow (needs additional maps)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkSnowmelt">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Include snowmelt (needs sowmelt file and additional maps)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkNoErosionOutlet">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Exclude outlet erosion/deposition </string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkAltErosion">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Alternative flow detachment (no settling vel. in detachment)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkSimpleDepression">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Simple surface storage (no runoff below max storage threshold)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkHardsurface">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
         <widget class="QWidget" name="page_4">
@@ -339,8 +313,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>229</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -372,6 +346,9 @@
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
+           <property name="margin">
+            <number>4</number>
+           </property>
            <property name="spacing">
             <number>4</number>
            </property>
@@ -435,18 +412,30 @@
             <x>10</x>
             <y>120</y>
             <width>351</width>
-            <height>111</height>
+            <height>101</height>
            </rect>
           </property>
           <property name="title">
            <string>Swatre</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
-           <property name="margin">
+           <property name="leftMargin">
             <number>4</number>
            </property>
-           <property name="spacing">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
             <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <property name="horizontalSpacing">
+            <number>4</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>2</number>
            </property>
            <item row="0" column="0" colspan="2">
             <widget class="QCheckBox" name="checkGeometricMean">
@@ -528,7 +517,7 @@
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset resource="../resources/openlisem.qrc">
+              <iconset>
                <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
              </property>
             </widget>
@@ -546,7 +535,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Fraction internal timestep versus LISEMtimestep&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -580,8 +569,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>229</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -592,15 +581,12 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>19</x>
             <y>13</y>
-            <width>231</width>
-            <height>91</height>
+            <width>301</width>
+            <height>133</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_11">
-           <property name="margin">
-            <number>4</number>
-           </property>
-           <item row="0" column="0" colspan="3">
+           <item row="0" column="0" colspan="2">
             <widget class="QCheckBox" name="checkBuffers">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -615,11 +601,11 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Include water buffers</string>
+              <string>Include buffers for water and sediment</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="3">
+           <item row="1" column="0">
             <widget class="QCheckBox" name="checkSedtrap">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -634,11 +620,55 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Include sediment traps</string>
+              <string>Include sediment traps/fences (no water)</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
+            <widget class="QLabel" name="label_33">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>    Sediment bulk density (kg/m3)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="E_BulkDens">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="inputMask">
+              <string>9999.99; </string>
+             </property>
+             <property name="text">
+              <string>1800.00</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
             <widget class="QCheckBox" name="checkInfilGrass">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -657,10 +687,35 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="2">
+            <widget class="QLineEdit" name="E_GrassStripN">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="inputMask">
+              <string>9.999; </string>
+             </property>
+             <property name="text">
+              <string>0.030</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
             <widget class="QLabel" name="label_15">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -675,38 +730,13 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Mannings n grass strip</string>
+              <string>              Mannings n grass strip</string>
              </property>
              <property name="textFormat">
               <enum>Qt::PlainText</enum>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="E_GrassStripN">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="inputMask">
-              <string>9.99; </string>
-             </property>
-             <property name="text">
-              <string>0.30</string>
              </property>
             </widget>
            </item>
@@ -719,7 +749,7 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>0</y>
            <width>389</width>
-           <height>229</height>
+           <height>243</height>
           </rect>
          </property>
          <attribute name="label">
@@ -751,13 +781,19 @@ p, li { white-space: pre-wrap; }
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>40</y>
+            <y>30</y>
             <width>331</width>
             <height>181</height>
            </rect>
           </property>
           <property name="title">
            <string>Storage equation</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <property name="margin">
@@ -773,6 +809,9 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="text">
               <string>Orig. LISEM (crops): S = 0.935+0.498*LAI-0.00575*LAI^2</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
              <attribute name="buttonGroup">
               <string>buttonGroup_3</string>
@@ -893,14 +932,76 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>216</y>
+            <width>161</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label_59">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Stemflow fraction</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="E_StemflowFraction">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.054000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
         <widget class="QWidget" name="page">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>229</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -912,7 +1013,7 @@ p, li { white-space: pre-wrap; }
             <x>10</x>
             <y>10</y>
             <width>281</width>
-            <height>108</height>
+            <height>131</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
@@ -974,7 +1075,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="E_CailbrateN">
+            <widget class="QDoubleSpinBox" name="E_CalibrateN">
              <property name="font">
               <font>
                <weight>50</weight>
@@ -1006,7 +1107,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="E_calibrateChKsat">
+            <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
              <property name="font">
               <font>
                <weight>50</weight>
@@ -1051,7 +1152,81 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="E_SplashDelibery">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_58">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Splash delivery ratio</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
           </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_6">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>98</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <attribute name="label">
+          <string>Multiclass</string>
+         </attribute>
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>30</y>
+            <width>113</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QTableView" name="tableView">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>70</y>
+            <width>256</width>
+            <height>121</height>
+           </rect>
+          </property>
          </widget>
         </widget>
        </widget>
@@ -1062,9 +1237,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>420</x>
-          <y>300</y>
+          <y>280</y>
           <width>291</width>
-          <height>281</height>
+          <height>311</height>
          </rect>
         </property>
         <property name="currentIndex">
@@ -1190,9 +1365,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>720</x>
-          <y>300</y>
+          <y>280</y>
           <width>101</width>
-          <height>281</height>
+          <height>311</height>
          </rect>
         </property>
         <property name="title">
@@ -1286,7 +1461,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>140</y>
+          <y>120</y>
           <width>181</width>
           <height>91</height>
          </rect>
@@ -1305,13 +1480,13 @@ p, li { white-space: pre-wrap; }
           <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
-          <number>8</number>
+          <number>6</number>
          </property>
          <property name="topMargin">
-          <number>4</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>8</number>
+          <number>6</number>
          </property>
          <property name="bottomMargin">
           <number>4</number>
@@ -1406,9 +1581,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>10</y>
+          <y>4</y>
           <width>391</width>
-          <height>121</height>
+          <height>111</height>
          </rect>
         </property>
         <property name="font">
@@ -1422,13 +1597,13 @@ p, li { white-space: pre-wrap; }
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
          <property name="leftMargin">
-          <number>4</number>
+          <number>6</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>4</number>
+          <number>6</number>
          </property>
          <property name="bottomMargin">
           <number>2</number>
@@ -1468,7 +1643,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1505,7 +1680,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1519,7 +1694,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1565,7 +1740,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1579,7 +1754,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1628,7 +1803,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1639,7 +1814,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources/openlisem.qrc">
+            <iconset>
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1650,9 +1825,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>420</x>
-          <y>10</y>
+          <y>4</y>
           <width>401</width>
-          <height>281</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="font">
@@ -1935,7 +2110,7 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources/openlisem.qrc">
+          <iconset>
            <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
          </property>
         </widget>
@@ -2047,7 +2222,7 @@ p, li { white-space: pre-wrap; }
            <x>10</x>
            <y>180</y>
            <width>301</width>
-           <height>91</height>
+           <height>81</height>
           </rect>
          </property>
          <property name="font">
@@ -2060,12 +2235,30 @@ p, li { white-space: pre-wrap; }
           <string>Output format</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="margin">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
            <number>4</number>
           </property>
           <item>
            <widget class="QFrame" name="frame">
             <layout class="QGridLayout" name="gridLayout_4">
+             <property name="margin">
+              <number>4</number>
+             </property>
+             <property name="spacing">
+              <number>4</number>
+             </property>
              <item row="3" column="0">
               <widget class="QCheckBox" name="checkSOBEKOutput">
                <property name="sizePolicy">
@@ -2120,19 +2313,6 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
-       </widget>
-       <widget class="QLabel" name="label_49">
-        <property name="geometry">
-         <rect>
-          <x>195</x>
-          <y>150</y>
-          <width>211</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_12">
@@ -3615,7 +3795,7 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
        </widget>
-       <widget class="QGroupBox" name="outletgroup_2">
+       <widget class="QGroupBox" name="buffergroup">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -4005,12 +4185,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>338</y>
+     <x>33</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>360</y>
+     <x>56</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -4021,12 +4201,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>32</x>
-     <y>338</y>
+     <x>33</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>382</y>
+     <x>56</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>
@@ -4037,12 +4217,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>134</x>
-     <y>360</y>
+     <x>94</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>134</x>
-     <y>382</y>
+     <x>94</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>
@@ -4053,12 +4233,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>382</y>
+     <x>56</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>360</y>
+     <x>56</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -4069,12 +4249,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>404</y>
+     <x>143</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>314</x>
-     <y>180</y>
+     <x>353</x>
+     <y>165</y>
     </hint>
    </hints>
   </connection>
@@ -4085,12 +4265,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>165</x>
-     <y>404</y>
+     <x>125</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>86</x>
-     <y>177</y>
+     <x>51</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
@@ -4101,12 +4281,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>404</y>
+     <x>159</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>351</x>
-     <y>184</y>
+     <x>381</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
@@ -4117,12 +4297,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>363</x>
-     <y>185</y>
+     <x>323</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
-     <x>370</x>
-     <y>185</y>
+     <x>406</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
@@ -4133,12 +4313,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>404</y>
+     <x>44</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>381</x>
-     <y>183</y>
+     <x>406</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
@@ -4149,12 +4329,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>32</x>
-     <y>316</y>
+     <x>33</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
-     <x>32</x>
-     <y>448</y>
+     <x>33</x>
+     <y>450</y>
     </hint>
    </hints>
   </connection>
@@ -4169,8 +4349,8 @@ p, li { white-space: pre-wrap; }
      <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>755</x>
-     <y>410</y>
+     <x>739</x>
+     <y>387</y>
     </hint>
    </hints>
   </connection>
@@ -4181,12 +4361,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>807</x>
-     <y>390</y>
+     <x>767</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>802</x>
-     <y>412</y>
+     <x>779</x>
+     <y>391</y>
     </hint>
    </hints>
   </connection>
@@ -4197,12 +4377,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>341</y>
+     <x>50</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>346</y>
+     <x>50</x>
+     <y>486</y>
     </hint>
    </hints>
   </connection>
@@ -4213,12 +4393,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>338</y>
+     <x>50</x>
+     <y>457</y>
     </hint>
     <hint type="destinationlabel">
-     <x>54</x>
-     <y>346</y>
+     <x>212</x>
+     <y>486</y>
     </hint>
    </hints>
   </connection>
@@ -4229,8 +4409,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>776</x>
-     <y>450</y>
+     <x>740</x>
+     <y>422</y>
     </hint>
     <hint type="destinationlabel">
      <x>775</x>
@@ -4245,12 +4425,76 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>273</x>
-     <y>430</y>
+     <x>233</x>
+     <y>398</y>
     </hint>
     <hint type="destinationlabel">
      <x>302</x>
      <y>460</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBuffers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_33</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>384</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>434</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBuffers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_BulkDens</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>426</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkSedtrap</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_33</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>404</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>425</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkSedtrap</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_BulkDens</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>400</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>246</x>
+     <y>425</y>
     </hint>
    </hints>
   </connection>

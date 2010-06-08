@@ -229,9 +229,16 @@ void __fastcall TLisIFace::MakeNewRunfile(AnsiString name)
          IniOp->Add("["+S->Name.SubString(5,128)+"]");
          for (int j = 1; j < S->RowCount; j++)
              if (!S->Cells[0][j].IsEmpty())
-             IniOp->Add(S->Cells[5][j]+"="+S->Cells[4][j]);
+             IniOp->Add(S->Cells[5][j]+"="+S->Cells[1][j]);
     }
-
+    /*
+    S->Cells[0] = varname
+    S->Cells[1] = filename
+    S->Cells[2] = desc
+    S->Cells[3] = directory
+    S->Cells[4] = full path
+    S->Cells[5] = ID up case
+    */
     IniOp->SaveToFile(name);
 
     delete IniOp;
@@ -510,25 +517,26 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 
 
        // ********* MAP NAMES ***********
+    /*
+    S->Cells[0] = varname
+    S->Cells[1] = filename
+    S->Cells[2] = desc
+    S->Cells[3] = directory
+    S->Cells[4] = full path
+    S->Cells[5] = ID up case
+    */
 
        for (int i = 0; i < ComponentCount; i++)
        if (Components[i]->Name.SubString(0,4) == "Maps")
        {
          TStringGrid* S =(TStringGrid *)LisIFace->Components[i];
-//         S->ColCount = 3;
          for (int j = 1; j < S->RowCount; j++)
          {
            S->Cells[4][j] = IniOp->Values[S->Cells[5][j]];
            S->Cells[1][j] = ExtractFileName(S->Cells[4][j]);
-//           S->Cells[1][j] = IniOp->Values[S->Cells[5][j]];
-  //         if (E_MapDir->Text.IsPathDelimiter(E_MapDir->Text.Length()))
-    //       S->Cells[4][j] = E_MapDir->Text + S->Cells[1][j];
-      //     else
-        //   S->Cells[4][j] = E_MapDir->Text + "\\" + S->Cells[1][j];
-
 
 //VJ 030606 added expandfilename
-         S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
+          S->Cells[3][j] = ExpandFileName(ExtractFileDir(S->Cells[4][j]));
            if (S->Cells[3][j].IsEmpty())
               S->Cells[3][j] = E_MapDir->Text;
          }
@@ -546,23 +554,18 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
             {
               TCheckBox *cb = (TCheckBox *)LisIFace->Components[i];
               int j = atoi(Components[i]->Name.c_str()+11);
-//              cb->Checked = (CheckOut.SubString(1+(j-1)*2,1) == "1");
-//              cb->Checked = (CheckOut.SubString(j*2,1) == "1");
               cb->Checked = atoi(CheckOut.c_str()+2*j) == 1;
             }
             if (Components[i]->Name.SubString(0,14) == "CheckMapoutGul")
             {
               TCheckBox *cb = (TCheckBox *)LisIFace->Components[i];
               int j = atoi(Components[i]->Name.c_str()+14);
-//              cb->Checked = (CheckOutGUL.SubString(1+(j-1)*2,1) == "1");
-//              cb->Checked = (CheckOutGUL.SubString(j*2,1) == "1");
               cb->Checked = atoi(CheckOutGUL.c_str()+2*j) == 1;
             }
             if (Components[i]->Name.SubString(0,13) == "CheckMapoutMC")
             {
               TCheckBox *cb = (TCheckBox *)LisIFace->Components[i];
               int j = atoi(Components[i]->Name.c_str()+13);
-//              cb->Checked = (CheckOutMC.SubString(j*2,1) == "1");
               cb->Checked = atoi(CheckOutMC.c_str()+2*j) == 1;
             }
             if (Components[i]->Name.SubString(0,14) == "CheckMapoutNut")
@@ -574,7 +577,7 @@ bool __fastcall TLisIFace::ReadNewRunfile(AnsiString name)
 
          }
        }
-//       E_TCCalibration->Text = IniOp->Values[(AnsiString)"TCCal"];
+
 
        if (CheckMulticlass)
             TextureClassCheck();

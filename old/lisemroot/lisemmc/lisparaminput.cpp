@@ -151,7 +151,7 @@
 
      _spatial_input(REAL4, RoadWidthDX, mapname("Road"));
      celltest(LDD, RoadWidthDX);
-     rangetest(RoadWidthDX,R_GE_LT, 0, DX,"@@Width of roads");
+     rangetest(RoadWidthDX,R_GE_LE, 0, DX,"@@Width of roads");
      calc(" NR_VALS_NOW = count(RoadWidthDX)");
      if (NR_VALS_NOW < NR_VALS_START)
         LisemError("wrong number of pixels in Roadwidt.map, non roads must have value 0!");
@@ -174,7 +174,19 @@
      // ******** land use variables ********************
      //-------------------------------------------------------------------------
 
+     _nonspatial(REAL4, StemflowFraction);
+     StemflowFraction = GetFloat("Stemflow fraction");
+
+     _spatial_input(REAL4, VegetatFraction, mapname("cover"));
+     celltest(LDD, VegetatFraction);
+     rangetest(VegetatFraction,R_GE_LE,0,1, "Soil coverage");
+
+     _spatial_input(REAL4, CropHeight,mapname("CH"));
+     celltest(LDD, CropHeight);
+     rangetest(CropHeight,R_GE_LE,0,30, "Crop height (m)");
+
 //VJ 100116 Interception
+// LAI and Caonpy Storage are the lavalues of the plants in the cell, not the cell average
      // Van Hoyningen-Huene (1981), p.46; maximum interception (mm)
 /*
 Orig. LISEM (crops): S = 0.935+0.498*LAI-0.00575*LAI^2
@@ -187,12 +199,9 @@ Bracken:       S = 0.1713*LAI          (n=8, R2=0.98)
 Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)
 */
 
-     _spatial_input(REAL4, LAI,mapname("LAI"));
-     celltest(LDD, LAI);
-     rangetest(LAI,R_GE_LE,0,12, "Leaf area index");
-         // LAI should be entered for the crop/vegetation,
-         // not as a pixel average, VegetatFraction deals with that
-
+//VJ 100511 cater for not have LAI if use Smax directly
+     _spatial(REAL4, LAI);
+     calc(" LAI = 0");
      _spatial(REAL4, CanopyStorage);
      calc(" CanopyStorage = 0");
      InterceptionLAIType = 0;
@@ -203,14 +212,19 @@ Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)
         celltest(LDD, Smax);
         rangetest(Smax,R_GE_LE,0,100, "Max Canopy Storage");
         calc(" CanopyStorage = Smax ");
+        calc(" LAI = (ln(1-VegetatFraction)/-0.4)/VegetatFraction ");
+        // estimate LAI of plants IN cell from average cover of cell, for canopy openess
      }
      else
      {
-         InterceptionLAIType = GetInt("Canopy storage equation");
-     }
+         _spatial_input(REAL4, LAImap,mapname("LAI"));
+         celltest(LDD, LAImap);
+         rangetest(LAImap,R_GE_LE,0,12, "Leaf area index");
+         // LAI should be entered for the crop/vegetation,
+         // not as a pixel average, VegetatFraction deals with that
+         calc(" LAI = LAImap ");
 
-     if (SwitchInterceptionLAI)
-     {
+         InterceptionLAIType = GetInt("Canopy storage equation");
 
          switch (InterceptionLAIType)
          {
@@ -224,17 +238,6 @@ Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)
           case 7: calc(" CanopyStorage = 0.59 * (LAI^0.88) "); break;
          }
      }
-
-     _nonspatial(REAL4, StemflowFraction);
-     StemflowFraction = GetFloat("Stemflow fraction");
-
-     _spatial_input(REAL4, VegetatFraction, mapname("cover"));
-     celltest(LDD, VegetatFraction);
-     rangetest(VegetatFraction,R_GE_LE,0,1, "Soil coverage");
-
-     _spatial_input(REAL4, CropHeight,mapname("CH"));
-     celltest(LDD, CropHeight);
-     rangetest(CropHeight,R_GE_LE,0,30, "Crop height (m)");
 
      //-------------------------------------------------------------------------
      // ******** soil surface variables ****************
@@ -387,7 +390,8 @@ Clumped grass: S = 0.59 * LAI^0.88     (n=6, R2=0.82)
        celltest(LDD, CohesionRoot);
 
        _spatial(REAL4, CohesionTotal);
-       calc(" CohesionTotal = CohesionSoil+CohesionRoot ");
+       calc(" CohesionTotal = CohesionSoil + VegetatFraction*CohesionRoot ");
+//VJ 100509 added vegetation fraction ro cohesionroot       
      //  rangetest(CohesionTotal,R_GE, 0.196, R_DUMMY,
      //      "@Cohesion values must be > 0.196 (detachment efficiency coef. Y < 1) "
      //      " error in CHANCOH.MAP (enter large values, e.g. 9999 for non-erodible surfaces)");

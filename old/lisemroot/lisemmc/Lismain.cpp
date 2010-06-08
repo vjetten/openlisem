@@ -476,6 +476,7 @@ void __fastcall LisThread::Execute()
 	  pestreport = 0;
      pestcounter = 0;
      SwitchPestout = LisIFace->CheckPestout;
+     SwitchMinimumdisplay = LisIFace->CheckMinimumdisplay;
      LastPCRTimestep = 0;
        // last timestep for setting min and max values of saved mapseries when run is stopped
 
@@ -609,6 +610,7 @@ begin_model{
 // *****************************************************************************
 
         #include "lisPsplash.cpp"
+//        #include "lisPsplash_new.cpp"
 
 // *****************************************************************************
 // ******** FLOW detachment **************************************************
@@ -621,7 +623,8 @@ begin_model{
         }
         else
         {
-             #include "lisPerosdepo.cpp"
+          #include "lisPerosdepo_o.cpp"
+          //#include "lisPerosdepo.cpp"
              // basic erosion deposition
              //#include "lisPerosdepobofu.cpp"
              // erosion deposition according to Rose Hairsine
@@ -692,7 +695,8 @@ begin_model{
         }
         else
         {
-            #include "lisPkinematic.cpp"
+            #include "lisPkinematic_o.cpp"
+//            #include "lisPkinematic.cpp"
         }
 
 // *****************************************************************************
@@ -726,7 +730,7 @@ begin_model{
 // *****************************************************************************
 
 //VJ 031218 moved to before file and screen output to have the map series set to minmax
-// even when interrupted                         
+// even when interrupted
         if (RunDone || Terminated)
         {
            timestepindex = ENDINTERVAL+1;
@@ -739,8 +743,12 @@ begin_model{
 
         //********SCREEN UPDATE *************
         // here model vars are linked to screen display vars
-        #include "lisscreenwin.cpp"
+        double est = (ENDINTERVAL-STARTINTERVAL)/(timestepindex+DTMIN - STARTINTERVAL);
+        runtimelength = (Time()-LisIFace->t_begin);
+        LisIFace->Estrunduration.sprintf("%8.3f",runtimelength*1440*est);
+        LisIFace->runduration.sprintf("%8.3f",runtimelength*1440);
 
+        #include "lisscreenwin.cpp"
 
         //-------------- INCREASE STEP -----------------------
         if (stepNr == 1)

@@ -1,3 +1,10 @@
+Lisem 2.6.5 (VJ 100510)
+- added max sed concentration checks to erosdepo and kin wave
+- added max sed concentration checks to channel, gully, whelltrack erosdepo and kin wave
+- eliminated mass balance error in sed
+- added leafdrain variable in interception directly and moved stemflow to interception
+Lisem 2.6.5beta (VJ 100207)
+- changed infil in kin wave calculation
 Lisem 2.6.4 (VJ 100131)
 - fixed hardsurf bug in infiltration
 - added no inetrception on hard surfaces

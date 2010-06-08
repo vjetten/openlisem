@@ -24,7 +24,7 @@ void __fastcall TLisIFace::ResetMain()
     thisrun = 0;
     Width = wWidth;
     Height = wHeight;
-    PageControl->ActivePage = TabSheetRun;
+//    PageControl->ActivePage = TabSheetRun;
     Application->Title = "LISEMWIN "+(AnsiString)ProgVersion;
     //namelist = NULL;
 
@@ -62,9 +62,9 @@ void __fastcall TLisIFace::ResetMain()
 
     E_InfilMethodClick(NULL);
     CheckIncludeChannelClick(NULL);
-    Names->ActivePage = Area;
+   // Names->ActivePage = Area; //this is the input names tab pages
 
-    if (LisemType== -1)
+    if (!batchrun && LisemType== -1)
     {
         LisIFace->Enabled = false;
         StartForm = new TStartForm(static_cast<void *>(NULL));
@@ -75,6 +75,7 @@ void __fastcall TLisIFace::ResetMain()
     else
     {
         LisIFace->Enabled = true;
+     	  CheckLisemType();
     }
 
     CheckAdjustMapDirectoryName = false;
@@ -104,7 +105,8 @@ void __fastcall TLisIFace::ResetMain()
    Label44->Enabled = CheckInfilGrass->Checked;
 
    ToolButtonDisplay->Down = true;
-   SwitchDisplayMaps = true;//ToolButtonDisplay->Down;
+   SwitchDisplayMaps = false;//true;//
+   ToolButtonDisplay->Down = SwitchDisplayMaps;
    zoomin = false;
    ToolButtonZoomin->Down = false;
 

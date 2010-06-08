@@ -144,7 +144,7 @@
      else
        calc(" chinfil = 0 ");
 
-     calc(" InfilVolinKinWave = chinfil*DTSEC*DXc ");
+//     calc(" InfilVolinKinWave = chinfil*DTSEC*DXc ");
      //VJ 050831 calc basic input infil vol kin wave
      //VJ 060817 added DXc because it is a volume m2/s * m * s = m3     
 
@@ -190,7 +190,7 @@
 
 //VJ 050831 corrected channel infil calc
      if (SwitchKinwaveInfil){
-        //calc(" TotalInfilVol += sum(min(chinfil*DTSEC+ChannelVolin, InfilVolinKinWave)) ");
+        calc(" TotalInfilVol += sum(min(chinfil*DTSEC+ChannelVolin, InfilVolinKinWave)) ");
         //nonspatial infil adjustment in m3
         calc(" InfilVol += cover(min(chinfil*DTSEC+ChannelVolin, InfilVolinKinWave),0) ");
         //spatial infil adjustment in m3
