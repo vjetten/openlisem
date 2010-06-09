@@ -27,6 +27,13 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::runmodel()
 {
+	if (op.runfilename.isEmpty())
+	{
+		QMessageBox::warning(this,"openLISEM",
+				QString("Load a runfile first!"));
+		return;
+	}
+
 	//TODO if run from commandline this name must exist
 	// this assumes runfilename is correct
 	savefile(QString(op.LisemDir+"openlisemtmp.run"));

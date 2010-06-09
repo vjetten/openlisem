@@ -208,8 +208,6 @@ void lisemqt::SetStyleUI()
 	label_area->setStyleSheet("* { background-color: #ffffff }");
 	label_time->setStyleSheet("* { background-color: #ffffff }");
 	label_endtime->setStyleSheet("* { background-color: #ffffff }");
-	//label_runtime->setStyleSheet("* { background-color: #ffffff }");
-	//label_endruntime->setStyleSheet("* { background-color: #ffffff }");
 	label_raintot->setStyleSheet("* { background-color: #ffff77 }");
 	label_watervoltot->setStyleSheet("* { background-color: #ffff77 }");
 	label_qtot->setStyleSheet("* { background-color: #ffff77 }");
@@ -235,20 +233,6 @@ void lisemqt::SetStyleUI()
 
 	label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
 	label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
-}//--------------------------------------------------------------------
-void lisemqt::on_E_LisemType_currentIndexChanged(int)
-{
-	if (MapNameModel)
-	{
-		/*
-		int selrow = E_LisemType->currentIndex()+7;
-		if (E_LisemType->currentIndex() > 0)
-			change_MapNameModel(selrow, 0, true);
-		if (prevsel >0)
-			change_MapNameModel(prevsel, 0, false);
-		prevsel = selrow;
-		 */
-	}
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_fileOpen_clicked()
@@ -265,10 +249,10 @@ void lisemqt::on_toolButton_MapDir_clicked()
 	QString path;
 	path = QFileDialog::getExistingDirectory(this,
 			tr("Select maps directory"),
-			QString::null,
+			E_MapDir->text(),
 			QFileDialog::ShowDirsOnly);
-
-	E_MapDir->setText( path );
+	if(!path.isEmpty())
+		E_MapDir->setText( path );
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ResultDir_clicked()
@@ -279,7 +263,8 @@ void lisemqt::on_toolButton_ResultDir_clicked()
 			QString::null,
 			QFileDialog::ShowDirsOnly);
 
-	E_ResultDir->setText( path );
+	if(!path.isEmpty())
+		E_ResultDir->setText( path );
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
@@ -288,8 +273,11 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 	path = QFileDialog::getOpenFileName(this,
 			tr("Select rainfall file"),
 			QString::null);
-	E_RainfallName->setText( path );
-	RainFileName = path;
+	if(!path.isEmpty())
+	{
+		E_RainfallName->setText( path );
+		RainFileName = path;
+	}
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SnowmeltName_clicked()
@@ -298,9 +286,11 @@ void lisemqt::on_toolButton_SnowmeltName_clicked()
 	path = QFileDialog::getOpenFileName(this,
 			tr("Select snow melt file"),
 			QString::null);
-
-	E_SnowmeltName->setText( path );
-	SnowmeltFileName = path;
+	if(!path.isEmpty())
+	{
+		E_SnowmeltName->setText( path );
+		SnowmeltFileName = path;
+	}
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SnowmeltShow_clicked()
@@ -360,15 +350,15 @@ void lisemqt::savefileas()
 		return;
 	}
 
-   QString selectedFilter;
-   QString fileName = QFileDialog::getSaveFileName(this,
-                               tr("Give a new runfile name"),
-                               op.runfilename,
-                               tr("Text Files (*.run);;All Files (*)"),
-                               &selectedFilter);
-                               //options);
-   if (!fileName.isEmpty())
-       savefile(fileName);
+	QString selectedFilter;
+	QString fileName = QFileDialog::getSaveFileName(this,
+			tr("Give a new runfile name"),
+			op.runfilename,
+			tr("Text Files (*.run);;All Files (*)"),
+			&selectedFilter);
+	//options);
+	if (!fileName.isEmpty())
+		savefile(fileName);
 
 }
 //--------------------------------------------------------------------
@@ -428,8 +418,6 @@ void lisemqt::openRunFile()
 
 	RunFileNames.removeDuplicates();
 	op.runfilename = E_runFileList->itemText(0);
-
-	//DoTree();
 }
 //---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
@@ -493,5 +481,33 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
 	RunAllChecks();
 }
 //--------------------------------------------------------------------
+void lisemqt::on_E_MapDir_textEdited()
+{
+	QFileInfo fin(E_MapDir->text());
+	if(!fin.exists())
+	{
+		E_MapDir->setText("");
+		QMessageBox::warning(this,"openLISEM",
+				QString("Map directory does not exist"));
+	}
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_ResultDir_textEdited()
+{
+	if (E_ResultDir->text().isEmpty())
+		return;
+	QFileInfo fin(E_ResultDir->text());
+	if(!fin.exists())
+	{
+		int ret = QMessageBox::question(this, QString("openLISEM"),
+				QString("The directory \"%1\"does not exist.\n"
+						"Do you want to create it (apply)?").arg(fin.absoluteFilePath()),
+						QMessageBox::Apply |QMessageBox::Cancel,
+						QMessageBox::Cancel);
+		if (ret == QMessageBox::Apply)
+			QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
+
+	}
+}
 
 

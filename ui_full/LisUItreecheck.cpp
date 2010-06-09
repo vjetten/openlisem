@@ -140,14 +140,24 @@ void lisemqt::on_checkInfilGrass_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkBuffers_clicked()
 {
-	change_MapNameModel(6, 0, checkBuffers->isChecked());
-	buffergroup->setEnabled(checkBuffers->isChecked());
+	change_MapNameModel(6, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+	buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	if (checkSedtrap->isChecked())
+		checkSedtrap->setChecked(false);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
-	change_MapNameModel(6, 0, checkSedtrap->isChecked());
-	buffergroup->setEnabled(checkSedtrap->isChecked());
+	change_MapNameModel(6, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+	buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+	if(checkBuffers->isChecked())
+		checkBuffers->setChecked(false);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSnowmelt_clicked()

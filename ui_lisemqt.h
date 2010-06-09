@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'lisemqt.ui'
 **
-** Created: Tue Jun 8 10:43:47 2010
+** Created: Wed Jun 9 16:58:13 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -330,12 +330,12 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         line = new QFrame(tab);
         line->setObjectName(QString::fromUtf8("line"));
-        line->setGeometry(QRect(400, 0, 20, 591));
+        line->setGeometry(QRect(400, 0, 20, 581));
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         toolBox = new QToolBox(tab);
         toolBox->setObjectName(QString::fromUtf8("toolBox"));
-        toolBox->setGeometry(QRect(10, 220, 391, 371));
+        toolBox->setGeometry(QRect(10, 220, 391, 361));
         QFont font;
         font.setBold(true);
         font.setUnderline(false);
@@ -349,7 +349,7 @@ public:
         toolBox->setMidLineWidth(1);
         page_3 = new QWidget();
         page_3->setObjectName(QString::fromUtf8("page_3"));
-        page_3->setGeometry(QRect(0, 0, 389, 243));
+        page_3->setGeometry(QRect(0, 0, 98, 28));
         frame = new QFrame(page_3);
         frame->setObjectName(QString::fromUtf8("frame"));
         frame->setGeometry(QRect(10, 10, 364, 201));
@@ -544,7 +544,7 @@ public:
         toolBox->addItem(page_4, QString::fromUtf8("Infiltration"));
         page_5 = new QWidget();
         page_5->setObjectName(QString::fromUtf8("page_5"));
-        page_5->setGeometry(QRect(0, 0, 98, 28));
+        page_5->setGeometry(QRect(0, 0, 389, 243));
         frame2 = new QFrame(page_5);
         frame2->setObjectName(QString::fromUtf8("frame2"));
         frame2->setGeometry(QRect(19, 13, 301, 133));
@@ -617,15 +617,15 @@ public:
         toolBox->addItem(page_5, QString::fromUtf8("Conservation measures"));
         page_2 = new QWidget();
         page_2->setObjectName(QString::fromUtf8("page_2"));
-        page_2->setGeometry(QRect(0, 0, 389, 243));
+        page_2->setGeometry(QRect(0, 0, 389, 233));
         checkInterceptionLAI = new QCheckBox(page_2);
         checkInterceptionLAI->setObjectName(QString::fromUtf8("checkInterceptionLAI"));
-        checkInterceptionLAI->setGeometry(QRect(10, 10, 341, 17));
+        checkInterceptionLAI->setGeometry(QRect(10, 4, 341, 17));
         checkInterceptionLAI->setFont(font1);
         checkInterceptionLAI->setChecked(true);
         groupInterception = new QGroupBox(page_2);
         groupInterception->setObjectName(QString::fromUtf8("groupInterception"));
-        groupInterception->setGeometry(QRect(10, 30, 331, 181));
+        groupInterception->setGeometry(QRect(10, 24, 331, 181));
         groupInterception->setFlat(false);
         groupInterception->setCheckable(false);
         gridLayout_5 = new QGridLayout(groupInterception);
@@ -692,7 +692,7 @@ public:
 
         layoutWidget = new QWidget(page_2);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(20, 216, 161, 22));
+        layoutWidget->setGeometry(QRect(10, 210, 161, 22));
         horizontalLayout = new QHBoxLayout(layoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -823,7 +823,7 @@ public:
         tabWidget_OutputMaps = new QTabWidget(tab);
         tabWidget_OutputMaps->setObjectName(QString::fromUtf8("tabWidget_OutputMaps"));
         tabWidget_OutputMaps->setEnabled(true);
-        tabWidget_OutputMaps->setGeometry(QRect(420, 280, 291, 311));
+        tabWidget_OutputMaps->setGeometry(QRect(420, 280, 291, 301));
         tab_4 = new QWidget();
         tab_4->setObjectName(QString::fromUtf8("tab_4"));
         layoutWidget1 = new QWidget(tab_4);
@@ -1945,13 +1945,9 @@ public:
         QObject::connect(checkInfilGrass, SIGNAL(toggled(bool)), E_GrassStripN, SLOT(setEnabled(bool)));
         QObject::connect(checkOutputTimeUser, SIGNAL(toggled(bool)), plainTextEdit, SLOT(setEnabled(bool)));
         QObject::connect(checkInterceptionLAI, SIGNAL(toggled(bool)), groupInterception, SLOT(setEnabled(bool)));
-        QObject::connect(checkBuffers, SIGNAL(toggled(bool)), label_33, SLOT(setEnabled(bool)));
-        QObject::connect(checkBuffers, SIGNAL(toggled(bool)), E_BulkDens, SLOT(setEnabled(bool)));
-        QObject::connect(checkSedtrap, SIGNAL(toggled(bool)), label_33, SLOT(setEnabled(bool)));
-        QObject::connect(checkSedtrap, SIGNAL(toggled(bool)), E_BulkDens, SLOT(setEnabled(bool)));
 
         tabWidget->setCurrentIndex(0);
-        toolBox->setCurrentIndex(0);
+        toolBox->setCurrentIndex(3);
         toolBox->layout()->setSpacing(0);
         tabWidget_OutputMaps->setCurrentIndex(0);
 

@@ -2,11 +2,10 @@ TEMPLATE = app
 TARGET = openLisem
 QT += core \
     gui
-HEADERS += include/LisUIoutput.h \
-    ui/ifacebasic.h \
-    ui_full/LisUItreeitem.h \
+HEADERS += ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
     ui_full/lisemqt.h \
+    include/LisUIoutput.h \
     include/version.h \
     include/CsfMap.h \
     include/csf.h \
@@ -21,7 +20,6 @@ HEADERS += include/LisUIoutput.h \
 SOURCES += ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \
     ui_full/LisUIrunfile.cpp \
-    ui/ifacebasic.cpp \
     ui_full/LisUImapnames.cpp \
     ui_full/LisUItreeitem.cpp \
     ui_full/LisUItreemodel.cpp \

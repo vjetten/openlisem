@@ -312,19 +312,21 @@ void TWorld::GetInputData(void)
 
 	PointMap = ReadMap(LDD,getvaluename("outpoint"));
 
-	if (SwitchBuffers)
+	if (SwitchBuffers || SwitchSedtrap)
 	{
 		BufferID = ReadMap(LDD,getvaluename("bufferID"));
 		BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
 		BulkDens = getvaluedouble("Sediment bulk density");
+		// also sed trap use bufffervol to calculate the max sed store
 
 		FOR_ROW_COL_MV
 		{
-			if (BufferID->Drc > 0)
+			if (SwitchBuffers && BufferID->Drc > 0)
 			{
 				Grad->Drc = 0.001;
 				RR->Drc = 0.01;
 				N->Drc = 0.25;
+				// very arbitrary!!!
 				Cover->Drc = 0;
 				if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
 				{
@@ -332,6 +334,7 @@ void TWorld::GetInputData(void)
 					ChannelN->Drc = 0.25;
 				}
 			}
+			// adjust soil and surface [roperties for buffercells, not sed traps
 		}
 	}
 	else
@@ -443,6 +446,7 @@ void TWorld::IntializeData(void)
 	{
 		Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
 	}
+
 	// runoff maps
 	WH = NewMap(0);
 	WHrunoff = NewMap(0);
@@ -474,9 +478,6 @@ void TWorld::IntializeData(void)
 	ChKsatCalibration = getvaluedouble("Channel N calibration");
 	SplashDelivery = getvaluedouble("Splash Delivery Ratio");
 	StemflowFraction = getvaluedouble("Stemflow fraction");
-
-	QString output = getvaluename("CheckOutputMaps");
-
 	N->calcV(nCalibration, MUL);
 	if (SwitchIncludeChannel)
 	{
@@ -518,7 +519,6 @@ void TWorld::IntializeData(void)
 	DETFlow = NewMap(0);
 	DEP = NewMap(0);
 	Sed = NewMap(0);
-
 	TC = NewMap(0);
 	Conc = NewMap(0);
 	CG = NewMap(0);
@@ -526,6 +526,14 @@ void TWorld::IntializeData(void)
 	SettlingVelocity = NewMap(0);
 	CohesionSoil = NewMap(0);
 	Y = NewMap(0);
+
+	TotalDetMap = NewMap(0);
+	TotalDepMap = NewMap(0);
+	TotalSoillossMap = NewMap(0);
+	TotalSed = NewMap(0);
+	TotalWatervol = NewMap(0);
+	TotalConc = NewMap(0);
+
 
 	if (SwitchErosion)
 	{
@@ -583,26 +591,46 @@ void TWorld::IntializeData(void)
 		}
 	}
 
-	TotalDetMap = NewMap(0);
-	TotalDepMap = NewMap(0);
-	TotalSoillossMap = NewMap(0);
-	TotalSed = NewMap(0);
-	TotalWatervol = NewMap(0);
-	TotalConc = NewMap(0);
-
-	//TODO program link between sedbuffers and sedtraps
+	//VJ 100514 buffer and sedtrap maps
 	//TODO how calculate max sed store is only sed traps?
 	// use slope of cell:        | /
 	//                           |/
-	// then max store is _dx/cos = DX*height fence!
-	BufferSed = NewMap(0);
-	if (SwitchBuffers || SwitchSedtrap)
+	// then max store is _dx/cos = DX*height fence * bulk dens?
+	if (SwitchBuffers)
 	{
 		BufferVolInit = NewMap(0);
 		ChannelBufferVolInit = NewMap(0);
+
+		if (SwitchIncludeChannel)
+		{
+			ChannelBufferVol = NewMap(0);
+			FOR_ROW_COL_MV_CH
+			if (BufferID->Drc > 0)
+			{
+				ChannelBufferVol->Drc = BufferVol->Drc;
+				BufferVol->Drc = 0;
+			}
+			//split buffers in channel buffers and slope buffers
+			// in "ToCHannel" all flow in a buffer is dumped in the channel
+			ChannelBufferVolInit->copy(ChannelBufferVol);
+			// copy initial max volume of buffers in channels
+		}
+		BufferVolInit->copy(BufferVol);
+		// copy initial max volume of remaining buffers on slopes
+		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
+		// sum up total initial volume available in buffers
+		BufferVol->fill(0);
+		ChannelBufferVol->fill(0);
+		// rset to zero to fill up
+
+	}
+
+
+	BufferSed = NewMap(0);
+	if (SwitchBuffers || SwitchSedtrap)
+	{
 		BufferSedInit = NewMap(0);
 		ChannelBufferSedInit = NewMap(0);
-		//IS ALWAYS 0?
 
 		BufferSed->calc2V(BufferVol, BulkDens, MUL);
 		//NOTE: buffer sed vol is maximum store in kg and will decrease while it
@@ -611,30 +639,26 @@ void TWorld::IntializeData(void)
 		// the pore space is the bulkdens/2650
 		if (SwitchIncludeChannel)
 		{
-			ChannelBufferVol = NewMap(0);
 			ChannelBufferSed = NewMap(0);
 			FOR_ROW_COL_MV_CH
 			if (BufferID->Drc > 0)
 			{
-				ChannelBufferVol->Drc = BufferVol->Drc;
-				BufferVol->Drc = 0;
 				ChannelBufferSed->Drc = BufferSed->Drc;
 				BufferSed->Drc = 0;
 			}
 			//split buffers in channel buffers and slope buffers
 			// in "ToCHannel" all flow in a buffer is dumped in the channel
-			ChannelBufferVolInit->copy(ChannelBufferVol);
 			ChannelBufferSedInit->copy(ChannelBufferSed);
 			// copy initial max volume of buffers in channels
 		}
-		BufferVolInit->copy(BufferVol);
 		BufferSedInit->copy(BufferSed);
 		// copy initial max volume of remaining buffers on slopes
-		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
 		BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
 		// sum up total initial volume available in buffers
+		BufferSed->fill(0);
+		ChannelBufferSed->fill(0);
+		// rset to zero to fill up
 	}
-	//VJ 100514 buffer maps
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)

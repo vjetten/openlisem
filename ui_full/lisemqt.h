@@ -94,7 +94,6 @@ void on_toolButton_SnowmeltShow_clicked();
 void on_toolButton_ShowRunfile_clicked();
 void on_toolButton_fileOpen_clicked();
 
-void on_E_LisemType_currentIndexChanged(int);
 void on_E_InfiltrationMethod_currentIndexChanged(int);
 void on_E_runFileList_currentIndexChanged(int);
 
@@ -111,6 +110,8 @@ void on_checkSedtrap_clicked();
 void on_checkSnowmelt_clicked();
 void on_checkExpandActive_clicked();
 void on_toolButton_SwatreTable_clicked();
+void on_E_MapDir_textEdited();
+void on_E_ResultDir_textEdited();
 
 private slots:
 // functions that interact with the world thread

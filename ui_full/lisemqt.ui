@@ -57,7 +57,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../resources/openlisem.qrc">
     <normaloff>:/openLisem25.png</normaloff>:/openLisem25.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -80,7 +80,7 @@
           <x>400</x>
           <y>0</y>
           <width>20</width>
-          <height>591</height>
+          <height>581</height>
          </rect>
         </property>
         <property name="orientation">
@@ -93,7 +93,7 @@
           <x>10</x>
           <y>220</y>
           <width>391</width>
-          <height>371</height>
+          <height>361</height>
          </rect>
         </property>
         <property name="font">
@@ -120,7 +120,7 @@
          <number>1</number>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <property name="tabSpacing">
          <number>0</number>
@@ -130,8 +130,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>243</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -517,7 +517,7 @@
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../resources/openlisem.qrc">
                <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
              </property>
             </widget>
@@ -569,8 +569,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>243</height>
           </rect>
          </property>
          <attribute name="label">
@@ -749,7 +749,7 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>0</y>
            <width>389</width>
-           <height>243</height>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">
@@ -759,7 +759,7 @@ p, li { white-space: pre-wrap; }
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
+            <y>4</y>
             <width>341</width>
             <height>17</height>
            </rect>
@@ -781,7 +781,7 @@ p, li { white-space: pre-wrap; }
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>30</y>
+            <y>24</y>
             <width>331</width>
             <height>181</height>
            </rect>
@@ -935,8 +935,8 @@ p, li { white-space: pre-wrap; }
          <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>216</y>
+            <x>10</x>
+            <y>210</y>
             <width>161</width>
             <height>22</height>
            </rect>
@@ -1239,7 +1239,7 @@ p, li { white-space: pre-wrap; }
           <x>420</x>
           <y>280</y>
           <width>291</width>
-          <height>311</height>
+          <height>301</height>
          </rect>
         </property>
         <property name="currentIndex">
@@ -1643,7 +1643,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1680,7 +1680,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1694,7 +1694,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1740,7 +1740,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1754,7 +1754,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -1803,7 +1803,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
            </property>
           </widget>
@@ -1814,7 +1814,7 @@ p, li { white-space: pre-wrap; }
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/openlisem.qrc">
              <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
            </property>
           </widget>
@@ -2110,7 +2110,7 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset>
+          <iconset resource="../resources/openlisem.qrc">
            <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
          </property>
         </widget>
@@ -4185,12 +4185,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>33</x>
-     <y>340</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>56</x>
-     <y>362</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -4201,12 +4201,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>33</x>
-     <y>340</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>56</x>
-     <y>384</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -4217,12 +4217,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>362</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>94</x>
-     <y>384</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -4233,12 +4233,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>56</x>
-     <y>384</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>56</x>
-     <y>362</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -4249,12 +4249,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>406</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>353</x>
-     <y>165</y>
+     <x>279</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>
@@ -4265,12 +4265,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>125</x>
-     <y>406</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>51</x>
-     <y>166</y>
+     <x>28</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
@@ -4281,12 +4281,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>159</x>
-     <y>406</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>381</x>
-     <y>166</y>
+     <x>379</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
@@ -4301,8 +4301,8 @@ p, li { white-space: pre-wrap; }
      <y>157</y>
     </hint>
     <hint type="destinationlabel">
-     <x>406</x>
-     <y>166</y>
+     <x>404</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
@@ -4313,12 +4313,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>406</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>406</x>
-     <y>166</y>
+     <x>404</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
@@ -4329,12 +4329,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>33</x>
-     <y>318</y>
+     <x>31</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>33</x>
-     <y>450</y>
+     <x>31</x>
+     <y>302</y>
     </hint>
    </hints>
   </connection>
@@ -4345,8 +4345,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>389</y>
+     <x>769</x>
+     <y>369</y>
     </hint>
     <hint type="destinationlabel">
      <x>739</x>
@@ -4365,8 +4365,8 @@ p, li { white-space: pre-wrap; }
      <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>779</x>
-     <y>391</y>
+     <x>780</x>
+     <y>383</y>
     </hint>
    </hints>
   </connection>
@@ -4377,12 +4377,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>460</y>
+     <x>59</x>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
-     <x>50</x>
-     <y>486</y>
+     <x>59</x>
+     <y>463</y>
     </hint>
    </hints>
   </connection>
@@ -4393,12 +4393,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>457</y>
+     <x>59</x>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
-     <x>212</x>
-     <y>486</y>
+     <x>332</x>
+     <y>463</y>
     </hint>
    </hints>
   </connection>
@@ -4425,76 +4425,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>233</x>
-     <y>398</y>
+     <x>78</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>302</x>
      <y>460</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBuffers</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_33</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>384</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>136</x>
-     <y>434</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBuffers</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_BulkDens</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>171</x>
-     <y>383</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>230</x>
-     <y>426</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSedtrap</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_33</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>404</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>117</x>
-     <y>425</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSedtrap</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_BulkDens</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>400</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>246</x>
-     <y>425</y>
     </hint>
    </hints>
   </connection>

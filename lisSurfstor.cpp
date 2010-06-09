@@ -19,11 +19,14 @@ void TWorld::GridCell(void)
 {
    FOR_ROW_COL_MV
    {
-      if (SwitchIncludeChannel)
-      if (RoadWidthDX->Drc > 0 && BufferID->Drc == 0)
+      if (BufferID->Drc > 0)
+      	RoadWidthDX->Drc = 0;
+      //VJ 100609 cannot have a road with a buffer, to complicated
+
+   	if (SwitchIncludeChannel)
+      if (RoadWidthDX->Drc > 0)
           ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
       // channel cannot be wider than 0.9*_dx-road
-      //VJ 100608 no road in buffer
 
       WheelWidthDX->Drc = 0;
       if (SwitchWheelPresent)
@@ -49,7 +52,7 @@ void TWorld::SurfaceStorage(void)
        double WaterVolrunoff;
 
        //### surface storage
-       SDS = 0.2*mds;
+       SDS = 0.1*mds;
        // arbitrary minimum depression storage is 10% of max depr storage
 
        if (mds > 0)
@@ -93,9 +96,6 @@ void TWorld::SurfaceStorage(void)
     	// cumulative runoff for output maps, in mm
 
    }
-
-   CalcVelDisch();
-   // calculate Alpha, Q and V from WHrunoff and flowwidth
 }
 //---------------------------------------------------------------------------
 

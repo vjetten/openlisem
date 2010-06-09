@@ -186,12 +186,11 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 		if (subCachDone)
 		{
-			bool isBufferCell = false;
 			double Qin=0.0, Sin=0.0;
+
 			for (i=1;i<=9;i++) // for all incoming cells of this cell
 			{
-				int r, c;
-				int ldd = 0;
+				int r, c, ldd = 0;
 
 				if (i==5)  // Skip current cell itself
 					continue;
@@ -205,8 +204,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 				else
 					continue;
 
-				if (r>=0 && r < nrRows &&
-						c>=0 && c < nrCols &&
+				if (r>=0 && r < nrRows && c>=0 && c < nrCols &&
 						FLOWS_TO(ldd, r,c,rowNr, colNr) &&
 						!IS_MV_REAL4(&_LDD->Drc) )
 				{
@@ -214,96 +212,102 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					if (SwitchErosion)
 						Sin += _Qsn->Drc;
 				}
-			} // all incoming cells
+			} // sum all incoming cells
 
-			temp=list;
-			list=list->prev;
-			free(temp);
-			// go to the next cell
+			bool isBufferCellWater = false;
+			bool isBufferCellSed = false;
 
+			//water in buffers
 			if(SwitchBuffers)
 			{
-				//_StorVol is remaining space in buffers, not water inbuffers. _StorVol will go to 0
+				//_StorVol is remaining space in buffers, not water in buffers.
+				//_StorVol will go to 0
 				if (BufferID->D(rowNr,colNr) > 0 && _StorVol->D(rowNr,colNr) > 0)
 				{
-					// if buffer but not sed trap, sed trap catches no water only sed
-					//TODO: trap efficiency? or high Manning's n ?
-					isBufferCell = true;
-					if (!SwitchSedtrap)
+					isBufferCellWater = true;
+					//buffer still active
+					_StorVol->D(rowNr,colNr) -= Qin*_dt;
+					// fill up storage with incoming water
+					Qin = 0;
+					// buffer is not full, no outflow
+					if (_StorVol->D(rowNr,colNr) < 0)  // store overflowing
 					{
-						// fill up storage with incoming water
-						_StorVol->D(rowNr,colNr) -= Qin*_dt;
-						Qin = 0;
-						// buffer is not full, no outflow
-						if (_StorVol->D(rowNr,colNr) < 0)  // store overflowing
-						{
-							Qin = -_StorVol->D(rowNr,colNr)/_dt;
-							// overflow part becomes flux again
-							_StorVol->D(rowNr,colNr) = 0;
-							// remaining store = 0
-							isBufferCell = false;
-							//buffer is full, outflow
-						}
+						Qin = -_StorVol->D(rowNr,colNr)/_dt;
+						// overflow part becomes flux again
+						_StorVol->D(rowNr,colNr) = 0;
+						// remaining store = 0
+						isBufferCellWater = false;
+						//buffer is full, outflow
 					}
 
-					//TODO if sed trap this is only correct is there is a max sedment
-					_StorSed->D(rowNr,colNr) -= Sin*_dt;
+					if (isBufferCellWater)
+						_Qn->D(rowNr,colNr) = 0;
+				}
+			}
 
-					// add incoming to sed store
-					//(note: sed store is max store, decreasing like water vol!)
-					_StorVol->D(rowNr,colNr) -= Sin/BulkDens*_dt * (1-BulkDens/2650);
-					_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
-					// fill store up with sediment, decreasing volume
-					// in the sedimented part is still pore volume to store water:
-					// pore volume is 1-bulkdens/partdens
+			if(SwitchBuffers || SwitchSedtrap)
+			{
+				if (BufferID->D(rowNr,colNr) > 0 && _StorSed->D(rowNr,colNr) > 0)
+				{
+					isBufferCellSed = true;
+					//buffer still active
+					_StorSed->D(rowNr,colNr) -= Sin*_dt;
+					// add incoming to sed store, note: sed store calculated in datainit
+					if (!SwitchSedtrap)
+					{
+					//	_StorVol->D(rowNr,colNr) -= Sin/BulkDens*_dt * (1-BulkDens/2650);
+					//	_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
+						// fill water store up with sediment, decreasing volume
+						// in the sedimented part is still pore volume to store water:
+						// pore volume is 1-bulkdens/partdens
+					}
 					Sin = 0;
 					if (_StorSed->D(rowNr,colNr) < 0)
 					{
 						Sin = -_StorSed->D(rowNr,colNr)/_dt;
 						_StorSed->D(rowNr,colNr) = 0;
-						isBufferCell = false;
+						isBufferCellSed = false;
+						//buffer is full, outflow
 					}
+
+					if (isBufferCellSed)
+						_Qsn->D(rowNr,colNr) = 0;
+
 				}
 			}
 
-			if (isBufferCell)
-			{
-				// buffer not full yet, no outflow
-				_Qn->D(rowNr,colNr) = 0;
-				_Qsn->D(rowNr, colNr) = 0;
-			//	_Sed->D(rowNr,colNr) = 0;
-			//	_Vol->D(rowNr,colNr) = 0;
-			//	_q->D(rowNr,colNr) = 0;
-			}
-			else
+			if (!isBufferCellWater)
 			{
 
 				_Qn->D(rowNr,colNr) = IterateToQnew(Qin, _Q->D(rowNr,colNr), _q->D(rowNr,colNr),
 						_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
 				// Newton Rapson iteration for water of current cell
-				if (SwitchErosion)
-				{
-					if (!SwitchSimpleSedKinWave)
-						_Qsn->D(rowNr, colNr) = CalcS1(_Qn->D(rowNr,colNr), Qin, _Q->D(rowNr,colNr), Sin, _Qs->D(rowNr,colNr),
-								_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
-					else
-						_Qsn->D(rowNr, colNr) = CalcS2(_Qn->D(rowNr,colNr), Qin, Sin, _dt,
-								_Vol->D(rowNr,colNr), _Sed->D(rowNr,colNr));
-				}
-
 				_q->D(rowNr,colNr) = Qin;
 				//VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation
 				// q is now in m3/s
+			}
 
-				if (SwitchErosion)
-				{
-					_Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr), Sin+_Sed->D(rowNr,colNr)/_dt);
-					// no more sediment outflow than total sed in cell
-					_Sed->D(rowNr,colNr) = max(0, Sin*_dt + _Sed->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
-					// new sed volume based on all fluxes and org sed present
-				}
+			if (SwitchErosion && !isBufferCellSed)
+			{
+				if (!SwitchSimpleSedKinWave)
+					_Qsn->D(rowNr, colNr) = CalcS1(_Qn->D(rowNr,colNr), Qin, _Q->D(rowNr,colNr), Sin, _Qs->D(rowNr,colNr),
+							_Alpha->D(rowNr,colNr), _dt, _DX->D(rowNr,colNr));
+				else
+					_Qsn->D(rowNr, colNr) = CalcS2(_Qn->D(rowNr,colNr), Qin, Sin, _dt,
+							_Vol->D(rowNr,colNr), _Sed->D(rowNr,colNr));
+
+				_Qsn->D(rowNr, colNr) = min(_Qsn->D(rowNr, colNr), Sin+_Sed->D(rowNr,colNr)/_dt);
+				// no more sediment outflow than total sed in cell
+				_Sed->D(rowNr,colNr) = max(0, Sin*_dt + _Sed->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
+				// new sed volume based on all fluxes and org sed present
 			}
 			/* cell rowNr, colNr is now done */
+
+			temp=list;
+			list=list->prev;
+			free(temp);
+			// go to the previous cell in the list
+
 		}/* eof subcatchment done */
 	} /* eowhile list != NULL */
 }

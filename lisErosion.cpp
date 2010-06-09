@@ -65,7 +65,6 @@ void TWorld::SplashDetachment(void)
 		double WH0 = exp(-1.48*WH->Drc*1000);
 		// water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
-
 		if (AggrStab > 0)
 		{
 			strength = 2.82/AggrStab->Drc; b = 2.96;
@@ -184,7 +183,7 @@ void TWorld::FlowDetachment(void)
 		// generate 100% deposition on grassstrips
 		//? bit tricky, maximizes effect on grassstrips ?
 
-	  //### sediment balance
+		//### sediment balance
 		DEP->Drc += deposition;
 		Sed->Drc += DETFlow->Drc;
 		Sed->Drc += deposition;
@@ -203,7 +202,6 @@ void TWorld::ChannelFlowDetachment(void)
 	{
 		double omega = 100*ChannelV->Drc*ChannelGrad->Drc;
 		double omegacrit = 0.4;
-
 
 		ChannelTC->Drc = min(MAXCONC, 2650 * CG->Drc * pow(max(0, omega - omegacrit), DG->Drc));
 		// Channel transport capacity, ot more than 2650*0.32 = 848 kg/m3
@@ -236,18 +234,6 @@ void TWorld::ChannelFlowDetachment(void)
 		deposition = max(deposition, -ChannelSed->Drc);
 		// cannot be more than sediment above capacity
 		//or:?     deposition = max(deposition, minTC * ChannelWaterVol->Drc);
-
-		/*
-      double sedvolume = ChannelSedVol->Drc + ChannelDetFlow->Drc + deposition;
-      // temp sed balance
-      if (sedvolume < 0.000001) //too much sediment, increase DEP with deposition
-      {
-         ChannelSedVol->Drc = 0;
-         ChannelDep->Drc += deposition;
-     }
-      else //Sed volume exists, increase SedVol with flow det
-         ChannelSedVol->Drc += ChannelDetFlow->Drc;
-		 */
 
 		ChannelDep->Drc += deposition;
 		ChannelSed->Drc += deposition;

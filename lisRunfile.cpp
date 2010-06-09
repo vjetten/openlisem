@@ -224,8 +224,8 @@ void TWorld::ParseInputData()
 		if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 	}
 	//fclose(fout);
-	if (SwitchSedtrap)
-		SwitchBuffers = true;
+//	if (SwitchSedtrap)
+	//	SwitchBuffers = true;
 
 }
 //------------------------------------------------------------------------------

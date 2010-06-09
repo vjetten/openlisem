@@ -152,8 +152,8 @@ void TWorld::OverlandFlow(void)
 		}
 		else
 			InfilVolKinWave->Drc = diff;
-
 		//infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
+
 		if (BufferVol->Drc > 0)
 		{
 			InfilVolKinWave->Drc = 0;

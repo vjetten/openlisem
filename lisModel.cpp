@@ -347,6 +347,8 @@ void TWorld::DoModel()
 			Infiltration();
 			//SoilWater();
 			SurfaceStorage();
+		   CalcVelDisch();
+
 			SplashDetachment();
 			FlowDetachment();
 
