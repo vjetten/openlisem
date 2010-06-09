@@ -94,6 +94,7 @@ void lisemqt::ParseInputData()
 		if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
 		if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
 		if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
+		if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
 		if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
 		if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
 		if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
@@ -227,8 +228,10 @@ void lisemqt::ParseInputData()
 		}
 	}
 
-	buffergroup->setEnabled(checkBuffers->isChecked());
-	sedgroup->setEnabled(!checkNoErosion->isChecked());
+	RunAllChecks();
+	//buffergroup->setEnabled(checkBuffers->isChecked());
+	//buffergroup->setEnabled(checkSedtrap->isChecked());
+	//sedgroup->setEnabled(!checkNoErosion->isChecked());
 
 }
 //---------------------------------------------------------------------------

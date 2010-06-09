@@ -134,6 +134,7 @@ void TWorld::Totals(void)
 		if (SwitchIncludeChannel)
 			BufferVolTot += ChannelBufferVol->MapTotal();
 		//sum up all volume remaining in all buffers (so the non-water!)
+		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
 		BufferVolTot = BufferVolTotInit - BufferVolTot;
 		//subtract this from the initial volume to get the water in the buffers
 	}
@@ -189,7 +190,7 @@ void TWorld::Totals(void)
 			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSed->Drc/TotalWatervol->Drc : 0);
 		// for file output
 
-		if (SwitchBuffers)
+		if (SwitchBuffers || SwitchSedtrap)
 		{
 			BufferSedTot = BufferSed->MapTotal();
 			if (SwitchIncludeChannel)
@@ -219,11 +220,14 @@ void TWorld::MassBalance()
 {
 	// Mass Balance water
 	if (RainTot > 0)
-		MB = (RainTot - IntercTot - InfilTot - WaterVolTot  - BufferVolTot- Qtot)/RainTot*100;
+		MB = (RainTot - IntercTot - InfilTot - WaterVolTot
+				- BufferVolTot - Qtot)/RainTot*100;
 
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)
-		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot + DepTot + ChannelDepTot - BufferSedTot)/DetTot*100;
+		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
+				DepTot + ChannelDepTot - BufferSedTot)/DetTot*100;
+	DEBUGv(- BufferSedTot);
 }
 //---------------------------------------------------------------------------
 // fill output structure to talk to interface
@@ -237,8 +241,8 @@ void TWorld::Output()
 	runstep++;
 
 	op.dx = _dx;
-	op.SwitchErosion = SwitchErosion;
-	op.SwitchIncludeChannel = SwitchIncludeChannel;
+//	op.SwitchErosion = SwitchErosion;
+//	op.SwitchIncludeChannel = SwitchIncludeChannel;
 	op.MB = MB;
 	op.runstep = runstep;
 	op.maxstep = (int) ((EndTime-BeginTime)/_dt);
@@ -285,6 +289,8 @@ void TWorld::Output()
 	op.BufferSedTot = BufferSedTot*0.001; //ton
 
 	emit show();
+	// send the op structure with data to function Showit in the interface
+	// in file LisUIModel
 
 	ReportTimeseriesNew();
 	// report hydrographs ande swdigraophs at all points in outpoint.map

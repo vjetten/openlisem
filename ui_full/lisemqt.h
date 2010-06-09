@@ -38,6 +38,7 @@ public:
 	QString CheckDir(QString p, QString p1);
 	void RunAllChecks();
 	void savefile(QString name);
+	void InitOP();
 
 
 	// graph variables

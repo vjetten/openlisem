@@ -216,6 +216,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 			bool isBufferCellWater = false;
 			bool isBufferCellSed = false;
+			double incoming = 0;
 
 			//water in buffers
 			if(SwitchBuffers)
@@ -255,11 +256,20 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					// add incoming to sed store, note: sed store calculated in datainit
 					if (!SwitchSedtrap)
 					{
-					//	_StorVol->D(rowNr,colNr) -= Sin/BulkDens*_dt * (1-BulkDens/2650);
-					//	_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
+						//incoming = Sin*_dt/2650;
 						// fill water store up with sediment, decreasing volume
-						// in the sedimented part is still pore volume to store water:
-						// pore volume is 1-bulkdens/partdens
+						// the bulkdensity does not matter, the volume taken up is related
+						// to the particle desity dens, because the pores are filled
+						// if we use bulk dens here we assume pores are empty!
+				//		_StorVol->D(rowNr,colNr) -= incoming;
+					//	_StorVol->D(rowNr,colNr) = max(0, _StorVol->D(rowNr,colNr));
+					//	if (BufferVolInit->D(rowNr,colNr) > 0)
+				//		BufferVolInit->D(rowNr,colNr) -= incoming;
+					//	if (ChannelBufferVolInit->D(rowNr,colNr) > 0)
+						//	ChannelBufferVolInit->D(rowNr,colNr) -= incoming;
+						//adjust the total volume because it has decreased,
+						//Note: the extra released water is not made avaliable
+						// channel and slope are mutually exclusive, one or the other
 					}
 					Sin = 0;
 					if (_StorSed->D(rowNr,colNr) < 0)
@@ -271,7 +281,10 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					}
 
 					if (isBufferCellSed)
+					{
 						_Qsn->D(rowNr,colNr) = 0;
+					_Sed->D(rowNr,colNr) = max(0, Sin*_dt + _Sed->D(rowNr,colNr) - _Qsn->D(rowNr, colNr)*_dt);
+					}
 
 				}
 			}

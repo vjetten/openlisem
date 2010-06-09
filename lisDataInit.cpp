@@ -619,8 +619,8 @@ void TWorld::IntializeData(void)
 		// copy initial max volume of remaining buffers on slopes
 		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
 		// sum up total initial volume available in buffers
-		BufferVol->fill(0);
-		ChannelBufferVol->fill(0);
+		//BufferVol->fill(0);
+		//ChannelBufferVol->fill(0);
 		// rset to zero to fill up
 
 	}
@@ -634,9 +634,8 @@ void TWorld::IntializeData(void)
 
 		BufferSed->calc2V(BufferVol, BulkDens, MUL);
 		//NOTE: buffer sed vol is maximum store in kg and will decrease while it
-		// fills up it is assumed that the sedimented part contains a pore volume
-		// that can contain water, and the rest decreases the water store volume
-		// the pore space is the bulkdens/2650
+		// fills up. It is assumed that the sedimented part contains a pore volume
+		// that can contain water, like  loose soil. Thsi is determined by the bulkdensity
 		if (SwitchIncludeChannel)
 		{
 			ChannelBufferSed = NewMap(0);
@@ -655,8 +654,8 @@ void TWorld::IntializeData(void)
 		// copy initial max volume of remaining buffers on slopes
 		BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
 		// sum up total initial volume available in buffers
-		BufferSed->fill(0);
-		ChannelBufferSed->fill(0);
+		//BufferSed->fill(0);
+		//ChannelBufferSed->fill(0);
 		// rset to zero to fill up
 	}
 }
@@ -741,15 +740,4 @@ void TWorld::IntializeOptions(void)
 	SwitchWriteHeaders = true; // write headers in output files in first timestep
 }
 //---------------------------------------------------------------------------
-/*
-void TWorld::InitMask(cTMap *M)
-{
-    Mask = new TMMap();
-    Mask->_MakeMap(M, 1.0);
-    maplist[maplistnr].m = Mask;
-    maplistnr++;
-    _dx = Mask->MH.cellSizeX*1.0000000;
-    nrRows = Mask->nrRows;
-    nrCols = Mask->nrCols;
-}
- */
+

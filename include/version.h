@@ -10,6 +10,6 @@
 
 #define VERSIONNR 1.05
 #define VERSION QString(" 1.06")
-#define DATE QString(" - 2010/06/08")
+#define DATE QString(" - 2010/06/09")
 
 #endif /* VERSION_H_ */

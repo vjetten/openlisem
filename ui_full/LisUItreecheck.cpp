@@ -187,6 +187,7 @@ void lisemqt::RunAllChecks()
 	change_MapNameModel(5, 10, checkIncludeChannel->isChecked());
 	change_MapNameModel(7, 0, checkSnowmelt->isChecked());
 	change_MapNameModel(6, 0, checkBuffers->isChecked());
+	change_MapNameModel(6, 0, checkSedtrap->isChecked());
 
 	int nr = E_InfiltrationMethod->currentIndex();
 	checkInfil2layer->setEnabled(bool(nr ==2 || nr == 3));
@@ -220,6 +221,10 @@ void lisemqt::RunAllChecks()
 	change_MapNameModel(2, 0, true);
 	change_MapNameModel(1, 0, true);
 	change_MapNameModel(0, 0, true);
+
+	buffergroup->setEnabled(checkBuffers->isChecked());
+	buffergroup->setEnabled(checkSedtrap->isChecked());
+	sedgroup->setEnabled(!checkNoErosion->isChecked());
 
 	groupBox_SwatreOptions->setEnabled(E_InfiltrationMethod->currentIndex() == 1);
 	checkExpandActive->setChecked(false);

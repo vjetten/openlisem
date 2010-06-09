@@ -21,8 +21,8 @@ struct output{
 	RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P,
 	BufferVolTot, BufferSedTot;
 
-	bool SwitchErosion;
-	bool SwitchIncludeChannel;
+	//bool SwitchErosion;
+	//bool SwitchIncludeChannel;
 	QString runfilename;
 	QString LisemDir;
 };

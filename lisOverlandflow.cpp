@@ -154,11 +154,13 @@ void TWorld::OverlandFlow(void)
 			InfilVolKinWave->Drc = diff;
 		//infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
-		if (BufferVol->Drc > 0)
+		if (SwitchBuffers && BufferVol->Drc > 0)
 		{
 			InfilVolKinWave->Drc = 0;
 			WaterVolall->Drc = 0;
 		}
+		// ass long as the cell has a buffer and it is not full there
+		// is not infil and no normal watervol
 
 
 		if (SwitchErosion)
