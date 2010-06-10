@@ -13,11 +13,6 @@
 #include "csftypes.h"
 #include "csfattr.h"
 
-
-#ifndef lint
-# define  RCS_ID_CSF_H "$Header: c:/lisemroot/CVSROOT/lisemroot/libsrc/libcsf/include/csf.h,v 1.1.1.1 2003/04/08 09:34:25 jetten2 Exp $"
-#endif
-
 /*****************************************************************/
 /*                                                               */
 /*  RUU CROSS SYSTEM MAP FORMAT                                  */

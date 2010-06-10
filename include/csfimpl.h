@@ -1,9 +1,6 @@
 #ifndef CSF__CMPL_H
 #define CSF__CMPL_H
 
-#ifndef lint
-#define RCS_ID_CSFIMPL_H "$Header: c:/lisemroot/CVSROOT/lisemroot/libsrc/libcsf/src/csfimpl.h,v 1.1.1.1 2003/04/08 09:34:25 jetten2 Exp $"
-#endif
 
 /******************************************************************/
 /******************************************************************/

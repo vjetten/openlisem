@@ -1,9 +1,6 @@
 #ifndef CSF__CSFTYPES
 # define CSF__CSFTYPES
 
-#ifndef lint
-# define RCS_ID_CSFTYPES_H "$Header: c:/lisemroot/CVSROOT/lisemroot/libsrc/libcsf/include/csftypes.h,v 1.1.1.1 2003/04/08 09:34:25 jetten2 Exp $"
-#endif
 
 #ifdef __cplusplus
  extern "C" {

@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = d:\prgc\qwt-5.2.1
+QWTDIR = "c:\Qt\qwt-5.2.1"
 QT += core \
     gui
 HEADERS += ui_full/LisUItreeitem.h \
@@ -39,24 +39,21 @@ SOURCES += ui_full/LisUItreecheck.cpp \
     lisSurfstor.cpp \
     main.cpp \
     mmath.cpp
-FORMS += ui_full/lisemqt.ui 
+FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
 LIBS += -L"libs" \
     -llibcsfd \
     -lqwtd5  
+DESTDIR = debug   
 } else {
-LIBS += -L"libs" \
+LIBS += -L"bin" \
     -llibcsf \
     -lqwt5 
+DESTDIR = bin    
 }
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"
-INCLUDEPATH += $${QWTDIR}\src
+INCLUDEPATH += $${QWTDIR}/src
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
-CONFIG(debug, debug|release) {
-    DESTDIR = debug
-} else {
-    DESTDIR = bin
-}

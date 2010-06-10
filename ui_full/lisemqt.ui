@@ -120,7 +120,7 @@
          <number>1</number>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <property name="tabSpacing">
          <number>0</number>
@@ -130,8 +130,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">

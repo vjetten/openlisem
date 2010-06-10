@@ -16,4 +16,9 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include <QMutex.h>
 #include <qfile.h>
 #include <qdir.h>
+#include "qwt_plot.h"
+#include "qwt_plot_curve.h"
+#include "qwt_plot_grid.h"
+#include "qwt_plot_marker.h"
+#include "qwt_legend.h"
 #endif

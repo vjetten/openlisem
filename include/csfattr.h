@@ -1,10 +1,6 @@
 #ifndef CSF__ATTR_H
 #define CSF__ATTR_H
 
-#ifndef lint
-#define RCS_ID_CSFLEGEN_H "$Header: c:/lisemroot/CVSROOT/lisemroot/libsrc/libcsf/include/csfattr.h,v 1.1.1.1 2003/04/08 09:34:25 jetten2 Exp $"
-#endif
-
 #ifdef __cplusplus
  extern "C" {
 #endif
