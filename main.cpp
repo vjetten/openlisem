@@ -9,9 +9,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include <QtGui>
 #include <QApplication>
 
-#ifdef __BASIC__
-#include "ifacebasic.h"
-#endif
 //TODO do this better elseif?
 #include "lisemqt.h"
 #include "global.h"
@@ -29,10 +26,9 @@ int main(int argc, char *argv[])
 
     QApplication::setStyle("WindowsVista");
  //   QApplication::setStyle("Cleanlooks");
+ //   QApplication::addLibraryPath(QString("INSTALL/libs/"));
+    //QSystemTrayIcon icon;
 
-#ifdef __BASIC__
-    ifacebasic iface;
-#endif
     lisemqt iface;
 
     iface.setWindowTitle(QString("openLISEM ") + VERSION + DATE);

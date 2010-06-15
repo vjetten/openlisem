@@ -3,7 +3,8 @@ TARGET = openLisem
 QWTDIR = "c:\Qt\qwt-5.2.1"
 QT += core \
     gui
-HEADERS += ui_full/LisUItreeitem.h \
+HEADERS += include/swatre_g.h \
+    ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
     ui_full/lisemqt.h \
     include/LisUIoutput.h \
@@ -40,16 +41,20 @@ SOURCES += ui_full/LisUItreecheck.cpp \
     main.cpp \
     mmath.cpp
 FORMS += ui_full/lisemqt.ui
-CONFIG(debug, debug|release) {
-LIBS += -L"libs" \
-    -llibcsfd \
-    -lqwtd5  
-DESTDIR = debug   
-} else {
-LIBS += -L"bin" \
-    -llibcsf \
-    -lqwt5 
-DESTDIR = bin    
+CONFIG(debug, debug|release) { 
+    LIBS += -L"libs" \
+	         -L"..\libswatreQt\debug"\
+        -llibcsfd \
+        -lqwtd5 \
+        -lswatred
+    DESTDIR = debug
+}
+else { 
+    LIBS += -L"bin" \
+        -llibcsf \
+        -lqwt5 \
+        -lswatre
+    DESTDIR = bin
 }
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"

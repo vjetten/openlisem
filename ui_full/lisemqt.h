@@ -35,6 +35,8 @@ public:
 	void GetRunfile();
 	void ParseInputData();
 	void UpdateModelData();
+	void DefaultRunFile();
+	void InsertVariable(QString q, QString p, QString p1);
 	QString CheckDir(QString p, QString p1);
 	void RunAllChecks();
 	void savefile(QString name);
@@ -62,11 +64,9 @@ public:
 	QString rainFileDir;
 	QString SnowmeltFileName;
 	QString snowmeltFileDir;
+	QString SwatreTableName;
+	QString SwatreTableDir;
 	QStringList DEFmaps;
-	QStringList OUTmaps;
-	QStringList OUTMCmaps;
-	QStringList OUTNUTmaps;
-	QStringList OUTGULmaps;
 	QStringList RunFileNames;
 	int CurrentRunFile;
 	int uiInfilMethod;
@@ -74,6 +74,8 @@ public:
 	// runfile read structure
 	_nameList namelist[NUMNAMES]; // structure for runfile variables and names
 	int nrnamelist;
+	_nameList defnamelist[NUMNAMES]; // structure for DEFAULT runfile variables and names
+	int nrdefnamelist;
 	QStringList outputcheck;
 	int InterceptionEqNr;
 
@@ -94,6 +96,10 @@ void on_toolButton_RainfallShow_clicked();
 void on_toolButton_SnowmeltShow_clicked();
 void on_toolButton_ShowRunfile_clicked();
 void on_toolButton_fileOpen_clicked();
+void on_toolButton_SwatreTableDir_clicked();
+void on_toolButton_SwatreTableFile_clicked();
+void on_toolButton_SwatreTableShow_clicked();
+
 
 void on_E_InfiltrationMethod_currentIndexChanged(int);
 void on_E_runFileList_currentIndexChanged(int);
@@ -110,7 +116,6 @@ void on_checkBuffers_clicked();
 void on_checkSedtrap_clicked();
 void on_checkSnowmelt_clicked();
 void on_checkExpandActive_clicked();
-void on_toolButton_SwatreTable_clicked();
 void on_E_MapDir_textEdited();
 void on_E_ResultDir_textEdited();
 

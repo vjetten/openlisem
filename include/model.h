@@ -24,6 +24,7 @@ Functionality in model.h:
 #include "csfmap.h"
 #include "mmath.h"
 #include "error.h"
+#include "swatre_g.h"
 
 #define DEBUGv(x) {QString sss; sss.setNum(x);emit debug("debug: " + sss);}
 //msleep(300)
@@ -49,12 +50,6 @@ Functionality in model.h:
 #define MAXCONC 848
 //0.32 * 2650 = max vol conc * bulk density
 
-#define LISEMBASIC 0
-#define LISEMWHEELTRACKS 1
-#define LISEMMULTICLASS 2
-#define LISEMNUTRIENTS 3
-#define LISEMGULLIES 4
-
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
 #define INFIL_HOLTAN 2
@@ -63,6 +58,8 @@ Functionality in model.h:
 #define INFIL_KSAT 5
 #define INFIL_MOREL 21
 #define INFIL_SMITH 22
+#define INFIL_SMITH2 23
+
 
 //---------------------------------------------------------------------------
 // structure containing pointers to all maps for automatic destruction after runs
@@ -124,6 +121,7 @@ public:
 	*ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
 	*KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
 	*WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
+	*ProfileID, *ProfileIDcrust, *ProfileIDcomp, *ProfileIDgrass,
 	// Channels
 	*RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
 	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
@@ -141,14 +139,14 @@ public:
 	SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
 	startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
 	SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRunoffPerM, SwitchInfilCompact,
-	SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead, SwitchGeometricMean,
+	SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead,
 	SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
 	SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
 	SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
 	SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
 	SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
 	SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-	SwitchPCRoutput, SwitchWriteHeaders;
+	SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric;
 
 	// multiple options that are set in interface or runfile, see defines above
 	int InterceptionLAIType;
@@ -175,6 +173,15 @@ public:
 	int c_outlet;  // outlet row and col
 	int r_outlet;
 
+	//SWATRE
+	// simplified maps needed for swatre interaction
+	MEM_HANDLE WHsw;
+	MEM_HANDLE ProfIDsw;
+//	MEM_HANDLE *Infilsw;
+	SOIL_MODEL *SwatreSoilModel;
+	void MakeSwatreMap(MEM_HANDLE *map);
+	double swatreDT;
+
 	// time and dx parameters
 	double time, BeginTime, EndTime;
 	double _dt, _dx;
@@ -198,7 +205,9 @@ public:
 	QString rainFileDir;
 	QString snowmeltFileName;
 	QString snowmeltFileDir;
-	QString tableDir;
+	QString SwatreTableDir;
+	QString SwatreTableName;
+	QString initheadName;
 	QString resultFileName;
 	QString temprunname;
 	QStringList outputcheck;
@@ -231,6 +240,7 @@ public:
 	void Rainfall(void);
 	void Interception(void);
 	void Infiltration(void);
+	void InfilSwatre(void);
 	void InfilGreenAmpt1(void);
 	void InfilSmithParlange1(void);
 	void InfilMorelSeytoux1(void);

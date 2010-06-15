@@ -19,7 +19,7 @@ void TWorld::InitMapList(void)
 {
 
 	maplistnr = 0;
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < NUMNAMES; i++)
 	{
 		maplist[i].m = NULL;
 	}
@@ -132,6 +132,22 @@ void TWorld::DestroyData(void)
 			delete[] RainfallSeries[r];
 		delete[] RainfallSeries;
 	}
+
+}
+//---------------------------------------------------------------------------
+// structure for reading inithead maps
+void TWorld::MakeSwatreMap(MEM_HANDLE *map)
+{
+//   map = new MEM_HANDLE;
+	map->Data = new REAL8*[nrRows];
+	for(int r=0; r < nrRows; r++)
+		map->Data[r] = new REAL8[nrCols];
+
+   for(int r = 0; r < nrRows; r++)
+	   SetMemMV(map->Data[r],nrCols,CR_REAL8);
+
+   map->nrRows = nrRows;
+   map->nrCols = nrCols;
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::InitMask(QString name)
@@ -164,7 +180,6 @@ TMMap *TWorld::InitMask(QString name)
 
 	//msleep(100);
 	//emit debug(_M->PathName);
-
 	return(_M);
 
 }
@@ -199,7 +214,6 @@ TMMap *TWorld::InitMaskChannel(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
-
 	LDD = InitMask(getvaluename("ldd"));
 	// LDD is also mask and reference file, everthiung has to fit LDD
 	// chanels use channel LDD as mask
@@ -230,30 +244,9 @@ void TWorld::GetInputData(void)
 	LAI = ReadMap(LDD,getvaluename("lai"));
 	Cover = ReadMap(LDD,getvaluename("cover"));
 
-	ThetaS1 = ReadMap(LDD,getvaluename("ThetaS1"));
-	ThetaI1 = ReadMap(LDD,getvaluename("ThetaI1"));
-	Psi1 = ReadMap(LDD,getvaluename("Psi1"));
-	Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
-	SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
-	if (SwitchInfilCrust)
-	{
-		CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-		KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
-	}
-	else
-		CrustFraction = NewMap(0);
-	if (SwitchInfilCompact)
-	{
-		CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-		KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
-	}
-	else
-		CompactFraction = NewMap(0);
-
 	GrassPresent = NewMap(0);
 	if (SwitchInfilGrass)
 	{
-		KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
 		GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
 		GrassFraction->copy(GrassWidthDX);
 		GrassFraction->calcV(_dx, DIV);
@@ -270,14 +263,86 @@ void TWorld::GetInputData(void)
 	else
 		GrassFraction = NewMap(0);
 
-	if (SwitchTwoLayer)
+	if (InfilMethod == INFIL_SWATRE)
 	{
-		ThetaS2 = ReadMap(LDD,getvaluename("ThetaS2"));
-		ThetaI2 = ReadMap(LDD,getvaluename("ThetaI2"));
-		Psi2 = ReadMap(LDD,getvaluename("Psi2"));
-		Ksat2 = ReadMap(LDD,getvaluename("Ksat2"));
-		SoilDepth2 = ReadMap(LDD,getvaluename("SoilDep2"));
+		MakeSwatreMap(&WHsw);
+		MakeSwatreMap(&ProfIDsw);
+
+		ProfileID = ReadMap(LDD,getvaluename("profmap"));
+		FOR_ROW_COL_MV
+		{
+			ProfIDsw.Drc = ProfileID->Drc;
+			WHsw.Drc = 0;
+		}
+
+		if (SwitchInfilGrass)
+			ProfileIDgrass = ReadMap(LDD,getvaluename("profgrass"));
+		//TODO fix this
+
+		if (SwitchInfilCrust)
+		{
+			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+			ProfileIDcrust = ReadMap(LDD,getvaluename("profcrust"));
+		}
+		else
+			CrustFraction = NewMap(0);
+
+		if (SwitchInfilCompact)
+		{
+			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+			ProfileIDcomp = ReadMap(LDD,getvaluename("profcomp"));
+		}
+		else
+			CompactFraction = NewMap(0);
+
+		DEBUG("swatre soil table");
+		char *tabnam = (char *)malloc(256);
+		strcpy(tabnam, SwatreTableName.toAscii().constData());
+		char *filnam = (char *)malloc(256);
+		strcpy(filnam, SwatreTableDir.toAscii().constData());
+		int res = ReadSwatreInput(tabnam, filnam);
+		if (res)
+		{
+
+		}
 	}
+	else
+	if(InfilMethod != INFIL_NONE)
+	{
+		DEBUG("infil");
+		Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
+		SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
+		if(InfilMethod != INFIL_KSAT)
+		{
+			ThetaS1 = ReadMap(LDD,getvaluename("ThetaS1"));
+			ThetaI1 = ReadMap(LDD,getvaluename("ThetaI1"));
+			Psi1 = ReadMap(LDD,getvaluename("Psi1"));
+			if (SwitchTwoLayer)
+			{
+				ThetaS2 = ReadMap(LDD,getvaluename("ThetaS2"));
+				ThetaI2 = ReadMap(LDD,getvaluename("ThetaI2"));
+				Psi2 = ReadMap(LDD,getvaluename("Psi2"));
+				Ksat2 = ReadMap(LDD,getvaluename("Ksat2"));
+				SoilDepth2 = ReadMap(LDD,getvaluename("SoilDep2"));
+			}
+		}
+		if (SwitchInfilCrust)
+		{
+			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+			KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
+		}
+		else
+			CrustFraction = NewMap(0);
+		if (SwitchInfilCompact)
+		{
+			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+			KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
+		}
+		else
+			CompactFraction = NewMap(0);
+	}
+
+
 	StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 	// WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
 	RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
@@ -421,32 +486,32 @@ void TWorld::IntializeData(void)
 	Interc = NewMap(0);
 
 	// infiltration maps
-	InfilMethod = getvalueint("Infil Method");
-	if (InfilMethod == INFIL_GREENAMPT2)
-		SwitchTwoLayer = true;
 	InfilVolKinWave = NewMap(0);
 	InfilVol = NewMap(0);
 	InfilVolCum = NewMap(0);
-	Fcum = NewMap(1e-10);
-	L1 = NewMap(1e-10);
-	L2 = NewMap(1e-10);
-	FSurplus = NewMap(0);
 	fact = NewMap(0);
 	fpot = NewMap(0);
-	Fcumgr = NewMap(1e-10);
-	L1gr = NewMap(1e-10);
-	L2gr = NewMap(1e-10);
 	factgr = NewMap(0);
 	fpotgr = NewMap(0);
 	Ksateff = NewMap(0);
-	Soilwater = NewMap(0);
-	Soilwater2 = NewMap(0);
-	Soilwater->calc2(ThetaI1, SoilDepth1, MUL);
-	if (SwitchTwoLayer)
-	{
-		Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
-	}
 
+	if (InfilMethod > INFIL_SWATRE)
+	{
+		Fcum = NewMap(1e-10);
+		L1 = NewMap(1e-10);
+		L2 = NewMap(1e-10);
+		FSurplus = NewMap(0);
+		Fcumgr = NewMap(1e-10);
+		L1gr = NewMap(1e-10);
+		L2gr = NewMap(1e-10);
+		Soilwater = NewMap(0);
+		Soilwater2 = NewMap(0);
+		Soilwater->calc2(ThetaI1, SoilDepth1, MUL);
+		if (SwitchTwoLayer)
+		{
+			Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
+		}
+	}
 	// runoff maps
 	WH = NewMap(0);
 	WHrunoff = NewMap(0);
@@ -676,7 +741,8 @@ void TWorld::IntializeOptions(void)
 	rainFileDir.clear();
 	snowmeltFileName.clear();
 	snowmeltFileDir.clear();
-	tableDir.clear();
+	SwatreTableDir.clear();
+	SwatreTableName.clear();
 	resultFileName.clear();
 
 	SwitchHardsurface = false;
@@ -702,7 +768,6 @@ void TWorld::IntializeOptions(void)
 	SwitchInfilGrass = false;
 	SwitchImpermeable = false;
 	SwitchDumphead = false;
-	SwitchGeometricMean = false;
 	SwitchWheelAsChannel = false;
 	SwitchMulticlass = false;
 	SwitchNutrients = false;
@@ -736,6 +801,7 @@ void TWorld::IntializeOptions(void)
 	SwitchSOBEKoutput = false;
 	SwitchPCRoutput = false;
 	SwitchSoilwater = false;
+	SwitchGeometric = false;
 
 	SwitchWriteHeaders = true; // write headers in output files in first timestep
 }

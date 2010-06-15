@@ -32,30 +32,23 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("0;Surface;0");
 	DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr;2");
 	DEFmaps.append("2;n;n.map;Manning's n (-);manning;2");
-	DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-);crustfrc;2");
-	DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-);compfrc;2");
-	DEFmaps.append("2;Stoniness;stonefrc.map;Fraction of gridcell covered by stones (-);stonefrc;2");
+	DEFmaps.append("2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (value 1);hardsurf;2");
+	DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc;2");
 
 	DEFmaps.append("0;Erosion;0");
 	DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh;2");
 	DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd;2");
 	DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab;2");
 	DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50;2");
-	DEFmaps.append("2;Hard Surface;hardsurf.map;non-erodible (1) and erodible surface (0);hardsurf;2");
 
 	DEFmaps.append("0;Infiltration;0");
 	DEFmaps.append("1;Swatre;0");
-	DEFmaps.append("2;Profile table;profile.inp;Text file with land unit descriptions and links to tables;profinp;2");
-	DEFmaps.append("2;Table Directory; ;Directory where SWATRE tables are stored;TableDir;2");
-	DEFmaps.append("2;Internal timestep;5;Timestep in sec of internal SWATRE iteration (smaller than LISEM timestep);SwatreDTSEC;2");
 	DEFmaps.append("2;Profile;profile.map;ID numbers corresponding to land units in profile table;profmap;2");
 	DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst;2");
 	DEFmaps.append("2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr;2");
 	DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;2");
 	DEFmaps.append("2;Init. suction;inithead;initial matrix potential of layers 001 to nnn (filename witout extension)(cm);inithead;2");
-	DEFmaps.append("2;Output head;headout.map;Locations to write tables of the matrix potential;headout;2");
-	DEFmaps.append("2;Switch output head;1;write matrix head in 4 locations to text files;Switchheadout;2");
-	DEFmaps.append("2;Swicth geometric avg.;0;Geometric or arithmetric average Ksat between nodes;SwitchGeometric;2");
+	//DEFmaps.append("2;Output head;headout.map;Locations to write tables of the matrix potential;headout;2");
 
 	DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange;0");
 	DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1;2");
@@ -80,9 +73,12 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1);2");
 
 	DEFmaps.append("1;Special surfaces;2");
+	DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-);crustfrc;2");
 	DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst;2");
+	DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-);compfrc;2");
 	DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp;2");
 	DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras;2");
+
 	//	DEFmaps.append("2;Drain. fact.;drfactor.map;Drainage exponent in k=ks*(moist/pore)^d (-);drfactor;2");
 
 	DEFmaps.append("0;Channels;0");

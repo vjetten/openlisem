@@ -41,7 +41,6 @@ void TWorld::GetRainfallData(void)
 		QStringList SL = S.split(QRegExp("\\s+"));
 		nrstations = SL[SL.size()-2].toInt(&ok, 10);
 	}
-
 	else // file is PCRaster timeseries
 	{
 		S = fff.readLine();

@@ -216,7 +216,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 			bool isBufferCellWater = false;
 			bool isBufferCellSed = false;
-			double incoming = 0;
+			//double incoming = 0;
 
 			//water in buffers
 			if(SwitchBuffers)

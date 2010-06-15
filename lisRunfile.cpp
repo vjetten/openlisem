@@ -16,21 +16,21 @@ QString TWorld::getvaluename(QString vname)
 	{
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
+			QFileInfo info(namelist[i].value);
 			if (namelist[i].value.trimmed().isEmpty())
 			{
 //				DEBUG(vname.toUpper() + " " + namelist[i].name.toUpper()+"<==");
-				ErrorString = "Filename not found for : " + vname;
+				ErrorString = "Filename not found for : " + info.fileName();
 				throw 1;
 			}
 			else
 			{
-				QFileInfo info(namelist[i].value);
 				//namelist[i].value = inputDir + info.fileName();
 				return inputDir + info.fileName();//namelist[i].value;
 			}
 		}
 	}
-	ErrorString = "wrong internal map ID "+vname;
+	ErrorString = QString("Map ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
 //---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ double TWorld::getvaluedouble(QString vname)
 			return namelist[i].value.toDouble();
 		}
 
-	ErrorString = "wrong internal map ID "+vname;
+	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
 //---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ int TWorld::getvalueint(QString vname)
 			return namelist[i].value.toInt();
 		}
 
-	ErrorString = "wrong internal map ID "+vname;
+	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
 //------------------------------------------------------------------------------
@@ -89,8 +89,6 @@ void TWorld::GetRunFile()
 			}
 		}
 	}
-	QString sss;
-	sss.setNum(nrnamelist);
 }
 //---------------------------------------------------------------------------
 QString TWorld::CheckDir(QString p, QString p1)
@@ -121,7 +119,6 @@ QString TWorld::GetName(QString p)
 void TWorld::ParseInputData()
 {
 	int j=0;
-	//FILE *fout = fopen("c:\\try.txt","w");
 
 	// do all switches first
 	for (j = 0; j < nrnamelist; j++)
@@ -131,7 +128,7 @@ void TWorld::ParseInputData()
 		QString p = namelist[j].value;
 
 		//fprintf(fout,"%s=%s\n",(const char *)p1.toLatin1(),(const char *)p.toLatin1());
-
+/*
 		// main lisem types
 		if (p1.compare("LISEM Type")==0)
 		{
@@ -140,7 +137,7 @@ void TWorld::ParseInputData()
 			SwitchNutrients = iii == LISEMNUTRIENTS;
 			SwitchGullies = iii == LISEMGULLIES;
 		}
-
+*/
 		//options in the main code, order is not important
 		if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
 		if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
@@ -161,7 +158,7 @@ void TWorld::ParseInputData()
 		if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
 		if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
 		if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
-		if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometricMean =    iii == 1;
+		if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    		iii == 1;
 		if (p1.compare("Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       iii == 1;
 		if (p1.compare("Timeseries as PCRaster")==0)         SwitchWritePCRnames =    iii == 1;
 		if (p1.compare("Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = iii == 1;
@@ -181,6 +178,20 @@ void TWorld::ParseInputData()
 		if (p1.compare("Output interval")==0)   printinterval = iii;
 	}
 
+	InfilMethod = getvalueint("Infil Method");
+	if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
+		SwitchTwoLayer = true;
+	if (InfilMethod == INFIL_SWATRE)
+	{
+		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+		SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
+		initheadName = inputDir + GetName("inithead");
+		// only map name is needed, data is read in swatre lib
+		//profileName = getname("profile");//?????????????????????
+		// profile map name
+	}
+
+
 	for (j = 0; j < nrnamelist; j++)
 	{
 		QString p1 = namelist[j].name;
@@ -188,10 +199,21 @@ void TWorld::ParseInputData()
 
 		// input ourput dirs and file names
 		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p, p1);
-		if (p1.compare("Result Directory")==0) p = resultDir = CheckDir(p, p1);
+		if (p1.compare("Result Directory")==0) resultDir = CheckDir(p, p1);
 
-		//   if (p1.compare("Table Directory")==0) tableDir = CheckDir(p, p1);
-		// move to swatre later when infiltration method is known!
+		if (InfilMethod == INFIL_SWATRE)
+		{
+		if (p1.compare("Table Directory")==0)
+		{
+			DEBUG("hoi");
+			SwatreTableDir = CheckDir(p, p1);
+			DEBUG(SwatreTableDir);
+		}
+		if (p1.compare("Table File")==0)
+		{
+			SwatreTableName = p;
+	   }
+		}
 		if (p1.compare("Main results file")==0) resultFileName = p;
 		if (p1.compare("Filename point output")==0) outflowFileName =  p;
 		// resultDir is added in report operation
@@ -223,9 +245,5 @@ void TWorld::ParseInputData()
 		if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
 		if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 	}
-	//fclose(fout);
-//	if (SwitchSedtrap)
-	//	SwitchBuffers = true;
-
 }
 //------------------------------------------------------------------------------

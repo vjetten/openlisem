@@ -13,6 +13,25 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "model.h"
 
 #define tiny 1e-8
+
+//---------------------------------------------------------------------------
+// DOESN'T WORK YET
+void TWorld::InfilSwatre(void)
+{
+	double prec = 1e-10;
+
+
+
+	FOR_ROW_COL_MV
+	{
+		WHsw.Drc = WH->Drc;
+	}
+	// copy data to SWATRE implified map structure
+
+	SwatreSoilModel = InitSwatre(&ProfIDsw, initheadName.toAscii().constData(), swatreDT, prec, time);
+
+
+}
 //---------------------------------------------------------------------------
 // DOESN'T WORK YET
 void TWorld::InfilMorelSeytoux1(void)
@@ -288,7 +307,7 @@ void TWorld::Infiltration(void)
 	switch (InfilMethod)
 	{
 		case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
-		case INFIL_SWATRE : break;
+		case INFIL_SWATRE : InfilSwatre(); break;
 		case INFIL_HOLTAN : break;
 		case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
 		case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;

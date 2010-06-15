@@ -92,19 +92,6 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int)
 	}
 }
 //--------------------------------------------------------------------
-void lisemqt::on_toolButton_SwatreTable_clicked()
-{
-	QString path;
-	path = QFileDialog::getExistingDirectory(
-			this,
-			tr("Select directory with SWATRE tables"),
-			QString::null,
-			QFileDialog::ShowDirsOnly);
-
-	E_SWATRETableDir->setText( path );
-}
-
-//--------------------------------------------------------------------
 void lisemqt::on_checkInfil2layer_clicked()
 {
 	if (E_InfiltrationMethod->currentIndex() == 2 ||

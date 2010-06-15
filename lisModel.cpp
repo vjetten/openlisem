@@ -15,7 +15,6 @@ Functionality in lisModel.cpp:
 ---------------------------------------------------------------------------*/
 
 #include <QtGui>
-//#include "ifacebasic.h"
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -37,7 +36,7 @@ void TWorld::DEBUGs(QString SSS)
 	// work around to show a QString when debugging
 	char ptr[128];
 	strncpy(ptr, SSS.toAscii().constData(), 126);
-	int i = 1;
+//	int i = 1;
 }
 //---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
@@ -227,7 +226,6 @@ void TWorld::MassBalance()
 	if (SwitchErosion && DetTot > 0)
 		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
 				DepTot + ChannelDepTot - BufferSedTot)/DetTot*100;
-	DEBUGv(- BufferSedTot);
 }
 //---------------------------------------------------------------------------
 // fill output structure to talk to interface
@@ -320,11 +318,17 @@ void TWorld::DoModel()
 		InitMapList();
 		// map structure to destroy data automatically
 
+		DEBUG("GetRunFile()");
 		GetRunFile();
+		DEBUG("ParseInputData()");
 		ParseInputData();
 		// get and parse runfile
+
+		DEBUG("GetInputData()");
 		GetInputData();
+		DEBUG("IntializeData()");
 		IntializeData();
+		DEBUG("GetRainfallData()");
 		GetRainfallData();
 		// get all input data and create and initialize all maps and variables
 

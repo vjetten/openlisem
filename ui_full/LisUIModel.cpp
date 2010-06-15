@@ -17,7 +17,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "model.h"
 #include "global.h"
 
-
 //---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
@@ -177,6 +176,10 @@ void lisemqt::ShowGraph()
 void lisemqt::worldDone(const QString &results)
 {
 	label_debug->setText(results);
+	if (results.contains("ERROR"))
+		QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
+
+
 	// arrive here after model emits done signal
 	if (W)
 	{

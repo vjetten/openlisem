@@ -58,7 +58,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/openlisem.qrc">
-    <normaloff>:/openLisem25.png</normaloff>:/openLisem25.png</iconset>
+    <normaloff>:/openLisem.png</normaloff>:/openLisem.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -120,7 +120,7 @@
          <number>1</number>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="tabSpacing">
          <number>0</number>
@@ -137,16 +137,19 @@
          <attribute name="label">
           <string>Global Options</string>
          </attribute>
-         <widget class="QFrame" name="frame">
+         <widget class="QGroupBox" name="groupBox">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
-            <width>364</width>
-            <height>201</height>
+            <y>114</y>
+            <width>361</width>
+            <height>111</height>
            </rect>
           </property>
-          <layout class="QGridLayout" name="gridLayout_17">
+          <layout class="QGridLayout" name="gridLayout_18">
+           <property name="margin">
+            <number>6</number>
+           </property>
            <item row="0" column="0" colspan="2">
             <widget class="QCheckBox" name="checkNoErosion">
              <property name="font">
@@ -179,19 +182,6 @@
              </property>
              <property name="checked">
               <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_49">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
              </property>
             </widget>
            </item>
@@ -253,55 +243,560 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkNoErosionOutlet">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
+          </layout>
+         </widget>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>4</y>
+            <width>361</width>
+            <height>101</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_17">
+           <property name="margin">
+            <number>6</number>
+           </property>
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="checcMulticlass">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="palette">
+              <palette>
+               <active>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Mid">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>163</red>
+                   <green>163</green>
+                   <blue>163</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </active>
+               <inactive>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Mid">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>163</red>
+                   <green>163</green>
+                   <blue>163</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </inactive>
+               <disabled>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Mid">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>163</red>
+                   <green>163</green>
+                   <blue>163</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </disabled>
+              </palette>
              </property>
              <property name="text">
-              <string>Exclude outlet erosion/deposition </string>
+              <string>Multiclass sediment detachment and deposition</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkAltErosion">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="checkNutrients">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="palette">
+              <palette>
+               <active>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </active>
+               <inactive>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </inactive>
+               <disabled>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </disabled>
+              </palette>
              </property>
              <property name="text">
-              <string>Alternative flow detachment (no settling vel. in detachment)</string>
+              <string>Nutrient detachment and deposition</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkSimpleDepression">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="checkGullies">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="palette">
+              <palette>
+               <active>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </active>
+               <inactive>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </inactive>
+               <disabled>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </disabled>
+              </palette>
              </property>
              <property name="text">
-              <string>Simple surface storage (no runoff below max storage threshold)</string>
+              <string>Gully incision and development</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkHardsurface">
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="checkBasic">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="palette">
+              <palette>
+               <active>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </active>
+               <inactive>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>70</red>
+                   <green>100</green>
+                   <blue>170</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </inactive>
+               <disabled>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Dark">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>162</red>
+                   <green>172</green>
+                   <blue>200</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </disabled>
+              </palette>
              </property>
              <property name="text">
-              <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
+              <string>Standard LISEM calculations</string>
              </property>
             </widget>
            </item>
@@ -313,8 +808,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">
@@ -325,7 +820,7 @@
            <rect>
             <x>9</x>
             <y>4</y>
-            <width>351</width>
+            <width>371</width>
             <height>22</height>
            </rect>
           </property>
@@ -341,7 +836,7 @@
            <rect>
             <x>10</x>
             <y>30</y>
-            <width>260</width>
+            <width>371</width>
             <height>91</height>
            </rect>
           </property>
@@ -361,7 +856,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Include compacted areas</string>
+              <string>compacted areas (compact fraction and ksat maps)</string>
              </property>
             </widget>
            </item>
@@ -374,7 +869,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Include crusts</string>
+              <string>Include crusts (crust fraction and ksat maps)</string>
              </property>
             </widget>
            </item>
@@ -411,8 +906,8 @@
            <rect>
             <x>10</x>
             <y>120</y>
-            <width>351</width>
-            <height>101</height>
+            <width>371</width>
+            <height>111</height>
            </rect>
           </property>
           <property name="title">
@@ -438,7 +933,7 @@
             <number>2</number>
            </property>
            <item row="0" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkGeometricMean">
+            <widget class="QCheckBox" name="checkGeometric">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -450,29 +945,6 @@
              </property>
              <property name="text">
               <string>geometric average Ksat</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QCheckBox" name="checkDumphead">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-               <kerning>false</kerning>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>Specify pixels 1,2,3,4 in HEADOUT.MAP</string>
-             </property>
-             <property name="text">
-              <string>Save matrix head at 4 locations</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -488,15 +960,15 @@
               </font>
              </property>
              <property name="text">
-              <string>Table directory</string>
+              <string>Profile table file</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="E_SWATRETableDir">
+           <item row="2" column="1" colspan="3">
+            <widget class="QLineEdit" name="E_SwatreTableName">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -508,8 +980,19 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="2" colspan="2">
-            <widget class="QToolButton" name="toolButton_SwatreTable">
+           <item row="2" column="4">
+            <widget class="QToolButton" name="toolButton_SwatreTableShow">
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/openlisem.qrc">
+               <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QToolButton" name="toolButton_SwatreTableFile">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -522,24 +1005,23 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="1" column="1">
             <widget class="QLabel" name="label_14">
              <property name="enabled">
               <bool>true</bool>
              </property>
-             <property name="text">
-              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Fraction internal timestep versus LISEMtimestep&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="text">
+              <string>Fraction Swatre timestep - LISEM timestep</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="3">
+           <item row="1" column="0">
             <widget class="QDoubleSpinBox" name="E_SWATREDtsecFraction">
              <property name="enabled">
               <bool>true</bool>
@@ -561,6 +1043,40 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="3" column="1" colspan="4">
+            <widget class="QLineEdit" name="E_SwatreTableDir">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_49">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Swatre table dir</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="5">
+            <widget class="QToolButton" name="toolButton_SwatreTableDir">
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/openlisem.qrc">
+               <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -569,8 +1085,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">
@@ -581,12 +1097,12 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>19</x>
             <y>13</y>
-            <width>301</width>
+            <width>341</width>
             <height>133</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_11">
-           <item row="0" column="0" colspan="2">
+           <item row="0" column="0" colspan="3">
             <widget class="QCheckBox" name="checkBuffers">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -601,11 +1117,11 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Include buffers for water and sediment</string>
+              <string>Buffers for water and sediment (needs buffer maps)</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="1" column="0" colspan="2">
             <widget class="QCheckBox" name="checkSedtrap">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -620,26 +1136,7 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Include sediment traps/fences (no water)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_33">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>    Sediment bulk density (kg/m3)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <string>Sediment traps/fences (needs buffer maps)</string>
              </property>
             </widget>
            </item>
@@ -664,11 +1161,11 @@ p, li { white-space: pre-wrap; }
               <string>9999.99; </string>
              </property>
              <property name="text">
-              <string>1800.00</string>
+              <string>1200.00</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QCheckBox" name="checkInfilGrass">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -683,11 +1180,11 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>Include grasstrips</string>
+              <string>Include grasstrips (needs grass width map)</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
+           <item row="5" column="2">
             <widget class="QLineEdit" name="E_GrassStripN">
              <property name="enabled">
               <bool>false</bool>
@@ -712,13 +1209,13 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_15">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_33">
              <property name="enabled">
               <bool>false</bool>
              </property>
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -730,13 +1227,38 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="text">
-              <string>              Mannings n grass strip</string>
+              <string>Sediment bulk density (kg/m3)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Mannings n grass strip</string>
              </property>
              <property name="textFormat">
               <enum>Qt::PlainText</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -1000,8 +1522,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1201,31 +1723,90 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>98</width>
-           <height>28</height>
+           <width>389</width>
+           <height>233</height>
           </rect>
          </property>
          <attribute name="label">
-          <string>Multiclass</string>
+          <string>Additional options</string>
          </attribute>
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QCheckBox" name="checkSimpleDepression">
           <property name="geometry">
            <rect>
-            <x>140</x>
-            <y>30</y>
-            <width>113</width>
-            <height>20</height>
+            <x>10</x>
+            <y>56</y>
+            <width>346</width>
+            <height>17</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Simple surface storage (no runoff below max storage threshold)</string>
+          </property>
          </widget>
-         <widget class="QTableView" name="tableView">
+         <widget class="QCheckBox" name="checkNoErosionOutlet">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>70</y>
-            <width>256</width>
-            <height>121</height>
+            <x>10</x>
+            <y>10</y>
+            <width>346</width>
+            <height>17</height>
            </rect>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Exclude outlet erosion/deposition </string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkHardsurface">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>346</width>
+            <height>15</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkAltErosion">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>33</y>
+            <width>346</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Alternative flow detachment (no settling vel. in detachment)</string>
           </property>
          </widget>
         </widget>
@@ -1644,7 +2225,7 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="icon">
             <iconset resource="../resources/openlisem.qrc">
-             <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
+             <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
            </property>
           </widget>
          </item>
@@ -2111,7 +2692,7 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="icon">
           <iconset resource="../resources/openlisem.qrc">
-           <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
+           <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
          </property>
         </widget>
         <widget class="Line" name="line_2">
@@ -2313,6 +2894,19 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
+       </widget>
+       <widget class="QLabel" name="label_try">
+        <property name="geometry">
+         <rect>
+          <x>240</x>
+          <y>160</y>
+          <width>46</width>
+          <height>13</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string> </string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_12">
@@ -4179,118 +4773,6 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelInfil</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelBaseflow</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkChannelInfil</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelBaseflow</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkChannelBaseflow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelInfil</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSnowmelt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_SnowmeltName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>279</x>
-     <y>134</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSnowmelt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_5</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>28</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSnowmelt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_SnowmeltShow</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>379</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>groupBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_SnowmeltNameS</receiver>
@@ -4303,38 +4785,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>404</x>
      <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSnowmelt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_SnowmeltNameS</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>404</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkNoErosion</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkAltErosion</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>31</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>31</x>
-     <y>302</y>
     </hint>
    </hints>
   </connection>
@@ -4425,8 +4875,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>273</y>
+     <x>32</x>
+     <y>352</y>
     </hint>
     <hint type="destinationlabel">
      <x>302</x>

@@ -19,7 +19,7 @@ output op;
 
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent)
-: QMainWindow(parent)
+	: QMainWindow(parent)
 {
 	setupUi(this);
 	// set up interface
@@ -96,13 +96,6 @@ void lisemqt::LisemReset()
 {
 	DefaultMapnames();
 
-	/*
-	E_LisemType->addItem("LISEM Basic");
-	E_LisemType->addItem("LISEM Wheeltracks");
-	E_LisemType->addItem("LISEM Multiclass Sediment");
-	E_LisemType->addItem("LISEM Nutrients");
-	E_LisemType->addItem("LISEM Gullies");
-	 */
 	E_InfiltrationMethod->addItem("no Infiltration");
 	E_InfiltrationMethod->addItem("SWATRE");
 	E_InfiltrationMethod->addItem("Green and Ampt");
@@ -248,9 +241,9 @@ void lisemqt::on_toolButton_MapDir_clicked()
 {
 	QString path;
 	path = QFileDialog::getExistingDirectory(this,
-			tr("Select maps directory"),
-			E_MapDir->text(),
-			QFileDialog::ShowDirsOnly);
+														  QString("Select maps directory"),
+														  E_MapDir->text(),
+														  QFileDialog::ShowDirsOnly);
 	if(!path.isEmpty())
 		E_MapDir->setText( path );
 }
@@ -259,20 +252,73 @@ void lisemqt::on_toolButton_ResultDir_clicked()
 {
 	QString path;
 	path = QFileDialog::getExistingDirectory(this,
-			tr("Select or create a directory to write results"),
-			QString::null,
-			QFileDialog::ShowDirsOnly);
+														  QString("Select or create a directory to write results"),
+														  QString::null,
+														  QFileDialog::ShowDirsOnly);
 
 	if(!path.isEmpty())
 		E_ResultDir->setText( path );
+}
+//--------------------------------------------------------------------
+// this is for the directory with the table files
+void lisemqt::on_toolButton_SwatreTableDir_clicked()
+{
+	QString path;
+	path = QFileDialog::getExistingDirectory(this,
+														  QString("Select the directory with the Swatre profile tables"),
+														  SwatreTableDir,
+														  QFileDialog::ShowDirsOnly);
+
+	if(!path.isEmpty())
+		E_SwatreTableDir->setText( path );
+}
+//--------------------------------------------------------------------
+// this is for the file profile.inp
+void lisemqt::on_toolButton_SwatreTableFile_clicked()
+{
+	QString path;
+	path = QFileDialog::getOpenFileName(this,
+													QString("Select SWATRE table"),
+													SwatreTableName);
+	if(!path.isEmpty())
+	{
+
+		QFileInfo fi(path);
+		SwatreTableName = path;
+		E_SwatreTableName->setText(path);
+	}
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_SwatreTableShow_clicked()
+{
+	QFile file(SwatreTableName);
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		QMessageBox::warning(this,"openLISEM",
+									QString("Cannot read file %1:\n%2.")
+									.arg(SwatreTableName)
+									.arg(file.errorString()));
+		return;
+	}
+
+	QTextStream in(&file);
+
+	QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
+	view->setWindowTitle(SwatreTableName);
+	view->setMinimumWidth(400);
+	view->setMinimumHeight(500);
+	view->setAttribute(Qt::WA_DeleteOnClose);
+	view->show();
+
+	file.close();
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
 {
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
-			tr("Select rainfall file"),
-			QString::null);
+													QString("Select rainfall file"),
+													QString::null);
 	if(!path.isEmpty())
 	{
 		E_RainfallName->setText( path );
@@ -284,8 +330,8 @@ void lisemqt::on_toolButton_SnowmeltName_clicked()
 {
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
-			tr("Select snow melt file"),
-			QString::null);
+													QString("Select snow melt file"),
+													QString::null);
 	if(!path.isEmpty())
 	{
 		E_SnowmeltName->setText( path );
@@ -299,9 +345,9 @@ void lisemqt::on_toolButton_SnowmeltShow_clicked()
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
 		QMessageBox::warning(this,"openLISEM",
-				QString("Cannot read file %1:\n%2.")
-				.arg(SnowmeltFileName)
-				.arg(file.errorString()));
+									QString("Cannot read file %1:\n%2.")
+									.arg(SnowmeltFileName)
+									.arg(file.errorString()));
 		return;
 	}
 
@@ -324,9 +370,9 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
 		QMessageBox::warning(this, QString("openLISEM"),
-				tr("Cannot read file %1:\n%2.")
-				.arg(RainFileName)
-				.arg(file.errorString()));
+									QString("Cannot read file %1:\n%2.")
+									.arg(RainFileName)
+									.arg(file.errorString()));
 		return;
 	}
 
@@ -352,10 +398,10 @@ void lisemqt::savefileas()
 
 	QString selectedFilter;
 	QString fileName = QFileDialog::getSaveFileName(this,
-			tr("Give a new runfile name"),
-			op.runfilename,
-			tr("Text Files (*.run);;All Files (*)"),
-			&selectedFilter);
+																	QString("Give a new runfile name"),
+																	op.runfilename,
+																	QString("Text Files (*.run);;All Files (*)"),
+																	&selectedFilter);
 	//options);
 	if (!fileName.isEmpty())
 		savefile(fileName);
@@ -376,18 +422,18 @@ void lisemqt::savefile(QString name)
 	if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QMessageBox::warning(this, QString("openLISEM"),
-				tr("Cannot write file %1:\n%2.").arg(name).arg(fp.errorString()));
+									QString("Cannot write file %1:\n%2.").arg(name).arg(fp.errorString()));
 		return;
 	}
 
 	QTextStream out(&fp);
-	out << QString("[openLISEM runfile version 4]\n");
+	out << QString("[openLISEM runfile version 1.0]\n");
 	for (int i = 1; i < nrnamelist; i++)
 	{
-		if (namelist[i].name.contains("["))
-			out << "\n" << namelist[i].name; // already contains \n
+		if (defnamelist[i].name.contains("[") || defnamelist[i].name.isEmpty())
+			out << defnamelist[i].name << "\n"; // already contains \n
 		else
-			out << namelist[i].name << "=" << namelist[i].value << "\n";
+			out << defnamelist[i].name << "=" << defnamelist[i].value << "\n";
 	}
 	fp.close();
 }
@@ -396,9 +442,9 @@ void lisemqt::openRunFile()
 {
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
-			QString("Select run file(s)"),
-			currentDir,
-			QString("*.run"));
+													QString("Select run file(s)"),
+													currentDir,
+													QString("*.run"));
 
 	if (path.isEmpty())
 		return;
@@ -439,9 +485,7 @@ void lisemqt::StorePath()
 		return;
 
 	QTextStream ts( &fff );
-
 	ts << op.runfilename;// << endl;
-
 
 	fff.close();
 }
@@ -451,12 +495,11 @@ void lisemqt::on_toolButton_ShowRunfile_clicked()
 	QFile file(op.runfilename);
 	if (!file.open(QFile::ReadOnly | QFile::Text)) {
 		QMessageBox::warning(this, "openLISEM",
-				QString("Cannot read file %1:\n%2.")
-				.arg(op.runfilename)
-				.arg(file.errorString()));
+									QString("Cannot read file %1:\n%2.")
+									.arg(op.runfilename)
+									.arg(file.errorString()));
 		return;
 	}
-
 
 	QTextStream in(&file);
 	QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
@@ -488,7 +531,7 @@ void lisemqt::on_E_MapDir_textEdited()
 	{
 		E_MapDir->setText("");
 		QMessageBox::warning(this,"openLISEM",
-				QString("Map directory does not exist"));
+									QString("Map directory does not exist"));
 	}
 }
 //--------------------------------------------------------------------
@@ -499,15 +542,17 @@ void lisemqt::on_E_ResultDir_textEdited()
 	QFileInfo fin(E_ResultDir->text());
 	if(!fin.exists())
 	{
-		int ret = QMessageBox::question(this, QString("openLISEM"),
-				QString("The directory \"%1\"does not exist.\n"
-						"Do you want to create it (apply)?").arg(fin.absoluteFilePath()),
-						QMessageBox::Apply |QMessageBox::Cancel,
-						QMessageBox::Cancel);
+		int ret =
+				QMessageBox::question(this, QString("openLISEM"),
+											 QString("The directory \"%1\"does not exist.\n"
+														"Do you want to create it (apply)?")
+											 .arg(fin.absoluteFilePath()),
+											 QMessageBox::Apply |QMessageBox::Cancel,QMessageBox::Cancel);
 		if (ret == QMessageBox::Apply)
 			QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
 
 	}
 }
+//--------------------------------------------------------------------
 
 

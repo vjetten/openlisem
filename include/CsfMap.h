@@ -11,7 +11,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #ifndef CsfMapH
 #define CsfMapH
 //---------------------------------------------------------------------------
-
+#include <QtGui>
 #include "csf.h"
 
 
