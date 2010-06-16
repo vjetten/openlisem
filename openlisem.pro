@@ -19,7 +19,8 @@ HEADERS += include/swatre_g.h \
     include/mmath.h \
     include/model.h \
     include/stable.h
-SOURCES += ui_full/LisUItreecheck.cpp \
+SOURCES += lisTotalsMB.cpp \
+    ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \
     ui_full/LisUIrunfile.cpp \
     ui_full/LisUImapnames.cpp \
@@ -38,12 +39,12 @@ SOURCES += ui_full/LisUItreecheck.cpp \
     lisReportfile.cpp \
     lisRunfile.cpp \
     lisSurfstor.cpp \
+    lisTotalsMB.cpp \
     main.cpp \
     mmath.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) { 
-    LIBS += -L"libs" \
-	         -L"..\libswatreQt\debug"\
+    LIBS += -L"debug" \
         -llibcsfd \
         -lqwtd5 \
         -lswatred

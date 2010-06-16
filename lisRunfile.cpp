@@ -12,14 +12,19 @@ website, information and code: http://sourceforge.net/projects/lisem
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
 {
+//	QFile fout("c:\\try.txt");
+//	fout.open(QIODevice::WriteOnly | QIODevice::Text);
+//	QTextStream out(&fout);
+
 	for (int i = 0; i < nrnamelist; i++)
 	{
+//		out << namelist[i].name.toUpper() << "\n";
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
 			QFileInfo info(namelist[i].value);
 			if (namelist[i].value.trimmed().isEmpty())
 			{
-//				DEBUG(vname.toUpper() + " " + namelist[i].name.toUpper()+"<==");
+				//				DEBUG(vname.toUpper() + " " + namelist[i].name.toUpper()+"<==");
 				ErrorString = "Filename not found for : " + info.fileName();
 				throw 1;
 			}
@@ -29,7 +34,8 @@ QString TWorld::getvaluename(QString vname)
 				return inputDir + info.fileName();//namelist[i].value;
 			}
 		}
-	}
+	}	
+//	fout.close();
 	ErrorString = QString("Map ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
@@ -39,8 +45,8 @@ double TWorld::getvaluedouble(QString vname)
 	for (int i = 0; i < nrnamelist; i++)
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
-			return namelist[i].value.toDouble();
-		}
+		return namelist[i].value.toDouble();
+	}
 
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
@@ -51,8 +57,8 @@ int TWorld::getvalueint(QString vname)
 	for (int i = 0; i < nrnamelist; i++)
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
-			return namelist[i].value.toInt();
-		}
+		return namelist[i].value.toInt();
+	}
 
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
@@ -91,8 +97,9 @@ void TWorld::GetRunFile()
 	}
 }
 //---------------------------------------------------------------------------
-QString TWorld::CheckDir(QString p, QString p1)
+QString TWorld::CheckDir(QString p)
 {
+	/*
 	if (QDir(p).exists())
 	{
 		if (!p.endsWith("/"))
@@ -106,6 +113,15 @@ QString TWorld::CheckDir(QString p, QString p1)
 		throw 1;
 	}
 	return "";
+	*/
+	p.replace("/","\\");
+	//	if (!p.endsWith("/"))
+	if (!p.endsWith("\\"))
+		p = p + "\\";
+	if (QDir(p).exists())
+		return p;
+	else
+		return "";
 }
 //---------------------------------------------------------------------------
 QString TWorld::GetName(QString p)
@@ -128,7 +144,7 @@ void TWorld::ParseInputData()
 		QString p = namelist[j].value;
 
 		//fprintf(fout,"%s=%s\n",(const char *)p1.toLatin1(),(const char *)p.toLatin1());
-/*
+		/*
 		// main lisem types
 		if (p1.compare("LISEM Type")==0)
 		{
@@ -164,6 +180,7 @@ void TWorld::ParseInputData()
 		if (p1.compare("Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = iii == 1;
 		if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
 		if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
+		if (p1.compare("Output interval")==0)					  printinterval = iii;
 		if (p1.compare("No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
 		if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
 		if (p1.compare("Gully infiltration")==0)             SwitchGullyInfil =       iii == 1;
@@ -175,22 +192,12 @@ void TWorld::ParseInputData()
 		if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
 		if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
-		if (p1.compare("Output interval")==0)   printinterval = iii;
+
 	}
 
 	InfilMethod = getvalueint("Infil Method");
 	if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
 		SwitchTwoLayer = true;
-	if (InfilMethod == INFIL_SWATRE)
-	{
-		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
-		SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
-		initheadName = inputDir + GetName("inithead");
-		// only map name is needed, data is read in swatre lib
-		//profileName = getname("profile");//?????????????????????
-		// profile map name
-	}
-
 
 	for (j = 0; j < nrnamelist; j++)
 	{
@@ -198,27 +205,25 @@ void TWorld::ParseInputData()
 		QString p = namelist[j].value;
 
 		// input ourput dirs and file names
-		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p, p1);
-		if (p1.compare("Result Directory")==0) resultDir = CheckDir(p, p1);
+		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p);
+		if (p1.compare("Result Directory")==0) resultDir = CheckDir(p);
 
 		if (InfilMethod == INFIL_SWATRE)
 		{
-		if (p1.compare("Table Directory")==0)
-		{
-			DEBUG("hoi");
-			SwatreTableDir = CheckDir(p, p1);
-			DEBUG(SwatreTableDir);
-		}
-		if (p1.compare("Table File")==0)
-		{
-			SwatreTableName = p;
-	   }
+			if (p1.compare("Table Directory")==0)
+			{
+				SwatreTableDir = CheckDir(p);
+			}
+			if (p1.compare("Table File")==0)
+			{
+				SwatreTableName = p;
+			}
 		}
 		if (p1.compare("Main results file")==0) resultFileName = p;
 		if (p1.compare("Filename point output")==0) outflowFileName =  p;
 		// resultDir is added in report operation
 
-		if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p, p1);
+		if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
 		if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
 		if (SwitchErosion)
 		{
@@ -227,9 +232,10 @@ void TWorld::ParseInputData()
 			if (p1.compare("Soilloss map")==0) totalSoillossFileName =  p;
 			// resultDir is added in report operation
 		}
+
 		if (SwitchSnowmelt)
 		{
-			if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p, p1);
+			if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
 			if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
 		}
 
@@ -245,5 +251,17 @@ void TWorld::ParseInputData()
 		if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
 		if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 	}
+
+	if (InfilMethod == INFIL_SWATRE)
+	{
+		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+		SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
+		initheadName = inputDir + getvaluename("inithead");
+		DEBUG(initheadName);
+		// only map name is needed, data is read in swatre lib
+		//profileName = getname("profile");//?????????????????????
+		// profile map name
+	}
+
 }
 //------------------------------------------------------------------------------

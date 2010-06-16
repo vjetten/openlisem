@@ -81,7 +81,7 @@ void TWorld::GetRainfallData(void)
 
 	fff.open(QIODevice::ReadOnly | QIODevice::Text);
 	S = fff.readLine();
-	for (int i; i < nrstations; i++)
+	for (int i = 0; i < nrstations; i++)
 		S = fff.readLine();
 	// read header data
 	while (!fff.atEnd())

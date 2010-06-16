@@ -177,7 +177,7 @@ public:
 	// simplified maps needed for swatre interaction
 	MEM_HANDLE WHsw;
 	MEM_HANDLE ProfIDsw;
-//	MEM_HANDLE *Infilsw;
+	MEM_HANDLE Infilsw;
 	SOIL_MODEL *SwatreSoilModel;
 	void MakeSwatreMap(MEM_HANDLE *map);
 	double swatreDT;
@@ -234,7 +234,7 @@ public:
 	QString getvaluename(QString vname);
 	double getvaluedouble(QString vname);
 	int getvalueint(QString vname);
-	QString CheckDir(QString p, QString p1);
+	QString CheckDir(QString p);
 
 	// LISEM model processes
 	void Rainfall(void);
@@ -263,7 +263,7 @@ public:
 			TMMap *_StorVol, TMMap*_StorVolSed);
 	void Totals(void);
 	void MassBalance(void);
-	void Output(void);
+	void OutputUI(void);
 	//void ReportTimeseries();
 	void ReportTimeseriesNew();
 	void ReportTotals();

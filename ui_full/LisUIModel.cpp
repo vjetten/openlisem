@@ -200,7 +200,7 @@ void lisemqt::worldDone(const QString &results)
 	timeData = NULL;
 	// free data structures graph
 
-	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+	//QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDebug(const QString &results)

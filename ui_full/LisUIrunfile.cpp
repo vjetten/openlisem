@@ -150,7 +150,7 @@ void lisemqt::ParseInputData()
 		if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(namelist[j].value.toDouble());
 
 
-		if (p1.compare("Output interval")==0)   printinterval->setValue(iii);
+		if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
 
 		if (p1.compare("CheckOutputMaps")==0)
 		{
@@ -181,18 +181,18 @@ void lisemqt::ParseInputData()
 		if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
 		// input ourput dirs and file names
-		if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p, p1));
-		if (p1.compare("Result Directory")==0) E_ResultDir->setText(CheckDir(p, p1));
+		if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
+		if (p1.compare("Result Directory")==0) E_ResultDir->setText(CheckDir(p));
 
 		if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
 		if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
 		// resultDir is added in report operation
 
-		if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p, p1);
+		if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
 		if (p1.compare("Rainfall file")==0)
 		{
 			E_RainfallName->setText(p);
-			RainFileName = rainFileDir + E_RainfallName->text();
+			RainFileName = /*rainFileDir + */E_RainfallName->text();
 		}
 
 		if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
@@ -201,17 +201,17 @@ void lisemqt::ParseInputData()
 		// resultDir is added in report operation
 		if (checkSnowmelt->isChecked())
 		{
-			if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p, p1);
+			if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
 			if (p1.compare("Snowmelt file")==0)
 			{
 				E_SnowmeltName->setText(p);
-				SnowmeltFileName = snowmeltFileDir + E_SnowmeltName->text();
+				SnowmeltFileName = /*SnowmeltFileDir + */E_SnowmeltName->text();
 			}
 		}
 
 		if (p1.compare("Table Directory")==0)
 		{
-			SwatreTableDir = CheckDir(p, p1);
+			SwatreTableDir = CheckDir(p);
 			if (SwatreTableDir.isEmpty())
 				SwatreTableDir = E_MapDir->text();
 			E_SwatreTableDir->setText(SwatreTableDir);
@@ -268,16 +268,16 @@ void lisemqt::InsertVariable(QString q, QString p, QString p1)
 	nrnamelist++;
 }
 //---------------------------------------------------------------------------
-QString lisemqt::CheckDir(QString p, QString p1)
+QString lisemqt::CheckDir(QString p)
 {
+//TODO in linus this makes no sense of course!
 	p.replace("/","\\");
-	//	if (!p.endsWith("/"))
 	if (!p.endsWith("\\"))
 		p = p + "\\";
-	if (QDir(p).exists())
-		return p;
-	else
-		return "";
+	if (!QDir(p).exists())
+		p.clear();
+
+	return p;
 }
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options
@@ -347,12 +347,12 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Result Directory")==0) defnamelist[j].value = E_ResultDir->text();
 		if (p1.compare("Main results file")==0) defnamelist[j].value = E_MainTotals->text();
 		if (p1.compare("Filename point output")==0) defnamelist[j].value = E_PointResults->text();
-		if (p1.compare("Rainfall Directory")==0) defnamelist[j].value = rainFileDir;
+		if (p1.compare("Rainfall Directory")==0) defnamelist[j].value = RainFileDir;
 		if (p1.compare("Rainfall file")==0) defnamelist[j].value = E_RainfallName->text();
 		if (p1.compare("Erosion map")==0) defnamelist[j].value = E_DetachmentMap->text();
 		if (p1.compare("Deposition map")==0) defnamelist[j].value = E_DepositionMap->text();
 		if (p1.compare("Soilloss map")==0) defnamelist[j].value = E_SoillossMap->text();
-		if (p1.compare("Snowmelt Directory")==0) defnamelist[j].value = snowmeltFileDir;
+		if (p1.compare("Snowmelt Directory")==0) defnamelist[j].value = SnowmeltFileDir;
 		if (p1.compare("Snowmelt file")==0) defnamelist[j].value = E_SnowmeltName->text();
 		if (p1.compare("Ksat calibration")==0) defnamelist[j].value = E_CalibrateKsat->text();
 		if (p1.compare("N calibration")==0) defnamelist[j].value = E_CalibrateN->text();
@@ -360,6 +360,11 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Channel N calibration")==0) defnamelist[j].value = E_CalibrateChN->text();
 		if (p1.compare("Splash Delivery Ratio")==0) defnamelist[j].value = E_SplashDelibery->text();
 		if (p1.compare("Stemflow fraction")==0) defnamelist[j].value = E_StemflowFraction->text();
+		if (p1.compare("Output interval")==0) defnamelist[j].value = printinterval->cleanText();
+		if (p1.compare("Regular runoff output")==0) defnamelist[j].value.setNum(1);
+		if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
+		if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
+//TODO fix output stuff
 
 		if (p1.compare("Table Directory")==0) defnamelist[j].value = SwatreTableDir;
 		if (p1.compare("Table File")==0) defnamelist[j].value = SwatreTableName;
@@ -498,8 +503,8 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("Runoff maps in l/s/m");
 	defnamelist[i++].name = QString("Timeseries as PCRaster");
 	defnamelist[i++].name = QString("Timeplot as PCRaster");
-	defnamelist[i++].name = QString("Regular runoff output");
 	defnamelist[i++].name = QString("Erosion map units (0/1/2)");
+	defnamelist[i++].name = QString("Regular runoff output");
 	defnamelist[i++].name = QString("Output interval");
 	defnamelist[i++].name = QString("User defined output");
 	defnamelist[i++].name = QString("Output times");

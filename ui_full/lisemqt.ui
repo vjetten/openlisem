@@ -130,8 +130,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>233</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1085,8 +1085,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>233</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1270,8 +1270,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>233</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1522,8 +1522,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>233</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1723,8 +1723,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>389</width>
-           <height>233</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1991,7 +1991,7 @@ p, li { white-space: pre-wrap; }
         </widget>
         <widget class="QRadioButton" name="checkOutputTimeUser">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2905,7 +2905,7 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </widget>
       </widget>

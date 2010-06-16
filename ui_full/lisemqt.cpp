@@ -105,10 +105,11 @@ void lisemqt::LisemReset()
 	RunFileNames.clear();
 
 	RainFileName.clear();
-	rainFileDir.clear();
+	RainFileDir.clear();
 	SnowmeltFileName.clear();
-	snowmeltFileDir.clear();
-
+	SnowmeltFileDir.clear();
+	SwatreTableName.clear();
+	SwatreTableDir.clear();
 }
 //---------------------------------------------------------------------------
 void lisemqt::SetGraph()
@@ -318,11 +319,14 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
 													QString("Select rainfall file"),
-													QString::null);
+													RainFileDir);
+													//QString::null);
 	if(!path.isEmpty())
 	{
-		E_RainfallName->setText( path );
-		RainFileName = path;
+		QFileInfo fi(path);
+		RainFileName = fi.fileName();
+		RainFileDir = CheckDir(fi.absoluteDir().path());
+		E_RainfallName->setText( RainFileName );
 	}
 }
 //--------------------------------------------------------------------
@@ -331,22 +335,24 @@ void lisemqt::on_toolButton_SnowmeltName_clicked()
 	QString path;
 	path = QFileDialog::getOpenFileName(this,
 													QString("Select snow melt file"),
-													QString::null);
+													SnowmeltFileDir);
 	if(!path.isEmpty())
 	{
-		E_SnowmeltName->setText( path );
-		SnowmeltFileName = path;
+		QFileInfo fi(path);
+		SnowmeltFileName = fi.fileName();
+		SnowmeltFileDir = CheckDir(fi.absoluteDir().path());
+		E_SnowmeltName->setText( SnowmeltFileName );
 	}
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SnowmeltShow_clicked()
 {
-	QFile file(SnowmeltFileName);
+	QFile file(SnowmeltFileDir + SnowmeltFileName);
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
 		QMessageBox::warning(this,"openLISEM",
 									QString("Cannot read file %1:\n%2.")
-									.arg(SnowmeltFileName)
+									.arg(SnowmeltFileDir + SnowmeltFileName)
 									.arg(file.errorString()));
 		return;
 	}
@@ -366,12 +372,12 @@ void lisemqt::on_toolButton_SnowmeltShow_clicked()
 void lisemqt::on_toolButton_RainfallShow_clicked()
 {
 
-	QFile file(RainFileName);
+	QFile file(RainFileDir + RainFileName);
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
 		QMessageBox::warning(this, QString("openLISEM"),
 									QString("Cannot read file %1:\n%2.")
-									.arg(RainFileName)
+									.arg(RainFileDir + RainFileName)
 									.arg(file.errorString()));
 		return;
 	}
@@ -428,7 +434,7 @@ void lisemqt::savefile(QString name)
 
 	QTextStream out(&fp);
 	out << QString("[openLISEM runfile version 1.0]\n");
-	for (int i = 1; i < nrnamelist; i++)
+	for (int i = 1; i < nrdefnamelist; i++)
 	{
 		if (defnamelist[i].name.contains("[") || defnamelist[i].name.isEmpty())
 			out << defnamelist[i].name << "\n"; // already contains \n

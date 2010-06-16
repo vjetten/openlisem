@@ -12,6 +12,7 @@ Functionality in lisDatainit.cpp:
 ---------------------------------------------------------------------------*/
 
 #include "model.h"
+#include "swatre_g.h"
 #include <qstring.h>
 
 //---------------------------------------------------------------------------
@@ -266,6 +267,7 @@ void TWorld::GetInputData(void)
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		MakeSwatreMap(&WHsw);
+		MakeSwatreMap(&Infilsw);
 		MakeSwatreMap(&ProfIDsw);
 
 		ProfileID = ReadMap(LDD,getvaluename("profmap"));
@@ -273,6 +275,7 @@ void TWorld::GetInputData(void)
 		{
 			ProfIDsw.Drc = ProfileID->Drc;
 			WHsw.Drc = 0;
+			Infilsw.Drc = 0;
 		}
 
 		if (SwitchInfilGrass)
@@ -303,7 +306,8 @@ void TWorld::GetInputData(void)
 		int res = ReadSwatreInput(tabnam, filnam);
 		if (res)
 		{
-
+			ErrorString = QString("trouble in SWATRE ReadSwatreInput: %1").arg(res);
+			throw 3;
 		}
 	}
 	else
@@ -495,7 +499,7 @@ void TWorld::IntializeData(void)
 	fpotgr = NewMap(0);
 	Ksateff = NewMap(0);
 
-	if (InfilMethod > INFIL_SWATRE)
+	if (InfilMethod != INFIL_SWATRE)
 	{
 		Fcum = NewMap(1e-10);
 		L1 = NewMap(1e-10);
@@ -512,6 +516,7 @@ void TWorld::IntializeData(void)
 			Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
 		}
 	}
+
 	// runoff maps
 	WH = NewMap(0);
 	WHrunoff = NewMap(0);
@@ -550,6 +555,13 @@ void TWorld::IntializeData(void)
 		if (SwitchChannelInfil)
 			ChannelKsat->calcV(ChKsatCalibration, MUL);
 
+	}
+
+	if (InfilMethod == INFIL_SWATRE)
+	{
+		SwatreSoilModel = InitSwatre(&ProfIDsw, initheadName.toAscii().constData(),
+											  swatreDT, 5.0, ksatCalibration, SwitchGeometric);
+		// note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
 	}
 
 	if (SwitchInterceptionLAI)

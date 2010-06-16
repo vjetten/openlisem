@@ -47,7 +47,7 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst;2");
 	DEFmaps.append("2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr;2");
 	DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;2");
-	DEFmaps.append("2;Init. suction;inithead;initial matrix potential of layers 001 to nnn (filename witout extension)(cm);inithead;2");
+	DEFmaps.append("2;Init. suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead;2");
 	//DEFmaps.append("2;Output head;headout.map;Locations to write tables of the matrix potential;headout;2");
 
 	DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange;0");

@@ -11,6 +11,8 @@ website, information and code: http://sourceforge.net/projects/lisem
  */
 
 #include "model.h"
+#include "swatre_g.h"
+
 
 #define tiny 1e-8
 
@@ -18,18 +20,23 @@ website, information and code: http://sourceforge.net/projects/lisem
 // DOESN'T WORK YET
 void TWorld::InfilSwatre(void)
 {
-	double prec = 1e-10;
-
-
-
 	FOR_ROW_COL_MV
 	{
 		WHsw.Drc = WH->Drc;
+		Infilsw.Drc = 0;
 	}
 	// copy data to SWATRE implified map structure
 
-	SwatreSoilModel = InitSwatre(&ProfIDsw, initheadName.toAscii().constData(), swatreDT, prec, time);
+	SwatreStep(SwatreSoilModel, &WHsw, &Infilsw, time, _dt);
+	//time and _dt in sec here must be in days?
 
+	FOR_ROW_COL_MV
+	{
+		WH->Drc = WHsw.Drc;
+		FSurplus->Drc = Infilsw.Drc;
+		//CHECK CHECK
+	}
+	// copy SWATRE data back to water height
 
 }
 //---------------------------------------------------------------------------
@@ -284,17 +291,20 @@ void TWorld::Infiltration(void)
 		InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 		// vol before infil
 
-		Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
-		// avg ksat of "normal" surface with crusting and compaction fraction, fractions are 0 when there is none
+		if (InfilMethod != INFIL_SWATRE)
+		{
+			Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
+			// avg ksat of "normal" surface with crusting and compaction fraction, fractions are 0 when there is none
 
-		if (SwitchInfilCrust)
-			Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
-		if (SwitchInfilCompact)
-			Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
-		// adjust effective infil for crusting and compaction
+			if (SwitchInfilCrust)
+				Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
+			if (SwitchInfilCompact)
+				Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
+			// adjust effective infil for crusting and compaction
 
-		Ksateff->Drc *= ksatCalibration;
-		// apply runfile/iface calibration factor
+			Ksateff->Drc *= ksatCalibration;
+			// apply runfile/iface calibration factor
+		}
 
 		if (SwitchBuffers && !SwitchSedtrap)
 			if(BufferID->Drc > 0)
@@ -327,39 +337,42 @@ void TWorld::Infiltration(void)
 		//VJ 100608 no infil in buffers until it is full
 		//TODO NOTE CORRECT FOR RAINFALL IF WH IS 0
 
-		WH->Drc -= fact->Drc;
-		if (WH->Drc < 0) // in case of rounding of errors
+		if (InfilMethod != INFIL_SWATRE)
 		{
-			fact->Drc += WH->Drc;
-			WH->Drc = 0;
-		}
-		// subtract fact->Drc from WH, cannot be more than WH
-
-		Fcum->Drc += fact->Drc;
-		// cumulative infil in m
-
-		if (GrassPresent->Drc > 0)
-		{
-			WHGrass->Drc -= factgr->Drc;
-			if (WHGrass->Drc < 0) // in case of rounding of errors
+			WH->Drc -= fact->Drc;
+			if (WH->Drc < 0) // in case of rounding of errors
 			{
-				factgr->Drc += WHGrass->Drc;
-				WHGrass->Drc = 0;
+				fact->Drc += WH->Drc;
+				WH->Drc = 0;
 			}
-			Fcumgr->Drc += factgr->Drc;
+			// subtract fact->Drc from WH, cannot be more than WH
+
+			Fcum->Drc += fact->Drc;
+			// cumulative infil in m
+
+			if (GrassPresent->Drc > 0)
+			{
+				WHGrass->Drc -= factgr->Drc;
+				if (WHGrass->Drc < 0) // in case of rounding of errors
+				{
+					factgr->Drc += WHGrass->Drc;
+					WHGrass->Drc = 0;
+				}
+				Fcumgr->Drc += factgr->Drc;
+			}
+			// calculate and correct water height on grass strips
+
+			if (GrassPresent->Drc > 0)
+				WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
+			// average water height if grasstrip present
+
+			FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
+			// negative surplus of infiltration in m for kinematic wave in m
+
+			if (GrassPresent->Drc > 0)
+				FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
+			// if grasstrip present use grasstrip surplus as entire surplus
 		}
-		// calculate and correct water height on grass strips
-
-		if (GrassPresent->Drc > 0)
-			WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
-		// average water height if grasstrip present
-
-		FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
-		// negative surplus of infiltration in m for kinematic wave in m
-
-		if (GrassPresent->Drc > 0)
-			FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
-		// if grasstrip present use grasstrip surplus as entire surplus
 
 		InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 	//	InfilVol->Drc = max(0, InfilVol->Drc);

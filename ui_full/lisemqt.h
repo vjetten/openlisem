@@ -37,7 +37,7 @@ public:
 	void UpdateModelData();
 	void DefaultRunFile();
 	void InsertVariable(QString q, QString p, QString p1);
-	QString CheckDir(QString p, QString p1);
+	QString CheckDir(QString p);
 	void RunAllChecks();
 	void savefile(QString name);
 	void InitOP();
@@ -61,9 +61,9 @@ public:
 	TreeModel *MapNameModel;
 	QString currentDir;
 	QString RainFileName;
-	QString rainFileDir;
+	QString RainFileDir;
 	QString SnowmeltFileName;
-	QString snowmeltFileDir;
+	QString SnowmeltFileDir;
 	QString SwatreTableName;
 	QString SwatreTableDir;
 	QStringList DEFmaps;

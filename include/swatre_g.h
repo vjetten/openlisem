@@ -16,6 +16,8 @@ typedef struct SOIL_MODEL {
 	struct PIXEL_INFO  *pixel;	 /* array of PIXEL_INFO  structs indexed as in compressed maps */
 	double precision;
 	double minDt;
+	double calibrationfactor;
+	bool geometric;
 	double *nodeData;
 } SOIL_MODEL;
 
@@ -24,7 +26,9 @@ SOIL_MODEL *InitSwatre(
 		const  char *initHeadMaps,    /* init head maps path */
 		double dtMin,   	      		/* minumum timestep, is also initial timestep */
 		double precis,                /* precision factor to adapt timestep */
-		double curtime);              /* current simulation time, same type as variable "index" in LISEM */
+		double calibration,
+		bool geom);
+		//double curtime);              /* current simulation time, same type as variable "index" in LISEM */
 
 void CloseSwatre(
 		SOIL_MODEL *s); /* soil model instance to be freed */
@@ -36,10 +40,11 @@ int ReadSwatreInput(
 void FreeSwatreInfo(void);
 
 void SwatreStep(
-		SOIL_MODEL *s,             /* rw soil models state */
-		MEM_HANDLE *waterHeight, 	/* rw waterheight map  */
+		SOIL_MODEL *s,             /* soil models state */
+		MEM_HANDLE *WH, 	/* waterheight map  */
+		MEM_HANDLE *Infil,			/* infiltration map for kin wave surplus infil */
 		double    lisemTimeStep,   /* size of time step used in LISEM */
-		double     curtime);			/* current simulation time, same type as variable "index" in LISEM */
+		double    curtime);			/* current simulation time */
 
 // average moisture content from surface to layernr, used in nutrients
 void SwatreTheta(
