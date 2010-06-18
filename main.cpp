@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
 
     lisemqt iface;
 
-    iface.setWindowTitle(QString("openLISEM ") + VERSION + DATE);
+    iface.setWindowTitle(VERSION);
+			 //QString("openLISEM ") + VERSION + DATE);
 
     iface.show();
     // make an instance of the interface and show it

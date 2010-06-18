@@ -13,6 +13,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "model.h"
 #include "swatre_g.h"
 
+//NOTE fact and fpot have a unit of m (not m/s)
 
 #define tiny 1e-8
 
@@ -20,24 +21,18 @@ website, information and code: http://sourceforge.net/projects/lisem
 // DOESN'T WORK YET
 void TWorld::InfilSwatre(void)
 {
-	FOR_ROW_COL_MV
-	{
-		WHsw.Drc = WH->Drc;
-		Infilsw.Drc = 0;
-	}
-	// copy data to SWATRE implified map structure
+	tm->copy(WH);
 
-	SwatreStep(SwatreSoilModel, &WHsw, &Infilsw, time, _dt);
-	//time and _dt in sec here must be in days?
+	SwatreStep(SwatreSoilModel);
+	// WH and fpot done in swatrestep
 
 	FOR_ROW_COL_MV
 	{
-		WH->Drc = WHsw.Drc;
-		FSurplus->Drc = Infilsw.Drc;
-		//CHECK CHECK
+		fact->Drc = (tm->Drc - WH->Drc);
 	}
-	// copy SWATRE data back to water height
-
+fpot->report("fpot");
+fact->report("fact");
+WH->report("WH");
 }
 //---------------------------------------------------------------------------
 // DOESN'T WORK YET
@@ -177,7 +172,7 @@ void TWorld::InfilKsat(void)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 
 		fpot->Drc = Ks;
-		// potential infil equals Ksat
+		// potential infil equals Ksat, unit is m
 
 		fact1 = min(fpot->Drc, fwh);
 		// actual infil in m, cannot have more infil than water on the surface
@@ -275,10 +270,7 @@ void TWorld::Infiltration(void)
 	FOR_ROW_COL_MV
 	{
 		WH->Drc += RainNet->Drc;
-		// net rainfall on soil surface
-
-		//WHinf->Drc = WH->Drc;
-		// not used really, to calc infiltrated water in this timestep
+		// add net to water rainfall on soil surface (in m)
 
 		if (GrassPresent->Drc > 0)
 			WHGrass->Drc += RainNet->Drc;
@@ -286,7 +278,7 @@ void TWorld::Infiltration(void)
 
 		if (RoadWidthDX->Drc > 0)
 			WHroad->Drc += Rainc->Drc;
-		// assume no interceprion on roads, gross rainfall
+		// assume no interception and infiltration on roads, gross rainfall
 
 		InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 		// vol before infil
@@ -304,26 +296,24 @@ void TWorld::Infiltration(void)
 
 			Ksateff->Drc *= ksatCalibration;
 			// apply runfile/iface calibration factor
+			if (SwitchBuffers && !SwitchSedtrap)
+				if(BufferID->Drc > 0)
+					Ksateff->Drc = 0;
+			//VJ 1000608 no infil in buffers, , but sedtrap can have infil
 		}
-
-		if (SwitchBuffers && !SwitchSedtrap)
-			if(BufferID->Drc > 0)
-				Ksateff->Drc = 0;
-		//VJ 1000608 no infil in buffers, , but sedtrap can have infil
-
-	}
+	} //row col
 
 	//select an infiltration type
 	switch (InfilMethod)
 	{
-		case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
-		case INFIL_SWATRE : InfilSwatre(); break;
-		case INFIL_HOLTAN : break;
-		case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
-		case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
-		case INFIL_KSAT : InfilKsat(); break;
-		case INFIL_MOREL : InfilMorelSeytoux1(); break; //TODO: DOESN'T WORK YET
-		case INFIL_SMITH : InfilSmithParlange1(); break;
+	case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
+	case INFIL_SWATRE : InfilSwatre(); break;
+	case INFIL_HOLTAN : break;
+	case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
+	case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
+	case INFIL_KSAT : InfilKsat(); break;
+	case INFIL_MOREL : InfilMorelSeytoux1(); break; //TODO: DOESN'T WORK YET
+	case INFIL_SMITH : InfilSmithParlange1(); break;
 	}
 	// these function result in an actual infiltration "fact" (in m)
 	// and potential infiltration "fpot" (in m)
@@ -361,26 +351,22 @@ void TWorld::Infiltration(void)
 				Fcumgr->Drc += factgr->Drc;
 			}
 			// calculate and correct water height on grass strips
-
-			if (GrassPresent->Drc > 0)
-				WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
-			// average water height if grasstrip present
-
-			FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
-			// negative surplus of infiltration in m for kinematic wave in m
-
-			if (GrassPresent->Drc > 0)
-				FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
-			// if grasstrip present use grasstrip surplus as entire surplus
 		}
 
-		InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-	//	InfilVol->Drc = max(0, InfilVol->Drc);
-		// infil volume is WH before - water after
+		if (GrassPresent->Drc > 0)
+			WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
+		// average water height if grasstrip present
 
-		//WHinf->Drc = max(0, WHinf->Drc - WH->Drc);
-		// infiltrated water in this timestep
-		// NOT USED IN FURTHER MDOEL!
+		FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
+		// negative surplus of infiltration in m for kinematic wave in m
+
+		if (GrassPresent->Drc > 0)
+			FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
+		// if grasstrip present use grasstrip surplus as entire surplus
+
+		InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+		//	InfilVol->Drc = max(0, InfilVol->Drc);
+		// infil volume is WH before - water after
 	}
 }
 //---------------------------------------------------------------------------

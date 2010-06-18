@@ -368,6 +368,12 @@ void lisemqt::UpdateModelData()
 
 		if (p1.compare("Table Directory")==0) defnamelist[j].value = SwatreTableDir;
 		if (p1.compare("Table File")==0) defnamelist[j].value = SwatreTableName;
+		if (p1.compare("SWATRE internal minimum timestep")==0)
+		{
+			double fraction = E_SWATREDtsecFraction->value();
+			swatreDT = E_Timestep->text().toDouble()*fraction;
+			defnamelist[j].value.setNum(swatreDT,'g',6);
+		}
 
 		if (p1.compare("Infil Method")==0)
 		{

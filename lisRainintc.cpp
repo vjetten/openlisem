@@ -36,9 +36,15 @@ void TWorld::GetRainfallData(void)
 	fff.open(QIODevice::ReadOnly | QIODevice::Text);
 	S = fff.readLine();
 	// read the header
+	while (S.isEmpty())
+		S = fff.readLine();
+	QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
+	nrstations = SL[SL.size()-2].toInt(&ok, 10);
+
+/*
 	if (S.contains("RUU CSF TIMESERIE", Qt::CaseInsensitive)) // file is old lisem file
 	{
-		QStringList SL = S.split(QRegExp("\\s+"));
+		QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
 		nrstations = SL[SL.size()-2].toInt(&ok, 10);
 	}
 	else // file is PCRaster timeseries
@@ -46,6 +52,7 @@ void TWorld::GetRainfallData(void)
 		S = fff.readLine();
 		nrstations = S.toInt(&ok, 10);
 	}
+	*/
 	if (!ok)
 	{
 		ErrorString = "Cannot read nr rainfall stations in header rainfall file";

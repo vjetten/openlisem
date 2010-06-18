@@ -219,18 +219,57 @@ void TWorld::ParseInputData()
 				SwatreTableName = p;
 			}
 		}
-		if (p1.compare("Main results file")==0) resultFileName = p;
-		if (p1.compare("Filename point output")==0) outflowFileName =  p;
-		// resultDir is added in report operation
+		if (p1.compare("Main results file")==0)
+		{
+			resultFileName =  p;
+			if (p.isEmpty())
+			{
+				ErrorString = "Please give a name for the main results file";
+				throw 1;
+			}
+		}
+		if (p1.compare("Filename point output")==0)
+		{
+			outflowFileName =  p;
+			if (p.isEmpty())
+			{
+				ErrorString = "Please give a name for the hydrograph file";
+				throw 1;
+			}
+		}
 
 		if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
 		if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
 		if (SwitchErosion)
 		{
-			if (p1.compare("Erosion map")==0) totalErosionFileName =  p;
-			if (p1.compare("Deposition map")==0) totalDepositionFileName =  p;
-			if (p1.compare("Soilloss map")==0) totalSoillossFileName =  p;
-			// resultDir is added in report operation
+			if (p1.compare("Erosion map")==0)
+			{
+				totalErosionFileName = p;
+				if (p.isEmpty())
+				{
+					ErrorString = "Please give a name for the detachment map";
+					throw 1;
+				}
+			}
+			if (p1.compare("Deposition map")==0)
+			{
+				totalDepositionFileName =  p;
+				if (p.isEmpty())
+				{
+					ErrorString = "Please give a name for the deposition map";
+					throw 1;
+				}
+			}
+			if (p1.compare("Soilloss map")==0)
+			{
+				totalSoillossFileName =  p;
+				if (p.isEmpty())
+				{
+					ErrorString = "Please give a name for the soil loss map";
+					throw 1;
+				}
+			}
+			// resultDir is added in report operation			
 		}
 
 		if (SwitchSnowmelt)
@@ -255,9 +294,9 @@ void TWorld::ParseInputData()
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+		swatreDT/=86400; //in days
 		SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
-		initheadName = inputDir + getvaluename("inithead");
-		DEBUG(initheadName);
+		initheadName = getvaluename("inithead");
 		// only map name is needed, data is read in swatre lib
 		//profileName = getname("profile");//?????????????????????
 		// profile map name

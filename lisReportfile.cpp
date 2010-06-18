@@ -336,7 +336,6 @@ void TWorld::ReportTotalsNew()
 //---------------------------------------------------------------------------
 void TWorld::ReportMaps()
 {
-	InfilVolKinWave->report("ikw");
 	if(SwitchErosion)
 	{
 		TotalDetMap->mwrite(totalErosionFileName);

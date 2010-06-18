@@ -15,6 +15,7 @@ Functionality in lisDatainit.cpp:
 #include "swatre_g.h"
 #include <qstring.h>
 
+//char SwatreErrorString[256];
 //---------------------------------------------------------------------------
 void TWorld::InitMapList(void)
 {
@@ -47,7 +48,7 @@ TMMap *TWorld::ReadMapMask(QString name)
 
 	TMMap *_M = new TMMap();
 
-	_M->PathName = /*inputdir + */name;
+	_M->PathName = name;
 	bool res = _M->LoadFromFile();
 	if (!res)
 	{
@@ -133,22 +134,10 @@ void TWorld::DestroyData(void)
 			delete[] RainfallSeries[r];
 		delete[] RainfallSeries;
 	}
-
-}
-//---------------------------------------------------------------------------
-// structure for reading inithead maps
-void TWorld::MakeSwatreMap(MEM_HANDLE *map)
-{
-//   map = new MEM_HANDLE;
-	map->Data = new REAL8*[nrRows];
-	for(int r=0; r < nrRows; r++)
-		map->Data[r] = new REAL8[nrCols];
-
-   for(int r = 0; r < nrRows; r++)
-	   SetMemMV(map->Data[r],nrCols,CR_REAL8);
-
-   map->nrRows = nrRows;
-   map->nrCols = nrCols;
+	if (SwatreSoilModel)
+	{
+		CloseSwatre(SwatreSoilModel);
+	}
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::InitMask(QString name)
@@ -266,17 +255,7 @@ void TWorld::GetInputData(void)
 
 	if (InfilMethod == INFIL_SWATRE)
 	{
-		MakeSwatreMap(&WHsw);
-		MakeSwatreMap(&Infilsw);
-		MakeSwatreMap(&ProfIDsw);
-
 		ProfileID = ReadMap(LDD,getvaluename("profmap"));
-		FOR_ROW_COL_MV
-		{
-			ProfIDsw.Drc = ProfileID->Drc;
-			WHsw.Drc = 0;
-			Infilsw.Drc = 0;
-		}
 
 		if (SwitchInfilGrass)
 			ProfileIDgrass = ReadMap(LDD,getvaluename("profgrass"));
@@ -298,22 +277,13 @@ void TWorld::GetInputData(void)
 		else
 			CompactFraction = NewMap(0);
 
-		DEBUG("swatre soil table");
-		char *tabnam = (char *)malloc(256);
-		strcpy(tabnam, SwatreTableName.toAscii().constData());
-		char *filnam = (char *)malloc(256);
-		strcpy(filnam, SwatreTableDir.toAscii().constData());
-		int res = ReadSwatreInput(tabnam, filnam);
+		int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
 		if (res)
-		{
-			ErrorString = QString("trouble in SWATRE ReadSwatreInput: %1").arg(res);
-			throw 3;
-		}
+			throw res;
 	}
 	else
 	if(InfilMethod != INFIL_NONE)
 	{
-		DEBUG("infil");
 		Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
 		SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
 		if(InfilMethod != INFIL_KSAT)
@@ -498,13 +468,13 @@ void TWorld::IntializeData(void)
 	factgr = NewMap(0);
 	fpotgr = NewMap(0);
 	Ksateff = NewMap(0);
+	FSurplus = NewMap(0);
 
 	if (InfilMethod != INFIL_SWATRE)
 	{
 		Fcum = NewMap(1e-10);
 		L1 = NewMap(1e-10);
 		L2 = NewMap(1e-10);
-		FSurplus = NewMap(0);
 		Fcumgr = NewMap(1e-10);
 		L1gr = NewMap(1e-10);
 		L2gr = NewMap(1e-10);
@@ -522,8 +492,7 @@ void TWorld::IntializeData(void)
 	WHrunoff = NewMap(0);
 	WHrunoffCum = NewMap(0);
 	WHstore = NewMap(0);
-	WHroad = NewMap(0);
-	// WHinf = NewMap(0); // not used!
+	WHroad = NewMap(0);	
 	WHGrass = NewMap(0);
 	FlowWidth = NewMap(0);
 	fpa = NewMap(0);
@@ -557,11 +526,18 @@ void TWorld::IntializeData(void)
 
 	}
 
+	SwatreSoilModel = NULL;
 	if (InfilMethod == INFIL_SWATRE)
 	{
-		SwatreSoilModel = InitSwatre(&ProfIDsw, initheadName.toAscii().constData(),
-											  swatreDT, 5.0, ksatCalibration, SwitchGeometric);
+		double precision = 5.0;
 		// note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
+		SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT, precision,
+											  ksatCalibration, SwitchGeometric, SwitchImpermeable);
+		if (SwatreSoilModel == NULL)
+		{
+			ErrorString = "Some problem in InitSwatre";
+			throw 3;
+		}
 	}
 
 	if (SwitchInterceptionLAI)

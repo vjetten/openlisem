@@ -1,0 +1,94 @@
+
+#include "misc.h"
+#include "csf.h"
+#include "swatre_p.h"
+#include "swatre_g.h"
+#include "swat_inp.h"
+#include "error.h"
+#include "model.h"
+
+//--------------------------------------------------------------------------------
+SOIL_MODEL *TWorld::InitSwatre(
+		TMMap *profileMap,
+		QString initHeadMaps,    /* init head name */
+		double minDt,         /* minimum timestep, is also initial timestep */
+		double precision,     /* precision factor to determine if if timestep can be altered */
+		double calibration,
+		bool geom,
+		bool bottomClosed)
+{
+	SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
+	//TODO check if this needs freeing when error
+	int  i, n, nrNodes  = NrZoneNodes();
+	int nodeDataIncr = nrNodes+1;
+	long nrCells = nrCols*nrRows;
+
+	if (nrNodes == -1)
+	{
+		Error("SWATRE: can't call 'initswatre' before 'swatre input' ","",0);
+		return(NULL);
+	}
+	s->nrCells = nrCells;
+	s->precision = precision;
+	s->minDt = minDt;
+	s->geometric = geom;
+	s->swatreBottomClosed = bottomClosed;
+	s->calibrationfactor = calibration;
+	s->pixel = new PIXEL_INFO[nrCells];
+
+	for (i = 0; i < nrCells; i++)
+	{
+		s->pixel[i].h = new REAL8[nodeDataIncr];
+		for (n = 0; n < nrNodes; n++)
+			s->pixel[i].h[n] = -1e10;
+		//SetMemMV(&s->pixel[i].h,nodeDataIncr,CR_REAL8);
+	}
+	for (n = 0; n < nrNodes; n++)
+	{
+
+		QString fname = QString("%1.%2").arg(initHeadMaps).arg(n+1, 3, 10, QLatin1Char('0'));
+
+		TMMap *inith = ReadMap(LDD,fname);
+		// make inithead.001 to .00n name
+
+		i = 0;
+		for (int r = 0; r < nrRows; r++)
+			for (int c = 0; c < nrCols; c++)
+			{
+				if (!IS_MV_REAL8(&profileMap->Drc))
+				{
+					if (profileMap->Drc == -1 || ProfileNr(profileMap->Drc) == NULL)
+					{
+						Error("SWATRE: profile nr '%d' is missing","", (int)profileMap->Drc);
+						return (NULL);
+					}
+
+					s->pixel[r*nrCols+c].profile = ProfileNr(profileMap->Drc);
+					s->pixel[r*nrCols+c].currDt = minDt;
+					s->pixel[r*nrCols+c].h[n] = inith->Data[r][c];
+				}
+				i++;
+				// next cell
+				if (i > nrCells)
+				{
+					Error("SWATRE: Cell nr problem '%d'","", i);
+					return (NULL);
+				}
+			}  // row col
+	}  // for all nodes
+	return(s);
+}
+//--------------------------------------------------------------------------------
+/* soil model instance to be freed */
+void TWorld::CloseSwatre(SOIL_MODEL *s)
+{
+	FreeSwatreInfo();
+	//	free(s->nodeData);
+	for (int i = 0; i < s->nrCells; i++)
+		delete[] s->pixel[i].h;
+
+	free(s->pixel);
+	free(s);
+	s = NULL;
+}
+//--------------------------------------------------------------------------------

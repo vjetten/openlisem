@@ -18,4 +18,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 extern QString ErrorString;
 
+#define Error(s,s1,s2)  ErrorString=QString("%1 %2 %2").arg(s).arg(s1).arg(s2)
+
 #endif /* ERROR_H_ */

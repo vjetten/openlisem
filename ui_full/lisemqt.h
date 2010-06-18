@@ -70,6 +70,7 @@ public:
 	QStringList RunFileNames;
 	int CurrentRunFile;
 	int uiInfilMethod;
+	double swatreDT;
 
 	// runfile read structure
 	_nameList namelist[NUMNAMES]; // structure for runfile variables and names
@@ -87,6 +88,7 @@ void savefileas();
 void openRunFile();
 void runmodel();
 void stopmodel();
+void shootScreen();
 
 void on_toolButton_MapDir_clicked();
 void on_toolButton_ResultDir_clicked();
@@ -134,7 +136,7 @@ QAction *saveasAct;
 QAction *runAct;
 QAction *pauseAct;
 QAction *stopAct;
-
+QAction *shootscreenAct;
 // the model world
 TWorld *W;
 

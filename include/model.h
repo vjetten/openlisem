@@ -175,11 +175,8 @@ public:
 
 	//SWATRE
 	// simplified maps needed for swatre interaction
-	MEM_HANDLE WHsw;
-	MEM_HANDLE ProfIDsw;
-	MEM_HANDLE Infilsw;
 	SOIL_MODEL *SwatreSoilModel;
-	void MakeSwatreMap(MEM_HANDLE *map);
+	//void MakeSwatreMap(MEM_HANDLE *map);
 	double swatreDT;
 
 	// time and dx parameters
@@ -274,6 +271,22 @@ public:
 	bool stopRequested;
 	QMutex mutex;
 	void stop();
+
+//	int ReadSwatreInput(const char *fileName,	const char *tablePath);
+	int ReadSwatreInput(QString fileName, QString tablePath);
+
+	SOIL_MODEL *InitSwatre(
+			TMMap *profileMap, // r- profile id map
+			QString initHeadMaps,    // init head maps path
+			double dtMin,   	      		// minumum timestep, is also initial timestep
+			double precis,                // precision factor to adapt timestep
+			double calibration,
+			bool geom,
+			bool bottomClosed);
+			//double curtime);
+
+	void SwatreStep(SOIL_MODEL *s);
+	void CloseSwatre(SOIL_MODEL *s);
 
 protected:
 	void run();

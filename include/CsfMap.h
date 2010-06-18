@@ -14,11 +14,8 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include <QtGui>
 #include "csf.h"
 
-
-
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
-
 
 //---------------------------------------------------------------------------
 

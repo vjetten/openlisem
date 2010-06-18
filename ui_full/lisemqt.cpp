@@ -88,6 +88,12 @@ void lisemqt::SetToolBar()
 	stopAct->setStatusTip("stop the model run ...");
 	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
 	toolBar->addAction(stopAct);
+
+	shootscreenAct = new QAction(QIcon(":/screenshots.png"), "Stop the model...", this);
+	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
+	shootscreenAct->setStatusTip("make a screendump ...");
+	connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
+	toolBar->addAction(shootscreenAct);
 	toolBar->addSeparator();
 
 }
@@ -477,6 +483,7 @@ void lisemqt::GetStorePath()
 	QFile fff(op.LisemDir + "openlisem.ini");
 	if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
+
 	QFileInfo fi(fff.readLine());
 	QDir dir = fi.absoluteDir();
 	currentDir = dir.absolutePath();
@@ -560,5 +567,22 @@ void lisemqt::on_E_ResultDir_textEdited()
 	}
 }
 //--------------------------------------------------------------------
+void lisemqt::shootScreen()
+{
+	if (op.runfilename.isEmpty())
+	{
+		QMessageBox::warning(this, "openLISEM",QString("Select a run file first"));
+		return;
+	}
+	QPixmap originalPixmap; // clear image for low memory situations
+                                // on embedded devices.
+    originalPixmap = QPixmap::grabWidget(tabWidget->currentWidget());
 
+    QString format = "png";
+	 QFileInfo fi(op.runfilename);
 
+    QString fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + "." + format;
+
+    originalPixmap.save(fileName, format.toAscii());
+}
+//--------------------------------------------------------------------

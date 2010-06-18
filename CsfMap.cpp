@@ -183,6 +183,12 @@ void cTMap::WriteMap(QString Name)
     if (!Created)
         return;
 
+	 if (Name.isEmpty())
+	 {
+		 ErrorString = "Cannot write file, file name empty";
+		 throw 1;
+	 }
+
     ResetMinMax();
 
     Dt = new REAL4[nrCols];

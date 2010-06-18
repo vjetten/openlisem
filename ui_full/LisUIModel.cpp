@@ -32,7 +32,7 @@ void lisemqt::runmodel()
 				QString("Load a runfile first!"));
 		return;
 	}
-
+	label_runfilename->setText(op.runfilename);
 	//TODO if run from commandline this name must exist
 	// this assumes runfilename is correct
 	savefile(QString(op.LisemDir+"openlisemtmp.run"));
@@ -179,6 +179,7 @@ void lisemqt::worldDone(const QString &results)
 	if (results.contains("ERROR"))
 		QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
 
+	shootScreen();
 
 	// arrive here after model emits done signal
 	if (W)
@@ -200,7 +201,7 @@ void lisemqt::worldDone(const QString &results)
 	timeData = NULL;
 	// free data structures graph
 
-	//QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDebug(const QString &results)
