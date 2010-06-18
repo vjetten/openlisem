@@ -21,18 +21,47 @@ website, information and code: http://sourceforge.net/projects/lisem
 // DOESN'T WORK YET
 void TWorld::InfilSwatre(void)
 {
-	tm->copy(WH);
+	fact->copy(WH);
 
-	SwatreStep(SwatreSoilModel);
+	SwatreStep(SwatreSoilModel, WH, fpot);
 	// WH and fpot done in swatrestep
-
 	FOR_ROW_COL_MV
+			fact->Drc = (fact->Drc - WH->Drc);
+
+	if (SwitchInfilCrust)
 	{
-		fact->Drc = (tm->Drc - WH->Drc);
+		tm->copy(WH);
+		tma->fill(0);
+		SwatreStep(SwatreSoilModelCrust, tm, tma);
+		FOR_ROW_COL_MV
+		{
+			//tm = WHcrust and tma = fpot crust
+			fact->Drc = (tm->Drc - WH->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
+			WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
+			fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+		}
 	}
-fpot->report("fpot");
-fact->report("fact");
-WH->report("WH");
+
+	if (SwitchInfilCompact)
+	{
+		tm->copy(WH);
+		tma->fill(0);
+		SwatreStep(SwatreSoilModelCompact, tm, tma);
+		FOR_ROW_COL_MV
+		{
+			fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
+			WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
+			fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+		}
+	}
+
+	if (SwitchInfilGrass)
+	{
+		factgr->copy(WHGrass);
+		SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr);
+		FOR_ROW_COL_MV
+				factgr->Drc = (factgr->Drc - WHGrass->Drc);
+	}
 }
 //---------------------------------------------------------------------------
 // DOESN'T WORK YET

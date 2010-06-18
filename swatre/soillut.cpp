@@ -7,27 +7,12 @@
 /*                                                                        */
 /**************************************************************************/
 #include "soillut.h"
-
-/********/
-/* USES */
-/********/
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
 
 #include "misc.h"
 
-/***************/
-/* EXTERNALS   */
-/***************/
-
-/**********************/
-/* LOCAL DECLARATIONS */
-/**********************/
-/*  number of elements added to the lut
- *  when initializing (malloc) or resizing
- *  (realloc)
- */
 #define INC_LUT 90
 
 /* error messages: */

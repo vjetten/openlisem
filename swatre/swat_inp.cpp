@@ -231,8 +231,10 @@ static PROFILE *ReadProfileDefinition(
 			Error("SWATRE: Can't read a LUT for profile nr"," node nr '%d' and up", p->profileId);
 		if ( fscanf(f,"%lf", &endHor) != 1 )
 			Error("SWATRE: Can't read end of horizon for profile nr","",p->profileId);
+
 		h = ReadHorizon(tablePath, tableName);
 		// copy horizon info to all nodes of this horizon
+
 		while (i < z->nrNodes && z->endComp[i] <= endHor )
 			p->horizon[i++] = h;
 		if (z->endComp[i-1] != endHor)

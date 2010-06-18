@@ -64,7 +64,7 @@ void HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
 		alpha = thomb[i] - thoma[i] * beta[i];
 		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
 	}
-	for (i = (last-1); i >= 0; i--) // CW (last-1) was last
+	for (i = (last-1); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
 
 	// correct tridiagonal matrix
@@ -85,7 +85,7 @@ void HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
 		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
 	}
 
-	for (i = (last-1); i >= 0; i--) // CW (last-1) was last
+	for (i = (last-1); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
 
 }
@@ -144,7 +144,6 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 			// table in cm/day now in cm/sec
 			dimoca[i] = DmcNode(h[i], Horizon(p, i));
 			theta[i] = TheNode(h[i], Horizon(p, i));
-			//Sink[i] = SinkNode(h[i], Horizon(p, i), SinkTerm);
 		}
 
 		//===== arithmetric average K, geometric in org. SWATRE
@@ -182,7 +181,6 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 		ThetaSat = TheNode(0.0, Horizon(p, 0));
 		kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), s->calibrationfactor) * k[0]);
 		// qmax of top node is still calc with geometric average K
-
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
 		//actual infil rate Darcy
 		//KLOPT eigenlijk niet als niet ponded is pond = 0,ipv een negatieve matrix potentiaal
@@ -200,7 +198,6 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 				ThetaSat = TheNode(0.0, Horizon(p, i));
 				space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
 			}
-			//VJ calibration factor is used only for Ksat, in fact if h > -1 cm
 			ponded = pond > space;
 		}
 
@@ -264,22 +261,22 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
-void TWorld::SwatreStep(SOIL_MODEL *s)
+void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot)
 {
 	FOR_ROW_COL_MV
 	{
 		double wh, infil;
 
-		wh = WH->Data[r][c]*100;
+		wh = _WH->Data[r][c]*100;
 		// WH is in m, convert to cm
 		infil = 0;
 
 		ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, _dt, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
 
-		WH->Data[r][c] = wh/100;
+		_WH->Data[r][c] = wh/100;
 		//back to m
-		fpot->Data[r][c] = -infil/100;
+		_fpot->Data[r][c] = -infil/100;
 		// back to m , is multiplied with dt in computerforpixel
 	}
 }

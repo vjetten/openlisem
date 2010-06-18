@@ -11,5 +11,6 @@
         <file>pause2.png</file>
         <file>diropen.png</file>
         <file>screenshots.png</file>
+        <file>Info.png</file>
     </qresource>
 </RCC>

@@ -77,6 +77,12 @@ void lisemqt::SetToolBar()
 	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefileas()));
 	toolBar->addAction(saveasAct);
 
+	shootscreenAct = new QAction(QIcon(":/screenshots.png"), "Stop the model...", this);
+	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
+	shootscreenAct->setStatusTip("make a screendump ...");
+	connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
+	toolBar->addAction(shootscreenAct);
+	toolBar->addSeparator();
 	runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
 	//	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
 	runAct->setStatusTip("run the model ...");
@@ -89,12 +95,12 @@ void lisemqt::SetToolBar()
 	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
 	toolBar->addAction(stopAct);
 
-	shootscreenAct = new QAction(QIcon(":/screenshots.png"), "Stop the model...", this);
-	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
-	shootscreenAct->setStatusTip("make a screendump ...");
-	connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
-	toolBar->addAction(shootscreenAct);
-	toolBar->addSeparator();
+	toolBar->setMovable( false);
+
+	aboutAct = new QAction(QIcon(":/Info.png"), "", this);
+	connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutQT()));
+	toolBar_2->addAction(aboutAct);
+	toolBar_2->setMovable( false);
 
 }
 //--------------------------------------------------------------------
@@ -586,3 +592,9 @@ void lisemqt::shootScreen()
     originalPixmap.save(fileName, format.toAscii());
 }
 //--------------------------------------------------------------------
+void lisemqt::aboutQT()
+{
+	QMessageBox::aboutQt ( this, "openLISEM" );
+}
+//--------------------------------------------------------------------
+

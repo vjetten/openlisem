@@ -82,8 +82,6 @@ SOIL_MODEL *TWorld::InitSwatre(
 /* soil model instance to be freed */
 void TWorld::CloseSwatre(SOIL_MODEL *s)
 {
-	FreeSwatreInfo();
-	//	free(s->nodeData);
 	for (int i = 0; i < s->nrCells; i++)
 		delete[] s->pixel[i].h;
 

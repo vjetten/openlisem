@@ -100,7 +100,7 @@ public:
 	// All maps are declared here, no lacal declarations of maps are done
 	TMMap
 	// terrain
-	*tm, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
+	*tm, *tma, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
 	// rainfall and interception
 	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
 	// runoff
@@ -121,7 +121,7 @@ public:
 	*ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
 	*KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
 	*WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
-	*ProfileID, *ProfileIDcrust, *ProfileIDcomp, *ProfileIDgrass,
+	*ProfileID, *ProfileIDCrust, *ProfileIDCompact, *ProfileIDGrass,
 	// Channels
 	*RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
 	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
@@ -174,9 +174,10 @@ public:
 	int r_outlet;
 
 	//SWATRE
-	// simplified maps needed for swatre interaction
 	SOIL_MODEL *SwatreSoilModel;
-	//void MakeSwatreMap(MEM_HANDLE *map);
+	SOIL_MODEL *SwatreSoilModelCrust;
+	SOIL_MODEL *SwatreSoilModelCompact;
+	SOIL_MODEL *SwatreSoilModelGrass;
 	double swatreDT;
 
 	// time and dx parameters
@@ -285,7 +286,7 @@ public:
 			bool bottomClosed);
 			//double curtime);
 
-	void SwatreStep(SOIL_MODEL *s);
+	void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot);
 	void CloseSwatre(SOIL_MODEL *s);
 
 protected:

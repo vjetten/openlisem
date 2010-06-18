@@ -134,9 +134,12 @@ void TWorld::DestroyData(void)
 			delete[] RainfallSeries[r];
 		delete[] RainfallSeries;
 	}
-	if (SwatreSoilModel)
+
+	if (InfilMethod == INFIL_SWATRE)
 	{
-		CloseSwatre(SwatreSoilModel);
+		FreeSwatreInfo();
+		if (SwatreSoilModel)
+			CloseSwatre(SwatreSoilModel);
 	}
 }
 //---------------------------------------------------------------------------
@@ -253,36 +256,7 @@ void TWorld::GetInputData(void)
 	else
 		GrassFraction = NewMap(0);
 
-	if (InfilMethod == INFIL_SWATRE)
-	{
-		ProfileID = ReadMap(LDD,getvaluename("profmap"));
-
-		if (SwitchInfilGrass)
-			ProfileIDgrass = ReadMap(LDD,getvaluename("profgrass"));
-		//TODO fix this
-
-		if (SwitchInfilCrust)
-		{
-			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-			ProfileIDcrust = ReadMap(LDD,getvaluename("profcrust"));
-		}
-		else
-			CrustFraction = NewMap(0);
-
-		if (SwitchInfilCompact)
-		{
-			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-			ProfileIDcomp = ReadMap(LDD,getvaluename("profcomp"));
-		}
-		else
-			CompactFraction = NewMap(0);
-
-		int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-		if (res)
-			throw res;
-	}
-	else
-	if(InfilMethod != INFIL_NONE)
+	if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
 	{
 		Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
 		SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
@@ -315,7 +289,33 @@ void TWorld::GetInputData(void)
 		else
 			CompactFraction = NewMap(0);
 	}
+	if (InfilMethod == INFIL_SWATRE)
+	{
+		ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
+		if (SwitchInfilGrass)
+			ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
+
+		if (SwitchInfilCrust)
+		{
+			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+			ProfileIDCrust = ReadMap(LDD,getvaluename("profcrust"));
+		}
+		else
+			CrustFraction = NewMap(0);
+
+		if (SwitchInfilCompact)
+		{
+			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+			ProfileIDCompact = ReadMap(LDD,getvaluename("profcomp"));
+		}
+		else
+			CompactFraction = NewMap(0);
+
+		int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
+		if (res)
+			throw res;
+	}
 
 	StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 	// WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
@@ -423,6 +423,7 @@ void TWorld::IntializeData(void)
 	BufferSedTot = 0;
 
 	tm = NewMap(0); // temp map for aux calculations
+	tma = NewMap(0); // temp map for aux calculations
 	nrCells = Mask->MapTotal();
 
 	//terrain maps
@@ -527,6 +528,9 @@ void TWorld::IntializeData(void)
 	}
 
 	SwatreSoilModel = NULL;
+	SwatreSoilModelCrust = NULL;
+	SwatreSoilModelCompact = NULL;
+	SwatreSoilModelGrass = NULL;
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		double precision = 5.0;
@@ -534,9 +538,28 @@ void TWorld::IntializeData(void)
 		SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT, precision,
 											  ksatCalibration, SwitchGeometric, SwitchImpermeable);
 		if (SwatreSoilModel == NULL)
-		{
-			ErrorString = "Some problem in InitSwatre";
 			throw 3;
+
+		if (SwitchInfilCrust)
+		{
+			SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT, precision,
+														 ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			if (SwatreSoilModelCrust == NULL)
+				throw 3;
+		}
+		if (SwitchInfilCompact)
+		{
+			SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT, precision,
+															ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			if (SwatreSoilModelCompact == NULL)
+				throw 3;
+		}
+		if (SwitchInfilGrass)
+		{
+			SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT, precision,
+														 ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			if (SwatreSoilModelGrass == NULL)
+				throw 3;
 		}
 	}
 

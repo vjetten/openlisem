@@ -89,6 +89,7 @@ void openRunFile();
 void runmodel();
 void stopmodel();
 void shootScreen();
+void aboutQT();
 
 void on_toolButton_MapDir_clicked();
 void on_toolButton_ResultDir_clicked();
@@ -137,6 +138,8 @@ QAction *runAct;
 QAction *pauseAct;
 QAction *stopAct;
 QAction *shootscreenAct;
+QAction *aboutAct;
+
 // the model world
 TWorld *W;
 
