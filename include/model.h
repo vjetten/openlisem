@@ -286,7 +286,7 @@ public:
 			bool bottomClosed);
 			//double curtime);
 
-	void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot);
+	void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where);
 	void CloseSwatre(SOIL_MODEL *s);
 
 protected:

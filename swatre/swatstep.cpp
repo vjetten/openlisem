@@ -261,9 +261,10 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
-void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot)
+void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where)
 {
 	FOR_ROW_COL_MV
+			if(where->Drc > 0) // when there is crusting for instance
 	{
 		double wh, infil;
 

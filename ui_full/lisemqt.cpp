@@ -95,12 +95,13 @@ void lisemqt::SetToolBar()
 	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
 	toolBar->addAction(stopAct);
 
-	toolBar->setMovable( false);
 
 	aboutAct = new QAction(QIcon(":/Info.png"), "", this);
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutQT()));
 	toolBar_2->addAction(aboutAct);
+
 	toolBar_2->setMovable( false);
+	toolBar->setMovable( false);
 
 }
 //--------------------------------------------------------------------

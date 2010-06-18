@@ -22,8 +22,9 @@ website, information and code: http://sourceforge.net/projects/lisem
 void TWorld::InfilSwatre(void)
 {
 	fact->copy(WH);
+	tm->fill(1);
 
-	SwatreStep(SwatreSoilModel, WH, fpot);
+	SwatreStep(SwatreSoilModel, WH, fpot, tm);
 	// WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
 			fact->Drc = (fact->Drc - WH->Drc);
@@ -32,7 +33,7 @@ void TWorld::InfilSwatre(void)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-		SwatreStep(SwatreSoilModelCrust, tm, tma);
+		SwatreStep(SwatreSoilModelCrust, tm, tma, CrustFraction);
 		FOR_ROW_COL_MV
 		{
 			//tm = WHcrust and tma = fpot crust
@@ -46,7 +47,7 @@ void TWorld::InfilSwatre(void)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-		SwatreStep(SwatreSoilModelCompact, tm, tma);
+		SwatreStep(SwatreSoilModelCompact, tm, tma, CompactFraction);
 		FOR_ROW_COL_MV
 		{
 			fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
@@ -57,10 +58,10 @@ void TWorld::InfilSwatre(void)
 
 	if (SwitchInfilGrass)
 	{
-		factgr->copy(WHGrass);
-		SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr);
+		tm->copy(WHGrass);
+		SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, GrassFraction);
 		FOR_ROW_COL_MV
-				factgr->Drc = (factgr->Drc - WHGrass->Drc);
+				factgr->Drc = (tm->Drc - WHGrass->Drc);
 	}
 }
 //---------------------------------------------------------------------------

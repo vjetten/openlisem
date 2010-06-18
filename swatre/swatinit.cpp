@@ -44,38 +44,27 @@ SOIL_MODEL *TWorld::InitSwatre(
 		//SetMemMV(&s->pixel[i].h,nodeDataIncr,CR_REAL8);
 	}
 	for (n = 0; n < nrNodes; n++)
-	{
-
-		QString fname = QString("%1.%2").arg(initHeadMaps).arg(n+1, 3, 10, QLatin1Char('0'));
-
-		TMMap *inith = ReadMap(LDD,fname);
+	{	
+		QString fname = QString("%1.%2").arg(initHeadMaps)
+							 .arg(n+1, 3, 10, QLatin1Char('0'));
 		// make inithead.001 to .00n name
 
-		i = 0;
-		for (int r = 0; r < nrRows; r++)
-			for (int c = 0; c < nrCols; c++)
-			{
-				if (!IS_MV_REAL8(&profileMap->Drc))
-				{
-					if (profileMap->Drc == -1 || ProfileNr(profileMap->Drc) == NULL)
-					{
-						Error("SWATRE: profile nr '%d' is missing","", (int)profileMap->Drc);
-						return (NULL);
-					}
+		TMMap *inith = ReadMap(LDD,fname);
+		// get inithead information
 
-					s->pixel[r*nrCols+c].profile = ProfileNr(profileMap->Drc);
-					s->pixel[r*nrCols+c].currDt = minDt;
-					s->pixel[r*nrCols+c].h[n] = inith->Data[r][c];
-				}
-				i++;
-				// next cell
-				if (i > nrCells)
-				{
-					Error("SWATRE: Cell nr problem '%d'","", i);
-					return (NULL);
-				}
-			}  // row col
-	}  // for all nodes
+		FOR_ROW_COL_MV
+		{
+			if (profileMap->Drc == -1 || ProfileNr(profileMap->Drc) == NULL)
+			{
+				Error("SWATRE: profile nr '%d' is missing","", (int)profileMap->Drc);
+				return (NULL);
+			}
+
+			s->pixel[r*nrCols+c].profile = ProfileNr(profileMap->Drc);
+			s->pixel[r*nrCols+c].currDt = minDt;
+			s->pixel[r*nrCols+c].h[n] = inith->Data[r][c];
+		}
+	}
 	return(s);
 }
 //--------------------------------------------------------------------------------

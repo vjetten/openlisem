@@ -171,6 +171,12 @@ void lisemqt::ParseInputData()
 	}
 
 	// get main directories
+	E_MainTotals->setText("main.txt");
+	E_PointResults->setText("hydrograph.csv");
+	E_DetachmentMap->setText("eros.map");
+	E_DepositionMap->setText("depo.map");
+	E_SoillossMap->setText("soilloss.map");
+
 	for (j = 0; j < nrnamelist; j++)
 	{
 		QString p1 = namelist[j].name;
@@ -366,8 +372,8 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
 //TODO fix output stuff
 
-		if (p1.compare("Table Directory")==0) defnamelist[j].value = SwatreTableDir;
-		if (p1.compare("Table File")==0) defnamelist[j].value = SwatreTableName;
+		if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+		if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;
 		if (p1.compare("SWATRE internal minimum timestep")==0)
 		{
 			double fraction = E_SWATREDtsecFraction->value();
