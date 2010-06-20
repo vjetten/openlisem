@@ -21,13 +21,13 @@ website, information and code: http://sourceforge.net/projects/lisem
 // DOESN'T WORK YET
 void TWorld::InfilSwatre(void)
 {
-	fact->copy(WH);
-	tm->fill(1);
+	tm->copy(WH);
+	tma->fill(1);
 
-	SwatreStep(SwatreSoilModel, WH, fpot, tm);
+	SwatreStep(SwatreSoilModel, WH, fpot, tma);
 	// WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
-			fact->Drc = (fact->Drc - WH->Drc);
+			fact->Drc = (tm->Drc - WH->Drc);
 
 	if (SwitchInfilCrust)
 	{
@@ -402,7 +402,7 @@ void TWorld::Infiltration(void)
 //---------------------------------------------------------------------------
 void TWorld::SoilWater()
 {
-	if (!SwitchSoilwater)
+	if (!SwitchSoilwater || InfilMethod == INFIL_SWATRE)
 		return;
 
 	FOR_ROW_COL_MV

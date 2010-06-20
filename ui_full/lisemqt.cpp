@@ -59,6 +59,11 @@ lisemqt::~lisemqt()
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
+	restartAct = new QAction(QIcon(":/workdir.png"), "&Reset...", this);
+	connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
+	toolBar->addAction(restartAct);
+	toolBar->addSeparator();
+
 	openAct = new QAction(QIcon(":/fileopen.png"), "&Open...", this);
 	openAct->setShortcuts(QKeySequence::Open);
 	openAct->setStatusTip("Open a run file");
@@ -76,6 +81,7 @@ void lisemqt::SetToolBar()
 	saveasAct->setStatusTip("Save a run file as ...");
 	connect(saveasAct, SIGNAL(triggered()), this, SLOT(savefileas()));
 	toolBar->addAction(saveasAct);
+	toolBar->addSeparator();
 
 	shootscreenAct = new QAction(QIcon(":/screenshots.png"), "Stop the model...", this);
 	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
@@ -245,10 +251,12 @@ void lisemqt::SetStyleUI()
 void lisemqt::on_toolButton_fileOpen_clicked()
 {
 	openRunFile();
+	/*
 	GetRunfile();
 	ParseInputData();
 	FillMapList();
 	RunAllChecks();
+	*/
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_MapDir_clicked()
@@ -333,7 +341,7 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 	path = QFileDialog::getOpenFileName(this,
 													QString("Select rainfall file"),
 													RainFileDir);
-													//QString::null);
+	//QString::null);
 	if(!path.isEmpty())
 	{
 		QFileInfo fi(path);
@@ -483,6 +491,11 @@ void lisemqt::openRunFile()
 
 	RunFileNames.removeDuplicates();
 	op.runfilename = E_runFileList->itemText(0);
+
+	GetRunfile();
+	ParseInputData();
+	FillMapList();
+	RunAllChecks();
 }
 //---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
@@ -535,6 +548,8 @@ void lisemqt::on_toolButton_ShowRunfile_clicked()
 //---------------------------------------------------------------------------
 void lisemqt::on_E_runFileList_currentIndexChanged(int)
 {
+	if (E_runFileList->count() == 0)
+		return;
 	CurrentRunFile = E_runFileList->currentIndex();
 	op.runfilename = E_runFileList->currentText();
 	//RunFileNames.at(CurrentRunFile);
@@ -582,15 +597,15 @@ void lisemqt::shootScreen()
 		return;
 	}
 	QPixmap originalPixmap; // clear image for low memory situations
-                                // on embedded devices.
-    originalPixmap = QPixmap::grabWidget(tabWidget->currentWidget());
+	// on embedded devices.
+	originalPixmap = QPixmap::grabWidget(tabWidget->currentWidget());
 
-    QString format = "png";
-	 QFileInfo fi(op.runfilename);
+	QString format = "png";
+	QFileInfo fi(op.runfilename);
 
-    QString fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + "." + format;
+	QString fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + "." + format;
 
-    originalPixmap.save(fileName, format.toAscii());
+	originalPixmap.save(fileName, format.toAscii());
 }
 //--------------------------------------------------------------------
 void lisemqt::aboutQT()
@@ -598,4 +613,80 @@ void lisemqt::aboutQT()
 	QMessageBox::aboutQt ( this, "openLISEM" );
 }
 //--------------------------------------------------------------------
+void lisemqt::resetAll()
+{
+	E_runFileList->clear();
 
+	DefaultMapnames();
+	RunFileNames.clear();
+	op.runfilename.clear();
+
+	E_MapDir->setText("");
+	E_RainfallName->setText("");
+	E_SnowmeltName->setText("");
+	E_ResultDir->setText("");
+	E_DetachmentMap->setText("");
+	E_DepositionMap->setText("");
+	E_SoillossMap->setText("");
+	E_MainTotals->setText("");
+	E_PointResults->setText("");
+
+	E_BeginTime->setText("");
+	E_EndTime->setText("");
+	E_Timestep->setText("");
+
+	checkBox_OutRunoff->setChecked(false);
+	checkBox_OutConc->setChecked(false);
+	checkBox_OutWH->setChecked(false);
+	checkBox_OutWHC->setChecked(false);
+	checkBox_OutTC->setChecked(false);
+	checkBox_OutDet->setChecked(false);
+	checkBox_OutDep->setChecked(false);
+	checkBox_OutV->setChecked(false);
+	checkBox_OutInf->setChecked(false);
+	checkBox_OutSurfStor->setChecked(false);
+	checkBox_OutChanVol->setChecked(false);
+
+	printinterval->setValue(1);
+
+
+	E_InfiltrationMethod->setCurrentIndex(0);
+
+	InitOP();
+	progressBar->setValue(0);
+
+	bool check = false;
+	checkNoErosion->setChecked(check);
+	checkIncludeChannel->setChecked(check);
+	checkChannelInfil->setChecked(check);
+	checkChannelBaseflow->setChecked(check);
+//	checkAllinChannel->setChecked(check);
+	checkSnowmelt->setChecked(check);
+	checkAltErosion->setChecked(check);
+	checkSimpleDepression->setChecked(check);
+	checkHardsurface->setChecked(check);
+	checkBuffers->setChecked(check);
+	checkSedtrap->setChecked(check);
+	checkInfilCompact->setChecked(check);
+	checkInfilGrass->setChecked(check);
+	checkInfilCrust->setChecked(check);
+	checkImpermeable->setChecked(check);
+//	checkDumphead->setChecked(check);
+	checkGeometric->setChecked(true);
+//	checkRunoffPerM->setChecked(check);
+	checkWritePCRnames->setChecked(true);
+	checkWritePCRtimeplot->setChecked(check);
+	checkOutputTimeStep->setChecked(true);
+	checkOutputTimeUser->setChecked(check);
+	checkNoErosionOutlet->setChecked(check);
+//	checkDrainage->setChecked(check);
+//	checkGullyInfil->setChecked(check);
+//	checkGullyInit->setChecked(check);
+	checkSeparateOutput->setChecked(check);
+	checkSOBEKOutput->setChecked(check);
+	SOBEKdatestring->setText("10/01/01");
+	checkInterceptionLAI->setChecked(true);
+	E_BulkDens->setText("1200.00");
+
+}
+//--------------------------------------------------------------------

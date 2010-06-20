@@ -294,7 +294,6 @@ void TWorld::ParseInputData()
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
-		swatreDT/=86400; //in days
 		SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
 		initheadName = getvaluename("inithead");
 		// only map name is needed, data is read in swatre lib

@@ -111,13 +111,12 @@ static double  NewTimeStep(
 
 		if (dih > 0.10)
 			dt = min(dt, prevDt*mdih/dih);
-		//MAXS lisem timestep natuurlijk!
 	}
 	return (max(dt, dtMin));
 }
 //--------------------------------------------------------------------------------
 // Units are:
-// Z and H in cm; K in cm/day, lisem time in seconds
+// Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 							double lisDT,SOIL_MODEL *s)
 {
@@ -136,18 +135,17 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 		bool ponded, fltsat;
 		double qmax, qtop, qbot, ThetaSat;
 
-		//===== get nodal values of theta, K, cap
+		//===== get nodal values of theta, K, cap =====//
 		for (i=0; i < n; i++)
 		{
-			k[i] = HcoNode(h[i], Horizon(p, i), s->calibrationfactor);
-			k[i] = k[i]/86400;
+			k[i] = HcoNode(h[i], Horizon(p, i), s->calibrationfactor, 86400);
 			// table in cm/day now in cm/sec
 			dimoca[i] = DmcNode(h[i], Horizon(p, i));
 			theta[i] = TheNode(h[i], Horizon(p, i));
 		}
 
-		//===== arithmetric average K, geometric in org. SWATRE
 
+		//===== arithmetric average K, geometric in org. SWATRE =====//
 		// average K for 1st to n-1 node
 		if (!s->geometric)
 		{
@@ -159,28 +157,24 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 			for(i=1; i < n; i++)
 				kavg[i] = sqrt((k[i]*k[i-1]));
 		}
-		//      kavg[n] = k[n-1]; ??????????????
 
-		//===== boundary conditions
+		//===== boundary conditions =====//
 
-		qtop = -pond/dt;
-		// top flux is ponded layer / timestep, available water
-		// units in cm/sec
-
+		//----- BOTTOM -----//
 		// bottom is 0 or copy of flux of last 2 layers
 		if (s->swatreBottomClosed)
 			qbot = 0;
 		else
 			qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
-		//   qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
 		// units now in cm/s
-		//?????????????? n or n-1
 
-		// Q = - k(h)DH/dz = -kavg(h)((h1-h2)/dz+1)=kavg(h)(h2-h1)/dz-1)
+		//----- TOP -----//
+		qtop = -pond/dt;
+		// top flux is ponded layer / timestep, available water, cm/sec
 
 		ThetaSat = TheNode(0.0, Horizon(p, 0));
-		kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), s->calibrationfactor) * k[0]);
-		// qmax of top node is still calc with geometric average K
+		kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), s->calibrationfactor, 86400) * k[0]);
+		// qmax of top node is always calculated with geometric average K
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
 		//actual infil rate Darcy
 		//KLOPT eigenlijk niet als niet ponded is pond = 0,ipv een negatieve matrix potentiaal
@@ -198,7 +192,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 				ThetaSat = TheNode(0.0, Horizon(p, i));
 				space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
 			}
-			ponded = pond > space;
+			ponded = ((-qtop) * dt) > space;
 		}
 
 		/* check if profile is still completely saturated (flstsat) */
@@ -274,11 +268,12 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where)
 
 		ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, _dt, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
-
+		//DEBUGv(s->pixel[r*nrCols+c].currDt);
 		_WH->Data[r][c] = wh/100;
 		//back to m
 		_fpot->Data[r][c] = -infil/100;
-		// back to m , is multiplied with dt in computerforpixel
+		// infil is negative (downward flux * dt, in cm)
+		//fpot is positive like in other infil  methods (in m)
 	}
 }
 //--------------------------------------------------------------------------------

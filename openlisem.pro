@@ -33,6 +33,7 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/LisUImapnames.cpp \
     ui_full/LisUItreeitem.cpp \
     ui_full/LisUItreemodel.cpp \
+    ui_full/LisUIDefaultNames.cpp \
     ui_full/lisemqt.cpp \
     CsfMap.cpp \
     lisChannelflow.cpp \

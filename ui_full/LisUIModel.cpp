@@ -290,9 +290,12 @@ void lisemqt::InitOP()
 		label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
 
 		label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
-		label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));
+		label_soillosskgha->setText(QString::number(0,'f',dig));
 		if (checkBuffers->isChecked() || checkSedtrap->isChecked())
 			label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
 	}
 
+	textGraph->clear();
+
 }
+//---------------------------------------------------------------------------

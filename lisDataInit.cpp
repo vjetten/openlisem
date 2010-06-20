@@ -140,6 +140,12 @@ void TWorld::DestroyData(void)
 		FreeSwatreInfo();
 		if (SwatreSoilModel)
 			CloseSwatre(SwatreSoilModel);
+		if (SwatreSoilModelCrust)
+			CloseSwatre(SwatreSoilModelCrust);
+		if (SwatreSoilModelCompact)
+			CloseSwatre(SwatreSoilModelCompact);
+		if (SwatreSoilModelGrass)
+			CloseSwatre(SwatreSoilModelGrass);
 	}
 }
 //---------------------------------------------------------------------------
@@ -743,17 +749,17 @@ void TWorld::IntializeOptions(void)
 	//dirs and names
 	resultDir.clear();
 	inputDir.clear();
-	outflowFileName.clear();
-	totalErosionFileName.clear();
-	totalDepositionFileName.clear();
-	totalSoillossFileName.clear();
-	outflowFileName.clear();
+	outflowFileName = QString("totals.txt");//.clear();
+	totalErosionFileName = QString("erososion.map");//.clear();
+	totalDepositionFileName = QString("deposition.map");//.clear();
+	totalSoillossFileName = QString("soilloss.map");//.clear();
+	outflowFileName = QString("hydrohtaph.csv");//.clear();
 	rainFileName.clear();
 	rainFileDir.clear();
 	snowmeltFileName.clear();
 	snowmeltFileDir.clear();
 	SwatreTableDir.clear();
-	SwatreTableName.clear();
+	SwatreTableName = QString("profile.inp");//.clear();
 	resultFileName.clear();
 
 	SwitchHardsurface = false;
@@ -812,7 +818,7 @@ void TWorld::IntializeOptions(void)
 	SwitchSOBEKoutput = false;
 	SwitchPCRoutput = false;
 	SwitchSoilwater = false;
-	SwitchGeometric = false;
+	SwitchGeometric = true;
 
 	SwitchWriteHeaders = true; // write headers in output files in first timestep
 }

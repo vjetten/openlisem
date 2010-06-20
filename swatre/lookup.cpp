@@ -28,13 +28,14 @@ double TheNode(
 double HcoNode(
 		double head,
 		const HORIZON *hor,
-		double calib)
+		double calib,
+		double SEC)
 {
 	if (head >= -1.0E-2)
-		return LUT_Highest(hor->lut, K_COL)*calib;
+		return (LUT_Highest(hor->lut, K_COL)*calib/SEC);
 
 	/* SWITCH BETWEEN  VAN_GENUG AND LUT HERE */
-	return LUT_LinIntPol(hor->lut, K_COL, head, H_COL);
+	return (LUT_LinIntPol(hor->lut, K_COL, head, H_COL)/SEC);
 }
 //-----------------------------------------------------------------------------------
 /* Differential Moisture Capacity from head */
