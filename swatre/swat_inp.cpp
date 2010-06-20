@@ -1,10 +1,11 @@
-/**************************************************************************/
-/*  swat_inp.c                                                             */
-/*                                                                        */
-/*                                                                        */
-/*                                                                        */
-/**************************************************************************/
-
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
 #include "swatre_p.h"
 #include "swat_inp.h"
 #include "lutio.h"

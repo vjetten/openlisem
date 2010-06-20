@@ -103,6 +103,7 @@ public:
 	*tm, *tma, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
 	// rainfall and interception
 	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
+	*SnowmeltZone, *Snowcover, *Snowmelt, *Snowmeltc, *SnowmeltCum, *SnowmeltNet,
 	// runoff
 	*WH, *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall,
 	*FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim,
@@ -188,6 +189,8 @@ public:
 	// timeseries variables and output strings
 	double **RainfallSeries;
 	int nrstations, nrrainfallseries, placerainfallseries;
+	double **SnowmeltSeries;
+	int nrSnowmeltstations, nrSnowmeltseries, placeSnowmeltseries;
 	QString SOBEKdatestring;
 	int SOBEKnrlines;
 	char ErosionUnits;
@@ -217,6 +220,7 @@ public:
 	void IntializeOptions(void);  // set all options to false etc
 	void IntializeData(void);     // make all non-input maps
 	void GetRainfallData(void);   // get input timeseries
+	void GetSnowmeltData(void);   // get input timeseries
 	void GetInputData(void);      // get and make input maps
 	TMMap *InitMask(QString name);
 	TMMap *InitMaskChannel(QString name);
@@ -235,7 +239,8 @@ public:
 	QString CheckDir(QString p);
 
 	// LISEM model processes
-	void Rainfall(void);
+	void RainfallMap(void);
+	void SnowmeltMap(void);
 	void Interception(void);
 	void Infiltration(void);
 	void InfilSwatre(void);

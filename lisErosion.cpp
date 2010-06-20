@@ -108,6 +108,8 @@ void TWorld::SplashDetachment(void)
 
 		DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
 		// no splash on hard surfaces
+		DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
+		// no splash on snow deck
 	}
 }
 //---------------------------------------------------------------------------
@@ -161,6 +163,9 @@ void TWorld::FlowDetachment(void)
 		DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
 		// no flow detachment on hard surfaces
 
+		DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
+		// no flow detachment on snow
+
 		//### deposition
 		if (WH->Drc > MIN_HEIGHT)
 			TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/WH->Drc)) * WaterVolall->Drc;
@@ -177,6 +182,9 @@ void TWorld::FlowDetachment(void)
 		deposition = max(deposition, -Sed->Drc);
 		// cannot have more depo than sediment present
 		//TODO what about this: which one to choose
+
+		deposition = (1-Snowcover->Drc) * deposition;
+		// no deposition on snow
 
 		if (GrassPresent->Drc > 0)
 			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;

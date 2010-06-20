@@ -1,3 +1,12 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
+
 #include "csf.h"
 #include "swatre_g.h"
 #include "swatre_p.h"
@@ -39,7 +48,6 @@ void HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
 		thomb[0] = -thomc[0] + dimoca[0];
 		thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]); //+ dt/(-dz[0])*Sink[0]
 	}
-
 
 	// Intermediate nodes: i = 1 to n-2
 	for (i = 1; i < nN-1; i++)
@@ -144,7 +152,6 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 			theta[i] = TheNode(h[i], Horizon(p, i));
 		}
 
-
 		//===== arithmetric average K, geometric in org. SWATRE =====//
 		// average K for 1st to n-1 node
 		if (!s->geometric)
@@ -192,7 +199,8 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 				ThetaSat = TheNode(0.0, Horizon(p, i));
 				space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
 			}
-			ponded = ((-qtop) * dt) > space;
+			//ponded = ((-qtop) * dt) > space;
+			ponded = pond > space;
 		}
 
 		/* check if profile is still completely saturated (flstsat) */
@@ -271,7 +279,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where)
 		//DEBUGv(s->pixel[r*nrCols+c].currDt);
 		_WH->Data[r][c] = wh/100;
 		//back to m
-		_fpot->Data[r][c] = -infil/100;
+		_fpot->Data[r][c] = max(0, -infil/100);
 		// infil is negative (downward flux * dt, in cm)
 		//fpot is positive like in other infil  methods (in m)
 	}

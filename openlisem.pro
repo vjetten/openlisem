@@ -47,6 +47,7 @@ SOURCES += lisTotalsMB.cpp \
     lisReportfile.cpp \
     lisRunfile.cpp \
     lisSurfstor.cpp \
+    lisSnowmelt.cpp \
     main.cpp \
     mmath.cpp \
     swatre/swatstep.cpp \

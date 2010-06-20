@@ -1,45 +1,42 @@
-//#include "stddefx.h"
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
 #include "misc.h"
-
 
 /* Comparison function for unsigned char
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
- * 
  * < 0 if e1 is less than e2
- * 
  * = 0 if e1 is equivalent to e2
- * 
  * > 0 if e1 is greater than e2
  */
 int CmpUchar(
 	const unsigned char *e1,  /* pointer to single character */
 	const unsigned char *e2)  /* pointer to single character */
 { return( ((int)(*e1))- ((int)(*e2))); }
-
+//--------------------------------------------------------------------------------
 /* Comparison function for integer 
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
- * 
  * < 0 if e1 is less than e2
- * 
  * = 0 if e1 is equivalent to e2
- * 
  * > 0 if e1 is greater than e2
  */
 int CmpInt(
 	const int *e1, /* pointer to single integer */
 	const int *e2) /* pointer to single integer */
 { return((*e1)-(*e2)); }
-
+//--------------------------------------------------------------------------------
 /* Comparison function for float 
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
- * 
  * < 0 if e1 is less than e2
- * 
  * = 0 if e1 is equivalent to e2
- * 
  * > 0 if e1 is greater than e2
  */
 int CmpFloat(
@@ -50,15 +47,12 @@ int CmpFloat(
 	return(-1);
   return (e1_min_e2 > 0);
 }
-
+//--------------------------------------------------------------------------------
 /* Comparison function for double 
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
- * 
  * < 0 if e1 is less than e2
- * 
  * = 0 if e1 is equivalent to e2
- * 
  * > 0 if e1 is greater than e2
  */
 int CmpDouble(
@@ -72,4 +66,5 @@ int CmpDouble(
 	return(-1);
   return (e1_min_e2 > 0);
 }
+//--------------------------------------------------------------------------------
 

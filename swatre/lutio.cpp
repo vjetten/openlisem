@@ -1,16 +1,23 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+---------------------------------------------------------------------------*/
 /**************************************************************************/
 /* lutio.c                                                                */
 /*                                                                        */
 /*   read a theta,h,k-table for Swatre component of LISEM                 */
 /*                                                                        */
 /**************************************************************************/
-#include <ctype.h>  //isspace
-//#include "misc.h"
-
+#include <ctype.h>
 
 #include "error.h"
 #include "lutio.h"
-#include "soillut.h"  /* COL_-constants only */
+#include "soillut.h"
 
 /**********************/
 /*  number of elements added to the lut
@@ -32,8 +39,7 @@
 #define SMALLERs    "SWATRE: Table '%s' column '%s' on entry '%d' has smaller "\
 		"value ('%g') than previous element "
 
-
-		//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 		static void ReadCols(
 				const char *fileName, /* for error reporting only */
 				double *inLut,   /* -w current position in lut that will be filled */

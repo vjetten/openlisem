@@ -57,16 +57,7 @@ void TWorld::Totals(void)
 	// needed for mass balance
 	Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 	// in mm for screen output
-/*
-	FOR_ROW_COL_MV
-	{
-		if (Outlet->Drc == 1)
-			QtotOutlet += Qoutflow->Drc;
-		// for screen output, total main outlet in m3
-		TotalWatervol->Drc = WaterVolall->Drc;
-		// for sed conc calc output
-	}
-	*/
+
 	QtotOutlet += Qoutflow->DrcOutlet;
 	// for screen output, total main outlet in m3
 	TotalWatervol->copy(WaterVolall);
@@ -90,17 +81,6 @@ void TWorld::Totals(void)
 		TotalWatervol->calc(ChannelWaterVol,ADD);
 		// add channel volume to total for sed conc calc
 
-		/*
-		FOR_ROW_COL_MV
-		{
-			if (Outlet->Drc == 1)
-				QtotOutlet += ChannelQoutflow->Drc;
-			// add channel outflow (in m3) to total for main outlet
-
-			TotalWatervol->Drc += ChannelWaterVol->Drc;
-			// add channel volume to total for sed conc calc
-		}
-		*/
 	}
 
 	if (SwitchBuffers)

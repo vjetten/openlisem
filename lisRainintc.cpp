@@ -123,7 +123,7 @@ void TWorld::GetRainfallData(void)
 // 5 2.3   ->from 0 to 5 minutes intensity is 2.3
 // 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5
 // etc.
-void TWorld::Rainfall(void)
+void TWorld::RainfallMap(void)
 {
 	double timemin = time / 60;  //time in minutes
 	double timeminp = (time-_dt) / 60; //prev time in minutes

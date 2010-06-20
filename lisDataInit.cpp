@@ -237,6 +237,15 @@ void TWorld::GetInputData(void)
 	}
 
 	RainZone = ReadMap(LDD,getvaluename("id"));
+	Snowcover = NewMap(0);
+	if (SwitchSnowmelt)
+	{
+		SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
+		FOR_ROW_COL_MV
+		{
+			Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
+		}
+	}
 	N = ReadMap(LDD,getvaluename("manning"));
 	RR = ReadMap(LDD,getvaluename("RR"));
 	PlantHeight = ReadMap(LDD,getvaluename("CH"));
@@ -465,6 +474,10 @@ void TWorld::IntializeData(void)
 	RainM3 = NewMap(0);
 	CStor = NewMap(0);
 	Interc = NewMap(0);
+	Snowmelt = NewMap(0);
+	Snowmeltc = NewMap(0);
+	SnowmeltCum = NewMap(0);
+	SnowmeltNet = NewMap(0);
 
 	// infiltration maps
 	InfilVolKinWave = NewMap(0);

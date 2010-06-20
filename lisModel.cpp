@@ -139,6 +139,11 @@ void TWorld::DoModel()
 		IntializeData();
 		DEBUG("GetRainfallData()");
 		GetRainfallData();
+		if (SwitchSnowmelt)
+		{
+			DEBUG("GetSnowmeltData()");
+			GetSnowmeltData();
+		}
 		// get all input data and create and initialize all maps and variables
 
 		BeginTime = getvaluedouble("Begin time") * 60;
@@ -160,7 +165,8 @@ void TWorld::DoModel()
 			// check if user wants to quit
 
 			GridCell();          // set channel widths, flowwidths road widths etc
-			Rainfall();
+			RainfallMap();
+			SnowmeltMap();
 			Interception();
 			Infiltration();
 			//SoilWater();

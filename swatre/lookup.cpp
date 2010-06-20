@@ -1,3 +1,12 @@
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+
+---------------------------------------------------------------------------*/
 /**************************************************************************/
 /*  lookup.c                                                              */ 
 /*   Computes Theta from head, K from head or Diff Moist Cap from head    */

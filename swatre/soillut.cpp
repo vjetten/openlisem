@@ -1,5 +1,11 @@
-
-
+/*---------------------------------------------------------------------------
+project: openLISEM
+name: lisModel.cpp
+author: Victor Jetten
+licence: GNU General Public License (GPL)
+Developed in: MingW/Qt/Eclipse
+website SVN: http://sourceforge.net/projects/lisem
+---------------------------------------------------------------------------*/
 /**************************************************************************/
 /* soillut.c                                                              */
 /*                                                                        */
@@ -21,17 +27,7 @@
 #define LUT_HIGH    "In lookup table: highest value of column %d is smaller "\
                    "than requested value (%g)"
 
-/*********************/
-/* LOCAL DEFINITIONS */
-/*********************/
-
-/* used for compare function */
-
 static int keyCol;
-
-/******************/
-/* IMPLEMENTATION */
-/******************/
 
 int intervalBsearch(
 		/* arguments like std. ANSI. bsearch() */
