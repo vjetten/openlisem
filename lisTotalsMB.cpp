@@ -25,13 +25,23 @@ void TWorld::Totals(void)
 	// avg area rainfall in mm
 
 	tm->calc2V(Rain, (_dx*_dx), MUL); //in m3
-	double rainfall = tm->MapTotal(); // in m3
+	double rainfall = tm->MapTotal();
 	RainTot += rainfall; // in m3
 
 	double oldpeak = Rainpeak;
 	Rainpeak = max(Rainpeak, rainfall);
 	if (oldpeak < Rainpeak)
 		RainpeakTime = time;
+
+	if (SwitchSnowmelt)
+	{
+		tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
+		rainfall = tm->MapTotal();
+		RainTot += rainfall; // in m3
+		Rainpeak = max(Rainpeak, rainfall);
+		if (oldpeak < Rainpeak)
+			RainpeakTime = time;
+	}
 
 	IntercTot = Interc->MapTotal();
 	IntercTotmm = IntercTot*1000/(_dx*_dx*nrCells);//CatchmentArea;

@@ -582,6 +582,9 @@ void TWorld::IntializeData(void)
 		}
 	}
 
+	InterceptionLAIType = getvalueint("Canopy storage equation");
+	if (InterceptionLAIType == 8)
+		SwitchInterceptionLAI = false;
 	if (SwitchInterceptionLAI)
 	{
 		CanopyStorage = NewMap(0); //m

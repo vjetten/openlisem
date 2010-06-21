@@ -88,6 +88,7 @@ void savefileas();
 void openRunFile();
 void runmodel();
 void stopmodel();
+void pausemodel();
 void shootScreen();
 void aboutQT();
 void resetAll();

@@ -110,8 +110,9 @@ void lisemqt::ParseInputData()
 		if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
 		if (p1.compare("Report point output for SOBEK")==0)  checkSOBEKOutput->setChecked(check);
 		if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
-		if (p1.compare("Use canopy storage map")==0)   	     checkInterceptionLAI->setChecked(!check);
 		if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
+		if (p1.compare("Use canopy storage map")==0)			  radioButton_9->setChecked(check);
+			//checkInterceptionLAI->setChecked(!check);
 		if (p1.compare("Canopy storage equation")==0)
 		{
 			//InterceptionEqNr = iii;
@@ -124,6 +125,7 @@ void lisemqt::ParseInputData()
 			case 5 : radioButton_6->setChecked(true); break;
 			case 6 : radioButton_7->setChecked(true); break;
 			case 7 : radioButton_8->setChecked(true); break;
+			case 8 : radioButton_9->setChecked(true); break;
 			}
 		}
 		if (p1.compare("Infil Method")==0 || p1.compare("Method")==0) //<= very old runfile
@@ -335,7 +337,7 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Report point output for SOBEK")==0)  defnamelist[j].value.setNum((int)checkSOBEKOutput->isChecked());
 		if (p1.compare("SOBEK date string")==0)              defnamelist[j].value = SOBEKdatestring->text();
 		if (p1.compare("Sediment bulk density")==0)          defnamelist[j].value = E_BulkDens->text();
-		if (p1.compare("Use canopy storage map")==0)   	     defnamelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
+		//if (p1.compare("Use canopy storage map")==0)   	     defnamelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
 		if (p1.compare("Canopy storage equation")==0)
 		{
 			int i = 0;
@@ -347,6 +349,7 @@ void lisemqt::UpdateModelData()
 			if(radioButton_6->isChecked()) i = 5;
 			if(radioButton_7->isChecked()) i = 6;
 			if(radioButton_8->isChecked()) i = 7;
+			if(radioButton_9->isChecked()) i = 8;
 			defnamelist[j].value.setNum(i);
 		}
 

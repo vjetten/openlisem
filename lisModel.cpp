@@ -159,8 +159,13 @@ void TWorld::DoModel()
 		for (time = BeginTime; time < EndTime; time += _dt)
 		{
 			mutex.lock();
-			if(stopRequested) {emit debug("User interrupt...");}
+			if(stopRequested) DEBUG("User interrupt...");
 			if(stopRequested) break;
+			mutex.unlock();
+
+			mutex.lock();
+			if (waitRequested) DEBUG("User pause...");
+			if (waitRequested) condition.wait(&mutex);
 			mutex.unlock();
 			// check if user wants to quit
 

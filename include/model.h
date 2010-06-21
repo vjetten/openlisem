@@ -28,7 +28,7 @@ Functionality in model.h:
 
 #define DEBUGv(x) {QString sss; sss.setNum(x);emit debug("debug: " + sss);}
 //msleep(300)
-#define DEBUG(s) emit debug(QString(s));msleep(10)
+#define DEBUG(s) emit debug(QString(s))
 
 #define mwrite(name) WriteMap(QString(resultDir+name))
 #define report(name) WriteMapSeries(resultDir,QString(name), printstep)
@@ -275,7 +275,9 @@ public:
 
 	// thread management variables
 	bool stopRequested;
+	bool waitRequested;
 	QMutex mutex;
+	QWaitCondition condition;
 	void stop();
 
 //	int ReadSwatreInput(const char *fileName,	const char *tablePath);

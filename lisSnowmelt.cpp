@@ -130,6 +130,7 @@ void TWorld::SnowmeltMap(void)
 	int placep, place;
 
 	if (!SwitchSnowmelt)
+		return;
 
 
 	for (placep = 0; placep < nrSnowmeltseries; placep++)

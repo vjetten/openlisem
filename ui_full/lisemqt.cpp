@@ -59,7 +59,7 @@ lisemqt::~lisemqt()
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
-	restartAct = new QAction(QIcon(":/workdir.png"), "&Reset...", this);
+	restartAct = new QAction(QIcon(":/Undo-icon.png"), "&Reset...", this);
 	connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
 	toolBar->addAction(restartAct);
 	toolBar->addSeparator();
@@ -89,18 +89,26 @@ void lisemqt::SetToolBar()
 	connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
 	toolBar->addAction(shootscreenAct);
 	toolBar->addSeparator();
+
+	//runAct = new QAction(QIcon(":/Button-Play-icon.png"), "Run model...", this);
 	runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
 	//	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
 	runAct->setStatusTip("run the model ...");
 	connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
 	toolBar->addAction(runAct);
 
-	stopAct = new QAction(QIcon(":/stop16_2.png"), "Stop the model...", this);
+//	pauseAct = new QAction(QIcon(":/Button-Pause-icon.png"), "Pause the model...", this);
+	pauseAct = new QAction(QIcon(":/pause2.png"), "Pause the model...", this);
+	pauseAct->setStatusTip("pause the model run ...");
+	connect(pauseAct, SIGNAL(triggered()), this, SLOT(pausemodel()));
+	toolBar->addAction(pauseAct);
+
+	//stopAct = new QAction(QIcon(":/Button-Stop-icon.png"), "Stop the model...", this);
+	stopAct = new QAction(QIcon(":/stop1.png"), "Stop the model...", this);
 	//	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
 	stopAct->setStatusTip("stop the model run ...");
 	connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
 	toolBar->addAction(stopAct);
-
 
 	aboutAct = new QAction(QIcon(":/Info.png"), "", this);
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutQT()));
@@ -685,8 +693,10 @@ void lisemqt::resetAll()
 	checkSeparateOutput->setChecked(check);
 	checkSOBEKOutput->setChecked(check);
 	SOBEKdatestring->setText("10/01/01");
-	checkInterceptionLAI->setChecked(true);
+	//checkInterceptionLAI->setChecked(true);
 	E_BulkDens->setText("1200.00");
+
+	tabWidget->setCurrentIndex(0);
 
 }
 //--------------------------------------------------------------------

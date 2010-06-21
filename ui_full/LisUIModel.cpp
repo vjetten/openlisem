@@ -18,6 +18,19 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "global.h"
 
 //---------------------------------------------------------------------------
+void lisemqt::pausemodel()
+{
+	if(W)
+	{
+		W->waitRequested = !W->waitRequested;
+		if (!W->waitRequested)
+		{
+			label_debug->setText("User continue...");
+			W->condition.wakeAll();
+		}
+	}
+}
+//---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
 	if(W)
@@ -60,7 +73,7 @@ void lisemqt::runmodel()
 
 	W->stopRequested = false;
 	// stoprequested is used to stop the thread with the interface
-
+	W->waitRequested = false;
 	W->start();
 	// start the model thread, executes W->run()
 }
