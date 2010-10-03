@@ -28,7 +28,7 @@ cTMap::cTMap()
     nrRows = 0;
     nrCols = 0;
     MapName = "";
-    PathName = "";  
+    PathName = "";
 }
 //---------------------------------------------------------------------------
 cTMap::~cTMap()
@@ -76,7 +76,7 @@ void cTMap::CreateMap(QString Name)
 
      if (Data == NULL)
      {
-    	 ErrorString = "Cannot create data structure for map: " + Name;
+    	 Error(QString("Cannot create data structure for map: %1").arg(Name));
     	 throw 1;
      }
 

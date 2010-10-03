@@ -257,7 +257,8 @@ void lisemqt::ParseInputData()
 		}
 	}
 
-	RunAllChecks();
+	//RunAllChecks();
+	// is done elsewhere
 
 }
 //---------------------------------------------------------------------------

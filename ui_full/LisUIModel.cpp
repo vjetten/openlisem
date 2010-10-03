@@ -122,6 +122,11 @@ void lisemqt::Showit()
 
 		label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
 		label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));
+
+		double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
+		SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
+		SDR = min(SDR ,100);
+		label_SDR->setText(QString::number(SDR,'f',dig));
 		if (checkBuffers->isChecked() || checkSedtrap->isChecked())
 			label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
 	}
@@ -131,11 +136,20 @@ void lisemqt::Showit()
 
 	ShowGraph();
 
+	ShowMap();
+
 	QString SSS;
 	SSS = QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ');
 	textGraph->setMaximumBlockCount(6);
 	textGraph->appendPlainText(SSS);
 
+}
+//---------------------------------------------------------------------------
+void lisemqt::ShowMap()
+{
+	//MapPlot->replot();
+	//if all calcs are done in the model only replot here?
+	//op needs a poiinter to TMMap
 }
 //---------------------------------------------------------------------------
 void lisemqt::ShowGraph()
@@ -304,6 +318,7 @@ void lisemqt::InitOP()
 
 		label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
 		label_soillosskgha->setText(QString::number(0,'f',dig));
+		label_SDR->setText(QString::number(0,'f',dig));
 		if (checkBuffers->isChecked() || checkSedtrap->isChecked())
 			label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
 	}

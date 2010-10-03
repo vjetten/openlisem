@@ -32,7 +32,7 @@ SOIL_MODEL *TWorld::InitSwatre(
 
 	if (nrNodes == -1)
 	{
-		Error("SWATRE: can't call 'initswatre' before 'swatre input' ","",0);
+		Error("SWATRE: can't call \'initswatre\' before \'swatre input\'");
 		return(NULL);
 	}
 	s->nrCells = nrCells;
@@ -51,7 +51,7 @@ SOIL_MODEL *TWorld::InitSwatre(
 		//SetMemMV(&s->pixel[i].h,nodeDataIncr,CR_REAL8);
 	}
 	for (n = 0; n < nrNodes; n++)
-	{	
+	{
 		QString fname = QString("%1.%2").arg(initHeadMaps)
 							 .arg(n+1, 3, 10, QLatin1Char('0'));
 		// make inithead.001 to .00n name
@@ -63,7 +63,7 @@ SOIL_MODEL *TWorld::InitSwatre(
 		{
 			if (profileMap->Drc == -1 || ProfileNr(profileMap->Drc) == NULL)
 			{
-				Error("SWATRE: profile nr '%d' is missing","", (int)profileMap->Drc);
+				Error(QString("SWATRE: profile nr '%1' is missing").arg(profileMap->Drc));
 				return (NULL);
 			}
 

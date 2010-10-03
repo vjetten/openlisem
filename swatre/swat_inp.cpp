@@ -58,7 +58,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 
 	if (f == NULL)
 	{
-		Error("SWATRE: Can't open profile definition file '%s'",fileName,0);
+		Error(QString("SWATRE: Can't open profile definition file %1").arg(fileName));
 		throw 1;
 	}
 	//All file name checking in main program
@@ -80,13 +80,13 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 				profileList[i++] = NULL;
 		}
 		profileList[nrProfileList] =
-				ReadProfileDefinition(f,z,tablePath.toAscii().constData());
+		ReadProfileDefinition(f,z,tablePath.toAscii().constData());
 
 	} while (profileList[nrProfileList++] != NULL);
 	// correct for eof-marker and test if something is read
 	if ( --nrProfileList == 0)
 	{
-		Error("SWATRE: no profiles read from '%s'",fileName,0);
+		Error(QString("SWATRE: no profiles read from %1").arg(fileName));
 		throw 2;
 	}
 
@@ -101,9 +101,9 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 		tmpList[i] = NULL;
 
 	for (i = 0 ; i < nrProfileList; i++)
-	//	if (tmpList[profileList[i]->profileId] == NULL)
-			tmpList[profileList[i]->profileId] = profileList[i];
-//	else
+		//	if (tmpList[profileList[i]->profileId] == NULL)
+		tmpList[profileList[i]->profileId] = profileList[i];
+	//	else
 	//	Error("SWATRE: profile with id '%d' declared more than once","",profileList[i]->profileId);
 
 	free(profileList);
@@ -119,7 +119,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 }
 //----------------------------------------------------------------------------------------------
 const PROFILE *ProfileNr(int profileNr)
-		/* RET profile or NULL if not found  */
+/* RET profile or NULL if not found  */
 {
 	if (profileNr < 0 || profileNr >= nrProfileList)
 		return(NULL);
@@ -166,12 +166,11 @@ static ZONE *ReadNodeDefinition(FILE *f)
 	int  i;
 	zone = (ZONE *)malloc(sizeof(ZONE));
 	if ( fscanf(f,"%d",&(zone->nrNodes)) != 1 )
-		Error("SWATRE: Can't read number of nodes from input file","",zone->nrNodes);
+		Error(QString("SWATRE: Can't read number of nodes %1 from input file").arg(zone->nrNodes));
 	if (zone->nrNodes < 1 )
-		Error("SWATRE: number of nodes smaller than 1","",zone->nrNodes);
+		Error(QString("SWATRE: number of nodes %1 smaller than 1").arg(zone->nrNodes));
 	if (zone->nrNodes > MAX_NODES)
-		Error("SWATRE: number of nodes bigger than MAX_NODES",
-				" (edit swatre_p.h and re-compile)",0);
+		Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
 
 	zone->dz     = (double *)malloc(sizeof(double)*zone->nrNodes);
 	zone->z      = (double *)malloc(sizeof(double)*zone->nrNodes);
@@ -181,9 +180,9 @@ static ZONE *ReadNodeDefinition(FILE *f)
 	for (i=0; i < zone->nrNodes; i++)
 	{
 		if ( fscanf(f,"%lf",&(zone->endComp[i])) != 1 )
-			Error("SWATRE: Can't read compartment end of node ","",i+1);
+			Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
 		if (zone->endComp[i] <= 0)
-			Error("SWATRE: compartment end of node nr.","<= 0",i+1);
+			Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
 		/* compute dz and make negative */
 		zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
 		zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
@@ -198,9 +197,9 @@ static ZONE *ReadNodeDefinition(FILE *f)
  *  while reading first token of profile definition
  */
 static PROFILE *ReadProfileDefinition(
-		FILE *f,
-		const ZONE *z,         /* zone division this profile */
-		const char *tablePath) /* pathName ended with a '/' */
+FILE *f,
+const ZONE *z,         /* zone division this profile */
+const char *tablePath) /* pathName ended with a '/' */
 {
 	char tableName[14];
 	int  i;
@@ -217,10 +216,10 @@ static PROFILE *ReadProfileDefinition(
 			free(p);
 			return NULL;
 		}
-		Error("SWATRE: read error: can't read profile id","",p->profileId);
+		Error(QString("SWATRE: read error: can't read profile id %1").arg(p->profileId));
 	}
 	if (p->profileId < 0)
-		Error("SWATRE: profile id smaller that 0","ID", p->profileId);
+		Error(QString("SWATRE: profile id smaller that 0: %1").arg(p->profileId));
 
 	p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *)*z->nrNodes);
 	p->zone = z;
@@ -229,9 +228,9 @@ static PROFILE *ReadProfileDefinition(
 	while (i != z->nrNodes)
 	{
 		if ( fscanf(f,"%s",tableName) != 1 )
-			Error("SWATRE: Can't read a LUT for profile nr"," node nr '%d' and up", p->profileId);
+			Error(QString("SWATRE: Can't read a LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
 		if ( fscanf(f,"%lf", &endHor) != 1 )
-			Error("SWATRE: Can't read end of horizon for profile nr","",p->profileId);
+			Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
 
 		h = ReadHorizon(tablePath, tableName);
 		// copy horizon info to all nodes of this horizon
@@ -239,7 +238,8 @@ static PROFILE *ReadProfileDefinition(
 		while (i < z->nrNodes && z->endComp[i] <= endHor )
 			p->horizon[i++] = h;
 		if (z->endComp[i-1] != endHor)
-			Error("SWATRE: No compartment ends on wrong depth","found in rofile nr for horizon", i);
+			Error(QString("SWATRE: No compartment ends on depth '%1' (found in profile nr %2 for horizon %3)")
+			.arg(endHor).arg(p->profileId).arg(tableName));
 	}
 	return(p);
 }
@@ -262,7 +262,7 @@ static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName)
 	{
 		sizeHorizonList += LIST_INC;
 		horizonList = (HORIZON **)realloc(horizonList,
-													 sizeof(HORIZON *)*sizeHorizonList);
+		sizeof(HORIZON *)*sizeHorizonList);
 	}
 
 	h = (HORIZON *)malloc(sizeof(HORIZON));
@@ -282,18 +282,18 @@ static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName)
 	for(i=0; i < (nrRows-1); i++)
 	{
 		lutCont[IND(i,DMCH_COL)] = 0.5 *
-											(lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
+		(lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
 
 		/* VJ : 0.01 is 1% humidity, ofwel
-		 *	  gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
-		 *
-		 *		lutCont[IND(i,DMCC_COL)] = 0.01 /
-		 *					(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
-		 * beter:
-		 */
+	*	  gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
+	*
+	*		lutCont[IND(i,DMCC_COL)] = 0.01 /
+	*					(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+	* beter:
+	*/
 		lutCont[IND(i,DMCC_COL)] =
-				(lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
-				(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+		(lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
+		(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
 	}
 	lutCont[IND(nrRows-1,DMCH_COL)] = 0;
 	lutCont[IND(nrRows-1,DMCC_COL)] = lutCont[IND(nrRows-2,DMCC_COL)] ;

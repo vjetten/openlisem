@@ -24,7 +24,7 @@ void TWorld::CalcVelDischChannel()
    \  |            |  /
     \ |         wh | /
      \|____________|/
-	 */
+  */
 	FOR_ROW_COL_MV_CH
 	{
 		double Perim, Radius, Area, beta = 0.6;
@@ -37,7 +37,8 @@ void TWorld::CalcVelDischChannel()
 
 		if (dw > 0)
 		{
-			Perim = FW + 2*sqrt(wh*wh + dw*dw);
+			//			Perim = FW + 2*sqrt(wh*wh + dw*dw);
+			Perim = FW + 2*wh/cos(atan(ChannelSide->Drc));
 			Area = FW*wh + wh*dw*2;
 		}
 		else
@@ -102,23 +103,29 @@ void TWorld::ChannelFlow(void)
 		}
 		else  // non-rectangular
 		{
-			if (ChannelWaterVol->Drc > 0)
-			{
-				double a = ChannelSide->Drc*DX->Drc/ChannelWaterVol->Drc;
-				double b = ChannelWidth->Drc*DX->Drc/ChannelWaterVol->Drc;
-				double cc = -1.0;
-				if (a > 0)
-					ChannelWH->Drc = -b + sqrt(b*b-4*a*-cc)/(2*a);
-				else
-					ChannelWH->Drc = 0;
-			}
-			// new WH with abc method
+			/*
+   ABC fornula
+    dw      w       dw
+   \  |            |  /
+    \ |          h | /
+     \|____________|/
+   vol = h*w + h*dw
+   dw = h*tan(a)
+   vol = w*h + tan(a)*h*h
+   tan(a) h^2 * w h - vol = 0
+         a	         b      c
+   */
+         double a = ChannelSide->Drc;  //=tan(a)
+         double b = ChannelWidth->Drc; //=w
+         double cc = -ChannelWaterVol->Drc; //=vol
+         ChannelWH->Drc = -b + sqrt(b*b-4*a*cc)/(2*a);
 		}
 
 		if (ChannelWidth->Drc > 0)
 			ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidth->Drc+2*ChannelSide->Drc*ChannelWH->Drc);
 		// new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
 		// cannot be more than 0.9*_dx
+		//qDebug() << ChannelWidthUpDX->Drc << ChannelSide->Drc << ChannelWaterVol->Drc << ChannelWH->Drc;
 
 		if (RoadWidthDX->Drc > 0)
 			ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
@@ -148,7 +155,7 @@ void TWorld::ChannelFlow(void)
 		if (LDDChannel->Drc == 5)
 		{
 			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-					ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+			ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
 
 			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
         	if (SwitchErosion)

@@ -82,6 +82,7 @@ void TWorld::Totals(void)
 		// recalc in mm for screen output
 
 		Qtot += ChannelQoutflow->MapTotal();
+		double hoi = ChannelQoutflow->MapTotal();
 		// add channel outflow (in m3) to total for all pits
 		Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 		// recalc in mm for screen output
@@ -152,7 +153,9 @@ void TWorld::Totals(void)
 		}
 
 		FOR_ROW_COL_MV
-			TotalConc->Drc = (TotalWatervol->Drc > 0? TotalSed->Drc/TotalWatervol->Drc : 0);
+		{
+			TotalConc->Drc = min(850,(TotalWatervol->Drc > 1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
+		}
 		// for file output
 
 		if (SwitchBuffers || SwitchSedtrap)

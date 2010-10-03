@@ -21,6 +21,8 @@ struct output{
 	RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P,
 	BufferVolTot, BufferSedTot;
 
+	TMMap *DrawMap;
+
 	//bool SwitchErosion;
 	//bool SwitchIncludeChannel;
 	QString runfilename;

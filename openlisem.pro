@@ -58,19 +58,25 @@ SOURCES += lisTotalsMB.cpp \
     swatre/lutio.cpp \
     swatre/lookup.cpp
 FORMS += ui_full/lisemqt.ui
-CONFIG(debug, debug|release) { 
+CONFIG(debug, debug|release) {
     LIBS += -L"debug" \
         -llibcsfd \
         -lqwtd5 #\
         #-lswatred
     DESTDIR = debug
+	 MOC_DIR = debug/moc
+    OBJECTS_DIR= debug/objs
+	 UI_DIR= debug/ui
 }
-else { 
+else {
     LIBS += -L"bin" \
         -llibcsf \
         -lqwt5 #\
         #-lswatre
     DESTDIR = bin
+	 MOC_DIR = bin/moc
+    OBJECTS_DIR= bin/objs
+	 UI_DIR= bin/ui
 }
 INCLUDEPATH += "include"
 INCLUDEPATH += "../libswatreQt/include"

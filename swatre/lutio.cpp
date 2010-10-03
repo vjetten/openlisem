@@ -28,16 +28,16 @@ website SVN: http://sourceforge.net/projects/lisem
 #define INC_STEP (45*3)
 
 /* error messages: */
-#define OPEN_ERRORs "SWATRE: Can't open '%s'"
-#define READ_ERRORs "SWATRE: Read error on '%s'"
-#define COL_ERRORs  "SWATRE: Table '%s', entry nr. %d contains %s than 3 columns"
+#define OPEN_ERRORs "SWATRE: Can't open %1"
+#define READ_ERRORs "SWATRE: Read error on %1"
+#define COL_ERRORs  "SWATRE: Table %1, entry nr. %2 contains %3 than 3 columns"
 #define EOF_MESSs   "SWATRE: Unexpected end of file while reading lookup table"
-#define NO_ENTRIESs "SWATRE: Table '%s' contains no entries"
-#define NR_COLSs    "SWATRE: Encountered line containing '%s' while first row "\
-"had %d columns"
-#define NAN_MESSs   "SWATRE: Table: '%s' contains a non number symbol: '%s'"
-#define SMALLERs    "SWATRE: Table '%s' column '%s' on entry '%d' has smaller "\
-		"value ('%g') than previous element "
+#define NO_ENTRIESs "SWATRE: Table %1 contains no entries"
+#define NR_COLSs    "SWATRE: Encountered line containing %1 while first row had %2 columns"
+#define NAN_MESSs   "SWATRE: Table %1 contains a non number symbol: %2"
+#define SMALLERs    "SWATRE: Table %1 column %2 on entry %3 has smaller value (%4) than previous element"
+
+static const char *colName[3] = { "theta", "h", "k" };
 
 //----------------------------------------------------------------------------------------
 		static void ReadCols(
@@ -96,14 +96,14 @@ double *ReadSoilTable(
 		int   *nrRows          /* nr of rows read */
       )
 		/* every row is on a single line
- * EOF is end of table 
+ * EOF is end of table
  * EXAMPLE
    AT THIS MOMENT ONLY TOTALLY SORTED LUTS ARE SUPPORTED
   */
 {
 	char buf[1024];
 	double  *l;
-	int     sizeL, nrL; 
+	int     sizeL, nrL;
 	FILE    *f;
 
 	sizeL = INC_STEP;
@@ -111,7 +111,7 @@ double *ReadSoilTable(
 	l = (double *)malloc(sizeof(double) * sizeL);
 	f = fopen(fileName, "r");
 	if (f == NULL)
-		Error(OPEN_ERRORs,fileName,0);
+		Error(QString(OPEN_ERRORs).arg(fileName));
 
 	do {
 		int currNrCols;
@@ -119,7 +119,7 @@ double *ReadSoilTable(
 		{
 			if (feof(f))
 				break; /* OK, END OF FILE */
-			Error(READ_ERRORs, fileName,0);
+			Error(QString(READ_ERRORs).arg(fileName));
 		}
 
 		currNrCols = TokenSpaceTrim(buf);
@@ -127,8 +127,7 @@ double *ReadSoilTable(
 		if (currNrCols == 0)
 			continue;  /* EMPTY LINE, next one please */
 		if (currNrCols != EXP_NR_COLS)
-			Error(COL_ERRORs,fileName, (nrL/EXP_NR_COLS)+1);
-		//(currNrCols < EXP_NR_COLS) ? "less" : "more");
+			Error(QString(COL_ERRORs).arg(fileName).arg(nrL/EXP_NR_COLS+1).arg(currNrCols < EXP_NR_COLS?"less":"more"));
 		/* increase l if neccessary */
 		if (sizeL <= (nrL + EXP_NR_COLS))
 		{
@@ -142,13 +141,15 @@ double *ReadSoilTable(
 		if (nrL > 0)
 			for (int i=0; i< EXP_NR_COLS; i++)
 				if ( l[nrL+i] < l[(nrL-EXP_NR_COLS)+i])
-					Error(SMALLERs, fileName, i);//colName[i]);//,(nrL/EXP_NR_COLS), l[nrL+i] );
+					Error(
+					QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i])
+					);
 
 		nrL += EXP_NR_COLS;
 	} while (/* infinite: */ nrL > -1 );
 	/* loop contains one break and one continue */
 	if (nrL == 0)
-		Error(NO_ENTRIESs,fileName,0);
+		Error(QString(NO_ENTRIESs).arg(fileName));
 
 	*nrRows = nrL / EXP_NR_COLS;
 	fclose(f);
