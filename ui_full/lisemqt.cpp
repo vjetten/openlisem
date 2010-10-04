@@ -310,9 +310,15 @@ void lisemqt::on_toolButton_fileOpen_clicked()
 void lisemqt::on_toolButton_MapDir_clicked()
 {
 	QString path;
+	QString pathin;
+
+	pathin = E_MapDir->text();
+	if (pathin.isEmpty())
+		pathin = currentDir;
+
 	path = QFileDialog::getExistingDirectory(this,
 	QString("Select maps directory"),
-	E_MapDir->text(),
+	pathin,
 	QFileDialog::ShowDirsOnly);
 	if(!path.isEmpty())
 		E_MapDir->setText( path );
@@ -321,9 +327,15 @@ void lisemqt::on_toolButton_MapDir_clicked()
 void lisemqt::on_toolButton_ResultDir_clicked()
 {
 	QString path;
+	QString pathin;
+
+	pathin = E_ResultDir->text();
+	if (pathin.isEmpty())
+		pathin = currentDir;
+
 	path = QFileDialog::getExistingDirectory(this,
 	QString("Select or create a directory to write results"),
-	QString::null,
+	pathin,
 	QFileDialog::ShowDirsOnly);
 
 	if(!path.isEmpty())
@@ -335,7 +347,6 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
 	QString path;
 	QString pathdir = E_SwatreTableDir->text() + "/..";
-	qDebug() << pathdir;
 	path = QFileDialog::getExistingDirectory(this,
 	QString("Select the directory with the Swatre profile tables"),
 	pathdir,
@@ -538,7 +549,7 @@ void lisemqt::openRunFile()
 	if (!exst)
 		E_runFileList->insertItem(0,path);
 	E_runFileList->setCurrentIndex(0);
-	// this triggers a runfile
+	// this triggers a runfile in on_E_runFileList_currentIndexChanged
 
 	RunFileNames.clear();
 	for (int i = 0; i <= E_runFileList->count(); i++)

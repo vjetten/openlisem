@@ -167,6 +167,7 @@ void lisemqt::ShowGraph()
 		CData = new double[op.maxstep+2];
 		PData = new double[op.maxstep+2];
 		HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+		qDebug() << op.BeginTime;
 	}
 
 	timeData[op.runstep] = op.time;

@@ -86,7 +86,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 	TMMap *_M = new TMMap();
 
 	_M->PathName = /*inputdir + */name;
-//	DEBUG(_M->PathName);
+	//	DEBUG(_M->PathName);
 
 	bool res = _M->LoadFromFile();
 	if (!res)
@@ -275,6 +275,18 @@ void TWorld::GetInputData(void)
 	{
 		Ksat1 = ReadMap(LDD,getvaluename("Ksat1"));
 		SoilDepth1 = ReadMap(LDD,getvaluename("SoilDep1"));
+		FOR_ROW_COL_MV
+		{
+			bool check = false;
+			if (SoilDepth1->Drc <= 0)
+				check = true;
+			if (check)
+			{
+				ErrorString = QString("SoilDepth1 values <= 0 at row %1, col %2").arg(r).arg(c);
+				throw 1;
+			}
+		}
+
 		if(InfilMethod != INFIL_KSAT)
 		{
 			ThetaS1 = ReadMap(LDD,getvaluename("ThetaS1"));
@@ -287,6 +299,17 @@ void TWorld::GetInputData(void)
 				Psi2 = ReadMap(LDD,getvaluename("Psi2"));
 				Ksat2 = ReadMap(LDD,getvaluename("Ksat2"));
 				SoilDepth2 = ReadMap(LDD,getvaluename("SoilDep2"));
+				FOR_ROW_COL_MV
+				{
+					bool check = false;
+					if (SoilDepth1->Drc <= 0)
+						check = true;
+					if (check)
+					{
+						ErrorString = QString("SoilDepth1 values <= 0 at row %1, col %2").arg(r).arg(c);
+						throw 1;
+					}
+				}
 			}
 		}
 		if (SwitchInfilCrust)
@@ -512,7 +535,7 @@ void TWorld::IntializeData(void)
 	WHrunoff = NewMap(0);
 	WHrunoffCum = NewMap(0);
 	WHstore = NewMap(0);
-	WHroad = NewMap(0);	
+	WHroad = NewMap(0);
 	WHGrass = NewMap(0);
 	FlowWidth = NewMap(0);
 	fpa = NewMap(0);
@@ -532,6 +555,7 @@ void TWorld::IntializeData(void)
 
 	// calibration
 	ksatCalibration = getvaluedouble("Ksat calibration");
+	qDebug() << ksatCalibration;
 	nCalibration = getvaluedouble("N calibration");
 	ChnCalibration = getvaluedouble("Channel Ksat calibration");
 	ChKsatCalibration = getvaluedouble("Channel N calibration");
@@ -555,28 +579,28 @@ void TWorld::IntializeData(void)
 		double precision = 5.0;
 		// note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
 		SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT, precision,
-											  ksatCalibration, SwitchGeometric, SwitchImpermeable);
+		ksatCalibration, SwitchGeometric, SwitchImpermeable);
 		if (SwatreSoilModel == NULL)
 			throw 3;
 
 		if (SwitchInfilCrust)
 		{
 			SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT, precision,
-														 ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			ksatCalibration, SwitchGeometric, SwitchImpermeable);
 			if (SwatreSoilModelCrust == NULL)
 				throw 3;
 		}
 		if (SwitchInfilCompact)
 		{
 			SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT, precision,
-															ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			ksatCalibration, SwitchGeometric, SwitchImpermeable);
 			if (SwatreSoilModelCompact == NULL)
 				throw 3;
 		}
 		if (SwitchInfilGrass)
 		{
 			SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT, precision,
-														 ksatCalibration, SwitchGeometric, SwitchImpermeable);
+			ksatCalibration, SwitchGeometric, SwitchImpermeable);
 			if (SwatreSoilModelGrass == NULL)
 				throw 3;
 		}
@@ -593,14 +617,14 @@ void TWorld::IntializeData(void)
 		{
 			switch (InterceptionLAIType)
 			{
-				case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-				case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-				case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-				case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-				case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-				case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-				case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-				case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+			case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+			case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+			case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+			case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+			case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+			case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+			case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+			case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 			}
 		}
 	}

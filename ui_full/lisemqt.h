@@ -98,6 +98,7 @@ public:
 	QwtPlot *MapPlot;
 	SpectrogramData *MapDrawData;
 
+	bool oldRunfile; // check is old runfile for ksat calibration
 
 	//interface names
 	TreeModel *MapNameModel;

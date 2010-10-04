@@ -20,9 +20,9 @@ void lisemqt::GetRunfile()
 	QFile fin(op.runfilename);
 	if (!fin.open(QFile::ReadOnly | QFile::Text)) {
 		QMessageBox::warning(this, "openLISEM",
-									QString("Cannot read file %1:\n%2.")
-									.arg(op.runfilename)
-									.arg(fin.errorString()));
+		QString("Cannot read file %1:\n%2.")
+		.arg(op.runfilename)
+		.arg(fin.errorString()));
 		return;
 	}
 
@@ -32,12 +32,17 @@ void lisemqt::GetRunfile()
 		namelist[i].value.clear();
 	}
 	nrnamelist = 0;
-
+	oldRunfile = false;
+   int i = 0;
 	while (!fin.atEnd())
 	{
 		QString S = fin.readLine();
+		if (i == 0 && !S.contains("openLISEM"))
+			oldRunfile = true;
+		i++;
 		if (!S.trimmed().isEmpty())
 		{
+
 			if (S.contains("="))
 			{
 				QStringList SL = S.split(QRegExp("="));
@@ -77,7 +82,7 @@ void lisemqt::ParseInputData()
               SwitchNutrients = iii == LISEMNUTRIENTS;
               SwitchGullies = iii == LISEMGULLIES;
           }
-		 */
+   */
 
 		//options in the main code, order is not important
 		if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
@@ -112,7 +117,7 @@ void lisemqt::ParseInputData()
 		if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
 		if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
 		if (p1.compare("Use canopy storage map")==0)			  radioButton_9->setChecked(check);
-			//checkInterceptionLAI->setChecked(!check);
+		//checkInterceptionLAI->setChecked(!check);
 		if (p1.compare("Canopy storage equation")==0)
 		{
 			//InterceptionEqNr = iii;
@@ -143,7 +148,17 @@ void lisemqt::ParseInputData()
 			E_InfiltrationMethod->setCurrentIndex(uiInfilMethod);
 		}
 
-		if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(namelist[j].value.toDouble());
+		if (p1.compare("Ksat calibration")==0)
+		{
+			double val = namelist[j].value.toDouble();
+			if (oldRunfile)
+			{
+				val/=100;
+				QMessageBox::warning(this,"openLISEM",QString("Old runfile detected: calibration value Ksat changed from % to fraction:\n"
+				"Ksat calibration divided by 100, check 'Calibration' options in main menu."));
+			}
+			E_CalibrateKsat->setValue(val);
+		}
 		if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(namelist[j].value.toDouble());
 		if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(namelist[j].value.toDouble());
 		if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(namelist[j].value.toDouble());
@@ -283,7 +298,7 @@ void lisemqt::InsertVariable(QString q, QString p, QString p1)
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p)
 {
-//TODO in linus this makes no sense of course!
+	//TODO in linus this makes no sense of course!
 	p.replace("/","\\");
 	if (!p.endsWith("\\"))
 		p = p + "\\";
@@ -298,15 +313,15 @@ void lisemqt::UpdateModelData()
 {
 	DefaultRunFile();
 	/*
-	// add new variables here
-	bool check = false;
-	for (int j = 0; j < nrnamelist; j++)
-	{
-		if (namelist[j].name.compare("Table File")==0)
-			check = true;
-	}
-	if (!check)
-		InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
+ // add new variables here
+ bool check = false;
+ for (int j = 0; j < nrnamelist; j++)
+ {
+  if (namelist[j].name.compare("Table File")==0)
+   check = true;
+ }
+ if (!check)
+  InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
 */
 
 	for (int j = 0; j < nrdefnamelist; j++)
@@ -378,7 +393,7 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Regular runoff output")==0) defnamelist[j].value.setNum(1);
 		if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
 		if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
-//TODO fix output stuff
+		//TODO fix output stuff
 
 		if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
 		if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;

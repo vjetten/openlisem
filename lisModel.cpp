@@ -149,6 +149,8 @@ void TWorld::DoModel()
 		BeginTime = getvaluedouble("Begin time") * 60;
 		EndTime = getvaluedouble("End time") * 60;
 		_dt = getvaluedouble("Timestep");
+		op.BeginTime = BeginTime/60; // for graph drawing
+		op.EndTime = EndTime/60;// for graph drawing
 		//time vraiables in sec
 
 		runstep = 0; // NOTE runstep is used to initialize graph!
