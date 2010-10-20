@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -167,7 +167,6 @@ void lisemqt::ShowGraph()
 		CData = new double[op.maxstep+2];
 		PData = new double[op.maxstep+2];
 		HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
-		qDebug() << op.BeginTime;
 	}
 
 	timeData[op.runstep] = op.time;

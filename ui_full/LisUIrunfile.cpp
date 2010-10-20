@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -20,12 +20,12 @@ void lisemqt::GetRunfile()
 	QFile fin(op.runfilename);
 	if (!fin.open(QFile::ReadOnly | QFile::Text)) {
 		QMessageBox::warning(this, "openLISEM",
-		QString("Cannot read file %1:\n%2.")
-		.arg(op.runfilename)
-		.arg(fin.errorString()));
+                             QString("Cannot read file %1:\n%2.")
+                             .arg(op.runfilename)
+                             .arg(fin.errorString()));
 		return;
 	}
-
+    
 	for (int i = 0; i < NUMNAMES; i++)
 	{
 		namelist[i].name.clear();
@@ -33,7 +33,7 @@ void lisemqt::GetRunfile()
 	}
 	nrnamelist = 0;
 	oldRunfile = false;
-   int i = 0;
+    int i = 0;
 	while (!fin.atEnd())
 	{
 		QString S = fin.readLine();
@@ -42,7 +42,7 @@ void lisemqt::GetRunfile()
 		i++;
 		if (!S.trimmed().isEmpty())
 		{
-
+            
 			if (S.contains("="))
 			{
 				QStringList SL = S.split(QRegExp("="));
@@ -63,7 +63,7 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
 	int j=0;
-
+    
 	for (j = 0; j < nrnamelist; j++)
 	{
 		int iii = namelist[j].value.toInt();
@@ -72,7 +72,7 @@ void lisemqt::ParseInputData()
 		bool check = iii == 1;
 		if (p1.contains("["))
 			continue;
-
+        
 		// main lisem types
 		/*
           if (p1.compare("LISEM Type")==0)
@@ -83,15 +83,16 @@ void lisemqt::ParseInputData()
               SwitchGullies = iii == LISEMGULLIES;
           }
    */
-
+        
 		//options in the main code, order is not important
 		if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
 		if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
 		if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
 		if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
 		//if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
-
-		if (p1.compare("Include snowmelt")==0)               checkSnowmelt->setChecked(check);
+        
+		if (p1.compare("Include Rainfall")==0)               checkRainfall->setChecked(check);
+		if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
 		if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
 		if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
 		if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
@@ -147,7 +148,7 @@ void lisemqt::ParseInputData()
 			}
 			E_InfiltrationMethod->setCurrentIndex(uiInfilMethod);
 		}
-
+        
 		if (p1.compare("Ksat calibration")==0)
 		{
 			double val = namelist[j].value.toDouble();
@@ -155,7 +156,7 @@ void lisemqt::ParseInputData()
 			{
 				val/=100;
 				QMessageBox::warning(this,"openLISEM",QString("Old runfile detected: calibration value Ksat changed from % to fraction:\n"
-				"Ksat calibration divided by 100, check 'Calibration' options in main menu."));
+                                                              "Ksat calibration divided by 100, check 'Calibration' options in main menu."));
 			}
 			E_CalibrateKsat->setValue(val);
 		}
@@ -164,10 +165,10 @@ void lisemqt::ParseInputData()
 		if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(namelist[j].value.toDouble());
 		if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(namelist[j].value.toDouble());
 		if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(namelist[j].value.toDouble());
-
-
+        
+        
 		if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
-
+        
 		if (p1.compare("CheckOutputMaps")==0)
 		{
 			outputcheck = p.split(",");
@@ -185,19 +186,19 @@ void lisemqt::ParseInputData()
 			// checkboxes normal output map series, numbering according to original LISEM
 		}
 	}
-
+    
 	// get main directories
 	E_MainTotals->setText("main.txt");
 	E_PointResults->setText("hydrograph.csv");
 	E_DetachmentMap->setText("eros.map");
 	E_DepositionMap->setText("depo.map");
 	E_SoillossMap->setText("soilloss.map");
-
+    
 	for (j = 0; j < nrnamelist; j++)
 	{
 		QString p1 = namelist[j].name;
 		QString p = namelist[j].value;
-
+        
 		if (p1.compare("Begin time")==0) E_BeginTime->setText(p);
 		if (p1.compare("End time")==0) E_EndTime->setText(p);
 		if (p1.compare("Timestep")==0) E_Timestep->setText(p);
@@ -206,36 +207,37 @@ void lisemqt::ParseInputData()
 			swatreDT = p.toDouble();
 			E_SWATREDtsecFraction->setValue(swatreDT/E_Timestep->text().toDouble());
 		}
-
+        
 		// input ourput dirs and file names
 		if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
 		if (p1.compare("Result Directory")==0) E_ResultDir->setText(CheckDir(p));
-
+        
 		if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
 		if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
 		// resultDir is added in report operation
-
+        
 		if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
 		if (p1.compare("Rainfall file")==0)
 		{
 			E_RainfallName->setText(p);
 			RainFileName = /*rainFileDir + */E_RainfallName->text();
 		}
-
+        
 		if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
 		if (p1.compare("Deposition map")==0) E_DepositionMap->setText(p);
 		if (p1.compare("Soilloss map")==0) E_SoillossMap->setText(p);
 		// resultDir is added in report operation
-		if (checkSnowmelt->isChecked())
-		{
-			if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-			if (p1.compare("Snowmelt file")==0)
-			{
-				E_SnowmeltName->setText(p);
-				SnowmeltFileName = /*SnowmeltFileDir + */E_SnowmeltName->text();
-			}
-		}
-
+        //NO checking
+        //		if (checkSnowmelt->isChecked())
+        //	{
+        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        if (p1.compare("Snowmelt file")==0)
+        {
+            E_SnowmeltName->setText(p);
+            SnowmeltFileName = /*SnowmeltFileDir + */E_SnowmeltName->text();
+        }
+		//}
+        
 		if (p1.compare("Table Directory")==0)
 		{
 			SwatreTableDir = CheckDir(p);
@@ -243,20 +245,20 @@ void lisemqt::ParseInputData()
 				SwatreTableDir = E_MapDir->text();
 			E_SwatreTableDir->setText(SwatreTableDir);
 		}
-
+        
 		if (p1.compare("Table File")==0)
 		{
 			SwatreTableName = p;
 			E_SwatreTableName->setText(SwatreTableName);
 		}
 	}
-
+    
 	if (SwatreTableName.isEmpty())
 	{
 		SwatreTableName = E_MapDir->text() + QString("profile.inp");
 		E_SwatreTableName->setText(SwatreTableName);
 	}
-
+    
 	// get all map names
 	for (j = 0; j < nrnamelist; j++)
 	{
@@ -271,10 +273,10 @@ void lisemqt::ParseInputData()
 			}
 		}
 	}
-
+    
 	//RunAllChecks();
 	// is done elsewhere
-
+    
 }
 //---------------------------------------------------------------------------
 void lisemqt::InsertVariable(QString q, QString p, QString p1)
@@ -304,7 +306,7 @@ QString lisemqt::CheckDir(QString p)
 		p = p + "\\";
 	if (!QDir(p).exists())
 		p.clear();
-
+    
 	return p;
 }
 //---------------------------------------------------------------------------
@@ -323,7 +325,7 @@ void lisemqt::UpdateModelData()
  if (!check)
   InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
 */
-
+    
 	for (int j = 0; j < nrdefnamelist; j++)
 	{
 		QString p1 = defnamelist[j].name;
@@ -332,7 +334,8 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("Include main channels")==0) 			  defnamelist[j].value.setNum((int)checkIncludeChannel->isChecked());
 		if (p1.compare("Include channel infil")==0)          defnamelist[j].value.setNum((int)checkChannelInfil->isChecked());
 		if (p1.compare("Include channel baseflow")==0)       defnamelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-		if (p1.compare("Include snowmelt")==0)               defnamelist[j].value.setNum((int)checkSnowmelt->isChecked());
+		if (p1.compare("Include Rainfall")==0)               defnamelist[j].value.setNum((int)checkRainfall->isChecked());
+		if (p1.compare("Include Snowmelt")==0)               defnamelist[j].value.setNum((int)checkSnowmelt->isChecked());
 		if (p1.compare("Alternative flow detachment")==0)    defnamelist[j].value.setNum((int)checkAltErosion->isChecked());
 		if (p1.compare("Simple depression storage")==0)      defnamelist[j].value.setNum((int)checkSimpleDepression->isChecked());
 		if (p1.compare("Hard Surfaces")==0)                  defnamelist[j].value.setNum((int)checkHardsurface->isChecked());
@@ -368,7 +371,7 @@ void lisemqt::UpdateModelData()
 			if(radioButton_9->isChecked()) i = 8;
 			defnamelist[j].value.setNum(i);
 		}
-
+        
 		if (p1.compare("Begin time")==0) defnamelist[j].value = E_BeginTime->text();
 		if (p1.compare("End time")==0)   defnamelist[j].value = E_EndTime->text();
 		if (p1.compare("Timestep")==0)   defnamelist[j].value = E_Timestep->text();
@@ -394,7 +397,7 @@ void lisemqt::UpdateModelData()
 		if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
 		if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
 		//TODO fix output stuff
-
+        
 		if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
 		if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;
 		if (p1.compare("SWATRE internal minimum timestep")==0)
@@ -403,7 +406,7 @@ void lisemqt::UpdateModelData()
 			swatreDT = E_Timestep->text().toDouble()*fraction;
 			defnamelist[j].value.setNum(swatreDT,'g',6);
 		}
-
+        
 		if (p1.compare("Infil Method")==0)
 		{
 			switch(uiInfilMethod)
@@ -439,10 +442,10 @@ void lisemqt::UpdateModelData()
 	for (int j = 0; j < nrdefnamelist; j++)
 		for (int i = 0; i < DEFmaps.size(); i++)
 		{
-			QStringList S = DEFmaps.at(i).split(";");
-			if (S.contains(defnamelist[j].name))
-				defnamelist[j].value = S.at(2);
-		}
-
+        QStringList S = DEFmaps.at(i).split(";");
+        if (S.contains(defnamelist[j].name))
+            defnamelist[j].value = S.at(2);
+    }
+    
 }
 //---------------------------------------------------------------------------

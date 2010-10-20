@@ -68,7 +68,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -317,6 +317,35 @@
                  </property>
                 </widget>
                </item>
+               <item row="2" column="4">
+                <widget class="QCheckBox" name="checkRainfall">
+                 <property name="toolTip">
+                  <string>Include rainfall (needs rainfall file and additional maps)</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="4">
+                <widget class="QCheckBox" name="checkSnowmelt">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Include snowmelt (needs snowmelt file and additional maps</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
             </item>
@@ -548,7 +577,7 @@
                <number>1</number>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <property name="tabSpacing">
                <number>1</number>
@@ -558,8 +587,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>265</height>
+                 <width>325</width>
+                 <height>147</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1274,116 +1303,14 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>378</width>
-                 <height>253</height>
+                 <width>449</width>
+                 <height>276</height>
                 </rect>
                </property>
                <attribute name="label">
                 <string>Global Options</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_24">
-                <item row="0" column="0">
-                 <widget class="QGroupBox" name="groupBox">
-                  <layout class="QGridLayout" name="gridLayout_18">
-                   <property name="margin">
-                    <number>6</number>
-                   </property>
-                   <item row="0" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkNoErosion">
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Runoff only (no erosion)</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkIncludeChannel">
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include main channel (needs channel maps)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkChannelInfil">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Channel infiltration (needs aditional map)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_55">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkChannelBaseflow">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Channel baseflow (needs additional maps)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkSnowmelt">
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include snowmelt (needs sowmelt file and additional maps)</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
                 <item row="1" column="0">
                  <widget class="QGroupBox" name="groupBox">
                   <property name="palette">
@@ -1423,11 +1350,11 @@
                     </disabled>
                    </palette>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_3">
+                  <layout class="QGridLayout" name="gridLayout_18">
                    <property name="margin">
                     <number>6</number>
                    </property>
-                   <item>
+                   <item row="0" column="0">
                     <widget class="QCheckBox" name="checkNoErosionOutlet">
                      <property name="font">
                       <font>
@@ -1440,7 +1367,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
+                   <item row="1" column="0">
                     <widget class="QCheckBox" name="checkAltErosion">
                      <property name="font">
                       <font>
@@ -1453,7 +1380,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
+                   <item row="2" column="0">
                     <widget class="QCheckBox" name="checkSimpleDepression">
                      <property name="font">
                       <font>
@@ -1466,7 +1393,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
+                   <item row="3" column="0">
                     <widget class="QCheckBox" name="checkHardsurface">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1479,6 +1406,92 @@
                      </property>
                      <property name="text">
                       <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QGroupBox" name="groupBox">
+                  <layout class="QGridLayout" name="gridLayout_29">
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkNoErosion">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Runoff only (no erosion)</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkIncludeChannel">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include main channel (needs channel maps)</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_55">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="checkChannelBaseflow">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Channel baseflow (needs additional maps)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkChannelInfil">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Channel infiltration (needs aditional map)</string>
                      </property>
                     </widget>
                    </item>
@@ -2545,7 +2558,7 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
+                 <width>400</width>
                  <height>278</height>
                 </rect>
                </property>
@@ -7864,98 +7877,50 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>groupBox</sender>
+   <sender>checkSnowmelt</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_SnowmeltName</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>323</x>
-     <y>157</y>
+     <x>461</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>404</x>
-     <y>133</y>
+     <x>442</x>
+     <y>154</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkOutputTimeStep</sender>
+   <sender>checkSnowmelt</sender>
    <signal>toggled(bool)</signal>
-   <receiver>printinterval</receiver>
+   <receiver>E_SnowmeltName</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>769</x>
-     <y>369</y>
+     <x>459</x>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
-     <x>739</x>
-     <y>387</y>
+     <x>251</x>
+     <y>150</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkOutputTimeStep</sender>
+   <sender>checkSnowmelt</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_16</receiver>
+   <receiver>toolButton_SnowmeltShow</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>767</x>
-     <y>362</y>
+     <x>458</x>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
-     <x>780</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkInfilGrass</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_15</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>437</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>463</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkInfilGrass</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_GrassStripN</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>437</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>332</x>
-     <y>463</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkOutputTimeUser</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>plainTextEdit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>740</x>
-     <y>422</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>775</x>
-     <y>477</y>
+     <x>414</x>
+     <y>150</y>
     </hint>
    </hints>
   </connection>

@@ -3,7 +3,7 @@ project: openLISEM
 name: lisModel.cpp
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 #include "misc.h"
@@ -78,6 +78,9 @@ SOIL_MODEL *TWorld::InitSwatre(
 /* soil model instance to be freed */
 void TWorld::CloseSwatre(SOIL_MODEL *s)
 {
+    if (s == NULL)
+        return;
+    
 	for (int i = 0; i < s->nrCells; i++)
 		delete[] s->pixel[i].h;
 

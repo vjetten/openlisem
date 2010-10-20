@@ -18,6 +18,21 @@
 #include "model.h"
 #include "lisuioutput.h"
 
+// constants to define the place of the main parts in the map tree structure
+#define RAINFALLMAPS 0
+#define CATCHMENTMAPS 1
+#define LANDUSEMAPS 2
+#define SURFACEMAPS 3
+#define EROSIONMAPS 4
+#define INFILTRATIONMAPS 5
+#define CHANNELSMAPS 6
+#define BUFFERSMAPS 7
+#define SNOWMELTMAPS 8
+#define WHEELTRACKSMAPS 9
+#define TEXTUREMAPS 10
+#define NUTRIENTSMAPS 11
+#define GULLIESMAPS 12
+
 
 
 class SpectrogramData: public QwtRasterData
@@ -76,6 +91,7 @@ public:
 	void RunAllChecks();
 	void savefile(QString name);
 	void InitOP();
+    void SetConnections();
 
 	void ShowGraph();
 	void ShowMap();
@@ -144,13 +160,14 @@ public slots:
 	void on_toolButton_RainfallShow_clicked();
 	void on_toolButton_SnowmeltShow_clicked();
 	void on_toolButton_ShowRunfile_clicked();
-	void on_toolButton_fileOpen_clicked();
+	//void on_toolButton_fileOpen_clicked();
 	void on_toolButton_SwatreTableDir_clicked();
 	void on_toolButton_SwatreTableFile_clicked();
 	void on_toolButton_SwatreTableShow_clicked();
+    void doCheckSnowmelt(bool check);
+    void doCheckRainfall(bool check);
 
-
-	void on_E_InfiltrationMethod_currentIndexChanged(int);
+	void on_E_InfiltrationMethod_currentIndexChanged(int inr);
 	void on_E_runFileList_currentIndexChanged(int);
 
 	void on_checkChannelInfil_clicked();

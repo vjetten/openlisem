@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -36,6 +36,8 @@ lisemqt::lisemqt(QWidget *parent)
 	SetToolBar();
 	FillMapList();
 	// initalize interface
+    
+    SetConnections();
 
 	W = NULL;
 	// initalize pointer to the world, created when run button is pushed
@@ -62,6 +64,14 @@ lisemqt::~lisemqt()
 	//delete QsGraph;
 	//delete CGraph;
 
+}
+//--------------------------------------------------------------------
+void lisemqt::SetConnections()
+{
+    connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
+    connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
+    connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
+    
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
@@ -302,10 +312,10 @@ void lisemqt::SetStyleUI()
 	label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
 //--------------------------------------------------------------------
-void lisemqt::on_toolButton_fileOpen_clicked()
-{
-	openRunFile();
-}
+//void lisemqt::on_toolButton_fileOpen_clicked()
+//{
+//	openRunFile();
+//}
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_MapDir_clicked()
 {
@@ -751,6 +761,7 @@ void lisemqt::resetAll()
 	checkChannelBaseflow->setChecked(check);
 	//	checkAllinChannel->setChecked(check);
 	checkSnowmelt->setChecked(check);
+	checkRainfall->setChecked(true);
 	checkAltErosion->setChecked(check);
 	checkSimpleDepression->setChecked(check);
 	checkHardsurface->setChecked(check);

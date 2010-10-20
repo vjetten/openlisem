@@ -3,7 +3,7 @@ project: openLISEM
 name: lisRainintc.cpp
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 
 Functionality in lisRainintc.cpp:
@@ -129,6 +129,10 @@ void TWorld::RainfallMap(void)
 	double timeminp = (time-_dt) / 60; //prev time in minutes
 	int placep, place;
 
+	if (!SwitchRainfall)
+		return;
+    
+    
 	for (placep = 0; placep < nrrainfallseries; placep++)
 		if (timeminp < RainfallSeries[placep][0])
 			break;

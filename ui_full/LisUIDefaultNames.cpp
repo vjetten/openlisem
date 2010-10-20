@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -29,9 +29,10 @@ void lisemqt::DefaultRunFile()
 //	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Input]");
 	defnamelist[i++].name = QString("Map Directory");
+	defnamelist[i++].name = QString("Include Rainfall");
 	defnamelist[i++].name = QString("Rainfall Directory");
 	defnamelist[i++].name = QString("Rainfall file");
-	defnamelist[i++].name = QString("Incude Snowmelt");
+	defnamelist[i++].name = QString("Include Snowmelt");
 	defnamelist[i++].name = QString("Snowmelt Directory");
 	defnamelist[i++].name = QString("Snowmelt file");
 	defnamelist[i++].name = QString("");
@@ -52,12 +53,13 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("Timestep");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[General options]");
+	defnamelist[i++].name = QString("Include Rainfall");
+	defnamelist[i++].name = QString("Include snowmelt");
 	defnamelist[i++].name = QString("No Erosion simulation");
 	defnamelist[i++].name = QString("Include main channels");
 	defnamelist[i++].name = QString("Include channel infil");
 	defnamelist[i++].name = QString("Include channel baseflow");
 	defnamelist[i++].name = QString("All water and sediment to outlet");
-	defnamelist[i++].name = QString("Include snowmelt");
 	defnamelist[i++].name = QString("No erosion at outlet");
 	defnamelist[i++].name = QString("Alternative flow detachment");
 	defnamelist[i++].name = QString("Simple depression storage");

@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -139,7 +139,7 @@ public:
 	bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
 	SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
 	startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
-	SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRunoffPerM, SwitchInfilCompact,
+	SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
 	SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead,
 	SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
 	SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
@@ -180,6 +180,7 @@ public:
 	SOIL_MODEL *SwatreSoilModelCompact;
 	SOIL_MODEL *SwatreSoilModelGrass;
 	double swatreDT;
+    bool initSwatreStructure;
 
 	// time and dx parameters
 	double time, BeginTime, EndTime;

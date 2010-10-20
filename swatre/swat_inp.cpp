@@ -3,7 +3,7 @@ project: openLISEM
 name: lisModel.cpp
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 #include "swatre_p.h"
@@ -131,12 +131,15 @@ void FreeSwatreInfo(void)
 	int i;
 
 	/* currently, all profiles have the same zoning */
-	free(zone->dz);
+    if (zone == NULL)
+        return;
+
+    free(zone->dz);
 	free(zone->z);
 	free(zone->endComp);
 	free(zone->disnod);
 	free(zone);
-
+    
 	for(i=0; i < nrProfileList; i++)
 		if (profileList[i] != NULL)
 			free(profileList[i]);

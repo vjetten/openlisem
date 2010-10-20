@@ -3,7 +3,7 @@ project: openLISEM
 name: lisSurfstor.cpp
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 
 Functionality in lisSurfstor.cpp:

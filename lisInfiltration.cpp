@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
@@ -299,7 +299,7 @@ void TWorld::Infiltration(void)
 {
 	FOR_ROW_COL_MV
 	{
-		WH->Drc += RainNet->Drc;
+		WH->Drc += RainNet->Drc + SnowmeltNet->Drc;
 		// add net to water rainfall on soil surface (in m)
 
 		if (GrassPresent->Drc > 0)

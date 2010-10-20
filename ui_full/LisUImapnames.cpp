@@ -2,7 +2,7 @@
 project: openLISEM
 author: Victor Jetten
 licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/Eclipse
+Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 /*
@@ -14,13 +14,17 @@ website, information and code: http://sourceforge.net/projects/lisem
 //--------------------------------------------------------------------
 void lisemqt::DefaultMapnames()
 {
+    //0,0
+	DEFmaps.append("0;Rainfall;0");
+	DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers;id;2");
+
+    //1,0
 	DEFmaps.append("0;Catchment;0");
 	DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad;2");
 	DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd;2");
 	DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet;2");
 	DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1 to nr);outpoint;2");
-	DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers;id;2");
-
+    
 	DEFmaps.append("0;Landuse;0");
 	DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover;2");
 	DEFmaps.append("2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai;2");
@@ -28,20 +32,21 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road;2");
 	DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth;2");
 	DEFmaps.append("2;Hard surf;hardsurf.map;Impermeable and unerodable surfaces (value 1);hardsurf;2");
-
+    //2,0
 	DEFmaps.append("0;Surface;0");
 	DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr;2");
 	DEFmaps.append("2;n;n.map;Manning's n (-);manning;2");
 	DEFmaps.append("2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (value 1);hardsurf;2");
 	DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc;2");
-
+    //3.0
 	DEFmaps.append("0;Erosion;0");
 	DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh;2");
 	DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd;2");
 	DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab;2");
 	DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50;2");
-
+    //4.0
 	DEFmaps.append("0;Infiltration;0");
+    //4.0
 	DEFmaps.append("1;Swatre;0");
 	DEFmaps.append("2;Profile;profile.map;ID numbers corresponding to land units in profile table;profmap;2");
 	DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst;2");
@@ -49,14 +54,14 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;2");
 	DEFmaps.append("2;Init. suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead;2");
 	//DEFmaps.append("2;Output head;headout.map;Locations to write tables of the matrix potential;headout;2");
-
+    //4.1
 	DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange;0");
 	DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1;2");
 	DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1;2");
 	DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1;2");
 	DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1;2");
 	DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1;2");
-
+    //4.2
 	DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange;0");
 	DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2;2");
 	DEFmaps.append("2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2;2");
@@ -68,10 +73,10 @@ void lisemqt::DefaultMapnames()
 	//DEFmaps.append("2;A;a.map;Parameter A in Holtan equation;A;2");
 	//DEFmaps.append("2;FP;fp.map;Parameter FP in Holtan equation;FP;2");
 	//DEFmaps.append("2;P;p.map;Parameter P in Holtan equation;P;2");
-
+    //4.3
 	DEFmaps.append("1;Ksat subtraction;0");
 	DEFmaps.append("2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1);2");
-
+    //4.4
 	DEFmaps.append("1;Special surfaces;2");
 	DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-);crustfrc;2");
 	DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst;2");
@@ -80,7 +85,7 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras;2");
 
 	//	DEFmaps.append("2;Drain. fact.;drfactor.map;Drainage exponent in k=ks*(moist/pore)^d (-);drfactor;2");
-
+    //5.0
 	DEFmaps.append("0;Channels;0");
 	DEFmaps.append("1;Channel properties;0");
 	DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan;2");
@@ -89,23 +94,23 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad;2");
 	DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman;2");
 	DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh;2");
-
+    //5.1
 	DEFmaps.append("1;Channelinfil;0");
 	DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat;2");
-
+    //5.2
 	DEFmaps.append("1;ChannelBaseflow;0");
 	DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux;2");
 	DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease;2");
 	DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini;2");
-
+    //6.0
 	DEFmaps.append("0;Buffers;0");
 	DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID;2");
 	DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume;2");
 	//DEFmaps.append("2;Buffer area;bufferarea.map;Buffer area at locations of the buffers (m2);bufferarea;2");
-
+    //7.0
 	DEFmaps.append("0;Snowmelt;0");
 	DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID;2");
-
+    //8.0
 	DEFmaps.append("0;Wheeltracks;0");
 	DEFmaps.append("2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel;2");
 	DEFmaps.append("2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr;2");
@@ -115,7 +120,7 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;N;wheelman.map;Mannings n of Wheel tracks (-);wheelman;2");
 	DEFmaps.append("2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion;2");
 	DEFmaps.append("2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt;2");
-
+    //9.0
 	DEFmaps.append("0;Texture classes;0");
 	DEFmaps.append("2;Class 0;mu0.map;Clay fraction (MUST BE CLAY < 2mu);fractionmu0;2");
 	DEFmaps.append("2;Class 1;mu1.map;Soil texture fraction for class 1 (-);fractionmu1;2");
@@ -123,7 +128,7 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;Class 3;mu3.map;Soil texture fraction for class 3 (-);fractionmu3;2");
 	DEFmaps.append("2;Class 4;mu4.map;Soil texture fraction for class 4 (-);fractionmu4;2");
 	DEFmaps.append("2;Class 5;mu5.map;Soil texture fraction for class 5 (-);fractionmu5;2");
-
+    //10.0
 	DEFmaps.append("0;Nutrients;0");
 	DEFmaps.append("2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk;2");
 	DEFmaps.append("2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont;2");
@@ -141,7 +146,7 @@ void lisemqt::DefaultMapnames()
 	DEFmaps.append("2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency;2");
 	DEFmaps.append("2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp;2");
 	DEFmaps.append("2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv;2");
-
+    //11.0
 	DEFmaps.append("0;Gullies;0");
 	DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem;2");
 	DEFmaps.append("2;mannings N;gullyman.map;manning's n gully bottom (-);gullyn;2");
@@ -221,12 +226,13 @@ void lisemqt::FillMapList()
 	treeView->setColumnWidth(4,0);
 	treeView->setAlternatingRowColors(true);
 
-	change_MapNameModel(0,0, true);
-	change_MapNameModel(1,0, true);
-	change_MapNameModel(2,0, true);
-	change_MapNameModel(3,0, true);
-	// enable basic maps
-
+	change_MapNameModel(RAINFALLMAPS,0, true);
+	change_MapNameModel(CATCHMENTMAPS,0, true);
+	change_MapNameModel(LANDUSEMAPS,0, true);
+	change_MapNameModel(SURFACEMAPS,0, true);
+	change_MapNameModel(EROSIONMAPS,0, true);
+	// enable basic maps, tree nodes 0-4 = first 5 branches
+   
 	treeView->collapseAll();
 
 }

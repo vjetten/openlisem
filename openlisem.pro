@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = "c:\Qt\qwt-5.2.1"
+QWTDIR = "c:/Qt/qwt-5.2.1"
 QT += core \
     gui
 HEADERS += \
@@ -61,8 +61,7 @@ FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
     LIBS += -L"debug" \
         -llibcsfd \
-        -lqwtd5 #\
-        #-lswatred
+        -lqwtd5
     DESTDIR = debug
 	 MOC_DIR = debug/moc
     OBJECTS_DIR= debug/objs
@@ -70,20 +69,17 @@ CONFIG(debug, debug|release) {
 }
 else {
     LIBS += -L"bin" \
-        -llibcsf \
-        -lqwt5 #\
-        #-lswatre
+        -llibcsfs \
+        -lqwt5s
     DESTDIR = bin
 	 MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
 	 UI_DIR= bin/ui
 }
 INCLUDEPATH += "include"
-INCLUDEPATH += "../libswatreQt/include"
 INCLUDEPATH += "ui_full"
 INCLUDEPATH += $${QWTDIR}/src
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
 
-OTHER_FILES +=
