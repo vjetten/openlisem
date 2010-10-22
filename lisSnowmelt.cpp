@@ -147,13 +147,12 @@ void TWorld::SnowmeltMap(void)
         Snowmelt->Drc = SnowmeltSeries[place][col]/3600000 * _dt;
         // Rain in m per timestep
         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
-        // correction for slope dx/DX, water spreads out over larger area
+        // DO NOT correct for slope dx/DX, snow is already on the surface
         
         //TODO: weighted average if dt larger than table dt
         
         SnowmeltCum->Drc += Snowmeltc->Drc;
-        // cumulative rainfall corrected for slope, used in interception
-        SnowmeltNet->Drc = Snowmeltc->Drc;
+        //SnowmeltNet->Drc = Snowmeltc->Drc;
 	}
 }
 //---------------------------------------------------------------------------

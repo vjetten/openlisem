@@ -450,6 +450,13 @@ void TWorld::IntializeData(void)
 	RainTot = 0;
 	RainTotmm = 0;
 	Rainpeak = 0;
+	RainpeakTime = 0;
+    RainAvgmm = 0;
+    SnowAvgmm = 0;
+	SnowTot = 0;
+	SnowTotmm = 0;
+	Snowpeak = 0;
+	SnowpeakTime = 0;
 	DetSplashTot = 0;
 	DetFlowTot = 0;
 	DepTot = 0;
@@ -504,10 +511,11 @@ void TWorld::IntializeData(void)
 	RainM3 = NewMap(0);
 	CStor = NewMap(0);
 	Interc = NewMap(0);
-	Snowmelt = NewMap(0);
+	
+    Snowmelt = NewMap(0);
 	Snowmeltc = NewMap(0);
 	SnowmeltCum = NewMap(0);
-	SnowmeltNet = NewMap(0);
+	//SnowmeltNet = NewMap(0);
     
 	// infiltration maps
 	InfilVolKinWave = NewMap(0);
@@ -520,7 +528,7 @@ void TWorld::IntializeData(void)
 	Ksateff = NewMap(0);
 	FSurplus = NewMap(0);
     
-	if (InfilMethod != INFIL_SWATRE)
+	if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 	{
 		Fcum = NewMap(1e-10);
 		L1 = NewMap(1e-10);
@@ -568,6 +576,7 @@ void TWorld::IntializeData(void)
 	SplashDelivery = getvaluedouble("Splash Delivery Ratio");
 	StemflowFraction = getvaluedouble("Stemflow fraction");
 	N->calcV(nCalibration, MUL);
+    
 	if (SwitchIncludeChannel)
 	{
 		ChannelN->calcV(ChnCalibration, MUL);
@@ -576,7 +585,8 @@ void TWorld::IntializeData(void)
         
 	}
     
-	SwatreSoilModel = NULL;
+	
+    SwatreSoilModel = NULL;
 	SwatreSoilModelCrust = NULL;
 	SwatreSoilModelCompact = NULL;
 	SwatreSoilModelGrass = NULL;

@@ -299,21 +299,21 @@ void TWorld::Infiltration(void)
 {
 	FOR_ROW_COL_MV
 	{
-		WH->Drc += RainNet->Drc + SnowmeltNet->Drc;
+		WH->Drc += RainNet->Drc + Snowmeltc->Drc;
 		// add net to water rainfall on soil surface (in m)
 
 		if (GrassPresent->Drc > 0)
-			WHGrass->Drc += RainNet->Drc;
+			WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
 		// net rainfall on grass strips, infil is calculated separately for grassstrips
 
 		if (RoadWidthDX->Drc > 0)
-			WHroad->Drc += Rainc->Drc;
+			WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
 		// assume no interception and infiltration on roads, gross rainfall
 
 		InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 		// vol before infil
 
-		if (InfilMethod != INFIL_SWATRE)
+		if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 		{
 			Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
 			// avg ksat of "normal" surface with crusting and compaction fraction, fractions are 0 when there is none
@@ -357,7 +357,7 @@ void TWorld::Infiltration(void)
 		//VJ 100608 no infil in buffers until it is full
 		//TODO NOTE CORRECT FOR RAINFALL IF WH IS 0
 
-		if (InfilMethod != INFIL_SWATRE)
+		if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 		{
 			WH->Drc -= fact->Drc;
 			if (WH->Drc < 0) // in case of rounding of errors

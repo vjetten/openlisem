@@ -18,41 +18,43 @@ Functionality in lisTotalMB.cpp:
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
 {
-    double rainfall;
-    double oldpeak; 
+    double rainfall, snowmelt;
+    double oldrainpeak, oldsnowpeak; 
     
 	/***** WATER *****/
-            
-    RainAvgmm = 0;
+    
     if (SwitchRainfall)
     {
         RainAvgmm = Rain->MapTotal()*1000/nrCells;
-        RainTotmm = RainTotmm + RainAvgmm;
+        RainTotmm += RainAvgmm;
         // avg area rainfall in mm
         
         tm->calc2V(Rain, (_dx*_dx), MUL); //in m3
         rainfall = tm->MapTotal();
         RainTot += rainfall; // in m3
         
-        oldpeak = Rainpeak;
+        oldrainpeak = Rainpeak;
         Rainpeak = max(Rainpeak, rainfall);
-        if (oldpeak < Rainpeak)
+        if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
     
 	if (SwitchSnowmelt)
 	{
-        RainAvgmm += Snowmelt->MapTotal()*1000/nrCells;
-        RainTotmm = RainTotmm + RainAvgmm;
-
+        SnowAvgmm += Snowmelt->MapTotal()*1000/nrCells;
+        SnowTotmm += SnowAvgmm;
+        
+		//tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
+        //TODO check for slope correction, include here???
+		//rainfall = tm->MapTotal();
 		tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
-		rainfall = tm->MapTotal();
-		RainTot += rainfall; // in m3
-
-        oldpeak = Rainpeak;
-		Rainpeak = max(Rainpeak, rainfall);
-		if (oldpeak < Rainpeak)
-			RainpeakTime = time;
+		snowmelt = tm->MapTotal();
+		SnowTot += snowmelt; // in m3
+        
+        oldsnowpeak = Snowpeak;
+		Snowpeak = max(Snowpeak, snowmelt);
+		if (oldsnowpeak < Snowpeak)
+			SnowpeakTime = time;
 	}
     
 	IntercTot = Interc->MapTotal();
@@ -123,15 +125,15 @@ void TWorld::Totals(void)
 		Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc); // in l/s
 	}
     
-	oldpeak = Qpeak;
+	oldrainpeak = Qpeak;
 	Qpeak = max(Qpeak, Qoutput->DrcOutlet);
-	if (oldpeak < Qpeak)
+	if (oldrainpeak < Qpeak)
 		QpeakTime = time;
 	// peak flow and peak time calculation, based on sum channel and runoff
     
-	//***** SEDIMENT *****//
-            
-            if (SwitchErosion)
+	/***** SEDIMENT *****/
+    
+    if (SwitchErosion)
 	{
 		DetSplashTot += DETSplash->MapTotal();
 		DetFlowTot += DETFlow->MapTotal();
@@ -199,9 +201,9 @@ void TWorld::Totals(void)
 void TWorld::MassBalance()
 {
 	// Mass Balance water
-	if (RainTot > 0)
-		MB = (RainTot - IntercTot - InfilTot - WaterVolTot
-              - BufferVolTot - Qtot)/RainTot*100;
+	if (RainTot + SnowTot > 0)
+		MB = (RainTot + SnowTot - IntercTot - InfilTot - WaterVolTot
+              - BufferVolTot - Qtot)/(RainTot + SnowTot)*100;
     
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)

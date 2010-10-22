@@ -163,8 +163,9 @@ void TWorld::FlowDetachment(void)
 		DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
 		// no flow detachment on hard surfaces
 
-		DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
-		// no flow detachment on snow
+		//DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
+		//TODO: CHECK THIS no flow detachment on snow
+        //is there erosion and sedimentation under the snowdeck?
 
 		//### deposition
 		if (WH->Drc > MIN_HEIGHT)
@@ -183,8 +184,8 @@ void TWorld::FlowDetachment(void)
 		// cannot have more depo than sediment present
 		//TODO what about this: which one to choose
 
-		deposition = (1-Snowcover->Drc) * deposition;
-		// no deposition on snow
+		//deposition = (1-Snowcover->Drc) * deposition;
+		//TODO: TRUE??? no deposition on snow
 
 		if (GrassPresent->Drc > 0)
 			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;

@@ -163,13 +163,13 @@ public:
 	double StemflowFraction;
 
 	// totals for mass balance checks and output
-	double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SurfStoremm, InfilKWTot;
+	double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
 	double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;
 	double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot;
-	double RainTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, Qpeak, Rainpeak;
-	double nrCells, CatchmentArea, RainpeakTime, QpeakTime, RainAvgmm;
-	double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit;
-	double BulkDens;
+	double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
+	double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
+	double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens;
+	double nrCells, CatchmentArea;
 
 	int c_outlet;  // outlet row and col
 	int r_outlet;

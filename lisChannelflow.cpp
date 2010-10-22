@@ -103,13 +103,13 @@ void TWorld::ChannelFlow(void)
 		}
 		else  // non-rectangular
 		{
-/*
+            /*
    ABC fornula
     dw      w       dw
    \  |            |  /
     \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
      \|____________|/
-   vol = h*w + h*dw
+   area = vol/dx = h*w + h*dw
    dw = h*tan(a)
    vol = w*h + tan(a)*h*h
    tan(a)h^2 * wh - vol = 0
@@ -117,7 +117,7 @@ void TWorld::ChannelFlow(void)
 */
             double aa = ChannelSide->Drc;  //=tan(a)
             double bb = ChannelWidth->Drc; //=w
-            double cc = -1*ChannelWaterVol->Drc; //=vol
+            double cc = -1*ChannelWaterVol->Drc/DX->Drc; //=vol/DX
             ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
             if (ChannelWH->Drc < 0)
             {
@@ -173,8 +173,8 @@ void TWorld::ChannelFlow(void)
 	FOR_ROW_COL_MV_CH
 	{
 		double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
-		ChannelWH->Drc = ChannelArea/ChannelWidthUpDX->Drc;
-		// water height is not used except for output e.g. watervolume is cycled
+		ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
+		// water height is not used except for output i.e. watervolume is cycled
         
 		ChannelWaterVol->Drc = ChannelArea * DX->Drc;
 		// total water vol after kin wave in m3, going to the next timestep

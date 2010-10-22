@@ -58,7 +58,7 @@ void TWorld::OutputUI()
     
 	op.CatchmentArea = CatchmentArea;
     
-	op.RainTotmm=RainTotmm;
+	op.RainTotmm=RainTotmm + SnowTotmm;
 	op.WaterVolTotmm=WaterVolTotmm-SurfStoremm;
 	op.Qtotmm=Qtotmm;
 	op.Qtot=QtotOutlet;
@@ -87,7 +87,7 @@ void TWorld::OutputUI()
 	op.time = time/60;
 	op.maxtime = op.t/runstep * op.maxstep;
     
-	op.P = RainAvgmm* 3600/_dt;
+	op.P = (RainAvgmm + SnowAvgmm)* 3600/_dt;
 	op.Q = Qoutput->DrcOutlet;
 	op.Qs = Qsoutput->DrcOutlet;
 	op.C = TotalConc->DrcOutlet;
