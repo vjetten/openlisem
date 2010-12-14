@@ -100,7 +100,7 @@ void TWorld::OutputUI()
 	// in file LisUIModel
     
 	ReportTimeseriesNew();
-	// report hydrographs ande swdigraophs at all points in outpoint.map
+	// report hydrographs ande sedigraophs at all points in outpoint.map
     
 	ReportTotalsNew();
 	// report totals to a text file

@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = "c:/Qt/qwt-5.2.1"
+QWTDIR = c:/Qt/qwt-5.2.1
 QT += core \
     gui
 HEADERS += \
@@ -60,6 +60,7 @@ SOURCES += lisTotalsMB.cpp \
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
     LIBS += -L"debug" \
+        -L "$${QWTDIR}/lib"\
         -llibcsfd \
         -lqwtd5
     DESTDIR = debug

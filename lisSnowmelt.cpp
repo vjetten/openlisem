@@ -149,7 +149,7 @@ void TWorld::SnowmeltMap(void)
         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
         // DO NOT correct for slope dx/DX, snow is already on the surface
         
-        //TODO: weighted average if dt larger than table dt
+        /** TODO: weighted average if dt larger than table dt */
         
         SnowmeltCum->Drc += Snowmeltc->Drc;
         //SnowmeltNet->Drc = Snowmeltc->Drc;

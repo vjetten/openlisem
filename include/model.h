@@ -45,6 +45,7 @@ Functionality in model.h:
 		if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 #define NUMNAMES 300
+#define NUMMAPS 110
 #define MIN_FLUX 1e-12
 #define MIN_HEIGHT 1e-6
 #define MAXCONC 848
@@ -80,6 +81,14 @@ typedef struct _nameList{
 	QString name;
 	QString value;
 } _nameList;
+//---------------------------------------------------------------------------
+// map name list structure for interaction with interface
+typedef struct _mapList{
+   QString name;
+   QString id;
+   int groupnr;
+   int varnr;
+} _mapList;
 //---------------------------------------------------------------------------
 // The world: main class containing all variables, maps, options, filenames etc etc
 class TWorld: public QThread

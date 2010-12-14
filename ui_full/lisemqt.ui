@@ -68,7 +68,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -7883,12 +7883,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>461</x>
-     <y>155</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>442</x>
-     <y>154</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -7899,12 +7899,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>150</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>251</x>
-     <y>150</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -7915,12 +7915,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>458</x>
-     <y>147</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>414</x>
-     <y>150</y>
+     <x>119</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>

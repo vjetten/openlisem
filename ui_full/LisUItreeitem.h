@@ -25,11 +25,8 @@ public:
     TreeItem *parent();
     int childNumber() const;
     bool setData(int column, const QVariant &value);
-    bool _flag;  // for setting flags to disable node
- //   int _datatype; //0,1 = node level; 2 = string; 3 = int; 4 = float
- //   void setDatatype(int datatype);
- //   int getDatatype();
-
+    bool nodeEnabled;  // to disable node (false) enable (true)
+    int mapNumber;
 
 private:
     QList<TreeItem*> childItems;

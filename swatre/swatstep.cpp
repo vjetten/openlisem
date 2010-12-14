@@ -286,7 +286,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where)
 }
 //--------------------------------------------------------------------------------
 // calculates average soil moisture from surface to layernr
-//TODO: NOT CORRECT SHOULD BE RELATIVE TO THICKNESS OF LAYERS
+/** TODO: NOT CORRECT SHOULD BE RELATIVE TO THICKNESS OF LAYERS */
 /*
 void SwatreTheta(
 		SOIL_MODEL *s,

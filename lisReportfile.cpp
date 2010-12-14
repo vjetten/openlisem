@@ -23,7 +23,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 // - 3 types of output: PCRaster timeplot format; SOBEK input format; flat comma delimited format
 // - all points in one file or each point in a separate file
 // - the types should be mututally exclusive in the interface and run file
-// - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
+/** - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct! */
 void TWorld::ReportTimeseriesNew()
 {
 	int nr = 0;
@@ -126,7 +126,9 @@ void TWorld::ReportTimeseriesNew()
                         if ( PointMap->Drc > 0 ) nr++;
                 
 				int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
-                //TODO snowmelt
+
+            /** TODO snowmelt */
+
 				pnr.setNum(nrs);
 				out << "#LISEM total flow and sed output file for all reporting points\n";
 				out <<  pnr << "\n";
@@ -378,7 +380,7 @@ void TWorld::ReportMaps()
 	{
 		tm->calc2V(WHstore, 1000, MUL);// in mm
 		tm->report(Outss);
-		//TODO check this: surf store in volume m3 is multiplied by flowwidth?
+      /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
 	}
     
 	if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);

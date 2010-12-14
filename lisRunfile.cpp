@@ -12,13 +12,13 @@ website, information and code: http://sourceforge.net/projects/lisem
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
 {
-    //	QFile fout("c:\\try.txt");
-    //	fout.open(QIODevice::WriteOnly | QIODevice::Text);
-    //	QTextStream out(&fout);
-    
+   //	QFile fout("c:\\try.txt");
+   //	fout.open(QIODevice::WriteOnly | QIODevice::Text);
+   //	QTextStream out(&fout);
+
 	for (int i = 0; i < nrnamelist; i++)
 	{
-        //		out << namelist[i].name.toUpper() << "\n";
+      //		out << namelist[i].name.toUpper() << "\n";
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
 			QFileInfo info(namelist[i].value);
@@ -35,7 +35,7 @@ QString TWorld::getvaluename(QString vname)
 			}
 		}
 	}	
-    //	fout.close();
+   //	fout.close();
 	ErrorString = QString("Map ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
@@ -45,9 +45,9 @@ double TWorld::getvaluedouble(QString vname)
 	for (int i = 0; i < nrnamelist; i++)
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
-		return namelist[i].value.toDouble();
-	}
-    
+         return namelist[i].value.toDouble();
+      }
+
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
@@ -57,9 +57,9 @@ int TWorld::getvalueint(QString vname)
 	for (int i = 0; i < nrnamelist; i++)
 		if(vname.toUpper() == namelist[i].name.toUpper())
 		{
-		return namelist[i].value.toInt();
-	}
-    
+         return namelist[i].value.toInt();
+      }
+
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
 	throw 3;
 }
@@ -67,20 +67,20 @@ int TWorld::getvalueint(QString vname)
 void TWorld::GetRunFile()
 {
 	QFile fin(temprunname);
-    
+
 	if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		ErrorString = "Cannot open runfile: " + temprunname;
 		throw 2;
 	}
-    
+
 	for (int i = 0; i < NUMNAMES; i++)
 	{
 		namelist[i].name.clear();
 		namelist[i].value.clear();
 	}
 	nrnamelist = 0;
-    
+
 	while (!fin.atEnd())
 	{
 		QString S = fin.readLine();
@@ -100,20 +100,20 @@ void TWorld::GetRunFile()
 QString TWorld::CheckDir(QString p)
 {
 	/*
-	if (QDir(p).exists())
-	{
-		if (!p.endsWith("/"))
-			p = p + '/';
-		return p;
-	}
-	else
-	{
-		if (!QDir(p).exists())
-			ErrorString = p1 +": "+p+ " is not an existing directory!";
-		throw 1;
-	}
-	return "";
-	*/
+ if (QDir(p).exists())
+ {
+  if (!p.endsWith("/"))
+   p = p + '/';
+  return p;
+ }
+ else
+ {
+  if (!QDir(p).exists())
+   ErrorString = p1 +": "+p+ " is not an existing directory!";
+  throw 1;
+ }
+ return "";
+ */
 	p.replace("/","\\");
 	//	if (!p.endsWith("/"))
 	if (!p.endsWith("\\"))
@@ -135,24 +135,24 @@ QString TWorld::GetName(QString p)
 void TWorld::ParseInputData()
 {
 	int j=0;
-    
+
 	// do all switches first
 	for (j = 0; j < nrnamelist; j++)
 	{
 		int iii = namelist[j].value.toInt();
 		QString p1 = namelist[j].name;
 		QString p = namelist[j].value;
-        
+
 		//fprintf(fout,"%s=%s\n",(const char *)p1.toLatin1(),(const char *)p.toLatin1());
 		/*
-		// main lisem types
-		if (p1.compare("LISEM Type")==0)
-		{
-			SwitchWheelAsChannel = iii == LISEMWHEELTRACKS;
-			SwitchMulticlass = iii == LISEMMULTICLASS;
-			SwitchNutrients = iii == LISEMNUTRIENTS;
-			SwitchGullies = iii == LISEMGULLIES;
-		}
+  // main lisem types
+  if (p1.compare("LISEM Type")==0)
+  {
+   SwitchWheelAsChannel = iii == LISEMWHEELTRACKS;
+   SwitchMulticlass = iii == LISEMMULTICLASS;
+   SwitchNutrients = iii == LISEMNUTRIENTS;
+   SwitchGullies = iii == LISEMGULLIES;
+  }
 */
 		//options in the main code, order is not important
 		if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
@@ -162,7 +162,7 @@ void TWorld::ParseInputData()
 		if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
 		SwitchAllinChannel = true;
 		//VJ 100526 always true in old LISEM
-        
+
 		if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
 		if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
 		if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
@@ -191,24 +191,24 @@ void TWorld::ParseInputData()
 		if (p1.compare("SOBEK date string")==0)              SOBEKdatestring = p;
 		SOBEKdatestring.remove(10,100);
 		if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
-        
+
 		if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
-        
+
 	}
-    
+
 	InfilMethod = getvalueint("Infil Method");
 	if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
 		SwitchTwoLayer = true;
-    
+
 	for (j = 0; j < nrnamelist; j++)
 	{
 		QString p1 = namelist[j].name;
 		QString p = namelist[j].value;
-        
+
 		// input ourput dirs and file names
 		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p);
 		if (p1.compare("Result Directory")==0) resultDir = CheckDir(p);
-        
+
 		if (InfilMethod == INFIL_SWATRE)
 		{
 			if (p1.compare("Table Directory")==0)
@@ -238,12 +238,12 @@ void TWorld::ParseInputData()
 				throw 1;
 			}
 		}
-        
+
 		if (SwitchRainfall)
 		{
-            if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
-            if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
-        }
+         if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
+         if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
+      }
 		if (SwitchSnowmelt)
 		{
 			if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
@@ -280,7 +280,7 @@ void TWorld::ParseInputData()
 			}
 			// resultDir is added in report operation			
 		}
-        
+
 		if (p1.compare("OUTRUNOFF")==0)  Outrunoff = GetName(p);
 		if (p1.compare("OUTCONC"  )==0)  Outconc   = GetName(p);
 		if (p1.compare("OUTWH"    )==0)  Outwh     = GetName(p);
@@ -293,7 +293,7 @@ void TWorld::ParseInputData()
 		if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
 		if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
 	}
-    
+
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		swatreDT = getvaluedouble("SWATRE internal minimum timestep");
@@ -303,6 +303,6 @@ void TWorld::ParseInputData()
 		//profileName = getname("profile");//?????????????????????
 		// profile map name
 	}
-    
+
 }
 //------------------------------------------------------------------------------

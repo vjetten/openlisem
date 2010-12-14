@@ -46,7 +46,8 @@ void lisemqt::runmodel()
 		return;
 	}
 	label_runfilename->setText(op.runfilename);
-	//TODO if run from commandline this name must exist
+   /** TODO if run from commandline this name must exist */
+
 	// this assumes runfilename is correct
 	savefile(QString(op.LisemDir+"openlisemtmp.run"));
 
@@ -183,10 +184,14 @@ void lisemqt::ShowGraph()
 
 	QGraph->setRawData(timeData,QData,op.runstep);
 	PGraph->setRawData(timeData,PData,op.runstep);
+	//TODO qwt 6.0.0: QGraph->setRawSamples(timeData,QData,op.runstep);
+	//TODO qwt 6.0.0: PGraph->setRawSamples(timeData,PData,op.runstep);
 	if(!checkNoErosion->isChecked())
 	{
 		QsGraph->setRawData(timeData,QsData,op.runstep);
 		CGraph->setRawData(timeData,CData,op.runstep);
+		//TODO qwt 6.0.0: QsGraph->setRawSamples(timeData,QsData,op.runstep);
+		//TODO qwt 6.0.0: CGraph->setRawSamples(timeData,CData,op.runstep);
 	}
 
 	y2as = max(y2as, op.Qs);

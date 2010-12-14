@@ -33,7 +33,7 @@
 #define NUTRIENTSMAPS 11
 #define GULLIESMAPS 12
 
-
+/*
 
 class SpectrogramData: public QwtRasterData
 {
@@ -63,7 +63,7 @@ public:
     }
 };
 
-
+*/
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
 {
 	Q_OBJECT
@@ -110,9 +110,9 @@ public:
 	double *CData;
 	double *PData;
 	//Map drawing variables
-	QwtPlotSpectrogram *MapDrawing;
-	QwtPlot *MapPlot;
-	SpectrogramData *MapDrawData;
+//	QwtPlotSpectrogram *MapDrawing;
+//	QwtPlot *MapPlot;
+//	SpectrogramData *MapDrawData;
 
 	bool oldRunfile; // check is old runfile for ksat calibration
 
@@ -131,8 +131,9 @@ public:
 	int uiInfilMethod;
 	double swatreDT;
 
-	// runfile read structure
-	_nameList namelist[NUMNAMES]; // structure for runfile variables and names
+   _mapList mapList[NUMMAPS]; // structure for current map names, possibly edited by user
+   int nrmaplist;
+   _nameList namelist[NUMNAMES]; // structure for runfile variables and names
 	int nrnamelist;
 	_nameList defnamelist[NUMNAMES]; // structure for DEFAULT runfile variables and names
 	int nrdefnamelist;
@@ -153,6 +154,8 @@ public slots:
 	void aboutInfo();
 	void resetAll();
 
+   void doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight );
+
 	void on_toolButton_MapDir_clicked();
 	void on_toolButton_ResultDir_clicked();
 	void on_toolButton_RainfallName_clicked();
@@ -164,8 +167,9 @@ public slots:
 	void on_toolButton_SwatreTableDir_clicked();
 	void on_toolButton_SwatreTableFile_clicked();
 	void on_toolButton_SwatreTableShow_clicked();
-    void doCheckSnowmelt(bool check);
-    void doCheckRainfall(bool check);
+
+   void doCheckSnowmelt(bool check);
+   void doCheckRainfall(bool check);
 
 	void on_E_InfiltrationMethod_currentIndexChanged(int inr);
 	void on_E_runFileList_currentIndexChanged(int);

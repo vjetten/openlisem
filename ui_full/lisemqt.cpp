@@ -15,8 +15,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "model.h"
 #include "global.h"
 
-
-
 output op;
 
 //--------------------------------------------------------------------
@@ -29,15 +27,15 @@ lisemqt::lisemqt(QWidget *parent)
 
 	MapNameModel = NULL;
 	HPlot = NULL;
-	MapPlot = NULL;
+//	MapPlot = NULL;
 	resetAll();
 	//LisemReset();
 
 	SetToolBar();
 	FillMapList();
-	// initalize interface
+	// initalize interface and make tree structure for map names
     
-    SetConnections();
+   SetConnections();
 
 	W = NULL;
 	// initalize pointer to the world, created when run button is pushed
@@ -58,8 +56,8 @@ lisemqt::~lisemqt()
 
 	if (HPlot)
 		delete HPlot;
-	if (MapPlot)
-		delete MapPlot;
+//	if (MapPlot)
+//		delete MapPlot;
 	//delete QGraph;
 	//delete QsGraph;
 	//delete CGraph;
@@ -71,7 +69,6 @@ void lisemqt::SetConnections()
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
-    
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
@@ -162,6 +159,7 @@ void lisemqt::LisemReset()
 //---------------------------------------------------------------------------
 void lisemqt::SetMapPlot()
 {
+    /*
 	QwtText title;
 	title.setText("something");
 	MapDrawing = new QwtPlotSpectrogram();
@@ -185,6 +183,7 @@ void lisemqt::SetMapPlot()
 
 
    //	MapPlot->replot();
+   */
 }
 //---------------------------------------------------------------------------
 void lisemqt::SetGraph()
@@ -192,8 +191,6 @@ void lisemqt::SetGraph()
 	textGraph->setMaximumBlockCount(6);
 	textGraph->setWordWrapMode(QTextOption::NoWrap);
 	textGraph->setMaximumHeight(96);
-
-
 
 	QwtText title;
 	title.setText("Hydrograph/Sedigraph outlet");

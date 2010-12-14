@@ -77,6 +77,10 @@ void TWorld::InfilMorelSeytoux1(void)
 		double A = 0, B, tp;
 		double tt=time-BeginTime;
 
+      if (SoilDepth1->Drc <= tiny)
+         continue;
+      // outcrops etc: no infil
+
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
@@ -113,6 +117,11 @@ void TWorld::InfilSmithParlange1(void)
 		double fwh = WH->Drc; // in m, in WH is old WH + net rainfall
 		double Cdexp, B = (fwh + Psi1->Drc*0.01)*max(ThetaS1->Drc-ThetaI1->Drc, tiny);
 		// psi input map is in cm so multiply 0.01 for m
+
+      if (SoilDepth1->Drc <= tiny)
+         continue;
+      // outcrops etc: no infil
+      
 
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
@@ -158,6 +167,14 @@ void TWorld::InfilGreenAmpt1(void)
 		double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
 		double fwh = WH->Drc; // in m, WH is old WH + net rainfall
 
+      if (SoilDepth1->Drc <= tiny)
+      {
+         fpot->Drc = 0;
+         fact->Drc = 0;
+         continue;
+      }
+      // outcrops etc: no infil
+
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
@@ -166,26 +183,26 @@ void TWorld::InfilGreenAmpt1(void)
 		// potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
 		// L1 initialized at 1e-10, psi in cm so multiply 0.01 for m
 
-		fact1 = min(fpot->Drc, fwh);
-		// actual infil in m, cannot have more infil than water on the surface
+      fact1 = min(fpot->Drc, fwh);
+      // actual infil in m, cannot have more infil than water on the surface
 
-		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
-		// adjust fact for twolayer, impermeable etc
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
+      // adjust fact for twolayer, impermeable etc
 
-		if(SwitchInfilGrass)
-		{
-			fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
-			Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
+      if(SwitchInfilGrass)
+      {
+         fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
+         Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
 
-			if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
-				Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
+         if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
+            Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-			fpotgr->Drc = Ks*(1+(Psi1->Drc*0.01+fwh)/(L1gr->Drc+L2->Drc));
+         fpotgr->Drc = Ks*(1+(Psi1->Drc*0.01+fwh)/(L1gr->Drc+L2->Drc));
 
-			fact1 = min(fpotgr->Drc, fwh);
+         fact1 = min(fpotgr->Drc, fwh);
 
-			factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
-		}
+         factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
+      }
 	}
 }
 //---------------------------------------------------------------------------
@@ -206,8 +223,7 @@ void TWorld::InfilKsat(void)
 
 		fact1 = min(fpot->Drc, fwh);
 		// actual infil in m, cannot have more infil than water on the surface
-
-		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
+      fact->Drc = fact1;// IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
 		// adjust fact for twolayer, impermeable etc
 
 		if(SwitchInfilGrass)
@@ -222,7 +238,7 @@ void TWorld::InfilKsat(void)
 
 			fact1 = min(fpotgr->Drc, fwh);
 
-			factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
+         factgr->Drc = fact1;//IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
 		}
 	}
 }
@@ -251,7 +267,10 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 		}
 		// soil is full, fact = 0, no more increase
 		if (L1 > SoilDepth1->Drc - tiny)
+      {
 			fact = 0;
+         //qDebug() << r << c << L1 << SoilDepth1->Drc << "full";
+      }
 	}
 
 	if (!SwitchTwoLayer && (L1+dL1 > SoilDepth1->Drc - tiny))
@@ -311,7 +330,7 @@ void TWorld::Infiltration(void)
 		// assume no interception and infiltration on roads, gross rainfall
 
 		InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-		// vol before infil
+		// potential water volume on surface before infil
 
 		if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 		{
@@ -342,20 +361,20 @@ void TWorld::Infiltration(void)
 	case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
 	case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
 	case INFIL_KSAT : InfilKsat(); break;
-	case INFIL_MOREL : InfilMorelSeytoux1(); break; //TODO: DOESN'T WORK YET
+   case INFIL_MOREL : InfilMorelSeytoux1(); break; /** TODO: DOESN'T WORK YET */
 	case INFIL_SMITH : InfilSmithParlange1(); break;
 	}
 	// these function result in an actual infiltration "fact" (in m)
 	// and potential infiltration "fpot" (in m)
 	// each function deals with grass strips as a separate infiltration process
-
+L1->report("l1a");
 	FOR_ROW_COL_MV
 	{
 		if (SwitchBuffers && !SwitchSedtrap)
 			if(BufferID->Drc > 0 && BufferVol->Drc > 0)
 				WH->Drc = 0;
 		//VJ 100608 no infil in buffers until it is full
-		//TODO NOTE CORRECT FOR RAINFALL IF WH IS 0
+      /** TODO NOTE CORRECT FOR RAINFALL IF WH IS 0 */
 
 		if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 		{

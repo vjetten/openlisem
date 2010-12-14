@@ -44,9 +44,6 @@ void TWorld::Totals(void)
         SnowAvgmm += Snowmelt->MapTotal()*1000/nrCells;
         SnowTotmm += SnowAvgmm;
         
-		//tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
-        //TODO check for slope correction, include here???
-		//rainfall = tm->MapTotal();
 		tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
 		snowmelt = tm->MapTotal();
 		SnowTot += snowmelt; // in m3
@@ -96,7 +93,7 @@ void TWorld::Totals(void)
 		// recalc in mm for screen output
         
 		Qtot += ChannelQoutflow->MapTotal();
-		double hoi = ChannelQoutflow->MapTotal();
+//		double hoi = ChannelQoutflow->MapTotal();
 		// add channel outflow (in m3) to total for all pits
 		Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 		// recalc in mm for screen output
@@ -179,7 +176,7 @@ void TWorld::Totals(void)
 				BufferSedTot += ChannelBufferSed->MapTotal();
 			BufferSedTot = BufferSedTotInit - BufferSedTot;
 		}
-		//TODO add gully, wheeltracks etc
+      /** TODO add gully, wheeltracks etc */
         
 		// spatial totals for output
 		FOR_ROW_COL_MV

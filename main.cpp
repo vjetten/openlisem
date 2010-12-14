@@ -9,7 +9,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include <QtGui>
 #include <QApplication>
 
-//TODO do this better elseif?
 #include "lisemqt.h"
 #include "global.h"
 #include "version.h"

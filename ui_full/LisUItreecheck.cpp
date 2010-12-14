@@ -213,7 +213,7 @@ void lisemqt::on_checkExpandActive_clicked()
 	else
 		for (int i = 0; i < MapNameModel->rowCount(); i++)
 		{
-        if (MapNameModel->getflag(i))
+        if (MapNameModel->getFlag(i))
             treeView->expand(MapNameModel->index(i,0));
     }
 }

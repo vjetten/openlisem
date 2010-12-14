@@ -25,7 +25,9 @@ SOIL_MODEL *TWorld::InitSwatre(
 		bool bottomClosed)
 {
 	SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
-	//TODO check if this needs freeing when error
+
+   /** TODO check if this needs freeing when error */
+
 	int  i, n, nrNodes  = NrZoneNodes();
 	int nodeDataIncr = nrNodes+1;
 	long nrCells = nrCols*nrRows;

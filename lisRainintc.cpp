@@ -70,7 +70,8 @@ void TWorld::GetRainfallData(void)
 			nrrainfallseries++;
 	}
 	// count rainfall records, skip empty lines
-	if (nrrainfallseries <= 1)
+	
+    if (nrrainfallseries <= 1)
 	{
 		ErrorString = "rainfall records <= 1!";
 		throw 1;
@@ -94,9 +95,10 @@ void TWorld::GetRainfallData(void)
 	while (!fff.atEnd())
 	{
 		S = fff.readLine();
-		if (S.trimmed().isEmpty()) continue;
+        if (S.trimmed().isEmpty()) continue;
+        
 
-		QStringList SL = S.split(QRegExp("\\s+"));
+		QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		if (SL.size()-1 < nrstations)
 		{
 			QString ss;
@@ -104,12 +106,18 @@ void TWorld::GetRainfallData(void)
 			ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
 			throw 1;
 		}
+    qDebug() << nrstations << SL[0] << SL[1] ;
 		RainfallSeries[j][0] = SL[0].toDouble();
 		// time in min
 		for (int i = 1; i < nrstations+1; i++)
 			RainfallSeries[j][i] = SL[i].toDouble();
-		// rainfall intensities
+
+		//for (int i = 0; i < nrstations+1; i++)
+		//qDebug() <<  j << i << RainfallSeries[j][i];
+
+        // rainfall intensities
 		j++;
+        
 	}
 	RainfallSeries[nrrainfallseries-1][0] = 1e20;
 	for (int i = 1; i < nrstations+1; i++)
@@ -149,7 +157,7 @@ void TWorld::RainfallMap(void)
 			Rainc->Drc = Rain->Drc * _dx/DX->Drc;
 			// correction for slope dx/DX, water spreads out over larger area
 
-			//TODO: weighted average if dt larger than table dt
+         /** TODO: weighted average if dt larger than table dt */
 
 			RainCum->Drc += Rainc->Drc;
 			// cumulative rainfall corrected for slope, used in interception

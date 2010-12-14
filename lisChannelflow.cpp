@@ -134,7 +134,7 @@ void TWorld::ChannelFlow(void)
 		if (RoadWidthDX->Drc > 0)
 			ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
 		// channel cannot be wider than _dx-road
-		//TODO zit al in gridcell, nodig hier?
+      /** TODO zit al in gridcell, nodig hier? */
         
 	}
     

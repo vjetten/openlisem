@@ -13,6 +13,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "lisemqt.h"
 
 //-----------------------------------------------------------------------------------------------
+// is called in FillMapList() in LisUImapnames.cpp
 TreeModel::TreeModel(const QStringList &headers, const QStringList &data,
                      QObject *parent)
                          : QAbstractItemModel(parent)
@@ -20,8 +21,10 @@ TreeModel::TreeModel(const QStringList &headers, const QStringList &data,
     QVector<QVariant> rootData;
     foreach (QString header, headers)
         rootData << header;
+
     rootItem = new TreeItem(rootData);
     setupModelData(data, rootItem);
+    
 
 }
 //-----------------------------------------------------------------------------------------------
@@ -67,7 +70,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
         flags |= Qt::ItemIsEditable;
     }
     TreeItem *item = getItem(index);
-    if (!item->_flag)
+    if (!item->nodeEnabled)
     	flags = 0;
 
     return flags;
@@ -106,22 +109,41 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
         return QModelIndex();
 }
 //-----------------------------------------------------------------------------------------------
-void TreeModel::setflag(int f, int row, const QModelIndex &parent) const
+void TreeModel::setFlag(int f, int row, const QModelIndex &parent) const
 {
     TreeItem *parentItem = getItem(parent);
     TreeItem *childItem = parentItem->child(row);
     if (childItem)
-        childItem->_flag = f;
+        childItem->nodeEnabled = f;
 }
 //-----------------------------------------------------------------------------------------------
-bool TreeModel::getflag(int row, const QModelIndex &parent) const
+bool TreeModel::getFlag(int row, const QModelIndex &parent) const
 {
     TreeItem *parentItem = getItem(parent);
     TreeItem *childItem = parentItem->child(row);
     if (childItem)
-        return (childItem->_flag);
+        return (childItem->nodeEnabled);
     return (false);
 }
+//-----------------------------------------------------------------------------------------------
+/*
+void TreeModel::setMapnumber(int f, int row, const QModelIndex &parent) const
+{
+    TreeItem *parentItem = getItem(parent);
+    TreeItem *childItem = parentItem->child(row);
+    if (childItem)
+        childItem->mapNumber = f;
+}
+//-----------------------------------------------------------------------------------------------
+int TreeModel::getMapnumber(int row, const QModelIndex &parent) const
+{
+    TreeItem *parentItem = getItem(parent);
+    TreeItem *childItem = parentItem->child(row);
+    if (childItem)
+        return (childItem->mapNumber);
+    return (0);
+}
+*/
 //-----------------------------------------------------------------------------------------------
 QModelIndex TreeModel::parent(const QModelIndex &index) const
 {
@@ -154,8 +176,10 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value,
     bool result = item->setData(index.column(), value);
 
     if (result)
+    {
+       //qDebug() << result << index << ind << value;
         emit dataChanged(index, index);
-
+    }
     return result;
 }
 //-----------------------------------------------------------------------------------------------
@@ -195,14 +219,15 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
             position = columnStrings[0].toInt();
             if (position == 0 || position == 1)
                 columnData << columnStrings[1];
-                  // string is a title/category field when position is 0 or 1
+                  // string is a title/category field when "position" is 0 or 1
             else
-                for (int column = 1; column < columnStrings.count()-2; ++column)
+                for (int column = 3; column < columnStrings.count()-1; ++column)
                 	columnData << columnStrings[column];
-					//fill column data
+					//fill column data, "position" > 1
 
             // determine level, where is a columnData linked, what is child, what is parent
-            if (position > indentations.last())
+            // indentations is an integer list
+            if (position > indentations.last())  
             {
                 if (parents.last()->childCount() > 0)
                 {
@@ -225,7 +250,8 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
             parent->insertChildren(parent->childCount(), 1, rootItem->columnCount());
             for (int column = 0; column < columnData.size(); ++column)
                 parent->child(parent->childCount() - 1)->setData(column, columnData[column]);
-            //parent->child(parent->childCount() - 1)->setDatatype(position);
+            //parent->child(parent->childCount() - 1)->setMapnumber(number);
+            //qDebug() << number << parent->childCount() << parent->childNumber();
         }
         number++;
     }
@@ -234,7 +260,7 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
 //-----------------------------------------------------------------------------------------------
 
 
-/*
+/* just a check write function
 //label->setText("saving ...");
 QFile fout("hup.txt");
 fout.open(QIODevice::ReadWrite);

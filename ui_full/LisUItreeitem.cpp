@@ -18,8 +18,8 @@ TreeItem::TreeItem(const QVector<QVariant> &data, TreeItem *parent)
 {
     parentItem = parent;
     itemData = data;
-    _flag = false;
- //   _datatype = 0;
+    nodeEnabled = false;
+    mapNumber = 0;
 }
 
 TreeItem::~TreeItem()
@@ -60,7 +60,8 @@ bool TreeItem::insertChildren(int position, int count, int columns)
     if (position < 0 || position > childItems.size())
         return false;
 
-    for (int row = 0; row < count; ++row) {
+    for (int row = 0; row < count; ++row) 
+    {
         QVector<QVariant> data(columns);
         TreeItem *item = new TreeItem(data, this);
         childItems.insert(position, item);
