@@ -70,8 +70,9 @@ CONFIG(debug, debug|release) {
 }
 else {
     LIBS += -L"bin" \
-        -llibcsfs \
-        -lqwt5s
+        -L "$${QWTDIR}/lib"\
+        -llibcsf \
+        -lqwt5
     DESTDIR = bin
 	 MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
