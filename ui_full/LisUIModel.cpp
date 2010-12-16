@@ -135,9 +135,9 @@ void lisemqt::Showit()
 	progressBar->setMaximum(op.maxstep);
 	progressBar->setValue(op.runstep);
 
-	ShowGraph();
+   ShowGraph();
 
-	ShowMap();
+   //ShowMap();
 
 	QString SSS;
 	SSS = QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ');

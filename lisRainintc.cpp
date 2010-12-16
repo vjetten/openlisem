@@ -111,10 +111,6 @@ void TWorld::GetRainfallData(void)
 		// time in min
 		for (int i = 1; i < nrstations+1; i++)
 			RainfallSeries[j][i] = SL[i].toDouble();
-
-		//for (int i = 0; i < nrstations+1; i++)
-		//qDebug() <<  j << i << RainfallSeries[j][i];
-
         // rainfall intensities
 		j++;
         

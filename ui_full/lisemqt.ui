@@ -68,7 +68,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -3290,7 +3290,7 @@ p, li { white-space: pre-wrap; }
                   <item>
                    <widget class="QCheckBox" name="checkBox_OutInf">
                     <property name="text">
-                     <string>inf - cumulative infilktration (mm)</string>
+                     <string>inf - cumulative infiltration (mm)</string>
                     </property>
                    </widget>
                   </item>
@@ -7883,12 +7883,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>81</y>
+     <x>465</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>81</y>
+     <x>450</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -7899,12 +7899,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>81</y>
+     <x>465</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>81</y>
+     <x>213</x>
+     <y>160</y>
     </hint>
    </hints>
   </connection>
@@ -7915,12 +7915,44 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>81</y>
+     <x>465</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>81</y>
+     <x>425</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelBaseflow</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>343</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelInfil</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>311</x>
+     <y>334</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>371</y>
     </hint>
    </hints>
   </connection>

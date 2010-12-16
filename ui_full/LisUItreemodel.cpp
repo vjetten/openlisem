@@ -177,7 +177,6 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value,
 
     if (result)
     {
-       //qDebug() << result << index << ind << value;
         emit dataChanged(index, index);
     }
     return result;
@@ -250,8 +249,6 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
             parent->insertChildren(parent->childCount(), 1, rootItem->columnCount());
             for (int column = 0; column < columnData.size(); ++column)
                 parent->child(parent->childCount() - 1)->setData(column, columnData[column]);
-            //parent->child(parent->childCount() - 1)->setMapnumber(number);
-            //qDebug() << number << parent->childCount() << parent->childNumber();
         }
         number++;
     }

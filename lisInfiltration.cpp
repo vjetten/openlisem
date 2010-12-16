@@ -256,25 +256,28 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 	dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
 	// increase in depth is infiltration/available porespace
 
+   // correct dL1 in case of impermeable and water reached the bottom
 	if (SwitchImpermeable && !SwitchTwoLayer)
 	{
 		// reaches bottom in this timestep, fact is remaining water
-		if (L1+dL1 > SoilDepth1->Drc && L1 < SoilDepth1->Drc)
+      if (L1+dL1 > SoilDepth1->Drc)// && L1 < SoilDepth1->Drc)
 		{
 			dL1 = max(0, SoilDepth1->Drc - L1);
 			// if L1 = soildepth1, increase will be 0
 			fact = dL1 * (ThetaS1->Drc-ThetaI1->Drc);
 		}
-		// soil is full, fact = 0, no more increase
-		if (L1 > SoilDepth1->Drc - tiny)
+      // if soil is full, fact = 0, no more increase
+      if (L1 > SoilDepth1->Drc - tiny)
       {
-			fact = 0;
-         //qDebug() << r << c << L1 << SoilDepth1->Drc << "full";
+//			fact = 0;
+         //qDebug() << r << c << fact << L1 << SoilDepth1->Drc << "full";
       }
 	}
 
-	if (!SwitchTwoLayer && (L1+dL1 > SoilDepth1->Drc - tiny))
-		dL1 = SoilDepth1->Drc - L1;
+//WHY THIS STATEMENT???
+   //	if (!SwitchTwoLayer && (L1+dL1 > SoilDepth1->Drc - tiny))
+//		dL1 = SoilDepth1->Drc - L1;
+
 	L1 += dL1;
 	// increase infiltration depth L1  = fact/avail pore space
 	// if soil is full and not impermeable, infiltration continues as steady state
@@ -367,7 +370,7 @@ void TWorld::Infiltration(void)
 	// these function result in an actual infiltration "fact" (in m)
 	// and potential infiltration "fpot" (in m)
 	// each function deals with grass strips as a separate infiltration process
-L1->report("l1a");
+
 	FOR_ROW_COL_MV
 	{
 		if (SwitchBuffers && !SwitchSedtrap)

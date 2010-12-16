@@ -273,7 +273,6 @@ void lisemqt::doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight )
       {
          QVariant d = MapNameModel->data(topLeft,Qt::DisplayRole);;//MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
          mapList[k].name = d.toString();
-         //qDebug() << mapList[k].name;
       }
    }
 }
