@@ -532,6 +532,7 @@ void TWorld::IntializeData(void)
 	fpotgr = NewMap(0);
 	Ksateff = NewMap(0);
 	FSurplus = NewMap(0);
+   FFull = NewMap(0);
 
 	if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 	{

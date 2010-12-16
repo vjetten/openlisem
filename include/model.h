@@ -126,7 +126,7 @@ public:
 	*Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
 	*DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *Sed, *Qsoutflow, *CG, *DG, *SettlingVelocity,
 	//infiltration
-	*Fcum, *FSurplus, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
+   *Fcum, *FSurplus, *FFull, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
 	*ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
 	*ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
 	*KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,

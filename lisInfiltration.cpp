@@ -269,7 +269,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
       // if soil is full, fact = 0, no more increase
       if (L1 > SoilDepth1->Drc - tiny)
       {
-//			fact = 0;
+         FFull->Drc = 1;
          //qDebug() << r << c << fact << L1 << SoilDepth1->Drc << "full";
       }
 	}
@@ -298,7 +298,8 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 			}
 			// soil is full, fact = 0, no more increase
 			if (L2 > SoilDepth2->Drc - tiny)
-				fact = 0;
+            FFull->Drc = 1;
+            //fact = 0;
 		}
 		// soil is full, but not impermeable, infiltration continues as steady state
 		if (L2+dL2 > SoilDepth2->Drc - tiny)
@@ -355,7 +356,8 @@ void TWorld::Infiltration(void)
 		}
 	} //row col
 
-	//select an infiltration type
+   //select an infiltration type,
+   //the infiltration functions call a function to increase the infiltration depth (except swatre)
 	switch (InfilMethod)
 	{
 	case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
@@ -377,7 +379,7 @@ void TWorld::Infiltration(void)
 			if(BufferID->Drc > 0 && BufferVol->Drc > 0)
 				WH->Drc = 0;
 		//VJ 100608 no infil in buffers until it is full
-      /** TODO NOTE CORRECT FOR RAINFALL IF WH IS 0 */
+      /** TODO NOTE CORRECT FOR RAINFALL IF WH IS 0 */  //<= what does this mean?
 
 		if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 		{
@@ -415,6 +417,10 @@ void TWorld::Infiltration(void)
 		if (GrassPresent->Drc > 0)
 			FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
 		// if grasstrip present use grasstrip surplus as entire surplus
+
+      if (FFull->Drc > 1)
+         FSurplus->Drc = 0;
+      //VJ 101216 if soil full also surplus no infil
 
 		InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 		//	InfilVol->Drc = max(0, InfilVol->Drc);
