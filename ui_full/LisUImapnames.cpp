@@ -265,7 +265,7 @@ void lisemqt::doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight )
    if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELSMAPS || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
 
-   qDebug() << "data changed" << groupnr << varnr;
+   //qDebug() << "data changed" << groupnr << varnr;
 
    for (int k = 0; k < nrmaplist; k++)
    {

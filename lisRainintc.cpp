@@ -106,7 +106,7 @@ void TWorld::GetRainfallData(void)
 			ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
 			throw 1;
 		}
-    qDebug() << nrstations << SL[0] << SL[1] ;
+    //qDebug() << nrstations << SL[0] << SL[1] ;
 		RainfallSeries[j][0] = SL[0].toDouble();
 		// time in min
 		for (int i = 1; i < nrstations+1; i++)

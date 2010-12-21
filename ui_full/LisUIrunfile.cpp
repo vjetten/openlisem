@@ -283,7 +283,7 @@ void lisemqt::ParseInputData()
          if (mapList[k].id == namelist[j].name)
          {
              mapList[k].name = namelist[j].value;
-          qDebug() << mapList[k].id<<namelist[j].name << namelist[j].value;
+          //qDebug() << mapList[k].id<<namelist[j].name << namelist[j].value;
          }
       }
 

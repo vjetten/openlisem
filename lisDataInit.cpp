@@ -214,6 +214,8 @@ TMMap *TWorld::InitMaskChannel(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
+
+   //## catchment data
    LDD = InitMask(getvaluename("ldd"));
 	// LDD is also mask and reference file, everthiung has to fit LDD
 	// chanels use channel LDD as mask
@@ -253,12 +255,13 @@ void TWorld::GetInputData(void)
 			Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
 		}
 	}
-	N = ReadMap(LDD,getvaluename("manning"));
+
+   //## landuse and surface data
+   N = ReadMap(LDD,getvaluename("manning"));
 	RR = ReadMap(LDD,getvaluename("RR"));
 	PlantHeight = ReadMap(LDD,getvaluename("CH"));
 	LAI = ReadMap(LDD,getvaluename("lai"));
 	Cover = ReadMap(LDD,getvaluename("cover"));
-
 	GrassPresent = NewMap(0);
 	if (SwitchInfilGrass)
 	{
@@ -277,52 +280,56 @@ void TWorld::GetInputData(void)
 	}
 	else
 		GrassFraction = NewMap(0);
+   StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
+   // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
+   RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+   HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
 
+   //## infiltration data
 	if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
 	{
       Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
       SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
       SoilDepth1->calcV(1000, DIV);
-      //VJ 101213 convert from mm to m
+      //VJ 101213 fixed bug: convert from mm to m
       // can be zero for outcrops
 		FOR_ROW_COL_MV
 		{
-			bool check = false;
-			if (SoilDepth1->Drc < 0)
-				check = true;
-			if (check)
+         if (SoilDepth1->Drc < 0)
 			{
 				ErrorString = QString("SoilDepth1 values < 0 at row %1, col %2").arg(r).arg(c);
 				throw 1;
 			}
 		}
 
-		if(InfilMethod != INFIL_KSAT)
-		{
-         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
-         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
+      ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
+      ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
+
+      if(InfilMethod != INFIL_KSAT)
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
-			if (SwitchTwoLayer)
-			{
-            ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
-            ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+      //VJ 101221 all infil maps are needed for except psi
+
+      if (SwitchTwoLayer)
+      {
+         ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
+         ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+         if(InfilMethod != INFIL_KSAT)
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
-            SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            SoilDepth2->calcV(1000, DIV);
-            //VJ 101213 convert from mm to m
-            FOR_ROW_COL_MV
-				{
-					bool check = false;
-               if (SoilDepth1->Drc < 0)
-						check = true;
-					if (check)
-					{
-						ErrorString = QString("SoilDepth1 values <= 0 at row %1, col %2").arg(r).arg(c);
-						throw 1;
-					}
-				}
-			}
+         //VJ 101221 all infil maps are needed for except psi
+
+         Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+         SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
+         SoilDepth2->calcV(1000, DIV);
+         //VJ 101213 fixed bug: convert from mm to m
+
+         FOR_ROW_COL_MV
+         {
+            if (SoilDepth2->Drc < 0)
+            {
+               ErrorString = QString("SoilDepth2 values < 0 at row %1, col %2").arg(r).arg(c);
+               throw 1;
+            }
+         }
 		}
 		if (SwitchInfilCrust)
 		{
@@ -339,6 +346,7 @@ void TWorld::GetInputData(void)
 		else
 			CompactFraction = NewMap(0);
 	}
+
 	if (InfilMethod == INFIL_SWATRE)
 	{
 		ProfileID = ReadMap(LDD,getvaluename("profmap"));
@@ -367,11 +375,7 @@ void TWorld::GetInputData(void)
 			throw res;
 	}
 
-	StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
-	// WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
-	RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-	HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
-
+   //## erosion maps
 	if (SwitchErosion)
 	{
 		Cohesion = ReadMap(LDD,getvaluename("coh"));
@@ -380,6 +384,7 @@ void TWorld::GetInputData(void)
 		D50 = ReadMap(LDD,getvaluename("D50"));
 	}
 
+   //## channel maps
 	if (SwitchIncludeChannel)
 	{
 		LDDChannel = InitMaskChannel(getvaluename("lddchan"));
@@ -400,7 +405,9 @@ void TWorld::GetInputData(void)
 	}
 
 	PointMap = ReadMap(LDD,getvaluename("outpoint"));
+   //map with points for output data
 
+   //## buffers
 	if (SwitchBuffers || SwitchSedtrap)
 	{
 		BufferID = ReadMap(LDD,getvaluename("bufferID"));
