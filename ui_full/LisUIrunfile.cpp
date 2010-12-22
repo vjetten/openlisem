@@ -8,9 +8,11 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 /*
  * functions to read and parse the runfile
- * GetRunfile: read runfiel and put all variables into the 'namelist' structure
+ * GetRunfile: read runfile and put all variables into the 'namelist' structure
  * ParseInputData: namelist structure is parsed to fill the interface
  * UpdateModelData: update variables with changes in interface, called by save file
+
+ *
  */
 
 #include "lisemqt.h"
@@ -37,6 +39,7 @@ void lisemqt::GetRunfile()
    nrnamelist = 0;
    oldRunfile = false;
    int i = 0;
+
    while (!fin.atEnd())
    {
       QString S = fin.readLine();
@@ -262,28 +265,31 @@ void lisemqt::ParseInputData()
       E_SwatreTableName->setText(SwatreTableName);
    }
 
-   // get all map names
+   // get all map names, DEFmaps contains default map names and descriptions
+   // adapt the DEFmaps list with names from the run file
    for (j = 0; j < nrnamelist; j++)
    {
       for (int i = 0; i < DEFmaps.size(); i++)
       {
-         QStringList S = DEFmaps.at(i).split(";");
+         QStringList S = DEFmaps.at(i).split(";",QString::SkipEmptyParts);
          if (S.contains(namelist[j].name))
          {
             QFileInfo fil(namelist[j].value);
-            S.replace(4, fil.fileName() );
+            S.replace(4, fil.fileName());
+            //            S.replace(7, E_MapDir->text());
             DEFmaps.replace(i, S.join(";") );
          }
       }
    }
 
+   //fill the mapList structure with all map names fom the runfile
    for (int j = 0; j < nrnamelist; j++)
       for (int k = 0; k < nrmaplist; k++)
       {
          if (mapList[k].id == namelist[j].name)
          {
-             mapList[k].name = namelist[j].value;
-          //qDebug() << mapList[k].id<<namelist[j].name << namelist[j].value;
+            mapList[k].name = namelist[j].value;
+            mapList[k].dir = E_MapDir->text();
          }
       }
 
@@ -325,13 +331,16 @@ QString lisemqt::CheckDir(QString p)
 }
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options, called by savefile
+// savefile is called just before the model is run with tmp runfile
 void lisemqt::UpdateModelData()
 {
-   DefaultRunFile();
+   //DefaultRunFile();
+   // fill defnamelist with default runfile names
+
    /*
- // add new variables here, not used at the moment
-  InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
-*/
+   // add new variables here, not used at the moment
+    InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
+   */
 
    for (int j = 0; j < nrdefnamelist; j++)
    {
@@ -447,7 +456,7 @@ void lisemqt::UpdateModelData()
    }
 
    //get all map names
-   /** TODO: BUG THESE ARE NOT THE INTERFACE NAMES! */
+   /** TODO: WHY CHNAGE DEFNAMELIST HERE AND NOT NAMELIST ??? */
    for (int j = 0; j < nrdefnamelist; j++)
       for (int i = 0; i < DEFmaps.size(); i++)
       {
@@ -460,7 +469,10 @@ void lisemqt::UpdateModelData()
       for (int k = 0; k < nrmaplist; k++)
       {
          if (mapList[k].id == defnamelist[j].name)
+         {
             defnamelist[j].value = mapList[k].name;
+            qDebug() << mapList[k].id << mapList[k].name;
+         }
       }
 
 }

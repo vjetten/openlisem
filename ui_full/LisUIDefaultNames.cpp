@@ -7,12 +7,10 @@ website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
 /*
- * functions to read and parse the runfile
+ * Default runfile variable names
  */
 
 #include "lisemqt.h"
-//#include "model.h"
-//#include "global.h"
 
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options

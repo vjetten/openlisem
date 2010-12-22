@@ -24,7 +24,7 @@ void TWorld::InitMapList(void)
 	maplistnr = 0;
 	for (int i = 0; i < NUMNAMES; i++)
 	{
-		maplist[i].m = NULL;
+      maplistTMMap[i].m = NULL;
 	}
 
 }
@@ -37,7 +37,7 @@ TMMap *TWorld::NewMap(double value)
 
 	if (_M)
 	{
-		maplist[maplistnr].m = _M;
+      maplistTMMap[maplistnr].m = _M;
 		maplistnr++;
 	}
 
@@ -70,7 +70,7 @@ TMMap *TWorld::ReadMapMask(QString name)
 
 	if (_M)
 	{
-		maplist[maplistnr].m = _M;
+      maplistTMMap[maplistnr].m = _M;
 		maplistnr++;
 	}
 
@@ -108,7 +108,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 
 	if (_M)
 	{
-		maplist[maplistnr].m = _M;
+      maplistTMMap[maplistnr].m = _M;
 		maplistnr++;
 	}
 
@@ -123,10 +123,10 @@ void TWorld::DestroyData(void)
 {
 	for (int i = 0; i < maplistnr; i++)
 	{
-		if (maplist[i].m != NULL)
+      if (maplistTMMap[i].m != NULL)
 		{
-			maplist[i].m->KillMap();
-			maplist[i].m = NULL;
+         maplistTMMap[i].m->KillMap();
+         maplistTMMap[i].m = NULL;
 		}
 	}
 	if (nrrainfallseries > 1)
@@ -166,13 +166,13 @@ TMMap *TWorld::InitMask(QString name)
 
 	if (_M)
 	{
-		maplist[maplistnr].m = _M;
+      maplistTMMap[maplistnr].m = _M;
 		maplistnr++;
 	}
 
 	Mask = new TMMap();
 	Mask->_MakeMap(_M, 1.0);
-	maplist[maplistnr].m = Mask;
+   maplistTMMap[maplistnr].m = Mask;
 	maplistnr++;
 	_dx = Mask->MH.cellSizeX*1.0000000;
 	nrRows = Mask->nrRows;
@@ -199,13 +199,13 @@ TMMap *TWorld::InitMaskChannel(QString name)
 
 	if (_M)
 	{
-		maplist[maplistnr].m = _M;
+      maplistTMMap[maplistnr].m = _M;
 		maplistnr++;
 	}
 
 	MaskChannel = new TMMap();
 	MaskChannel->_MakeMap(_M, 1.0);
-	maplist[maplistnr].m = MaskChannel;
+   maplistTMMap[maplistnr].m = MaskChannel;
 	maplistnr++;
 
 	return(_M);

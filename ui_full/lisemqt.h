@@ -131,10 +131,10 @@ public:
 	int uiInfilMethod;
 	double swatreDT;
 
-   _mapList mapList[NUMMAPS]; // structure for current map names, possibly edited by user
+   _mapList mapList[NUMMAPS]; // structure for current map names, can be edited by user
    int nrmaplist;
-   _nameList namelist[NUMNAMES]; // structure for runfile variables and names
-	int nrnamelist;
+   _nameList namelist[NUMNAMES]; // structure to read in runfile variables and names, used in LisUIrunfile.cpp
+   int nrnamelist;
 	_nameList defnamelist[NUMNAMES]; // structure for DEFAULT runfile variables and names
 	int nrdefnamelist;
 	QStringList outputcheck;
@@ -155,6 +155,7 @@ public slots:
 	void resetAll();
 
    void doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight );
+   void doOpenMapname(QModelIndex topLeft);
 
 	void on_toolButton_MapDir_clicked();
 	void on_toolButton_ResultDir_clicked();

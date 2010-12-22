@@ -85,6 +85,7 @@ typedef struct _nameList{
 // map name list structure for interaction with interface
 typedef struct _mapList{
    QString name;
+   QString dir;
    QString id;
    int groupnr;
    int varnr;
@@ -102,8 +103,8 @@ public:
 	// copy of overall rows and columns, set in initmask
 	long nrRows, nrCols;
 
-	// map management structure
-	MapListStruct maplist[NUMNAMES];
+   // map management structure, automatic adding and deleting of all TMMap variables
+   MapListStruct maplistTMMap[NUMNAMES];
 	int maplistnr;
 
 	// All maps are declared here, no lacal declarations of maps are done
@@ -225,8 +226,8 @@ public:
 	QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
 
 	// data initialization, runfile reading and parsing
-	_nameList namelist[NUMNAMES]; // structire for runfile variables and names
-	int nrnamelist;
+   _nameList runnamelist[NUMNAMES]; // structire for runfile variables and names
+   int nrrunnamelist;
 	void IntializeOptions(void);  // set all options to false etc
 	void IntializeData(void);     // make all non-input maps
 	void GetRainfallData(void);   // get input timeseries

@@ -34,7 +34,10 @@ lisemqt::lisemqt(QWidget *parent)
 	SetToolBar();
 	FillMapList();
 	// initalize interface and make tree structure for map names
-    
+
+   DefaultRunFile();
+   // fill defnamelist with default runfile names
+
    SetConnections();
 
 	W = NULL;
@@ -69,6 +72,11 @@ void lisemqt::SetConnections()
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
+
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doOpenMapname(QModelIndex)));
+    // double click on mapnake opens fileopen
+    //connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(doChangeMapname(QModelIndex, QModelIndex)));
+    // doubleclick on mapname edits mapname
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()

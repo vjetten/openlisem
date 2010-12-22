@@ -16,22 +16,22 @@ QString TWorld::getvaluename(QString vname)
    //	fout.open(QIODevice::WriteOnly | QIODevice::Text);
    //	QTextStream out(&fout);
 
-	for (int i = 0; i < nrnamelist; i++)
+   for (int i = 0; i < nrrunnamelist; i++)
 	{
-      //		out << namelist[i].name.toUpper() << "\n";
-		if(vname.toUpper() == namelist[i].name.toUpper())
+      //		out << runnamelist[i].name.toUpper() << "\n";
+      if(vname.toUpper() == runnamelist[i].name.toUpper())
 		{
-			QFileInfo info(namelist[i].value);
-			if (namelist[i].value.trimmed().isEmpty())
+         QFileInfo info(runnamelist[i].value);
+         if (runnamelist[i].value.trimmed().isEmpty())
 			{
-				//				DEBUG(vname.toUpper() + " " + namelist[i].name.toUpper()+"<==");
+            //				DEBUG(vname.toUpper() + " " + runnamelist[i].name.toUpper()+"<==");
 				ErrorString = "Filename not found for : " + info.fileName();
 				throw 1;
 			}
 			else
 			{
-				//namelist[i].value = inputDir + info.fileName();
-				return inputDir + info.fileName();//namelist[i].value;
+            //runnamelist[i].value = inputDir + info.fileName();
+            return inputDir + info.fileName();//runnamelist[i].value;
 			}
 		}
 	}	
@@ -42,10 +42,10 @@ QString TWorld::getvaluename(QString vname)
 //---------------------------------------------------------------------------
 double TWorld::getvaluedouble(QString vname)
 {
-	for (int i = 0; i < nrnamelist; i++)
-		if(vname.toUpper() == namelist[i].name.toUpper())
+   for (int i = 0; i < nrrunnamelist; i++)
+      if(vname.toUpper() == runnamelist[i].name.toUpper())
 		{
-         return namelist[i].value.toDouble();
+         return runnamelist[i].value.toDouble();
       }
 
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
@@ -54,10 +54,10 @@ double TWorld::getvaluedouble(QString vname)
 //---------------------------------------------------------------------------
 int TWorld::getvalueint(QString vname)
 {
-	for (int i = 0; i < nrnamelist; i++)
-		if(vname.toUpper() == namelist[i].name.toUpper())
+   for (int i = 0; i < nrrunnamelist; i++)
+      if(vname.toUpper() == runnamelist[i].name.toUpper())
 		{
-         return namelist[i].value.toInt();
+         return runnamelist[i].value.toInt();
       }
 
 	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
@@ -76,10 +76,10 @@ void TWorld::GetRunFile()
 
 	for (int i = 0; i < NUMNAMES; i++)
 	{
-		namelist[i].name.clear();
-		namelist[i].value.clear();
+      runnamelist[i].name.clear();
+      runnamelist[i].value.clear();
 	}
-	nrnamelist = 0;
+   nrrunnamelist = 0;
 
 	while (!fin.atEnd())
 	{
@@ -89,9 +89,9 @@ void TWorld::GetRunFile()
 			if (S.contains("="))
 			{
 				QStringList SL = S.split(QRegExp("="));
-				namelist[nrnamelist].name = SL[0].trimmed();
-				namelist[nrnamelist].value = SL[1].trimmed();
-				nrnamelist++;
+            runnamelist[nrrunnamelist].name = SL[0].trimmed();
+            runnamelist[nrrunnamelist].value = SL[1].trimmed();
+            nrrunnamelist++;
 			}
 		}
 	}
@@ -137,11 +137,11 @@ void TWorld::ParseInputData()
 	int j=0;
 
 	// do all switches first
-	for (j = 0; j < nrnamelist; j++)
+   for (j = 0; j < nrrunnamelist; j++)
 	{
-		int iii = namelist[j].value.toInt();
-		QString p1 = namelist[j].name;
-		QString p = namelist[j].value;
+      int iii = runnamelist[j].value.toInt();
+      QString p1 = runnamelist[j].name;
+      QString p = runnamelist[j].value;
 
 		//fprintf(fout,"%s=%s\n",(const char *)p1.toLatin1(),(const char *)p.toLatin1());
 		/*
@@ -200,10 +200,10 @@ void TWorld::ParseInputData()
 	if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
 		SwitchTwoLayer = true;
 
-	for (j = 0; j < nrnamelist; j++)
+   for (j = 0; j < nrrunnamelist; j++)
 	{
-		QString p1 = namelist[j].name;
-		QString p = namelist[j].value;
+      QString p1 = runnamelist[j].name;
+      QString p = runnamelist[j].value;
 
 		// input ourput dirs and file names
 		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p);
