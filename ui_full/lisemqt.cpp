@@ -534,14 +534,22 @@ void lisemqt::savefile(QString name)
 
 	QTextStream out(&fp);
 	out << QString("[openLISEM runfile version 1.0]\n");
-	for (int i = 1; i < nrdefnamelist; i++)
-	{
-		if (defnamelist[i].name.contains("[") || defnamelist[i].name.isEmpty())
-			out << defnamelist[i].name << "\n"; // already contains \n
-		else
-			out << defnamelist[i].name << "=" << defnamelist[i].value << "\n";
-	}
-	fp.close();
+
+//	for (int i = 1; i < nrdefnamelist; i++)
+//	{
+//		if (defnamelist[i].name.contains("[") || defnamelist[i].name.isEmpty())
+//			out << defnamelist[i].name << "\n"; // already contains \n
+//		else
+//			out << defnamelist[i].name << "=" << defnamelist[i].value << "\n";
+//	}
+   for (int i = 1; i < nrnamelist; i++)
+   {
+      if (namelist[i].name.contains("[") || namelist[i].name.isEmpty())
+         out << namelist[i].name << "\n"; // already contains \n
+      else
+         out << namelist[i].name << "=" << namelist[i].value << "\n";
+   }
+   fp.close();
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()

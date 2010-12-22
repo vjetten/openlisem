@@ -10,8 +10,8 @@ website, information and code: http://sourceforge.net/projects/lisem
  * functions to read and parse the runfile
  * GetRunfile: read runfile and put all variables into the 'namelist' structure
  * ParseInputData: namelist structure is parsed to fill the interface
+ *
  * UpdateModelData: update variables with changes in interface, called by save file
-
  *
  */
 
@@ -33,8 +33,10 @@ void lisemqt::GetRunfile()
 
    for (int i = 0; i < NUMNAMES; i++)
    {
-      namelist[i].name.clear();
-      namelist[i].value.clear();
+      //namelist[i].name.clear();
+      //namelist[i].value.clear();
+      namelist[i].name = defnamelist[i].name;
+      namelist[i].value = defnamelist[i].value;
    }
    nrnamelist = 0;
    oldRunfile = false;
@@ -48,7 +50,6 @@ void lisemqt::GetRunfile()
       i++;
       if (!S.trimmed().isEmpty())
       {
-
          if (S.contains("="))
          {
             QStringList SL = S.split(QRegExp("="));
@@ -63,6 +64,7 @@ void lisemqt::GetRunfile()
             nrnamelist++;
          }
       }
+      // namelist now contains the actial runfile data
    }
 }
 //---------------------------------------------------------------------------
@@ -342,37 +344,37 @@ void lisemqt::UpdateModelData()
     InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
    */
 
-   for (int j = 0; j < nrdefnamelist; j++)
+   for (int j = 0; j < nrnamelist; j++)
    {
-      QString p1 = defnamelist[j].name;
+      QString p1 = namelist[j].name;
       QString p;
-      if (p1.compare("No Erosion simulation")==0) 			  defnamelist[j].value.setNum((int)checkNoErosion->isChecked());
-      if (p1.compare("Include main channels")==0) 			  defnamelist[j].value.setNum((int)checkIncludeChannel->isChecked());
-      if (p1.compare("Include channel infil")==0)          defnamelist[j].value.setNum((int)checkChannelInfil->isChecked());
-      if (p1.compare("Include channel baseflow")==0)       defnamelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-      if (p1.compare("Include Rainfall")==0)               defnamelist[j].value.setNum((int)checkRainfall->isChecked());
-      if (p1.compare("Include Snowmelt")==0)               defnamelist[j].value.setNum((int)checkSnowmelt->isChecked());
-      if (p1.compare("Alternative flow detachment")==0)    defnamelist[j].value.setNum((int)checkAltErosion->isChecked());
-      if (p1.compare("Simple depression storage")==0)      defnamelist[j].value.setNum((int)checkSimpleDepression->isChecked());
-      if (p1.compare("Hard Surfaces")==0)                  defnamelist[j].value.setNum((int)checkHardsurface->isChecked());
-      if (p1.compare("Include buffers")==0)                defnamelist[j].value.setNum((int)checkBuffers->isChecked());
-      if (p1.compare("Include Sediment traps")==0)         defnamelist[j].value.setNum((int)checkSedtrap->isChecked());
-      if (p1.compare("Include wheeltracks")==0)            defnamelist[j].value.setNum((int)checkInfilCompact->isChecked());
-      if (p1.compare("Include grass strips")==0)           defnamelist[j].value.setNum((int)checkInfilGrass->isChecked());
-      if (p1.compare("Include crusts")==0)                 defnamelist[j].value.setNum((int)checkInfilCrust->isChecked());
-      if (p1.compare("Impermeable sublayer")==0)           defnamelist[j].value.setNum((int)checkImpermeable->isChecked());
-      //if (p1.compare("Matric head files")==0)              defnamelist[j].value.setNum((int)checkDumphead->isChecked());
-      if (p1.compare("Geometric mean Ksat")==0)            defnamelist[j].value.setNum((int)checkGeometric->isChecked());
-      if (p1.compare("Timeseries as PCRaster")==0)         defnamelist[j].value.setNum((int)checkWritePCRnames->isChecked());
-      if (p1.compare("Timeplot as PCRaster")==0)           defnamelist[j].value.setNum((int)checkWritePCRtimeplot->isChecked());
-      if (p1.compare("Regular runoff output")==0)          defnamelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
-      if (p1.compare("User defined output")==0)            defnamelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
-      if (p1.compare("No erosion at outlet")==0)           defnamelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
-      if (p1.compare("Report point output separate")==0)   defnamelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-      if (p1.compare("Report point output for SOBEK")==0)  defnamelist[j].value.setNum((int)checkSOBEKOutput->isChecked());
-      if (p1.compare("SOBEK date string")==0)              defnamelist[j].value = SOBEKdatestring->text();
-      if (p1.compare("Sediment bulk density")==0)          defnamelist[j].value = E_BulkDens->text();
-      //if (p1.compare("Use canopy storage map")==0)   	     defnamelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
+      if (p1.compare("No Erosion simulation")==0) 			  namelist[j].value.setNum((int)checkNoErosion->isChecked());
+      if (p1.compare("Include main channels")==0) 			  namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
+      if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
+      if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+      if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
+      if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
+      if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
+      if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
+      if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
+      if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
+      if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
+      if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
+      if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
+      if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+      if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());
+      //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
+      if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
+      if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
+      if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRtimeplot->isChecked());
+      if (p1.compare("Regular runoff output")==0)          namelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
+      if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
+      if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
+      if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
+      if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkSOBEKOutput->isChecked());
+      if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
+      if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
+      //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
       if (p1.compare("Canopy storage equation")==0)
       {
          int i = 0;
@@ -385,55 +387,55 @@ void lisemqt::UpdateModelData()
          if(radioButton_7->isChecked()) i = 6;
          if(radioButton_8->isChecked()) i = 7;
          if(radioButton_9->isChecked()) i = 8;
-         defnamelist[j].value.setNum(i);
+         namelist[j].value.setNum(i);
       }
 
-      if (p1.compare("Begin time")==0) defnamelist[j].value = E_BeginTime->text();
-      if (p1.compare("End time")==0)   defnamelist[j].value = E_EndTime->text();
-      if (p1.compare("Timestep")==0)   defnamelist[j].value = E_Timestep->text();
-      if (p1.compare("Map Directory")==0)    defnamelist[j].value = E_MapDir->text();
-      if (p1.compare("Result Directory")==0) defnamelist[j].value = E_ResultDir->text();
-      if (p1.compare("Main results file")==0) defnamelist[j].value = E_MainTotals->text();
-      if (p1.compare("Filename point output")==0) defnamelist[j].value = E_PointResults->text();
-      if (p1.compare("Rainfall Directory")==0) defnamelist[j].value = RainFileDir;
-      if (p1.compare("Rainfall file")==0) defnamelist[j].value = E_RainfallName->text();
-      if (p1.compare("Erosion map")==0) defnamelist[j].value = E_DetachmentMap->text();
-      if (p1.compare("Deposition map")==0) defnamelist[j].value = E_DepositionMap->text();
-      if (p1.compare("Soilloss map")==0) defnamelist[j].value = E_SoillossMap->text();
-      if (p1.compare("Snowmelt Directory")==0) defnamelist[j].value = SnowmeltFileDir;
-      if (p1.compare("Snowmelt file")==0) defnamelist[j].value = E_SnowmeltName->text();
-      if (p1.compare("Ksat calibration")==0) defnamelist[j].value = E_CalibrateKsat->text();
-      if (p1.compare("N calibration")==0) defnamelist[j].value = E_CalibrateN->text();
-      if (p1.compare("Channel Ksat calibration")==0) defnamelist[j].value = E_CalibrateChKsat->text();
-      if (p1.compare("Channel N calibration")==0) defnamelist[j].value = E_CalibrateChN->text();
-      if (p1.compare("Splash Delivery Ratio")==0) defnamelist[j].value = E_SplashDelibery->text();
-      if (p1.compare("Stemflow fraction")==0) defnamelist[j].value = E_StemflowFraction->text();
-      if (p1.compare("Output interval")==0) defnamelist[j].value = printinterval->cleanText();
-      if (p1.compare("Regular runoff output")==0) defnamelist[j].value.setNum(1);
-      if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
-      if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
+      if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
+      if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
+      if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
+      if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
+      if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
+      if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
+      if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
+      if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
+      if (p1.compare("Rainfall file")==0) namelist[j].value = E_RainfallName->text();
+      if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
+      if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
+      if (p1.compare("Soilloss map")==0) namelist[j].value = E_SoillossMap->text();
+      if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
+      if (p1.compare("Snowmelt file")==0) namelist[j].value = E_SnowmeltName->text();
+      if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
+      if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
+      if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
+      if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
+      if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
+      if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
+      if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
+      if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
+      if (p1.compare("User defined output")==0) namelist[j].value.setNum(0);
+      if (p1.compare("Output times")==0) namelist[j].value.setNum(0);
       //TODO fix output stuff
 
-      if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
-      if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;
+      if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+      if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
       if (p1.compare("SWATRE internal minimum timestep")==0)
       {
          double fraction = E_SWATREDtsecFraction->value();
          swatreDT = E_Timestep->text().toDouble()*fraction;
-         defnamelist[j].value.setNum(swatreDT,'g',6);
+         namelist[j].value.setNum(swatreDT,'g',6);
       }
 
       if (p1.compare("Infil Method")==0)
       {
          switch(uiInfilMethod)
          {
-         case 0 : defnamelist[j].value.setNum(INFIL_NONE); break;
-         case 1 : defnamelist[j].value.setNum(INFIL_SWATRE);break;
-         case 2 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_GREENAMPT2);
-            else defnamelist[j].value.setNum(INFIL_GREENAMPT);break;
-         case 3 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_SMITH2);
-            else defnamelist[j].value.setNum(INFIL_SMITH); break;
-         case 4: defnamelist[j].value.setNum(INFIL_KSAT); break;
+         case 0 : namelist[j].value.setNum(INFIL_NONE); break;
+         case 1 : namelist[j].value.setNum(INFIL_SWATRE);break;
+         case 2 : if(checkInfil2layer->isChecked()) namelist[j].value.setNum(INFIL_GREENAMPT2);
+            else namelist[j].value.setNum(INFIL_GREENAMPT);break;
+         case 3 : if(checkInfil2layer->isChecked()) namelist[j].value.setNum(INFIL_SMITH2);
+            else namelist[j].value.setNum(INFIL_SMITH); break;
+         case 4: namelist[j].value.setNum(INFIL_KSAT); break;
          }
       }
       if (p1.compare("CheckOutputMaps")==0)
@@ -450,30 +452,174 @@ void lisemqt::UpdateModelData()
          if (			   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
          if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
          if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
-         defnamelist[j].value = outputcheck.join(",");
+         namelist[j].value = outputcheck.join(",");
       }
-      //defnamelist[j].value = p;
+      //namelist[j].value = p;
    }
 
-   //get all map names
-   /** TODO: WHY CHNAGE DEFNAMELIST HERE AND NOT NAMELIST ??? */
-   for (int j = 0; j < nrdefnamelist; j++)
-      for (int i = 0; i < DEFmaps.size(); i++)
-      {
-         QStringList S = DEFmaps.at(i).split(";");
-         if (S.contains(defnamelist[j].name))
-            defnamelist[j].value = S.at(4);
-      }
+   //get all map names from the interface
+   //      for (int j = 0; j < nrnamelist; j++)
+   //         for (int i = 0; i < DEFmaps.size(); i++)
+   //         {
+   //            QStringList S = DEFmaps.at(i).split(";");
+   //            if (S.contains(namelist[j].name))
+   //               namelist[j].value = S.at(4);
+   //         }
 
-   for (int j = 0; j < nrdefnamelist; j++)
+   //get all actual mapnames from the mapList structure
+   for (int j = 0; j < nrnamelist; j++)
       for (int k = 0; k < nrmaplist; k++)
       {
-         if (mapList[k].id == defnamelist[j].name)
-         {
-            defnamelist[j].value = mapList[k].name;
-            qDebug() << mapList[k].id << mapList[k].name;
-         }
+         if (mapList[k].id.toUpper() == namelist[j].name.toUpper())
+            namelist[j].value = mapList[k].name;
       }
 
 }
+//---------------------------------------------------------------------------
+// change runfile strings with current interface options, called by savefile
+// savefile is called just before the model is run with tmp runfile
+//void lisemqt::UpdateModelData()
+//{
+//   //DefaultRunFile();
+//   // fill defnamelist with default runfile names
+
+//   /*
+//   // add new variables here, not used at the moment
+//    InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
+//   */
+
+//   for (int j = 0; j < nrdefnamelist; j++)
+//   {
+//      QString p1 = defnamelist[j].name;
+//      QString p;
+//      if (p1.compare("No Erosion simulation")==0) 			  defnamelist[j].value.setNum((int)checkNoErosion->isChecked());
+//      if (p1.compare("Include main channels")==0) 			  defnamelist[j].value.setNum((int)checkIncludeChannel->isChecked());
+//      if (p1.compare("Include channel infil")==0)          defnamelist[j].value.setNum((int)checkChannelInfil->isChecked());
+//      if (p1.compare("Include channel baseflow")==0)       defnamelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+//      if (p1.compare("Include Rainfall")==0)               defnamelist[j].value.setNum((int)checkRainfall->isChecked());
+//      if (p1.compare("Include Snowmelt")==0)               defnamelist[j].value.setNum((int)checkSnowmelt->isChecked());
+//      if (p1.compare("Alternative flow detachment")==0)    defnamelist[j].value.setNum((int)checkAltErosion->isChecked());
+//      if (p1.compare("Simple depression storage")==0)      defnamelist[j].value.setNum((int)checkSimpleDepression->isChecked());
+//      if (p1.compare("Hard Surfaces")==0)                  defnamelist[j].value.setNum((int)checkHardsurface->isChecked());
+//      if (p1.compare("Include buffers")==0)                defnamelist[j].value.setNum((int)checkBuffers->isChecked());
+//      if (p1.compare("Include Sediment traps")==0)         defnamelist[j].value.setNum((int)checkSedtrap->isChecked());
+//      if (p1.compare("Include wheeltracks")==0)            defnamelist[j].value.setNum((int)checkInfilCompact->isChecked());
+//      if (p1.compare("Include grass strips")==0)           defnamelist[j].value.setNum((int)checkInfilGrass->isChecked());
+//      if (p1.compare("Include crusts")==0)                 defnamelist[j].value.setNum((int)checkInfilCrust->isChecked());
+//      if (p1.compare("Impermeable sublayer")==0)           defnamelist[j].value.setNum((int)checkImpermeable->isChecked());
+//      //if (p1.compare("Matric head files")==0)              defnamelist[j].value.setNum((int)checkDumphead->isChecked());
+//      if (p1.compare("Geometric mean Ksat")==0)            defnamelist[j].value.setNum((int)checkGeometric->isChecked());
+//      if (p1.compare("Timeseries as PCRaster")==0)         defnamelist[j].value.setNum((int)checkWritePCRnames->isChecked());
+//      if (p1.compare("Timeplot as PCRaster")==0)           defnamelist[j].value.setNum((int)checkWritePCRtimeplot->isChecked());
+//      if (p1.compare("Regular runoff output")==0)          defnamelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
+//      if (p1.compare("User defined output")==0)            defnamelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
+//      if (p1.compare("No erosion at outlet")==0)           defnamelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
+//      if (p1.compare("Report point output separate")==0)   defnamelist[j].value.setNum((int)checkSeparateOutput->isChecked());
+//      if (p1.compare("Report point output for SOBEK")==0)  defnamelist[j].value.setNum((int)checkSOBEKOutput->isChecked());
+//      if (p1.compare("SOBEK date string")==0)              defnamelist[j].value = SOBEKdatestring->text();
+//      if (p1.compare("Sediment bulk density")==0)          defnamelist[j].value = E_BulkDens->text();
+//      //if (p1.compare("Use canopy storage map")==0)   	     defnamelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
+//      if (p1.compare("Canopy storage equation")==0)
+//      {
+//         int i = 0;
+//         if(radioButton_1->isChecked()) i = 0;
+//         if(radioButton_2->isChecked()) i = 1;
+//         if(radioButton_3->isChecked()) i = 2;
+//         if(radioButton_4->isChecked()) i = 3;
+//         if(radioButton_5->isChecked()) i = 4;
+//         if(radioButton_6->isChecked()) i = 5;
+//         if(radioButton_7->isChecked()) i = 6;
+//         if(radioButton_8->isChecked()) i = 7;
+//         if(radioButton_9->isChecked()) i = 8;
+//         defnamelist[j].value.setNum(i);
+//      }
+
+//      if (p1.compare("Begin time")==0) defnamelist[j].value = E_BeginTime->text();
+//      if (p1.compare("End time")==0)   defnamelist[j].value = E_EndTime->text();
+//      if (p1.compare("Timestep")==0)   defnamelist[j].value = E_Timestep->text();
+//      if (p1.compare("Map Directory")==0)    defnamelist[j].value = E_MapDir->text();
+//      if (p1.compare("Result Directory")==0) defnamelist[j].value = E_ResultDir->text();
+//      if (p1.compare("Main results file")==0) defnamelist[j].value = E_MainTotals->text();
+//      if (p1.compare("Filename point output")==0) defnamelist[j].value = E_PointResults->text();
+//      if (p1.compare("Rainfall Directory")==0) defnamelist[j].value = RainFileDir;
+//      if (p1.compare("Rainfall file")==0) defnamelist[j].value = E_RainfallName->text();
+//      if (p1.compare("Erosion map")==0) defnamelist[j].value = E_DetachmentMap->text();
+//      if (p1.compare("Deposition map")==0) defnamelist[j].value = E_DepositionMap->text();
+//      if (p1.compare("Soilloss map")==0) defnamelist[j].value = E_SoillossMap->text();
+//      if (p1.compare("Snowmelt Directory")==0) defnamelist[j].value = SnowmeltFileDir;
+//      if (p1.compare("Snowmelt file")==0) defnamelist[j].value = E_SnowmeltName->text();
+//      if (p1.compare("Ksat calibration")==0) defnamelist[j].value = E_CalibrateKsat->text();
+//      if (p1.compare("N calibration")==0) defnamelist[j].value = E_CalibrateN->text();
+//      if (p1.compare("Channel Ksat calibration")==0) defnamelist[j].value = E_CalibrateChKsat->text();
+//      if (p1.compare("Channel N calibration")==0) defnamelist[j].value = E_CalibrateChN->text();
+//      if (p1.compare("Splash Delivery Ratio")==0) defnamelist[j].value = E_SplashDelibery->text();
+//      if (p1.compare("Stemflow fraction")==0) defnamelist[j].value = E_StemflowFraction->text();
+//      if (p1.compare("Output interval")==0) defnamelist[j].value = printinterval->cleanText();
+//      if (p1.compare("Regular runoff output")==0) defnamelist[j].value.setNum(1);
+//      if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
+//      if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
+//      //TODO fix output stuff
+
+//      if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+//      if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;
+//      if (p1.compare("SWATRE internal minimum timestep")==0)
+//      {
+//         double fraction = E_SWATREDtsecFraction->value();
+//         swatreDT = E_Timestep->text().toDouble()*fraction;
+//         defnamelist[j].value.setNum(swatreDT,'g',6);
+//      }
+
+//      if (p1.compare("Infil Method")==0)
+//      {
+//         switch(uiInfilMethod)
+//         {
+//         case 0 : defnamelist[j].value.setNum(INFIL_NONE); break;
+//         case 1 : defnamelist[j].value.setNum(INFIL_SWATRE);break;
+//         case 2 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_GREENAMPT2);
+//            else defnamelist[j].value.setNum(INFIL_GREENAMPT);break;
+//         case 3 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_SMITH2);
+//            else defnamelist[j].value.setNum(INFIL_SMITH); break;
+//         case 4: defnamelist[j].value.setNum(INFIL_KSAT); break;
+//         }
+//      }
+//      if (p1.compare("CheckOutputMaps")==0)
+//      {
+//         outputcheck.clear();
+//         if (			checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (	    	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (	          checkBox_OutTC->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (			   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
+//         defnamelist[j].value = outputcheck.join(",");
+//      }
+//      //defnamelist[j].value = p;
+//   }
+
+//   //get all map names
+//   /** TODO: WHY CHNAGE DEFNAMELIST HERE AND NOT NAMELIST ??? */
+//   for (int j = 0; j < nrdefnamelist; j++)
+//      for (int i = 0; i < DEFmaps.size(); i++)
+//      {
+//         QStringList S = DEFmaps.at(i).split(";");
+//         if (S.contains(defnamelist[j].name))
+//            defnamelist[j].value = S.at(4);
+//      }
+
+//   for (int j = 0; j < nrdefnamelist; j++)
+//      for (int k = 0; k < nrmaplist; k++)
+//      {
+//         if (mapList[k].id == defnamelist[j].name)
+//         {
+//            defnamelist[j].value = mapList[k].name;
+//            qDebug() << mapList[k].id << mapList[k].name;
+//         }
+//      }
+
+//}
 //---------------------------------------------------------------------------

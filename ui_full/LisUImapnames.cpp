@@ -313,6 +313,15 @@ void lisemqt::doOpenMapname(QModelIndex topLeft)
 
    if (!path.isEmpty())// && QFileInfo(path).exists())
    {
+      MAP *m = Mopen(QFileInfo(path).absoluteFilePath().toAscii().constData(), M_READ);
+      if (m == NULL)
+      {
+         QMessageBox::critical(this, "openLISEM",
+                              QString("File \"%1\" is not a PCRaster map.")
+                              .arg(path));
+         return;
+      }
+
       mapList[k].name = QFileInfo(path).fileName();
       mapList[k].dir = QFileInfo(path).dir().path();
       // put the name and path into he mapList structure

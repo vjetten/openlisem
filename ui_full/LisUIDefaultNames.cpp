@@ -16,7 +16,14 @@ website, information and code: http://sourceforge.net/projects/lisem
 // change runfile strings with current interface options
 void lisemqt::DefaultRunFile()
 {
-	int i = 0, outputpos;
+   int i, outputpos;
+   for (i = 0; i < NUMNAMES; i++)
+   {
+      defnamelist[i].name.clear();
+      defnamelist[i].value.clear();
+   }
+   // clear first
+   i = 0;
 	defnamelist[i++].name = QString("[openLISEM runfile version 4]");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[LISEM main type]");
@@ -306,8 +313,9 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("gulwinit");
 	defnamelist[i++].name = QString("guldinit");
 	nrdefnamelist = i;
-	for (i = 0; i < nrdefnamelist; i++)
+   for (i = 0; i < nrdefnamelist; i++)
 		defnamelist[i].value.clear();
+
    i = outputpos;
 	defnamelist[i++].value=QString("ro");
 	defnamelist[i++].value=QString("conc");
