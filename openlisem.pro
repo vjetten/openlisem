@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt   #-5.2.1
+QWTDIR = c:/Qt/qwt
 QT += core \
     gui
 HEADERS += \
@@ -69,7 +69,7 @@ CONFIG(debug, debug|release) {
 }
 else {
     LIBS += -L"bin" -llibcsf
-    LIBS += -L "$${QWTDIR}/lib" -lqwt
+    LIBS += -L"$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
 	 MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
