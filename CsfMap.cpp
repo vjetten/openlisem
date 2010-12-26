@@ -51,6 +51,12 @@ void cTMap::KillMap()
 void cTMap::GetMapHeader(QString Name)
 {
    MAP *m = Mopen(Name.toAscii().constData(), M_READ);
+   if (m == NULL)
+   {
+      Error(QString("Map %1 cannot be opened.").arg(Name));
+      throw 1;
+   }
+
    MH = m->raster;
    projection = m->main.projection;
 
@@ -89,7 +95,11 @@ bool cTMap::LoadFromFile()
     QFileInfo fi(PathName);
 
     if (!fi.exists())
-      return(false);
+    {
+      //return(false);
+       Error(QString("Map %1 does not exist.").arg(PathName));
+       throw 1;
+    }
 
     // make map structure
     CreateMap(PathName);
