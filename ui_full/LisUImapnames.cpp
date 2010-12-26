@@ -221,16 +221,13 @@ void lisemqt::change_MapNameModel(int parentrow, int selrow, bool setit)
 //also after each call of a runfile so that the runfile mapnames are loadd
 void lisemqt::FillMapList()
 {
-	QStringList headers;
-
 	if (MapNameModel)
 	{
 		delete MapNameModel;
 		MapNameModel = NULL;
 	}
 
-	headers  <<"Variable name"<< "Map name"<<"Description"<<" ";
-	MapNameModel = new TreeModel(headers, DEFmaps);
+   MapNameModel = new TreeModel(DEFmaps);
 
 	treeView->setModel(MapNameModel);
 
@@ -264,7 +261,7 @@ void lisemqt::doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight )
 
    if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELSMAPS || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
-
+qDebug() << "hoi";
    for (int k = 0; k < nrmaplist; k++)
    {
       if (mapList[k].groupnr == groupnr && mapList[k].varnr == varnr)

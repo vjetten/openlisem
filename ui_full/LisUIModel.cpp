@@ -61,7 +61,8 @@ void lisemqt::runmodel()
 	PData = NULL;
 	timeData = NULL;
 	//intialize plot stuff for this run
-	InitOP();
+
+   InitOP();
 	// wipe the result screen
 
 	W = new TWorld();
@@ -137,12 +138,10 @@ void lisemqt::Showit()
 
    ShowGraph();
 
-   //ShowMap();
+   ShowMap();
 
-	QString SSS;
-	SSS = QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ');
-	textGraph->setMaximumBlockCount(6);
-	textGraph->appendPlainText(SSS);
+   textGraph->setMaximumBlockCount(6);
+   textGraph->appendPlainText(QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
 
 }
 //---------------------------------------------------------------------------
@@ -182,16 +181,20 @@ void lisemqt::ShowGraph()
 	QsData[op.runstep+1] = op.Qs;
 	CData[op.runstep+1] = op.C;
 
-	QGraph->setRawData(timeData,QData,op.runstep);
-	PGraph->setRawData(timeData,PData,op.runstep);
-	//TODO qwt 6.0.0: QGraph->setRawSamples(timeData,QData,op.runstep);
-	//TODO qwt 6.0.0: PGraph->setRawSamples(timeData,PData,op.runstep);
+   //qwt 5.2.1:
+   //QGraph->setRawData(timeData,QData,op.runstep);
+   //PGraph->setRawData(timeData,PData,op.runstep);
+   //qwt 6.0.0:
+   QGraph->setRawSamples(timeData,QData,op.runstep);
+   PGraph->setRawSamples(timeData,PData,op.runstep);
 	if(!checkNoErosion->isChecked())
 	{
-		QsGraph->setRawData(timeData,QsData,op.runstep);
-		CGraph->setRawData(timeData,CData,op.runstep);
-		//TODO qwt 6.0.0: QsGraph->setRawSamples(timeData,QsData,op.runstep);
-		//TODO qwt 6.0.0: CGraph->setRawSamples(timeData,CData,op.runstep);
+      //qwt 5.2.1:
+      //QsGraph->setRawData(timeData,QsData,op.runstep);
+      //CGraph->setRawData(timeData,CData,op.runstep);
+      //qwt 6.0.0:
+      QsGraph->setRawSamples(timeData,QsData,op.runstep);
+      CGraph->setRawSamples(timeData,CData,op.runstep);
 	}
 
 	y2as = max(y2as, op.Qs);

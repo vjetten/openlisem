@@ -23,6 +23,9 @@ void lisemqt::DefaultRunFile()
       defnamelist[i].value.clear();
    }
    // clear first
+
+   // runfile has structure:
+   // name=value
    i = 0;
 	defnamelist[i++].name = QString("[openLISEM runfile version 4]");
 	defnamelist[i++].name = QString("");
@@ -313,9 +316,8 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("gulwinit");
 	defnamelist[i++].name = QString("guldinit");
 	nrdefnamelist = i;
-   for (i = 0; i < nrdefnamelist; i++)
-		defnamelist[i].value.clear();
 
+   // give the names for the output maps, these are standard, not user defined
    i = outputpos;
 	defnamelist[i++].value=QString("ro");
 	defnamelist[i++].value=QString("conc");

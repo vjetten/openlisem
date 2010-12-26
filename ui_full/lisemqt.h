@@ -10,6 +10,7 @@
 #include "qwt_plot_marker.h"
 #include "qwt_legend.h"
 #include "qwt_plot_spectrogram.h"
+#include <qwt_matrix_raster_data.h>
 #include "qwt_color_map.h"
 #include "qwt_raster_data.h"
 
@@ -17,6 +18,7 @@
 #include "LisUItreemodel.h"
 #include "model.h"
 #include "lisuioutput.h"
+
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -91,10 +93,10 @@ public:
 	void RunAllChecks();
 	void savefile(QString name);
 	void InitOP();
-    void SetConnections();
+   void SetConnections();
 
 	void ShowGraph();
-	void ShowMap();
+   void ShowMap();
 
 	// graph variables
 	QwtPlot *HPlot;
@@ -110,9 +112,10 @@ public:
 	double *CData;
 	double *PData;
 	//Map drawing variables
-//	QwtPlotSpectrogram *MapDrawing;
-//	QwtPlot *MapPlot;
+//   QwtPlotSpectrogram *MapDrawing;
+//   QwtPlot *MapPlot;
 //	SpectrogramData *MapDrawData;
+//   QwtMatrixRasterData *MapDrawData;
 
 	bool oldRunfile; // check is old runfile for ksat calibration
 
@@ -139,7 +142,6 @@ public:
 	int nrdefnamelist;
 	QStringList outputcheck;
 	int InterceptionEqNr;
-
 
 public slots:
 	// functions linked to actions

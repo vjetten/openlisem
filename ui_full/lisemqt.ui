@@ -3504,7 +3504,7 @@ p, li { white-space: pre-wrap; }
         <item row="0" column="0">
          <widget class="QLabel" name="label_47">
           <property name="text">
-           <string>TextLabel</string>
+           <string>Double Click on map name to open file interface, F2 to edit name dircetly </string>
           </property>
          </widget>
         </item>

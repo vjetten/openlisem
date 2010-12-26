@@ -14,17 +14,21 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 //-----------------------------------------------------------------------------------------------
 // is called in FillMapList() in LisUImapnames.cpp
-TreeModel::TreeModel(const QStringList &headers, const QStringList &data,
-                     QObject *parent)
+TreeModel::TreeModel(const QStringList &data, QObject *parent)
    : QAbstractItemModel(parent)
 {
-   QVector<QVariant> rootData;
-   foreach (QString header, headers)
-      rootData << header;
+   QVector<QVariant> header;
 
-   rootItem = new TreeItem(rootData);
+   //VJ 101223 simplified
+   header << "Variable name";
+   header << "Map name";
+   header << "Description";
+   header << " ";
+
+   rootItem = new TreeItem(header);
+
    setupModelData(data, rootItem);
-
+   // make the treestructure, data contains DEFnames
 
 }
 //-----------------------------------------------------------------------------------------------
@@ -124,25 +128,6 @@ bool TreeModel::getFlag(int row, const QModelIndex &parent) const
       return (childItem->nodeEnabled);
    return (false);
 }
-//-----------------------------------------------------------------------------------------------
-/*
-void TreeModel::setMapnumber(int f, int row, const QModelIndex &parent) const
-{
-    TreeItem *parentItem = getItem(parent);
-    TreeItem *childItem = parentItem->child(row);
-    if (childItem)
-        childItem->mapNumber = f;
-}
-//-----------------------------------------------------------------------------------------------
-int TreeModel::getMapnumber(int row, const QModelIndex &parent) const
-{
-    TreeItem *parentItem = getItem(parent);
-    TreeItem *childItem = parentItem->child(row);
-    if (childItem)
-        return (childItem->mapNumber);
-    return (0);
-}
-*/
 //-----------------------------------------------------------------------------------------------
 QModelIndex TreeModel::parent(const QModelIndex &index) const
 {

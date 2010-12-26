@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt-5.2.1
+QWTDIR = c:/Qt/qwt   #-5.2.1
 QT += core \
     gui
 HEADERS += \
@@ -25,7 +25,8 @@ HEADERS += \
     include/soillut.h \
     include/swat_inp.h \
     include/swatre_p.h \
-    include/swatre_g.h
+    include/swatre_g.h \
+    include/CsfMapDraw.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \
@@ -59,20 +60,16 @@ SOURCES += lisTotalsMB.cpp \
     swatre/lookup.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
-    LIBS += -L"debug" \
-        -L "$${QWTDIR}/lib"\
-        -llibcsfd \
-        -lqwtd5
+    LIBS += -L"debug" -llibcsfd
+    LIBS += -L"$${QWTDIR}/lib" -lqwtd
     DESTDIR = debug
 	 MOC_DIR = debug/moc
     OBJECTS_DIR= debug/objs
 	 UI_DIR= debug/ui
 }
 else {
-    LIBS += -L"bin" \
-        -L "$${QWTDIR}/lib"\
-        -llibcsf \
-        -lqwt5
+    LIBS += -L"bin" -llibcsf
+    LIBS += -L "$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
 	 MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
@@ -84,4 +81,3 @@ INCLUDEPATH += $${QWTDIR}/src
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
-
