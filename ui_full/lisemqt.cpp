@@ -727,10 +727,8 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
 	QMessageBox::information ( this, "openLISEM",
-                              QString("openLISEM is created wih:\n\n%1\n%2\n%3\n%4\n%5\n\n%6")
-                              .arg("- MingW C/C++ compiler (http://www.mingw.org);")
-                              .arg("- Qt cross platform application and UI framework (http://qt.nokia.com/)")
-                              .arg("- QtCreator IDE (http://qt.nokia.com/)")
+                              QString("openLISEM is created wih:\n\n%1\n%2\n%3\n%4\n")
+                              .arg("- Qt cross platform application and UI framework version 4.7.X based on MingW (http://qt.nokia.com/).")
                               .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                               .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
                               .arg("Details can be found at: http://sourceforge.net/projects/lisem/")
