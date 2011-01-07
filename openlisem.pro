@@ -3,6 +3,7 @@ TARGET = openLisem
 QWTDIR = c:/Qt/qwt
 QT += core \
     gui
+DEFINES += QWT_NO_SVG
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \

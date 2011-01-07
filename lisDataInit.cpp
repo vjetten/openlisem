@@ -852,7 +852,8 @@ void TWorld::IntializeOptions(void)
 	SwitchSimpleDepression = false;
 	SwitchBuffers = false;
 	SwitchSedtrap = false;
-	SwitchSnowmelt = false;
+   SwitchRainfall = true; //VL 110103 add rainfall default true
+   SwitchSnowmelt = false;
 	SwitchRunoffPerM = false;
 	SwitchInfilCompact = false;
 	SwitchInfilCrust = false;

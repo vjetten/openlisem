@@ -248,10 +248,10 @@ void lisemqt::SetGraph()
    CGraph->setStyle(QwtPlotCurve::Lines);
    //QGraph->setCurveAttribute(QwtPlotCurve::Fitted); gives spline fit
 
-   PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-	QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-	QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-	CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   //CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 	// make all graphs to be drawn and link them to HPlot
 	// set colors
 

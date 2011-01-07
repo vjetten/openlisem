@@ -339,14 +339,23 @@ void TWorld::Infiltration(void)
       // calculate effective ksat for various situations
       if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
       {
-         Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc-CompactFraction->Drc);
-         // avg ksat of "normal" surface with crusting and compaction fraction, fractions are 0 when there is none
+//         Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc);
+//         if (SwitchInfilCrust)
+//            Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
+//         if (SwitchInfilCompact)
+//            Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
 
+         Ksateff->Drc = Ksat1->Drc;
          if (SwitchInfilCrust)
-            Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
+            Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
          if (SwitchInfilCompact)
-            Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
+            Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+         if (SwitchInfilCrust && SwitchInfilCompact)
+            Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
+                  KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+         // avg ksat of "normal" surface with crusting and compaction fraction
          // adjust effective infil for crusting and compaction
+         //VJ 110106 adapted this calculation
 
          Ksateff->Drc *= ksatCalibration;
          // apply runfile/iface calibration factor

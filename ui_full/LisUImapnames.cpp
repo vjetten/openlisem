@@ -28,7 +28,7 @@ void lisemqt::DefaultMapnames()
 
    j = 0;i = 0;k = 0; // j and i are needed to find the data back in the tree structure, k is mapcount
    DEFmaps.append("0;Rainfall");
-   DEFmaps.append(QString("2;%1;%2;ID;ID.map;Raingauge zone ID numbers;id;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;ID;ID.map;Raingauge zone ID numbers;ID;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    j++; i = 0;
    DEFmaps.append("0;Catchment");
    DEFmaps.append(QString("2;%1;%2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;

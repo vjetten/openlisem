@@ -161,12 +161,14 @@ void lisemqt::ShowGraph()
 		yas = 0.1;
 		y2as = 0.1;
 
-		timeData = new double[op.maxstep+2];
+      // create the arrays for the curves in the first timestep when the total size is known
+      timeData = new double[op.maxstep+2];
 		QData = new double[op.maxstep+2];
 		QsData = new double[op.maxstep+2];
 		CData = new double[op.maxstep+2];
 		PData = new double[op.maxstep+2];
-		HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+
+      HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 	}
 
 	timeData[op.runstep] = op.time;
@@ -174,12 +176,12 @@ void lisemqt::ShowGraph()
 	QData[op.runstep] = op.Q;
 	QsData[op.runstep] = op.Qs;
 	CData[op.runstep] = op.C;
-	// to avoid strange graphs
-	timeData[op.runstep+1] = op.time;
-	PData[op.runstep+1] = op.P;
-	QData[op.runstep+1] = op.Q;
-	QsData[op.runstep+1] = op.Qs;
-	CData[op.runstep+1] = op.C;
+//	// to avoid strange graphs
+//	timeData[op.runstep+1] = op.time;
+//	PData[op.runstep+1] = op.P;
+//	QData[op.runstep+1] = op.Q;
+//	QsData[op.runstep+1] = op.Qs;
+//	CData[op.runstep+1] = op.C;
 
    //qwt 5.2.1:
    //QGraph->setRawData(timeData,QData,op.runstep);
@@ -204,7 +206,9 @@ void lisemqt::ShowGraph()
 	yas = max(yas, op.P);
 	HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
-	HPlot->replot();
+   HPlot->replot();
+//   HPlot->canvas()->invalidatePaintCache();
+//   HPlot->canvas()->update(canvas()->contentsRect());
 
 }
 //---------------------------------------------------------------------------
@@ -236,7 +240,7 @@ void lisemqt::worldDone(const QString &results)
 	timeData = NULL;
 	// free data structures graph
 
-	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+//	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDebug(const QString &results)

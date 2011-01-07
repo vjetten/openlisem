@@ -9,10 +9,10 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_marker.h"
 #include "qwt_legend.h"
-#include "qwt_plot_spectrogram.h"
-#include <qwt_matrix_raster_data.h>
-#include "qwt_color_map.h"
-#include "qwt_raster_data.h"
+//#include "qwt_plot_spectrogram.h"
+//#include <qwt_matrix_raster_data.h>
+//#include "qwt_color_map.h"
+//#include "qwt_raster_data.h"
 
 #include "ui_lisemqt.h"
 #include "LisUItreemodel.h"
