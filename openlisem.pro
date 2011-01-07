@@ -3,7 +3,6 @@ TARGET = openLisem
 QWTDIR = c:/Qt/qwt
 QT += core \
     gui
-DEFINES += QWT_NO_SVG
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
@@ -26,8 +25,7 @@ HEADERS += \
     include/soillut.h \
     include/swat_inp.h \
     include/swatre_p.h \
-    include/swatre_g.h \
-    include/CsfMapDraw.h
+    include/swatre_g.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \
