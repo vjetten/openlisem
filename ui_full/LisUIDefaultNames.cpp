@@ -16,7 +16,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 // change runfile strings with current interface options
 void lisemqt::DefaultRunFile()
 {
-   int i, outputpos;
+   int i;
    for (i = 0; i < NUMNAMES; i++)
    {
       defnamelist[i].name.clear();
@@ -46,51 +46,85 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Output]");
 	defnamelist[i++].name = QString("Result Directory");
-	defnamelist[i++].name = QString("Main results file");
-	defnamelist[i++].name = QString("Filename point output");
-	defnamelist[i++].name = QString("Report point output separate");
-	defnamelist[i++].name = QString("Report point output for SOBEK");
+   defnamelist[i].value = QString("totals.txt");
+   defnamelist[i++].name = QString("Main results file");
+   defnamelist[i].value = QString("hydrograph.csv");
+   defnamelist[i++].name = QString("Filename point output");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Report point output separate");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Report point output for SOBEK");
 	defnamelist[i++].name = QString("SOBEK date string");
-	defnamelist[i++].name = QString("Erosion map");
-	defnamelist[i++].name = QString("Deposition map");
-	defnamelist[i++].name = QString("Soilloss map");
-	defnamelist[i++].name = QString("");
+   defnamelist[i].value = QString("eros.map");
+   defnamelist[i++].name = QString("Erosion map");
+   defnamelist[i].value = QString("depo.map");
+   defnamelist[i++].name = QString("Deposition map");
+   defnamelist[i].value = QString("soilloss.map");
+   defnamelist[i++].name = QString("Soilloss map");
+   defnamelist[i].value = QString("totlandunit.txt");
+   defnamelist[i++].name = QString("Filename landunit output");
+   defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Simulation times]");
-	defnamelist[i++].name = QString("Begin time");
-	defnamelist[i++].name = QString("End time");
-	defnamelist[i++].name = QString("Timestep");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Begin time");
+   defnamelist[i].value = QString("100");
+   defnamelist[i++].name = QString("End time");
+   defnamelist[i].value = QString("0.15");
+   defnamelist[i++].name = QString("Timestep");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[General options]");
+   defnamelist[i].value = QString("1");
 	defnamelist[i++].name = QString("Include Rainfall");
-	defnamelist[i++].name = QString("Include snowmelt");
-	defnamelist[i++].name = QString("No Erosion simulation");
-	defnamelist[i++].name = QString("Include main channels");
-	defnamelist[i++].name = QString("Include channel infil");
-	defnamelist[i++].name = QString("Include channel baseflow");
-	defnamelist[i++].name = QString("All water and sediment to outlet");
-	defnamelist[i++].name = QString("No erosion at outlet");
-	defnamelist[i++].name = QString("Alternative flow detachment");
-	defnamelist[i++].name = QString("Simple depression storage");
-	defnamelist[i++].name = QString("Hard Surfaces");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include snowmelt");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("No Erosion simulation");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include main channels");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include channel infil");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include channel baseflow");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("All water and sediment to outlet");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("No erosion at outlet");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Alternative flow detachment");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Simple depression storage");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Hard Surfaces");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Interception]");
-	defnamelist[i++].name = QString("Use canopy storage map");
-	defnamelist[i++].name = QString("Canopy storage equation");
-	defnamelist[i++].name = QString("Stemflow fraction");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Use canopy storage map");
+   defnamelist[i].value = QString("1");
+   defnamelist[i++].name = QString("Canopy storage equation");
+   defnamelist[i].value = QString("0.05");
+   defnamelist[i++].name = QString("Stemflow fraction");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Conservation]");
-	defnamelist[i++].name = QString("Include grass strips");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include grass strips");
 	defnamelist[i++].name = QString("Grassstrip Mannings n");
-	defnamelist[i++].name = QString("Include buffers");
-	defnamelist[i++].name = QString("Sediment bulk density");
-	defnamelist[i++].name = QString("Include Sediment traps");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include buffers");
+   defnamelist[i++].name = QString("Sediment bulk density");
+   defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include Sediment traps");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Calibration]");
-	defnamelist[i++].name = QString("Ksat calibration");
-	defnamelist[i++].name = QString("N calibration");
-	defnamelist[i++].name = QString("Channel Ksat calibration");
-	defnamelist[i++].name = QString("Channel N calibration");
-	defnamelist[i++].name = QString("Splash Delivery Ratio");
+   defnamelist[i].value = QString("1.0");
+   defnamelist[i++].name = QString("Ksat calibration");
+   defnamelist[i].value = QString("1.0");
+   defnamelist[i++].name = QString("N calibration");
+   defnamelist[i].value = QString("1.0");
+   defnamelist[i++].name = QString("Channel Ksat calibration");
+   defnamelist[i].value = QString("1.0");
+   defnamelist[i++].name = QString("Channel N calibration");
+   defnamelist[i].value = QString("0.1");
+   defnamelist[i++].name = QString("Splash Delivery Ratio");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Gully options]");
 	defnamelist[i++].name = QString("Fcrit relation");
@@ -132,7 +166,6 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("[map names]");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[OutputBASIC]");
-	outputpos = i;
 	defnamelist[i++].name = QString("OUTRUNOFF");
 	defnamelist[i++].name = QString("OUTCONC");
 	defnamelist[i++].name = QString("OUTWH");
@@ -188,8 +221,9 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("outpoint");
 	defnamelist[i++].name = QString("");
 	defnamelist[i++].name = QString("[Landuse]");
-	defnamelist[i++].name = QString("cover");
-	defnamelist[i++].name = QString("lai");
+   defnamelist[i++].name = QString("landunit");
+   defnamelist[i++].name = QString("cover");
+   defnamelist[i++].name = QString("lai");
 	defnamelist[i++].name = QString("ch");
 	defnamelist[i++].name = QString("smax");
 	defnamelist[i++].name = QString("road");
@@ -317,54 +351,17 @@ void lisemqt::DefaultRunFile()
 	defnamelist[i++].name = QString("guldinit");
 	nrdefnamelist = i;
 
-   // give the names for the output maps, these are standard, not user defined
-   i = outputpos;
-	defnamelist[i++].value=QString("ro");
-	defnamelist[i++].value=QString("conc");
-	defnamelist[i++].value=QString("wh");
-	defnamelist[i++].value=QString("whc");
-	defnamelist[i++].value=QString("tc");
-	defnamelist[i++].value=QString("det");
-	defnamelist[i++].value=QString("depo");
-	defnamelist[i++].value=QString("velo");
-	defnamelist[i++].value=QString("inf");
-	defnamelist[i++].value=QString("sstor");
-	defnamelist[i++].value=QString("chanvol");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("smu0");
-	defnamelist[i++].value=QString("smu1");
-	defnamelist[i++].value=QString("smu2");
-	defnamelist[i++].value=QString("smu3");
-	defnamelist[i++].value=QString("smu4");
-	defnamelist[i++].value=QString("smu5");
-	defnamelist[i++].value=QString("D50s");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("NPsol");
-	defnamelist[i++].value=QString("NPsus");
-	defnamelist[i++].value=QString("NPinf");
-	defnamelist[i++].value=QString("NNH4sol");
-	defnamelist[i++].value=QString("NNH4sus");
-	defnamelist[i++].value=QString("NNH4inf");
-	defnamelist[i++].value=QString("NNO3sol");
-	defnamelist[i++].value=QString("NNO3sus");
-	defnamelist[i++].value=QString("NNO3inf");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("NPdep.map");
-	defnamelist[i++].value=QString("NNH4dep.map");
-	defnamelist[i++].value=QString("NNO3dep.map");
-	defnamelist[i++].value=QString("NPdet.map");
-	defnamelist[i++].value=QString("NNH4det.map");
-	defnamelist[i++].value=QString("NNO3det.map");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("");
-	defnamelist[i++].value=QString("guld");
-	defnamelist[i++].value=QString("gulw");
-	defnamelist[i++].value=QString("gula");
-	defnamelist[i++].value=QString("gulf");
-	defnamelist[i++].value=QString("");
+   // fill with map variables with default mapnames
+   for (int j = 0; j < nrdefnamelist; j++)
+      for (int k = 0; k < nrmaplist; k++)
+      {
+         if (mapList[k].id.toUpper() == defnamelist[j].name.toUpper())
+         {
+            defnamelist[j].value = mapList[k].name;
+            //qDebug() << "default" << k << mapList[k].name << mapList[k].id;
+         }
+      }
+
 }
 //---------------------------------------------------------------------------
 

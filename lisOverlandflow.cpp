@@ -55,8 +55,9 @@ void TWorld::CalcVelDisch(void)
 {
 	FOR_ROW_COL_MV
 	{
-		double Perim, beta = 0.6;
-		double _23 = 2.0/3.0;
+      double Perim;
+      const double beta = 0.6;
+      const double _23 = 2.0/3.0;
 		double beta1 = 1/beta;
 
 		// avg WH from soil surface and roads, over width FlowWidth

@@ -37,11 +37,13 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append(QString("2;%1;%2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1 to nr);outpoint;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    j++; i = 0;
    DEFmaps.append("0;Landuse");
+   DEFmaps.append(QString("2;%1;%2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Cover;per.map;Fraction surface cover by vegetation and residue;cover;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Height;ch.map;Plant height (m);ch;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Road width;roadwidt.map;Width of impermeable roads (m);road;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Canopy storage;smax.map;Maximum canopy storage (mm);smax;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    j++; i = 0;
    DEFmaps.append("0;Surface");
    DEFmaps.append(QString("2;%1;%2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
@@ -65,7 +67,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append(QString("2;%1;%2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   //DEFmaps.append(QString("2;%1;%2;Output head;headout.map;Locations to write tables of the matrix potential;headout;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Output head;headout.map;Locations to write tables of the matrix potential;headout;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    i = 20;
    DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
    DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
@@ -82,7 +84,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append(QString("2;%1;%2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    i = 40;
    DEFmaps.append("1;Ksat subtraction");
-   DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1);").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    i = 50;
    DEFmaps.append("1;Special surfaces");
    DEFmaps.append(QString("2;%1;%2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
@@ -172,6 +174,8 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append(QString("2;%1;%2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
 
    nrmaplist = k;
+   //for (int k = 0; k < nrmaplist; k++)
+     // qDebug() << k << "tree maplist" << mapList[k].id << mapList[k].name;
 }
 //--------------------------------------------------------------------
 // enables or disables a branch and expands or contracts it
@@ -261,13 +265,13 @@ void lisemqt::doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight )
 
    if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELSMAPS || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
-qDebug() << "hoi";
+
    for (int k = 0; k < nrmaplist; k++)
    {
       if (mapList[k].groupnr == groupnr && mapList[k].varnr == varnr)
       {
          QVariant d = MapNameModel->data(topLeft,Qt::DisplayRole);;//MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
-         qDebug() << d;
+         //qDebug() << d;
          mapList[k].name = d.toString();
       }
    }
@@ -322,7 +326,7 @@ void lisemqt::doOpenMapname(QModelIndex topLeft)
       mapList[k].name = QFileInfo(path).fileName();
       mapList[k].dir = QFileInfo(path).dir().path();
       // put the name and path into he mapList structure
-
+      //qDebug() << "mapname edit" <<  mapList[k].name << mapList[k].id << k;
       QVariant d(mapList[k].name);
       MapNameModel->setData(topLeft, d, Qt::EditRole);
       // put the name into the treeView and MapNameModel

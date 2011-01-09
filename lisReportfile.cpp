@@ -33,7 +33,7 @@ void TWorld::ReportTimeseriesNew()
 	double SnowIntavg = SnowAvgmm * 3600/_dt;
 	QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
 	int width = (!SwitchWritePCRtimeplot ? 0 : 9);
-    
+
 	QFileInfo fi(resultDir + outflowFileName);
 	if (SwitchSOBEKOutput && time > 0)
 	{
@@ -42,10 +42,10 @@ void TWorld::ReportTimeseriesNew()
 		min = (int)(time - hour*60);
 		sec = (int)(sec - hour * 3600 - min * 60);
 	}
-    
-    
+
+
 	//######  open files and write headers #####//
-    
+
 	//SOBEK, PCRaster and flat format are mutually exclusive
 	if (SwitchWriteHeaders) //  make file at first timestep
 	{
@@ -57,16 +57,16 @@ void TWorld::ReportTimeseriesNew()
 				if ( PointMap->Drc > 0 )
 				{
 					newname1 = fi.path() + "/" + fi.baseName() + "_" +
-                               QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+                     QString::number((int)PointMap->Drc) + "." +  fi.suffix();
 					// make filename using point number
-                    
+
 					QFile fout(newname1);
 					fout.open(QIODevice::WriteOnly | QIODevice::Text);
 					QTextStream out(&fout);
 					out.setRealNumberPrecision(3);
 					out.setFieldWidth(width);
 					out.setRealNumberNotation(QTextStream::FixedNotation);
-                    
+
 					// HEADERS for the 3 types
 					if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
 					{
@@ -83,48 +83,48 @@ void TWorld::ReportTimeseriesNew()
 					else // SOBEK format
 						if (SwitchSOBEKoutput)
 						{
-                        pnr.setNum(SOBEKlines);
-                        out << "Q";
-                        if (SwitchErosion) out << " Qs C";
-                        out << "\n";
-                        out << "m3/s";
-                        if (SwitchErosion) out << " kg/s g/l";
-                        out << "\n";
-                        out << pnr << "\n";
-                    }
-                    else // flat format, comma delimited
-                    {
-                        pnr.setNum((int)PointMap->Drc);
-                        out << "LISEM total flow and sed output file for point " << pnr << "\n";
-                        out << "Time,Pavg,Snowavg";
-                        if (SwitchErosion) out << ",Qs,C";
-                        out << "\n";
-                        out << "min,mm/h,l/s";
-                        if (SwitchErosion) out << ",kg/s,g/l";
-                        out << "\n";
-                    }
+                     pnr.setNum(SOBEKlines);
+                     out << "Q";
+                     if (SwitchErosion) out << " Qs C";
+                     out << "\n";
+                     out << "m3/s";
+                     if (SwitchErosion) out << " kg/s g/l";
+                     out << "\n";
+                     out << pnr << "\n";
+                  }
+                  else // flat format, comma delimited
+                  {
+                     pnr.setNum((int)PointMap->Drc);
+                     out << "LISEM total flow and sed output file for point " << pnr << "\n";
+                     out << "Time,Pavg,Snowavg";
+                     if (SwitchErosion) out << ",Qs,C";
+                     out << "\n";
+                     out << "min,mm/h,l/s";
+                     if (SwitchErosion) out << ",kg/s,g/l";
+                     out << "\n";
+                  }
 					fout.close();
 				}
 			}
 		}  // separate
 		else   // HEADERS: all points in one file
 		{
-            
+
 			newname1 = resultDir + outflowFileName;
-            
+
 			QFile fout(newname1);
 			fout.open(QIODevice::WriteOnly | QIODevice::Text);
 			QTextStream out(&fout);
 			out.setRealNumberPrecision(3);
 			out.setFieldWidth(width);
 			out.setRealNumberNotation(QTextStream::FixedNotation);
-            
+
 			if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
 			{
 				// count nr of points
 				FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 ) nr++;
-                
+                  if ( PointMap->Drc > 0 ) nr++;
+
 				int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
 
             /** TODO snowmelt */
@@ -136,7 +136,7 @@ void TWorld::ReportTimeseriesNew()
 				out << "Pavg (mm/h)\n";
 				out << "Snowavg (mm/h)\n";
 				FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
+                  if ( PointMap->Drc > 0 )
 				{
 					pnr.setNum((int)PointMap->Drc);
 					out << "Q #" << pnr <<  "(l/s)\n";
@@ -148,60 +148,60 @@ void TWorld::ReportTimeseriesNew()
 			else // SOBEK format
 				if (SwitchSOBEKoutput) //note: sobek input does not have rainfall
 				{
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
-                    pnr.setNum((int)PointMap->Drc);
-                    out << " Q #" << pnr;
-                    if (SwitchErosion) out << " Qs #" << pnr;
-                    if (SwitchErosion) out << " C #" << pnr;
-                }
-                out << "\n";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
-                    pnr.setNum((int)PointMap->Drc);
-                    out << " m3/s #" << pnr;
-                    if (SwitchErosion) out << " kg/s #" << pnr;
-                    if (SwitchErosion) out << " g/l #" << pnr;
-                }
-                out << "\n";
-                out << SOBEKdatestring << "\n";
+               FOR_ROW_COL_MV
+                     if ( PointMap->Drc > 0 )
+               {
+                  pnr.setNum((int)PointMap->Drc);
+                  out << " Q #" << pnr;
+                  if (SwitchErosion) out << " Qs #" << pnr;
+                  if (SwitchErosion) out << " C #" << pnr;
+               }
+               out << "\n";
+               FOR_ROW_COL_MV
+                     if ( PointMap->Drc > 0 )
+               {
+                  pnr.setNum((int)PointMap->Drc);
+                  out << " m3/s #" << pnr;
+                  if (SwitchErosion) out << " kg/s #" << pnr;
+                  if (SwitchErosion) out << " g/l #" << pnr;
+               }
+               out << "\n";
+               out << SOBEKdatestring << "\n";
             }
             else // flat CSV format, comma delimited
             {
-                out << "#LISEM total flow and sed output file for all reporting points in map\n";
-                out << "Time";
-                out << ",P";
-                out << ",Snow";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
-                    pnr.setNum((int)PointMap->Drc);
-                    out << ",Q #" << pnr;
-                    if (SwitchErosion) out << ",Qs #" << pnr;
-                    if (SwitchErosion) out << ",C #" << pnr;
-                }
-                out << "\n";
-                out << "min";
-                out << ",mm/h";
-                out << ",mm/h";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
-                    pnr.setNum((int)PointMap->Drc);
-                    out << ",l/s #" << pnr;
-                    if (SwitchErosion) out << ",kg/s #" << pnr;
-                    if (SwitchErosion) out << ",g/l #" << pnr;
-                }
-                out << "\n";
+               out << "#LISEM total flow and sed output file for all reporting points in map\n";
+               out << "Time";
+               out << ",P";
+               out << ",Snow";
+               FOR_ROW_COL_MV
+                     if ( PointMap->Drc > 0 )
+               {
+                  pnr.setNum((int)PointMap->Drc);
+                  out << ",Q #" << pnr;
+                  if (SwitchErosion) out << ",Qs #" << pnr;
+                  if (SwitchErosion) out << ",C #" << pnr;
+               }
+               out << "\n";
+               out << "min";
+               out << ",mm/h";
+               out << ",mm/h";
+               FOR_ROW_COL_MV
+                     if ( PointMap->Drc > 0 )
+               {
+                  pnr.setNum((int)PointMap->Drc);
+                  out << ",l/s #" << pnr;
+                  if (SwitchErosion) out << ",kg/s #" << pnr;
+                  if (SwitchErosion) out << ",g/l #" << pnr;
+               }
+               out << "\n";
             }
 			fout.close();
 		} // all in one
 	}  // opening files and writing header
-    
+
 	//######  open files and append values #####//
-    
+
 	if (SwitchSeparateOutput)
 	{
 		FOR_ROW_COL_MV
@@ -209,18 +209,18 @@ void TWorld::ReportTimeseriesNew()
 			if ( PointMap->Drc > 0 ) // all points in separate files
 			{
 				newname1 = fi.path() + "/" + fi.baseName() + "_" +
-                           QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+                  QString::number((int)PointMap->Drc) + "." +  fi.suffix();
 				QFile fout(newname1);
 				fout.open(QIODevice::Append | QIODevice::Text);
-                
+
 				QTextStream out(&fout);
 				out.setRealNumberPrecision(3);
 				out.setFieldWidth(width);
 				out.setRealNumberNotation(QTextStream::FixedNotation);
-                
+
 				if (!SwitchSOBEKoutput)   //PCRaster timeplot and flat CSV format
 				{
-                    
+
 					if (SwitchWritePCRtimeplot)
 						out << runstep;
 					else
@@ -257,14 +257,14 @@ void TWorld::ReportTimeseriesNew()
 		out.setRealNumberPrecision(3);
 		out.setFieldWidth(width);
 		out.setRealNumberNotation(QTextStream::FixedNotation);
-        
+
 		if (!SwitchSOBEKoutput)
 		{
 			if (SwitchWritePCRtimeplot)
 				out << runstep;
 			else
 				out << time/60;
-            
+
 			FOR_ROW_COL_MV
 			{
 				if ( PointMap->Drc > 0 )
@@ -286,15 +286,15 @@ void TWorld::ReportTimeseriesNew()
             out.setFieldWidth(8);
             FOR_ROW_COL_MV
             {
-                if ( PointMap->Drc > 0 )
-                {
-                    out << " " << Qoutput->Drc;
-                    if (SwitchErosion) out << " " << Qsoutput->Drc;
-                    if (SwitchErosion) out << " " << TotalConc->Drc;
-                }
+               if ( PointMap->Drc > 0 )
+               {
+                  out << " " << Qoutput->Drc;
+                  if (SwitchErosion) out << " " << Qsoutput->Drc;
+                  if (SwitchErosion) out << " " << TotalConc->Drc;
+               }
             }
             out << " < \n";
-        }
+         }
 		fout.close();
 	}
 }
@@ -304,7 +304,7 @@ void TWorld::ReportTotalsNew()
 	QFile fp(resultDir + resultFileName);
 	if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
 		return;
-    
+
 	QTextStream out(&fp);
 	out.setRealNumberPrecision(5);
 	out.setFieldWidth(12);
@@ -333,7 +333,7 @@ void TWorld::ReportTotalsNew()
 	out << "Susp. Sediment (channels)  (ton):," << op.ChannelSedTot<< "\n";
 	out << "Total soil loss            (ton):," << op.SoilLossTot<< "\n";
 	out << "Average soil loss        (kg/ha):," << op.SoilLossTot/op.CatchmentArea*10000.0*1000<< "\n";
-    
+
 	fp.flush();
 	fp.close();
 }
@@ -345,7 +345,7 @@ void TWorld::ReportMaps()
 		TotalDetMap->mwrite(totalErosionFileName);
 		TotalDepMap->mwrite(totalDepositionFileName);
 		TotalSoillossMap->mwrite(totalSoillossFileName);
-        
+
 		if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
 		if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
 		if (outputcheck[5].toInt() == 1)
@@ -359,7 +359,7 @@ void TWorld::ReportMaps()
 			tm->report(Outdepo); // in kg/m2
 		}
 	}
-    
+
 	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s
 	if (outputcheck[2].toInt() == 1)
 	{
@@ -367,7 +367,7 @@ void TWorld::ReportMaps()
 		tm->report(Outwh);
 	}
 	if (outputcheck[3].toInt() == 1)	WHrunoffCum->report(Outrwh); // in mm
-    
+
 	if (outputcheck[7].toInt() == 1) V->report(Outvelo);
 	FOR_ROW_COL_MV
 	{
@@ -375,16 +375,16 @@ void TWorld::ReportMaps()
 		tm->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
 	}
 	if (outputcheck[8].toInt() == 1) tm->report(Outinf);
-    
+
 	if (outputcheck[9].toInt() == 1)
 	{
 		tm->calc2V(WHstore, 1000, MUL);// in mm
 		tm->report(Outss);
       /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
 	}
-    
+
 	if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
-    
+
 	/* from old LISEM: order in run file
    char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
@@ -397,7 +397,142 @@ void TWorld::ReportMaps()
    q = strtok(NULL,",");   SwitchMapoutInf   = strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
-	*/
-    
+ */
+
 }
 //---------------------------------------------------------------------------
+void TWorld::CountLandunits()
+{
+   int i, j;
+   for (i = 0; i < 512; i++)
+   {
+      unitList[i].nr = 0;
+      unitList[i].area = 0;
+      unitList[i].totdet = 0;
+      unitList[i].totdep = 0;
+      unitList[i].totsl = 0;
+   }
+
+   i = 0;
+   FOR_ROW_COL_MV
+   {
+      bool found = false;
+
+      for(j = 0; j <= i; j++)
+         if ((long)LandUnit->Drc == unitList[j].nr)
+            found = true;
+
+      if(!found && i < 512)
+      {
+         unitList[i].nr = (long)LandUnit->Drc;
+         i++;
+      }
+   }
+   landUnitNr = i;
+}
+//---------------------------------------------------------------------------
+void TWorld::ReportLandunits()
+{
+   int nr = 0;
+   QString newname1, pnr, sep;
+   int width = 9;
+
+   if (!SwitchErosion)
+      return;
+
+   for (int i = 0; i < landUnitNr; i++)
+   {
+      unitList[i].area = 0;
+      unitList[i].totdet = 0;
+      unitList[i].totdep = 0;
+      unitList[i].totsl = 0;
+   }
+
+   FOR_ROW_COL_MV
+   {
+      for (int i = 0; i < landUnitNr; i++)
+         if (unitList[i].nr = (long)LandUnit->Drc)
+         {
+            unitList[i].area += CellArea->Drc;
+            unitList[i].totdet += TotalDetMap->Drc * CellArea->Drc/1000;
+            unitList[i].totdep += TotalDepMap->Drc * CellArea->Drc/1000;
+            unitList[i].totsl += TotalSoillossMap->Drc * CellArea->Drc/1000;
+         }
+   }
+   // in ton
+
+
+
+   //######  open files and write headers #####//
+
+   //SOBEK, PCRaster and flat format are mutually exclusive
+   if (SwitchWriteHeaders) //  make file at first timestep
+   {
+      SwitchWriteHeaders = false;
+
+      newname1 = resultDir + totalLandunitFileName;
+
+      QFile fout(newname1);
+      fout.open(QIODevice::WriteOnly | QIODevice::Text);
+      QTextStream out(&fout);
+      out.setRealNumberPrecision(3);
+      out.setFieldWidth(width);
+      out.setRealNumberNotation(QTextStream::FixedNotation);
+
+      out << "#LISEM erosion data per land unit\n";
+      out << "Time";
+      out << ",P";
+      out << ",Snow";
+      FOR_ROW_COL_MV
+            if ( PointMap->Drc > 0 )
+      {
+         pnr.setNum((int)PointMap->Drc);
+         out << ",Q #" << pnr;
+         out << ",Qs #" << pnr;
+         out << ",C #" << pnr;
+      }
+      out << "\n";
+      out << "min";
+      out << ",mm/h";
+      out << ",mm/h";
+      FOR_ROW_COL_MV
+            if ( PointMap->Drc > 0 )
+      {
+         pnr.setNum((int)PointMap->Drc);
+         out << ",l/s #" << pnr;
+         out << ",kg/s #" << pnr;
+         out << ",g/l #" << pnr;
+      }
+      out << "\n";
+      fout.close();
+   }  // opening files and writing header
+
+   //######  open files and append values #####//
+
+
+   // all points in one file
+   newname1 = resultDir + outflowFileName;
+   // use simply resultdir + filename
+   QFile fout(newname1);
+   fout.open(QIODevice::Append | QIODevice::Text);
+   QTextStream out(&fout);
+   out.setRealNumberPrecision(3);
+   out.setFieldWidth(width);
+   out.setRealNumberNotation(QTextStream::FixedNotation);
+
+
+   FOR_ROW_COL_MV
+   {
+      if ( PointMap->Drc > 0 )
+      {
+         //out << sep << RainIntavg;
+         //out << sep << SnowIntavg;
+         out << sep << Qoutput->Drc;
+         if (SwitchErosion) out << sep << Qsoutput->Drc;
+         if (SwitchErosion) out << sep << TotalConc->Drc;
+      }
+   }
+   out << "\n";
+
+   fout.close();
+}

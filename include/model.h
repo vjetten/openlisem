@@ -91,6 +91,16 @@ typedef struct _mapList{
    int varnr;
 } _mapList;
 //---------------------------------------------------------------------------
+typedef struct _unitList{
+   long nr;
+   double area;
+   double totdet;
+   double totdep;
+   double totsl;
+} _unitList;
+//---------------------------------------------------------------------------
+
+
 // The world: main class containing all variables, maps, options, filenames etc etc
 class TWorld: public QThread
 {
@@ -121,6 +131,7 @@ public:
 	*N, *RR, *MDS,*fpa,
 	*SoilWidthDX, *RoadWidthDX, *StoneFraction, *CompactFraction, *CrustFraction,
 	*PlantHeight, *Cover, *CanopyStorage, *LAI,
+   *LandUnit, //VJ 110107 land unit map for erosion output
 	// not used yet:
 	*WheelWidth, *WheelWidthDX, *GullyWidthDX,
 	//erosion
@@ -136,7 +147,7 @@ public:
 	// Channels
 	*RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
 	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
-	*ChannelAlpha, *ChannelWidthUpDX, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
+   *ChannelAlpha, *ChannelWidthUpDX, *ChannelPerimeter, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
 	*ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
 	// buffers
 	*BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
@@ -190,7 +201,7 @@ public:
 	SOIL_MODEL *SwatreSoilModelCompact;
 	SOIL_MODEL *SwatreSoilModelGrass;
 	double swatreDT;
-    bool initSwatreStructure;
+   bool initSwatreStructure;
 
 	// time and dx parameters
 	double time, BeginTime, EndTime;
@@ -213,7 +224,8 @@ public:
 	QString totalErosionFileName;
 	QString totalDepositionFileName;
 	QString totalSoillossFileName;
-	QString rainFileName;
+   QString totalLandunitFileName;
+   QString rainFileName;
 	QString rainFileDir;
 	QString snowmeltFileName;
 	QString snowmeltFileDir;
@@ -224,6 +236,9 @@ public:
 	QString temprunname;
 	QStringList outputcheck;
 	QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
+
+   _unitList unitList[512]; // just a fixed number for 1024 classes who cares!
+   int landUnitNr;
 
 	// data initialization, runfile reading and parsing
    _nameList runnamelist[NUMNAMES]; // structire for runfile variables and names
@@ -283,6 +298,8 @@ public:
 	void ReportTotals();
 	void ReportMaps();
 	void ReportTotalsNew();
+   void ReportLandunits(); //VJ 110107 report erosion stats per land unit
+   void CountLandunits(); //VJ 110107 report erosion stats per land unit
 
 	// thread management variables
 	bool stopRequested;

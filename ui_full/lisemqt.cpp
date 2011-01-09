@@ -9,9 +9,29 @@ website, information and code: http://sourceforge.net/projects/lisem
 /*
  * This is the extensive interface, with toolbar, initialization of graph
  * and options
+ *
+ * flowchart: start{
+ * resetAll
+ *     \-> defaultmapnames -> DEFmaps stringlist for tree interface
+ *                        \-> mapList -> map list structure for model run, default names
+ *     \-> set all default interface options
+ * DefaultRunFile
+ *     \-> defnamelist structure filled with runfile layout
+ *     \-> add mapList mapnames to the defnamelist (only variable names not values!)
+ *}
+ *openrunfile: triggers on_E_runFileList_currentIndexChanged(int){
+ *	    \-> GetRunfile() -> namelist is filled with runfile but corrected with defnamelist
+ *     \-> ParseInputData() -> adapt the interface to the namelist (runfile data)
+ *     \-> FillMapList() -> fill the tree strcuture
+ *}
+ *
+ *
+ *
+ *
+ *
+ *
+ *
 
- * structure for runfile variable names: namelist and defnamelist
- * structures for map names: mapList
  */
 
 #include "lisemqt.h"
@@ -35,15 +55,20 @@ lisemqt::lisemqt(QWidget *parent)
 	MapNameModel = NULL;
 	HPlot = NULL;
    //	MapPlot = NULL;
-	resetAll();
-	//LisemReset();
+
+   resetAll();
+   // all options and mapnames are reset to their default names and values
+   // fill DEFmaps stringlist and make mapList with default names
+   // mapList will be refilled with the runfile and user choices
+   // so this contains the final list of maps
 
 	SetToolBar();
 	FillMapList();
-	// initalize interface and make tree structure for map names
+   // initalize interface and make tree structure for map names (= DEFmaps stringlist)
 
    DefaultRunFile();
-   // fill defnamelist with default runfile names
+   //fill defnamelist with default runfile names
+   //get all actual mapnames from the mapList structure
 
    SetConnections();
 
@@ -151,26 +176,6 @@ void lisemqt::SetToolBar()
 	toolBar->setMovable( false);
 
 }
-//--------------------------------------------------------------------
-void lisemqt::LisemReset()
-{
-	DefaultMapnames();
-
-	E_InfiltrationMethod->addItem("no Infiltration");
-	E_InfiltrationMethod->addItem("SWATRE");
-	E_InfiltrationMethod->addItem("Green and Ampt");
-	E_InfiltrationMethod->addItem("Smith and Parlange");
-	E_InfiltrationMethod->addItem("Subtract Ksat");
-
-	RunFileNames.clear();
-
-	RainFileName.clear();
-	RainFileDir.clear();
-	SnowmeltFileName.clear();
-	SnowmeltFileDir.clear();
-	SwatreTableName.clear();
-	SwatreTableDir.clear();
-}
 //---------------------------------------------------------------------------
 void lisemqt::SetMapPlot()
 {
@@ -248,10 +253,10 @@ void lisemqt::SetGraph()
    CGraph->setStyle(QwtPlotCurve::Lines);
    //QGraph->setCurveAttribute(QwtPlotCurve::Fitted); gives spline fit
 
-   //PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   //CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 	// make all graphs to be drawn and link them to HPlot
 	// set colors
 
@@ -554,19 +559,13 @@ void lisemqt::savefile(QString name)
 	QTextStream out(&fp);
 	out << QString("[openLISEM runfile version 1.0]\n");
 
-   //	for (int i = 1; i < nrdefnamelist; i++)
-   //	{
-   //		if (defnamelist[i].name.contains("[") || defnamelist[i].name.isEmpty())
-   //			out << defnamelist[i].name << "\n"; // already contains \n
-   //		else
-   //			out << defnamelist[i].name << "=" << defnamelist[i].value << "\n";
-   //	}
-   for (int i = 1; i < nrnamelist; i++)
+   for (int i = 1; i < nrdefnamelist; i++)
    {
       if (namelist[i].name.contains("[") || namelist[i].name.isEmpty())
          out << namelist[i].name << "\n"; // already contains \n
       else
          out << namelist[i].name << "=" << namelist[i].value << "\n";
+      //qDebug() << "savefile" << i << namelist[i].name << namelist[i].value;
    }
    fp.close();
 }
@@ -600,7 +599,7 @@ void lisemqt::openRunFile()
 	RunFileNames.removeDuplicates();
 	op.runfilename = E_runFileList->itemText(0);
 
-	/* this is done in  E_runFileList change
+   /* this is done in on_E_runFileList_currentIndexChanged
  GetRunfile();
  ParseInputData();
  FillMapList();
@@ -747,6 +746,10 @@ void lisemqt::resetAll()
 	E_InfiltrationMethod->addItem("Subtract Ksat");
 
 	DefaultMapnames();
+   // make mapList structure according to
+   // DEFmaps stringlist that is used to build the map tree interface
+
+
 	RunFileNames.clear();
 	op.runfilename.clear();
 

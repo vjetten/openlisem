@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1012</width>
-    <height>737</height>
+    <height>744</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -68,7 +68,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -587,8 +587,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>325</width>
-                 <height>147</height>
+                 <width>449</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1303,8 +1303,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>378</width>
-                 <height>236</height>
+                 <width>449</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1518,8 +1518,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>373</width>
-                 <height>250</height>
+                 <width>449</width>
+                 <height>287</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1943,8 +1943,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>275</width>
-                 <height>156</height>
+                 <width>449</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2351,8 +2351,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>333</width>
-                 <height>157</height>
+                 <width>452</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2558,8 +2558,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>400</width>
-                 <height>278</height>
+                 <width>449</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2925,14 +2925,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" rowspan="2" colspan="4">
-                <widget class="Line" name="line_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
+               <item row="2" column="0">
                 <widget class="QLabel" name="label_17">
                  <property name="font">
                   <font>
@@ -2951,7 +2944,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1" rowspan="2" colspan="2">
+               <item row="1" column="1" rowspan="2" colspan="2">
                 <widget class="QLineEdit" name="E_DetachmentMap">
                  <property name="font">
                   <font>
@@ -2961,7 +2954,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0">
+               <item row="3" column="0">
                 <widget class="QLabel" name="label_18">
                  <property name="font">
                   <font>
@@ -2980,7 +2973,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1" colspan="2">
+               <item row="3" column="1" colspan="2">
                 <widget class="QLineEdit" name="E_DepositionMap">
                  <property name="font">
                   <font>
@@ -3031,7 +3024,7 @@ p, li { white-space: pre-wrap; }
                   <enum>Qt::LeftToRight</enum>
                  </property>
                  <property name="text">
-                  <string>Text file Totals</string>
+                  <string>Totals output</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3045,6 +3038,9 @@ p, li { white-space: pre-wrap; }
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Text file with totals at the outlet</string>
                  </property>
                 </widget>
                </item>
@@ -3060,7 +3056,7 @@ p, li { white-space: pre-wrap; }
                   <enum>Qt::LeftToRight</enum>
                  </property>
                  <property name="text">
-                  <string>Point output</string>
+                  <string>Sample point output</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3074,6 +3070,9 @@ p, li { white-space: pre-wrap; }
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Text file(s) with hydrographs and sedigraphs</string>
                  </property>
                 </widget>
                </item>
@@ -3090,7 +3089,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="8" column="0" colspan="2">
+               <item row="9" column="0" colspan="2">
                 <widget class="QGroupBox" name="groupOutputFormat">
                  <property name="font">
                   <font>
@@ -3181,7 +3180,7 @@ p, li { white-space: pre-wrap; }
                  </layout>
                 </widget>
                </item>
-               <item row="8" column="2" colspan="2">
+               <item row="9" column="2" colspan="2">
                 <widget class="QGroupBox" name="groupBox_2">
                  <property name="font">
                   <font>
@@ -3243,6 +3242,23 @@ p, li { white-space: pre-wrap; }
                    <string>buttonGroup</string>
                   </attribute>
                  </widget>
+                </widget>
+               </item>
+               <item row="8" column="1" colspan="2">
+                <widget class="QLineEdit" name="E_LandunitResults">
+                 <property name="toolTip">
+                  <string>Text file with totals per landunit</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="label_61">
+                 <property name="text">
+                  <string>Landunit output</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -7928,15 +7944,15 @@ p, li { white-space: pre-wrap; }
    <sender>checkIncludeChannel</sender>
    <signal>clicked(bool)</signal>
    <receiver>checkChannelBaseflow</receiver>
-   <slot>setChecked(bool)</slot>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>343</x>
-     <y>338</y>
+     <x>224</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
-     <x>326</x>
-     <y>358</y>
+     <x>232</x>
+     <y>355</y>
     </hint>
    </hints>
   </connection>
@@ -7944,15 +7960,47 @@ p, li { white-space: pre-wrap; }
    <sender>checkIncludeChannel</sender>
    <signal>clicked(bool)</signal>
    <receiver>checkChannelInfil</receiver>
-   <slot>setChecked(bool)</slot>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
+     <x>199</x>
      <y>334</y>
     </hint>
     <hint type="destinationlabel">
-     <x>304</x>
-     <y>371</y>
+     <x>202</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelInfil</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelBaseflow</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>398</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>356</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelBaseflow</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelInfil</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>346</x>
+     <y>354</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>346</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>

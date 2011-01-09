@@ -107,6 +107,7 @@ void TWorld::OutputUI()
     
 	ReportMaps();
 	// report all maps and mapseries
+
     
 }
 //---------------------------------------------------------------------------
@@ -149,6 +150,8 @@ void TWorld::DoModel()
 		}
 		// get all input data and create and initialize all maps and variables
         
+      //CountLandunits();
+
 		BeginTime = getvaluedouble("Begin time") * 60;
 		EndTime = getvaluedouble("End time") * 60;
 		_dt = getvaluedouble("Timestep");

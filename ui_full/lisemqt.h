@@ -75,7 +75,6 @@ public:
 	~lisemqt();
 
 	void FillMapList();
-	void LisemReset();
 	void DefaultMapnames();
 	void change_MapNameModel(int parentrow, int selrow, bool setit);
 	void SetToolBar();
@@ -88,7 +87,6 @@ public:
 	void ParseInputData();
 	void UpdateModelData();
 	void DefaultRunFile();
-	void InsertVariable(QString q, QString p, QString p1);
 	QString CheckDir(QString p);
 	void RunAllChecks();
 	void savefile(QString name);
@@ -137,7 +135,6 @@ public:
    _mapList mapList[NUMMAPS]; // structure for current map names, can be edited by user
    int nrmaplist;
    _nameList namelist[NUMNAMES]; // structure to read runfile variables and names, used in LisUIrunfile.cpp
-   int nrnamelist;
 	_nameList defnamelist[NUMNAMES]; // structure for DEFAULT runfile variables and names
 	int nrdefnamelist;
 	QStringList outputcheck;

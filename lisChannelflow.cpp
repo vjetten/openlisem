@@ -27,8 +27,9 @@ void TWorld::CalcVelDischChannel()
   */
 	FOR_ROW_COL_MV_CH
 	{
-		double Perim, Radius, Area, beta = 0.6;
-		double _23 = 2.0/3.0;
+      double Perim, Radius, Area;
+      const double beta = 0.6;
+      const double _23 = 2.0/3.0;
 		double beta1 = 1/beta;
 		double wh = ChannelWH->Drc;
 		double FW = ChannelWidth->Drc;
@@ -51,7 +52,9 @@ void TWorld::CalcVelDischChannel()
 		// cos atanb more expensive than sqrt ?
 		//Area = ChannelWidth->Drc*wh + wh*(ChannelWidthUpDX->Drc - ChannelWidth->Drc);
         
-        
+      ChannelPerimeter->Drc = Perim;
+      //VJ 110109 needed for channel infil
+
 		if (Perim > 0)
 			Radius = Area/Perim;
 		else
@@ -71,6 +74,7 @@ void TWorld::CalcVelDischChannel()
 		ChannelAlpha->Drc = 0;
 		ChannelQ->Drc = 0;
 		ChannelV->Drc = 0;
+      ChannelPerimeter->Drc = 0;
 	}
 }
 //---------------------------------------------------------------------------
@@ -90,7 +94,7 @@ void TWorld::ChannelFlow(void)
 		ChannelQoutflow->Drc =0;
 		ChannelWH->Drc = 0;
         
-		ChannelWaterVol->Data[r][c] += RunoffVolinToChannel->Drc;
+      ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
 		// add inflow to channel
 		if (ChannelWidth->Drc > 0)
 			ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
@@ -135,7 +139,10 @@ void TWorld::ChannelFlow(void)
 			ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
 		// channel cannot be wider than _dx-road
       /** TODO zit al in gridcell, nodig hier? */
-        
+
+      if (SwitchChannelInfil)
+         Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
+        //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
 	}
     
 	CalcVelDischChannel();

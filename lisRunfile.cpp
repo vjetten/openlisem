@@ -238,6 +238,15 @@ void TWorld::ParseInputData()
 				throw 1;
 			}
 		}
+      if (p1.compare("Filename landunit output")==0)
+      {
+         totalLandunitFileName =  p;
+         if (p.isEmpty())
+         {
+            ErrorString = "Please give a name for the Landunit output file";
+            throw 1;
+         }
+      }
 
 		if (SwitchRainfall)
 		{

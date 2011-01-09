@@ -262,6 +262,7 @@ void TWorld::GetInputData(void)
 	PlantHeight = ReadMap(LDD,getvaluename("CH"));
 	LAI = ReadMap(LDD,getvaluename("lai"));
 	Cover = ReadMap(LDD,getvaluename("cover"));
+   LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 	GrassPresent = NewMap(0);
 	if (SwitchInfilGrass)
 	{
@@ -423,6 +424,7 @@ void TWorld::GetInputData(void)
 				RR->Drc = 0.01;
 				N->Drc = 0.25;
 				// very arbitrary!!!
+            /** TODO link tis to interface */
 				Cover->Drc = 0;
 				if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
 				{
@@ -719,6 +721,7 @@ void TWorld::IntializeData(void)
 	ChannelWH = NewMap(0);
 	Channelq = NewMap(0);
 	ChannelAlpha = NewMap(0);
+   ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
 	ChannelMask = NewMap(0);
 	ChannelDX = NewMap(0);
 	ChannelDetFlow = NewMap(0);
@@ -827,7 +830,8 @@ void TWorld::IntializeOptions(void)
 	totalErosionFileName = QString("erososion.map");//.clear();
 	totalDepositionFileName = QString("deposition.map");//.clear();
 	totalSoillossFileName = QString("soilloss.map");//.clear();
-	outflowFileName = QString("hydrohtaph.csv");//.clear();
+   totalLandunitFileName = QString("totlandunit.txt");//.clear();
+   outflowFileName = QString("hydrohtaph.csv");//.clear();
 	rainFileName.clear();
 	rainFileDir.clear();
 	snowmeltFileName.clear();

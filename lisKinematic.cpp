@@ -165,14 +165,15 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			r = rowNr+dy[i];
 			c = colNr+dx[i];
 
-			if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-					!IS_MV_REAL8(&_LDD->Drc))
+          if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
+//            if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+               !IS_MV_REAL8(&_LDD->Drc))
 				ldd = (int) _LDD->Drc;
 			else
 				continue;
-			if (r>=0 && r<nrRows &&
-					c>=0 && c<nrCols &&
-					FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+          if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
+//            if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+               FLOWS_TO(ldd, r, c, rowNr, colNr) &&
 					IS_MV_REAL4(&_Qn->Drc) ) /* cell not computed */
 			{
 				temp = (Liststruct *)malloc(sizeof(Liststruct));
@@ -198,14 +199,16 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 				r = rowNr+dy[i];
 				c = colNr+dx[i];
 
-				if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-						!IS_MV_REAL4(&_LDD->Drc))
+            if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
+//                if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+                  !IS_MV_REAL4(&_LDD->Drc))
 					ldd = (int) _LDD->Drc;
 				else
 					continue;
 
-				if (r>=0 && r < nrRows && c>=0 && c < nrCols &&
-						FLOWS_TO(ldd, r,c,rowNr, colNr) &&
+  //          if ((r>=0 & r < nrRows & c>=0 & c < nrCols) &&
+                if (r>=0 && r < nrRows && c>=0 && c < nrCols &&
+                  FLOWS_TO(ldd, r,c,rowNr, colNr) &&
 						!IS_MV_REAL4(&_LDD->Drc) )
 				{
 					Qin += _Qn->Drc;

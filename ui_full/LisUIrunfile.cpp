@@ -20,6 +20,9 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "global.h"
 
 //---------------------------------------------------------------------------
+//VJ 110107 corrections
+// fill namelist with the actual runfile data but correct for old runfiles
+// so that faulty data or obsolete vars are ignored
 void lisemqt::GetRunfile()
 {
    QFile fin(op.runfilename);
@@ -31,40 +34,39 @@ void lisemqt::GetRunfile()
       return;
    }
 
-   for (int i = 0; i < NUMNAMES; i++)
+   for (int i = 0; i < nrdefnamelist; i++)
    {
-      //namelist[i].name.clear();
-      //namelist[i].value.clear();
       namelist[i].name = defnamelist[i].name;
       namelist[i].value = defnamelist[i].value;
    }
-   nrnamelist = 0;
+
    oldRunfile = false;
    int i = 0;
-
    while (!fin.atEnd())
    {
-      QString S = fin.readLine();
+      QString S = fin.readLine().trimmed();
+
       if (i == 0 && !S.contains("openLISEM"))
          oldRunfile = true;
       i++;
-      if (!S.trimmed().isEmpty())
+
+      if (S.contains("="))
       {
-         if (S.contains("="))
+
+         QStringList SL = S.split(QRegExp("="));
+
+         for (int j = 0; j < nrdefnamelist; j++)
          {
-            QStringList SL = S.split(QRegExp("="));
-            namelist[nrnamelist].name = SL[0].trimmed();
-            namelist[nrnamelist].value = SL[1].trimmed();
-            nrnamelist++;
+            if (defnamelist[j].name == SL[0].trimmed())
+            {
+               namelist[j].value = SL[1].trimmed();
+               break;
+            }
          }
-         else
-         {
-            namelist[nrnamelist].name = S;
-            namelist[nrnamelist].value = "";
-            nrnamelist++;
-         }
+         // VJ 110107 only read those variables that are in the coded definition to avoid
+         //old junk that is read
       }
-      // namelist now contains the actial runfile data
+      // namelist now contains the actual runfile data
    }
 }
 //---------------------------------------------------------------------------
@@ -72,7 +74,11 @@ void lisemqt::ParseInputData()
 {
    int j=0;
 
-   for (j = 0; j < nrnamelist; j++)
+   checkRainfall->setChecked(true);
+   // to cope with old runfiles
+
+   // get all the options/checks
+   for (j = 0; j < nrdefnamelist; j++)  //VJ 110107 changed to nrdefnamelist
    {
       int iii = namelist[j].value.toInt();
       QString p1 = namelist[j].name;
@@ -195,14 +201,16 @@ void lisemqt::ParseInputData()
       }
    }
 
-   // get main directories
-   E_MainTotals->setText("main.txt");
-   E_PointResults->setText("hydrograph.csv");
-   E_DetachmentMap->setText("eros.map");
-   E_DepositionMap->setText("depo.map");
-   E_SoillossMap->setText("soilloss.map");
+   // set default names, can also be done in the ui file
+//   E_MainTotals->setText("main.txt");
+//   E_PointResults->setText("hydrograph.csv");
+//   E_LandunitResults->setText("totlandunit.txt");//VJ 110107
+//   E_DetachmentMap->setText("eros.map");
+//   E_DepositionMap->setText("depo.map");
+//   E_SoillossMap->setText("soilloss.map");
 
-   for (j = 0; j < nrnamelist; j++)
+   // get directory and file names
+   for (j = 0; j < nrdefnamelist; j++)//VJ 110107 changed to nrdefnamelist
    {
       QString p1 = namelist[j].name;
       QString p = namelist[j].value;
@@ -222,6 +230,7 @@ void lisemqt::ParseInputData()
 
       if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
       if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
+      if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
       // resultDir is added in report operation
 
       if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
@@ -267,9 +276,11 @@ void lisemqt::ParseInputData()
       E_SwatreTableName->setText(SwatreTableName);
    }
 
+   //****====------====****//
    // get all map names, DEFmaps contains default map names and descriptions
    // adapt the DEFmaps list with names from the run file
-   for (j = 0; j < nrnamelist; j++)
+   // this is to display the correct names in the interface
+   for (j = 0; j < nrdefnamelist; j++)  //VJ 110107 changed to nrdefnamelist
    {
       for (int i = 0; i < DEFmaps.size(); i++)
       {
@@ -277,15 +288,29 @@ void lisemqt::ParseInputData()
          if (S.contains(namelist[j].name))
          {
             QFileInfo fil(namelist[j].value);
-            S.replace(4, fil.fileName());
-            //            S.replace(7, E_MapDir->text());
+            S[4] = fil.fileName();
+            namelist[j].value = fil.fileName();
+            // replace namelist string with filename only
+            // some runfiles have the complete pathname
             DEFmaps.replace(i, S.join(";") );
          }
       }
    }
 
-   //fill the mapList structure with all map names fom the runfile
-   for (int j = 0; j < nrnamelist; j++)
+   // strip pathname from output filename
+   for (int j = 0; j < nrdefnamelist; j++)
+      if (namelist[j].name.startsWith("OUT"))
+      {
+         QFileInfo fil(namelist[j].value);
+         namelist[j].value = fil.fileName();
+      }
+
+
+   // fill the mapList structure with all map names fom the runfile
+   // if there are new variables that are not in the run file
+   // the maplist contains he default names already
+   // this is to get the correct names for the mdoel run
+   for (int j = 0; j < nrdefnamelist; j++) //VJ 110107 changed to nrdefnamelist
       for (int k = 0; k < nrmaplist; k++)
       {
          if (mapList[k].id == namelist[j].name)
@@ -297,27 +322,10 @@ void lisemqt::ParseInputData()
 
    //RunAllChecks();
    // is done elsewhere
-
-}
-//---------------------------------------------------------------------------
-// add new variables to the runfile, not used at the moment
-void lisemqt::InsertVariable(QString q, QString p, QString p1)
-{
-   int j, pos = 0;
-   for (j = 0; j < nrnamelist; j++)
-   {
-      if(namelist[j].name.compare(q)==0)
-         break;
-   }
-   pos = j;
-   for (j = nrnamelist; j > pos; j--)
-   {
-      namelist[j].name = namelist[j-1].name;
-      namelist[j].value = namelist[j-1].value;
-   }
-   namelist[pos].name = p;
-   namelist[pos].value = p1;
-   nrnamelist++;
+   //   for (int k = 0; k < nrmaplist; k++)
+   //      qDebug() << "parse"<< mapList[k].id << mapList[k].name;
+   //   for (int k = 0; k < nrdefnamelist; k++)
+   //      qDebug() << "parse"<< namelist[k].name << namelist[k].value;
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p)
@@ -336,15 +344,8 @@ QString lisemqt::CheckDir(QString p)
 // savefile is called just before the model is run with tmp runfile
 void lisemqt::UpdateModelData()
 {
-   //DefaultRunFile();
-   // fill defnamelist with default runfile names
 
-   /*
-   // add new variables here, not used at the moment
-    InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
-   */
-
-   for (int j = 0; j < nrnamelist; j++)
+   for (int j = 0; j < nrdefnamelist; j++)
    {
       QString p1 = namelist[j].name;
       QString p;
@@ -397,6 +398,7 @@ void lisemqt::UpdateModelData()
       if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
       if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
       if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
+      if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
       if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
       if (p1.compare("Rainfall file")==0) namelist[j].value = E_RainfallName->text();
       if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
@@ -457,169 +459,16 @@ void lisemqt::UpdateModelData()
       //namelist[j].value = p;
    }
 
-   //get all map names from the interface
-   //      for (int j = 0; j < nrnamelist; j++)
-   //         for (int i = 0; i < DEFmaps.size(); i++)
-   //         {
-   //            QStringList S = DEFmaps.at(i).split(";");
-   //            if (S.contains(namelist[j].name))
-   //               namelist[j].value = S.at(4);
-   //         }
-
    //get all actual mapnames from the mapList structure
-   for (int j = 0; j < nrnamelist; j++)
+   for (int j = 0; j < nrdefnamelist; j++)
       for (int k = 0; k < nrmaplist; k++)
       {
          if (mapList[k].id.toUpper() == namelist[j].name.toUpper())
+         {
             namelist[j].value = mapList[k].name;
+           // qDebug() << "update" << mapList[k].name << mapList[k].id;
+         }
       }
 
 }
-//---------------------------------------------------------------------------
-// change runfile strings with current interface options, called by savefile
-// savefile is called just before the model is run with tmp runfile
-//void lisemqt::UpdateModelData()
-//{
-//   //DefaultRunFile();
-//   // fill defnamelist with default runfile names
-
-//   /*
-//   // add new variables here, not used at the moment
-//    InsertVariable(QString("Table Directory"), QString("Table file"), SwatreTableName);
-//   */
-
-//   for (int j = 0; j < nrdefnamelist; j++)
-//   {
-//      QString p1 = defnamelist[j].name;
-//      QString p;
-//      if (p1.compare("No Erosion simulation")==0) 			  defnamelist[j].value.setNum((int)checkNoErosion->isChecked());
-//      if (p1.compare("Include main channels")==0) 			  defnamelist[j].value.setNum((int)checkIncludeChannel->isChecked());
-//      if (p1.compare("Include channel infil")==0)          defnamelist[j].value.setNum((int)checkChannelInfil->isChecked());
-//      if (p1.compare("Include channel baseflow")==0)       defnamelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-//      if (p1.compare("Include Rainfall")==0)               defnamelist[j].value.setNum((int)checkRainfall->isChecked());
-//      if (p1.compare("Include Snowmelt")==0)               defnamelist[j].value.setNum((int)checkSnowmelt->isChecked());
-//      if (p1.compare("Alternative flow detachment")==0)    defnamelist[j].value.setNum((int)checkAltErosion->isChecked());
-//      if (p1.compare("Simple depression storage")==0)      defnamelist[j].value.setNum((int)checkSimpleDepression->isChecked());
-//      if (p1.compare("Hard Surfaces")==0)                  defnamelist[j].value.setNum((int)checkHardsurface->isChecked());
-//      if (p1.compare("Include buffers")==0)                defnamelist[j].value.setNum((int)checkBuffers->isChecked());
-//      if (p1.compare("Include Sediment traps")==0)         defnamelist[j].value.setNum((int)checkSedtrap->isChecked());
-//      if (p1.compare("Include wheeltracks")==0)            defnamelist[j].value.setNum((int)checkInfilCompact->isChecked());
-//      if (p1.compare("Include grass strips")==0)           defnamelist[j].value.setNum((int)checkInfilGrass->isChecked());
-//      if (p1.compare("Include crusts")==0)                 defnamelist[j].value.setNum((int)checkInfilCrust->isChecked());
-//      if (p1.compare("Impermeable sublayer")==0)           defnamelist[j].value.setNum((int)checkImpermeable->isChecked());
-//      //if (p1.compare("Matric head files")==0)              defnamelist[j].value.setNum((int)checkDumphead->isChecked());
-//      if (p1.compare("Geometric mean Ksat")==0)            defnamelist[j].value.setNum((int)checkGeometric->isChecked());
-//      if (p1.compare("Timeseries as PCRaster")==0)         defnamelist[j].value.setNum((int)checkWritePCRnames->isChecked());
-//      if (p1.compare("Timeplot as PCRaster")==0)           defnamelist[j].value.setNum((int)checkWritePCRtimeplot->isChecked());
-//      if (p1.compare("Regular runoff output")==0)          defnamelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
-//      if (p1.compare("User defined output")==0)            defnamelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
-//      if (p1.compare("No erosion at outlet")==0)           defnamelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
-//      if (p1.compare("Report point output separate")==0)   defnamelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-//      if (p1.compare("Report point output for SOBEK")==0)  defnamelist[j].value.setNum((int)checkSOBEKOutput->isChecked());
-//      if (p1.compare("SOBEK date string")==0)              defnamelist[j].value = SOBEKdatestring->text();
-//      if (p1.compare("Sediment bulk density")==0)          defnamelist[j].value = E_BulkDens->text();
-//      //if (p1.compare("Use canopy storage map")==0)   	     defnamelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
-//      if (p1.compare("Canopy storage equation")==0)
-//      {
-//         int i = 0;
-//         if(radioButton_1->isChecked()) i = 0;
-//         if(radioButton_2->isChecked()) i = 1;
-//         if(radioButton_3->isChecked()) i = 2;
-//         if(radioButton_4->isChecked()) i = 3;
-//         if(radioButton_5->isChecked()) i = 4;
-//         if(radioButton_6->isChecked()) i = 5;
-//         if(radioButton_7->isChecked()) i = 6;
-//         if(radioButton_8->isChecked()) i = 7;
-//         if(radioButton_9->isChecked()) i = 8;
-//         defnamelist[j].value.setNum(i);
-//      }
-
-//      if (p1.compare("Begin time")==0) defnamelist[j].value = E_BeginTime->text();
-//      if (p1.compare("End time")==0)   defnamelist[j].value = E_EndTime->text();
-//      if (p1.compare("Timestep")==0)   defnamelist[j].value = E_Timestep->text();
-//      if (p1.compare("Map Directory")==0)    defnamelist[j].value = E_MapDir->text();
-//      if (p1.compare("Result Directory")==0) defnamelist[j].value = E_ResultDir->text();
-//      if (p1.compare("Main results file")==0) defnamelist[j].value = E_MainTotals->text();
-//      if (p1.compare("Filename point output")==0) defnamelist[j].value = E_PointResults->text();
-//      if (p1.compare("Rainfall Directory")==0) defnamelist[j].value = RainFileDir;
-//      if (p1.compare("Rainfall file")==0) defnamelist[j].value = E_RainfallName->text();
-//      if (p1.compare("Erosion map")==0) defnamelist[j].value = E_DetachmentMap->text();
-//      if (p1.compare("Deposition map")==0) defnamelist[j].value = E_DepositionMap->text();
-//      if (p1.compare("Soilloss map")==0) defnamelist[j].value = E_SoillossMap->text();
-//      if (p1.compare("Snowmelt Directory")==0) defnamelist[j].value = SnowmeltFileDir;
-//      if (p1.compare("Snowmelt file")==0) defnamelist[j].value = E_SnowmeltName->text();
-//      if (p1.compare("Ksat calibration")==0) defnamelist[j].value = E_CalibrateKsat->text();
-//      if (p1.compare("N calibration")==0) defnamelist[j].value = E_CalibrateN->text();
-//      if (p1.compare("Channel Ksat calibration")==0) defnamelist[j].value = E_CalibrateChKsat->text();
-//      if (p1.compare("Channel N calibration")==0) defnamelist[j].value = E_CalibrateChN->text();
-//      if (p1.compare("Splash Delivery Ratio")==0) defnamelist[j].value = E_SplashDelibery->text();
-//      if (p1.compare("Stemflow fraction")==0) defnamelist[j].value = E_StemflowFraction->text();
-//      if (p1.compare("Output interval")==0) defnamelist[j].value = printinterval->cleanText();
-//      if (p1.compare("Regular runoff output")==0) defnamelist[j].value.setNum(1);
-//      if (p1.compare("User defined output")==0) defnamelist[j].value.setNum(0);
-//      if (p1.compare("Output times")==0) defnamelist[j].value.setNum(0);
-//      //TODO fix output stuff
-
-//      if (p1.compare("Table Directory")==0) defnamelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
-//      if (p1.compare("Table File")==0) defnamelist[j].value = E_SwatreTableName->text();//SwatreTableName;
-//      if (p1.compare("SWATRE internal minimum timestep")==0)
-//      {
-//         double fraction = E_SWATREDtsecFraction->value();
-//         swatreDT = E_Timestep->text().toDouble()*fraction;
-//         defnamelist[j].value.setNum(swatreDT,'g',6);
-//      }
-
-//      if (p1.compare("Infil Method")==0)
-//      {
-//         switch(uiInfilMethod)
-//         {
-//         case 0 : defnamelist[j].value.setNum(INFIL_NONE); break;
-//         case 1 : defnamelist[j].value.setNum(INFIL_SWATRE);break;
-//         case 2 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_GREENAMPT2);
-//            else defnamelist[j].value.setNum(INFIL_GREENAMPT);break;
-//         case 3 : if(checkInfil2layer->isChecked()) defnamelist[j].value.setNum(INFIL_SMITH2);
-//            else defnamelist[j].value.setNum(INFIL_SMITH); break;
-//         case 4: defnamelist[j].value.setNum(INFIL_KSAT); break;
-//         }
-//      }
-//      if (p1.compare("CheckOutputMaps")==0)
-//      {
-//         outputcheck.clear();
-//         if (			checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (	    	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (	          checkBox_OutTC->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (			   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
-//         defnamelist[j].value = outputcheck.join(",");
-//      }
-//      //defnamelist[j].value = p;
-//   }
-
-//   //get all map names
-//   /** TODO: WHY CHNAGE DEFNAMELIST HERE AND NOT NAMELIST ??? */
-//   for (int j = 0; j < nrdefnamelist; j++)
-//      for (int i = 0; i < DEFmaps.size(); i++)
-//      {
-//         QStringList S = DEFmaps.at(i).split(";");
-//         if (S.contains(defnamelist[j].name))
-//            defnamelist[j].value = S.at(4);
-//      }
-
-//   for (int j = 0; j < nrdefnamelist; j++)
-//      for (int k = 0; k < nrmaplist; k++)
-//      {
-//         if (mapList[k].id == defnamelist[j].name)
-//         {
-//            defnamelist[j].value = mapList[k].name;
-//            qDebug() << mapList[k].id << mapList[k].name;
-//         }
-//      }
-
-//}
 //---------------------------------------------------------------------------
