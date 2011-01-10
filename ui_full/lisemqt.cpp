@@ -599,7 +599,7 @@ void lisemqt::openRunFile()
 	RunFileNames.removeDuplicates();
 	op.runfilename = E_runFileList->itemText(0);
 
-   /* this is done in on_E_runFileList_currentIndexChanged
+ /* this is done in on_E_runFileList_currentIndexChanged
  GetRunfile();
  ParseInputData();
  FillMapList();

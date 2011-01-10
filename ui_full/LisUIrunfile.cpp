@@ -322,10 +322,6 @@ void lisemqt::ParseInputData()
 
    //RunAllChecks();
    // is done elsewhere
-   //   for (int k = 0; k < nrmaplist; k++)
-   //      qDebug() << "parse"<< mapList[k].id << mapList[k].name;
-   //   for (int k = 0; k < nrdefnamelist; k++)
-   //      qDebug() << "parse"<< namelist[k].name << namelist[k].value;
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p)

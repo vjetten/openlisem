@@ -108,7 +108,7 @@ void TWorld::OutputUI()
 	ReportMaps();
 	// report all maps and mapseries
 
-    
+   ReportLandunits();
 }
 //---------------------------------------------------------------------------
 // the actual model with the main loop
@@ -150,7 +150,8 @@ void TWorld::DoModel()
 		}
 		// get all input data and create and initialize all maps and variables
         
-      //CountLandunits();
+      CountLandunits();
+      //VJ 110110 for output totals per landunit
 
 		BeginTime = getvaluedouble("Begin time") * 60;
 		EndTime = getvaluedouble("End time") * 60;

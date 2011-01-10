@@ -266,7 +266,11 @@ void lisemqt::RunAllChecks()
 	change_MapNameModel(LANDUSEMAPS, 0, true);
 	change_MapNameModel(CATCHMENTMAPS, 0, true);
 	change_MapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
-    
+
+   checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
+   checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+   // VJ 110110
+
 	buffergroup->setEnabled(checkBuffers->isChecked());
 	buffergroup->setEnabled(checkSedtrap->isChecked());
 	sedgroup->setEnabled(!checkNoErosion->isChecked());

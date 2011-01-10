@@ -401,6 +401,7 @@ void TWorld::ReportMaps()
 
 }
 //---------------------------------------------------------------------------
+// VJ 110110 count nr of land units in classified file
 void TWorld::CountLandunits()
 {
    int i, j;
@@ -431,11 +432,11 @@ void TWorld::CountLandunits()
    landUnitNr = i;
 }
 //---------------------------------------------------------------------------
+//VJ 110110
+// report per land unit the erosion totals
 void TWorld::ReportLandunits()
 {
-   int nr = 0;
-   QString newname1, pnr, sep;
-   int width = 9;
+   QString newname1;
 
    if (!SwitchErosion)
       return;
@@ -451,9 +452,9 @@ void TWorld::ReportLandunits()
    FOR_ROW_COL_MV
    {
       for (int i = 0; i < landUnitNr; i++)
-         if (unitList[i].nr = (long)LandUnit->Drc)
+         if (unitList[i].nr == (long)LandUnit->Drc)
          {
-            unitList[i].area += CellArea->Drc;
+            unitList[i].area += CellArea->Drc/10000;
             unitList[i].totdet += TotalDetMap->Drc * CellArea->Drc/1000;
             unitList[i].totdep += TotalDepMap->Drc * CellArea->Drc/1000;
             unitList[i].totsl += TotalSoillossMap->Drc * CellArea->Drc/1000;
@@ -461,78 +462,20 @@ void TWorld::ReportLandunits()
    }
    // in ton
 
+   newname1 = resultDir + totalLandunitFileName;
 
-
-   //######  open files and write headers #####//
-
-   //SOBEK, PCRaster and flat format are mutually exclusive
-   if (SwitchWriteHeaders) //  make file at first timestep
-   {
-      SwitchWriteHeaders = false;
-
-      newname1 = resultDir + totalLandunitFileName;
-
-      QFile fout(newname1);
-      fout.open(QIODevice::WriteOnly | QIODevice::Text);
-      QTextStream out(&fout);
-      out.setRealNumberPrecision(3);
-      out.setFieldWidth(width);
-      out.setRealNumberNotation(QTextStream::FixedNotation);
-
-      out << "#LISEM erosion data per land unit\n";
-      out << "Time";
-      out << ",P";
-      out << ",Snow";
-      FOR_ROW_COL_MV
-            if ( PointMap->Drc > 0 )
-      {
-         pnr.setNum((int)PointMap->Drc);
-         out << ",Q #" << pnr;
-         out << ",Qs #" << pnr;
-         out << ",C #" << pnr;
-      }
-      out << "\n";
-      out << "min";
-      out << ",mm/h";
-      out << ",mm/h";
-      FOR_ROW_COL_MV
-            if ( PointMap->Drc > 0 )
-      {
-         pnr.setNum((int)PointMap->Drc);
-         out << ",l/s #" << pnr;
-         out << ",kg/s #" << pnr;
-         out << ",g/l #" << pnr;
-      }
-      out << "\n";
-      fout.close();
-   }  // opening files and writing header
-
-   //######  open files and append values #####//
-
-
-   // all points in one file
-   newname1 = resultDir + outflowFileName;
-   // use simply resultdir + filename
    QFile fout(newname1);
-   fout.open(QIODevice::Append | QIODevice::Text);
+   fout.open(QIODevice::WriteOnly | QIODevice::Text);
    QTextStream out(&fout);
    out.setRealNumberPrecision(3);
-   out.setFieldWidth(width);
+   out.setFieldWidth(12);
    out.setRealNumberNotation(QTextStream::FixedNotation);
 
-
-   FOR_ROW_COL_MV
-   {
-      if ( PointMap->Drc > 0 )
-      {
-         //out << sep << RainIntavg;
-         //out << sep << SnowIntavg;
-         out << sep << Qoutput->Drc;
-         if (SwitchErosion) out << sep << Qsoutput->Drc;
-         if (SwitchErosion) out << sep << TotalConc->Drc;
-      }
-   }
-   out << "\n";
-
+   out << "    Landunit        Area  Detachment  Deposition   Soil Loss\n";
+   out << "           #          ha         ton         ton         ton\n";
+   for (int i = 0; i < landUnitNr; i++)
+      out << unitList[i].nr << unitList[i].area << unitList[i].totdet
+          << unitList[i].totdep << unitList[i].totsl << "\n";
    fout.close();
+
 }
