@@ -183,6 +183,18 @@ void lisemqt::ParseInputData()
 
       if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
 
+      if (p1.compare("Erosion map units (0/1/2)")==0)
+      {
+         int units = p.toInt();
+         if (units == 0)
+            checkUnits_tonha->setChecked(true);
+         if (units == 1)
+            checkUnits_kgcell->setChecked(true);
+         if (units == 2)
+            checkUnits_kgm2->setChecked(true);
+      }
+
+
       if (p1.compare("CheckOutputMaps")==0)
       {
          outputcheck = p.split(",");
@@ -202,12 +214,12 @@ void lisemqt::ParseInputData()
    }
 
    // set default names, can also be done in the ui file
-//   E_MainTotals->setText("main.txt");
-//   E_PointResults->setText("hydrograph.csv");
-//   E_LandunitResults->setText("totlandunit.txt");//VJ 110107
-//   E_DetachmentMap->setText("eros.map");
-//   E_DepositionMap->setText("depo.map");
-//   E_SoillossMap->setText("soilloss.map");
+   //   E_MainTotals->setText("main.txt");
+   //   E_PointResults->setText("hydrograph.csv");
+   //   E_LandunitResults->setText("totlandunit.txt");//VJ 110107
+   //   E_DetachmentMap->setText("eros.map");
+   //   E_DepositionMap->setText("depo.map");
+   //   E_SoillossMap->setText("soilloss.map");
 
    // get directory and file names
    for (j = 0; j < nrdefnamelist; j++)//VJ 110107 changed to nrdefnamelist
@@ -436,6 +448,18 @@ void lisemqt::UpdateModelData()
          case 4: namelist[j].value.setNum(INFIL_KSAT); break;
          }
       }
+
+      if (p1.compare("Erosion map units (0/1/2)")==0)
+      {
+         if (checkUnits_tonha->isChecked())
+            namelist[j].value.setNum(0);
+         if (checkUnits_kgcell->isChecked())
+            namelist[j].value.setNum(1);
+         if (checkUnits_kgm2->isChecked())
+            namelist[j].value.setNum(2);
+      }
+      //VJ 110110 added
+
       if (p1.compare("CheckOutputMaps")==0)
       {
          outputcheck.clear();
@@ -462,7 +486,7 @@ void lisemqt::UpdateModelData()
          if (mapList[k].id.toUpper() == namelist[j].name.toUpper())
          {
             namelist[j].value = mapList[k].name;
-           // qDebug() << "update" << mapList[k].name << mapList[k].id;
+            // qDebug() << "update" << mapList[k].name << mapList[k].id;
          }
       }
 

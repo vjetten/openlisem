@@ -173,6 +173,7 @@ public:
 	// multiple options that are set in interface or runfile, see defines above
 	int InterceptionLAIType;
 	int InfilMethod;
+   int ErosionUnits;
 
 	// calibration factors
 	double ksatCalibration;
@@ -215,7 +216,6 @@ public:
 	int nrSnowmeltstations, nrSnowmeltseries, placeSnowmeltseries;
 	QString SOBEKdatestring;
 	int SOBEKnrlines;
-	char ErosionUnits;
 
 	// file and directory names
 	QString resultDir;

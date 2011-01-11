@@ -183,9 +183,13 @@ void TWorld::ChannelFlow(void)
 		ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 		// water height is not used except for output i.e. watervolume is cycled
         
-		ChannelWaterVol->Drc = ChannelArea * DX->Drc;
-		// total water vol after kin wave in m3, going to the next timestep
-        
+      InfilVolKinWave->Drc +=
+            Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * DX->Drc) - ChannelQn->Drc*_dt;
+      //VJ 110111 add channel infil to infil for mass balance
+
+      ChannelWaterVol->Drc = ChannelArea * DX->Drc;
+		// total water vol after kin wave in m3, going to the next timestep      
+
 		if (SwitchErosion)
 		{
 			ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);

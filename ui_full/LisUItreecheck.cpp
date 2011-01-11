@@ -64,6 +64,8 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 		checkChannelInfil->setChecked(false);
 	change_MapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
 	change_MapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+   QMessageBox::warning(this,"openLISEM",QString("NOT IMPLEMENTED YET"));
+   checkChannelBaseflow->setChecked(false);
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at

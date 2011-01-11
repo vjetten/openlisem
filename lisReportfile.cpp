@@ -342,6 +342,8 @@ void TWorld::ReportMaps()
 {
 	if(SwitchErosion)
 	{
+      // all in kg/cell
+      if (ErosionUnits == 0)
 		TotalDetMap->mwrite(totalErosionFileName);
 		TotalDepMap->mwrite(totalDepositionFileName);
 		TotalSoillossMap->mwrite(totalSoillossFileName);

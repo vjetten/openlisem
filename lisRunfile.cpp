@@ -194,6 +194,8 @@ void TWorld::ParseInputData()
 
 		if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
 
+      if (p1.compare("Erosion map units (0/1/2)")==0)      ErosionUnits = iii;
+      // VJ 111001
 	}
 
 	InfilMethod = getvalueint("Infil Method");
