@@ -589,8 +589,8 @@ void TWorld::IntializeData(void)
 	// calibration
 	ksatCalibration = getvaluedouble("Ksat calibration");
 	nCalibration = getvaluedouble("N calibration");
-	ChnCalibration = getvaluedouble("Channel Ksat calibration");
-	ChKsatCalibration = getvaluedouble("Channel N calibration");
+   ChnCalibration = getvaluedouble("Channel N calibration");
+   ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
 	SplashDelivery = getvaluedouble("Splash Delivery Ratio");
 	StemflowFraction = getvaluedouble("Stemflow fraction");
 	N->calcV(nCalibration, MUL);
