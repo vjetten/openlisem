@@ -23,8 +23,9 @@ void TWorld::InfilSwatre(void)
 {
 	tm->copy(WH);
 	tma->fill(1);
+   tmb->fill(-1);
 
-	SwatreStep(SwatreSoilModel, WH, fpot, tma);
+   SwatreStep(SwatreSoilModel, WH, fpot, drain, tma);
 	// WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
 			fact->Drc = (tm->Drc - WH->Drc);
@@ -33,7 +34,8 @@ void TWorld::InfilSwatre(void)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-		SwatreStep(SwatreSoilModelCrust, tm, tma, CrustFraction);
+      tmb->fill(-1);
+      SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, CrustFraction);
 		FOR_ROW_COL_MV
 		{
 			//tm = WHcrust and tma = fpot crust
@@ -47,7 +49,8 @@ void TWorld::InfilSwatre(void)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-		SwatreStep(SwatreSoilModelCompact, tm, tma, CompactFraction);
+      tmb->fill(-1);
+      SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, CompactFraction);
 		FOR_ROW_COL_MV
 		{
 			fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
@@ -59,7 +62,8 @@ void TWorld::InfilSwatre(void)
 	if (SwitchInfilGrass)
 	{
 		tm->copy(WHGrass);
-		SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, GrassFraction);
+      tmb->fill(-1);
+      SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, GrassFraction);
 		FOR_ROW_COL_MV
 				factgr->Drc = (tm->Drc - WHGrass->Drc);
 	}
@@ -356,6 +360,10 @@ void TWorld::Infiltration(void)
          // avg ksat of "normal" surface with crusting and compaction fraction
          // adjust effective infil for crusting and compaction
          //VJ 110106 adapted this calculation
+
+         if (SwitchHardsurface && HardSurface->Drc > 0)
+            Ksateff->Drc =  0;
+         //VJ 110111 no infiltration on hard surfaces
 
          Ksateff->Drc *= ksatCalibration;
          // apply runfile/iface calibration factor

@@ -490,7 +490,8 @@ void TWorld::IntializeData(void)
 
 	tm = NewMap(0); // temp map for aux calculations
 	tma = NewMap(0); // temp map for aux calculations
-	nrCells = Mask->MapTotal();
+   tmb = NewMap(0); // temp map for aux calculations
+   nrCells = Mask->MapTotal();
 
 	//terrain maps
 	DX = NewMap(0);
@@ -542,6 +543,7 @@ void TWorld::IntializeData(void)
 	Ksateff = NewMap(0);
 	FSurplus = NewMap(0);
    FFull = NewMap(0);
+   drain = NewMap(0);
 
 	if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 	{

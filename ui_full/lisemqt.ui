@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1012</width>
-    <height>744</height>
+    <height>758</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -587,8 +587,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>285</height>
+                 <width>325</width>
+                 <height>147</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1304,13 +1304,135 @@
                  <x>0</x>
                  <y>0</y>
                  <width>449</width>
-                 <height>285</height>
+                 <height>299</height>
                 </rect>
                </property>
                <attribute name="label">
                 <string>Global Options</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_24">
+                <item row="0" column="0">
+                 <widget class="QGroupBox" name="groupBox">
+                  <layout class="QGridLayout" name="gridLayout_29">
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkNoErosion">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Runoff only (no erosion)</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkIncludeChannel">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include main channel (needs channel maps)</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_55">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkChannelInfil">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Channel infiltration (needs aditional map)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkIncludeTiledrains">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include tile drain system (needs tile drain maps)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="checkChannelBaseflow">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Channel baseflow (needs additional maps)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkHardsurface">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include hard surfaces (no intercep, infil, detach: hardsurf.map)</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                  <zorder>checkNoErosion</zorder>
+                  <zorder>checkIncludeChannel</zorder>
+                  <zorder>label_55</zorder>
+                  <zorder>checkChannelInfil</zorder>
+                  <zorder>checkIncludeTiledrains</zorder>
+                  <zorder>checkChannelBaseflow</zorder>
+                  <zorder>checkHardsurface</zorder>
+                 </widget>
+                </item>
                 <item row="1" column="0">
                  <widget class="QGroupBox" name="groupBox">
                   <property name="palette">
@@ -1356,6 +1478,9 @@
                    </property>
                    <item row="0" column="0">
                     <widget class="QCheckBox" name="checkNoErosionOutlet">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="font">
                       <font>
                        <weight>50</weight>
@@ -1369,6 +1494,9 @@
                    </item>
                    <item row="1" column="0">
                     <widget class="QCheckBox" name="checkAltErosion">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="font">
                       <font>
                        <weight>50</weight>
@@ -1382,6 +1510,9 @@
                    </item>
                    <item row="2" column="0">
                     <widget class="QCheckBox" name="checkSimpleDepression">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="font">
                       <font>
                        <weight>50</weight>
@@ -1390,108 +1521,6 @@
                      </property>
                      <property name="text">
                       <string>Simple surface storage (no runoff below max storage threshold)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkHardsurface">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include hard surfaces (no interc, infil, detach, needs hardsurf.map)</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QGroupBox" name="groupBox">
-                  <layout class="QGridLayout" name="gridLayout_29">
-                   <item row="0" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkNoErosion">
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Runoff only (no erosion)</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkIncludeChannel">
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include main channel (needs channel maps)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_55">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkChannelBaseflow">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Channel baseflow (needs additional maps)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="checkChannelInfil">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Channel infiltration (needs aditional map)</string>
                      </property>
                     </widget>
                    </item>
@@ -1518,8 +1547,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>287</height>
+                 <width>373</width>
+                 <height>250</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1943,8 +1972,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>285</height>
+                 <width>275</width>
+                 <height>156</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2351,8 +2380,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>452</width>
-                 <height>285</height>
+                 <width>333</width>
+                 <height>157</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2558,8 +2587,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>285</height>
+                 <width>400</width>
+                 <height>278</height>
                 </rect>
                </property>
                <attribute name="label">

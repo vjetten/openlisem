@@ -125,7 +125,7 @@ static double  NewTimeStep(
 //--------------------------------------------------------------------------------
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
-void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
+void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
 							double lisDT,SOIL_MODEL *s)
 {
 	NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
@@ -263,18 +263,19 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
-void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where)
+void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where)
 {
 	FOR_ROW_COL_MV
 			if(where->Drc > 0) // when there is crusting for instance
 	{
-		double wh, infil;
+      double wh, infil, drain;
 
 		wh = _WH->Data[r][c]*100;
 		// WH is in m, convert to cm
 		infil = 0;
+      drain = 0;
 
-		ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, _dt, s);
+      ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, &drain, _dt, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
 		//DEBUGv(s->pixel[r*nrCols+c].currDt);
 		_WH->Data[r][c] = wh/100;

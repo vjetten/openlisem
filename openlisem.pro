@@ -37,6 +37,7 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/lisemqt.cpp \
     CsfMap.cpp \
     lisChannelflow.cpp \
+    lisTiledrainflow.cpp \
     lisDataInit.cpp \
     lisErosion.cpp \
     lisInfiltration.cpp \

@@ -82,6 +82,8 @@ void lisemqt::DefaultRunFile()
    defnamelist[i].value = QString("0");
    defnamelist[i++].name = QString("Include main channels");
    defnamelist[i].value = QString("0");
+   defnamelist[i++].name = QString("Include tile drains");
+   defnamelist[i].value = QString("0");
    defnamelist[i++].name = QString("Include channel infil");
    defnamelist[i].value = QString("0");
    defnamelist[i++].name = QString("Include channel baseflow");

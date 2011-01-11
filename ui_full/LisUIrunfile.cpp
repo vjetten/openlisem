@@ -103,6 +103,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
       if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
       if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+      if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
       //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
 
       if (p1.compare("Include Rainfall")==0)               checkRainfall->setChecked(check);
@@ -361,6 +362,7 @@ void lisemqt::UpdateModelData()
       if (p1.compare("Include main channels")==0) 			  namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
       if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
       if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+      if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
       if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
       if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
       if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());

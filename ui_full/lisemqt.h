@@ -30,10 +30,11 @@
 #define CHANNELSMAPS 6
 #define BUFFERSMAPS 7
 #define SNOWMELTMAPS 8
-#define WHEELTRACKSMAPS 9
-#define TEXTUREMAPS 10
-#define NUTRIENTSMAPS 11
-#define GULLIESMAPS 12
+#define TILEDRAINMAPS 9   //VJ 110111
+#define WHEELTRACKSMAPS 10
+#define TEXTUREMAPS 11
+#define NUTRIENTSMAPS 12
+#define GULLIESMAPS 13
 
 /*
 
@@ -178,6 +179,7 @@ public slots:
 	void on_checkChannelBaseflow_clicked();
 	void on_checkNoErosion_clicked();
 	void on_checkIncludeChannel_clicked();
+   void on_checkIncludeTiledrains_clicked();
 	void on_checkInfilCompact_clicked();
 	void on_checkInfilCrust_clicked();
 	void on_checkInfilGrass_clicked();

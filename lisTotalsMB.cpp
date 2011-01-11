@@ -93,7 +93,6 @@ void TWorld::Totals(void)
 		// recalc in mm for screen output
         
 		Qtot += ChannelQoutflow->MapTotal();
-//		double hoi = ChannelQoutflow->MapTotal();
 		// add channel outflow (in m3) to total for all pits
 		Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
 		// recalc in mm for screen output
@@ -178,7 +177,7 @@ void TWorld::Totals(void)
 		}
       /** TODO add gully, wheeltracks etc */
         
-		// spatial totals for output
+      // spatial totals for output all in kg/cell
 		FOR_ROW_COL_MV
 		{
 			Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s

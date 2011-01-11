@@ -191,6 +191,10 @@ void TWorld::Interception(void)
 				Smax = 0;
 		// no interception with buffers, but sedtrap can have interception
 
+      if (SwitchHardsurface && HardSurface->Drc > 0)
+         Smax =  0;
+      //VJ 110111 no interception on hard surfaces
+
 		if (Smax > 0)
 			CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
 		else

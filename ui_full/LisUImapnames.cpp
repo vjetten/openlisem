@@ -67,7 +67,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append(QString("2;%1;%2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Output head;headout.map;Locations to write tables of the matrix potential;headout;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   //DEFmaps.append(QString("2;%1;%2;Output head;headout.map;Locations to write tables of the matrix potential;headout;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    i = 20;
    DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
    DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
@@ -116,6 +116,14 @@ void lisemqt::DefaultMapnames()
    j++; i = 0;
    DEFmaps.append("0;Snowmelt");
    DEFmaps.append(QString("2;%1;%2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   j++; i = 0;
+   //VJ 110111
+   DEFmaps.append("0;Tile drains");
+   DEFmaps.append(QString("2;%1;%2;LDD;lddtile.map;LDD of tile drain system (must be 1 system connected to the outlet);lddtile;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Width;tilewidt.map;Tile drain pipe width (m);tilewidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Height;tileheight.map;Tile drain height for max volume (m);tileheight;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Gradient;tilegrad.map;Slope gradient of tile drain bed (-);tilegrad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;N;tileman.map;Mannings n of tile drain bed (-);tileman;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    j++; i = 0;
    DEFmaps.append("0;Wheeltracks");
    DEFmaps.append(QString("2;%1;%2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel;").arg(j).arg(i)); putmap(k,j,i);k++;i++;

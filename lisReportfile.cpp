@@ -343,23 +343,38 @@ void TWorld::ReportMaps()
 	if(SwitchErosion)
 	{
       // all in kg/cell
-      if (ErosionUnits == 0)
-		TotalDetMap->mwrite(totalErosionFileName);
-		TotalDepMap->mwrite(totalDepositionFileName);
-		TotalSoillossMap->mwrite(totalSoillossFileName);
+      //TotalDetMap->mwrite(totalErosionFileName);
+      //TotalDepMap->mwrite(totalDepositionFileName);
+      //TotalSoillossMap->mwrite(totalSoillossFileName);
 
-		if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
+      // VJ 110111 erosion units
+      tm->copy(TotalDetMap); //kg/cell
+      if (ErosionUnits < 2)  // in kg/m2
+         tm->calc(CellArea, DIV);
+      if (ErosionUnits == 0) // ton/ha
+         tm->calcV(10, MUL);
+      tm->mwrite(totalErosionFileName);
+      if (outputcheck[5].toInt() == 1)
+         tm->report(Outeros); // in units
+
+      tm->copy(TotalDepMap); //kg/cell
+      if (ErosionUnits < 2)  // in kg/m2
+         tm->calc(CellArea, DIV);
+      if (ErosionUnits == 0) // ton/ha
+         tm->calcV(10, MUL);
+      tm->mwrite(totalDepositionFileName);
+      if (outputcheck[6].toInt() == 1)
+         tm->report(Outdepo); // in units
+
+      tm->copy(TotalSoillossMap); //kg/cell
+      if (ErosionUnits < 2)  // in kg/m2
+         tm->calc(CellArea, DIV);
+      if (ErosionUnits == 0) // ton/ha
+         tm->calcV(10, MUL);
+      tm->mwrite(totalSoillossFileName);
+
+      if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
 		if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
-		if (outputcheck[5].toInt() == 1)
-		{
-			tm->calc2(TotalDetMap, CellArea, DIV);
-			tm->report(Outeros); // in kg/m2
-		}
-		if (outputcheck[6].toInt() == 1)
-		{
-			tm->calc2(TotalDepMap, CellArea, DIV);
-			tm->report(Outdepo); // in kg/m2
-		}
 	}
 
 	if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s

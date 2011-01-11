@@ -44,6 +44,10 @@ Functionality in model.h:
 		for (int  c = 0; c < nrCols; c++)\
 		if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
+#define FOR_ROW_COL_MV_TILE for (int  r = 0; r < nrRows; r++)\
+      for (int  c = 0; c < nrCols; c++)\
+      if(!IS_MV_REAL4(& TileMask->Data[r][c]))
+
 #define NUMNAMES 300
 #define NUMMAPS 110
 #define MIN_FLUX 1e-12
@@ -120,7 +124,7 @@ public:
 	// All maps are declared here, no lacal declarations of maps are done
 	TMMap
 	// terrain
-	*tm, *tma, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
+   *tm, *tma, *tmb, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
 	// rainfall and interception
 	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
 	*SnowmeltZone, *Snowcover, *Snowmelt, *Snowmeltc, *SnowmeltCum, *SnowmeltNet,
@@ -149,7 +153,11 @@ public:
 	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
    *ChannelAlpha, *ChannelWidthUpDX, *ChannelPerimeter, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
 	*ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-	// buffers
+   //VJ 110111 tile drains
+   *drain, *LDDTile, *TileWidth, *TileQ, *TileQn, *TileQs, *TileQsn, *TileSed,
+   *TileQoutflow, *TileGrad, *TileN, *TileWH, *TileWaterVol, *Tileq,
+   *TileAlpha, *TileMask,
+   // buffers
 	*BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
 	*BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
 	//      *BufferSedVolMax, *ChannelBufferSedVolMax,
@@ -168,7 +176,7 @@ public:
 	SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
 	SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
 	SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-	SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric;
+   SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile;
 
 	// multiple options that are set in interface or runfile, see defines above
 	int InterceptionLAIType;
@@ -282,7 +290,9 @@ public:
 	void ToChannel(void);
 	void CalcVelDisch(void);
 	void CalcVelDischChannel();
-	void GridCell(void);
+   void TileFlow(void);
+   void CalcVelDischTile();
+   void GridCell(void);
 	void SplashDetachment(void);
 	void FlowDetachment(void);
 	double MaxConcentration(double watvol, double sedvol, double dep);
@@ -321,7 +331,7 @@ public:
 			bool bottomClosed);
 			//double curtime);
 
-	void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *where);
+   void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
 	void CloseSwatre(SOIL_MODEL *s);
 
 protected:

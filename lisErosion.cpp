@@ -106,7 +106,8 @@ void TWorld::SplashDetachment(void)
 				DETSplash->Drc = 0;
 		// no splash in buffers, but sedtrap can have splash
 
-		DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
+      if (SwitchHardsurface)
+         DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
 		// no splash on hard surfaces
 		DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
 		// no splash on snow deck
@@ -160,7 +161,8 @@ void TWorld::FlowDetachment(void)
 		DETFlow->Drc = (1-StoneFraction->Drc) * DETFlow->Drc ;
 		// no flow detachment on stony surfaces
 
-		DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
+      if (SwitchHardsurface)
+         DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
 		// no flow detachment on hard surfaces
 
 		//DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;

@@ -50,6 +50,11 @@ void lisemqt::on_checkIncludeChannel_clicked()
 	change_MapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkIncludeTiledrains_clicked()
+{
+   change_MapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
 {
 	if (checkChannelBaseflow->isChecked())
