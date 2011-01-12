@@ -26,7 +26,7 @@ void TWorld::Totals(void)
     if (SwitchRainfall)
     {
         RainAvgmm = Rain->MapTotal()*1000/nrCells;
-        RainTotmm += RainAvgmm;
+        RainTotmm += RainAvgmm;        
         // avg area rainfall in mm
         
         tm->calc2V(Rain, (_dx*_dx), MUL); //in m3

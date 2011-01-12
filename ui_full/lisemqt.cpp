@@ -22,7 +22,7 @@ website, information and code: http://sourceforge.net/projects/lisem
  *openrunfile: triggers on_E_runFileList_currentIndexChanged(int){
  *	    \-> GetRunfile() -> namelist is filled with runfile but corrected with defnamelist
  *     \-> ParseInputData() -> adapt the interface to the namelist (runfile data)
- *     \-> FillMapList() -> fill the tree strcuture
+ *     \-> FillMapTree() -> fill the tree strcuture
  *}
  *
  *
@@ -63,7 +63,7 @@ lisemqt::lisemqt(QWidget *parent)
    // so this contains the final list of maps
 
 	SetToolBar();
-	FillMapList();
+   FillMapTree();
    // initalize interface and make tree structure for map names (= DEFmaps stringlist)
 
    DefaultRunFile();
@@ -665,7 +665,7 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
 
 	GetRunfile();
 	ParseInputData();
-	FillMapList();  // fill the tree strcuture on page 2
+   FillMapTree();  // fill the tree strcuture on page 2
 	RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
 //--------------------------------------------------------------------

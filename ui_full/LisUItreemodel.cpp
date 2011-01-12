@@ -13,7 +13,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "lisemqt.h"
 
 //-----------------------------------------------------------------------------------------------
-// is called in FillMapList() in LisUImapnames.cpp
+// is called in FillMapTree() in LisUImapnames.cpp
 TreeModel::TreeModel(const QStringList &data, QObject *parent)
    : QAbstractItemModel(parent)
 {

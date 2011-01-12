@@ -75,7 +75,7 @@ public:
 	lisemqt(QWidget *parent = 0);
 	~lisemqt();
 
-	void FillMapList();
+   void FillMapTree();
 	void DefaultMapnames();
 	void change_MapNameModel(int parentrow, int selrow, bool setit);
 	void SetToolBar();

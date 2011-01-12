@@ -231,7 +231,7 @@ void lisemqt::change_MapNameModel(int parentrow, int selrow, bool setit)
 //--------------------------------------------------------------------
 // this is called twice: first to initialize the interface
 //also after each call of a runfile so that the runfile mapnames are loadd
-void lisemqt::FillMapList()
+void lisemqt::FillMapTree()
 {
 	if (MapNameModel)
 	{
