@@ -277,9 +277,10 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 
       ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, &drain, _dt, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
-		//DEBUGv(s->pixel[r*nrCols+c].currDt);
+
 		_WH->Data[r][c] = wh/100;
 		//back to m
+
 		_fpot->Data[r][c] = max(0, -infil/100);
 		// infil is negative (downward flux * dt, in cm)
 		//fpot is positive like in other infil  methods (in m)

@@ -130,8 +130,8 @@ void TWorld::DoModel()
         
 		DEBUG("GetRunFile()");
 		GetRunFile();
-		DEBUG("ParseInputData()");
-		ParseInputData();
+      DEBUG("ParseRunfileData()");
+      ParseRunfileData();
 		// get and parse runfile
         
 		DEBUG("GetInputData()");

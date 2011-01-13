@@ -18,14 +18,14 @@ website, information and code: http://sourceforge.net/projects/lisem
 #define tiny 1e-8
 
 //---------------------------------------------------------------------------
-// DOESN'T WORK YET
+//* TODO check this
 void TWorld::InfilSwatre(void)
 {
 	tm->copy(WH);
 	tma->fill(1);
    tmb->fill(-1);
 
-   SwatreStep(SwatreSoilModel, WH, fpot, drain, tma);
+   SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, tma);
 	// WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
 			fact->Drc = (tm->Drc - WH->Drc);
@@ -59,7 +59,7 @@ void TWorld::InfilSwatre(void)
 		}
 	}
 
-	if (SwitchInfilGrass)
+   if (SwitchGrassStrip)
 	{
 		tm->copy(WHGrass);
       tmb->fill(-1);
@@ -141,7 +141,7 @@ void TWorld::InfilSmithParlange1(void)
 		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
 		// adjust fact->Drc for twolayer, impermeable etc
 
-		if(SwitchInfilGrass)
+      if(SwitchGrassStrip)
 		{
 			fwh = WHGrass->Drc;
 			Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
@@ -193,7 +193,7 @@ void TWorld::InfilGreenAmpt1(void)
       fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
       // adjust fact and increase L1 and L2, for twolayer, impermeable etc
 
-      if(SwitchInfilGrass)
+      if(SwitchGrassStrip)
       {
          fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
          Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
@@ -230,7 +230,7 @@ void TWorld::InfilKsat(void)
       fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
 		// adjust fact for twolayer, impermeable etc
 
-		if(SwitchInfilGrass)
+      if(SwitchGrassStrip)
 		{
 			fwh = WHGrass->Drc; // in m, WH is old WH + net rainfall
 			Ks = KsatGrass->Drc*_dt/3600000.0;  //in m

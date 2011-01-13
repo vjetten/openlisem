@@ -9,7 +9,7 @@ website, information and code: http://sourceforge.net/projects/lisem
  * fill the map list structure with names and basic descriptions
  */
 #define putmap(k,j,i) SL=DEFmaps[DEFmaps.count()-1].split(";",QString::SkipEmptyParts);\
-   mapList[k].groupnr=j;mapList[k].varnr=i;mapList[k].name=SL[4];mapList[k].dir="";mapList[k].id=SL[6]
+   mapList[k].groupnr=j;mapList[k].varnr=i;mapList[k].value=SL[4];mapList[k].dir="";mapList[k].name=SL[6]
 // this define fills a list of mapnames to store user changes
 
 
@@ -120,7 +120,7 @@ void lisemqt::DefaultMapnames()
    //VJ 110111
    DEFmaps.append("0;Tile drains");
    DEFmaps.append(QString("2;%1;%2;LDD;lddtile.map;LDD of tile drain system (must be 1 system connected to the outlet);lddtile;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Width;tilewidt.map;Tile drain pipe width (m);tilewidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   DEFmaps.append(QString("2;%1;%2;Width;tilewidth.map;Tile drain pipe width (m);tilewidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Height;tileheight.map;Tile drain height for max volume (m);tileheight;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;Gradient;tilegrad.map;Slope gradient of tile drain bed (-);tilegrad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
    DEFmaps.append(QString("2;%1;%2;N;tileman.map;Mannings n of tile drain bed (-);tileman;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
@@ -331,11 +331,11 @@ void lisemqt::doOpenMapname(QModelIndex topLeft)
          return;
       }
 
-      mapList[k].name = QFileInfo(path).fileName();
+      mapList[k].value = QFileInfo(path).fileName();
       mapList[k].dir = QFileInfo(path).dir().path();
       // put the name and path into he mapList structure
       //qDebug() << "mapname edit" <<  mapList[k].name << mapList[k].id << k;
-      QVariant d(mapList[k].name);
+      QVariant d(mapList[k].value);
       MapNameModel->setData(topLeft, d, Qt::EditRole);
       // put the name into the treeView and MapNameModel
    }

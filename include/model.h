@@ -8,10 +8,11 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 /*
 Functionality in model.h:
-- TWorld class that combines all model variables and processes
+- TWorld class that combines ALL model variables and processes
 - global defines Drc, MV, FOR_ROW_COL_MV etc
 - global defines for lisem type; infiltration type etc.
- */
+*/
+
 #ifndef modelH
 #define modelH
 
@@ -26,30 +27,35 @@ Functionality in model.h:
 #include "error.h"
 #include "swatre_g.h"
 
-#define DEBUGv(x) {QString sss; sss.setNum(x);emit debug("debug: " + sss);}
-//msleep(300)
 #define DEBUG(s) emit debug(QString(s))
 
 #define mwrite(name) WriteMap(QString(resultDir+name))
 #define report(name) WriteMapSeries(resultDir,QString(name), printstep)
 
+// defines to make life easier
 #define Drc     Data[r][c]
+
 #define DrcOutlet     Data[r_outlet][c_outlet]
-#define MV(r,c) IS_MV_REAL4(&Mask->Data[r][c])
+
+#define MV(r,c) IS_MV_REAL8(&Mask->Data[r][c])
+
 #define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
 		for (int c = 0; c < nrCols; c++)\
-		if(!IS_MV_REAL4(&Mask->Data[r][c]))
+         if(!IS_MV_REAL8(&LDD->Data[r][c]))
+   //	if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < nrRows; r++)\
 		for (int  c = 0; c < nrCols; c++)\
-		if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
+         if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
+//		 if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < nrRows; r++)\
       for (int  c = 0; c < nrCols; c++)\
-      if(!IS_MV_REAL4(& TileMask->Data[r][c]))
+       if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
+//      if(!IS_MV_REAL8(& TileMask->Data[r][c]))
 
 #define NUMNAMES 300
-#define NUMMAPS 110
+#define NUMMAPS 256
 #define MIN_FLUX 1e-12
 #define MIN_HEIGHT 1e-6
 #define MAXCONC 848
@@ -89,8 +95,8 @@ typedef struct _nameList{
 // map name list structure for interaction with interface
 typedef struct _mapList{
    QString name;
+   QString value;
    QString dir;
-   QString id;
    int groupnr;
    int varnr;
 } _mapList;
@@ -124,7 +130,7 @@ public:
 	// All maps are declared here, no lacal declarations of maps are done
 	TMMap
 	// terrain
-   *tm, *tma, *tmb, *Mask, *MaskChannel, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
+   *tm, *tma, *tmb, *Mask, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
 	// rainfall and interception
 	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
 	*SnowmeltZone, *Snowcover, *Snowmelt, *Snowmeltc, *SnowmeltCum, *SnowmeltNet,
@@ -149,14 +155,14 @@ public:
 	*WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
 	*ProfileID, *ProfileIDCrust, *ProfileIDCompact, *ProfileIDGrass,
 	// Channels
-	*RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
+   //*MaskChannel, <= obsolete
+   *ChannelMask, *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
 	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
-   *ChannelAlpha, *ChannelWidthUpDX, *ChannelPerimeter, *ChannelMask, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
+   *ChannelAlpha, *ChannelWidthUpDX, *ChannelPerimeter, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
 	*ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
    //VJ 110111 tile drains
-   *drain, *LDDTile, *TileWidth, *TileQ, *TileQn, *TileQs, *TileQsn, *TileSed,
-   *TileQoutflow, *TileGrad, *TileN, *TileWH, *TileWaterVol, *Tileq,
-   *TileAlpha, *TileMask,
+   *TileMask, *TileDrainSoil, *LDDTile, *TileWidth, *Tileheight, *TileQ, *TileQn, *TileQs, *TileQsn,
+   *TileQoutflow, *TileGrad, *TileN, *TileWH, *TileWaterVol, *Tileq, *RunoffVolinToTile, *TileAlpha, *TileDX,
    // buffers
 	*BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
 	*BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
@@ -169,7 +175,7 @@ public:
 	SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
 	startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
 	SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
-	SwitchInfilCrust, SwitchInfilGrass, SwitchImpermeable, SwitchDumphead,
+   SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,
 	SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
 	SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
 	SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
@@ -200,6 +206,7 @@ public:
 	double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
 	double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens;
 	double nrCells, CatchmentArea;
+   double TileVolTot;
 
 	int c_outlet;  // outlet row and col
 	int r_outlet;
@@ -256,14 +263,18 @@ public:
 	void GetRainfallData(void);   // get input timeseries
 	void GetSnowmeltData(void);   // get input timeseries
 	void GetInputData(void);      // get and make input maps
+   void InitChannel(void); //VJ 110112
+   void InitBuffers(void); //VJ 110112
+   void InitTiledrains(void); //VJ 110112
 	TMMap *InitMask(QString name);
 	TMMap *InitMaskChannel(QString name);
+   TMMap *InitMaskTiledrain(QString name);
 	TMMap *ReadMapMask(QString name);
 	TMMap *ReadMap(cTMap *Mask, QString name);
 	TMMap *NewMap(double value);
 	void InitMapList(void);
 	void DestroyData(void);
-	void ParseInputData();
+   void ParseRunfileData();
 	void GetRunFile();
 	QString GetName(QString p);
 	//QString getvaluename(const char *vname);

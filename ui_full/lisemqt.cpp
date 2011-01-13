@@ -14,13 +14,13 @@ website, information and code: http://sourceforge.net/projects/lisem
  * resetAll
  *     \-> defaultmapnames -> DEFmaps stringlist for tree interface
  *                        \-> mapList -> map list structure for model run, default names
- *     \-> set all default interface options
+ *     \-> set all default interface options in namelist
  * DefaultRunFile
- *     \-> defnamelist structure filled with runfile layout
- *     \-> add mapList mapnames to the defnamelist (only variable names not values!)
+ *     \-> namelist structure filled with actual runfile data
+ *     \-> add actual mapList mapnames to namelist (only variable names not values!)
  *}
  *openrunfile: triggers on_E_runFileList_currentIndexChanged(int){
- *	    \-> GetRunfile() -> namelist is filled with runfile but corrected with defnamelist
+ *	    \-> GetRunfile() -> namelist is filled with runfile but corrected with namelist
  *     \-> ParseInputData() -> adapt the interface to the namelist (runfile data)
  *     \-> FillMapTree() -> fill the tree strcuture
  *}
@@ -67,7 +67,7 @@ lisemqt::lisemqt(QWidget *parent)
    // initalize interface and make tree structure for map names (= DEFmaps stringlist)
 
    DefaultRunFile();
-   //fill defnamelist with default runfile names
+   //fill namelist with default runfile names
    //get all actual mapnames from the mapList structure
 
    SetConnections();
@@ -559,7 +559,7 @@ void lisemqt::savefile(QString name)
 	QTextStream out(&fp);
 	out << QString("[openLISEM runfile version 1.0]\n");
 
-   for (int i = 1; i < nrdefnamelist; i++)
+   for (int i = 1; i < nrnamelist; i++)
    {
       if (namelist[i].name.contains("[") || namelist[i].name.isEmpty())
          out << namelist[i].name << "\n"; // already contains \n

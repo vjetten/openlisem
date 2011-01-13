@@ -36,7 +36,7 @@ QString TWorld::getvaluename(QString vname)
 		}
 	}	
    //	fout.close();
-	ErrorString = QString("Map ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
+   ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map has been added that is not present.").arg(vname);
 	throw 3;
 }
 //---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ double TWorld::getvaluedouble(QString vname)
          return runnamelist[i].value.toDouble();
       }
 
-	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
+   ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
 	throw 3;
 }
 //---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ int TWorld::getvalueint(QString vname)
          return runnamelist[i].value.toInt();
       }
 
-	ErrorString = QString("Variable ID: \"%1\" not found! Are you using an old runfile ?").arg(vname);
+   ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
 	throw 3;
 }
 //------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ QString TWorld::GetName(QString p)
 	return(ss[n-1]);
 }
 //---------------------------------------------------------------------------
-void TWorld::ParseInputData()
+void TWorld::ParseRunfileData()
 {
 	int j=0;
 
@@ -159,7 +159,8 @@ void TWorld::ParseInputData()
 		if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
 		if (p1.compare("Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
 		if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
-		if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
+      if (p1.compare("Include tile drains")==0)            SwitchIncludeTile    =   iii == 1;
+      if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
 		SwitchAllinChannel = true;
 		//VJ 100526 always true in old LISEM
 
@@ -171,7 +172,7 @@ void TWorld::ParseInputData()
 		if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
 		if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
 		if (p1.compare("Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
-		if (p1.compare("Include grass strips")==0)           SwitchInfilGrass =       iii == 1;
+      if (p1.compare("Include grass strips")==0)           SwitchGrassStrip =       iii == 1;
 		if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
 		if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
 		if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;

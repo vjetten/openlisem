@@ -203,28 +203,317 @@ TMMap *TWorld::InitMaskChannel(QString name)
 		maplistnr++;
 	}
 
-	MaskChannel = new TMMap();
-	MaskChannel->_MakeMap(_M, 1.0);
-   maplistTMMap[maplistnr].m = MaskChannel;
-	maplistnr++;
+//	MaskChannel = new TMMap();
+//	MaskChannel->_MakeMap(_M, 1.0);
+//   maplistTMMap[maplistnr].m = MaskChannel;
+//	maplistnr++;
 
 	return(_M);
 
 }
 //---------------------------------------------------------------------------
+TMMap *TWorld::InitMaskTiledrain(QString name)
+{
+
+   TMMap *_M = new TMMap();
+
+   _M->PathName = /*inputdir + */name;
+   bool res = _M->LoadFromFile();
+   if (!res)
+   {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+   }
+
+   if (_M)
+   {
+      maplistTMMap[maplistnr].m = _M;
+      maplistnr++;
+   }
+
+//obsolete, was never used
+//   MaskTile = new TMMap();
+//   MaskTile->_MakeMap(_M, 1.0);
+//   maplistTMMap[maplistnr].m = MaskTile;
+//   maplistnr++;
+
+   return(_M);
+
+}
+//---------------------------------------------------------------------------
+// read and Intiialize all Tile drain variables and maps
+void TWorld::InitTiledrains(void)
+{
+   // channel vars and maps that must be there even if channel is switched off
+   TileVolTot = 0;
+   //TileSedTot = 0;
+   //TileDepTot = 0;
+   //TileDetTot = 0;
+
+   TileWaterVol = NewMap(0);
+   TileQoutflow = NewMap(0);
+   RunoffVolinToTile = NewMap(0);
+   TileQ = NewMap(0);
+   TileQn = NewMap(0);
+   TileQs = NewMap(0);
+   TileQsn = NewMap(0);
+   TileWH = NewMap(0);
+   Tileq = NewMap(0);
+   TileAlpha = NewMap(0);
+//   TileMask = NewMap(0);
+   // maybe needed later for erosion in tiledrain
+   //TileQsoutflow = NewMap(0);
+   //TileV = NewMap(0);
+   //TileDX = NewMap(0);
+   //TileDetFlow = NewMap(0);
+   //TileDep = NewMap(0);
+   //TileSed = NewMap(0);
+   //TileConc = NewMap(0);
+   //TileTC = NewMap(0);
+   //TileY = NewMap(0);
+   //SedToTile = NewMap(0);
+
+   if (SwitchIncludeTile)
+   {
+      //## Tile maps
+      LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
+      // must be first" LDDTile is the mask for tile drains
+
+
+      TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+      Tileheight = ReadMap(LDDTile, getvaluename("tileheight"));
+      TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
+      TileGrad->calcV(0.001, ADD);
+      TileN = ReadMap(LDDTile, getvaluename("chanman"));
+      //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
+      TileGrad->cover(0);
+      TileWidth->cover(0);
+      Tileheight->cover(0);
+      TileN->cover(0);
+
+      //TileN->calcV(ChnCalibration, MUL);
+      /** TODO ? */
+
+//      FOR_ROW_COL_MV
+//      {
+//         if (!IS_MV_REAL8(&LDDTile->Data[r][c]))
+//            TileMask->Drc = 1;
+//         else
+//            SET_MV_REAL8(&TileMask->Data[r][c]);
+//      }
+
+      FOR_ROW_COL_MV_CH
+      {
+         TileDX->Drc = _dx/TileGrad->Drc;
+         //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
+      }
+   }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::InitBuffers(void)
+{
+
+   BufferVolTot = 0;
+   BufferVolTotInit = 0;
+   BufferSedTot = 0;
+
+   //## buffers read maps
+   if (SwitchBuffers || SwitchSedtrap)
+   {
+      BufferID = ReadMap(LDD,getvaluename("bufferID"));
+      BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
+      BulkDens = getvaluedouble("Sediment bulk density");
+      // also sed trap use bufffervol to calculate the max sed store
+
+      FOR_ROW_COL_MV
+      {
+         if (SwitchBuffers && BufferID->Drc > 0)
+         {
+            Grad->Drc = 0.001;
+            RR->Drc = 0.01;
+            N->Drc = 0.25;
+            // very arbitrary!!!
+            /** TODO link tis to interface */
+            Cover->Drc = 0;
+            if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
+            {
+               ChannelGrad->Drc = 0.001;
+               ChannelN->Drc = 0.25;
+            }
+         }
+         // adjust soil and surface properties for buffercells, not sed traps
+      }
+   }
+   else
+   {
+      BufferID = NewMap(0);
+      BufferVol = NewMap(0);
+   }
+
+   //VJ 100514 buffer and sedtrap maps
+   /** TODO how calculate max sed store with only sed traps? */
+   // use slope of cell:        | /
+   //                           |/
+   // then max store is _dx/cos = DX*height fence * bulk dens?
+   if (SwitchBuffers)
+   {
+      BufferVolInit = NewMap(0);
+      ChannelBufferVolInit = NewMap(0);
+
+      if (SwitchIncludeChannel)
+      {
+         ChannelBufferVol = NewMap(0);
+         FOR_ROW_COL_MV_CH
+               if (BufferID->Drc > 0)
+         {
+            ChannelBufferVol->Drc = BufferVol->Drc;
+            BufferVol->Drc = 0;
+         }
+         //split buffers in channel buffers and slope buffers
+         // in "ToCHannel" all flow in a buffer is dumped in the channel
+         ChannelBufferVolInit->copy(ChannelBufferVol);
+         // copy initial max volume of buffers in channels
+      }
+      BufferVolInit->copy(BufferVol);
+      // copy initial max volume of remaining buffers on slopes
+      BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
+      // sum up total initial volume available in buffers
+      //BufferVol->fill(0);
+      //ChannelBufferVol->fill(0);
+      // rset to zero to fill up
+
+   }
+
+   BufferSed = NewMap(0);
+
+   if (SwitchBuffers || SwitchSedtrap)
+   {
+      BufferSedInit = NewMap(0);
+      ChannelBufferSedInit = NewMap(0);
+
+      BufferSed->calc2V(BufferVol, BulkDens, MUL);
+      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
+      // fills up. It is assumed that the sedimented part contains a pore volume
+      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
+      if (SwitchIncludeChannel)
+      {
+         ChannelBufferSed = NewMap(0);
+         FOR_ROW_COL_MV_CH
+               if (BufferID->Drc > 0)
+         {
+            ChannelBufferSed->Drc = BufferSed->Drc;
+            BufferSed->Drc = 0;
+         }
+         //split buffers in channel buffers and slope buffers
+         // in "ToCHannel" all flow in a buffer is dumped in the channel
+         ChannelBufferSedInit->copy(ChannelBufferSed);
+         // copy initial max volume of buffers in channels
+      }
+      BufferSedInit->copy(BufferSed);
+      // copy initial max volume of remaining buffers on slopes
+      BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
+      // sum up total initial volume available in buffers
+      //BufferSed->fill(0);
+      //ChannelBufferSed->fill(0);
+      // rset to zero to fill up
+   }
+
+}
+//---------------------------------------------------------------------------
+// read and Intiialize all channel variables and maps
+void TWorld::InitChannel(void)
+{
+   // channel vars and maps that must be there even if channel is switched off
+   ChannelVolTot = 0;
+   ChannelSedTot = 0;
+   ChannelDepTot = 0;
+   ChannelDetTot = 0;
+   SedToChannel = NewMap(0);
+   ChannelWidthUpDX = NewMap(0);
+   ChannelWaterVol = NewMap(0);
+   ChannelQoutflow = NewMap(0);
+   RunoffVolinToChannel = NewMap(0);
+   ChannelQsoutflow = NewMap(0);
+   ChannelQ = NewMap(0);
+   ChannelQn = NewMap(0);
+   ChannelQs = NewMap(0);
+   ChannelQsn = NewMap(0);
+   ChannelV = NewMap(0);
+   ChannelWH = NewMap(0);
+   Channelq = NewMap(0);
+   ChannelAlpha = NewMap(0);
+   ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
+  // ChannelMask = NewMap(0);
+   ChannelDX = NewMap(0);
+   ChannelDetFlow = NewMap(0);
+   ChannelDep = NewMap(0);
+   ChannelSed = NewMap(0);
+   ChannelConc = NewMap(0);
+   ChannelTC = NewMap(0);
+   ChannelY = NewMap(0);
+
+   if (SwitchIncludeChannel)
+   {
+      //## channel maps
+      LDDChannel = InitMaskChannel(getvaluename("lddchan"));
+      // must be first" LDDChannel is the mask for channels
+
+      ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
+      ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
+      ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
+      ChannelGrad->calcV(0.001, ADD);
+      ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
+      ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
+      ChannelGrad->cover(0);
+      ChannelSide->cover(0);
+      ChannelWidth->cover(0);
+      ChannelN->cover(0);
+
+      ChannelN->calcV(ChnCalibration, MUL);
+      if (SwitchChannelInfil)
+      {
+         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
+         ChannelKsat->cover(0);
+         ChannelKsat->calcV(ChKsatCalibration, MUL);
+      }
+      ChannelWidthUpDX->copy(ChannelWidth);
+      ChannelWidthUpDX->cover(0);
+//      FOR_ROW_COL_MV
+//      {
+//         if (!IS_MV_REAL8(&LDDChannel->Data[r][c]))
+//            ChannelMask->Drc = 1;
+//         else
+//            SET_MV_REAL8(&ChannelMask->Data[r][c]);
+//      }
+      FOR_ROW_COL_MV_CH
+      {
+         ChannelDX->Drc = _dx/ChannelGrad->Drc;
+         ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
+      }
+   }
+
+}
+//---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
+   //## calibration factors
+   ksatCalibration = getvaluedouble("Ksat calibration");
+   nCalibration = getvaluedouble("N calibration");
+   ChnCalibration = getvaluedouble("Channel N calibration");
+   ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
+   SplashDelivery = getvaluedouble("Splash Delivery Ratio");
+   StemflowFraction = getvaluedouble("Stemflow fraction");
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));
 	// LDD is also mask and reference file, everthiung has to fit LDD
-	// chanels use channel LDD as mask
+   // channels use channel LDD as mask
 
 	Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
 	Outlet = ReadMap(LDD,getvaluename("outlet"));
    Outlet->cover(0);
    // fill outlet with zero, some users have MV where no outlet
-
 	FOR_ROW_COL_MV
 	{
 		if (Outlet->Drc == 1)
@@ -242,7 +531,10 @@ void TWorld::GetInputData(void)
 		}
 	}
 
-	if (SwitchRainfall)
+   PointMap = ReadMap(LDD,getvaluename("outpoint"));
+   //map with points for output data
+
+   if (SwitchRainfall)
    {
       RainZone = ReadMap(LDD,getvaluename("id"));
    }
@@ -257,14 +549,16 @@ void TWorld::GetInputData(void)
 	}
 
    //## landuse and surface data
-   N = ReadMap(LDD,getvaluename("manning"));
+   N = ReadMap(LDD,getvaluename("manning"));   
+   N->calcV(nCalibration, MUL); //VJ 110112 moved
+
 	RR = ReadMap(LDD,getvaluename("RR"));
 	PlantHeight = ReadMap(LDD,getvaluename("CH"));
 	LAI = ReadMap(LDD,getvaluename("lai"));
 	Cover = ReadMap(LDD,getvaluename("cover"));
    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 	GrassPresent = NewMap(0);
-	if (SwitchInfilGrass)
+   if (SwitchGrassStrip)
 	{
 		GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
 		GrassFraction->copy(GrassWidthDX);
@@ -352,7 +646,7 @@ void TWorld::GetInputData(void)
 	{
 		ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
-		if (SwitchInfilGrass)
+      if (SwitchGrassStrip)
 			ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
 		if (SwitchInfilCrust)
@@ -385,115 +679,32 @@ void TWorld::GetInputData(void)
 		D50 = ReadMap(LDD,getvaluename("D50"));
 	}
 
-   //## channel maps
-	if (SwitchIncludeChannel)
-	{
-		LDDChannel = InitMaskChannel(getvaluename("lddchan"));
+   //## read and initialize all channel maps and variables
+   InitChannel();
 
-		ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
-		ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
-		ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-		ChannelGrad->calcV(0.001, ADD);
-		ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
-		ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
-		if (SwitchChannelInfil)
-			ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
+   //## read and initialize all buffer maps and variables
+   InitBuffers();
 
-		ChannelGrad->cover(0);
-		ChannelSide->cover(0);
-		ChannelWidth->cover(0);
-		ChannelN->cover(0);
-	}
+   //## read and initialize all tile drain system maps and variables
+   InitTiledrains();
 
-	PointMap = ReadMap(LDD,getvaluename("outpoint"));
-   //map with points for output data
-
-   //## buffers
-	if (SwitchBuffers || SwitchSedtrap)
-	{
-		BufferID = ReadMap(LDD,getvaluename("bufferID"));
-		BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
-		BulkDens = getvaluedouble("Sediment bulk density");
-		// also sed trap use bufffervol to calculate the max sed store
-
-		FOR_ROW_COL_MV
-		{
-			if (SwitchBuffers && BufferID->Drc > 0)
-			{
-				Grad->Drc = 0.001;
-				RR->Drc = 0.01;
-				N->Drc = 0.25;
-				// very arbitrary!!!
-            /** TODO link tis to interface */
-				Cover->Drc = 0;
-				if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
-				{
-					ChannelGrad->Drc = 0.001;
-					ChannelN->Drc = 0.25;
-				}
-			}
-			// adjust soil and surface [roperties for buffercells, not sed traps
-		}
-	}
-	else
-	{
-		BufferID = NewMap(0);
-		BufferVol = NewMap(0);
-	}
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeData(void)
-{
+{   
 
 	//TO DO add units and descriptions
 
-	//totals for mass balance and file/screen output
-	Qtot = 0;
-	QtotOutlet = 0;
-	Qtotmm = 0;
-	Qpeak = 0;
-	QpeakTime = 0;
+   //totals for mass balance
 	MB = 0;
-	InfilTot = 0;
-	InfilTotmm = 0;
-	InfilKWTot = 0;
-	IntercTot = 0;
-	IntercTotmm = 0;
-	WaterVolTot = 0;
-	WaterVolTotmm = 0;
-	RainTot = 0;
-	RainTotmm = 0;
-	Rainpeak = 0;
-	RainpeakTime = 0;
-   RainAvgmm = 0;
-   SnowAvgmm = 0;
-	SnowTot = 0;
-	SnowTotmm = 0;
-	Snowpeak = 0;
-	SnowpeakTime = 0;
-	DetSplashTot = 0;
-	DetFlowTot = 0;
-	DepTot = 0;
-	DetTot = 0;
-	DepTot = 0;
-	SoilLossTot = 0;
-	SoilLossTotOutlet = 0;
-	SedTot = 0;
 	MBs = 0;
-	ChannelVolTot=0;
-	ChannelSedTot = 0;
-	ChannelDepTot = 0;
-	ChannelDetTot = 0;
-	BufferVolTot = 0;
-	BufferVolTotInit = 0;
-	BufferSedTot = 0;
 
 	tm = NewMap(0); // temp map for aux calculations
 	tma = NewMap(0); // temp map for aux calculations
    tmb = NewMap(0); // temp map for aux calculations
    nrCells = Mask->MapTotal();
 
-	//terrain maps
+   //### terrain maps
 	DX = NewMap(0);
 	CellArea = NewMap(0);
 	FOR_ROW_COL_MV
@@ -516,7 +727,17 @@ void TWorld::IntializeData(void)
 		MDS->Drc /= 1000; // convert to m
 	}
 
-	// rainfall and interception maps
+   //### rainfall and interception maps
+   RainTot = 0;
+   RainTotmm = 0;
+   Rainpeak = 0;
+   RainpeakTime = 0;
+   RainAvgmm = 0;
+   SnowAvgmm = 0;
+   SnowTot = 0;
+   SnowTotmm = 0;
+   Snowpeak = 0;
+   SnowpeakTime = 0;
 	Rain = NewMap(0);
 	Rainc = NewMap(0);
 	RainCum = NewMap(0);
@@ -532,7 +753,43 @@ void TWorld::IntializeData(void)
 	SnowmeltCum = NewMap(0);
 	//SnowmeltNet = NewMap(0);
 
-	// infiltration maps
+   InterceptionLAIType = getvalueint("Canopy storage equation");
+   if (InterceptionLAIType == 8)
+   {
+      SwitchInterceptionLAI = false;
+      CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+   }
+   if (SwitchInterceptionLAI)
+   {
+      CanopyStorage = NewMap(0); //m
+      FOR_ROW_COL_MV
+      {
+         switch (InterceptionLAIType)
+         {
+         case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+         case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+         case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+         case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+         case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+         case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+         case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+         case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+
+         }
+      }
+   }
+   CanopyStorage->calcV(0.001, MUL); // to m
+   //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
+
+
+   //### infiltration maps
+   InfilTot = 0;
+   InfilTotmm = 0;
+   InfilKWTot = 0;
+   IntercTot = 0;
+   IntercTotmm = 0;
+   WaterVolTot = 0;
+   WaterVolTotmm = 0;
 	InfilVolKinWave = NewMap(0);
 	InfilVol = NewMap(0);
 	InfilVolCum = NewMap(0);
@@ -543,7 +800,6 @@ void TWorld::IntializeData(void)
 	Ksateff = NewMap(0);
 	FSurplus = NewMap(0);
    FFull = NewMap(0);
-   drain = NewMap(0);
 
 	if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
 	{
@@ -565,7 +821,12 @@ void TWorld::IntializeData(void)
       }
 	}
 
-	// runoff maps
+   //### runoff maps
+   Qtot = 0;
+   QtotOutlet = 0;
+   Qtotmm = 0;
+   Qpeak = 0;
+   QpeakTime = 0;
 	WH = NewMap(0);
 	WHrunoff = NewMap(0);
 	WHrunoffCum = NewMap(0);
@@ -588,24 +849,6 @@ void TWorld::IntializeData(void)
 	WaterVolin = NewMap(0);
 	WaterVolall = NewMap(0);
 
-	// calibration
-	ksatCalibration = getvaluedouble("Ksat calibration");
-	nCalibration = getvaluedouble("N calibration");
-   ChnCalibration = getvaluedouble("Channel N calibration");
-   ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
-	SplashDelivery = getvaluedouble("Splash Delivery Ratio");
-	StemflowFraction = getvaluedouble("Stemflow fraction");
-	N->calcV(nCalibration, MUL);
-
-	if (SwitchIncludeChannel)
-	{
-		ChannelN->calcV(ChnCalibration, MUL);
-		if (SwitchChannelInfil)
-			ChannelKsat->calcV(ChKsatCalibration, MUL);
-
-	}
-
-	
    SwatreSoilModel = NULL;
 	SwatreSoilModelCrust = NULL;
 	SwatreSoilModelCompact = NULL;
@@ -633,7 +876,7 @@ void TWorld::IntializeData(void)
 			if (SwatreSoilModelCompact == NULL)
 				throw 3;
 		}
-		if (SwitchInfilGrass)
+      if (SwitchGrassStrip)
 		{
 			SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT, precision,
                                            ksatCalibration, SwitchGeometric, SwitchImpermeable);
@@ -644,34 +887,15 @@ void TWorld::IntializeData(void)
       // flag: structure is created and can be destroyed in function destroydata
 	}
 
-	InterceptionLAIType = getvalueint("Canopy storage equation");
-	if (InterceptionLAIType == 8)
-		SwitchInterceptionLAI = false;
-	if (SwitchInterceptionLAI)
-	{
-		CanopyStorage = NewMap(0); //m
-		InterceptionLAIType = getvalueint("Canopy storage equation");
-		FOR_ROW_COL_MV
-		{
-			switch (InterceptionLAIType)
-			{
-			case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-			case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-			case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-			case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-			case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-			case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-			case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-			case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
-			}
-		}
-	}
-	else
-		CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-	CanopyStorage->calcV(0.001, MUL); // to m
-	//NOTE: LAI is still needed for canopy openness, can be circumvented with cover
-
-	// erosion maps
+   //### erosion maps
+   DetSplashTot = 0;
+   DetFlowTot = 0;
+   DepTot = 0;
+   DetTot = 0;
+   DepTot = 0;
+   SoilLossTot = 0;
+   SoilLossTotOutlet = 0;
+   SedTot = 0;
 	Qs = NewMap(0);
 	Qsn = NewMap(0);
 	Qsoutflow = NewMap(0);
@@ -708,117 +932,7 @@ void TWorld::IntializeData(void)
 		}
 	}
 
-	// channel maps that must be there even if cxhannel is switched off
-	SedToChannel = NewMap(0);
-	ChannelWidthUpDX = NewMap(0);
-	ChannelWaterVol = NewMap(0);
-	ChannelQoutflow = NewMap(0);
-	RunoffVolinToChannel = NewMap(0);
-	ChannelQsoutflow = NewMap(0);
-	ChannelQ = NewMap(0);
-	ChannelQn = NewMap(0);
-	ChannelQs = NewMap(0);
-	ChannelQsn = NewMap(0);
-	ChannelV = NewMap(0);
-	ChannelWH = NewMap(0);
-	Channelq = NewMap(0);
-	ChannelAlpha = NewMap(0);
-   ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
-	ChannelMask = NewMap(0);
-	ChannelDX = NewMap(0);
-	ChannelDetFlow = NewMap(0);
-	ChannelDep = NewMap(0);
-	ChannelSed = NewMap(0);
-	ChannelConc = NewMap(0);
-	ChannelTC = NewMap(0);
-	ChannelY = NewMap(0);
-
-	if (SwitchIncludeChannel)
-	{
-
-		ChannelWidthUpDX->copy(ChannelWidth);
-		ChannelWidthUpDX->cover(0);
-		FOR_ROW_COL_MV
-		{
-			if (!IS_MV_REAL8(&LDDChannel->Data[r][c]))
-				ChannelMask->Drc = 1;
-			else
-				SET_MV_REAL8(&ChannelMask->Data[r][c]);
-		}
-		FOR_ROW_COL_MV_CH
-		{
-			ChannelDX->Drc = _dx/ChannelGrad->Drc;
-			ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
-		}
-	}
-
-	//VJ 100514 buffer and sedtrap maps
-   /** TODO how calculate max sed store with only sed traps? */
-	// use slope of cell:        | /
-	//                           |/
-	// then max store is _dx/cos = DX*height fence * bulk dens?
-	if (SwitchBuffers)
-	{
-		BufferVolInit = NewMap(0);
-		ChannelBufferVolInit = NewMap(0);
-
-		if (SwitchIncludeChannel)
-		{
-			ChannelBufferVol = NewMap(0);
-			FOR_ROW_COL_MV_CH
-               if (BufferID->Drc > 0)
-			{
-				ChannelBufferVol->Drc = BufferVol->Drc;
-				BufferVol->Drc = 0;
-			}
-			//split buffers in channel buffers and slope buffers
-			// in "ToCHannel" all flow in a buffer is dumped in the channel
-			ChannelBufferVolInit->copy(ChannelBufferVol);
-			// copy initial max volume of buffers in channels
-		}
-		BufferVolInit->copy(BufferVol);
-		// copy initial max volume of remaining buffers on slopes
-		BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
-		// sum up total initial volume available in buffers
-		//BufferVol->fill(0);
-		//ChannelBufferVol->fill(0);
-		// rset to zero to fill up
-
-	}
-
-
-	BufferSed = NewMap(0);
-	if (SwitchBuffers || SwitchSedtrap)
-	{
-		BufferSedInit = NewMap(0);
-		ChannelBufferSedInit = NewMap(0);
-
-		BufferSed->calc2V(BufferVol, BulkDens, MUL);
-		//NOTE: buffer sed vol is maximum store in kg and will decrease while it
-		// fills up. It is assumed that the sedimented part contains a pore volume
-		// that can contain water, like  loose soil. Thsi is determined by the bulkdensity
-		if (SwitchIncludeChannel)
-		{
-			ChannelBufferSed = NewMap(0);
-			FOR_ROW_COL_MV_CH
-               if (BufferID->Drc > 0)
-			{
-				ChannelBufferSed->Drc = BufferSed->Drc;
-				BufferSed->Drc = 0;
-			}
-			//split buffers in channel buffers and slope buffers
-			// in "ToCHannel" all flow in a buffer is dumped in the channel
-			ChannelBufferSedInit->copy(ChannelBufferSed);
-			// copy initial max volume of buffers in channels
-		}
-		BufferSedInit->copy(BufferSed);
-		// copy initial max volume of remaining buffers on slopes
-		BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
-		// sum up total initial volume available in buffers
-		//BufferSed->fill(0);
-		//ChannelBufferSed->fill(0);
-		// rset to zero to fill up
-	}
+//VJ 110113 all channel and buffer initialization moved to separate functions
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -863,7 +977,7 @@ void TWorld::IntializeOptions(void)
 	SwitchRunoffPerM = false;
 	SwitchInfilCompact = false;
 	SwitchInfilCrust = false;
-	SwitchInfilGrass = false;
+   SwitchGrassStrip = false;
 	SwitchImpermeable = false;
 	SwitchDumphead = false;
 	SwitchWheelAsChannel = false;

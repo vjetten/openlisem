@@ -28,6 +28,7 @@ void TWorld::GridCell(void)
             ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
       // channel cannot be wider than 0.9*_dx-road
 
+      /** wheeltracks are not implemented yet */
       WheelWidthDX->Drc = 0;
       if (SwitchWheelPresent)
          WheelWidthDX->Drc = max(0,_dx-RoadWidthDX->Drc-ChannelWidthUpDX->Drc)/_dx * WheelWidth->Drc;

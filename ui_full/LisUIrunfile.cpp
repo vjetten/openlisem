@@ -34,12 +34,6 @@ void lisemqt::GetRunfile()
       return;
    }
 
-   for (int i = 0; i < nrdefnamelist; i++)
-   {
-      namelist[i].name = defnamelist[i].name;
-      namelist[i].value = defnamelist[i].value;
-   }
-
    oldRunfile = false;
    int i = 0;
    while (!fin.atEnd())
@@ -55,9 +49,9 @@ void lisemqt::GetRunfile()
 
          QStringList SL = S.split(QRegExp("="));
 
-         for (int j = 0; j < nrdefnamelist; j++)
+         for (int j = 0; j < nrnamelist; j++)
          {
-            if (defnamelist[j].name == SL[0].trimmed())
+            if (namelist[j].name == SL[0].trimmed())
             {
                namelist[j].value = SL[1].trimmed();
                break;
@@ -78,7 +72,7 @@ void lisemqt::ParseInputData()
    // to cope with old runfiles
 
    // get all the options/checks
-   for (j = 0; j < nrdefnamelist; j++)  //VJ 110107 changed to nrdefnamelist
+   for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
    {
       int iii = namelist[j].value.toInt();
       QString p1 = namelist[j].name;
@@ -223,7 +217,7 @@ void lisemqt::ParseInputData()
    //   E_SoillossMap->setText("soilloss.map");
 
    // get directory and file names
-   for (j = 0; j < nrdefnamelist; j++)//VJ 110107 changed to nrdefnamelist
+   for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
    {
       QString p1 = namelist[j].name;
       QString p = namelist[j].value;
@@ -293,7 +287,7 @@ void lisemqt::ParseInputData()
    // get all map names, DEFmaps contains default map names and descriptions
    // adapt the DEFmaps list with names from the run file
    // this is to display the correct names in the interface
-   for (j = 0; j < nrdefnamelist; j++)  //VJ 110107 changed to nrdefnamelist
+   for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
    {
       for (int i = 0; i < DEFmaps.size(); i++)
       {
@@ -311,7 +305,7 @@ void lisemqt::ParseInputData()
    }
 
    // strip pathname from output filename
-   for (int j = 0; j < nrdefnamelist; j++)
+   for (int j = 0; j < nrnamelist; j++)
       if (namelist[j].name.startsWith("OUT"))
       {
          QFileInfo fil(namelist[j].value);
@@ -323,12 +317,12 @@ void lisemqt::ParseInputData()
    // if there are new variables that are not in the run file
    // the maplist contains he default names already
    // this is to get the correct names for the mdoel run
-   for (int j = 0; j < nrdefnamelist; j++) //VJ 110107 changed to nrdefnamelist
+   for (int j = 0; j < nrnamelist; j++) //VJ 110107 changed to nrnamelist
       for (int k = 0; k < nrmaplist; k++)
       {
-         if (mapList[k].id == namelist[j].name)
+         if (mapList[k].name == namelist[j].name)
          {
-            mapList[k].name = namelist[j].value;
+            mapList[k].value = namelist[j].value;
             mapList[k].dir = E_MapDir->text();
          }
       }
@@ -354,7 +348,7 @@ QString lisemqt::CheckDir(QString p)
 void lisemqt::UpdateModelData()
 {
 
-   for (int j = 0; j < nrdefnamelist; j++)
+   for (int j = 0; j < nrnamelist; j++)
    {
       QString p1 = namelist[j].name;
       QString p;
@@ -482,15 +476,16 @@ void lisemqt::UpdateModelData()
    }
 
    //get all actual mapnames from the mapList structure
-   for (int j = 0; j < nrdefnamelist; j++)
+   for (int j = 0; j < nrnamelist; j++)
       for (int k = 0; k < nrmaplist; k++)
       {
-         if (mapList[k].id.toUpper() == namelist[j].name.toUpper())
+         if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
          {
-            namelist[j].value = mapList[k].name;
-            // qDebug() << "update" << mapList[k].name << mapList[k].id;
+            namelist[j].value = mapList[k].value;
          }
       }
+   //for (int j = 0; j < nrnamelist; j++)
+   //qDebug() << "update" << namelist[j].name << namelist[j].value;
 
 }
 //---------------------------------------------------------------------------
