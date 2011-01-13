@@ -178,15 +178,15 @@ void lisemqt::on_checkSnowmelt_clicked()
     toolButton_SnowmeltShow->setEnabled(checkSnowmelt->isChecked());
     toolButton_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
 }
-
+//--------------------------------------------------------------------
 void lisemqt::doCheckSnowmelt(bool check)
 {
-    if (!check && !checkRainfall->isChecked())
-    {
-		QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
-        checkSnowmelt->setChecked(true);
-        check = true;
-    }   
+//    if (!check && !checkRainfall->isChecked())
+//    {
+//      QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
+//        checkSnowmelt->setChecked(true);
+//        check = true;
+//    }
 
 	change_MapNameModel(SNOWMELTMAPS, 0, check);
 
@@ -198,12 +198,12 @@ void lisemqt::doCheckSnowmelt(bool check)
 //--------------------------------------------------------------------
 void lisemqt::doCheckRainfall(bool check)
 {
-    if (!check && !checkSnowmelt->isChecked())
-    {
-		QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
-        checkRainfall->setChecked(true);
-        check = true;
-    }   
+//    if (!check && !checkSnowmelt->isChecked())
+//    {
+//		QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
+//        checkRainfall->setChecked(true);
+//        check = true;
+//    }
 
 	change_MapNameModel(RAINFALLMAPS, 0, check);
 

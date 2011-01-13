@@ -67,9 +67,8 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
    int j=0;
+   bool dummyrain, dummysnow;
 
-   checkRainfall->setChecked(true);
-   // to cope with old runfiles
 
    // get all the options/checks
    for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
@@ -100,8 +99,8 @@ void lisemqt::ParseInputData()
       if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
       //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
 
-      if (p1.compare("Include Rainfall")==0)               checkRainfall->setChecked(check);
-      if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
+      if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
+      if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
       if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
       if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
       if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
@@ -208,13 +207,11 @@ void lisemqt::ParseInputData()
       }
    }
 
-   // set default names, can also be done in the ui file
-   //   E_MainTotals->setText("main.txt");
-   //   E_PointResults->setText("hydrograph.csv");
-   //   E_LandunitResults->setText("totlandunit.txt");//VJ 110107
-   //   E_DetachmentMap->setText("eros.map");
-   //   E_DepositionMap->setText("depo.map");
-   //   E_SoillossMap->setText("soilloss.map");
+   if (!dummyrain && ! dummysnow)
+      QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
+
+   checkRainfall->setChecked(dummyrain);
+   checkSnowmelt->setChecked(dummysnow);
 
    // get directory and file names
    for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
@@ -347,6 +344,9 @@ QString lisemqt::CheckDir(QString p)
 // savefile is called just before the model is run with tmp runfile
 void lisemqt::UpdateModelData()
 {
+   if(checkRainfall->isChecked() && !checkSnowmelt->isChecked())
+      QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
+
 
    for (int j = 0; j < nrnamelist; j++)
    {
