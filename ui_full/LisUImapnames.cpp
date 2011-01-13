@@ -8,182 +8,50 @@ website, information and code: http://sourceforge.net/projects/lisem
 /*
  * fill the map list structure with names and basic descriptions
  */
-#define putmap(k,j,i) SL=DEFmaps[DEFmaps.count()-1].split(";",QString::SkipEmptyParts);\
-   mapList[k].groupnr=j;mapList[k].varnr=i;mapList[k].value=SL[4];mapList[k].dir="";mapList[k].name=SL[6]
-// this define fills a list of mapnames to store user changes
 
 
 #include "lisemqt.h"
 
 //--------------------------------------------------------------------
-// stringlist with default var names, filenames and descriptions.
+// DEFmaps has default var names, filenames and descriptions.
 // first number 0/1/2 is flag if title treenode or subnode
-// putmap is a define that fills the mapList structure
-void lisemqt::DefaultMapnames()
+// fill the mapList structure
+void lisemqt::fillMapnames()
 {
-   int i, j, k;
+   int subbranch = 0, branch = -1, nr = 0, dec = 0;
    QStringList SL;
-   // example: SL[0]=tree node level, SL[1] and SL[2] are variable numbers, SL[3] is first visible field
-   //SL[4] = map filename, SL[5] = description, SL[6] is internal variable name, SL[7] = pathname, empty here
 
-   j = 0;i = 0;k = 0; // j and i are needed to find the data back in the tree structure, k is mapcount
-   DEFmaps.append("0;Rainfall");
-   DEFmaps.append(QString("2;%1;%2;ID;ID.map;Raingauge zone ID numbers;ID;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Catchment");
-   DEFmaps.append(QString("2;%1;%2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;LDD;ldd.map;Local surface Drainage Direction network;ldd;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1 to nr);outpoint;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Landuse");
-   DEFmaps.append(QString("2;%1;%2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Cover;per.map;Fraction surface cover by vegetation and residue;cover;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Height;ch.map;Plant height (m);ch;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Road width;roadwidt.map;Width of impermeable roads (m);road;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Canopy storage;smax.map;Maximum canopy storage (mm);smax;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Surface");
-   DEFmaps.append(QString("2;%1;%2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;n;n.map;Manning's n (-);manning;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (value 1);hardsurf;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Erosion");
-   DEFmaps.append(QString("2;%1;%2;Cohesion;coh.map;Cohesion (kPa);coh;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 10;
-   DEFmaps.append("0;Infiltration");
+   DefaultMapnames();
+   //VJ 110113 take the default map list
 
-   DEFmaps.append("1;Swatre");
-   DEFmaps.append(QString("2;%1;%2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   //DEFmaps.append(QString("2;%1;%2;Output head;headout.map;Locations to write tables of the matrix potential;headout;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 20;
-   DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
-   DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 30;
-   DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
-   DEFmaps.append(QString("2;%1;%2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 40;
-   DEFmaps.append("1;Ksat subtraction");
-   DEFmaps.append(QString("2;%1;%2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 50;
-   DEFmaps.append("1;Special surfaces");
-   DEFmaps.append(QString("2;%1;%2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Channels");
-   i = 10;
-   DEFmaps.append("1;Channel properties");
-   DEFmaps.append(QString("2;%1;%2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Width;chanwidt.map;Channel width (m);chanwidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;N;chanman.map;Mannings n of channel bed (-);chanman;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 20;
-   DEFmaps.append("1;Channelinfil");
-   DEFmaps.append(QString("2;%1;%2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 30;
-   DEFmaps.append("1;ChannelBaseflow");
-   DEFmaps.append(QString("2;%1;%2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Buffers");
-   DEFmaps.append(QString("2;%1;%2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   //DEFmaps.append(QString("2;%1;%2;Buffer area;bufferarea.map;Buffer area at locations of the buffers (m2);bufferarea;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Snowmelt");
-   DEFmaps.append(QString("2;%1;%2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   //VJ 110111
-   DEFmaps.append("0;Tile drains");
-   DEFmaps.append(QString("2;%1;%2;LDD;lddtile.map;LDD of tile drain system (must be 1 system connected to the outlet);lddtile;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Width;tilewidth.map;Tile drain pipe width (m);tilewidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Height;tileheight.map;Tile drain height for max volume (m);tileheight;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Gradient;tilegrad.map;Slope gradient of tile drain bed (-);tilegrad;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;N;tileman.map;Mannings n of tile drain bed (-);tileman;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Wheeltracks");
-   DEFmaps.append(QString("2;%1;%2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Width;wheelwid.map;Sum of widths of wheeltracks in a gridcell (m);wheelwidth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Depth;wheeldep.map;Wheel track overflow depth (cm);wheeldepth;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Gradient;wheelgrd.map;DEFmapsope gradient of wheel tracks (-);wheelgradient;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;N;wheelman.map;Mannings n of Wheel tracks (-);wheelman;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Texture classes");
-   DEFmaps.append(QString("2;%1;%2;Class 0;mu0.map;Clay fraction (MUST BE CLAY < 2mu);fractionmu0;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Class 1;mu1.map;Soil texture fraction for class 1 (-);fractionmu1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Class 2;mu2.map;Soil texture fraction for class 2 (-);fractionmu2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Class 3;mu3.map;Soil texture fraction for class 3 (-);fractionmu3;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Class 4;mu4.map;Soil texture fraction for class 4 (-);fractionmu4;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Class 5;mu5.map;Soil texture fraction for class 5 (-);fractionmu5;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   j++; i = 0;
-   DEFmaps.append("0;Nutrients");
-   i = 10;
-   DEFmaps.append("1;Phosphorus");
-   DEFmaps.append(QString("2;%1;%2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;P Solute;psolut.map;Initial solute store P in surface layer (kg/m2);psolute;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;P Efficiency;peff.map;Extraction efficiency (s-1);pefficiency;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;P Sorption;Psorp.map;Sorption isotherm kd (m3/kg);psorp;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;P Conversion;Pconv.map;Conversion P from soil content to clay content(-);pconv;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 20;
-   DEFmaps.append("1;NH4");
-   DEFmaps.append(QString("2;%1;%2;NH4 Content;nh4cont.map;Ammonium (NH4+) content of the soil (kg/kg);nh4cont;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NH4 Solute;nh4solut.map;Initial solute store NH4 in surface layer (kg/m2);nh4solute;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NH4 Efficiency;nh4eff.map;Extraction efficiency (s-1);nh4efficiency;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NH4 Sorption;NH4sorp.map;Sorption isotherm kd (m3/kg);nh4sorp;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NH4 Conversion;NH4conv.map;Conversion NH4 from soil content to clay content(-);nh4conv;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   i = 30;
-   DEFmaps.append("1;NO3");
-   DEFmaps.append(QString("2;%1;%2;NO3 Content;NO3cont.map;Nitrate (NO3-) content of the soil (kg/kg);no3cont;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NO3 Solute;NO3solut.map;Initial solute store NO3 in surface layer (kg/m2);no3solute;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+   for (int i = 0; i < DEFmaps.count(); i++)\
+   {
 
-   j++; i = 0;
-   DEFmaps.append("0;Gullies");
-   DEFmaps.append(QString("2;%1;%2;DEM;dem.map;Digital elevation model (m);dem;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;mannings N;gullyman.map;manning's n gully bottom (-);gullyn;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;BulkDensity;bulkdens.map;Bulkdensity of topsoil (kg/m3);bulkdens1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Ksat;ksat1.map;Ksat of topsoil for gully infil (mm/h);gulksat1;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Depth layer 2;soilDep2.map;Depth to subsoil (cm);gullydep;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Excluded areas;noncrit.map;areas to be excluded (1) and rest (0);nonfcrit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Gully initial Width;gulwinit.map; initial gully width (m);gulwinit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
-   DEFmaps.append(QString("2;%1;%2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit;").arg(j).arg(i)); putmap(k,j,i);k++;i++;
+      if (DEFmaps[i].startsWith("0"))
+      {
+         branch++;
+         subbranch = 0;
+         dec = 0;
+      }
+      if (DEFmaps[i].startsWith("1"))
+      {
+         dec += 10;
+         subbranch = 0;
+      }
+      if (DEFmaps[i].startsWith("2"))
+      {
+         nr++;
+         subbranch++;
 
-   nrmaplist = k;
-   //for (int k = 0; k < nrmaplist; k++)
-     // qDebug() << k << "tree maplist" << mapList[k].id << mapList[k].name;
+         SL = DEFmaps[i].split(";",QString::SkipEmptyParts);
+         mapList[nr].groupnr=branch;
+         mapList[nr].varnr=subbranch+dec;
+         mapList[nr].value=SL[4];
+         mapList[nr].name=SL[3];
+         mapList[nr].dir="";
+      }
+   }
+   nrmaplist = nr;
 }
 //--------------------------------------------------------------------
 // enables or disables a branch and expands or contracts it
@@ -230,7 +98,7 @@ void lisemqt::change_MapNameModel(int parentrow, int selrow, bool setit)
 }
 //--------------------------------------------------------------------
 // this is called twice: first to initialize the interface
-//also after each call of a runfile so that the runfile mapnames are loadd
+//also after each call of a runfile so that the runfile mapnames are loaded
 void lisemqt::FillMapTree()
 {
 	if (MapNameModel)
@@ -341,3 +209,138 @@ void lisemqt::doOpenMapname(QModelIndex topLeft)
    }
 }
 //--------------------------------------------------------------------
+void lisemqt::DefaultMapnames()
+{
+
+//# interface maplist, DO NOT CHANGE if you don't know what you are doing
+//# syntax: branch level; keyword; default mapname; description; variable name
+   DEFmaps.append("0;Rainfall");
+   DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers;ID");
+   DEFmaps.append("0;Catchment");
+   DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad");
+   DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
+   DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
+   DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1 to nr);outpoint");
+   DEFmaps.append("0;Landuse");
+   DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
+   DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");
+   DEFmaps.append("2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai");
+   DEFmaps.append("2;Height;ch.map;Plant height (m);ch");
+   DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road");
+   DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
+   DEFmaps.append("2;Canopy storage;smax.map;Maximum canopy storage (mm);smax");
+   DEFmaps.append("0;Surface");
+   DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr");
+   DEFmaps.append("2;n;n.map;Manning's n (-);manning");
+   DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
+   DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
+   DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
+   DEFmaps.append("2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (value 1);hardsurf");
+   DEFmaps.append("0;Erosion");
+   DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh");
+   DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
+   DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
+   DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
+   DEFmaps.append("0;Infiltration");
+   DEFmaps.append("1;Swatre");
+   DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
+   DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst");
+   DEFmaps.append("2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr");
+   DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");
+   DEFmaps.append("2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead");
+   DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
+   DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1");
+   DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1");
+   DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
+   DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
+   DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1");
+   DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
+   DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2");
+   DEFmaps.append("2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2");
+   DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
+   DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
+   DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
+   DEFmaps.append("1;Ksat subtraction");
+   DEFmaps.append("2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1");
+   DEFmaps.append("1;Special surfaces");
+   DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
+   DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
+   DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
+   DEFmaps.append("0;Channels");
+   DEFmaps.append("1;Channel properties");
+   DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
+   DEFmaps.append("2;Width;chanwidt.map;Channel width (m);chanwidth");
+   DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
+   DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
+   DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
+   DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
+   DEFmaps.append("1;Channelinfil");
+   DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
+   DEFmaps.append("1;ChannelBaseflow");
+   DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
+   DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
+   DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini");
+   DEFmaps.append("0;Buffers");
+   DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
+   DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
+   DEFmaps.append("0;Snowmelt");
+   DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+   DEFmaps.append("0;Tile drains");
+   DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be 1 system connected to the outlet);lddtile");
+   DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width (m);tilewidth");
+   DEFmaps.append("2;Height;tileheight.map;Tile drain height for max volume (m);tileheight");
+   DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of tile drain bed (-);tilegrad");
+   DEFmaps.append("2;N;tileman.map;Mannings n of tile drain bed (-);tileman");
+   DEFmaps.append("0;Wheeltracks");
+   DEFmaps.append("2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel");
+   DEFmaps.append("2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr");
+   DEFmaps.append("2;Width;wheelwid.map;Sum of widths of wheeltracks in a gridcell (m);wheelwidth");
+   DEFmaps.append("2;Depth;wheeldep.map;Wheel track overflow depth (cm);wheeldepth");
+   DEFmaps.append("2;Gradient;wheelgrd.map;DEFmapsope gradient of wheel tracks (-);wheelgradient");
+   DEFmaps.append("2;N;wheelman.map;Mannings n of Wheel tracks (-);wheelman");
+   DEFmaps.append("2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion");
+   DEFmaps.append("2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt");
+   DEFmaps.append("0;Texture classes");
+   DEFmaps.append("2;Class 0;mu0.map;Clay fraction (MUST BE CLAY < 2mu);fractionmu0");
+   DEFmaps.append("2;Class 1;mu1.map;Soil texture fraction for class 1 (-);fractionmu1");
+   DEFmaps.append("2;Class 2;mu2.map;Soil texture fraction for class 2 (-);fractionmu2");
+   DEFmaps.append("2;Class 3;mu3.map;Soil texture fraction for class 3 (-);fractionmu3");
+   DEFmaps.append("2;Class 4;mu4.map;Soil texture fraction for class 4 (-);fractionmu4");
+   DEFmaps.append("2;Class 5;mu5.map;Soil texture fraction for class 5 (-);fractionmu5");
+   DEFmaps.append("0;Nutrients");
+   DEFmaps.append("1;Phosphorus");
+   DEFmaps.append("2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk");
+   DEFmaps.append("2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont");
+   DEFmaps.append("2;P Solute;psolut.map;Initial solute store P in surface layer (kg/m2);psolute");
+   DEFmaps.append("2;P Efficiency;peff.map;Extraction efficiency (s-1);pefficiency");
+   DEFmaps.append("2;P Sorption;Psorp.map;Sorption isotherm kd (m3/kg);psorp");
+   DEFmaps.append("2;P Conversion;Pconv.map;Conversion P from soil content to clay content(-);pconv");
+   DEFmaps.append("1;NH4");
+   DEFmaps.append("2;NH4 Content;nh4cont.map;Ammonium (NH4+) content of the soil (kg/kg);nh4cont");
+   DEFmaps.append("2;NH4 Solute;nh4solut.map;Initial solute store NH4 in surface layer (kg/m2);nh4solute");
+   DEFmaps.append("2;NH4 Efficiency;nh4eff.map;Extraction efficiency (s-1);nh4efficiency");
+   DEFmaps.append("2;NH4 Sorption;NH4sorp.map;Sorption isotherm kd (m3/kg);nh4sorp");
+   DEFmaps.append("2;NH4 Conversion;NH4conv.map;Conversion NH4 from soil content to clay content(-);nh4conv");
+   DEFmaps.append("1;NO3");
+   DEFmaps.append("2;NO3 Content;NO3cont.map;Nitrate (NO3-) content of the soil (kg/kg);no3cont");
+   DEFmaps.append("2;NO3 Solute;NO3solut.map;Initial solute store NO3 in surface layer (kg/m2);no3solute");
+   DEFmaps.append("2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency");
+   DEFmaps.append("2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp");
+   DEFmaps.append("2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv");
+   DEFmaps.append("0;Gullies");
+   DEFmaps.append("1;General");
+   DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
+   DEFmaps.append("2;mannings N;gullyman.map;manning's n gully bottom (-);gullyn");
+   DEFmaps.append("2;Excluded areas;noncrit.map;areas to be excluded (1) and rest (0);nonfcrit");
+   DEFmaps.append("2;Gully initial Width;gulwinit.map; initial gully width (m);gulwinit");
+   DEFmaps.append("2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit");
+   DEFmaps.append("1;Soil Layer 1");
+   DEFmaps.append("2;BulkDensity;bulkdens.map;Bulkdensity of topsoil (kg/m3);bulkdens1");
+   DEFmaps.append("2;Ksat;ksat1.map;Ksat of topsoil for gully infil (mm/h);gulksat1");
+   DEFmaps.append("1;Soil Layer 2");
+   DEFmaps.append("2;Depth layer 2;soilDep2.map;Depth to subsoil (cm);gullydep");
+   DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh");
+   DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
+   DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
+
+}

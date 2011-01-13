@@ -205,7 +205,7 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
             columnData << columnStrings[1];
          // string is a title/category field when "position" is 0 or 1
          else
-            for (int column = 3; column < columnStrings.count()-1; ++column)
+            for (int column = 1; column < columnStrings.count()-1; ++column)
                columnData << columnStrings[column];
          //fill column data, "position" > 1
 

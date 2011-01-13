@@ -200,8 +200,8 @@ void TWorld::MassBalance()
 	if (RainTot + SnowTot > 0)
 		MB = (RainTot + SnowTot - IntercTot - InfilTot - WaterVolTot
               - BufferVolTot - Qtot)/(RainTot + SnowTot)*100;
-    qDebug() << "in" << RainTot << SnowTot;
-    qDebug() << "out" << IntercTot << InfilTot << WaterVolTot << BufferVolTot << Qtot;
+    //qDebug() << "in" << RainTot << SnowTot;
+    //qDebug() << "out" << IntercTot << InfilTot << WaterVolTot << BufferVolTot << Qtot;
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)
 		MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +

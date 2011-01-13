@@ -18,7 +18,7 @@
 #include "LisUItreemodel.h"
 #include "model.h"
 #include "lisuioutput.h"
-
+#include "version.h"
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -77,6 +77,7 @@ public:
 
    void FillMapTree();
 	void DefaultMapnames();
+   void fillMapnames();
 	void change_MapNameModel(int parentrow, int selrow, bool setit);
 	void SetToolBar();
 	void GetStorePath();

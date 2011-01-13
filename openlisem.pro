@@ -81,3 +81,5 @@ INCLUDEPATH += $${QWTDIR}/src
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
+
+OTHER_FILES +=

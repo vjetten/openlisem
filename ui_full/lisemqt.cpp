@@ -726,12 +726,14 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
 	QMessageBox::information ( this, "openLISEM",
-                              QString("openLISEM is created wih:\n\n%1\n%2\n%3\n%4\n")
+                              QString("openLISEM verion %5 (%6) is created wih:\n\n%1\n%2\n%3\n%4\n")
                               .arg("- Qt cross platform application and UI framework version 4.7.X based on MingW (http://qt.nokia.com/).")
                               .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                               .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
                               .arg("Details can be found at: http://sourceforge.net/projects/lisem/")
-                              );
+                              .arg(VERSIONNR)
+                              .arg(DATE)
+                             );
 }
 //--------------------------------------------------------------------
 void lisemqt::resetAll()
@@ -745,7 +747,7 @@ void lisemqt::resetAll()
 	E_InfiltrationMethod->addItem("Smith and Parlange");
 	E_InfiltrationMethod->addItem("Subtract Ksat");
 
-	DefaultMapnames();
+   fillMapnames();
    // make mapList structure according to
    // DEFmaps stringlist that is used to build the map tree interface
 
