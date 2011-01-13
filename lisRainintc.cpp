@@ -170,6 +170,9 @@ void TWorld::RainfallMap(void)
 void TWorld::Interception(void)
 {
 	// all variables are in m
+   if (!SwitchRainfall)
+      return;
+   //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
 	FOR_ROW_COL_MV
 	{

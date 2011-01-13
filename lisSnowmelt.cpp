@@ -148,6 +148,7 @@ void TWorld::SnowmeltMap(void)
         // Rain in m per timestep
         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
         // DO NOT correct for slope dx/DX, snow is already on the surface
+        /** TODO: CORRECT OR NOT */
         
         /** TODO: weighted average if dt larger than table dt */
         
