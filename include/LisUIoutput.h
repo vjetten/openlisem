@@ -8,6 +8,9 @@
 #ifndef LISUIOUTPUT_H_
 #define LISUIOUTPUT_H_
 
+
+/** structure with variables passed form model to interface each run step.
+ this structure is visible both in the UI and in the model world */
 struct output{
 	int runstep;
 	int printstep;

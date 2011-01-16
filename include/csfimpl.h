@@ -49,7 +49,7 @@
  */
 #ifdef USE_IN_PCR
 # include "stddefx.h" 
-# include "misc.h" /* malloc, free */
+# include "swatremisc.h" /* malloc, free */
 # define  CSF_MALLOC ChkMalloc
 # define  CSF_FREE   Free
 #else

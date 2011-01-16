@@ -7,7 +7,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
 /*
- * global.h, for acces to output structure used between interface and model
+ * LisUIoutput.h, for acces to output structure used between interface and model
  *
  *  Created on: Feb 19, 2010
  *      Author: jetten
@@ -21,6 +21,6 @@ website, information and code: http://sourceforge.net/projects/lisem
 // global declaration of interface form, in main.cpp
 
 extern output op;
-// global declaration of output structure
+// global declaration of output structure, defined in LisUIoutput.h
 
 #endif /* GLOBAL_H_ */
