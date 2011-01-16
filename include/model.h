@@ -39,7 +39,8 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 #define DrcOutlet     Data[r_outlet][c_outlet]
 
-#define MV(r,c) IS_MV_REAL8(&Mask->Data[r][c])
+#define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
+//IS_MV_REAL8(&Mask->Data[r][c])
 
 #define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
 		for (int c = 0; c < nrCols; c++)\
@@ -145,48 +146,8 @@ public:
    MapListStruct maplistTMMap[NUMNAMES];
 	int maplistnr;
 
-   // All maps are declared here, no local declarations of maps are done
-   TMMap
-   //!< terrain
-   *tm, *tma, *tmb, *Mask, *DEM, *DX, *CellArea, *Grad, *LDD, *Outlet,*PointMap,
-   // rainfall and interception
-	*RainZone, *Rain, *Rainc, *RainCum, *RainNet, *LeafDrain, *RainIntensity, *RainM3, *CStor, *Interc,
-	*SnowmeltZone, *Snowcover, *Snowmelt, *Snowmeltc, *SnowmeltCum, *SnowmeltNet,
-   /// runoff
-	*WH, *WHroad, *WHrunoff, *WHrunoffCum, *WHstore, *WaterVolrunoff, *WaterVolin, *WaterVolall,
-	*FlowWidth, *V, *Alpha, *Q, *Qoutflow, *Qn, *Qoutput, *Qs, *Qsn, *Qsoutput, *q, *R, *Perim,
-	// soil surface, storage and cover
-	*N, *RR, *MDS,*fpa,
-	*SoilWidthDX, *RoadWidthDX, *StoneFraction, *CompactFraction, *CrustFraction,
-	*PlantHeight, *Cover, *CanopyStorage, *LAI,
-   *LandUnit, //VJ 110107 land unit map for erosion output
-	// not used yet:
-	*WheelWidth, *WheelWidthDX, *GullyWidthDX,
-	//erosion
-	*Cohesion, *RootCohesion, *CohesionSoil, *Y, *AggrStab, *D50,
-	*DETSplash, *DETFlow, *HardSurface,*DEP, *TC, *Conc, *Sed, *Qsoutflow, *CG, *DG, *SettlingVelocity,
-	//infiltration
-   *Fcum, *FSurplus, *FFull, *fact, *fpot, *InfilVolKinWave, *InfilVol, *InfilVolCum,
-	*ThetaS1, *ThetaI1, *Psi1, *Ksat1, *SoilDepth1, *L1, *Soilwater,
-	*ThetaS2, *ThetaI2, *Psi2, *Ksat2, *SoilDepth2, *L2, *Soilwater2,
-	*KsatCrust, *KsatCompact, *KsatGrass, *Ksateff, *L1gr, *L2gr, *factgr, *fpotgr,
-	*WHGrass, *Fcumgr, *GrassFraction, *GrassWidthDX, *GrassPresent,
-	*ProfileID, *ProfileIDCrust, *ProfileIDCompact, *ProfileIDGrass,
-	// Channels
-   //*MaskChannel, <= obsolete
-   *ChannelMask, *RunoffVolinToChannel, *LDDChannel, *ChannelWidth, *ChannelSide, *ChannelQ, *ChannelQn, *ChannelQs, *ChannelQsn,
-	*ChannelQoutflow, *ChannelGrad, *ChannelV, *ChannelN, *ChannelWH, *ChannelWaterVol, *Channelq,
-   *ChannelAlpha, *ChannelWidthUpDX, *ChannelPerimeter, *ChannelDX, *ChannelDetFlow, *ChannelDep, *ChannelKsat,
-	*ChannelSed, *ChannelConc, *ChannelTC, *SedToChannel, *ChannelQsoutflow, *ChannelCohesion, *ChannelY,
-   //VJ 110111 tile drains
-   *TileMask, *TileDrainSoil, *LDDTile, *TileWidth, *Tileheight, *TileQ, *TileQn, *TileQs, *TileQsn,
-   *TileQoutflow, *TileGrad, *TileN, *TileWH, *TileWaterVol, *Tileq, *RunoffVolinToTile, *TileAlpha, *TileDX,
-   // buffers
-	*BufferID, *BufferVol, *BufferSed, *ChannelBufferSed, *ChannelBufferVol,
-	*BufferVolInit, *BufferSedInit, *ChannelBufferSedInit, *ChannelBufferVolInit,
-	//      *BufferSedVolMax, *ChannelBufferSedVolMax,
-	// totals for output
-	*TotalDetMap, *TotalDepMap, *TotalSoillossMap, *TotalSed, *TotalWatervol, *TotalConc;
+
+#include "TMmapVariables.h"
 
    /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 	bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
@@ -249,7 +210,7 @@ public:
 	QString SOBEKdatestring;
 	int SOBEKnrlines;
 
-   /// file and directory names
+   // file and directory names
 	QString resultDir;
 	QString inputDir;
 	QString outflowFileName;
@@ -293,7 +254,6 @@ public:
    void ParseRunfileData();
 	void GetRunFile();
 	QString GetName(QString p);
-	//QString getvaluename(const char *vname);
 	QString getvaluename(QString vname);
 	double getvaluedouble(QString vname);
 	int getvalueint(QString vname);
@@ -315,7 +275,6 @@ public:
    void InfilMorelSeytoux1(void);
    void InfilKsat(void);
    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
-
    void SoilWater(void);
    void SurfaceStorage(void);
    void OverlandFlow(void);
@@ -338,32 +297,35 @@ public:
                          double Sji1, double alpha, double dt, double dx);
    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
-#include "lisSwatreinclude.h"
-//   /// SWATRE infiltration model 3D soil structure
-//   SOIL_MODEL *SwatreSoilModel;
-//   SOIL_MODEL *SwatreSoilModelCrust;
-//   SOIL_MODEL *SwatreSoilModelCompact;
-//   SOIL_MODEL *SwatreSoilModelGrass;
-//   double swatreDT;
-//   bool initSwatreStructure;
-//   // SWATRE infiltration functions
-//   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin,
-//                          double precis, double calibration, bool geom, bool bottomClosed);
-//   int ReadSwatreInput(QString fileName, QString tablePath);
-//   void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
-//   void CloseSwatre(SOIL_MODEL *s);
-//   void FreeSwatreInfo();
-//   ZONE *ReadNodeDefinition(FILE *f);
-//   PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
-//   HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
-//   PROFILE *ProfileNr(int profileNr);
-//   double *ReadSoilTable(const char *fileName, int *nrRows);
-//   void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
+   //SWATRE
+   /// filenames for Swatre soil information
+   QString SwatreTableDir;
+   QString SwatreTableName;
+   QString initheadName;
+   /// SWATRE infiltration model 3D soil structure
+   SOIL_MODEL *SwatreSoilModel;
+   SOIL_MODEL *SwatreSoilModelCrust;
+   SOIL_MODEL *SwatreSoilModelCompact;
+   SOIL_MODEL *SwatreSoilModelGrass;
+   double swatreDT;
+   bool initSwatreStructure;
+   PROFILE **profileList;
+   int nrProfileList, sizeProfileList;
+   ZONE *zone;
 
-//   void InitializeProfile();
-//   PROFILE **profileList;
-//   int nrProfileList, sizeProfileList;
-//   ZONE *zone;
+   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin,
+                          double precis, double calibration, bool geom, bool bottomClosed);
+   int ReadSwatreInput(QString fileName, QString tablePath);
+   void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
+   void CloseSwatre(SOIL_MODEL *s);
+   void FreeSwatreInfo();
+   ZONE *ReadNodeDefinition(FILE *f);
+   PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+   HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
+   PROFILE *ProfileNr(int profileNr);
+   double *ReadSoilTable(const char *fileName, int *nrRows);
+   void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
+   void InitializeProfile();
 
    void Totals(void);
 	void MassBalance(void);
