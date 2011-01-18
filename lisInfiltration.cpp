@@ -11,14 +11,13 @@ website, information and code: http://sourceforge.net/projects/lisem
  */
 
 #include "model.h"
-#include "swatre_g.h"
 
 //NOTE fact and fpot have a unit of m (not m/s)
 
 #define tiny 1e-8
 
 //---------------------------------------------------------------------------
-//* TODO check this
+// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre(void)
 {
 	tm->copy(WH);
@@ -318,10 +317,20 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
    return fact; //m
 }
 //---------------------------------------------------------------------------
-/*
- * main function:
- * add rain to WH, calc effective Ksat
- */
+/// Main infiltration function, from here all infiltration types are called.
+
+/**
+  Main infiltration function\n
+  - add net rainfall and snowmelt to surface water WH\n
+  - keep track of different surface types: grass strips, compaction, crusting, roads, hard surface
+  - do SWATRE or one of the others, SWATRE is a different set of functions\n
+  - for the other functions (Green and Ampt, Smith and Parlange, Ksat)
+  - calculate effective Ksat\n
+  - call one of the infiltration functions for the actual infiltration rate
+and the infiltration surplus for the kinematic wave\n
+  - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
+  - decrease of surface water layer WH and calculate the infiltration volume
+  */
 void TWorld::Infiltration(void)
 {
    FOR_ROW_COL_MV
@@ -343,12 +352,6 @@ void TWorld::Infiltration(void)
       // calculate effective ksat for various situations
       if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
       {
-//         Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc);
-//         if (SwitchInfilCrust)
-//            Ksateff->Drc += KsatCrust->Drc*CrustFraction->Drc;
-//         if (SwitchInfilCompact)
-//            Ksateff->Drc += KsatCompact->Drc*CompactFraction->Drc;
-
          Ksateff->Drc = Ksat1->Drc;
          if (SwitchInfilCrust)
             Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
@@ -397,7 +400,7 @@ void TWorld::Infiltration(void)
          if(BufferID->Drc > 0 && BufferVol->Drc > 0)
             WH->Drc = 0;
       //VJ 100608 no infil in buffers until it is full
-      /** TODO NOTE CORRECT FOR RAINFALL IF WH IS 0 */  //<= what does this mean?
+      /* TODO NOTE CORRECT FOR RAINFALL IF WH IS 0 */  //<= what does this mean?
 
       if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
       {

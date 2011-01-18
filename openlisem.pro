@@ -19,12 +19,10 @@ HEADERS += \
     include/mmath.h \
     include/model.h \
     include/stable.h \
-    include/lookup.h \
-    include/lutio.h \
-    include/misc.h \
-    include/soillut.h \
-    include/swat_inp.h \
     include/swatre_p.h \
+    include/swatreLookup.h \
+    include/swatresoillut.h \
+    include/swatremisc.h \
     include/swatre_g.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
@@ -82,4 +80,5 @@ RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
 
-OTHER_FILES +=
+OTHER_FILES += \
+    mapnames.txt

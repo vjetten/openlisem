@@ -24,7 +24,6 @@ QString TWorld::getvaluename(QString vname)
          QFileInfo info(runnamelist[i].value);
          if (runnamelist[i].value.trimmed().isEmpty())
 			{
-            //				DEBUG(vname.toUpper() + " " + runnamelist[i].name.toUpper()+"<==");
 				ErrorString = "Filename not found for : " + info.fileName();
 				throw 1;
 			}

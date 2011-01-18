@@ -13,7 +13,6 @@ Functionality in lisModel.cpp:
 - main model time loop calling process functions
 - run and stop thread functions
 ---------------------------------------------------------------------------*/
-
 #include <QtGui>
 #include "lisemqt.h"
 #include "model.h"
@@ -31,17 +30,8 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
-void TWorld::DEBUGs(QString SSS)
-{
-	// work around to show a QString when debugging
-	char ptr[128];
-	strncpy(ptr, SSS.toAscii().constData(), 126);
-    //	int i = 1;
-}
-//---------------------------------------------------------------------------
-// fill output structure to talk to interface
-// op is declared in ifacebasic
-// report to screen, hydrographs and maps
+/** fill output structure 'op' with results to talk to the interface:
+    report to screen, hydrographs and maps */
 void TWorld::OutputUI()
 {
 	if (runstep > 0 && runstep % printinterval == 0)
@@ -98,17 +88,6 @@ void TWorld::OutputUI()
 	emit show();
 	// send the op structure with data to function Showit in the interface
 	// in file LisUIModel
-    
-	ReportTimeseriesNew();
-	// report hydrographs ande sedigraophs at all points in outpoint.map
-    
-	ReportTotalsNew();
-	// report totals to a text file
-    
-	ReportMaps();
-	// report all maps and mapseries
-
-   ReportLandunits();
 }
 //---------------------------------------------------------------------------
 // the actual model with the main loop
@@ -118,11 +97,10 @@ void TWorld::DoModel()
 	time_ms.start();
 	// get time to calc run length
 	temprunname = QString(op.LisemDir+"openlisemtmp.run");
-    
+
 	try
 	{
-		DEBUG("reading and initializing data");
-        
+      DEBUG("reading and initializing data");
 		IntializeOptions();
 		// set all to 0 and false
 		InitMapList();
@@ -198,6 +176,8 @@ void TWorld::DoModel()
 			MassBalance();
             
 			OutputUI();
+
+         reportAll(); //VJ 110114 now separate
 		}
         
 		DestroyData();  // destroy all maps automatically

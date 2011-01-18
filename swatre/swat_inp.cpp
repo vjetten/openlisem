@@ -6,10 +6,7 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-#include "swatre_p.h"
-#include "swat_inp.h"
-#include "lutio.h"
-#include "misc.h"
+#include "swatremisc.h"
 #include "error.h"
 #include "model.h"
 
@@ -17,12 +14,13 @@ website SVN: http://sourceforge.net/projects/lisem
 #define LUT_COLS  5
 #define IND(r,c)  ((r)*LUT_COLS+(c))
 
-static ZONE *ReadNodeDefinition(FILE *f);
-static PROFILE *ReadProfileDefinition(FILE *f, const ZONE *z,const char *tablePath);
-static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName);
-static PROFILE **profileList = NULL;
-static int nrProfileList=0, sizeProfileList=0;
-static ZONE *zone=NULL;
+// obsolete:
+//static ZONE *ReadNodeDefinition(FILE *f);
+//static PROFILE *ReadProfileDefinition(FILE *f, const ZONE *z,const char *tablePath);
+//static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName);
+//static PROFILE **profileList = NULL;
+//static int nrProfileList=0, sizeProfileList=0;
+//static ZONE *zone=NULL;
 
 /* array of pointers to horizons */
 /* NULL if not allocated         */
@@ -30,7 +28,7 @@ static HORIZON **horizonList = NULL;
 static int nrHorizonList=0, sizeHorizonList=0;
 
 //----------------------------------------------------------------------------------------------
-void InitializeProfile( void )
+void TWorld::InitializeProfile( void )
 {
 	profileList = NULL;
 	nrProfileList=0;
@@ -40,11 +38,6 @@ void InitializeProfile( void )
 	horizonList = NULL;
 	nrHorizonList=0;
 	sizeHorizonList=0;
-}
-//----------------------------------------------------------------------------------------------
-int NrZoneNodes(void)
-{
-	return((zone == NULL) ? -1 : zone->nrNodes);
 }
 //----------------------------------------------------------------------------------------------
 int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
@@ -79,8 +72,9 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 			while (i < sizeProfileList)
 				profileList[i++] = NULL;
 		}
+
 		profileList[nrProfileList] =
-		ReadProfileDefinition(f,z,tablePath.toAscii().constData());
+            ReadProfileDefinition(f,z,tablePath.toAscii().constData());
 
 	} while (profileList[nrProfileList++] != NULL);
 	// correct for eof-marker and test if something is read
@@ -118,15 +112,15 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 	return (0);
 }
 //----------------------------------------------------------------------------------------------
-const PROFILE *ProfileNr(int profileNr)
-/* RET profile or NULL if not found  */
+/// return PROFILE or NULL if not found
+PROFILE *TWorld::ProfileNr(int profileNr)
 {
 	if (profileNr < 0 || profileNr >= nrProfileList)
 		return(NULL);
 	return(profileList[profileNr]);
 }
 //----------------------------------------------------------------------------------------------
-void FreeSwatreInfo(void)
+void  TWorld::FreeSwatreInfo(void)
 {
 	int i;
 
@@ -159,12 +153,13 @@ void FreeSwatreInfo(void)
 	nrHorizonList=sizeHorizonList=0;
 }
 //----------------------------------------------------------------------------------------------
-/* allocates ZONE structure,
+/** allocates ZONE structure,
  *   reads compartment ends:
- *   2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.
+ *   2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.\n
  *   computes all parameters stored in ZONE -structure
  */
-static ZONE *ReadNodeDefinition(FILE *f)
+//static
+ZONE * TWorld::ReadNodeDefinition(FILE *f)
 {
 	int  i;
 	zone = (ZONE *)malloc(sizeof(ZONE));
@@ -196,15 +191,16 @@ static ZONE *ReadNodeDefinition(FILE *f)
 	return(zone);
 }
 //----------------------------------------------------------------------------------------------
-/* returns pointer to new profile or NULL if eof is encountered
- *  while reading first token of profile definition
+/**
+ returns pointer to new profile or NULL if eof is encountered
+ while reading first token of profile definition
  */
-static PROFILE *ReadProfileDefinition(
+PROFILE * TWorld::ReadProfileDefinition(
 FILE *f,
-const ZONE *z,         /* zone division this profile */
+ZONE *z,         /* zone division this profile */
 const char *tablePath) /* pathName ended with a '/' */
 {
-	char tableName[14];
+   char tableName[256];
 	int  i;
 	double endHor;
 	PROFILE *p;
@@ -247,12 +243,13 @@ const char *tablePath) /* pathName ended with a '/' */
 	return(p);
 }
 //----------------------------------------------------------------------------------------------
-static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName)
+/// copy horizon info to all nodes of this horizon
+HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
 {
 	HORIZON	*h;
 	char fileName[256];
 	double *t, *lutCont;
-	int i, nrRows;
+   int i, nrRowsa=0;
 
 	/* look if it's already loaded */
 	for( i= 0; i < nrHorizonList; i++)
@@ -264,25 +261,25 @@ static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName)
 	if (nrHorizonList == sizeHorizonList)
 	{
 		sizeHorizonList += LIST_INC;
-		horizonList = (HORIZON **)realloc(horizonList,
-		sizeof(HORIZON *)*sizeHorizonList);
+      horizonList = (HORIZON **)realloc(horizonList, sizeof(HORIZON *)*sizeHorizonList);
 	}
 
 	h = (HORIZON *)malloc(sizeof(HORIZON));
 	horizonList[nrHorizonList++] = h;
 	strcat(strcpy(fileName, tablePath), tableName);
 
-	/* hook up table to t */
-	t = ReadSoilTable(fileName, &nrRows);
 
-	lutCont = (double *)malloc(sizeof(double)*NR_COL*(nrRows+2));
-	for(i=0; i < nrRows; i++)
+	/* hook up table to t */
+   t = ReadSoilTable(fileName, &nrRowsa);
+
+   lutCont = (double *)malloc(sizeof(double)*NR_COL*(nrRowsa+2));
+   for(i=0; i < nrRowsa; i++)
 	{
 		lutCont[IND(i,THETA_COL)] =  t[i*3+THETA_COL];
 		lutCont[IND(i,H_COL)]     =  t[i*3+H_COL];
 		lutCont[IND(i,K_COL)]     =  t[i*3+K_COL];
 	}
-	for(i=0; i < (nrRows-1); i++)
+   for(i=0; i < (nrRowsa-1); i++)
 	{
 		lutCont[IND(i,DMCH_COL)] = 0.5 *
 		(lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
@@ -298,13 +295,13 @@ static HORIZON *ReadHorizon(const char *tablePath,	const char *tableName)
 		(lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
 		(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
 	}
-	lutCont[IND(nrRows-1,DMCH_COL)] = 0;
-	lutCont[IND(nrRows-1,DMCC_COL)] = lutCont[IND(nrRows-2,DMCC_COL)] ;
+   lutCont[IND(nrRowsa-1,DMCH_COL)] = 0;
+   lutCont[IND(nrRowsa-1,DMCC_COL)] = lutCont[IND(nrRowsa-2,DMCC_COL)] ;
 
 	free(t);
 
 	h->name = strcpy((char *)malloc(strlen(tableName)+1), tableName);
-	h->lut = CreateLutFromContents(lutCont, true, nrRows, LUT_COLS);
+   h->lut = CreateLutFromContents(lutCont, true, nrRowsa, LUT_COLS);
 
 
 	return(h);

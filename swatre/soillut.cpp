@@ -12,12 +12,13 @@ website SVN: http://sourceforge.net/projects/lisem
 /*   Soil characteristics look-up table for Swatre component of LISEM     */
 /*                                                                        */
 /**************************************************************************/
-#include "soillut.h"
+
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
 
-#include "misc.h"
+#include "swatresoillut.h"
+#include "swatremisc.h"
 
 #define INC_LUT 90
 

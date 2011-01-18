@@ -46,7 +46,7 @@ void TWorld::SplashDetachment(void)
 		double KE_DT = 28.3*(1-(0.52*exp(-0.042*Int)));
 		// kin energy in J/m2/mm, Van DIjk general equation 2002
 
-      /** TODO: allow many different equations here, interface choice */
+      /* TODO: allow many different equations here, interface choice */
 		/* equation in LISEM, based on Eurosem, Morgan 1998
        if (Int > 1)
            KE_DT = 8.95+8.44*log10(Int);
@@ -166,7 +166,7 @@ void TWorld::FlowDetachment(void)
 		// no flow detachment on hard surfaces
 
 		//DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
-      /** TODO: CHECK THIS no flow detachment on snow */
+      /* TODO: CHECK THIS no flow detachment on snow */
         //is there erosion and sedimentation under the snowdeck?
 
 		//### deposition
@@ -184,10 +184,10 @@ void TWorld::FlowDetachment(void)
 		// cannot be more than sediment above capacity
 		deposition = max(deposition, -Sed->Drc);
 		// cannot have more depo than sediment present
-      /** TODO what about this: which one to choose */
+      /* TODO what about this: which one to choose */
 
 		//deposition = (1-Snowcover->Drc) * deposition;
-      /** TODO: TRUE??? no deposition on snow */
+      /* TODO: TRUE??? no deposition on snow */
 
 		if (GrassPresent->Drc > 0)
 			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;

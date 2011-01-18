@@ -16,8 +16,8 @@ website SVN: http://sourceforge.net/projects/lisem
 #include <ctype.h>
 
 #include "error.h"
-#include "lutio.h"
-#include "soillut.h"
+#include "swatresoillut.h"
+#include "model.h"
 
 /**********************/
 /*  number of elements added to the lut
@@ -40,11 +40,11 @@ website SVN: http://sourceforge.net/projects/lisem
 static const char *colName[3] = { "theta", "h", "k" };
 
 //----------------------------------------------------------------------------------------
-		static void ReadCols(
-				const char *fileName, /* for error reporting only */
-				double *inLut,   /* -w current position in lut that will be filled */
-				const char *buf, /* buffer to read from */
-				int   n);        /* number of items to read */
+//		static void ReadCols(
+//				const char *fileName, /* for error reporting only */
+//				double *inLut,   /* -w current position in lut that will be filled */
+//				const char *buf, /* buffer to read from */
+//				int   n);        /* number of items to read */
 //----------------------------------------------------------------------------------------
 /* Trim string and replace space by single space, and count tokens.
  * Removes leading and trailing isspace() characters and
@@ -91,15 +91,10 @@ int TokenSpaceTrim(
 	return(t);
 } /* TokenSpaceTrim */
 //----------------------------------------------------------------------------------------
-double *ReadSoilTable(
+double *TWorld::ReadSoilTable(
 		const char *fileName,
-		int   *nrRows          /* nr of rows read */
+      int   *nrRows
       )
-		/* every row is on a single line
- * EOF is end of table
- * EXAMPLE
-   AT THIS MOMENT ONLY TOTALLY SORTED LUTS ARE SUPPORTED
-  */
 {
 	char buf[1024];
 	double  *l;
@@ -156,7 +151,7 @@ double *ReadSoilTable(
 	return l;
 }
 //----------------------------------------------------------------------------------------
-static void ReadCols(
+void TWorld::ReadCols(
 		const char *fileName, /* for error reporting only */
 		double *inLut,   /* -w current position in lut that will be filled */
 		const char *buf, /* buffer to read from */

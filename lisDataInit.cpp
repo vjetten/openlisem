@@ -10,13 +10,10 @@ Functionality in lisDatainit.cpp:
 - newmap, readmap, destoy data
  - get inputdata, init data, init boolean options (SwitchSomething)
 ---------------------------------------------------------------------------*/
-
-
-#include "model.h"
-#include "swatre_g.h"
 #include <qstring.h>
 
-//char SwatreErrorString[256];
+#include "model.h"
+
 //---------------------------------------------------------------------------
 void TWorld::InitMapList(void)
 {
@@ -26,7 +23,6 @@ void TWorld::InitMapList(void)
 	{
       maplistTMMap[i].m = NULL;
 	}
-
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::NewMap(double value)
@@ -74,9 +70,6 @@ TMMap *TWorld::ReadMapMask(QString name)
 		maplistnr++;
 	}
 
-	//msleep(100);
-	//emit debug(_M->PathName);
-
 	return(_M);
 
 }
@@ -87,7 +80,6 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 	TMMap *_M = new TMMap();
 
 	_M->PathName = /*inputdir + */name;
-	//	DEBUG(_M->PathName);
 
 	bool res = _M->LoadFromFile();
 	if (!res)
@@ -136,13 +128,13 @@ void TWorld::DestroyData(void)
 		delete[] RainfallSeries;
 	}
 
-	if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
+   if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
 	{
-		FreeSwatreInfo();
-		if (SwatreSoilModel)
-			CloseSwatre(SwatreSoilModel);
-		if (SwatreSoilModelCrust)
-			CloseSwatre(SwatreSoilModelCrust);
+      FreeSwatreInfo();
+      if (SwatreSoilModel)
+         CloseSwatre(SwatreSoilModel);
+      if (SwatreSoilModelCrust)
+         CloseSwatre(SwatreSoilModelCrust);
 		if (SwatreSoilModelCompact)
 			CloseSwatre(SwatreSoilModelCompact);
 		if (SwatreSoilModelGrass)
@@ -178,8 +170,6 @@ TMMap *TWorld::InitMask(QString name)
 	nrRows = Mask->nrRows;
 	nrCols = Mask->nrCols;
 
-	//msleep(100);
-	//emit debug(_M->PathName);
 	return(_M);
 
 }
@@ -292,15 +282,7 @@ void TWorld::InitTiledrains(void)
       TileN->cover(0);
 
       //TileN->calcV(ChnCalibration, MUL);
-      /** TODO ? */
-
-//      FOR_ROW_COL_MV
-//      {
-//         if (!IS_MV_REAL8(&LDDTile->Data[r][c]))
-//            TileMask->Drc = 1;
-//         else
-//            SET_MV_REAL8(&TileMask->Data[r][c]);
-//      }
+      /* TODO ? */
 
       FOR_ROW_COL_MV_CH
       {
@@ -334,7 +316,7 @@ void TWorld::InitBuffers(void)
             RR->Drc = 0.01;
             N->Drc = 0.25;
             // very arbitrary!!!
-            /** TODO link tis to interface */
+            /* TODO link tis to interface */
             Cover->Drc = 0;
             if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
             {
@@ -352,7 +334,7 @@ void TWorld::InitBuffers(void)
    }
 
    //VJ 100514 buffer and sedtrap maps
-   /** TODO how calculate max sed store with only sed traps? */
+   /* TODO how calculate max sed store with only sed traps? */
    // use slope of cell:        | /
    //                           |/
    // then max store is _dx/cos = DX*height fence * bulk dens?
@@ -558,8 +540,10 @@ void TWorld::GetInputData(void)
 	Cover = ReadMap(LDD,getvaluename("cover"));
    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 	GrassPresent = NewMap(0);
+
+   qDebug() << SwitchGrassStrip;
    if (SwitchGrassStrip)
-	{
+	{      
 		GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
 		GrassFraction->copy(GrassWidthDX);
 		GrassFraction->calcV(_dx, DIV);
@@ -668,6 +652,8 @@ void TWorld::GetInputData(void)
 		int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
 		if (res)
 			throw res;
+
+
 	}
 
    //## erosion maps
@@ -743,15 +729,14 @@ void TWorld::IntializeData(void)
 	RainCum = NewMap(0);
 	RainNet = NewMap(0);
 	LeafDrain = NewMap(0);
-	RainIntensity = NewMap(0);
-	RainM3 = NewMap(0);
+   //not used RainIntensity = NewMap(0);
+   //not used RainM3 = NewMap(0);
 	CStor = NewMap(0);
 	Interc = NewMap(0);
 	
    Snowmelt = NewMap(0);
 	Snowmeltc = NewMap(0);
 	SnowmeltCum = NewMap(0);
-	//SnowmeltNet = NewMap(0);
 
    InterceptionLAIType = getvalueint("Canopy storage equation");
    if (InterceptionLAIType == 8)
@@ -845,7 +830,6 @@ void TWorld::IntializeData(void)
 	q = NewMap(0);
 	R = NewMap(0);
 	Perim = NewMap(0);
-	WaterVolrunoff = NewMap(0);
 	WaterVolin = NewMap(0);
 	WaterVolall = NewMap(0);
 

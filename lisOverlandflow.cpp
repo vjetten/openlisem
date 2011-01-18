@@ -116,7 +116,7 @@ void TWorld::OverlandFlow(void)
 	{
 		if (LDD->Drc == 5) // if outflow point, pit
 		{
-         /** TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
+         /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
 			Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
 
 			Qoutflow->Drc = Qn->Drc * _dt;
@@ -131,7 +131,7 @@ void TWorld::OverlandFlow(void)
 	{
 		double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);
 		// WH based on A/dx = alpha Q^beta / dx
-      /** TODO _dx also needs to be corrected for wheeltracks and gullies */
+      /* TODO _dx also needs to be corrected for wheeltracks and gullies */
 
 		WHroad->Drc = WHoutavg;
 		// set road to average outflowing wh, no surface storage.

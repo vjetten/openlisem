@@ -19,11 +19,27 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 
 //---------------------------------------------------------------------------
-// reporting timeseries for every non zero point PointMap
-// - 3 types of output: PCRaster timeplot format; SOBEK input format; flat comma delimited format
-// - all points in one file or each point in a separate file
-// - the types should be mututally exclusive in the interface and run file
-/** - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct! */
+/// report to disk: timeseries at output points, totals, map series and land unit stats
+void TWorld::reportAll()
+{
+   ReportTimeseriesNew();
+   // report hydrographs ande sedigraphs at all points in outpoint.map
+
+   ReportTotalsNew();
+   // report totals to a text file
+
+   ReportMaps();
+   // report all maps and mapseries
+
+   ReportLandunits();
+   // reportstats per landunit class
+}
+//---------------------------------------------------------------------------
+/** reporting timeseries for every non zero point PointMap
+ - 3 types of output: PCRaster timeplot format; SOBEK input format; flat comma delimited format
+ - all points in one file or each point in a separate file
+ - the types should be mututally exclusive in the interface and run file
+*/
 void TWorld::ReportTimeseriesNew()
 {
 	int nr = 0;
@@ -35,7 +51,9 @@ void TWorld::ReportTimeseriesNew()
 	int width = (!SwitchWritePCRtimeplot ? 0 : 9);
 
 	QFileInfo fi(resultDir + outflowFileName);
-	if (SwitchSOBEKOutput && time > 0)
+
+   // - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
+   if (SwitchSOBEKOutput && time > 0)
 	{
 		sec = (int)(time*60);
 		hour = (int)(sec/3600);
@@ -299,6 +317,7 @@ void TWorld::ReportTimeseriesNew()
 	}
 }
 //---------------------------------------------------------------------------
+/// Report totals of the main outlet nd general values for the catchment to a comma delimited text file
 void TWorld::ReportTotalsNew()
 {
 	QFile fp(resultDir + resultFileName);
@@ -338,15 +357,12 @@ void TWorld::ReportTotalsNew()
 	fp.close();
 }
 //---------------------------------------------------------------------------
+/// Report maps for totals and mapseries (like report in PCRaster)
+/// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps()
 {
 	if(SwitchErosion)
 	{
-      // all in kg/cell
-      //TotalDetMap->mwrite(totalErosionFileName);
-      //TotalDepMap->mwrite(totalDepositionFileName);
-      //TotalSoillossMap->mwrite(totalSoillossFileName);
-
       // VJ 110111 erosion units
       tm->copy(TotalDetMap); //kg/cell
       if (ErosionUnits < 2)  // in kg/m2
@@ -418,6 +434,7 @@ void TWorld::ReportMaps()
 
 }
 //---------------------------------------------------------------------------
+/// Land unit statistics: count nr land units in classifiedfile
 // VJ 110110 count nr of land units in classified file
 void TWorld::CountLandunits()
 {
@@ -450,7 +467,7 @@ void TWorld::CountLandunits()
 }
 //---------------------------------------------------------------------------
 //VJ 110110
-// report per land unit the erosion totals
+/// Report the erosion totals per land unit
 void TWorld::ReportLandunits()
 {
    QString newname1;
@@ -488,6 +505,7 @@ void TWorld::ReportLandunits()
    out.setFieldWidth(12);
    out.setRealNumberNotation(QTextStream::FixedNotation);
 
+   //TODO: make this comma delimited?
    out << "    Landunit        Area  Detachment  Deposition   Soil Loss\n";
    out << "           #          ha         ton         ton         ton\n";
    for (int i = 0; i < landUnitNr; i++)
@@ -496,3 +514,4 @@ void TWorld::ReportLandunits()
    fout.close();
 
 }
+//---------------------------------------------------------------------------

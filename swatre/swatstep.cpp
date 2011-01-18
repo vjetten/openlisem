@@ -8,11 +8,8 @@ website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
 #include "csf.h"
-#include "swatre_g.h"
-#include "swatre_p.h"
-#include "lookup.h"
-
 #include "model.h"
+#include "swatrelookup.h"
 
 //--------------------------------------------------------------------------------
 /*
@@ -264,6 +261,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
 void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where)
+//void lisSwatreClass::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where)
 {
 	FOR_ROW_COL_MV
 			if(where->Drc > 0) // when there is crusting for instance
@@ -288,7 +286,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 }
 //--------------------------------------------------------------------------------
 // calculates average soil moisture from surface to layernr
-/** TODO: NOT CORRECT SHOULD BE RELATIVE TO THICKNESS OF LAYERS */
+/* TODO: NOT CORRECT SHOULD BE RELATIVE TO THICKNESS OF LAYERS */
 /*
 void SwatreTheta(
 		SOIL_MODEL *s,

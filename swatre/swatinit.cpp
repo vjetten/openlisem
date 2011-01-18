@@ -6,11 +6,8 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-#include "misc.h"
+#include "swatremisc.h"
 #include "csf.h"
-#include "swatre_p.h"
-#include "swatre_g.h"
-#include "swat_inp.h"
 #include "error.h"
 #include "model.h"
 
@@ -26,9 +23,9 @@ SOIL_MODEL *TWorld::InitSwatre(
 {
 	SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
 
-   /** TODO check if this needs freeing when error */
+   /* TODO check if this needs freeing when error */
 
-	int  i, n, nrNodes  = NrZoneNodes();
+   int  i, n, nrNodes  = ((zone == NULL) ? -1 : zone->nrNodes);
 	int nodeDataIncr = nrNodes+1;
 	long nrCells = nrCols*nrRows;
 

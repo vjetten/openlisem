@@ -15,7 +15,7 @@ Functionality in lisRainintc.cpp:
 #include "model.h"
 
 //---------------------------------------------------------------------------
-// read rainfall files of different types
+/// read rainfall files of different types and put data in RainfallSeries
 void TWorld::GetRainfallData(void)
 {
 	QFile fff(rainFileName);
@@ -106,7 +106,7 @@ void TWorld::GetRainfallData(void)
 			ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
 			throw 1;
 		}
-    //qDebug() << nrstations << SL[0] << SL[1] ;
+
 		RainfallSeries[j][0] = SL[0].toDouble();
 		// time in min
 		for (int i = 1; i < nrstations+1; i++)
@@ -122,11 +122,12 @@ void TWorld::GetRainfallData(void)
 	fff.close();
 }
 //---------------------------------------------------------------------------
-// rainfall intensity read is that reported with the next line: example
-// 0 0
-// 5 2.3   ->from 0 to 5 minutes intensity is 2.3
-// 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5
-// etc.
+/**
+ rainfall intensity read is that reported with the next line: example\n
+ 0 0\n
+ 5 2.3   ->from 0 to 5 minutes intensity is 2.3\n
+ 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5\n
+ etc. */
 void TWorld::RainfallMap(void)
 {
 	double timemin = time / 60;  //time in minutes
@@ -153,7 +154,7 @@ void TWorld::RainfallMap(void)
 			Rainc->Drc = Rain->Drc * _dx/DX->Drc;
 			// correction for slope dx/DX, water spreads out over larger area
 
-         /** TODO: weighted average if dt larger than table dt */
+         // TODO: weighted average if dt larger than table dt */
 
 			RainCum->Drc += Rainc->Drc;
 			// cumulative rainfall corrected for slope, used in interception
@@ -161,12 +162,13 @@ void TWorld::RainfallMap(void)
 	}
 }
 //---------------------------------------------------------------------------
-//- interception seen as rigid storage SMax filling up and overflowing
-//- overflow flux is identical to rainfall flux in intensity
-//- SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell
-// so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2
-// - therefore the same goes for LAI: the LAI of the plants inside the gridcell
-// this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
+/// Interception()
+/// - interception seen as rigid storage SMax filling up and overflowing\n
+/// - overflow flux is identical to rainfall flux in intensity\n
+/// - SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell\n
+/// - so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2\n
+/// - therefore the same goes for LAI: the LAI of the plants inside the gridcell\n
+/// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
 void TWorld::Interception(void)
 {
 	// all variables are in m

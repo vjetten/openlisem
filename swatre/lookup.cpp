@@ -15,10 +15,10 @@ website SVN: http://sourceforge.net/projects/lisem
 /*                                                                        */
 /**************************************************************************/
 
-#include "misc.h"
+#include "swatremisc.h"
 #include "swatre_p.h"
-#include "soillut.h"
-#include "lookup.h"
+#include "swatresoillut.h"
+#include "swatrelookup.h"
 
 //-----------------------------------------------------------------------------------
 /* theta from head */

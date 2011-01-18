@@ -6,7 +6,7 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-#include "misc.h"
+#include "swatremisc.h"
 
 /* Comparison function for unsigned char
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
