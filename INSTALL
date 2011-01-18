@@ -1,0 +1,115 @@
+openLISEM README 
+================
+
+1) The openLISEM model 
+======================
+This is the event based spatial runoff and erosion model openLISEM. Thank you 
+for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
+erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
+is available here: www.itc.nl/lisem. Details about the theory and dataset for 
+now can be found on this website (although a bit outdated). openLISEM uses the 
+freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
+analysis of the results. 
+
+2) Terms of use 
+===============
+This software is free and open source, hosted by 
+sourceforge.net. The project details can be found on: 
+http://sourceforge.net/projects/lisem/. 
+
+All license details can be found on this website. The compiled model openLISEM 
+and the source code, or parts of the source code can be used for any purpose, 
+but the disclaimer as specified below is in effect. openLISEM in any version 
+(compiled or as source code) cannot be sold or be part of a commercial package, 
+unless express permission is gained from Victor Jetten (jetten@itc.nl). If you 
+use this software for publications, please give the correct references in the 
+text (TO BE SPECIFIED, contact victor jetten). 
+
+3) openLISEM development 
+========================
+a) Code of conduct for developers
+--------------------------------
+-	Changes that are made to the code must be made available to 
+the community. 
+
+-	The process descriptions in a model are often a matter of 
+choice. Please do not delete any of the model code if you want certain processes 
+to be calculated differently, but add your processes as new options to the code. 
+Also the LISEM run file has a certain layout that aims to be backward compatible and 
+must remain so. 
+
+-	If you add lines to the code, please give a comment with your 
+initials, a date and a one-liner describing what you did: 
+//VJ 101216 Solved bug x y 
+
+- A list of author abbreviations and full names and addresses should be 
+maintained in the header file version.h: 
+/* VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, twente University, jetten@itc.nl */ 
+Add your credentials to this list 
+
+b) Downloading and compiling the source code 
+--------------------------------------------
+1.	openLISEM uses the Qt development environmwent. Install the developing 
+environment. Everything is maintained in one single package by Nokia. There are 
+two free LGPL versionsof the "Qt cross platform application and UI framework" 
+(version 4.7.X or later), download the SDK version: 
+http://qt.nokia.com/downloads 
+
+2.	Qwt technical application widgets for Qt: (version 6.0.0) http://qwt.sf.net 
+and https://sourceforge.net/projects/qwt/ 
+
+3.	Tortoise SVN for version control: http://tortoisesvn.net/ 
+
+c) Installation 
+--------------- 
+
+1.	Qt: install the package (e.g. in c:\Qt), including the MingW compiler. You 
+do not have to recompile anything in Qt. After installation your directory looks 
+like: c:\Qt\2010.05\bin c:\Qt\2010.05\mingw etc. In windows add the Qt and Mingw 
+locations to your path: go to advanced system settings, click on environment 
+variables and make a variable QTDIR= C:\Qt\2010.05\qt\bin and also add to your 
+path: "C:\Qt\2010.05\mingw\bin;C:\Qt\2010.05\qt\bin;"  
+
+2.	Qwt: the library to draw the graphs. Unzip the package for instance in c:\Qt 
+(a directory c:\Qt\Qwt-6.0.0  is created). Rename this directory to "c:\qt\qwt" 
+without the version number so you do not have to update the openLISEM project 
+file all the time.  
+
+3.	Compile the qwt libs: open in an editor the file qwtconfig.pri and edit the 
+line where the qwt code can be found to the right location:  QWT_INSTALL_PREFIX 
+= C:/qt/Qwt. Load qwt.pro in QtCreator and compile everything. In the 
+c:\Qt\qwt\lib directory the libraries will appear. Note that if you distribute 
+the openLISEM release version you need to add qwt.dll to the package. 
+
+4.	Install Tortoise SNV, it will be integrated to your windows explorer. 
+
+d) Compiling the code 
+---------------------
+
+1.	Make a directory where you want to install openLISEM (e.g. "c:\prgc\"). 
+
+2.	TortoiseSNV: right click on this directory in windows explorer and select 
+"SVN checkout" from the menu. In the field "URL of repository" give the source 
+forge lisem address: https://lisem.svn.sourceforge.net/svnroot/lisem and let 
+Tortoise download the code. 
+
+3.	Open QtCreator and load the project file "openlisem.pro". a.	Click on the 
+left hand menu item 'Projects' and unselect  'Shadow build'. b.	Run build-
+>qmake, build->rebuild all and run. 
+
+4.	You can compile openLISEM in "debug" or as "release" executable. If you 
+distribute openLISEM you have to add the libraries QtGui4.dll, QtCore4.dll, 
+QtSvg4.dll and qwt.dll to the package. NOTE: There are two versions of the dlls, 
+those in the directory c:/qt/2010.05/bin which are for QtCreator and other 
+executables, the others are in c:/qt/2010.05/qt/bin, which are the ones you 
+need! 
+
+Good Luck
+
+Victor Jetten
+
+Chair Natural Hazards and Disaster Risk Management 
+Department of Earth Systems 
+Analysis Faculty ITC, Twente University, 
+the Netherlands 
+jetten@itc.nl
