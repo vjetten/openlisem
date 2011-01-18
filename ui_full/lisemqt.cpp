@@ -15,7 +15,7 @@ website, information and code: http://sourceforge.net/projects/lisem
  *     \-> defaultmapnames -> DEFmaps stringlist for tree interface
  *                        \-> mapList -> map list structure for model run, default names
  *     \-> set all default interface options in namelist
- * DefaultRunFile
+ * defaultRunFile
  *     \-> namelist structure filled with actual runfile data
  *     \-> add actual mapList mapnames to namelist (only variable names not values!)
  *}
@@ -39,7 +39,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #include "global.h"
 
 output op;
-// declaration of variable structure betwen model and interface.
+// declaration of variable structure between model and interface.
 // All model results are put in this structure and sent from the model
 // to the interface each timestep
 
@@ -63,10 +63,10 @@ lisemqt::lisemqt(QWidget *parent)
    // so this contains the final list of maps
 
 	SetToolBar();
-   FillMapTree();
+   initMapTree();
    // initalize interface and make tree structure for map names (= DEFmaps stringlist)
 
-   DefaultRunFile();
+   defaultRunFile();
    //fill namelist with default runfile names
    //get all actual mapnames from the mapList structure
 
@@ -82,6 +82,7 @@ lisemqt::lisemqt(QWidget *parent)
 	// do some style things
 
    SetGraph();
+   // set up the graph
 
 }
 //--------------------------------------------------------------------
@@ -105,9 +106,9 @@ void lisemqt::SetConnections()
    connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
    connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
 
-   connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doOpenMapname(QModelIndex)));
+   connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
    // double click on mapnake opens fileopen
-   connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(doChangeMapname(QModelIndex, QModelIndex)));
+   connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
    // doubleclick on mapname edits mapname
 }
 //--------------------------------------------------------------------
@@ -127,7 +128,7 @@ void lisemqt::SetToolBar()
 	saveAct = new QAction(QIcon(":/filesave.png"), "&Save...", this);
 	saveAct->setShortcuts(QKeySequence::Save);
 	saveAct->setStatusTip("Save a run file");
-	connect(saveAct, SIGNAL(triggered()), this, SLOT(SaveRunFile()));
+   connect(saveAct, SIGNAL(triggered()), this, SLOT(saveRunFile()));
 	toolBar->addAction(saveAct);
 
 	saveasAct = new QAction(QIcon(":/filesaveas.png"), "Save &As...", this);
@@ -538,14 +539,14 @@ void lisemqt::savefileas()
 
 }
 //--------------------------------------------------------------------
-void lisemqt::SaveRunFile()
+void lisemqt::saveRunFile()
 {
 	savefile(op.runfilename);
 }
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
-	UpdateModelData();
+   updateModelData();
 	// change runfile strings with current interface options
 
 	QFile fp(name);
@@ -665,7 +666,7 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
 
 	GetRunfile();
 	ParseInputData();
-   FillMapTree();  // fill the tree strcuture on page 2
+   initMapTree();  // fill the tree strcuture on page 2
 	RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
 //--------------------------------------------------------------------
@@ -726,10 +727,11 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
 	QMessageBox::information ( this, "openLISEM",
-                              QString("openLISEM verion %5 (%6) is created wih:\n\n%1\n%2\n%3\n%4\n")
+                              QString("openLISEM verion %6 (%7) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
                               .arg("- Qt cross platform application and UI framework version 4.7.X based on MingW (http://qt.nokia.com/).")
                               .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                               .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
+                              .arg("- PCRaster map functions: http://pcraster.geo.uu.nl")
                               .arg("Details can be found at: http://sourceforge.net/projects/lisem/")
                               .arg(VERSIONNR)
                               .arg(DATE)

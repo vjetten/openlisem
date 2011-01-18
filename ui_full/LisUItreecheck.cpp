@@ -36,7 +36,7 @@ GULLIESMAPS
 //--------------------------------------------------------------------
 void lisemqt::on_checkNoErosion_clicked()
 {
-	change_MapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
+   checkMapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
 	sedgroup->setEnabled(!checkNoErosion->isChecked());
 }
 //--------------------------------------------------------------------
@@ -44,31 +44,31 @@ void lisemqt::on_checkIncludeChannel_clicked()
 {
 	if (checkIncludeChannel->isChecked())
 	{
-		change_MapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-		change_MapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+      checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
+      checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
 	}
-	change_MapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
 {
-   change_MapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+   checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
 {
 	if (checkChannelBaseflow->isChecked())
 		checkChannelBaseflow->setChecked(false);
-	change_MapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
-	change_MapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
 {
 	if (checkChannelInfil->isChecked())
 		checkChannelInfil->setChecked(false);
-	change_MapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-	change_MapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
    QMessageBox::warning(this,"openLISEM",QString("NOT IMPLEMENTED YET"));
    checkChannelBaseflow->setChecked(false);
 }
@@ -85,32 +85,32 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
 	uiInfilMethod = nr;
     // set runfile var to infil nr
     
-	change_MapNameModel(INFILTRATIONMAPS, 0, true);
-	change_MapNameModel(INFILTRATIONMAPS, 10, false);//SW
-	change_MapNameModel(INFILTRATIONMAPS, 11, false);//GA1
-	change_MapNameModel(INFILTRATIONMAPS, 12, false);//GA2
-	change_MapNameModel(INFILTRATIONMAPS, 13, false);//KS
-	change_MapNameModel(INFILTRATIONMAPS, 14, false);//SP
+   checkMapNameModel(INFILTRATIONMAPS, 0, true);
+   checkMapNameModel(INFILTRATIONMAPS, 10, false);//SW
+   checkMapNameModel(INFILTRATIONMAPS, 11, false);//GA1
+   checkMapNameModel(INFILTRATIONMAPS, 12, false);//GA2
+   checkMapNameModel(INFILTRATIONMAPS, 13, false);//KS
+   checkMapNameModel(INFILTRATIONMAPS, 14, false);//SP
     
 	if (nr == 0)
 	{
-		change_MapNameModel(INFILTRATIONMAPS, 0, false);
+      checkMapNameModel(INFILTRATIONMAPS, 0, false);
 	}
 	else
 	{
-		change_MapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
+      checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                             || checkInfilCompact->isChecked()
                             || checkInfilGrass->isChecked()
                             );
         
-		change_MapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
+      checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
         
-		if (nr == 1) change_MapNameModel(INFILTRATIONMAPS, 10, true);
+      if (nr == 1) checkMapNameModel(INFILTRATIONMAPS, 10, true);
 		else
-			if (nr == 2 || nr == 3) change_MapNameModel(INFILTRATIONMAPS, 11, true);
+         if (nr == 2 || nr == 3) checkMapNameModel(INFILTRATIONMAPS, 11, true);
         else
             if (nr == 4)
-                change_MapNameModel(INFILTRATIONMAPS, 13, true);
+                checkMapNameModel(INFILTRATIONMAPS, 13, true);
 	}
 }
 //--------------------------------------------------------------------
@@ -118,7 +118,7 @@ void lisemqt::on_checkInfil2layer_clicked()
 {
 	if (E_InfiltrationMethod->currentIndex() == 2 ||
         E_InfiltrationMethod->currentIndex() == 3)
-		change_MapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked());
+      checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked());
     //	else
     //	{
     //		checkInfil2layer->setChecked(false);
@@ -127,7 +127,7 @@ void lisemqt::on_checkInfil2layer_clicked()
 void lisemqt::on_checkInfilCompact_clicked()
 {
 	if (E_InfiltrationMethod->currentIndex() > 0)
-		change_MapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
+      checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                             || checkInfilCompact->isChecked()
                             || checkInfilGrass->isChecked());
     //	else
@@ -149,7 +149,7 @@ void lisemqt::on_checkInfilGrass_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkBuffers_clicked()
 {
-	change_MapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+   checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
 	buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 	label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 	E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
@@ -160,7 +160,7 @@ void lisemqt::on_checkBuffers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
-	change_MapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+   checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
 	buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 	label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 	E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
@@ -171,7 +171,7 @@ void lisemqt::on_checkSedtrap_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSnowmelt_clicked()
 {
-	change_MapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
+   checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
 
     E_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
     label_5->setEnabled(checkSnowmelt->isChecked());
@@ -188,7 +188,7 @@ void lisemqt::doCheckSnowmelt(bool check)
 //        check = true;
 //    }
 
-	change_MapNameModel(SNOWMELTMAPS, 0, check);
+   checkMapNameModel(SNOWMELTMAPS, 0, check);
 
     E_SnowmeltName->setEnabled(check);
     label_5->setEnabled(check);
@@ -205,7 +205,7 @@ void lisemqt::doCheckRainfall(bool check)
 //        check = true;
 //    }
 
-	change_MapNameModel(RAINFALLMAPS, 0, check);
+   checkMapNameModel(RAINFALLMAPS, 0, check);
 
     E_RainfallName->setEnabled(check);
     label_4->setEnabled(check);
@@ -228,51 +228,51 @@ void lisemqt::on_checkExpandActive_clicked()
 void lisemqt::RunAllChecks()
 {
 	for (int i = 0; i < 12; i++)
-		change_MapNameModel(i, 0, false);
+      checkMapNameModel(i, 0, false);
     // set all to false
     
     // PROCESS IN REVERSE ORDER
     
-	change_MapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-	change_MapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
-	change_MapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
-	change_MapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
-	change_MapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
-	change_MapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+   checkMapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
+   checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
+   checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
+   checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
     
 	int nr = E_InfiltrationMethod->currentIndex();
 	checkInfil2layer->setEnabled(bool(nr ==2 || nr == 3));
     
 	if (nr == 0)
-		change_MapNameModel(INFILTRATIONMAPS, 0, false);
+      checkMapNameModel(INFILTRATIONMAPS, 0, false);
 	else
 	{
-		change_MapNameModel(INFILTRATIONMAPS, 0, true); //all
+      checkMapNameModel(INFILTRATIONMAPS, 0, true); //all
         
-		change_MapNameModel(INFILTRATIONMAPS, 10, false);//SW
-		change_MapNameModel(INFILTRATIONMAPS, 11, false);//GA1
-		change_MapNameModel(INFILTRATIONMAPS, 12, false);//GA2
-		change_MapNameModel(INFILTRATIONMAPS, 13, false);//KS
-		change_MapNameModel(INFILTRATIONMAPS, 14, false);//SP
+      checkMapNameModel(INFILTRATIONMAPS, 10, false);//SW
+      checkMapNameModel(INFILTRATIONMAPS, 11, false);//GA1
+      checkMapNameModel(INFILTRATIONMAPS, 12, false);//GA2
+      checkMapNameModel(INFILTRATIONMAPS, 13, false);//KS
+      checkMapNameModel(INFILTRATIONMAPS, 14, false);//SP
         
-		change_MapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
+      checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                             || checkInfilCompact->isChecked()
                             || checkInfilGrass->isChecked()
                             );
         
-		change_MapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
+      checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
         
-		if (nr == 1) change_MapNameModel(INFILTRATIONMAPS, 10, true);
+      if (nr == 1) checkMapNameModel(INFILTRATIONMAPS, 10, true);
 		else
-			if (nr == 2 || nr == 3) change_MapNameModel(INFILTRATIONMAPS, 11, true);
+         if (nr == 2 || nr == 3) checkMapNameModel(INFILTRATIONMAPS, 11, true);
         else
-            change_MapNameModel(INFILTRATIONMAPS, 12, false);
+            checkMapNameModel(INFILTRATIONMAPS, 12, false);
 	}
-	change_MapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
-	change_MapNameModel(SURFACEMAPS, 0, true);
-	change_MapNameModel(LANDUSEMAPS, 0, true);
-	change_MapNameModel(CATCHMENTMAPS, 0, true);
-	change_MapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
+   checkMapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
+   checkMapNameModel(SURFACEMAPS, 0, true);
+   checkMapNameModel(LANDUSEMAPS, 0, true);
+   checkMapNameModel(CATCHMENTMAPS, 0, true);
+   checkMapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
 
    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());

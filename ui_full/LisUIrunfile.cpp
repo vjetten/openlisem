@@ -11,7 +11,7 @@ website, information and code: http://sourceforge.net/projects/lisem
  * GetRunfile: read runfile and put all variables into the 'namelist' structure
  * ParseInputData: namelist structure is parsed to fill the interface
  *
- * UpdateModelData: update variables with changes in interface, called by save file
+ * updateModelData: update variables with changes in interface, called by save file
  *
  */
 
@@ -68,7 +68,6 @@ void lisemqt::ParseInputData()
 {
    int j=0;
    bool dummyrain, dummysnow;
-
 
    // get all the options/checks
    for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
@@ -330,7 +329,7 @@ void lisemqt::ParseInputData()
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p)
 {
-   /** TODO mulitplatform: fromNativeSeparators etc*/
+   /* TODO mulitplatform: fromNativeSeparators etc*/
    p.replace("/","\\");
    if (!p.endsWith("\\"))
       p = p + "\\";
@@ -342,9 +341,9 @@ QString lisemqt::CheckDir(QString p)
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options, called by savefile
 // savefile is called just before the model is run with tmp runfile
-void lisemqt::UpdateModelData()
+void lisemqt::updateModelData()
 {
-   if(checkRainfall->isChecked() && !checkSnowmelt->isChecked())
+   if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
       QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
 
 

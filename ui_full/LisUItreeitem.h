@@ -11,6 +11,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 #include <QtGui>
 
+/// tree items of the map tree interface, used by the treemodel, copied form a Qt example
 class TreeItem
 {
 public:

@@ -36,6 +36,17 @@
 #define NUTRIENTSMAPS 12
 #define GULLIESMAPS 13
 
+//---------------------------------------------------------------------------
+/// map name list structure for interaction with interface
+   typedef struct MAP_LIST {
+   QString name;
+   QString value;
+   QString dir;
+   int groupnr;
+   int varnr;
+} MAP_LIST;
+//---------------------------------------------------------------------------
+
 /*
 
 class SpectrogramData: public QwtRasterData
@@ -75,10 +86,10 @@ public:
 	lisemqt(QWidget *parent = 0);
 	~lisemqt();
 
-   void FillMapTree();
+   void initMapTree();
 	void DefaultMapnames();
    void fillMapnames();
-	void change_MapNameModel(int parentrow, int selrow, bool setit);
+   void checkMapNameModel(int parentrow, int selrow, bool setit);
 	void SetToolBar();
 	void GetStorePath();
 	void StorePath();
@@ -87,8 +98,8 @@ public:
 	void SetMapPlot();
 	void GetRunfile();
 	void ParseInputData();
-	void UpdateModelData();
-	void DefaultRunFile();
+   void updateModelData();
+   void defaultRunFile();
 	QString CheckDir(QString p);
 	void RunAllChecks();
 	void savefile(QString name);
@@ -134,16 +145,16 @@ public:
 	int uiInfilMethod;
 	double swatreDT;
 
-   _mapList mapList[NUMMAPS]; // structure for current map names, can be edited by user
+   MAP_LIST mapList[NUMMAPS]; /// structure for current map names, can be edited by user
    int nrmaplist;
-   _nameList namelist[NUMNAMES]; // structure to read runfile variables and names, used in LisUIrunfile.cpp
+   NAME_LIST namelist[NUMNAMES]; /// structure to read all runfile variables and names
    int nrnamelist;
-   QStringList outputcheck;
+   QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
 	int InterceptionEqNr;
 
 public slots:
 	// functions linked to actions
-	void SaveRunFile();
+   void saveRunFile();
 	void savefileas();
 	void openRunFile();
 	void runmodel();
@@ -154,8 +165,8 @@ public slots:
 	void aboutInfo();
 	void resetAll();
 
-   void doChangeMapname(QModelIndex topLeft, QModelIndex bottomRight );
-   void doOpenMapname(QModelIndex topLeft);
+   void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
+   void openMapname(QModelIndex topLeft);
 
 	void on_toolButton_MapDir_clicked();
 	void on_toolButton_ResultDir_clicked();

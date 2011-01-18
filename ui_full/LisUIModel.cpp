@@ -37,6 +37,10 @@ void lisemqt::stopmodel()
 		W->stopRequested = true;
 }
 //---------------------------------------------------------------------------
+/** Run the model:
+Save the current inyerface as a temporari run file, read by the model
+Make the model world and run it
+*/
 void lisemqt::runmodel()
 {
 	if (op.runfilename.isEmpty())
@@ -46,9 +50,8 @@ void lisemqt::runmodel()
 		return;
 	}
 	label_runfilename->setText(op.runfilename);
-   /** TODO if run from commandline this name must exist */
+   /* TODO if run from commandline this name must exist */
 
-	// this assumes runfilename is correct
 	savefile(QString(op.LisemDir+"openlisemtmp.run"));
 
 	tabWidget->setCurrentIndex(2);
@@ -68,9 +71,9 @@ void lisemqt::runmodel()
 	W = new TWorld();
 	// make the world
 
-	connect(W, SIGNAL(show(void)),this, SLOT(Showit(void)),Qt::QueuedConnection);
-	connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-	connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+   connect(W, SIGNAL(show(void)),this, SLOT(Showit(void)),Qt::QueuedConnection);
+   connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
+   connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
 	// connect emitted signals from the model thread to the interface routines that handle them
 
 	W->stopRequested = false;
@@ -243,9 +246,9 @@ void lisemqt::worldDone(const QString &results)
 //	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
 }
 //---------------------------------------------------------------------------
+// this function is linked to the debug signal emitted from the model world
 void lisemqt::worldDebug(const QString &results)
 {
-
 	label_debug->setText(results);
 	// show messages from the World model on the screen
 }

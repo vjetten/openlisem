@@ -15,6 +15,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 class TreeItem;
 
+/// tree structure with map names and description in the interface, copied form Qt exmaple
 class TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
