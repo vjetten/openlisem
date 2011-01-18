@@ -5,7 +5,10 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-/*! Functionality in model.h:
+
+/*! \file */
+/**
+Functionality in model.h:
 * - TWorld class that combines ALL model variables
 * - all processes
 * - global defines Drc, MV, FOR_ROW_COL_MV etc
@@ -35,34 +38,41 @@ website, information and code: http://sourceforge.net/projects/lisem
 #define report(name) WriteMapSeries(resultDir,QString(name), printstep)
 
 // defines to make life easier
+
+/// shortcut to access data
 #define Drc     Data[r][c]
 
+/// shortcut to access the outlet point data
 #define DrcOutlet     Data[r_outlet][c_outlet]
 
+/// shortcut missing value in map
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
 //IS_MV_REAL8(&Mask->Data[r][c])
 
+/// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
 		for (int c = 0; c < nrCols; c++)\
          if(!IS_MV_REAL8(&LDD->Data[r][c]))
    //	if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
+/// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < nrRows; r++)\
 		for (int  c = 0; c < nrCols; c++)\
          if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
 //		 if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
+/// shortcut for tile network row and col loop.
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < nrRows; r++)\
       for (int  c = 0; c < nrCols; c++)\
        if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
 //      if(!IS_MV_REAL8(& TileMask->Data[r][c]))
 
-#define NUMNAMES 300
-#define NUMMAPS 256
-#define MIN_FLUX 1e-12
-#define MIN_HEIGHT 1e-6
-#define MAXCONC 848
-//0.32 * 2650 = max vol conc * bulk density
+#define NUMNAMES 300   /// \def NUMNAMES runfile namelist max
+#define NUMMAPS 256    /// \def max nr maps
+#define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
+#define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
+#define MAXCONC 848    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -75,21 +85,9 @@ website, information and code: http://sourceforge.net/projects/lisem
 #define INFIL_SMITH2 23
 
 
-////---------------------------------------------------------------------------
-///** SWATRE: structure containing the 3D soil model. This model is declared for normal soils,\n
-//crustd soils, compacted soils and grass strips. PIXEL_INFO is defined in
-//  swatre_p.h (the private declarations)
-//*/
-//typedef struct SOIL_MODEL {
-//   struct PIXEL_INFO  *pixel;
-//   double precision;
-//   double minDt;
-//   double calibrationfactor;
-//   bool geometric;
-//   bool swatreBottomClosed;
-//   long nrCells;
-//} SOIL_MODEL;
 //---------------------------------------------------------------------------
+/// structure containing pointers to all maps
+
 /** structure containing pointers to all maps for automatic destruction after runs
  so memory doesn't have to be freed for each map. The functions Newmap(double) and
 ReadMap(cTMap *Mask, QString name) put a map on this list
@@ -99,28 +97,28 @@ typedef struct MapListStruct {
 }  MapListStruct;
 //---------------------------------------------------------------------------
 /// linked list structure for network in kin wave
-typedef struct Liststruct {
+typedef struct LDD_LINKEDLIST {
 	int rowNr;
 	int colNr;
-	struct Liststruct *prev;
-}  Liststruct;
+   struct LDD_LINKEDLIST *prev;
+}  LDD_LINKEDLIST;
 //---------------------------------------------------------------------------
 /// name list structure used to read run file
-typedef struct _nameList{
+typedef struct NAME_LIST {
 	QString name;
 	QString value;
-} _nameList;
+} NAME_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
-typedef struct _unitList{
+typedef struct UNIT_LIST {
    long nr;
    double area;
    double totdet;
    double totdep;
    double totsl;
-} _unitList;
+} UNIT_LIST;
 //---------------------------------------------------------------------------
-/// \class TWorld containing the model 'World': constants, variables and erosion processes
+/// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
   The class contains hydrological and erosion processes which are run in a time loop.\n
@@ -229,11 +227,11 @@ public:
 	QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol;
 
    // list with class values of land unit map
-   _unitList unitList[512]; // just a fixed number for 512 classes, who cares!
+   UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
    int landUnitNr;
 
 	// data initialization, runfile reading and parsing
-   _nameList runnamelist[NUMNAMES]; // structure for runfile variables and names
+   NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
    int nrrunnamelist;
 	void IntializeOptions(void);  // set all options to false etc
 	void IntializeData(void);     // make all non-input maps

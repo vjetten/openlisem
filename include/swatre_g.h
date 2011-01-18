@@ -7,7 +7,7 @@
 crustd soils, compacted soils and grass strips. PIXEL_INFO is defined in
   swatre_p.h (the private declarations)
 */
-typedef struct _SOIL_MODEL {
+typedef struct SOIL_MODEL {
    struct PIXEL_INFO  *pixel;
    double precision;
    double minDt;
