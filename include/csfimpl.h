@@ -106,7 +106,7 @@
 #define NR_ATTR_IN_BLOCK 	10
 #define LAST_ATTR_IN_BLOCK 	(NR_ATTR_IN_BLOCK-1)
 
-
+/// PCRaster CSF structure, do not touch!
 typedef struct ATTR_REC 
 {
 		UINT2 attrId;	/* attribute identifier */

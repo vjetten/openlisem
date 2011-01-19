@@ -19,6 +19,8 @@ website, information and code: http://sourceforge.net/projects/lisem
 
 //---------------------------------------------------------------------------
 
+/*! class to deal with CSF map construction, reading and writing etc. */
+
 class cTMap
 {
 protected:
@@ -49,7 +51,7 @@ public:
 
 #endif
 
-/*
+/* for info:
 typedef struct CSF_RASTER_HEADER
 {
 	 UINT2    valueScale;

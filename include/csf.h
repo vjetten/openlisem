@@ -36,6 +36,7 @@ typedef UINT4 CSF_FADDR;
 
 #define CSF_SIG_SPACE 32
 
+/// PCRaster CSF header, do not touch !
 typedef struct CSF_MAIN_HEADER
 {
  char    signature[CSF_SIG_SPACE];
@@ -56,6 +57,8 @@ typedef struct CSF_MAIN_HEADER
 /******************************************************************/
 /* Definition of the raster header                                */
 /******************************************************************/
+
+/// PCRaster CSF header, do not touch !
 typedef struct CSF_RASTER_HEADER
 {
 	 /* see #def's of VS_*
@@ -155,6 +158,7 @@ typedef void (*CSF_CONV_FUNC)(size_t, void *);
 typedef size_t (*CSF_WRITE_FUNC)(void *buf, size_t size, size_t n, FILE  *f);
 typedef size_t (*CSF_READ_FUNC)(void *buf, size_t size, size_t n, FILE *f);
 
+/// PCRaster CSF structure, do not touch!
 typedef struct MAP
 {
 	CSF_CONV_FUNC file2app;
