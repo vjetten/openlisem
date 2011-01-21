@@ -50,21 +50,21 @@ Functionality in model.h:
 //IS_MV_REAL8(&Mask->Data[r][c])
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_MV for (int r = 0; r < nrRows; r++)\
-		for (int c = 0; c < nrCols; c++)\
-         if(!IS_MV_REAL8(&LDD->Data[r][c]))
-   //	if(!IS_MV_REAL4(&Mask->Data[r][c]))
+#define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
+   for (int c = 0; c < _nrCols; c++)\
+   if(!IS_MV_REAL8(&LDD->Data[r][c]))
+//	if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
 /// shortcut for channel row and col loop
-#define FOR_ROW_COL_MV_CH for (int  r = 0; r < nrRows; r++)\
-		for (int  c = 0; c < nrCols; c++)\
-         if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
+#define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
+   for (int  c = 0; c < _nrCols; c++)\
+   if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
 //		 if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 /// shortcut for tile network row and col loop.
-#define FOR_ROW_COL_MV_TILE for (int  r = 0; r < nrRows; r++)\
-      for (int  c = 0; c < nrCols; c++)\
-       if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
+#define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
+   for (int  c = 0; c < _nrCols; c++)\
+   if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
 //      if(!IS_MV_REAL8(& TileMask->Data[r][c]))
 
 #define NUMNAMES 300   /// \def NUMNAMES runfile namelist max
@@ -118,6 +118,10 @@ typedef struct UNIT_LIST {
    double totsl;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
@@ -138,7 +142,8 @@ public:
 	~TWorld();
 
    /// copy of overall rows and columns, set in initmask
-   long nrRows, nrCols;
+   long _nrRows;
+   long _nrCols;
 
    /// map management structure, automatic adding and deleting of all TMMap variables
    MapListStruct maplistTMMap[NUMNAMES];
@@ -300,19 +305,21 @@ public:
    QString SwatreTableDir;
    QString SwatreTableName;
    QString initheadName;
+
+   double swatreDT;
+   bool initSwatreStructure;
+
    /// SWATRE infiltration model 3D soil structure
    SOIL_MODEL *SwatreSoilModel;
    SOIL_MODEL *SwatreSoilModelCrust;
    SOIL_MODEL *SwatreSoilModelCompact;
    SOIL_MODEL *SwatreSoilModelGrass;
-   double swatreDT;
-   bool initSwatreStructure;
    PROFILE **profileList;
    int nrProfileList, sizeProfileList;
    ZONE *zone;
+   double precision;
 
-   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin,
-                          double precis, double calibration, bool geom, bool bottomClosed);
+   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin);
    int ReadSwatreInput(QString fileName, QString tablePath);
    void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
    void CloseSwatre(SOIL_MODEL *s);
@@ -324,6 +331,16 @@ public:
    double *ReadSoilTable(const char *fileName, int *nrRows);
    void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
    void InitializeProfile();
+   void HeadCalc(double *h,bool *ponded, const PROFILE *p,double  *thetaPrev,
+                 double  *hPrev,double  *kavg, double  *dimoca,
+                 bool fltsat, double dt, double pond, double qtop, double qbot);
+//   void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
+//                 const double  *hPrev, const double  *kavg, const double  *dimoca,
+//                 bool fltsat, double dt, double pond, double qtop, double qbot);
+   double NewTimeStep(double prevDt, double *hLast, double *h, int nrNodes,
+                      double precParam, double dtMin, double dtMax);
+   void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
+                        double lisDT, SOIL_MODEL *s);
 
    void Totals(void);
 	void MassBalance(void);
@@ -349,15 +366,17 @@ protected:
 	QTime time_ms;
 
    // talk to the interface
-	signals:
+signals:
 	void done(const QString &results);
 	void debug(const QString &results);
    void show(); //use the output structure "op" declared in global.h and LisUIoutput.h
 
 public slots:   //note, was private loop but dixygen does not recognize that
-/// the main model loop, from here all processes are called in a time loop
-void DoModel();
+   /// the main model loop, from here all processes are called in a time loop
+   void DoModel();
 
 };
+
+
 
 #endif
