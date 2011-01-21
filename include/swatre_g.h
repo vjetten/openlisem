@@ -11,12 +11,12 @@ This model is declared for normal soils, crustd soils, compacted soils and grass
 
 typedef struct SOIL_MODEL {
    struct PIXEL_INFO  *pixel; //defined in swatre_p.h
-   double precision;
+  // double precision;
    double minDt;
-   double calibrationfactor;
-   bool geometric;
-   bool swatreBottomClosed;
-   long nrCells;
+  // double calibrationfactor;
+  // bool geometric;
+  // bool swatreBottomClosed;
+  // long nrCells;
 } SOIL_MODEL;
 //---------------------------------------------------------------------------
 
