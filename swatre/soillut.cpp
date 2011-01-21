@@ -30,6 +30,34 @@ website SVN: http://sourceforge.net/projects/lisem
 
 static int keyCol;
 
+<<<<<<< .mine
+//--------------------------------------------------------------------------------
+/* Comparison function for double
+ * Usable for qsort(),bsearch(), lfind() type comparison arguments
+ * returns
+ * < 0 if e1 is less than e2
+ * = 0 if e1 is equivalent to e2
+ * > 0 if e1 is greater than e2
+ */
+int CmpDouble(
+   const double *e1,  /* pointer to single double */
+   const double *e2)  /* pointer to single double */
+{
+/* see cmpdoubl.s for GNU def */
+//  register double e1_min_e2 = (*e1)-(*e2);
+  double e1_min_e2 = (*e1)-(*e2);
+  if (e1_min_e2 < 0)
+   return(-1);
+  return (e1_min_e2 > 0);
+}
+//--------------------------------------------------------------------------------
+
+int intervalBsearch(
+		/* arguments like std. ANSI. bsearch() */
+		const void *key, const void *base, size_t num, size_t
+		width, int (*cmp)(const void *e1, const void *e2))
+=======
+>>>>>>> .r114
 /* RETURNS -1     if first element of array 'base' is bigger  then 'key'
  *          n     where n is the element of array 'base' that is smaller
  *                than 'key'
@@ -115,7 +143,7 @@ double LUT_ValueAt(
 	return  l->lut[indexRow][indexCol];
 }
 //--------------------------------------------------------------------------------
-//static int Cmp(const double *e1, const double *e2)
+
 /* Comparison function for double
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
