@@ -15,11 +15,7 @@ website SVN: http://sourceforge.net/projects/lisem
 SOIL_MODEL *TWorld::InitSwatre(
 		TMMap *profileMap,
 		QString initHeadMaps,    /* init head name */
-		double minDt,         /* minimum timestep, is also initial timestep */
-		double precision,     /* precision factor to determine if if timestep can be altered */
-		double calibration,
-		bool geom,
-		bool bottomClosed)
+      double minDt)
 {
 	SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
 
@@ -27,20 +23,21 @@ SOIL_MODEL *TWorld::InitSwatre(
 
    int  i, n, nrNodes  = ((zone == NULL) ? -1 : zone->nrNodes);
 	int nodeDataIncr = nrNodes+1;
-	long nrCells = nrCols*nrRows;
+   long nrCells = _nrCols*_nrRows;
 
 	if (nrNodes == -1)
 	{
 		Error("SWATRE: can't call \'initswatre\' before \'swatre input\'");
 		return(NULL);
 	}
-	s->nrCells = nrCells;
-	s->precision = precision;
+//	s->nrCells = nrCells;
 	s->minDt = minDt;
-	s->geometric = geom;
-	s->swatreBottomClosed = bottomClosed;
-	s->calibrationfactor = calibration;
-	s->pixel = new PIXEL_INFO[nrCells];
+   s->pixel = new PIXEL_INFO[nrCells];
+   
+//	s->precision = precision;
+//	s->geometric = geom;
+//	s->swatreBottomClosed = bottomClosed;
+//	s->calibrationfactor = calibration;
 
 	for (i = 0; i < nrCells; i++)
 	{
@@ -66,9 +63,9 @@ SOIL_MODEL *TWorld::InitSwatre(
 				return (NULL);
 			}
 
-			s->pixel[r*nrCols+c].profile = ProfileNr(profileMap->Drc);
-			s->pixel[r*nrCols+c].currDt = minDt;
-			s->pixel[r*nrCols+c].h[n] = inith->Data[r][c];
+         s->pixel[r*_nrCols+c].profile = ProfileNr(profileMap->Drc);
+         s->pixel[r*_nrCols+c].currDt = minDt;
+         s->pixel[r*_nrCols+c].h[n] = inith->Data[r][c];
 		}
 	}
 	return(s);
@@ -80,7 +77,7 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
     if (s == NULL)
         return;
     
-	for (int i = 0; i < s->nrCells; i++)
+   for (int i = 0; i < _nrCols*_nrRows; i++)
 		delete[] s->pixel[i].h;
 
 	free(s->pixel);
