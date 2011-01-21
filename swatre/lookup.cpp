@@ -15,7 +15,7 @@ website SVN: http://sourceforge.net/projects/lisem
 /*                                                                        */
 /**************************************************************************/
 
-#include "swatremisc.h"
+//#include "swatremisc.h"
 #include "swatre_p.h"
 #include "swatresoillut.h"
 #include "swatrelookup.h"

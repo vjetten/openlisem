@@ -6,7 +6,7 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-#include "swatremisc.h"
+//#include "swatremisc.h"
 #include "csf.h"
 #include "error.h"
 #include "model.h"

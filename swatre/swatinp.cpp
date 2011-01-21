@@ -6,7 +6,7 @@ licence: GNU General Public License (GPL)
 Developed in: MingW/Qt/ 
 website SVN: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
-#include "swatremisc.h"
+//#include "swatremisc.h"
 #include "error.h"
 #include "model.h"
 
@@ -128,7 +128,7 @@ void  TWorld::FreeSwatreInfo(void)
     if (zone == NULL)
         return;
 
-    free(zone->dz);
+   free(zone->dz);
 	free(zone->z);
 	free(zone->endComp);
 	free(zone->disnod);
