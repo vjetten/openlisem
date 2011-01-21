@@ -49,11 +49,11 @@
  */
 #ifdef USE_IN_PCR
 # include "stddefx.h" 
-# include "swatremisc.h" /* malloc, free */
+//# include "swatremisc.h"
 # define  CSF_MALLOC ChkMalloc
 # define  CSF_FREE   Free
 #else
-# include <stdlib.h> /* malloc, free,abs */
+# include <stdlib.h>
 # include <assert.h> 
 # define  CSF_MALLOC malloc
 # define  CSF_FREE   free
@@ -114,6 +114,7 @@ typedef struct ATTR_REC
 		UINT4 attrSize;	/* size of attibute in bytes */
 } ATTR_REC;
 
+/// PCRaster CSF structure, do not touch !
 typedef struct ATTR_CNTRL_BLOCK
 {
 	ATTR_REC attrs[NR_ATTR_IN_BLOCK];

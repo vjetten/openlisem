@@ -10,6 +10,13 @@
 #define DMCC_COL        4
 #define NR_COL          (DMCC_COL+1)
 
+/* qsortcmp.c */
+ typedef int (*QSORT_CMP)(const void *e1, const void *e2);
+// sort function for looking in lut tables
+
+#define max(a, b)  (((a) > (b)) ? (a) : (b))
+#define min(a, b)  (((a) < (b)) ? (a) : (b))
+
 typedef struct LUT {
 	const double **lut;
 	double *key;  /* buffer for search key */

@@ -88,52 +88,50 @@ TMMap
 *DG,                         //!< parameter Govers in TC equation
 *SettlingVelocity,           //!< settling velocity according to Stokes [m/s]
 
-*Fcum,                       //!< 
-*FSurplus,                   //!<
-*FFull,                      //!<
-*fact,                       //!<
-*fpot,                       //!<
-*InfilVolKinWave,            //!<
-*InfilVol,                   //!<
-*InfilVolCum,                //!<
+*Fcum,                       //!< cumulative infiltration [m]
+*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
+*FFull,                      //!< map flagging when the soil is full
+*fact,                       //!< actual infiltration rate [m/s]
+*fpot,                       //!< potential infiltration rate [m/s]
+*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
+*InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
+*InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
 
-*ThetaS1,                    //!<
-*ThetaI1,                    //!<
-*Psi1,                       //!<
-*Ksat1,                      //!<
-*SoilDepth1,                 //!<
-*L1,                         //!<
-*Soilwater,                  //!<
+*ThetaS1,                    //!< porosity soil layer 1 [-]
+*ThetaI1,                    //!< initial moisture content soil layer 1 [-]
+*Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
+*Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
+*SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
+*L1,                         //!< depth of wetting front in layer 1 [m]
+*Soilwater,                  //!< actual soil water content [-]
 
-*ThetaS2,                    //!<
-*ThetaI2,                    //!<
-*Psi2,                       //!<
-*Ksat2,                      //!<
-*SoilDepth2,                 //!<
-*L2,                         //!<
-*Soilwater2,                 //!<
+*ThetaS2,                    //!< porosity soil layer 2 [-]
+*ThetaI2,                    //!< initial moisture content soil layer 2 [-]
+*Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
+*Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
+*SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
+*L2,                         //!< depth of wetting front in layer 2 [m]
+*Soilwater2,                  //!< actual soil water content layer 2 [-]
 
-*KsatCrust,                  //!<
-*KsatCompact,                //!<
-*KsatGrass,                  //!<
-*Ksateff,                    //!<
-*L1gr,                       //!<
-*L2gr,                       //!<
-*factgr,                     //!<
-*fpotgr,                     //!<
+*KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
+*KsatCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
+*KsatGrass,                  //!< saturated hydraulic conductivity grass strip (input is in mm/h) [m/s]
+*Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
+*L1gr,                       //!< depth wetting front under grass strip layer 1 [m]
+*L2gr,                       //!< depth wetting front under grass strip layer 2 [m]
+*factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
+*fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
+*Fcumgr,                     //!< cumulative infiltration under grassstrips [m]
+*WHGrass,                    //!< water level on a grassstrip [m]
+*GrassFraction,              //!< fraction of grasstrip in a cell [-]
+*GrassWidthDX,               //!< width of grasstrip in [m]
 
-*WHGrass,                    //!<
-*Fcumgr,                     //!<
-*GrassFraction,              //!<
-*GrassWidthDX,               //!<
-*GrassPresent,               //!<
+*ProfileID,                  //!< SWATRE profile unit number map
+*ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas
+*ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas
+*ProfileIDGrass,             //!< SWATRE profile unit number map for grass strips
 
-*ProfileID,                  //!<
-*ProfileIDCrust,             //!<
-*ProfileIDCompact,           //!<
-*ProfileIDGrass,             //!<
-
-*ChannelMask,                //!<
+*ChannelMask,                //!< 
 *RunoffVolinToChannel,       //!<
 *LDDChannel,                 //!<
 *ChannelWidth,               //!<
@@ -153,9 +151,9 @@ TMMap
 *ChannelWidthUpDX,           //!<
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
+*ChannelKsat,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
-*ChannelKsat,                //!<
 *ChannelSed,                 //!<
 *ChannelConc,                //!<
 *ChannelTC,                  //!<

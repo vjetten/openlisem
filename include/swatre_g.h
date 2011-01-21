@@ -3,12 +3,14 @@
 
 
 //---------------------------------------------------------------------------
-/** SWATRE: structure containing the 3D soil model. This model is declared for normal soils,\n
-crustd soils, compacted soils and grass strips. PIXEL_INFO is defined in
-  swatre_p.h (the private declarations)
+/// SWATRE structure for soil profile information and swatre options
+
+/** SWATRE: structure for soil profile information and swatre options.\n
+This model is declared for normal soils, crustd soils, compacted soils and grass strips. \n
 */
+
 typedef struct SOIL_MODEL {
-   struct PIXEL_INFO  *pixel;
+   struct PIXEL_INFO  *pixel; //defined in swatre_p.h
    double precision;
    double minDt;
    double calibrationfactor;

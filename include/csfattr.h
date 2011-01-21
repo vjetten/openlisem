@@ -17,6 +17,7 @@ typedef enum CSF_ATTR_ID {
 #define CSF_LEGEND_ENTRY_SIZE  64
 #define CSF_LEGEND_DESCR_SIZE  60
 
+/// PCRaster CSF structure, do not touch!
 typedef struct CSF_LEGEND {
 	INT4    nr;
 	char    descr[60];

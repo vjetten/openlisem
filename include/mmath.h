@@ -22,7 +22,7 @@ website, information and code: http://sourceforge.net/projects/lisem
 #define POW 4
 
 
-
+/// class defining some basic map algebra operations
 class TMMap : public cTMap
 {
  //protected:
