@@ -49,7 +49,7 @@
  */
 #ifdef USE_IN_PCR
 # include "stddefx.h" 
-//# include "swatremisc.h"
+# include "misc.h" /* malloc, free */
 # define  CSF_MALLOC ChkMalloc
 # define  CSF_FREE   Free
 #else
@@ -106,7 +106,7 @@
 #define NR_ATTR_IN_BLOCK 	10
 #define LAST_ATTR_IN_BLOCK 	(NR_ATTR_IN_BLOCK-1)
 
-/// PCRaster CSF structure, do not touch!
+
 typedef struct ATTR_REC 
 {
 		UINT2 attrId;	/* attribute identifier */
