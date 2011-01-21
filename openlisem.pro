@@ -22,7 +22,6 @@ HEADERS += \
     include/swatre_p.h \
     include/swatreLookup.h \
     include/swatresoillut.h \
-    include/swatremisc.h \
     include/swatre_g.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
@@ -51,11 +50,10 @@ SOURCES += lisTotalsMB.cpp \
     mmath.cpp \
     swatre/swatstep.cpp \
     swatre/swatinit.cpp \
-    swatre/swat_inp.cpp \
     swatre/soillut.cpp \
-    swatre/qsortcmp.cpp \
     swatre/lutio.cpp \
-    swatre/lookup.cpp
+    swatre/lookup.cpp \
+    swatre/swatinp.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
     LIBS += -L"debug" -llibcsfd
