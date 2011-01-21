@@ -14,7 +14,7 @@
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
-typedef int (*QSORT_CMP)(const void *e1, const void *e2);
+
 extern int CmpDouble(const double *e1, const double *e2);
 /* qsortcmp.c */
  typedef int (*QSORT_CMP)(const void *e1, const void *e2);
