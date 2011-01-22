@@ -77,18 +77,22 @@ void TWorld::InfilMorelSeytoux1(void)
 		double Ks = Ksateff->Drc/3600000.0;  //in m/s
 		double fwh = WH->Drc; // in m, in WH is old WH + net rainfall
 		double rt = fwh/_dt; // m/s pseudo rainfall, all water/dt = rate
-		double A = 0, B, tp;
+      double A = 0, B, tp;
 		double tt=time-BeginTime;
+      double Psi = Psi1->Drc;
 
       if (SoilDepth1->Drc <= tiny)
          continue;
       // outcrops etc: no infil
 
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
+      {
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+         Psi = Psi2->Drc;
+      }
 
-		B = (fwh+Psi1->Drc*0.01)*(ThetaS1->Drc-ThetaI1->Drc); //m
+      B = (fwh+Psi1->Drc)*(ThetaS1->Drc-ThetaI1->Drc); //m
 		tp = max(0, Ks*B/(rt*rt - Ks*rt)); //sec
 
 		if (Ks < rt )
@@ -105,7 +109,7 @@ void TWorld::InfilMorelSeytoux1(void)
 		fact1 = min(fpot->Drc, fwh);
 		// actual infil in m, cannot have more infil than water on the surface
 
-		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
 
 	}
 }
@@ -118,8 +122,12 @@ void TWorld::InfilSmithParlange1(void)
 		double fact1;
 		double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
 		double fwh = WH->Drc; // in m, in WH is old WH + net rainfall
-		double Cdexp, B = (fwh + Psi1->Drc*0.01)*max(ThetaS1->Drc-ThetaI1->Drc, tiny);
-		// psi input map is in cm so multiply 0.01 for m
+      double Psi = Psi1->Drc;
+      //VJ 110118 added psi of layer 2, was a bug
+      double Cdexp, B;
+
+      B = (fwh + Psi)*max(ThetaS1->Drc-ThetaI1->Drc, tiny);
+      // TODO what abbout 2 layers?
 
       if (SoilDepth1->Drc <= tiny)
          continue;
@@ -127,9 +135,12 @@ void TWorld::InfilSmithParlange1(void)
       
 
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
+      {
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 		// smallest of the two ksats in two laters blocks the flow
-
+         Psi = Psi2->Drc;
+         //VJ 110118 added psi of layer 2, was a bug
+      }
 		Cdexp = exp(Fcum->Drc/B);
 		fpot->Drc = Ks*Cdexp/(Cdexp-1);
 		// potential infiltration in m
@@ -137,7 +148,7 @@ void TWorld::InfilSmithParlange1(void)
 		fact1 = min(fpot->Drc, fwh);
 		// actual infil in m, cannot have more infil than water on the surface
 
-		fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
+      fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc);
 		// adjust fact->Drc for twolayer, impermeable etc
 
       if(SwitchGrassStrip)
@@ -156,7 +167,7 @@ void TWorld::InfilSmithParlange1(void)
 
 			fact1 = min(fpotgr->Drc, fwh);
 
-			factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
+         factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
 		}
 	}
 }
@@ -169,6 +180,7 @@ void TWorld::InfilGreenAmpt1(void)
 		double fact1;
 		double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
 		double fwh = WH->Drc; // in m, WH is old WH + net rainfall
+      double Psi = Psi1->Drc;
 
       if (SoilDepth1->Drc <= tiny)
       {
@@ -178,11 +190,16 @@ void TWorld::InfilGreenAmpt1(void)
       }
       // outcrops etc: no infil
 
+
 		if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
+      {
 			Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 		// if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+         Psi = Psi2->Drc;
+         //VJ 110118 added psi of layer 2, was a bug
+      }
 
-		fpot->Drc = Ks*(1+(Psi1->Drc*0.01+fwh)/(L1->Drc+L2->Drc));
+      fpot->Drc = Ks*(1+(Psi+fwh)/(L1->Drc+L2->Drc));
 		// potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
 		// L1 initialized at 1e-10, psi in cm so multiply 0.01 for m
 
@@ -200,7 +217,7 @@ void TWorld::InfilGreenAmpt1(void)
          if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
             Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-         fpotgr->Drc = Ks*(1+(Psi1->Drc*0.01+fwh)/(L1gr->Drc+L2->Drc));
+         fpotgr->Drc = Ks*(1+(Psi1->Drc+fwh)/(L1gr->Drc+L2->Drc));
 
          fact1 = min(fpotgr->Drc, fwh);
 
@@ -261,7 +278,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 	L1 = *L1p;
 	L2 = *L2p;
 
-	dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
+   dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
    // increase in depth (m) is actual infiltration/available porespace
    // do this always, correct if 1st layer is full
 
