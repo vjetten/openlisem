@@ -331,14 +331,14 @@ public:
    double *ReadSoilTable(const char *fileName, int *nrRows);
    void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
    void InitializeProfile();
-   void HeadCalc(double *h,bool *ponded, const PROFILE *p,double  *thetaPrev,
-                 double  *hPrev,double  *kavg, double  *dimoca,
-                 bool fltsat, double dt, double pond, double qtop, double qbot);
-//   void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
-//                 const double  *hPrev, const double  *kavg, const double  *dimoca,
+//   void HeadCalc(double *h,bool *ponded, const PROFILE *p,double  *thetaPrev,
+//                 double  *hPrev,double  *kavg, double  *dimoca,
 //                 bool fltsat, double dt, double pond, double qtop, double qbot);
-   double NewTimeStep(double prevDt, double *hLast, double *h, int nrNodes,
-                      double precParam, double dtMin, double dtMax);
+   void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
+                 const double  *hPrev, const double  *kavg, const double  *dimoca,
+                 bool fltsat, double dt, double pond, double qtop, double qbot);
+   double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
+         double precParam, double dtMin, double dtMax);
    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                         double lisDT, SOIL_MODEL *s);
 

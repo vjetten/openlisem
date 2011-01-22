@@ -18,7 +18,7 @@ matrix shape:
 |a1 .. cn-1|*|  |=|  |
 |   an bn  | |hn| |Fn|
 */
-void HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
+void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
 				  const double  *hPrev,const double  *kavg,const double  *dimoca,
 				  bool fltsat, double dt, double pond, double qtop, double qbot)
 {
@@ -95,7 +95,7 @@ void HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
 
 }
 //--------------------------------------------------------------------------------
-static double  NewTimeStep(
+double  TWorld::NewTimeStep(
 		double 		 prevDt,
 		const double *hLast,
 		const double *h,
@@ -122,7 +122,7 @@ static double  NewTimeStep(
 //--------------------------------------------------------------------------------
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
-void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
 							double lisDT,SOIL_MODEL *s)
 {
 	NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
@@ -143,7 +143,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 		//===== get nodal values of theta, K, cap =====//
 		for (i=0; i < n; i++)
 		{
-			k[i] = HcoNode(h[i], Horizon(p, i), s->calibrationfactor, 86400);
+         k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration, 86400);
 			// table in cm/day now in cm/sec
 			dimoca[i] = DmcNode(h[i], Horizon(p, i));
 			theta[i] = TheNode(h[i], Horizon(p, i));
@@ -151,7 +151,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 
 		//===== arithmetric average K, geometric in org. SWATRE =====//
 		// average K for 1st to n-1 node
-		if (!s->geometric)
+      if (!SwitchGeometric)
 		{
 			for (i=1; i < n; i++)
 				kavg[i] = 0.5*(k[i]+k[i-1]);
@@ -166,7 +166,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 
 		//----- BOTTOM -----//
 		// bottom is 0 or copy of flux of last 2 layers
-		if (s->swatreBottomClosed)
+      if (SwitchImpermeable)
 			qbot = 0;
 		else
 			qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
@@ -177,7 +177,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 		// top flux is ponded layer / timestep, available water, cm/sec
 
 		ThetaSat = TheNode(0.0, Horizon(p, 0));
-		kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), s->calibrationfactor, 86400) * k[0]);
+      kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration, 86400) * k[0]);
 		// qmax of top node is always calculated with geometric average K
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
 		//actual infil rate Darcy
@@ -220,7 +220,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 		HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, /* Sink */
 					fltsat, dt, pond, qtop, qbot);
 		// determine new boundary fluxes
-		if (s->swatreBottomClosed)
+      if (SwitchImpermeable)
 			qbot = 0;
 		else
 			qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
@@ -242,7 +242,7 @@ void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, do
 
 		elapsedTime += dt;
 		/* estimate new dt within lisemtimestep */
-		dt = NewTimeStep(dt, hPrev, h, n, s->precision, s->minDt, lisDT);
+      dt = NewTimeStep(dt, hPrev, h, n, precision, s->minDt, lisDT);
 		pixel->currDt = dt;
 
 		if (elapsedTime+dt+TIME_EPS >= lisDT)
@@ -272,7 +272,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 		infil = 0;
       drain = 0;
 
-      ComputeForPixel(&s->pixel[r*nrCols+c], &wh, &infil, &drain, _dt, s);
+      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, _dt, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
 
 		_WH->Data[r][c] = wh/100;

@@ -10,20 +10,20 @@
 #define DMCC_COL        4
 #define NR_COL          (DMCC_COL+1)
 
+//---------------------------------------------------------------------------
 
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 extern int CmpDouble(const double *e1, const double *e2);
-/* qsortcmp.c */
- typedef int (*QSORT_CMP)(const void *e1, const void *e2);
+
+typedef int (*QSORT_CMP)(const void *e1, const void *e2);
 // sort function for looking in lut tables
 
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
+//---------------------------------------------------------------------------
 
->>>>>>> .r112
+/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
 typedef struct LUT {
 	const double **lut;
 	double *key;  /* buffer for search key */
@@ -33,10 +33,9 @@ typedef struct LUT {
 
 
 LUT *CreateLutFromContents(
-	const double *lutCont, 
-	        /* array with nrCols*nrRows items with values */
-		/* this pointer is grabbed, space is freed by FreeLut() */
-	bool  gotoMinMax, /*  see struct LUT definition */
+	const double *lutCont, /* array with nrCols*nrRows items with values 
+                             this pointer is grabbed, space is freed by FreeLut() */
+   bool  gotoMinMax,      /*  see struct LUT definition */
 	int nrRows, 
 	int nrCols) ;
 
@@ -52,7 +51,6 @@ double  LUT_LinIntPol(
  *       Exits withs Error() call if keyVal is not in range if LUT 
  *         if LUT is created with gotoMinMax set to FALSE
  */
-
 
 int  LUT_Index_LE(
 	const LUT *l,     

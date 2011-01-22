@@ -338,7 +338,7 @@ void TWorld::Infiltration(void)
       WH->Drc += RainNet->Drc + Snowmeltc->Drc;
       // add net to water rainfall on soil surface (in m)
 
-      if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
          WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
       // net rainfall on grass strips, infil is calculated separately for grassstrips
 
@@ -416,7 +416,7 @@ void TWorld::Infiltration(void)
          Fcum->Drc += fact->Drc;
          // cumulative infil in m
 
-         if (GrassPresent->Drc > 0)
+         if (GrassFraction->Drc > 0)
          {
             WHGrass->Drc -= factgr->Drc;
             if (WHGrass->Drc < 0) // in case of rounding of errors
@@ -429,14 +429,14 @@ void TWorld::Infiltration(void)
          // calculate and correct water height on grass strips
       }
 
-      if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
          WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
       // average water height if grasstrip present
 
       FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
       // negative surplus of infiltration in m for kinematic wave in m
 
-      if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
          FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
       // if grasstrip present use grasstrip surplus as entire surplus
 

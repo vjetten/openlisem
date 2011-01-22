@@ -54,8 +54,8 @@ TMMap *TWorld::ReadMapMask(QString name)
 
 	}
 
-	for (int r = 0; r < nrRows; r++)
-		for (int c = 0; c < nrCols; c++)
+   for (int r = 0; r < _nrRows; r++)
+      for (int c = 0; c < _nrCols; c++)
 			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
 			{
             ErrorString =
@@ -88,8 +88,8 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 		throw 1;
 	}
 
-	for (int r = 0; r < nrRows; r++)
-		for (int c = 0; c < nrCols; c++)
+   for (int r = 0; r < _nrRows; r++)
+      for (int c = 0; c < _nrCols; c++)
 			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
 			{
             QString sr, sc;
@@ -167,8 +167,8 @@ TMMap *TWorld::InitMask(QString name)
    maplistTMMap[maplistnr].m = Mask;
 	maplistnr++;
 	_dx = Mask->MH.cellSizeX*1.0000000;
-	nrRows = Mask->nrRows;
-	nrCols = Mask->nrCols;
+   _nrRows = Mask->nrRows;
+   _nrCols = Mask->nrCols;
 
 	return(_M);
 
@@ -539,9 +539,7 @@ void TWorld::GetInputData(void)
 	LAI = ReadMap(LDD,getvaluename("lai"));
 	Cover = ReadMap(LDD,getvaluename("cover"));
    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
-	GrassPresent = NewMap(0);
 
-   qDebug() << SwitchGrassStrip;
    if (SwitchGrassStrip)
 	{      
 		GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
@@ -552,7 +550,6 @@ void TWorld::GetInputData(void)
 		{
 			if (GrassWidthDX > 0)
 			{
-				GrassPresent->Drc = 1;
 				N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
 			}
 		}
@@ -839,31 +836,27 @@ void TWorld::IntializeData(void)
 	SwatreSoilModelGrass = NULL;
 	if (InfilMethod == INFIL_SWATRE)
 	{
-		double precision = 5.0;
+      precision = 5.0;
 		// note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
-		SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT, precision,
-                                   ksatCalibration, SwitchGeometric, SwitchImpermeable);
+      SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT);
 		if (SwatreSoilModel == NULL)
 			throw 3;
 
 		if (SwitchInfilCrust)
 		{
-			SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT, precision,
-                                           ksatCalibration, SwitchGeometric, SwitchImpermeable);
+         SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT);
 			if (SwatreSoilModelCrust == NULL)
 				throw 3;
 		}
 		if (SwitchInfilCompact)
 		{
-			SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT, precision,
-                                             ksatCalibration, SwitchGeometric, SwitchImpermeable);
+         SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT);
 			if (SwatreSoilModelCompact == NULL)
 				throw 3;
 		}
       if (SwitchGrassStrip)
 		{
-			SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT, precision,
-                                           ksatCalibration, SwitchGeometric, SwitchImpermeable);
+         SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT);
 			if (SwatreSoilModelGrass == NULL)
 				throw 3;
 		}

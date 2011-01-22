@@ -30,7 +30,7 @@ website SVN: http://sourceforge.net/projects/lisem
 
 static int keyCol;
 
-<<<<<<< .mine
+
 //--------------------------------------------------------------------------------
 /* Comparison function for double
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
@@ -43,21 +43,15 @@ int CmpDouble(
    const double *e1,  /* pointer to single double */
    const double *e2)  /* pointer to single double */
 {
-/* see cmpdoubl.s for GNU def */
-//  register double e1_min_e2 = (*e1)-(*e2);
-  double e1_min_e2 = (*e1)-(*e2);
-  if (e1_min_e2 < 0)
-   return(-1);
-  return (e1_min_e2 > 0);
+   /* see cmpdoubl.s for GNU def */
+   //  register double e1_min_e2 = (*e1)-(*e2);
+   double e1_min_e2 = (*e1)-(*e2);
+   if (e1_min_e2 < 0)
+      return(-1);
+   return (e1_min_e2 > 0);
 }
 //--------------------------------------------------------------------------------
 
-int intervalBsearch(
-		/* arguments like std. ANSI. bsearch() */
-		const void *key, const void *base, size_t num, size_t
-		width, int (*cmp)(const void *e1, const void *e2))
-=======
->>>>>>> .r114
 /* RETURNS -1     if first element of array 'base' is bigger  then 'key'
  *          n     where n is the element of array 'base' that is smaller
  *                than 'key'
@@ -97,10 +91,11 @@ int intervalBsearch(
 	return(x);
 }
 
+//--------------------------------------------------------------------------------
 
 LUT *CreateLutFromContents(
    const double *lutCont,  /* array with nrRows * nrCols values
-                           this pointer is grabbed, space freed by FreeLut() */
+                              this pointer is grabbed, space freed by FreeLut() */
 	bool  gotoMinMax, /*  see struct LUT definition */
 	int nrRows, 
 	int nrCols)
@@ -122,8 +117,7 @@ LUT *CreateLutFromContents(
 
 	return(l);
 }
-
-
+//--------------------------------------------------------------------------------
 void FreeLut(LUT *l)
 {
 
@@ -134,7 +128,7 @@ void FreeLut(LUT *l)
 	free(l->key);
 	free(l);
 }
-
+//--------------------------------------------------------------------------------
 double LUT_ValueAt(
 	const LUT *l, 
 	int   indexCol,
@@ -143,7 +137,6 @@ double LUT_ValueAt(
 	return  l->lut[indexRow][indexCol];
 }
 //--------------------------------------------------------------------------------
-
 /* Comparison function for double
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
@@ -153,14 +146,8 @@ double LUT_ValueAt(
  */
 static int Cmp(double *e1, double *e2)
 {
-   double e1_min_e2 = (*e1+keyCol)-(*e2+keyCol);
-   if (e1_min_e2 < 0)
-      return(-1);
-   return (e1_min_e2 > 0);
+   return CmpDouble((e1+keyCol), (e2+keyCol));
 }
-
-// return CmpDouble((e1+keyCol), (e2+keyCol));
-
 
 //--------------------------------------------------------------------------------
 double  LUT_LinIntPol(
@@ -204,6 +191,7 @@ double  LUT_LinIntPol(
 		return lowWanted+ ((highWanted-lowWanted)*dRel);
 	}
 }
+//--------------------------------------------------------------------------------
 
 
 double  LUT_LinIntPol1(

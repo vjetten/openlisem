@@ -97,7 +97,7 @@ void TWorld::SplashDetachment(void)
 		DETSplash->Drc = (1-StoneFraction->Drc) * DETSplash->Drc;
 		// no splash on stone surfaces
 
-		if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
 			DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
 		// no splash on grass strips
 
@@ -153,7 +153,7 @@ void TWorld::FlowDetachment(void)
 		DETFlow->Drc = min(DETFlow->Drc, maxTC * WaterVolall->Drc);
 		// cannot have more detachment than remaining capacity in flow
 
-		if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
 			DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
 		// no flow detachment on grass strips
 
@@ -189,7 +189,7 @@ void TWorld::FlowDetachment(void)
 		//deposition = (1-Snowcover->Drc) * deposition;
       /* TODO: TRUE??? no deposition on snow */
 
-		if (GrassPresent->Drc > 0)
+      if (GrassFraction->Drc > 0)
 			deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
 		// generate 100% deposition on grassstrips
 		//? bit tricky, maximizes effect on grassstrips ?

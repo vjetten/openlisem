@@ -16,6 +16,8 @@ website, information and code: http://sourceforge.net/projects/lisem
    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 //( ldd != 0 & rFrom >= 0 & cFrom >= 0 & rFrom+dy[ldd]==rTo & cFrom+dx[ldd]==cTo )
 
+#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
+
 #define D(r,c)  Data[r][c]
 #define MAX_ITERS 10
 
@@ -216,14 +218,12 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			r = rowNr+dy[i];
 			c = colNr+dx[i];
 
-         if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-             //            if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+         if (INSIDE(r, c) &&
              !IS_MV_REAL8(&_LDD->Drc))
 				ldd = (int) _LDD->Drc;
 			else
 				continue;
-         if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-             //            if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+         if (INSIDE(r, c) &&
              FLOWS_TO(ldd, r, c, rowNr, colNr) &&
              IS_MV_REAL4(&_Qn->Drc) ) /* cell not computed */
 			{
@@ -250,15 +250,13 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 				r = rowNr+dy[i];
 				c = colNr+dx[i];
 
-            if (r>=0 && r<nrRows && c>=0 && c<nrCols &&
-                //                if ((r>=0 & r<nrRows & c>=0 & c<nrCols) &&
+            if (INSIDE(r, c) &&
                 !IS_MV_REAL4(&_LDD->Drc))
 					ldd = (int) _LDD->Drc;
 				else
 					continue;
 
-            //          if ((r>=0 & r < nrRows & c>=0 & c < nrCols) &&
-            if (r>=0 && r < nrRows && c>=0 && c < nrCols &&
+            if (INSIDE(r, c) &&
                 FLOWS_TO(ldd, r,c,rowNr, colNr) &&
                 !IS_MV_REAL4(&_LDD->Drc) )
 				{

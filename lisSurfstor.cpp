@@ -85,7 +85,7 @@ void TWorld::SurfaceStorage(void)
       FlowWidth->Drc = max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
       // calculate flowwidth by fpa*surface + road, excludes channel already
 
-      if (GrassPresent->Drc == 1)
+      if (GrassFraction->Drc > 0)
          FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
       // assume grassstrip spreads water over entire width
 
