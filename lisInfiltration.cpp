@@ -24,7 +24,7 @@ void TWorld::InfilSwatre(void)
    tma->fill(1); // flag to indicate where the swatrestep mdoel should be run
 
    SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, tma);
-   TileDrainSoil->report("drain");
+  // TileDrainSoil->report("drain");
 
    // WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
@@ -168,7 +168,7 @@ void TWorld::InfilSmithParlange1(void)
 			if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
 				Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-			B = (fwh + Psi1->Drc*0.01)*max(ThetaS1->Drc-ThetaI1->Drc, tiny);
+         B = (fwh + Psi)*max(ThetaS1->Drc-ThetaI1->Drc, tiny);
 
 			Cdexp = exp(Fcum->Drc/B);
 			fpotgr->Drc = Ks*Cdexp/(Cdexp-1);
@@ -226,7 +226,7 @@ void TWorld::InfilGreenAmpt1(void)
          if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
             Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-         fpotgr->Drc = Ks*(1+(Psi1->Drc+fwh)/(L1gr->Drc+L2->Drc));
+         fpotgr->Drc = Ks*(1+(Psi+fwh)/(L1gr->Drc+L2->Drc));
 
          fact1 = min(fpotgr->Drc, fwh);
 

@@ -161,19 +161,19 @@ void TWorld::ChannelFlow(void)
 	}
     
 	ChannelQn->setMV();
-//	FOR_ROW_COL_MV_CH
-//	{
-//		if (LDDChannel->Drc == 5)
-//		{
-//			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+//   FOR_ROW_COL_MV_CH
+//   {
+//      if (LDDChannel->Drc == 5)
+//      {
+//         Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
 //                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
             
-//			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
-//        	if (SwitchErosion)
-//        		ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
-//			// these maps now contain m3 and kg per timestep in pit cells
-//		}
-//	}
+//         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
+//         if (SwitchErosion)
+//            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
+//         // these maps now contain m3 and kg per timestep in pit cells
+//      }
+//   }
 
    KinematicNew(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
              ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);

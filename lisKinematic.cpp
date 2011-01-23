@@ -123,13 +123,13 @@ double TWorld::IterateToQnew(
 	double Qkx; //iterated discharge, becomes Qnew
 	double fQkx; //function
 	double dfQkx;  //derivative
-   const double _epsilon = 1e-6;
+   const double _epsilon = 1e-12;
    const double beta = 0.6;
 
 	/* if no input then output = 0 */
 	if ((Qin + Qold) <= q*deltaX)//0)
    {
-      itercount = 0;
+      itercount = -1;
 		return(0);
    }
 
@@ -148,6 +148,7 @@ double TWorld::IterateToQnew(
    //VJ 110114 without this de iteration cannot be solved for very small values
    if (Qkx < MIN_FLUX)
    {
+         itercount = -2;
       return(0);
    }
 
@@ -381,24 +382,25 @@ void TWorld::KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
                         TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX
                         ,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed)
 {
-   for (int count = 0; count < _lddlistnr; count++)
+   for (long count = 0; count < _lddlistnr; count++)
    {
       double Qin=0.0, Sin=0.0;
       int rowNr = _lddlist[count][0].rowNr;
       int colNr = _lddlist[count][0].colNr;
-      int i = 0;
+      int i = 1;
 
-
-      for (i=1;i<=9;i++) // for all incoming cells of this cell
+      //for (i=1;i<=9;i++) // for all incoming cells of this cell
+      while (_lddlist[count][i].rowNr > 0)
       {
          int r = _lddlist[count][i].rowNr;
          int c = _lddlist[count][i].colNr;
-         if (r >= 0)
-         {
+       //  if (r >= 0)
+       //  {
             Qin += _Qn->Drc;
             if (SwitchErosion)
                Sin += _Qsn->Drc;
-         }
+         //}
+            i++;
       } // sum all incoming cells
 
       bool isBufferCellWater = false;
@@ -505,6 +507,8 @@ void TWorld::KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
 
       }
    }
+  // tm->report("iter");
+   // for debug analysis
 }
 //---------------------------------------------------------------------------
 LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
@@ -591,6 +595,7 @@ LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
          // if no more upstream in this branch, walk the linked list back down
          if (subCachDone)
          {
+            int j = 1;
             // put current cell in the list on column 0
             _lddlist[count][0].rowNr = list->rowNr;
             _lddlist[count][0].colNr = list->colNr;
@@ -612,8 +617,9 @@ LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
                    FLOWS_TO((int) _LDD->Drc, r, c, rowNr, colNr)
                    )
                {
-                  _lddlist[count][i].rowNr = r;
-                  _lddlist[count][i].colNr = c;
+                  _lddlist[count][j].rowNr = r;
+                  _lddlist[count][j].colNr = c;
+                  j++;
                }
             }
 

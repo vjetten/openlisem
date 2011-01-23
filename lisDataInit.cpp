@@ -591,16 +591,22 @@ void TWorld::GetInputData(void)
       ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
 
       if(InfilMethod != INFIL_KSAT)
+      {
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
       //VJ 101221 all infil maps are needed for except psi
+         Psi1->calcV(0.01, MUL);
+      }
 
       if (SwitchTwoLayer)
       {
          ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
          ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
          if(InfilMethod != INFIL_KSAT)
+         {
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
          //VJ 101221 all infil maps are needed for except psi
+            Psi2->calcV(0.01, MUL);
+         }
 
          Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
          SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
