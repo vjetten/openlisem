@@ -20,20 +20,21 @@ website, information and code: http://sourceforge.net/projects/lisem
 // SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre(void)
 {
-	tm->copy(WH);
-	tma->fill(1);
-   tmb->fill(-1);
+   tm->copy(WH); // copy water height before infil
+   tma->fill(1); // flag to indicate where the swatrestep mdoel should be run
 
    SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, tma);
-	// WH and fpot done in swatrestep
+   TileDrainSoil->report("drain");
+
+   // WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
-			fact->Drc = (tm->Drc - WH->Drc);
+      fact->Drc = (tm->Drc - WH->Drc);
 
 	if (SwitchInfilCrust)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-      tmb->fill(-1);
+      tmb->fill(0);
       SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, CrustFraction);
 		FOR_ROW_COL_MV
 		{
@@ -41,6 +42,8 @@ void TWorld::InfilSwatre(void)
 			fact->Drc = (tm->Drc - WH->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
 			WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
 			fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+         if (SwitchIncludeTile)
+            TileDrainSoil->Drc = tmb->Drc*CrustFraction->Drc + TileDrainSoil->Drc*(1-CrustFraction->Drc);
 		}
 	}
 
@@ -48,23 +51,29 @@ void TWorld::InfilSwatre(void)
 	{
 		tm->copy(WH);
 		tma->fill(0);
-      tmb->fill(-1);
+      tmb->fill(0);
       SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, CompactFraction);
 		FOR_ROW_COL_MV
 		{
 			fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
 			WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
 			fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+         if (SwitchIncludeTile)
+            TileDrainSoil->Drc = tmb->Drc*CompactFraction->Drc + TileDrainSoil->Drc*(1-CompactFraction->Drc);
 		}
 	}
 
    if (SwitchGrassStrip)
 	{
 		tm->copy(WHGrass);
-      tmb->fill(-1);
+      tmb->fill(0);
       SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, GrassFraction);
 		FOR_ROW_COL_MV
-				factgr->Drc = (tm->Drc - WHGrass->Drc);
+      {
+         factgr->Drc = (tm->Drc - WHGrass->Drc);
+         if (SwitchIncludeTile)
+            TileDrainSoil->Drc = tmb->Drc*GrassFraction->Drc + TileDrainSoil->Drc*(1-GrassFraction->Drc);
+      }
 	}
 }
 //---------------------------------------------------------------------------

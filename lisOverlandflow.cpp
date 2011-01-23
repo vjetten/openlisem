@@ -112,19 +112,26 @@ void TWorld::OverlandFlow(void)
 	// flag all Qn gridcell with MV for in kin wave
 
 	// do kin wave for all pits
-	FOR_ROW_COL_MV
-	{
-		if (LDD->Drc == 5) // if outflow point, pit
-		{
-         /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
-			Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
 
-			Qoutflow->Drc = Qn->Drc * _dt;
-			if (SwitchErosion)
-				Qsoutflow->Drc = Qsn->Drc * _dt;
-			// these maps now contain m3 and kg per timestep in pit cells
-		}
-	}
+//   FOR_ROW_COL_MV
+//   {
+//      if (LDD->Drc == 5) // if outflow point, pit
+//      {
+//         /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
+//         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+
+//         Qoutflow->Drc = Qn->Drc * _dt;
+//         if (SwitchErosion)
+//            Qsoutflow->Drc = Qsn->Drc * _dt;
+//         // these maps now contain m3 and kg per timestep in pit cells
+//      }
+//   }
+
+   KinematicNew(lddlist, lddlistnr, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+
+   Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
+   if (SwitchErosion)
+      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
 
 	// calculate resulting flux Qn back to water height on surface
 	FOR_ROW_COL_MV

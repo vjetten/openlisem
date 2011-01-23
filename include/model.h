@@ -103,6 +103,11 @@ typedef struct LDD_LINKEDLIST {
    struct LDD_LINKEDLIST *prev;
 }  LDD_LINKEDLIST;
 //---------------------------------------------------------------------------
+typedef struct LDD_POINT {
+   int rowNr;
+   int colNr;
+}  LDD_POINT;
+//---------------------------------------------------------------------------
 /// name list structure used to read run file
 typedef struct NAME_LIST {
 	QString name;
@@ -295,10 +300,23 @@ public:
    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                   TMMap *_StorVol, TMMap*_StorVolSed);
+   void KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
+                     TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+                     TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+                     TMMap *_StorVol, TMMap*_StorVolSed);
    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);
    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
+
+   //VJ 110123 sorted networks for faster kin wave
+   LDD_POINT **MakeSortedNetwork(TMMap *_LDD, long *lddlistnr);
+   LDD_POINT **lddlist;
+   long lddlistnr;
+   LDD_POINT **lddlistch;
+   long lddlistchnr;
+   LDD_POINT **lddlisttile;
+   long lddlisttilenr;
 
    //SWATRE
    /// filenames for Swatre soil information
@@ -318,6 +336,7 @@ public:
    int nrProfileList, sizeProfileList;
    ZONE *zone;
    double precision;
+   int tnode; //VJ 110122 node nr in profile with tile drains
 
    SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin);
    int ReadSwatreInput(QString fileName, QString tablePath);
@@ -331,16 +350,13 @@ public:
    double *ReadSoilTable(const char *fileName, int *nrRows);
    void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
    void InitializeProfile();
-//   void HeadCalc(double *h,bool *ponded, const PROFILE *p,double  *thetaPrev,
-//                 double  *hPrev,double  *kavg, double  *dimoca,
-//                 bool fltsat, double dt, double pond, double qtop, double qbot);
    void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
                  const double  *hPrev, const double  *kavg, const double  *dimoca,
                  bool fltsat, double dt, double pond, double qtop, double qbot);
    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
-         double precParam, double dtMin, double dtMax);
+                       double precParam, double dtMin, double dtMax);
    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                        double lisDT, SOIL_MODEL *s);
+                        SOIL_MODEL *s);
 
    void Totals(void);
 	void MassBalance(void);

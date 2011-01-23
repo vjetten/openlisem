@@ -250,6 +250,7 @@ void TWorld::InitTiledrains(void)
    TileWH = NewMap(0);
    Tileq = NewMap(0);
    TileAlpha = NewMap(0);
+   TileDrainSoil = NewMap(0);
 //   TileMask = NewMap(0);
    // maybe needed later for erosion in tiledrain
    //TileQsoutflow = NewMap(0);
@@ -289,6 +290,9 @@ void TWorld::InitTiledrains(void)
          TileDX->Drc = _dx/TileGrad->Drc;
          //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
       }
+
+      lddlisttile = MakeSortedNetwork(LDDChannel, &lddlisttilenr);
+      //VJ 110123 sorted tiledrain network
    }
 
 }
@@ -473,8 +477,10 @@ void TWorld::InitChannel(void)
          ChannelDX->Drc = _dx/ChannelGrad->Drc;
          ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
       }
-   }
 
+      lddlistch = MakeSortedNetwork(LDDChannel, &lddlistchnr);
+      //VJ 110123 sorted channel network
+   }
 }
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
@@ -491,8 +497,11 @@ void TWorld::GetInputData(void)
    LDD = InitMask(getvaluename("ldd"));
 	// LDD is also mask and reference file, everthiung has to fit LDD
    // channels use channel LDD as mask
+   tm = NewMap(0); // temp map for aux calculations
+   tma = NewMap(0); // temp map for aux calculations
+   tmb = NewMap(0); // temp map for aux calculations
 
-	Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
+   Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
 	Outlet = ReadMap(LDD,getvaluename("outlet"));
    Outlet->cover(0);
    // fill outlet with zero, some users have MV where no outlet
@@ -681,10 +690,6 @@ void TWorld::IntializeData(void)
    //totals for mass balance
 	MB = 0;
 	MBs = 0;
-
-	tm = NewMap(0); // temp map for aux calculations
-	tma = NewMap(0); // temp map for aux calculations
-   tmb = NewMap(0); // temp map for aux calculations
    nrCells = Mask->MapTotal();
 
    //### terrain maps
@@ -909,7 +914,10 @@ void TWorld::IntializeData(void)
 		}
 	}
 
-//VJ 110113 all channel and buffer initialization moved to separate functions
+   lddlist = MakeSortedNetwork(LDD, &lddlistnr);
+
+   //VJ 110113 all channel and buffer initialization moved to separate functions
+
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -998,4 +1006,3 @@ void TWorld::IntializeOptions(void)
    // check to flag when swatre 3D structure is created, needed to clean up data
 }
 //---------------------------------------------------------------------------
-

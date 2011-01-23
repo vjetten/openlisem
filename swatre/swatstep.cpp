@@ -122,8 +122,8 @@ double  TWorld::NewTimeStep(
 //--------------------------------------------------------------------------------
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
-void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-							double lisDT,SOIL_MODEL *s)
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
+                             double *drain, SOIL_MODEL *s)
 {
 	NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
 	const PROFILE *p = pixel->profile;
@@ -133,14 +133,18 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 	double pond = *waterHeightIO;
 	double elapsedTime = 0;
 	double influx = 0;
+   double drainout = 0;
+
+   tnode = 5;
+
 
 	// time is in seconds!!!
-	while (elapsedTime < lisDT)
+   while (elapsedTime < _dt)
 	{
 		bool ponded, fltsat;
-		double qmax, qtop, qbot, ThetaSat;
+      double qmax, qtop, qbot, ThetaSat, qdrain;
 
-		//===== get nodal values of theta, K, cap =====//
+      //--- get nodal values of theta, K, dif moist cap ---//
 		for (i=0; i < n; i++)
 		{
          k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration, 86400);
@@ -149,7 +153,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 			theta[i] = TheNode(h[i], Horizon(p, i));
 		}
 
-		//===== arithmetric average K, geometric in org. SWATRE =====//
+      //--- arithmetric average K, geometric in org. SWATRE ---//
 		// average K for 1st to n-1 node
       if (!SwitchGeometric)
 		{
@@ -162,15 +166,18 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 				kavg[i] = sqrt((k[i]*k[i-1]));
 		}
 
-		//===== boundary conditions =====//
+      //--- boundary conditions ---//
 
 		//----- BOTTOM -----//
 		// bottom is 0 or copy of flux of last 2 layers
       if (SwitchImpermeable)
 			qbot = 0;
 		else
-			qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
-		// units now in cm/s
+         qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
+        // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
+      //VJ 110122 why not last node? this gives nan, why?
+
+      // units now in cm/s
 
 		//----- TOP -----//
 		qtop = -pond/dt;
@@ -180,9 +187,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration, 86400) * k[0]);
 		// qmax of top node is always calculated with geometric average K
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
-		//actual infil rate Darcy
+     if (pond == 0)
+         qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
+      //VJ 110122
+     //actual infil rate Darcy
 		//KLOPT eigenlijk niet als niet ponded is pond = 0,ipv een negatieve matrix potentiaal
-		// BIJV if (pond == 0) qmax = -kavg[0]*((h[0]-h[1]) / DistNode(p)[0] + 1);
+      // BIJV if (pond == 0) qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
 
 		ponded = (qtop < qmax);
 		// NOTE qtop and qmax are both negative !
@@ -201,9 +211,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 		}
 
 		/* check if profile is still completely saturated (flstsat) */
-		//                for (i = 0; i < n && h[i] >= 0; i++)
-		//                        /* nothing */;
-		//                fltsat = (i == n); /* TRUE if forall i h[i] >= 0 */
 		fltsat = true;
 		for (i = 0; i < n; i++)
 			if (h[i] < 0)
@@ -212,41 +219,53 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 			break;
 		}
 
+      //--- calculate tile drain ---//
+      if (SwitchIncludeTile)
+      {
+         //TODO correct this for drainage width: width / _dx
+         qdrain = -kavg[tnode]*( (0-h[tnode])/DistNode(p)[tnode] + 1 );
+         qdrain = min(0, qdrain);
+         if (qdrain < 0)
+         {
+           // theta[tnode] = theta[tnode] - (qdrain*dt)/DistNode(p)[tnode];
+           // h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
+            drainout += qdrain*dt; // a bit redundant
+         }
+      }
+
 		// save last h and theta, used in headcalc
 		memcpy(hPrev, h, sizeof(double)*n);
 		memcpy(thetaPrev, theta, sizeof(double)*n);
 
 		// calculate hew heads
-		HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, /* Sink */
+      HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
 					fltsat, dt, pond, qtop, qbot);
+
 		// determine new boundary fluxes
       if (SwitchImpermeable)
 			qbot = 0;
 		else
-			qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
-		//         qbot = kavg[n]*(h[n]-h[n-1])
-		//               / DistNode(p)[n] - kavg[n];
+         qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
+        // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
+      //VJ 110122 why not last node? this gives nan, why?
 
 		if ( ponded || (fltsat && (qtop < qbot)) )
 			qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
 		// adjust top flux
-
-
 		pond += qtop*dt;
 		// decrease pond with top flux
 		if (pond < POND_EPS)
 			pond = 0;
-
 		influx += qmax*dt;
 		// add max infil to influx (negative)
 
 		elapsedTime += dt;
 		/* estimate new dt within lisemtimestep */
-      dt = NewTimeStep(dt, hPrev, h, n, precision, s->minDt, lisDT);
+      dt = NewTimeStep(dt, hPrev, h, n, precision, s->minDt, _dt);
 		pixel->currDt = dt;
 
-		if (elapsedTime+dt+TIME_EPS >= lisDT)
-			dt = lisDT - elapsedTime;
+      if (elapsedTime+dt+TIME_EPS >= _dt)
+         dt = _dt - elapsedTime;
 
 	} /* elapsedTime < lisemTimeStep */
 
@@ -257,30 +276,37 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 */
 	*waterHeightIO = pond;
 	*infil = influx; // total max influx in lisem timestep
+   *drain = drainout;
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
 void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where)
 {
+      SwitchIncludeTile = true;
 	FOR_ROW_COL_MV
-			if(where->Drc > 0) // when there is crusting for instance
+   if(where->Drc > 0) // when there is crusting for instance
 	{
       double wh, infil, drain;
 
-		wh = _WH->Data[r][c]*100;
+      wh = _WH->Drc*100;
 		// WH is in m, convert to cm
 		infil = 0;
       drain = 0;
 
-      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, _dt, s);
+      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, s);
 		//->minDt, s->precision, s->calibrationfactor, s->geometric);
 
-		_WH->Data[r][c] = wh/100;
+      _WH->Drc = wh/100;
 		//back to m
 
-		_fpot->Data[r][c] = max(0, -infil/100);
+      _fpot->Drc = max(0, -infil/100);
 		// infil is negative (downward flux * dt, in cm)
 		//fpot is positive like in other infil  methods (in m)
+
+     if (SwitchIncludeTile)
+         _drain->Drc = -drain/_dt*0.01;  // in m/s
+
+     SwitchIncludeTile = false;
 	}
 }
 //--------------------------------------------------------------------------------

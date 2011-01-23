@@ -1,3 +1,7 @@
+double HNode(
+      double theta,
+      const  HORIZON *hor);
+
 double TheNode(
 		double head,
 		const  HORIZON *hor);

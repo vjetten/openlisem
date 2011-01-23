@@ -161,19 +161,28 @@ void TWorld::ChannelFlow(void)
 	}
     
 	ChannelQn->setMV();
-	FOR_ROW_COL_MV_CH
-	{
-		if (LDDChannel->Drc == 5)
-		{
-			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+//	FOR_ROW_COL_MV_CH
+//	{
+//		if (LDDChannel->Drc == 5)
+//		{
+//			Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+//                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
             
-			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
-        	if (SwitchErosion)
-        		ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
-			// these maps now contain m3 and kg per timestep in pit cells
-		}
-	}
+//			ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
+//        	if (SwitchErosion)
+//        		ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
+//			// these maps now contain m3 and kg per timestep in pit cells
+//		}
+//	}
+
+   KinematicNew(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+             ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+
+   ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
+   if (SwitchErosion)
+      ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
+   // these maps now contain m3 and kg per timestep in pit cells
+
 	ChannelQn->cover(0); // avoid missing values around channel for adding to Qn for output
 	ChannelQs->cover(0);
     

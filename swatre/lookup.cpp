@@ -21,6 +21,14 @@ website SVN: http://sourceforge.net/projects/lisem
 #include "swatrelookup.h"
 
 //-----------------------------------------------------------------------------------
+/* head from theta*/
+double HNode(
+      double theta,           /* current theta value of this node */
+      const  HORIZON *hor)    /* parameters of horizon this node belongs to */
+{
+   //theta = min( theta, -1e-10);
+   return LUT_LinIntPol(hor->lut,H_COL, theta,THETA_COL);
+}//-----------------------------------------------------------------------------------
 /* theta from head */
 double TheNode(
 		double head,           /* current head value of this node */
