@@ -15,7 +15,7 @@ analysis of the results.
 ===============
 This software is free and open source, hosted by 
 sourceforge.net. The project details can be found on: 
-http://sourceforge.net/projects/lisem/. 
+http://lisem.sourceforge.net
 
 All license details can be found on this website. The compiled model openLISEM 
 and the source code, or parts of the source code can be used for any purpose, 
@@ -23,7 +23,7 @@ but the disclaimer as specified below is in effect. openLISEM in any version
 (compiled or as source code) cannot be sold or be part of a commercial package, 
 unless express permission is gained from Victor Jetten (jetten@itc.nl). If you 
 use this software for publications, please give the correct references in the 
-text (TO BE SPECIFIED, contact victor jetten). 
+text (TO BE FURTHER SPECIFIED, contact victor jetten). 
 
 3) openLISEM development 
 ========================
@@ -90,12 +90,12 @@ d) Compiling the code
 
 2.	TortoiseSNV: right click on this directory in windows explorer and select 
 "SVN checkout" from the menu. In the field "URL of repository" give the source 
-forge lisem address: https://lisem.svn.sourceforge.net/svnroot/lisem and let 
+forge lisem address: https://lisem.svn.sourceforge.net/svnroot/lisem/lisem and let 
 Tortoise download the code. 
 
-3.	Open QtCreator and load the project file "openlisem.pro". a.	Click on the 
-left hand menu item 'Projects' and unselect  'Shadow build'. b.	Run build-
->qmake, build->rebuild all and run. 
+3.	Open QtCreator and load the project file "openlisem.pro". 
+a.	Click on the left hand menu item 'Projects' and unselect 'Shadow build'. 
+b.	Run build->rebuild all and run. 
 
 4.	You can compile openLISEM in "debug" or as "release" executable. If you 
 distribute openLISEM you have to add the libraries QtGui4.dll, QtCore4.dll, 
