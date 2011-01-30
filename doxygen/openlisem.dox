@@ -7,13 +7,18 @@ Victor Jetten, January 2011
 /*!
   \mainpage openLISEM - an opensource spatial erosion model
 
-!!!This site is under construction!!!  
+<b><i>!!!This site is under construction!!!</i></b>
+
   
 openLISEM is an open source development of the erosion model LISEM, that has been developed\n
  and in use since 1989 (go to http://www.itc.nl/lisem for a more elaborate description).\n
 It is a spatial surface hydrology and sediment dynamics model that calculates \n
 soil loss for small to medium sized catchments. It uses input data based on\n
-the freeware GIS package PCRaster (http://pcraster.geo.uu.nl).
+the freeware GIS package PCRaster (http://pcraster.geo.uu.nl).\n
+
+The openLISEM model is part of the software developed at the <b>Faculty of Geoinformation Science and Earth Observation</b> (<a href="http://www.itc.nl">ITC</a>)\n
+who's mission is Capacity building in lesser developed countries and emerging economies. As such the ITC \n
+strives to produce high quality open source software for sptial analysis. \n
 
 openLISEM is entirely developed in C++ using the Qt libraries (http://qt.nokia.com/ and compiled with MingW.\n
 Furthermore it usees the Qwt graph drawing library (http://qwt.sorceforge.net).
@@ -47,7 +52,7 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
   Find a list of all files <a href="http://sourceforge.net/projects/lisem/files/">here</a>.
 
   To get a development snapshot from the SVN repository:
-  \code svn co https://lisem.svn.sourceforge.net/svnroot/lisem lisem  \endcode
+  \code svn co https://lisem.svn.sourceforge.net/svnroot/lisem/lisem  \endcode
 
   \section installonmainpage Installation
  
