@@ -1,22 +1,46 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-name: lisModel.cpp
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website SVN: http://sourceforge.net/projects/lisem
 
-Functionality in lisModel.cpp:
-- creating and destroying TWorld
-- mass balance calculations
-- link to simple interface output
-- main model time loop calling process functions
-- run and stop thread functions
----------------------------------------------------------------------------*/
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file lisModel.cpp
+  \brief Central model file with the main loop. From here all processes are called.
+
+  functions: \n
+  - void TWorld::OutputUI() fill output structure 'op' with results to talk to the interface.\n
+  - void TWorld::DoModel() the main model function with the timeloop. It is a 'slot' linked to a signal.\n
+  - void TWorld::run() Run is called from the interface to activate DoModel() \n
+  - void TWorld::stop() Stops the loop on user request.\n
+
+*/
+
+
 #include <QtGui>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+
 
 
 //---------------------------------------------------------------------------
@@ -142,9 +166,12 @@ void TWorld::DoModel()
 		printstep = 1;
         
 		DEBUG("Running...");
-        
+
+      int tte = time_ms.elapsed();
 		for (time = BeginTime; time < EndTime; time += _dt)
 		{
+
+
 			mutex.lock();
 			if(stopRequested) DEBUG("User interrupt...");
 			if(stopRequested) break;
@@ -160,10 +187,13 @@ void TWorld::DoModel()
 			RainfallMap();
 			SnowmeltMap();
 			Interception();
+         tte = time_ms.elapsed();
 			Infiltration();
+         //qDebug() << time_ms.elapsed()-tte;
+
 			//SoilWater();
 			SurfaceStorage();
-            CalcVelDisch();
+         CalcVelDisch();
             
 			SplashDetachment();
 			FlowDetachment();

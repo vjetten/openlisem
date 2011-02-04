@@ -1,14 +1,45 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
 
-/*
- * Infiltration: all 1 and 2 layer infiltration functions: G&A, S&P, ksat
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file lisInfiltration.cpp
+  \brief Simplified infiltraton processes: Green and Ampt, Smith and Parlanage, both 1 and 2 layer. SWATRE has separate files.
+
+functions: \n
+- void TWorld::InfilSwatre(void) \n
+- void TWorld::InfilMorelSeytoux1(void) Not working yet! \n
+- void TWorld::InfilSmithParlange1(void) \n
+- void TWorld::InfilGreenAmpt1(void) \n
+- void TWorld::InfilKsat(void) \n
+- double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p)
+      Called from all infilttration function, increases wetting front and calculates actual infiltration rate. \n
+- void TWorld::Infiltration(void) Main infiltration function calling all infiltration methods,
+      add net precipitation to WH and calculating new WH. \n
+- void TWorld::SoilWater() Not mplemented yet! \n
  */
+
 
 #include "model.h"
 
@@ -17,14 +48,14 @@ website, information and code: http://sourceforge.net/projects/lisem
 #define tiny 1e-8
 
 //---------------------------------------------------------------------------
-// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
+/// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre(void)
 {
    tm->copy(WH); // copy water height before infil
    tma->fill(1); // flag to indicate where the swatrestep mdoel should be run
 
    SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, tma);
-  // TileDrainSoil->report("drain");
+   TileDrainSoil->report("drain");
 
    // WH and fpot done in swatrestep
 	FOR_ROW_COL_MV
@@ -77,7 +108,7 @@ void TWorld::InfilSwatre(void)
 	}
 }
 //---------------------------------------------------------------------------
-// DOESN'T WORK YET
+/// DOESN'T WORK YET
 void TWorld::InfilMorelSeytoux1(void)
 {
 	FOR_ROW_COL_MV
@@ -123,7 +154,7 @@ void TWorld::InfilMorelSeytoux1(void)
 	}
 }
 //---------------------------------------------------------------------------
-// Solution Eurosem v2 manual page 10, Morgan et al 1998
+/// Solution Eurosem v2 manual page 10, Morgan et al 1998
 void TWorld::InfilSmithParlange1(void)
 {
 	FOR_ROW_COL_MV
@@ -181,7 +212,7 @@ void TWorld::InfilSmithParlange1(void)
 	}
 }
 //---------------------------------------------------------------------------
-// Solution Kutilek and Nielsen 2004 pag 138
+/// Solution Kutilek and Nielsen 2004 pag 138
 void TWorld::InfilGreenAmpt1(void)
 {
 	FOR_ROW_COL_MV
@@ -235,7 +266,7 @@ void TWorld::InfilGreenAmpt1(void)
 	}
 }
 //---------------------------------------------------------------------------
-// Direct subtraction of Ksat, added for testing purposes!
+/// Direct subtraction of Ksat, added for testing purposes!
 void TWorld::InfilKsat(void)
 {
 	FOR_ROW_COL_MV
@@ -272,14 +303,17 @@ void TWorld::InfilKsat(void)
 	}
 }
 //---------------------------------------------------------------------------
-// function to increase wetting front and deal with 2nd layer and impermeable subsoil
-// returns actual infiltration
-// this function is called form all infiltration functions except Swatre
-//possible situations:
-// one layer and not impermeable: L1+dL1
-// one layer and impermeable: L1+dL1 untill L = soildepth1
-// 2 layer and not impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 if L > soildepth1
-// 2 layer and impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 untill L = soildepth2
+/*!
+\brief function to increase wetting front and deal with 2nd layer and impermeable subsoil
+ returns actual infiltration rate.
+
+ this function is called form all infiltration functions except Swatre
+possible situations:
+ one layer and not impermeable: L1+dL1
+ one layer and impermeable: L1+dL1 untill L = soildepth1
+ 2 layer and not impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 if L > soildepth1
+ 2 layer and impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 untill L = soildepth2
+*/
 double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p)
 {
    double dL1, dL2; // increase in wetting front layer 1 and 2 in m
@@ -343,9 +377,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
    return fact; //m
 }
 //---------------------------------------------------------------------------
-/// Main infiltration function, from here all infiltration types are called.
-
-/**
+/*!
   Main infiltration function\n
   - add net rainfall and snowmelt to surface water WH\n
   - keep track of different surface types: grass strips, compaction, crusting, roads, hard surface

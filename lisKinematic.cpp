@@ -1,13 +1,47 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
 
-/*
- * Kinematic wave for overland flow and channel
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file lisKinematic.cpp
+  \brief kinematic wave routing functions and calculation of discharge and sed flux per cell.
+
+  The routing functions use local variables because they are used for overland flow, channel flow, gully and tiledrain flow.
+
+functions: \n
+   - void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+                  TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap *SedVol,
+                  TMMap *_StorVol, TMMap *_StorVolSed);\n
+   - void TWorld::KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
+                     TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+                     TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap *SedVol,
+                     TMMap *_StorVol, TMMap *_StorVolSed);\n
+   - double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);\n
+   - double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
+                         double Sji1, double alpha, double dt, double dx);\n
+   - double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);\n
+   - LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *lddlistnr); \n
  */
 
 #include "model.h"
@@ -63,16 +97,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
    \param dt      timestep
    \param dx      dx: length of the cell, corrected for slope (DX map in LISEM)
  */
-double TWorld::complexSedCalc(
-   double Qj1i1,
-   double Qj1i,
-   double Qji1,
-   double Sj1i,
-   double Sji1,
-   double alpha,
-   double dt,
-   double dx
-   )
+double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
 {
    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
    const double beta = 0.6;
@@ -108,14 +133,7 @@ double TWorld::complexSedCalc(
 \param deltaT   timestep
 \param deltaX   dx: length of the cell  corrected for slope (DX map in LISEM)
 */
-double TWorld::IterateToQnew(
-   double Qin,
-   double Qold,
-   double q,
-   double alpha,
-   double deltaT,
-   double deltaX
-   )
+double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX)
 {
 	/* Using Newton-Raphson Method */
 	double  ab_pQ, deltaTX, C;  //auxillary vars
@@ -511,6 +529,7 @@ void TWorld::KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
    // for debug analysis
 }
 //---------------------------------------------------------------------------
+// this function makes an array of nrCells x 10 places for the LDD_POINT structure
 LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -518,6 +537,9 @@ LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
    LDD_POINT **_lddlist;
    long nr = 0;
    long count = 0;
+
+//   LDD_POINT *lddp = new LDD_POINT;
+//   listldd << lddp;
 
    tm->fill(-1);
    // flag none of the cells are processed
@@ -637,12 +659,6 @@ LDD_POINT** TWorld::MakeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
          }
       }
    }
-//for (count = 0; count < 200; count++)
-//{
-//   for (int i = 0; i < 10; i++)
-//   qDebug() << count << _lddlist[count][i].rowNr << _lddlist[count][i].colNr;
-//}
-
    return(_lddlist);
 }
 

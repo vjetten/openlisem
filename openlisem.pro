@@ -78,5 +78,4 @@ RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
 
-OTHER_FILES += \
-    mapnames.txt
+OTHER_FILES +=

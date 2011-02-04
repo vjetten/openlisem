@@ -13,23 +13,22 @@ Victor Jetten, January 2011
 openLISEM is an open source development of the erosion model LISEM, that has been developed\n
  and in use since 1989 (go to http://www.itc.nl/lisem for a more elaborate description).\n
 It is a spatial surface hydrology and sediment dynamics model that calculates \n
-soil loss for small to medium sized catchments. It uses input data based on\n
-the freeware GIS package PCRaster (http://pcraster.geo.uu.nl).\n
+soil loss for small to medium sized catchments. 
 
 The openLISEM model is part of the software developed at the <b>Faculty of Geoinformation Science and Earth Observation</b> (<a href="http://www.itc.nl">ITC</a>)\n
-who's mission is Capacity building in lesser developed countries and emerging economies. As such the ITC \n
-strives to produce high quality open source software for sptial analysis. \n
+The mission of the ITC is Capacity building in lesser developed countries and emerging economies.\n
+As such the ITC strives to produce high quality open source software for sptial analysis. \n
 
 openLISEM is entirely developed in C++ using the Qt libraries (http://qt.nokia.com/ and compiled with MingW.\n
-Furthermore it usees the Qwt graph drawing library (http://qwt.sorceforge.net).
+Furthermore it usees the Qwt graph drawing library (http://qwt.sorceforge.net),\n
+and the CSF library of the freeware GIS package PCRaster (http://pcraster.geo.uu.nl).\n
 
-  \if homepage
+
   \section homepage Project page
   The official project page is hosted at 
-	<a href="http://lisem.sourceforge.net">sourceforge</a>
-  The old lisem model (no longer continued but still maintained) can be found here: <a href="http://www.itc.nl/lisem  Lisem@ITC</a>
-  \endif
-
+	<a href="http://sourceforge.net/projects/lisem/">sourceforge</a> \n
+  The old lisem model (no longer continued but still maintained) can be found here: <a href="http://www.itc.nl/lisem">Lisem at ITC</a>
+  
   \section license License
 
 openLISEM is distributed under the terms of the \ref openLISEMlicense license.
@@ -40,7 +39,8 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
   In principle <a href="http://www.trolltech.com/products/qt">Qt</a> allows compilation under unix/linux and mac but this has not been tested.\n
  The current code is compatible with Qt 4.6 and later, and Qwt 6.0.0 and later.
 
-  \section screenshotsonmainpage Screenshots
+  \section screenshotsonmainpage Documentation and screenshots
+  - \ref LISEMtheory \n
   - \ref inputscreenshot \n
   - \ref maplistscreenshot \n
   - \ref outputscreenshot \n
@@ -65,7 +65,7 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
     
   \section credits Credits:
   \par Author: 
-    Victor Jetten \<vjetten@users.sourceforge.net\>
+    <a href="http://www.itc.nl/about_itc/resumes/jetten.aspx"> Victor Jetten </a> 
   \par Project admin:
     Victor Jetten \<vjetten@users.sourceforge.net\>
 */
@@ -79,6 +79,13 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
   \page openLISEMinstall INSTALL
   \include "INSTALL"
 */
+
+/*!
+  \page LISEMtheory LISEM basic theory webpage
+<a href="http://www.itc.nl/lisem/container_lisem_basic.html">LISEM basic theory</a> 
+
+*/
+
 
 /*!
   \page inputscreenshot Input screen

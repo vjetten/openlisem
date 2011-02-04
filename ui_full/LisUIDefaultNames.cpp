@@ -285,6 +285,7 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("SWATRE internal minimum timestep");
    namelist[i++].name = QString("Matric head files");
    namelist[i++].name = QString("Geometric mean Ksat");
+   namelist[i++].name = QString("2nd back substitution");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Output maps]");
    namelist[i++].name = QString("Runoff maps in l/s/m");

@@ -1,17 +1,30 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
-
-/*
- * error.h, global errorstring for exception throwing
- *
- *  Created on: Feb 28, 2010
- *      Author: jetten
- */
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+/*!
+  \file error.h
+  \brief global errorstring for exception throwing
+  */
 
 #ifndef ERROR_H_
 #define ERROR_H_
@@ -19,7 +32,5 @@ website, information and code: http://sourceforge.net/projects/lisem
 extern QString ErrorString;
 
 #define Error(s) ErrorString=QString(s)
-//,s1,s2)
-//"%1 %2 %2").arg(s).arg(s1).arg(s2)
 
 #endif /* ERROR_H_ */

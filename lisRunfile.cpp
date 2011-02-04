@@ -1,13 +1,47 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
+
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
 
 #include "model.h"
 
+
+/*!
+  \file lisRunfile.cpp
+  \brief Read and parse the temporary runfile produce by the interface.
+
+  Functions in here are doubled from the interface. The idea is to keep interface and model\n
+  completely separate. In principle the model could be called directly with a runfile (not implemented). \n
+
+functions: \n
+- QString TWorld::getvaluename(QString vname) \n
+- double TWorld::getvaluedouble(QString vname) \n
+- int TWorld::getvalueint(QString vname) \n
+- QString TWorld::CheckDir(QString p) \n
+- QString TWorld::GetName(QString p) \n
+- void TWorld::ParseRunfileData() \n
+- void TWorld::GetRunFile() \n
+*/
 
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
@@ -61,39 +95,6 @@ int TWorld::getvalueint(QString vname)
 
    ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
 	throw 3;
-}
-//------------------------------------------------------------------------------
-void TWorld::GetRunFile()
-{
-	QFile fin(temprunname);
-
-	if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		ErrorString = "Cannot open runfile: " + temprunname;
-		throw 2;
-	}
-
-	for (int i = 0; i < NUMNAMES; i++)
-	{
-      runnamelist[i].name.clear();
-      runnamelist[i].value.clear();
-	}
-   nrrunnamelist = 0;
-
-	while (!fin.atEnd())
-	{
-		QString S = fin.readLine();
-		if (!S.trimmed().isEmpty())
-		{
-			if (S.contains("="))
-			{
-				QStringList SL = S.split(QRegExp("="));
-            runnamelist[nrrunnamelist].name = SL[0].trimmed();
-            runnamelist[nrrunnamelist].value = SL[1].trimmed();
-            nrrunnamelist++;
-			}
-		}
-	}
 }
 //---------------------------------------------------------------------------
 QString TWorld::CheckDir(QString p)
@@ -176,7 +177,8 @@ void TWorld::ParseRunfileData()
 		if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
 		if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
 		if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    		iii == 1;
-		if (p1.compare("Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       iii == 1;
+      if (p1.compare("2nd back substitution")==0)          SwitchBacksubstitution = iii == 1;
+      if (p1.compare("Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       iii == 1;
 		if (p1.compare("Timeseries as PCRaster")==0)         SwitchWritePCRnames =    iii == 1;
 		if (p1.compare("Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = iii == 1;
 		if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
@@ -315,5 +317,38 @@ void TWorld::ParseRunfileData()
 		// profile map name
 	}
 
+}
+//------------------------------------------------------------------------------
+void TWorld::GetRunFile()
+{
+   QFile fin(temprunname);
+
+   if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
+   {
+      ErrorString = "Cannot open runfile: " + temprunname;
+      throw 2;
+   }
+
+   for (int i = 0; i < NUMNAMES; i++)
+   {
+      runnamelist[i].name.clear();
+      runnamelist[i].value.clear();
+   }
+   nrrunnamelist = 0;
+
+   while (!fin.atEnd())
+   {
+      QString S = fin.readLine();
+      if (!S.trimmed().isEmpty())
+      {
+         if (S.contains("="))
+         {
+            QStringList SL = S.split(QRegExp("="));
+            runnamelist[nrrunnamelist].name = SL[0].trimmed();
+            runnamelist[nrrunnamelist].value = SL[1].trimmed();
+            nrrunnamelist++;
+         }
+      }
+   }
 }
 //------------------------------------------------------------------------------

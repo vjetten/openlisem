@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1012</width>
-    <height>758</height>
+    <height>768</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -577,7 +577,7 @@
                <number>1</number>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>2</number>
               </property>
               <property name="tabSpacing">
                <number>1</number>
@@ -1303,8 +1303,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
-                 <height>299</height>
+                 <width>364</width>
+                 <height>259</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1424,13 +1424,6 @@
                     </widget>
                    </item>
                   </layout>
-                  <zorder>checkNoErosion</zorder>
-                  <zorder>checkIncludeChannel</zorder>
-                  <zorder>label_55</zorder>
-                  <zorder>checkChannelInfil</zorder>
-                  <zorder>checkIncludeTiledrains</zorder>
-                  <zorder>checkChannelBaseflow</zorder>
-                  <zorder>checkHardsurface</zorder>
                  </widget>
                 </item>
                 <item row="1" column="0">
@@ -1547,8 +1540,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>373</width>
-                 <height>250</height>
+                 <width>449</width>
+                 <height>309</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1690,7 +1683,7 @@
                    <property name="verticalSpacing">
                     <number>2</number>
                    </property>
-                   <item row="0" column="0" colspan="2">
+                   <item row="0" column="0" colspan="3">
                     <widget class="QCheckBox" name="checkGeometric">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1709,7 +1702,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
+                   <item row="3" column="0">
                     <widget class="QLabel" name="label_13">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1765,7 +1758,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1" colspan="3">
+                   <item row="3" column="2" colspan="3">
                     <widget class="QLineEdit" name="E_SwatreTableName">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1778,7 +1771,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="4">
+                   <item row="3" column="5">
                     <widget class="QToolButton" name="toolButton_SwatreTableShow">
                      <property name="text">
                       <string>...</string>
@@ -1789,7 +1782,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="5">
+                   <item row="3" column="6">
                     <widget class="QToolButton" name="toolButton_SwatreTableFile">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1803,7 +1796,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
+                   <item row="2" column="2">
                     <widget class="QLabel" name="label_14">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1856,7 +1849,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
+                   <item row="2" column="0">
                     <widget class="QDoubleSpinBox" name="E_SWATREDtsecFraction">
                      <property name="enabled">
                       <bool>true</bool>
@@ -1878,7 +1871,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1" colspan="4">
+                   <item row="4" column="2" colspan="4">
                     <widget class="QLineEdit" name="E_SwatreTableDir">
                      <property name="font">
                       <font>
@@ -1888,7 +1881,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
+                   <item row="4" column="0">
                     <widget class="QLabel" name="label_49">
                      <property name="palette">
                       <palette>
@@ -1938,7 +1931,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="5">
+                   <item row="4" column="6">
                     <widget class="QToolButton" name="toolButton_SwatreTableDir">
                      <property name="text">
                       <string>...</string>
@@ -1946,6 +1939,19 @@
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
                        <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="3">
+                    <widget class="QCheckBox" name="checkBacksubstitution">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string notr="true">2nd back substitution (more precision, less speed) </string>
                      </property>
                     </widget>
                    </item>
@@ -7737,6 +7743,12 @@ p, li { white-space: pre-wrap; }
               </item>
               <item>
                <widget class="QLabel" name="label_runfilename">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="font">
                  <font>
                   <pointsize>8</pointsize>

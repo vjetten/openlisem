@@ -6,33 +6,6 @@ Developed in: MingW/Qt/
 website, information and code: http://sourceforge.net/projects/lisem
 ---------------------------------------------------------------------------*/
 
-/*
- * This is the extensive interface, with toolbar, initialization of graph
- * and options
- *
- * flowchart: start{
- * resetAll
- *     \-> defaultmapnames -> DEFmaps stringlist for tree interface
- *                        \-> mapList -> map list structure for model run, default names
- *     \-> set all default interface options in namelist
- * defaultRunFile
- *     \-> namelist structure filled with actual runfile data
- *     \-> add actual mapList mapnames to namelist (only variable names not values!)
- *}
- *openrunfile: triggers on_E_runFileList_currentIndexChanged(int){
- *	    \-> GetRunfile() -> namelist is filled with runfile but corrected with namelist
- *     \-> ParseInputData() -> adapt the interface to the namelist (runfile data)
- *     \-> FillMapTree() -> fill the tree strcuture
- *}
- *
- *
- *
- *
- *
- *
- *
-
- */
 
 #include "lisemqt.h"
 #include "model.h"
@@ -731,8 +704,8 @@ void lisemqt::aboutInfo()
                               .arg("- Qt cross platform application and UI framework version 4.7.X based on MingW (http://qt.nokia.com/).")
                               .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                               .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
-                              .arg("- PCRaster map functions: http://pcraster.geo.uu.nl")
-                              .arg("Details can be found at: http://sourceforge.net/projects/lisem/")
+                              .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/csfapi.html")
+                              .arg("Details can be found at: http://lisem.sourceforge.net")
                               .arg(VERSIONNR)
                               .arg(DATE)
                              );

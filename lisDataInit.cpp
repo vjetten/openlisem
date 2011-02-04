@@ -1,204 +1,194 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-name: lisDatainit.cpp
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website SVN: http://sourceforge.net/projects/lisem
 
-Functionality in lisDatainit.cpp:
-- newmap, readmap, destoy data
- - get inputdata, init data, init boolean options (SwitchSomething)
----------------------------------------------------------------------------*/
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+ \file lisDatainit.cpp
+ \brief All data handling functions, read, parse, initialize, make and delete the map structures etc.
+
+ functions: \n
+ - TMMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
+ - TMMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
+ - void TWorld::DestroyData(void) Destroy the list with all maps and pointers, no need to do this one by one.\n
+ - TMMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
+ - TMMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
+ - TMMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
+ - void TWorld::InitTiledrains(void) read and intiialize all Tile drain variables and maps \n
+ - void TWorld::InitBuffers(void)  read and intiialize all buffer and sediment fence variables and maps \n
+ - void TWorld::InitChannel(void)  read and intiialize all channel variables and maps \n
+ - void TWorld::GetInputData(void) Read all input maps \n
+ - void TWorld::IntializeData(void) Initialize all auxillary maps and variables\n
+ - void TWorld::IntializeOptions(void) Initialize all options (Switch...) before the run file.\n
+*/
+
 #include <qstring.h>
 
 #include "model.h"
 
 //---------------------------------------------------------------------------
+/** \n void TWorld::InitMapList(void)
+*  blabla
+*/
 void TWorld::InitMapList(void)
 {
 
-	maplistnr = 0;
-	for (int i = 0; i < NUMNAMES; i++)
-	{
+   maplistnr = 0;
+   for (int i = 0; i < NUMNAMES; i++)
+   {
       maplistTMMap[i].m = NULL;
-	}
+   }
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::NewMap(double value)
 {
-	TMMap *_M = new TMMap();
+   TMMap *_M = new TMMap();
 
-	_M->_MakeMap(Mask, value);
+   _M->MakeMap(LDD, value);
+   // changed to LDD instead of Mask
 
-	if (_M)
-	{
+   if (_M)
+   {
       maplistTMMap[maplistnr].m = _M;
-		maplistnr++;
-	}
+      maplistnr++;
+   }
 
-	return(_M);
-}
-//---------------------------------------------------------------------------
-TMMap *TWorld::ReadMapMask(QString name)
-{
-
-	TMMap *_M = new TMMap();
-
-	_M->PathName = name;
-	bool res = _M->LoadFromFile();
-	if (!res)
-	{
-		ErrorString = "Cannot find map " +_M->PathName;
-		throw 1;
-
-	}
-
-   for (int r = 0; r < _nrRows; r++)
-      for (int c = 0; c < _nrCols; c++)
-			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
-			{
-            ErrorString =
-                  QString("Missing value in map %1 where LDD has a value,\n at row=%2 and col=%3").arg(name).arg(r).arg(c);
-
-            throw 1;
-         }
-
-	if (_M)
-	{
-      maplistTMMap[maplistnr].m = _M;
-		maplistnr++;
-	}
-
-	return(_M);
-
+   return(_M);
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
-	TMMap *_M = new TMMap();
+   TMMap *_M = new TMMap();
 
-	_M->PathName = /*inputdir + */name;
+   _M->PathName = /*inputdir + */name;
 
-	bool res = _M->LoadFromFile();
-	if (!res)
-	{
-		ErrorString = "Cannot find map " +_M->PathName;
-		throw 1;
-	}
+   bool res = _M->LoadFromFile();
+   if (!res)
+   {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+   }
 
    for (int r = 0; r < _nrRows; r++)
       for (int c = 0; c < _nrCols; c++)
-			if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
-			{
+         if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
+         {
             QString sr, sc;
             sr.setNum(r); sc.setNum(c);
             ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name;
             throw 1;
          }
 
-	if (_M)
-	{
+   if (_M)
+   {
       maplistTMMap[maplistnr].m = _M;
-		maplistnr++;
-	}
+      maplistnr++;
+   }
 
-	//msleep(100);
-	//emit debug(_M->PathName);
-
-	return(_M);
+   return(_M);
 
 }
 //---------------------------------------------------------------------------
 void TWorld::DestroyData(void)
 {
-	for (int i = 0; i < maplistnr; i++)
-	{
+   for (int i = 0; i < maplistnr; i++)
+   {
       if (maplistTMMap[i].m != NULL)
-		{
+      {
          maplistTMMap[i].m->KillMap();
          maplistTMMap[i].m = NULL;
-		}
-	}
-	if (nrrainfallseries > 1)
-	{
-		for (int r=0; r < nrrainfallseries; r++)
-			delete[] RainfallSeries[r];
-		delete[] RainfallSeries;
-	}
+      }
+   }
+   if (nrrainfallseries > 1)
+   {
+      for (int r=0; r < nrrainfallseries; r++)
+         delete[] RainfallSeries[r];
+      delete[] RainfallSeries;
+   }
 
    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
-	{
+   {
       FreeSwatreInfo();
       if (SwatreSoilModel)
          CloseSwatre(SwatreSoilModel);
       if (SwatreSoilModelCrust)
          CloseSwatre(SwatreSoilModelCrust);
-		if (SwatreSoilModelCompact)
-			CloseSwatre(SwatreSoilModelCompact);
-		if (SwatreSoilModelGrass)
-			CloseSwatre(SwatreSoilModelGrass);
-	}
+      if (SwatreSoilModelCompact)
+         CloseSwatre(SwatreSoilModelCompact);
+      if (SwatreSoilModelGrass)
+         CloseSwatre(SwatreSoilModelGrass);
+   }
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::InitMask(QString name)
 {
-	// read map and make a mask map
+   // read map and make a mask map
 
-	TMMap *_M = new TMMap();
+   TMMap *_M = new TMMap();
 
-	_M->PathName = /*inputdir + */name;
-	bool res = _M->LoadFromFile();
-	if (!res)
-	{
-		ErrorString = "Cannot find map " +_M->PathName;
-		throw 1;
-	}
+   _M->PathName = /*inputdir + */name;
+   bool res = _M->LoadFromFile();
+   if (!res)
+   {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+   }
 
-	if (_M)
-	{
+   if (_M)
+   {
       maplistTMMap[maplistnr].m = _M;
-		maplistnr++;
-	}
+      maplistnr++;
+   }
 
-	Mask = new TMMap();
-	Mask->_MakeMap(_M, 1.0);
-   maplistTMMap[maplistnr].m = Mask;
-	maplistnr++;
-	_dx = Mask->MH.cellSizeX*1.0000000;
-   _nrRows = Mask->nrRows;
-   _nrCols = Mask->nrCols;
+   _dx = _M->MH.cellSizeX*1.0000000;
+   _nrRows = _M->nrRows;
+   _nrCols = _M->nrCols;
 
-	return(_M);
+   return(_M);
 
 }
 //---------------------------------------------------------------------------
 TMMap *TWorld::InitMaskChannel(QString name)
 {
 
-	TMMap *_M = new TMMap();
+   TMMap *_M = new TMMap();
 
-	_M->PathName = /*inputdir + */name;
-	bool res = _M->LoadFromFile();
-	if (!res)
-	{
-		ErrorString = "Cannot find map " +_M->PathName;
-		throw 1;
-	}
+   _M->PathName = /*inputdir + */name;
+   bool res = _M->LoadFromFile();
+   if (!res)
+   {
+      ErrorString = "Cannot find map " +_M->PathName;
+      throw 1;
+   }
 
-	if (_M)
-	{
+   if (_M)
+   {
       maplistTMMap[maplistnr].m = _M;
-		maplistnr++;
-	}
+      maplistnr++;
+   }
 
-//	MaskChannel = new TMMap();
-//	MaskChannel->_MakeMap(_M, 1.0);
-//   maplistTMMap[maplistnr].m = MaskChannel;
-//	maplistnr++;
-
-	return(_M);
+   return(_M);
 
 }
 //---------------------------------------------------------------------------
@@ -220,12 +210,6 @@ TMMap *TWorld::InitMaskTiledrain(QString name)
       maplistTMMap[maplistnr].m = _M;
       maplistnr++;
    }
-
-//obsolete, was never used
-//   MaskTile = new TMMap();
-//   MaskTile->_MakeMap(_M, 1.0);
-//   maplistTMMap[maplistnr].m = MaskTile;
-//   maplistnr++;
 
    return(_M);
 
@@ -430,7 +414,6 @@ void TWorld::InitChannel(void)
    Channelq = NewMap(0);
    ChannelAlpha = NewMap(0);
    ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
-  // ChannelMask = NewMap(0);
    ChannelDX = NewMap(0);
    ChannelDetFlow = NewMap(0);
    ChannelDep = NewMap(0);
@@ -465,13 +448,6 @@ void TWorld::InitChannel(void)
       }
       ChannelWidthUpDX->copy(ChannelWidth);
       ChannelWidthUpDX->cover(0);
-//      FOR_ROW_COL_MV
-//      {
-//         if (!IS_MV_REAL8(&LDDChannel->Data[r][c]))
-//            ChannelMask->Drc = 1;
-//         else
-//            SET_MV_REAL8(&ChannelMask->Data[r][c]);
-//      }
       FOR_ROW_COL_MV_CH
       {
          ChannelDX->Drc = _dx/ChannelGrad->Drc;
@@ -495,32 +471,34 @@ void TWorld::GetInputData(void)
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));
-	// LDD is also mask and reference file, everthiung has to fit LDD
+   // THIS SHOULD BE THE FIRST MAP
+   // LDD is also mask and reference file, everthing has to fit LDD
    // channels use channel LDD as mask
+
    tm = NewMap(0); // temp map for aux calculations
    tma = NewMap(0); // temp map for aux calculations
    tmb = NewMap(0); // temp map for aux calculations
 
    Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
-	Outlet = ReadMap(LDD,getvaluename("outlet"));
+   Outlet = ReadMap(LDD,getvaluename("outlet"));
    Outlet->cover(0);
    // fill outlet with zero, some users have MV where no outlet
-	FOR_ROW_COL_MV
-	{
-		if (Outlet->Drc == 1)
-		{
-			if (LDD->Drc != 5)
-			{
-				ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
-				throw 1;
-			}
-			else
-			{
-				c_outlet = c;
-				r_outlet = r;
-			}
-		}
-	}
+   FOR_ROW_COL_MV
+   {
+      if (Outlet->Drc == 1)
+      {
+         if (LDD->Drc != 5)
+         {
+            ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
+            throw 1;
+         }
+         else
+         {
+            c_outlet = c;
+            r_outlet = r;
+         }
+      }
+   }
 
    PointMap = ReadMap(LDD,getvaluename("outpoint"));
    //map with points for output data
@@ -529,63 +507,63 @@ void TWorld::GetInputData(void)
    {
       RainZone = ReadMap(LDD,getvaluename("id"));
    }
-	Snowcover = NewMap(0);
-	if (SwitchSnowmelt)
-	{
-		SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
-		FOR_ROW_COL_MV
-		{
-			Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
-		}
-	}
+   Snowcover = NewMap(0);
+   if (SwitchSnowmelt)
+   {
+      SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
+      FOR_ROW_COL_MV
+      {
+         Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
+      }
+   }
 
    //## landuse and surface data
-   N = ReadMap(LDD,getvaluename("manning"));   
+   N = ReadMap(LDD,getvaluename("manning"));
    N->calcV(nCalibration, MUL); //VJ 110112 moved
 
-	RR = ReadMap(LDD,getvaluename("RR"));
-	PlantHeight = ReadMap(LDD,getvaluename("CH"));
-	LAI = ReadMap(LDD,getvaluename("lai"));
-	Cover = ReadMap(LDD,getvaluename("cover"));
+   RR = ReadMap(LDD,getvaluename("RR"));
+   PlantHeight = ReadMap(LDD,getvaluename("CH"));
+   LAI = ReadMap(LDD,getvaluename("lai"));
+   Cover = ReadMap(LDD,getvaluename("cover"));
    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
    if (SwitchGrassStrip)
-	{      
-		GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
-		GrassFraction->copy(GrassWidthDX);
-		GrassFraction->calcV(_dx, DIV);
-		StripN = getvaluedouble("Grassstrip Mannings n");
-		FOR_ROW_COL_MV
-		{
-			if (GrassWidthDX > 0)
-			{
-				N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
-			}
-		}
-	}
-	else
-		GrassFraction = NewMap(0);
+   {
+      GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
+      GrassFraction->copy(GrassWidthDX);
+      GrassFraction->calcV(_dx, DIV);
+      StripN = getvaluedouble("Grassstrip Mannings n");
+      FOR_ROW_COL_MV
+      {
+         if (GrassWidthDX > 0)
+         {
+            N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
+         }
+      }
+   }
+   else
+      GrassFraction = NewMap(0);
    StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
    // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
    RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
    HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
 
    //## infiltration data
-	if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
-	{
+   if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
+   {
       Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
       SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
       SoilDepth1->calcV(1000, DIV);
       //VJ 101213 fixed bug: convert from mm to m
       // can be zero for outcrops
-		FOR_ROW_COL_MV
-		{
+      FOR_ROW_COL_MV
+      {
          if (SoilDepth1->Drc < 0)
-			{
-				ErrorString = QString("SoilDepth1 values < 0 at row %1, col %2").arg(r).arg(c);
-				throw 1;
-			}
-		}
+         {
+            ErrorString = QString("SoilDepth1 values < 0 at row %1, col %2").arg(r).arg(c);
+            throw 1;
+         }
+      }
 
       ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
       ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
@@ -621,61 +599,61 @@ void TWorld::GetInputData(void)
                throw 1;
             }
          }
-		}
-		if (SwitchInfilCrust)
-		{
-			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-			KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
-		}
-		else
-			CrustFraction = NewMap(0);
-		if (SwitchInfilCompact)
-		{
-			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-			KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
-		}
-		else
-			CompactFraction = NewMap(0);
-	}
+      }
+      if (SwitchInfilCrust)
+      {
+         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+         KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
+      }
+      else
+         CrustFraction = NewMap(0);
+      if (SwitchInfilCompact)
+      {
+         CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+         KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
+      }
+      else
+         CompactFraction = NewMap(0);
+   }
 
-	if (InfilMethod == INFIL_SWATRE)
-	{
-		ProfileID = ReadMap(LDD,getvaluename("profmap"));
+   if (InfilMethod == INFIL_SWATRE)
+   {
+      ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
       if (SwitchGrassStrip)
-			ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
+         ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
-		if (SwitchInfilCrust)
-		{
-			CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-			ProfileIDCrust = ReadMap(LDD,getvaluename("profcrust"));
-		}
-		else
-			CrustFraction = NewMap(0);
+      if (SwitchInfilCrust)
+      {
+         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+         ProfileIDCrust = ReadMap(LDD,getvaluename("profcrust"));
+      }
+      else
+         CrustFraction = NewMap(0);
 
-		if (SwitchInfilCompact)
-		{
-			CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-			ProfileIDCompact = ReadMap(LDD,getvaluename("profcomp"));
-		}
-		else
-			CompactFraction = NewMap(0);
+      if (SwitchInfilCompact)
+      {
+         CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+         ProfileIDCompact = ReadMap(LDD,getvaluename("profcomp"));
+      }
+      else
+         CompactFraction = NewMap(0);
 
-		int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-		if (res)
-			throw res;
+      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
+      if (res)
+         throw res;
 
 
-	}
+   }
 
    //## erosion maps
-	if (SwitchErosion)
-	{
-		Cohesion = ReadMap(LDD,getvaluename("coh"));
-		RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
-		AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
-		D50 = ReadMap(LDD,getvaluename("D50"));
-	}
+   if (SwitchErosion)
+   {
+      Cohesion = ReadMap(LDD,getvaluename("coh"));
+      RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+      AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+      D50 = ReadMap(LDD,getvaluename("D50"));
+   }
 
    //## read and initialize all channel maps and variables
    InitChannel();
@@ -689,37 +667,37 @@ void TWorld::GetInputData(void)
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeData(void)
-{   
+{
 
-	//TO DO add units and descriptions
+   //TO DO add units and descriptions
 
    //totals for mass balance
-	MB = 0;
-	MBs = 0;
-   nrCells = Mask->MapTotal();
+   MB = 0;
+   MBs = 0;
+   nrCells = LDD->MapTotal();
 
    //### terrain maps
-	DX = NewMap(0);
-	CellArea = NewMap(0);
-	FOR_ROW_COL_MV
-	{
-		Grad->Drc = max(0.0001, Grad->Drc);
-		DX->Drc = _dx/cos(asin(Grad->Drc));
-		CellArea->Drc = DX->Drc * _dx;
-	}
-	CatchmentArea = CellArea->MapTotal();
+   DX = NewMap(0);
+   CellArea = NewMap(0);
+   FOR_ROW_COL_MV
+   {
+      Grad->Drc = max(0.0001, Grad->Drc);
+      DX->Drc = _dx/cos(asin(Grad->Drc));
+      CellArea->Drc = DX->Drc * _dx;
+   }
+   CatchmentArea = CellArea->MapTotal();
 
-	WheelWidth = NewMap(0);
-	WheelWidthDX = NewMap(0);
-	SoilWidthDX = NewMap(0);
-	GullyWidthDX = NewMap(0);
-	MDS = NewMap(0);
-	FOR_ROW_COL_MV
-	{
-		double RRmm = 10* RR->Drc;
-		MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
-		MDS->Drc /= 1000; // convert to m
-	}
+   WheelWidth = NewMap(0);
+   WheelWidthDX = NewMap(0);
+   SoilWidthDX = NewMap(0);
+   GullyWidthDX = NewMap(0);
+   MDS = NewMap(0);
+   FOR_ROW_COL_MV
+   {
+      double RRmm = 10* RR->Drc;
+      MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+      MDS->Drc /= 1000; // convert to m
+   }
 
    //### rainfall and interception maps
    RainTot = 0;
@@ -732,19 +710,19 @@ void TWorld::IntializeData(void)
    SnowTotmm = 0;
    Snowpeak = 0;
    SnowpeakTime = 0;
-	Rain = NewMap(0);
-	Rainc = NewMap(0);
-	RainCum = NewMap(0);
-	RainNet = NewMap(0);
-	LeafDrain = NewMap(0);
+   Rain = NewMap(0);
+   Rainc = NewMap(0);
+   RainCum = NewMap(0);
+   RainNet = NewMap(0);
+   LeafDrain = NewMap(0);
    //not used RainIntensity = NewMap(0);
    //not used RainM3 = NewMap(0);
-	CStor = NewMap(0);
-	Interc = NewMap(0);
-	
+   CStor = NewMap(0);
+   Interc = NewMap(0);
+
    Snowmelt = NewMap(0);
-	Snowmeltc = NewMap(0);
-	SnowmeltCum = NewMap(0);
+   Snowmeltc = NewMap(0);
+   SnowmeltCum = NewMap(0);
 
    InterceptionLAIType = getvalueint("Canopy storage equation");
    if (InterceptionLAIType == 8)
@@ -783,25 +761,25 @@ void TWorld::IntializeData(void)
    IntercTotmm = 0;
    WaterVolTot = 0;
    WaterVolTotmm = 0;
-	InfilVolKinWave = NewMap(0);
-	InfilVol = NewMap(0);
-	InfilVolCum = NewMap(0);
-	fact = NewMap(0);
-	fpot = NewMap(0);
-	factgr = NewMap(0);
-	fpotgr = NewMap(0);
-	Ksateff = NewMap(0);
-	FSurplus = NewMap(0);
+   InfilVolKinWave = NewMap(0);
+   InfilVol = NewMap(0);
+   InfilVolCum = NewMap(0);
+   fact = NewMap(0);
+   fpot = NewMap(0);
+   factgr = NewMap(0);
+   fpotgr = NewMap(0);
+   Ksateff = NewMap(0);
+   FSurplus = NewMap(0);
    FFull = NewMap(0);
 
-	if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-	{
-		Fcum = NewMap(1e-10);
-		L1 = NewMap(1e-10);
-		L2 = NewMap(1e-10);
-		Fcumgr = NewMap(1e-10);
-		L1gr = NewMap(1e-10);
-		L2gr = NewMap(1e-10);
+   if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
+   {
+      Fcum = NewMap(1e-10);
+      L1 = NewMap(1e-10);
+      L2 = NewMap(1e-10);
+      Fcumgr = NewMap(1e-10);
+      L1gr = NewMap(1e-10);
+      L2gr = NewMap(1e-10);
       if (InfilMethod != INFIL_KSAT)
       {
          Soilwater = NewMap(0);
@@ -812,7 +790,7 @@ void TWorld::IntializeData(void)
             Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
          }
       }
-	}
+   }
 
    //### runoff maps
    Qtot = 0;
@@ -820,60 +798,60 @@ void TWorld::IntializeData(void)
    Qtotmm = 0;
    Qpeak = 0;
    QpeakTime = 0;
-	WH = NewMap(0);
-	WHrunoff = NewMap(0);
-	WHrunoffCum = NewMap(0);
-	WHstore = NewMap(0);
-	WHroad = NewMap(0);
-	WHGrass = NewMap(0);
-	FlowWidth = NewMap(0);
-	fpa = NewMap(0);
-	V = NewMap(0);
-	Alpha = NewMap(0);
-	Q = NewMap(0);
-	Qn = NewMap(0);
-	Qoutput = NewMap(0);
-	Qsoutput = NewMap(0);
-	Qoutflow = NewMap(0); // value of Qn*dt in pits only
-	q = NewMap(0);
-	R = NewMap(0);
-	Perim = NewMap(0);
-	WaterVolin = NewMap(0);
-	WaterVolall = NewMap(0);
+   WH = NewMap(0);
+   WHrunoff = NewMap(0);
+   WHrunoffCum = NewMap(0);
+   WHstore = NewMap(0);
+   WHroad = NewMap(0);
+   WHGrass = NewMap(0);
+   FlowWidth = NewMap(0);
+   fpa = NewMap(0);
+   V = NewMap(0);
+   Alpha = NewMap(0);
+   Q = NewMap(0);
+   Qn = NewMap(0);
+   Qoutput = NewMap(0);
+   Qsoutput = NewMap(0);
+   Qoutflow = NewMap(0); // value of Qn*dt in pits only
+   q = NewMap(0);
+   R = NewMap(0);
+   Perim = NewMap(0);
+   WaterVolin = NewMap(0);
+   WaterVolall = NewMap(0);
 
    SwatreSoilModel = NULL;
-	SwatreSoilModelCrust = NULL;
-	SwatreSoilModelCompact = NULL;
-	SwatreSoilModelGrass = NULL;
-	if (InfilMethod == INFIL_SWATRE)
-	{
+   SwatreSoilModelCrust = NULL;
+   SwatreSoilModelCompact = NULL;
+   SwatreSoilModelGrass = NULL;
+   if (InfilMethod == INFIL_SWATRE)
+   {
       precision = 5.0;
-		// note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
+      // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
       SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT);
-		if (SwatreSoilModel == NULL)
-			throw 3;
+      if (SwatreSoilModel == NULL)
+         throw 3;
 
-		if (SwitchInfilCrust)
-		{
+      if (SwitchInfilCrust)
+      {
          SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT);
-			if (SwatreSoilModelCrust == NULL)
-				throw 3;
-		}
-		if (SwitchInfilCompact)
-		{
+         if (SwatreSoilModelCrust == NULL)
+            throw 3;
+      }
+      if (SwitchInfilCompact)
+      {
          SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT);
-			if (SwatreSoilModelCompact == NULL)
-				throw 3;
-		}
+         if (SwatreSoilModelCompact == NULL)
+            throw 3;
+      }
       if (SwitchGrassStrip)
-		{
+      {
          SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT);
-			if (SwatreSoilModelGrass == NULL)
-				throw 3;
-		}
+         if (SwatreSoilModelGrass == NULL)
+            throw 3;
+      }
       initSwatreStructure = true;
       // flag: structure is created and can be destroyed in function destroydata
-	}
+   }
 
    //### erosion maps
    DetSplashTot = 0;
@@ -884,41 +862,41 @@ void TWorld::IntializeData(void)
    SoilLossTot = 0;
    SoilLossTotOutlet = 0;
    SedTot = 0;
-	Qs = NewMap(0);
-	Qsn = NewMap(0);
-	Qsoutflow = NewMap(0);
-	DETSplash = NewMap(0);
-	DETFlow = NewMap(0);
-	DEP = NewMap(0);
-	Sed = NewMap(0);
-	TC = NewMap(0);
-	Conc = NewMap(0);
-	CG = NewMap(0);
-	DG = NewMap(0);
-	SettlingVelocity = NewMap(0);
-	CohesionSoil = NewMap(0);
-	Y = NewMap(0);
+   Qs = NewMap(0);
+   Qsn = NewMap(0);
+   Qsoutflow = NewMap(0);
+   DETSplash = NewMap(0);
+   DETFlow = NewMap(0);
+   DEP = NewMap(0);
+   Sed = NewMap(0);
+   TC = NewMap(0);
+   Conc = NewMap(0);
+   CG = NewMap(0);
+   DG = NewMap(0);
+   SettlingVelocity = NewMap(0);
+   CohesionSoil = NewMap(0);
+   Y = NewMap(0);
 
-	TotalDetMap = NewMap(0);
-	TotalDepMap = NewMap(0);
-	TotalSoillossMap = NewMap(0);
-	TotalSed = NewMap(0);
-	TotalWatervol = NewMap(0);
-	TotalConc = NewMap(0);
+   TotalDetMap = NewMap(0);
+   TotalDepMap = NewMap(0);
+   TotalSoillossMap = NewMap(0);
+   TotalSed = NewMap(0);
+   TotalWatervol = NewMap(0);
+   TotalConc = NewMap(0);
 
 
-	if (SwitchErosion)
-	{
-		FOR_ROW_COL_MV
-		{
-			CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-			DG->Drc = pow((D50->Drc+5)/300, 0.25);
-			SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
-			CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
-			// soil cohesion everywhere, plantcohesion only where plants
-			Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
-		}
-	}
+   if (SwitchErosion)
+   {
+      FOR_ROW_COL_MV
+      {
+         CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
+         DG->Drc = pow((D50->Drc+5)/300, 0.25);
+         SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
+         CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+         // soil cohesion everywhere, plantcohesion only where plants
+         Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+      }
+   }
 
    lddlist = MakeSortedNetwork(LDD, &lddlistnr);
 
@@ -928,85 +906,86 @@ void TWorld::IntializeData(void)
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
 {
-	nrrainfallseries = 0;
+   nrrainfallseries = 0;
 
-	//dirs and names
-	resultDir.clear();
-	inputDir.clear();
-	outflowFileName = QString("totals.txt");//.clear();
-	totalErosionFileName = QString("erososion.map");//.clear();
-	totalDepositionFileName = QString("deposition.map");//.clear();
-	totalSoillossFileName = QString("soilloss.map");//.clear();
+   //dirs and names
+   resultDir.clear();
+   inputDir.clear();
+   outflowFileName = QString("totals.txt");//.clear();
+   totalErosionFileName = QString("erososion.map");//.clear();
+   totalDepositionFileName = QString("deposition.map");//.clear();
+   totalSoillossFileName = QString("soilloss.map");//.clear();
    totalLandunitFileName = QString("totlandunit.txt");//.clear();
    outflowFileName = QString("hydrohtaph.csv");//.clear();
-	rainFileName.clear();
-	rainFileDir.clear();
-	snowmeltFileName.clear();
-	snowmeltFileDir.clear();
-	SwatreTableDir.clear();
-	SwatreTableName = QString("profile.inp");//.clear();
-	resultFileName.clear();
+   rainFileName.clear();
+   rainFileDir.clear();
+   snowmeltFileName.clear();
+   snowmeltFileDir.clear();
+   SwatreTableDir.clear();
+   SwatreTableName = QString("profile.inp");//.clear();
+   resultFileName.clear();
 
-	SwitchHardsurface = false;
-	SwatreInitialized = false;
-	SwitchInfilGA2 = false;
-	SwitchCrustPresent = false;
-	SwitchWheelPresent = false;
-	SwitchCompactPresent = false;
-	SwitchIncludeChannel = false;
-	SwitchChannelBaseflow = false;
-	startbaseflowincrease = false;
-	SwitchChannelInfil = false;
-	SwitchAllinChannel = false;
-	SwitchErosion = false;
-	SwitchAltErosion = false;
-	SwitchSimpleDepression = false;
-	SwitchBuffers = false;
-	SwitchSedtrap = false;
+   SwitchHardsurface = false;
+   SwatreInitialized = false;
+   SwitchInfilGA2 = false;
+   SwitchCrustPresent = false;
+   SwitchWheelPresent = false;
+   SwitchCompactPresent = false;
+   SwitchIncludeChannel = false;
+   SwitchChannelBaseflow = false;
+   startbaseflowincrease = false;
+   SwitchChannelInfil = false;
+   SwitchAllinChannel = false;
+   SwitchErosion = false;
+   SwitchAltErosion = false;
+   SwitchSimpleDepression = false;
+   SwitchBuffers = false;
+   SwitchSedtrap = false;
    SwitchRainfall = true; //VL 110103 add rainfall default true
    SwitchSnowmelt = false;
-	SwitchRunoffPerM = false;
-	SwitchInfilCompact = false;
-	SwitchInfilCrust = false;
+   SwitchRunoffPerM = false;
+   SwitchInfilCompact = false;
+   SwitchInfilCrust = false;
    SwitchGrassStrip = false;
-	SwitchImpermeable = false;
-	SwitchDumphead = false;
-	SwitchWheelAsChannel = false;
-	SwitchMulticlass = false;
-	SwitchNutrients = false;
-	SwitchGullies = false;
-	SwitchGullyEqualWD = false;
-	SwitchGullyInfil = false;
-	SwitchGullyInit = false;
-	SwitchOutputTimeStep = false;
-	SwitchOutputTimeUser = false;
-	SwitchMapoutRunoff = false;
-	SwitchMapoutConc = false;
-	SwitchMapoutWH = false;
-	SwitchMapoutWHC = false;
-	SwitchMapoutTC = false;
-	SwitchMapoutEros = false;
-	SwitchMapoutDepo = false;
-	SwitchMapoutV = false;
-	SwitchMapoutInf = false;
-	SwitchMapoutSs = false;
-	SwitchMapoutChvol = false;
-	SwitchWritePCRnames = false;
-	SwitchWritePCRtimeplot = false;
-	SwitchNoErosionOutlet = false;
-	SwitchDrainage = false;
-	SwitchPestout = false;
-	SwitchSeparateOutput = false;
-	SwitchSOBEKOutput = false;
-	SwitchInterceptionLAI = false;
-	SwitchTwoLayer = false;
-	SwitchSimpleSedKinWave = false;
-	SwitchSOBEKoutput = false;
-	SwitchPCRoutput = false;
-	SwitchSoilwater = false;
-	SwitchGeometric = true;
+   SwitchImpermeable = false;
+   SwitchDumphead = false;
+   SwitchWheelAsChannel = false;
+   SwitchMulticlass = false;
+   SwitchNutrients = false;
+   SwitchGullies = false;
+   SwitchGullyEqualWD = false;
+   SwitchGullyInfil = false;
+   SwitchGullyInit = false;
+   SwitchOutputTimeStep = false;
+   SwitchOutputTimeUser = false;
+   SwitchMapoutRunoff = false;
+   SwitchMapoutConc = false;
+   SwitchMapoutWH = false;
+   SwitchMapoutWHC = false;
+   SwitchMapoutTC = false;
+   SwitchMapoutEros = false;
+   SwitchMapoutDepo = false;
+   SwitchMapoutV = false;
+   SwitchMapoutInf = false;
+   SwitchMapoutSs = false;
+   SwitchMapoutChvol = false;
+   SwitchWritePCRnames = false;
+   SwitchWritePCRtimeplot = false;
+   SwitchNoErosionOutlet = false;
+   SwitchDrainage = false;
+   SwitchPestout = false;
+   SwitchSeparateOutput = false;
+   SwitchSOBEKOutput = false;
+   SwitchInterceptionLAI = false;
+   SwitchTwoLayer = false;
+   SwitchSimpleSedKinWave = false;
+   SwitchSOBEKoutput = false;
+   SwitchPCRoutput = false;
+   SwitchSoilwater = false;
+   SwitchGeometric = true;
+   SwitchBacksubstitution = true;
 
-	SwitchWriteHeaders = true; // write headers in output files in first timestep
+   SwitchWriteHeaders = true; // write headers in output files in first timestep
 
    initSwatreStructure = false;
    // check to flag when swatre 3D structure is created, needed to clean up data

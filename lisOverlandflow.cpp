@@ -1,15 +1,37 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-name: lisOverland.cpp
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website SVN: http://sourceforge.net/projects/lisem
 
-Functionality in lisOverland.cpp:
-- calculate velocity and discharge
-- calculate overland flow, calls kinematic wave
----------------------------------------------------------------------------*/
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file lisOverlandflow.cpp
+  \brief calculate fraction flowing in the channel, Q, V and call kin wave
+
+functions: \n
+- void TWorld::ToChannel(void) \n
+- void TWorld::CalcVelDisch(void) \n
+- void TWorld::OverlandFlow(void) \n
+ */
 
 #include "model.h"
 
@@ -112,27 +134,31 @@ void TWorld::OverlandFlow(void)
 	// flag all Qn gridcell with MV for in kin wave
 
 	// do kin wave for all pits
+   int dinges = 0;
+   if (dinges == 1)
+   {
+      FOR_ROW_COL_MV
+      {
+         if (LDD->Drc == 5) // if outflow point, pit
+         {
+            /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
+            Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
 
-//   FOR_ROW_COL_MV
-//   {
-//      if (LDD->Drc == 5) // if outflow point, pit
-//      {
-//         /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
-//         Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+            Qoutflow->Drc = Qn->Drc * _dt;
+            if (SwitchErosion)
+               Qsoutflow->Drc = Qsn->Drc * _dt;
+            // these maps now contain m3 and kg per timestep in pit cells
+         }
+      }
+   }
+   else
+   {
+      KinematicNew(lddlist, lddlistnr, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
 
-//         Qoutflow->Drc = Qn->Drc * _dt;
-//         if (SwitchErosion)
-//            Qsoutflow->Drc = Qsn->Drc * _dt;
-//         // these maps now contain m3 and kg per timestep in pit cells
-//      }
-//   }
-
-   KinematicNew(lddlist, lddlistnr, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
-
-   Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
-   if (SwitchErosion)
-      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
-
+      Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
+      if (SwitchErosion)
+         Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
+   }
 	// calculate resulting flux Qn back to water height on surface
 	FOR_ROW_COL_MV
 	{

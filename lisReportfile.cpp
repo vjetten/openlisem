@@ -1,18 +1,41 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
-/*
- * reportfile.cpp: reporting maps, hydrographs and outlet/area totals
- *
- *  Created on: Mar 2, 2010
- *      Author: jetten
+
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file lisReportfile.cpp
+  \brief reporting maps, hydrographs, outlet/area totals and land unit stats
+
+functions: \n
+- void TWorld::reportAll() \n
+- void TWorld::ReportTimeseriesNew() \n
+- void TWorld::ReportTotalsNew() \n
+- void TWorld::ReportMaps() \n
+- void TWorld::CountLandunits() \n
+- void TWorld::ReportLandunits() \n
  */
 
-//#include "ifacebasic.h"
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"

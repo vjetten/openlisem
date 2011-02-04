@@ -1,14 +1,31 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
 
-/*! \file */
-/**
-Functionality in model.h:
+/*!
+  \file model.h:
+  \brief main class, describing the model world with all variables and processes
+*
 * - TWorld class that combines ALL model variables
 * - all processes
 * - global defines Drc, MV, FOR_ROW_COL_MV etc
@@ -103,6 +120,7 @@ typedef struct LDD_LINKEDLIST {
    struct LDD_LINKEDLIST *prev;
 }  LDD_LINKEDLIST;
 //---------------------------------------------------------------------------
+/// structure used for sorting of the LDD
 typedef struct LDD_POINT {
    int rowNr;
    int colNr;
@@ -122,10 +140,6 @@ typedef struct UNIT_LIST {
    double totdep;
    double totsl;
 } UNIT_LIST;
-//---------------------------------------------------------------------------
-
-
-
 //---------------------------------------------------------------------------
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -154,7 +168,7 @@ public:
    MapListStruct maplistTMMap[NUMNAMES];
 	int maplistnr;
 
-
+/// variable declaration list of all maps with comments:
 #include "TMmapVariables.h"
 
    /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
@@ -169,7 +183,8 @@ public:
 	SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
 	SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
 	SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-   SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile;
+   SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile,
+   SwitchBacksubstitution;
 
    // multiple options that are set in interface or runfile, see defines above
    /// Interception storage function based on LAI
@@ -239,35 +254,37 @@ public:
    // list with class values of land unit map
    UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
    int landUnitNr;
-
 	// data initialization, runfile reading and parsing
    NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
    int nrrunnamelist;
-	void IntializeOptions(void);  // set all options to false etc
-	void IntializeData(void);     // make all non-input maps
-	void GetRainfallData(void);   // get input timeseries
-	void GetSnowmeltData(void);   // get input timeseries
-	void GetInputData(void);      // get and make input maps
-   void InitChannel(void); //VJ 110112
-   void InitBuffers(void); //VJ 110112
-   void InitTiledrains(void); //VJ 110112
-	TMMap *InitMask(QString name);
-	TMMap *InitMaskChannel(QString name);
+
+   // functions in lisDataInit.cpp
+   void InitMapList(void);
+   TMMap *NewMap(double value);
+   TMMap *ReadMap(cTMap *Mask, QString name);
+   void DestroyData(void);
+   TMMap *InitMask(QString name);
+   TMMap *InitMaskChannel(QString name);
    TMMap *InitMaskTiledrain(QString name);
-	TMMap *ReadMapMask(QString name);
-	TMMap *ReadMap(cTMap *Mask, QString name);
-	TMMap *NewMap(double value);
-	void InitMapList(void);
-	void DestroyData(void);
-   void ParseRunfileData();
-	void GetRunFile();
-	QString GetName(QString p);
+   void InitTiledrains(void); //VJ 110112
+   void InitBuffers(void); //VJ 110112
+   void InitChannel(void); //VJ 110112
+   void GetInputData(void);      // get and make input maps
+   void IntializeData(void);     // make all non-input maps
+   void IntializeOptions(void);  // set all options to false etc
+
+   // functions in lisRunfile.cpp
 	QString getvaluename(QString vname);
 	double getvaluedouble(QString vname);
 	int getvalueint(QString vname);
 	QString CheckDir(QString p);
+   QString GetName(QString p);
+   void ParseRunfileData();
+   void GetRunFile();
 
    // LISEM model processes
+   void GetRainfallData(void);   // get input timeseries
+   void GetSnowmeltData(void);   // get input timeseries
    /// convert rainfall of a timestep into a map
    void RainfallMap(void);
    /// convert snowmelt of a timestep into a map
@@ -284,6 +301,7 @@ public:
    void InfilKsat(void);
    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
    void SoilWater(void);
+
    void SurfaceStorage(void);
    void OverlandFlow(void);
    void ChannelFlow(void);
@@ -297,6 +315,7 @@ public:
    void FlowDetachment(void);
    double MaxConcentration(double watvol, double sedvol, double dep);
    void ChannelFlowDetachment(void);
+
    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                   TMMap *_StorVol, TMMap*_StorVolSed);
@@ -308,9 +327,10 @@ public:
    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);
    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
-
-   //VJ 110123 sorted networks for faster kin wave
    LDD_POINT **MakeSortedNetwork(TMMap *_LDD, long *lddlistnr);
+
+//   QList <LDD_POINT *> listldd;
+   //VJ 110123 sorted networks for faster kin wave
    LDD_POINT **lddlist;
    long lddlistnr;
    LDD_POINT **lddlistch;
@@ -387,7 +407,7 @@ signals:
 	void debug(const QString &results);
    void show(); //use the output structure "op" declared in global.h and LisUIoutput.h
 
-public slots:   //note, was private loop but dixygen does not recognize that
+private slots:   //note, was private loop but dixygen does not recognize that
    /// the main model loop, from here all processes are called in a time loop
    void DoModel();
 

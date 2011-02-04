@@ -6,7 +6,7 @@ TMMap
 *tm,                         //!< Auxilary map
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
-*Mask,                       //!< Catchment mask, based on the LDD
+//*Mask,                       //!< Catchment mask, based on the LDD
 *DEM,                        //!< DEM [m]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -131,9 +131,8 @@ TMMap
 *ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas
 *ProfileIDGrass,             //!< SWATRE profile unit number map for grass strips
 
-*ChannelMask,                //!< 
-*RunoffVolinToChannel,       //!<
 *LDDChannel,                 //!<
+*RunoffVolinToChannel,       //!<
 *ChannelWidth,               //!<
 *ChannelSide,                //!<
 *ChannelQ,                   //!<
@@ -162,9 +161,8 @@ TMMap
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 
-*TileMask,                   //!<
-*TileDrainSoil,              //!<
 *LDDTile,                    //!<
+*TileDrainSoil,              //!<
 *TileWidth,                  //!<
 *Tileheight,                 //!<
 *TileQ,                      //!<
@@ -186,7 +184,6 @@ TMMap
 *BufferSed,                  //!<
 *ChannelBufferSed,           //!<
 *ChannelBufferVol,           //!<
-
 *BufferVolInit,              //!<
 *BufferSedInit,              //!<
 *ChannelBufferSedInit,       //!<

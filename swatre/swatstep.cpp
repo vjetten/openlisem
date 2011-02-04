@@ -1,15 +1,35 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-name: lisModel.cpp
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website SVN: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
 
 #include "csf.h"
 #include "model.h"
 #include "swatrelookup.h"
+
+/// SWATRE iteration and soil matrix solution, etimatipon of next timestep
+/// note that there is no real iteration: all calculations are done twice
+/// and if the solution is not good enough, the NEXT SWATRE internal timestep is
+/// decreased
 
 //--------------------------------------------------------------------------------
 /*
@@ -24,7 +44,7 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
 {
 	int nN = NrNodes(p);
 	const double *dz = Dz(p), *disnod = DistNode(p);
-	int i, last = nN-1; // nN nodes from 0 to nN-1 !
+   int i; // nN nodes from 0 to nN-1 !
 	NODE_ARRAY thoma, thomb, thomc, thomf, beta;
 	double alpha;
 
@@ -57,42 +77,47 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
 	}
 
 	// last node : n-1 (include boundary cond. qbot)
-	thoma[last] = -dt*kavg[last]/dz[last]/disnod[last];
-	thomb[last] = -thoma[last] + dimoca[last];
-	thomf[last] = dimoca[last]*h[last] + dt/(-dz[last])*(kavg[last]+qbot); //+dt/(-dz[last])*(Sink[last])
+   thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disnod[nN-1];
+   thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
+   thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot); //+dt/(-dz[nN-1])*(Sink[nN-1])
 
 	// Gaussian elimination and backsubstitution h - first time
 	alpha = thomb[0];
 	h[0] = thomf[0] / alpha;
-	for (i = 1; i < nN; i++) {
+   for (i = 1; i < nN; i++)
+   {
 		beta[i] = thomc[i-1] / alpha;
 		alpha = thomb[i] - thoma[i] * beta[i];
 		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
 	}
-	for (i = (last-1); i >= 0; i--)
+   for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
 
 	// correct tridiagonal matrix
-	for (i = 0; i < nN; i++) {
-		double theta = TheNode(h[i], Horizon(p,i));
-		double dimocaNew = DmcNode(h[i], Horizon(p,i));
+   if (SwitchBacksubstitution)
+   {
+      for (i = 0; i < nN; i++)
+      {
+         double theta = TheNode(h[i], Horizon(p,i));
+         double dimocaNew = DmcNode(h[i], Horizon(p,i));
 
-		thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
-		thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i] - theta + thetaPrev[i];
-	}
+         thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
+         thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i] - theta + thetaPrev[i];
+      }
 
-	// Gaussian elimination and backsubstitution h - second time
-	alpha = thomb[0];
-	h[0] = thomf[0] / alpha;
-	for (i = 1; i < nN; i++) {
-		beta[i] = thomc[i-1] / alpha;
-		alpha = thomb[i] - thoma[i] * beta[i];
-		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
-	}
+      // Gaussian elimination and backsubstitution h - second time
+      alpha = thomb[0];
+      h[0] = thomf[0] / alpha;
+      for (i = 1; i < nN; i++)
+      {
+         beta[i] = thomc[i-1] / alpha;
+         alpha = thomb[i] - thoma[i] * beta[i];
+         h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+      }
 
-	for (i = (last-1); i >= 0; i--)
-		h[i] -= beta[i+1] * h[i+1];
-
+      for (i = nN-2; i >= 0; i--)
+         h[i] -= beta[i+1] * h[i+1];
+   }
 }
 //--------------------------------------------------------------------------------
 double  TWorld::NewTimeStep(
@@ -106,13 +131,16 @@ double  TWorld::NewTimeStep(
 {
 	int i;
 	double dt = dtMax;
-	double accur1 = 0.3 - 0.02 * precParam;
-	double accur2 = 0.03 - 0.002 * precParam;
+   double accur1 = 0.3 - 0.02 * precParam;
+   double accur2 = 0.03 - 0.002 * precParam;
 
 	for(i=0; i < nrNodes; i++)
 	{
 		double mdih = accur1 + accur2 * max(1.0, fabs(h[i]));
-		double dih  = fabs(h[i] - hLast[i]);
+      double dih  = fabs(h[i] - hLast[i]);
+      // if difference is small
+      // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
+      // mdih/dih = 2.1/10 =0.21
 
 		if (dih > 0.10)
 			dt = min(dt, prevDt*mdih/dih);
@@ -175,7 +203,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 		else
          qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
         // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
-      //VJ 110122 why not last node? this gives nan, why?
+      //VJ 110122 why not last node? this gives nan, why? => n does not exist!
 
       // units now in cm/s
 
@@ -187,12 +215,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration, 86400) * k[0]);
 		// qmax of top node is always calculated with geometric average K
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
-     if (pond == 0)
-         qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
+//      if (pond == 0)
+//         qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
       //VJ 110122
      //actual infil rate Darcy
 		//KLOPT eigenlijk niet als niet ponded is pond = 0,ipv een negatieve matrix potentiaal
-      // BIJV if (pond == 0) qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
+
 
 		ponded = (qtop < qmax);
 		// NOTE qtop and qmax are both negative !
@@ -201,9 +229,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 		if (!ponded)
 		{
 			double space = 0;
-			for(i = 0; i < n && h[i] < 0; i++)
+         for(i = 0; i < n && h[i] < 0 && space > pond; i++)
 			{
-				ThetaSat = TheNode(0.0, Horizon(p, i));
+            //ThetaSat = TheNode(0.0, Horizon(p, i));
+            ThetaSat = LUT_Highest(p->horizon[i]->lut, THETA_COL);
 				space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
 			}
 			//ponded = ((-qtop) * dt) > space;
@@ -212,12 +241,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
 		/* check if profile is still completely saturated (flstsat) */
 		fltsat = true;
-		for (i = 0; i < n; i++)
-			if (h[i] < 0)
-		{
-			fltsat = false;
-			break;
-		}
+//		for (i = 0; i < n; i++)
+         for (i = n-1; i >= 0; i--)
+         if (h[i] < 0)
+      {
+         fltsat = false;
+         break;
+      }
 
       //--- calculate tile drain ---//
       if (SwitchIncludeTile)
@@ -227,9 +257,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          qdrain = min(0, qdrain);
          if (qdrain < 0)
          {
-           // theta[tnode] = theta[tnode] - (qdrain*dt)/DistNode(p)[tnode];
-           // h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
-            drainout += qdrain*dt; // a bit redundant
+         //   theta[tnode] = theta[tnode] + (qdrain*dt)/DistNode(p)[tnode];
+         //   h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
+         //   drainout += qdrain*dt; // a bit redundant
          }
       }
 
@@ -238,16 +268,19 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 		memcpy(thetaPrev, theta, sizeof(double)*n);
 
 		// calculate hew heads
-      HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
-					fltsat, dt, pond, qtop, qbot);
 
+      HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
+               fltsat, dt, pond, qtop, qbot);
+
+      if (SwitchIncludeTile)
+      {
+         drainout = h[tnode];//TheNode(h[tnode], Horizon(p, tnode));
+      }
 		// determine new boundary fluxes
       if (SwitchImpermeable)
 			qbot = 0;
 		else
          qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
-        // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
-      //VJ 110122 why not last node? this gives nan, why?
 
 		if ( ponded || (fltsat && (qtop < qbot)) )
 			qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
@@ -302,12 +335,13 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
       _fpot->Drc = max(0, -infil/100);
 		// infil is negative (downward flux * dt, in cm)
 		//fpot is positive like in other infil  methods (in m)
-
+if (r == _nrRows/2 && c == _nrCols/2)
+      qDebug() << drain;
      if (SwitchIncludeTile)
-         _drain->Drc = -drain/_dt*0.01;  // in m/s
+         _drain->Drc = -drain;///_dt*0.01;  // in m/s
 
-     SwitchIncludeTile = false;
 	}
+   SwitchIncludeTile = false;
 }
 //--------------------------------------------------------------------------------
 // calculates average soil moisture from surface to layernr
