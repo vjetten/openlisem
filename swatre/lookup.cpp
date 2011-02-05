@@ -22,68 +22,67 @@
 **
 *************************************************************************/
 
-/**************************************************************************/
-/*  SWATRE: lookup.c                                                              */
-/*   Computes Theta from head, K from head or Diff Moist Cap from head    */
-/*   currently from linear interpolation in tables, but Van Genuchten     */
-/*   possible                                                             */
-/*                                                                        */
-/**************************************************************************/
+/*!
+  \file lookup.cpp
+  \brief SWATRE: computes Theta from head, K from head or Diff Moist Cap from head.
+
+  functions:\n
+- double HNode(double theta, const  HORIZON *hor)\n
+- double TheNode(double head, const  HORIZON *hor)\n
+- double HcoNode(double head, const HORIZON *hor, double calib, double SEC)\n
+- double DmcNode(double head, const  HORIZON *hor) \n
+
+*/
 
 #include "swatre_p.h"
 #include "swatresoillut.h"
 #include "swatrelookup.h"
 
 //-----------------------------------------------------------------------------------
-/* head from theta*/
+/// head from theta
 double HNode(
-      double theta,           /* current theta value of this node */
-      const  HORIZON *hor)    /* parameters of horizon this node belongs to */
+   double theta,           // current theta value of this node
+   const  HORIZON *hor)    // parameters of horizon this node belongs to
 {
-   //theta = min( theta, -1e-10);
    return LUT_LinIntPol(hor->lut,H_COL, theta,THETA_COL);
-}//-----------------------------------------------------------------------------------
-/* theta from head */
+}
+//-----------------------------------------------------------------------------------
+/// theta from head
 double TheNode(
-		double head,           /* current head value of this node */
-		const  HORIZON *hor)   /* parameters of horizon this node belongs to */
+   double head,           // current head value of this node
+   const  HORIZON *hor)   // parameters of horizon this node belongs to
 {
 	head = max( head, -1e-10);
 	if (head >= -1.0E-2)
 		return LUT_Highest(hor->lut, THETA_COL);
-	/* SWITCH BETWEEN  VAN_GENUG AND LUT HERE */
 	return LUT_LinIntPol(hor->lut, THETA_COL, head, H_COL);
 }
 //-----------------------------------------------------------------------------------
-/*  conductivity from head */
+/// hydraulic conductivity from head
 double HcoNode(
-		double head,
-		const HORIZON *hor,
-		double calib,
-		double SEC)
+   double head,
+   const HORIZON *hor,
+   double calib)
 {
 	if (head >= -1.0E-2)
-		return (LUT_Highest(hor->lut, K_COL)*calib/SEC);
-
-	/* SWITCH BETWEEN  VAN_GENUG AND LUT HERE */
-	return (LUT_LinIntPol(hor->lut, K_COL, head, H_COL)/SEC);
+      return (LUT_Highest(hor->lut, K_COL)*calib/86400.0);
+   // table is in cm/day, funcion return cm/sec
+   return (LUT_LinIntPol(hor->lut, K_COL, head, H_COL)/86400.0);
 }
 //-----------------------------------------------------------------------------------
-/* Differential Moisture Capacity from head */
+/// Differential Moisture Capacity from head
 double DmcNode(
-		double head,           /* current head value of this node           */
-		const  HORIZON *hor)   /* parameters of horizon this node belongs to */
+   double head,           // current head value of this node
+   const  HORIZON *hor)   // parameters of horizon this node belongs to
 {
-	int i;         /* index in LUT where dmch[i] <= head <= dmch[i+1] */
-	const LUT *l;  /* lut of this horizon */
+   int i;         // index in LUT where dmch[i] <= head <= dmch[i+1]
+   const LUT *l;  // lut of this horizon
 
-	/* dit gaat niet goed als profiel van verzadigd naar onversazigd swithched:
-	if (head >= 0) return 0; */
+   // dit gaat niet goed als profiel van verzadigd naar onversazigd switht:
+   //if (head >= 0) return 0;
 
 	if (head >= -1.0E-2)
 		return LUT_LinIntPol(hor->lut, DMCC_COL, head, DMCH_COL);
-
-	/* SWITCH BETWEEN  VAN_GENUG AND LUT HERE */
 
 	l = hor->lut;
 	i = LUT_Index_LE(l, head, DMCH_COL);
@@ -95,23 +94,4 @@ double DmcNode(
 			(LUT_ValueAt(l,DMCC_COL, i+1)-LUT_ValueAt(l,DMCC_COL, i))/
 			(LUT_ValueAt(l,DMCH_COL, i+1)-LUT_ValueAt(l,DMCH_COL, i));
 }
-//-----------------------------------------------------------------------------------
-/*deal with evap sinkterm
-            //Sink[i] = SinkNode(h[i], Horizon(p, i), SinkTerm);
-double SinkNode(
-	double head,
-	const HORIZON *hor,
-  double SinkTerm)
-{
-  double sink = 0;
-  
-  if (head >= -0.1)
-     return (sink);  //no Sinkterm when soil nearly saturated
-
- RootFraction = 
-  return (1/(1+(head/-500)**3) * SinkTerm * RootFraction);
-
-	return LUT_LinIntPol(hor->lut, K_COL, head, H_COL);
-}
-*/
 //-----------------------------------------------------------------------------------

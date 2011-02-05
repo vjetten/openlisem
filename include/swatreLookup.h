@@ -38,8 +38,7 @@ double TheNode(
 double HcoNode(
 		double head,
 		const HORIZON *hor,
-		double calib,
-		double SEC);
+      double calib);
 
 double DmcNode(
 		double head,

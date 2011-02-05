@@ -23,7 +23,7 @@
 *************************************************************************/
 
 /*!
-  \file swatre_g.h
+  \file swatre_p.h
   \brief SWATRE private declarations and structures
 */
 

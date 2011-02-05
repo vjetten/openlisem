@@ -22,14 +22,30 @@
 **
 *************************************************************************/
 
+
+/*!
+  \file swatstep.cpp
+  \brief SWATRE iteration and soil matrix solution
+
+ note that there is no real iteration: all calculations are done twice
+ and if the solution is not good enough, the NEXT SWATRE internal timestep is
+ decreased
+
+ functions:
+- void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev, \n
+      const double *hPrev,const double  *kavg,const double  *dimoca, \n
+      bool fltsat, double dt, double pond, double qtop, double qbot) \n
+- double  TWorld::NewTimeStep(double prevDt, const double *hLast, const double *h, \n
+  int nrNodes, double precParam, double dtMin, double dtMax) \n
+- void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
+                             double *drain, SOIL_MODEL *s) \n
+- void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where) \n
+ */
 #include "csf.h"
 #include "model.h"
 #include "swatrelookup.h"
 
-/// SWATRE iteration and soil matrix solution, etimatipon of next timestep
-/// note that there is no real iteration: all calculations are done twice
-/// and if the solution is not good enough, the NEXT SWATRE internal timestep is
-/// decreased
+
 
 //--------------------------------------------------------------------------------
 /*
@@ -175,8 +191,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //--- get nodal values of theta, K, dif moist cap ---//
 		for (i=0; i < n; i++)
 		{
-         k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration, 86400);
-			// table in cm/day now in cm/sec
+         k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration);
+         // table in cm/day function returns in cm/sec
 			dimoca[i] = DmcNode(h[i], Horizon(p, i));
 			theta[i] = TheNode(h[i], Horizon(p, i));
 		}
@@ -212,7 +228,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 		// top flux is ponded layer / timestep, available water, cm/sec
 
 		ThetaSat = TheNode(0.0, Horizon(p, 0));
-      kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration, 86400) * k[0]);
+      kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration) * k[0]);
 		// qmax of top node is always calculated with geometric average K
 		qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
 //      if (pond == 0)

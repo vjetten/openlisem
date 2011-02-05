@@ -24,7 +24,7 @@
 
 /*!
  \file CsfMap.cpp
- \brief file operations wrapper class for PCRaster maps.
+ \brief file operations  class for PCRaster maps.
 
   provide basic functionality to read and write PCRaster CSF maps, \n
   can be altered to link to other file formats.
@@ -76,10 +76,11 @@ void cTMap::GetMapHeader(QString Name)
 {
    MAP *m = Mopen(Name.toAscii().constData(), M_READ);
    if (m == NULL)
-   {
       Error(QString("Map %1 cannot be opened.").arg(Name));
-      throw 1;
-   }
+//   {
+//      Error(QString("Map %1 cannot be opened.").arg(Name));
+//      throw 1;
+//   }
 
    MH = m->raster;
    projection = m->main.projection;
@@ -105,10 +106,11 @@ void cTMap::CreateMap(QString Name)
       Data[r] = new REAL8[nrCols];
 
    if (Data == NULL)
-   {
       Error(QString("Cannot create data structure for map: %1").arg(Name));
-      throw 1;
-   }
+//   {
+//      Error(QString("Cannot create data structure for map: %1").arg(Name));
+//      throw 1;
+//   }
 
    Created = true;
 }
@@ -119,11 +121,11 @@ bool cTMap::LoadFromFile()
    QFileInfo fi(PathName);
 
    if (!fi.exists())
-   {
-      //return(false);
       Error(QString("Map %1 does not exist.").arg(PathName));
-      throw 1;
-   }
+//   {
+//      Error(QString("Map %1 does not exist.").arg(PathName));
+//      throw 1;
+//   }
 
    // make map structure
    CreateMap(PathName);

@@ -22,6 +22,17 @@
 **
 *************************************************************************/
 
+/*!
+\file swatinit.cpp
+\brief SWATRE: initialize soil profile with inithead maps data and clean up after run
+
+functions:
+- SOIL_MODEL * TWorld::InitSwatre(TMMap *profileMap, QString initHeadMaps, double minDt); \n
+- void TWorld::CloseSwatre(SOIL_MODEL *s); \n
+*/
+
+
+
 #include "csf.h"
 #include "error.h"
 #include "model.h"
@@ -29,7 +40,7 @@
 //--------------------------------------------------------------------------------
 SOIL_MODEL *TWorld::InitSwatre(
 		TMMap *profileMap,
-		QString initHeadMaps,    /* init head name */
+      QString initHeadMaps,
       double minDt)
 {
 	SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
@@ -43,12 +54,13 @@ SOIL_MODEL *TWorld::InitSwatre(
 	if (nrNodes == -1)
 	{
 		Error("SWATRE: can't call \'initswatre\' before \'swatre input\'");
-		return(NULL);
+//		return(NULL);
 	}
-//	s->nrCells = nrCells;
 	s->minDt = minDt;
    s->pixel = new PIXEL_INFO[nrCells];
    
+// obsolete
+//	s->nrCells = nrCells;
 //	s->precision = precision;
 //	s->geometric = geom;
 //	s->swatreBottomClosed = bottomClosed;
@@ -86,7 +98,7 @@ SOIL_MODEL *TWorld::InitSwatre(
 	return(s);
 }
 //--------------------------------------------------------------------------------
-/* soil model instance to be freed */
+/// soil model instance to be freed
 void TWorld::CloseSwatre(SOIL_MODEL *s)
 {
     if (s == NULL)

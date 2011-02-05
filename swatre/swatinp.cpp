@@ -21,6 +21,19 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
+/*!
+  \file swatinp.cpp
+  \brief SWATRE: initialize and read profile data
+
+  functions:
+- void TWorld::InitializeProfile( void )
+- int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
+- PROFILE * TWorld::ProfileNr(int profileNr) \n
+- void  TWorld::FreeSwatreInfo(void) \n
+- ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
+- PROFILE * TWorld::ReadProfileDefinition(FILE *f,ZONE *z,const char *tablePath) \n
+- HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName) \n
+*/
 
 #include "error.h"
 #include "model.h"
@@ -37,8 +50,7 @@
 //static int nrProfileList=0, sizeProfileList=0;
 //static ZONE *zone=NULL;
 
-/* array of pointers to horizons */
-/* NULL if not allocated         */
+/// array of pointers to horizons, NULL if not allocated
 static HORIZON **horizonList = NULL;
 static int nrHorizonList=0, sizeHorizonList=0;
 
@@ -55,6 +67,7 @@ void TWorld::InitializeProfile( void )
 	sizeHorizonList=0;
 }
 //----------------------------------------------------------------------------------------------
+/// read and parse profile.inp
 int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 {
 	FILE *f;
@@ -94,10 +107,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 	} while (profileList[nrProfileList++] != NULL);
 	// correct for eof-marker and test if something is read
 	if ( --nrProfileList == 0)
-	{
 		Error(QString("SWATRE: no profiles read from %1").arg(fileName));
-		throw 2;
-	}
 
 	/* make profileList index match the profileId's */
 	mmax = 0;
@@ -110,10 +120,10 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 		tmpList[i] = NULL;
 
 	for (i = 0 ; i < nrProfileList; i++)
-		//	if (tmpList[profileList[i]->profileId] == NULL)
-		tmpList[profileList[i]->profileId] = profileList[i];
-	//	else
-	//	Error("SWATRE: profile with id '%d' declared more than once","",profileList[i]->profileId);
+      if (tmpList[profileList[i]->profileId] == NULL)
+         tmpList[profileList[i]->profileId] = profileList[i];
+      else
+         Error(QString("SWATRE: profile with id '%!' declared more than once").arg(profileList[i]->profileId));
 
 	free(profileList);
 
@@ -140,15 +150,15 @@ void  TWorld::FreeSwatreInfo(void)
 	int i;
 
 	/* currently, all profiles have the same zoning */
-    if (zone == NULL)
-        return;
+   if (zone == NULL)
+      return;
 
    free(zone->dz);
 	free(zone->z);
 	free(zone->endComp);
 	free(zone->disnod);
 	free(zone);
-    
+
 	for(i=0; i < nrProfileList; i++)
 		if (profileList[i] != NULL)
 			free(profileList[i]);
@@ -211,9 +221,9 @@ ZONE * TWorld::ReadNodeDefinition(FILE *f)
  while reading first token of profile definition
  */
 PROFILE * TWorld::ReadProfileDefinition(
-FILE *f,
-ZONE *z,         /* zone division this profile */
-const char *tablePath) /* pathName ended with a '/' */
+   FILE *f,
+   ZONE *z,         /* zone division this profile */
+   const char *tablePath) /* pathName ended with a '/' */
 {
    char tableName[256];
 	int  i;
@@ -253,7 +263,7 @@ const char *tablePath) /* pathName ended with a '/' */
 			p->horizon[i++] = h;
 		if (z->endComp[i-1] != endHor)
 			Error(QString("SWATRE: No compartment ends on depth '%1' (found in profile nr %2 for horizon %3)")
-			.arg(endHor).arg(p->profileId).arg(tableName));
+               .arg(endHor).arg(p->profileId).arg(tableName));
 	}
 	return(p);
 }
@@ -297,18 +307,18 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
    for(i=0; i < (nrRowsa-1); i++)
 	{
 		lutCont[IND(i,DMCH_COL)] = 0.5 *
-		(lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
+            (lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
 
 		/* VJ : 0.01 is 1% humidity, ofwel
-	*	  gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
-	*
-	*		lutCont[IND(i,DMCC_COL)] = 0.01 /
-	*					(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
-	* beter:
-	*/
+ *	  gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
+ *
+ *		lutCont[IND(i,DMCC_COL)] = 0.01 /
+ *					(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+ * beter:
+ */
 		lutCont[IND(i,DMCC_COL)] =
-		(lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
-		(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+            (lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
+            (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
 	}
    lutCont[IND(nrRowsa-1,DMCH_COL)] = 0;
    lutCont[IND(nrRowsa-1,DMCC_COL)] = lutCont[IND(nrRowsa-2,DMCC_COL)] ;

@@ -22,33 +22,28 @@
 **
 *************************************************************************/
 
-/**************************************************************************/
-/* SWATRE soillut.c                                                       */
-/*                                                                        */
-/*   Soil characteristics look-up table for Swatre component of LISEM     */
-/*                                                                        */
-/**************************************************************************/
+/*!
+  \file soillut.cpp
+  \brief SWATRE functions to deal with SWATRE look up tables (LUT)
 
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
+  functions:
+  - int CmpDouble(const double *e1, const double *e2); \n
+  - int intervalBsearch(const void *key, const void *base, size_t num, size_t \n
+         width, int (*cmp)(const void *e1, const void *e2))\n
+  - void FreeLut(LUT *l); \n
+  - static int Cmp(double *e1, double *e2) \n
+  - double  LUT_LinIntPol(const LUT *l, int wantedCol,double keyVal,int indexCol) \n
+  - int  LUT_Index_LE(const LUT *l, double keyVal, int indexCol) \n
+*/
 
 #include "swatresoillut.h"
-//#include "swatremisc.h"
-
-#define INC_LUT 90
-
-/* error messages: */
-#define LUT_LOW    "In lookup table: lowest value of column %d is larger than "\
-   " requested value (%g)"
-#define LUT_HIGH    "In lookup table: highest value of column %d is smaller "\
-   "than requested value (%g)"
+#include "error.h"
 
 static int keyCol;
 
 
 //--------------------------------------------------------------------------------
-/* Comparison function for double
+/*! Comparison function for double
  * Usable for qsort(),bsearch(), lfind() type comparison arguments
  * returns
  * < 0 if e1 is less than e2
@@ -56,24 +51,20 @@ static int keyCol;
  * > 0 if e1 is greater than e2
  */
 int CmpDouble(
-   const double *e1,  /* pointer to single double */
-   const double *e2)  /* pointer to single double */
+   const double *e1,  // pointer to single double
+   const double *e2)  // pointer to single double
 {
-   /* see cmpdoubl.s for GNU def */
-   //  register double e1_min_e2 = (*e1)-(*e2);
    double e1_min_e2 = (*e1)-(*e2);
+
    if (e1_min_e2 < 0)
       return(-1);
    return (e1_min_e2 > 0);
 }
 //--------------------------------------------------------------------------------
-
-/* RETURNS -1     if first element of array 'base' is bigger  then 'key'
- *          n     where n is the element of array 'base' that is smaller
- *                than 'key'
+/*! RETURNS -1    if first element of array 'base' is bigger than 'key'
+ *           n    where n is the element of array 'base' that is smaller than 'key'
  */
 int intervalBsearch(
-   /* arguments like std. ANSI. bsearch() */
    const void *key, const void *base, size_t num, size_t
    width, int (*cmp)(const void *e1, const void *e2))
 {
@@ -108,11 +99,9 @@ int intervalBsearch(
 }
 
 //--------------------------------------------------------------------------------
-
 LUT *CreateLutFromContents(
-   const double *lutCont,  /* array with nrRows * nrCols values
-                              this pointer is grabbed, space freed by FreeLut() */
-	bool  gotoMinMax, /*  see struct LUT definition */
+   const double *lutCont,  // array with nrRows * nrCols values this pointer is grabbed, space freed by FreeLut()
+   bool  gotoMinMax, //  see struct LUT definition
 	int nrRows, 
 	int nrCols)
 {
@@ -120,12 +109,15 @@ LUT *CreateLutFromContents(
 	int i;
 
 	l = (LUT *)malloc(sizeof(LUT));
-	l->key = (double *)malloc(sizeof(double)*nrCols);
+   l->key = (double *)malloc(sizeof(double)*nrCols);
 	l->lut = (const double **)malloc(sizeof(double *)*nrRows);
+
 	for (i=0; i < nrRows; i++)
-	{  /* make indirect 2d-array */
+   {
+      // make indirect 2d-array
 		l->lut[i] = lutCont;
-		lutCont  += nrCols; /* next row, skip nrCol items */
+      // next row, skip nrCol items
+      lutCont  += nrCols;
 	}
 	l->gotoMinMax = gotoMinMax;
 	l->nrRows = nrRows;
@@ -136,141 +128,82 @@ LUT *CreateLutFromContents(
 //--------------------------------------------------------------------------------
 void FreeLut(LUT *l)
 {
-
-	free((void *)(l->lut[0])); /* this ptr is grabbed 
-        * in CreateLutFromContents:lutCont
-        */
+   free((void *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
 	free((void *)(l->lut));
 	free(l->key);
 	free(l);
 }
 //--------------------------------------------------------------------------------
-double LUT_ValueAt(
-	const LUT *l, 
-	int   indexCol,
-	int   indexRow)
-{
-	return  l->lut[indexRow][indexCol];
-}
-//--------------------------------------------------------------------------------
-/* Comparison function for double
- * Usable for qsort(),bsearch(), lfind() type comparison arguments
- * returns
- * < 0 if e1 is less than e2
- * = 0 if e1 is equivalent to e2
- * > 0 if e1 is greater than e2
+/*! Comparison function for double
+  Usable for qsort(),bsearch(), lfind() type comparison arguments
+  returns
+  < 0 if e1 is less than e2
+  = 0 if e1 is equivalent to e2
+  > 0 if e1 is greater than e2
  */
 static int Cmp(double *e1, double *e2)
 {
    return CmpDouble((e1+keyCol), (e2+keyCol));
 }
-
 //--------------------------------------------------------------------------------
 double  LUT_LinIntPol(
-   const LUT *l,     /* lookup in this table */
-   int   wantedCol,  /* Column number requested */
-   double keyVal,    /* value of index Column */
-   int   indexCol    /* find index through this column */
+   const LUT *l,     // lookup in this table
+   int   wantedCol,  // Column number requested
+   double keyVal,    // value of index Column
+   int   indexCol    // find index through this column
    )
 {
 	int e;
-	keyCol = indexCol;
+
+   keyCol = indexCol;
 	l->key[keyCol] = keyVal;
-	e = intervalBsearch(l->key, l->lut[0], (size_t)l->nrRows,l->nrCols*sizeof(double),
-                       (QSORT_CMP)Cmp);
+   e = intervalBsearch(l->key, l->lut[0], (size_t)l->nrRows,
+                       l->nrCols*sizeof(double), (QSORT_CMP)Cmp);
 
 	if (e == -1)
 	{
 		if (l->gotoMinMax)
 			return  l->lut[0][ wantedCol]; /* lowest val */
-      //	else
-		//	Error(LUT_LOW, keyCol+1, keyVal);
+      else
+      {
+         ErrorString = LUT_LOW(keyCol+1, keyVal);
+         throw 1;
+      }
 	}
+
 	if (e == (l->nrRows-1))
 	{
 		/* test for bigger. so equivalence is else-part */
 		if (keyVal > l->lut[e][ keyCol] && !l->gotoMinMax)
-         ;//     		Error(LUT_HIGH, keyCol+1, keyVal);
+      {
+         ErrorString = LUT_HIGH(keyCol+1, keyVal);
+         throw 1;
+      }
 		else
 			return  l->lut[e][wantedCol]; /* highest val */
 	}
 
-	{ /* else: interpolate between e and e+1 */
-		double lowWanted = l->lut[e][wantedCol];
-		double highWanted = l->lut[(e+1)][wantedCol];
-		double lowKey = l->lut[e][keyCol];
-		double highKey = l->lut[(e+1)][keyCol];
-		double dRel;
-		if (highKey == lowKey)
-			return (lowWanted+highWanted)/2;
-		dRel = (keyVal - lowKey)/(highKey - lowKey);
-		return lowWanted+ ((highWanted-lowWanted)*dRel);
-	}
+   /* else: interpolate between e and e+1 */
+   double lowWanted = l->lut[e][wantedCol];
+   double highWanted = l->lut[(e+1)][wantedCol];
+   double lowKey = l->lut[e][keyCol];
+   double highKey = l->lut[(e+1)][keyCol];
+
+   if (highKey == lowKey)
+      return (lowWanted + highWanted)/2;
+
+   return lowWanted + (highWanted-lowWanted)*(keyVal - lowKey)/(highKey - lowKey);
+
 }
 //--------------------------------------------------------------------------------
-
-
-double  LUT_LinIntPol1(
-   const LUT *l,     /* lookup in this table */
-   int   wantedCol,  /* Column number requested */
-   double keyVal,    /* value of index Column */
-   int   indexCol    /* find index through this column */
-   )
-{
-	int e;
-
-	keyCol = indexCol;
-	l->key[keyCol] = keyVal;
-	e = intervalBsearch(l->key, l->lut[0], (size_t)l->nrRows,l->nrCols*sizeof(double),
-                       (QSORT_CMP)Cmp);
-
-	if (e == -1)
-	{
-		if (l->gotoMinMax)
-			return  l->lut[0][ wantedCol]; /* lowest val */
-		else
-         ;//		Error(LUT_LOW, keyCol+1, keyVal);
-	}
-	if (e == (l->nrRows-1))
-	{
-		/* test for bigger. so equivalence is else-part */
-		if (keyVal > l->lut[e][ keyCol] && !l->gotoMinMax)
-         ;//		Error(LUT_HIGH, keyCol+1, keyVal);
-		else
-			return  l->lut[e][wantedCol]; /* highest val */
-	}
-
-	{ /* else: interpolate between e and e+1 */
-		double lowWanted = l->lut[e][wantedCol];
-		double highWanted = l->lut[(e+1)][wantedCol];
-		double lowKey = l->lut[e][keyCol];
-		double highKey = l->lut[(e+1)][keyCol];
-		double dRel;
-		if (highKey == lowKey)
-			return (lowWanted+highWanted)/2;
-		dRel = (keyVal - lowKey)/(highKey - lowKey);
-      /*
- *		if(dRel < 0)
- *		{
- *			int r,c;
- *			printf("keyCol %d, wantCol %d, e %d, keyVal %g, "
- *			       " high %g, low %g, dRel %g\n", keyCol, 
- *			       wantedCol, e, keyVal, highKey, lowKey, dRel);
- *			  DumpLut("bug.lut", l);
- *		}
+/*!  RETURNS index in LUT for that value that is most near keyVal
+                   but is less or equal than keyVal
+            -1     means keyVal < first entry keyVal
  */
-		return lowWanted+ ((highWanted-lowWanted)*dRel);
-	}
-}
-
 int  LUT_Index_LE(
 	const LUT *l,     
 	double keyVal,  
 	int    indexCol)
-/*  RETURNS index in LUT for that value that is most near keyVal
- *          but is less or equal than keyVal
- *          -1 means keyVal < first entry keyVal
- */
 {
 
 	keyCol = indexCol;
@@ -278,5 +211,6 @@ int  LUT_Index_LE(
 	return intervalBsearch(l->key, l->lut[0], (size_t)l->nrRows,
 	                       l->nrCols*sizeof(double), (QSORT_CMP)Cmp);
 }
+//--------------------------------------------------------------------------------
 
 

@@ -22,7 +22,8 @@ HEADERS += \
     include/swatre_p.h \
     include/swatreLookup.h \
     include/swatresoillut.h \
-    include/swatre_g.h
+    include/swatre_g.h \
+    include/TMmapVariables.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \

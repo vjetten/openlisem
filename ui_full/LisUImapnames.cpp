@@ -1,11 +1,31 @@
-/*---------------------------------------------------------------------------
-project: openLISEM
-author: Victor Jetten
-licence: GNU General Public License (GPL)
-Developed in: MingW/Qt/ 
-website, information and code: http://sourceforge.net/projects/lisem
----------------------------------------------------------------------------*/
-/*
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2010,2011  Victor Jetten
+**  contact:
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Author: Victor Jetten
+**  Developed in: MingW/Qt/
+**  website, information and code: http://lisem.sourceforge.net
+**
+*************************************************************************/
+
+/*!
+  \file LisUIMapnames.cpp
+  \brief fill map list structure and hanfle map tree
+
  * fill the map list structure with names and basic descriptions
  * enable and disable braches according to users choices
  * get and set mapames when direct editing by the user, edit mapList
@@ -150,7 +170,6 @@ void lisemqt::editMapname(QModelIndex topLeft, QModelIndex bottomRight )
       if (mapList[k].groupnr == groupnr && mapList[k].varnr == varnr)
       {
          QVariant d = MapNameModel->data(topLeft,Qt::DisplayRole);;//MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
-         //qDebug() << d;
          mapList[k].name = d.toString();
       }
    }
@@ -207,7 +226,9 @@ void lisemqt::openMapname(QModelIndex topLeft)
       mapList[k].value = QFileInfo(path).fileName();
       mapList[k].dir = QFileInfo(path).dir().path();
       // put the name and path into he mapList structure
+
       //qDebug() << "mapname edit" <<  mapList[k].name << mapList[k].id << k;
+
       QVariant d(mapList[k].value);
       MapNameModel->setData(topLeft, d, Qt::EditRole);
       // put the name into the treeView and MapNameModel

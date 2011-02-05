@@ -21,6 +21,7 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
+
 /*!
   \file error.h
   \brief global errorstring for exception throwing
@@ -31,6 +32,7 @@
 
 extern QString ErrorString;
 
-#define Error(s) ErrorString=QString(s)
+//#define Error(s) (ErrorString=QString(s); throw 1)
+#define Error(s) throw QString(s)
 
 #endif /* ERROR_H_ */

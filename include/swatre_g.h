@@ -22,7 +22,6 @@
 **
 *************************************************************************/
 
-
 /*!
   \file swatre_g.h
   \brief SWATRE global structure for soil profile information and swatre options
@@ -34,7 +33,7 @@ This model is declared for normal soils, crustd soils, compacted soils and grass
 #ifndef SWATRE_G_H
 #define SWATRE_G_H
 
-
+/// SWATRE: structure for soil profile information and swatre options.
 typedef struct SOIL_MODEL {
    struct PIXEL_INFO  *pixel; //defined in swatre_p.h
   // double precision;

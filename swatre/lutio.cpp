@@ -22,27 +22,26 @@
 **
 *************************************************************************/
 
-/**************************************************************************/
-/* SWATRE lutio.c                                                                */
-/*                                                                        */
-/*   read a theta,h,k-table for Swatre component of LISEM                 */
-/*                                                                        */
-/**************************************************************************/
-#include <ctype.h>
+/*!
+\file lutio.cpp
+\brief  SWATRE read theta, h, k-table
 
-#include "error.h"
+functions:
+- double* TWorld::ReadSoilTable(const char *fileName, int *nrRows); \n
+- void TWorld::ReadCols(const char *fileName, double *inLut, const char *buf); \n
+*/
+
+
 #include "swatresoillut.h"
+#include "error.h"
 #include "model.h"
 
-/**********************/
-/*  number of elements added to the lut
- *  when initializing (malloc) or resizing
- *  (realloc)
- */
+
+///  number of elements added to the lut when initializing (malloc) or resizing (realloc)
 #define EXP_NR_COLS 3
 #define INC_STEP (45*3)
 
-/* error messages: */
+/// error messages:
 #define OPEN_ERRORs "SWATRE: Can't open %1"
 #define READ_ERRORs "SWATRE: Read error on %1"
 #define COL_ERRORs  "SWATRE: Table %1, entry nr. %2 contains %3 than 3 columns"
@@ -54,57 +53,6 @@
 
 static const char *colName[3] = { "theta", "h", "k" };
 
-//----------------------------------------------------------------------------------------
-//		static void ReadCols(
-//				const char *fileName, /* for error reporting only */
-//				double *inLut,   /* -w current position in lut that will be filled */
-//				const char *buf, /* buffer to read from */
-//				int   n);        /* number of items to read */
-//----------------------------------------------------------------------------------------
-/* Trim string and replace space by single space, and count tokens.
- * Removes leading and trailing isspace() characters and
- * substitutes sequences of isspace() chararacters with one
- * space (that is ' ' not '\t').
- * A token is a string of non-isspace() characters terminated by a space
- * or '\0'
- * Returns the number of tokens.
- */
-int TokenSpaceTrim(
-		char *s)  /* read-write. String to be modified and counted */
-{
-	int i;    /* index over s */
-	int d;    /* destination index */
-	int t=0;  /* #tokens */
-
-	/* remove leading spaces */
-	for(i=0; isspace(s[i]); i++)
-	{
-		/* inc i is all we want */;
-	}
-	/* copy string */
-	for(d=0; s[i] != '\0'; )
-	{
-		if (isspace(s[i]))
-		{
-		   s[d++] = ' ';
-		   t++;
-		   while (isspace(s[i]) )
-				i++;
-		}
-		else
-			s[d++] = s[i++];
-	}
-	/* adjust for trailing spaces */
-	if (isspace(s[d-1]))
-	{
-		d--;
-		t--;
-	}
-	/* put string terminator */
-	s[d] = '\0';
-	t = ( d == 0 ) ? 0 : t + 1;
-	return(t);
-} /* TokenSpaceTrim */
 //----------------------------------------------------------------------------------------
 double *TWorld::ReadSoilTable(
 		const char *fileName,
@@ -132,10 +80,14 @@ double *TWorld::ReadSoilTable(
 			Error(QString(READ_ERRORs).arg(fileName));
 		}
 
-		currNrCols = TokenSpaceTrim(buf);
-		// trims leading trailing spaces
+      QStringList SL = QString(buf).split(QRegExp("\\s+"),QString::SkipEmptyParts);
+      currNrCols = SL.count();
+      strcpy(buf, SL.join(" ").toAscii());
+      // trim spaces and count columns
+
 		if (currNrCols == 0)
 			continue;  /* EMPTY LINE, next one please */
+
 		if (currNrCols != EXP_NR_COLS)
 			Error(QString(COL_ERRORs).arg(fileName).arg(nrL/EXP_NR_COLS+1).arg(currNrCols < EXP_NR_COLS?"less":"more"));
 		/* increase l if neccessary */
@@ -151,9 +103,7 @@ double *TWorld::ReadSoilTable(
 		if (nrL > 0)
 			for (int i=0; i< EXP_NR_COLS; i++)
 				if ( l[nrL+i] < l[(nrL-EXP_NR_COLS)+i])
-					Error(
-					QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i])
-					);
+               Error(QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i]));
 
 		nrL += EXP_NR_COLS;
 	} while (/* infinite: */ nrL > -1 );
