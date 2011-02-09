@@ -1,0 +1,103 @@
+
+/*
+openLISEM information for Doxygen
+Victor Jetten, January 2011
+*/
+
+/*!
+  \mainpage openLISEM - an opensource spatial erosion model
+
+<b><i>!!!This site is under construction!!!</i></b>
+
+  
+openLISEM is an open source development of the erosion model LISEM, that has been developed\n
+ and in use since 1989 (go to http://www.itc.nl/lisem for a more elaborate description).\n
+It is a spatial surface hydrology and sediment dynamics model that calculates \n
+soil loss for small to medium sized catchments. 
+
+The openLISEM model is part of the software developed at the <b>Faculty of Geoinformation Science and Earth Observation</b> (<a href="http://www.itc.nl">ITC</a>)\n
+The mission of the ITC is Capacity building in lesser developed countries and emerging economies.\n
+As such the ITC strives to produce high quality open source software for sptial analysis. \n
+
+openLISEM is entirely developed in C++ using the Qt libraries (http://qt.nokia.com/ and compiled with MingW.\n
+Furthermore it usees the Qwt graph drawing library (http://qwt.sorceforge.net),\n
+and the CSF library of the freeware GIS package PCRaster (http://pcraster.geo.uu.nl).\n
+
+
+  \section homepage Project page
+  The official project page is hosted at 
+	<a href="http://sourceforge.net/projects/lisem/">sourceforge</a> \n
+  The old lisem model (no longer continued but still maintained) can be found here: <a href="http://www.itc.nl/lisem">Lisem at ITC</a>
+  
+  \section license License
+
+openLISEM is distributed under the terms of the \ref openLISEMlicense license.
+
+  \section platforms Platforms
+
+  openLISEM is tested on windows XP and Windows 7 (32 and 64 bit) platforms.\n \n
+  In principle <a href="http://www.trolltech.com/products/qt">Qt</a> allows compilation under unix/linux and mac but this has not been tested.\n
+ The current code is compatible with Qt 4.6 and later, and Qwt 6.0.0 and later.
+
+  \section screenshotsonmainpage Documentation and screenshots
+  - \ref LISEMtheory \n
+  - \ref inputscreenshot \n
+  - \ref maplistscreenshot \n
+  - \ref outputscreenshot \n
+
+  \section downloads Downloads
+  Latets  executable: <a href="http://sourceforge.net/projects/lisem/files/openLisem110111_exe.zip">openLISEMexe.zip</a>(~ 10Mbyte)\n\n
+  
+  Stable releases, prereleases and snapshots are available at the openLISEM <a href="http://sourceforge.net/projects/lisem/">project page</a>.\n
+  Find a list of all files <a href="http://sourceforge.net/projects/lisem/files/">here</a>.
+
+  To get a development snapshot from the SVN repository:
+  \code svn co https://lisem.svn.sourceforge.net/svnroot/lisem/lisem  \endcode
+
+  \section installonmainpage Installation
+ 
+ Developers: the following file describes step by step how to get the code, \n
+ download the necessary tools, install them and compile openLISEM: \ref openLISEMinstall
+  
+  \section support Support
+  There is no forum or group support organized yet. Use the mail address below and put openLISEM in the subject line.
+  
+    
+  \section credits Credits:
+  \par Author: 
+    <a href="http://www.itc.nl/about_itc/resumes/jetten.aspx"> Victor Jetten </a> 
+  \par Project admin:
+    Victor Jetten \<vjetten@users.sourceforge.net\>
+*/
+
+/*!
+  \page openLISEMlicense openLISEM License, Version 1.0
+  \include "COPYRIGHT"
+*/
+
+/*!
+  \page openLISEMinstall INSTALL
+  \include "INSTALL"
+*/
+
+/*!
+  \page LISEMtheory LISEM basic theory webpage
+<a href="http://www.itc.nl/lisem/container_lisem_basic.html">LISEM basic theory</a> 
+
+*/
+
+
+/*!
+  \page inputscreenshot Input screen
+  \image html input.png
+*/
+
+/*!
+  \page maplistscreenshot Map input tree structure
+  \image html maptree.png
+*/
+
+/*!
+  \page outputscreenshot Output screen
+  \image html output.png
+*/
