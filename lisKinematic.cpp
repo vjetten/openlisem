@@ -46,15 +46,17 @@ functions: \n
 
 #include "model.h"
 
+// check if cell From flows to To
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
+// check if cell is still inside the map boundaries
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 
 #define MAX_ITERS 10
 
 /*
-  local drain direction maps have values for directions as following:
+  local drain direction maps have values for directions as follows:
     7  8  9
      \ | /
    4 - 5 - 6
@@ -209,27 +211,30 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 	int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
 	int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+   /// Linked list of cells in order of LDD flow network, ordered from pit upwards
    LDD_LINKEDLIST *list = NULL, *temp = NULL;
    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 	list->prev = NULL;
+   /// start gridcell: outflow point of area
 	list->rowNr = pitRowNr;
 	list->colNr = pitColNr;
 
 	while (list != NULL)
 	{
 		int i = 0;
-		bool  subCachDone = true; /* are sub-catchment cells done ? */
+      bool  subCachDone = true; // are sub-catchment cells done ?
 		int rowNr = list->rowNr;
 		int colNr = list->colNr;
 
-      /* put all points that have to be calculated to calculate the current point in the list,
+      /** put all points that have to be calculated to calculate the current point in the list,
          before the current point */
 		for (i=1; i<=9; i++)
 		{
 			int r, c;
 			int ldd = 0;
 
-			if (i==5)  /* this is the current cell*/
+         // this is the current cell
+         if (i==5)
 				continue;
 
 			r = rowNr+dy[i];
@@ -240,6 +245,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			else
 				continue;
 
+         // check if there are more cells upstream, if not subCatchDone remains true
          if (IS_MV_REAL4(&_Qn->Drc) &&
              FLOWS_TO(ldd, r, c, rowNr, colNr) &&
              INSIDE(r, c))
@@ -253,15 +259,27 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 			}
 		}
 
+      // all cells above a cell are linked in a "sub-catchment or branch
+      // continue with water and sed calculations
+      // rowNr and colNr are the last upstreM cell linked
 		if (subCachDone)
 		{
 			double Qin=0.0, Sin=0.0;
 
-			for (i=1;i<=9;i++) // for all incoming cells of this cell
+         // multiclass and nutrients
+         double MCin[6];
+         double NUTin[12];
+         for (i = 0; i < 6; i++)
+            MCin[i] = 0;
+         for (i = 0; i < 12; i++)
+            NUTin[i] = 0;
+
+         // for all incoming cells,sumQ and Sed in Qin and Sin
+         for (i=1;i<=9;i++)
 			{
 				int r, c, ldd = 0;
 
-				if (i==5)  // Skip current cell itself
+            if (i==5)  // Skip current cell
 					continue;
 
 				r = rowNr+dy[i];
@@ -279,8 +297,10 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					Qin += _Qn->Drc;
 					if (SwitchErosion)
 						Sin += _Qsn->Drc;
+
+               // ADD MC and NUTs HERE
 				}
-			} // sum all incoming cells
+         }
 
 			bool isBufferCellWater = false;
 			bool isBufferCellSed = false;
@@ -322,25 +342,29 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 					//buffer still active
                _StorSed->Data[rowNr][colNr] -= Sin*_dt;
 					// add incoming to sed store, note: sed store calculated in datainit
+               // so sed store decreases
 					if (!SwitchSedtrap)
 					{
                   // TODO check this
-						//incoming = Sin*_dt/2650;
+
+               // incoming = Sin*_dt/2650;
 						// fill water store up with sediment, decreasing volume
 						// the bulkdensity does not matter, the volume taken up is related
 						// to the particle desity dens, because the pores are filled
 						// if we use bulk dens here we assume pores are empty!
-                  //		_StorVol->Data[rowNr][colNr] -= incoming;
-                  //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
-                  //	if (BufferVolInit->Data[rowNr][colNr] > 0)
-                  //		BufferVolInit->Data[rowNr][colNr] -= incoming;
-                  //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
-                  //	ChannelBufferVolInit->Data[rowNr][colNr] -= incoming;
-						//adjust the total volume because it has decreased,
-						//Note: the extra released water is not made avaliable
+
+                 //  _StorVol->Data[rowNr][colNr] -= incoming;
+                 //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
+                 //	if (BufferVolInit->Data[rowNr][colNr] > 0)
+                 //		BufferVolInit->Data[rowNr][colNr] -= incoming;
+                 //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
+                 //	   ChannelBufferVolInit->Data[rowNr][colNr] -= incoming;
+                  // adjust the total volume because it has decreased,
+                  // Note: the extra released water is not made avaliable
 						// channel and slope are mutually exclusive, one or the other
 					}
 					Sin = 0;
+               // if last sed caused overflow, add surplus to moving sediment Sin
                if (_StorSed->Data[rowNr][colNr] < 0)
 					{
                   Sin = -_StorSed->Data[rowNr][colNr]/_dt;

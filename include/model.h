@@ -201,6 +201,7 @@ public:
 	double SplashDelivery;
 	double StripN;
 	double StemflowFraction;
+   double CanopyOpeness; // VJ 110209 added Aston factor as user input
 
    /// totals for mass balance checks and output
    /// Water totals for mass balance and output (in m3)

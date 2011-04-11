@@ -258,6 +258,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Canopy storage equation");
    namelist[i].value = QString("0.05");
    namelist[i++].name = QString("Stemflow fraction");
+   namelist[i].value = QString("0.45");
+   namelist[i++].name = QString("Canopy Openess");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Conservation]");
    namelist[i].value = QString("0");
@@ -369,6 +371,7 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("OUTGULF");
    namelist[i++].name = QString("OUTGULDEM");
    namelist[i++].name = QString("");
+   mapstartnr = i;
    namelist[i++].name = QString("[Catchment]");
    namelist[i++].name = QString("grad");
    namelist[i++].name = QString("ldd");
@@ -508,15 +511,7 @@ void lisemqt::defaultRunFile()
    nrnamelist = i;
 
    // fill with map variables with default mapnames
-   for (int j = 0; j < nrnamelist; j++)
-      for (int k = 0; k < nrmaplist; k++)
-      {
-         if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
-         {
-            namelist[j].value = mapList[k].value;
-            //qDebug() << "default" << k << mapList[k].name << mapList[k].id;
-         }
-      }
+   fillNamelistMapnames(true);
 
 }
 //---------------------------------------------------------------------------

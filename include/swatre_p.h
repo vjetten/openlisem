@@ -80,7 +80,7 @@ typedef struct PIXEL_INFO {
    double        *h;          /** array of MAX_NODES nodes with matrix head */
    double        currDt;      /** current size of SWATRE timestep */
    const PROFILE *profile;    /** profile this pixel belongs to */
-   //int           dumpHid;   /** if 0 then no head output else write to file amed Hx where x is dumpH value */
+   int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 

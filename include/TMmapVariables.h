@@ -222,3 +222,7 @@ TMMap
 *TotalSed,                   //!<
 *TotalWatervol,              //!<
 *TotalConc;                  //!<
+
+TMMap MCmu[6];
+TMMap NUTs[12];
+

@@ -296,8 +296,7 @@ void lisemqt::RunAllChecks()
    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
    // VJ 110110
 
-	buffergroup->setEnabled(checkBuffers->isChecked());
-	buffergroup->setEnabled(checkSedtrap->isChecked());
+   buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked()); // bugfix
 	sedgroup->setEnabled(!checkNoErosion->isChecked());
     
 	groupBox_SwatreOptions->setEnabled(E_InfiltrationMethod->currentIndex() == 1);

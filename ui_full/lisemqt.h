@@ -119,6 +119,8 @@ public:
    void initMapTree();
 	void DefaultMapnames();
    void fillMapnames();
+   void updateDEFmaps();
+   void fillNamelistMapnames(bool to);
    void checkMapNameModel(int parentrow, int selrow, bool setit);
 	void SetToolBar();
 	void GetStorePath();
@@ -181,6 +183,7 @@ public:
    int nrnamelist;
    QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
 	int InterceptionEqNr;
+   int mapstartnr;
 
 public slots:
 	// functions linked to actions

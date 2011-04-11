@@ -191,7 +191,8 @@ void lisemqt::ParseInputData()
       if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(namelist[j].value.toDouble());
       if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(namelist[j].value.toDouble());
       if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(namelist[j].value.toDouble());
-
+      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(namelist[j].value.toDouble());
+      // VJ 110209 canopy openess, factor Aston as user input
 
       if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
 
@@ -302,7 +303,7 @@ void lisemqt::ParseInputData()
    // get all map names, DEFmaps contains default map names and descriptions
    // adapt the DEFmaps list with names from the run file
    // this is to display the correct names in the interface
-   for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
+   for (j = mapstartnr; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
    {
       for (int i = 0; i < DEFmaps.size(); i++)
       {
@@ -310,7 +311,7 @@ void lisemqt::ParseInputData()
          if (S.contains(namelist[j].name))
          {
             QFileInfo fil(namelist[j].value);
-            S[4] = fil.fileName();
+            S[2] = fil.fileName();  //VJ bug fix from 4 to 2
             namelist[j].value = fil.fileName();
             // replace namelist string with filename only
             // some runfiles have the complete pathname
@@ -331,16 +332,11 @@ void lisemqt::ParseInputData()
    // fill the mapList structure with all map names fom the runfile
    // if there are new variables that are not in the run file
    // the maplist contains he default names already
-   // this is to get the correct names for the mdoel run
-   for (int j = 0; j < nrnamelist; j++) //VJ 110107 changed to nrnamelist
-      for (int k = 0; k < nrmaplist; k++)
-      {
-         if (mapList[k].name == namelist[j].name)
-         {
-            mapList[k].value = namelist[j].value;
-            mapList[k].dir = E_MapDir->text();
-         }
-      }
+   // this is to get the correct names for the model run
+   fillNamelistMapnames(false);
+   for (int k = 0; k < nrmaplist; k++)
+       mapList[k].dir = E_MapDir->text();
+   // dir necessary?
 
    //RunAllChecks();
    // is done elsewhere
@@ -433,8 +429,11 @@ void lisemqt::updateModelData()
       if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
       if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
       if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
-      if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
+      if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();      
       if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
+      if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
+      // VJ 110209 canopy openess, factor Aston as user input
+
       if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
       if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
       if (p1.compare("User defined output")==0) namelist[j].value.setNum(0);
@@ -495,16 +494,7 @@ void lisemqt::updateModelData()
    }
 
    //get all actual mapnames from the mapList structure
-   for (int j = 0; j < nrnamelist; j++)
-      for (int k = 0; k < nrmaplist; k++)
-      {
-         if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
-         {
-            namelist[j].value = mapList[k].value;
-         }
-      }
-   //for (int j = 0; j < nrnamelist; j++)
-   //qDebug() << "update" << namelist[j].name << namelist[j].value;
+   fillNamelistMapnames(true);
 
 }
 //---------------------------------------------------------------------------

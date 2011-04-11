@@ -71,7 +71,10 @@ SOIL_MODEL *TWorld::InitSwatre(
 		s->pixel[i].h = new REAL8[nodeDataIncr];
 		for (n = 0; n < nrNodes; n++)
 			s->pixel[i].h[n] = -1e10;
-		//SetMemMV(&s->pixel[i].h,nodeDataIncr,CR_REAL8);
+      s->pixel[i].dumpHid = 0;
+      if ( i == (_nrRows/2*_nrCols + 0.5*_nrCols))
+         s->pixel[i].dumpHid = 1;
+      //SetMemMV(&s->pixel[i].h,nodeDataIncr,CR_REAL8);
 	}
 	for (n = 0; n < nrNodes; n++)
 	{

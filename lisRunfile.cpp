@@ -46,30 +46,24 @@ functions: \n
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
 {
-   //	QFile fout("c:\\try.txt");
-   //	fout.open(QIODevice::WriteOnly | QIODevice::Text);
-   //	QTextStream out(&fout);
-
    for (int i = 0; i < nrrunnamelist; i++)
 	{
-      //		out << runnamelist[i].name.toUpper() << "\n";
       if(vname.toUpper() == runnamelist[i].name.toUpper())
 		{
-         QFileInfo info(runnamelist[i].value);
-         if (runnamelist[i].value.trimmed().isEmpty())
+         QFileInfo info(inputDir + runnamelist[i].value);
+         if (!info.exists())
 			{
-				ErrorString = "Filename not found for : " + info.fileName();
+            ErrorString = "Filename not found for map \"<\I>"+runnamelist[i].name + "\" - " + info.fileName();
 				throw 1;
 			}
 			else
 			{
-            //runnamelist[i].value = inputDir + info.fileName();
-            return inputDir + info.fileName();//runnamelist[i].value;
+            return inputDir + info.fileName();
 			}
 		}
 	}	
-   //	fout.close();
-   ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map has been added that is not present.").arg(vname);
+
+   ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map is not present.").arg(vname);
 	throw 3;
 }
 //---------------------------------------------------------------------------

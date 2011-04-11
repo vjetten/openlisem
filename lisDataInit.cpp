@@ -468,6 +468,7 @@ void TWorld::GetInputData(void)
    ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
    SplashDelivery = getvaluedouble("Splash Delivery Ratio");
    StemflowFraction = getvaluedouble("Stemflow fraction");
+   CanopyOpeness = getvaluedouble("Canopy Openess");
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));

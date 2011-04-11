@@ -25,6 +25,11 @@
 /*!
   \file lisemqt.cpp
   \brief Main UI functions
+
+  NOTE:
+  namelist is a structure contining an exact copy pof the runfile (incl spaces etc)
+  maplist is a list of input maps with extra data for the interface map tree structure
+
   */
 
 
@@ -659,9 +664,10 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
 	op.runfilename = E_runFileList->currentText();
 	//RunFileNames.at(CurrentRunFile);
 
-	GetRunfile();
-	ParseInputData();
-   initMapTree();  // fill the tree strcuture on page 2
+   GetRunfile();   // get the nrunfile and fill namelist
+   ParseInputData(); // fill interface with namelist data and fill mapList
+                     // also update DEFmaps for map tree view in interface
+   initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
 	RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
 //--------------------------------------------------------------------
@@ -821,6 +827,9 @@ void lisemqt::resetAll()
 	E_BulkDens->setText("1200.00");
 
 	tabWidget->setCurrentIndex(0);
+
+   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+   sedgroup->setEnabled(!checkNoErosion->isChecked());
 
 }
 //--------------------------------------------------------------------

@@ -134,7 +134,7 @@ void TWorld::OverlandFlow(void)
 	// flag all Qn gridcell with MV for in kin wave
 
 	// do kin wave for all pits
-   int dinges = 0;
+   int dinges = 1;
    if (dinges == 1)
    {
       FOR_ROW_COL_MV
@@ -159,7 +159,8 @@ void TWorld::OverlandFlow(void)
       if (SwitchErosion)
          Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
    }
-	// calculate resulting flux Qn back to water height on surface
+
+   // calculate resulting flux Qn back to water height on surface
 	FOR_ROW_COL_MV
 	{
 		double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);

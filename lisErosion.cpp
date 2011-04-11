@@ -80,8 +80,10 @@ void TWorld::SplashDetachment(void)
 
 		double KE_LD = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
 		// kin energy in J/m2/mm
-		double throughfall = LeafDrain->Drc * (1-StemflowFraction) * 1000;
-		// leaf drip in mm is already calculated with plant covern in interception function
+//		double throughfall = LeafDrain->Drc * (1-StemflowFraction) * 1000;
+      double throughfall = LeafDrain->Drc * 1000;
+      // leaf drip in mm is already calculated with plant covern in interception function
+      // VJ 110206 stemflow is also accounted for
 
 		double WH0 = exp(-1.48*WH->Drc*1000);
 		// water buffer effect on surface, WH in mm in this empirical equation from Torri ?

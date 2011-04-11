@@ -34,6 +34,30 @@
 
 #include "lisemqt.h"
 
+
+//--------------------------------------------------------------------
+// put the mapnames in the namelist structure, e.g. after screen update
+// if to = true then maplist to namelist, else namelist to maplist
+void lisemqt::fillNamelistMapnames(bool to)
+{
+   for (int j = mapstartnr; j < nrnamelist; j++)
+   {
+      if (!namelist[j].name.startsWith("[") && !namelist[j].name.isEmpty())
+         for (int k = 0; k < nrmaplist; k++)
+         {
+            if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
+            {
+               if (to)
+                  namelist[j].value = mapList[k].value;
+               else
+                  mapList[k].value = namelist[j].value;
+               break;
+            }
+         }
+   }
+   //   for (int k = 0; k < nrmaplist; k++)
+   //      qDebug() << mapList[k].name << mapList[k].value << mapList[k].groupnr << mapList[k].varnr;
+}
 //--------------------------------------------------------------------
 // DEFmaps has default var names, filenames and descriptions, in LisUIDefaultNames.cpp
 // first number 0/1/2 is flag if title treenode or subnode
@@ -63,20 +87,21 @@ void lisemqt::fillMapnames()
       if (DEFmaps[i].startsWith("2"))
       {
          nr++;
-         subbranch++;
 
          SL = DEFmaps[i].split(";",QString::SkipEmptyParts);
          mapList[nr].groupnr=branch;
          mapList[nr].varnr=subbranch+dec;
-         mapList[nr].value=SL[4];
-         mapList[nr].name=SL[3];
-         mapList[nr].dir="";
+         mapList[nr].value=SL[2];   //<= mapname
+         mapList[nr].name=SL[4];    //<= id string to recognize variable
+         mapList[nr].dir="";//not used for now
+
+         subbranch++; //VJ 110326 moved to here, branch numbers were wrong
       }
    }
    nrmaplist = nr;
 }
 //--------------------------------------------------------------------
-// enables or disables a branch and expands or contracts it
+/** enables or disables a branch and expands or contracts it */
 void lisemqt::checkMapNameModel(int parentrow, int selrow, bool setit)
 {
 	if (MapNameModel)
@@ -170,7 +195,7 @@ void lisemqt::editMapname(QModelIndex topLeft, QModelIndex bottomRight )
       if (mapList[k].groupnr == groupnr && mapList[k].varnr == varnr)
       {
          QVariant d = MapNameModel->data(topLeft,Qt::DisplayRole);;//MapNameModel->data(MapNameModel->index(j, k, indexParent),0);
-         mapList[k].name = d.toString();
+         mapList[k].value = d.toString(); //<== put new map name
       }
    }
 }
@@ -208,7 +233,7 @@ void lisemqt::openMapname(QModelIndex topLeft)
    }
 
    QString path = QFileDialog::getOpenFileName(this,	QString("Select the map: %1;")
-                                   .arg(mapList[k].name),E_MapDir->text(),QString("*.map *.csf;;*.*"));
+                                               .arg(mapList[k].value),E_MapDir->text(),QString("*.map *.csf;;*.*"));
    // open file dialog
 
 
@@ -218,14 +243,14 @@ void lisemqt::openMapname(QModelIndex topLeft)
       if (m == NULL)
       {
          QMessageBox::critical(this, "openLISEM",
-                              QString("File \"%1\" is not a PCRaster map.")
-                              .arg(path));
+                               QString("File \"%1\" is not a PCRaster map.")
+                               .arg(path));
          return;
       }
 
       mapList[k].value = QFileInfo(path).fileName();
       mapList[k].dir = QFileInfo(path).dir().path();
-      // put the name and path into he mapList structure
+      // put the name and path into the mapList structure
 
       //qDebug() << "mapname edit" <<  mapList[k].name << mapList[k].id << k;
 

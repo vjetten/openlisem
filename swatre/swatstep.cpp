@@ -133,7 +133,12 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
 
       for (i = nN-2; i >= 0; i--)
          h[i] -= beta[i+1] * h[i+1];
+
    }
+
+//   for (i = 2; i < nN; i++)
+//      h[i] = min(0, h[i]);
+   //?????????????????????????
 }
 //--------------------------------------------------------------------------------
 double  TWorld::NewTimeStep(
@@ -269,14 +274,14 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       if (SwitchIncludeTile)
       {
          //TODO correct this for drainage width: width / _dx
-         qdrain = -kavg[tnode]*( (0-h[tnode])/DistNode(p)[tnode] + 1 );
-         qdrain = min(0, qdrain);
-         if (qdrain < 0)
-         {
-         //   theta[tnode] = theta[tnode] + (qdrain*dt)/DistNode(p)[tnode];
-         //   h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
-         //   drainout += qdrain*dt; // a bit redundant
-         }
+//         qdrain = -kavg[tnode]*( (0-h[tnode])/DistNode(p)[tnode] + 1 );
+//         qdrain = min(0, qdrain);
+//         if (qdrain < 0)
+//         {
+//         //   theta[tnode] = theta[tnode] + (qdrain*dt)/DistNode(p)[tnode];
+//         //   h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
+//         //   drainout += qdrain*dt; // a bit redundant
+//         }
       }
 
 		// save last h and theta, used in headcalc
@@ -288,10 +293,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
                fltsat, dt, pond, qtop, qbot);
 
-      if (SwitchIncludeTile)
-      {
-         drainout = h[tnode];//TheNode(h[tnode], Horizon(p, tnode));
-      }
 		// determine new boundary fluxes
       if (SwitchImpermeable)
 			qbot = 0;
@@ -323,6 +324,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 *   printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
 *   ,pixel->dumpH,pond*10,-influx*10);
 */
+      if (pixel->dumpHid == 1)
+         qDebug() << pond << influx << h[0] << h[1] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+
 	*waterHeightIO = pond;
 	*infil = influx; // total max influx in lisem timestep
    *drain = drainout;
@@ -351,8 +355,8 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
       _fpot->Drc = max(0, -infil/100);
 		// infil is negative (downward flux * dt, in cm)
 		//fpot is positive like in other infil  methods (in m)
-if (r == _nrRows/2 && c == _nrCols/2)
-      qDebug() << drain;
+//if (r == _nrRows/2 && c == _nrCols/2)
+//      qDebug() << drain;
      if (SwitchIncludeTile)
          _drain->Drc = -drain;///_dt*0.01;  // in m/s
 

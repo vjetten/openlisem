@@ -222,12 +222,21 @@ void TWorld::Interception(void)
       //VJ 110111 no interception on hard surfaces
 
 		if (Smax > 0)
-			CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-		else
+      {
+         double k = exp(-CanopyOpeness*LAIv);
+         CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
+//      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
+//VJ 110209 direct use of openess, astons value too open. A good guess is using the cover LAI relation
+//and interpreting cover as openess: k = exp(-0.45*LAI)
+      }
+         else
 			CS = 0;
 		// 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
 		// is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
-		//possible to use equation from Ahston but for very open Eucalypt
+      // possible to use equation from Ahston but for very open Eucalypt
+
+      CS = max(0, CS * (1-StemflowFraction));
+      //VJ 110206 decrease storage with stemflow fraction!
 
 		LeafDrain->Drc = max(0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
 		// diff between new and old strage is subtracted from rainfall
