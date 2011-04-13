@@ -27,8 +27,21 @@
   \brief Main UI functions
 
   NOTE:
-  namelist is a structure contining an exact copy pof the runfile (incl spaces etc)
-  maplist is a list of input maps with extra data for the interface map tree structure
+  namelist is a structure contining an exact copy of the runfile (incl empty lines etc)
+  maplist is a list of input maps and descriptions for the interface map tree structure
+  DEFmaps is an array of stringlists of the maps as they appear in the map tree structure
+  (DEFmaps is the interface version of maplist)
+
+  in namelist and maplist "name" is the description and "value" is the map name (filename)
+
+-# namelist, maplist and DEFmaps are first filled with default values (in LisUIDefaultNames.cpp)
+-# runfile is read and parsed, namelist is adapted with runfile choices (in LisUIrunfile.cpp)
+-# user makes changes in options and mapnames in interface
+-# when run is pressed: the namelist is updated with new choices and saved to a tmp runfile for the model
+
+update of the runfile before running:
+-# in savefile (in lisemqt.cpp) the namelist is updated with all the new variables: updateModelData()
+-# updateModelData() (in LisUIrunfile.cpp) puts all new choices in the namelist so that is can be saved to the runfile
 
   */
 

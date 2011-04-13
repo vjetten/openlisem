@@ -339,7 +339,7 @@ void lisemqt::ParseInputData()
    // dir necessary?
 
    //RunAllChecks();
-   // is done elsewhere
+   //obsolete: is done elsewhere
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p)

@@ -128,7 +128,7 @@ void TWorld::DoModel()
 		IntializeOptions();
 		// set all to 0 and false
 		InitMapList();
-		// map structure to destroy data automatically
+      // map structure to destroy data automatically
         
 		DEBUG("GetRunFile()");
 		GetRunFile();

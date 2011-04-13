@@ -53,7 +53,7 @@ QString TWorld::getvaluename(QString vname)
          QFileInfo info(inputDir + runnamelist[i].value);
          if (!info.exists())
 			{
-            ErrorString = "Filename not found for map \"<\I>"+runnamelist[i].name + "\" - " + info.fileName();
+            ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
 				throw 1;
 			}
 			else

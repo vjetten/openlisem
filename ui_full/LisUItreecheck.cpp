@@ -28,7 +28,8 @@
   \brief map tree interaction
 
  * function that determine reactions of the map tree structure when
- * the user checks options in the interface
+ * the user checks main options in the interface: disable or enbale braches
+ * e.g. channel maps become enabled when this option is chosen
  */
 
 

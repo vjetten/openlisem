@@ -24,7 +24,7 @@
 
 /*!
   \file LisUIMapnames.cpp
-  \brief fill map list structure and hanfle map tree
+  \brief fill map list structure and handle map tree
 
  * fill the map list structure with names and basic descriptions
  * enable and disable braches according to users choices
@@ -43,17 +43,21 @@ void lisemqt::fillNamelistMapnames(bool to)
    for (int j = mapstartnr; j < nrnamelist; j++)
    {
       if (!namelist[j].name.startsWith("[") && !namelist[j].name.isEmpty())
+      {
          for (int k = 0; k < nrmaplist; k++)
          {
             if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
             {
                if (to)
                   namelist[j].value = mapList[k].value;
+                  // update namelist (the run file) with the current map names
                else
                   mapList[k].value = namelist[j].value;
+                  // update the maplist with the namelist data when the runfile is parsed
                break;
             }
          }
+      }
    }
    //   for (int k = 0; k < nrmaplist; k++)
    //      qDebug() << mapList[k].name << mapList[k].value << mapList[k].groupnr << mapList[k].varnr;
@@ -64,7 +68,7 @@ void lisemqt::fillNamelistMapnames(bool to)
 // fill the mapList structure
 void lisemqt::fillMapnames()
 {
-   int subbranch = 0, branch = -1, nr = 0, dec = 0;
+   int subbranch = 0, branch = -1, nr = -1, dec = 0;
    QStringList SL;
 
    DefaultMapnames();
@@ -155,6 +159,7 @@ void lisemqt::initMapTree()
 	}
 
    MapNameModel = new TreeModel(DEFmaps);
+   // DEFmaps is used to construct the interface tree struture
 
 	treeView->setModel(MapNameModel);
 

@@ -510,7 +510,7 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("guldinit");
    nrnamelist = i;
 
-   // fill with map variables with default mapnames
+   // fill with map variables in namelist with default mapnames
    fillNamelistMapnames(true);
 
 }

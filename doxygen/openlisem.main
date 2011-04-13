@@ -5,6 +5,7 @@ Victor Jetten, January 2011
 */
 
 /*!
+
   \mainpage openLISEM - an opensource spatial erosion model
 
 <b><i>!!!This site is under construction!!!</i></b>
@@ -15,7 +16,7 @@ openLISEM is an open source development of the erosion model LISEM, that has bee
 It is a spatial surface hydrology and sediment dynamics model that calculates \n
 soil loss for small to medium sized catchments. 
 
-<img src="logo.gif">The openLISEM model is part of the software developed at the <b>Faculty of Geoinformation Science and Earth Observation</b> (<a href="http://www.itc.nl">ITC</a>)\n
+The openLISEM model is part of the software developed at the <b>Faculty of Geoinformation Science and Earth Observation</b> (<a href="http://www.itc.nl">ITC</a>)\n
 The mission of the ITC is Capacity building in lesser developed countries and emerging economies.\n
 As such the ITC strives to produce high quality open source software for sptial analysis. \n
 
@@ -68,6 +69,8 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
     <a href="http://www.itc.nl/about_itc/resumes/jetten.aspx"> Victor Jetten </a> 
   \par Project admin:
     Victor Jetten \<vjetten@users.sourceforge.net\>
+  \par 
+     <img src="UT-ITC_0300_small.png">
 */
 
 /*!
@@ -81,8 +84,8 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
 */
 
 /*!
-  \page LISEMtheory LISEM basic theory webpage
-<a href="http://www.itc.nl/lisem/container_lisem_basic.html">LISEM basic theory</a> 
+  \page LISEMtheory LISEM basic theory webpage 
+<a href="http://www.itc.nl/lisem/container_lisem_basic.html">LISEM basic theory</a> <p>(<i>WARNING</i>: outdated)</p>
 
 */
 
