@@ -33,21 +33,26 @@
 #include <QtGui>
 #include <QApplication>
 
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_grid.h"
-#include "qwt_plot_marker.h"
-#include "qwt_legend.h"
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_marker.h>
+#include <qwt_legend.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_magnifier.h>
 //#include "qwt_plot_spectrogram.h"
 //#include <qwt_matrix_raster_data.h>
 //#include "qwt_color_map.h"
 //#include "qwt_raster_data.h"
 
-#include "ui_lisemqt.h"
-#include "LisUItreemodel.h"
-#include "model.h"
-#include "lisuioutput.h"
 #include "version.h"
+#include "ui_lisemqt.h"
+#include "model.h"
+#include "LisUIoutput.h"
+
+#include "LisUItreemodel.h"
+#include "LisUIplot.h"
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -129,7 +134,6 @@ public:
 	void GetStorePath();
 	void StorePath();
 	void SetStyleUI();
-	void SetGraph();
 	void SetMapPlot();
 	void GetRunfile();
 	void ParseInputData();
@@ -141,10 +145,13 @@ public:
 	void InitOP();
    void SetConnections();
 
-	void ShowGraph();
    void ShowMap();
 
 	// graph variables
+   void showPlot();
+   void initPlot();
+   void killPlot();
+   void setupPlot();
 	QwtPlot *HPlot;
 	QwtPlotCurve *QGraph;
 	QwtPlotCurve *QsGraph;
@@ -157,6 +164,7 @@ public:
 	double *QsData;
 	double *CData;
 	double *PData;
+   long stepP;
 	//Map drawing variables
 //   QwtPlotSpectrogram *MapDrawing;
 //   QwtPlot *MapPlot;
@@ -239,8 +247,8 @@ public slots:
 	void on_E_ResultDir_textEdited();
 
 private slots:
-	// functions that interact with the world thread
-	void Showit();
+   // functions that interact with the world thread signals
+   void worldShow();
 	void worldDone(const QString &results);
 	void worldDebug(const QString &results);
 

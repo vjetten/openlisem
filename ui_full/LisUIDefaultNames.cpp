@@ -24,7 +24,7 @@
 
 /*!
 \file LisUIDefaultNames.cpp
-\brief Default map names and descriptions, Default runfile variable names
+\brief Default map names and descriptions DEFmaps, Default runfile variable names namelist
 */
 
 #include "lisemqt.h"
@@ -32,6 +32,8 @@
 //--------------------------------------------------------------------
 void lisemqt::DefaultMapnames()
 {
+   DEFmaps.clear();
+   //VJ 110417 delete all at start, needed when reseatAll;
 
    //# interface maplist, DO NOT CHANGE if you don't know what you are doing
    //# syntax: branch level; keyword; default mapname; description; variable name
@@ -163,12 +165,15 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh");
    DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
    DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
-   DEFmaps.append("0;Pesticides");
-   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
+
+// example
+//   DEFmaps.append("0;Pesticides");
+//   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
 
 }
 //---------------------------------------------------------------------------
 // fill namelist with default runfile values and structure
+// runfile has structure: name=value
 void lisemqt::defaultRunFile()
 {
    int i;
@@ -179,14 +184,13 @@ void lisemqt::defaultRunFile()
    }
    // clear first
 
-   // runfile has structure:
-   // name=value
    i = 0;
    namelist[i++].name = QString("[openLISEM runfile version 4]");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[LISEM main type]");
    namelist[i++].name = QString("LISEM Type");
    namelist[i++].name = QString("");
+   // work directories are obsolete
    //	namelist[i++].name = QString("[Work Directory]");
    //	namelist[i++].name = QString("WorkDir");
    //	namelist[i++].name = QString("");
@@ -323,6 +327,9 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Texture classes]");
    namelist[i++].name = QString("ClassMu");
+
+   // output maps have standard names
+   // input maps names are defined in DEFmaps
    namelist[i++].name = QString("[map names]");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[OutputBASIC]");
@@ -373,6 +380,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("OUTGULF");
    namelist[i++].name = QString("OUTGULDEM");
    namelist[i++].name = QString("");
+
+   // input maps start here !!!
    mapstartnr = i;
    namelist[i++].name = QString("[Catchment]");
    namelist[i++].name = QString("grad");
@@ -510,9 +519,12 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("[GullyInit]");
    namelist[i++].name = QString("gulwinit");
    namelist[i++].name = QString("guldinit");
-   namelist[i++].name = QString("");
-   namelist[i++].name = QString("[Pestcides]");
-   namelist[i++].name = QString("pestini");
+
+// example:
+//   namelist[i++].name = QString("");   <-- add a blank line in the run file
+//   namelist[i++].name = QString("[Pestcides]"); <-- add a header in the run file
+//   namelist[i++].name = QString("pestini"); < <-- add variable names, the map name is in DEFmaps
+
    nrnamelist = i;
 
    // fill with map variables in namelist with default mapnames

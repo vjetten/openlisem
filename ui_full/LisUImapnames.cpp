@@ -55,7 +55,7 @@ void lisemqt::fillNamelistMapnames(bool to)
                }
                else
                   mapList[k].value = namelist[j].value;
-                  // update the maplist with the namelist data when the runfile is parsed
+               // update the maplist with the namelist data when the runfile is parsed
                break;
             }
          }

@@ -54,7 +54,8 @@ SOURCES += lisTotalsMB.cpp \
     swatre/soillut.cpp \
     swatre/lutio.cpp \
     swatre/lookup.cpp \
-    swatre/swatinp.cpp
+    swatre/swatinp.cpp \
+    ui_full/LisUIplot.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
     LIBS += -L"debug" -llibcsfd

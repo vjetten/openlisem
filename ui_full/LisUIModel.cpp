@@ -37,60 +37,39 @@
 #include "global.h"
 
 //---------------------------------------------------------------------------
-void lisemqt::pausemodel()
-{
-	if(W)
-	{
-		W->waitRequested = !W->waitRequested;
-		if (!W->waitRequested)
-		{
-			label_debug->setText("User continue...");
-			W->condition.wakeAll();
-		}
-	}
-}
-//---------------------------------------------------------------------------
-void lisemqt::stopmodel()
-{
-	if(W)
-		W->stopRequested = true;
-}
-//---------------------------------------------------------------------------
 /** Run the model:
 Save the current inyerface as a temporari run file, read by the model
 Make the model world and run it
 */
 void lisemqt::runmodel()
 {
+   //NOTE op.runfilename is set in function openRunFile()
 	if (op.runfilename.isEmpty())
 	{
-		QMessageBox::warning(this,"openLISEM",
-				QString("Load a runfile first!"));
+      QMessageBox::warning(this,"openLISEM",QString("Load a runfile first!"));
 		return;
 	}
+
 	label_runfilename->setText(op.runfilename);
    /* TODO if run from commandline this name must exist */
 
 	savefile(QString(op.LisemDir+"openlisemtmp.run"));
+   // save the current settings as a runfile that is read by the model
+   // in savefile(string) the runfile is updated with all user options and map names
 
 	tabWidget->setCurrentIndex(2);
 	//switch to output screen
 
-	startplot = true;
-	QData = NULL;
-	QsData = NULL;
-	CData = NULL;
-	PData = NULL;
-	timeData = NULL;
-	//intialize plot stuff for this run
+   initPlot();
 
    InitOP();
 	// wipe the result screen
 
+   //=======================================================================================//
 	W = new TWorld();
-	// make the world
+   // make the model world !!!
 
-   connect(W, SIGNAL(show(void)),this, SLOT(Showit(void)),Qt::QueuedConnection);
+   connect(W, SIGNAL(show(void)),this, SLOT(worldShow(void)),Qt::QueuedConnection);
    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
 	// connect emitted signals from the model thread to the interface routines that handle them
@@ -98,15 +77,38 @@ void lisemqt::runmodel()
 	W->stopRequested = false;
 	// stoprequested is used to stop the thread with the interface
 	W->waitRequested = false;
-	W->start();
+   // waitrequested is used to pause the thread with the interface, only on windows machines!
+   W->start();
 	// start the model thread, executes W->run()
+   //=======================================================================================//
+
 }
 //---------------------------------------------------------------------------
-void lisemqt::Showit()
+void lisemqt::pausemodel()
+{
+   if(W)
+   {
+      W->waitRequested = !W->waitRequested;
+      if (!W->waitRequested)
+      {
+         label_debug->setText("User continue...");
+         W->condition.wakeAll();
+      }
+   }
+}
+//---------------------------------------------------------------------------
+void lisemqt::stopmodel()
+{
+   if(W)
+      W->stopRequested = true;
+}
+//---------------------------------------------------------------------------
+void lisemqt::worldShow()
 {
 	// copy the run results from the "output structure op" to the ui labels
 	// "op" is filled in the model run each timestep
 	// "op" struct is declared in lisUIoutput.h
+   // "op" struct is shared everywhere in global.h
 
 	label_dx->setText(QString::number(op.dx,'f',3));
 	label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
@@ -158,7 +160,7 @@ void lisemqt::Showit()
 	progressBar->setMaximum(op.maxstep);
 	progressBar->setValue(op.runstep);
 
-   ShowGraph();
+   showPlot();
 
    ShowMap();
 
@@ -172,61 +174,6 @@ void lisemqt::ShowMap()
 	//MapPlot->replot();
 	//if all calcs are done in the model only replot here?
 	//op needs a poiinter to TMMap
-}
-//---------------------------------------------------------------------------
-void lisemqt::ShowGraph()
-{
-   // first time do this
-   if (startplot)
-	{
-		startplot = false;
-
-		yas = 0.1;
-		y2as = 0.1;
-
-      // create the arrays for the curves in the first timestep when the total size is known
-      timeData = new double[op.maxstep+2];
-		QData = new double[op.maxstep+2];
-		QsData = new double[op.maxstep+2];
-		CData = new double[op.maxstep+2];
-		PData = new double[op.maxstep+2];
-
-      HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
-	}
-
-	timeData[op.runstep] = op.time;
-	PData[op.runstep] = op.P;
-	QData[op.runstep] = op.Q;
-	QsData[op.runstep] = op.Qs;
-	CData[op.runstep] = op.C;
-
-   //qwt 5.2.1:
-   //QGraph->setRawData(timeData,QData,op.runstep);
-   //PGraph->setRawData(timeData,PData,op.runstep);
-   //qwt 6.0.0:
-   QGraph->setRawSamples(timeData,QData,op.runstep);
-   PGraph->setRawSamples(timeData,PData,op.runstep);
-	if(!checkNoErosion->isChecked())
-	{
-      //qwt 5.2.1:
-      //QsGraph->setRawData(timeData,QsData,op.runstep);
-      //CGraph->setRawData(timeData,CData,op.runstep);
-      //qwt 6.0.0:
-      QsGraph->setRawSamples(timeData,QsData,op.runstep);
-      CGraph->setRawSamples(timeData,CData,op.runstep);
-	}
-
-	y2as = max(y2as, op.Qs);
-	y2as = max(y2as, op.C);
-	HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
-	yas = max(yas, op.Q);
-	yas = max(yas, op.P);
-	HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
-
-   HPlot->replot();
-//   HPlot->canvas()->invalidatePaintCache();
-//   HPlot->canvas()->update(canvas()->contentsRect());
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
@@ -245,19 +192,11 @@ void lisemqt::worldDone(const QString &results)
 	}
 	//free the world instance
 
-	delete QData;
-	delete QsData;
-	delete CData;
-	delete PData;
-	delete timeData;
-	QData = NULL;
-	QsData = NULL;
-	CData = NULL;
-	PData = NULL;
-	timeData = NULL;
-	// free data structures graph
+   killPlot();
+   // free the plot discharge bdata
 
-//	QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+   QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+   // delete the temp run file
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

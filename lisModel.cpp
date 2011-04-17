@@ -110,7 +110,7 @@ void TWorld::OutputUI()
 	op.BufferSedTot = BufferSedTot*0.001; //ton
     
 	emit show();
-	// send the op structure with data to function Showit in the interface
+   // send the op structure with data to function worldShow the interface
 	// in file LisUIModel
 }
 //---------------------------------------------------------------------------

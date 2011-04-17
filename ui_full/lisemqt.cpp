@@ -28,13 +28,14 @@
 
   NOTE:
   namelist is a structure contining an exact copy of the runfile (incl empty lines etc)
-  maplist is a list of input maps and descriptions for the interface map tree structure
   DEFmaps is an array of stringlists of the maps as they appear in the map tree structure
-  (DEFmaps is the interface version of maplist)
+  maplist is a list of input maps and descriptions for the interface map tree structure,
+  created and maintained automatically (DEFmaps is the interface version of maplist)
 
   in namelist and maplist "name" is the description and "value" is the map name (filename)
 
--# namelist, maplist and DEFmaps are first filled with default values (in LisUIDefaultNames.cpp)
+-# namelist and DEFmaps are first filled with default values (in LisUIDefaultNames.cpp)
+-# maplist is created in fillMapnames()
 -# runfile is read and parsed, namelist is adapted with runfile choices (in LisUIrunfile.cpp)
 -# user makes changes in options and mapnames in interface
 -# when run is pressed: the namelist is updated with new choices and saved to a tmp runfile for the model
@@ -93,8 +94,8 @@ lisemqt::lisemqt(QWidget *parent)
 	SetStyleUI();
 	// do some style things
 
-   SetGraph();
-   // set up the graph
+   setupPlot();
+   // set up the discharge graph
 
 }
 //--------------------------------------------------------------------
@@ -217,105 +218,6 @@ void lisemqt::SetMapPlot()
 
    //	MapPlot->replot();
 */
-}
-//---------------------------------------------------------------------------
-void lisemqt::SetGraph()
-{
-	textGraph->setMaximumBlockCount(6);
-	textGraph->setWordWrapMode(QTextOption::NoWrap);
-	textGraph->setMaximumHeight(96);
-
-	QwtText title;
-	title.setText("Hydrograph/Sedigraph outlet");
-   HPlot = new QwtPlot(title, this);
-	// make the plot window
-	verticalLayout_6->insertWidget(0, HPlot);
-
-
-	PGraph = new QwtPlotCurve("Rainfall");
-	QGraph = new QwtPlotCurve("Discharge");
-	QsGraph = new QwtPlotCurve("Sediment discharge");
-	CGraph = new QwtPlotCurve("Concentration");
-
-	PGraph->attach(HPlot);
-	QGraph->attach(HPlot);
-	if(!checkNoErosion->isChecked())
-	{
-		QsGraph->attach(HPlot);
-		CGraph->attach(HPlot);
-	}
-
-	// order determines order of display in Legend
-   //VJ 101223 changed for qwt 6.0.0
-   PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-   QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-   QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-   CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-
-   QColor col;
-   col.setRgb( 200,0,0,255 ); // darkred
-	CGraph->setPen(QPen(col));
-	QsGraph->setPen(QPen(Qt::red));
-	col.setRgb( 60,100,160,255 );
-	QGraph->setPen(QPen(col));
-	PGraph->setPen(QPen("#000000"));
-
-   PGraph->setStyle(QwtPlotCurve::Steps);
-   QGraph->setStyle(QwtPlotCurve::Lines);
-   QsGraph->setStyle(QwtPlotCurve::Lines);
-   CGraph->setStyle(QwtPlotCurve::Lines);
-   //QGraph->setCurveAttribute(QwtPlotCurve::Fitted); gives spline fit
-
-   PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-   CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-	// make all graphs to be drawn and link them to HPlot
-	// set colors
-
-	QwtLegend *legend = new QwtLegend(HPlot);//this);//widgetGraph);
-	legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-	HPlot->insertLegend(legend, QwtPlot::BottomLegend);
-
-	//legend
-
-	//HPlot->resize(450,380);
-//	HPlot->setCanvasBackground("#FFFFFF");
-	// size and white graph
-
-	HPlot->enableAxis(HPlot->yRight,true);
-	HPlot->enableAxis(HPlot->yLeft,true);
-	HPlot->enableAxis(HPlot->xBottom,true);
-	HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
-	HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)/P (mm/h)");
-	HPlot->setAxisTitle(HPlot->yRight, "Qs(kg/s)/C(g/l)");
-	HPlot->setAxisScale(HPlot->yRight, 0, 1);
-	HPlot->setAxisScale(HPlot->yLeft, 0, 100);
-	HPlot->setAxisScale(HPlot->xBottom, 0, 100);
-
-	// set axes
-
-	QwtPlotGrid *grid = new QwtPlotGrid();
-	grid->enableXMin(true);
-	grid->enableYMin(true);
-	col.setRgb( 180,180,180,180 );
-	grid->setMajPen(QPen(col, 0, Qt::DashLine));
-	col.setRgb( 210,210,210,180 );
-	grid->setMinPen(QPen(col, 0 , Qt::DotLine));
-	grid->attach(HPlot);
-	// set gridlines
-
-
-	HPlot->replot();
-	// draw empty plot
-
-	QData = NULL; //discharge
-	QsData = NULL;  //sed discharge
-	CData = NULL; //conc
-	PData = NULL; //rainfall
-	timeData = NULL;  //time
-	// init data arrays for plot data
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::SetStyleUI()
@@ -578,8 +480,6 @@ void lisemqt::savefile(QString name)
          out << namelist[i].name << "\n"; // already contains \n
       else
          out << namelist[i].name << "=" << namelist[i].value << "\n";
-
-      //qDebug() << "savefile" << i << namelist[i].name << namelist[i].value;
    }
    fp.close();
 }
