@@ -176,7 +176,8 @@ void lisemqt::ShowMap()
 //---------------------------------------------------------------------------
 void lisemqt::ShowGraph()
 {
-	if (startplot)
+   // first time do this
+   if (startplot)
 	{
 		startplot = false;
 
@@ -198,12 +199,6 @@ void lisemqt::ShowGraph()
 	QData[op.runstep] = op.Q;
 	QsData[op.runstep] = op.Qs;
 	CData[op.runstep] = op.C;
-//	// to avoid strange graphs
-//	timeData[op.runstep+1] = op.time;
-//	PData[op.runstep+1] = op.P;
-//	QData[op.runstep+1] = op.Q;
-//	QsData[op.runstep+1] = op.Qs;
-//	CData[op.runstep+1] = op.C;
 
    //qwt 5.2.1:
    //QGraph->setRawData(timeData,QData,op.runstep);

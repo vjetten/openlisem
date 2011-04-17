@@ -221,7 +221,10 @@ TMMap
 *TotalSoillossMap,           //!<
 *TotalSed,                   //!<
 *TotalWatervol,              //!<
-*TotalConc;                  //!<
+*TotalConc                  //!<
+
+// add more variables here
+;                      //!< a dummy map to end the list, not used
 
 TMMap MCmu[6];
 TMMap NUTs[12];

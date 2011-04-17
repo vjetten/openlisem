@@ -37,14 +37,15 @@
 
 //---------------------------------------------------------------------------
 
-//! class to deal with CSF map construction, reading and writing etc.
-
+/** class to deal with CSF map construction, reading and writing etc.
+   Reading and writing of maps of other GIS systems can be added here in the future.
+*/
 class cTMap
 {
 protected:
 
 public:
-    CSF_RASTER_HEADER MH;
+    CSF_RASTER_HEADER MH; ///PCRaster map header
     UINT2 projection;
     REAL8 **Data;
 

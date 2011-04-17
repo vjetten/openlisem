@@ -84,7 +84,7 @@
    if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
 //      if(!IS_MV_REAL8(& TileMask->Data[r][c]))
 
-#define NUMNAMES 300   /// \def NUMNAMES runfile namelist max
+#define NUMNAMES 360   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 256    /// \def max nr maps
 #define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment

@@ -49,8 +49,10 @@ void lisemqt::fillNamelistMapnames(bool to)
             if (mapList[k].name.toUpper() == namelist[j].name.toUpper())
             {
                if (to)
+               {
                   namelist[j].value = mapList[k].value;
                   // update namelist (the run file) with the current map names
+               }
                else
                   mapList[k].value = namelist[j].value;
                   // update the maplist with the namelist data when the runfile is parsed
@@ -68,7 +70,7 @@ void lisemqt::fillNamelistMapnames(bool to)
 // fill the mapList structure
 void lisemqt::fillMapnames()
 {
-   int subbranch = 0, branch = -1, nr = -1, dec = 0;
+   int subbranch = 0, branch = -1, nr = -1 /*VJ bug fix */, dec = 0;
    QStringList SL;
 
    DefaultMapnames();
@@ -102,7 +104,7 @@ void lisemqt::fillMapnames()
          subbranch++; //VJ 110326 moved to here, branch numbers were wrong
       }
    }
-   nrmaplist = nr;
+   nrmaplist = nr+1; //VJ bug fix
 }
 //--------------------------------------------------------------------
 /** enables or disables a branch and expands or contracts it */

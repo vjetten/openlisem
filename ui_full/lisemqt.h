@@ -107,6 +107,9 @@ public:
 };
 
 */
+
+
+
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
 {

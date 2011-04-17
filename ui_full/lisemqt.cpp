@@ -280,7 +280,7 @@ void lisemqt::SetGraph()
 	//legend
 
 	//HPlot->resize(450,380);
-	HPlot->setCanvasBackground("#FFFFFF");
+//	HPlot->setCanvasBackground("#FFFFFF");
 	// size and white graph
 
 	HPlot->enableAxis(HPlot->yRight,true);

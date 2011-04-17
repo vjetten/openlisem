@@ -163,6 +163,8 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh");
    DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
    DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
+   DEFmaps.append("0;Pesticides");
+   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
 
 }
 //---------------------------------------------------------------------------
@@ -508,6 +510,9 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("[GullyInit]");
    namelist[i++].name = QString("gulwinit");
    namelist[i++].name = QString("guldinit");
+   namelist[i++].name = QString("");
+   namelist[i++].name = QString("[Pestcides]");
+   namelist[i++].name = QString("pestini");
    nrnamelist = i;
 
    // fill with map variables in namelist with default mapnames

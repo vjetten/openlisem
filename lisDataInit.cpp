@@ -917,7 +917,7 @@ void TWorld::IntializeOptions(void)
    totalDepositionFileName = QString("deposition.map");//.clear();
    totalSoillossFileName = QString("soilloss.map");//.clear();
    totalLandunitFileName = QString("totlandunit.txt");//.clear();
-   outflowFileName = QString("hydrohtaph.csv");//.clear();
+   outflowFileName = QString("hydrohgraph.csv");//.clear();
    rainFileName.clear();
    rainFileDir.clear();
    snowmeltFileName.clear();
