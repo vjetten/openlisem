@@ -167,7 +167,6 @@ void TWorld::DoModel()
         
 		DEBUG("Running...");
 
-      int tte = time_ms.elapsed();
 		for (time = BeginTime; time < EndTime; time += _dt)
 		{
 
@@ -187,10 +186,7 @@ void TWorld::DoModel()
 			RainfallMap();
 			SnowmeltMap();
 			Interception();
-         tte = time_ms.elapsed();
 			Infiltration();
-         //qDebug() << time_ms.elapsed()-tte;
-
 			//SoilWater();
 			SurfaceStorage();
          CalcVelDisch();
@@ -201,7 +197,8 @@ void TWorld::DoModel()
 			ToChannel();    // fraction going into channel
 			OverlandFlow(); // slope kin wave
 			ChannelFlow();  // channel erosion and kin wave
-            
+         TileFlow();     // tile drain flow kin wave
+
 			Totals();
 			MassBalance();
             

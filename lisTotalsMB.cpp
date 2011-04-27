@@ -125,7 +125,34 @@ void TWorld::Totals(void)
 		// add channel volume to total for sed conc calc
         
 	}
-    
+
+   if (SwitchIncludeTile)
+   {
+      // input for mass balance, is the water seeping from the soil, input
+      // this is the water before the kin wave
+      tm->calc2(TileDrainSoil, TileWidth, MUL); //in m3
+      //tm->calc(DX, MUL); //in m3
+      tm->calcV(_dx, MUL); //in m3 ??? or DX?
+      TileVolTot += tm->MapTotal(); // in m3
+
+      // water after kin wave
+      WaterVolTot += TileWaterVol->MapTotal(); //m3
+      // add tile vol to total
+      WaterVolTotmm = WaterVolTot*1000/(_dx*_dx*nrCells);//CatchmentArea; //mm
+      // recalc in mm for screen output
+
+      Qtot += TileQoutflow->MapTotal();
+      // add tile outflow (in m3) to total for all pits
+      Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+      // recalc in mm for screen output
+
+      QtotOutlet += TileQoutflow->DrcOutlet;
+      // add channel outflow (in m3) to total for main outlet
+      TotalWatervol->calc(TileWaterVol,ADD);
+      // add channel volume to total for sed conc calc
+
+   }
+
 	if (SwitchBuffers)
 	{
 		BufferVolTot = BufferVol->MapTotal(); // in m3
@@ -186,7 +213,7 @@ void TWorld::Totals(void)
         
 		FOR_ROW_COL_MV
 		{
-			TotalConc->Drc = min(850,(TotalWatervol->Drc > 1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
+         TotalConc->Drc = min(MAXCONC,(TotalWatervol->Drc > 1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
 		}
 		// for file output
         
@@ -219,9 +246,10 @@ void TWorld::Totals(void)
 void TWorld::MassBalance()
 {
    // Mass Balance water all in m3
-	if (RainTot + SnowTot > 0)
-		MB = (RainTot + SnowTot - IntercTot - InfilTot - WaterVolTot
-              - BufferVolTot - Qtot)/(RainTot + SnowTot)*100;
+   // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
+   if (RainTot + SnowTot + TileVolTot > 0)
+      MB = (RainTot + SnowTot + TileVolTot - IntercTot - InfilTot - WaterVolTot
+              - BufferVolTot - Qtot)/(RainTot + SnowTot + TileVolTot)*100;
     //qDebug() << "in" << RainTot << SnowTot;
     //qDebug() << "out" << IntercTot << InfilTot << WaterVolTot << BufferVolTot << Qtot;
 	// Mass Balance sediment

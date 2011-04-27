@@ -50,16 +50,33 @@ QString TWorld::getvaluename(QString vname)
 	{
       if(vname.toUpper() == runnamelist[i].name.toUpper())
 		{
-         QFileInfo info(inputDir + runnamelist[i].value);
-         if (!info.exists())
-			{
-            ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
-				throw 1;
-			}
-			else
-			{
-            return inputDir + info.fileName();
-			}
+         // VJ 110420 special case
+         if (InfilMethod == INFIL_SWATRE && runnamelist[i].name.toUpper() == QString("INITHEAD"))
+         {
+            QFileInfo info(inputDir + runnamelist[i].value + QString(".001"));
+            if (!info.exists())
+            {
+               ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
+               throw 1;
+            }
+            else
+            {
+               return inputDir + info.baseName();
+            }
+         }
+         else
+         {
+            QFileInfo info(inputDir + runnamelist[i].value);
+            if (!info.exists())
+            {
+               ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
+               throw 1;
+            }
+            else
+            {
+               return inputDir + info.fileName();
+            }
+         }
 		}
 	}	
 

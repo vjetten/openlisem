@@ -293,6 +293,8 @@ void lisemqt::RunAllChecks()
    checkMapNameModel(CATCHMENTMAPS, 0, true);
    checkMapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
 
+   checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+
    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
    // VJ 110110

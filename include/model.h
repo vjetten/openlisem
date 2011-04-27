@@ -64,25 +64,21 @@
 
 /// shortcut missing value in map
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
-//IS_MV_REAL8(&Mask->Data[r][c])
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
    for (int c = 0; c < _nrCols; c++)\
    if(!IS_MV_REAL8(&LDD->Data[r][c]))
-//	if(!IS_MV_REAL4(&Mask->Data[r][c]))
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
    for (int  c = 0; c < _nrCols; c++)\
    if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
-//		 if(!IS_MV_REAL4(& ChannelMask->Data[r][c]))
 
 /// shortcut for tile network row and col loop.
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
    for (int  c = 0; c < _nrCols; c++)\
    if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
-//      if(!IS_MV_REAL8(& TileMask->Data[r][c]))
 
 #define NUMNAMES 360   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 256    /// \def max nr maps
@@ -320,15 +316,18 @@ public:
    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                   TMMap *_StorVol, TMMap*_StorVolSed);
-   void KinematicNew(LDD_POINT **_lddlist, long _lddlistnr,
-                     TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                     TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
-                     TMMap *_StorVol, TMMap*_StorVolSed);
    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);
    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
-   LDD_POINT **MakeSortedNetwork(TMMap *_LDD, long *lddlistnr);
+
+   // alternative kin wave based on a pre-sorted network
+   bool useSorted;
+   LDD_POINT **makeSortedNetwork(TMMap *_LDD, long *lddlistnr);
+   void KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
+                     TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+                     TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+                     TMMap *_StorVol, TMMap*_StorVolSed);
 
 //   QList <LDD_POINT *> listldd;
    //VJ 110123 sorted networks for faster kin wave
@@ -359,7 +358,7 @@ public:
    double precision;
    int tnode; //VJ 110122 node nr in profile with tile drains
 
-   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, double dtMin);
+   SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
    int ReadSwatreInput(QString fileName, QString tablePath);
    void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
    void CloseSwatre(SOIL_MODEL *s);

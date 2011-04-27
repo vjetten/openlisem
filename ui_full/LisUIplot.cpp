@@ -88,12 +88,9 @@ void lisemqt::setupPlot()
    QwtLegend *legend = new QwtLegend(HPlot);//this);//widgetGraph);
    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
-
    //legend
 
-   //HPlot->resize(450,380);
-//	HPlot->setCanvasBackground("#FFFFFF");
-   // size and white graph
+   HPlot->setCanvasBackground(QBrush(Qt::white));
 
    HPlot->enableAxis(HPlot->yRight,true);
    HPlot->enableAxis(HPlot->yLeft,true);

@@ -38,7 +38,7 @@ functions: \n
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischTile()
 {
-	FOR_ROW_COL_MV_CH
+   FOR_ROW_COL_MV_TILE
 	{
       double Perim, Radius, Area;
       const double beta = 0.6;
@@ -90,10 +90,13 @@ void TWorld::TileFlow(void)
 		TileQoutflow->Drc =0;
 		TileWH->Drc = 0;
 
-      TileWaterVol->Drc += TileDrainSoil->Drc;  // IS VOLUME ????
-		// add inflow to Tile
+      //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
+      // cannot have more water than fits in size
+      TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * _dx/cos(atan(TileGrad->Drc));
+      // add inflow to Tile, tiledrainsoil is in m per timestep
 
-		TileWH->Drc = TileWaterVol->Drc/(TileWidth->Drc*DX->Drc);
+      TileWH->Drc = TileDrainSoil->Drc;
+      // water height in m per cell
    }
 
    CalcVelDischTile();
@@ -106,12 +109,13 @@ void TWorld::TileFlow(void)
       {
          Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, DX,
                    TileWaterVol, tm, tma, tmb);
-
-         TileQoutflow->Drc = TileQn->Drc * _dt;
       }
    }
-   TileQn->cover(0); // avoid missing values around Tile for adding to Qn for output
-   TileQs->cover(0);
+   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
+
+   TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
+   TileQs->cover(LDD, 0);
+   TileQn->report("tileqn");
 
    FOR_ROW_COL_MV_TILE
    {

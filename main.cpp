@@ -40,6 +40,11 @@ functions: \n
 
 QString ErrorString;    // declare here, referenced by error.h
 
+void Error(QString s)
+{
+   ErrorString = s;
+   throw 1;
+}
 
 int main(int argc, char *argv[])
 {

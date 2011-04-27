@@ -37,6 +37,8 @@
 #define MUL 2
 #define DIV 3
 #define POW 4
+#define MIN 5  //VJ 041120 added this functionality
+#define MAX 6
 
 
 /// class defining some basic map algebra operations
@@ -52,7 +54,7 @@ class TMMap : public cTMap
    void calc2(cTMap *m1, cTMap *m2, int oper);
    void calc2V(cTMap *m1, double V, int oper);
    void copy(cTMap *m);
-   void cover(double v);
+   void cover(cTMap *m, double v);
    void setMV();
    double MapTotal();
 

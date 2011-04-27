@@ -54,8 +54,10 @@ void lisemqt::fillNamelistMapnames(bool to)
                   // update namelist (the run file) with the current map names
                }
                else
+               {
                   mapList[k].value = namelist[j].value;
-               // update the maplist with the namelist data when the runfile is parsed
+                  // update the maplist with the namelist data when the runfile is parsed
+               }
                break;
             }
          }
@@ -72,9 +74,6 @@ void lisemqt::fillMapnames()
 {
    int subbranch = 0, branch = -1, nr = -1 /*VJ bug fix */, dec = 0;
    QStringList SL;
-
-   DefaultMapnames();
-   //VJ 110113 take the default map list
 
    for (int i = 0; i < DEFmaps.count(); i++)\
    {

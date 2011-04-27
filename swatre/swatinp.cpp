@@ -84,7 +84,8 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 	}
 	//All file name checking in main program
 
-	InitializeProfile();
+   // set profiles to NULL
+   InitializeProfile();
 
 	// read node distances and make structure
 	z = ReadNodeDefinition(f);

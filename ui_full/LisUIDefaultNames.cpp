@@ -109,11 +109,13 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("0;Snowmelt");
    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
    DEFmaps.append("0;Tile drains");
-   DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be 1 system connected to the outlet);lddtile");
-   DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width (m);tilewidth");
-   DEFmaps.append("2;Height;tileheight.map;Tile drain height for max volume (m);tileheight");
-   DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of tile drain bed (-);tilegrad");
-   DEFmaps.append("2;N;tileman.map;Mannings n of tile drain bed (-);tileman");
+   DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
+   DEFmaps.append("2;Sink;tilesink.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
+   DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width, total in cell if more than one drain (m);tilewidth");
+   DEFmaps.append("2;Height;tileheight.map;Tile drain pipe height (m);tileheight");
+   DEFmaps.append("2;Depth;tiledepth.map;Tile drain pipe depth below surface (m);tiledepth");
+   DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of the tile drains (-);tilegrad");
+   DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
    DEFmaps.append("0;Wheeltracks");
    DEFmaps.append("2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel");
    DEFmaps.append("2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr");
@@ -124,7 +126,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion");
    DEFmaps.append("2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt");
    DEFmaps.append("0;Texture classes");
-   DEFmaps.append("2;Class 0;mu0.map;Clay fraction (MUST BE CLAY < 2mu);fractionmu0");
+   DEFmaps.append("2;Class 0;mu0.map;Clay fraction (MUST BE CLAY <= 2mu);fractionmu0");
    DEFmaps.append("2;Class 1;mu1.map;Soil texture fraction for class 1 (-);fractionmu1");
    DEFmaps.append("2;Class 2;mu2.map;Soil texture fraction for class 2 (-);fractionmu2");
    DEFmaps.append("2;Class 3;mu3.map;Soil texture fraction for class 3 (-);fractionmu3");
@@ -158,11 +160,13 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Gully initial Width;gulwinit.map; initial gully width (m);gulwinit");
    DEFmaps.append("2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit");
    DEFmaps.append("1;Soil Layer 1");
+   DEFmaps.append("2;Depth layer 1;soildep1.map;Depth to topsoil (cm);gullydep1");
+   DEFmaps.append("2;Cohesion layer 1;coh.map;Cohesion of topsoil (kPa);gullycoh1");
    DEFmaps.append("2;BulkDensity;bulkdens.map;Bulkdensity of topsoil (kg/m3);bulkdens1");
    DEFmaps.append("2;Ksat;ksat1.map;Ksat of topsoil for gully infil (mm/h);gulksat1");
    DEFmaps.append("1;Soil Layer 2");
-   DEFmaps.append("2;Depth layer 2;soilDep2.map;Depth to subsoil (cm);gullydep");
-   DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh");
+   DEFmaps.append("2;Depth layer 2;soildep2.map;Depth to subsoil (cm);gullydep2");
+   DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh2");
    DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
    DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
 
@@ -381,8 +385,37 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("OUTGULDEM");
    namelist[i++].name = QString("");
 
-   // input maps start here !!!
+   // input maps start here !!!     
    mapstartnr = i;
+   int j = mapstartnr;
+   for (i = 0; i < DEFmaps.count(); i++)
+   {
+      QStringList SL;
+      SL = DEFmaps[i].split(";",QString::SkipEmptyParts);
+
+      if (SL[0] == "0")
+      {
+         namelist[j].name = QString("");
+         j++;
+         namelist[j].name = "[" + SL[1] + "]";
+         j++;
+      }
+      else
+      if (SL[0] == "1")
+      {
+         namelist[j].name = "[" + SL[1] + "]";
+         j++;
+      }
+      else
+      {
+         namelist[j].name = SL[4];
+         namelist[j].value = SL[2];
+         j++;
+      }
+   }
+   nrnamelist = j;
+
+   /*
    namelist[i++].name = QString("[Catchment]");
    namelist[i++].name = QString("grad");
    namelist[i++].name = QString("ldd");
@@ -519,16 +552,22 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("[GullyInit]");
    namelist[i++].name = QString("gulwinit");
    namelist[i++].name = QString("guldinit");
+   namelist[i++].name = QString("");
+   namelist[i++].name = QString("[Tiledrains]");
+   namelist[i++].name = QString("lddtile");
+   namelist[i++].name = QString("tilewidth");
+   namelist[i++].name = QString("tileheight");
+   namelist[i++].name = QString("tilegrad");
+   namelist[i++].name = QString("tileman");
 
-// example:
-//   namelist[i++].name = QString("");   <-- add a blank line in the run file
-//   namelist[i++].name = QString("[Pestcides]"); <-- add a header in the run file
-//   namelist[i++].name = QString("pestini"); < <-- add variable names, the map name is in DEFmaps
-
-   nrnamelist = i;
-
+   nrnamelist = j;
    // fill with map variables in namelist with default mapnames
    fillNamelistMapnames(true);
+*/
+
+//   for (j = 0; j < nrnamelist; j++)
+//   qDebug() << namelist[j].name << "=" << namelist[j].value;
+
 
 }
 //---------------------------------------------------------------------------

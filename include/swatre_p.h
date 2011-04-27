@@ -79,6 +79,8 @@ typedef double NODE_ARRAY[MAX_NODES_P];
 typedef struct PIXEL_INFO {
    double        *h;          /** array of MAX_NODES nodes with matrix head */
    double        currDt;      /** current size of SWATRE timestep */
+   double        tiledrain;   /** drainage into tiledrin system at a given depth */
+   int           tilenode;    /** nearest node that has the tiledrain */
    const PROFILE *profile;    /** profile this pixel belongs to */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;

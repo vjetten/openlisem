@@ -31,8 +31,7 @@
 #define ERROR_H_
 
 extern QString ErrorString;
+extern void Error(QString s);
 
-//#define Error(s) (ErrorString=QString(s); throw 1)
-#define Error(s) throw QString(s)
 
 #endif /* ERROR_H_ */

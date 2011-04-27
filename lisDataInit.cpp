@@ -46,6 +46,8 @@
 
 #include "model.h"
 
+
+
 //---------------------------------------------------------------------------
 /** \n void TWorld::InitMapList(void)
 *  blabla
@@ -220,10 +222,6 @@ void TWorld::InitTiledrains(void)
 {
    // channel vars and maps that must be there even if channel is switched off
    TileVolTot = 0;
-   //TileSedTot = 0;
-   //TileDepTot = 0;
-   //TileDetTot = 0;
-
    TileWaterVol = NewMap(0);
    TileQoutflow = NewMap(0);
    RunoffVolinToTile = NewMap(0);
@@ -235,11 +233,18 @@ void TWorld::InitTiledrains(void)
    Tileq = NewMap(0);
    TileAlpha = NewMap(0);
    TileDrainSoil = NewMap(0);
-//   TileMask = NewMap(0);
+   TileV = NewMap(0);
+   TileDX = NewMap(0);
+
+   if (!SwitchIncludeTile)
+      TileDepth = NewMap(-1);
+   // must exist for swatre
+
    // maybe needed later for erosion in tiledrain
+   //TileSedTot = 0;
+   //TileDepTot = 0;
+   //TileDetTot = 0;
    //TileQsoutflow = NewMap(0);
-   //TileV = NewMap(0);
-   //TileDX = NewMap(0);
    //TileDetFlow = NewMap(0);
    //TileDep = NewMap(0);
    //TileSed = NewMap(0);
@@ -256,26 +261,29 @@ void TWorld::InitTiledrains(void)
 
 
       TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-      Tileheight = ReadMap(LDDTile, getvaluename("tileheight"));
+      TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+      TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
       TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-      TileGrad->calcV(0.001, ADD);
-      TileN = ReadMap(LDDTile, getvaluename("chanman"));
+      TileGrad->calcV(0.001, MAX);
+      TileN = ReadMap(LDDTile, getvaluename("tileman"));
       //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
-      TileGrad->cover(0);
-      TileWidth->cover(0);
-      Tileheight->cover(0);
-      TileN->cover(0);
+      TileGrad->cover(LDD, 0);
+      TileWidth->cover(LDD, 0);
+      TileHeight->cover(LDD, 0);
+      TileDepth->cover(LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
+      TileN->cover(LDD, 0);
 
-      //TileN->calcV(ChnCalibration, MUL);
+      //TileN->calcV(TilenCalibration, MUL);
       /* TODO ? */
 
-      FOR_ROW_COL_MV_CH
+      FOR_ROW_COL_MV_TILE
       {
-         TileDX->Drc = _dx/TileGrad->Drc;
+         TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
          //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
       }
 
-      lddlisttile = MakeSortedNetwork(LDDChannel, &lddlisttilenr);
+      if (useSorted)
+         lddlisttile = makeSortedNetwork(LDDTile, &lddlisttilenr);
       //VJ 110123 sorted tiledrain network
    }
 
@@ -431,30 +439,31 @@ void TWorld::InitChannel(void)
       ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
       ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
       ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-      ChannelGrad->calcV(0.001, ADD);
+      ChannelGrad->calcV(0.001, MAX);
       ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
       ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
-      ChannelGrad->cover(0);
-      ChannelSide->cover(0);
-      ChannelWidth->cover(0);
-      ChannelN->cover(0);
+      ChannelGrad->cover(LDD, 0);
+      ChannelSide->cover(LDD, 0);
+      ChannelWidth->cover(LDD, 0);
+      ChannelN->cover(LDD, 0);
 
       ChannelN->calcV(ChnCalibration, MUL);
       if (SwitchChannelInfil)
       {
          ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
-         ChannelKsat->cover(0);
+         ChannelKsat->cover(LDD, 0);
          ChannelKsat->calcV(ChKsatCalibration, MUL);
       }
       ChannelWidthUpDX->copy(ChannelWidth);
-      ChannelWidthUpDX->cover(0);
+      ChannelWidthUpDX->cover(LDD, 0);
       FOR_ROW_COL_MV_CH
       {
-         ChannelDX->Drc = _dx/ChannelGrad->Drc;
+         ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); //VJ BUG fix, wrong calc here, div by gradient instead of cos
          ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
       }
 
-      lddlistch = MakeSortedNetwork(LDDChannel, &lddlistchnr);
+      if (useSorted)
+         lddlistch = makeSortedNetwork(LDDChannel, &lddlistchnr);
       //VJ 110123 sorted channel network
    }
 }
@@ -482,7 +491,7 @@ void TWorld::GetInputData(void)
 
    Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
    Outlet = ReadMap(LDD,getvaluename("outlet"));
-   Outlet->cover(0);
+   Outlet->cover(LDD, 0);
    // fill outlet with zero, some users have MV where no outlet
    FOR_ROW_COL_MV
    {
@@ -572,7 +581,7 @@ void TWorld::GetInputData(void)
       if(InfilMethod != INFIL_KSAT)
       {
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
-      //VJ 101221 all infil maps are needed for except psi
+         //VJ 101221 all infil maps are needed for except psi
          Psi1->calcV(0.01, MUL);
       }
 
@@ -583,7 +592,7 @@ void TWorld::GetInputData(void)
          if(InfilMethod != INFIL_KSAT)
          {
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
-         //VJ 101221 all infil maps are needed for except psi
+            //VJ 101221 all infil maps are needed for except psi
             Psi2->calcV(0.01, MUL);
          }
 
@@ -619,6 +628,7 @@ void TWorld::GetInputData(void)
 
    if (InfilMethod == INFIL_SWATRE)
    {
+      // read all Swatre profiles
       ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
       if (SwitchGrassStrip)
@@ -640,6 +650,7 @@ void TWorld::GetInputData(void)
       else
          CompactFraction = NewMap(0);
 
+      // read the swatre tables and make the information structure ZONE etc
       int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
       if (res)
          throw res;
@@ -824,29 +835,32 @@ void TWorld::IntializeData(void)
    SwatreSoilModelCrust = NULL;
    SwatreSoilModelCompact = NULL;
    SwatreSoilModelGrass = NULL;
+   // swatre get input data is called before, ReadSwatreInput
    if (InfilMethod == INFIL_SWATRE)
    {
       precision = 5.0;
       // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
-      SwatreSoilModel = InitSwatre(ProfileID, initheadName, swatreDT);
+
+      // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
+      SwatreSoilModel = InitSwatre(ProfileID, initheadName, TileDepth, swatreDT);
       if (SwatreSoilModel == NULL)
          throw 3;
 
       if (SwitchInfilCrust)
       {
-         SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, swatreDT);
+         SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelCrust == NULL)
             throw 3;
       }
       if (SwitchInfilCompact)
       {
-         SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, swatreDT);
+         SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelCompact == NULL)
             throw 3;
       }
       if (SwitchGrassStrip)
       {
-         SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, swatreDT);
+         SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelGrass == NULL)
             throw 3;
       }
@@ -899,7 +913,8 @@ void TWorld::IntializeData(void)
       }
    }
 
-   lddlist = MakeSortedNetwork(LDD, &lddlistnr);
+   if (useSorted)
+      lddlist = makeSortedNetwork(LDD, &lddlistnr);
 
    //VJ 110113 all channel and buffer initialization moved to separate functions
 
@@ -908,6 +923,7 @@ void TWorld::IntializeData(void)
 void TWorld::IntializeOptions(void)
 {
    nrrainfallseries = 0;
+   useSorted = false; // do not use alternative kin wave for now!
 
    //dirs and names
    resultDir.clear();

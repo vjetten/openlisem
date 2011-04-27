@@ -81,7 +81,7 @@ lisemqt::lisemqt(QWidget *parent)
 
    defaultRunFile();
    //fill namelist with default runfile names
-   //get all actual mapnames from the mapList structure
+   //use all actual mapnames from the mapList structure
 
    SetConnections();
 
@@ -656,17 +656,12 @@ void lisemqt::resetAll()
 {
 	E_runFileList->clear();
 
-	E_InfiltrationMethod->clear();
-	E_InfiltrationMethod->addItem("no Infiltration");
-	E_InfiltrationMethod->addItem("SWATRE");
-	E_InfiltrationMethod->addItem("Green and Ampt");
-	E_InfiltrationMethod->addItem("Smith and Parlange");
-	E_InfiltrationMethod->addItem("Subtract Ksat");
+   DefaultMapnames();
+   // Make the default input map list, stringlist
 
    fillMapnames();
    // make mapList structure according to
    // DEFmaps stringlist that is used to build the map tree interface
-
 
 	RunFileNames.clear();
 	op.runfilename.clear();
@@ -700,7 +695,13 @@ void lisemqt::resetAll()
 	printinterval->setValue(1);
 
 
-	E_InfiltrationMethod->setCurrentIndex(0);
+   E_InfiltrationMethod->clear();
+   E_InfiltrationMethod->addItem("no Infiltration");
+   E_InfiltrationMethod->addItem("SWATRE");
+   E_InfiltrationMethod->addItem("Green and Ampt");
+   E_InfiltrationMethod->addItem("Smith and Parlange");
+   E_InfiltrationMethod->addItem("Subtract Ksat");
+   E_InfiltrationMethod->setCurrentIndex(0);
 
 	InitOP();
 	progressBar->setValue(0);

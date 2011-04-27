@@ -53,7 +53,7 @@ void TWorld::CalcVelDischChannel(void)
 		double FW = ChannelWidth->Drc;
 		double grad = sqrt(ChannelGrad->Drc);
 		double dw = 0.5*(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
-        
+
 		if (dw > 0)
 		{
 			//			Perim = FW + 2*sqrt(wh*wh + dw*dw);
@@ -65,11 +65,11 @@ void TWorld::CalcVelDischChannel(void)
 			Perim = FW + 2*wh;
 			Area = FW*wh;
 		}
-        
+
 		//Perim = ChannelWidth->Drc + 2*wh/cos(atan(ChannelSide->Drc));
 		// cos atanb more expensive than sqrt ?
 		//Area = ChannelWidth->Drc*wh + wh*(ChannelWidthUpDX->Drc - ChannelWidth->Drc);
-        
+
       ChannelPerimeter->Drc = Perim;
       //VJ 110109 needed for channel infil
 
@@ -77,14 +77,14 @@ void TWorld::CalcVelDischChannel(void)
 			Radius = Area/Perim;
 		else
 			Radius = 0;
-        
+
 		ChannelAlpha->Drc = pow(ChannelN->Drc/grad * powl(Perim, _23),beta);
-        
+
 		if (ChannelAlpha->Drc > 0)
 			ChannelQ->Drc = pow(Area/ChannelAlpha->Drc, beta1);
 		else
 			ChannelQ->Drc = 0;
-        
+
 		ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
 	}
 	else
@@ -101,23 +101,23 @@ void TWorld::ChannelFlow(void)
 {
 	if (!SwitchIncludeChannel)
 		return;
-    
+
 	// calculate new channel WH , WidthUp and Volume
 	FOR_ROW_COL_MV_CH
 	{
 		/*---- Water ----*/
-        
+
 		ChannelQsn->Drc =0;
 		Channelq->Drc =0;
 		ChannelQoutflow->Drc =0;
 		ChannelWH->Drc = 0;
-        
+
       ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
 		// add inflow to channel
 		if (ChannelWidth->Drc > 0)
 			ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
 		// add rainfall in m3, no interception
-        
+
 		if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel
 		{
 			ChannelWidthUpDX->Drc = ChannelWidth->Drc;
@@ -125,7 +125,7 @@ void TWorld::ChannelFlow(void)
 		}
 		else  // non-rectangular
 		{
-            /*
+         /*
    ABC fornula
     dw      w       dw
    \  |            |  /
@@ -137,22 +137,22 @@ void TWorld::ChannelFlow(void)
    tan(a)h^2 * wh - vol = 0
      aa        bb   cc
 */
-            double aa = ChannelSide->Drc;  //=tan(a)
-            double bb = ChannelWidth->Drc; //=w
-            double cc = -1*ChannelWaterVol->Drc/DX->Drc; //=vol/DX
-            ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
-            if (ChannelWH->Drc < 0)
-            {
-                ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
-                throw 1;
-            }
+         double aa = ChannelSide->Drc;  //=tan(a)
+         double bb = ChannelWidth->Drc; //=w
+         double cc = -1*ChannelWaterVol->Drc/DX->Drc; //=vol/DX
+         ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
+         if (ChannelWH->Drc < 0)
+         {
+            ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
+            throw 1;
+         }
 		}
-        
+
 		if (ChannelWidth->Drc > 0)
 			ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidth->Drc+2*ChannelSide->Drc*ChannelWH->Drc);
 		// new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
 		// cannot be more than 0.9*_dx
-        
+
 		if (RoadWidthDX->Drc > 0)
 			ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
 		// channel cannot be wider than _dx-road
@@ -160,56 +160,58 @@ void TWorld::ChannelFlow(void)
 
       if (SwitchChannelInfil)
          Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
-        //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
+      //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
 	}
-    
+
 	CalcVelDischChannel();
-    
+
 	/*---- Sediment ----*/
-    
+
 	if (SwitchErosion)
 	{
 		ChannelFlowDetachment();
-        
+
 		FOR_ROW_COL_MV_CH
 		{
 			ChannelQsoutflow->Drc = 0;
 			ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
 		}
 	}
-    
-	ChannelQn->setMV();
-//   FOR_ROW_COL_MV_CH
-//   {
-//      if (LDDChannel->Drc == 5)
-//      {
-//         Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-//                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-            
-//         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
-//         if (SwitchErosion)
-//            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
-//         // these maps now contain m3 and kg per timestep in pit cells
-//      }
-//   }
 
-   KinematicNew(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
-             ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+	ChannelQn->setMV();
+
+   if (useSorted)
+   {
+      KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+   }
+   else
+   {
+      FOR_ROW_COL_MV_CH
+      {
+         if (LDDChannel->Drc == 5)
+         {
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+         }
+      }
+    }
 
    ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
+
    if (SwitchErosion)
       ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
    // these maps now contain m3 and kg per timestep in pit cells
 
-	ChannelQn->cover(0); // avoid missing values around channel for adding to Qn for output
-	ChannelQs->cover(0);
-    
+   ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output
+   ChannelQs->cover(LDD, 0);
+
 	FOR_ROW_COL_MV_CH
 	{
 		double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
 		ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 		// water height is not used except for output i.e. watervolume is cycled
-        
+
       InfilVolKinWave->Drc +=
             Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * DX->Drc) - ChannelQn->Drc*_dt;
       //VJ 110111 add channel infil to infil for mass balance

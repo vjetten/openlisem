@@ -37,7 +37,8 @@ functions: \n
 - void TMMap::cover(double v)   \n
 - void TMMap::setMV()   \n
 - double TMMap::MapTotal()   \n
- */
+operations for 'oper' are ADD, SUB, MUL, DIV, POW, MIN, MAX
+*/
 
 
 #include "model.h"
@@ -62,19 +63,19 @@ void TMMap::fill(double value)
 
      for (r = 0; r < nrRows; r++)
       for (c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL4(&Data[r][c]))
+      if (!IS_MV_REAL8(&Data[r][c]))
       {
           Data[r][c] = value;
       }
 }
 //---------------------------------------------------------------------------
-void TMMap::cover(double value)
+void TMMap::cover(cTMap *M, double value)
 {
     int r, c;
 
      for (r = 0; r < nrRows; r++)
       for (c = 0; c < nrCols; c++)
-      if (IS_MV_REAL4(&Data[r][c]))
+      if (IS_MV_REAL8(&Data[r][c]) && !IS_MV_REAL8(&M->Data[r][c]))
       {
           Data[r][c] = value;
       }
@@ -86,9 +87,9 @@ void TMMap::calc(cTMap *M, int oper)
 {
   for (int r = 0; r < M->nrRows; r++)
    for (int c = 0; c < M->nrCols; c++)
-  if (!IS_MV_REAL4(&Data[r][c]))
+  if (!IS_MV_REAL8(&Data[r][c]))
   {
-      if (!IS_MV_REAL4(&M->Data[r][c]))
+      if (!IS_MV_REAL8(&M->Data[r][c]))
       {
           switch (oper)
           {
@@ -98,6 +99,8 @@ void TMMap::calc(cTMap *M, int oper)
           case DIV: if (M->Data[r][c] > 0) Data[r][c] /= M->Data[r][c];
                        else SET_MV_REAL4(&Data[r][c]); break;
           case POW: Data[r][c] = powl(Data[r][c],M->Data[r][c]); break;
+          case MIN: Data[r][c] = min(M->Data[r][c], Data[r][c]); break; //VJ 110420 new
+          case MAX: Data[r][c] = max(M->Data[r][c], Data[r][c]); break;
           }
       }
       else
@@ -109,9 +112,9 @@ void TMMap::calc2(cTMap *M1, cTMap *M2, int oper)
 {
    for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)
-    if (!IS_MV_REAL4(&Data[r][c]))
+    if (!IS_MV_REAL8(&Data[r][c]))
     {
-      if (!IS_MV_REAL4(&M1->Data[r][c]) && !IS_MV_REAL4(&M2->Data[r][c]))
+      if (!IS_MV_REAL8(&M1->Data[r][c]) && !IS_MV_REAL8(&M2->Data[r][c]))
       {
           switch (oper)
           {
@@ -121,6 +124,8 @@ void TMMap::calc2(cTMap *M1, cTMap *M2, int oper)
           case DIV: if (M2->Data[r][c] > 0) Data[r][c] = M1->Data[r][c] / M2->Data[r][c];
                        else SET_MV_REAL4(&Data[r][c]); break;
           case POW: Data[r][c] = pow(M1->Data[r][c],M2->Data[r][c]); break;
+          case MIN: Data[r][c] = min(M1->Data[r][c], M2->Data[r][c]); break; //VJ 110420 new
+          case MAX: Data[r][c] = max(M1->Data[r][c], M2->Data[r][c]); break;
           }
       }
       else
@@ -132,7 +137,7 @@ void TMMap::calcV(double V, int oper)
 {
      for (int r = 0; r < nrRows; r++)
       for (int c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL4(&Data[r][c]))
+      if (!IS_MV_REAL8(&Data[r][c]))
       {
           switch (oper)
           {
@@ -142,6 +147,8 @@ void TMMap::calcV(double V, int oper)
           case DIV: if (V > 0) Data[r][c] /= V;
                        else SET_MV_REAL4(&Data[r][c]); break;
           case POW: Data[r][c] = pow(Data[r][c],V); break;
+          case MIN: Data[r][c] = min(Data[r][c],V); break;//VJ 110420 new
+          case MAX: Data[r][c] = max(Data[r][c],V); break;
           }
       }
 }
@@ -151,7 +158,7 @@ double TMMap::MapTotal()
      double total = 0;
      for (int r = 0; r < nrRows; r++)
       for (int c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL4(&Data[r][c]))
+      if (!IS_MV_REAL8(&Data[r][c]))
       {
           total = total + Data[r][c];
       }
@@ -163,7 +170,7 @@ void TMMap::copy(cTMap *M)
 {
      for (int r = 0; r < M->nrRows; r++)
       for (int c = 0; c < M->nrCols; c++)
-      if (!IS_MV_REAL4(&M->Data[r][c])&& !IS_MV_REAL4(&Data[r][c]))
+      if (!IS_MV_REAL8(&M->Data[r][c])&& !IS_MV_REAL8(&Data[r][c]))
       {
           Data[r][c] = M->Data[r][c];
       }
@@ -182,9 +189,9 @@ void TMMap::calc2V(cTMap *M1, double V, int oper)
 {
    for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)
-    if (!IS_MV_REAL4(&Data[r][c]))
+    if (!IS_MV_REAL8(&Data[r][c]))
     {
-      if (!IS_MV_REAL4(&M1->Data[r][c]))
+      if (!IS_MV_REAL8(&M1->Data[r][c]))
       {
           switch (oper)
           {
@@ -193,7 +200,9 @@ void TMMap::calc2V(cTMap *M1, double V, int oper)
           case MUL: Data[r][c] = M1->Data[r][c] * V; break;
           case DIV: if (V > 0) Data[r][c] = M1->Data[r][c] / V;
                        else SET_MV_REAL4(&Data[r][c]); break;
-          case POW: Data[r][c] = pow(M1->Data[r][c],V); break;
+          case POW: Data[r][c] = pow(M1->Data[r][c],V); break;             
+          case MIN: Data[r][c] = min(M1->Data[r][c],V); break;//VJ 110420 new
+          case MAX: Data[r][c] = max(M1->Data[r][c],V); break;
           }
       }
       else

@@ -188,23 +188,25 @@ TMMap
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 
-*LDDTile,                    //!<
-*TileDrainSoil,              //!<
-*TileWidth,                  //!<
-*Tileheight,                 //!<
-*TileQ,                      //!<
-*TileQn,                     //!<
-*TileQs,                     //!<
-*TileQsn,                    //!<
-*TileQoutflow,               //!<
-*TileGrad,                   //!<
-*TileN,                      //!<
-*TileWH,                     //!<
-*TileWaterVol,               //!<
-*Tileq,                      //!<
-*RunoffVolinToTile,          //!<
-*TileAlpha,                  //!<
-*TileDX,                     //!<
+*LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
+*TileDrainSoil,              //!< drain volume from layer
+*TileWidth,                  //!< total width of drains in cell (m)
+*TileHeight,                 //!< height of drain (m)
+*TileDepth,                  //!< depth of tiles in soil below surface (m)
+*TileQ,                      //!< water flux in drains m3/s
+*TileQn,                     //!< new water flux in drains m3/s
+*TileQs,                     //!< sediment flux in drains kg/s
+*TileQsn,                    //!< new sediment flux in drains kg/s
+*TileQoutflow,               //!< water outflow in outlet
+*TileGrad,                   //!< gradient of the tiledrain system
+*TileN,                      //!< mannings inside the tiledrains
+*TileWH,                     //!< water height in the tile drains (m)
+*TileWaterVol,               //!< water volume in the tiledrains (m3)
+*Tileq,                      //!< possible drainage inside tiles, not used
+*RunoffVolinToTile,          //!< can be used for shortcut of surface pits to tile system
+*TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
+*TileDX,                     //!< cell length in tile drain, dx/cos angle
+*TileV,                      //!< velocity in tile drain m/s
 
 *BufferID,                   //!<
 *BufferVol,                  //!<
