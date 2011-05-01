@@ -35,8 +35,8 @@
 #ifndef modelH
 #define modelH
 
-#include <math.h>
-#include <stdlib.h>
+//#include <math.h>
+//#include <stdlib.h>
 
 #include <QtGui>
 #include <QMutex.h>
@@ -305,6 +305,7 @@ public:
    void ToChannel(void);
    void CalcVelDisch(void);
    void CalcVelDischChannel(void);
+   void ToTiledrain(void);
    void TileFlow(void);
    void CalcVelDischTile(void);
    void GridCell(void);
@@ -376,7 +377,7 @@ public:
    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                        double precParam, double dtMin, double dtMax);
    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                        SOIL_MODEL *s);
+                         double drainfraction, SOIL_MODEL *s);
 
    void Totals(void);
 	void MassBalance(void);

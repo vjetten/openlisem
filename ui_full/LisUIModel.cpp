@@ -164,8 +164,23 @@ void lisemqt::worldShow()
 
    ShowMap();
 
+   // 6 line text output below hydrographs
    textGraph->setMaximumBlockCount(6);
-   textGraph->appendPlainText(QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+
+   if (checkNoErosion->isChecked())
+   {
+      if(!checkIncludeTiledrains->isChecked())
+         textGraph->appendPlainText(QString("%1 %2 %3").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' '));
+      else
+         textGraph->appendPlainText(QString("%1 %2 %3 %4").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+   }
+   else
+   {
+      if(!checkIncludeTiledrains->isChecked())
+         textGraph->appendPlainText(QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+      else
+         textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+   }
 
 }
 //---------------------------------------------------------------------------

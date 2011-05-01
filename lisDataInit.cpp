@@ -260,6 +260,7 @@ void TWorld::InitTiledrains(void)
       // must be first" LDDTile is the mask for tile drains
 
 
+      TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
       TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
       TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
       TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
@@ -267,11 +268,13 @@ void TWorld::InitTiledrains(void)
       TileGrad->calcV(0.001, MAX);
       TileN = ReadMap(LDDTile, getvaluename("tileman"));
       //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
+
       TileGrad->cover(LDD, 0);
       TileWidth->cover(LDD, 0);
       TileHeight->cover(LDD, 0);
       TileDepth->cover(LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
       TileN->cover(LDD, 0);
+      TileSinkhole->cover(LDD, 0);
 
       //TileN->calcV(TilenCalibration, MUL);
       /* TODO ? */
@@ -279,6 +282,7 @@ void TWorld::InitTiledrains(void)
       FOR_ROW_COL_MV_TILE
       {
          TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
+         TileSinkhole->Drc = min(TileSinkhole->Drc, 0.9*_dx*_dx);
          //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
       }
 

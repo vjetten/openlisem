@@ -383,11 +383,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
             _Qn->Data[rowNr][colNr] = IterateToQnew(Qin, _Q->Data[rowNr][colNr], _q->Data[rowNr][colNr],
                                                 _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
 				// Newton Rapson iteration for water of current cell
+
             _q->Data[rowNr][colNr] = Qin;
-				//VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation
+            //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
 				// q is now in m3/s
-            tm->Data[rowNr][colNr] = itercount;
-			}
+
+            tm->Data[rowNr][colNr] = Qin;
+            // auxilary map to remeber Qin for infiltration calc at the end of this function
+         }
 
 			if (SwitchErosion && !isBufferCellSed)
 			{
@@ -413,5 +416,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 
 		}/* eof subcatchment done */
 	} /* eowhile list != NULL */
+
+   //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
+//   for (int r = 0; r < _nrRows; r++)
+//      for (int c = 0; c < _nrCols; c++)
+//         if(!IS_MV_REAL8(&_LDD->Data[r][c]))
+//         {
+//            double volAfter = _Alpha->Drc * pow(_Qn->Drc, 0.6) * _DX->Drc;
+//            _q->Drc = tm->Drc*_dt + _Vol->Drc - volAfter - _Qn->Drc*_dt;
+//         }
 }
 

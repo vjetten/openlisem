@@ -75,8 +75,8 @@ void TWorld::InfilSwatre(void)
 			fact->Drc = (tm->Drc - WH->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
 			WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
 			fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-         if (SwitchIncludeTile)
-            TileDrainSoil->Drc = tmb->Drc*CrustFraction->Drc + TileDrainSoil->Drc*(1-CrustFraction->Drc);
+//         if (SwitchIncludeTile)
+//            TileDrainSoil->Drc = tmb->Drc*CrustFraction->Drc + TileDrainSoil->Drc*(1-CrustFraction->Drc);
 		}
 	}
 
@@ -91,8 +91,8 @@ void TWorld::InfilSwatre(void)
 			fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
 			WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
 			fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
-         if (SwitchIncludeTile)
-            TileDrainSoil->Drc = tmb->Drc*CompactFraction->Drc + TileDrainSoil->Drc*(1-CompactFraction->Drc);
+//         if (SwitchIncludeTile)
+//            TileDrainSoil->Drc = tmb->Drc*CompactFraction->Drc + TileDrainSoil->Drc*(1-CompactFraction->Drc);
 		}
 	}
 
@@ -104,8 +104,8 @@ void TWorld::InfilSwatre(void)
 		FOR_ROW_COL_MV
       {
          factgr->Drc = (tm->Drc - WHGrass->Drc);
-         if (SwitchIncludeTile)
-            TileDrainSoil->Drc = tmb->Drc*GrassFraction->Drc + TileDrainSoil->Drc*(1-GrassFraction->Drc);
+//         if (SwitchIncludeTile)
+//            TileDrainSoil->Drc = tmb->Drc*GrassFraction->Drc + TileDrainSoil->Drc*(1-GrassFraction->Drc);
       }
 	}
 }

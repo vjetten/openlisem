@@ -105,6 +105,7 @@ void TWorld::OutputUI()
 	op.Q = Qoutput->DrcOutlet;
 	op.Qs = Qsoutput->DrcOutlet;
 	op.C = TotalConc->DrcOutlet;
+   op.Qtile = TileQoutflow->DrcOutlet;
     
 	op.BufferVolTot = BufferVolTot;
 	op.BufferSedTot = BufferSedTot*0.001; //ton
@@ -195,7 +196,9 @@ void TWorld::DoModel()
 			FlowDetachment();
             
 			ToChannel();    // fraction going into channel
-			OverlandFlow(); // slope kin wave
+         ToTiledrain();    // fraction going into tiledrain directly from surface
+
+         OverlandFlow(); // slope kin wave
 			ChannelFlow();  // channel erosion and kin wave
          TileFlow();     // tile drain flow kin wave
 

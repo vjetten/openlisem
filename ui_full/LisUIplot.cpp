@@ -7,6 +7,7 @@ void lisemqt::initPlot()
 {
    startplot = true;
    QData = NULL;
+   QtileData = NULL;
    QsData = NULL;
    CData = NULL;
    PData = NULL;
@@ -18,6 +19,7 @@ void lisemqt::initPlot()
 void lisemqt::killPlot()
 {
    delete QData;
+   delete QtileData;
    delete QsData;
    delete CData;
    delete PData;
@@ -51,27 +53,35 @@ void lisemqt::setupPlot()
    QGraph = new QwtPlotCurve("Discharge");
    QsGraph = new QwtPlotCurve("Sediment discharge");
    CGraph = new QwtPlotCurve("Concentration");
+   QtileGraph = new QwtPlotCurve("Tile drain");
 
    PGraph->attach(HPlot);
    QGraph->attach(HPlot);
-   if(!checkNoErosion->isChecked())
-   {
-      QsGraph->attach(HPlot);
-      CGraph->attach(HPlot);
-   }
+
+   // do not attach yet
+//   if(!checkNoErosion->isChecked())
+//   {
+    //  QsGraph->attach(HPlot);
+    //  CGraph->attach(HPlot);
+//   }
+//   if(checkIncludeTiledrains->isChecked())
+    //  QtileGraph->attach(HPlot);
 
    // order determines order of display in Legend
    //VJ 101223 changed for qwt 6.0.0
    PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
    QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+   QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
    QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
    CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
 
    QColor col;
+   col.setRgb( 0,160,160,255 );
+   QtileGraph->setPen(QPen(col));
    col.setRgb( 200,0,0,255 ); // darkred
    CGraph->setPen(QPen(col));
    QsGraph->setPen(QPen(Qt::red));
-   col.setRgb( 60,100,160,255 );
+   col.setRgb( 60,60,200,255 );
    QGraph->setPen(QPen(col));
    PGraph->setPen(QPen("#000000"));
 
@@ -79,13 +89,15 @@ void lisemqt::setupPlot()
    QGraph->setStyle(QwtPlotCurve::Lines);
    QsGraph->setStyle(QwtPlotCurve::Lines);
    CGraph->setStyle(QwtPlotCurve::Lines);
+   QtileGraph->setStyle(QwtPlotCurve::Lines);
 
    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+   QtileGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
    QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
    CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 
-   QwtLegend *legend = new QwtLegend(HPlot);//this);//widgetGraph);
+   QwtLegend *legend = new QwtLegend(HPlot);
    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
    //legend
@@ -119,6 +131,7 @@ void lisemqt::setupPlot()
    // draw empty plot
 
    QData = NULL; //discharge
+   QtileData = NULL; //discharge
    QsData = NULL;  //sed discharge
    CData = NULL; //conc
    PData = NULL; //rainfall
@@ -144,23 +157,35 @@ void lisemqt::showPlot()
       // create the arrays for the curves in the first timestep when the total size is known
       timeData = new double[op.maxstep+2];
       QData = new double[op.maxstep+2];
+      QtileData = new double[op.maxstep+2];
       QsData = new double[op.maxstep+2];
       CData = new double[op.maxstep+2];
       PData = new double[op.maxstep+2];
 
       memset(timeData, 0, sizeof(timeData));
       memset(QData, 0, sizeof(QData));
+      memset(QtileData, 0, sizeof(QData));
       memset(QsData, 0, sizeof(QsData));
       memset(CData, 0, sizeof(CData));
       memset(PData, 0, sizeof(PData));
 
       HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+      if(checkIncludeTiledrains->isChecked())
+         QtileGraph->attach(HPlot);
+
+      if(!checkNoErosion->isChecked())
+      {
+         QsGraph->attach(HPlot);
+         CGraph->attach(HPlot);
+      }
+
    }
 
    stepP++;
    timeData[stepP] = op.time;
    PData[stepP] = op.P;
    QData[stepP] = op.Q;
+   QtileData[stepP] = op.Qtile;
    QsData[stepP] = op.Qs;
    CData[stepP] = op.C;
 
@@ -173,6 +198,8 @@ void lisemqt::showPlot()
       QsGraph->setRawSamples(timeData,QsData,stepP);
       CGraph->setRawSamples(timeData,CData,stepP);
    }
+   if(checkIncludeTiledrains->isChecked())
+      QtileGraph->setRawSamples(timeData,QtileData,stepP);
 
    y2as = max(y2as, op.Qs);
    y2as = max(y2as, op.C);

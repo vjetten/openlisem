@@ -68,7 +68,7 @@ void TWorld::ToChannel(void)
 				// adjust sediment in suspension
 			}
 		}
-		CalcVelDisch();
+      CalcVelDisch();
 		// recalc velocity and discharge
 	}
 }
@@ -149,6 +149,7 @@ void TWorld::OverlandFlow(void)
          {
             /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
             Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+            //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
          }
       }
    }
@@ -177,14 +178,15 @@ void TWorld::OverlandFlow(void)
 		WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
 		// new water volume after kin wave, all water incl depr storage
 
-		double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
-		if (InfilMethod == INFIL_NONE)
-		{
-			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
-			InfilVolKinWave->Drc = diff;
-		}
-		else
-			InfilVolKinWave->Drc = diff;
+      double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
+//		if (InfilMethod == INFIL_NONE)
+//		{
+//			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
+//			InfilVolKinWave->Drc = diff;
+//		}
+//		else
+         InfilVolKinWave->Drc = diff;
+      // q contains infiltrated water after kin wave
 
 		//infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 

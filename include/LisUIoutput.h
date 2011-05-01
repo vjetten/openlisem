@@ -44,7 +44,7 @@ struct output{
 	RainTotmm, SurfStormm, InfilKWTotmm,
 	MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
 	ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
-	RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P,
+   RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P, Qtile,
 	BufferVolTot, BufferSedTot;
 
 	TMMap *DrawMap;

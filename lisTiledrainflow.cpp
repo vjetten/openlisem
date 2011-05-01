@@ -28,12 +28,33 @@
   \brief calculate tile drain system flow as a kinematic wave, no sediment functions
 
 functions: \n
+- void TWorld::ToTiledrain(void) \n
 - void TWorld::CalcVelDischTile() \n
 - void TWorld::TileFlow(void)\n
  */
 
 #include "model.h"
 
+//---------------------------------------------------------------------------
+//fraction of water and sediment flowing from the surface to the tiledrain system
+void TWorld::ToTiledrain(void)
+{
+   if (SwitchIncludeTile)
+   {
+      FOR_ROW_COL_MV_TILE
+      {
+         double fractiontotile = qMin(_dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc)), 1.0);
+         double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+         RunoffVolinToTile->Drc = fractiontotile*Volume;
+         // water diverted to the channel
+         WHrunoff->Drc *= (1-fractiontotile);
+         // adjust water height
+      }
+      CalcVelDisch();
+      // recalc velocity and discharge
+   }
+}
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischTile()
@@ -85,18 +106,21 @@ void TWorld::TileFlow(void)
 	{
 		/*---- Water ----*/
 
-		TileQsn->Drc =0;
-		Tileq->Drc =0;
-		TileQoutflow->Drc =0;
-		TileWH->Drc = 0;
+      TileQsn->Drc = 0;
+      Tileq->Drc = 0;
+      TileQoutflow->Drc = 0;
+
+      TileWaterVol->Drc += RunoffVolinToTile->Drc;
+      // add from the surface
 
       //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
       // cannot have more water than fits in size
-      TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * _dx/cos(atan(TileGrad->Drc));
+      TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * TileDX->Drc;
       // add inflow to Tile, tiledrainsoil is in m per timestep
 
-      TileWH->Drc = TileDrainSoil->Drc;
+      TileWH->Drc =  TileDrainSoil->Drc;
       // water height in m per cell
+
    }
 
    CalcVelDischTile();
@@ -107,25 +131,27 @@ void TWorld::TileFlow(void)
    {
       if (LDDTile->Drc == 5)
       {
-         Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, DX,
+         Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, TileDX,
                    TileWaterVol, tm, tma, tmb);
       }
    }
+
    TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
 
    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
    TileQs->cover(LDD, 0);
-   TileQn->report("tileqn");
+
+   //TileQn->report("tileq");
 
    FOR_ROW_COL_MV_TILE
    {
       double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
-      TileWH->Drc = TileArea/TileWidth->Drc;
-      // water height is not used except for output i.e. watervolume is cycled
+      InfilVolKinWave->Drc += Tileq->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
+      // diff is a small error in this case added to kin wave infil!
 
-      TileWaterVol->Drc = TileArea * DX->Drc;
+      TileWaterVol->Drc = TileArea * TileDX->Drc;
       // total water vol after kin wave in m3, going to the next timestep
-   }
+   }   
 }
 //---------------------------------------------------------------------------
 

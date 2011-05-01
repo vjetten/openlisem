@@ -172,7 +172,7 @@ double  TWorld::NewTimeStep(
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-                             double *drain, SOIL_MODEL *s)
+                             double *drain, double drainfraction, SOIL_MODEL *s)
 {
 	NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
 	const PROFILE *p = pixel->profile;
@@ -268,21 +268,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
             break;
          }
 
-      //--- calculate tile drain ---//
-      if (SwitchIncludeTile)
-      {
-         //TODO correct this for drainage width: width / _dx
-         //         qdrain = -kavg[tnode]*( (0-h[tnode])/DistNode(p)[tnode] + 1 );
-         //         qdrain = min(0, qdrain);
-         //         if (qdrain < 0)
-         //         {
-         //         //   theta[tnode] = theta[tnode] + (qdrain*dt)/DistNode(p)[tnode];
-         //         //   h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
-         //         //   drainout += qdrain*dt; // a bit redundant
-         //         }
-         qdrain = kavg[tnode];  // in cm/sec ?
-         drainout += qdrain*dt; // add for all swatre timestps, in cm
-      }
 
 		// save last h and theta, used in headcalc
 		memcpy(hPrev, h, sizeof(double)*n);
@@ -308,6 +293,24 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 			pond = 0;
 		influx += qmax*dt;
 		// add max infil to influx (negative)
+      //--- calculate tile drain ---//
+
+      if (SwitchIncludeTile)
+      {
+         //TODO correct this for drainage width: width / _dx
+         //         qdrain = -kavg[tnode]*( (0-h[tnode])/DistNode(p)[tnode] + 1 );
+         //         qdrain = min(0, qdrain);
+         //         if (qdrain < 0)
+         //         {
+         //         //   theta[tnode] = theta[tnode] + (qdrain*dt)/DistNode(p)[tnode];
+         //         //   h[tnode] = HNode(theta[tnode], Horizon(p, tnode));
+         //         //   drainout += qdrain*dt; // a bit redundant
+         //         }
+         qdrain =  HcoNode(ThetaSat, Horizon(p, tnode), ksatCalibration);
+//               kavg[tnode];  // in cm/sec
+         theta[tnode] = theta[tnode] - (qdrain*dt)/DistNode(p)[tnode] * drainfraction;
+         drainout += qdrain*dt; // add for all swatre timestps, in cm
+      }
 
 		elapsedTime += dt;
 		/* estimate new dt within lisemtimestep */
@@ -341,14 +344,15 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 	FOR_ROW_COL_MV
          if(where->Drc > 0) // when there is crusting for instance
 	{
-      double wh, infil, drain;
+      double wh, infil, drain, drainfraction;
 
       wh = _WH->Drc*100;
 		// WH is in m, convert to cm
 		infil = 0;
       drain = 0;
+      drainfraction = TileWidth->Drc/_dx;
 
-      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, s);
+      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction, s);
 
       _WH->Drc = wh*0.01;
 		//back to m

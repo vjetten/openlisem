@@ -577,7 +577,7 @@
                <number>1</number>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>5</number>
               </property>
               <property name="tabSpacing">
                <number>1</number>
@@ -2593,8 +2593,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>98</width>
-                 <height>28</height>
+                 <width>449</width>
+                 <height>285</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -5388,6 +5388,9 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="text">
                        <string>0</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>

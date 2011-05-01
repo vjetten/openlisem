@@ -1,12 +1,13 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt
+QWTDIR = c:/Qt/qwt-6.0
 QT += core \
     gui
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUIplot.h \
     ui_full/LisUItreemodel.h \
+    ui_full/LisUIplot.h \
     ui_full/lisemqt.h \
     include/LisUIoutput.h \
     include/version.h \

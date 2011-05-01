@@ -58,7 +58,7 @@ void TWorld::CalcVelDischChannel(void)
 		{
 			//			Perim = FW + 2*sqrt(wh*wh + dw*dw);
 			Perim = FW + 2*wh/cos(atan(ChannelSide->Drc));
-			Area = FW*wh + wh*dw;// NOT*2 BERCAUSE TRIANGLE !!;
+         Area = FW*wh + wh*dw;// NOT*2 BECAUSE TRIANGLE !!;
 		}
 		else
 		{
@@ -115,13 +115,13 @@ void TWorld::ChannelFlow(void)
       ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
 		// add inflow to channel
 		if (ChannelWidth->Drc > 0)
-			ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
-		// add rainfall in m3, no interception
+         ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+      // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
 		if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel
 		{
-			ChannelWidthUpDX->Drc = ChannelWidth->Drc;
-			ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*DX->Drc);
+         ChannelWidthUpDX->Drc = ChannelWidth->Drc;
+         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 		}
 		else  // non-rectangular
 		{
@@ -139,7 +139,7 @@ void TWorld::ChannelFlow(void)
 */
          double aa = ChannelSide->Drc;  //=tan(a)
          double bb = ChannelWidth->Drc; //=w
-         double cc = -1*ChannelWaterVol->Drc/DX->Drc; //=vol/DX
+         double cc = -1*ChannelWaterVol->Drc/ChannelDX->Drc; //=vol/DX
          ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
          if (ChannelWH->Drc < 0)
          {
@@ -182,7 +182,7 @@ void TWorld::ChannelFlow(void)
 
    if (useSorted)
    {
-      KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+      KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
    }
    else
@@ -191,7 +191,7 @@ void TWorld::ChannelFlow(void)
       {
          if (LDDChannel->Drc == 5)
          {
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, DX,
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
          }
       }
@@ -212,11 +212,10 @@ void TWorld::ChannelFlow(void)
 		ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 		// water height is not used except for output i.e. watervolume is cycled
 
-      InfilVolKinWave->Drc +=
-            Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * DX->Drc) - ChannelQn->Drc*_dt;
+      InfilVolKinWave->Drc += Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
       //VJ 110111 add channel infil to infil for mass balance
 
-      ChannelWaterVol->Drc = ChannelArea * DX->Drc;
+      ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
 		// total water vol after kin wave in m3, going to the next timestep      
 
 		if (SwitchErosion)

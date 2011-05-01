@@ -131,8 +131,8 @@ void TWorld::Totals(void)
       // input for mass balance, is the water seeping from the soil, input
       // this is the water before the kin wave
       tm->calc2(TileDrainSoil, TileWidth, MUL); //in m3
-      //tm->calc(DX, MUL); //in m3
-      tm->calcV(_dx, MUL); //in m3 ??? or DX?
+      tm->calc(TileDX, MUL); //in m3
+     // tm->calcV(_dx, MUL); //in m3 ??? or DX?
       TileVolTot += tm->MapTotal(); // in m3
 
       // water after kin wave
@@ -167,7 +167,7 @@ void TWorld::Totals(void)
 	// output fluxes for reporting
 	FOR_ROW_COL_MV
 	{
-		Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc); // in l/s
+      Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
 	}
     
 	oldrainpeak = Qpeak;
@@ -250,7 +250,7 @@ void TWorld::MassBalance()
    if (RainTot + SnowTot + TileVolTot > 0)
       MB = (RainTot + SnowTot + TileVolTot - IntercTot - InfilTot - WaterVolTot
               - BufferVolTot - Qtot)/(RainTot + SnowTot + TileVolTot)*100;
-    //qDebug() << "in" << RainTot << SnowTot;
+    // qDebug() << "in" << RainTot << SnowTot << TileVolTot;
     //qDebug() << "out" << IntercTot << InfilTot << WaterVolTot << BufferVolTot << Qtot;
 	// Mass Balance sediment
 	if (SwitchErosion && DetTot > 0)

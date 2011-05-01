@@ -157,11 +157,13 @@ public:
 	QwtPlotCurve *QsGraph;
 	QwtPlotCurve *CGraph;
 	QwtPlotCurve *PGraph;
+   QwtPlotCurve *QtileGraph;
 	bool startplot;
 	double yas, y2as;
 	double *timeData;
 	double *QData;
-	double *QsData;
+   double *QtileData;
+   double *QsData;
 	double *CData;
 	double *PData;
    long stepP;
