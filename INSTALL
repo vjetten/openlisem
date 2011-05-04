@@ -3,19 +3,13 @@ openLISEM README
 
 1) The openLISEM model 
 ======================
-This is the event based spatial runoff and erosion model openLISEM. Thank you 
-for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
-erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
-is available here: www.itc.nl/lisem. Details about the theory and dataset for 
-now can be found on this website (although a bit outdated). openLISEM uses the 
-freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
-analysis of the results. 
+
+This is the event based spatial runoff and erosion model openLISEM. Thank you  for downloading. openLISEM simulates the spatial dynamics of surface runoff and  erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that  is available here: www.itc.nl/lisem. Details about the theory and dataset for  now can be found on this website (although a bit outdated). openLISEM uses the  freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and  analysis of the results. 
 
 2) Terms of use 
 ===============
-This software is free and open source, hosted by 
-sourceforge.net. The project details can be found on: 
-http://lisem.sourceforge.net
+This software is free and open source, hosted by  sourceforge.net. The project 
+details can be found on:  http://lisem.sourceforge.net
 
 All license details can be found on this website. The compiled model openLISEM 
 and the source code, or parts of the source code can be used for any purpose, 
