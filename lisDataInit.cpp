@@ -472,6 +472,21 @@ void TWorld::InitChannel(void)
    }
 }
 //---------------------------------------------------------------------------
+void TWorld::InitMulticlass(void)
+{
+   if (!SwitchMulticlass)
+      return;
+
+   SubsMaps[0].m = ReadMap(LDD, getvaluename("fractionmu0"));
+   SubsMaps[1].m = ReadMap(LDD, getvaluename("fractionmu1"));
+   SubsMaps[2].m = ReadMap(LDD, getvaluename("fractionmu2"));
+   SubsMaps[3].m = ReadMap(LDD, getvaluename("fractionmu3"));
+   SubsMaps[4].m = ReadMap(LDD, getvaluename("fractionmu4"));
+   SubsMaps[5].m = ReadMap(LDD, getvaluename("fractionmu5"));
+   nrSubsMaps = 6;
+
+}
+//---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
    //## calibration factors
@@ -492,6 +507,8 @@ void TWorld::GetInputData(void)
    tm = NewMap(0); // temp map for aux calculations
    tma = NewMap(0); // temp map for aux calculations
    tmb = NewMap(0); // temp map for aux calculations
+   for (int i = 0; i < 32; i++)
+      SubsMaps[i].m = NULL;  // initialize substance structures
 
    Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
    Outlet = ReadMap(LDD,getvaluename("outlet"));
@@ -680,17 +697,24 @@ void TWorld::GetInputData(void)
    //## read and initialize all tile drain system maps and variables
    InitTiledrains();
 
+   InitMulticlass();
+
+
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeData(void)
 {
 
-   //TO DO add units and descriptions
+   //TO DO add units and descriptions --> TMmapVariables.h
 
    //totals for mass balance
    MB = 0;
    MBs = 0;
-   nrCells = LDD->MapTotal();
+   nrCells = 0;
+   FOR_ROW_COL_MV
+   {
+      nrCells+=1;
+   }
 
    //### terrain maps
    DX = NewMap(0);

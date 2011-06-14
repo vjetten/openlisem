@@ -255,6 +255,11 @@ public:
    NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
    int nrrunnamelist;
 
+   // list of pointers for substance maps: sediment, sed classes, nutrients etc.
+   // used in kin wave for routing of substances
+   MapListStruct SubsMaps[32];
+   int nrSubsMaps;
+
    // functions in lisDataInit.cpp
    void InitMapList(void);
    TMMap *NewMap(double value);
@@ -266,6 +271,7 @@ public:
    void InitTiledrains(void); //VJ 110112
    void InitBuffers(void); //VJ 110112
    void InitChannel(void); //VJ 110112
+   void InitMulticlass(void); //VJ 110511
    void GetInputData(void);      // get and make input maps
    void IntializeData(void);     // make all non-input maps
    void IntializeOptions(void);  // set all options to false etc
@@ -316,7 +322,7 @@ public:
 
    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
-                  TMMap *_StorVol, TMMap*_StorVolSed);
+                  TMMap *_StorVol, TMMap*_StorVolSed, MapListStruct ml[32]);
    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);

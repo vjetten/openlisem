@@ -57,6 +57,7 @@ class TMMap : public cTMap
    void cover(cTMap *m, double v);
    void setMV();
    double MapTotal();
+   double MapAverage();
 
    TMMap();
    ~TMMap();

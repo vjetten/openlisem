@@ -52,7 +52,7 @@
 #include "LisUIoutput.h"
 
 #include "LisUItreemodel.h"
-#include "LisUIplot.h"
+//#include "LisUIplot.h"
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0

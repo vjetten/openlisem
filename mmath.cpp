@@ -166,6 +166,21 @@ double TMMap::MapTotal()
 
 }
 //---------------------------------------------------------------------------
+double TMMap::MapAverage()
+{
+     double total = 0;
+     double nrcells = 0;
+     for (int r = 0; r < nrRows; r++)
+      for (int c = 0; c < nrCols; c++)
+      if (!IS_MV_REAL8(&Data[r][c]))
+      {
+          total = total + Data[r][c];
+          nrcells+=1;
+      }
+      return (total/nrcells);
+
+}
+//---------------------------------------------------------------------------
 void TMMap::copy(cTMap *M)
 {
      for (int r = 0; r < M->nrRows; r++)

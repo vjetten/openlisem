@@ -224,11 +224,12 @@ TMMap
 *TotalSoillossMap,           //!<
 *TotalSed,                   //!<
 *TotalWatervol,              //!<
-*TotalConc                  //!<
+*TotalConc,                  //!<
+
+Mu[6],                       //!< multiclass fraction of the grainsize in the 6 classes, 6 maps sum to 1.0
+CGm[6],                      //!< multiclass TC coefficient for this texture class
+DGm[6]                       //!< multiclass TC coeficient for this texture class
 
 // add more variables here
 ;                      //!< a dummy map to end the list, not used
-
-TMMap MCmu[6];
-TMMap NUTs[12];
 

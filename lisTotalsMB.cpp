@@ -44,10 +44,10 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak; 
     
 	/***** WATER *****/
-    
+
     if (SwitchRainfall)
     {
-        RainAvgmm = Rain->MapTotal()*1000/nrCells;
+        RainAvgmm = Rain->MapAverage()*1000.0;
         RainTotmm += RainAvgmm;        
         // avg area rainfall in mm
         
@@ -63,7 +63,7 @@ void TWorld::Totals(void)
     
 	if (SwitchSnowmelt)
 	{
-        SnowAvgmm += Snowmelt->MapTotal()*1000/nrCells;
+        SnowAvgmm += Snowmelt->MapAverage()*1000;
         SnowTotmm += SnowAvgmm;
         
 		tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
@@ -86,7 +86,7 @@ void TWorld::Totals(void)
 	// infiltration mm and m3
     
 	tm->calc2V(WHstore, 1000, MUL); //mm
-	SurfStoremm = tm->MapTotal()/nrCells;
+   SurfStoremm = tm->MapAverage();
 	// surface storage CHECK THIS
 	// does not go to MB, is already in tot water vol
     

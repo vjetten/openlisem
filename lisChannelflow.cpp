@@ -192,7 +192,7 @@ void TWorld::ChannelFlow(void)
          if (LDDChannel->Drc == 5)
          {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed, SubsMaps);
          }
       }
     }

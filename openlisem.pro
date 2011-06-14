@@ -1,13 +1,11 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt-6.0
+QWTDIR = c:/Qt/qwt
 QT += core \
     gui
 HEADERS += \
     ui_full/LisUItreeitem.h \
-    ui_full/LisUIplot.h \
     ui_full/LisUItreemodel.h \
-    ui_full/LisUIplot.h \
     ui_full/lisemqt.h \
     include/LisUIoutput.h \
     include/version.h \
@@ -35,6 +33,7 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreemodel.cpp \
     ui_full/LisUIDefaultNames.cpp \
     ui_full/lisemqt.cpp \
+    ui_full/LisUIplot.cpp \
     CsfMap.cpp \
     lisChannelflow.cpp \
     lisTiledrainflow.cpp \
@@ -57,7 +56,6 @@ SOURCES += lisTotalsMB.cpp \
     swatre/lutio.cpp \
     swatre/lookup.cpp \
     swatre/swatinp.cpp \
-    ui_full/LisUIplot.cpp \
     LisKinematicSorted.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {

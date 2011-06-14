@@ -169,9 +169,10 @@ void TWorld::RainfallMap(void)
 	FOR_ROW_COL_MV
 	{
 			int col = (int) RainZone->Drc;
+         double tt = 3600000.0;
 
-			Rain->Drc = RainfallSeries[place][col]/3600000 * _dt;
-			// Rain in m per timestep
+         Rain->Drc = RainfallSeries[place][col]*_dt/tt;
+         // Rain in m per timestep from mm/h
 			Rainc->Drc = Rain->Drc * _dx/DX->Drc;
 			// correction for slope dx/DX, water spreads out over larger area
 

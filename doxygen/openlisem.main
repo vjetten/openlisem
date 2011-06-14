@@ -47,7 +47,11 @@ openLISEM is distributed under the terms of the \ref openLISEMlicense license.
   - \ref outputscreenshot \n
 
   \section downloads Downloads
-  Latets  executable: <a href="http://sourceforge.net/projects/lisem/files/openLisem110419_exe.zip">openLISEMexe.zip</a>(~ 6Mbyte)\n\n
+  Latest stable executable: <a href="http://sourceforge.net/projects/lisem/files/openLisem110504_exe.zip">openLISEMexe.zip</a>(~ 6Mbyte)\n
+  Latest stable code: <a href="http://sourceforge.net/projects/lisem/files/openLisem110504_code.zip">openLISEMcode.zip</a>(~ 12Mbyte)\n
+  Latest code (GNU tar ball): <a href="http://lisem.svn.sourceforge.net/viewvc/lisem/lisem/?view=tar">lisem-lisem.tar.gz</a>(~ 6Mbyte)\n
+  Go dircetly to the code page: <a href="http://lisem.svn.sourceforge.net/viewvc/lisem/lisem/">code page</a>\n\n
+  
   
   Stable releases, prereleases and snapshots are available at the openLISEM <a href="http://sourceforge.net/projects/lisem/">project page</a>.\n
   Find a list of all files <a href="http://sourceforge.net/projects/lisem/files/">here</a>.

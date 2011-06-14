@@ -143,12 +143,14 @@ void TWorld::OverlandFlow(void)
    }
    else
    {
+      SubsMaps[0].m = Sed;
+      nrSubsMaps = 1;
       FOR_ROW_COL_MV
       {
          if (LDD->Drc == 5) // if outflow point, pit
          {
             /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
-            Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+            Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed, SubsMaps);
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
          }
       }

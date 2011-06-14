@@ -101,7 +101,7 @@ void TWorld::OutputUI()
 	op.time = time/60;
 	op.maxtime = op.t/runstep * op.maxstep;
     
-	op.P = (RainAvgmm + SnowAvgmm)* 3600/_dt;
+   op.P = (RainAvgmm + SnowAvgmm)*3600/_dt;
 	op.Q = Qoutput->DrcOutlet;
 	op.Qs = Qsoutput->DrcOutlet;
 	op.C = TotalConc->DrcOutlet;
@@ -186,7 +186,7 @@ void TWorld::DoModel()
 			GridCell();          // set channel widths, flowwidths road widths etc
 			RainfallMap();
 			SnowmeltMap();
-			Interception();
+         Interception();
 			Infiltration();
 			//SoilWater();
 			SurfaceStorage();

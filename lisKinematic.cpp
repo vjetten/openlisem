@@ -201,7 +201,7 @@ calculating the fluxes from upstream to downstream.\n
 */
 void TWorld::Kinematic(int pitRowNr, int pitColNr,
                        TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX
-                       ,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed)
+                       ,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed, MapListStruct ml[32])
 {
 	int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
 	int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -214,7 +214,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
 	list->rowNr = pitRowNr;
 	list->colNr = pitColNr;
 
-	while (list != NULL)
+   while (list != NULL)
 	{
 		int i = 0;
       bool  subCachDone = true; // are sub-catchment cells done ?

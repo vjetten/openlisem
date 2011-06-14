@@ -132,7 +132,7 @@ void TWorld::TileFlow(void)
       if (LDDTile->Drc == 5)
       {
          Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, TileDX,
-                   TileWaterVol, tm, tma, tmb);
+                   TileWaterVol, tm, tma, tmb, SubsMaps);
       }
    }
 
@@ -140,8 +140,6 @@ void TWorld::TileFlow(void)
 
    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
    TileQs->cover(LDD, 0);
-
-   //TileQn->report("tileq");
 
    FOR_ROW_COL_MV_TILE
    {

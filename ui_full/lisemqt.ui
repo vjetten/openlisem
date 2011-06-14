@@ -571,13 +571,13 @@
                <enum>QFrame::Sunken</enum>
               </property>
               <property name="lineWidth">
-               <number>1</number>
+               <number>-1</number>
               </property>
               <property name="midLineWidth">
                <number>1</number>
               </property>
               <property name="currentIndex">
-               <number>5</number>
+               <number>1</number>
               </property>
               <property name="tabSpacing">
                <number>1</number>
@@ -1303,7 +1303,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>449</width>
+                 <width>453</width>
                  <height>299</height>
                 </rect>
                </property>
