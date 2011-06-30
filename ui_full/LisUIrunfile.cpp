@@ -345,13 +345,16 @@ void lisemqt::ParseInputData()
 QString lisemqt::CheckDir(QString p)
 {
    /* TODO mulitplatform: fromNativeSeparators etc*/
-   p.replace("/","\\");
-   if (!p.endsWith("\\"))
-      p = p + "\\";
-   if (!QDir(p).exists())
-      p.clear();
+   QString path;
+   path = QDir(p).fromNativeSeparators(p);
+   path = QDir(path).absoluteFilePath(path);
+   if (!path.endsWith("/"))
+    path = path + '/';
 
-   return p;
+   if (!QDir(path).exists())
+      path.clear();
+
+   return path;
 }
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options, called by savefile

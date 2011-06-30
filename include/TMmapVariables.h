@@ -178,6 +178,7 @@ TMMap
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
+*ChannelStore,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 *ChannelSed,                 //!<

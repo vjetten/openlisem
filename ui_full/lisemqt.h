@@ -214,7 +214,8 @@ public slots:
    void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
    void openMapname(QModelIndex topLeft);
 
-	void on_toolButton_MapDir_clicked();
+   //void on_toolButton_MapDir_clicked();
+   void setMapDir();
 	void on_toolButton_ResultDir_clicked();
 	void on_toolButton_RainfallName_clicked();
 	void on_toolButton_SnowmeltName_clicked();
@@ -245,8 +246,8 @@ public slots:
 	void on_checkSedtrap_clicked();
 	void on_checkSnowmelt_clicked();
 	void on_checkExpandActive_clicked();
-	void on_E_MapDir_textEdited();
-	void on_E_ResultDir_textEdited();
+   void on_E_MapDir_returnPressed();
+   void on_E_ResultDir_returnPressed();
 
 private slots:
    // functions that interact with the world thread signals

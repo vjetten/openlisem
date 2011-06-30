@@ -62,6 +62,10 @@
 /// shortcut to access the outlet point data
 #define DrcOutlet     Data[r_outlet][c_outlet]
 
+/// shortcut to access the point data plotted on screen
+#define DrcPlot     Data[r_plot][c_plot]
+// VJ 110630 show hydrograph for selected output point
+
 /// shortcut missing value in map
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
 
@@ -214,6 +218,9 @@ public:
 
    int c_outlet;  /// copy of outlet col number
    int r_outlet;  /// copy of outlet row number
+
+   int c_plot;  /// copy of col number of hydrograph plotted on screen
+   int r_plot;  /// copy of row number of hydrograph plotted on screen
 
    /// time and dx parameters
 	double time, BeginTime, EndTime;

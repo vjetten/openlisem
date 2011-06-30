@@ -47,7 +47,6 @@
 #include "model.h"
 
 
-
 //---------------------------------------------------------------------------
 /** \n void TWorld::InitMapList(void)
 *  blabla
@@ -457,6 +456,7 @@ void TWorld::InitChannel(void)
          ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
          ChannelKsat->cover(LDD, 0);
          ChannelKsat->calcV(ChKsatCalibration, MUL);
+         ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
       }
       ChannelWidthUpDX->copy(ChannelWidth);
       ChannelWidthUpDX->cover(LDD, 0);
@@ -527,12 +527,15 @@ void TWorld::GetInputData(void)
          {
             c_outlet = c;
             r_outlet = r;
+            r_plot = r_outlet;
+            c_plot = c_outlet;
          }
       }
    }
 
    PointMap = ReadMap(LDD,getvaluename("outpoint"));
    //map with points for output data
+
 
    if (SwitchRainfall)
    {

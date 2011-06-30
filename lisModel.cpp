@@ -102,10 +102,11 @@ void TWorld::OutputUI()
 	op.maxtime = op.t/runstep * op.maxstep;
     
    op.P = (RainAvgmm + SnowAvgmm)*3600/_dt;
-	op.Q = Qoutput->DrcOutlet;
-	op.Qs = Qsoutput->DrcOutlet;
-	op.C = TotalConc->DrcOutlet;
-   op.Qtile = TileQoutflow->DrcOutlet;
+   op.Q = Qoutput->DrcPlot; //Outlet;
+   op.Qs = Qsoutput->DrcPlot; //Outlet;
+   op.C = TotalConc->DrcPlot; //Outlet;
+   op.Qtile = TileQoutflow->DrcPlot; //Outlet;
+   // VJ 110630 show hydrograph for selected output point
     
 	op.BufferVolTot = BufferVolTot;
 	op.BufferSedTot = BufferSedTot*0.001; //ton
@@ -123,7 +124,7 @@ void TWorld::DoModel()
 	// get time to calc run length
 	temprunname = QString(op.LisemDir+"openlisemtmp.run");
 
-	try
+   try
 	{
       DEBUG("reading and initializing data");
 		IntializeOptions();
@@ -165,7 +166,20 @@ void TWorld::DoModel()
         
 		runstep = 0; // NOTE runstep is used to initialize graph!
 		printstep = 1;
-        
+
+      // VJ 110630 show hydrograph for selected output point
+      FOR_ROW_COL_MV
+      {
+         if (op.outputpointnr == PointMap->Drc)
+         {
+            r_plot = r;
+            c_plot = c;
+            op.outputpointdata = QString("Hydrograph point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+            if( op.outputpointnr == 1)
+               op.outputpointdata = QString("Hydrograph main outlet");
+         }
+      }
+
 		DEBUG("Running...");
 
 		for (time = BeginTime; time < EndTime; time += _dt)

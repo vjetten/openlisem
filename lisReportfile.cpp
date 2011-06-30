@@ -111,12 +111,18 @@ void TWorld::ReportTimeseriesNew()
 					// HEADERS for the 3 types
 					if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
 					{
-						pnr.setNum((int)PointMap->Drc);
+                  pnr.setNum((int)PointMap->Drc);
 						out << "#LISEM total flow and sed output file for point " << pnr << "\n";
-						SwitchErosion ? out << "5\n" : out << "3\n";
+
+                  // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
+                  int nrs = 3 + (SwitchErosion ? 2 : 0);
+                  if (SwitchSnowmelt && SwitchRainfall) nrs++;
+                  pnr.setNum(nrs);
+                  out << pnr << "\n";
+
 						out << "run step\n";
-						out << "Pavg (mm/h)\n";
-						out << "Snowavg (mm/h)\n";
+                  if (SwitchRainfall) out << "Pavg (mm/h)\n";
+                  if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
 						out << "Q (l/s)\n";
 						if (SwitchErosion) out << "Qs (kg/s)\n";
 						if (SwitchErosion) out << "C (g/l)\n";
@@ -137,10 +143,14 @@ void TWorld::ReportTimeseriesNew()
                   {
                      pnr.setNum((int)PointMap->Drc);
                      out << "LISEM total flow and sed output file for point " << pnr << "\n";
-                     out << "Time,Pavg,Snowavg";
+                     out << "Time";
+                     if (SwitchRainfall) out << ",Pavg";
+                     if (SwitchSnowmelt) out << ",Snowavg";
                      if (SwitchErosion) out << ",Qs,C";
                      out << "\n";
-                     out << "min,mm/h,l/s";
+                     out << "min,mm/h";
+                     if (SwitchSnowmelt) out << ",mm/h";
+                     out << ",l/s";
                      if (SwitchErosion) out << ",kg/s,g/l";
                      out << "\n";
                   }
@@ -166,16 +176,16 @@ void TWorld::ReportTimeseriesNew()
 				FOR_ROW_COL_MV
                   if ( PointMap->Drc > 0 ) nr++;
 
+            // nr columns is time + rain (+ maybe snow) + nr points*(Q + Qs + C)
 				int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
-
-            /** TODO snowmelt */
-
+            if (SwitchSnowmelt && SwitchRainfall) nrs++;
 				pnr.setNum(nrs);
+
 				out << "#LISEM total flow and sed output file for all reporting points\n";
 				out <<  pnr << "\n";
 				out << "Time (min)\n";
-				out << "Pavg (mm/h)\n";
-				out << "Snowavg (mm/h)\n";
+            if (SwitchRainfall) out << "Pavg (mm/h)\n";
+            if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
 				FOR_ROW_COL_MV
                   if ( PointMap->Drc > 0 )
 				{
@@ -213,8 +223,8 @@ void TWorld::ReportTimeseriesNew()
             {
                out << "#LISEM total flow and sed output file for all reporting points in map\n";
                out << "Time";
-               out << ",P";
-               out << ",Snow";
+               if (SwitchRainfall) out << ",P";
+               if (SwitchSnowmelt) out << ",Snow";
                FOR_ROW_COL_MV
                      if ( PointMap->Drc > 0 )
                {
@@ -225,8 +235,8 @@ void TWorld::ReportTimeseriesNew()
                }
                out << "\n";
                out << "min";
-               out << ",mm/h";
-               out << ",mm/h";
+              if (SwitchRainfall) out << ",mm/h";
+              if (SwitchSnowmelt) out << ",mm/h";
                FOR_ROW_COL_MV
                      if ( PointMap->Drc > 0 )
                {
@@ -266,8 +276,8 @@ void TWorld::ReportTimeseriesNew()
 						out << runstep;
 					else
 						out << time/60;
-					out << sep << RainIntavg;
-					out << sep << SnowIntavg;
+               if (SwitchRainfall) out << sep << RainIntavg;
+               if (SwitchSnowmelt) out << sep << SnowIntavg;
 					out << sep << Qoutput->Drc;
 					if (SwitchErosion) out << sep << Qsoutput->Drc;
 					if (SwitchErosion) out << sep << TotalConc->Drc;
@@ -310,8 +320,8 @@ void TWorld::ReportTimeseriesNew()
 			{
 				if ( PointMap->Drc > 0 )
 				{
-					out << sep << RainIntavg;
-					out << sep << SnowIntavg;
+               if (SwitchRainfall) out << sep << RainIntavg;
+               if (SwitchSnowmelt) out << sep << SnowIntavg;
 					out << sep << Qoutput->Drc;
 					if (SwitchErosion) out << sep << Qsoutput->Drc;
 					if (SwitchErosion) out << sep << TotalConc->Drc;

@@ -66,7 +66,9 @@ void TWorld::SplashDetachment(void)
 
 		double KE_DT = 28.3*(1-(0.52*exp(-0.042*Int)));
 		// kin energy in J/m2/mm, Van DIjk general equation 2002
-      KE_DT = 7.60*pow(Int, 0.22);
+
+
+  //    KE_DT = 7.60*pow(Int, 0.22);
       // kin energy in J/m2/mm, cape verde Sanchez et al in prep 2011
 
 

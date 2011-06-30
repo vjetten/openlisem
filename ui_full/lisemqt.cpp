@@ -117,7 +117,9 @@ void lisemqt::SetConnections()
 {
    connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
    connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
+
    connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
+   connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
 
    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
    // double click on mapnake opens fileopen
@@ -193,7 +195,7 @@ void lisemqt::SetToolBar()
 //---------------------------------------------------------------------------
 void lisemqt::SetMapPlot()
 {
-/*
+/*   NOT YET !!!
  QwtText title;
  title.setText("something");
  MapDrawing = new QwtPlotSpectrogram();
@@ -220,10 +222,9 @@ void lisemqt::SetMapPlot()
 */
 }
 //---------------------------------------------------------------------------
+/// make some labels yellow
 void lisemqt::SetStyleUI()
 {
-	// make some labels yellow
-
 	label_dx->setStyleSheet("* { background-color: #ffffff }");
 	label_area->setStyleSheet("* { background-color: #ffffff }");
 	label_time->setStyleSheet("* { background-color: #ffffff }");
@@ -256,12 +257,7 @@ void lisemqt::SetStyleUI()
 	label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
 //--------------------------------------------------------------------
-//void lisemqt::on_toolButton_fileOpen_clicked()
-//{
-//	openRunFile();
-//}
-//--------------------------------------------------------------------
-void lisemqt::on_toolButton_MapDir_clicked()
+void lisemqt::setMapDir()
 {
 	QString path;
 	QString pathin;
@@ -272,8 +268,7 @@ void lisemqt::on_toolButton_MapDir_clicked()
 
 	path = QFileDialog::getExistingDirectory(this,
                                             QString("Select maps directory"),
-                                            pathin,
-                                            QFileDialog::ShowDirsOnly);
+                                            pathin,QFileDialog::ShowDirsOnly);
 	if(!path.isEmpty())
 		E_MapDir->setText( path );
 }
@@ -584,7 +579,7 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
 	RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_MapDir_textEdited()
+void lisemqt::on_E_MapDir_returnPressed()
 {
 	QFileInfo fin(E_MapDir->text());
 	if(!fin.exists())
@@ -595,7 +590,7 @@ void lisemqt::on_E_MapDir_textEdited()
 	}
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_ResultDir_textEdited()
+void lisemqt::on_E_ResultDir_returnPressed()
 {
 	if (E_ResultDir->text().isEmpty())
 		return;

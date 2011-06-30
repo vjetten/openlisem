@@ -38,6 +38,10 @@ struct output{
 	int runstep;
 	int printstep;
 	int maxstep;
+
+   int outputpointnr;
+   QString outputpointdata;
+
 	double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
 	double MB, Qtot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,

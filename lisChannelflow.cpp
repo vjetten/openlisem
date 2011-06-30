@@ -159,7 +159,11 @@ void TWorld::ChannelFlow(void)
       /* TODO zit al in gridcell, nodig hier? */
 
       if (SwitchChannelInfil)
+      {
          Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
+//         if (ChannelKsat->Drc/3600000 * (time - BeginTime) > ChannelStore->Drc)
+  //          Channelq->Drc = 0;
+       }
       //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
 	}
 

@@ -45,6 +45,12 @@ void lisemqt::initPlot()
    PData = NULL;
    timeData = NULL;
    //intialize plot stuff for this run
+
+   op.outputpointnr = spinBoxPointtoShow->value();
+   spinBoxPointtoShow->setEnabled(false);
+   HPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
+   // VJ 110630 show hydrograph for selected output point
+
 }
 //---------------------------------------------------------------------------
 // free data structures graph
@@ -61,6 +67,8 @@ void lisemqt::killPlot()
    CData = NULL;
    PData = NULL;
    timeData = NULL;
+
+  spinBoxPointtoShow->setEnabled(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::setupPlot()
@@ -70,7 +78,8 @@ void lisemqt::setupPlot()
    textGraph->setMaximumHeight(96);
 
    QwtText title;
-   title.setText("Hydrograph/Sedigraph outlet");
+   title.setText("Hydrograph outlet");
+   title.setFont(QFont("MS Shell Dlg 2",12));
    HPlot = new QwtPlot(title, this);
    // make the plot window
    verticalLayout_6->insertWidget(0, HPlot);
@@ -91,13 +100,16 @@ void lisemqt::setupPlot()
    QGraph->attach(HPlot);
 
    // do not attach yet
-//   if(!checkNoErosion->isChecked())
-//   {
-    //  QsGraph->attach(HPlot);
-    //  CGraph->attach(HPlot);
-//   }
-//   if(checkIncludeTiledrains->isChecked())
-    //  QtileGraph->attach(HPlot);
+   if(!checkNoErosion->isChecked())
+   {
+      QsGraph->attach(HPlot);
+      CGraph->attach(HPlot);
+   }
+   if(checkIncludeTiledrains->isChecked())
+   {
+
+      QtileGraph->attach(HPlot);
+   }
 
    // order determines order of display in Legend
    //VJ 101223 changed for qwt 6.0.0
@@ -210,6 +222,9 @@ void lisemqt::showPlot()
          QsGraph->attach(HPlot);
          CGraph->attach(HPlot);
       }
+
+      label_pointOutput->setText(op.outputpointdata);
+      // VJ 110630 show hydrograph for selected output point
 
    }
 

@@ -125,14 +125,26 @@ QString TWorld::CheckDir(QString p)
  }
  return "";
  */
-	p.replace("/","\\");
-	//	if (!p.endsWith("/"))
-	if (!p.endsWith("\\"))
-		p = p + "\\";
-	if (QDir(p).exists())
-		return p;
-	else
-		return "";
+//	p.replace("/","\\");
+//	//	if (!p.endsWith("/"))
+//	if (!p.endsWith("\\"))
+//		p = p + "\\";
+//	if (QDir(p).exists())
+//		return p;
+//	else
+//		return "";
+
+   QString path;
+   path = QDir(p).fromNativeSeparators(p);
+   path = QDir(path).absoluteFilePath(path);
+
+   if (!path.endsWith("/"))
+    path = path + '/';
+
+   if (!QDir(path).exists())
+      path.clear();
+
+   return path;
 }
 //---------------------------------------------------------------------------
 QString TWorld::GetName(QString p)
@@ -221,8 +233,10 @@ void TWorld::ParseRunfileData()
       QString p = runnamelist[j].value;
 
 		// input ourput dirs and file names
-		if (p1.compare("Map Directory")==0) inputDir=CheckDir(p);
-		if (p1.compare("Result Directory")==0) resultDir = CheckDir(p);
+      if (p1.compare("Map Directory")==0)
+         inputDir=CheckDir(p);
+      if (p1.compare("Result Directory")==0)
+         resultDir = CheckDir(p);
 
 		if (InfilMethod == INFIL_SWATRE)
 		{
@@ -266,7 +280,7 @@ void TWorld::ParseRunfileData()
 		if (SwitchRainfall)
 		{
          if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
-         if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + p;
+         if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + "/" + p;
       }
 		if (SwitchSnowmelt)
 		{
