@@ -199,9 +199,9 @@ public:
    /// calibration factors
    int KEequationType;
    /// type of kinetic energy equation;
-   double KEParamater_a;
-   double KEParamater_b;
-   double KEParamater_c;
+   double KEParamater_a1, KEParamater_b1, KEParamater_c1;
+   double KEParamater_a2, KEParamater_b2;
+   double KEParamater_a3, KEParamater_b3;
    /// parameters in KE equations
 
 	double ksatCalibration;

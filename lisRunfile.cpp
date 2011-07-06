@@ -217,6 +217,35 @@ void TWorld::ParseRunfileData()
 		SOBEKdatestring.remove(10,100);
 		if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
+      if (p1.compare("KE parameters EQ1")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         if (param[0].toInt() == 1)
+            KEequationType = KE_EXPFUNCTION;
+         KEParamater_a1 = param[1].toDouble();
+         KEParamater_b1 = param[2].toDouble();
+         KEParamater_c1 = param[3].toDouble();
+      }
+      if (p1.compare("KE parameters EQ2")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         if (param[0].toInt() == 1)
+            KEequationType = KE_LOGFUNCTION;
+         KEParamater_a2 = param[1].toDouble();
+         KEParamater_b2 = param[2].toDouble();
+      }
+      if (p1.compare("KE parameters EQ3")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         if (param[0].toInt() == 1)
+            KEequationType = KE_POWERFUNCTION;
+         KEParamater_a3 = param[1].toDouble();
+         KEParamater_b3 = param[2].toDouble();
+      }
+
 		if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
 
       if (p1.compare("Erosion map units (0/1/2)")==0)      ErosionUnits = iii;

@@ -64,22 +64,16 @@ void TWorld::SplashDetachment(void)
 		double Int = Rain->Drc * 3600/_dt * 1000;
 		// intensity in mm/h, Rain is in m
 
-		double KE_DT = 28.3*(1-(0.52*exp(-0.042*Int)));
-		// kin energy in J/m2/mm, Van DIjk general equation 2002
+      double KE_DT;
 
-
-    KE_DT = 7.60*pow(Int, 0.22);
-      // kin energy in J/m2/mm, cape verde Sanchez et al in prep 2011
-
-
-
-      /* TODO: allow many different equations here, interface choice */
-		/* equation in LISEM, based on Eurosem, Morgan 1998
-       if (Int > 1)
-           KE_DT = 8.95+8.44*log10(Int);
-       else
-    	   KE_DT = 0;
-		 */
+      switch (KEequationType)
+      {
+      case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int)));
+      case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0);
+      case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3);
+      // kin energy in J/m2/mm
+      }
+      //VJ 110706  KE equations
 
 		double directrain = (1-Cover->Drc)*Rainc->Drc * 1000; //
 		// rainfall between plants in mm
