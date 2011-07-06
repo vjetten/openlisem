@@ -838,6 +838,7 @@ void TWorld::IntializeData(void)
    //### runoff maps
    Qtot = 0;
    QtotOutlet = 0;
+   QtotPlot = 0;
    Qtotmm = 0;
    Qpeak = 0;
    QpeakTime = 0;

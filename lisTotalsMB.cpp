@@ -42,6 +42,7 @@ void TWorld::Totals(void)
 {
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak; 
+    double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
     
 	/***** WATER *****/
 
@@ -77,12 +78,12 @@ void TWorld::Totals(void)
 	}
     
 	IntercTot = Interc->MapTotal();
-	IntercTotmm = IntercTot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+   IntercTotmm = IntercTot*catchmentAreaFlatMM;
 	// interception in mm and m3
     
 	InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
 	InfilKWTot += InfilVolKinWave->MapTotal(); // not really used, available for output when needed
-	InfilTotmm = max(0,InfilTot*1000/(_dx*_dx*nrCells));//CatchmentArea;
+   InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
 	// infiltration mm and m3
     
 	tm->calc2V(WHstore, 1000, MUL); //mm
@@ -91,19 +92,21 @@ void TWorld::Totals(void)
 	// does not go to MB, is already in tot water vol
     
 	WaterVolTot = WaterVolall->MapTotal();//m3
-	WaterVolTotmm = WaterVolTot*1000/(_dx*_dx*nrCells);//CatchmentArea; //mm
+   WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
 	// water on the surface in runoff in m3 and mm
 	//NOTE: surface storage is already in here so does not need to be accounted for in MB
     
-	Qtot += Qoutflow->MapTotal();
+   Qtot += Qoutflow->DrcOutlet; //MapTotal();
 	// sum outflow m3 for all timesteps for all pits, is already mult by dt
 	// needed for mass balance
-	Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+   //Qtotmm = Qtot*catchmentAreaFlatMM;
 	// in mm for screen output
     
 	QtotOutlet += Qoutflow->DrcOutlet;
 	// for screen output, total main outlet in m3
-	TotalWatervol->copy(WaterVolall);
+   QtotPlot += Qoutflow->DrcPlot;
+   //VJ 110701 for screen output, total of hydrograph point in m3
+   TotalWatervol->copy(WaterVolall);
 	// for sed conc calc output
     
     
@@ -111,17 +114,19 @@ void TWorld::Totals(void)
 	{
 		WaterVolTot += ChannelWaterVol->MapTotal(); //m3
 		// add channel vol to total
-		WaterVolTotmm = WaterVolTot*1000/(_dx*_dx*nrCells);//CatchmentArea; //mm
+      WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
 		// recalc in mm for screen output
         
-		Qtot += ChannelQoutflow->MapTotal();
+      Qtot += ChannelQoutflow->DrcOutlet; //MapTotal();
 		// add channel outflow (in m3) to total for all pits
-		Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+      //Qtotmm = Qtot*catchmentAreaFlatMM;
 		// recalc in mm for screen output
         
 		QtotOutlet += ChannelQoutflow->DrcOutlet;
 		// add channel outflow (in m3) to total for main outlet
-		TotalWatervol->calc(ChannelWaterVol,ADD);
+      QtotPlot += ChannelQoutflow->DrcPlot;
+      // add channel outflow (in m3) to total for main outlet
+      TotalWatervol->calc(ChannelWaterVol,ADD);
 		// add channel volume to total for sed conc calc
         
 	}
@@ -138,15 +143,17 @@ void TWorld::Totals(void)
       // water after kin wave
       WaterVolTot += TileWaterVol->MapTotal(); //m3
       // add tile vol to total
-      WaterVolTotmm = WaterVolTot*1000/(_dx*_dx*nrCells);//CatchmentArea; //mm
+      WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
 
-      Qtot += TileQoutflow->MapTotal();
+      Qtot += TileQoutflow->DrcOutlet; //MapTotal();
       // add tile outflow (in m3) to total for all pits
-      Qtotmm = Qtot*1000/(_dx*_dx*nrCells);//CatchmentArea;
+      //Qtotmm = Qtot*catchmentAreaFlatMM;
       // recalc in mm for screen output
 
       QtotOutlet += TileQoutflow->DrcOutlet;
+      // add channel outflow (in m3) to total for main outlet
+      QtotPlot += TileQoutflow->DrcPlot;
       // add channel outflow (in m3) to total for main outlet
       TotalWatervol->calc(TileWaterVol,ADD);
       // add channel volume to total for sed conc calc
@@ -164,12 +171,15 @@ void TWorld::Totals(void)
 		//subtract this from the initial volume to get the water in the buffers
 	}
     
-	// output fluxes for reporting
+   // output fluxes for reporting to file and screen in l/s!
 	FOR_ROW_COL_MV
 	{
       Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
 	}
     
+   Qtotmm = Qtot*catchmentAreaFlatMM;
+   // recalc to mm for screen output
+
 	oldrainpeak = Qpeak;
 	Qpeak = max(Qpeak, Qoutput->DrcOutlet);
 	if (oldrainpeak < Qpeak)

@@ -156,9 +156,14 @@ void TWorld::OverlandFlow(void)
       }
    }
 
-   Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
+   //Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
+   FOR_ROW_COL_MV
+         Qoutflow->Drc = Qn->Drc * _dt;
+
    if (SwitchErosion)
-      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
+      FOR_ROW_COL_MV
+            Qsoutflow->Drc = Qsn->Drc * _dt;
+//      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
    // these maps now contain m3 and kg per timestep in pit cells
 
    // calculate resulting flux Qn back to water height on surface

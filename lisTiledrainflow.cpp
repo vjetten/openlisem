@@ -136,7 +136,9 @@ void TWorld::TileFlow(void)
       }
    }
 
-   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
+//   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
+   FOR_ROW_COL_MV_TILE
+         TileQoutflow->Drc = TileQn->Drc * _dt;
 
    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
    TileQs->cover(LDD, 0);

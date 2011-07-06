@@ -226,6 +226,8 @@ void lisemqt::showPlot()
       label_pointOutput->setText(op.outputpointdata);
       // VJ 110630 show hydrograph for selected output point
 
+      HPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
+      // VJ 110630 show hydrograph for selected output point
    }
 
    stepP++;

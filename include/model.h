@@ -101,6 +101,10 @@
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
 
+#define KE_EXPFUNCTION 0
+#define KE_LOGFUNCTION 1
+#define KE_POWERFUNCTION 2
+
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -183,8 +187,7 @@ public:
 	SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWritePCRtimeplot,
 	SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
 	SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-   SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile,
-   SwitchBacksubstitution;
+   SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchBacksubstitution;
 
    // multiple options that are set in interface or runfile, see defines above
    /// Interception storage function based on LAI
@@ -194,6 +197,13 @@ public:
    /// erosion units in output: to/ha; kg/cell; kg/m2
    int ErosionUnits;
    /// calibration factors
+   int KEequationType;
+   /// type of kinetic energy equation;
+   double KEParamater_a;
+   double KEParamater_b;
+   double KEParamater_c;
+   /// parameters in KE equations
+
 	double ksatCalibration;
 	double nCalibration;
 	double ChnCalibration;
@@ -205,7 +215,7 @@ public:
 
    /// totals for mass balance checks and output
    /// Water totals for mass balance and output (in m3)
-	double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+   double MB, Qtot, QtotOutlet, QtotPlot, IntercTot, WaterVolTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
    double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
    /// Sediment totals for mass balance and output (in kg)
    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;

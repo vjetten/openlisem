@@ -236,7 +236,8 @@ void lisemqt::SetStyleUI()
 	label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
 	label_interctot->setStyleSheet("* { background-color: #ffff77 }");
 	label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
-	label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
+   label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
+   label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
 	label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
 	label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
 	label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
@@ -739,6 +740,13 @@ void lisemqt::resetAll()
 
    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
    sedgroup->setEnabled(!checkNoErosion->isChecked());
+
+   //VJ 110706 KE equations
+   radioButtonKE1->setChecked(true);
+   spinKEparameterA1->setValue(28.3);
+   spinKEparameterB1->setValue(0.52);
+   spinKEparameterC1->setValue(0.042);
+
 
 }
 //--------------------------------------------------------------------

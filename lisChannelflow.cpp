@@ -201,10 +201,14 @@ void TWorld::ChannelFlow(void)
       }
     }
 
-   ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
+//   ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
+   FOR_ROW_COL_MV_CH
+         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
 
    if (SwitchErosion)
-      ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
+      FOR_ROW_COL_MV_CH
+            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
+//      ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
    // these maps now contain m3 and kg per timestep in pit cells
 
    ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output

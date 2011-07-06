@@ -36,7 +36,7 @@
 
 #define VERSIONNR 1.24
 #define VERSION QString("openLISEM KE cape verde ! version %1 - %2").arg(VERSIONNR).arg(DATE)
-#define DATE "2011/06/29"
+#define DATE "2011/07/03"
 
 
 

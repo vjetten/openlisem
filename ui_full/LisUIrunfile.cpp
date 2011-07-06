@@ -91,6 +91,7 @@ void lisemqt::ParseInputData()
    for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
    {
       int iii = namelist[j].value.toInt();
+      double val = namelist[j].value.toDouble();
       QString p1 = namelist[j].name;
       QString p = namelist[j].value;
       bool check = iii == 1;
@@ -160,11 +161,12 @@ void lisemqt::ParseInputData()
          case 8 : radioButton_9->setChecked(true); break;
          }
       }
+
       if (p1.compare("Infil Method")==0 || p1.compare("Method")==0) //<= very old runfile
       {
          namelist[j].name = QString("Infil Method");
          uiInfilMethod = 0;
-         switch(iii){
+         switch(iii) {
          case INFIL_SWATRE : uiInfilMethod = 1; break;
          case INFIL_GREENAMPT : uiInfilMethod = 2; break;
          case INFIL_GREENAMPT2 : uiInfilMethod = 2; checkInfil2layer->setChecked(true); break;
@@ -175,9 +177,35 @@ void lisemqt::ParseInputData()
          E_InfiltrationMethod->setCurrentIndex(uiInfilMethod);
       }
 
+      //VJ 110705 KE equations
+      if (p1.compare("KE parameters EQ1")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         radioButtonKE1->setChecked(param[0].toInt() == 1);
+         spinKEparameterA1->setValue(param[1].toDouble());
+         spinKEparameterB1->setValue(param[2].toDouble());
+         spinKEparameterC1->setValue(param[3].toDouble());
+      }
+      if (p1.compare("KE parameters EQ2")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         radioButtonKE2->setChecked(param[0].toInt() == 1);
+         spinKEparameterA1->setValue(param[1].toDouble());
+         spinKEparameterB2->setValue(param[2].toDouble());
+      }
+      if (p1.compare("KE parameters EQ3")==0)
+      {
+         QStringList param;
+         param = p.split(",",QString::SkipEmptyParts);
+         radioButtonKE3->setChecked(param[0].toInt() == 1);
+         spinKEparameterA3->setValue(param[1].toDouble());
+         spinKEparameterB3->setValue(param[2].toDouble());
+      }
+
       if (p1.compare("Ksat calibration")==0)
       {
-         double val = namelist[j].value.toDouble();
          if (oldRunfile)
          {
             val/=100;
@@ -186,12 +214,12 @@ void lisemqt::ParseInputData()
          }
          E_CalibrateKsat->setValue(val);
       }
-      if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(namelist[j].value.toDouble());
-      if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(namelist[j].value.toDouble());
-      if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(namelist[j].value.toDouble());
-      if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(namelist[j].value.toDouble());
-      if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(namelist[j].value.toDouble());
-      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(namelist[j].value.toDouble());
+      if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(val);
+      if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(val);
+      if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
+      if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
+      if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
+      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);
       // VJ 110209 canopy openess, factor Aston as user input
 
       if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
@@ -411,6 +439,26 @@ void lisemqt::updateModelData()
          if(radioButton_8->isChecked()) i = 7;
          if(radioButton_9->isChecked()) i = 8;
          namelist[j].value.setNum(i);
+      }
+
+      //VJ 110705 KE equations
+      if (p1.compare("KE parameters EQ1")==0)
+      {
+         QStringList param;
+         param << (radioButtonKE1->isChecked()?"1":"0") << spinKEparameterA1->text() << spinKEparameterB1->text() << spinKEparameterC1->text();
+         namelist[j].value = param.join(",");
+      }
+      if (p1.compare("KE parameters EQ2")==0)
+      {
+         QStringList param;
+         param << (radioButtonKE2->isChecked()?"1":"0") << spinKEparameterA2->text() << spinKEparameterB2->text();
+         namelist[j].value = param.join(",");
+      }
+      if (p1.compare("KE parameters EQ3")==0)
+      {
+         QStringList param;
+         param << (radioButtonKE3->isChecked()?"1":"0") << spinKEparameterA3->text() << spinKEparameterB3->text();
+         namelist[j].value = param.join(",");
       }
 
       if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();

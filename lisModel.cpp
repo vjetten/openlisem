@@ -76,7 +76,8 @@ void TWorld::OutputUI()
 	op.WaterVolTotmm=WaterVolTotmm-SurfStoremm;
 	op.Qtotmm=Qtotmm;
 	op.Qtot=QtotOutlet;
-	op.Qpeak=Qpeak;
+   op.QtotPlot=QtotPlot;  //VJ 110701
+   op.Qpeak=Qpeak;
 	op.QpeakTime=QpeakTime/60;
 	op.RainpeakTime=RainpeakTime/60;
 	op.InfilTotmm=InfilTotmm;
@@ -168,6 +169,7 @@ void TWorld::DoModel()
 		printstep = 1;
 
       // VJ 110630 show hydrograph for selected output point
+      bool found = false;
       FOR_ROW_COL_MV
       {
          if (op.outputpointnr == PointMap->Drc)
@@ -177,7 +179,13 @@ void TWorld::DoModel()
             op.outputpointdata = QString("Hydrograph point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
             if( op.outputpointnr == 1)
                op.outputpointdata = QString("Hydrograph main outlet");
+            found = true;
          }
+      }
+      if (!found)
+      {
+         ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
+         throw 1;
       }
 
 		DEBUG("Running...");

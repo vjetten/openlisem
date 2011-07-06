@@ -44,7 +44,7 @@ struct output{
 
 	double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
-	double MB, Qtot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,
+   double MB, Qtot, QtotPlot, Qtotmm, Qpeak, IntercTotmm, WaterVolTotmm, InfilTotmm,
 	RainTotmm, SurfStormm, InfilKWTotmm,
 	MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
 	ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
