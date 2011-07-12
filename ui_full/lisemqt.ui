@@ -74,7 +74,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -617,7 +617,7 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="tabWidgetPage1">
              <attribute name="title">
@@ -4300,7 +4300,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="2">
+                 <item row="0" column="2" colspan="2">
                   <widget class="QDoubleSpinBox" name="E_CalibrateKsat">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4506,8 +4506,11 @@ p, li { white-space: pre-wrap; }
                      <bold>false</bold>
                     </font>
                    </property>
+                   <property name="decimals">
+                    <number>2</number>
+                   </property>
                    <property name="singleStep">
-                    <double>0.010000000000000</double>
+                    <double>0.001000000000000</double>
                    </property>
                    <property name="value">
                     <double>1.000000000000000</double>
@@ -4734,6 +4737,15 @@ p, li { white-space: pre-wrap; }
                      <bold>false</bold>
                     </font>
                    </property>
+                   <property name="decimals">
+                    <number>2</number>
+                   </property>
+                   <property name="maximum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
                    <property name="value">
                     <double>1.000000000000000</double>
                    </property>
@@ -4747,8 +4759,14 @@ p, li { white-space: pre-wrap; }
                      <bold>false</bold>
                     </font>
                    </property>
+                   <property name="decimals">
+                    <number>2</number>
+                   </property>
                    <property name="maximum">
-                    <double>1.000000000000000</double>
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
                    </property>
                    <property name="value">
                     <double>1.000000000000000</double>
@@ -4903,6 +4921,7 @@ p, li { white-space: pre-wrap; }
                    <property name="font">
                     <font>
                      <weight>50</weight>
+                     <italic>true</italic>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -4953,6 +4972,7 @@ p, li { white-space: pre-wrap; }
                    <property name="font">
                     <font>
                      <weight>50</weight>
+                     <italic>true</italic>
                      <bold>false</bold>
                     </font>
                    </property>

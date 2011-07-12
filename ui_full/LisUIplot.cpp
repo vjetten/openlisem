@@ -75,7 +75,7 @@ void lisemqt::setupPlot()
 {
    textGraph->setMaximumBlockCount(7);
    textGraph->setWordWrapMode(QTextOption::NoWrap);
-   textGraph->setMaximumHeight(96);
+   textGraph->setMaximumHeight(108);
 
    QwtText title;
    title.setText("Hydrograph outlet");
