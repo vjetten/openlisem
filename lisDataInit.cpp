@@ -492,6 +492,8 @@ void TWorld::GetInputData(void)
    //## calibration factors
    ksatCalibration = getvaluedouble("Ksat calibration");
    nCalibration = getvaluedouble("N calibration");
+   thetaCalibration = getvaluedouble("Theta calibration");
+   psiCalibration = getvaluedouble("Psi calibration");
    ChnCalibration = getvaluedouble("Channel N calibration");
    ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
    SplashDelivery = getvaluedouble("Splash Delivery Ratio");
@@ -602,10 +604,14 @@ void TWorld::GetInputData(void)
       ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
       ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
 
+      ThetaI1->calcV(thetaCalibration, MUL); //VJ 110712 calibration of theta
+      ThetaI1->calc(ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+
+      //VJ 101221 all infil maps are needed except psi
       if(InfilMethod != INFIL_KSAT)
       {
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
-         //VJ 101221 all infil maps are needed for except psi
+         Psi1->calcV(psiCalibration, MUL); //VJ 110712 calibration of psi
          Psi1->calcV(0.01, MUL);
       }
 
@@ -613,10 +619,15 @@ void TWorld::GetInputData(void)
       {
          ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
          ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+
+         ThetaI2->calcV(thetaCalibration, MUL); //VJ 110712 calibration of theta
+         ThetaI2->calc(ThetaS2, MIN); //VJ 110712 cannot be more than porosity
+
+         //VJ 101221 all infil maps are needed except psi
          if(InfilMethod != INFIL_KSAT)
          {
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            //VJ 101221 all infil maps are needed for except psi
+            Psi2->calcV(psiCalibration, MUL); //VJ 110712 calibration of psi
             Psi2->calcV(0.01, MUL);
          }
 

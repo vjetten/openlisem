@@ -204,13 +204,15 @@ public:
    double KEParamater_a3, KEParamater_b3;
    /// parameters in KE equations
 
-	double ksatCalibration;
-	double nCalibration;
-	double ChnCalibration;
-	double ChKsatCalibration;
-	double SplashDelivery;
-	double StripN;
-	double StemflowFraction;
+   double ksatCalibration;
+   double nCalibration;
+   double thetaCalibration;
+   double psiCalibration;
+   double ChnCalibration;
+   double ChKsatCalibration;
+   double SplashDelivery;
+   double StripN;
+   double StemflowFraction;
    double CanopyOpeness; // VJ 110209 added Aston factor as user input
 
    /// totals for mass balance checks and output

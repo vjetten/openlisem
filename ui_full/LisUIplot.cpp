@@ -73,7 +73,7 @@ void lisemqt::killPlot()
 //---------------------------------------------------------------------------
 void lisemqt::setupPlot()
 {
-   textGraph->setMaximumBlockCount(6);
+   textGraph->setMaximumBlockCount(7);
    textGraph->setWordWrapMode(QTextOption::NoWrap);
    textGraph->setMaximumHeight(96);
 

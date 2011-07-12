@@ -166,7 +166,7 @@ void lisemqt::worldShow()
    ShowMap();
 
    // 6 line text output below hydrographs
-   textGraph->setMaximumBlockCount(7);
+   //textGraph->setMaximumBlockCount(7);
 
    if (checkNoErosion->isChecked())
    {

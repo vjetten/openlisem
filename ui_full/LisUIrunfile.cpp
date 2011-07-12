@@ -215,6 +215,8 @@ void lisemqt::ParseInputData()
          E_CalibrateKsat->setValue(val);
       }
       if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(val);
+      if (p1.compare("Theta calibration")==0)        E_CalibrateTheta->setValue(val);
+      if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(val);
       if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(val);
       if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
       if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
@@ -478,6 +480,8 @@ void lisemqt::updateModelData()
       if (p1.compare("Snowmelt file")==0) namelist[j].value = E_SnowmeltName->text();
       if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
       if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
+      if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
+      if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
       if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
       if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
       if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();      
