@@ -134,6 +134,7 @@ void lisemqt::ParseInputData()
       //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
       if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
       if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
+      if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
      // if (p1.compare("Regular runoff output")==0)          checkOutputTimeStep->setChecked(check);
      // if (p1.compare("User defined output")==0)            checkOutputTimeUser->setChecked(check);
       if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
@@ -419,6 +420,7 @@ void lisemqt::updateModelData()
       if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
       if (p1.compare("2nd back substitution")==0)          namelist[j].value.setNum((int)checkBacksubstitution->isChecked());
       if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
+      if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
       if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());
       //if (p1.compare("Regular runoff output")==0)          namelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
       //if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());

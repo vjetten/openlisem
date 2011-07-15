@@ -124,8 +124,11 @@ void lisemqt::worldShow()
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
     label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
-    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
-    label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
+    label_qtotm3->setText(QString::number(op.Qtot,'f',3));   
+
+    if (op.outputpointnr > 1)
+        label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
+
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
@@ -279,7 +282,7 @@ void lisemqt::InitOP()
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
     label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
     label_qtotm3->setText(QString::number(op.Qtot,'f',3));
-    label_qtotm3->setText(QString::number(op.QtotPlot,'f',3));
+    label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));

@@ -215,8 +215,13 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Filename point output");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Report point output separate");
+   namelist[i].value = QString("1");
+   namelist[i++].name = QString("Timeplot as CSV");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("Timeplot as PCRaster");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Report point output for SOBEK");
+   namelist[i].value = QString("10\01\01");
    namelist[i++].name = QString("SOBEK date string");
    namelist[i].value = QString("eros.map");
    namelist[i++].name = QString("Erosion map");
@@ -330,7 +335,6 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("[Output maps]");
    namelist[i++].name = QString("Runoff maps in l/s/m");
    namelist[i++].name = QString("Timeseries as PCRaster");
-   namelist[i++].name = QString("Timeplot as PCRaster");
    namelist[i++].name = QString("Erosion map units (0/1/2)");
    namelist[i++].name = QString("Regular runoff output");
    namelist[i++].name = QString("Output interval");

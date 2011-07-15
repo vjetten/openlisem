@@ -1030,6 +1030,7 @@ void TWorld::IntializeOptions(void)
    SwitchMapoutSs = false;
    SwitchMapoutChvol = false;
    SwitchWritePCRnames = false;
+   SwitchWriteCommaDelimited = true;
    SwitchWritePCRtimeplot = false;
    SwitchNoErosionOutlet = false;
    SwitchDrainage = false;

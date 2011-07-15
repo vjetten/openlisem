@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt
+QWTDIR = c:/Qt/qwt-6.0
 QT += core \
     gui
 HEADERS += \

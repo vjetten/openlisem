@@ -63,7 +63,7 @@ lisemqt::lisemqt(QWidget *parent)
 {
     setupUi(this);
     // set up interface
-    resize(856, 674);
+    resize(1024, 768);
 
     MapNameModel = NULL;
     HPlot = NULL;
@@ -276,7 +276,7 @@ void lisemqt::setMapDir()
         E_MapDir->setText( path );
 }
 //--------------------------------------------------------------------
-void lisemqt::on_toolButton_ResultDir_clicked()
+void lisemqt::setResultDir()
 {
     QString path;
     QString pathin;
@@ -732,6 +732,7 @@ void lisemqt::resetAll()
     //	checkRunoffPerM->setChecked(check);
     checkWritePCRnames->setChecked(true);
     checkWritePCRaster->setChecked(check);
+    checkWriteCommaDelimited->setChecked(true);
     //checkOutputTimeStep->setChecked(true);
     //checkOutputTimeUser->setChecked(check);
     checkNoErosionOutlet->setChecked(check);

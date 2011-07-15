@@ -50,7 +50,7 @@ void lisemqt::initPlot()
    spinBoxPointtoShow->setEnabled(false);
    HPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
    // VJ 110630 show hydrograph for selected output point
-
+   label_qtotm3sub->setEnabled(op.outputpointnr > 1);
 }
 //---------------------------------------------------------------------------
 // free data structures graph

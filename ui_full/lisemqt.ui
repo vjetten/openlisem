@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1145</width>
-    <height>809</height>
+    <width>1155</width>
+    <height>837</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -77,7 +77,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -1250,7 +1250,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage1">
               <attribute name="title">
@@ -6281,7 +6281,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="4" column="0">
               <widget class="QLabel" name="label_17">
                <property name="palette">
                 <palette>
@@ -6337,7 +6337,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="1" column="1" colspan="2">
+             <item row="4" column="1" colspan="2">
               <widget class="QLineEdit" name="E_DetachmentMap">
                <property name="palette">
                 <palette>
@@ -6384,7 +6384,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="5" column="0">
               <widget class="QLabel" name="label_18">
                <property name="palette">
                 <palette>
@@ -6440,7 +6440,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="2" column="1" colspan="2">
+             <item row="5" column="1" colspan="2">
               <widget class="QLineEdit" name="E_DepositionMap">
                <property name="palette">
                 <palette>
@@ -6487,7 +6487,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="6" column="0">
               <widget class="QLabel" name="label_19">
                <property name="palette">
                 <palette>
@@ -6543,7 +6543,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="3" column="1" colspan="2">
+             <item row="6" column="1" colspan="2">
               <widget class="QLineEdit" name="E_SoillossMap">
                <property name="palette">
                 <palette>
@@ -6587,112 +6587,6 @@ p, li { white-space: pre-wrap; }
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_22">
-               <property name="palette">
-                <palette>
-                 <active>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </active>
-                 <inactive>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </inactive>
-                 <disabled>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>122</red>
-                     <green>122</green>
-                     <blue>122</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </disabled>
-                </palette>
-               </property>
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="text">
-                <string>Totals output</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1" colspan="2">
-              <widget class="QLineEdit" name="E_MainTotals">
-               <property name="palette">
-                <palette>
-                 <active>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </active>
-                 <inactive>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </inactive>
-                 <disabled>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>122</red>
-                     <green>122</green>
-                     <blue>122</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </disabled>
-                </palette>
-               </property>
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>Text file with totals at the outlet</string>
                </property>
               </widget>
              </item>
@@ -6750,7 +6644,210 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_61">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>122</red>
+                     <green>122</green>
+                     <blue>122</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Landunit output</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1" colspan="2">
+              <widget class="QLineEdit" name="E_LandunitResults">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>122</red>
+                     <green>122</green>
+                     <blue>122</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="toolTip">
+                <string>Text file with totals per landunit</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" colspan="2">
+              <widget class="QLineEdit" name="E_MainTotals">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>122</red>
+                     <green>122</green>
+                     <blue>122</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Text file with totals at the outlet</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_22">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>122</red>
+                     <green>122</green>
+                     <blue>122</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="text">
+                <string>Totals output</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
               <widget class="QLabel" name="label_20">
                <property name="palette">
                 <palette>
@@ -6806,7 +6903,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="5" column="1">
+             <item row="3" column="1">
               <widget class="QLineEdit" name="E_PointResults">
                <property name="palette">
                 <palette>
@@ -6856,7 +6953,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="5" column="2" colspan="2">
+             <item row="3" column="2" colspan="2">
               <widget class="QCheckBox" name="checkSeparateOutput">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -6909,103 +7006,6 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="text">
                 <string>Separate files</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_61">
-               <property name="palette">
-                <palette>
-                 <active>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </active>
-                 <inactive>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </inactive>
-                 <disabled>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>122</red>
-                     <green>122</green>
-                     <blue>122</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </disabled>
-                </palette>
-               </property>
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Landunit output</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1" colspan="2">
-              <widget class="QLineEdit" name="E_LandunitResults">
-               <property name="palette">
-                <palette>
-                 <active>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </active>
-                 <inactive>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>0</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </inactive>
-                 <disabled>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>122</red>
-                     <green>122</green>
-                     <blue>122</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </disabled>
-                </palette>
-               </property>
-               <property name="toolTip">
-                <string>Text file with totals per landunit</string>
                </property>
               </widget>
              </item>
@@ -7066,105 +7066,7 @@ p, li { white-space: pre-wrap; }
               <string>Output format</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_4">
-              <item row="1" column="0" colspan="2">
-               <widget class="QRadioButton" name="checkWritePCRaster">
-                <property name="text">
-                 <string>Hydrographs PCRaster format</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="3">
-               <widget class="QRadioButton" name="checkWriteSOBEK">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Hydrographs SOBEK input format, date string:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3">
-               <widget class="QLineEdit" name="SOBEKdatestring">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="inputMask">
-                 <string>99\\99\\9999; </string>
-                </property>
-                <property name="text">
-                 <string>01\01\2000</string>
-                </property>
-                <property name="maxLength">
-                 <number>10</number>
-                </property>
-                <property name="frame">
-                 <bool>true</bool>
-                </property>
-                <property name="cursorPosition">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0" colspan="4">
-               <widget class="QCheckBox" name="checkWritePCRnames">
-                <property name="text">
-                 <string>Mapseries as PCRaster filenames (.001, .002)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label_80">
-                <property name="text">
-                 <string>Report mapseries every:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="2" colspan="2">
-               <widget class="QLabel" name="label_16">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>timesteps</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QRadioButton" name="chechWriteCommaDelimited">
-                <property name="text">
-                 <string>Hydrographs comma-delimited format</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QSpinBox" name="printinterval">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="4" rowspan="5">
+              <item row="2" column="4" rowspan="5">
                <widget class="QGroupBox" name="groupBox_2">
                 <property name="palette">
                  <palette>
@@ -7212,94 +7114,189 @@ p, li { white-space: pre-wrap; }
                 <property name="title">
                  <string>Map units</string>
                 </property>
-                <widget class="QRadioButton" name="checkUnits_kgcell">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>55</y>
-                   <width>61</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>kg/cell</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
-                 </attribute>
-                </widget>
-                <widget class="QRadioButton" name="checkUnits_kgm2">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>35</y>
-                   <width>51</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>kg/m2</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
-                 </attribute>
-                </widget>
-                <widget class="QRadioButton" name="checkUnits_tonha">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>15</y>
-                   <width>61</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="palette">
-                  <palette>
-                   <active>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>0</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </active>
-                   <inactive>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>0</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </inactive>
-                   <disabled>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>122</red>
-                       <green>122</green>
-                       <blue>122</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </disabled>
-                  </palette>
-                 </property>
-                 <property name="text">
-                  <string>ton/ha</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
-                 </attribute>
-                </widget>
+                <layout class="QVBoxLayout" name="verticalLayout_8">
+                 <item>
+                  <widget class="QRadioButton" name="checkUnits_tonha">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="text">
+                    <string>ton/ha</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string>buttonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="checkUnits_kgm2">
+                   <property name="text">
+                    <string>kg/m2</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string>buttonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="checkUnits_kgcell">
+                   <property name="text">
+                    <string>kg/cell</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string>buttonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_13">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="3">
+               <widget class="QRadioButton" name="checkWriteSOBEK">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Hydrographs SOBEK input format, date string:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QLineEdit" name="SOBEKdatestring">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="inputMask">
+                 <string>99\\99\\9999; </string>
+                </property>
+                <property name="text">
+                 <string>01\01\2000</string>
+                </property>
+                <property name="maxLength">
+                 <number>10</number>
+                </property>
+                <property name="frame">
+                 <bool>true</bool>
+                </property>
+                <property name="cursorPosition">
+                 <number>10</number>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="4">
+               <widget class="QCheckBox" name="checkWritePCRnames">
+                <property name="text">
+                 <string>Mapseries as PCRaster filenames (.001, .002)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_80">
+                <property name="text">
+                 <string>Report mapseries every:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QSpinBox" name="printinterval">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2" colspan="2">
+               <widget class="QLabel" name="label_16">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>timesteps</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QRadioButton" name="checkWritePCRaster">
+                <property name="text">
+                 <string>Hydrographs PCRaster format</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QRadioButton" name="checkWriteCommaDelimited">
+                <property name="text">
+                 <string>Hydrographs comma-delimited format</string>
+                </property>
                </widget>
               </item>
              </layout>
@@ -7685,11 +7682,6 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Display</string>
-       </attribute>
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -12064,6 +12056,29 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Display</string>
+       </attribute>
+       <widget class="QLabel" name="label_85">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>20</y>
+          <width>231</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>Map display not implemented yet</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -12171,12 +12186,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>156</y>
+     <x>596</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>213</x>
-     <y>160</y>
+     <x>313</x>
+     <y>180</y>
     </hint>
    </hints>
   </connection>
@@ -12187,12 +12202,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>156</y>
+     <x>596</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>388</x>
-     <y>161</y>
+     <x>577</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -12203,12 +12218,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>156</y>
+     <x>596</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>363</x>
-     <y>161</y>
+     <x>548</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -12219,8 +12234,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>324</y>
+     <x>104</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>126</x>
@@ -12235,12 +12250,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>321</y>
+     <x>236</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>348</y>
+     <x>236</x>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -12251,12 +12266,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>320</y>
+     <x>236</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>330</x>
-     <y>351</y>
+     <x>308</x>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -12283,12 +12298,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>374</y>
+     <x>175</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>400</y>
+     <x>236</x>
+     <y>418</y>
     </hint>
    </hints>
   </connection>
@@ -12299,8 +12314,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>423</y>
+     <x>94</x>
+     <y>441</y>
     </hint>
     <hint type="destinationlabel">
      <x>129</x>
@@ -12321,6 +12336,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>225</x>
      <y>454</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkWriteSOBEK</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SOBEKdatestring</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>839</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>951</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
