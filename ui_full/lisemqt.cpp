@@ -97,6 +97,8 @@ lisemqt::lisemqt(QWidget *parent)
     setupPlot();
     // set up the discharge graph
 
+    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
+
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
