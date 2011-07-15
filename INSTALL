@@ -1,6 +1,11 @@
 openLISEM README 
 ================
 
+LATEST CHANGES (v 1.26)
+- fixed a bug that reported averages and totals (last version was affected)
+- added calibration factors for theta and psi 
+- added kinetic energy equations for rainfall splash 
+
 1) The openLISEM model 
 ======================
 
@@ -96,7 +101,7 @@ Good Luck
 Victor Jetten
 
 Chair Natural Hazards and Disaster Risk Management 
-Department of Earth Systems 
-Analysis Faculty ITC, Twente University, 
+Department of Earth Systems Analysis Faculty 
+Faculty ITC, Twente University, 
 the Netherlands 
 jetten@itc.nl
