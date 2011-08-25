@@ -275,13 +275,15 @@ void TWorld::InitTiledrains(void)
       TileN->cover(LDD, 0);
       TileSinkhole->cover(LDD, 0);
 
+      TileSinkhole->calcV(0, MUL); //!!!!!!!!!!!!!!!!!!
+
       //TileN->calcV(TilenCalibration, MUL);
       /* TODO ? */
 
       FOR_ROW_COL_MV_TILE
       {
          TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-         TileSinkhole->Drc = min(TileSinkhole->Drc, 0.9*_dx*_dx);
+         TileSinkhole->Drc = min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
          //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
       }
 

@@ -452,6 +452,13 @@ void TWorld::ReportMaps()
 
     if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
 
+    if (outputcheck.count() > 11)
+        if (outputcheck[11].toInt() == 1)
+    {
+        tm->calc2V(TileQn, 1000, MUL);// in mm
+        tm->report(OutTiledrain);
+    }
+
     /* from old LISEM: order in run file
    char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;

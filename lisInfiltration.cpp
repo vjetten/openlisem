@@ -325,7 +325,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 
     if (FFull->Drc == 1)
         return 0;
-\
+    \
     dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
     // increase in depth (m) is actual infiltration/available porespace
     // do this always, correct if 1st layer is full

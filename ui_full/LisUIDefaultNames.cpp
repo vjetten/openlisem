@@ -364,6 +364,7 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("OUTINF");
    namelist[i++].name = QString("OUTSS");
    namelist[i++].name = QString("OUTCHVOL");
+   namelist[i++].name = QString("OUTTILED");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[OutputMC]");
    namelist[i++].name = QString("OUTMU0");

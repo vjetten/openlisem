@@ -1,21 +1,28 @@
-openLISEM README 
-================
-
-LATEST CHANGES (v 1.26)
-- fixed a bug that reported averages and totals (last version was affected)
-- added calibration factors for theta and psi 
-- added kinetic energy equations for rainfall splash 
+openLISEM source code install
+=============================
 
 1) The openLISEM model 
 ======================
-
-This is the event based spatial runoff and erosion model openLISEM. Thank you for downloading. openLISEM simulates the spatial dynamics of surface runoff and  erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that  is available here: www.itc.nl/lisem. Details about the theory and dataset for  now can be found on this website (although a bit outdated). openLISEM uses the  freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and  analysis of the results. 
+This is the event based spatial runoff and erosion model openLISEM. Thank you 
+for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
+erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
+is available here: www.itc.nl/lisem. Details about the theory and dataset for 
+now can be found on this website (although a bit outdated). openLISEM uses the 
+freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
+analysis of the results. 
 
 2) Terms of use 
 ===============
-This software is free and open source, hosted by  sourceforge.net. The project details can be found on:  http://lisem.sourceforge.net
+This software is free and open source, hosted by  sourceforge.net. The project 
+details can be found on:  http://lisem.sourceforge.net
 
-All license details can be found on this website. The compiled model openLISEM  and the source code, or parts of the source code can be used for any purpose,  but the disclaimer as specified below is in effect. openLISEM in any version  (compiled or as source code) cannot be sold or be part of a commercial package,  unless express permission is gained from Victor Jetten (jetten@itc.nl). If you  use this software for publications, please give the correct references in the  text (TO BE FURTHER SPECIFIED, contact victor jetten). 
+All license details can be found on this website. The compiled model openLISEM 
+and the source code, or parts of the source code can be used for any purpose, 
+but the disclaimer as specified below is in effect. openLISEM in any version 
+(compiled or as source code) cannot be sold or be part of a commercial package, 
+unless express permission is gained from Victor Jetten (jetten@itc.nl). If you 
+use this software for publications, please give the correct references in the 
+text (TO BE FURTHER SPECIFIED, contact victor jetten). 
 
 3) openLISEM development 
 ========================
@@ -50,17 +57,15 @@ http://qt.nokia.com/downloads
 2.	Qwt technical application widgets for Qt: (version 6.0.0) http://qwt.sf.net 
 and https://sourceforge.net/projects/qwt/ 
 
-3.	Tortoise SVN for version control: http://tortoisesvn.net/ 
+3.	Tortoise SVN (or another package) for version control: http://tortoisesvn.net/ 
 
 c) Installation 
 --------------- 
 
 1.	Qt: install the package (e.g. in c:\Qt), including the MingW compiler. You 
-do not have to recompile anything in Qt. After installation your directory looks 
-like: c:\Qt\2010.05\bin c:\Qt\2010.05\mingw etc. In windows add the Qt and Mingw 
-locations to your path: go to advanced system settings, click on environment 
-variables and make a variable QTDIR= C:\Qt\2010.05\qt\bin and also add to your 
-path: "C:\Qt\2010.05\mingw\bin;C:\Qt\2010.05\qt\bin;"  
+do not have to recompile anything in Qt. In windows add the Qt and Mingw 
+locations to your path: go to advanced system settingsand add to your path: 
+"C:\Qt\QtSDK\Desktop\Qt\4.7.3\mingw\bin;"  
 
 2.	Qwt: the library to draw the graphs. Unzip the package for instance in c:\Qt 
 (a directory c:\Qt\Qwt-6.0.0  is created). Rename this directory to "c:\qt\qwt" 
@@ -91,10 +96,8 @@ b.	Run build->rebuild all and run.
 
 4.	You can compile openLISEM in "debug" or as "release" executable. If you 
 distribute openLISEM you have to add the libraries QtGui4.dll, QtCore4.dll, 
-QtSvg4.dll and qwt.dll to the package. NOTE: There are two versions of the dlls, 
-those in the directory c:/qt/2010.05/bin which are for QtCreator and other 
-executables, the others are in c:/qt/2010.05/qt/bin, which are the ones you 
-need! 
+QtSvg4.dll and qwt.dll to the package. These libarries can be found in 
+C:\Qt\QtSDK\Desktop\Qt\4.7.3\mingw\bin
 
 Good Luck
 

@@ -695,6 +695,7 @@ void lisemqt::resetAll()
     checkBox_OutInf->setChecked(false);
     checkBox_OutSurfStor->setChecked(false);
     checkBox_OutChanVol->setChecked(false);
+    checkBox_OutTiledrain->setChecked(false);
 
     printinterval->setValue(1);
 

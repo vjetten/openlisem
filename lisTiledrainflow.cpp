@@ -39,119 +39,124 @@ functions: \n
 //fraction of water and sediment flowing from the surface to the tiledrain system
 void TWorld::ToTiledrain(void)
 {
-   if (SwitchIncludeTile)
-   {
-      FOR_ROW_COL_MV_TILE
-      {
-         double fractiontotile = qMin(_dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc)), 1.0);
-         double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+    if (SwitchIncludeTile)
+    {
+        FOR_ROW_COL_MV_TILE
+        {
+            double fractiontotile = qMin(_dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc)), 1.0);
 
-         RunoffVolinToTile->Drc = fractiontotile*Volume;
-         // water diverted to the channel
-         WHrunoff->Drc *= (1-fractiontotile);
-         // adjust water height
-      }
-      CalcVelDisch();
-      // recalc velocity and discharge
-   }
+           // fractiontotile = qMin(TileSinkhole->Drc/(_dx*DX->Drc), 1.0); //??????????
+
+            double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+            RunoffVolinToTile->Drc = fractiontotile*Volume;
+
+            // water diverted to the channel
+            WHrunoff->Drc *= (1-fractiontotile);
+            // adjust water height
+        }
+        CalcVelDisch();
+        // recalc velocity and discharge
+        RunoffVolinToTile->report("into");
+    }
 }
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischTile()
 {
-   FOR_ROW_COL_MV_TILE
-	{
-      double Perim, Radius, Area;
-      const double beta = 0.6;
-      const double _23 = 2.0/3.0;
-		double beta1 = 1/beta;
-		double wh = TileWH->Drc;
-		double FW = TileWidth->Drc;
-		double grad = sqrt(TileGrad->Drc);
+    FOR_ROW_COL_MV_TILE
+    {
+        double Perim, Radius, Area;
+        const double beta = 0.6;
+        const double _23 = 2.0/3.0;
+        double beta1 = 1/beta;
+        double wh = TileWH->Drc;
+        double FW = TileWidth->Drc;
+        double grad = sqrt(TileGrad->Drc);
 
-		Perim = FW + 2*wh;
-		Area = FW*wh;
+        Perim = FW + 2*wh;
+        Area = FW*wh;
 
-		if (Perim > 0)
-			Radius = Area/Perim;
-		else
-			Radius = 0;
+        if (Perim > 0)
+            Radius = Area/Perim;
+        else
+            Radius = 0;
 
-		TileAlpha->Drc = pow(TileN->Drc/grad * powl(Perim, _23),beta);
+        TileAlpha->Drc = pow(TileN->Drc/grad * powl(Perim, _23),beta);
 
-		if (TileAlpha->Drc > 0)
-			TileQ->Drc = pow(Area/TileAlpha->Drc, beta1);
-		else
-			TileQ->Drc = 0;
+        if (TileAlpha->Drc > 0)
+            TileQ->Drc = pow(Area/TileAlpha->Drc, beta1);
+        else
+            TileQ->Drc = 0;
 
-	}
-	else
-	{
-		TileAlpha->Drc = 0;
-		TileQ->Drc = 0;
-	}
+    }
+    else
+    {
+        TileAlpha->Drc = 0;
+        TileQ->Drc = 0;
+    }
 }
 //---------------------------------------------------------------------------
 //- calc Tileflow, Tileheight, kin wave
 void TWorld::TileFlow(void)
 {
-	if (!SwitchIncludeTile)
-		return;
+    if (!SwitchIncludeTile)
+        return;
 
-   tm->fill(0);
-   tma->fill(0);
-   tmb->fill(0);
-   // calculate new Tile WH , WidthUp and Volume
-	FOR_ROW_COL_MV_TILE
-	{
-		/*---- Water ----*/
+    tm->fill(0);
+    tma->fill(0);
+    tmb->fill(0);
+    // calculate new Tile WH , WidthUp and Volume
+    FOR_ROW_COL_MV_TILE
+    {
+        /*---- Water ----*/
 
-      TileQsn->Drc = 0;
-      Tileq->Drc = 0;
-      TileQoutflow->Drc = 0;
+        TileQsn->Drc = 0;
+        Tileq->Drc = 0;
+        TileQoutflow->Drc = 0;
 
-      TileWaterVol->Drc += RunoffVolinToTile->Drc;
-      // add from the surface
+        TileWaterVol->Drc += RunoffVolinToTile->Drc;
+        // add from the surface
 
-      //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
-      // cannot have more water than fits in size
-      TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * TileDX->Drc;
-      // add inflow to Tile, tiledrainsoil is in m per timestep
+        //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
+        // cannot have more water than fits in size
+        TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * TileDX->Drc;
+        // add inflow to Tile, tiledrainsoil is in m per timestep
 
-      TileWH->Drc =  TileDrainSoil->Drc;
-      // water height in m per cell
+        TileWH->Drc = TileDrainSoil->Drc;
+        // water height in m per cell
 
-   }
+    }
 
-   CalcVelDischTile();
+    CalcVelDischTile();
 
 
-   TileQn->setMV();
-   FOR_ROW_COL_MV_TILE
-   {
-      if (LDDTile->Drc == 5)
-      {
-         Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, TileDX,
-                   TileWaterVol, tm, tma, tmb, SubsMaps);
-      }
-   }
+    TileQn->setMV();
+    FOR_ROW_COL_MV_TILE
+    {
+        if (LDDTile->Drc == 5)
+        {
+            Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, TileDX,
+                      TileWaterVol, tm, tma, tmb, SubsMaps);
+        }
+    }
 
-//   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
-   FOR_ROW_COL_MV_TILE
-         TileQoutflow->Drc = TileQn->Drc * _dt;
+    //   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
+    FOR_ROW_COL_MV_TILE
+            TileQoutflow->Drc = TileQn->Drc * _dt;
 
-   TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
-   TileQs->cover(LDD, 0);
+    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
+    TileQs->cover(LDD, 0);
 
-   FOR_ROW_COL_MV_TILE
-   {
-      double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
-      InfilVolKinWave->Drc += Tileq->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
-      // diff is a small error in this case added to kin wave infil!
+    FOR_ROW_COL_MV_TILE
+    {
+        double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
+        InfilVolKinWave->Drc += Tileq->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
+        // diff is a small error in this case added to kin wave infil!
 
-      TileWaterVol->Drc = TileArea * TileDX->Drc;
-      // total water vol after kin wave in m3, going to the next timestep
-   }   
+        TileWaterVol->Drc = TileArea * TileDX->Drc;
+        // total water vol after kin wave in m3, going to the next timestep
+    }
 }
 //---------------------------------------------------------------------------
 

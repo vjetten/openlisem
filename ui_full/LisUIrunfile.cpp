@@ -253,6 +253,8 @@ void lisemqt::ParseInputData()
          checkBox_OutTC->setChecked(bool(outputcheck.at(4).toInt() == 1));
          checkBox_OutSurfStor->setChecked(bool(outputcheck.at(9).toInt() == 1));
          checkBox_OutChanVol->setChecked(bool(outputcheck.at(10).toInt() == 1));
+         if (outputcheck.count() > 11)
+         checkBox_OutTiledrain->setChecked(bool(outputcheck.at(11).toInt() == 1));
          // checkboxes normal output map series, numbering according to original LISEM
       }
    }
@@ -545,6 +547,7 @@ void lisemqt::updateModelData()
          if (			   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
          if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
          if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
+         if (       checkBox_OutTiledrain->isChecked()) outputcheck << "1"; else outputcheck << "0";
          namelist[j].value = outputcheck.join(",");
       }
       //namelist[j].value = p;
