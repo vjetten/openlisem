@@ -300,12 +300,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
         if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
         {
             //options:
+            qdrain =  k[tnode];
             //qdrain =  HcoNode(0, Horizon(p, tnode), 1.0);
             // drainage in node is ksat of node, no calibration!
-            qdrain =  k[tnode];
             // drainage is cond of the node in cm/sec
-            double water = theta[tnode] * DistNode(p)[tnode] * drainfraction;
+            double water = theta[tnode] * -DistNode(p)[tnode] * drainfraction;
             // total amonut of water available to drain in this node (cm)
+            // note: distnode has a negative value
             qdrain = min(qdrain, water/dt);
             // cannot have more drainage than water available
 
@@ -372,6 +373,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 
         if (SwitchIncludeTile)
             _drain->Drc = drain*0.01;  // in m
+        // drained water from the soil, already accounts for drainwidth versus cell width
 
     }
 }

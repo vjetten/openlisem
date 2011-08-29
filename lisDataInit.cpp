@@ -222,6 +222,7 @@ void TWorld::InitTiledrains(void)
    // channel vars and maps that must be there even if channel is switched off
    TileVolTot = 0;
    TileWaterVol = NewMap(0);
+   TileWaterVolSoil = NewMap(0);
    TileQoutflow = NewMap(0);
    RunoffVolinToTile = NewMap(0);
    TileQ = NewMap(0);
@@ -275,9 +276,6 @@ void TWorld::InitTiledrains(void)
       TileN->cover(LDD, 0);
       TileSinkhole->cover(LDD, 0);
 
-      TileSinkhole->calcV(0, MUL); //!!!!!!!!!!!!!!!!!!
-
-      //TileN->calcV(TilenCalibration, MUL);
       /* TODO ? */
 
       FOR_ROW_COL_MV_TILE
@@ -816,6 +814,7 @@ void TWorld::IntializeData(void)
    IntercTot = 0;
    IntercTotmm = 0;
    WaterVolTot = 0;
+   WaterVolSoilTot = 0;
    WaterVolTotmm = 0;
    InfilVolKinWave = NewMap(0);
    InfilVol = NewMap(0);
@@ -988,6 +987,7 @@ void TWorld::IntializeOptions(void)
    resultFileName.clear();
 
    SwitchHardsurface = false;
+   SwitchLimitTC = false;
    SwatreInitialized = false;
    SwitchInfilGA2 = false;
    SwitchCrustPresent = false;

@@ -176,7 +176,7 @@ public:
 #include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
-    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent,
+    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchCrustPresent, SwitchLimitTC,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
@@ -217,7 +217,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, Qtot, QtotOutlet, QtotPlot, IntercTot, WaterVolTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, Qtot, QtotOutlet, QtotPlot, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;

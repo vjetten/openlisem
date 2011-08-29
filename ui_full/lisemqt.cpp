@@ -63,7 +63,9 @@ lisemqt::lisemqt(QWidget *parent)
 {
     setupUi(this);
     // set up interface
-    resize(1024, 768);
+    setMinimumSize(1024,760);
+    resize(1024, 760);
+    groupBox_spare->hide();
 
     MapNameModel = NULL;
     HPlot = NULL;
@@ -722,6 +724,7 @@ void lisemqt::resetAll()
     checkAltErosion->setChecked(check);
     checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
+    checkLimitTC->setChecked(check);
     checkBuffers->setChecked(check);
     checkSedtrap->setChecked(check);
     checkInfilCompact->setChecked(check);

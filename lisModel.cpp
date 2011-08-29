@@ -103,10 +103,10 @@ void TWorld::OutputUI()
     op.maxtime = op.t/runstep * op.maxstep;
 
     op.P = (RainAvgmm + SnowAvgmm)*3600/_dt;
-    op.Q = Qoutput->DrcPlot; //Outlet;
+    op.Q = Qoutput->DrcPlot; //Outlet;  //=> includes channel and tile
     op.Qs = Qsoutput->DrcPlot; //Outlet;
     op.C = TotalConc->DrcPlot; //Outlet;
-    op.Qtile = TileQoutflow->DrcPlot; //Outlet;
+    op.Qtile = 1000*TileQn->DrcPlot; //Outlet;
     // VJ 110630 show hydrograph for selected output point
 
     op.BufferVolTot = BufferVolTot;

@@ -192,6 +192,7 @@ void TWorld::ParseRunfileData()
         if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
         if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
+        if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
         if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
         if (p1.compare("Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
@@ -378,6 +379,9 @@ void TWorld::ParseRunfileData()
         //profileName = getname("profile");//?????????????????????
         // profile map name
     }
+
+    if (!SwitchIncludeTile && outputcheck.count() > 11)
+        outputcheck[11] = "0";
 
 }
 //------------------------------------------------------------------------------

@@ -133,6 +133,7 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeTile)
     {
+        WaterVolSoilTot = TileWaterVolSoil->MapTotal();
         // input for mass balance, is the water seeping from the soil, input
         // this is the water before the kin wave
         tm->calc2(TileDrainSoil, TileWidth, MUL); //in m3
@@ -257,14 +258,15 @@ void TWorld::MassBalance()
 {
     // Mass Balance water all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
-    if (RainTot + SnowTot + TileVolTot > 0)
-        MB = (RainTot + SnowTot + TileVolTot - IntercTot - InfilTot - WaterVolTot
-              - BufferVolTot - Qtot)/(RainTot + SnowTot + TileVolTot)*100;
-    // qDebug() << "in" << RainTot << SnowTot << TileVolTot;
-    //qDebug() << "out" << IntercTot << InfilTot << WaterVolTot << BufferVolTot << Qtot;
+    if (RainTot + SnowTot > 0)
+    MB = (RainTot + SnowTot + WaterVolSoilTot - IntercTot - InfilTot - WaterVolTot - BufferVolTot - Qtot)/
+          (RainTot + SnowTot + WaterVolSoilTot)*100;
+    //watervoltot includes channel and tile
+
     // Mass Balance sediment
     if (SwitchErosion && DetTot > 0)
         MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
-               DepTot + ChannelDepTot - BufferSedTot)/DetTot*100;
+               DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
+    //VJ 110825 forgot to include channeldettot in denominator in MBs!
 }
 //---------------------------------------------------------------------------

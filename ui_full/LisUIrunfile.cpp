@@ -122,6 +122,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
       if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
       if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
+      if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
       if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
       if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
       if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
@@ -412,6 +413,7 @@ void lisemqt::updateModelData()
       if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
       if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
       if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
+      if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
       if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
       if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
       if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());

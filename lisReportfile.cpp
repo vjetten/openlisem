@@ -124,7 +124,8 @@ void TWorld::ReportTimeseriesNew()
                         out << "run step\n";
                         if (SwitchRainfall) out << "Pavg (mm/h)\n";
                         if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                        out << "Q (l/s)\n";
+                        out << "Qall (l/s)\n";
+                        if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                         if (SwitchErosion) out << "Qs (kg/s)\n";
                         if (SwitchErosion) out << "C (g/l)\n";
                     }
@@ -152,6 +153,7 @@ void TWorld::ReportTimeseriesNew()
                             out << "min,mm/h";
                             if (SwitchSnowmelt) out << ",mm/h";
                             out << ",l/s";
+                            if (SwitchIncludeTile) out << ",l/s";
                             if (SwitchErosion) out << ",kg/s,g/l";
                             out << "\n";
                         }
@@ -192,6 +194,7 @@ void TWorld::ReportTimeseriesNew()
                 {
                     pnr.setNum((int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
+                    if (SwitchIncludeTile) out << "Qdr #" << pnr <<  "(l/s)\n";
                     if (SwitchErosion) out << "Qs #"<< pnr << "(kg/s)\n";
                     if (SwitchErosion) out << "C #"<< pnr << "(g/l)\n";
                 }
@@ -231,6 +234,7 @@ void TWorld::ReportTimeseriesNew()
                     {
                         pnr.setNum((int)PointMap->Drc);
                         out << ",Q #" << pnr;
+                        if (SwitchIncludeTile) out << ",Qdr #" << pnr;
                         if (SwitchErosion) out << ",Qs #" << pnr;
                         if (SwitchErosion) out << ",C #" << pnr;
                     }
@@ -243,6 +247,7 @@ void TWorld::ReportTimeseriesNew()
                     {
                         pnr.setNum((int)PointMap->Drc);
                         out << ",l/s #" << pnr;
+                        if (SwitchIncludeTile) out << ",l/s #" << pnr;
                         if (SwitchErosion) out << ",kg/s #" << pnr;
                         if (SwitchErosion) out << ",g/l #" << pnr;
                     }
@@ -280,6 +285,7 @@ void TWorld::ReportTimeseriesNew()
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
                     out << sep << Qoutput->Drc;
+                    if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
                     out << "\n";
@@ -324,6 +330,7 @@ void TWorld::ReportTimeseriesNew()
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
                     out << sep << Qoutput->Drc;
+                    if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
                 }

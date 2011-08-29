@@ -73,9 +73,9 @@ void lisemqt::killPlot()
 //---------------------------------------------------------------------------
 void lisemqt::setupPlot()
 {
-   textGraph->setMaximumBlockCount(7);
+   textGraph->setMaximumBlockCount(6);
    textGraph->setWordWrapMode(QTextOption::NoWrap);
-   textGraph->setMaximumHeight(108);
+   textGraph->setMaximumHeight(90);
 
    QwtText title;
    title.setText("Hydrograph outlet");
@@ -107,7 +107,6 @@ void lisemqt::setupPlot()
    }
    if(checkIncludeTiledrains->isChecked())
    {
-
       QtileGraph->attach(HPlot);
    }
 
@@ -148,6 +147,7 @@ void lisemqt::setupPlot()
 
    HPlot->setCanvasBackground(QBrush(Qt::white));
 
+   // set axes
    HPlot->enableAxis(HPlot->yRight,true);
    HPlot->enableAxis(HPlot->yLeft,true);
    HPlot->enableAxis(HPlot->xBottom,true);
@@ -158,8 +158,7 @@ void lisemqt::setupPlot()
    HPlot->setAxisScale(HPlot->yLeft, 0, 100);
    HPlot->setAxisScale(HPlot->xBottom, 0, 100);
 
-   // set axes
-
+   // set gridlines
    QwtPlotGrid *grid = new QwtPlotGrid();
    grid->enableXMin(true);
    grid->enableYMin(true);
@@ -168,7 +167,6 @@ void lisemqt::setupPlot()
    col.setRgb( 210,210,210,180 );
    grid->setMinPen(QPen(col, 0 , Qt::DotLine));
    grid->attach(HPlot);
-   // set gridlines
 
 
    HPlot->replot();

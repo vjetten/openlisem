@@ -265,6 +265,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Simple depression storage");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Hard Surfaces");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("Limit TC");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Interception]");
    namelist[i].value = QString("0");
