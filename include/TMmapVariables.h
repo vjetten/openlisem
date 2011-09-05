@@ -33,6 +33,7 @@ TMMap
 *tm,                         //!< Auxilary map
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
+*tmc,                        //!< Auxilary map
 //*Mask,                       //!< Catchment mask, based on the LDD
 *DEM,                        //!< DEM [m]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
@@ -152,6 +153,7 @@ TMMap
 *WHGrass,                    //!< water level on a grassstrip [m]
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *GrassWidthDX,               //!< width of grasstrip in [m]
+*thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas

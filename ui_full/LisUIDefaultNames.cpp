@@ -290,6 +290,12 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Matric head files");
    namelist[i++].name = QString("Geometric mean Ksat");
    namelist[i++].name = QString("2nd back substitution");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("Use Water Repellency");
+   namelist[i].value = QString("1.20");
+   namelist[i++].name = QString("Water Repellency A");
+   namelist[i].value = QString("0.3");
+   namelist[i++].name = QString("Water Repellency B");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Kinetic Energy]");
    namelist[i].value = QString("1,28.300,0.520,0.042");

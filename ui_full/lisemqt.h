@@ -73,11 +73,11 @@
 //---------------------------------------------------------------------------
 /// map name list structure for interaction with interface
 typedef struct MAP_LIST {
-    QString name;
-    QString value;
-    QString dir;
-    int groupnr;
-    int varnr;
+   QString name;
+   QString value;
+   QString dir;
+   int groupnr;
+   int varnr;
 } MAP_LIST;
 //---------------------------------------------------------------------------
 
@@ -118,162 +118,162 @@ public:
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
 {
-    Q_OBJECT
+   Q_OBJECT
 
 public:
-    lisemqt(QWidget *parent = 0);
-    ~lisemqt();
+   lisemqt(QWidget *parent = 0);
+   ~lisemqt();
 
-         QProgressBar *pb;
+   QProgressBar *pb;
 
-    void initMapTree();
-    void DefaultMapnames();
-    void fillMapnames();
-    void updateDEFmaps();
-    void fillNamelistMapnames(bool to);
-    void checkMapNameModel(int parentrow, int selrow, bool setit);
-    void SetToolBar();
-    void GetStorePath();
-    void StorePath();
-    void SetStyleUI();
-    void SetMapPlot();
-    void GetRunfile();
-    void ParseInputData();
-    void updateModelData();
-    void defaultRunFile();
-    QString CheckDir(QString p);
-    void RunAllChecks();
-    void savefile(QString name);
-    void InitOP();
-    void SetConnections();
+   void initMapTree();
+   void DefaultMapnames();
+   void fillMapnames();
+   void updateDEFmaps();
+   void fillNamelistMapnames(bool to);
+   void checkMapNameModel(int parentrow, int selrow, bool setit);
+   void SetToolBar();
+   void GetStorePath();
+   void StorePath();
+   void SetStyleUI();
+   void SetMapPlot();
+   void GetRunfile();
+   void ParseInputData();
+   void updateModelData();
+   void defaultRunFile();
+   QString CheckDir(QString p);
+   void RunAllChecks();
+   void savefile(QString name);
+   void InitOP();
+   void SetConnections();
 
-    void ShowMap();
+   void ShowMap();
 
-    // graph variables
-    void showPlot();
-    void initPlot();
-    void killPlot();
-    void setupPlot();
-    QwtPlot *HPlot;
-    QwtPlotCurve *QGraph;
-    QwtPlotCurve *QsGraph;
-    QwtPlotCurve *CGraph;
-    QwtPlotCurve *PGraph;
-    QwtPlotCurve *QtileGraph;
-    bool startplot;
-    double yas, y2as;
-    double *timeData;
-    double *QData;
-    double *QtileData;
-    double *QsData;
-    double *CData;
-    double *PData;
-    long stepP;
-    //Map drawing variables
-    //   QwtPlotSpectrogram *MapDrawing;
-    //   QwtPlot *MapPlot;
-    //	SpectrogramData *MapDrawData;
-    //   QwtMatrixRasterData *MapDrawData;
+   // graph variables
+   void showPlot();
+   void initPlot();
+   void killPlot();
+   void setupPlot();
+   QwtPlot *HPlot;
+   QwtPlotCurve *QGraph;
+   QwtPlotCurve *QsGraph;
+   QwtPlotCurve *CGraph;
+   QwtPlotCurve *PGraph;
+   QwtPlotCurve *QtileGraph;
+   bool startplot;
+   double yas, y2as;
+   double *timeData;
+   double *QData;
+   double *QtileData;
+   double *QsData;
+   double *CData;
+   double *PData;
+   long stepP;
+   //Map drawing variables
+   //   QwtPlotSpectrogram *MapDrawing;
+   //   QwtPlot *MapPlot;
+   //	SpectrogramData *MapDrawData;
+   //   QwtMatrixRasterData *MapDrawData;
 
-    bool oldRunfile; // check is old runfile for ksat calibration
+   bool oldRunfile; // check is old runfile for ksat calibration
 
-    //interface names
-    TreeModel *MapNameModel;
-    QString currentDir;
-    QString RainFileName;
-    QString RainFileDir;
-    QString SnowmeltFileName;
-    QString SnowmeltFileDir;
-    QString SwatreTableName;
-    QString SwatreTableDir;
-    QStringList DEFmaps;
-    QStringList RunFileNames;
-    int CurrentRunFile;
-    int uiInfilMethod;
-    double swatreDT;
+   //interface names
+   TreeModel *MapNameModel;
+   QString currentDir;
+   QString RainFileName;
+   QString RainFileDir;
+   QString SnowmeltFileName;
+   QString SnowmeltFileDir;
+   QString SwatreTableName;
+   QString SwatreTableDir;
+   QStringList DEFmaps;
+   QStringList RunFileNames;
+   int CurrentRunFile;
+   int uiInfilMethod;
+   double swatreDT;
 
-    MAP_LIST mapList[NUMMAPS]; /// structure for current map names, can be edited by user
-    int nrmaplist;
-    NAME_LIST namelist[NUMNAMES]; /// structure to read all runfile variables and names
-    int nrnamelist;
-    QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
-    int InterceptionEqNr;
-    int mapstartnr;
+   MAP_LIST mapList[NUMMAPS]; /// structure for current map names, can be edited by user
+   int nrmaplist;
+   NAME_LIST namelist[NUMNAMES]; /// structure to read all runfile variables and names
+   int nrnamelist;
+   QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
+   int InterceptionEqNr;
+   int mapstartnr;
 
 public slots:
-    // functions linked to actions
-    void saveRunFile();
-    void savefileas();
-    void openRunFile();
-    void runmodel();
-    void stopmodel();
-    void pausemodel();
-    void shootScreen();
-    void aboutQT();
-    void aboutInfo();
-    void resetAll();
+   // functions linked to actions
+   void saveRunFile();
+   void savefileas();
+   void openRunFile();
+   void runmodel();
+   void stopmodel();
+   void pausemodel();
+   void shootScreen();
+   void aboutQT();
+   void aboutInfo();
+   void resetAll();
 
-    void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
-    void openMapname(QModelIndex topLeft);
+   void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
+   void openMapname(QModelIndex topLeft);
 
-    //void on_toolButton_MapDir_clicked();
-    void setMapDir();
-    //void on_toolButton_ResultDir_clicked();
-    void setResultDir();
-    void on_toolButton_RainfallName_clicked();
-    void on_toolButton_SnowmeltName_clicked();
-    void on_toolButton_RainfallShow_clicked();
-    void on_toolButton_SnowmeltShow_clicked();
-    void on_toolButton_ShowRunfile_clicked();
-    //void on_toolButton_fileOpen_clicked();
-    void on_toolButton_SwatreTableDir_clicked();
-    void on_toolButton_SwatreTableFile_clicked();
-    void on_toolButton_SwatreTableShow_clicked();
+   //void on_toolButton_MapDir_clicked();
+   void setMapDir();
+   //void on_toolButton_ResultDir_clicked();
+   void setResultDir();
+   void on_toolButton_RainfallName_clicked();
+   void on_toolButton_SnowmeltName_clicked();
+   void on_toolButton_RainfallShow_clicked();
+   void on_toolButton_SnowmeltShow_clicked();
+   void on_toolButton_ShowRunfile_clicked();
+   //void on_toolButton_fileOpen_clicked();
+   void on_toolButton_SwatreTableDir_clicked();
+   void on_toolButton_SwatreTableFile_clicked();
+   void on_toolButton_SwatreTableShow_clicked();
 
-    void doCheckSnowmelt(bool check);
-    void doCheckRainfall(bool check);
+   void doCheckSnowmelt(bool check);
+   void doCheckRainfall(bool check);
 
-    void on_E_InfiltrationMethod_currentIndexChanged(int inr);
-    void on_E_runFileList_currentIndexChanged(int);
+   void on_E_InfiltrationMethod_currentIndexChanged(int inr);
+   void on_E_runFileList_currentIndexChanged(int);
 
-    void on_checkChannelInfil_clicked();
-    void on_checkChannelBaseflow_clicked();
-    void on_checkNoErosion_clicked();
-    void on_checkIncludeChannel_clicked();
-    void on_checkIncludeTiledrains_clicked();
-    void on_checkInfilCompact_clicked();
-    void on_checkInfilCrust_clicked();
-    void on_checkInfilGrass_clicked();
-    void on_checkInfil2layer_clicked();
-    void on_checkBuffers_clicked();
-    void on_checkSedtrap_clicked();
-    void on_checkSnowmelt_clicked();
-    void on_checkExpandActive_clicked();
-    void on_E_MapDir_returnPressed();
-    void on_E_ResultDir_returnPressed();
+   void on_checkChannelInfil_clicked();
+   void on_checkChannelBaseflow_clicked();
+   void on_checkNoErosion_clicked();
+   void on_checkIncludeChannel_clicked();
+   void on_checkIncludeTiledrains_clicked();
+   void on_checkInfilCompact_clicked();
+   void on_checkInfilCrust_clicked();
+   void on_checkInfilGrass_clicked();
+   void on_checkInfil2layer_clicked();
+   void on_checkBuffers_clicked();
+   void on_checkSedtrap_clicked();
+   void on_checkSnowmelt_clicked();
+   void on_checkExpandActive_clicked();
+   void on_E_MapDir_returnPressed();
+   void on_E_ResultDir_returnPressed();
 
 private slots:
-    // functions that interact with the world thread signals
-    void worldShow();
-    void worldDone(const QString &results);
-    void worldDebug(const QString &results);
+   // functions that interact with the world thread signals
+   void worldShow();
+   void worldDone(const QString &results);
+   void worldDebug(const QString &results);
 
 
 private:
-    //toolbar actions
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveasAct;
-    QAction *runAct;
-    QAction *pauseAct;
-    QAction *stopAct;
-    QAction *shootscreenAct;
-    QAction *aboutAct;
-    QAction *aboutActI;
-    QAction *restartAct;
+   //toolbar actions
+   QAction *openAct;
+   QAction *saveAct;
+   QAction *saveasAct;
+   QAction *runAct;
+   QAction *pauseAct;
+   QAction *stopAct;
+   QAction *shootscreenAct;
+   QAction *aboutAct;
+   QAction *aboutActI;
+   QAction *restartAct;
 
-    // the model world
-    TWorld *W;
+   // the model world
+   TWorld *W;
 
 };
 

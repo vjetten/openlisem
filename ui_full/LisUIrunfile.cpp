@@ -132,6 +132,8 @@ void lisemqt::ParseInputData()
       //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
       if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
       if (p1.compare("2nd back substitution")==0)          checkBacksubstitution->setChecked(check);
+      if (p1.compare("Use Water Repllency")==0)            checkWaterRepellency->setChecked(check);
+
       //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
       if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
       if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
@@ -223,8 +225,11 @@ void lisemqt::ParseInputData()
       if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
       if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
       if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
-      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);
+      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);      
       // VJ 110209 canopy openess, factor Aston as user input
+      if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
+      if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(val);
+
 
       if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
 
@@ -423,6 +428,7 @@ void lisemqt::updateModelData()
       //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
       if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
       if (p1.compare("2nd back substitution")==0)          namelist[j].value.setNum((int)checkBacksubstitution->isChecked());
+      if (p1.compare("Use Water Repllency")==0)            namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
       if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
       if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
       if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());

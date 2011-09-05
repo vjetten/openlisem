@@ -48,7 +48,7 @@ void Error(QString s)
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     op.LisemDir = QCoreApplication::applicationDirPath() + QDir::separator();
     // exe path, used for ini file
@@ -61,5 +61,5 @@ int main(int argc, char *argv[])
     iface.show();
     // make an instance of the interface and show it
 
-    return a.exec();
+    return app.exec();
 }

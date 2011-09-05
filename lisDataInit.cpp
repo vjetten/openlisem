@@ -499,6 +499,9 @@ void TWorld::GetInputData(void)
    SplashDelivery = getvaluedouble("Splash Delivery Ratio");
    StemflowFraction = getvaluedouble("Stemflow fraction");
    CanopyOpeness = getvaluedouble("Canopy Openess");
+   //VJ 110829 water repellency
+   waterRep_a = getvaluedouble("Water Repellency A");
+   waterRep_b = getvaluedouble("Water Repellency B");
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));
@@ -509,6 +512,7 @@ void TWorld::GetInputData(void)
    tm = NewMap(0); // temp map for aux calculations
    tma = NewMap(0); // temp map for aux calculations
    tmb = NewMap(0); // temp map for aux calculations
+   tmc = NewMap(0); // temp map for aux calculations
    for (int i = 0; i < 32; i++)
       SubsMaps[i].m = NULL;  // initialize substance structures
 
@@ -882,6 +886,8 @@ void TWorld::IntializeData(void)
    // swatre get input data is called before, ReadSwatreInput
    if (InfilMethod == INFIL_SWATRE)
    {
+      thetaTop = NewMap(0);
+
       precision = 5.0;
       // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
 

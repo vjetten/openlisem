@@ -63,10 +63,11 @@ lisemqt::lisemqt(QWidget *parent)
 {
     setupUi(this);
     // set up interface
-    setMinimumSize(1024,760);
-    resize(1024, 760);
-    groupBox_spare->hide();
+    setMinimumSize(1030,720);
+    resize(1030, 720);
+ //   setStatusBar(0);
 
+    groupBox_spare->hide();
     MapNameModel = NULL;
     HPlot = NULL;
     //	MapPlot = NULL;
@@ -100,6 +101,7 @@ lisemqt::lisemqt(QWidget *parent)
     // set up the discharge graph
 
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
+    // put the progress bar into the statusbar
 
 }
 //--------------------------------------------------------------------

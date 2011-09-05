@@ -40,7 +40,7 @@ functions: \n
 //---------------------------------------------------------------------------
 double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
 {
-   double conc = (watvol > 0 ? sedvol/watvol : 1000);
+   double conc = (watvol > _dx*_dx*1e-6 ? sedvol/watvol : 0);// 1000);
    if (conc > MAXCONC)
    {
       dep += min(0, MAXCONC*watvol - sedvol);
@@ -164,6 +164,7 @@ void TWorld::FlowDetachment(void)
       FOR_ROW_COL_MV
       {
          double maxtc = 0;
+         double avgtc = 0;
          int count = 0;
 
          for (int i = 1; i <= 9; i++)
@@ -171,12 +172,12 @@ void TWorld::FlowDetachment(void)
             {
                if (!IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
                {
-                  //maxtc = maxtc + TC->Data[r+dx[i]][c+dy[i]];
+                  avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }
-         //          TC->Drc = qMin(TC->Drc, maxtc/count);
+         TC->Drc = qMax(TC->Drc, avgtc/count);
          TC->Drc = qMin(TC->Drc, maxtc);
       }
    }
@@ -281,6 +282,7 @@ void TWorld::ChannelFlowDetachment(void)
       FOR_ROW_COL_MV
       {
          double maxtc = 0;
+         double avgtc = 0;
          int count = 0;
 
          for (int i = 1; i <= 9; i++)
@@ -288,12 +290,12 @@ void TWorld::ChannelFlowDetachment(void)
             {
                if (!IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
                {
-                  //maxtc = maxtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
+                  avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }
-         //ChannelTC->Drc = qMin(ChannelTC->Drc,  maxtc/count);
+         ChannelTC->Drc = qMax(ChannelTC->Drc,  avgtc/count);
          ChannelTC->Drc = qMin(ChannelTC->Drc, maxtc);
       }
    }

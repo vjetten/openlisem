@@ -180,7 +180,7 @@ public:
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
-    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,
+    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
     SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
     SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
@@ -214,6 +214,8 @@ public:
     double StripN;
     double StemflowFraction;
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
+    double waterRep_a;
+    double waterRep_b;
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
@@ -386,7 +388,7 @@ public:
 
     SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
     int ReadSwatreInput(QString fileName, QString tablePath);
-    void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where);
+    void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo();
     ZONE *ReadNodeDefinition(FILE *f);
@@ -402,7 +404,7 @@ public:
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                         double drainfraction, SOIL_MODEL *s);
+                         double drainfraction, double *Theta, SOIL_MODEL *s);
 
     void Totals(void);
     void MassBalance(void);

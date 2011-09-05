@@ -172,7 +172,7 @@ double  TWorld::NewTimeStep(
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-                             double *drain, double drainfraction, SOIL_MODEL *s)
+                             double *drain, double drainfraction, double *Theta, SOIL_MODEL *s)
 {
     NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
     const PROFILE *p = pixel->profile;
@@ -329,6 +329,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
         if (elapsedTime+dt+TIME_EPS >= _dt)
             dt = _dt - elapsedTime;
 
+        *Theta = 0.5*(theta[0]+theta[1]);
+
     } /* elapsedTime < lisemTimeStep */
 
     /*
@@ -345,15 +347,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
-void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where)
+void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where)
 {   
     //where is used as a flag here, it is the fraction of crust, compaction, grass
     // so that the additional calculations are not done everywhere
     // for normal soil surface where is 1.
+    // this prevents doing swatrestep for crusting for cells that are 0 for instance
     FOR_ROW_COL_MV
             if(where->Drc > 0) // when there is crusting for instance
     {
-        double wh, infil, drain, drainfraction = 0;
+        double wh, infil, drain, drainfraction = 0, Theta;
 
         wh = _WH->Drc*100;
         // WH is in m, convert to cm
@@ -362,7 +365,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
         if (SwitchIncludeTile)
             drainfraction = TileWidth->Drc/_dx;
 
-        ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction, s);
+        ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction, &Theta, s);
 
         _WH->Drc = wh*0.01;
         //back to m
@@ -375,43 +378,11 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
             _drain->Drc = drain*0.01;  // in m
         // drained water from the soil, already accounts for drainwidth versus cell width
 
+        _theta->Drc = Theta;
+        // save the average moisture content of the top two layers
     }
+    _theta->report("theta");
 }
-//--------------------------------------------------------------------------------
-// calculates average soil moisture from surface to layernr
-/* TODO: NOT CORRECT SHOULD BE RELATIVE TO THICKNESS OF LAYERS */
-/*
-void SwatreTheta(
-  SOIL_MODEL *s,
-  MEM_HANDLE *Theta,
-  int layernr,
-  int avg)
-{
- int i = 0;
- layernr -= 1;  //????????
- avg -= 1; //????????
-
- for (int r = 0; r < Theta->nrRows; r++)
-  for (int c = 0; c < Theta->nrCols; c++)
-  {
-  if (s->pixel[i].h != NULL)
-  {
-   PIXEL_INFO *p = (s->pixel)+i;
-   const PROFILE *prof = p->profile;
-   double *h = p->h;
-   double theta = 0;
-   int j;//, n = NrNodes(prof);  <= to check validity of layernr
-
-   for (j = layernr; j < layernr+avg+1; j++)
-    theta += (double)TheNode(h[j], Horizon(prof, j));
-   theta /= (avg+1);
-
-   Theta->Data[r][c] = theta;
-  }
-  i++;
- }
-}
- */
 //--------------------------------------------------------------------------------
 
 
