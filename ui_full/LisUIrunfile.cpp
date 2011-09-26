@@ -428,7 +428,7 @@ void lisemqt::updateModelData()
       //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
       if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
       if (p1.compare("2nd back substitution")==0)          namelist[j].value.setNum((int)checkBacksubstitution->isChecked());
-      if (p1.compare("Use Water Repllency")==0)            namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
+      if (p1.compare("Use Water Repellency")==0)            namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
       if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
       if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
       if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());

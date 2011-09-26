@@ -28,7 +28,6 @@
   \brief Central model file with the main loop. From here all processes are called.
 
   functions: \n
-  - void TWorld::OutputUI() fill output structure 'op' with results to talk to the interface.\n
   - void TWorld::DoModel() the main model function with the timeloop. It is a 'slot' linked to a signal.\n
   - void TWorld::run() Run is called from the interface to activate DoModel() \n
   - void TWorld::stop() Stops the loop on user request.\n
@@ -52,69 +51,6 @@ TWorld::TWorld(QObject *parent) :
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
 {
-}
-//---------------------------------------------------------------------------
-/** fill output structure 'op' with results to talk to the interface:
-    report to screen, hydrographs and maps */
-void TWorld::OutputUI()
-{
-    if (runstep > 0 && runstep % printinterval == 0)
-        printstep++;
-    // printstep determines map reporting frequency
-    runstep++;
-
-    op.dx = _dx;
-    op.MB = MB;
-    op.runstep = runstep;
-    op.maxstep = (int) ((EndTime-BeginTime)/_dt);
-    op.EndTime = EndTime/60.0;
-    //	op.BeginTime = BeginTime/60.0;
-
-    op.CatchmentArea = CatchmentArea;
-
-    op.RainTotmm=RainTotmm + SnowTotmm;
-    op.WaterVolTotmm=WaterVolTotmm-SurfStoremm;
-    op.Qtotmm=Qtotmm;
-    op.Qtot=QtotOutlet;
-    op.QtotPlot=QtotPlot;  //VJ 110701
-    op.Qpeak=Qpeak;
-    op.QpeakTime=QpeakTime/60;
-    op.RainpeakTime=RainpeakTime/60;
-    op.InfilTotmm=InfilTotmm;
-    op.SurfStormm=SurfStoremm;
-    op.IntercTotmm=IntercTotmm;
-    op.InfilKWTotmm=InfilKWTot; // infil part in kin wave not used
-    op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
-
-    op.MBs = MBs;
-    op.DetTotSplash=DetSplashTot*0.001;
-    op.DetTotFlow=DetFlowTot*0.001;
-    op.DepTot=DepTot*0.001;
-    op.SedTot=SedTot*0.001;
-
-    op.ChannelDetTot=ChannelDetTot*0.001;
-    op.ChannelDepTot=ChannelDepTot*0.001;
-    op.ChannelSedTot=ChannelSedTot*0.001;
-
-    op.SoilLossTot=SoilLossTotOutlet*0.001;
-
-    op.t = time_ms.elapsed()*0.001/60.0;
-    op.time = time/60;
-    op.maxtime = op.t/runstep * op.maxstep;
-
-    op.P = (RainAvgmm + SnowAvgmm)*3600/_dt;
-    op.Q = Qoutput->DrcPlot; //Outlet;  //=> includes channel and tile
-    op.Qs = Qsoutput->DrcPlot; //Outlet;
-    op.C = TotalConc->DrcPlot; //Outlet;
-    op.Qtile = 1000*TileQn->DrcPlot; //Outlet;
-    // VJ 110630 show hydrograph for selected output point
-
-    op.BufferVolTot = BufferVolTot;
-    op.BufferSedTot = BufferSedTot*0.001; //ton
-
-    emit show();
-    // send the op structure with data to function worldShow the interface
-    // in file LisUIModel
 }
 //---------------------------------------------------------------------------
 // the actual model with the main loop

@@ -82,7 +82,7 @@ void lisemqt::setupPlot()
    title.setFont(QFont("MS Shell Dlg 2",12));
    HPlot = new QwtPlot(title, this);
    // make the plot window
-   verticalLayout_5->insertWidget(0, HPlot);
+   verticalLayout_5->insertWidget(0, HPlot, 1);
 
    // panning with the left mouse button
    (void) new QwtPlotPanner( HPlot->canvas() );

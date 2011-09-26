@@ -134,8 +134,7 @@ void TWorld::OverlandFlow(void)
    // flag all Qn gridcell with MV for in kin wave
 
    // do kin wave for all pits
-
-   // usesorted is experimental
+   // useSorted is experimental
    if (useSorted)
    {
       KinematicSorted(lddlist, lddlistnr, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
@@ -188,24 +187,29 @@ void TWorld::OverlandFlow(void)
       // new water volume after kin wave, all water incl depr storage
 
       double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
+      // q contains infiltrated water after kin wave
       //		if (InfilMethod == INFIL_NONE)
       //		{
       //			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
       //			InfilVolKinWave->Drc = diff;
       //		}
       //		else
-      InfilVolKinWave->Drc = diff;
-      // q contains infiltrated water after kin wave
+//      InfilVolKinWave->Drc = diff;
+      // correct infiltration in m3
 
       //infiltrated volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
       if (SwitchBuffers && BufferVol->Drc > 0)
       {
+         //qDebug() << BufferVol->Drc << q->Drc << WaterVolin->Drc << WaterVolall->Drc << Qn->Drc;
+
          InfilVolKinWave->Drc = 0;
          WaterVolall->Drc = 0;
+         // as long as the cell has a buffer and it is not full there
+         // is not infil and no normal watervol
       }
-      // ass long as the cell has a buffer and it is not full there
-      // is not infil and no normal watervol
+      else
+        InfilVolKinWave->Drc = diff;
 
       if (SwitchErosion)
       {

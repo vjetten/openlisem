@@ -12323,6 +12323,42 @@ p, li { white-space: pre-wrap; }
            </spacer>
           </item>
           <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_88">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;time (min)    Q (l/s)    Qsed (kg/s)    Conc (kg/l) &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <property name="indent">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPlainTextEdit" name="textGraph">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -12531,8 +12567,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>136</x>
-     <y>366</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12547,8 +12583,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>366</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12563,8 +12599,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>366</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12575,12 +12611,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>389</y>
+     <x>119</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>136</x>
-     <y>415</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12591,12 +12627,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>389</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>415</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12607,12 +12643,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>438</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>136</x>
-     <y>464</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12623,12 +12659,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>438</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>464</y>
+     <x>141</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -12655,12 +12691,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>198</x>
-     <y>587</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>203</x>
-     <y>602</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12671,12 +12707,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>584</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>316</x>
-     <y>599</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12687,12 +12723,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>589</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>150</x>
-     <y>626</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12703,12 +12739,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>584</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>304</x>
-     <y>631</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12805,6 +12841,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>552</x>
      <y>629</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkNoErosion</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkLimitTC</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>453</y>
     </hint>
    </hints>
   </connection>

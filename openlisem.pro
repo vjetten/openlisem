@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = openLisem
 QWTDIR = c:/Qt/qwt
+# change the QWT directory to your own install
 QT += core \
     gui
 HEADERS += \

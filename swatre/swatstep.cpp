@@ -329,7 +329,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
         if (elapsedTime+dt+TIME_EPS >= _dt)
             dt = _dt - elapsedTime;
 
-        *Theta = 0.5*(theta[0]+theta[1]);
+        *Theta = theta[0]; //0.5*(theta[0]+theta[1]);
 
     } /* elapsedTime < lisemTimeStep */
 
@@ -354,7 +354,8 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
     // for normal soil surface where is 1.
     // this prevents doing swatrestep for crusting for cells that are 0 for instance
     FOR_ROW_COL_MV
-            if(where->Drc > 0) // when there is crusting for instance
+            if(where->Drc > 0) // flag to indicate if this pixel has to be done
+          // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
     {
         double wh, infil, drain, drainfraction = 0, Theta;
 
@@ -381,7 +382,6 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
         _theta->Drc = Theta;
         // save the average moisture content of the top two layers
     }
-    _theta->report("theta");
 }
 //--------------------------------------------------------------------------------
 

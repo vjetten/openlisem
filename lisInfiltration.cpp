@@ -51,62 +51,74 @@ functions: \n
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre(void)
 {
-   tm->copy(WH); // copy water height before infil
+   WHbef->copy(WH); // copy water height before infil
+
    tma->fill(1); // flag to indicate where the swatrestep mdoel should be run
+   tmb->fill(0);
+
    // for normal surface swatre should be done in all cells
 
-   SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, thetaTop, tma);
+   SwatreStep(SwatreSoilModel, WH, fpot, TileDrainSoil, tmb, tma);
+   // NOTE WH changes in SWATRE
    // tiledrainsoil is in m per timestep, if not switchtiles then contains 0
    // TileDrainSoil->report("drain");
 
    // WH and fpot done in swatrestep
    FOR_ROW_COL_MV
-         fact->Drc = (tm->Drc - WH->Drc);
+         fact->Drc = (WHbef->Drc - WH->Drc);
+   // actual; infil is dif between WH before and after
 
-   if (SwitchInfilCrust)
+   if (SwitchInfilCrust || SwitchWaterRepellency)
    {
-      tm->copy(WH);
+      tm->copy(WHbef);
       tma->fill(0);
       tmb->fill(0);
       tmc->fill(0);
 
+      SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
+      // calculate crust SWATRE and get the soil moisture of the top node
+      // CrustFraction is cells > 0
+
       if (SwitchWaterRepellency)
-      FOR_ROW_COL_MV
       {
-         CrustFraction->Drc = 1/(1+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
+         FOR_ROW_COL_MV
+         {
+            if (CrustFraction->Drc > 0)
+               CrustFraction->Drc = 1/(1+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
+         }
       }
+      //calculate a new crustfraction for water repellency
+      // formula = f = 1/(1+1.2^(theta-30)), theta in %
 
-
-      SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, tmc, CrustFraction);
-
+      // calculate average cell values
       FOR_ROW_COL_MV
       {
-         //tm = WHcrust and tma = fpot crust
-         fact->Drc = (tm->Drc - WH->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
+         //tm = WH on crust and tma = fpot crust
          WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
-         fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-         thetaTop->Drc = tmc->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
 
-         //         if (SwitchIncludeTile)
-         //            TileDrainSoil->Drc = tmb->Drc*CrustFraction->Drc + TileDrainSoil->Drc*(1-CrustFraction->Drc);
+         fact->Drc = (WHbef->Drc - tm->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
+         fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
       }
    }
 
    if (SwitchInfilCompact)
    {
-      tm->copy(WH);
+      tm->copy(WHbef);
       tma->fill(0);
       tmb->fill(0);
+      tmc->fill(0);
+
       SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
+
       FOR_ROW_COL_MV
       {
-         fact->Drc = (tm->Drc - WH->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
          WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
-         fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
-         thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
+         // tm is WH on compacted area
 
-         //         if (SwitchIncludeTile)
-         //            TileDrainSoil->Drc = tmb->Drc*CompactFraction->Drc + TileDrainSoil->Drc*(1-CompactFraction->Drc);
+         fact->Drc = (tm->Drc - WHbef->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
+         fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+
+         thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
       }
    }
 
@@ -115,15 +127,19 @@ void TWorld::InfilSwatre(void)
       tm->copy(WHGrass);
       tmb->fill(0);
       tmc->fill(0);
+
       SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
+
       FOR_ROW_COL_MV
       {
          factgr->Drc = (tm->Drc - WHGrass->Drc);
          thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
-
-         //         if (SwitchIncludeTile)
-         //            TileDrainSoil->Drc = tmb->Drc*GrassFraction->Drc + TileDrainSoil->Drc*(1-GrassFraction->Drc);
       }
+   }
+   if (SwitchWaterRepellency)
+   {
+      thetaTop->report("thtop");
+      CrustFraction->report("crust");
    }
 }
 //---------------------------------------------------------------------------

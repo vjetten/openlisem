@@ -41,6 +41,10 @@ functions: \n
 double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
 {
    double conc = (watvol > _dx*_dx*1e-6 ? sedvol/watvol : 0);// 1000);
+   // 1e-6 is 1 ml/m2
+   // TODO: min volume in slopes is in fact surface storage minimum!
+   // this is set at (SDS = 0.1 * MDS->Drc) * CellArea->Drc
+   // but this is already done in kin wave? should not be done here!
    if (conc > MAXCONC)
    {
       dep += min(0, MAXCONC*watvol - sedvol);

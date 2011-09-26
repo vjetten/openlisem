@@ -42,10 +42,10 @@ void TWorld::GridCell(void)
    FOR_ROW_COL_MV
    {
       if (BufferID->Drc > 0)
-      	RoadWidthDX->Drc = 0;
+         RoadWidthDX->Drc = 0;
       //VJ 100609 cannot have a road with a buffer, to complicated
 
-   	if (SwitchIncludeChannel)
+      if (SwitchIncludeChannel)
          if (RoadWidthDX->Drc > 0)
             ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
       // channel cannot be wider than 0.9*_dx-road
@@ -71,12 +71,12 @@ void TWorld::SurfaceStorage(void)
       double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
       double wh = WH->Drc, whflow = 0;
       double SDS;
-      double mds = MDS->Drc;
+      double mds = MDS->Drc;  // mds is in meters
       double WaterVolrunoff;
 
       //### surface storage
       SDS = 0.1*mds;
-      // arbitrary minimum depression storage is 10% of max depr storage
+      // arbitrary minimum depression storage is 10% of max depr storage, in m
 
       if (mds > 0)
          whflow = (wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
@@ -118,8 +118,8 @@ void TWorld::SurfaceStorage(void)
       // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
       // this now takes care of ponded area, so water height is adjusted
 
-    	WHrunoffCum->Drc += WHrunoff->Drc * 1000;
-    	// cumulative runoff for output maps, in mm
+      WHrunoffCum->Drc += WHrunoff->Drc * 1000;
+      // cumulative runoff for output maps, in mm
 
    }
 }

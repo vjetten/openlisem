@@ -295,6 +295,7 @@ void TWorld::InitTiledrains(void)
 void TWorld::InitBuffers(void)
 {
 
+   BufferVolin = 0;
    BufferVolTot = 0;
    BufferVolTotInit = 0;
    BufferSedTot = 0;
@@ -314,6 +315,8 @@ void TWorld::InitBuffers(void)
             Grad->Drc = 0.001;
             RR->Drc = 0.01;
             N->Drc = 0.25;
+            // note ksateff in filtration is also set to 0
+
             // very arbitrary!!!
             /* TODO link tis to interface */
             Cover->Drc = 0;
@@ -321,6 +324,8 @@ void TWorld::InitBuffers(void)
             {
                ChannelGrad->Drc = 0.001;
                ChannelN->Drc = 0.25;
+               ChannelKsat->Drc = 0;
+               //no infil in buffer
             }
          }
          // adjust soil and surface properties for buffercells, not sed traps
@@ -367,38 +372,41 @@ void TWorld::InitBuffers(void)
    }
 
    BufferSed = NewMap(0);
+   ChannelBufferSed = NewMap(0);
 
-   if (SwitchBuffers || SwitchSedtrap)
-   {
-      BufferSedInit = NewMap(0);
-      ChannelBufferSedInit = NewMap(0);
+// no initial sediment assumed, volume must reflect empty status
 
-      BufferSed->calc2V(BufferVol, BulkDens, MUL);
-      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
-      // fills up. It is assumed that the sedimented part contains a pore volume
-      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
-      if (SwitchIncludeChannel)
-      {
-         ChannelBufferSed = NewMap(0);
-         FOR_ROW_COL_MV_CH
-               if (BufferID->Drc > 0)
-         {
-            ChannelBufferSed->Drc = BufferSed->Drc;
-            BufferSed->Drc = 0;
-         }
-         //split buffers in channel buffers and slope buffers
-         // in "ToCHannel" all flow in a buffer is dumped in the channel
-         ChannelBufferSedInit->copy(ChannelBufferSed);
-         // copy initial max volume of buffers in channels
-      }
-      BufferSedInit->copy(BufferSed);
-      // copy initial max volume of remaining buffers on slopes
-      BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
-      // sum up total initial volume available in buffers
+//   if (SwitchBuffers || SwitchSedtrap)
+//   {
+//      BufferSedInit = NewMap(0);
+//      ChannelBufferSedInit = NewMap(0);
+
+//      BufferSed->calc2V(BufferVol, BulkDens, MUL);
+//      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
+//      // fills up. It is assumed that the sedimented part contains a pore volume
+//      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
+//      if (SwitchIncludeChannel)
+//      {
+//         ChannelBufferSed = NewMap(0);
+//         FOR_ROW_COL_MV_CH
+//               if (BufferID->Drc > 0)
+//         {
+//            ChannelBufferSed->Drc = BufferSed->Drc;
+//            BufferSed->Drc = 0;
+//         }
+//         //split buffers in channel buffers and slope buffers
+//         // in "ToCHannel" all flow in a buffer is dumped in the channel
+//         ChannelBufferSedInit->copy(ChannelBufferSed);
+//         // copy initial max volume of buffers in channels
+//      }
+//      BufferSedInit->copy(BufferSed);
+//      // copy initial max volume of remaining buffers on slopes
+//      BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
+//      // sum up total initial volume available in buffers
       //BufferSed->fill(0);
       //ChannelBufferSed->fill(0);
       // rset to zero to fill up
-   }
+//   }
 
 }
 //---------------------------------------------------------------------------
@@ -673,10 +681,10 @@ void TWorld::GetInputData(void)
       if (SwitchGrassStrip)
          ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
-      if (SwitchInfilCrust)
+      if (SwitchInfilCrust || SwitchWaterRepellency)
       {
          CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-         ProfileIDCrust = ReadMap(LDD,getvaluename("profcrust"));
+         ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
       }
       else
          CrustFraction = NewMap(0);
@@ -717,6 +725,9 @@ void TWorld::GetInputData(void)
 
    InitMulticlass();
 
+   // not more than 1.0
+//   CrustFraction->calcV(1.0, MAX);
+//   CompactFraction->calcV(1.0, MAX);
 
 }
 //---------------------------------------------------------------------------
@@ -859,6 +870,7 @@ void TWorld::IntializeData(void)
    Qpeak = 0;
    QpeakTime = 0;
    WH = NewMap(0);
+   WHbef = NewMap(0);
    WHrunoff = NewMap(0);
    WHrunoffCum = NewMap(0);
    WHstore = NewMap(0);
@@ -896,7 +908,7 @@ void TWorld::IntializeData(void)
       if (SwatreSoilModel == NULL)
          throw 3;
 
-      if (SwitchInfilCrust)
+      if (SwitchInfilCrust || SwitchWaterRepellency)
       {
          SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelCrust == NULL)
@@ -996,7 +1008,6 @@ void TWorld::IntializeOptions(void)
    SwitchLimitTC = false;
    SwatreInitialized = false;
    SwitchInfilGA2 = false;
-   SwitchCrustPresent = false;
    SwitchWheelPresent = false;
    SwitchCompactPresent = false;
    SwitchIncludeChannel = false;

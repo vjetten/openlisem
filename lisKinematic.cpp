@@ -43,7 +43,7 @@ functions: \n
 
 // check if cell From flows to To
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
+   ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 // check if cell is still inside the map boundaries
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
@@ -72,13 +72,13 @@ functions: \n
  */
 double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
 {
-    double Qsn = 0;
-    double totsed = sed + Sj1i*dt;  // add upstream sed to sed present in cell
-    double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
-    if (totwater <= 1e-10)
-        return (Qsn);
-    Qsn = min(totsed/dt, Qj1i1 * totsed/totwater);
-    return (Qsn); // outflow is new concentration * new out flux
+   double Qsn = 0;
+   double totsed = sed + Sj1i*dt;  // add upstream sed to sed present in cell
+   double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
+   if (totwater <= 1e-10)
+      return (Qsn);
+   Qsn = min(totsed/dt, Qj1i1 * totsed/totwater);
+   return (Qsn); // outflow is new concentration * new out flux
 
 }
 //---------------------------------------------------------------------------
@@ -96,30 +96,30 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
  */
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
 {
-    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
-    const double beta = 0.6;
+   double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
+   const double beta = 0.6;
 
 
-    if (Qj1i1 < MIN_FLUX)
-        return (0);
+   if (Qj1i1 < MIN_FLUX)
+      return (0);
 
-    Qavg = 0.5*(Qji1+Qj1i);
-    if (Qavg <= MIN_FLUX)
-        return (0);
+   Qavg = 0.5*(Qji1+Qj1i);
+   if (Qavg <= MIN_FLUX)
+      return (0);
 
-    Cavg = (Sj1i+Sji1)/(Qj1i+Qji1);
-    aQb = alpha*pow(Qavg,beta);
-    abQb_1 = alpha*beta*pow(Qavg,beta-1);
+   Cavg = (Sj1i+Sji1)/(Qj1i+Qji1);
+   aQb = alpha*pow(Qavg,beta);
+   abQb_1 = alpha*beta*pow(Qavg,beta-1);
 
-    A = dt*Sj1i;
-    B = -dx*Cavg*abQb_1*(Qj1i1-Qji1);
-    C = (Qji1 <= MIN_FLUX ? 0 : dx*aQb*Sji1/Qji1);
-    if (Qj1i1 > MIN_FLUX)
-        Sj1i1 = (dx*dt*s+A+C+B)/(dt+dx*aQb/Qj1i1);
-    else
-        Sj1i1 = 0;
+   A = dt*Sj1i;
+   B = -dx*Cavg*abQb_1*(Qj1i1-Qji1);
+   C = (Qji1 <= MIN_FLUX ? 0 : dx*aQb*Sji1/Qji1);
+   if (Qj1i1 > MIN_FLUX)
+      Sj1i1 = (dx*dt*s+A+C+B)/(dt+dx*aQb/Qj1i1);
+   else
+      Sj1i1 = 0;
 
-    return max(0,Sj1i1);
+   return max(0,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /** Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
@@ -132,54 +132,54 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
 */
 double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX)
 {
-    /* Using Newton-Raphson Method */
-    double  ab_pQ, deltaTX, C;  //auxillary vars
-    int   count;
-    double Qkx; //iterated discharge, becomes Qnew
-    double fQkx; //function
-    double dfQkx;  //derivative
-    const double _epsilon = 1e-12;
-    const double beta = 0.6;
+   /* Using Newton-Raphson Method */
+   double  ab_pQ, deltaTX, C;  //auxillary vars
+   int   count;
+   double Qkx; //iterated discharge, becomes Qnew
+   double fQkx; //function
+   double dfQkx;  //derivative
+   const double _epsilon = 1e-12;
+   const double beta = 0.6;
 
-    /* if no input then output = 0 */
-    if ((Qin + Qold) <= q*deltaX)//0)
-    {
-        itercount = -1;
-        return(0);
-    }
+   /* if no input then output = 0 */
+   if ((Qin + Qold) <= q*deltaX)//0)
+   {
+      itercount = -1;
+      return(0);
+   }
 
-    /* common terms */
-    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
-    // derivative of diagonal average (space-time)
+   /* common terms */
+   ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+   // derivative of diagonal average (space-time)
 
-    deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
-    //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
-    //C is unit volume of water
-    // first gues Qkx
-    Qkx   = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
+   deltaTX = deltaT/deltaX;
+   C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
+   //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
+   //C is unit volume of water
+   // first gues Qkx
+   Qkx   = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
 
-    // VJ 050704, 060830 infil so big all flux is gone
-    //VJ 110114 without this de iteration cannot be solved for very small values
-    if (Qkx < MIN_FLUX)
-    {
-        itercount = -2;
-        return(0);
-    }
+   // VJ 050704, 060830 infil so big all flux is gone
+   //VJ 110114 without this de iteration cannot be solved for very small values
+   if (Qkx < MIN_FLUX)
+   {
+      itercount = -2;
+      return(0);
+   }
 
-    Qkx   = max(Qkx, MIN_FLUX);
+   Qkx   = max(Qkx, MIN_FLUX);
 
-    count = 0;
-    do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */
-        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
-        Qkx   -= fQkx / dfQkx;                                /* Next k */
-        Qkx   = max(Qkx, MIN_FLUX);
-        count++;
-        //qDebug() << count << fQkx << Qkx;
-    } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-    itercount = count;
-    return Qkx;
+   count = 0;
+   do {
+      fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */
+      dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
+      Qkx   -= fQkx / dfQkx;                                /* Next k */
+      Qkx   = max(Qkx, MIN_FLUX);
+      count++;
+      //qDebug() << count << fQkx << Qkx;
+   } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
+   itercount = count;
+   return Qkx;
 }
 //---------------------------------------------------------------------------
 /**
@@ -203,227 +203,248 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
                        TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX
                        ,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed, MapListStruct ml[32])
 {
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+   int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+   int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-    LDD_LINKEDLIST *list = NULL, *temp = NULL;
-    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-    list->prev = NULL;
-    /// start gridcell: outflow point of area
-    list->rowNr = pitRowNr;
-    list->colNr = pitColNr;
+   /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+   LDD_LINKEDLIST *list = NULL, *temp = NULL;
+   list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+   list->prev = NULL;
+   /// start gridcell: outflow point of area
+   list->rowNr = pitRowNr;
+   list->colNr = pitColNr;
 
-    while (list != NULL)
-    {
-        int i = 0;
-        bool  subCachDone = true; // are sub-catchment cells done ?
-        int rowNr = list->rowNr;
-        int colNr = list->colNr;
+   while (list != NULL)
+   {
+      int i = 0;
+      bool  subCachDone = true; // are sub-catchment cells done ?
+      int rowNr = list->rowNr;
+      int colNr = list->colNr;
 
-        /** put all points that have to be calculated to calculate the current point in the list,
+      /** put all points that have to be calculated to calculate the current point in the list,
          before the current point */
-        for (i=1; i<=9; i++)
-        {
-            int r, c;
-            int ldd = 0;
+      for (i=1; i<=9; i++)
+      {
+         int r, c;
+         int ldd = 0;
 
-            // this is the current cell
-            if (i==5)
-                continue;
+         // this is the current cell
+         if (i==5)
+            continue;
+
+         r = rowNr+dy[i];
+         c = colNr+dx[i];
+
+         if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            ldd = (int) _LDD->Drc;
+         else
+            continue;
+
+         // check if there are more cells upstream, if not subCatchDone remains true
+         if (IS_MV_REAL4(&_Qn->Drc) &&
+             FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+             INSIDE(r, c))
+         {
+            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+            temp->prev = list;
+            list = temp;
+            list->rowNr = r;
+            list->colNr = c;
+            subCachDone = false;
+         }
+      }
+
+      // all cells above a cell are linked in a "sub-catchment or branch
+      // continue with water and sed calculations
+      // rowNr and colNr are the last upstreM cell linked
+      if (subCachDone)
+      {
+         double Qin=0.0, Sin=0.0;
+
+         // multiclass and nutrients
+         double MCin[6];
+         double NUTin[12];
+         for (i = 0; i < 6; i++)
+            MCin[i] = 0;
+         for (i = 0; i < 12; i++)
+            NUTin[i] = 0;
+
+         // for all incoming cells,sumQ and Sed in Qin and Sin
+         for (i=1;i<=9;i++)
+         {
+            int r, c, ldd = 0;
+
+            if (i==5)  // Skip current cell
+               continue;
 
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
-                ldd = (int) _LDD->Drc;
+            if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+               ldd = (int) _LDD->Drc;
             else
-                continue;
+               continue;
 
-            // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
-                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                    INSIDE(r, c))
+            if (INSIDE(r, c) &&
+                FLOWS_TO(ldd, r,c,rowNr, colNr) &&
+                !IS_MV_REAL4(&_LDD->Drc) )
             {
-                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                temp->prev = list;
-                list = temp;
-                list->rowNr = r;
-                list->colNr = c;
-                subCachDone = false;
+               Qin += _Qn->Drc;
+               if (SwitchErosion)
+                  Sin += _Qsn->Drc;
+
+               // ADD MC and NUTs HERE
             }
-        }
+         }
 
-        // all cells above a cell are linked in a "sub-catchment or branch
-        // continue with water and sed calculations
-        // rowNr and colNr are the last upstreM cell linked
-        if (subCachDone)
-        {
-            double Qin=0.0, Sin=0.0;
+         bool isBufferCellWater = false;
+         bool isBufferCellSed = false;
 
-            // multiclass and nutrients
-            double MCin[6];
-            double NUTin[12];
-            for (i = 0; i < 6; i++)
-                MCin[i] = 0;
-            for (i = 0; i < 12; i++)
-                NUTin[i] = 0;
-
-            // for all incoming cells,sumQ and Sed in Qin and Sin
-            for (i=1;i<=9;i++)
+         //water in buffers
+         if(SwitchBuffers)
+         {
+            //_StorVol is remaining space in buffers, not water in buffers.
+            //_StorVol will go to 0
+            if (/*BufferID->Data[rowNr][colNr] > 0 &&*/ _StorVol->Data[rowNr][colNr] > 0)
             {
-                int r, c, ldd = 0;
+               isBufferCellWater = true;
+               //buffer still active
+               _StorVol->Data[rowNr][colNr] -= Qin*_dt;
+               // fill up storage with incoming water
 
-                if (i==5)  // Skip current cell
-                    continue;
+//               _StorVol->Data[rowNr][colNr] += _q->Data[rowNr][colNr]*_DX->Data[rowNr][colNr]*_dt;
+//               // add q (-infil) in m3 from m2/s
+//               _StorVol->Data[rowNr][colNr] -= _Vol->Data[rowNr][colNr];
+//               // add volume present, can be rainfall and inflow from
+//               _q->Data[rowNr][colNr] = 0;
+//               _Vol->Data[rowNr][colNr] = 0;
 
-                r = rowNr+dy[i];
-                c = colNr+dx[i];
+               Qin = 0;
+               // buffer is not full, no outflow
+               if (_StorVol->Data[rowNr][colNr] < 0)  // store overflowing
+               {
+                  Qin = -_StorVol->Data[rowNr][colNr]/_dt;
+                  // overflow part becomes flux again
+                  _StorVol->Data[rowNr][colNr] = 0;
+                  // remaining store = 0
+                  isBufferCellWater = false;
+                  //buffer is full, outflow
+               }
 
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
-                else
-                    continue;
-
-                if (INSIDE(r, c) &&
-                        FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
-                {
-                    Qin += _Qn->Drc;
-                    if (SwitchErosion)
-                        Sin += _Qsn->Drc;
-
-                    // ADD MC and NUTs HERE
-                }
+               if (isBufferCellWater)
+                  _Qn->Data[rowNr][colNr] = 0;
             }
+         }
 
-            bool isBufferCellWater = false;
-            bool isBufferCellSed = false;
-            //double incoming = 0;
-
-            //water in buffers
-            if(SwitchBuffers)
+         if(SwitchBuffers || SwitchSedtrap)
+         {
+            // if there is water storage catch all the sediment
+            if (_StorVol->Data[rowNr][colNr] > 0)
             {
-                //_StorVol is remaining space in buffers, not water in buffers.
-                //_StorVol will go to 0
-                if (BufferID->Data[rowNr][colNr] > 0 && _StorVol->Data[rowNr][colNr] > 0)
-                {
-                    isBufferCellWater = true;
-                    //buffer still active
-                    _StorVol->Data[rowNr][colNr] -= Qin*_dt;
-                    // fill up storage with incoming water
-                    Qin = 0;
-                    // buffer is not full, no outflow
-                    if (_StorVol->Data[rowNr][colNr] < 0)  // store overflowing
-                    {
-                        Qin = -_StorVol->Data[rowNr][colNr]/_dt;
-                        // overflow part becomes flux again
-                        _StorVol->Data[rowNr][colNr] = 0;
-                        // remaining store = 0
-                        isBufferCellWater = false;
-                        //buffer is full, outflow
-                    }
+               _StorSed->Data[rowNr][colNr] += Sin*_dt;
+               Sin = 0;
+               isBufferCellSed = true;
+               //buffer still active
 
-                    if (isBufferCellWater)
-                        _Qn->Data[rowNr][colNr] = 0;
-                }
+               _StorVol->Data[rowNr][colNr] -= _StorSed->Data[rowNr][colNr]/2600;
+               // decrease storvol with volume loss caused by sediment
+               // the bulkdensity does not matter, the volume taken up is related
+               // to the particle desity dens, because the pores are filled
+               // if we use bulk dens here we assume pores are empty!
+
+               if (_StorVol->Data[rowNr][colNr] < 0)
+               {
+                  Qin = -_StorVol->Data[rowNr][colNr]/_dt;
+                  // overflow part becomes flux again
+                  _StorVol->Data[rowNr][colNr] = 0;
+                  // remaining store = 0
+                  isBufferCellWater = false;
+                  //buffer is full, outflow
+                  isBufferCellSed = false;
+               }
             }
+            //correct water volume for sediment inflow
 
-            if(SwitchBuffers || SwitchSedtrap)
-            {
-                if (BufferID->Data[rowNr][colNr] > 0 && _StorSed->Data[rowNr][colNr] > 0)
-                {
-                    isBufferCellSed = true;
-                    //buffer still active
-                    _StorSed->Data[rowNr][colNr] -= Sin*_dt;
-                    // add incoming to sed store, note: sed store calculated in datainit
-                    // so sed store decreases
-                    if (!SwitchSedtrap)
-                    {
-                        // TODO check this
 
-                        // incoming = Sin*_dt/2650;
-                        // fill water store up with sediment, decreasing volume
-                        // the bulkdensity does not matter, the volume taken up is related
-                        // to the particle desity dens, because the pores are filled
-                        // if we use bulk dens here we assume pores are empty!
 
-                        //  _StorVol->Data[rowNr][colNr] -= incoming;
-                        //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
-                        //	if (BufferVolInit->Data[rowNr][colNr] > 0)
-                        //		BufferVolInit->Data[rowNr][colNr] -= incoming;
-                        //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
-                        //	   ChannelBufferVolInit->Data[rowNr][colNr] -= incoming;
-                        // adjust the total volume because it has decreased,
-                        // Note: the extra released water is not made avaliable
-                        // channel and slope are mutually exclusive, one or the other
-                    }
-                    Sin = 0;
-                    // if last sed caused overflow, add surplus to moving sediment Sin
-                    if (_StorSed->Data[rowNr][colNr] < 0)
-                    {
-                        Sin = -_StorSed->Data[rowNr][colNr]/_dt;
-                        _StorSed->Data[rowNr][colNr] = 0;
-                        isBufferCellSed = false;
-                        //buffer is full, outflow
-                    }
+            // add incoming to sed store, note: sed store calculated in datainit
+            // so sed store decreases
+            //if (!SwitchSedtrap)
+            //{
+            // TODO check this
 
-                    if (isBufferCellSed)
-                    {
-                        _Qsn->Data[rowNr][colNr] = 0;
-                        _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
-                    }
+            // incoming = Sin*_dt/2650;
+            // fill water store up with sediment, decreasing volume
+            // the bulkdensity does not matter, the volume taken up is related
+            // to the particle desity dens, because the pores are filled
+            // if we use bulk dens here we assume pores are empty!
 
-                }
-            }
+            //  _StorVol->Data[rowNr][colNr] -= incoming;
+            //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
+            //	if (BufferVolInit->Data[rowNr][colNr] > 0)
+            //		BufferVolInit->Data[rowNr][colNr] -= incoming;
+            //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
+            //	   ChannelBufferVolInit->Data[rowNr][colNr] -= incoming;
+            // adjust the total volume because it has decreased,
+            // Note: the extra released water is not made avaliable
+            // channel and slope are mutually exclusive, one or the other
+            //}
+            //Sin = 0;
+            // if last sed caused overflow, add surplus to moving sediment Sin
+            //                    if (_StorSed->Data[rowNr][colNr] < 0)
+            //                    {
+            //                        Sin = -_StorSed->Data[rowNr][colNr]/_dt;
+            //                        _StorSed->Data[rowNr][colNr] = 0;
+            //                        isBufferCellSed = false;
+            //                        //buffer is full, outflow
+            //                    }
 
-            if (!isBufferCellWater)
-            {
-                itercount = 0;
-                _Qn->Data[rowNr][colNr] = IterateToQnew(Qin, _Q->Data[rowNr][colNr], _q->Data[rowNr][colNr],
-                                                        _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
-                // Newton Rapson iteration for water of current cell
+            //               if (isBufferCellSed)
+            //               {
+            //                  _Qsn->Data[rowNr][colNr] = 0;
+            //                  _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            //                  // bizar: sin is nul, qsn is nul dus hier staat sed = sed
+            //               }
 
-                _q->Data[rowNr][colNr] = Qin;
-                //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
-                // q is now in m3/s
+         }
 
-                tm->Data[rowNr][colNr] = Qin;
-                // auxilary map to remeber Qin for infiltration calc at the end of this function
-            }
+         // if cell is not a buffer cell or buffer is filled calc outflow with iteration
+         if (!isBufferCellWater)
+         {
+            itercount = 0;
+            _Qn->Data[rowNr][colNr] = IterateToQnew(Qin, _Q->Data[rowNr][colNr], _q->Data[rowNr][colNr],
+                                                    _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+            // Newton Rapson iteration for water of current cell
 
-            if (SwitchErosion && !isBufferCellSed)
-            {
-                if (!SwitchSimpleSedKinWave)
-                    _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
-                                                              Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
-                else
-                    _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
-                                                             _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
+            _q->Data[rowNr][colNr] = Qin;
+            //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
+            // q is now in m3/s
+         }
 
-                _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
-                // no more sediment outflow than total sed in cell
-                _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
-                // new sed volume based on all fluxes and org sed present
+         // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration
+         if (SwitchErosion && !isBufferCellSed)
+         {
+            if (!SwitchSimpleSedKinWave)
+               _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
+                                                         Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+            else
+               _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
+                                                        _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-            }
-            /* cell rowN, colNr is now done */
+            _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+            // no more sediment outflow than total sed in cell
+            _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            // new sed volume based on all fluxes and org sed present
 
-            temp=list;
-            list=list->prev;
-            free(temp);
-            // go to the previous cell in the list
+         }
+         /* cell rowN, colNr is now done */
 
-        }/* eof subcatchment done */
-    } /* eowhile list != NULL */
+         temp=list;
+         list=list->prev;
+         free(temp);
+         // go to the previous cell in the list
 
-    //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
-    //   for (int r = 0; r < _nrRows; r++)
-    //      for (int c = 0; c < _nrCols; c++)
-    //         if(!IS_MV_REAL8(&_LDD->Data[r][c]))
-    //         {
-    //            double volAfter = _Alpha->Drc * pow(_Qn->Drc, 0.6) * _DX->Drc;
-    //            _q->Drc = tm->Drc*_dt + _Vol->Drc - volAfter - _Qn->Drc*_dt;
-    //         }
+      }/* eof subcatchment done */
+   } /* eowhile list != NULL */
 }
 

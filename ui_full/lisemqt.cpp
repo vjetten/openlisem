@@ -131,6 +131,8 @@ void lisemqt::SetConnections()
     // double click on mapnake opens fileopen
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     // doubleclick on mapname edits mapname
+
+    connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
@@ -281,7 +283,7 @@ void lisemqt::setMapDir()
 }
 //--------------------------------------------------------------------
 void lisemqt::setResultDir()
-{
+{\
     QString path;
     QString pathin;
 
@@ -321,7 +323,8 @@ void lisemqt::on_toolButton_SwatreTableFile_clicked()
     QString path;
     path = QFileDialog::getOpenFileName(this,
                                         QString("Select SWATRE table"),
-                                        SwatreTableName);
+                                        SwatreTableName,
+                                        "Profiles (*.inp);;All files (*.*)");
     if(!path.isEmpty())
     {
 
