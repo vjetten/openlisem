@@ -308,17 +308,15 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
             if (/*BufferID->Data[rowNr][colNr] > 0 &&*/ _StorVol->Data[rowNr][colNr] > 0)
             {
                isBufferCellWater = true;
-               //buffer still active
+               //buffer still active, skip normal kin wave
+
                _StorVol->Data[rowNr][colNr] -= Qin*_dt;
                // fill up storage with incoming water
 
-//               _StorVol->Data[rowNr][colNr] += _q->Data[rowNr][colNr]*_DX->Data[rowNr][colNr]*_dt;
-//               // add q (-infil) in m3 from m2/s
-//               _StorVol->Data[rowNr][colNr] -= _Vol->Data[rowNr][colNr];
-//               // add volume present, can be rainfall and inflow from
-//               _q->Data[rowNr][colNr] = 0;
-//               _Vol->Data[rowNr][colNr] = 0;
+               //               _StorVol->Data[rowNr][colNr] += _q->Data[rowNr][colNr]*_DX->Data[rowNr][colNr]*_dt;
+               //               // add q (-infil) in m3 from m2/s
 
+               _q->Data[rowNr][colNr] = Qin;
                Qin = 0;
                // buffer is not full, no outflow
                if (_StorVol->Data[rowNr][colNr] < 0)  // store overflowing
@@ -328,7 +326,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
                   _StorVol->Data[rowNr][colNr] = 0;
                   // remaining store = 0
                   isBufferCellWater = false;
-                  //buffer is full, outflow
+                  //buffer is full, go to normal kin wave outflow
                }
 
                if (isBufferCellWater)
@@ -336,76 +334,39 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
             }
          }
 
-         if(SwitchBuffers || SwitchSedtrap)
+         // sediment in buffers
+         if(SwitchErosion && (SwitchBuffers || SwitchSedtrap))
          {
             // if there is water storage catch all the sediment
             if (_StorVol->Data[rowNr][colNr] > 0)
             {
-               _StorSed->Data[rowNr][colNr] += Sin*_dt;
-               Sin = 0;
                isBufferCellSed = true;
                //buffer still active
 
-               _StorVol->Data[rowNr][colNr] -= _StorSed->Data[rowNr][colNr]/2600;
-               // decrease storvol with volume loss caused by sediment
-               // the bulkdensity does not matter, the volume taken up is related
-               // to the particle desity dens, because the pores are filled
-               // if we use bulk dens here we assume pores are empty!
+               _StorSed->Data[rowNr][colNr] += Sin*_dt;
+               Sin = 0;
 
-               if (_StorVol->Data[rowNr][colNr] < 0)
+               if (!SwitchSedtrap)
                {
-                  Qin = -_StorVol->Data[rowNr][colNr]/_dt;
-                  // overflow part becomes flux again
-                  _StorVol->Data[rowNr][colNr] = 0;
-                  // remaining store = 0
-                  isBufferCellWater = false;
-                  //buffer is full, outflow
-                  isBufferCellSed = false;
+                  _StorVol->Data[rowNr][colNr] -= Sin/2600;
+                  // decrease storvol with volume loss caused by incoming sediment
+                  // the bulkdensity does not matter, the volume taken up is related
+                  // to the particle desity dens, because the pores are filled with water
+                  // if we use bulk dens here we assume pores are empty!
+
+                  if (_StorVol->Data[rowNr][colNr] < 0)
+                  {
+                     Qin = -_StorVol->Data[rowNr][colNr]/_dt;
+                     // overflow part becomes flux again
+                     _StorVol->Data[rowNr][colNr] = 0;
+                     // remaining store = 0
+                     isBufferCellWater = false;
+                     //buffer is full, outflow in kin wave
+                     isBufferCellSed = false;
+                     //buffer is full, sed outflow in kin wave
+                  }
                }
             }
-            //correct water volume for sediment inflow
-
-
-
-            // add incoming to sed store, note: sed store calculated in datainit
-            // so sed store decreases
-            //if (!SwitchSedtrap)
-            //{
-            // TODO check this
-
-            // incoming = Sin*_dt/2650;
-            // fill water store up with sediment, decreasing volume
-            // the bulkdensity does not matter, the volume taken up is related
-            // to the particle desity dens, because the pores are filled
-            // if we use bulk dens here we assume pores are empty!
-
-            //  _StorVol->Data[rowNr][colNr] -= incoming;
-            //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
-            //	if (BufferVolInit->Data[rowNr][colNr] > 0)
-            //		BufferVolInit->Data[rowNr][colNr] -= incoming;
-            //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
-            //	   ChannelBufferVolInit->Data[rowNr][colNr] -= incoming;
-            // adjust the total volume because it has decreased,
-            // Note: the extra released water is not made avaliable
-            // channel and slope are mutually exclusive, one or the other
-            //}
-            //Sin = 0;
-            // if last sed caused overflow, add surplus to moving sediment Sin
-            //                    if (_StorSed->Data[rowNr][colNr] < 0)
-            //                    {
-            //                        Sin = -_StorSed->Data[rowNr][colNr]/_dt;
-            //                        _StorSed->Data[rowNr][colNr] = 0;
-            //                        isBufferCellSed = false;
-            //                        //buffer is full, outflow
-            //                    }
-
-            //               if (isBufferCellSed)
-            //               {
-            //                  _Qsn->Data[rowNr][colNr] = 0;
-            //                  _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
-            //                  // bizar: sin is nul, qsn is nul dus hier staat sed = sed
-            //               }
-
          }
 
          // if cell is not a buffer cell or buffer is filled calc outflow with iteration

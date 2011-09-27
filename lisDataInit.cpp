@@ -324,7 +324,8 @@ void TWorld::InitBuffers(void)
             {
                ChannelGrad->Drc = 0.001;
                ChannelN->Drc = 0.25;
-               ChannelKsat->Drc = 0;
+               if (SwitchChannelInfil)
+                  ChannelKsat->Drc = 0;
                //no infil in buffer
             }
          }

@@ -12860,6 +12860,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelBaseflow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>346</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkChannelInfil</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>346</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>109</x>
+     <y>390</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
   <buttongroup name="buttonGroup_3"/>

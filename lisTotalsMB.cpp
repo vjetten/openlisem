@@ -163,6 +163,8 @@ void TWorld::Totals(void)
 
    if (SwitchBuffers)
    {
+      BufferVol->report("bufvol");
+
       BufferVolTot = BufferVol->MapTotal(); // in m3
       if (SwitchIncludeChannel)
          BufferVolTot += ChannelBufferVol->MapTotal();
@@ -235,7 +237,7 @@ void TWorld::Totals(void)
          BufferSedTot = BufferSed->MapTotal();
          if (SwitchIncludeChannel)
             BufferSedTot += ChannelBufferSed->MapTotal();
-         //BufferSedTot = BufferSedTotInit - BufferSedTot;
+
       }
       /** TODO add gully, wheeltracks etc */
 
@@ -261,7 +263,8 @@ void TWorld::MassBalance()
    // Mass Balance water, all in m3
    // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
    if (RainTot + SnowTot > 0)
-      MB = (RainTot + SnowTot + WaterVolSoilTot - IntercTot - InfilTot - WaterVolTot - BufferVolin - Qtot)/
+      MB = (RainTot + SnowTot + WaterVolSoilTot
+            - IntercTot - InfilTot - WaterVolTot - Qtot - BufferVolin)/
             (RainTot + SnowTot + WaterVolSoilTot)*100;
    //watervoltot includes channel and tile
 

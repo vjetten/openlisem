@@ -107,9 +107,9 @@ void TWorld::ChannelFlow(void)
    {
       /*---- Water ----*/
 
-      ChannelQsn->Drc =0;
-      Channelq->Drc =0;
-      ChannelQoutflow->Drc =0;
+      ChannelQsn->Drc = 0;
+      Channelq->Drc = 0;
+      ChannelQoutflow->Drc = 0;
       ChannelWH->Drc = 0;
 
       ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
@@ -122,7 +122,7 @@ void TWorld::ChannelFlow(void)
       {
          ChannelBufferVol->Drc -= ChannelWaterVol->Drc;
          ChannelWaterVol->Drc = 0;
-
+         // add inflow from slopes and rainfall to buffer
       }
 
       if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel
@@ -168,17 +168,10 @@ void TWorld::ChannelFlow(void)
       if (SwitchChannelInfil)
       {
          Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
+         //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
       }
-      else
-         Channelq->Drc = 0;
-      //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
+      // NOTE: for buffers channelksat = 0
 
-      if (SwitchBuffers && ChannelBufferVol->Drc > 0)
-      {
-         ChannelBufferVol->Drc += Channelq->Drc * DX->Drc * _dt;
-         Channelq->Drc = 0;
-
-      }
    }
 
    CalcVelDischChannel();
@@ -238,8 +231,16 @@ void TWorld::ChannelFlow(void)
       ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
       // water height is not used except for output i.e. watervolume is cycled
 
+      double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
+      //difference between fluxes and store in and out of channel cell
+
+      if (SwitchBuffers && ChannelBufferVol->Drc > 0)
+      {
+         qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
+      }
+      else
       if (SwitchChannelInfil)
-         InfilVolKinWave->Drc += Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
+         InfilVolKinWave->Drc += diff;
       //VJ 110111 add channel infil to infil for mass balance
 
       ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
