@@ -223,7 +223,7 @@ void TWorld::InitTiledrains(void)
    TileVolTot = 0;
    TileWaterVol = NewMap(0);
    TileWaterVolSoil = NewMap(0);
-   TileQoutflow = NewMap(0);
+   //TileQoutflow = NewMap(0);
    RunoffVolinToTile = NewMap(0);
    TileQ = NewMap(0);
    TileQn = NewMap(0);
@@ -422,9 +422,9 @@ void TWorld::InitChannel(void)
    SedToChannel = NewMap(0);
    ChannelWidthUpDX = NewMap(0);
    ChannelWaterVol = NewMap(0);
-   ChannelQoutflow = NewMap(0);
+   //ChannelQoutflow = NewMap(0);
    RunoffVolinToChannel = NewMap(0);
-   ChannelQsoutflow = NewMap(0);
+   //ChannelQsoutflow = NewMap(0);
    ChannelQ = NewMap(0);
    ChannelQn = NewMap(0);
    ChannelQs = NewMap(0);
@@ -885,7 +885,7 @@ void TWorld::IntializeData(void)
    Qn = NewMap(0);
    Qoutput = NewMap(0);
    Qsoutput = NewMap(0);
-   Qoutflow = NewMap(0); // value of Qn*dt in pits only
+   //Qoutflow = NewMap(0); // value of Qn*dt in pits only
    q = NewMap(0);
    R = NewMap(0);
    Perim = NewMap(0);
@@ -942,7 +942,7 @@ void TWorld::IntializeData(void)
    SedTot = 0;
    Qs = NewMap(0);
    Qsn = NewMap(0);
-   Qsoutflow = NewMap(0);
+   //Qsoutflow = NewMap(0);
    DETSplash = NewMap(0);
    DETFlow = NewMap(0);
    DEP = NewMap(0);

@@ -96,16 +96,21 @@ void TWorld::Totals(void)
    // water on the surface in runoff in m3 and mm
    //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
-   Qtot += Qoutflow->DrcOutlet; //MapTotal();
-   // sum outflow m3 for all timesteps for all pits, is already mult by dt
+   //   Qtot += Qoutflow->DrcOutlet;
+   // sum outflow m3 for all timesteps for the outlet, is already mult by dt
+   Qtot += Qn->DrcOutlet*_dt;
+   // sum outflow m3 for all timesteps for the outlet, in m3
    // needed for mass balance
    //Qtotmm = Qtot*catchmentAreaFlatMM;
    // in mm for screen output
 
-   QtotOutlet += Qoutflow->DrcOutlet;
+   //   QtotOutlet += Qoutflow->DrcOutlet;
+   QtotOutlet += Qn->DrcOutlet*_dt;
    // for screen output, total main outlet in m3
-   QtotPlot += Qoutflow->DrcPlot;
+   //   QtotPlot += Qoutflow->DrcPlot;
+   QtotPlot += Qn->DrcPlot * _dt;
    //VJ 110701 for screen output, total of hydrograph point in m3
+
    TotalWatervol->copy(WaterVolall);
    // for sed conc calc output
 
@@ -117,14 +122,17 @@ void TWorld::Totals(void)
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
 
-      Qtot += ChannelQoutflow->DrcOutlet; //MapTotal();
+      //Qtot += ChannelQoutflow->DrcOutlet;
+      Qtot += ChannelQn->DrcOutlet*_dt;
       // add channel outflow (in m3) to total for all pits
       //Qtotmm = Qtot*catchmentAreaFlatMM;
       // recalc in mm for screen output
 
-      QtotOutlet += ChannelQoutflow->DrcOutlet;
+      //QtotOutlet += ChannelQoutflow->DrcOutlet;
+      QtotOutlet += ChannelQn->DrcOutlet * _dt;
       // add channel outflow (in m3) to total for main outlet
-      QtotPlot += ChannelQoutflow->DrcPlot;
+      //QtotPlot += ChannelQoutflow->DrcPlot;
+      QtotPlot += ChannelQn->DrcPlot * _dt;
       // add channel outflow (in m3) to total for main outlet
       TotalWatervol->calc(ChannelWaterVol,ADD);
       // add channel volume to total for sed conc calc
@@ -147,14 +155,17 @@ void TWorld::Totals(void)
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
 
-      Qtot += TileQoutflow->DrcOutlet; //MapTotal();
+      //Qtot += TileQoutflow->DrcOutlet;
+      Qtot += TileQn->DrcOutlet * _dt;
       // add tile outflow (in m3) to total for all pits
       //Qtotmm = Qtot*catchmentAreaFlatMM;
       // recalc in mm for screen output
 
-      QtotOutlet += TileQoutflow->DrcOutlet;
+      //QtotOutlet += TileQoutflow->DrcOutlet;
+      QtotOutlet += TileQn->DrcOutlet * _dt;
       // add channel outflow (in m3) to total for main outlet
-      QtotPlot += TileQoutflow->DrcPlot;
+      //QtotPlot += TileQoutflow->DrcPlot;
+      QtotPlot += TileQn->DrcPlot * _dt;
       // add channel outflow (in m3) to total for main outlet
       TotalWatervol->calc(TileWaterVol,ADD);
       // add channel volume to total for sed conc calc
@@ -169,7 +180,6 @@ void TWorld::Totals(void)
       if (SwitchIncludeChannel)
          BufferVolTot += ChannelBufferVol->MapTotal();
       //sum up all volume remaining in all buffers (so the non-water!)
-      //BufferVolTotInit = BufferVolInit->MapTotal() + ChannelBufferVolInit->MapTotal();
       BufferVolin = BufferVolTotInit - BufferVolTot;
       //subtract this from the initial volume to get the total water inflow in the buffers
    }
@@ -201,10 +211,12 @@ void TWorld::Totals(void)
       SedTot = Sed->MapTotal();
       // all in kg/cell
 
-      SoilLossTot += Qsoutflow->MapTotal();
+      //SoilLossTot += Qsoutflow->DrcOutlet;
+      SoilLossTot += Qsn->DrcOutlet * _dt;
       // sum all sed in all pits (in kg), needed for mass balance
 
-      SoilLossTotOutlet += Qsoutflow->DrcOutlet;
+      //SoilLossTotOutlet += Qsoutflow->DrcOutlet;
+      SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
       // for screen output, total main outlet sed loss in kg
       TotalSed->copy(Sed);
       // for sed conc
@@ -216,10 +228,12 @@ void TWorld::Totals(void)
          ChannelDepTot += ChannelDep->MapTotal();
          ChannelSedTot = ChannelSed->MapTotal();
 
-         SoilLossTot += ChannelQsoutflow->MapTotal();
+         //SoilLossTot += ChannelQsoutflow->MapTotal();
+         SoilLossTot += ChannelQsn->DrcOutlet * _dt;
          // add sed outflow for all pits to total soil loss
 
-         SoilLossTotOutlet += ChannelQsoutflow->DrcOutlet;
+         //SoilLossTotOutlet += ChannelQsoutflow->DrcOutlet;
+         SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
          // add channel outflow (in kg) to total for main outlet
 
          TotalSed->calc(ChannelSed, ADD);
@@ -228,7 +242,7 @@ void TWorld::Totals(void)
 
       FOR_ROW_COL_MV
       {
-         TotalConc->Drc = min(MAXCONC,(TotalWatervol->Drc > 1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
+         TotalConc->Drc = min(MAXCONC,(TotalWatervol->Drc > _dx*_dx*1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
       }
       // for file output
 

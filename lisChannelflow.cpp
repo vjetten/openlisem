@@ -109,7 +109,7 @@ void TWorld::ChannelFlow(void)
 
       ChannelQsn->Drc = 0;
       Channelq->Drc = 0;
-      ChannelQoutflow->Drc = 0;
+      //ChannelQoutflow->Drc = 0;
       ChannelWH->Drc = 0;
 
       ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
@@ -184,7 +184,7 @@ void TWorld::ChannelFlow(void)
 
       FOR_ROW_COL_MV_CH
       {
-         ChannelQsoutflow->Drc = 0;
+//         ChannelQsoutflow->Drc = 0;
          ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
       }
    }
@@ -209,14 +209,14 @@ void TWorld::ChannelFlow(void)
    }
 
    //   ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
-   FOR_ROW_COL_MV_CH
-         if (LDDChannel->Drc == 5)
-         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
+//   FOR_ROW_COL_MV_CH
+//      //   if (LDDChannel->Drc == 5)
+//         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
 
-   if (SwitchErosion)
-      FOR_ROW_COL_MV_CH
-            if (LDDChannel->Drc == 5)
-            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
+//   if (SwitchErosion)
+//      FOR_ROW_COL_MV_CH
+//         //   if (LDDChannel->Drc == 5)
+//            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
    //      ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
    // these maps now contain m3 and kg per timestep in pit cells
 
@@ -236,7 +236,7 @@ void TWorld::ChannelFlow(void)
 
       if (SwitchBuffers && ChannelBufferVol->Drc > 0)
       {
-         qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
+         //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
       }
       else
       if (SwitchChannelInfil)

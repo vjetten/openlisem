@@ -121,7 +121,7 @@ void TWorld::TileFlow(void)
 
       TileQsn->Drc = 0;
       Tileq->Drc = 0;
-      TileQoutflow->Drc = 0;
+      //TileQoutflow->Drc = 0;
 
       //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
       // cannot have more water than fits in size
@@ -153,9 +153,9 @@ void TWorld::TileFlow(void)
    }
 
    //   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
-   FOR_ROW_COL_MV_TILE
-         if (LDDTile->Drc == 5)
-         TileQoutflow->Drc = TileQn->Drc * _dt;
+//   FOR_ROW_COL_MV_TILE
+//      //   if (LDDTile->Drc == 5)
+//         TileQoutflow->Drc = TileQn->Drc * _dt;
 
    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
    TileQs->cover(LDD, 0);
