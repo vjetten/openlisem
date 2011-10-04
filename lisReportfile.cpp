@@ -99,7 +99,7 @@ void TWorld::OutputUI()
    // VJ 110630 show hydrograph for selected output point
 
    op.BufferVolTot = BufferVolin;//Tot;
-   op.BufferSedTot = BufferSedTot*0.001; // convert from kg to ton
+   op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition
 
    emit show();
    // send the op structure with data to function worldShow the interface
@@ -467,32 +467,48 @@ void TWorld::ReportTotalsNew()
 /// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps()
 {
+   //   if (units == 0)
+   //      checkUnits_tonha->setChecked(true);
+   //   if (units == 1)
+   //      checkUnits_kgcell->setChecked(true);
+   //   if (units == 2)
+   //      checkUnits_kgm2->setChecked(true);
    if(SwitchErosion)
    {
       // VJ 110111 erosion units
       tm->copy(TotalDetMap); //kg/cell
-      if (ErosionUnits < 2)  // in kg/m2
+      if (ErosionUnits == 2)  // in kg/m2
          tm->calc(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
+      {
+         tm->calc(CellArea, DIV);
          tm->calcV(10, MUL);
+      }
+
       tm->mwrite(totalErosionFileName);
       if (outputcheck[5].toInt() == 1)
          tm->report(Outeros); // in units
 
       tm->copy(TotalDepMap); //kg/cell
-      if (ErosionUnits < 2)  // in kg/m2
+      if (ErosionUnits == 2)  // in kg/m2
          tm->calc(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
+      {
+         tm->calc(CellArea, DIV);
          tm->calcV(10, MUL);
+      }
       tm->mwrite(totalDepositionFileName);
       if (outputcheck[6].toInt() == 1)
          tm->report(Outdepo); // in units
 
       tm->copy(TotalSoillossMap); //kg/cell
-      if (ErosionUnits < 2)  // in kg/m2
+      if (ErosionUnits == 2)  // in kg/m2
          tm->calc(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
+      {
+         tm->calc(CellArea, DIV);
          tm->calcV(10, MUL);
+      }
       tm->mwrite(totalSoillossFileName);
 
       if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
