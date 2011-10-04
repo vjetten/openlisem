@@ -174,8 +174,6 @@ void TWorld::Totals(void)
 
    if (SwitchBuffers)
    {
-      BufferVol->report("bufvol");
-
       BufferVolTot = BufferVol->MapTotal(); // in m3
       if (SwitchIncludeChannel)
          BufferVolTot += ChannelBufferVol->MapTotal();
@@ -239,7 +237,7 @@ void TWorld::Totals(void)
          TotalSed->calc(ChannelSed, ADD);
          // needed for sed conc in file output
       }
-
+TotalSed->report("sed");
       FOR_ROW_COL_MV
       {
          TotalConc->Drc = min(MAXCONC,(TotalWatervol->Drc > _dx*_dx*1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
