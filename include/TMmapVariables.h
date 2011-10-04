@@ -72,11 +72,11 @@ TMMap
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
-*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
+//*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
-*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]
+//*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]
 *Qsoutput,                   //!< sediemnt outflow for screen/file output, sum of overland flow and channel [kg/s]
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
@@ -89,7 +89,7 @@ TMMap
 *RoadWidthDX,                //!< width of tarred roads [m]
 *StoneFraction,              //!< fraction of stones on the surface, affects splash [-]
 *CompactFraction,            //!< fraction compacted at the surface, uses ksat compact [-]
-*CrustFraction,              //!< fraction crusted at the surface, uses ksat crust [-] 
+*CrustFraction,              //!< fraction crusted at the surface, uses ksat crust [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
 
 *PlantHeight,                //!< height of vegetation/crops [m]
@@ -105,7 +105,7 @@ TMMap
 *RootCohesion,               //!< cohesion soil [kPa]
 *CohesionSoil,               //!< cohesion by plant roots [kPa]
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
-*AggrStab,                   //!< aggregate stability, median of drops in lowe test [-] 
+*AggrStab,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
 *DETSplash,                  //!< splash detachment [kg/m^2]
 *DETFlow,                    //!< flow detachment [kg/m^2]
@@ -169,7 +169,7 @@ TMMap
 *ChannelQn,                  //!<
 *ChannelQs,                  //!<
 *ChannelQsn,                 //!<
-*ChannelQoutflow,            //!<
+//*ChannelQoutflow,            //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
 *ChannelN,                   //!<
@@ -188,7 +188,7 @@ TMMap
 *ChannelConc,                //!<
 *ChannelTC,                  //!<
 *SedToChannel,               //!<
-*ChannelQsoutflow,           //!<
+//*ChannelQsoutflow,           //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 
@@ -202,7 +202,7 @@ TMMap
 *TileQn,                     //!< new water flux in drains m3/s
 *TileQs,                     //!< sediment flux in drains kg/s
 *TileQsn,                    //!< new sediment flux in drains kg/s
-*TileQoutflow,               //!< water outflow in outlet
+//*TileQoutflow,               //!< water outflow in outlet
 *TileGrad,                   //!< gradient of the tiledrain system
 *TileN,                      //!< mannings inside the tiledrains
 *TileWH,                     //!< water height in the tile drains (m)

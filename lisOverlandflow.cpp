@@ -112,7 +112,7 @@ void TWorld::OverlandFlow(void)
       // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
       q->Drc = FSurplus->Drc*_dx/_dt;
       // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
-      Qoutflow->Drc = 0;
+      //Qoutflow->Drc = 0;
       // init current outflow in all pits, rst is 0,  in m3
    }
 
@@ -126,7 +126,7 @@ void TWorld::OverlandFlow(void)
       {
          Qs->Drc =  Q->Drc * Conc->Drc;
          // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-         Qsoutflow->Drc = 0;
+         //Qsoutflow->Drc = 0;
          // init outflow of sed in pits
       }
    }
@@ -157,15 +157,15 @@ void TWorld::OverlandFlow(void)
    }
 
    //Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
-   FOR_ROW_COL_MV
-         if (LDD->Drc == 5)
-         Qoutflow->Drc = Qn->Drc * _dt;
+//   FOR_ROW_COL_MV
+//     //    if (LDD->Drc == 5)
+//         Qoutflow->Drc = Qn->Drc * _dt;
 
-   if (SwitchErosion)
-      FOR_ROW_COL_MV
-            if (LDD->Drc == 5)
-            Qsoutflow->Drc = Qsn->Drc * _dt;
-   //      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
+//   if (SwitchErosion)
+//      FOR_ROW_COL_MV
+//        //    if (LDD->Drc == 5)
+//            Qsoutflow->Drc = Qsn->Drc * _dt;
+//   //      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
    // these maps now contain m3 and kg per timestep in pit cells
 
    // calculate resulting flux Qn back to water height on surface
