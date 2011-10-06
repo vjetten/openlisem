@@ -730,6 +730,7 @@ void lisemqt::resetAll()
     checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
     checkLimitTC->setChecked(check);
+    checkLimitDepTC->setChecked(check);
     checkBuffers->setChecked(check);
     checkSedtrap->setChecked(check);
     checkInfilCompact->setChecked(check);

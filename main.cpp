@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
     lisemqt iface;
 
-    iface.setWindowTitle(VERSION);
+	 iface.setWindowTitle(VERSION);
 			 //QString("openLISEM ") + VERSION + DATE);
 
     iface.show();

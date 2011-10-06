@@ -123,6 +123,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
       if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
       if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
+      if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
       if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
       if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
       if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
@@ -225,7 +226,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
       if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
       if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
-      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);      
+      if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);
       // VJ 110209 canopy openess, factor Aston as user input
       if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
       if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(val);
@@ -419,6 +420,7 @@ void lisemqt::updateModelData()
       if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
       if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
       if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
+      if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
       if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
       if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
       if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
@@ -496,7 +498,7 @@ void lisemqt::updateModelData()
       if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
       if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
       if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
-      if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();      
+      if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
       if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
       if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
       // VJ 110209 canopy openess, factor Aston as user input

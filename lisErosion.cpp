@@ -174,7 +174,8 @@ void TWorld::FlowDetachment(void)
          for (int i = 1; i <= 9; i++)
             if(i != 5)
             {
-               if (!IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
+               if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
+               && !IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
@@ -239,7 +240,8 @@ void TWorld::FlowDetachment(void)
       double deposition = minTC * TransportFactor;
       // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
-      //deposition = max(deposition, minTC * WaterVol->Drc);
+      if (SwitchLimitDepTC)
+         deposition = max(deposition, minTC * WaterVolall->Drc);
       // cannot be more than sediment above capacity
       deposition = max(deposition, -Sed->Drc);
       // cannot have more depo than sediment present
@@ -292,7 +294,8 @@ void TWorld::ChannelFlowDetachment(void)
          for (int i = 1; i <= 9; i++)
             if(i != 5)
             {
-               if (!IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
+               if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
+                  && !IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);
@@ -333,6 +336,10 @@ void TWorld::ChannelFlowDetachment(void)
 
       double deposition = minTC * TransportFactor;
       // max deposition in kg/s  < 0
+      if (SwitchLimitDepTC)
+         deposition = max(deposition, -minTC * ChannelWaterVol->Drc);
+
+
       deposition = max(deposition, -ChannelSed->Drc);
       // cannot be more than sediment above capacity
       //or:?     deposition = max(deposition, minTC * ChannelWaterVol->Drc);

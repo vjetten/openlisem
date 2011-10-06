@@ -1007,6 +1007,7 @@ void TWorld::IntializeOptions(void)
 
    SwitchHardsurface = false;
    SwitchLimitTC = false;
+   SwitchLimitDepTC = false;
    SwatreInitialized = false;
    SwitchInfilGA2 = false;
    SwitchWheelPresent = false;
