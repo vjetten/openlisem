@@ -511,6 +511,7 @@ void TWorld::GetInputData(void)
    //VJ 110829 water repellency
    waterRep_a = getvaluedouble("Water Repellency A");
    waterRep_b = getvaluedouble("Water Repellency B");
+   waterRep_c = getvaluedouble("Water Repellency C");
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));

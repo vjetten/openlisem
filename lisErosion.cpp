@@ -200,7 +200,9 @@ void TWorld::FlowDetachment(void)
       // limit sed concentration to max
 
       double maxTC = max(TC->Drc - Conc->Drc,0);
+      // positive difference: TC deficit becomes detachment (ppositive)
       double minTC = min(TC->Drc - Conc->Drc,0);
+      // negative difference: TC surplus becomes deposition (negative)
       // unit kg/m3
 
       //### detachment
@@ -210,8 +212,9 @@ void TWorld::FlowDetachment(void)
 
       DETFlow->Drc = Y->Drc * maxTC * TransportFactor;
       // unit = kg/m3 * m3 = kg
-      DETFlow->Drc = min(DETFlow->Drc, maxTC * Q->Drc*_dt);//WaterVolall->Drc);
+      DETFlow->Drc = min(DETFlow->Drc, maxTC * Q->Drc*_dt);
       // cannot have more detachment than remaining capacity in flow
+      // use discharge because standing water has no erosion
 
       if (GrassFraction->Drc > 0)
          DETFlow->Drc = (1-GrassFraction->Drc) * DETFlow->Drc;
@@ -234,6 +237,9 @@ void TWorld::FlowDetachment(void)
          TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/WH->Drc)) * WaterVolall->Drc;
       else
          TransportFactor = WaterVolall->Drc;
+      // if settl velo is very small, transportfactor is 0 and depo is 0
+      // if settl velo is very large, transportfactor is 1 and depo is max
+
       //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
       // deposition can occur on roads and on soil (so use flowwidth)
 

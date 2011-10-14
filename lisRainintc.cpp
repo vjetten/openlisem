@@ -59,7 +59,7 @@ void TWorld::GetRainfallData(void)
 	// read the header
 	while (S.isEmpty())
 		S = fff.readLine();
-	QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
+	QStringList SL = S.split(QRegExp("\\s+")); //<== white space character as split
 	nrstations = SL[SL.size()-2].toInt(&ok, 10);
 
 /*
@@ -91,8 +91,8 @@ void TWorld::GetRainfallData(void)
 			nrrainfallseries++;
 	}
 	// count rainfall records, skip empty lines
-	
-    if (nrrainfallseries <= 1)
+
+	 if (nrrainfallseries <= 1)
 	{
 		ErrorString = "rainfall records <= 1!";
 		throw 1;
@@ -116,8 +116,8 @@ void TWorld::GetRainfallData(void)
 	while (!fff.atEnd())
 	{
 		S = fff.readLine();
-        if (S.trimmed().isEmpty()) continue;
-        
+		  if (S.trimmed().isEmpty()) continue;
+
 
 		QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		if (SL.size()-1 < nrstations)
@@ -132,9 +132,9 @@ void TWorld::GetRainfallData(void)
 		// time in min
 		for (int i = 1; i < nrstations+1; i++)
 			RainfallSeries[j][i] = SL[i].toDouble();
-        // rainfall intensities
+		  // rainfall intensities
 		j++;
-        
+
 	}
 	RainfallSeries[nrrainfallseries-1][0] = 1e20;
 	for (int i = 1; i < nrstations+1; i++)
@@ -157,11 +157,11 @@ void TWorld::RainfallMap(void)
 
 	if (!SwitchRainfall)
 		return;
-    
-    
-	for (placep = 0; placep < nrrainfallseries; placep++)
-		if (timeminp < RainfallSeries[placep][0])
-			break;
+
+
+//	for (placep = 0; placep < nrrainfallseries; placep++)
+//		if (timeminp < RainfallSeries[placep][0])
+//			break;
 	for (place = 0; place < nrrainfallseries; place++)
 		if (timemin < RainfallSeries[place][0])
 			break;
@@ -169,12 +169,12 @@ void TWorld::RainfallMap(void)
 	FOR_ROW_COL_MV
 	{
 			int col = (int) RainZone->Drc;
-         double tt = 3600000.0;
+			double tt = 3600000.0;
 
          Rain->Drc = RainfallSeries[place][col]*_dt/tt;
          // Rain in m per timestep from mm/h
-			Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-			// correction for slope dx/DX, water spreads out over larger area
+         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+         // correction for slope dx/DX, water spreads out over larger area
 
          // TODO: weighted average if dt larger than table dt */
 
@@ -193,7 +193,7 @@ void TWorld::RainfallMap(void)
 /// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
 void TWorld::Interception(void)
 {
-	// all variables are in m
+   // all variables are in m
    if (!SwitchRainfall)
       return;
    //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
@@ -222,7 +222,7 @@ void TWorld::Interception(void)
          Smax =  0;
       //VJ 110111 no interception on hard surfaces
 
-		if (Smax > 0)
+      if (Smax > 0)
       {
          double k = exp(-CanopyOpeness*LAIv);
          CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
@@ -231,9 +231,9 @@ void TWorld::Interception(void)
 //and interpreting cover as openess: k = exp(-0.45*LAI)
       }
          else
-			CS = 0;
-		// 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
-		// is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
+         CS = 0;
+      // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
+      // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
       // possible to use equation from Ahston but for very open Eucalypt
 
       CS = max(0, CS * (1-StemflowFraction));

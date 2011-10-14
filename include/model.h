@@ -216,6 +216,7 @@ public:
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
     double waterRep_a;
     double waterRep_b;
+    double waterRep_c;
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)

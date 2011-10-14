@@ -3876,7 +3876,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0" colspan="3">
+                <item row="1" column="0" colspan="4">
                  <widget class="QCheckBox" name="checkBacksubstitution">
                   <property name="palette">
                    <palette>
@@ -3954,7 +3954,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1" colspan="3">
+                <item row="2" column="1" colspan="4">
                  <widget class="QLabel" name="label_14">
                   <property name="enabled">
                    <bool>true</bool>
@@ -4117,7 +4117,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1" colspan="3">
+                <item row="3" column="1" colspan="4">
                  <widget class="QLineEdit" name="E_SwatreTableName">
                   <property name="enabled">
                    <bool>true</bool>
@@ -4130,7 +4130,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
+                <item row="3" column="5">
                  <widget class="QToolButton" name="toolButton_SwatreTableShow">
                   <property name="text">
                    <string>...</string>
@@ -4141,7 +4141,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="5">
+                <item row="3" column="6">
                  <widget class="QToolButton" name="toolButton_SwatreTableFile">
                   <property name="enabled">
                    <bool>true</bool>
@@ -4235,7 +4235,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1" colspan="3">
+                <item row="4" column="1" colspan="4">
                  <widget class="QLineEdit" name="E_SwatreTableDir">
                   <property name="font">
                    <font>
@@ -4245,7 +4245,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="4">
+                <item row="4" column="5">
                  <widget class="QToolButton" name="toolButton_SwatreTableDir">
                   <property name="text">
                    <string>...</string>
@@ -4256,7 +4256,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0" colspan="2">
+                <item row="5" column="0" colspan="6">
                  <widget class="QCheckBox" name="checkWaterRepellency">
                   <property name="palette">
                    <palette>
@@ -4302,83 +4302,11 @@ p, li { white-space: pre-wrap; }
                    </font>
                   </property>
                   <property name="text">
-                   <string>Water repellency (SWATRE only)</string>
+                   <string>Water repellency factor: f = 1/(1+a^100(theta-b)   for theta &gt; c, else f=1</string>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="0" colspan="2">
-                 <widget class="QLabel" name="label_87">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="palette">
-                   <palette>
-                    <active>
-                     <colorrole role="WindowText">
-                      <brush brushstyle="SolidPattern">
-                       <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                       </color>
-                      </brush>
-                     </colorrole>
-                    </active>
-                    <inactive>
-                     <colorrole role="WindowText">
-                      <brush brushstyle="SolidPattern">
-                       <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                       </color>
-                      </brush>
-                     </colorrole>
-                    </inactive>
-                    <disabled>
-                     <colorrole role="WindowText">
-                      <brush brushstyle="SolidPattern">
-                       <color alpha="255">
-                        <red>122</red>
-                        <green>122</green>
-                        <blue>122</blue>
-                       </color>
-                      </brush>
-                     </colorrole>
-                    </disabled>
-                   </palette>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Water repellency factor b (1/(1+a^100(theta-b))</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="2">
-                 <widget class="QDoubleSpinBox" name="E_waterRep_b">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.010000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.300000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
+                <item row="8" column="1">
                  <widget class="QDoubleSpinBox" name="E_waterRep_a">
                   <property name="enabled">
                    <bool>false</bool>
@@ -4395,6 +4323,9 @@ p, li { white-space: pre-wrap; }
                     <bold>false</bold>
                    </font>
                   </property>
+                  <property name="maximum">
+                   <double>10.000000000000000</double>
+                  </property>
                   <property name="singleStep">
                    <double>0.010000000000000</double>
                   </property>
@@ -4403,7 +4334,29 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0" colspan="2">
+                <item row="8" column="3">
+                 <widget class="QDoubleSpinBox" name="E_waterRep_b">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.300000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
                  <widget class="QLabel" name="label_86">
                   <property name="enabled">
                    <bool>false</bool>
@@ -4452,7 +4405,144 @@ p, li { white-space: pre-wrap; }
                    </font>
                   </property>
                   <property name="text">
-                   <string>Water repellency factor a (1/(1+a^100(theta-b))</string>
+                   <string>param a</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QLabel" name="label_87">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="palette">
+                   <palette>
+                    <active>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </active>
+                    <inactive>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </inactive>
+                    <disabled>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>122</red>
+                        <green>122</green>
+                        <blue>122</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </disabled>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>param b</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="5">
+                 <widget class="QDoubleSpinBox" name="E_waterRep_c">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.120000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="4">
+                 <widget class="QLabel" name="label_89">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="palette">
+                   <palette>
+                    <active>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </active>
+                    <inactive>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </inactive>
+                    <disabled>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>122</red>
+                        <green>122</green>
+                        <blue>122</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </disabled>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>param c</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -12617,8 +12707,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>136</x>
+     <y>366</y>
     </hint>
    </hints>
   </connection>
@@ -12633,8 +12723,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>226</x>
+     <y>366</y>
     </hint>
    </hints>
   </connection>
@@ -12649,8 +12739,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>298</x>
+     <y>366</y>
     </hint>
    </hints>
   </connection>
@@ -12661,12 +12751,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>330</y>
+     <x>152</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>136</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>
@@ -12677,12 +12767,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>330</y>
+     <x>165</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>226</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>
@@ -12693,12 +12783,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>330</y>
+     <x>136</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>136</x>
+     <y>464</y>
     </hint>
    </hints>
   </connection>
@@ -12709,12 +12799,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>330</y>
+     <x>136</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>330</y>
+     <x>226</x>
+     <y>464</y>
     </hint>
    </hints>
   </connection>
@@ -12741,12 +12831,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>343</y>
+     <x>174</x>
+     <y>592</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>343</y>
+     <x>131</x>
+     <y>615</y>
     </hint>
    </hints>
   </connection>
@@ -12757,28 +12847,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>343</y>
+     <x>174</x>
+     <y>592</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>343</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkWaterRepellency</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_87</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>141</x>
-     <y>343</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>141</x>
-     <y>343</y>
+     <x>186</x>
+     <y>615</y>
     </hint>
    </hints>
   </connection>
@@ -12789,12 +12863,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>343</y>
+     <x>174</x>
+     <y>592</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>343</y>
+     <x>323</x>
+     <y>615</y>
     </hint>
    </hints>
   </connection>
@@ -12939,6 +13013,54 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>109</x>
      <y>390</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkWaterRepellency</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_87</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>237</x>
+     <y>588</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>606</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkWaterRepellency</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_89</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>368</x>
+     <y>601</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkWaterRepellency</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_waterRep_c</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>605</y>
     </hint>
    </hints>
   </connection>

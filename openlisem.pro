@@ -63,17 +63,17 @@ CONFIG(debug, debug|release) {
     LIBS += -L"debug" -llibcsfd
     LIBS += -L"$${QWTDIR}/lib" -lqwtd
     DESTDIR = debug
-	 MOC_DIR = debug/moc
+    MOC_DIR = debug/moc
     OBJECTS_DIR= debug/objs
-	 UI_DIR= debug/ui
+    UI_DIR= debug/ui
 }
 else {
-    LIBS += -L"bin" -llibcsf
+    LIBS += -L"bin" -lcsf
     LIBS += -L"$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
-	 MOC_DIR = bin/moc
+    MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
-	 UI_DIR= bin/ui
+    UI_DIR= bin/ui
 }
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"

@@ -296,6 +296,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Water Repellency A");
    namelist[i].value = QString("0.3");
    namelist[i++].name = QString("Water Repellency B");
+   namelist[i].value = QString("0.12");
+   namelist[i++].name = QString("Water Repellency C");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Kinetic Energy]");
    namelist[i].value = QString("1,28.300,0.520,0.042");
@@ -410,7 +412,7 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("OUTGULDEM");
    namelist[i++].name = QString("");
 
-   // input maps start here !!!     
+   // input maps start here !!!
    mapstartnr = i;
    int j = mapstartnr;
    for (i = 0; i < DEFmaps.count(); i++)

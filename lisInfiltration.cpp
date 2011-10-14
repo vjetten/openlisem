@@ -84,7 +84,12 @@ void TWorld::InfilSwatre(void)
          FOR_ROW_COL_MV
          {
             if (CrustFraction->Drc > 0)
+            {
                CrustFraction->Drc = 1/(1+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
+               if (thetaTop->Drc < waterRep_c)
+                  CrustFraction->Drc = 1.0;
+            }
+
          }
       }
       //calculate a new crustfraction for water repellency
@@ -477,14 +482,14 @@ void TWorld::Infiltration(void)
    //the infiltration functions call a function to increase the infiltration depth (except swatre)
    switch (InfilMethod)
    {
-   case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
-   case INFIL_SWATRE : InfilSwatre(); break;
-   case INFIL_HOLTAN : break;
-   case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
-   case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
-   case INFIL_KSAT : InfilKsat(); break;
-   case INFIL_MOREL : InfilMorelSeytoux1(); break; /** TODO: DOESN'T WORK YET */
-   case INFIL_SMITH : InfilSmithParlange1(); break;
+      case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
+      case INFIL_SWATRE : InfilSwatre(); break;
+      case INFIL_HOLTAN : break;
+      case INFIL_GREENAMPT : InfilGreenAmpt1(); break;
+      case INFIL_GREENAMPT2 : InfilGreenAmpt1(); break;
+      case INFIL_KSAT : InfilKsat(); break;
+      case INFIL_MOREL : InfilMorelSeytoux1(); break; /** TODO: DOESN'T WORK YET */
+      case INFIL_SMITH : InfilSmithParlange1(); break;
    }
    // these function result in an actual infiltration "fact" (in m)
    // and potential infiltration "fpot" (in m)
