@@ -77,7 +77,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -1261,7 +1261,7 @@
             <enum>QTabWidget::Rounded</enum>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="tabWidgetPage1">
             <attribute name="title">
@@ -5331,6 +5331,56 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="value">
                    <double>0.220000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="QCheckBox" name="checkKETimebased">
+                  <property name="palette">
+                   <palette>
+                    <active>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </active>
+                    <inactive>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </inactive>
+                    <disabled>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>122</red>
+                        <green>122</green>
+                        <blue>122</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </disabled>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>time based</string>
                   </property>
                  </widget>
                 </item>
@@ -12488,7 +12538,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;time (min)    Q (l/s)    Qsed (kg/s)    Conc (kg/l) &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;time (min)    P (mm/h)     Q (l/s)    Qsed (kg/s)    Conc (kg/l) &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="margin">
              <number>0</number>
@@ -12831,12 +12881,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>592</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>131</x>
-     <y>615</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12847,12 +12897,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>592</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>615</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -12863,12 +12913,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>592</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>323</x>
-     <y>615</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -13023,12 +13073,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>237</x>
-     <y>588</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>606</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -13039,12 +13089,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>351</x>
-     <y>584</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>368</x>
-     <y>601</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -13055,12 +13105,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>584</y>
+     <x>141</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>605</y>
+     <x>141</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonKE3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkKETimebased</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>

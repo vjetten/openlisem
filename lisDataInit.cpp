@@ -375,39 +375,39 @@ void TWorld::InitBuffers(void)
    BufferSed = NewMap(0);
    ChannelBufferSed = NewMap(0);
 
-// no initial sediment assumed, volume must reflect empty status
+   // no initial sediment assumed, volume must reflect empty status
 
-//   if (SwitchBuffers || SwitchSedtrap)
-//   {
-//      BufferSedInit = NewMap(0);
-//      ChannelBufferSedInit = NewMap(0);
+   //   if (SwitchBuffers || SwitchSedtrap)
+   //   {
+   //      BufferSedInit = NewMap(0);
+   //      ChannelBufferSedInit = NewMap(0);
 
-//      BufferSed->calc2V(BufferVol, BulkDens, MUL);
-//      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
-//      // fills up. It is assumed that the sedimented part contains a pore volume
-//      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
-//      if (SwitchIncludeChannel)
-//      {
-//         ChannelBufferSed = NewMap(0);
-//         FOR_ROW_COL_MV_CH
-//               if (BufferID->Drc > 0)
-//         {
-//            ChannelBufferSed->Drc = BufferSed->Drc;
-//            BufferSed->Drc = 0;
-//         }
-//         //split buffers in channel buffers and slope buffers
-//         // in "ToCHannel" all flow in a buffer is dumped in the channel
-//         ChannelBufferSedInit->copy(ChannelBufferSed);
-//         // copy initial max volume of buffers in channels
-//      }
-//      BufferSedInit->copy(BufferSed);
-//      // copy initial max volume of remaining buffers on slopes
-//      BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
-//      // sum up total initial volume available in buffers
-      //BufferSed->fill(0);
-      //ChannelBufferSed->fill(0);
-      // rset to zero to fill up
-//   }
+   //      BufferSed->calc2V(BufferVol, BulkDens, MUL);
+   //      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
+   //      // fills up. It is assumed that the sedimented part contains a pore volume
+   //      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
+   //      if (SwitchIncludeChannel)
+   //      {
+   //         ChannelBufferSed = NewMap(0);
+   //         FOR_ROW_COL_MV_CH
+   //               if (BufferID->Drc > 0)
+   //         {
+   //            ChannelBufferSed->Drc = BufferSed->Drc;
+   //            BufferSed->Drc = 0;
+   //         }
+   //         //split buffers in channel buffers and slope buffers
+   //         // in "ToCHannel" all flow in a buffer is dumped in the channel
+   //         ChannelBufferSedInit->copy(ChannelBufferSed);
+   //         // copy initial max volume of buffers in channels
+   //      }
+   //      BufferSedInit->copy(BufferSed);
+   //      // copy initial max volume of remaining buffers on slopes
+   //      BufferSedTotInit = BufferSedInit->MapTotal() + ChannelBufferSedInit->MapTotal();
+   //      // sum up total initial volume available in buffers
+   //BufferSed->fill(0);
+   //ChannelBufferSed->fill(0);
+   // rset to zero to fill up
+   //   }
 
 }
 //---------------------------------------------------------------------------
@@ -675,6 +675,7 @@ void TWorld::GetInputData(void)
          CompactFraction = NewMap(0);
    }
 
+   // SWATRE infiltration read maps and structures
    if (InfilMethod == INFIL_SWATRE)
    {
       // read all Swatre profiles
@@ -700,9 +701,12 @@ void TWorld::GetInputData(void)
          CompactFraction = NewMap(0);
 
       // read the swatre tables and make the information structure ZONE etc
-      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-      if (res)
-         throw res;
+      ReadSwatreInputNew();
+
+      // obsolete
+      //      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
+      //      if (res)
+      //         throw res;
 
 
    }
@@ -728,8 +732,8 @@ void TWorld::GetInputData(void)
    InitMulticlass();
 
    // not more than 1.0
-//   CrustFraction->calcV(1.0, MAX);
-//   CompactFraction->calcV(1.0, MAX);
+   //   CrustFraction->calcV(1.0, MAX);
+   //   CompactFraction->calcV(1.0, MAX);
 
 }
 //---------------------------------------------------------------------------
@@ -808,14 +812,14 @@ void TWorld::IntializeData(void)
       {
          switch (InterceptionLAIType)
          {
-         case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-         case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-         case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-         case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-         case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-         case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-         case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-         case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+            case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 
          }
       }

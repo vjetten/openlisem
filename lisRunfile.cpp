@@ -155,7 +155,7 @@ QString TWorld::GetName(QString p)
    return(ss[n-1]);
 }
 //---------------------------------------------------------------------------
-void TWorld::ParseRunfileData()
+void TWorld::ParseRunfileData(void)
 {
    int j=0;
 
@@ -249,6 +249,7 @@ void TWorld::ParseRunfileData()
          KEParamater_a3 = param[1].toDouble();
          KEParamater_b3 = param[2].toDouble();
       }
+      if (p1.compare("KE time based")==0)   SwitchKETimebased = iii == 1;
 
       if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
 
@@ -387,7 +388,7 @@ void TWorld::ParseRunfileData()
 
 }
 //------------------------------------------------------------------------------
-void TWorld::GetRunFile()
+void TWorld::GetRunFile(void)
 {
    QFile fin(temprunname);
 

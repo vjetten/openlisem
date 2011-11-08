@@ -107,6 +107,14 @@ void TWorld::SplashDetachment(void)
       DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * directrain * SplashDelivery;
       //dry areas, kg/m2/mm * mm = kg/m2
 
+      if (SwitchKETimebased)
+      {
+          DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * _dt;
+          //ponded areas, kg/m2/sec * sec = kg/m2
+          DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * _dt * SplashDelivery;
+          //dry areas, kg/m2/sec * sec = kg/m2
+      }
+
       // Under plants, throughfall is already with cover
       DetLD1 = g_to_kg * fpa->Drc*(strength*KE_LD*WH0+b) * throughfall;
       //ponded areas, kg/m2/mm * mm = kg/m2

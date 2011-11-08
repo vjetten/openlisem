@@ -45,7 +45,7 @@ functions: \n
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
     report to screen, hydrographs and maps */
-void TWorld::OutputUI()
+void TWorld::OutputUI(void)
 {
    if (runstep > 0 && runstep % printinterval == 0)
       printstep++;
@@ -107,7 +107,7 @@ void TWorld::OutputUI()
 }
 //---------------------------------------------------------------------------
 /// report to disk: timeseries at output points, totals, map series and land unit stats
-void TWorld::reportAll()
+void TWorld::reportAll(void)
 {
    ReportTimeseriesNew();
    // report hydrographs ande sedigraphs at all points in outpoint.map
@@ -127,7 +127,7 @@ void TWorld::reportAll()
  - all points in one file or each point in a separate file
  - the types should be mututally exclusive in the interface and run file
 */
-void TWorld::ReportTimeseriesNew()
+void TWorld::ReportTimeseriesNew(void)
 {
    int nr = 0;
    int hour, min, sec;
@@ -423,7 +423,7 @@ void TWorld::ReportTimeseriesNew()
 }
 //---------------------------------------------------------------------------
 /// Report totals of the main outlet nd general values for the catchment to a comma delimited text file
-void TWorld::ReportTotalsNew()
+void TWorld::ReportTotalsNew(void)
 {
    QFile fp(resultDir + resultFileName);
    if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -465,7 +465,7 @@ void TWorld::ReportTotalsNew()
 //---------------------------------------------------------------------------
 /// Report maps for totals and mapseries (like report in PCRaster)
 /// output filenames are fixed, cannot be changed by the user
-void TWorld::ReportMaps()
+void TWorld::ReportMaps(void)
 {
    //   if (units == 0)
    //      checkUnits_tonha->setChecked(true);
@@ -565,7 +565,7 @@ void TWorld::ReportMaps()
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
 // VJ 110110 count nr of land units in classified file
-void TWorld::CountLandunits()
+void TWorld::CountLandunits(void)
 {
    int i, j;
    for (i = 0; i < 512; i++)
@@ -597,7 +597,7 @@ void TWorld::CountLandunits()
 //---------------------------------------------------------------------------
 //VJ 110110
 /// Report the erosion totals per land unit
-void TWorld::ReportLandunits()
+void TWorld::ReportLandunits(void)
 {
    QString newname1;
 

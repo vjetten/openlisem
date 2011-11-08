@@ -47,6 +47,8 @@
 #include "swatre_p.h"
 #include "swatre_g.h"
 
+#define OLDSWATRE 1
+
 //---------------------------------------------------------------------------
 
 #define DEBUG(s) emit debug(QString(s))
@@ -187,7 +189,7 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchBacksubstitution;
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchBacksubstitution, SwitchKETimebased;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -304,8 +306,8 @@ public:
     int getvalueint(QString vname);
     QString CheckDir(QString p);
     QString GetName(QString p);
-    void ParseRunfileData();
-    void GetRunFile();
+    void ParseRunfileData(void);
+    void GetRunFile(void);
 
     // LISEM model processes
     void GetRainfallData(void);   // get input timeseries
@@ -391,14 +393,23 @@ public:
     int ReadSwatreInput(QString fileName, QString tablePath);
     void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
     void CloseSwatre(SOIL_MODEL *s);
-    void FreeSwatreInfo();
+    void FreeSwatreInfo(void);
     ZONE *ReadNodeDefinition(FILE *f);
     PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+
+    // VJ 111104 constructing profile with Qt commands
+    QStringList swatreProfileDef;
+    QList<int> swatreProfileNr;
+    int *profileNr;
+    void ReadSwatreInputNew(void);
+    ZONE *ReadNodeDefinitionNew(void);
+    PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
+
     HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
     PROFILE *ProfileNr(int profileNr);
     double *ReadSoilTable(const char *fileName, int *nrRows);
     void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
-    void InitializeProfile();
+    void InitializeProfile(void);
     void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
                   const double  *hPrev, const double  *kavg, const double  *dimoca,
                   bool fltsat, double dt, double pond, double qtop, double qbot);
@@ -410,13 +421,13 @@ public:
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);
-    void reportAll();
-    void ReportTimeseriesNew();
-    void ReportTotals();
-    void ReportMaps();
-    void ReportTotalsNew();
-    void ReportLandunits(); //VJ 110107 report erosion stats per land unit
-    void CountLandunits(); //VJ 110107 report erosion stats per land unit
+    void reportAll(void);
+    void ReportTimeseriesNew(void);
+    //void ReportTotals(void);
+    void ReportMaps(void);
+    void ReportTotalsNew(void);
+    void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
+    void CountLandunits(void); //VJ 110107 report erosion stats per land unit
 
     double itercount;
     // thread management variables

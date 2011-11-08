@@ -56,10 +56,10 @@ TWorld::~TWorld()
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    temprunname = QString(op.LisemDir+"openlisemtmp.run");
 
     time_ms.start();
     // get time to calc run length
-    temprunname = QString(op.LisemDir+"openlisemtmp.run");
 
     try
     {

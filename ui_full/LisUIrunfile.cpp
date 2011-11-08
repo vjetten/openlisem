@@ -208,6 +208,7 @@ void lisemqt::ParseInputData()
          spinKEparameterA3->setValue(param[1].toDouble());
          spinKEparameterB3->setValue(param[2].toDouble());
       }
+      if (p1.compare("KE time based")==0)      checkKETimebased->setChecked(check);
 
       if (p1.compare("Ksat calibration")==0)
       {
@@ -477,6 +478,7 @@ void lisemqt::updateModelData()
          param << (radioButtonKE3->isChecked()?"1":"0") << spinKEparameterA3->text() << spinKEparameterB3->text();
          namelist[j].value = param.join(",");
       }
+      if (p1.compare("KE time based")==0)      namelist[j].value.setNum((int)checkKETimebased->isChecked());
 
       if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
       if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();

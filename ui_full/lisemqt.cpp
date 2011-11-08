@@ -766,6 +766,8 @@ void lisemqt::resetAll()
     spinKEparameterB1->setValue(0.52);
     spinKEparameterC1->setValue(0.042);
 
+    checkKETimebased->setChecked(false);
+
 
 }
 //--------------------------------------------------------------------

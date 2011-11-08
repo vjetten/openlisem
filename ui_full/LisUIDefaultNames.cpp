@@ -306,6 +306,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("KE parameters EQ2");
    namelist[i].value = QString("0,7.600,0.220");
    namelist[i++].name = QString("KE parameters EQ3");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("KE time based");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Conservation]");
    namelist[i].value = QString("0");
