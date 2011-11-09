@@ -62,11 +62,12 @@ void TWorld::InfilSwatre(void)
    // NOTE WH changes in SWATRE
    // tiledrainsoil is in m per timestep, if not switchtiles then contains 0
    // TileDrainSoil->report("drain");
-
+   //fpot->report("fpot");
    // WH and fpot done in swatrestep
    FOR_ROW_COL_MV
          fact->Drc = (WHbef->Drc - WH->Drc);
    // actual; infil is dif between WH before and after
+   //fact->report("fact");
 
    if (SwitchInfilCrust || SwitchWaterRepellency)
    {
@@ -83,13 +84,9 @@ void TWorld::InfilSwatre(void)
       {
          FOR_ROW_COL_MV
          {
-            if (CrustFraction->Drc > 0)
-            {
-               CrustFraction->Drc = 1/(1+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
-               if (thetaTop->Drc < waterRep_c)
-                  CrustFraction->Drc = 1.0;
-            }
-
+            CrustFraction->Drc = 1/(1+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
+            if (thetaTop->Drc < waterRep_c)
+               CrustFraction->Drc = 1.0;
          }
       }
       //calculate a new crustfraction for water repellency

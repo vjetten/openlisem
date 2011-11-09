@@ -133,7 +133,6 @@ void lisemqt::ParseInputData()
       //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
       if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
       if (p1.compare("2nd back substitution")==0)          checkBacksubstitution->setChecked(check);
-      if (p1.compare("Use Water Repllency")==0)            checkWaterRepellency->setChecked(check);
 
       //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
       if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
@@ -229,6 +228,8 @@ void lisemqt::ParseInputData()
       if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
       if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);
       // VJ 110209 canopy openess, factor Aston as user input
+
+      if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
       if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
       if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(val);
       if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(val);

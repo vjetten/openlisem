@@ -80,7 +80,6 @@ void TWorld::Totals(void)
    IntercTot = Interc->MapTotal();
    IntercTotmm = IntercTot*catchmentAreaFlatMM;
    // interception in mm and m3
-
    InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
    InfilKWTot += InfilVolKinWave->MapTotal(); // not really used, available for output when needed
    InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);

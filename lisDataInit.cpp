@@ -684,13 +684,19 @@ void TWorld::GetInputData(void)
       if (SwitchGrassStrip)
          ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
-      if (SwitchInfilCrust || SwitchWaterRepellency)
+      if (SwitchInfilCrust)
       {
          CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
          ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
       }
       else
          CrustFraction = NewMap(0);
+
+      if (SwitchWaterRepellency)
+      {
+         ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
+         CrustFraction = NewMap(0);
+      }
 
       if (SwitchInfilCompact)
       {
@@ -704,9 +710,9 @@ void TWorld::GetInputData(void)
       ReadSwatreInputNew();
 
       // obsolete
-      //      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-      //      if (res)
-      //         throw res;
+//      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
+//      if (res)
+//         throw res;
 
 
    }
