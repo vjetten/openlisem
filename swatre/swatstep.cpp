@@ -329,7 +329,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
         if (elapsedTime+dt+TIME_EPS >= _dt)
             dt = _dt - elapsedTime;
 
-        *Theta = theta[0]; //0.5*(theta[0]+theta[1]);
+        *Theta = (theta[0] * Dz(p)[0] + theta[1] * Dz(p)[1])/(Dz(p)[0] + Dz(p)[1]);
+        // theta is weighted average of theta first two nodes
 
     } /* elapsedTime < lisemTimeStep */
 

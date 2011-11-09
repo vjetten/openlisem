@@ -52,6 +52,7 @@ SOIL_MODEL *TWorld::InitSwatre(
    s->minDt = minDt;
    s->pixel = new PIXEL_INFO[nrCells];
 
+   // set initial values
    for (i = 0; i < nrCells; i++)
    {
       s->pixel[i].profile = NULL;
@@ -63,21 +64,21 @@ SOIL_MODEL *TWorld::InitSwatre(
       s->pixel[i].tiledrain = 0;
       s->pixel[i].tilenode = -1;
       // set tiledrain to 0, and tiledepth to -1 (above surface)
+      s->pixel[i].currDt = minDt;
    }
 
-   // give each pixel a profile and minDt value
+   // give each pixel a profile 
    FOR_ROW_COL_MV
    {
-      s->pixel[r*_nrCols+c].profile = ProfileNr(profileMap->Drc);
+      s->pixel[r*_nrCols+c].profile = profileList[swatreProfileNr.indexOf((long)profileMap->Drc)];
+            //ProfileNr(profileMap->Drc);
       // profileNr throws an error if profile nr not found
-      s->pixel[r*_nrCols+c].currDt = minDt;
    }
 
    // fill the inithead structure of each pixel and set tiledrain depth if any
    for (n = 0; n < nrNodes; n++)
    {
-      QString fname = QString("%1.%2").arg(initHeadMaps)
-            .arg(n+1, 3, 10, QLatin1Char('0'));
+      QString fname = QString("%1.%2").arg(initHeadMaps).arg(n+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
       TMMap *inith = ReadMap(LDD,fname);

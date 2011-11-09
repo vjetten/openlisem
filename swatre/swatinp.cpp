@@ -204,10 +204,11 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
 {
    QString tableName;
    int  i;
-   double endHor;
+   double endHor = 0, endHorPrev = 0;
    PROFILE *p;
    HORIZON *h;
    bool ok;
+
 
    /* profile has a pointer to LUT */
    // allocate profile memory, PROFILE is defined in swatre_p.h
@@ -230,10 +231,15 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
       tableName = swatreProfileDef[pos];
       if (!QFileInfo(SwatreTableDir + tableName).exists())
          Error(QString("SWATRE: Can't read a LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
+
+      endHorPrev = endHor;
       pos++; // profile depth, endHor
       endHor = swatreProfileDef[pos].toInt(&ok, 10);
       if (!ok)
          Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
+
+      if (endHor <= endHorPrev)
+         Error(QString("SWATRE: Error in profile definition nr %1").arg(p->profileId));
 
       h = ReadHorizon(SwatreTableDir.toAscii().constData(), tableName.toAscii().constData());
       // copy horizon info to all nodes of this horizon
@@ -321,15 +327,15 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 /// return PROFILE or throw an error if not found, profileNr is the profile map value
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
-   //   if (profileNr < 0 || profileNr >= nrProfileList)
-   //      return(NULL);
-   //   return(profileList[profileNr]);
+      if (profileNr < 0 || profileNr >= nrProfileList)
+         return(NULL);
+      return(profileList[profileNr]);
 
-   int count = swatreProfileNr.indexOf(profileNr);
-   if (count < 0)
-      Error(QString("Cannot find profile information for profile map value %1").arg(profileNr));
+//   int count = swatreProfileNr.indexOf(profileNr);
+//   if (count < 0)
+//      Error(QString("Cannot find profile information for profile map value %1").arg(profileNr));
 
-   return(profileList[count]);
+//   return(profileList[count]);
 
 }
 //----------------------------------------------------------------------------------------------
