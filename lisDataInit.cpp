@@ -512,6 +512,7 @@ void TWorld::GetInputData(void)
    waterRep_a = getvaluedouble("Water Repellency A");
    waterRep_b = getvaluedouble("Water Repellency B");
    waterRep_c = getvaluedouble("Water Repellency C");
+   waterRep_d = getvaluedouble("Water Repellency D");
 
    //## catchment data
    LDD = InitMask(getvaluename("ldd"));
@@ -666,6 +667,7 @@ void TWorld::GetInputData(void)
       }
       else
          CrustFraction = NewMap(0);
+
       if (SwitchInfilCompact)
       {
          CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
@@ -692,11 +694,17 @@ void TWorld::GetInputData(void)
       else
          CrustFraction = NewMap(0);
 
+      RepellencyFraction = NewMap(1.0);
       if (SwitchWaterRepellency)
       {
-         ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
-         CrustFraction = NewMap(0);
+         RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
+         // values of 1 calculate repellency
       }
+      else
+         RepellencyCell = NewMap(0); //no repellency anywhere
+
+
+      // repellency to 1, no effect
 
       if (SwitchInfilCompact)
       {
@@ -916,25 +924,25 @@ void TWorld::IntializeData(void)
       // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
 
       // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
-      SwatreSoilModel = InitSwatre(ProfileID, initheadName, TileDepth, swatreDT);
+      SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
       if (SwatreSoilModel == NULL)
          throw 3;
 
-      if (SwitchInfilCrust || SwitchWaterRepellency)
+      if (SwitchInfilCrust)// || SwitchWaterRepellency)
       {
-         SwatreSoilModelCrust = InitSwatre(ProfileIDCrust, initheadName, TileDepth, swatreDT);
+         SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);//, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelCrust == NULL)
             throw 3;
       }
       if (SwitchInfilCompact)
       {
-         SwatreSoilModelCompact = InitSwatre(ProfileIDCompact, initheadName, TileDepth, swatreDT);
+         SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);//, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelCompact == NULL)
             throw 3;
       }
       if (SwitchGrassStrip)
       {
-         SwatreSoilModelGrass = InitSwatre(ProfileIDGrass, initheadName, TileDepth, swatreDT);
+         SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);//, initheadName, TileDepth, swatreDT);
          if (SwatreSoilModelGrass == NULL)
             throw 3;
       }

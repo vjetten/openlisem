@@ -219,6 +219,7 @@ public:
     double waterRep_a;
     double waterRep_b;
     double waterRep_c;
+    double waterRep_d;
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
@@ -389,7 +390,7 @@ public:
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
 
-    SOIL_MODEL *InitSwatre(TMMap *profileMap, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
+    SOIL_MODEL *InitSwatre(TMMap *profileMap);//, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
     int ReadSwatreInput(QString fileName, QString tablePath);
     void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
     void CloseSwatre(SOIL_MODEL *s);
@@ -416,7 +417,7 @@ public:
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                         double drainfraction, double *Theta, SOIL_MODEL *s);
+                         double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
     void Totals(void);
     void MassBalance(void);

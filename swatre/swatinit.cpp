@@ -36,11 +36,11 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
-SOIL_MODEL *TWorld::InitSwatre(
-      TMMap *profileMap,
-      QString initHeadMaps,
-      TMMap *tiledepthMap,
-      double minDt)
+SOIL_MODEL *TWorld::InitSwatre(TMMap *profileMap)
+//      QString initHeadMaps,
+//      TMMap *tiledepthMap,
+//      double minDt)
+//initheadName, TileDepth, swatreDT);
 {
    SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
    /* TODO check if this needs freeing when error */
@@ -49,7 +49,7 @@ SOIL_MODEL *TWorld::InitSwatre(
    int nodeDataIncr = nrNodes+1;
    long nrCells = _nrCols*_nrRows;
 
-   s->minDt = minDt;
+   s->minDt = swatreDT;
    s->pixel = new PIXEL_INFO[nrCells];
 
    // set initial values
@@ -63,8 +63,9 @@ SOIL_MODEL *TWorld::InitSwatre(
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
       s->pixel[i].tilenode = -1;
+      s->pixel[i].repellency = 0;// no repellency as init
       // set tiledrain to 0, and tiledepth to -1 (above surface)
-      s->pixel[i].currDt = minDt;
+      s->pixel[i].currDt = swatreDT;
    }
 
    // give each pixel a profile 
@@ -73,12 +74,16 @@ SOIL_MODEL *TWorld::InitSwatre(
       s->pixel[r*_nrCols+c].profile = profileList[swatreProfileNr.indexOf((long)profileMap->Drc)];
             //ProfileNr(profileMap->Drc);
       // profileNr throws an error if profile nr not found
+
+      if (SwitchWaterRepellency)
+         s->pixel[r*_nrCols+c].repellency = RepellencyCell->Drc;
+
    }
 
    // fill the inithead structure of each pixel and set tiledrain depth if any
    for (n = 0; n < nrNodes; n++)
    {
-      QString fname = QString("%1.%2").arg(initHeadMaps).arg(n+1, 3, 10, QLatin1Char('0'));
+      QString fname = QString("%1.%2").arg(initheadName).arg(n+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
       TMMap *inith = ReadMap(LDD,fname);
@@ -90,11 +95,11 @@ SOIL_MODEL *TWorld::InitSwatre(
          s->pixel[r*_nrCols+c].h[n] = inith->Data[r][c];
 
          // find depth of tilenode
-         if (!IS_MV_REAL8(&tiledepthMap->Drc) && tiledepthMap->Drc > 0)
+         if (!IS_MV_REAL8(&TileDepth->Drc) && TileDepth->Drc > 0)
          {
             // NOTE depth is in m while node info is in cm, so *100
             // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
-            if (s->pixel[r*_nrCols+c].profile->zone->endComp[n] > tiledepthMap->Drc*100)
+            if (s->pixel[r*_nrCols+c].profile->zone->endComp[n] > TileDepth->Drc*100)
                s->pixel[r*_nrCols+c].tilenode = n-1;
          }
       }
@@ -107,6 +112,9 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
 {
    if (s == NULL)
       return;
+
+   swatreProfileDef.clear();
+   swatreProfileNr.clear();
 
    for (int i = 0; i < _nrCols*_nrRows; i++)
       delete[] s->pixel[i].h;

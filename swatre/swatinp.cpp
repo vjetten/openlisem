@@ -42,7 +42,7 @@
 #include "error.h"
 #include "model.h"
 
-#define LIST_INC	100
+#define LIST_INC	20
 #define LUT_COLS  5
 #define IND(r,c)  ((r)*LUT_COLS+(c))
 
@@ -61,6 +61,9 @@ void TWorld::InitializeProfile( void )
    horizonList = NULL;
    nrHorizonList=0;
    sizeHorizonList=0;
+
+   swatreProfileDef.clear();
+   swatreProfileNr.clear();
 }
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -78,22 +81,30 @@ void TWorld::ReadSwatreInputNew(void)
    // set profiles to NULL
    InitializeProfile();
 
+   // read profile.inp and put in StringList, trimmed and without blank lines
    while (!fin.atEnd())
    {
       QString S = fin.readLine();
-      if (!S.trimmed().isEmpty())
-         if (!S.startsWith("#"))
-         {
+      S = S.trimmed();
+      if (!S.isEmpty())
+      {
+         if (S.indexOf("#")< 0)
             swatreProfileDef << S.trimmed();
-            //            if (QFileInfo(QString(tablePath)+S).exists())
-            //                nrProfileList++;
+         else
+         {
+            int pos = S.indexOf("#");
+            if (pos > 0)
+               swatreProfileDef << S.remove(pos,S.count()).trimmed();
          }
+      }
    }
    fin.close();
 
    ZONE *z;
    int  i;
-   QStringList checkList;
+   QStringList checkList; // temp list to check for double profile nrs
+
+
    // read node distances and make structure
    z = ReadNodeDefinitionNew();
 
@@ -327,15 +338,15 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 /// return PROFILE or throw an error if not found, profileNr is the profile map value
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
-      if (profileNr < 0 || profileNr >= nrProfileList)
-         return(NULL);
-      return(profileList[profileNr]);
+   if (profileNr < 0 || profileNr >= nrProfileList)
+      return(NULL);
+   return(profileList[profileNr]);
 
-//   int count = swatreProfileNr.indexOf(profileNr);
-//   if (count < 0)
-//      Error(QString("Cannot find profile information for profile map value %1").arg(profileNr));
+   //   int count = swatreProfileNr.indexOf(profileNr);
+   //   if (count < 0)
+   //      Error(QString("Cannot find profile information for profile map value %1").arg(profileNr));
 
-//   return(profileList[count]);
+   //   return(profileList[count]);
 
 }
 //----------------------------------------------------------------------------------------------
@@ -503,16 +514,21 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
    }
    for(i=0; i < (nrRowsa-1); i++)
    {
+      if (lutCont[IND(i+1,H_COL)] <= lutCont[IND(i,H_COL)])
+         Error(QString("matrix head not decreasing in table %1 at h = %2.").arg(tableName).arg(lutCont[IND(i,H_COL)]));
+   }
+
+   for(i=0; i < (nrRowsa-1); i++)
+   {
       lutCont[IND(i,DMCH_COL)] = 0.5 *
             (lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
 
-      /* VJ : 0.01 is 1% humidity, ofwel
-                               *	  gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
-                               *
-                               *		lutCont[IND(i,DMCC_COL)] = 0.01 /
-                               *					(lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
-                               * beter:
-                               */
+      //VJ : 0.01 is 1% humidity, ofwel
+      //            gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
+      //            lutCont[IND(i,DMCC_COL)] = 0.01 /
+      //            (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+      //beter:
+
       lutCont[IND(i,DMCC_COL)] =
             (lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
             (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);

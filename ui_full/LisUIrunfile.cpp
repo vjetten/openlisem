@@ -233,6 +233,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
       if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(val);
       if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(val);
+      if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(val);
 
 
       if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));

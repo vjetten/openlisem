@@ -71,6 +71,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr");
    DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");
    DEFmaps.append("2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead");
+   DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
    DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
    DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1");
    DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1");
@@ -298,6 +299,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Water Repellency B");
    namelist[i].value = QString("0.12");
    namelist[i++].name = QString("Water Repellency C");
+   namelist[i].value = QString("1.00");
+   namelist[i++].name = QString("Water Repellency D");
    namelist[i++].name = QString("");
    namelist[i++].name = QString("[Kinetic Energy]");
    namelist[i].value = QString("1,28.300,0.520,0.042");

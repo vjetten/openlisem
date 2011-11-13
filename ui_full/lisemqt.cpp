@@ -283,18 +283,17 @@ void lisemqt::setMapDir()
 }
 //--------------------------------------------------------------------
 void lisemqt::setResultDir()
-{\
+{
     QString path;
     QString pathin;
 
     pathin = E_ResultDir->text();
     if (pathin.isEmpty())
-        pathin = currentDir;
+        pathin = E_MapDir->text();
 
     path = QFileDialog::getExistingDirectory(this,
                                              QString("Select or create a directory to write results"),
-                                             pathin,
-                                             QFileDialog::ShowDirsOnly);
+                                             pathin,QFileDialog::ShowDirsOnly);
 
     if(!path.isEmpty())
         E_ResultDir->setText( path );
@@ -304,11 +303,14 @@ void lisemqt::setResultDir()
 void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
     QString path;
-    QString pathdir = E_SwatreTableDir->text() + "/..";
+    QString pathin = E_SwatreTableDir->text();
+    if (pathin.isEmpty())
+        pathin = E_MapDir->text();
+    pathin = pathin + "/..";
+
     path = QFileDialog::getExistingDirectory(this,
                                              QString("Select the directory with the Swatre profile tables"),
-                                             pathdir,
-                                             QFileDialog::HideNameFilterDetails);//ShowDirsOnly);
+                                             pathin,QFileDialog::ShowDirsOnly);
 
     if(!path.isEmpty())
     {
@@ -322,9 +324,8 @@ void lisemqt::on_toolButton_SwatreTableFile_clicked()
 {
     QString path;
     path = QFileDialog::getOpenFileName(this,
-                                        QString("Select SWATRE table"),
-                                        SwatreTableName,
-                                        "Profiles (*.inp);;All files (*.*)");
+                                        QString("Select thee SWATRE profile definition file"),
+                                        SwatreTableName,"Profiles (*.inp);;All files (*.*)");
     if(!path.isEmpty())
     {
 
