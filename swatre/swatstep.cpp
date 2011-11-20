@@ -195,27 +195,30 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    double drainout = 0;
    int tnode = pixel->tilenode;
 
-   // time is in seconds!!!
+   // while internal swatre timestep is not lisem timestep: (time is in seconds!!!)
    while (elapsedTime < _dt)
    {
-      bool ponded, fltsat;
-      double qmax, qtop, qbot, ThetaSat, qdrain;
+      bool ponded, fltsat;    // flag idf ponded and if profile fully saturated
+      double qmax, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
+      double qdrain; // tile drainage
 
       //--- get nodal values of theta, K, dif moist cap ---//
       for (i=0; i < n; i++)
       {
          k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration);
-         // table in cm/day function returns in cm/sec !!
+         // input tables in cm/day function returns in cm/sec !!
          dimoca[i] = DmcNode(h[i], Horizon(p, i));
+         // differential moisture capacity dtheta/dh
          theta[i] = TheNode(h[i], Horizon(p, i));
+         // moisture content
       }
 
+      *Theta = (theta[0]+theta[1])/2;
+      // avg water content of first two nodes, choice ...
+
+      (*repel) = 1.0;
       if (SwitchWaterRepellency)
       {
-
-         //*Theta = 0.5*(theta[0] + theta[1]);// * Dz(p)[0] + theta[1] * Dz(p)[1])/(Dz(p)[0] + Dz(p)[1]);
-
-         *Theta = theta[0];
          if (pixel->repellency == 1)
          {
             *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
@@ -224,12 +227,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          }
          else
             *repel = 0;
-         *repel = 1-*repel;
+         *repel = qMax(0.0,qMin(1-*repel, 1.0));
 
          k[0] = k[0] * (*repel);
       }
-      //--- arithmetric average K, geometric in org. SWATRE ---//
-      // average K for 1st to n-1 node
+
+      // average K for 1st to n-1 node, top node is done below
+      //choice arithmetric average K, geometric in org. SWATRE
       if (!SwitchGeometric)
       {
          for (i=1; i < n; i++)
@@ -252,45 +256,36 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
       //VJ 110122 why not last node? this gives nan, why? => n does not exist!
 
-      // units now in cm/s
-
       //----- TOP -----//
+      // check if ponded: 1st compare fluxes, 2nd compare store
+
       qtop = -pond/dt;
       // top flux is ponded layer / timestep, available water, cm/sec
 
-      ThetaSat = TheNode(0.0, Horizon(p, 0));
-      kavg[0]= sqrt( HcoNode(ThetaSat, Horizon(p, 0), ksatCalibration) * k[0]);
-      // WEIRD lookup hconode with theta max? must be zero is ponded
-      // works because thetamax > 0 !!!
-      // qmax of top node is always calculated with geometric average K
-      qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
-      //      if (pond == 0)
-      //         qmax = -kavg[0]*((h[1]-h[0]) / DistNode(p)[0] + 1);
-      //VJ 110122
-      //actual infil rate Darcy
-      //KLOPT eigenlijk niet als niet ponded is pond = 0,ipv een negatieve matrix potentiaal
-
-
+      // 1st check flux aginst max flux
+      kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);
+      // geometric avg of ksat and k[0]
+      qmax = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+      // maximum possible flux, compare to real top flux available
       ponded = (qtop < qmax);
+      // if more flux then max possible flag ponded is true
       // NOTE qtop and qmax are both negative !
 
-      //correct: if more qtop than fits in profile then ponded
+      //2nd check: ponded layer depth against storage
       if (!ponded)
       {
+         // calculate available space in profile in cm: (pore-theta)*dz
          double space = 0;
-         for(i = 0; i < n && h[i] < 0 && space > pond; i++)
+         for(i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
          {
-            //ThetaSat = TheNode(0.0, Horizon(p, i));
             ThetaSat = LUT_Highest(p->horizon[i]->lut, THETA_COL);
             space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
          }
-         //ponded = ((-qtop) * dt) > space;
          ponded = pond > space;
       }
 
-      /* check if profile is still completely saturated (flstsat) */
+      // check if profile is completely saturated (flstsat)
       fltsat = true;
-      //		for (i = 0; i < n; i++)
       for (i = n-1; i >= 0; i--)
          if (h[i] < 0)
          {
@@ -302,31 +297,33 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       memcpy(hPrev, h, sizeof(double)*n);
       memcpy(thetaPrev, theta, sizeof(double)*n);
 
-
       // calculate hew heads
 
       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
                fltsat, dt, pond, qtop, qbot);
-      /* check if profile is still completely saturated (flstsat) */
-
+      // calculate new h and theta with two times gaussian matrix
+      // and back substitution abracadabra
 
       // determine new boundary fluxes
+
       if (SwitchImpermeable)
          qbot = 0;
       else
          qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
+      // new qbot is actually not use but may come in handy later
 
       if ( ponded || (fltsat && (qtop < qbot)) )
          qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
       // adjust top flux
+
       pond += qtop*dt;
       // decrease pond with top flux
-      if (pond < POND_EPS)
+      if (pond < POND_EPS)  // 10-6 cm
          pond = 0;
       influx += qmax*dt;
-      // add max infil to influx (negative)
-      //--- calculate tile drain ---//
+      // add max infil to influx (negative), to get potential infil
 
+      //--- calculate tile drain ---//
       if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
       {
          //options:
@@ -359,30 +356,29 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       if (elapsedTime+dt+TIME_EPS >= _dt)
          dt = _dt - elapsedTime;
 
-      //*Theta = (theta[0] * Dz(p)[0] + theta[1] * Dz(p)[1])/(Dz(p)[0] + Dz(p)[1]);
-      // theta is weighted average of theta first two nodes
 
    } /* elapsedTime < lisemTimeStep */
 
    /*
-*  if (pixel->dumpH>0)
-*   printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
-*   ,pixel->dumpH,pond*10,-influx*10);
-*/
+    if (pixel->dumpH>0)
+       printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
+       ,pixel->dumpH,pond*10,-influx*10);
    //   if (pixel->dumpHid == 1)
    //      qDebug() << pond << influx << h[0] << h[1] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+   */
 
-   *waterHeightIO = pond;
-   *infil = influx; // total max influx in lisem timestep
-   *drain = drainout;
+   // save stuff for output in maps
+   *waterHeightIO = pond; // waterlayer on surface
+   *infil = influx; // total max influx in lisem timestep, fpot
+   *drain = drainout; // tiledrain, is 0 when not activated
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
 void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where)
 {   
-   //where is used as a flag here, it is the fraction of crust, compaction, grass
+   // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
-   // for normal soil surface where is 1.
+   // for normal soil surface where is always 1.
    // this prevents doing swatrestep for crusting for cells that are 0 for instance
    FOR_ROW_COL_MV
          if(where->Drc > 0) // flag to indicate if this pixel has to be done
@@ -400,6 +396,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
 
       ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,
                       &repellency, &Theta, s);
+      // estimate new h and theta at the end of dt
 
       _WH->Drc = wh*0.01;
       //back to m

@@ -229,6 +229,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Canopy Openess")==0)        E_CanopyOpeness->setValue(val);
       // VJ 110209 canopy openess, factor Aston as user input
 
+      //VJ 111120 water repellency
       if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
       if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
       if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(val);
@@ -434,7 +435,6 @@ void lisemqt::updateModelData()
       //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
       if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
       if (p1.compare("2nd back substitution")==0)          namelist[j].value.setNum((int)checkBacksubstitution->isChecked());
-      if (p1.compare("Use Water Repellency")==0)            namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
       if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
       if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
       if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());
@@ -536,6 +536,13 @@ void lisemqt::updateModelData()
          case 4: namelist[j].value.setNum(INFIL_KSAT); break;
          }
       }
+
+      //VJ 111120 water repellency
+      if (p1.compare("Use Water Repellency")==0)      namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
+      if (p1.compare("Water Repellency A")==0)        namelist[j].value.setNum(E_waterRep_a->value(),'g',6);
+      if (p1.compare("Water Repellency B")==0)        namelist[j].value.setNum(E_waterRep_b->value(),'g',6);
+      if (p1.compare("Water Repellency C")==0)        namelist[j].value.setNum(E_waterRep_c->value(),'g',6);
+      if (p1.compare("Water Repellency D")==0)        namelist[j].value.setNum(E_waterRep_d->value(),'g',6);
 
       if (p1.compare("Erosion map units (0/1/2)")==0)
       {

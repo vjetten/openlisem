@@ -135,10 +135,12 @@ void TWorld::InfilSwatre(void)
 //         //         if (thetaTop->Drc < waterRep_c)
 //         //            RepellencyFraction->Drc = 0;//1.0;
 //      }
-      thetaTop->report("thtop");
-      RepellencyFraction->report("repelfr");
+//      thetaTop->report("thtop");
+//      RepellencyFraction->report("repelfr");
 
    }
+   thetaTop->report("thtop");
+   RepellencyFraction->report("repelfr");
 }
 //---------------------------------------------------------------------------
 /// DOESN'T WORK YET
