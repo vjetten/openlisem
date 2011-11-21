@@ -48,18 +48,26 @@
 
 
 //--------------------------------------------------------------------------------
-/*
+/**
+tri diagonalmatrix to solve differential equations to get the new matrix potential
+and the new moisture content theta
+method is by gaussian elimination and backsubstitution, 2 times instead of iteration
 matrix shape:
 |b0 c0 .  .| |h0| |F0|
 |a1 .. cn-1|*|  |=|  |
 |   an bn  | |hn| |Fn|
+F (thomf) is new moisture content theta
+thomc has unit cm
+thomb has unit dtheta/dh (like dimoca)
+
 */
-void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev,
-                      const double  *hPrev,const double  *kavg,const double  *dimoca,
+void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *thetaPrev,
+                      const double  *hPrev,const double  *kavg, const double  *dimoca,
                       bool fltsat, double dt, double pond, double qtop, double qbot)
 {
    int nN = NrNodes(p);
    const double *dz = Dz(p), *disnod = DistNode(p);
+   // dz is layer thickness, distnode is distance between centre of layers
    int i; // nN nodes from 0 to nN-1 !
    NODE_ARRAY thoma, thomb, thomc, thomf, beta;
    double alpha;
@@ -70,16 +78,16 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
       // h at soil surface prescribed, ponding
       thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
       thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/disnod[0]/dz[0];
-      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0])*(kavg[0] - kavg[1]) + dt*kavg[0]*pond/disnod[0]/dz[0];
-      ////+ dt/(-dz[0])*Sink[0]
+      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0])*(kavg[0] - kavg[1])
+                                + dt*kavg[0]*pond/disnod[0]/dz[0];
    }
    else
    {
-      //  q at soil surface prescribed, qtop = rainfall
+      //  q at soil surface prescribed, qtop = rainfall (or evap and then qtop positive)
       (*ponded) = false;
       thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
       thomb[0] = -thomc[0] + dimoca[0];
-      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]); //+ dt/(-dz[0])*Sink[0]
+      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]);
    }
 
    // Intermediate nodes: i = 1 to n-2
@@ -88,14 +96,15 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
       thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
       thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
       thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
-      thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);  //+dt/(-dz[i])*(Sink[i])
-      //add sink term to thomf as flux, Sink must be negative
+      thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+      //+dt/(-dz[i])*(Sink[i])
+      //add sink term to thomf as flux, Sink must be positive if evap, negative if e.g. drip irrigation
    }
 
    // last node : n-1 (include boundary cond. qbot)
    thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disnod[nN-1];
    thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
-   thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot); //+dt/(-dz[nN-1])*(Sink[nN-1])
+   thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot);
 
    // Gaussian elimination and backsubstitution h - first time
    alpha = thomb[0];
@@ -111,9 +120,6 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
       h[i] -= beta[i+1] * h[i+1];
    }
 
-
-   //   if (SwitchBacksubstitution)
-   //   {
    // correct tridiagonal matrix
    for (i = 0; i < nN; i++)
    {
@@ -123,6 +129,7 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
       thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
       thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i] - theta + thetaPrev[i];
    }
+   //thomf is new theta
 
    // Gaussian elimination and backsubstitution h - second time
    alpha = thomb[0];
@@ -132,6 +139,8 @@ void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *the
       beta[i] = thomc[i-1] / alpha;
       alpha = thomb[i] - thoma[i] * beta[i];
       h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+      //alpha = tomb = new h/theta
+      //thoma = alpha/beta is (new h/theta)/(old
    }
 
    for (i = nN-2; i >= 0; i--)
@@ -301,6 +310,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
                fltsat, dt, pond, qtop, qbot);
+
       // calculate new h and theta with two times gaussian matrix
       // and back substitution abracadabra
 

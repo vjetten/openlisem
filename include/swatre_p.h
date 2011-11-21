@@ -57,6 +57,22 @@ typedef struct ZONE   {
    double *endComp;   	/** end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
    double *disnod;    	/** distance between nodal points, 0 is between top-profile and first nodal point
 								  last is between bottom and last nodal point */
+/**
+	profile node setup:
+		 endComp is what is in the profile.inp file, the bottom of the layer
+		 dz = (endComp[i-1] - endComp[i]) is negative layer thickness
+		 z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
+		 disnod = z[i]-z[i-1] is negative distance between centres, nodes
+
+		  -------   surface    -       - z[0]-
+			  o                  |dz[0] -      | disnod[0]
+		  -------   endComp[0] -        |z[1]-
+			  o                  |dz[1] -      | disnod[1]
+		  -------   endcomp[1] -        |z[2]-
+			  o                  |dz[2] -      | disnod[2]
+		  -------   endcomp[2] -
+		 etc.
+*/
 } ZONE;
 //---------------------------------------------------------------------------
 /* change this structure if we add VanGenughten eqs. */

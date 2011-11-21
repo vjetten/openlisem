@@ -189,7 +189,7 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchSOBEKOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchBacksubstitution, SwitchKETimebased;
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -391,23 +391,23 @@ public:
     int tnode; //VJ 110122 node nr in profile with tile drains
 
     SOIL_MODEL *InitSwatre(TMMap *profileMap);//, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
-    int ReadSwatreInput(QString fileName, QString tablePath);
     void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
-    ZONE *ReadNodeDefinition(FILE *f);
-    PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
-
+    //VJ 111104 old stuff, no longer used but kept for now
+     int ReadSwatreInput(QString fileName, QString tablePath);
+     ZONE *ReadNodeDefinition(FILE *f);
+     PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+     PROFILE *ProfileNr(int profileNr);
     // VJ 111104 constructing profile with Qt commands
-    QStringList swatreProfileDef;
-    QList<int> swatreProfileNr;
-    int *profileNr;
-    void ReadSwatreInputNew(void);
-    ZONE *ReadNodeDefinitionNew(void);
-    PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
+     QStringList swatreProfileDef;
+     QList<int> swatreProfileNr;
+     int *profileNr;
+     void ReadSwatreInputNew(void);
+     ZONE *ReadNodeDefinitionNew(void);
+     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
 
     HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
-    PROFILE *ProfileNr(int profileNr);
     double *ReadSoilTable(const char *fileName, int *nrRows);
     void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
     void InitializeProfile(void);

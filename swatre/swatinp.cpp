@@ -37,6 +37,21 @@
 - int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
 - ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
 - PROFILE * TWorld::ReadProfileDefinition(FILE *f,ZONE *z,const char *tablePath) \n
+
+profile node setup:
+    endComp is what is in the profile.inp file, the bottom of the layer
+    dz = (endComp[i-1] - endComp[i]) is negative layer thickness
+    z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
+    disnod = z[i]-z[i-1] is negative distance between centres, nodes
+
+     -------   surface    -       - z[0]-
+        o                  |dz[0] -      | disnod[0]
+     -------   endComp[0] -        |z[1]-
+        o                  |dz[1] -      | disnod[1]
+     -------   endcomp[1] -        |z[2]-
+        o                  |dz[2] -      | disnod[2]
+     -------   endcomp[2] -
+    etc.
 */
 
 #include "error.h"
@@ -181,6 +196,7 @@ ZONE * TWorld::ReadNodeDefinitionNew(void)
    zone->disnod = (double *)malloc(sizeof(double)*(zone->nrNodes+1));
    zone->endComp= (double *)malloc(sizeof(double)*zone->nrNodes);
 
+
    for (i=0; i < zone->nrNodes; i++)
    {
       zone->endComp[i] = swatreProfileDef[pos+i].toInt(&ok, 10);
@@ -188,6 +204,7 @@ ZONE * TWorld::ReadNodeDefinitionNew(void)
          Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
       if (zone->endComp[i] <= 0)
          Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
+
       /* compute dz and make negative */
       zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
       zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
@@ -266,6 +283,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
 }
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
+/// OBSOLETE, replaced by ReadSwatreInputNew
 int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 {
    FILE *f;
@@ -336,18 +354,12 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 }
 //----------------------------------------------------------------------------------------------
 /// return PROFILE or throw an error if not found, profileNr is the profile map value
+/// OBSOLETE, only used in Swatinp and no longer necessary
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
    if (profileNr < 0 || profileNr >= nrProfileList)
       return(NULL);
    return(profileList[profileNr]);
-
-   //   int count = swatreProfileNr.indexOf(profileNr);
-   //   if (count < 0)
-   //      Error(QString("Cannot find profile information for profile map value %1").arg(profileNr));
-
-   //   return(profileList[count]);
-
 }
 //----------------------------------------------------------------------------------------------
 void  TWorld::FreeSwatreInfo(void)
@@ -384,11 +396,10 @@ void  TWorld::FreeSwatreInfo(void)
 }
 //----------------------------------------------------------------------------------------------
 /** allocates ZONE structure,
-                               *   reads compartment ends:
-                               *   2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.\n
-                               *   computes all parameters stored in ZONE -structure
-                               */
-//static
+    reads compartment ends:
+    2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.\n
+    computes all parameters stored in ZONE -structure
+*/
 ZONE * TWorld::ReadNodeDefinition(FILE *f)
 {
    int  i;
@@ -484,7 +495,7 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
    double *t, *lutCont;
    int i, nrRowsa=0;
 
-   /* look if it's already loaded */
+   // look if it's already loaded
    for( i= 0; i < nrHorizonList; i++)
       if (!strcmp(tableName, horizonList[i]->name))
          return(horizonList[i]);
@@ -502,7 +513,7 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
    strcat(strcpy(fileName, tablePath), tableName);
 
 
-   /* hook up table to t */
+   /* hook up table to temp array t */
    t = ReadSoilTable(fileName, &nrRowsa);
 
    lutCont = (double *)malloc(sizeof(double)*NR_COL*(nrRowsa+2));
@@ -512,28 +523,28 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
       lutCont[IND(i,H_COL)]     =  t[i*3+H_COL];
       lutCont[IND(i,K_COL)]     =  t[i*3+K_COL];
    }
+
+   // check some stuff
    for(i=0; i < (nrRowsa-1); i++)
    {
       if (lutCont[IND(i+1,H_COL)] <= lutCont[IND(i,H_COL)])
          Error(QString("matrix head not decreasing in table %1 at h = %2.").arg(tableName).arg(lutCont[IND(i,H_COL)]));
+      if (lutCont[IND(i+1,THETA_COL)] <= lutCont[IND(i,THETA_COL)])
+         Error(QString("moisture content not decreasing in table %1 at theta = %2.").arg(tableName).arg(lutCont[IND(i,THETA_COL)]));
    }
 
    for(i=0; i < (nrRowsa-1); i++)
    {
       lutCont[IND(i,DMCH_COL)] = 0.5 *
             (lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
-
-      //VJ : 0.01 is 1% humidity, ofwel
-      //            gevaarlijk om 0.01 te gebruiken want dit ligt aan de tabel
-      //            lutCont[IND(i,DMCC_COL)] = 0.01 /
-      //            (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
-      //beter:
+      // dif moisture cap dh
 
       lutCont[IND(i,DMCC_COL)] =
             (lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
             (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
+      // dif moisture cap dtheta/dh
    }
-   lutCont[IND(nrRowsa-1,DMCH_COL)] = 0;
+   lutCont[IND(nrRowsa-1,DMCH_COL)] = lutCont[IND(nrRowsa-2,DMCH_COL)] ; // =0; <= cannot divide by 0
    lutCont[IND(nrRowsa-1,DMCC_COL)] = lutCont[IND(nrRowsa-2,DMCC_COL)] ;
 
    free(t);

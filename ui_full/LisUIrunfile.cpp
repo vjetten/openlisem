@@ -132,7 +132,6 @@ void lisemqt::ParseInputData()
       if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
       //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
       if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
-      if (p1.compare("2nd back substitution")==0)          checkBacksubstitution->setChecked(check);
 
       //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
       if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
@@ -434,7 +433,6 @@ void lisemqt::updateModelData()
       if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());
       //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
       if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
-      if (p1.compare("2nd back substitution")==0)          namelist[j].value.setNum((int)checkBacksubstitution->isChecked());
       if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
       if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
       if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());

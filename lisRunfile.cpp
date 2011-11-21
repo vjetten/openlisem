@@ -202,7 +202,6 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
       if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
       if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    		iii == 1;
-      if (p1.compare("2nd back substitution")==0)          SwitchBacksubstitution = iii == 1;
       if (p1.compare("Use Water Repellency")==0)           SwitchWaterRepellency  = iii == 1;
       if (p1.compare("Runoff maps in l/s/m")==0)           SwitchRunoffPerM =       iii == 1;
       if (p1.compare("Timeseries as PCRaster")==0)         SwitchWritePCRnames =    iii == 1;

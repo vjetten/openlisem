@@ -1084,7 +1084,6 @@ void TWorld::IntializeOptions(void)
    SwitchPCRoutput = false;
    SwitchSoilwater = false;
    SwitchGeometric = true;
-   SwitchBacksubstitution = true;
 
    SwitchWriteHeaders = true; // write headers in output files in first timestep
 

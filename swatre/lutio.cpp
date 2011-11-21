@@ -107,6 +107,7 @@ double *TWorld::ReadSoilTable(
 
 		nrL += EXP_NR_COLS;
 	} while (/* infinite: */ nrL > -1 );
+
 	/* loop contains one break and one continue */
 	if (nrL == 0)
 		Error(QString(NO_ENTRIESs).arg(fileName));
