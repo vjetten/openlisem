@@ -27,10 +27,11 @@
   \file swatstep.cpp
   \brief SWATRE iteration and soil matrix solution
 
- note that there is no real iteration: all calculations are done twice
+ Note that there is no real iteration: all calculations are done twice
  and if the solution is not good enough, the NEXT SWATRE internal timestep is
- decreased
-
+ decreased.
+ Order of calculations:\
+ LisInfiltration, swatre -> SwatreStep --> for each pixxel do: ComputeForPixel HeadCalc + NewTimestep
  functions:
 - void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev, \n
       const double *hPrev,const double  *kavg,const double  *dimoca, \n
@@ -48,19 +49,38 @@
 
 
 //--------------------------------------------------------------------------------
+/// new matrix head: Gaussian elimination and backsubstitution
 /**
 tri diagonalmatrix to solve differential equations to get the new matrix potential
 and the new moisture content theta
 method is by gaussian elimination and backsubstitution, 2 times instead of iteration
 matrix shape:
+\code
 |b0 c0 .  .| |h0| |F0|
 |a1 .. cn-1|*|  |=|  |
 |   an bn  | |hn| |Fn|
+\endcode
 F (thomf) is new moisture content theta
 thomc has unit cm
 thomb has unit dtheta/dh (like dimoca)
 
 */
+/**
+ * @brief
+ *
+ * @param h
+ * @param ponded
+ * @param p
+ * @param thetaPrev
+ * @param hPrev
+ * @param kavg
+ * @param dimoca
+ * @param fltsat
+ * @param dt
+ * @param pond
+ * @param qtop
+ * @param qbot
+ */
 void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *thetaPrev,
                       const double  *hPrev,const double  *kavg, const double  *dimoca,
                       bool fltsat, double dt, double pond, double qtop, double qbot)
@@ -159,6 +179,18 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 
 }
 //--------------------------------------------------------------------------------
+/**
+ * @brief
+ *
+ * @param prevDt
+ * @param hLast
+ * @param h
+ * @param nrNodes
+ * @param precParam
+ * @param dtMin
+ * @param dtMax
+ * @return double
+ */
 double  TWorld::NewTimeStep(
       double 		 prevDt,
       const double *hLast,
@@ -189,6 +221,18 @@ double  TWorld::NewTimeStep(
 //--------------------------------------------------------------------------------
 // Units are:
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
+/**
+ * @brief
+ *
+ * @param pixel
+ * @param waterHeightIO
+ * @param infil
+ * @param drain
+ * @param drainfraction
+ * @param repel
+ * @param Theta
+ * @param s
+ */
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
                              double *drain, double drainfraction, double *repel,
                              double *Theta, SOIL_MODEL *s)
@@ -384,6 +428,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
+/**
+ * @brief
+ *
+ * @param s
+ * @param _WH
+ * @param _fpot
+ * @param _drain
+ * @param _theta
+ * @param where
+ */
 void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass

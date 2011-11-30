@@ -36,7 +36,7 @@
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
 //---------------------------------------------------------------------------
-
+/// CSF map construction, reading, writing series etc.
 /** class to deal with CSF map construction, reading and writing etc.
    Reading and writing of maps of other GIS systems can be added here in the future.
 */

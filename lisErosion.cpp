@@ -62,7 +62,7 @@ void TWorld::SplashDetachment(void)
 
    FOR_ROW_COL_MV
    {
-      double b, strength, DetDT1, DetDT2, DetLD1, DetLD2;
+      double b, strength, DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
       double g_to_kg = 0.001;
 
       double Int = Rain->Drc * 3600/_dt * 1000;
@@ -72,10 +72,10 @@ void TWorld::SplashDetachment(void)
 
       switch (KEequationType)
       {
-      case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int)));
-      case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0);
-      case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3);
-         // kin energy in J/m2/mm
+         case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int)));
+         case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0);
+         case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3);
+            // kin energy in J/m2/mm
       }
       //VJ 110706  KE equations
 
@@ -94,12 +94,15 @@ void TWorld::SplashDetachment(void)
 
       if (AggrStab > 0)
       {
-         strength = 2.82/AggrStab->Drc; b = 2.96;
+         strength = 2.82/AggrStab->Drc;
+         b = 2.96;
       }
       else
       {
-         strength = 0.1033/CohesionSoil->Drc; b = 3.58;
+         strength = 0.1033/CohesionSoil->Drc;
+         b = 3.58;
       }
+      // empirical analysis based on Limburg data, dating 1989
 
       // Between plants, directrain is already with 1-cover
       DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * directrain;
@@ -109,11 +112,15 @@ void TWorld::SplashDetachment(void)
 
       if (SwitchKETimebased)
       {
-          DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * _dt;
-          //ponded areas, kg/m2/sec * sec = kg/m2
-          DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * _dt * SplashDelivery;
-          //dry areas, kg/m2/sec * sec = kg/m2
+         if (directrain > 0)
+         {
+            DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * _dt/3600;
+            //ponded areas, kg/m2/sec * sec = kg/m2
+            DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * _dt/3600 * SplashDelivery;
+            //dry areas, kg/m2/sec * sec = kg/m2
+         }
       }
+      //based on work by Juan Sanchez
 
       // Under plants, throughfall is already with cover
       DetLD1 = g_to_kg * fpa->Drc*(strength*KE_LD*WH0+b) * throughfall;
@@ -183,7 +190,7 @@ void TWorld::FlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-               && !IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
+                   && !IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
@@ -309,7 +316,7 @@ void TWorld::ChannelFlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                  && !IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
+                   && !IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
                   maxtc = qMax(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);

@@ -49,21 +49,13 @@
 
 //-------------------------------------------------------------
 /// SWATRE structure geometry of profile: node distances etc.
-typedef struct ZONE   {
-	/* structure explaining how the soil subdivided */
-   int  nrNodes;     	/** nr. of nodes (equals nr. of compartments), arrays with nrNodes elements: */
-   double *dz;       	/** compartment size (cm.) used as negative in [SWATRE]*/
-   double *z;        	/** position of nodal point relative to top soil (Cm) e.g -21 means 21 cm below top of soil */
-   double *endComp;   	/** end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
-   double *disnod;    	/** distance between nodal points, 0 is between top-profile and first nodal point
-								  last is between bottom and last nodal point */
-/**
-	profile node setup:
-		 endComp is what is in the profile.inp file, the bottom of the layer
-		 dz = (endComp[i-1] - endComp[i]) is negative layer thickness
-		 z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
-		 disnod = z[i]-z[i-1] is negative distance between centres, nodes
-
+/**	profile node setup:
+-		 endComp is what is in the profile.inp file, the bottom of the layer
+-		 dz = (endComp[i-1] - endComp[i]) is negative layer thickness
+-		 z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
+-		 disnod = z[i]-z[i-1] is negative distance between centres, nodes
+- schematics:
+\code
 		  -------   surface    -       - z[0]-
 			  o                  |dz[0] -      | disnod[0]
 		  -------   endComp[0] -        |z[1]-
@@ -72,7 +64,16 @@ typedef struct ZONE   {
 			  o                  |dz[2] -      | disnod[2]
 		  -------   endcomp[2] -
 		 etc.
+\endcode
 */
+typedef struct ZONE   {
+	/* structure explaining how the soil subdivided */
+		int  nrNodes;     	/*!< nr. of nodes (equals nr. of compartments), arrays with nrNodes elements: */
+		double *dz;       	/*!< compartment size (cm.) used as negative in [SWATRE]*/
+		double *z;        	/*!< position of nodal point relative to top soil (Cm) e.g -21 means 21 cm below top of soil */
+		double *endComp;   /*!< end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
+		double *disnod;    /*!< distance between nodal points, 0 is between top-profile and first nodal point last is between bottom and last nodal point */
+
 } ZONE;
 //---------------------------------------------------------------------------
 /* change this structure if we add VanGenughten eqs. */
@@ -85,20 +86,25 @@ typedef struct HORIZON {
 /// SWATRE structure with horizon and node info
 typedef struct PROFILE {
    int            profileId; 	/** number identifying this profile  >= 0 */
-   const ZONE     *zone; 		/** array with zone.nrNodes elements: */
+   const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
    const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
 } PROFILE;
 //---------------------------------------------------------------------------
 typedef double NODE_ARRAY[MAX_NODES_P];
 //---------------------------------------------------------------------------
 /// SWATRE structure for actual matrix head and profile information
+/** SWATRE structure for actual matrix head and profile information
+   Each pixel in the map profile.map has this info. PROFILE gives the profiel layout
+   The h array contains the matrix potentials ported to the next timestep.
+   Specific can be put here such as tile drain flux, drip irrigation flux etc
+  */
 typedef struct PIXEL_INFO {
+   const PROFILE *profile;    /** profile this pixel belongs to */
    double        *h;          /** array of MAX_NODES nodes with matrix head */
    double        currDt;      /** current size of SWATRE timestep */
    double        tiledrain;   /** drainage into tiledrin system at a given depth */
    int           tilenode;    /** nearest node that has the tiledrain */
    int           repellency;  /** water repellency will be calculated if 1 */
-   const PROFILE *profile;    /** profile this pixel belongs to */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------

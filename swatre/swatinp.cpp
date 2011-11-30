@@ -30,13 +30,13 @@
 - void TWorld::ReadSwatreInputNew(void) \n
 - ZONE * TWorld::ReadNodeDefinitionNew(void) \n
 - PROFILE * TWorld::ReadProfileDefinitionNew(int pos,ZONE *z) \n
-- PROFILE * TWorld::ProfileNr(int profileNr) \n
-- HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName) \n
+- HORIZON * TWorld::ReadHorizon(const char *tablePath, const char *tableName) \n
 - void  TWorld::FreeSwatreInfo(void) \n
 - obsolete:
 - int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
 - ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
 - PROFILE * TWorld::ReadProfileDefinition(FILE *f,ZONE *z,const char *tablePath) \n
+- PROFILE * TWorld::ProfileNr(int profileNr) \n
 
 profile node setup:
     endComp is what is in the profile.inp file, the bottom of the layer
@@ -217,14 +217,17 @@ ZONE * TWorld::ReadNodeDefinitionNew(void)
    return(zone);
 }
 //----------------------------------------------------------------------------------------------
+/// read a new profile from profile.inp, construct and return it
 /**
-* returns pointer to new profile or NULL if eof is encountered
-* while reading first token of profile definition
-* typedef struct PROFILE {
-*   int            profileId; 	// number identifying this profile  >= 0
-*   const ZONE     *zone; 		   // array with zone.nrNodes elements:
-*   const HORIZON  **horizon; 	// ptr to horizon information this node belongs to
-* } PROFILE;
+* returns pointer to each new profile in file profile.inp\n
+* for info:
+\code
+ typedef struct PROFILE {
+   int            profileId; 	// number identifying this profile  >= 0
+   const ZONE     *zone; 		// array with zone.nrNodes elements: dz, z etc
+   const HORIZON  **horizon; 	// ptr to horizon information this node belongs to
+ } PROFILE;
+\endcode
 */
 PROFILE * TWorld::ReadProfileDefinitionNew(
       int pos,
@@ -282,8 +285,8 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
    return(p);
 }
 //----------------------------------------------------------------------------------------------
-/// read and parse profile.inp
 /// OBSOLETE, replaced by ReadSwatreInputNew
+/** make profile list and read all profile data */
 int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 {
    FILE *f;
@@ -353,8 +356,10 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
    return (0);
 }
 //----------------------------------------------------------------------------------------------
-/// return PROFILE or throw an error if not found, profileNr is the profile map value
-/// OBSOLETE, only used in Swatinp and no longer necessary
+/// OBSOLETE, no longer used
+/** return PROFILE or throw an error if not found, profileNr is the profile map value
+    only used in Swatinp and no longer necessary
+*/
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
    if (profileNr < 0 || profileNr >= nrProfileList)
@@ -434,6 +439,7 @@ ZONE * TWorld::ReadNodeDefinition(FILE *f)
    return(zone);
 }
 //----------------------------------------------------------------------------------------------
+/// OBSOLETE, replaced by ReadProfileDefinitionNew
 /**
    returns pointer to new profile or NULL if eof is encountered
    while reading first token of profile definition
