@@ -55,7 +55,7 @@ double TheNode(
     //head = min( head, -1e-10);  //max or min ???? org was max! but head is < 0 !
     //VJ 110825 better to comment out this line, not useful
     if (head >= -1.0E-2)
-        return LUT_Highest(hor->lut, THETA_COL);
+       return LUT_Highest(hor->lut, THETA_COL);
     return LUT_LinIntPol(hor->lut, THETA_COL, head, H_COL);
 }
 //-----------------------------------------------------------------------------------
@@ -83,7 +83,8 @@ double DmcNode(
     //if (head >= 0) return 0;
 
     if (head >= -1.0E-2)
-        return LUT_LinIntPol(hor->lut, DMCC_COL, head, DMCH_COL);
+//        return LUT_Highest(hor->lut, DMCC_COL);
+              LUT_LinIntPol(hor->lut, DMCC_COL, head, DMCH_COL);
 
     l = hor->lut;
     i = LUT_Index_LE(l, head, DMCH_COL);

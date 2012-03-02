@@ -68,7 +68,7 @@ CONFIG(debug, debug|release) {
     UI_DIR= debug/ui
 }
 else {
-    LIBS += -L"bin" -lcsf
+    LIBS += -L"bin" -llibcsf
     LIBS += -L"$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
     MOC_DIR = bin/moc

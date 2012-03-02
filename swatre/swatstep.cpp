@@ -88,12 +88,86 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
    int nN = NrNodes(p);
    const double *dz = Dz(p), *disnod = DistNode(p);
    // dz is layer thickness, distnode is distance between centre of layers
-   int i; // nN nodes from 0 to nN-1 !
+   int i, last = nN-1; // nN nodes from 0 to nN-1 !
    NODE_ARRAY thoma, thomb, thomc, thomf, beta;
    double alpha;
 
+   /* First node : 0 (include boundary cond. qtop or pond) */
+	if ( (*ponded) || (fltsat && (qtop <= qbot)) )
+	{
+		 /* h at soil surface prescribed, ponding */
+		 thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
+		 thomb[0] = -thomc[0] + dimoca[0] +
+					dt*kavg[0]/disnod[0]/dz[0];
+		 thomf[0] = dimoca[0]*h[0] +
+					dt/(-dz[0]) * (kavg[0] - kavg[1]) +
+					dt*kavg[0]*pond/disnod[0]/dz[0];
+	}
+	else
+	{
+		 /*  q at soil surface prescribed, qtop = rainfall  */
+		 (*ponded) = FALSE;
+		 thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
+		 thomb[0] = -thomc[0] + dimoca[0];
+		 thomf[0] = dimoca[0]*h[0] +
+					dt/(-dz[0]) * (- qtop - kavg[1]);
+	}
+
+
+	 /* Intermediate nodes: i = 1 to n-2 */
+	for (i = 1; i < nN-1; i++)
+	{
+		 thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
+		 thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
+		 thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
+		 thomf[i] = dimoca[i]*h[i] +
+					dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+	}
+
+	 /* last node : n-1 (include boundary cond. qbot)*/
+	thoma[last] = -dt*kavg[last]/dz[last]/disnod[last];
+	thomb[last] = -thoma[last] + dimoca[last];
+	thomf[last] = dimoca[last]*h[last] +
+				  dt/(-dz[last])*(kavg[last]+qbot);
+
+	/* Gaussian elimination and backsubstitution h - first time */
+	alpha = thomb[0];
+	h[0] = thomf[0] / alpha;
+	for (i = 1; i < nN; i++) {
+		beta[i] = thomc[i-1] / alpha;
+		alpha = thomb[i] - thoma[i] * beta[i];
+		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+	}
+	for (i = (last-1); i >= 0; i--) /* CW (last-1) was last */
+		h[i] -= beta[i+1] * h[i+1];
+
+	/* correct tridiagonal matrix */
+	for (i = 0; i < nN; i++) {
+		double theta = TheNode(h[i], Horizon(p,i));
+		double dimocaNew = DmcNode(h[i], Horizon(p,i));
+
+		thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
+		thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
+				   - theta + thetaPrev[i];
+	}
+
+	/* Gaussian elimination and backsubstitution h - second time */
+	alpha = thomb[0];
+	h[0] = thomf[0] / alpha;
+	for (i = 1; i < nN; i++) {
+		beta[i] = thomc[i-1] / alpha;
+		alpha = thomb[i] - thoma[i] * beta[i];
+		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+	}
+
+	for (i = (last-1); i >= 0; i--) /* CW (last-1) was last */
+		h[i] -= beta[i+1] * h[i+1];
+
+   /*
+
+
    // First node : 0 (include boundary cond. qtop or pond)
-   if ( (*ponded) || (fltsat && (qtop <= qbot)) )
+   if ( (*ponded))// || (fltsat && (qtop <= qbot)) )
    {
       // h at soil surface prescribed, ponding
       thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
@@ -154,6 +228,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
    // Gaussian elimination and backsubstitution h - second time
    alpha = thomb[0];
    h[0] = thomf[0] / alpha;
+
    for (i = 1; i < nN; i++)
    {
       beta[i] = thomc[i-1] / alpha;
@@ -168,14 +243,13 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
       h[i] -= beta[i+1] * h[i+1];
    }
 
-   //      for (i = 1; i < nN; i++)
-   //      {
-   //         if (h[i] >= -0.001)
-   //         h[i] = -0.001;
-   //      }
+//         for (i = 1; i < nN; i++)
+//         {
+//            if (h[i] >= -0.001)
+//            h[i] = -0.001;
+//         }
    // niet doen want node 0 kan positief zijn door waterlaag
-   //  }
-
+*/
 
 }
 //--------------------------------------------------------------------------------
@@ -241,6 +315,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    const PROFILE *p = pixel->profile;
    double *h = pixel->h;
    int    i, n = NrNodes(p);
+   double ThetaSat;
    double dt = pixel->currDt;
    double pond = *waterHeightIO;
    double elapsedTime = 0;
@@ -300,23 +375,27 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
       //--- boundary conditions ---//
 
+      //----- TOP -----//
+      // check if ponded: 1st compare fluxes, 2nd compare store
+      qtop = -pond/dt;
+      // top flux is ponded layer / timestep, available water, cm/sec
+
       //----- BOTTOM -----//
       // bottom is 0 or copy of flux of last 2 layers
       if (SwitchImpermeable)
          qbot = 0;
       else
-         qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
-      // qbot = -kavg[n]*((h[n-1]-h[n])/DistNode(p)[n] + 1);
+         qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
       //VJ 110122 why not last node? this gives nan, why? => n does not exist!
 
-      //----- TOP -----//
-      // check if ponded: 1st compare fluxes, 2nd compare store
 
-      qtop = -pond/dt;
-      // top flux is ponded layer / timestep, available water, cm/sec
 
       // 1st check flux aginst max flux
-      kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);
+      ThetaSat = TheNode(0.0, Horizon(p, 0));    
+      kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
+         
+      //kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);       
+      
       // geometric avg of ksat and k[0]
       qmax = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
       // maximum possible flux, compare to real top flux available
@@ -331,10 +410,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          double space = 0;
          for(i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
          {
-            ThetaSat = LUT_Highest(p->horizon[i]->lut, THETA_COL);
+            ThetaSat = TheNode(0, Horizon(p, i));
+                  //LUT_Highest(p->horizon[i]->lut, THETA_COL);
             space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
          }
-         ponded = pond > space;
+         //ponded = pond > space;
+         ponded = ((-qtop) * dt) > space;
       }
 
       // check if profile is completely saturated (flstsat)
@@ -346,15 +427,23 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
             break;
          }
 
+//      for (i = 0; i < n && h[i] >= 0; i++)
+         /* nothing */;
+  //    fltsat = (i == n); /* TRUE if forall i h[i] >= 0 */
+    //  if (fltsat)
+      //   i = 1;
+
       // save last h and theta, used in headcalc
-      memcpy(hPrev, h, sizeof(double)*n);
-      memcpy(thetaPrev, theta, sizeof(double)*n);
+      for (i = 0; i < n; i++)
+      {
+         hPrev[i] = h[i];
+         thetaPrev[i] = theta[i];
+      }
 
       // calculate hew heads
 
       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
                fltsat, dt, pond, qtop, qbot);
-
       // calculate new h and theta with two times gaussian matrix
       // and back substitution abracadabra
 
@@ -363,7 +452,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       if (SwitchImpermeable)
          qbot = 0;
       else
-         qbot = -kavg[n-1]*((h[n-2]-h[n-1])/DistNode(p)[n-1] + 1);
+      	 qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
       // new qbot is actually not use but may come in handy later
 
       if ( ponded || (fltsat && (qtop < qbot)) )

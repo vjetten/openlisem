@@ -449,6 +449,16 @@ void TWorld::InitChannel(void)
       // must be first" LDDChannel is the mask for channels
 
       ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
+      ChannelWidth->calcV(0.9*_dx, MIN);
+      FOR_ROW_COL_MV_CH
+      {
+         if (ChannelWidth->Drc <= 0)
+         {
+            ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
+            throw 1;
+         }
+      }
+
       ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
       ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
       ChannelGrad->calcV(0.001, MAX);
@@ -456,7 +466,7 @@ void TWorld::InitChannel(void)
       ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
       ChannelGrad->cover(LDD, 0);
       ChannelSide->cover(LDD, 0);
-      ChannelWidth->cover(LDD, 0);
+      ChannelWidth->cover(LDD, 0);      
       ChannelN->cover(LDD, 0);
 
       ChannelN->calcV(ChnCalibration, MUL);

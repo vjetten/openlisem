@@ -195,7 +195,7 @@ void lisemqt::ParseInputData()
          QStringList param;
          param = p.split(",",QString::SkipEmptyParts);
          radioButtonKE2->setChecked(param[0].toInt() == 1);
-         spinKEparameterA1->setValue(param[1].toDouble());
+         spinKEparameterA2->setValue(param[1].toDouble());
          spinKEparameterB2->setValue(param[2].toDouble());
       }
       if (p1.compare("KE parameters EQ3")==0)

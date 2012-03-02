@@ -239,7 +239,7 @@ void TWorld::Totals(void)
 
       FOR_ROW_COL_MV
       {
-         TotalConc->Drc = min(MAXCONC,(TotalWatervol->Drc > _dx*_dx*1e-6? TotalSed->Drc/TotalWatervol->Drc : 0));
+         TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc, tm->Drc);
       }
       // for file output
 

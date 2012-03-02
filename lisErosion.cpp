@@ -38,21 +38,34 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
+// TODO: min volume in slopes is in fact surface storage minimum!
+// this is set at (SDS = 0.1 * MDS->Drc) * CellArea->Drc
+// but this is already done in kin wave? should not be done here!
 double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
 {
-   double conc = (watvol > _dx*_dx*1e-6 ? sedvol/watvol : 0);// 1000);
+   double conc = MAXCONC;
+
+   if (watvol > _dx*_dx*1e-6)
+      conc = sedvol/watvol;
    // 1e-6 is 1 ml/m2
-   // TODO: min volume in slopes is in fact surface storage minimum!
-   // this is set at (SDS = 0.1 * MDS->Drc) * CellArea->Drc
-   // but this is already done in kin wave? should not be done here!
+   else
+   {
+      conc = 0;
+   //   dep += -sedvol;
+      sedvol = 0;
+   }
+
+//   if (watvol > _dx*_dx*1e-6 && conc > MAXCONC)
    if (conc > MAXCONC)
    {
-      dep += min(0, MAXCONC*watvol - sedvol);
+  //    double diff = (conc-MAXCONC)*watvol;
+  //    dep += diff;
       conc = MAXCONC;
    }
-   sedvol = conc*watvol;
 
-   return(conc);
+   sedvol = conc * watvol;
+
+   return conc;
 }
 //---------------------------------------------------------------------------
 void TWorld::SplashDetachment(void)

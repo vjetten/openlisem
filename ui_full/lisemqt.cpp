@@ -766,6 +766,12 @@ void lisemqt::resetAll()
     spinKEparameterA1->setValue(28.3);
     spinKEparameterB1->setValue(0.52);
     spinKEparameterC1->setValue(0.042);
+    radioButtonKE2->setChecked(false);
+    spinKEparameterA2->setValue(8.9);
+    spinKEparameterB2->setValue(8.44);
+    radioButtonKE3->setChecked(false);
+    spinKEparameterA3->setValue(7.6);
+    spinKEparameterB3->setValue(0.22);
 
     checkKETimebased->setChecked(false);
 

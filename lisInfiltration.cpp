@@ -53,7 +53,7 @@ void TWorld::InfilSwatre(void)
 {
    WHbef->copy(WH); // copy water height before infil
 
-   tma->fill(1); // flag to indicate where the swatrestep mdoel should be run
+   tma->fill(1); // flag to indicate where the swatrestep model should be run
 
    //calculate a new crustfraction for water repellency
    // formula = f = 1/(1+1.2^(theta-30)), theta in %
@@ -85,8 +85,8 @@ void TWorld::InfilSwatre(void)
       {
          //tm = WH on crust and tma = fpot crust
          WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
-
-         fact->Drc = (WHbef->Drc - tm->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
+         fact->Drc = (WHbef->Drc - WH->Drc);
+         //fact->Drc = (WHbef->Drc - tm->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
          fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
       }
    }
@@ -104,8 +104,8 @@ void TWorld::InfilSwatre(void)
       {
          WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
          // tm is WH on compacted area
-
-         fact->Drc = (tm->Drc - WHbef->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
+         fact->Drc = (WHbef->Drc - WH->Drc);
+         //fact->Drc = (tm->Drc - WHbef->Drc)*CompactFraction->Drc + fact->Drc*(1-CompactFraction->Drc);
          fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
 
          thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
@@ -135,12 +135,11 @@ void TWorld::InfilSwatre(void)
 //         //         if (thetaTop->Drc < waterRep_c)
 //         //            RepellencyFraction->Drc = 0;//1.0;
 //      }
-//      thetaTop->report("thtop");
-//      RepellencyFraction->report("repelfr");
+      thetaTop->report("thtop");
+      RepellencyFraction->report("repelfr");
 
    }
-   thetaTop->report("thtop");
-   RepellencyFraction->report("repelfr");
+
 }
 //---------------------------------------------------------------------------
 /// DOESN'T WORK YET
@@ -489,7 +488,6 @@ void TWorld::Infiltration(void)
    // these function result in an actual infiltration "fact" (in m)
    // and potential infiltration "fpot" (in m)
    // each function deals with grass strips as a separate infiltration process
-
    FOR_ROW_COL_MV
    {
       if (SwitchBuffers && !SwitchSedtrap)

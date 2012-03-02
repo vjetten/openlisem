@@ -549,8 +549,9 @@ HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
             (lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
             (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
       // dif moisture cap dtheta/dh
+      //qDebug() << i << lutCont[IND(i+1,H_COL)]<< lutCont[IND(i,THETA_COL)] << lutCont[IND(i,DMCH_COL)]<<lutCont[IND(i,DMCC_COL)];
    }
-   lutCont[IND(nrRowsa-1,DMCH_COL)] = lutCont[IND(nrRowsa-2,DMCH_COL)] ; // =0; <= cannot divide by 0
+   lutCont[IND(nrRowsa-1,DMCH_COL)] = 0;
    lutCont[IND(nrRowsa-1,DMCC_COL)] = lutCont[IND(nrRowsa-2,DMCC_COL)] ;
 
    free(t);
