@@ -51,11 +51,18 @@ TMMap
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
+//houses
+*HStor,                      //!< actual roof storage of rainwater [m]
+*DStor,                      //!< actual drum storage of rainwater [m^3]
+*IntercHouse,                //!< actual roof storage volume [m^3]
+*HouseCover,                 //!< fraction cover of house in pixel [-]
+*RoofStore,                  //!< Max storage of roof in [mm]
+*DrumStore,                  //!< Max storage of rainwter drums [m^3]
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]
 *Snowcover,                  //!< snowmelt cover map, value 1.0 if there is snowcover, 0 without [-]
-*Snowmelt,                   //!< snowmelt depth in water equivalent [in m]
-*Snowmeltc,                  //!< snowmelt depth in water equivalent, corrected for DEM gradient[in m]
+*Snowmelt,                   //!< snowmelt depth in water equivalent [m]
+*Snowmeltc,                  //!< snowmelt depth in water equivalent, corrected for DEM gradient [m]
 *SnowmeltCum,                //!< cumulative showmelt depth [m]
 
 *WH,                         //!< water height on the surface [m]

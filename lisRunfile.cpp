@@ -183,7 +183,9 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
       if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
       if (p1.compare("Include tile drains")==0)            SwitchIncludeTile    =   iii == 1;
-      if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel    =  iii == 1;
+      //houses
+      if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
+      if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel  =  iii == 1;
       SwitchAllinChannel = true;
       //VJ 100526 always true in old LISEM
 
@@ -193,7 +195,7 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
       if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
       if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
-      if (p1.compare("Limit Deposition TC")==0)            SwitchLimitDepTC =          iii == 1;
+      if (p1.compare("Limit Deposition TC")==0)            SwitchLimitDepTC =       iii == 1;
       if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
       if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
       if (p1.compare("Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;

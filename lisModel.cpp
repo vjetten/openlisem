@@ -145,6 +145,7 @@ void TWorld::DoModel()
             RainfallMap();
             SnowmeltMap();
             Interception();
+            InterceptionHouses();
             Infiltration();
             //SoilWater();
             SurfaceStorage();

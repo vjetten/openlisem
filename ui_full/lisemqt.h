@@ -65,10 +65,11 @@
 #define BUFFERSMAPS 7
 #define SNOWMELTMAPS 8
 #define TILEDRAINMAPS 9   //VJ 110111
-#define WHEELTRACKSMAPS 10
-#define TEXTUREMAPS 11
-#define NUTRIENTSMAPS 12
-#define GULLIESMAPS 13
+#define HOUSESMAPS 10  //VJ 120314
+#define WHEELTRACKSMAPS 11
+#define TEXTUREMAPS 12
+#define NUTRIENTSMAPS 13
+#define GULLIESMAPS 14
 
 //---------------------------------------------------------------------------
 /// map name list structure for interaction with interface
@@ -241,6 +242,8 @@ public slots:
    void on_checkNoErosion_clicked();
    void on_checkIncludeChannel_clicked();
    void on_checkIncludeTiledrains_clicked();
+   //houses
+   void on_checkHouses_clicked();
    void on_checkInfilCompact_clicked();
    void on_checkInfilCrust_clicked();
    void on_checkInfilGrass_clicked();

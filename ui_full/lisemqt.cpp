@@ -730,6 +730,8 @@ void lisemqt::resetAll()
     checkAltErosion->setChecked(check);
     checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
+    //houses
+    checkHouses->setChecked(check);
     checkLimitTC->setChecked(check);
     checkLimitDepTC->setChecked(check);
     checkBuffers->setChecked(check);

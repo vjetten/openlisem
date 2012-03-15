@@ -52,7 +52,7 @@ double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
    {
       conc = 0;
    //   dep += -sedvol;
-      sedvol = 0;
+   //   sedvol = 0;
    }
 
 //   if (watvol > _dx*_dx*1e-6 && conc > MAXCONC)
@@ -97,9 +97,8 @@ void TWorld::SplashDetachment(void)
 
       double KE_LD = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
       // kin energy in J/m2/mm
-      //		double throughfall = LeafDrain->Drc * (1-StemflowFraction) * 1000;
-      double throughfall = LeafDrain->Drc * 1000;
-      // leaf drip in mm is already calculated with plant covern in interception function
+      double throughfall = Cover->Drc * LeafDrain->Drc * 1000;
+      // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
       // VJ 110206 stemflow is also accounted for
 
       double WH0 = exp(-1.48*WH->Drc*1000);
@@ -164,6 +163,11 @@ void TWorld::SplashDetachment(void)
       if (SwitchHardsurface)
          DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
       // no splash on hard surfaces
+
+      if (SwitchHouses)
+         DETSplash->Drc = (1-HouseCover->Drc)*DETSplash->Drc;
+      // no splash from house roofs
+
       DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
       // no splash on snow deck
    }
@@ -255,6 +259,10 @@ void TWorld::FlowDetachment(void)
       if (SwitchHardsurface)
          DETFlow->Drc = (1-HardSurface->Drc) * DETFlow->Drc ;
       // no flow detachment on hard surfaces
+
+      if (SwitchHouses)
+         DETFlow->Drc = (1-HouseCover->Drc)*DETFlow->Drc;
+      // no flow det from house roofs
 
       //DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
       /* TODO: CHECK THIS no flow detachment on snow */

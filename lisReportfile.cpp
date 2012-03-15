@@ -71,7 +71,9 @@ void TWorld::OutputUI(void)
    op.RainpeakTime=RainpeakTime/60;
    op.InfilTotmm=InfilTotmm;
    op.SurfStormm=SurfStoremm;
-   op.IntercTotmm=IntercTotmm;
+   //houses
+   op.IntercTotmm=IntercTotmm+IntercHouseTotmm;
+   op.IntercHouseTotmm=IntercHouseTotmm;
    op.InfilKWTotmm=InfilKWTot; // infil part in kin wave not used
    op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
 
@@ -440,6 +442,7 @@ void TWorld::ReportTotalsNew(void)
    out << "Total rainfall              (mm):," << op.RainTotmm<< "\n";
    out << "Total discharge             (mm):," << op.Qtotmm<< "\n";
    out << "Total interception          (mm):," << op.IntercTotmm<< "\n";
+   out << "Total House interception    (mm):," << op.IntercHouseTotmm<< "\n";
    out << "Total infiltration          (mm):," << op.InfilTotmm<< "\n";
    out << "Surface storage             (mm):," << op.SurfStormm<< "\n";
    out << "Water in runoff + channel   (mm):," << op.WaterVolTotmm<< "\n";

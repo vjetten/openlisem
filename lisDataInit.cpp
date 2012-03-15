@@ -818,6 +818,10 @@ void TWorld::IntializeData(void)
    //not used RainM3 = NewMap(0);
    CStor = NewMap(0);
    Interc = NewMap(0);
+   //houses
+   HStor = NewMap(0);
+   IntercHouse = NewMap(0);
+   DStor = NewMap(0);
 
    Snowmelt = NewMap(0);
    Snowmeltc = NewMap(0);
@@ -851,6 +855,19 @@ void TWorld::IntializeData(void)
    CanopyStorage->calcV(0.001, MUL); // to m
    //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
 
+   if (SwitchHouses)
+   {
+      //houses
+//      DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
+//      DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+//      DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+      HouseCover = ReadMap(LDD,getvaluename("housecover"));
+      RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+      RoofStore->calcV(0.001, MUL);
+      // to mm
+      DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+   }
+
 
    //### infiltration maps
    InfilTot = 0;
@@ -858,6 +875,9 @@ void TWorld::IntializeData(void)
    InfilKWTot = 0;
    IntercTot = 0;
    IntercTotmm = 0;
+   //houses
+   IntercHouseTot = 0;
+   IntercHouseTotmm = 0;
    WaterVolTot = 0;
    WaterVolSoilTot = 0;
    WaterVolTotmm = 0;

@@ -463,6 +463,11 @@ void TWorld::Infiltration(void)
             Ksateff->Drc =  0;
          //VJ 110111 no infiltration on hard surfaces
 
+         //houses
+         if (SwitchHouses)
+            Ksateff->Drc = Ksateff->Drc * (1-HouseCover->Drc);
+         //VJ decrease ksat for celss with houses
+
          Ksateff->Drc *= ksatCalibration;
          // apply runfile/iface calibration factor
          if (SwitchBuffers && !SwitchSedtrap)

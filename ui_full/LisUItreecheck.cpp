@@ -74,6 +74,11 @@ void lisemqt::on_checkIncludeTiledrains_clicked()
    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkHouses_clicked()
+{
+   checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
 {
 	if (checkChannelBaseflow->isChecked())
@@ -294,6 +299,8 @@ void lisemqt::RunAllChecks()
    checkMapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
 
    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+   //houses
+   checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());

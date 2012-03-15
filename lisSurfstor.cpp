@@ -82,7 +82,7 @@ void TWorld::SurfaceStorage(void)
          whflow = (wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
       //could be: whflow = (wh-SDS) * (1-exp(-wh/mds));
       // non-linear release fo water from depression storage
-      // resemples curves from GIS surface tests, unpublished
+      // resemles curves from GIS surface tests, unpublished
       else
          whflow = wh;
 
@@ -92,6 +92,13 @@ void TWorld::SurfaceStorage(void)
 
       WHstore->Drc = wh - whflow;
       // average water stored on flowwidth and not available for flow, in m
+
+      //houses
+      if(SwitchHouses)
+      {
+         WHstore->Drc *= (1-HouseCover->Drc);
+         whflow = wh - WHstore->Drc;
+      }
 
       WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
       // runoff volume available for flow, surface + road
@@ -110,6 +117,11 @@ void TWorld::SurfaceStorage(void)
       if (GrassFraction->Drc > 0)
          FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
       // assume grassstrip spreads water over entire width
+
+      //Houses
+      if (SwitchHouses && HouseCover->Drc > 0)
+         FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
+            // assume house severely restricts flow width, 0.5 is arbitrary
 
       if (FlowWidth->Drc > 0)
          WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);

@@ -80,6 +80,12 @@ void TWorld::Totals(void)
    IntercTot = Interc->MapTotal();
    IntercTotmm = IntercTot*catchmentAreaFlatMM;
    // interception in mm and m3
+
+   //houses
+   IntercHouseTot = IntercHouse->MapTotal();
+   IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
+   // interception in mm and m3
+
    InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
    InfilKWTot += InfilVolKinWave->MapTotal(); // not really used, available for output when needed
    InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
@@ -275,11 +281,11 @@ void TWorld::MassBalance()
    // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
    if (RainTot + SnowTot > 0)
       MB = (RainTot + SnowTot + WaterVolSoilTot
-            - IntercTot - InfilTot - WaterVolTot - Qtot - BufferVolin)/
+            - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - Qtot - BufferVolin)/
             (RainTot + SnowTot + WaterVolSoilTot)*100;
    //watervoltot includes channel and tile
 
-   //qDebug() << RainTot << IntercTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
+   qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
 
    // Mass Balance sediment, all in kg
    if (SwitchErosion && DetTot > 0)
