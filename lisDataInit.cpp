@@ -124,8 +124,11 @@ void TWorld::DestroyData(void)
    if (nrrainfallseries > 1)
    {
       for (int r=0; r < nrrainfallseries; r++)
-         delete[] RainfallSeries[r];
-      delete[] RainfallSeries;
+         delete[] RainfallSeriesM[r].intensity;
+      delete RainfallSeriesM;
+//      for (int r=0; r < nrrainfallseries; r++)
+//         delete[] RainfallSeries[r];
+//      delete[] RainfallSeries;
    }
 
    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
@@ -448,6 +451,16 @@ void TWorld::InitChannel(void)
       LDDChannel = InitMaskChannel(getvaluename("lddchan"));
       // must be first" LDDChannel is the mask for channels
 
+      //      ChannelHeight = ReadMap(LDDChannel, getvaluename("chanheight"));
+      //      FOR_ROW_COL_MV_CH
+      //      {
+      //         if (ChannelHeight->Drc <= 0)
+      //         {
+      //            ErrorString = QString("Map %1 contains channel cells with height = 0").arg(getvaluename("chanheigth"));
+      //            throw 1;
+      //         }
+      //      }
+
       ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
       ChannelWidth->calcV(0.9*_dx, MIN);
       FOR_ROW_COL_MV_CH
@@ -466,7 +479,7 @@ void TWorld::InitChannel(void)
       ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
       ChannelGrad->cover(LDD, 0);
       ChannelSide->cover(LDD, 0);
-      ChannelWidth->cover(LDD, 0);      
+      ChannelWidth->cover(LDD, 0);
       ChannelN->cover(LDD, 0);
 
       ChannelN->calcV(ChnCalibration, MUL);
@@ -534,11 +547,15 @@ void TWorld::GetInputData(void)
    tma = NewMap(0); // temp map for aux calculations
    tmb = NewMap(0); // temp map for aux calculations
    tmc = NewMap(0); // temp map for aux calculations
+
    for (int i = 0; i < 32; i++)
       SubsMaps[i].m = NULL;  // initialize substance structures
 
-   Grad = ReadMap(LDD,getvaluename("grad"));  // must be SINE of the slope angle !!!
-   Outlet = ReadMap(LDD,getvaluename("outlet"));
+   //DEM = ReadMap(LDD, getvaluename("dem"));
+   // DEM in m
+
+   Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
+   Outlet = ReadMap(LDD, getvaluename("outlet"));
    Outlet->cover(LDD, 0);
    // fill outlet with zero, some users have MV where no outlet
    FOR_ROW_COL_MV
@@ -728,9 +745,9 @@ void TWorld::GetInputData(void)
       ReadSwatreInputNew();
 
       // obsolete
-//      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-//      if (res)
-//         throw res;
+      //      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
+      //      if (res)
+      //         throw res;
 
 
    }
@@ -840,14 +857,14 @@ void TWorld::IntializeData(void)
       {
          switch (InterceptionLAIType)
          {
-            case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+         case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+         case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+         case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+         case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+         case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+         case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+         case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+         case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 
          }
       }
@@ -858,9 +875,9 @@ void TWorld::IntializeData(void)
    if (SwitchHouses)
    {
       //houses
-//      DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
-//      DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-//      DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+      //      DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
+      //      DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+      //      DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
       HouseCover = ReadMap(LDD,getvaluename("housecover"));
       RoofStore = ReadMap(LDD,getvaluename("roofstore"));
       RoofStore->calcV(0.001, MUL);

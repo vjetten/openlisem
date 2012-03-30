@@ -46,7 +46,8 @@ functions: \n
    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 // check if cell is still inside the map boundaries
-#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
+//moved to model.h
+//#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 
 #define MAX_ITERS 10
 

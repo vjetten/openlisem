@@ -86,6 +86,10 @@
     for (int  c = 0; c < _nrCols; c++)\
     if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
 
+/// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
+#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
+
+
 #define NUMNAMES 360   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 256    /// \def max nr maps
 #define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
@@ -147,6 +151,14 @@ typedef struct UNIT_LIST {
     double totsl;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
+typedef struct RAIN_LIST {
+    double time;
+    double *intensity;
+    bool isMap;
+    QString name;
+} RAIN_LIST;
+//---------------------------------------------------------------------------
+
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
@@ -252,6 +264,7 @@ public:
     int nrstations, nrrainfallseries;
     double **SnowmeltSeries;
     int nrSnowmeltstations, nrSnowmeltseries;
+    RAIN_LIST *RainfallSeriesM;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
@@ -314,6 +327,7 @@ public:
 
     // LISEM model processes
     void GetRainfallData(void);   // get input timeseries
+    void GetRainfallDataM(void);   // get input timeseries
     void GetSnowmeltData(void);   // get input timeseries
     /// convert rainfall of a timestep into a map
     void RainfallMap(void);
@@ -337,6 +351,8 @@ public:
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void ChannelFlow(void);
+    //flood
+    void ChannelFlood(void);
     void ToChannel(void);
     void CalcVelDisch(void);
     void CalcVelDischChannel(void);

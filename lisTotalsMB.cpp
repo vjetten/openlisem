@@ -285,7 +285,7 @@ void TWorld::MassBalance()
             (RainTot + SnowTot + WaterVolSoilTot)*100;
    //watervoltot includes channel and tile
 
-   qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
+  // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
 
    // Mass Balance sediment, all in kg
    if (SwitchErosion && DetTot > 0)

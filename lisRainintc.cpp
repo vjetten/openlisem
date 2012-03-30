@@ -37,6 +37,9 @@ functions: \n
 
 //---------------------------------------------------------------------------
 /// read rainfall files of different types and put data in RainfallSeries
+/// reads also old RUU lisem rain files
+/// reads rainfall maps
+//OBSOLETE
 void TWorld::GetRainfallData(void)
 {
    QFile fff(rainFileName);
@@ -59,21 +62,10 @@ void TWorld::GetRainfallData(void)
    // read the header
    while (S.isEmpty())
       S = fff.readLine();
+   // skip empty lines
+
    QStringList SL = S.split(QRegExp("\\s+")); //<== white space character as split
    nrstations = SL[SL.size()-2].toInt(&ok, 10);
-
-   /*
-   if (S.contains("RUU CSF TIMESERIE", Qt::CaseInsensitive)) // file is old lisem file
-   {
-      QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
-      nrstations = SL[SL.size()-2].toInt(&ok, 10);
-   }
-   else // file is PCRaster timeseries
-   {
-      S = fff.readLine();
-      nrstations = S.toInt(&ok, 10);
-   }
-   */
    if (!ok)
    {
       ErrorString = "Cannot read nr rainfall stations in header rainfall file";
@@ -92,11 +84,13 @@ void TWorld::GetRainfallData(void)
    }
    // count rainfall records, skip empty lines
 
+
    if (nrrainfallseries <= 1)
    {
-      ErrorString = "rainfall records <= 1!";
+      ErrorString = "rainfall records <= 1, must at least have one interval with a begin and end time.";
       throw 1;
    }
+
 
    nrrainfallseries++;
    RainfallSeries = new double*[nrrainfallseries];
@@ -108,6 +102,7 @@ void TWorld::GetRainfallData(void)
    fff.close();
    // close file and start again
 
+
    fff.open(QIODevice::ReadOnly | QIODevice::Text);
    S = fff.readLine();
    for (int i = 0; i < nrstations; i++)
@@ -117,7 +112,6 @@ void TWorld::GetRainfallData(void)
    {
       S = fff.readLine();
       if (S.trimmed().isEmpty()) continue;
-
 
       QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
       if (SL.size()-1 < nrstations)
@@ -134,8 +128,9 @@ void TWorld::GetRainfallData(void)
          RainfallSeries[j][i] = SL[i].toDouble();
       // rainfall intensities
       j++;
-
    }
+
+
    RainfallSeries[nrrainfallseries-1][0] = 1e20;
    for (int i = 1; i < nrstations+1; i++)
       RainfallSeries[nrrainfallseries-1][i] = 0;
@@ -143,45 +138,199 @@ void TWorld::GetRainfallData(void)
    fff.close();
 }
 //---------------------------------------------------------------------------
+/// read rainfall files of different types and put data in RainfallSeries
+/// reads also old RUU lisem rain files
+/// can read rainfall maps in between intensity values
+/// format: first line ends with integer that is nr of data columns excl time
+void TWorld::GetRainfallDataM(void)
+{
+   QFile fff(rainFileName);
+   QFileInfo fi(rainFileName);
+   QString S;
+   QStringList rainRecs;
+   bool ok;
+   int j = 0;
+
+   if (!fi.exists())
+   {
+      ErrorString = "Rainfall file not found: " + rainFileName;
+      throw 1;
+   }
+
+   nrstations = 0;
+   nrrainfallseries = 0;
+
+   fff.open(QIODevice::ReadOnly | QIODevice::Text);
+
+   while (!fff.atEnd())
+   {
+      S = fff.readLine();
+      if (!S.trimmed().isEmpty())
+         rainRecs << S;
+   }
+   fff.close();
+   // get all rainfall records
+
+   QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+   // white space character as split
+   nrstations = SL[SL.size()-2].toInt(&ok, 10);
+
+   if (!ok)
+   {
+      ErrorString = "Cannot read nr rainfall stations in header rainfall file";
+      throw 1;
+   }
+
+   nrrainfallseries = rainRecs.size() - nrstations - 1;
+   // count rainfall records
+
+   if (nrrainfallseries <= 1)
+   {
+      ErrorString = "rainfall records <= 1, must at least have 2 rows: one interval with a begin and end time.";
+      throw 1;
+   }
+
+   RainfallSeriesM = new RAIN_LIST[nrrainfallseries];
+   for(int r=0; r < nrrainfallseries; r++)
+   {
+      RainfallSeriesM[r].time = 0;
+      RainfallSeriesM[r].intensity = new double[nrstations+1];
+      for (int j = 0; j <= nrstations; j++)
+         RainfallSeriesM[r].intensity[j] = 0;
+      RainfallSeriesM[r].isMap = false;
+      RainfallSeriesM[r].name = "";
+   }
+   // make and initialize rainfall record structure, deleted in DestroyData
+
+
+   for(int r = 0; r < nrrainfallseries; r++)
+   {
+      QStringList SL = rainRecs[r+nrstations+1].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      // split rainfall record row with whitespace
+
+      RainfallSeriesM[r].time = SL[0].toDouble();
+      // time in min
+
+      // check if record has characters, then filename assumed
+      if (SL[1].contains(QRegExp("[A-Za-z]")))
+      {
+         QFileInfo fi(QDir(rainFileDir), SL[1]);
+         // asume second record is name
+         if (!fi.exists())
+         {
+            ErrorString = QString("rainfall map %1 not found.").arg(SL[1]);
+            throw 1;
+         }
+
+         RainfallSeriesM[r].name = fi.absoluteFilePath();
+         RainfallSeriesM[r].isMap = true;
+         // a mapname if the file exists
+      }
+      else
+      {
+         // record is a assumed to be a double
+
+         for (int i = 0; i < nrstations; i++)
+         {
+            bool ok = false;
+            RainfallSeriesM[r].intensity[i] = SL[i+1].toDouble(&ok);
+            if (!ok)
+            {
+               ErrorString = QString("rainfall records at time %1 has unreadable value.").arg(SL[0]);
+               throw 1;
+            }
+
+         }
+      }
+      //qDebug() << RainfallSeriesM[r].time << RainfallSeriesM[r].intensity << RainfallSeriesM[r].name;
+   }
+}
+//---------------------------------------------------------------------------
 /**
- rainfall intensity read is that reported with the next line: example\n
+ rainfall intensity read is that reported with the current line: example\n
  0 0\n
- 5 2.3   ->from 0 to 5 minutes intensity is 2.3\n
- 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5\n
+ 5 2.3   ->from 0 to 5 minutes intensity is 0\n
+ 7.5 4.5 ->from 5 to 7.5 minutes intensity is 2.3\n
  etc. */
 void TWorld::RainfallMap(void)
 {
    double timemin = time / 60;  //time in minutes
-   double timeminp = (time-_dt) / 60; //prev time in minutes
+   double timeminprev = (time-_dt) / 60; //prev time in minutes
    int placep, place;
+   double tt = 3600000.0;
+
 
    if (!SwitchRainfall)
       return;
 
-
-   //	for (placep = 0; placep < nrrainfallseries; placep++)
-   //		if (timeminp < RainfallSeries[placep][0])
-   //			break;
    for (place = 0; place < nrrainfallseries; place++)
-      if (timemin < RainfallSeries[place][0])
+      if (timeminprev < RainfallSeriesM[place].time)
          break;
 
-   FOR_ROW_COL_MV
+   if (RainfallSeriesM[place].isMap)
    {
-      int col = (int) RainZone->Drc;
-      double tt = 3600000.0;
+      TMMap *_M = new TMMap();
+      _M->PathName = RainfallSeriesM[place].name;
+      bool res = _M->LoadFromFile();
+      if (!res)
+      {
+         ErrorString = "Cannot find map " +_M->PathName;
+         throw 1;
+      }
 
-      Rain->Drc = RainfallSeries[place][col]*_dt/tt;
-      // Rain in m per timestep from mm/h
-      Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-      // correction for slope dx/DX, water spreads out over larger area
+      for (int r = 0; r < _nrRows; r++)
+         for (int c = 0; c < _nrCols; c++)
+            if (!IS_MV_REAL8(&LDD->Drc) && IS_MV_REAL8(&_M->Drc))
+            {
+               QString sr, sc;
+               sr.setNum(r); sc.setNum(c);
+               ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[place].name;
+               throw 1;
+            }
+      FOR_ROW_COL_MV
+      {
+         Rain->Drc = _M->Drc *_dt/tt;
+         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+         RainCum->Drc += Rainc->Drc;
+         RainNet->Drc = Rainc->Drc;
+      }
 
-      // TODO: weighted average if dt larger than table dt */
-
-      RainCum->Drc += Rainc->Drc;
-      // cumulative rainfall corrected for slope, used in interception
-      RainNet->Drc = Rainc->Drc;
+      _M->KillMap();
    }
+   else
+   {
+      FOR_ROW_COL_MV
+      {
+         Rain->Drc = RainfallSeriesM[place].intensity[(int) RainZone->Drc-1]*_dt/tt;
+         // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
+         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+         // correction for slope dx/DX, water spreads out over larger area
+
+         //TODO: weighted average if dt larger than table dt
+
+         RainCum->Drc += Rainc->Drc;
+         // cumulative rainfall corrected for slope, used in interception
+         RainNet->Drc = Rainc->Drc;
+      }
+   }
+
+   // find the interval in which we are now
+//OBSOLETE
+//   FOR_ROW_COL_MV
+//   {
+//      int col = (int) RainZone->Drc;
+//      double tt = 3600000.0;
+
+//      Rain->Drc = RainfallSeries[place][col]*_dt/tt;
+//      // Rain in m per timestep from mm/h
+//      Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+//      // correction for slope dx/DX, water spreads out over larger area
+
+
+//      RainCum->Drc += Rainc->Drc;
+//      // cumulative rainfall corrected for slope, used in interception
+//      RainNet->Drc = Rainc->Drc;
+//   }
 }
 //---------------------------------------------------------------------------
 /// Interception()
@@ -200,62 +349,59 @@ void TWorld::Interception(void)
 
    FOR_ROW_COL_MV
    {
-      if (Cover->Drc > 0)
+      double CS = CStor->Drc;
+      //actual canopy storage in m
+      double Smax = CanopyStorage->Drc;
+      //max canopy storage in m
+      double LAIv;
+      if (SwitchInterceptionLAI)
+         LAIv = LAI->Drc;
+      else
+         LAIv = (log(1-Cover->Drc)/-0.4)/max(0.9,Cover->Drc);
+      //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
+      // a low cover means a low LAI means little interception
+      // avoid division by 0
+
+      if (SwitchBuffers && !SwitchSedtrap)
+         if(BufferID->Drc > 0)
+            Smax = 0;
+      // no interception with buffers, but sedtrap can have interception
+
+      if (SwitchHardsurface && HardSurface->Drc > 0)
+         Smax =  0;
+      //VJ 110111 no interception on hard surfaces
+
+      if (Smax > 0)
       {
-         double CS = CStor->Drc;
-         //actual canopy storage in m
-         double Smax = CanopyStorage->Drc;
-         //max canopy storage in m
-         double LAIv;
-         if (SwitchInterceptionLAI)
-            LAIv = LAI->Drc;
-         else
-            LAIv = (log(1-Cover->Drc)/-0.4)/max(0.9,Cover->Drc);
-         //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
-         // a low cover means a low LAI means little interception
-         // avoid division by 0
-
-         if (SwitchBuffers && !SwitchSedtrap)
-            if(BufferID->Drc > 0)
-               Smax = 0;
-         // no interception with buffers, but sedtrap can have interception
-
-         if (SwitchHardsurface && HardSurface->Drc > 0)
-            Smax =  0;
-         //VJ 110111 no interception on hard surfaces
-
-         if (Smax > 0)
-         {
-            double k = exp(-CanopyOpeness*LAIv);
-            CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
-            //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-            //VJ 110209 direct use of openess, astons value too open. A good guess is using the cover LAI relation
-            //and interpreting cover as openess: k = exp(-0.45*LAI)
-         }
-         else
-            CS = 0;
-         // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
-         // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
-         // possible to use equation from Ahston but for very open Eucalypt
-
-         CS = CS * (1-StemflowFraction);
-         //VJ 110206 decrease storage with stemflow fraction!
-
-         LeafDrain->Drc = max(0, (Rainc->Drc - (CS - CStor->Drc)));
-         // diff between new and old strage is subtracted from rainfall
-         // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
-         // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
-
-         CStor->Drc = CS;
-         // put new storage back in map
-         Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc; //*
-         // only on soil surface, not channels or roads, in m3
-         // cover already implicit in CS, Smax
-
-         RainNet->Drc = Cover->Drc*LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
-         // net rainfall is direct rainfall + drainage
-         // rainfall that falls on the soil, used in infiltration
+         double k = exp(-CanopyOpeness*LAIv);
+         CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
+         //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
+         //VJ 110209 direct use of openess, astons value too open. A good guess is using the cover LAI relation
+         //and interpreting cover as openess: k = exp(-0.45*LAI)
       }
+      else
+         CS = 0;
+      // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
+      // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
+      // possible to use equation from Ahston but for very open Eucalypt
+
+      CS = max(0, CS * (1-StemflowFraction));
+      //VJ 110206 decrease storage with stemflow fraction!
+
+      LeafDrain->Drc = max(0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
+      // diff between new and old strage is subtracted from rainfall
+      // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+      // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+
+      CStor->Drc = CS;
+      // put new storage back in map
+      Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc; //*
+      // only on soil surface, not channels or roads, in m3
+      // cover already implicit in CS, Smax
+
+      RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
+      // net rainfall is direct rainfall + drainage
+      // rainfall that falls on the soil, used in infiltration
    }
 }
 //---------------------------------------------------------------------------
@@ -319,6 +465,7 @@ void TWorld::InterceptionHouses(void)
          IntercHouse->Drc = 0;
    }
 }
+//---------------------------------------------------------------------------
 
 
 

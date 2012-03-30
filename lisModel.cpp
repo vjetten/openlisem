@@ -82,7 +82,7 @@ void TWorld::DoModel()
         if (SwitchRainfall)
         {
             DEBUG("GetRainfallData()");
-            GetRainfallData();
+            GetRainfallDataM();
         }
         if (SwitchSnowmelt)
         {
@@ -159,6 +159,8 @@ void TWorld::DoModel()
 
             OverlandFlow(); // slope kin wave
             ChannelFlow();  // channel erosion and kin wave
+            //ChannelFlood();  // channel erosion and kin wave
+
             TileFlow();     // tile drain flow kin wave
 
             Totals();

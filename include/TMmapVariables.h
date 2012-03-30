@@ -173,6 +173,7 @@ TMMap
 *LDDChannel,                 //!<
 *RunoffVolinToChannel,       //!<
 *ChannelWidth,               //!<
+*ChannelHeight,               //!<
 *ChannelSide,                //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
