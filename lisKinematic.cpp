@@ -410,3 +410,112 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr,
    } /* eowhile list != NULL */
 }
 
+//void TWorld::SaintVenant(void)
+////Appendix I. Source code for explicit solution of Saint-Venant equations
+//{
+//#include "stdio.h"
+//#include "math.h"
+//   main()
+//   {
+//      FILE *in;
+//      FILE *out;
+//      int i,j,k,n;
+//      double timein[100];
+//      double qinn[100];
+//      double depth[200][2];
+//      double velocity[200][2];
+//      double time, y, u, alpha, beta, q, dummy;
+//      double timestep = 3.0;
+//      double deltax = 50.0;
+//      double slope = 0.005;
+//      double manning = 30.0;
+//      int sections = 99;
+//      in = fopen("inflow","r");
+//      out = fopen("outflow","w");
+//      fclose(out);
+//      /* reading time series */
+//      n=0;
+//      for(j=0;j<100;j++) {
+//         if(fscanf(in,"%lf %lf",&timein[j], &qinn[j]) != 2) break;
+//         n++;
+//      }
+//      fclose(in);
+//      /* initialization */
+//      y = pow (qinn[0]/(manning*sqrt(slope)),0.6);
+//      u = qinn[0] / y;
+//      for(i=0;i<sections+1;i++) {
+//         depth[i][0] = y;
+//         depth[i][1] = y;
+//         velocity[i][0] = u;
+//         velocity[i][1] = u;
+//      }
+//      /* main loop */
+//      time = timein[0];
+//      for(j=0;j<=1000;j++)
+//      {
+//         //Numerical Modelling and Hydraulics 131
+//               /* boundary conditions */
+//               for(k=0;k<n;k++) if(timein[k]>time) break;
+//         beta = (timein[k] - time) / (timein[k] - timein[k-1]);
+//         q = qinn[k-1] * beta + qinn[k] * (1.0-beta);
+//         y = pow (q/(manning*sqrt(slope)),0.6);
+//         u = q / y;
+//         velocity[0][0] = u;
+//         velocity[0][1] = u;
+//         depth[0][0] = y;
+//         depth[0][1] = y;
+//         velocity[sections][0] = velocity[sections-1][1];
+//         depth[sections][0] = depth[sections-1][1];
+//         /* first computation of the water depth, according to Eq. 3.4.5 */
+//         for(i=1;i<sections;i++) {
+//            depth[i][1] = depth[i][0] - timestep / (2.0 * deltax) * (velocity[i][0] *
+//                                                                     (depth[i+1][0] - depth[i-1][0]) + depth[i][0] *
+//                                                                     (velocity[i+1][0] - velocity[i-1][0]));
+//         }
+//         /* compute the water velocity */
+//         for(i=1;i<sections;i++) {
+//            dummy = - velocity[i][0] * timestep * 0.5 / deltax
+//                  * (velocity[i+1][0] - velocity[i-1][0]);
+//            dummy += - 9.81 * (timestep * 0.5 / deltax) * (depth[i+1][0] -
+//                                                           depth[i-1][0]);
+//            dummy += 9.81 * slope * timestep;
+//            dummy += - velocity[i][0] * velocity[i][0] * timestep * 9.81
+//                  / (pow(depth[i][0],1.3333) * manning * manning);
+//            velocity[i][1] = velocity[i][0] + dummy;
+//         }
+//         /* depth according to continuity - control volume approach*/
+//         for(i=1;i<sections;i++) {
+//            u = 0.5 * (velocity[i][0] + velocity[i][1]);
+//            depth[i][1] =
+//                  (0.25 * (velocity[i-1][1] + velocity[i-1][0]) *
+//                   (depth[i-1][1]+depth[i-1][0])
+//                   + depth[i][0] * (deltax / timestep - 0.5 * u ))
+//                  / (deltax / timestep + 0.5 * u );
+//         }
+//         /* updating variables */
+//         for(i=1;i<sections;i++) {
+//            velocity[i][0] = velocity[i][1];
+//            depth[i][0] = depth[i][1];
+//         }
+//         Numerical Modelling and Hydraulics 132
+//               /* printing */
+//               time = time+timestep;
+//         out = fopen("outflow","a");
+//         fprintf(out,"%lf ", time);
+//         fprintf(out,"%lf ",velocity[0][1]*depth[0][1]);
+//         fprintf(out,"%lf ",velocity[1][1]*depth[1][1]);
+//         fprintf(out,"%lf ",velocity[sections/4][1]*depth[sections/4][1]);
+//         fprintf(out,"%lf ",velocity[sections/2][1]*depth[sections/2][1]);
+//         fprintf(out,"%lf ",velocity[sections-1][1]*depth[sections-1][1]);
+//         fprintf(out,"\n");
+//         fclose(out);
+//      }
+//   }
+//   INFLOW FILE:
+//      0.0 10.0
+//      100.0 15.0
+//      200.0 20.0
+//      300.0 15.0
+//      400.0 10.0
+//      10000.0 10.0
+//}

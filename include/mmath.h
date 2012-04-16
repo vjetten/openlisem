@@ -48,11 +48,11 @@ class TMMap : public cTMap
  public:
    cTMap *Mask;
 
-   void fill(double value);
-   void calcV(double v, int oper);
-   void calc(cTMap *m, int oper);
-   void calc2(cTMap *m1, cTMap *m2, int oper);
-   void calc2V(cTMap *m1, double V, int oper);
+   void fillMap(cTMap *M, double value);
+   void calcValue(double v, int oper);
+   void calcMap(cTMap *m, int oper);
+   void calc2Maps(cTMap *m1, cTMap *m2, int oper);
+   void calcMapValue(cTMap *m1, double V, int oper);
    void copy(cTMap *m);
    void cover(cTMap *m, double v);
    void setMV();

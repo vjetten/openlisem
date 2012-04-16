@@ -71,6 +71,8 @@
 /// shortcut missing value in map
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
 
+#define fill(V) fillMap(LDD, V)
+
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\

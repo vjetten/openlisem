@@ -134,6 +134,7 @@ TMMap
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
+*InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
 
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]

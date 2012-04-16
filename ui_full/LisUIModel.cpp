@@ -62,6 +62,8 @@ void lisemqt::runmodel()
 
     initPlot();
 
+    initMapPlot();
+
     InitOP();
     // wipe the result screen
 
@@ -186,13 +188,6 @@ void lisemqt::worldShow()
 
 }
 //---------------------------------------------------------------------------
-void lisemqt::ShowMap()
-{
-    //MapPlot->replot();
-    //if all calcs are done in the model only replot here?
-    //op needs a poiinter to TMMap
-}
-//---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
 {
     label_debug->setText(results);
@@ -211,6 +206,9 @@ void lisemqt::worldDone(const QString &results)
 
     killPlot();
     // free the plot discharge bdata
+
+    //killMapPlot();
+    // free the map plot discharge bdata
 
     QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
     // delete the temp run file

@@ -52,7 +52,7 @@ void TWorld::Totals(void)
       RainTotmm += RainAvgmm;
       // avg area rainfall in mm
 
-      tm->calc2V(Rain, (_dx*_dx), MUL); //in m3
+      tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
       rainfall = tm->MapTotal();
       RainTot += rainfall; // in m3
 
@@ -67,7 +67,7 @@ void TWorld::Totals(void)
       SnowAvgmm += Snowmelt->MapAverage()*1000;
       SnowTotmm += SnowAvgmm;
 
-      tm->calc2V(Snowmelt, (_dx*_dx), MUL); //in m3
+      tm->calcMapValue(Snowmelt, (_dx*_dx), MUL); //in m3
       snowmelt = tm->MapTotal();
       SnowTot += snowmelt; // in m3
 
@@ -91,7 +91,7 @@ void TWorld::Totals(void)
    InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
    // infiltration mm and m3
 
-   tm->calc2V(WHstore, 1000, MUL); //mm
+   tm->calcMapValue(WHstore, 1000, MUL); //mm
    SurfStoremm = tm->MapAverage();
    // surface storage CHECK THIS
    // does not go to MB, is already in tot water vol
@@ -139,7 +139,7 @@ void TWorld::Totals(void)
       //QtotPlot += ChannelQoutflow->DrcPlot;
       QtotPlot += ChannelQn->DrcPlot * _dt;
       // add channel outflow (in m3) to total for main outlet
-      TotalWatervol->calc(ChannelWaterVol,ADD);
+      TotalWatervol->calcMap(ChannelWaterVol,ADD);
       // add channel volume to total for sed conc calc
 
    }
@@ -149,8 +149,8 @@ void TWorld::Totals(void)
       WaterVolSoilTot = TileWaterVolSoil->MapTotal();
       // input for mass balance, is the water seeping from the soil, input
       // this is the water before the kin wave
-      tm->calc2(TileDrainSoil, TileWidth, MUL); //in m3
-      tm->calc(TileDX, MUL); //in m3
+      tm->calc2Maps(TileDrainSoil, TileWidth, MUL); //in m3
+      tm->calcMap(TileDX, MUL); //in m3
       // tm->calcV(_dx, MUL); //in m3 ??? or DX?
       TileVolTot += tm->MapTotal(); // in m3
 
@@ -172,7 +172,7 @@ void TWorld::Totals(void)
       //QtotPlot += TileQoutflow->DrcPlot;
       QtotPlot += TileQn->DrcPlot * _dt;
       // add channel outflow (in m3) to total for main outlet
-      TotalWatervol->calc(TileWaterVol,ADD);
+      TotalWatervol->calcMap(TileWaterVol,ADD);
       // add channel volume to total for sed conc calc
 
    }
@@ -239,13 +239,15 @@ void TWorld::Totals(void)
          SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
          // add channel outflow (in kg) to total for main outlet
 
-         TotalSed->calc(ChannelSed, ADD);
+         TotalSed->calcMap(ChannelSed, ADD);
          // needed for sed conc in file output
       }
 
       FOR_ROW_COL_MV
       {
          TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc, tm->Drc);
+         // WHICH tm IS THIS ???????????????????????
+         // CHECK CHECK CHECK
       }
       // for file output
 

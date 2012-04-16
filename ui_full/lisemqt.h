@@ -33,6 +33,7 @@
 #include <QtGui>
 #include <QApplication>
 
+//QWT library files
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
@@ -41,10 +42,16 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
-//#include "qwt_plot_spectrogram.h"
-//#include <qwt_matrix_raster_data.h>
-//#include "qwt_color_map.h"
-//#include "qwt_raster_data.h"
+#include <qwt_color_map.h>
+#include <qwt_plot_spectrogram.h>
+#include <qwt_plot_layout.h>
+#include <qwt_matrix_raster_data.h>
+#include <qwt_scale_widget.h>
+#include <qwt_plot_renderer.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_rescaler.h>
+#include <qwt_scale_engine.h>
+
 
 #include "version.h"
 #include "ui_lisemqt.h"
@@ -81,40 +88,45 @@ typedef struct MAP_LIST {
    int varnr;
 } MAP_LIST;
 //---------------------------------------------------------------------------
-
-/*
-
-class SpectrogramData: public QwtRasterData
+class colorMapWaterLog: public QwtLinearColorMap
 {
 public:
-  TMMap *DMap;
-
- SpectrogramData():
-        QwtRasterData(QwtDoubleRect(0,0,100,100))
-    {
-    }
-
-    virtual QwtRasterData *copy() const
-    {
-        return new SpectrogramData();
-    }
-
-    virtual QwtDoubleInterval range() const
-    {
-        return QwtDoubleInterval(0.0, 10.0);
-    }
-
-    virtual double value(double x, double y) const
-    {
-   int r = qRound(y);
-   int c = qRound(x);
-   return(DMap->Data[r][c]);
-    }
+   colorMapWaterLog():
+      QwtLinearColorMap( QColor("#bbbbbb"), Qt::darkBlue  )
+   {
+      addColorStop( 0.0, Qt::yellow );
+      addColorStop( 0.05, QColor("#FFFF55") );
+      addColorStop( 0.1, QColor("#8080FF") );
+      addColorStop( 0.5, Qt::blue );
+   }
 };
 
-*/
+class colorMapWater: public QwtLinearColorMap
+{
+public:
+   colorMapWater():
+      QwtLinearColorMap( QColor("#bbbbbb"), Qt::darkBlue  )
+   {
+      addColorStop( 0.0, Qt::yellow );
+      addColorStop( 0.2, QColor("#FFFF55") );
+      addColorStop( 0.6, QColor("#8080FF") );
+      addColorStop( 0.9, Qt::blue );
+   }
+};
 
-
+class colorMapSed: public QwtLinearColorMap
+{
+public:
+   colorMapSed():
+      QwtLinearColorMap( QColor("#bbbbbb"),Qt::darkYellow )
+   {
+      addColorStop( 0.0, Qt::darkCyan );
+      addColorStop( 0.3, Qt::cyan );
+      addColorStop( 0.5, Qt::white );
+      addColorStop( 0.7, Qt::yellow);
+      addColorStop( 1.0, Qt::darkYellow);
+   }
+};
 
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
@@ -137,7 +149,6 @@ public:
    void GetStorePath();
    void StorePath();
    void SetStyleUI();
-   void SetMapPlot();
    void GetRunfile();
    void ParseInputData();
    void updateModelData();
@@ -148,7 +159,22 @@ public:
    void InitOP();
    void SetConnections();
 
+   // Map drawing variable
+   void setupMapPlot();
+   void initMapPlot();
    void ShowMap();
+   void fillDrawMapData();
+   QwtText title;
+   QwtPlotSpectrogram *drawMap;  // raster map drawing
+   QwtPlot *MPlot;               // plot in which the raster map is drawn
+   QwtMatrixRasterData *RD;
+   QVector<double> mapData;
+   QwtInterval legend;
+   void killMapPlot();
+   QwtScaleWidget *rightAxis;
+   QwtPlotRescaler *mapRescaler;
+   double maxAxis1, maxAxis2, maxAxis3;
+   int pstep;
 
    // graph variables
    void showPlot();
@@ -170,11 +196,6 @@ public:
    double *CData;
    double *PData;
    long stepP;
-   //Map drawing variables
-   //   QwtPlotSpectrogram *MapDrawing;
-   //   QwtPlot *MapPlot;
-   //	SpectrogramData *MapDrawData;
-   //   QwtMatrixRasterData *MapDrawData;
 
    bool oldRunfile; // check is old runfile for ksat calibration
 
@@ -254,6 +275,8 @@ public slots:
    void on_checkExpandActive_clicked();
    void on_E_MapDir_returnPressed();
    void on_E_ResultDir_returnPressed();
+
+   void selectMapType(bool doit);
 
 private slots:
    // functions that interact with the world thread signals

@@ -56,14 +56,13 @@ __fastcall TMMap::~TMMap()
 
 }
 //---------------------------------------------------------------------------
-
-void TMMap::fill(double value)
+void TMMap::fillMap(cTMap *M, double value)
 {
     int r, c;
 
      for (r = 0; r < nrRows; r++)
       for (c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL8(&Data[r][c]))
+      if (!IS_MV_REAL8(&M->Data[r][c]))
       {
           Data[r][c] = value;
       }
@@ -83,12 +82,12 @@ void TMMap::cover(cTMap *M, double value)
    //       SET_MV_REAL4(&Data[r][c]);
 }
 //---------------------------------------------------------------------------
-void TMMap::calc(cTMap *M, int oper)
+void TMMap::calcMap(cTMap *M, int oper)
 {
   for (int r = 0; r < M->nrRows; r++)
    for (int c = 0; c < M->nrCols; c++)
   if (!IS_MV_REAL8(&Data[r][c]))
-  {
+  {     
       if (!IS_MV_REAL8(&M->Data[r][c]))
       {
           switch (oper)
@@ -108,7 +107,7 @@ void TMMap::calc(cTMap *M, int oper)
   }
 }
 //---------------------------------------------------------------------------
-void TMMap::calc2(cTMap *M1, cTMap *M2, int oper)
+void TMMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
 {
    for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)
@@ -133,7 +132,7 @@ void TMMap::calc2(cTMap *M1, cTMap *M2, int oper)
     }
 }
 //---------------------------------------------------------------------------
-void TMMap::calcV(double V, int oper)
+void TMMap::calcValue(double V, int oper)
 {
      for (int r = 0; r < nrRows; r++)
       for (int c = 0; c < nrCols; c++)
@@ -191,7 +190,6 @@ void TMMap::copy(cTMap *M)
       }
       else
           SET_MV_REAL4(&Data[r][c]);
-
 }
 //---------------------------------------------------------------------------
 void TMMap::setMV()
@@ -200,7 +198,7 @@ void TMMap::setMV()
 	   SetMemMV(Data[r],nrCols,CR_REAL8);
 }
 //---------------------------------------------------------------------------
-void TMMap::calc2V(cTMap *M1, double V, int oper)
+void TMMap::calcMapValue(cTMap *M1, double V, int oper)
 {
    for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)

@@ -70,7 +70,7 @@ lisemqt::lisemqt(QWidget *parent)
     groupBox_spare->hide();
     MapNameModel = NULL;
     HPlot = NULL;
-    //	MapPlot = NULL;
+    MPlot = NULL;
 
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -100,6 +100,9 @@ lisemqt::lisemqt(QWidget *parent)
     setupPlot();
     // set up the discharge graph
 
+    setupMapPlot();
+    // set up the raste rmap drawing
+
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
 
@@ -111,8 +114,13 @@ lisemqt::~lisemqt()
 
     if (HPlot)
         delete HPlot;
-    //	if (MapPlot)
-    //		delete MapPlot;
+//    if (MPlot)
+//       delete MPlot;
+//    delete RD;
+//    delete rightAxis;
+//    delete mapRescaler;
+//    delete magnifier;
+//    delete panner;
     //delete QGraph;
     //delete QsGraph;
     //delete CGraph;
@@ -168,25 +176,26 @@ void lisemqt::SetToolBar()
     toolBar->addAction(shootscreenAct);
     toolBar->addSeparator();
 
-    //runAct = new QAction(QIcon(":/Button-Play-icon.png"), "Run model...", this);
     runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
-    //	runAct->setShortcuts(QKeySequence(QString("Ctrl+R")));
     runAct->setStatusTip("run the model ...");
     connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
     toolBar->addAction(runAct);
 
-    //	pauseAct = new QAction(QIcon(":/Button-Pause-icon.png"), "Pause the model...", this);
     pauseAct = new QAction(QIcon(":/pause2.png"), "Pause the model...", this);
     pauseAct->setStatusTip("pause the model run ...");
     connect(pauseAct, SIGNAL(triggered()), this, SLOT(pausemodel()));
     toolBar->addAction(pauseAct);
 
-    //stopAct = new QAction(QIcon(":/Button-Stop-icon.png"), "Stop the model...", this);
     stopAct = new QAction(QIcon(":/stop1.png"), "Stop the model...", this);
-    //	runAct->setShortcuts(QKeySequence(Qt::CTRL + Qt::Key_R));
     stopAct->setStatusTip("stop the model run ...");
     connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
     toolBar->addAction(stopAct);
+
+    QActionGroup *runGroup = new QActionGroup(this);
+    runGroup->addAction(runAct);
+    runGroup->addAction(pauseAct);
+    runGroup->addAction(stopAct);
+    stopAct->setChecked(true);
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
@@ -199,35 +208,10 @@ void lisemqt::SetToolBar()
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
 
-}
-//---------------------------------------------------------------------------
-void lisemqt::SetMapPlot()
-{
-    /*   NOT YET !!!
- QwtText title;
- title.setText("something");
- MapDrawing = new QwtPlotSpectrogram();
- MapPlot = new QwtPlot(title, widgetMap);
- // make the plot window and link it to the histogram
+    connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
 
- MapDrawData = new QwtMatrixRasterData();
- //mapDrawData->DMap->
-
- QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
- colorMap.addColorStop(0.1, Qt::cyan);
- colorMap.addColorStop(0.6, Qt::green);
- colorMap.addColorStop(0.95, Qt::yellow);
-
- //MapDrawing->setColorMap(colorMap);
- //MapDrawing->setDisplayMode(QwtPlotSpectrogram::ImageMode);
- //MapDrawing->attach(MapPlot);
-
-   //MapDrawing->setData(MapDrawData);
-
-
-
-   //	MapPlot->replot();
-*/
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -654,7 +638,7 @@ void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
                                QString("openLISEM verion %6 (%7) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
-                               .arg("- Qt cross platform application and UI framework version 4.7.X based on MingW (http://qt.nokia.com/).")
+                               .arg("- Qt cross platform application and UI framework version 4.8.X based on MingW (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
                                .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/csfapi.html")
@@ -666,7 +650,8 @@ void lisemqt::aboutInfo()
 //--------------------------------------------------------------------
 void lisemqt::resetAll()
 {
-    E_runFileList->clear();
+    //E_runFileList->clear();
+   // no because then never a list to build
 
     DefaultMapnames();
     // Make the default input map list, stringlist

@@ -52,6 +52,7 @@ struct output{
 	BufferVolTot, BufferSedTot;
 
 	TMMap *DrawMap;
+   int drawMapType;
 
 	//bool SwitchErosion;
 	//bool SwitchIncludeChannel;

@@ -50,7 +50,16 @@ void TWorld::OutputUI(void)
    if (runstep > 0 && runstep % printinterval == 0)
       printstep++;
    // printstep determines map reporting frequency
+//   if (runstep == 0)
+//   {
+//      op.DrawMap = NewMap(0);
+//   }
+
    runstep++;
+
+   if (op.drawMapType == 1) op.DrawMap = Qoutput;  //all output in m3/s
+   if (op.drawMapType == 2) op.DrawMap = InfilmmCum;  //infil in mm
+   if (op.drawMapType == 3) op.DrawMap = TotalSoillossMap;  //soilloss in kg/cell
 
    op.dx = _dx;
    op.MB = MB;
@@ -481,11 +490,11 @@ void TWorld::ReportMaps(void)
       // VJ 110111 erosion units
       tm->copy(TotalDetMap); //kg/cell
       if (ErosionUnits == 2)  // in kg/m2
-         tm->calc(CellArea, DIV);
+         tm->calcMap(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
       {
-         tm->calc(CellArea, DIV);
-         tm->calcV(10, MUL);
+         tm->calcMap(CellArea, DIV);
+         tm->calcValue(10, MUL);
       }
 
       tm->mwrite(totalErosionFileName);
@@ -494,11 +503,11 @@ void TWorld::ReportMaps(void)
 
       tm->copy(TotalDepMap); //kg/cell
       if (ErosionUnits == 2)  // in kg/m2
-         tm->calc(CellArea, DIV);
+         tm->calcMap(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
       {
-         tm->calc(CellArea, DIV);
-         tm->calcV(10, MUL);
+         tm->calcMap(CellArea, DIV);
+         tm->calcValue(10, MUL);
       }
       tm->mwrite(totalDepositionFileName);
       if (outputcheck[6].toInt() == 1)
@@ -506,11 +515,11 @@ void TWorld::ReportMaps(void)
 
       tm->copy(TotalSoillossMap); //kg/cell
       if (ErosionUnits == 2)  // in kg/m2
-         tm->calc(CellArea, DIV);
+         tm->calcMap(CellArea, DIV);
       if (ErosionUnits == 0) // ton/ha
       {
-         tm->calc(CellArea, DIV);
-         tm->calcV(10, MUL);
+         tm->calcMap(CellArea, DIV);
+         tm->calcValue(10, MUL);
       }
       tm->mwrite(totalSoillossFileName);
 
@@ -521,7 +530,7 @@ void TWorld::ReportMaps(void)
    if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s
    if (outputcheck[2].toInt() == 1)
    {
-      tm->calc2V(WH, 1000, MUL);// WH in mm
+      tm->calcMapValue(WH, 1000, MUL);// WH in mm
       tm->report(Outwh);
    }
    if (outputcheck[3].toInt() == 1)	WHrunoffCum->report(Outrwh); // in mm
@@ -530,13 +539,13 @@ void TWorld::ReportMaps(void)
    FOR_ROW_COL_MV
    {
       InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;
-      tm->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
+      InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
    }
-   if (outputcheck[8].toInt() == 1) tm->report(Outinf);
+   if (outputcheck[8].toInt() == 1) InfilmmCum->report(Outinf); // in mm
 
    if (outputcheck[9].toInt() == 1)
    {
-      tm->calc2V(WHstore, 1000, MUL);// in mm
+      tm->calcMapValue(WHstore, 1000, MUL);// in mm
       tm->report(Outss);
       /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
    }
@@ -546,7 +555,7 @@ void TWorld::ReportMaps(void)
    if (outputcheck.count() > 11)
       if (outputcheck[11].toInt() == 1)
       {
-         tm->calc2V(TileQn, 1000, MUL);// in mm
+         tm->calcMapValue(TileQn, 1000, MUL);// in mm
          tm->report(OutTiledrain);
       }
 

@@ -268,7 +268,7 @@ void TWorld::InitTiledrains(void)
       TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
       TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
       TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-      TileGrad->calcV(0.001, MAX);
+      TileGrad->calcValue(0.001, MAX);
       TileN = ReadMap(LDDTile, getvaluename("tileman"));
       //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
 
@@ -462,7 +462,7 @@ void TWorld::InitChannel(void)
       //      }
 
       ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
-      ChannelWidth->calcV(0.9*_dx, MIN);
+      ChannelWidth->calcValue(0.9*_dx, MIN);
       FOR_ROW_COL_MV_CH
       {
          if (ChannelWidth->Drc <= 0)
@@ -474,7 +474,7 @@ void TWorld::InitChannel(void)
 
       ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
       ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-      ChannelGrad->calcV(0.001, MAX);
+      ChannelGrad->calcValue(0.001, MAX);
       ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
       ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
       ChannelGrad->cover(LDD, 0);
@@ -482,12 +482,12 @@ void TWorld::InitChannel(void)
       ChannelWidth->cover(LDD, 0);
       ChannelN->cover(LDD, 0);
 
-      ChannelN->calcV(ChnCalibration, MUL);
+      ChannelN->calcValue(ChnCalibration, MUL);
       if (SwitchChannelInfil)
       {
          ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
          ChannelKsat->cover(LDD, 0);
-         ChannelKsat->calcV(ChKsatCalibration, MUL);
+         ChannelKsat->calcValue(ChKsatCalibration, MUL);
          ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
       }
       ChannelWidthUpDX->copy(ChannelWidth);
@@ -597,7 +597,7 @@ void TWorld::GetInputData(void)
 
    //## landuse and surface data
    N = ReadMap(LDD,getvaluename("manning"));
-   N->calcV(nCalibration, MUL); //VJ 110112 moved
+   N->calcValue(nCalibration, MUL); //VJ 110112 moved
 
    RR = ReadMap(LDD,getvaluename("RR"));
    PlantHeight = ReadMap(LDD,getvaluename("CH"));
@@ -609,7 +609,7 @@ void TWorld::GetInputData(void)
    {
       GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
       GrassFraction->copy(GrassWidthDX);
-      GrassFraction->calcV(_dx, DIV);
+      GrassFraction->calcValue(_dx, DIV);
       StripN = getvaluedouble("Grassstrip Mannings n");
       FOR_ROW_COL_MV
       {
@@ -631,7 +631,7 @@ void TWorld::GetInputData(void)
    {
       Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
       SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
-      SoilDepth1->calcV(1000, DIV);
+      SoilDepth1->calcValue(1000, DIV);
       //VJ 101213 fixed bug: convert from mm to m
       // can be zero for outcrops
       FOR_ROW_COL_MV
@@ -646,15 +646,15 @@ void TWorld::GetInputData(void)
       ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
       ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
 
-      ThetaI1->calcV(thetaCalibration, MUL); //VJ 110712 calibration of theta
-      ThetaI1->calc(ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+      ThetaI1->calcValue(thetaCalibration, MUL); //VJ 110712 calibration of theta
+      ThetaI1->calcMap(ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
       //VJ 101221 all infil maps are needed except psi
       if(InfilMethod != INFIL_KSAT)
       {
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
-         Psi1->calcV(psiCalibration, MUL); //VJ 110712 calibration of psi
-         Psi1->calcV(0.01, MUL);
+         Psi1->calcValue(psiCalibration, MUL); //VJ 110712 calibration of psi
+         Psi1->calcValue(0.01, MUL);
       }
 
       if (SwitchTwoLayer)
@@ -662,20 +662,20 @@ void TWorld::GetInputData(void)
          ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
          ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
 
-         ThetaI2->calcV(thetaCalibration, MUL); //VJ 110712 calibration of theta
-         ThetaI2->calc(ThetaS2, MIN); //VJ 110712 cannot be more than porosity
+         ThetaI2->calcValue(thetaCalibration, MUL); //VJ 110712 calibration of theta
+         ThetaI2->calcMap(ThetaS2, MIN); //VJ 110712 cannot be more than porosity
 
          //VJ 101221 all infil maps are needed except psi
          if(InfilMethod != INFIL_KSAT)
          {
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            Psi2->calcV(psiCalibration, MUL); //VJ 110712 calibration of psi
-            Psi2->calcV(0.01, MUL);
+            Psi2->calcValue(psiCalibration, MUL); //VJ 110712 calibration of psi
+            Psi2->calcValue(0.01, MUL);
          }
 
          Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
          SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-         SoilDepth2->calcV(1000, DIV);
+         SoilDepth2->calcValue(1000, DIV);
          //VJ 101213 fixed bug: convert from mm to m
 
          FOR_ROW_COL_MV
@@ -773,8 +773,8 @@ void TWorld::GetInputData(void)
    InitMulticlass();
 
    // not more than 1.0
-   //   CrustFraction->calcV(1.0, MAX);
-   //   CompactFraction->calcV(1.0, MAX);
+   //   CrustFraction->calcValue(1.0, MAX);
+   //   CompactFraction->calcValue(1.0, MAX);
 
 }
 //---------------------------------------------------------------------------
@@ -869,7 +869,7 @@ void TWorld::IntializeData(void)
          }
       }
    }
-   CanopyStorage->calcV(0.001, MUL); // to m
+   CanopyStorage->calcValue(0.001, MUL); // to m
    //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
 
    if (SwitchHouses)
@@ -880,7 +880,7 @@ void TWorld::IntializeData(void)
       //      DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
       HouseCover = ReadMap(LDD,getvaluename("housecover"));
       RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-      RoofStore->calcV(0.001, MUL);
+      RoofStore->calcValue(0.001, MUL);
       // to mm
       DrumStore = ReadMap(LDD,getvaluename("drumstore"));
    }
@@ -901,6 +901,7 @@ void TWorld::IntializeData(void)
    InfilVolKinWave = NewMap(0);
    InfilVol = NewMap(0);
    InfilVolCum = NewMap(0);
+   InfilmmCum = NewMap(0);
    fact = NewMap(0);
    fpot = NewMap(0);
    factgr = NewMap(0);
@@ -921,10 +922,10 @@ void TWorld::IntializeData(void)
       {
          Soilwater = NewMap(0);
          Soilwater2 = NewMap(0);
-         Soilwater->calc2(ThetaI1, SoilDepth1, MUL);
+         Soilwater->calc2Maps(ThetaI1, SoilDepth1, MUL);
          if (SwitchTwoLayer)
          {
-            Soilwater2->calc2(ThetaI2, SoilDepth2, MUL);
+            Soilwater2->calc2Maps(ThetaI2, SoilDepth2, MUL);
          }
       }
    }

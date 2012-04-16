@@ -254,9 +254,9 @@ void TWorld::GetRainfallDataM(void)
  etc. */
 void TWorld::RainfallMap(void)
 {
-   double timemin = time / 60;  //time in minutes
+   //double timemin = time / 60;  //time in minutes
    double timeminprev = (time-_dt) / 60; //prev time in minutes
-   int placep, place;
+   int  place;
    double tt = 3600000.0;
 
 

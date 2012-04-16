@@ -35,6 +35,7 @@
 
 
 //---------------------------------------------------------------------------
+/// initialize graph plotting
 void lisemqt::initPlot()
 {
    startplot = true;
@@ -53,7 +54,7 @@ void lisemqt::initPlot()
    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
 }
 //---------------------------------------------------------------------------
-// free data structures graph
+/// free data structures graph
 void lisemqt::killPlot()
 {
    delete QData;
@@ -68,7 +69,7 @@ void lisemqt::killPlot()
    PData = NULL;
    timeData = NULL;
 
-  spinBoxPointtoShow->setEnabled(true);
+   spinBoxPointtoShow->setEnabled(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::setupPlot()
@@ -82,7 +83,9 @@ void lisemqt::setupPlot()
    title.setFont(QFont("MS Shell Dlg 2",12));
    HPlot = new QwtPlot(title, this);
    // make the plot window
-   verticalLayout_5->insertWidget(0, HPlot, 1);
+   //verticalLayout_5->insertWidget(0, HPlot, 1);
+   // attach plot to widget in UI
+   layout_Plot->insertWidget(0, HPlot, 1);
 
    // panning with the left mouse button
    (void) new QwtPlotPanner( HPlot->canvas() );
@@ -182,7 +185,6 @@ void lisemqt::setupPlot()
 
 }
 //---------------------------------------------------------------------------
-
 void lisemqt::showPlot()
 {
    // first time do this
