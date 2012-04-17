@@ -118,13 +118,12 @@ class colorMapSed: public QwtLinearColorMap
 {
 public:
    colorMapSed():
-      QwtLinearColorMap( QColor("#bbbbbb"),Qt::darkYellow )
+      QwtLinearColorMap( QColor("#bbbbbb"),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
    {
-      addColorStop( 0.0, Qt::darkCyan );
-      addColorStop( 0.3, Qt::cyan );
+      addColorStop( 0.0, Qt::darkCyan );//QColor("#108030"));
+      addColorStop( 0.3, Qt::cyan );//QColor("#30ffcc"));
       addColorStop( 0.5, Qt::white );
       addColorStop( 0.7, Qt::yellow);
-      addColorStop( 1.0, Qt::darkYellow);
    }
 };
 
