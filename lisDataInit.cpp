@@ -126,9 +126,9 @@ void TWorld::DestroyData(void)
       for (int r=0; r < nrrainfallseries; r++)
          delete[] RainfallSeriesM[r].intensity;
       delete RainfallSeriesM;
-//      for (int r=0; r < nrrainfallseries; r++)
-//         delete[] RainfallSeries[r];
-//      delete[] RainfallSeries;
+      //      for (int r=0; r < nrrainfallseries; r++)
+      //         delete[] RainfallSeries[r];
+      //      delete[] RainfallSeries;
    }
 
    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
@@ -551,10 +551,55 @@ void TWorld::GetInputData(void)
    for (int i = 0; i < 32; i++)
       SubsMaps[i].m = NULL;  // initialize substance structures
 
-   //DEM = ReadMap(LDD, getvaluename("dem"));
+   DEM = ReadMap(LDD, getvaluename("dem"));
    // DEM in m
 
+
    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
+
+   Shade = NewMap(0);
+   //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
+   /*
+   FOR_ROW_COL_MV
+   {
+      double Incl = 30.0/180.0*PI;
+      double Decl = 300/180.0*PI;
+      double mat[9];
+      double dx, dy, aspect;
+
+      if (!MV(r-1,c-1)) mat[0] = DEM->Data[r-1][c-1]; else mat[0] = DEM->Drc;
+      mat[0] = (!MV(r-1,c-1) ? DEM->Data[r-1][c-1] : DEM->Drc);
+      mat[1] = (!MV(r-1,c)   ? DEM->Data[r-1][c]   : DEM->Drc);
+      mat[2] = (!MV(r-1,c+1) ? DEM->Data[r-1][c+1] : DEM->Drc);
+      mat[3] = (!MV(r,c-1)   ? DEM->Data[r][c-1]   : DEM->Drc);
+      mat[4] = DEM->Drc;
+      mat[5] = (!MV(r,c+1)   ? DEM->Data[r][c+1]   : DEM->Drc);
+      mat[6] = (!MV(r+1,c-1) ? DEM->Data[r+1][c-1] : DEM->Drc);
+      mat[7] = (!MV(r+1,c)   ? DEM->Data[r+1][c]   : DEM->Drc);
+      mat[8] = (!MV(r+1,c+1) ? DEM->Data[r+1][c+1] : DEM->Drc);
+
+      dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
+      dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
+      if (dy < 0)
+         aspect = atan(dx/dy)+2*PI;
+      else
+         if (dy > 0)
+            aspect = atan(dx/dy)+PI;
+         else
+            aspect = 0;
+
+      Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
+   }
+   double MaxV = Shade->MapMaximum();
+   double MinV = Shade->MapMinimum();
+
+   FOR_ROW_COL_MV
+   {
+      Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+   }
+
+   Shade->WriteMap("shade.map");
+*/
    Outlet = ReadMap(LDD, getvaluename("outlet"));
    Outlet->cover(LDD, 0);
    // fill outlet with zero, some users have MV where no outlet
@@ -951,6 +996,7 @@ void TWorld::IntializeData(void)
    Q = NewMap(0);
    Qn = NewMap(0);
    Qoutput = NewMap(0);
+   Houtput = NewMap(0);
    Qsoutput = NewMap(0);
    //Qoutflow = NewMap(0); // value of Qn*dt in pits only
    q = NewMap(0);
@@ -1124,7 +1170,6 @@ void TWorld::IntializeOptions(void)
    SwitchDrainage = false;
    SwitchPestout = false;
    SwitchSeparateOutput = false;
-   SwitchSOBEKOutput = false;
    SwitchInterceptionLAI = false;
    SwitchTwoLayer = false;
    SwitchSimpleSedKinWave = false;

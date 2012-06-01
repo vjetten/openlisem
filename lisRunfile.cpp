@@ -217,7 +217,8 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Gully infiltration")==0)             SwitchGullyInfil =       iii == 1;
       if (p1.compare("Use initial gully dimensions")==0)   SwitchGullyInit =        iii == 1;
       if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
-      if (p1.compare("Report point output for SOBEK")==0)  SwitchSOBEKOutput =      iii == 1;
+      if (p1.compare("Report point output for SOBEK")==0)
+         SwitchSOBEKoutput =      iii == 1;
       if (p1.compare("SOBEK date string")==0)              SOBEKdatestring = p;
       SOBEKdatestring.remove(10,100);
       if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
@@ -258,11 +259,14 @@ void TWorld::ParseRunfileData(void)
       // VJ 111001
    }
 
-   if (SwitchWriteCommaDelimited)
-   {
-      SwitchWritePCRtimeplot = false;
-      SwitchSOBEKOutput = false;
-   }
+//   if (SwitchWriteCommaDelimited)
+//   {
+//      SwitchWritePCRtimeplot = false;
+//      SwitchSOBEKoutput = false;
+//   }
+//   if (!SwitchWriteCommaDelimited && !SwitchSOBEKoutput )
+
+
 
    InfilMethod = getvalueint("Infil Method");
    if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)

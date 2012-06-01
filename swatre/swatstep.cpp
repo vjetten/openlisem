@@ -315,7 +315,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    const PROFILE *p = pixel->profile;
    double *h = pixel->h;
    int    i, n = NrNodes(p);
-   double ThetaSat;
+   //double ThetaSat;
    double dt = pixel->currDt;
    double pond = *waterHeightIO;
    double elapsedTime = 0;

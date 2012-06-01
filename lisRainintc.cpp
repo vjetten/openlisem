@@ -149,7 +149,7 @@ void TWorld::GetRainfallDataM(void)
    QString S;
    QStringList rainRecs;
    bool ok;
-   int j = 0;
+   //int j = 0;
 
    if (!fi.exists())
    {

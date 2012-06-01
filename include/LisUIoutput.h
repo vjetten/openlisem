@@ -47,11 +47,12 @@ struct output{
    double MB, Qtot, QtotPlot, Qtotmm, Qpeak, IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
 	RainTotmm, SurfStormm, InfilKWTotmm,
 	MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
-	ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot,
+	ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
    RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P, Qtile,
 	BufferVolTot, BufferSedTot;
 
 	TMMap *DrawMap;
+   TMMap *baseMap;
    int drawMapType;
 
 	//bool SwitchErosion;

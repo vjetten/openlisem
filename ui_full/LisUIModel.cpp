@@ -174,16 +174,16 @@ void lisemqt::worldShow()
     if (checkNoErosion->isChecked())
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3      --      --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4    --      --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4      --      --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --      --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
     else
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
 
 }
@@ -223,6 +223,8 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::InitOP()
 {
+    op.DrawMap = NULL;
+    op.baseMap = NULL;
     op.runstep = 0;
     op.printstep = 0;
     op.maxstep = 0;
@@ -254,6 +256,7 @@ void lisemqt::InitOP()
     op.ChannelSedTot = 0;
     op.ChannelDepTot = 0;
     op.ChannelDetTot = 0;
+    op.ChannelWH = 0;
     op.RunoffFraction = 0;
     op.RainpeakTime = 0;
     op.QpeakTime = 0;

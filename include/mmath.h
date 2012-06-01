@@ -58,6 +58,8 @@ class TMMap : public cTMap
    void setMV();
    double MapTotal();
    double MapAverage();
+   double MapMinimum();
+   double MapMaximum();
 
    TMMap();
    ~TMMap();

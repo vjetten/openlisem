@@ -60,6 +60,7 @@ void TWorld::OutputUI(void)
    if (op.drawMapType == 1) op.DrawMap = Qoutput;  //all output in m3/s
    if (op.drawMapType == 2) op.DrawMap = InfilmmCum;  //infil in mm
    if (op.drawMapType == 3) op.DrawMap = TotalSoillossMap;  //soilloss in kg/cell
+   op.baseMap = Shade;
 
    op.dx = _dx;
    op.MB = MB;
@@ -95,6 +96,7 @@ void TWorld::OutputUI(void)
    op.ChannelDetTot=ChannelDetTot*0.001; // convert from kg to ton
    op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
    op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
+   op.ChannelWH = ChannelWH->DrcOutlet;
 
    op.SoilLossTot=SoilLossTotOutlet*0.001; // convert from kg to ton
 
@@ -142,7 +144,7 @@ void TWorld::ReportTimeseriesNew(void)
 {
    int nr = 0;
    int hour, min, sec;
-   int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
+   //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
    double RainIntavg = RainAvgmm * 3600/_dt;
    double SnowIntavg = SnowAvgmm * 3600/_dt;
    QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
@@ -152,11 +154,11 @@ void TWorld::ReportTimeseriesNew(void)
    QFileInfo fi(resultDir + outflowFileName);
 
    // - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
-   if (SwitchSOBEKOutput && time > 0)
+   if (SwitchSOBEKoutput && time >= 0)
    {
-      sec = (int)(time*60);
+      sec = (int)time; //(time*60);
       hour = (int)(sec/3600);
-      min = (int)(time - hour*60);
+      min = (int)(time/60 - hour*60);
       sec = (int)(sec - hour * 3600 - min * 60);
    }
 
@@ -199,7 +201,7 @@ void TWorld::ReportTimeseriesNew(void)
                   out << "run step\n";
                   if (SwitchRainfall) out << "Pavg (mm/h)\n";
                   if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                  out << "Qall (l/s)\n";
+                  out << "Qall (l/s)\n" << "chanWH (m)\n";
                   if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                   if (SwitchErosion) out << "Qs (kg/s)\n";
                   if (SwitchErosion) out << "C (g/l)\n";
@@ -207,14 +209,16 @@ void TWorld::ReportTimeseriesNew(void)
                else // SOBEK format
                   if (SwitchSOBEKoutput)
                   {
-                     pnr.setNum(SOBEKlines);
-                     out << "Q";
-                     if (SwitchErosion) out << " Qs C";
-                     out << "\n";
-                     out << "m3/s";
-                     if (SwitchErosion) out << " kg/s g/l";
-                     out << "\n";
-                     out << pnr << "\n";
+//NO HEADER
+//                     pnr.setNum(SOBEKlines);
+//                     out << "Q";
+//                     if (SwitchErosion) out << " Qs C";
+//                     out << "\n";
+//                     out << "m3/s";
+//                     if (SwitchErosion) out << " kg/s g/l";
+//                     out << "\n";
+//                     out << pnr << "\n";
+                     out << "* " <<  (int)PointMap->Drc << "\n";
                   }
                   else // flat format, comma delimited
                   {
@@ -223,11 +227,12 @@ void TWorld::ReportTimeseriesNew(void)
                      out << "Time";
                      if (SwitchRainfall) out << ",Pavg";
                      if (SwitchSnowmelt) out << ",Snowavg";
+                     out << ",Q" << ",chanWH";
                      if (SwitchErosion) out << ",Qs,C";
                      out << "\n";
                      out << "min,mm/h";
                      if (SwitchSnowmelt) out << ",mm/h";
-                     out << ",l/s";
+                     out << ",l/s" << ",m";
                      if (SwitchIncludeTile) out << ",l/s";
                      if (SwitchErosion) out << ",kg/s,g/l";
                      out << "\n";
@@ -269,6 +274,7 @@ void TWorld::ReportTimeseriesNew(void)
             {
                pnr.setNum((int)PointMap->Drc);
                out << "Q #" << pnr <<  "(l/s)\n";
+               out << "chanWH #" << pnr <<  "(m)\n";
                if (SwitchIncludeTile) out << "Qdr #" << pnr <<  "(l/s)\n";
                if (SwitchErosion) out << "Qs #"<< pnr << "(kg/s)\n";
                if (SwitchErosion) out << "C #"<< pnr << "(g/l)\n";
@@ -309,6 +315,7 @@ void TWorld::ReportTimeseriesNew(void)
                {
                   pnr.setNum((int)PointMap->Drc);
                   out << ",Q #" << pnr;
+                  out << ",chanWH #" << pnr;
                   if (SwitchIncludeTile) out << ",Qdr #" << pnr;
                   if (SwitchErosion) out << ",Qs #" << pnr;
                   if (SwitchErosion) out << ",C #" << pnr;
@@ -322,6 +329,7 @@ void TWorld::ReportTimeseriesNew(void)
                {
                   pnr.setNum((int)PointMap->Drc);
                   out << ",l/s #" << pnr;
+                  out << ",m #" << pnr;
                   if (SwitchIncludeTile) out << ",l/s #" << pnr;
                   if (SwitchErosion) out << ",kg/s #" << pnr;
                   if (SwitchErosion) out << ",g/l #" << pnr;
@@ -359,7 +367,7 @@ void TWorld::ReportTimeseriesNew(void)
                   out << time/60;
                if (SwitchRainfall) out << sep << RainIntavg;
                if (SwitchSnowmelt) out << sep << SnowIntavg;
-               out << sep << Qoutput->Drc;
+               out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
                if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                if (SwitchErosion) out << sep << Qsoutput->Drc;
                if (SwitchErosion) out << sep << TotalConc->Drc;
@@ -371,8 +379,8 @@ void TWorld::ReportTimeseriesNew(void)
                out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
                out.setFieldWidth(8);
                out << Qoutput->Drc;
-               if (SwitchErosion) out << " " << Qsoutput->Drc;
-               if (SwitchErosion) out << " " << TotalConc->Drc;
+//               if (SwitchErosion) out << " " << Qsoutput->Drc;
+//               if (SwitchErosion) out << " " << TotalConc->Drc;
                out << " <\n";
             }
             fout.close();
@@ -404,7 +412,7 @@ void TWorld::ReportTimeseriesNew(void)
             {
                if (SwitchRainfall) out << sep << RainIntavg;
                if (SwitchSnowmelt) out << sep << SnowIntavg;
-               out << sep << Qoutput->Drc;
+               out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
                if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                if (SwitchErosion) out << sep << Qsoutput->Drc;
                if (SwitchErosion) out << sep << TotalConc->Drc;

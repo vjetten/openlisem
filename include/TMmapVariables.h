@@ -36,6 +36,7 @@ TMMap
 *tmc,                        //!< Auxilary map
 //*Mask,                       //!< Catchment mask, based on the LDD
 *DEM,                        //!< DEM [m]
+*Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
@@ -81,6 +82,7 @@ TMMap
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
+*Houtput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 //*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]

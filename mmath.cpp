@@ -180,6 +180,34 @@ double TMMap::MapAverage()
 
 }
 //---------------------------------------------------------------------------
+double TMMap::MapMaximum()
+{
+     double total = -1e20;
+     for (int r = 0; r < nrRows; r++)
+      for (int c = 0; c < nrCols; c++)
+      if (!IS_MV_REAL8(&Data[r][c]))
+      {
+          if (total < Data[r][c])
+             total = Data[r][c];
+      }
+      return (total);
+
+}
+//---------------------------------------------------------------------------
+double TMMap::MapMinimum()
+{
+     double total = +1e20;
+     for (int r = 0; r < nrRows; r++)
+      for (int c = 0; c < nrCols; c++)
+      if (!IS_MV_REAL8(&Data[r][c]))
+      {
+          if (total > Data[r][c])
+             total = Data[r][c];
+      }
+      return (total);
+
+}
+//---------------------------------------------------------------------------
 void TMMap::copy(cTMap *M)
 {
      for (int r = 0; r < M->nrRows; r++)

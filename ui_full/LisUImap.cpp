@@ -24,7 +24,15 @@
 
 
 #include "lisemqt.h"
+#include "global.h"
 
+
+void lisemqt::selectMapType(bool doit)
+{
+   if (radioButton_RO->isChecked())    op.drawMapType = 1;
+   if (radioButton_INF->isChecked())    op.drawMapType = 2;
+   if (radioButton_SL->isChecked())    op.drawMapType = 3;
+}
 
 //---------------------------------------------------------------------------
 void lisemqt::initMapPlot()
@@ -56,9 +64,15 @@ void lisemqt::setupMapPlot()
    grid->attach( MPlot );
 
    drawMap = new QwtPlotSpectrogram();
-   drawMap->setRenderThreadCount( 0 ); // use system specific thread count
+   drawMap->setRenderThreadCount( 0 );
    drawMap->attach( MPlot );
    // make the raster drawing
+
+   baseMap = new QwtPlotSpectrogram();
+   baseMap->setRenderThreadCount( 0 );
+   baseMap->attach( MPlot );
+   // make the raster drawing
+
 
    RD = new QwtMatrixRasterData();
    // raster data to link to plot
@@ -88,12 +102,11 @@ void lisemqt::setupMapPlot()
    maxAxis2 = -1e20;
    maxAxis3 = -1e20;
    pstep = 0;
+
 }
 //---------------------------------------------------------------------------
-void lisemqt::fillDrawMapData()
+void lisemqt::fillDrawMapData(TMMap *_M)
 {
-   TMMap *_M = op.DrawMap;
-
    mapData.clear();
    // copy map data into vector for the display structure
    for(int r = _M->nrRows-1; r >= 0; r--)
@@ -118,7 +131,10 @@ void lisemqt::fillDrawMapData()
 //---------------------------------------------------------------------------
 void lisemqt::ShowMap()
 {
-   fillDrawMapData();
+   double MinV = 0.1;
+  // ShowBaseMap();
+
+   fillDrawMapData(op.DrawMap);
 
    op.DrawMap->ResetMinMax();
    double MaxV = (double)op.DrawMap->MH.maxVal;
@@ -129,10 +145,11 @@ void lisemqt::ShowMap()
    {
       MPlot->setTitle("Runoff (l/s)");
       drawMap->setColorMap(new colorMapWaterLog());
+
       maxAxis1 = qMax(maxAxis1, MaxV);
       if (doubleSpinBoxRO->value() > 0)
          maxAxis1 = doubleSpinBoxRO->value();
-      RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(0.1, maxAxis1)));
+      RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(MinV, maxAxis1)));
    }
    else
       if (op.drawMapType == 2)
@@ -165,9 +182,9 @@ void lisemqt::ShowMap()
       // log scale for runoff
       rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
       if (maxAxis1 < 100)
-         MPlot->setAxisScale( MPlot->yRight, 0.1, qMax(1.0,maxAxis1));
+         MPlot->setAxisScale( MPlot->yRight, MinV, qMax(1.0,maxAxis1));
       else
-         MPlot->setAxisScale( MPlot->yRight, 1.0, qMax(10.0,maxAxis1));
+         MPlot->setAxisScale( MPlot->yRight, MinV, qMax(10.0,maxAxis1));
       MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
    }
    else
@@ -195,6 +212,33 @@ void lisemqt::ShowMap()
    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
+
+   mapRescaler->setEnabled( true );
+   for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+      mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+
+   MPlot->replot();
+   mapRescaler->rescale();
+
+}
+//---------------------------------------------------------------------------
+void lisemqt::ShowBaseMap()
+{
+   fillDrawMapData(op.baseMap);
+
+   double nrCols = (double)op.baseMap->nrCols;
+   double nrRows = (double)op.baseMap->nrRows;
+
+   drawMap->setColorMap(new colorMapGray());
+   RD->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
+   drawMap->setData(RD);
+   // link raster data to drawMap
+
+   MPlot->plotLayout()->setAlignCanvasToScales( true );
+   MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
+   MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+   MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
+   MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
    mapRescaler->setEnabled( true );
    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )

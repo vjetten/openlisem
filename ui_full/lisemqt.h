@@ -59,7 +59,7 @@
 #include "LisUIoutput.h"
 
 #include "LisUItreemodel.h"
-//#include "LisUIplot.h"
+
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -88,16 +88,38 @@ typedef struct MAP_LIST {
    int varnr;
 } MAP_LIST;
 //---------------------------------------------------------------------------
+#define BGc "#dddddd"
+
+class colorMapGray: public QwtLinearColorMap
+{
+public:
+   colorMapGray():
+      QwtLinearColorMap( QColor(BGc), Qt::white  )
+   {
+      addColorStop(0.0, QColor("#333333"));
+      addColorStop(0.9, Qt::white);
+   }
+};
+class colorMapRed: public QwtLinearColorMap
+{
+public:
+   colorMapRed():
+      QwtLinearColorMap( QColor(BGc), Qt::red)
+   {
+      addColorStop(0.0, Qt::darkRed);
+   }
+};
+
 class colorMapWaterLog: public QwtLinearColorMap
 {
 public:
    colorMapWaterLog():
-      QwtLinearColorMap( QColor("#bbbbbb"), Qt::darkBlue  )
+      QwtLinearColorMap( QColor(BGc), Qt::darkBlue )
    {
       addColorStop( 0.0, Qt::yellow );
-      addColorStop( 0.05, QColor("#FFFF55") );
-      addColorStop( 0.1, QColor("#8080FF") );
-      addColorStop( 0.5, Qt::blue );
+      addColorStop( 0.05, QColor(128,128,255));
+      addColorStop( 0.1, QColor(64,64,255) );
+      addColorStop( 0.5, QColor(0,0,255));//Qt::blue );
    }
 };
 
@@ -105,7 +127,7 @@ class colorMapWater: public QwtLinearColorMap
 {
 public:
    colorMapWater():
-      QwtLinearColorMap( QColor("#bbbbbb"), Qt::darkBlue  )
+      QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
    {
       addColorStop( 0.0, Qt::yellow );
       addColorStop( 0.2, QColor("#FFFF55") );
@@ -118,7 +140,7 @@ class colorMapSed: public QwtLinearColorMap
 {
 public:
    colorMapSed():
-      QwtLinearColorMap( QColor("#bbbbbb"),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
+      QwtLinearColorMap( QColor(BGc),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
    {
       addColorStop( 0.0, Qt::darkCyan );//QColor("#108030"));
       addColorStop( 0.3, Qt::cyan );//QColor("#30ffcc"));
@@ -157,14 +179,17 @@ public:
    void savefile(QString name);
    void InitOP();
    void SetConnections();
+   QStringList runfilelist;
 
    // Map drawing variable
    void setupMapPlot();
    void initMapPlot();
    void ShowMap();
-   void fillDrawMapData();
+   void ShowBaseMap();
+   void fillDrawMapData(TMMap *_M);
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
+   QwtPlotSpectrogram *baseMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
    QVector<double> mapData;
@@ -276,6 +301,10 @@ public slots:
    void on_E_ResultDir_returnPressed();
 
    void selectMapType(bool doit);
+
+   void setWriteOutputSOBEK(bool doit);
+   void setWriteOutputCSV(bool doit);
+   void setWriteOutputPCR(bool doit);
 
 private slots:
    // functions that interact with the world thread signals
