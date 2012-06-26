@@ -60,7 +60,7 @@ void TWorld::OutputUI(void)
    if (op.drawMapType == 1) op.DrawMap = Qoutput;  //all output in m3/s
    if (op.drawMapType == 2) op.DrawMap = InfilmmCum;  //infil in mm
    if (op.drawMapType == 3) op.DrawMap = TotalSoillossMap;  //soilloss in kg/cell
-   op.baseMap = Shade;
+   //op.baseMap = Shade;
 
    op.dx = _dx;
    op.MB = MB;
@@ -375,13 +375,13 @@ void TWorld::ReportTimeseriesNew(void)
             }
             else  //SOBEK format
             {
-               out.setFieldWidth(2);
-               out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
-               out.setFieldWidth(8);
-               out << Qoutput->Drc;
-//               if (SwitchErosion) out << " " << Qsoutput->Drc;
-//               if (SwitchErosion) out << " " << TotalConc->Drc;
-               out << " <\n";
+               QString ss = QString("\"%1;%2:%3:%4\" %5 <\n").
+                     arg(SOBEKdatestring).
+                     arg((uint)hour,2,10,QLatin1Char('0')).
+                     arg((uint)min,2,10,QLatin1Char('0')).
+                     arg((uint)sec,2,10,QLatin1Char('0')).
+                     arg(Qoutput->Drc,0,'f',3);
+               out << ss;
             }
             fout.close();
          }  // if point

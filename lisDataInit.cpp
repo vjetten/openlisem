@@ -551,13 +551,13 @@ void TWorld::GetInputData(void)
    for (int i = 0; i < 32; i++)
       SubsMaps[i].m = NULL;  // initialize substance structures
 
-   DEM = ReadMap(LDD, getvaluename("dem"));
+   //DEM = ReadMap(LDD, getvaluename("dem"));
    // DEM in m
 
 
    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
 
-   Shade = NewMap(0);
+   //Shade = NewMap(0);
    //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
    /*
    FOR_ROW_COL_MV

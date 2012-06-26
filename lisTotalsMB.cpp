@@ -246,6 +246,7 @@ void TWorld::Totals(void)
       FOR_ROW_COL_MV
       {
          TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc, tm->Drc);
+         // NOTE tm is ignored anyway
          // WHICH tm IS THIS ???????????????????????
          // CHECK CHECK CHECK
       }

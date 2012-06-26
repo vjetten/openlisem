@@ -104,9 +104,9 @@ lisemqt::lisemqt(QWidget *parent)
    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
    // put the progress bar into the statusbar
 
-E_runFileList->clear();
-E_runFileList->addItem("");
-GetStorePath();
+   E_runFileList->clear();
+
+   GetStorePath();
    // get last place visited by opneLISEM and go there
 
 }
@@ -115,8 +115,8 @@ lisemqt::~lisemqt()
 {
    StorePath();
 
-   if (HPlot)
-      delete HPlot;
+//   if (HPlot)
+//      delete HPlot;
    //    if (MPlot)
    //       delete MPlot;
    //    delete RD;
@@ -127,7 +127,6 @@ lisemqt::~lisemqt()
    //delete QGraph;
    //delete QsGraph;
    //delete CGraph;
-
 }
 //--------------------------------------------------------------------
 void lisemqt::SetConnections()
@@ -152,7 +151,7 @@ void lisemqt::SetConnections()
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
 {
-//   checkWriteSOBEK->setChecked(!doit);
+   //   checkWriteSOBEK->setChecked(!doit);
    checkWriteCommaDelimited->setChecked(!doit);
    checkWritePCRaster->setChecked(!doit);
 }
@@ -160,7 +159,7 @@ void lisemqt::setWriteOutputSOBEK(bool doit)
 void lisemqt::setWriteOutputCSV(bool doit)
 {
    checkWriteSOBEK->setChecked(!doit);
-//   checkWriteCommaDelimited->setChecked(!doit);
+   //   checkWriteCommaDelimited->setChecked(!doit);
    checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
@@ -173,23 +172,23 @@ void lisemqt::setWriteOutputPCR(bool doit)
       checkWritePCRaster->setChecked(false);
    }
    else
-   if (checkWritePCRaster->isChecked())
-   {
-      checkWriteSOBEK->setChecked(false);
-      checkWriteCommaDelimited->setChecked(false);
-      //checkWritePCRaster->setChecked(false);
-   }
-   else
-   if (checkWriteCommaDelimited->isChecked())
-   {
-      checkWriteSOBEK->setChecked(false);
-      //checkWriteCommaDelimited->setChecked(false);
-      checkWritePCRaster->setChecked(false);
-   }
+      if (checkWritePCRaster->isChecked())
+      {
+         checkWriteSOBEK->setChecked(false);
+         checkWriteCommaDelimited->setChecked(false);
+         //checkWritePCRaster->setChecked(false);
+      }
+      else
+         if (checkWriteCommaDelimited->isChecked())
+         {
+            checkWriteSOBEK->setChecked(false);
+            //checkWriteCommaDelimited->setChecked(false);
+            checkWritePCRaster->setChecked(false);
+         }
 
-//   checkWriteSOBEK->setChecked(!doit);
-//   checkWriteCommaDelimited->setChecked(!doit);
-//   checkWritePCRaster->setChecked(!doit);
+   //   checkWriteSOBEK->setChecked(!doit);
+   //   checkWriteCommaDelimited->setChecked(!doit);
+   //   checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
@@ -587,14 +586,14 @@ void lisemqt::GetStorePath()
 
    if (!runfilelist[0].isEmpty())
    {
-   QString S = runfilelist[0];//E_runFileList->currentText();
+      QString S = runfilelist[0];//E_runFileList->currentText();
 
-   QFileInfo fi(S);
-   QDir dir = fi.absoluteDir();
-   currentDir = dir.absolutePath();
-   dir.setPath(S);
-}
-   //E_runFileList->addItems(runfilelist);
+      QFileInfo fi(S);
+      QDir dir = fi.absoluteDir();
+      currentDir = dir.absolutePath();
+      dir.setPath(S);
+   }
+   E_runFileList->addItems(runfilelist);
 }
 //---------------------------------------------------------------------------
 void lisemqt::StorePath()
@@ -603,7 +602,7 @@ void lisemqt::StorePath()
       return;
 
    QFile fff(op.LisemDir + "openlisem.ini");
-   if (!fff.open(QIODevice::WriteOnly | QIODevice::Text))
+   if (!fff.open(QIODevice::ReadWrite | QIODevice::Text))
       return;
 
    QTextStream ts( &fff );

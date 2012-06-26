@@ -460,7 +460,7 @@ void TWorld::Infiltration(void)
          //VJ 110106 adapted this calculation
 
          if (SwitchHardsurface && HardSurface->Drc > 0)
-            (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
+           Ksateff->Drc = (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
          //VJ 110111 no infiltration on hard surfaces
 
          //houses
