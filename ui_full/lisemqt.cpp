@@ -578,7 +578,7 @@ void lisemqt::GetStorePath()
       if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
          return;
 
-      qDebug() << line;
+      //qDebug() << line;
       runfilelist << QString(line);
       //E_runFileList->addItem(QString(line));
    }
@@ -764,7 +764,6 @@ void lisemqt::resetAll()
    checkBox_OutTiledrain->setChecked(false);
 
    printinterval->setValue(1);
-
 
    E_InfiltrationMethod->clear();
    E_InfiltrationMethod->addItem("no Infiltration");

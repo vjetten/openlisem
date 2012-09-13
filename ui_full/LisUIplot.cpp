@@ -39,12 +39,12 @@
 void lisemqt::initPlot()
 {
    startplot = true;
-   QData = NULL;
-   QtileData = NULL;
-   QsData = NULL;
-   CData = NULL;
-   PData = NULL;
-   timeData = NULL;
+//   QData = NULL;
+//   QtileData = NULL;
+//   QsData = NULL;
+//   CData = NULL;
+   //PData = NULL;
+//   timeData = NULL;
    //intialize plot stuff for this run
 
    op.outputpointnr = spinBoxPointtoShow->value();
@@ -57,21 +57,32 @@ void lisemqt::initPlot()
 /// free data structures graph
 void lisemqt::killPlot()
 {
-   delete QData;
-   delete QtileData;
-   delete QsData;
-   delete CData;
-   delete PData;
-   delete timeData;
-   QData = NULL;
-   QsData = NULL;
-   CData = NULL;
-   PData = NULL;
-   timeData = NULL;
+//   delete QData;
+//   delete QtileData;
+//   delete QsData;
+//   delete CData;
+//   delete PData;
+//   delete timeData;
+//   QData = NULL;
+//   QsData = NULL;
+//   CData = NULL;
+//   PData = NULL;
+//   timeData = NULL;
+   PData.clear();
+   TData.clear();
+   QData.clear();
+   QtileData.clear();
+   QsData.clear();
+   CData.clear();
+
 
    spinBoxPointtoShow->setEnabled(true);
+
+   startplot = true;
+
 }
 //---------------------------------------------------------------------------
+/// set up discharge plot, graphics part (not data)
 void lisemqt::setupPlot()
 {
    textGraph->setMaximumBlockCount(6);
@@ -175,12 +186,12 @@ void lisemqt::setupPlot()
    HPlot->replot();
    // draw empty plot
 
-   QData = NULL; //discharge
-   QtileData = NULL; //discharge
-   QsData = NULL;  //sed discharge
-   CData = NULL; //conc
-   PData = NULL; //rainfall
-   timeData = NULL;  //time
+//   QData = NULL; //discharge
+//   QtileData = NULL; //discharge
+//   QsData = NULL;  //sed discharge
+//   CData = NULL; //conc
+   //PData = NULL; //rainfall
+//   timeData = NULL;  //time
    // init data arrays for plot data
 
 }
@@ -192,26 +203,33 @@ void lisemqt::showPlot()
    {
       startplot = false;
 
-      stepP = 0;
+//      stepP = 0;
       // VJ 110417 op.runstep did not work properly
 
       yas = 0.1;
       y2as = 0.1;
 
       // create the arrays for the curves in the first timestep when the total size is known
-      timeData = new double[op.maxstep+2];
-      QData = new double[op.maxstep+2];
-      QtileData = new double[op.maxstep+2];
-      QsData = new double[op.maxstep+2];
-      CData = new double[op.maxstep+2];
-      PData = new double[op.maxstep+2];
+//      timeData = new double[op.maxstep+2];
+//      QData = new double[op.maxstep+2];
+//      QtileData = new double[op.maxstep+2];
+//      QsData = new double[op.maxstep+2];
+//      CData = new double[op.maxstep+2];
+      //PData = new double[op.maxstep+2];
 
-      memset(timeData, 0, sizeof(timeData));
-      memset(QData, 0, sizeof(QData));
-      memset(QtileData, 0, sizeof(QData));
-      memset(QsData, 0, sizeof(QsData));
-      memset(CData, 0, sizeof(CData));
-      memset(PData, 0, sizeof(PData));
+//      memset(timeData, 0, sizeof(timeData));
+//      memset(QData, 0, sizeof(QData));
+//      memset(QtileData, 0, sizeof(QData));
+//      memset(QsData, 0, sizeof(QsData));
+//      memset(CData, 0, sizeof(CData));
+      //memset(PData, 0, sizeof(PData));
+
+      PData.clear();
+      TData.clear();
+      QData.clear();
+      QtileData.clear();
+      QsData.clear();
+      CData.clear();
 
       HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
       if(checkIncludeTiledrains->isChecked())
@@ -230,25 +248,37 @@ void lisemqt::showPlot()
       // VJ 110630 show hydrograph for selected output point
    }
 
-   stepP++;
-   timeData[stepP] = op.time;
-   PData[stepP] = op.P;
-   QData[stepP] = op.Q;
-   QtileData[stepP] = op.Qtile;
-   QsData[stepP] = op.Qs;
-   CData[stepP] = op.C;
+//   stepP++;
+//   timeData[stepP] = op.time;
+//   PData[stepP] = op.P;
+//   QData[stepP] = op.Q;
+//   QtileData[stepP] = op.Qtile;
+//   QsData[stepP] = op.Qs;
+//   CData[stepP] = op.C;
+
+   QData << op.Q;
+   QtileData << op.Qtile;
+   QsData << op.Qs;
+   CData << op.C;
+   PData << op.P;
+   TData << op.time;
 
    //qwt 6.0.0:
-   QGraph->setRawSamples(timeData,QData,stepP);
-   PGraph->setRawSamples(timeData,PData,stepP);
+   //QGraph->setRawSamples(timeData,QData,stepP);
+   //PGraph->setRawSamples(timeData,PData,stepP);
+   QGraph->setSamples(TData,QData);
+   PGraph->setSamples(TData,PData);
    if(!checkNoErosion->isChecked())
    {
       //qwt 6.0.0:
-      QsGraph->setRawSamples(timeData,QsData,stepP);
-      CGraph->setRawSamples(timeData,CData,stepP);
+//      QsGraph->setRawSamples(timeData,QsData,stepP);
+//      CGraph->setRawSamples(timeData,CData,stepP);
+      QsGraph->setSamples(TData,QsData);
+      CGraph->setSamples(TData,CData);
    }
    if(checkIncludeTiledrains->isChecked())
-      QtileGraph->setRawSamples(timeData,QtileData,stepP);
+      QtileGraph->setSamples(TData,QtileData);
+//      QtileGraph->setRawSamples(timeData,QtileData,stepP);
 
    y2as = max(y2as, op.Qs);
    y2as = max(y2as, op.C);

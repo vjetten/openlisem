@@ -156,7 +156,8 @@ typedef struct UNIT_LIST {
 //---------------------------------------------------------------------------
 typedef struct RAIN_LIST {
     double time;
-    double *intensity;
+    //double *intensity;
+    QVector <double> intensity;
     bool isMap;
     QString name;
 } RAIN_LIST;

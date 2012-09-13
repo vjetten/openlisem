@@ -50,16 +50,16 @@ void TWorld::OutputUI(void)
    if (runstep > 0 && runstep % printinterval == 0)
       printstep++;
    // printstep determines map reporting frequency
-//   if (runstep == 0)
-//   {
-//      op.DrawMap = NewMap(0);
-//   }
+   if (runstep == 0)
+   {
+      op.DrawMap = NewMap(0);
+   }
 
    runstep++;
 
-   if (op.drawMapType == 1) op.DrawMap = Qoutput;  //all output in m3/s
-   if (op.drawMapType == 2) op.DrawMap = InfilmmCum;  //infil in mm
-   if (op.drawMapType == 3) op.DrawMap = TotalSoillossMap;  //soilloss in kg/cell
+   if (op.drawMapType == 1) op.DrawMap->copy(Qoutput);  //all output in m3/s
+   if (op.drawMapType == 2) op.DrawMap->copy(InfilmmCum);  //infil in mm
+   if (SwitchErosion && op.drawMapType == 3) op.DrawMap->copy(TotalSoillossMap);  //soilloss in kg/cell
    //op.baseMap = Shade;
 
    op.dx = _dx;
@@ -114,7 +114,7 @@ void TWorld::OutputUI(void)
    op.BufferVolTot = BufferVolin;//Tot;
    op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition
 
-   emit show();
+   //emit show();
    // send the op structure with data to function worldShow the interface
    // in file LisUIModel
 }
@@ -380,7 +380,7 @@ void TWorld::ReportTimeseriesNew(void)
                      arg((uint)hour,2,10,QLatin1Char('0')).
                      arg((uint)min,2,10,QLatin1Char('0')).
                      arg((uint)sec,2,10,QLatin1Char('0')).
-                     arg(Qoutput->Drc,0,'f',3);
+                     arg(Qoutput->Drc/1000.0,0,'f',3);
                out << ss;
             }
             fout.close();
@@ -430,7 +430,7 @@ void TWorld::ReportTimeseriesNew(void)
             {
                if ( PointMap->Drc > 0 )
                {
-                  out << " " << Qoutput->Drc;
+                  out << " " << Qoutput->Drc/1000.0;
                   if (SwitchErosion) out << " " << Qsoutput->Drc;
                   if (SwitchErosion) out << " " << TotalConc->Drc;
                }

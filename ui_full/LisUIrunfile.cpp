@@ -295,8 +295,10 @@ void lisemqt::ParseInputData()
 
       // input ourput dirs and file names
       if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
-      if (p1.compare("Result Directory")==0) E_ResultDir->setText(CheckDir(p));
-
+      if (p1.compare("Result Directory")==0)
+      {
+         E_ResultDir->setText(CheckDir(p));
+}
       if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
       if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
       if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
@@ -398,7 +400,10 @@ QString lisemqt::CheckDir(QString p)
     path = path + '/';
 
    if (!QDir(path).exists())
+   {
+      QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
       path.clear();
+   }
 
    return path;
 }

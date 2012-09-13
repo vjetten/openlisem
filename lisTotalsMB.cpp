@@ -126,8 +126,6 @@ void TWorld::Totals(void)
       // add channel vol to total
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
-
-      //Qtot += ChannelQoutflow->DrcOutlet;
       Qtot += ChannelQn->DrcOutlet*_dt;
       // add channel outflow (in m3) to total for all pits
       //Qtotmm = Qtot*catchmentAreaFlatMM;
@@ -288,7 +286,7 @@ void TWorld::MassBalance()
             (RainTot + SnowTot + WaterVolSoilTot)*100;
    //watervoltot includes channel and tile
 
-  // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
+   //  qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
 
    // Mass Balance sediment, all in kg
    if (SwitchErosion && DetTot > 0)

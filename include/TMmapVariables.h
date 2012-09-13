@@ -182,7 +182,6 @@ TMMap
 *ChannelQn,                  //!<
 *ChannelQs,                  //!<
 *ChannelQsn,                 //!<
-//*ChannelQoutflow,            //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
 *ChannelN,                   //!<

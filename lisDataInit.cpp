@@ -124,12 +124,16 @@ void TWorld::DestroyData(void)
    if (nrrainfallseries > 1)
    {
       for (int r=0; r < nrrainfallseries; r++)
-         delete[] RainfallSeriesM[r].intensity;
+      {
+//         delete[] RainfallSeriesM[r].intensity;
+         RainfallSeriesM[r].intensity.clear();
+      }
       delete RainfallSeriesM;
       //      for (int r=0; r < nrrainfallseries; r++)
       //         delete[] RainfallSeries[r];
       //      delete[] RainfallSeries;
    }
+   DEBUG("kill swatre structure");
 
    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
    {

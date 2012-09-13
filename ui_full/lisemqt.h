@@ -213,12 +213,18 @@ public:
    QwtPlotCurve *QtileGraph;
    bool startplot;
    double yas, y2as;
-   double *timeData;
-   double *QData;
-   double *QtileData;
-   double *QsData;
-   double *CData;
-   double *PData;
+//   double *timeData;
+//   double *QData;
+//   double *QtileData;
+//   double *QsData;
+//   double *CData;
+   //double *PData;
+   QVector <double> QData;
+   QVector <double> QtileData;
+   QVector <double> QsData;
+   QVector <double> CData;
+   QVector <double> PData;
+   QVector <double> TData;
    long stepP;
 
    bool oldRunfile; // check is old runfile for ksat calibration

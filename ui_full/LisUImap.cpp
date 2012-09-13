@@ -31,7 +31,7 @@ void lisemqt::selectMapType(bool doit)
 {
    if (radioButton_RO->isChecked())    op.drawMapType = 1;
    if (radioButton_INF->isChecked())    op.drawMapType = 2;
-   if (radioButton_SL->isChecked())    op.drawMapType = 3;
+   if (radioButton_SL->isChecked())      op.drawMapType = 3;
 }
 
 //---------------------------------------------------------------------------
@@ -41,6 +41,11 @@ void lisemqt::initMapPlot()
    radioButton_RO->setChecked(true);
    radioButton_INF->setChecked(false);
    radioButton_SL->setChecked(false);
+   if (checkNoErosion->isChecked())
+      radioButton_SL->setEnabled(false);
+   else
+      radioButton_SL->setEnabled(true);
+
 
    maxAxis1 = -1e20;
    maxAxis2 = -1e20;
@@ -113,11 +118,12 @@ void lisemqt::fillDrawMapData(TMMap *_M)
    mapData.clear();
    // copy map data into vector for the display structure
    for(int r = _M->nrRows-1; r >= 0; r--)
+//      for(int r = 0; r < _M->nrRows; r++)
       for(int c=0; c < _M->nrCols; c++)
       {
          if(!IS_MV_REAL8(&_M->Data[r][c]))
          {
-            mapData += _M->Data[r][c];
+            mapData << _M->Data[r][c];
          }
          else
             mapData << (double)-1e20;

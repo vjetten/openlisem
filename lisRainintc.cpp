@@ -79,8 +79,10 @@ void TWorld::GetRainfallData(void)
    while (!fff.atEnd())
    {
       S = fff.readLine();
+      qDebug() << S << nrrainfallseries;
       if (!S.trimmed().isEmpty())
          nrrainfallseries++;
+      qDebug() << S << nrrainfallseries;
    }
    // count rainfall records, skip empty lines
 
@@ -121,6 +123,7 @@ void TWorld::GetRainfallData(void)
          ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
          throw 1;
       }
+
 
       RainfallSeries[j][0] = SL[0].toDouble();
       // time in min
@@ -167,6 +170,7 @@ void TWorld::GetRainfallDataM(void)
       S = fff.readLine();
       if (!S.trimmed().isEmpty())
          rainRecs << S;
+      qDebug() << S << "hoi";
    }
    fff.close();
    // get all rainfall records
@@ -180,9 +184,10 @@ void TWorld::GetRainfallDataM(void)
       ErrorString = "Cannot read nr rainfall stations in header rainfall file";
       throw 1;
    }
-
+   qDebug() << QString(" nr rainfall stations %1").arg(nrstations);
    nrrainfallseries = rainRecs.size() - nrstations - 1;
    // count rainfall records
+   qDebug() << QString(" nr rainfall records %1").arg(nrrainfallseries);
 
    if (nrrainfallseries <= 1)
    {
@@ -194,9 +199,10 @@ void TWorld::GetRainfallDataM(void)
    for(int r=0; r < nrrainfallseries; r++)
    {
       RainfallSeriesM[r].time = 0;
-      RainfallSeriesM[r].intensity = new double[nrstations+1];
+//      RainfallSeriesM[r].intensity = new double[nrstations+1];
       for (int j = 0; j <= nrstations; j++)
-         RainfallSeriesM[r].intensity[j] = 0;
+//         RainfallSeriesM[r].intensity[j] = 0;
+         RainfallSeriesM[r].intensity.clear();
       RainfallSeriesM[r].isMap = false;
       RainfallSeriesM[r].name = "";
    }
@@ -233,7 +239,8 @@ void TWorld::GetRainfallDataM(void)
          for (int i = 0; i < nrstations; i++)
          {
             bool ok = false;
-            RainfallSeriesM[r].intensity[i] = SL[i+1].toDouble(&ok);
+//            RainfallSeriesM[r].intensity[i] = SL[i+1].toDouble(&ok);
+            RainfallSeriesM[r].intensity << SL[i+1].toDouble(&ok);
             if (!ok)
             {
                ErrorString = QString("rainfall records at time %1 has unreadable value.").arg(SL[0]);

@@ -65,7 +65,6 @@ void TWorld::CalcVelDischChannel(void)
          Perim = FW + 2*wh;
          Area = FW*wh;
       }
-
       //Perim = ChannelWidth->Drc + 2*wh/cos(atan(ChannelSide->Drc));
       // cos atanb more expensive than sqrt ?
       //Area = ChannelWidth->Drc*wh + wh*(ChannelWidthUpDX->Drc - ChannelWidth->Drc);
@@ -87,13 +86,13 @@ void TWorld::CalcVelDischChannel(void)
 
       ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
    }
-   else
-   {
-      ChannelAlpha->Drc = 0;
-      ChannelQ->Drc = 0;
-      ChannelV->Drc = 0;
-      ChannelPerimeter->Drc = 0;
-   }
+//   else // WHY THIS??? RELIC !!!
+//   {
+//      ChannelAlpha->Drc = 0;
+//      ChannelQ->Drc = 0;
+//      ChannelV->Drc = 0;
+//      ChannelPerimeter->Drc = 0;
+//   }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, channelheight, kin wave
@@ -109,13 +108,11 @@ void TWorld::ChannelFlow(void)
 
       ChannelQsn->Drc = 0;
       Channelq->Drc = 0;
-      //ChannelQoutflow->Drc = 0;
       ChannelWH->Drc = 0;
 
       ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
       // add inflow to channel
-      if (ChannelWidth->Drc > 0)
-         ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+      ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
       // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
       if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -125,7 +122,7 @@ void TWorld::ChannelFlow(void)
          // add inflow from slopes and rainfall to buffer
       }
 
-      if (ChannelSide->Drc == 0 && ChannelWidth->Drc > 0)// rectangular channel
+      if (ChannelSide->Drc == 0)// && ChannelWidth->Drc > 0)// rectangular channel
       {
          ChannelWidthUpDX->Drc = ChannelWidth->Drc;
          ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
@@ -140,23 +137,30 @@ void TWorld::ChannelFlow(void)
      \|____________|/
    area = vol/dx = h*w + h*dw
    dw = h*tan(a)
-   vol = w*h + tan(a)*h*h
-   tan(a)h^2 * wh - vol = 0
-     aa        bb   cc
+   vol = w*h + dw*h = w*h + tan(a)*h*h
+   tan(a)h^2 + wh - vol/dx = 0
+     aa (h2)   +   bb(h) +  cc
 */
          double aa = ChannelSide->Drc;  //=tan(a)
          double bb = ChannelWidth->Drc; //=w
-         double cc = -1*ChannelWaterVol->Drc/ChannelDX->Drc; //=vol/DX
+         double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=vol/DX
+
          ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
          if (ChannelWH->Drc < 0)
          {
             ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
             throw 1;
          }
+         ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
       }
 
-      if (ChannelWidth->Drc > 0)
-         ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidth->Drc+2*ChannelSide->Drc*ChannelWH->Drc);
+      if (ChannelWidthUpDX->Drc > _dx)
+      {
+         ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
+         throw 1;
+      }
+
+      ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
       // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
       // cannot be more than 0.9*_dx
 
@@ -175,6 +179,7 @@ void TWorld::ChannelFlow(void)
    }
 
    CalcVelDischChannel();
+   // alpha, V and Q from Manning
 
    /*---- Sediment ----*/
 
@@ -184,7 +189,6 @@ void TWorld::ChannelFlow(void)
 
       FOR_ROW_COL_MV_CH
       {
-         //         ChannelQsoutflow->Drc = 0;
          ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
       }
    }
@@ -207,18 +211,6 @@ void TWorld::ChannelFlow(void)
          }
       }
    }
-
-   //   ChannelQoutflow->DrcOutlet = ChannelQn->DrcOutlet * _dt;
-   //   FOR_ROW_COL_MV_CH
-   //      //   if (LDDChannel->Drc == 5)
-   //         ChannelQoutflow->Drc = ChannelQn->Drc * _dt;
-
-   //   if (SwitchErosion)
-   //      FOR_ROW_COL_MV_CH
-   //         //   if (LDDChannel->Drc == 5)
-   //            ChannelQsoutflow->Drc = ChannelQsn->Drc * _dt;
-   //      ChannelQsoutflow->DrcOutlet = ChannelQsn->DrcOutlet * _dt;
-   // these maps now contain m3 and kg per timestep in pit cells
 
    ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output
    ChannelQs->cover(LDD, 0);

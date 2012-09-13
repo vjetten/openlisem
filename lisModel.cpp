@@ -34,13 +34,10 @@
 
 */
 
-
 #include <QtGui>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
-
-
 
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
@@ -129,7 +126,6 @@ void TWorld::DoModel()
         for (time = BeginTime; time < EndTime; time += _dt)
         {
 
-
             mutex.lock();
             if(stopRequested) DEBUG("User interrupt...");
             if(stopRequested) break;
@@ -166,13 +162,19 @@ void TWorld::DoModel()
             Totals();
             MassBalance();
 
-            OutputUI();
+            OutputUI();     // fill the op structure for screen output
+
+            emit show();
+            // send the op structure with data to function worldShow the interface
+            // in file LisUIModel
 
             reportAll(); //VJ 110114 now separate
         }
-
+        //msleep(2000);
         DestroyData();  // destroy all maps automatically
+        DEBUG("Data destroyed");
 
+        msleep(1000);
         emit done("finished");
     }
     catch(...)  // if an error occurred
