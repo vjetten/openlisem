@@ -147,6 +147,7 @@ void TWorld::GetRainfallData(void)
 /// format: first line ends with integer that is nr of data columns excl time
 void TWorld::GetRainfallDataM(void)
 {
+   RAIN_LIST rl;
    QFile fff(rainFileName);
    QFileInfo fi(rainFileName);
    QString S;
@@ -195,26 +196,29 @@ void TWorld::GetRainfallDataM(void)
       throw 1;
    }
 
-   RainfallSeriesM = new RAIN_LIST[nrrainfallseries];
-   for(int r=0; r < nrrainfallseries; r++)
-   {
-      RainfallSeriesM[r].time = 0;
-//      RainfallSeriesM[r].intensity = new double[nrstations+1];
-      for (int j = 0; j <= nrstations; j++)
-//         RainfallSeriesM[r].intensity[j] = 0;
-         RainfallSeriesM[r].intensity.clear();
-      RainfallSeriesM[r].isMap = false;
-      RainfallSeriesM[r].name = "";
-   }
-   // make and initialize rainfall record structure, deleted in DestroyData
-
-
+   //RainfallSeriesM = new RAIN_LIST[nrrainfallseries];
+//   for(int r=0; r < nrrainfallseries; r++)
+//   {
+//      RainfallSeriesM[r].time = 0;
+////      RainfallSeriesM[r].intensity = new double[nrstations+1];
+//      for (int j = 0; j <= nrstations; j++)
+////         RainfallSeriesM[r].intensity[j] = 0;
+//         RainfallSeriesM[r].intensity.clear();
+//      RainfallSeriesM[r].isMap = false;
+//      RainfallSeriesM[r].name = "";
+//   }
    for(int r = 0; r < nrrainfallseries; r++)
    {
+      // initialize rainfall record structure
+      rl.time = 0;
+      rl.intensity.clear();
+      rl.isMap = false;
+      rl.name = "";
+
       QStringList SL = rainRecs[r+nrstations+1].split(QRegExp("\\s+"), QString::SkipEmptyParts);
       // split rainfall record row with whitespace
 
-      RainfallSeriesM[r].time = SL[0].toDouble();
+      rl.time = SL[0].toDouble();
       // time in min
 
       // check if record has characters, then filename assumed
@@ -228,8 +232,8 @@ void TWorld::GetRainfallDataM(void)
             throw 1;
          }
 
-         RainfallSeriesM[r].name = fi.absoluteFilePath();
-         RainfallSeriesM[r].isMap = true;
+         rl.name = fi.absoluteFilePath();
+         rl.isMap = true;
          // a mapname if the file exists
       }
       else
@@ -240,7 +244,7 @@ void TWorld::GetRainfallDataM(void)
          {
             bool ok = false;
 //            RainfallSeriesM[r].intensity[i] = SL[i+1].toDouble(&ok);
-            RainfallSeriesM[r].intensity << SL[i+1].toDouble(&ok);
+            rl.intensity << SL[i+1].toDouble(&ok);
             if (!ok)
             {
                ErrorString = QString("rainfall records at time %1 has unreadable value.").arg(SL[0]);
@@ -248,7 +252,9 @@ void TWorld::GetRainfallDataM(void)
             }
 
          }
+        RainfallSeriesM << rl;
       }
+
       //qDebug() << RainfallSeriesM[r].time << RainfallSeriesM[r].intensity << RainfallSeriesM[r].name;
    }
 }

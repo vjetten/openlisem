@@ -128,7 +128,8 @@ void TWorld::DestroyData(void)
 //         delete[] RainfallSeriesM[r].intensity;
          RainfallSeriesM[r].intensity.clear();
       }
-      delete RainfallSeriesM;
+      RainfallSeriesM.clear();
+      //delete RainfallSeriesM;
       //      for (int r=0; r < nrrainfallseries; r++)
       //         delete[] RainfallSeries[r];
       //      delete[] RainfallSeries;

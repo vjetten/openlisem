@@ -170,7 +170,7 @@ void TWorld::DoModel()
 
             reportAll(); //VJ 110114 now separate
         }
-        //msleep(2000);
+
         DestroyData();  // destroy all maps automatically
         DEBUG("Data destroyed");
 

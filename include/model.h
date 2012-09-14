@@ -268,7 +268,8 @@ public:
     int nrstations, nrrainfallseries;
     double **SnowmeltSeries;
     int nrSnowmeltstations, nrSnowmeltseries;
-    RAIN_LIST *RainfallSeriesM;
+    //RAIN_LIST *RainfallSeriesM;
+    QVector <RAIN_LIST> RainfallSeriesM;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
