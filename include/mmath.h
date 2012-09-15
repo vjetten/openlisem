@@ -39,6 +39,10 @@
 #define POW 4
 #define MIN 5  //VJ 041120 added this functionality
 #define MAX 6
+#define LARGER 7
+#define SMALLER 8
+#define LARGEREQUAL 9
+#define SMALLEREQUAL 10
 
 
 /// class defining some basic map algebra operations
@@ -56,6 +60,7 @@ class TMMap : public cTMap
    void copy(cTMap *m);
    void cover(cTMap *m, double v);
    void setMV();
+   void checkMap(int oper, double V, QString SS);
    double MapTotal();
    double MapAverage();
    double MapMinimum();

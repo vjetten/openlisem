@@ -36,6 +36,7 @@ functions: \n
 
 //---------------------------------------------------------------------------
 /// read snowmelt file and put the dta in SnowmeltSeries
+/*
 void TWorld::GetSnowmeltData(void)
 {
 	QFile fff(snowmeltFileName);
@@ -61,18 +62,7 @@ void TWorld::GetSnowmeltData(void)
 	QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
 	nrSnowmeltstations = SL[SL.size()-2].toInt(&ok, 10);
 
-   /*
- if (S.contains("RUU CSF TIMESERIE", Qt::CaseInsensitive)) // file is old lisem file
- {
-  QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
-  nrSnowmeltstations = SL[SL.size()-2].toInt(&ok, 10);
- }
- else // file is PCRaster timeseries
- {
-  S = fff.readLine();
-  nrSnowmeltstations = S.toInt(&ok, 10);
- }
- */
+
 	if (!ok)
 	{
 		ErrorString = "Cannot read nr rainfall stations in header rainfall file";
@@ -146,20 +136,80 @@ void TWorld::GetSnowmeltData(void)
  etc. */
 void TWorld::SnowmeltMap(void)
 {
+   double timeminprev = (time-_dt) / 60; //prev time in minutes
+   int  place;
+   double tt = 3600000.0;
+
+   if (!SwitchSnowmelt)
+      return;
+
+   for (place = 0; place < nrSnowmeltseries; place++)
+      if (timeminprev < SnowmeltSeriesM[place].time)
+         break;
+
+   if (SnowmeltSeriesM[place].isMap)
+   {
+      TMMap *_M = new TMMap();
+      _M->PathName = SnowmeltSeriesM[place].name;
+      bool res = _M->LoadFromFile();
+      if (!res)
+      {
+         ErrorString = "Cannot find Snowmelt map " +_M->PathName;
+         throw 1;
+      }
+
+      for (int r = 0; r < _nrRows; r++)
+         for (int c = 0; c < _nrCols; c++)
+            if (!IS_MV_REAL8(&LDD->Drc) && IS_MV_REAL8(&_M->Drc))
+            {
+               QString sr, sc;
+               sr.setNum(r); sc.setNum(c);
+               ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
+               throw 1;
+            }
+      FOR_ROW_COL_MV
+      {
+         Snowmelt->Drc = _M->Drc *_dt/tt;
+         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
+         SnowmeltCum->Drc += Snowmeltc->Drc;
+      }
+
+      _M->KillMap();
+   }
+   else
+   {
+      FOR_ROW_COL_MV
+      {
+         Snowmelt->Drc = SnowmeltSeriesM[place].intensity[(int) SnowmeltZone->Drc-1]*_dt/tt;
+         // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
+         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
+         // correction for slope dx/DX, water spreads out over larger area
+
+         //TODO: weighted average if dt larger than table dt
+
+         SnowmeltCum->Drc += Snowmeltc->Drc;
+      }
+   }
+
+}
+/*
+void TWorld::SnowmeltMap(void)
+{
 	double timemin = time / 60;  //time in minutes
 	double timeminp = (time-_dt) / 60; //prev time in minutes
-	int placep, place;
+	int place;
+   double tt = 3600000.0;
 
 	if (!SwitchSnowmelt)
 		return;
 
-
-	for (placep = 0; placep < nrSnowmeltseries; placep++)
-		if (timeminp < SnowmeltSeries[placep][0])
-			break;
+//	for (placep = 0; placep < nrSnowmeltseries; placep++)
+//		if (timeminp < SnowmeltSeries[placep][0])
+//			break;
 	for (place = 0; place < nrSnowmeltseries; place++)
 		if (timemin < SnowmeltSeries[place][0])
 			break;
+
 
 	FOR_ROW_COL_MV
 	{
@@ -169,11 +219,12 @@ void TWorld::SnowmeltMap(void)
       // Snowmelt in m per timestep
       Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
       // DO NOT correct for slope dx/DX, snow is already on the surface
-      // TODO: CORRECT OR NOT */
+      // TODO: CORRECT OR NOT
 
-      // TODO: weighted average if dt larger than table dt */
+      // TODO: weighted average if dt larger than table dt
 
       SnowmeltCum->Drc += Snowmeltc->Drc;
 	}
 }
+*/
 //---------------------------------------------------------------------------

@@ -38,10 +38,7 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-// TODO: min volume in slopes is in fact surface storage minimum!
-// this is set at (SDS = 0.1 * MDS->Drc) * CellArea->Drc
-// but this is already done in kin wave? should not be done here!
-double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
+double TWorld::MaxConcentration(double watvol, double sedvol)
 {
    double conc = MAXCONC;
 
@@ -49,19 +46,10 @@ double TWorld::MaxConcentration(double watvol, double sedvol, double dep)
       conc = sedvol/watvol;
    // 1e-6 is 1 ml/m2
    else
-   {
       conc = 0;
-   //   dep += -sedvol;
-   //   sedvol = 0;
-   }
 
-//   if (watvol > _dx*_dx*1e-6 && conc > MAXCONC)
    if (conc > MAXCONC)
-   {
-  //    double diff = (conc-MAXCONC)*watvol;
-  //    dep += diff;
       conc = MAXCONC;
-   }
 
    sedvol = conc * watvol;
 
@@ -228,7 +216,7 @@ void TWorld::FlowDetachment(void)
       //### calc concentration and net transport capacity
       DEP->Drc = 0;
       // init deposition for this timestep
-      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
+      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
       // limit sed concentration to max
 
       double maxTC = max(TC->Drc - Conc->Drc,0);
@@ -302,7 +290,7 @@ void TWorld::FlowDetachment(void)
       Sed->Drc += DETFlow->Drc;
       Sed->Drc += deposition;
 
-      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
+      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
       // limit concentration to 850 and throw rest in deposition
    }
 }
@@ -359,7 +347,7 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSed->Drc += SedToChannel->Drc;
       // add sed flow into channel from slope
 
-      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
+      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
       // set conc to max and add surplus sed to ChannelDep
 
       double maxTC = max(ChannelTC->Drc - ChannelConc->Drc,0);
@@ -390,7 +378,7 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSed->Drc += deposition;
       ChannelSed->Drc += ChannelDetFlow->Drc;
 
-      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
+      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
    }
 }
 //---------------------------------------------------------------------------

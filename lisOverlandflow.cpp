@@ -211,7 +211,7 @@ void TWorld::OverlandFlow(void)
 
       if (SwitchErosion)
       {
-         Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
+         Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
          // correct for very high concentrations, 850 after Govers et al
          // recalc sediment volume
       }

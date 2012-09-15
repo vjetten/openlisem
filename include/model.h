@@ -264,12 +264,14 @@ public:
     long runstep, printstep, printinterval;
 
     /// timeseries variables and output strings
-    double **RainfallSeries;
-    int nrstations, nrrainfallseries;
-    double **SnowmeltSeries;
-    int nrSnowmeltstations, nrSnowmeltseries;
+    //double **RainfallSeries;
+    int nrRainfallseries;
+    int nrSnowmeltseries;
+    //double **SnowmeltSeries;
+    //int nrSnowmeltstations, nrSnowmeltseries;
     //RAIN_LIST *RainfallSeriesM;
-    QVector <RAIN_LIST> RainfallSeriesM;
+    QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
+    QVector <RAIN_LIST> SnowmeltSeriesM;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
@@ -331,9 +333,9 @@ public:
     void GetRunFile(void);
 
     // LISEM model processes
-    void GetRainfallData(void);   // get input timeseries
-    void GetRainfallDataM(void);   // get input timeseries
-    void GetSnowmeltData(void);   // get input timeseries
+    //void GetRainfallData(void);   // get input timeseries
+    void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
+    //void GetSnowmeltData(void);   // get input timeseries
     /// convert rainfall of a timestep into a map
     void RainfallMap(void);
     /// convert snowmelt of a timestep into a map
@@ -367,7 +369,7 @@ public:
     void GridCell(void);
     void SplashDetachment(void);
     void FlowDetachment(void);
-    double MaxConcentration(double watvol, double sedvol, double dep);
+    double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachment(void);
 
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,

@@ -241,7 +241,7 @@ void TWorld::ChannelFlow(void)
 
       if (SwitchErosion)
       {
-         ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc, ChannelDep->Drc);
+         ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
          // correct for very high concentrations, max 850 g/l
       }
    }

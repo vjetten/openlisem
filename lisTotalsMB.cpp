@@ -243,10 +243,10 @@ void TWorld::Totals(void)
 
       FOR_ROW_COL_MV
       {
-         TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc, tm->Drc);
-         // NOTE tm is ignored anyway
-         // WHICH tm IS THIS ???????????????????????
-         // CHECK CHECK CHECK
+//         double waterflux = Qn->Drc + ChannelQn->Drc;
+//         double sedflux = Qsn->Drc + ChannelQsn->Drc;
+//         TotalConc->Drc = (waterflux > 0? sedflux/waterflux : 0);
+         TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
       }
       // for file output
 

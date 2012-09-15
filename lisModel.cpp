@@ -79,12 +79,12 @@ void TWorld::DoModel()
         if (SwitchRainfall)
         {
             DEBUG("GetRainfallData()");
-            GetRainfallDataM();
+            GetRainfallDataM(rainFileName, true);
         }
         if (SwitchSnowmelt)
         {
             DEBUG("GetSnowmeltData()");
-            GetSnowmeltData();
+            GetRainfallDataM(snowmeltFileName, false);
         }
         // get all input data and create and initialize all maps and variables
 

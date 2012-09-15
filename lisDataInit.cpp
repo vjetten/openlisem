@@ -113,6 +113,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 //---------------------------------------------------------------------------
 void TWorld::DestroyData(void)
 {
+   DEBUG("clear all maps");
    for (int i = 0; i < maplistnr; i++)
    {
       if (maplistTMMap[i].m != NULL)
@@ -121,18 +122,20 @@ void TWorld::DestroyData(void)
          maplistTMMap[i].m = NULL;
       }
    }
-   if (nrrainfallseries > 1)
+   DEBUG("clear rainfall structure");
+   if (nrRainfallseries > 1)
    {
-      for (int r=0; r < nrrainfallseries; r++)
-      {
-//         delete[] RainfallSeriesM[r].intensity;
+      for (int r=0; r < nrRainfallseries; r++)
          RainfallSeriesM[r].intensity.clear();
-      }
       RainfallSeriesM.clear();
-      //delete RainfallSeriesM;
-      //      for (int r=0; r < nrrainfallseries; r++)
-      //         delete[] RainfallSeries[r];
-      //      delete[] RainfallSeries;
+   }
+   if (nrSnowmeltseries > 1)
+   {
+      for (int r=0; r < nrSnowmeltseries; r++)
+      {
+         SnowmeltSeriesM[r].intensity.clear();
+      }
+      SnowmeltSeriesM.clear();
    }
    DEBUG("kill swatre structure");
 
@@ -273,6 +276,7 @@ void TWorld::InitTiledrains(void)
       TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
       TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
       TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
+      TileGrad->checkMap(LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
       TileGrad->calcValue(0.001, MAX);
       TileN = ReadMap(LDDTile, getvaluename("tileman"));
       //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
@@ -467,7 +471,9 @@ void TWorld::InitChannel(void)
       //      }
 
       ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
-      ChannelWidth->calcValue(0.9*_dx, MIN);
+      ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
+      //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
+//      ChannelWidth->calcValue(0.9*_dx, MIN);
       FOR_ROW_COL_MV_CH
       {
          if (ChannelWidth->Drc <= 0)
@@ -479,6 +485,7 @@ void TWorld::InitChannel(void)
 
       ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
       ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
+      ChannelGrad->checkMap(LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
       ChannelGrad->calcValue(0.001, MAX);
       ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
       ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
@@ -499,7 +506,7 @@ void TWorld::InitChannel(void)
       ChannelWidthUpDX->cover(LDD, 0);
       FOR_ROW_COL_MV_CH
       {
-         ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); //VJ BUG fix, wrong calc here, div by gradient instead of cos
+         ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
          ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
       }
 
@@ -561,6 +568,8 @@ void TWorld::GetInputData(void)
 
 
    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
+   Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
+   Grad->calcValue(0.001, MAX);
 
    //Shade = NewMap(0);
    //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
@@ -653,6 +662,7 @@ void TWorld::GetInputData(void)
    PlantHeight = ReadMap(LDD,getvaluename("CH"));
    LAI = ReadMap(LDD,getvaluename("lai"));
    Cover = ReadMap(LDD,getvaluename("cover"));
+   Cover->checkMap(LARGER, 1.0, "vegetation cover fraction cannot be more than 1");
    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
    if (SwitchGrassStrip)
@@ -674,6 +684,7 @@ void TWorld::GetInputData(void)
    StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
    // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
    RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+   RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
    HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
 
    //## infiltration data
@@ -704,7 +715,7 @@ void TWorld::GetInputData(void)
       {
          Psi1 = ReadMap(LDD,getvaluename("psi1"));
          Psi1->calcValue(psiCalibration, MUL); //VJ 110712 calibration of psi
-         Psi1->calcValue(0.01, MUL);
+         Psi1->calcValue(0.01, MUL); // convert to meter
       }
 
       if (SwitchTwoLayer)
@@ -740,6 +751,7 @@ void TWorld::GetInputData(void)
       if (SwitchInfilCrust)
       {
          CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+         CrustFraction->checkMap(LARGER, 1.0, "crust fraction cannot be more than 1");
          KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
       }
       else
@@ -748,6 +760,7 @@ void TWorld::GetInputData(void)
       if (SwitchInfilCompact)
       {
          CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+         CompactFraction->checkMap(LARGER, 1.0, "compacted area fraction cannot be more than 1");
          KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
       }
       else
@@ -828,6 +841,7 @@ void TWorld::GetInputData(void)
 
 }
 //---------------------------------------------------------------------------
+/// called after get input data, initializes maps and variables
 void TWorld::IntializeData(void)
 {
 
@@ -847,7 +861,6 @@ void TWorld::IntializeData(void)
    CellArea = NewMap(0);
    FOR_ROW_COL_MV
    {
-      Grad->Drc = max(0.0001, Grad->Drc);
       DX->Drc = _dx/cos(asin(Grad->Drc));
       CellArea->Drc = DX->Drc * _dx;
    }
@@ -1103,7 +1116,8 @@ void TWorld::IntializeData(void)
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
 {
-   nrrainfallseries = 0;
+   nrRainfallseries = 0;
+   nrSnowmeltseries = 0;
    useSorted = false; // do not use alternative kin wave for now!
 
    //dirs and names

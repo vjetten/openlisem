@@ -35,134 +35,32 @@ functions: \n
 
 #include "model.h"
 
-//---------------------------------------------------------------------------
-/// read rainfall files of different types and put data in RainfallSeries
-/// reads also old RUU lisem rain files
-/// reads rainfall maps
-//OBSOLETE
-void TWorld::GetRainfallData(void)
-{
-   QFile fff(rainFileName);
-   QFileInfo fi(rainFileName);
-   QString S;
-   bool ok;
-   int j = 0;
 
-   if (!fi.exists())
-   {
-      ErrorString = "Rainfall file not found: " + rainFileName;
-      throw 1;
-   }
-
-   nrstations = 0;
-   nrrainfallseries = 0;
-
-   fff.open(QIODevice::ReadOnly | QIODevice::Text);
-   S = fff.readLine();
-   // read the header
-   while (S.isEmpty())
-      S = fff.readLine();
-   // skip empty lines
-
-   QStringList SL = S.split(QRegExp("\\s+")); //<== white space character as split
-   nrstations = SL[SL.size()-2].toInt(&ok, 10);
-   if (!ok)
-   {
-      ErrorString = "Cannot read nr rainfall stations in header rainfall file";
-      throw 1;
-   }
-
-   for(int r=0; r < nrstations+1; r++)
-      S = fff.readLine();
-   // read column headers
-
-   while (!fff.atEnd())
-   {
-      S = fff.readLine();
-      qDebug() << S << nrrainfallseries;
-      if (!S.trimmed().isEmpty())
-         nrrainfallseries++;
-      qDebug() << S << nrrainfallseries;
-   }
-   // count rainfall records, skip empty lines
-
-
-   if (nrrainfallseries <= 1)
-   {
-      ErrorString = "rainfall records <= 1, must at least have one interval with a begin and end time.";
-      throw 1;
-   }
-
-
-   nrrainfallseries++;
-   RainfallSeries = new double*[nrrainfallseries];
-   for(int r=0; r < nrrainfallseries; r++)
-      RainfallSeries[r] = new double[nrstations+1];
-   // make structure to contain rainfall
-   //RainfallSeries is matrix with rows is data and 1st column is time, other columns are stations
-
-   fff.close();
-   // close file and start again
-
-
-   fff.open(QIODevice::ReadOnly | QIODevice::Text);
-   S = fff.readLine();
-   for (int i = 0; i < nrstations; i++)
-      S = fff.readLine();
-   // read header data
-   while (!fff.atEnd())
-   {
-      S = fff.readLine();
-      if (S.trimmed().isEmpty()) continue;
-
-      QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-      if (SL.size()-1 < nrstations)
-      {
-         QString ss;
-         ErrorString = "Rainfall: Nr stations specified in header = " + ss.setNum(nrstations);
-         ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
-         throw 1;
-      }
-
-
-      RainfallSeries[j][0] = SL[0].toDouble();
-      // time in min
-      for (int i = 1; i < nrstations+1; i++)
-         RainfallSeries[j][i] = SL[i].toDouble();
-      // rainfall intensities
-      j++;
-   }
-
-
-   RainfallSeries[nrrainfallseries-1][0] = 1e20;
-   for (int i = 1; i < nrstations+1; i++)
-      RainfallSeries[nrrainfallseries-1][i] = 0;
-   // end series with 0 value and extreme time
-   fff.close();
-}
 //---------------------------------------------------------------------------
 /// read rainfall files of different types and put data in RainfallSeries
 /// reads also old RUU lisem rain files
 /// can read rainfall maps in between intensity values
 /// format: first line ends with integer that is nr of data columns excl time
-void TWorld::GetRainfallDataM(void)
+void TWorld::GetRainfallDataM(QString name, bool israinfall)
 {
    RAIN_LIST rl;
-   QFile fff(rainFileName);
-   QFileInfo fi(rainFileName);
+   QFile fff(name);
+   QFileInfo fi(name);
    QString S;
    QStringList rainRecs;
    bool ok;
-   //int j = 0;
+   int nrStations = 0;
+   int nrSeries = 0;
+   QString errorS = (israinfall ? "Rainfall" : "Snowmelt");
 
    if (!fi.exists())
    {
-      ErrorString = "Rainfall file not found: " + rainFileName;
+      ErrorString = errorS + " file not found: " + name;
       throw 1;
    }
 
-   nrstations = 0;
-   nrrainfallseries = 0;
+   nrRainfallseries = 0;
+   nrSnowmeltseries = 0;
 
    fff.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -171,64 +69,57 @@ void TWorld::GetRainfallDataM(void)
       S = fff.readLine();
       if (!S.trimmed().isEmpty())
          rainRecs << S;
-      qDebug() << S << "hoi";
    }
    fff.close();
-   // get all rainfall records
+   // get all rainfall records without empty lines
 
    QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
-   // white space character as split
-   nrstations = SL[SL.size()-2].toInt(&ok, 10);
+   // white space character as split for header
+   nrStations = SL[SL.size()-2].toInt(&ok, 10);
+   // read nr stations from last value in header
 
    if (!ok)
    {
-      ErrorString = "Cannot read nr rainfall stations in header rainfall file";
+      ErrorString = "Cannot read nr " + errorS + " stations in header file";
       throw 1;
    }
-   qDebug() << QString(" nr rainfall stations %1").arg(nrstations);
-   nrrainfallseries = rainRecs.size() - nrstations - 1;
-   // count rainfall records
-   qDebug() << QString(" nr rainfall records %1").arg(nrrainfallseries);
+   nrSeries = rainRecs.size() - nrStations - 1;
+   // count rainfall or snowmelt records
 
-   if (nrrainfallseries <= 1)
+   if (nrSeries <= 1)
    {
-      ErrorString = "rainfall records <= 1, must at least have 2 rows: one interval with a begin and end time.";
+      ErrorString = errorS + " records <= 1, must at least have one interval with 2 rows: a begin and end time.";
       throw 1;
    }
 
-   //RainfallSeriesM = new RAIN_LIST[nrrainfallseries];
-//   for(int r=0; r < nrrainfallseries; r++)
-//   {
-//      RainfallSeriesM[r].time = 0;
-////      RainfallSeriesM[r].intensity = new double[nrstations+1];
-//      for (int j = 0; j <= nrstations; j++)
-////         RainfallSeriesM[r].intensity[j] = 0;
-//         RainfallSeriesM[r].intensity.clear();
-//      RainfallSeriesM[r].isMap = false;
-//      RainfallSeriesM[r].name = "";
-//   }
-   for(int r = 0; r < nrrainfallseries; r++)
+   for(int r = 0; r < nrSeries; r++)
    {
       // initialize rainfall record structure
       rl.time = 0;
       rl.intensity.clear();
       rl.isMap = false;
       rl.name = "";
+      QString dirname;
+      if (israinfall)
+         dirname = rainFileDir;
+      else
+         dirname = snowmeltFileDir;
 
-      QStringList SL = rainRecs[r+nrstations+1].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      QStringList SL = rainRecs[r+nrStations+1].split(QRegExp("\\s+"), QString::SkipEmptyParts);
       // split rainfall record row with whitespace
 
       rl.time = SL[0].toDouble();
       // time in min
 
       // check if record has characters, then filename assumed
+
       if (SL[1].contains(QRegExp("[A-Za-z]")))
       {
-         QFileInfo fi(QDir(rainFileDir), SL[1]);
+         QFileInfo fi(QDir(dirname), SL[1]);
          // asume second record is name
          if (!fi.exists())
          {
-            ErrorString = QString("rainfall map %1 not found.").arg(SL[1]);
+            ErrorString = errorS + QString(" map %1 not found.").arg(SL[1]);
             throw 1;
          }
 
@@ -240,31 +131,54 @@ void TWorld::GetRainfallDataM(void)
       {
          // record is a assumed to be a double
 
-         for (int i = 0; i < nrstations; i++)
+         for (int i = 0; i < nrStations; i++)
          {
             bool ok = false;
-//            RainfallSeriesM[r].intensity[i] = SL[i+1].toDouble(&ok);
             rl.intensity << SL[i+1].toDouble(&ok);
             if (!ok)
             {
-               ErrorString = QString("rainfall records at time %1 has unreadable value.").arg(SL[0]);
+               ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(SL[0]);
                throw 1;
             }
-
          }
-        RainfallSeriesM << rl;
+         if (israinfall)
+            RainfallSeriesM << rl;
+         else
+            SnowmeltSeriesM << rl;
       }
-
-      //qDebug() << RainfallSeriesM[r].time << RainfallSeriesM[r].intensity << RainfallSeriesM[r].name;
    }
+   for(int r = 0; r < nrSeries-1; r++)
+   {
+      if (israinfall)
+      {
+         if (RainfallSeriesM[r+1].time <= RainfallSeriesM[r].time)
+         {
+            ErrorString = errorS + QString(" error at time %1.").arg(RainfallSeriesM[r].time);
+            throw 1;
+         }
+      }
+      else
+      {
+         if (SnowmeltSeriesM[r+1].time <= SnowmeltSeriesM[r].time)
+         {
+            ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(SnowmeltSeriesM[r].time);
+            throw 1;
+         }
+      }
+   }
+   if (israinfall)
+      nrRainfallseries = nrSeries;
+   else
+      nrSnowmeltseries = nrSeries;
+
 }
 //---------------------------------------------------------------------------
 /**
- rainfall intensity read is that reported with the current line: example\n
- 0 0\n
- 5 2.3   ->from 0 to 5 minutes intensity is 0\n
- 7.5 4.5 ->from 5 to 7.5 minutes intensity is 2.3\n
- etc. */
+rainfall intensity read is that reported with the current line: example\n
+0 0\n
+5 2.3   ->from 0 to 5 minutes intensity is 0\n
+7.5 4.5 ->from 5 to 7.5 minutes intensity is 2.3\n
+etc. */
 void TWorld::RainfallMap(void)
 {
    //double timemin = time / 60;  //time in minutes
@@ -272,11 +186,10 @@ void TWorld::RainfallMap(void)
    int  place;
    double tt = 3600000.0;
 
-
    if (!SwitchRainfall)
       return;
 
-   for (place = 0; place < nrrainfallseries; place++)
+   for (place = 0; place < nrRainfallseries; place++)
       if (timeminprev < RainfallSeriesM[place].time)
          break;
 
@@ -327,23 +240,6 @@ void TWorld::RainfallMap(void)
       }
    }
 
-   // find the interval in which we are now
-//OBSOLETE
-//   FOR_ROW_COL_MV
-//   {
-//      int col = (int) RainZone->Drc;
-//      double tt = 3600000.0;
-
-//      Rain->Drc = RainfallSeries[place][col]*_dt/tt;
-//      // Rain in m per timestep from mm/h
-//      Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-//      // correction for slope dx/DX, water spreads out over larger area
-
-
-//      RainCum->Drc += Rainc->Drc;
-//      // cumulative rainfall corrected for slope, used in interception
-//      RainNet->Drc = Rainc->Drc;
-//   }
 }
 //---------------------------------------------------------------------------
 /// Interception()
@@ -478,6 +374,113 @@ void TWorld::InterceptionHouses(void)
          IntercHouse->Drc = 0;
    }
 }
+//---------------------------------------------------------------------------
+/// read rainfall files of different types and put data in RainfallSeries
+/// reads also old RUU lisem rain files
+/// reads rainfall maps
+//OBSOLETE
+/*
+void TWorld::GetRainfallData(void)
+{
+   QFile fff(rainFileName);
+   QFileInfo fi(rainFileName);
+   QString S;
+   bool ok;
+   int j = 0;
+
+   if (!fi.exists())
+   {
+      ErrorString = "Rainfall file not found: " + rainFileName;
+      throw 1;
+   }
+
+   nrstations = 0;
+   nrrainfallseries = 0;
+
+   fff.open(QIODevice::ReadOnly | QIODevice::Text);
+   S = fff.readLine();
+   // read the header
+   while (S.isEmpty())
+      S = fff.readLine();
+   // skip empty lines
+
+   QStringList SL = S.split(QRegExp("\\s+")); //<== white space character as split
+   nrstations = SL[SL.size()-2].toInt(&ok, 10);
+   if (!ok)
+   {
+      ErrorString = "Cannot read nr rainfall stations in header rainfall file";
+      throw 1;
+   }
+
+   for(int r=0; r < nrstations+1; r++)
+      S = fff.readLine();
+   // read column headers
+
+   while (!fff.atEnd())
+   {
+      S = fff.readLine();
+      qDebug() << S << nrrainfallseries;
+      if (!S.trimmed().isEmpty())
+         nrrainfallseries++;
+      qDebug() << S << nrrainfallseries;
+   }
+   // count rainfall records, skip empty lines
+
+
+   if (nrrainfallseries <= 1)
+   {
+      ErrorString = "rainfall records <= 1, must at least have one interval with a begin and end time.";
+      throw 1;
+   }
+
+
+   nrrainfallseries++;
+   RainfallSeries = new double*[nrrainfallseries];
+   for(int r=0; r < nrrainfallseries; r++)
+      RainfallSeries[r] = new double[nrstations+1];
+   // make structure to contain rainfall
+   //RainfallSeries is matrix with rows is data and 1st column is time, other columns are stations
+
+   fff.close();
+   // close file and start again
+
+
+   fff.open(QIODevice::ReadOnly | QIODevice::Text);
+   S = fff.readLine();
+   for (int i = 0; i < nrstations; i++)
+      S = fff.readLine();
+   // read header data
+   while (!fff.atEnd())
+   {
+      S = fff.readLine();
+      if (S.trimmed().isEmpty()) continue;
+
+      QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      if (SL.size()-1 < nrstations)
+      {
+         QString ss;
+         ErrorString = "Rainfall: Nr stations specified in header = " + ss.setNum(nrstations);
+         ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
+         throw 1;
+      }
+
+
+      RainfallSeries[j][0] = SL[0].toDouble();
+      // time in min
+      for (int i = 1; i < nrstations+1; i++)
+         RainfallSeries[j][i] = SL[i].toDouble();
+      // rainfall intensities
+      j++;
+   }
+
+
+   RainfallSeries[nrrainfallseries-1][0] = 1e20;
+   for (int i = 1; i < nrstations+1; i++)
+      RainfallSeries[nrrainfallseries-1][i] = 0;
+   // end series with 0 value and extreme time
+   fff.close();
+}
+*/
 //---------------------------------------------------------------------------
 
 
