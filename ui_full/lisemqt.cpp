@@ -403,7 +403,7 @@ void lisemqt::on_toolButton_RainfallName_clicked()
       QFileInfo fi(path);
       RainFileName = fi.fileName();
       RainFileDir = CheckDir(fi.absoluteDir().path());
-      E_RainfallName->setText( RainFileName );
+      E_RainfallName->setText( RainFileDir + RainFileName );
    }
 }
 //--------------------------------------------------------------------
@@ -418,7 +418,7 @@ void lisemqt::on_toolButton_SnowmeltName_clicked()
       QFileInfo fi(path);
       SnowmeltFileName = fi.fileName();
       SnowmeltFileDir = CheckDir(fi.absoluteDir().path());
-      E_SnowmeltName->setText( SnowmeltFileName );
+      E_SnowmeltName->setText( SnowmeltFileDir + SnowmeltFileName );
    }
 }
 //--------------------------------------------------------------------

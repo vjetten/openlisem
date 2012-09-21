@@ -307,8 +307,8 @@ void lisemqt::ParseInputData()
       if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
       if (p1.compare("Rainfall file")==0)
       {
-         E_RainfallName->setText(p);
-         RainFileName = /*rainFileDir + */E_RainfallName->text();
+         E_RainfallName->setText(RainFileDir + p);
+         RainFileName = p;///*rainFileDir + */E_RainfallName->text();
       }
 
       if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
@@ -321,8 +321,8 @@ void lisemqt::ParseInputData()
       if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
       if (p1.compare("Snowmelt file")==0)
       {
-         E_SnowmeltName->setText(p);
-         SnowmeltFileName = /*SnowmeltFileDir + */E_SnowmeltName->text();
+         E_SnowmeltName->setText(SnowmeltFileDir + p);
+         SnowmeltFileName = p;///*SnowmeltFileDir + */E_SnowmeltName->text();
       }
       //}
 
@@ -498,12 +498,12 @@ void lisemqt::updateModelData()
       if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
       if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
       if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
-      if (p1.compare("Rainfall file")==0) namelist[j].value = E_RainfallName->text();
+      if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName; //E_RainfallName->text();
       if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
       if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
       if (p1.compare("Soilloss map")==0) namelist[j].value = E_SoillossMap->text();
       if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
-      if (p1.compare("Snowmelt file")==0) namelist[j].value = E_SnowmeltName->text();
+      if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;//E_SnowmeltName->text();
       if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
       if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
       if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();

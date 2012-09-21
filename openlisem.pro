@@ -4,6 +4,7 @@ QWTDIR = c:/Qt/qwt
 # change the QWT directory to your own install
 QT += core \
     gui
+CONFIG += console
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \

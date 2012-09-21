@@ -461,6 +461,8 @@ public:
     // thread management variables
     bool stopRequested;
     bool waitRequested;
+    bool noInterface;
+    bool noOutput;
     QMutex mutex;
     QWaitCondition condition;
     void stop();

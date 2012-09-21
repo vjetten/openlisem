@@ -80,6 +80,10 @@ void lisemqt::runmodel()
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
+    W->noInterface = false;
+    W->noOutput = false;
+    // run without Qt interface on openlisemtmp.run only
+
     W->start();
     // start the model thread, executes W->run()
     //=======================================================================================//
@@ -203,7 +207,6 @@ void lisemqt::worldDone(const QString &results)
         W=NULL;
     }
     //free the world instance
-
     killPlot();
     // free the plot discharge bdata
 

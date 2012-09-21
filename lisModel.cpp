@@ -41,9 +41,9 @@
 
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
-    QThread(parent)
+   QThread(parent)
 {
-    moveToThread(this);
+   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
@@ -53,146 +53,167 @@ TWorld::~TWorld()
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    temprunname = QString(op.LisemDir+"openlisemtmp.run");
+   if (!noInterface)
+      temprunname = QString(op.LisemDir+"openlisemtmp.run");
 
-    time_ms.start();
-    // get time to calc run length
+   time_ms.start();
+   // get time to calc run length
 
-    try
-    {
-        DEBUG("reading and initializing data");
-        IntializeOptions();
-        // set all to 0 and false
-        InitMapList();
-        // map structure to destroy data automatically
+   try
+   {
+      DEBUG("reading and initializing data");
+      IntializeOptions();
+      // set all to 0 and false
+      InitMapList();
+      // map structure to destroy data automatically
 
-        DEBUG("GetRunFile()");
-        GetRunFile();
-        DEBUG("ParseRunfileData()");
-        ParseRunfileData();
-        // get and parse runfile
+      DEBUG("GetRunFile()");
+      GetRunFile();
+      DEBUG("ParseRunfileData()");
+      ParseRunfileData();
+      // get and parse runfile
 
-        DEBUG("GetInputData()");
-        GetInputData();
-        DEBUG("IntializeData()");
-        IntializeData();
-        if (SwitchRainfall)
-        {
-            DEBUG("GetRainfallData()");
-            GetRainfallDataM(rainFileName, true);
-        }
-        if (SwitchSnowmelt)
-        {
-            DEBUG("GetSnowmeltData()");
-            GetRainfallDataM(snowmeltFileName, false);
-        }
-        // get all input data and create and initialize all maps and variables
+      DEBUG("GetInputData()");
+      GetInputData();
+      DEBUG("IntializeData()");
+      IntializeData();
+      if (SwitchRainfall)
+      {
+         DEBUG("GetRainfallData()");
+         GetRainfallDataM(rainFileName, true);
+      }
+      if (SwitchSnowmelt)
+      {
+         DEBUG("GetSnowmeltData()");
+         GetRainfallDataM(snowmeltFileName, false);
+      }
+      // get all input data and create and initialize all maps and variables
 
-        CountLandunits();
-        //VJ 110110 for output totals per landunit
+      CountLandunits();
+      //VJ 110110 for output totals per landunit
 
-        BeginTime = getvaluedouble("Begin time") * 60;
-        EndTime = getvaluedouble("End time") * 60;
-        _dt = getvaluedouble("Timestep");
-        op.BeginTime = BeginTime/60; // for graph drawing
-        op.EndTime = EndTime/60;// for graph drawing
-        //time vraiables in sec
+      BeginTime = getvaluedouble("Begin time") * 60;
+      EndTime = getvaluedouble("End time") * 60;
+      _dt = getvaluedouble("Timestep");
+      op.BeginTime = BeginTime/60; // for graph drawing
+      op.EndTime = EndTime/60;// for graph drawing
+      //time vraiables in sec
 
-        runstep = 0; // NOTE runstep is used to initialize graph!
-        printstep = 1;
+      runstep = 0; // NOTE runstep is used to initialize graph!
+      printstep = 1;
 
-        // VJ 110630 show hydrograph for selected output point
-        bool found = false;
-        FOR_ROW_COL_MV
-        {
-            if (op.outputpointnr == PointMap->Drc)
-            {
-                r_plot = r;
-                c_plot = c;
-                op.outputpointdata = QString("Hydrograph point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
-                if( op.outputpointnr == 1)
-                    op.outputpointdata = QString("Hydrograph main outlet");
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
-            throw 1;
-        }
+      // VJ 110630 show hydrograph for selected output point
+      bool found = false;
+      FOR_ROW_COL_MV
+      {
+         if (op.outputpointnr == PointMap->Drc)
+         {
+            r_plot = r;
+            c_plot = c;
+            op.outputpointdata = QString("Hydrograph point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+            if( op.outputpointnr == 1)
+               op.outputpointdata = QString("Hydrograph main outlet");
+            found = true;
+         }
+      }
+      if (!found)
+      {
+         ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
+         throw 1;
+      }
 
-        DEBUG("Running...");
+      DEBUG("Running...");
 
-        for (time = BeginTime; time < EndTime; time += _dt)
-        {
+      for (time = BeginTime; time < EndTime; time += _dt)
+      {
+         if (noInterface && !noOutput)
+            qDebug() << time;
 
-            mutex.lock();
-            if(stopRequested) DEBUG("User interrupt...");
-            if(stopRequested) break;
-            mutex.unlock();
+         mutex.lock();
+         if(stopRequested) DEBUG("User interrupt...");
+         if(stopRequested) break;
+         mutex.unlock();
 
-            mutex.lock();
-            if (waitRequested) DEBUG("User pause...");
-            if (waitRequested) condition.wait(&mutex);
-            mutex.unlock();
-            // check if user wants to quit
+         mutex.lock();
+         if (waitRequested) DEBUG("User pause...");
+         if (waitRequested) condition.wait(&mutex);
+         mutex.unlock();
+         // check if user wants to quit
 
-            GridCell();          // set channel widths, flowwidths road widths etc
-            RainfallMap();
-            SnowmeltMap();
-            Interception();
-            InterceptionHouses();
-            Infiltration();
-            //SoilWater();
-            SurfaceStorage();
-            CalcVelDisch();
+         GridCell();          // set channel widths, flowwidths road widths etc
+         RainfallMap();
+         SnowmeltMap();
+         Interception();
+         InterceptionHouses();
+         Infiltration();
+         //SoilWater();
+         SurfaceStorage();
+         CalcVelDisch();
 
-            SplashDetachment();
-            FlowDetachment();
+         SplashDetachment();
+         FlowDetachment();
 
-            ToChannel();    // fraction going into channel
-            ToTiledrain();    // fraction going into tiledrain directly from surface
+         ToChannel();    // fraction going into channel
+         ToTiledrain();    // fraction going into tiledrain directly from surface
 
-            OverlandFlow(); // slope kin wave
-            ChannelFlow();  // channel erosion and kin wave
-            //ChannelFlood();  // channel erosion and kin wave
+         OverlandFlow(); // slope kin wave
+         ChannelFlow();  // channel erosion and kin wave
+         //ChannelFlood();  // channel erosion and kin wave
 
-            TileFlow();     // tile drain flow kin wave
+         TileFlow();     // tile drain flow kin wave
 
-            Totals();
-            MassBalance();
+         Totals();
+         MassBalance();
 
-            OutputUI();     // fill the op structure for screen output
+         OutputUI();     // fill the op structure for screen output
 
+         if (!noInterface)
             emit show();
-            // send the op structure with data to function worldShow the interface
-            // in file LisUIModel
+         // send the op structure with data to function worldShow the interface
+         // in file LisUIModel
 
-            reportAll(); //VJ 110114 now separate
-        }
+         reportAll(); //VJ 110114 now separate
+      }
 
-        DestroyData();  // destroy all maps automatically
-        DEBUG("Data destroyed");
+      DestroyData();  // destroy all maps automatically
+      DEBUG("Data destroyed");
 
-        msleep(1000);
-        emit done("finished");
-    }
-    catch(...)  // if an error occurred
-    {
-        DestroyData();
-        emit done("ERROR STOP: "+ErrorString);
-    }
+      if (!noInterface)
+         emit done("finished");
+      else
+      {
+         if (!noOutput)
+            qDebug() << "Done";
+         QApplication::quit();
+      }
+
+   }
+   catch(...)  // if an error occurred
+   {
+      DestroyData();
+
+      if (!noInterface)
+         emit done("ERROR STOP: "+ErrorString);
+      else
+      {
+         if (!noOutput)
+         {
+            qDebug() << "ERROR STOP: "+ErrorString;
+            QApplication::quit();
+         }
+      }
+   }
 }
 //---------------------------------------------------------------------------
 void TWorld::run()
 {
-    QTimer::singleShot(0, this, SLOT(DoModel()));
-    exec();
+   QTimer::singleShot(0, this, SLOT(DoModel()));
+   exec();
 }
 //---------------------------------------------------------------------------
 void TWorld::stop()
 {
-    QMutexLocker locker(&mutex);
-    stopRequested = true;
+   QMutexLocker locker(&mutex);
+   stopRequested = true;
 }
 //---------------------------------------------------------------------------

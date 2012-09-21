@@ -36,7 +36,6 @@ functions: \n
 
 #include "lisemqt.h"
 #include "global.h"
-//#include "version.h" // moved to lisemqt.h
 
 QString ErrorString;    // declare here, referenced by error.h
 
@@ -56,10 +55,44 @@ int main(int argc, char *argv[])
     lisemqt iface;
 
 	 iface.setWindowTitle(VERSION);
-			 //QString("openLISEM ") + VERSION + DATE);
 
-    iface.show();
-    // make an instance of the interface and show it
+    if (argc <= 1)
+    {
+         iface.show();
+         // make an instance of the interface and show it
+    }
+    else
+    {
+       // run without interface
+
+       QStringList args;
+       for (int i = 1; i < argc+1; i++)
+            args << QString(argv[i]);
+
+       TWorld *W = new TWorld();
+       // make the model world
+
+       if (args.contains("-ni"))
+       {
+          W->noInterface = true;
+          W->noOutput = false;
+       }
+       if (args.contains("-no"))
+       {
+          W->noInterface = true;
+          W->noOutput = true;
+       }
+
+       W->stopRequested = false;
+       // stoprequested is used to stop the thread with the interface
+       W->waitRequested = false;
+       // waitrequested is used to pause the thread with the interface, only on windows machines!
+       int l = args.count()-2;
+
+       W->temprunname = args[l];
+
+       W->start();
+    }
 
     return app.exec();
 }
