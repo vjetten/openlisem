@@ -5,6 +5,7 @@ QWTDIR = c:/Qt/qwt
 QT += core \
     gui
 CONFIG += console
+# this echos qdebug to screen in dos mode
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
@@ -83,5 +84,5 @@ INCLUDEPATH += $${QWTDIR}/src
 RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
-
+RC_FILE = openlisemico.rc
 OTHER_FILES +=

@@ -48,6 +48,7 @@ void Error(QString s)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon("openlisem.ico"));
 
     op.LisemDir = QCoreApplication::applicationDirPath() + QDir::separator();
     // exe path, used for ini file
