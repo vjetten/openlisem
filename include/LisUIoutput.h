@@ -35,30 +35,30 @@
 /// This tsructure is the link, visible by both
 
 struct output{
-	int runstep;
-	int printstep;
-	int maxstep;
+    int runstep;
+    int printstep;
+    int maxstep;
 
-   int outputpointnr;
-   QString outputpointdata;
+    int outputpointnr;
+    QString outputpointdata;
 
-	double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
+    double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
-   double MB, Qtot, QtotPlot, Qtotmm, Qpeak, IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
-	RainTotmm, SurfStormm, InfilKWTotmm,
-	MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
-	ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-   RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P, Qtile,
-	BufferVolTot, BufferSedTot;
+    double MB, Qtot, QtotPlot, Qtotmm, Qpeak, IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
+    RainTotmm, SurfStormm, InfilKWTotmm,
+    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
+    ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
+    RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P, Qtile,
+    BufferVolTot, BufferSedTot;
 
-	TMMap *DrawMap;
-   TMMap *baseMap;
-   int drawMapType;
+    TMMap *DrawMap;
+    TMMap *baseMap;
+    int drawMapType;
 
-	//bool SwitchErosion;
-	//bool SwitchIncludeChannel;
-	QString runfilename;
-	QString LisemDir;
+    //bool SwitchErosion;
+    //bool SwitchIncludeChannel;
+    QString runfilename;
+    QString LisemDir;
 };
 
 

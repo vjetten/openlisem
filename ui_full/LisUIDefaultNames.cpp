@@ -40,11 +40,12 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("0;Rainfall");
    DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers, correspond to columns (1,2,...) in rainfall file;ID");
    DEFmaps.append("0;Catchment");
+   DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
    DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad");
    DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
    DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
    DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
-   //DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
+   DEFmaps.append("2;Flood;floodarea.map; zones (value > 0) that can potentially be flooded (1,2,3,...);floodarea");
    DEFmaps.append("0;Landuse");
    DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
    DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");
@@ -95,7 +96,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("1;Channel properties");
    DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
    DEFmaps.append("2;Width;chanwidt.map;Channel width (m);chanwidth");
-   //DEFmaps.append("2;Height;chanheight.map;Channel height (m);chanheight");
+   DEFmaps.append("2;Height;chanheight.map;Channel height (m);chanheight");
    DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
    DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
    DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
@@ -261,6 +262,8 @@ void lisemqt::defaultRunFile()
    namelist[i++].name = QString("Include channel infil");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Include channel baseflow");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("Include channel flooding");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Include tile drains");
    namelist[i].value = QString("0");

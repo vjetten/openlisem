@@ -90,10 +90,10 @@ void TWorld::CalcVelDischTile()
       else
          Radius = 0;
 
-      TileAlpha->Drc = pow(TileN->Drc/grad * powl(Perim, _23),beta);
+      TileAlpha->Drc = qPow(TileN->Drc/grad * powl(Perim, _23),beta);
 
       if (TileAlpha->Drc > 0)
-         TileQ->Drc = pow(Area/TileAlpha->Drc, beta1);
+         TileQ->Drc = qPow(Area/TileAlpha->Drc, beta1);
       else
          TileQ->Drc = 0;
 

@@ -199,26 +199,29 @@ public:
    QwtPlotRescaler *mapRescaler;
    double maxAxis1, maxAxis2, maxAxis3;
    int pstep;
+   QwtPlotMagnifier *magnifier;
+   QwtPlotPanner *panner;
 
    // graph variables
+   void startPlots();
    void showPlot();
    void initPlot();
    void killPlot();
    void setupPlot();
+   void setupSmallPlot();
+   void showSmallPlot();
    QwtPlot *HPlot;
+   QwtPlot *smallPlot;
    QwtPlotCurve *QGraph;
    QwtPlotCurve *QsGraph;
    QwtPlotCurve *CGraph;
    QwtPlotCurve *PGraph;
    QwtPlotCurve *QtileGraph;
+   QwtPlotCurve *sPGraph;
+   QwtPlotCurve *sQGraph;
+   QwtPlotCurve *sQsGraph;
    bool startplot;
    double yas, y2as;
-//   double *timeData;
-//   double *QData;
-//   double *QtileData;
-//   double *QsData;
-//   double *CData;
-   //double *PData;
    QVector <double> QData;
    QVector <double> QtileData;
    QVector <double> QsData;
@@ -251,6 +254,7 @@ public:
    QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
    int InterceptionEqNr;
    int mapstartnr;
+   bool doShootScreens;
 
 public slots:
    // functions linked to actions
@@ -261,6 +265,7 @@ public slots:
    void stopmodel();
    void pausemodel();
    void shootScreen();
+   void shootMScreen();
    void aboutQT();
    void aboutInfo();
    void resetAll();
@@ -328,6 +333,7 @@ private:
    QAction *pauseAct;
    QAction *stopAct;
    QAction *shootscreenAct;
+   QAction *shootMscreenAct;
    QAction *aboutAct;
    QAction *aboutActI;
    QAction *restartAct;

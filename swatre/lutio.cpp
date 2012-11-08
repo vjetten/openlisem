@@ -118,7 +118,7 @@ double *TWorld::ReadSoilTable(
 }
 //----------------------------------------------------------------------------------------
 void TWorld::ReadCols(
-		const char *fileName, /* for error reporting only */
+        const char *fileName, /* for error reporting only */
 		double *inLut,   /* -w current position in lut that will be filled */
 		const char *buf, /* buffer to read from */
 		int   n)         /* number of items to read */

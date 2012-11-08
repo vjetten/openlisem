@@ -77,9 +77,9 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
-      <widget class="QWidget" name="tab_1">
+      <widget class="QWidget" name="tab_input">
        <attribute name="title">
         <string>Input/Output</string>
        </attribute>
@@ -3919,7 +3919,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0" colspan="2">
+                <item row="6" column="0" colspan="2">
                  <widget class="QCheckBox" name="checkIncludeTiledrains">
                   <property name="palette">
                    <palette>
@@ -3969,7 +3969,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0" colspan="2">
+                <item row="7" column="0" colspan="2">
                  <widget class="QCheckBox" name="checkHardsurface">
                   <property name="enabled">
                    <bool>true</bool>
@@ -4022,7 +4022,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="0" colspan="2">
+                <item row="11" column="0" colspan="2">
                  <widget class="QCheckBox" name="checkLimitTC">
                   <property name="palette">
                    <palette>
@@ -4072,7 +4072,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="0">
+                <item row="13" column="0">
                  <widget class="QLabel" name="label_55">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -4085,7 +4085,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0" colspan="2">
+                <item row="8" column="0" colspan="2">
                  <widget class="QCheckBox" name="checkHouses">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -4141,7 +4141,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="0" colspan="2">
+                <item row="10" column="0" colspan="2">
                  <widget class="QFrame" name="frame_2">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
@@ -4160,13 +4160,66 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0" colspan="2">
+                <item row="5" column="0" colspan="2">
                  <widget class="QFrame" name="frame_3">
                   <property name="frameShape">
                    <enum>QFrame::HLine</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Sunken</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QCheckBox" name="checkChannelFlood">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="palette">
+                   <palette>
+                    <active>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </active>
+                    <inactive>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </inactive>
+                    <disabled>
+                     <colorrole role="WindowText">
+                      <brush brushstyle="SolidPattern">
+                       <color alpha="255">
+                        <red>122</red>
+                        <green>122</green>
+                        <blue>122</blue>
+                       </color>
+                      </brush>
+                     </colorrole>
+                    </disabled>
+                   </palette>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Allow flooding of channels (GIS type overflow, not physical)</string>
                   </property>
                  </widget>
                 </item>
@@ -8476,7 +8529,7 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tab_maps">
        <attribute name="title">
         <string>Maps</string>
        </attribute>
@@ -8534,7 +8587,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="tab_simulation">
        <attribute name="title">
         <string>Simulation</string>
        </attribute>
@@ -12900,19 +12953,28 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab_mapdisplay">
        <attribute name="title">
         <string>Display</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
+         <layout class="QHBoxLayout" name="Layout_MapLegend">
           <item>
            <widget class="QGroupBox" name="groupBox_4">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="title">
              <string/>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_6"/>
+             </item>
              <item>
               <spacer name="verticalSpacer_4">
                <property name="orientation">
@@ -12928,10 +12990,19 @@ p, li { white-space: pre-wrap; }
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox_drawMap">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="title">
                 <string/>
                </property>
                <layout class="QFormLayout" name="formLayout">
+                <property name="fieldGrowthPolicy">
+                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                </property>
                 <item row="0" column="0">
                  <widget class="QRadioButton" name="radioButton_RO">
                   <property name="text">
@@ -13177,12 +13248,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>110</x>
-     <y>335</y>
+     <x>87</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>66</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -13193,12 +13264,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>110</x>
-     <y>335</y>
+     <x>87</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>87</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -13209,12 +13280,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>110</x>
-     <y>335</y>
+     <x>87</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>107</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -13225,12 +13296,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>335</y>
+     <x>76</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>335</y>
+     <x>66</x>
+     <y>322</y>
     </hint>
    </hints>
   </connection>
@@ -13241,12 +13312,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>335</y>
+     <x>76</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>87</x>
+     <y>322</y>
     </hint>
    </hints>
   </connection>
@@ -13257,12 +13328,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>335</y>
+     <x>66</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>335</y>
+     <x>66</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13273,12 +13344,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>335</y>
+     <x>66</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>87</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13305,12 +13376,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>346</y>
+     <x>52</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13321,12 +13392,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>59</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13337,12 +13408,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>73</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13353,8 +13424,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>335</y>
+     <x>174</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
      <x>654</x>
@@ -13433,8 +13504,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>335</y>
+     <x>174</x>
+     <y>353</y>
     </hint>
     <hint type="destinationlabel">
      <x>600</x>
@@ -13453,8 +13524,8 @@ p, li { white-space: pre-wrap; }
      <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>174</x>
+     <y>537</y>
     </hint>
    </hints>
   </connection>
@@ -13465,12 +13536,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>335</y>
+     <x>174</x>
+     <y>353</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>186</x>
+     <y>375</y>
     </hint>
    </hints>
   </connection>
@@ -13481,12 +13552,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>335</y>
+     <x>174</x>
+     <y>353</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>186</x>
+     <y>397</y>
     </hint>
    </hints>
   </connection>
@@ -13497,12 +13568,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>66</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13513,12 +13584,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>80</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13529,12 +13600,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>87</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13545,12 +13616,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>335</y>
+     <x>66</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>335</y>
+     <x>107</x>
+     <y>320</y>
     </hint>
    </hints>
   </connection>
@@ -13561,12 +13632,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>94</x>
+     <y>318</y>
     </hint>
    </hints>
   </connection>
@@ -13577,12 +13648,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>346</y>
+     <x>94</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>346</y>
+     <x>107</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelFlood</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>303</x>
+     <y>410</y>
     </hint>
    </hints>
   </connection>

@@ -49,9 +49,11 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
    QString S;
    QStringList rainRecs;
    bool ok;
+   bool isTimeseries = false;
    int nrStations = 0;
    int nrSeries = 0;
    QString errorS = (israinfall ? "Rainfall" : "Snowmelt");
+
 
    if (!fi.exists())
    {
@@ -67,25 +69,47 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
    while (!fff.atEnd())
    {
       S = fff.readLine();
+      if (S.contains("\n"))
+          S.remove(S.count()-1,1);
+      // readLine also reads \n as a character on an empty line!
       if (!S.trimmed().isEmpty())
-         rainRecs << S;
+          rainRecs << S.trimmed();
    }
    fff.close();
    // get all rainfall records without empty lines
 
+   qDebug() << rainRecs.count();
+
    QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
    // white space character as split for header
-   nrStations = SL[SL.size()-2].toInt(&ok, 10);
+
+   nrStations = SL[SL.size()-1].toInt(&ok, 10);
    // read nr stations from last value in header
+
+   if (nrStations == 0)
+   {
+       if (rainRecs[1].count() == 1)
+       {
+           SL = rainRecs[1].split(QRegExp("\\s+"));
+           nrStations = SL[0].toInt(&ok, 10);
+           isTimeseries = ok;
+       }
+   }
+   // if not worked assume rainfall is pcraster format?
+
 
    if (!ok)
    {
       ErrorString = "Cannot read nr " + errorS + " stations in header file";
       throw 1;
    }
-   nrSeries = rainRecs.size() - nrStations - 1;
-   // count rainfall or snowmelt records
 
+   int skiprows = 1;
+   if (isTimeseries)
+       skiprows += 1;
+   nrSeries = rainRecs.size() - nrStations - skiprows;
+   // count rainfall or snowmelt records
+   qDebug() << "nrSeries" << nrSeries;
    if (nrSeries <= 1)
    {
       ErrorString = errorS + " records <= 1, must at least have one interval with 2 rows: a begin and end time.";
@@ -105,7 +129,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
       else
          dirname = snowmeltFileDir;
 
-      QStringList SL = rainRecs[r+nrStations+1].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), QString::SkipEmptyParts);
       // split rainfall record row with whitespace
 
       rl.time = SL[0].toDouble();

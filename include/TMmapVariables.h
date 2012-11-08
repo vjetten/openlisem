@@ -36,6 +36,10 @@ TMMap
 *tmc,                        //!< Auxilary map
 //*Mask,                       //!< Catchment mask, based on the LDD
 *DEM,                        //!< DEM [m]
+*DEMflood,                   //!< DEM + floodwater level (m)
+*WHflood,                    //!< floodwater level (m)
+*floodArea,                  //!< Area (value > 0) that can potentitlally be flooded
+*actFloodArea,               //!< Area (value > 0) that is flooded
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]

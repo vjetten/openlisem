@@ -127,7 +127,7 @@ void TWorld::DoModel()
       for (time = BeginTime; time < EndTime; time += _dt)
       {
          if (noInterface && !noOutput)
-            qDebug() << time;
+            qDebug() << time ;
 
          mutex.lock();
          if(stopRequested) DEBUG("User interrupt...");
@@ -158,7 +158,7 @@ void TWorld::DoModel()
 
          OverlandFlow(); // slope kin wave
          ChannelFlow();  // channel erosion and kin wave
-         //ChannelFlood();  // channel erosion and kin wave
+         ChannelFlood();  // channel flooding in GIS style, not physical
 
          TileFlow();     // tile drain flow kin wave
 
@@ -196,11 +196,8 @@ void TWorld::DoModel()
          emit done("ERROR STOP: "+ErrorString);
       else
       {
-         if (!noOutput)
-         {
             qDebug() << "ERROR STOP: "+ErrorString;
             QApplication::quit();
-         }
       }
    }
 }

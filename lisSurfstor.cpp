@@ -46,8 +46,12 @@ void TWorld::GridCell(void)
       //VJ 100609 cannot have a road with a buffer, to complicated
 
       if (SwitchIncludeChannel)
-         if (RoadWidthDX->Drc > 0)
-            ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
+         if (RoadWidthDX->Drc > 0 && ChannelWidthUpDX->Drc)
+           {
+             RoadWidthDX->Drc = min(_dx-ChannelWidthUpDX->Drc, RoadWidthDX->Drc);
+           }
+            //ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
+
       // channel cannot be wider than 0.9*_dx-road
 
       /** wheeltracks are not implemented yet */

@@ -63,7 +63,8 @@ void lisemqt::setupMapPlot()
    MPlot = new QwtPlot(title, this);
    // make the plot window
    Layout_Map->insertWidget(0, MPlot, 1);
-   MPlot->canvas()->setBorderRadius( 0 );
+   //MPlot->canvas()->setBorderRadius( 0 );
+   MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
 
    // attach plot to widget in UI
 
@@ -100,11 +101,15 @@ void lisemqt::setupMapPlot()
    // rescaling fixed to avoid deformation
 
 
-   QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( MPlot->canvas() );
+   magnifier = new QwtPlotMagnifier( MPlot->canvas() );
    magnifier->setAxisEnabled( MPlot->yRight, false );
 
-   QwtPlotPanner *panner = new QwtPlotPanner( MPlot->canvas() );
+   panner = new QwtPlotPanner( MPlot->canvas() );
    panner->setAxisEnabled( MPlot->yRight, false );
+
+//   (void) new QwtPlotPanner( MPlot->canvas() );
+//   (void) new QwtPlotMagnifier( MPlot->canvas() );
+
 
    maxAxis1 = -1e20;
    maxAxis2 = -1e20;
@@ -214,13 +219,12 @@ void lisemqt::ShowMap()
          }
    MPlot->enableAxis( MPlot->yRight );
 
-   MPlot->plotLayout()->setAlignCanvasToScales( true );
+//   MPlot->plotLayout()->setAlignCanvasToScales( true );
 
    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
-
 
    mapRescaler->setEnabled( true );
    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
@@ -233,28 +237,28 @@ void lisemqt::ShowMap()
 //---------------------------------------------------------------------------
 void lisemqt::ShowBaseMap()
 {
-//   fillDrawMapData(op.baseMap);
+   fillDrawMapData(op.baseMap);
 
-//   double nrCols = (double)op.baseMap->nrCols;
-//   double nrRows = (double)op.baseMap->nrRows;
+   double nrCols = (double)op.baseMap->nrCols;
+   double nrRows = (double)op.baseMap->nrRows;
 
-//   drawMap->setColorMap(new colorMapGray());
-//   RD->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
-//   drawMap->setData(RD);
-//   // link raster data to drawMap
+   drawMap->setColorMap(new colorMapGray());
+   RD->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
+   drawMap->setData(RD);
+   // link raster data to drawMap
 
-//   MPlot->plotLayout()->setAlignCanvasToScales( true );
-//   MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
-//   MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-//   MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
-//   MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+   MPlot->plotLayout()->setAlignCanvasToScales( true );
+   MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
+   MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+   MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
+   MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-//   mapRescaler->setEnabled( true );
-//   for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-//      mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+   mapRescaler->setEnabled( true );
+   for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+      mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
 
-//   MPlot->replot();
-//   mapRescaler->rescale();
+   MPlot->replot();
+   mapRescaler->rescale();
 
 }
 //---------------------------------------------------------------------------

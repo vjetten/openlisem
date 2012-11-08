@@ -1,11 +1,15 @@
 TEMPLATE = app
 TARGET = openLisem
 QWTDIR = c:/Qt/qwt
+CSFDIR = d:/prgc/libcsf/
 # change the QWT directory to your own install
 QT += core \
     gui
-CONFIG += console
+#CONFIG += console
 # this echos qdebug to screen in dos mode
+CONFIG += exceptions
+OLVC = 1
+# compile release with visual C 2010
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
@@ -63,17 +67,31 @@ SOURCES += lisTotalsMB.cpp \
     LisKinematicSorted.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
+   greaterThan(OLVC, 0) {
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+    LIBS += -L"bin/vc" -L"D:/prgc/libcsf/debug" -lcsfvcd
+    LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvcd
+    DESTDIR = bin/vc
+  }else{
     LIBS += -L"debug" -llibcsfd
     LIBS += -L"$${QWTDIR}/lib" -lqwtd
     DESTDIR = debug
     MOC_DIR = debug/moc
     OBJECTS_DIR= debug/objs
     UI_DIR= debug/ui
+  }
 }
 else {
+   greaterThan(OLVC, 0) {
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+    LIBS += -L"bin/vc" -L"D:/prgc/libcsf/bin" -lcsfvc
+    LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc
+    DESTDIR = bin/vc
+  }else{
     LIBS += -L"bin" -llibcsf
     LIBS += -L"$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
+  }
     MOC_DIR = bin/moc
     OBJECTS_DIR= bin/objs
     UI_DIR= bin/ui
@@ -85,4 +103,4 @@ RESOURCES += resources/openlisem.qrc
 CONFIG += precompile_header
 PRECOMPILED_HEADER = include/stable.h
 RC_FILE = openlisemico.rc
-OTHER_FILES +=
+#OTHER_FILES +=

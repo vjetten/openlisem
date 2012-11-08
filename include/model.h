@@ -72,8 +72,6 @@
 /// shortcut missing value in map
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
 
-#define fill(V) fillMap(LDD, V)
-
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
@@ -205,7 +203,7 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses;
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI

@@ -114,10 +114,12 @@ void lisemqt::ParseInputData()
       if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
       if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
       if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+      if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
       if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
       //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
       //houses
       if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
+      if (p1.compare("Include flooding")==0)               checkChannelFlood->setChecked(check);
 
       if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
       if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -420,10 +422,11 @@ void lisemqt::updateModelData()
    {
       QString p1 = namelist[j].name;
       QString p;
-      if (p1.compare("No Erosion simulation")==0) 			  namelist[j].value.setNum((int)checkNoErosion->isChecked());
-      if (p1.compare("Include main channels")==0) 			  namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
+      if (p1.compare("No Erosion simulation")==0) 	   namelist[j].value.setNum((int)checkNoErosion->isChecked());
+      if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
       if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
       if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+      if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
       if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
       //houses
       if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());

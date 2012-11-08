@@ -48,12 +48,12 @@ void TWorld::Totals(void)
 
    if (SwitchRainfall)
    {
-      RainAvgmm = Rain->MapAverage()*1000.0;
+      RainAvgmm = Rain->mapAverage()*1000.0;
       RainTotmm += RainAvgmm;
       // avg area rainfall in mm
 
       tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
-      rainfall = tm->MapTotal();
+      rainfall = tm->mapTotal();
       RainTot += rainfall; // in m3
 
       oldrainpeak = Rainpeak;
@@ -64,11 +64,11 @@ void TWorld::Totals(void)
 
    if (SwitchSnowmelt)
    {
-      SnowAvgmm += Snowmelt->MapAverage()*1000;
+      SnowAvgmm += Snowmelt->mapAverage()*1000;
       SnowTotmm += SnowAvgmm;
 
       tm->calcMapValue(Snowmelt, (_dx*_dx), MUL); //in m3
-      snowmelt = tm->MapTotal();
+      snowmelt = tm->mapTotal();
       SnowTot += snowmelt; // in m3
 
       oldsnowpeak = Snowpeak;
@@ -77,26 +77,26 @@ void TWorld::Totals(void)
          SnowpeakTime = time;
    }
 
-   IntercTot = Interc->MapTotal();
+   IntercTot = Interc->mapTotal();
    IntercTotmm = IntercTot*catchmentAreaFlatMM;
    // interception in mm and m3
 
    //houses
-   IntercHouseTot = IntercHouse->MapTotal();
+   IntercHouseTot = IntercHouse->mapTotal();
    IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
    // interception in mm and m3
 
-   InfilTot += InfilVol->MapTotal() + InfilVolKinWave->MapTotal(); //m3
-   InfilKWTot += InfilVolKinWave->MapTotal(); // not really used, available for output when needed
+   InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal(); //m3
+   InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
    InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
    // infiltration mm and m3
 
    tm->calcMapValue(WHstore, 1000, MUL); //mm
-   SurfStoremm = tm->MapAverage();
+   SurfStoremm = tm->mapAverage();
    // surface storage CHECK THIS
    // does not go to MB, is already in tot water vol
 
-   WaterVolTot = WaterVolall->MapTotal();//m3
+   WaterVolTot = WaterVolall->mapTotal();//m3
    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
    // water on the surface in runoff in m3 and mm
    //NOTE: surface storage is already in here so does not need to be accounted for in MB
@@ -122,7 +122,7 @@ void TWorld::Totals(void)
 
    if (SwitchIncludeChannel)
    {
-      WaterVolTot += ChannelWaterVol->MapTotal(); //m3
+      WaterVolTot += ChannelWaterVol->mapTotal(); //m3
       // add channel vol to total
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
@@ -144,16 +144,16 @@ void TWorld::Totals(void)
 
    if (SwitchIncludeTile)
    {
-      WaterVolSoilTot = TileWaterVolSoil->MapTotal();
+      WaterVolSoilTot = TileWaterVolSoil->mapTotal();
       // input for mass balance, is the water seeping from the soil, input
       // this is the water before the kin wave
       tm->calc2Maps(TileDrainSoil, TileWidth, MUL); //in m3
       tm->calcMap(TileDX, MUL); //in m3
       // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-      TileVolTot += tm->MapTotal(); // in m3
+      TileVolTot += tm->mapTotal(); // in m3
 
       // water after kin wave
-      WaterVolTot += TileWaterVol->MapTotal(); //m3
+      WaterVolTot += TileWaterVol->mapTotal(); //m3
       // add tile vol to total
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
@@ -177,9 +177,9 @@ void TWorld::Totals(void)
 
    if (SwitchBuffers)
    {
-      BufferVolTot = BufferVol->MapTotal(); // in m3
+      BufferVolTot = BufferVol->mapTotal(); // in m3
       if (SwitchIncludeChannel)
-         BufferVolTot += ChannelBufferVol->MapTotal();
+         BufferVolTot += ChannelBufferVol->mapTotal();
       //sum up all volume remaining in all buffers (so the non-water!)
       BufferVolin = BufferVolTotInit - BufferVolTot;
       //subtract this from the initial volume to get the total water inflow in the buffers
@@ -205,11 +205,11 @@ void TWorld::Totals(void)
 
    if (SwitchErosion)
    {
-      DetSplashTot += DETSplash->MapTotal();
-      DetFlowTot += DETFlow->MapTotal();
-      DepTot += DEP->MapTotal();
-      DetTot += DETSplash->MapTotal() + DETFlow->MapTotal();
-      SedTot = Sed->MapTotal();
+      DetSplashTot += DETSplash->mapTotal();
+      DetFlowTot += DETFlow->mapTotal();
+      DepTot += DEP->mapTotal();
+      DetTot += DETSplash->mapTotal() + DETFlow->mapTotal();
+      SedTot = Sed->mapTotal();
       // all in kg/cell
 
       //SoilLossTot += Qsoutflow->DrcOutlet;
@@ -225,11 +225,11 @@ void TWorld::Totals(void)
       if (SwitchIncludeChannel)
       {
          // units here in kg, conversion to ton in report functions
-         ChannelDetTot += ChannelDetFlow->MapTotal();
-         ChannelDepTot += ChannelDep->MapTotal();
-         ChannelSedTot = ChannelSed->MapTotal();
+         ChannelDetTot += ChannelDetFlow->mapTotal();
+         ChannelDepTot += ChannelDep->mapTotal();
+         ChannelSedTot = ChannelSed->mapTotal();
 
-         //SoilLossTot += ChannelQsoutflow->MapTotal();
+         //SoilLossTot += ChannelQsoutflow->mapTotal();
          SoilLossTot += ChannelQsn->DrcOutlet * _dt;
          // add sed outflow for all pits to total soil loss
 
@@ -252,9 +252,9 @@ void TWorld::Totals(void)
 
       if (SwitchBuffers || SwitchSedtrap)
       {
-         BufferSedTot = BufferSed->MapTotal();
+         BufferSedTot = BufferSed->mapTotal();
          if (SwitchIncludeChannel)
-            BufferSedTot += ChannelBufferSed->MapTotal();
+            BufferSedTot += ChannelBufferSed->mapTotal();
 
       }
       /** TODO add gully, wheeltracks etc */

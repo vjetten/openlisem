@@ -71,7 +71,7 @@ void lisemqt::runmodel()
     W = new TWorld();
     // make the model world !!!
 
-    connect(W, SIGNAL(show(void)),this, SLOT(worldShow(void)),Qt::QueuedConnection);
+    connect(W, SIGNAL(show(void)),this, SLOT(worldShow(void)),Qt::BlockingQueuedConnection);//Qt::QueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
@@ -170,9 +170,11 @@ void lisemqt::worldShow()
     progressBar->setMaximum(op.maxstep);
     progressBar->setValue(op.runstep);
 
+    startPlots();
+
     showPlot();
 
-    ShowMap();
+    showSmallPlot();
 
     // max 6 line text output below hydrographs
     if (checkNoErosion->isChecked())
@@ -189,6 +191,11 @@ void lisemqt::worldShow()
         else
             textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
+
+    ShowMap();
+
+    if (doShootScreens)
+       shootScreen();
 
 }
 //---------------------------------------------------------------------------

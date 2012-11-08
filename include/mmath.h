@@ -52,7 +52,7 @@ class TMMap : public cTMap
  public:
    cTMap *Mask;
 
-   void fillMap(cTMap *M, double value);
+   void fill(double value);
    void calcValue(double v, int oper);
    void calcMap(cTMap *m, int oper);
    void calc2Maps(cTMap *m1, cTMap *m2, int oper);
@@ -61,10 +61,11 @@ class TMMap : public cTMap
    void cover(cTMap *m, double v);
    void setMV();
    void checkMap(int oper, double V, QString SS);
-   double MapTotal();
-   double MapAverage();
-   double MapMinimum();
-   double MapMaximum();
+   double mapTotal();
+   double mapAverage();
+   double mapMinimum();
+   double mapMaximum();
+   void areaAverage(TMMap *area);
 
    TMMap();
    ~TMMap();

@@ -78,10 +78,17 @@ int main(int argc, char *argv[])
           W->noInterface = true;
           W->noOutput = false;
        }
+       else
        if (args.contains("-no"))
        {
           W->noInterface = true;
           W->noOutput = true;
+       }
+       else
+       {
+          printf("syntax:\nopenlisem [-ni,-no] runfilename\n-ni = no inteface but counter and info\n-no = only error output\n");
+          delete W;
+          return 0;
        }
 
        W->stopRequested = false;

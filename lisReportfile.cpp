@@ -60,7 +60,7 @@ void TWorld::OutputUI(void)
    if (op.drawMapType == 1) op.DrawMap->copy(Qoutput);  //all output in m3/s
    if (op.drawMapType == 2) op.DrawMap->copy(InfilmmCum);  //infil in mm
    if (SwitchErosion && op.drawMapType == 3) op.DrawMap->copy(TotalSoillossMap);  //soilloss in kg/cell
-   //op.baseMap = Shade;
+   op.baseMap = DEM;
 
    op.dx = _dx;
    op.MB = MB;
@@ -152,6 +152,9 @@ void TWorld::ReportTimeseriesNew(void)
    // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
    QFileInfo fi(resultDir + outflowFileName);
+
+   if (SwitchSOBEKoutput)
+      SwitchSeparateOutput = true;
 
    // - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
    if (SwitchSOBEKoutput && time >= 0)
@@ -281,6 +284,7 @@ void TWorld::ReportTimeseriesNew(void)
             }
             out << "\n";
          }
+         // combination cannot occur: SOBEK is always separate output
          else // SOBEK format
             if (SwitchSOBEKoutput) //note: sobek input does not have rainfall
             {
