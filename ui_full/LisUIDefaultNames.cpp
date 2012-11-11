@@ -45,7 +45,8 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
    DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
    DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
-   DEFmaps.append("2;Flood;floodarea.map; zones (value > 0) that can potentially be flooded (1,2,3,...);floodarea");
+   DEFmaps.append("2;Flood;floodarea.map;Zones (value > 0) that can potentially be flooded (1,2,3,...);floodarea");
+   DEFmaps.append("2;Flood;flooddist.map;Distance to the channel in m;flooddist");
    DEFmaps.append("0;Landuse");
    DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
    DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");

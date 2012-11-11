@@ -122,7 +122,7 @@ void TMMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
                 case MUL: Data[r][c] = M1->Data[r][c] * M2->Data[r][c]; break;
                 case DIV: if (M2->Data[r][c] > 0) Data[r][c] = M1->Data[r][c] / M2->Data[r][c];
                   else SET_MV_REAL4(&Data[r][c]); break;
-                case POW: Data[r][c] = pow(M1->Data[r][c],M2->Data[r][c]); break;
+                case POW: Data[r][c] = pow(M1->Data[r][c], M2->Data[r][c]); break;
                 case MIN: Data[r][c] = min(M1->Data[r][c], M2->Data[r][c]); break; //VJ 110420 new
                 case MAX: Data[r][c] = max(M1->Data[r][c], M2->Data[r][c]); break;
                 }
@@ -195,6 +195,7 @@ void TMMap::areaAverage(TMMap *area)
             data.append(area->Data[r][c]);
         }
   qSort(data);
+
   for (i = 0; i < data.count(); i++)
     {
       UNIT_LIST ul;
@@ -206,19 +207,17 @@ void TMMap::areaAverage(TMMap *area)
       aList.append(ul);
     }
   // count, sort and initialize diff units
-  // avoid 0
 
   for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL8(&Data[r][c]))
+      if (!IS_MV_REAL8(&area->Data[r][c]))
         {
           for (i = 0; i < aList.count(); i++)
             {
               if(area->Data[r][c] == aList[i].area)
                 {
-                  aList[i].totdet += 1;
+                  aList[i].totdet += 1.0;
                   aList[i].totdep += Data[r][c];
-
                 }
             }
         }
@@ -231,9 +230,12 @@ void TMMap::areaAverage(TMMap *area)
       aList[i].totsl = 0;
   // calculate the average values for each area
 
+ // for (i = 0; i < aList.count(); i++)
+   // qDebug() << aList[i].area <<  aList[i].totsl; //aList[i].totdet << aList[i].totdep  <<
+
   for (int r = 0; r < nrRows; r++)
     for (int c = 0; c < nrCols; c++)
-      if (!IS_MV_REAL8(&Data[r][c]))
+      if (!IS_MV_REAL8(&area->Data[r][c]))
         {
           for (i = 0; i < aList.count(); i++)
             {
@@ -241,7 +243,6 @@ void TMMap::areaAverage(TMMap *area)
                 Data[r][c] = aList[i].totsl;
             }
         }
-  //replace values within each
 
   return;
 

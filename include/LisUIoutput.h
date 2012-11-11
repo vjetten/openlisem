@@ -53,6 +53,9 @@ struct output{
 
     TMMap *DrawMap;
     TMMap *baseMap;
+//    TMMap *drawQMap;
+//    TMMap *drawIMap;
+//    TMMap *drawEMap;
     int drawMapType;
 
     //bool SwitchErosion;

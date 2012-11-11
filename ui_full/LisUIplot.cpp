@@ -192,6 +192,8 @@ void lisemqt::setupSmallPlot()
   title.setText("Hydrograph");
   title.setFont(QFont("MS Shell Dlg 2",8));
   smallPlot = new QwtPlot(title, this);
+  smallPlot->setMinimumSize(300,300);
+  smallPlot->resize(500,500);
   verticalLayout_6->insertWidget(0, smallPlot, 1);
   smallPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
 

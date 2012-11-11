@@ -238,8 +238,8 @@ void lisemqt::openMapname(QModelIndex topLeft)
       }
    }
 
-   QString path = QFileDialog::getOpenFileName(this,	QString("Select the map: %1;")
-                                               .arg(mapList[k].value),E_MapDir->text(),QString("*.map *.csf;;*.*"));
+   QString path = QFileDialog::getOpenFileName(this,	QString("Select the map: %1;").arg(mapList[k].value),
+                                               E_MapDir->text(),QString("*.map *.csf;;*.*"));
    // open file dialog
 
 

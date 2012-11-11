@@ -77,6 +77,12 @@ void TWorld::DoModel()
       GetInputData();
       DEBUG("IntializeData()");
       IntializeData();
+
+      op.DrawMap = NewMap(0);
+      op.baseMap = NewMap(0);
+      // initialize maps for output to screen
+      // must be done after Initialize Data because then we know how large the map is
+
       if (SwitchRainfall)
       {
          DEBUG("GetRainfallData()");
@@ -100,7 +106,7 @@ void TWorld::DoModel()
       //time vraiables in sec
 
       runstep = 0; // NOTE runstep is used to initialize graph!
-      printstep = 1;
+      printstep = 1; // printstep determines report frquency
 
       // VJ 110630 show hydrograph for selected output point
       bool found = false;
@@ -126,53 +132,51 @@ void TWorld::DoModel()
 
       for (time = BeginTime; time < EndTime; time += _dt)
       {
+          if (runstep > 0 && runstep % printinterval == 0)
+             printstep++;
+          runstep++;
+
          if (noInterface && !noOutput)
-            qDebug() << time ;
+            qDebug() << runstep << time ;
 
          mutex.lock();
          if(stopRequested) DEBUG("User interrupt...");
          if(stopRequested) break;
          mutex.unlock();
-
          mutex.lock();
          if (waitRequested) DEBUG("User pause...");
          if (waitRequested) condition.wait(&mutex);
          mutex.unlock();
-         // check if user wants to quit
+         // check if user wants to quit or pause
 
-         GridCell();          // set channel widths, flowwidths road widths etc
-         RainfallMap();
-         SnowmeltMap();
-         Interception();
-         InterceptionHouses();
-         Infiltration();
-         //SoilWater();
-         SurfaceStorage();
-         CalcVelDisch();
+         GridCell();          // set channel widths, flowwidths road widths etc         
+         RainfallMap();       // get rainfall
+         SnowmeltMap();       // get snowmelt
 
-         SplashDetachment();
-         FlowDetachment();
+         Interception();      // do interception by plants
+         InterceptionHouses();// do urban interception
+         Infiltration();      // soil infil
+         //SoilWater();       // soil water balance not implemented yet
+         SurfaceStorage();    // surface storage and flow width
+         CalcVelDisch();      // overland flow velocity, discharge and alpha
+         SplashDetachment();  // splash detachment
+         FlowDetachment();    // flow detachment
+         ToChannel();         // fraction of water and sed going into channel in channel cells
+         ToTiledrain();       // fraction going into tiledrain directly from surface
+         OverlandFlow();      // slope kin wave
+         ChannelFlow();       // channel erosion and kin wave
+         ChannelFlood();      // channel flooding in GIS style, not physical
+         TileFlow();          // tile drain flow kin wave
 
-         ToChannel();    // fraction going into channel
-         ToTiledrain();    // fraction going into tiledrain directly from surface
+         Totals();            // calculate all totals and cumulative values
+         MassBalance();       // check water and sed mass balance
 
-         OverlandFlow(); // slope kin wave
-         ChannelFlow();  // channel erosion and kin wave
-         ChannelFlood();  // channel flooding in GIS style, not physical
-
-         TileFlow();     // tile drain flow kin wave
-
-         Totals();
-         MassBalance();
-
-         OutputUI();     // fill the op structure for screen output
-
+         OutputUI();          // fill the "op" structure for screen output
          if (!noInterface)
             emit show();
-         // send the op structure with data to function worldShow the interface
-         // in file LisUIModel
+         // send the op structure with data to function worldShow in LisUIModel.cpp
 
-         reportAll(); //VJ 110114 now separate
+         reportAll();          // report all maps and timeseries
       }
 
       DestroyData();  // destroy all maps automatically

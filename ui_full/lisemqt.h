@@ -88,7 +88,7 @@ typedef struct MAP_LIST {
    int varnr;
 } MAP_LIST;
 //---------------------------------------------------------------------------
-#define BGc "#dddddd"
+#define BGc "#dddddd" // background grey for missing value in maps
 
 class colorMapGray: public QwtLinearColorMap
 {
@@ -114,10 +114,10 @@ class colorMapWaterLog: public QwtLinearColorMap
 {
 public:
    colorMapWaterLog():
-      QwtLinearColorMap( QColor(BGc), Qt::darkBlue )
+      QwtLinearColorMap( QColor(BGc), QColor(0,0,128))//Qt::darkBlue )
    {
-      addColorStop( 0.0, Qt::yellow );
-      addColorStop( 0.05, QColor(128,128,255));
+      addColorStop( 0.0, Qt::yellow );//
+      addColorStop( 0.05, QColor(128,128,255,0));
       addColorStop( 0.1, QColor(64,64,255) );
       addColorStop( 0.5, QColor(0,0,255));//Qt::blue );
    }
@@ -144,7 +144,27 @@ public:
    {
       addColorStop( 0.0, Qt::darkCyan );//QColor("#108030"));
       addColorStop( 0.3, Qt::cyan );//QColor("#30ffcc"));
-      addColorStop( 0.5, Qt::white );
+      addColorStop( 0.49, QColor(255,255,255,100));
+      addColorStop( 0.50, QColor(255,255,255,0));
+      addColorStop( 0.51, QColor(255,255,255,100));
+          //      addColorStop( 0.5, Qt::white );
+      addColorStop( 0.7, Qt::yellow);
+   }
+};
+class colorMapSedB: public QwtLinearColorMap
+{
+public:
+   colorMapSedB():
+      QwtLinearColorMap( QColor(BGc),Qt::red)
+   {
+      addColorStop( 0.0, Qt::blue);
+//      addColorStop( 0.3, QColor("#8080FF") );
+      addColorStop( 0.3, Qt::cyan );
+
+      //addColorStop( 0.49, QColor(255,255,255,255));
+      addColorStop( 0.50, QColor(255,255,255,0));
+      //addColorStop( 0.51, QColor(255,255,255,255));
+          //      addColorStop( 0.5, Qt::white );
       addColorStop( 0.7, Qt::yellow);
    }
 };
@@ -186,12 +206,14 @@ public:
    void initMapPlot();
    void ShowMap();
    void ShowBaseMap();
-   void fillDrawMapData(TMMap *_M);
+   void fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
    QwtPlotSpectrogram *baseMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
+   QwtMatrixRasterData *RDb;
+
    QVector<double> mapData;
    QwtInterval legend;
    void killMapPlot();
@@ -261,6 +283,7 @@ public slots:
    void saveRunFile();
    void savefileas();
    void openRunFile();
+   void deleteRunFileList();
    void runmodel();
    void stopmodel();
    void pausemodel();
@@ -273,6 +296,7 @@ public slots:
    void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
    void openMapname(QModelIndex topLeft);
 
+   QString findValidDir(QString path);
    //void on_toolButton_MapDir_clicked();
    void setMapDir();
    //void on_toolButton_ResultDir_clicked();

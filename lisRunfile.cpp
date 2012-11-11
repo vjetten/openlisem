@@ -260,15 +260,6 @@ void TWorld::ParseRunfileData(void)
       // VJ 111001
    }
 
-//   if (SwitchWriteCommaDelimited)
-//   {
-//      SwitchWritePCRtimeplot = false;
-//      SwitchSOBEKoutput = false;
-//   }
-//   if (!SwitchWriteCommaDelimited && !SwitchSOBEKoutput )
-
-
-
    InfilMethod = getvalueint("Infil Method");
    if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
       SwitchTwoLayer = true;
@@ -318,7 +309,7 @@ void TWorld::ParseRunfileData(void)
          totalLandunitFileName =  p;
          if (p.isEmpty())
          {
-            ErrorString = "Please give a name for the Landunit output file";
+            ErrorString = "Please give a name for the Landunit stats output file";
             throw 1;
          }
       }
@@ -343,6 +334,11 @@ void TWorld::ParseRunfileData(void)
                ErrorString = "Please give a name for the detachment map";
                throw 1;
             }
+            if (!p.contains("."))
+            {
+               ErrorString = "Please give a name with an extention (such as \".map\")";
+               throw 1;
+            }
          }
          if (p1.compare("Deposition map")==0)
          {
@@ -352,6 +348,11 @@ void TWorld::ParseRunfileData(void)
                ErrorString = "Please give a name for the deposition map";
                throw 1;
             }
+            if (!p.contains("."))
+            {
+               ErrorString = "Please give a name with an extention (such as \".map\")";
+               throw 1;
+            }
          }
          if (p1.compare("Soilloss map")==0)
          {
@@ -359,6 +360,11 @@ void TWorld::ParseRunfileData(void)
             if (p.isEmpty())
             {
                ErrorString = "Please give a name for the soil loss map";
+               throw 1;
+            }
+            if (!p.contains("."))
+            {
+               ErrorString = "Please give a name with an extention (such as \".map\")";
                throw 1;
             }
          }

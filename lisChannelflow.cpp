@@ -262,63 +262,87 @@ void TWorld::ChannelFlood(void)
   if (!SwitchChannelFlood)
     return;
 
-  tm->fill(0); //waterheight
+  tm->fill(0); //channel waterheight above water surface
   tma->fill(0); //dem+wh
+  tmb->fill(0);
 
+  ChannelHeight->cover(LDD,0);
   actFloodArea->copy(floodArea);
   // initialize floodarea
 
+  FOR_ROW_COL_MV
+      DEMflood->Drc = DEM->Drc + WHflood->Drc;
+  DEMflood->report("dfld");
+  tmb->copy(ChannelWidthUpDX);
+  tmb->cover(LDD, 0);
   FOR_ROW_COL_MV_CH
-      tm->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc - WHflood->Drc);
+  {
+    tm->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc - WHflood->Drc);
+    tm->Drc = tm->Drc*_dx/tmb->Drc;
+  }
+  tm->cover(LDD, 0);
   // channel water rising above current flood plain
+  tm->report("ch");
 
-  tma->calc2Maps(DEMflood, tm, ADD);
+  FOR_ROW_COL_MV
+      tma->Drc = DEMflood->Drc + tm->Drc;
   // initial water + DEM
 
-  tm->report("ch");
-  tma->report("whbef");
-
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 12; i++)
     {
-      tma->areaAverage(actFloodArea);
+      tmb->copy(tma);
+      // reset to original level
+      tmb->areaAverage(actFloodArea);
       // average dem+water level in flooded area
 
       FOR_ROW_COL_MV
       {
-        if(actFloodArea == 0)
-          tma->Drc = DEM->Drc;
+        if(actFloodArea->Drc == 0)
+          tmb->Drc = DEMflood->Drc;
       }
+      // Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
       // set to DEM outside flood area
 
       FOR_ROW_COL_MV
       {
-        if (tma->Drc > DEM->Drc)
+        if (tmb->Drc > DEMflood->Drc)
           actFloodArea->Drc = floodArea->Drc;
         else
           actFloodArea->Drc = 0;
       }
+      // Lake = if(Dem > DemDam, PotLake, 0);
       // adapt flood area
 
+      DEMflood->copy(tmb);
+
+      FOR_ROW_COL_MV
+      {
+        WHflood->Drc = max(0, DEMflood->Drc - DEM->Drc);
+        Vflood->Drc = _dt*pow(WHflood->Drc,(2/3))*sqrt(Grad->Drc)/N->Drc;
+      }
+      tmb->copy(Vflood);
+      tmb->areaAverage(actFloodArea);
+      FOR_ROW_COL_MV
+      {
+        if (tmb->Drc > floodDist->Drc)
+          actFloodArea->Drc = 0;
+      }
     }
-  tma->report("whaft");
-  DEMflood->copy(tma);
-  actFloodArea->report("area");
 
-  WHflood->calc2Maps(DEMflood, DEM, MIN);
   WHflood->report("whf");
-  // current water level in flood plain
-
-//  FOR_ROW_COL_MV_CH
-//  {
-//    if (tm->Drc > 0)
-//    ChannelWH->Drc = ChannelHeight->Drc + max(0, tma->Drc-DEM->Drc);
-//  }
-//  FOR_ROW_COL_MV
-//  {
-//    if (tmb->Drc > 0)
-//      WH->Drc += max(0,tma->Drc - DEM->Drc);
-//  }
-//  WH->report("wh");
+  DEMflood->report("dflda");
+  actFloodArea->report("area");
+  //    FOR_ROW_COL_MV_CH
+  //    {
+  //      if (tm->Drc > 0)
+  //        ChannelWH->Drc = ChannelHeight->Drc + WHflood->Drc;
+  //    }
+  //    FOR_ROW_COL_MV
+  //    {
+  //      if (actFloodArea->Drc > 0)
+  //        WH->Drc = WHflood->Drc;
+  //    }
+  //    WH->report("wh");
 }
 
 //binding

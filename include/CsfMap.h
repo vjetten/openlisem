@@ -51,6 +51,7 @@ public:
 
     QString MapName;
     QString PathName;
+   // QString desc;
     int nrRows, nrCols;
     bool Created;
     
@@ -62,7 +63,6 @@ public:
     void WriteMapSeries(QString Dir, QString Name, int count);
     bool LoadFromFile();
     void ResetMinMax(void);
-
 
     cTMap();
     ~cTMap();
