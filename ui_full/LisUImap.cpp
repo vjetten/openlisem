@@ -22,235 +22,246 @@
 **
 *************************************************************************/
 
-
 #include "lisemqt.h"
 #include "global.h"
+#include "LisUImapcolor.h"
 
-
+//---------------------------------------------------------------------------
+void lisemqt::ssetAlpha(int v)
+{
+  baseMap->setAlpha(v);
+  //drawMap->setAlpha(v);
+  MPlot->replot();
+ // mapRescaler->rescale();
+}
+//---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
-   if (radioButton_RO->isChecked())    op.drawMapType = 1;
-   if (radioButton_INF->isChecked())    op.drawMapType = 2;
-   if (radioButton_SL->isChecked())      op.drawMapType = 3;
+  if (radioButton_RO->isChecked())    op.drawMapType = 1;
+  if (radioButton_INF->isChecked())   op.drawMapType = 2;
+  if (radioButton_SL->isChecked())    op.drawMapType = 3;
 }
-
 //---------------------------------------------------------------------------
 void lisemqt::initMapPlot()
 {
-   op.drawMapType = 1;
-   radioButton_RO->setChecked(true);
-   radioButton_INF->setChecked(false);
-   radioButton_SL->setChecked(false);
-   if (checkNoErosion->isChecked())
-      radioButton_SL->setEnabled(false);
-   else
-      radioButton_SL->setEnabled(true);
+  op.drawMapType = 1;
+  radioButton_RO->setChecked(true);
+  radioButton_INF->setChecked(false);
+  radioButton_SL->setChecked(false);
+  if (checkNoErosion->isChecked())
+    radioButton_SL->setEnabled(false);
+  else
+    radioButton_SL->setEnabled(true);
 
 
-   maxAxis1 = -1e20;
-   maxAxis2 = -1e20;
-   maxAxis3 = -1e20;
-   pstep = 0;
-   transparency->setValue(100);
+  maxAxis1 = -1e20;
+  maxAxis2 = -1e20;
+  maxAxis3 = -1e20;
+  pstep = 0;
+  transparency->setValue(80);
+
 }
 
 //---------------------------------------------------------------------------
 void lisemqt::setupMapPlot()
 {
-   op.drawMapType = 1;
+  op.drawMapType = 1;
 
-   title.setText("Runoff (l/s)");
-   title.setFont(QFont("MS Shell Dlg 2",12));
-   MPlot = new QwtPlot(title, this);
-   // make the plot window
-   Layout_Map->insertWidget(0, MPlot, 1);
-   //MPlot->canvas()->setBorderRadius( 0 );
-   MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
+  title.setText("Runoff (l/s)");
+  title.setFont(QFont("MS Shell Dlg 2",12));
+  MPlot = new QwtPlot(title, this);
+  // make the plot window
+  Layout_Map->insertWidget(0, MPlot, 1);
+  //MPlot->canvas()->setBorderRadius( 0 );
+  MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
 
-   // attach plot to widget in UI
+  // attach plot to widget in UI
 
-   QwtPlotGrid *grid = new QwtPlotGrid();
-   grid->setPen( QPen( Qt::DotLine ) );
-   grid->attach( MPlot );
+  QwtPlotGrid *grid = new QwtPlotGrid();
+  grid->setPen( QPen( Qt::DotLine ) );
+  grid->attach( MPlot );
 
-   drawMap = new QwtPlotSpectrogram();
-   drawMap->setRenderThreadCount( 0 );
-   drawMap->attach( MPlot );
-   // make the raster drawing
+  drawMap = new QwtPlotSpectrogram();
+  drawMap->setRenderThreadCount( 0 );
+  drawMap->attach( MPlot );
+  // make the raster drawing
 
-   baseMap = new QwtPlotSpectrogram();
-   baseMap->setRenderThreadCount( 0 );
-   baseMap->attach( MPlot );
-   // make the raster drawing
+  baseMap = new QwtPlotSpectrogram();
+  baseMap->setRenderThreadCount( 0 );
+  baseMap->attach( MPlot );
+  // shaded relief base map
+
+  RD = new QwtMatrixRasterData();
+  RDb = new QwtMatrixRasterData();
+
+  // raster data to link to plot
+
+  rightAxis = new QwtScaleWidget();
+  rightAxis = MPlot->axisWidget( MPlot->yRight );
+  rightAxis->setColorBarEnabled( true );
+  rightAxis->setColorBarWidth( 20 );
+  // legend to the right of the plot
+
+  mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
+  mapRescaler->setReferenceAxis( QwtPlot::yLeft );
+  mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
+  mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
+  mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
+  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting );
+  // rescaling fixed to avoid deformation
 
 
-   RD = new QwtMatrixRasterData();
-   RDb = new QwtMatrixRasterData();
+  magnifier = new QwtPlotMagnifier( MPlot->canvas() );
+  magnifier->setAxisEnabled( MPlot->yRight, false );
 
-   // raster data to link to plot
+  panner = new QwtPlotPanner( MPlot->canvas() );
+  panner->setAxisEnabled( MPlot->yRight, false );
 
-   rightAxis = new QwtScaleWidget();
-   rightAxis = MPlot->axisWidget( MPlot->yRight );
-   rightAxis->setColorBarEnabled( true );
-   rightAxis->setColorBarWidth( 20 );
-   // legend to the right of the plot
+  //   (void) new QwtPlotPanner( MPlot->canvas() );
+  //   (void) new QwtPlotMagnifier( MPlot->canvas() );
 
-   mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
-   mapRescaler->setReferenceAxis( QwtPlot::yLeft );
-   mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-   mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-   mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-   mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting );
-   // rescaling fixed to avoid deformation
-
-
-   magnifier = new QwtPlotMagnifier( MPlot->canvas() );
-   magnifier->setAxisEnabled( MPlot->yRight, false );
-
-   panner = new QwtPlotPanner( MPlot->canvas() );
-   panner->setAxisEnabled( MPlot->yRight, false );
-
-//   (void) new QwtPlotPanner( MPlot->canvas() );
-//   (void) new QwtPlotMagnifier( MPlot->canvas() );
-
-   maxAxis1 = -1e20;
-   maxAxis2 = -1e20;
-   maxAxis3 = -1e20;
-   pstep = 0;
+  maxAxis1 = -1e20;
+  maxAxis2 = -1e20;
+  maxAxis3 = -1e20;
+  pstep = 0;
 
 }
 //---------------------------------------------------------------------------
 void lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 {
-   mapData.clear();
-   // copy map data into vector for the display structure
-   for(int r = _M->nrRows-1; r >= 0; r--)
-//      for(int r = 0; r < _M->nrRows; r++)
-      for(int c=0; c < _M->nrCols; c++)
+  mapData.clear();
+  // copy map data into vector for the display structure
+  for(int r = _M->nrRows-1; r >= 0; r--)
+    //      for(int r = 0; r < _M->nrRows; r++)
+    for(int c=0; c < _M->nrCols; c++)
       {
-         if(!IS_MV_REAL8(&_M->Data[r][c]))
-         {
+        if(!IS_MV_REAL8(&_M->Data[r][c]))
+          {
             mapData << _M->Data[r][c];
-         }
-         else
-            mapData << (double)-1e20;
+          }
+        else
+          mapData << (double)-1e20;
       }
 
-   // set intervals for rasterdata, x,y,z min and max
-   _RD->setValueMatrix( mapData, _M->nrCols );
-   // set column number to divide vector into rows
-   _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols, QwtInterval::ExcludeMaximum ) );
-   _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows, QwtInterval::ExcludeMaximum ) );
-   // set x/y axis intervals
+  // set intervals for rasterdata, x,y,z min and max
+  _RD->setValueMatrix( mapData, _M->nrCols );
+  // set column number to divide vector into rows
+  _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols, QwtInterval::ExcludeMaximum ) );
+  _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows, QwtInterval::ExcludeMaximum ) );
+  // set x/y axis intervals
 }
 
 //---------------------------------------------------------------------------
 void lisemqt::ShowMap()
 {
-   double MinV = 0.1;
+  ShowBaseMap();
 
-   fillDrawMapData(op.DrawMap, RD);
+  double MinV = 0.1;
+  fillDrawMapData(op.DrawMap, RD);
 
-   op.DrawMap->ResetMinMax();
-   double MaxV = (double)op.DrawMap->MH.maxVal;
-   double nrCols = (double)op.DrawMap->nrCols;
-   double nrRows = (double)op.DrawMap->nrRows;
+  op.DrawMap->ResetMinMax();
+  double MaxV = (double)op.DrawMap->MH.maxVal;
+  double nrCols = (double)op.DrawMap->nrCols;
+  double nrRows = (double)op.DrawMap->nrRows;
 
-   if (op.drawMapType == 1)
-   {
+  if (op.drawMapType == 1)
+    {
       MPlot->setTitle("Runoff (l/s)");
       drawMap->setColorMap(new colorMapWaterLog());
+  //    baseMap->setColorMap(new colorMapYellow());
 
       maxAxis1 = qMax(maxAxis1, MaxV);
       if (doubleSpinBoxRO->value() > 0)
-         maxAxis1 = doubleSpinBoxRO->value();
+        maxAxis1 = doubleSpinBoxRO->value();
       RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(MinV, maxAxis1)));
-   }
-   else
-      if (op.drawMapType == 2)
+    }
+  else
+    if (op.drawMapType == 2)
       {
-         MPlot->setTitle("Infiltration (mm)");
-         drawMap->setColorMap(new colorMapWater());
-         maxAxis2 = qMax(maxAxis2, MaxV);
-         if (doubleSpinBoxINF->value() > 0)
-            maxAxis2 = doubleSpinBoxINF->value();
-         RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
-      }
-      else
-         if (op.drawMapType == 3)
-         {
-            MPlot->setTitle("Soil loss (kg/cell)");
-            drawMap->setColorMap(new colorMapSed());
-            maxAxis3 = qMax(maxAxis3, MaxV);
-            if (doubleSpinBoxSL->value() > 0)
-               maxAxis3 = doubleSpinBoxSL->value();
-            RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
-            // use max and -max for sediemnt delivery so that white legend color is in the middle, no activity
-            // cyan is deposition and dark orange is erosion
-         }
-   drawMap->setData(RD);
-   //   drawMap->setAlpha(1);
-   // link raster data to drawMap
+        MPlot->setTitle("Infiltration (mm)");
+        drawMap->setColorMap(new colorMapWater());
+//        baseMap->setColorMap(new colorMapYellow());
 
-   // add legend right of axis
-   if (op.drawMapType == 1)
-   {
+        maxAxis2 = qMax(maxAxis2, MaxV);
+        if (doubleSpinBoxINF->value() > 0)
+          maxAxis2 = doubleSpinBoxINF->value();
+        RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
+      }
+    else
+      if (op.drawMapType == 3)
+        {
+          MPlot->setTitle("Soil loss (ton/ha)");
+          drawMap->setColorMap(new colorMapSedB());
+    //      baseMap->setColorMap(new colorMapGray());
+
+          maxAxis3 = qMax(maxAxis3, MaxV);
+          if (doubleSpinBoxSL->value() > 0)
+            maxAxis3 = doubleSpinBoxSL->value();
+          RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
+          // use max and -max for sediemnt delivery so that white legend color is in the middle, no activity
+          // cyan is deposition and dark orange is erosion
+        }
+  drawMap->setData(RD);
+  // link raster data to drawMap
+
+  // add legend right of axis
+  if (op.drawMapType == 1)
+    {
       // log scale for runoff
       rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
       if (maxAxis1 < 100)
-         MPlot->setAxisScale( MPlot->yRight, MinV, qMax(1.0,maxAxis1));
+        MPlot->setAxisScale( MPlot->yRight, MinV, qMax(1.0,maxAxis1));
       else
-         MPlot->setAxisScale( MPlot->yRight, MinV, qMax(10.0,maxAxis1));
+        MPlot->setAxisScale( MPlot->yRight, MinV, qMax(10.0,maxAxis1));
       MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
-   }
-   else
-      if (op.drawMapType == 2)
+    }
+  else
+    if (op.drawMapType == 2)
       {
-         // lin scale for infiltration
-         rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWater());
-         MPlot->setAxisScale( MPlot->yRight, 0.0, maxAxis2);
-         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+        // lin scale for infiltration
+        rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWater());
+        MPlot->setAxisScale( MPlot->yRight, 0.0, maxAxis2);
+        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
       }
-      else
-         if (op.drawMapType == 3)
-         {
-            //lin scale with mirrored max and -max for soil loss
-            rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSedB());
-            MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
-            MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-         }
-   MPlot->enableAxis( MPlot->yRight );
+    else
+      if (op.drawMapType == 3)
+        {
+          //lin scale with mirrored max and -max for soil loss
+          rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSedB());
+          MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
+          MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+        }
+  MPlot->enableAxis( MPlot->yRight );
 
-   MPlot->plotLayout()->setAlignCanvasToScales( true );
+  MPlot->plotLayout()->setAlignCanvasToScales( true );
 
-   MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
-   MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-   MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
-   MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+  MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
+  MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+  MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
+  MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-   mapRescaler->setEnabled( true );
-   mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+  mapRescaler->setEnabled( true );
+  mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
 
-   ShowBaseMap();
+//  ShowBaseMap();
 
-   MPlot->replot();
-   mapRescaler->rescale();
+  MPlot->replot();
+  mapRescaler->rescale();
 
 }
 //---------------------------------------------------------------------------
 void lisemqt::ShowBaseMap()
 {
-   fillDrawMapData(op.baseMap, RDb);
+  fillDrawMapData(op.baseMap, RDb);
 
-//   op.baseMap->ResetMinMax();
-//   double MaxV = (double)op.baseMap->MH.maxVal;
-//   double MinV = (double)op.baseMap->MH.minVal;
+  //   op.baseMap->ResetMinMax();
+  double MaxV = 1.0;//(double)op.baseMap->MH.maxVal;
+  double MinV = 0.0;//(double)op.baseMap->MH.minVal;
 
-   baseMap->setColorMap(new colorMapGray());
-   RDb->setInterval( Qt::ZAxis, QwtInterval( 0,1));//MinV, MaxV));
-   baseMap->setData(RDb);
-   //baseMap->setAlpha(100);
-   // link raster data to drawMap
-   baseMap->setAlpha(transparency->value());
+  baseMap->setColorMap(new colorMapGray());
+  RDb->setInterval( Qt::ZAxis, QwtInterval( MinV, MaxV));
+  baseMap->setData(RDb);
+  //baseMap->setAlpha(80);
+  baseMap->setAlpha(transparency->value());
 }
 //---------------------------------------------------------------------------

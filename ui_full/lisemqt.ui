@@ -6553,7 +6553,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6613,7 +6613,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6676,7 +6676,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6742,7 +6742,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6802,7 +6802,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6819,7 +6819,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/deletereport4.png</normaloff>:/deletereport4.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6879,7 +6879,7 @@ p, li { white-space: pre-wrap; }
                <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
              </property>
              <property name="autoRaise">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6943,6 +6943,9 @@ p, li { white-space: pre-wrap; }
              <property name="icon">
               <iconset resource="../resources/openlisem.qrc">
                <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
+             </property>
+             <property name="autoRaise">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -13186,6 +13189,9 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="maximum">
                    <number>255</number>
+                  </property>
+                  <property name="value">
+                   <number>100</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>

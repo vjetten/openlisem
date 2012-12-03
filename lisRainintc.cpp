@@ -49,10 +49,12 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
    QString S;
    QStringList rainRecs;
    bool ok;
-   bool isTimeseries = false;
    int nrStations = 0;
    int nrSeries = 0;
+   int skiprows = 0;
+   double time;
    QString errorS = (israinfall ? "Rainfall" : "Snowmelt");
+   bool oldformat = true;
 
 
    if (!fi.exists())
@@ -81,35 +83,36 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
    qDebug() << rainRecs.count();
 
    QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
-   // white space character as split for header
+   // get first line, white space character as split for header
 
    nrStations = SL[SL.size()-1].toInt(&ok, 10);
-   // read nr stations from last value in header
+   // read nr stations from last value in old style header
+   // failure gives 0
+   nrStations += 1;
+   SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+   oldformat = (nrStations == SL.count());
+   //check if nr stations found equals nr columns-1, 1st column is time
 
-   if (nrStations == 0)
+   // if not, check if new PCRaster style rainfall rec
+   if (!oldformat || !ok)
    {
        if (rainRecs[1].count() == 1)
        {
            SL = rainRecs[1].split(QRegExp("\\s+"));
            nrStations = SL[0].toInt(&ok, 10);
-           isTimeseries = ok;
+           // new style gives one nrstations more (includes time column) old style only counts rain stations
+           skiprows = 2;
        }
-   }
-   // if not worked assume rainfall is pcraster format?
+       if (SL.count() != 1 || !ok)
+         {
+           ErrorString = "Cannot read/interpret nr " + errorS + " stations in header file";
+           throw 1;
+         }
+   }      
 
-
-   if (!ok)
-   {
-      ErrorString = "Cannot read nr " + errorS + " stations in header file";
-      throw 1;
-   }
-
-   int skiprows = 1;
-   if (isTimeseries)
-       skiprows += 1;
    nrSeries = rainRecs.size() - nrStations - skiprows;
    // count rainfall or snowmelt records
-   qDebug() << "nrSeries" << nrSeries;
+
    if (nrSeries <= 1)
    {
       ErrorString = errorS + " records <= 1, must at least have one interval with 2 rows: a begin and end time.";
@@ -131,9 +134,18 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
 
       QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), QString::SkipEmptyParts);
       // split rainfall record row with whitespace
-
       rl.time = SL[0].toDouble();
       // time in min
+
+      if (r == 0)
+        time = rl.time;
+      if (r > 0 && rl.time <= time)
+        {
+          ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(rl.time);
+          throw 1;
+        }
+      else
+        time = rl.time;
 
       // check if record has characters, then filename assumed
 
@@ -155,41 +167,23 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
       {
          // record is a assumed to be a double
 
-         for (int i = 0; i < nrStations; i++)
+         for (int i = 1; i < nrStations; i++)
          {
             bool ok = false;
-            rl.intensity << SL[i+1].toDouble(&ok);
+            rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
                ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(SL[0]);
                throw 1;
             }
          }
-         if (israinfall)
-            RainfallSeriesM << rl;
-         else
-            SnowmeltSeriesM << rl;
       }
-   }
-   for(int r = 0; r < nrSeries-1; r++)
-   {
       if (israinfall)
-      {
-         if (RainfallSeriesM[r+1].time <= RainfallSeriesM[r].time)
-         {
-            ErrorString = errorS + QString(" error at time %1.").arg(RainfallSeriesM[r].time);
-            throw 1;
-         }
-      }
+         RainfallSeriesM << rl;
       else
-      {
-         if (SnowmeltSeriesM[r+1].time <= SnowmeltSeriesM[r].time)
-         {
-            ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(SnowmeltSeriesM[r].time);
-            throw 1;
-         }
-      }
+         SnowmeltSeriesM << rl;
    }
+
    if (israinfall)
       nrRainfallseries = nrSeries;
    else

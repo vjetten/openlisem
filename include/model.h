@@ -295,6 +295,7 @@ public:
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
+    QVector <UNIT_LIST> unitListM;
     int landUnitNr;
     // data initialization, runfile reading and parsing
     NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names

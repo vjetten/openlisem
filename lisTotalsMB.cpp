@@ -103,7 +103,9 @@ void TWorld::Totals(void)
 
    //   Qtot += Qoutflow->DrcOutlet;
    // sum outflow m3 for all timesteps for the outlet, is already mult by dt
-   Qtot += Qn->DrcOutlet*_dt;
+   FOR_ROW_COL_MV
+       if (LDD->Drc == 5)
+       Qtot += Qn->Drc*_dt;
    // sum outflow m3 for all timesteps for the outlet, in m3
    // needed for mass balance
    //Qtotmm = Qtot*catchmentAreaFlatMM;
@@ -126,7 +128,9 @@ void TWorld::Totals(void)
       // add channel vol to total
       WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
       // recalc in mm for screen output
-      Qtot += ChannelQn->DrcOutlet*_dt;
+      FOR_ROW_COL_MV
+          if (LDD->Drc == 5)
+          Qtot += ChannelQn->Drc*_dt;
       // add channel outflow (in m3) to total for all pits
       //Qtotmm = Qtot*catchmentAreaFlatMM;
       // recalc in mm for screen output
@@ -159,7 +163,9 @@ void TWorld::Totals(void)
       // recalc in mm for screen output
 
       //Qtot += TileQoutflow->DrcOutlet;
-      Qtot += TileQn->DrcOutlet * _dt;
+      FOR_ROW_COL_MV
+          if (LDD->Drc == 5)
+          Qtot += TileQn->Drc * _dt;
       // add tile outflow (in m3) to total for all pits
       //Qtotmm = Qtot*catchmentAreaFlatMM;
       // recalc in mm for screen output

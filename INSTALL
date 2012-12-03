@@ -11,6 +11,8 @@ now can be found on this website (although a bit outdated). openLISEM uses the
 freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
 analysis of the results. 
 
+INSTALL: just unzip the files to a directory of your choice
+
 2) Terms of use 
 ===============
 This software is free and open source, hosted by  sourceforge.net. The project 
@@ -24,8 +26,8 @@ unless express permission is gained from Victor Jetten (jetten@itc.nl). If you
 use this software for publications, please give the correct references in the 
 text (TO BE FURTHER SPECIFIED, contact victor jetten). 
 
-3) openLISEM development 
-========================
+3) openLISEM development: for programmers 
+=========================================
 a) Code of conduct for developers
 --------------------------------
 -	Changes that are made to the code must be made available to 
@@ -97,7 +99,7 @@ b.	Run build->rebuild all and run.
 4.	You can compile openLISEM in "debug" or as "release" executable. If you 
 distribute openLISEM you have to add the libraries QtGui4.dll, QtCore4.dll, 
 QtSvg4.dll and qwt.dll to the package. These libarries can be found in 
-C:\Qt\QtSDK\Desktop\Qt\4.7.3\mingw\bin
+C:\Qt\QtSDK\Desktop\Qt\4.8.3\mingw\bin
 
 Good Luck
 

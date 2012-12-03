@@ -568,6 +568,7 @@ void TWorld::GetInputData(void)
 
   // flood maps
   DEM = ReadMap(LDD, getvaluename("dem"));
+
   if (SwitchChannelFlood)
     {
       //      double DEMmin = DEM->mapMinimum();
@@ -592,7 +593,7 @@ void TWorld::GetInputData(void)
 
   FOR_ROW_COL_MV
   {
-    double Incl = 30.0/180.0*PI;
+    double Incl = 20.0/180.0*PI;
     double Decl = 300/180.0*PI;
     double mat[9];
     double dx, dy, aspect;

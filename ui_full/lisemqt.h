@@ -51,6 +51,7 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_rescaler.h>
 #include <qwt_scale_engine.h>
+#include <qwt_plot_zoomer.h>
 
 
 #include "version.h"
@@ -87,87 +88,6 @@ typedef struct MAP_LIST {
    int groupnr;
    int varnr;
 } MAP_LIST;
-//---------------------------------------------------------------------------
-#define BGc "#dddddd" // background grey for missing value in maps
-
-class colorMapGray: public QwtLinearColorMap
-{
-public:
-   colorMapGray():
-      QwtLinearColorMap( QColor(BGc), Qt::white  )
-   {
-      addColorStop(0.0, QColor("#333333"));
-      addColorStop(0.9, Qt::white);
-   }
-};
-class colorMapRed: public QwtLinearColorMap
-{
-public:
-   colorMapRed():
-      QwtLinearColorMap( QColor(BGc), Qt::red)
-   {
-      addColorStop(0.0, Qt::darkRed);
-   }
-};
-
-class colorMapWaterLog: public QwtLinearColorMap
-{
-public:
-   colorMapWaterLog():
-      QwtLinearColorMap( QColor(BGc), QColor(0,0,128))//Qt::darkBlue )
-   {
-      addColorStop( 0.0, Qt::yellow );//
-      addColorStop( 0.05, QColor(128,128,255,0));
-      addColorStop( 0.1, QColor(64,64,255) );
-      addColorStop( 0.5, QColor(0,0,255));//Qt::blue );
-   }
-};
-
-class colorMapWater: public QwtLinearColorMap
-{
-public:
-   colorMapWater():
-      QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
-   {
-      addColorStop( 0.0, Qt::yellow );
-      addColorStop( 0.2, QColor("#FFFF55") );
-      addColorStop( 0.6, QColor("#8080FF") );
-      addColorStop( 0.9, Qt::blue );
-   }
-};
-
-class colorMapSed: public QwtLinearColorMap
-{
-public:
-   colorMapSed():
-      QwtLinearColorMap( QColor(BGc),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
-   {
-      addColorStop( 0.0, Qt::darkCyan );//QColor("#108030"));
-      addColorStop( 0.3, Qt::cyan );//QColor("#30ffcc"));
-      addColorStop( 0.49, QColor(255,255,255,100));
-      addColorStop( 0.50, QColor(255,255,255,0));
-      addColorStop( 0.51, QColor(255,255,255,100));
-          //      addColorStop( 0.5, Qt::white );
-      addColorStop( 0.7, Qt::yellow);
-   }
-};
-class colorMapSedB: public QwtLinearColorMap
-{
-public:
-   colorMapSedB():
-      QwtLinearColorMap( QColor(BGc),Qt::red)
-   {
-      addColorStop( 0.0, Qt::blue);
-//      addColorStop( 0.3, QColor("#8080FF") );
-      addColorStop( 0.3, Qt::cyan );
-
-      //addColorStop( 0.49, QColor(255,255,255,255));
-      addColorStop( 0.50, QColor(255,255,255,0));
-      //addColorStop( 0.51, QColor(255,255,255,255));
-          //      addColorStop( 0.5, Qt::white );
-      addColorStop( 0.7, Qt::yellow);
-   }
-};
 
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
@@ -223,6 +143,7 @@ public:
    int pstep;
    QwtPlotMagnifier *magnifier;
    QwtPlotPanner *panner;
+   //QwtPlotZoomer* zoomer;
 
    // graph variables
    void startPlots();
@@ -336,6 +257,7 @@ public slots:
    void on_E_ResultDir_returnPressed();
 
    void selectMapType(bool doit);
+   void ssetAlpha(int v);
 
    void setWriteOutputSOBEK(bool doit);
    void setWriteOutputCSV(bool doit);

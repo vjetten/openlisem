@@ -52,7 +52,12 @@ void TWorld::OutputUI(void)
   if (op.drawMapType == 2)
     op.DrawMap->copy(InfilmmCum);  //infil in mm
   if (SwitchErosion && op.drawMapType == 3)
-    op.DrawMap->copy(TotalSoillossMap);  //soilloss in kg/cell
+    {
+      tmb->calc2Maps(TotalSoillossMap,CellArea, MUL);
+      tmb->calcValue(1000, DIV);
+
+      op.DrawMap->copy(tmb);  //soilloss in ton/ha
+    }
   op.baseMap->copy(Shade);
 
   op.dx = _dx;
@@ -533,13 +538,15 @@ void TWorld::ReportMaps(void)
       if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
     }
 
-  if (outputcheck[0].toInt() == 1) Qoutput->report(Outrunoff); // in l/s
+  if (outputcheck[0].toInt() == 1)
+    Qoutput->report(Outrunoff); // in l/s
   if (outputcheck[2].toInt() == 1)
     {
       tm->calcMapValue(WH, 1000, MUL);// WH in mm
       tm->report(Outwh);
     }
-  if (outputcheck[3].toInt() == 1)	WHrunoffCum->report(Outrwh); // in mm
+  if (outputcheck[3].toInt() == 1)
+    WHrunoffCum->report(Outrwh); // in mm
 
   if (outputcheck[7].toInt() == 1) V->report(Outvelo);
   FOR_ROW_COL_MV

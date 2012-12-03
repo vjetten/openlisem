@@ -1,0 +1,82 @@
+openLISEM README (121111)
+=========================
+LATEST CHANGES (v 1.55-1.56)
+- Added shaded relief for map display (needs dem.map)
+- Added a small hydrograph plot next to the map display
+- Added multiple screenshots (every timestep) to make a movie
+- Fixed a long standing bug crshing lisem at the end of a run (hopefully)
+
+LATEST CHANGES (v 1.39-1.54)
+- Can now read rainfall and snowmelt maps (maps should have flux in mm/h)
+- added map display
+- added land use map for stats output per land use type
+- many small bug fixes (such as sobek output)
+
+LATEST CHANGES (v 1.38)
+- Bug fixes in Swatre, introduced in previous version, crash when profile becomes sturated
+
+LATEST CHANGES (v 1.37)
+- Bug fix kinetic energy time based, in hours instead of seconds, factor 1/3600
+
+LATEST CHANGES (v 1.35-1.36)
+-SWATRE  include water repellency
+- Bug fix  saturation bug in SWATRE, NaN when profile is saturated
+
+LATEST CHANGES (v 1.34)
+- Fixed bug in output of erosion units, kg/m2 = kg/cell and vice versa, ton/ha ok
+
+Changes (v 1.33)
+- fixed bugs buffer operation, wrong reporting of buffer in mass balance
+- sedimentation in buffer works correctly now
+- interface refining
+- compiled with QT 4.7.3
+
+Changes (v 1.28-1.32)
+- EXPERIMENTAL epellency as a special case fo crusting. Works for Swatre only.
+
+Changes (v 1.27)
+- fixed bugs in tiledrain part
+- added tiledrain flux to output map series
+- cleaned up SWATRE infil
+
+Changes (v 1.26)
+- recompiled with 4.7.3 version of Qt
+- fixed a bug that reported averages and totals (last version was affected)
+- added calibration factors for theta and psi 
+- added kinetic energy equations for rainfall splash 
+- changes to te interface and small bug fixes
+
+1) The openLISEM model 
+======================
+
+This is the event based spatial runoff and erosion model openLISEM. Thank you 
+for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
+erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
+is available here: www.itc.nl/lisem. Details about the theory and dataset for 
+now can be found on this website (although a bit outdated). openLISEM uses the 
+freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
+analysis of the results. 
+
+2) Terms of use 
+===============
+This software is free and open source, hosted by  sourceforge.net. The project 
+details can be found on:  http://lisem.sourceforge.net
+
+All license details can be found on this website. The compiled model openLISEM 
+and the source code, or parts of the source code can be used for any purpose, 
+but the disclaimer as specified below is in effect. openLISEM in any version 
+(compiled or as source code) cannot be sold or be part of a commercial package, 
+unless express permission is gained from Victor Jetten (jetten@itc.nl). If you 
+use this software for publications, please give the correct references in the 
+text (TO BE FURTHER SPECIFIED, contact victor jetten). 
+
+
+Good Luck
+
+Victor Jetten
+
+Chair Natural Hazards and Disaster Risk Management 
+Department of Earth Systems Analysis Faculty 
+Faculty ITC, Twente University, 
+the Netherlands 
+jetten@itc.nl

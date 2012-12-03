@@ -64,7 +64,7 @@ lisemqt::lisemqt(QWidget *parent)
   setupUi(this);
   // set up interface
   setMinimumSize(800,600);
-  resize(1060, 700);
+  resize(1060, 732);
 
   //   setStatusBar(0);
   tabWidgetOptions->setCurrentIndex(1);
@@ -72,7 +72,7 @@ lisemqt::lisemqt(QWidget *parent)
   tabWidget_OutputMaps->setTabEnabled(1,false);
   tabWidget_OutputMaps->setTabEnabled(2,false);
   tabWidget_OutputMaps->setTabEnabled(3,false);
-
+  checkChannelFlood->hide();
   groupBox_spare->hide();
   MapNameModel = NULL;
   HPlot = NULL;
@@ -264,6 +264,7 @@ void lisemqt::SetToolBar()
   connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
   connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
   connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+  connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
 }
 //---------------------------------------------------------------------------
