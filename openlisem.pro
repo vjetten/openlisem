@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = openLisem
 QWTDIR = c:/Qt/qwt
-CSFDIR = d:/prgc/libcsf/
+# CSFDIR = d:/prgc/libcsf/
 # change the QWT directory to your own install
 QT += core \
     gui
@@ -70,9 +70,9 @@ FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
    greaterThan(OLVC, 0) {
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"bin/vc" -L"D:/prgc/libcsf/debug" -lcsfvcd
-    LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvcd
-    DESTDIR = bin/vc
+    LIBS += -L"debug/vc" -lcsfvcd
+    LIBS += -L"debug/vc" -lqwtvcd  #-L"$${QWTDIR}/lib"
+    DESTDIR = debug/vc
   }else{
     LIBS += -L"debug" -llibcsfd
     LIBS += -L"$${QWTDIR}/lib" -lqwtd
@@ -85,7 +85,7 @@ CONFIG(debug, debug|release) {
 else {
    greaterThan(OLVC, 0) {
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"bin/vc" -L"D:/prgc/libcsf/bin" -lcsfvc
+    LIBS += -L"bin/vc" -lcsfvc
     LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc
     DESTDIR = bin/vc
   }else{
