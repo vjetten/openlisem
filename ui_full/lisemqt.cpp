@@ -72,7 +72,7 @@ lisemqt::lisemqt(QWidget *parent)
   tabWidget_OutputMaps->setTabEnabled(1,false);
   tabWidget_OutputMaps->setTabEnabled(2,false);
   tabWidget_OutputMaps->setTabEnabled(3,false);
-  checkChannelFlood->hide();
+ // checkChannelFlood->hide();
   groupBox_spare->hide();
   MapNameModel = NULL;
   HPlot = NULL;
@@ -911,7 +911,7 @@ void lisemqt::resetAll()
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path)
-{ 
+{
   if (!QFileInfo(path).exists() || path.isEmpty())
     path = E_MapDir->text();
   if (!QFileInfo(path).exists() || path.isEmpty())

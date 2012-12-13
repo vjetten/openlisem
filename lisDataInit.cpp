@@ -571,6 +571,8 @@ void TWorld::GetInputData(void)
 
   if (SwitchChannelFlood)
     {
+      qx = NewMap(0);
+      qy = NewMap(0);
       //      double DEMmin = DEM->mapMinimum();
       //      DEM->calcValue(DEMmin,SUB);
       // DEM in m
@@ -579,10 +581,10 @@ void TWorld::GetInputData(void)
       // dem + flood water initialize at dry DEM level
       WHflood = NewMap(0);
       Vflood = NewMap(0);
-      floodArea = ReadMap(LDD, getvaluename("floodarea"));
-      // potentially flooded areas, value > 0
-      actFloodArea = NewMap(0);
-      floodDist = ReadMap(LDD, getvaluename("flooddist"));
+//      floodArea = ReadMap(LDD, getvaluename("floodarea"));
+//      // potentially flooded areas, value > 0
+//      actFloodArea = NewMap(0);
+//      floodDist = ReadMap(LDD, getvaluename("flooddist"));
     }
   Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
   Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
@@ -669,6 +671,7 @@ void TWorld::GetInputData(void)
     {
       RainZone = ReadMap(LDD,getvaluename("id"));
     }
+
   Snowcover = NewMap(0);
   if (SwitchSnowmelt)
     {

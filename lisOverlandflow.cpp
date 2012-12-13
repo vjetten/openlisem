@@ -143,30 +143,27 @@ void TWorld::OverlandFlow(void)
    }
    else
    {
-      SubsMaps[0].m = Sed;
-      nrSubsMaps = 1;
       FOR_ROW_COL_MV
       {
          if (LDD->Drc == 5) // if outflow point, pit
          {
             /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
-            Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed, SubsMaps);
+            Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
+            //for checking: routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+
+           /*
+              routing of substances add here!
+              do after kin wave so that the new flux Qn out of a cell is known
+              you need to have the ingoing substance flux QS (mass/s)
+              and it will give outgoing flux QSn (mass/s)
+              and the current amount Subs (mass) in suspension+solution
+           */
+            //  routeSunstance(r,c, LDD, Q, Qn, QS, QSn, Alpha, DX, WaterVolin, Subs);
+
          }
       }
    }
-
-   //Qoutflow->DrcOutlet = Qn->DrcOutlet * _dt;
-//   FOR_ROW_COL_MV
-//     //    if (LDD->Drc == 5)
-//         Qoutflow->Drc = Qn->Drc * _dt;
-
-//   if (SwitchErosion)
-//      FOR_ROW_COL_MV
-//        //    if (LDD->Drc == 5)
-//            Qsoutflow->Drc = Qsn->Drc * _dt;
-//   //      Qsoutflow->DrcOutlet = Qsn->DrcOutlet * _dt;
-   // these maps now contain m3 and kg per timestep in pit cells
 
    // calculate resulting flux Qn back to water height on surface
    FOR_ROW_COL_MV
@@ -194,7 +191,7 @@ void TWorld::OverlandFlow(void)
       //		if (InfilMethod == INFIL_NONE)
       //		{
       //			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
-      //			InfilVolKinWave->Drc = diff;
+      //          InfilVolKinWave->Drc = diff;
       //		}
 
 

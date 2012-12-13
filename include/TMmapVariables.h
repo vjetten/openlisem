@@ -42,6 +42,8 @@ TMMap
 *floodArea,                  //!< Area (value > 0) that can potentitlally be flooded
 *actFloodArea,               //!< Area (value > 0) that is flooded
 *floodDist,
+*qx,
+*qy,
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]

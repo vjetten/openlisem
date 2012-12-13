@@ -79,8 +79,10 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
    }
    fff.close();
    // get all rainfall records without empty lines
+   rainRecs << QString("1000000 0");
+   // add a very large number so that the rainfall after the last timestep is 0
 
-   qDebug() << rainRecs.count();
+//   qDebug() << rainRecs.count();
 
    QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
    // get first line, white space character as split for header
@@ -108,7 +110,14 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
            ErrorString = "Cannot read/interpret nr " + errorS + " stations in header file";
            throw 1;
          }
-   }      
+   }
+
+   int nr = RainZone->countUnits();
+   if (nr != nrStations-1)
+   {
+     ErrorString = QString("Number of stations in rainfall file (%1) does not match number of units in ID map (%2)").arg(nrStations-1).arg(nr);
+     throw 1;
+   }
 
    nrSeries = rainRecs.size() - nrStations - skiprows;
    // count rainfall or snowmelt records
@@ -155,7 +164,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
          // asume second record is name
          if (!fi.exists())
          {
-            ErrorString = errorS + QString(" map %1 not found.").arg(SL[1]);
+            ErrorString = errorS + QString(" map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
             throw 1;
          }
 
@@ -188,6 +197,9 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
       nrRainfallseries = nrSeries;
    else
       nrSnowmeltseries = nrSeries;
+
+ //  for (int i = 0; i < RainfallSeriesM.count(); i++)
+  //     qDebug() << RainfallSeriesM[i].time <<RainfallSeriesM[i].intensity << RainfallSeriesM[i].name;
 
 }
 //---------------------------------------------------------------------------

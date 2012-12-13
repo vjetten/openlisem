@@ -149,7 +149,7 @@ void TWorld::DoModel()
          mutex.unlock();
          // check if user wants to quit or pause
 
-         GridCell();          // set channel widths, flowwidths road widths etc         
+         GridCell();          // set channel widths, flowwidths road widths etc
          RainfallMap();       // get rainfall
          SnowmeltMap();       // get snowmelt
 
@@ -165,7 +165,7 @@ void TWorld::DoModel()
          ToTiledrain();       // fraction going into tiledrain directly from surface
          OverlandFlow();      // slope kin wave
          ChannelFlow();       // channel erosion and kin wave
-         ChannelFlood();      // channel flooding in GIS style, not physical
+    //     ChannelFlood();      // channel flooding in GIS style, not physical
          TileFlow();          // tile drain flow kin wave
 
          Totals();            // calculate all totals and cumulative values

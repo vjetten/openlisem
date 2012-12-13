@@ -148,7 +148,7 @@ void TWorld::TileFlow(void)
       if (LDDTile->Drc == 5)
       {
          Kinematic(r,c, LDDTile, TileQ, TileQn, TileQs, TileQsn, Tileq, TileAlpha, TileDX,
-                   TileWaterVol, tm, tma, tmb, SubsMaps);
+                   TileWaterVol, tm, tma, tmb);
       }
    }
 

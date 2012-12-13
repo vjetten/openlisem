@@ -219,10 +219,12 @@ void TWorld::Totals(void)
       // all in kg/cell
 
       //SoilLossTot += Qsoutflow->DrcOutlet;
-      SoilLossTot += Qsn->DrcOutlet * _dt;
+      FOR_ROW_COL_MV
+              if (LDD->Drc == 5)
+              SoilLossTot += Qsn->Drc * _dt;
+//      SoilLossTot += Qsn->DrcOutlet * _dt;
       // sum all sed in all pits (in kg), needed for mass balance
 
-      //SoilLossTotOutlet += Qsoutflow->DrcOutlet;
       SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
       // for screen output, total main outlet sed loss in kg
       TotalSed->copy(Sed);
@@ -235,11 +237,12 @@ void TWorld::Totals(void)
          ChannelDepTot += ChannelDep->mapTotal();
          ChannelSedTot = ChannelSed->mapTotal();
 
-         //SoilLossTot += ChannelQsoutflow->mapTotal();
-         SoilLossTot += ChannelQsn->DrcOutlet * _dt;
+         FOR_ROW_COL_MV_CH
+                 if (LDDChannel->Drc == 5)
+                 SoilLossTot += ChannelQsn->Drc * _dt;
+//         SoilLossTot += ChannelQsn->DrcOutlet * _dt;
          // add sed outflow for all pits to total soil loss
 
-         //SoilLossTotOutlet += ChannelQsoutflow->DrcOutlet;
          SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
          // add channel outflow (in kg) to total for main outlet
 
@@ -295,9 +298,13 @@ void TWorld::MassBalance()
    //  qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
 
    // Mass Balance sediment, all in kg
-   if (SwitchErosion && DetTot > 0)
-      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
-             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
-   //VJ 110825 forgot to include channeldettot in denominator in MBs!
+//   if (SwitchErosion && (DetTot + ChannelDetTot) > 0)
+//      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
+//             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
+//VJ 110825 forgot to include channeldettot in denominator in MBs!
+   if (SwitchErosion && SoilLossTot > 1e-9)
+      MBs = (DetTot + ChannelDetTot - SedTot - ChannelSedTot +
+             DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTot) *100;
+   //VJ 121212 changed to mass balance relative to soil loss
 }
 //---------------------------------------------------------------------------

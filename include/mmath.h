@@ -61,6 +61,7 @@ class TMMap : public cTMap
    void cover(cTMap *m, double v);
    void setMV();
    void checkMap(int oper, double V, QString SS);
+   int countUnits();
    double mapTotal();
    double mapAverage();
    double mapMinimum();
