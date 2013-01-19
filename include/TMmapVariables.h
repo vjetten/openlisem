@@ -30,20 +30,17 @@
 // separte here for easier Doxygen comments
 
 TMMap
-*tm,                         //!< Auxilary map
-*tma,                        //!< Auxilary map
-*tmb,                        //!< Auxilary map
-*tmc,                        //!< Auxilary map
-//*Mask,                       //!< Catchment mask, based on the LDD
+
 *DEM,                        //!< DEM [m]
-*DEMflood,                   //!< DEM + floodwater level (m)
-*WHflood,                    //!< floodwater level (m)
 *Vflood,
-*floodArea,                  //!< Area (value > 0) that can potentitlally be flooded
-*actFloodArea,               //!< Area (value > 0) that is flooded
-*floodDist,
-*qx,
-*qy,
+*Hx,
+*hx,
+*Hmx,
+*hmx,
+*Nx,
+*dHdLx,
+*Qxsum,
+*FloodDomain,
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -251,10 +248,13 @@ TMMap
 *TotalWatervol,              //!<
 *TotalConc,                  //!<
 
-Mu[6],                       //!< multiclass fraction of the grainsize in the 6 classes, 6 maps sum to 1.0
-CGm[6],                      //!< multiclass TC coefficient for this texture class
-DGm[6]                       //!< multiclass TC coeficient for this texture class
+//Mu[6],                       //!< multiclass fraction of the grainsize in the 6 classes, 6 maps sum to 1.0
+//CGm[6],                      //!< multiclass TC coefficient for this texture class
+//DGm[6],                       //!< multiclass TC coeficient for this texture class
 
-// add more variables here
-;                      //!< a dummy map to end the list, not used
+*tm,                         //!< Auxilary map
+*tma,                        //!< Auxilary map
+*tmb,                        //!< Auxilary map
+*tmc                        //!< Auxilary map
+;
 

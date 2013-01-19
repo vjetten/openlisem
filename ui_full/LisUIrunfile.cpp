@@ -119,6 +119,7 @@ void lisemqt::ParseInputData()
       //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
       //houses
       if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
+      if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
       if (p1.compare("Include flooding")==0)               checkChannelFlood->setChecked(check);
 
       if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
@@ -430,6 +431,7 @@ void lisemqt::updateModelData()
       if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
       //houses
       if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
+      if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
       if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
       if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
       if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());

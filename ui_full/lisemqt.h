@@ -234,6 +234,7 @@ public slots:
 
    void doCheckSnowmelt(bool check);
    void doCheckRainfall(bool check);
+   void doCheckPesticides(bool check);
 
    void on_E_InfiltrationMethod_currentIndexChanged(int inr);
    void on_E_runFileList_currentIndexChanged(int);

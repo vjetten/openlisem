@@ -177,7 +177,6 @@ double TMMap::mapAverage()
                 nrcells+=1;
             }
     return (total/nrcells);
-
 }
 //---------------------------------------------------------------------------
 // replaces value inside the areas with the average and retains the original values outside

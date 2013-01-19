@@ -359,8 +359,12 @@ void TWorld::InterceptionHouses(void)
          double Hmax = RoofStore->Drc;
          //max roof storage in m
          HouseCover->Drc = qMin(HouseCover->Drc, 0.95);
-         double Dmax = DrumStore->Drc/(CellArea->Drc*HouseCover->Drc);;
+
+         double Dmax =0;
+         if (SwitchRaindrum)
+             Dmax = DrumStore->Drc/(CellArea->Drc*HouseCover->Drc);
          //max drum storage in m
+
          double housedrain = 0;
          //overflow in m
 

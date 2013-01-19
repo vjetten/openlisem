@@ -186,6 +186,7 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Include tile drains")==0)            SwitchIncludeTile    =   iii == 1;
       //houses
       if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
+      if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
       if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel  =  iii == 1;
       SwitchAllinChannel = true;
       //VJ 100526 always true in old LISEM

@@ -198,37 +198,34 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->setMV();
+    //    ChannelQn->setMV();
 
-    if (useSorted)
+    //    if (useSorted)
+    //    {
+    //        KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
+    //                        ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+    //    }
+    //    else
+    //    {
+    FOR_ROW_COL_MV_CH
     {
-        KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-                        ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-    }
-    else
-    {
-        FOR_ROW_COL_MV_CH
+        if (LDDChannel->Drc == 5)
         {
-            if (LDDChannel->Drc == 5)
-            {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-                          ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-                // for checking:
-                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSed);
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
+                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
 
-
-                /*
+            /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known
                    you need to have the ingoing substance flux ChannelQS (mass/s)
                    and it will give outgoing flux ChannelQSn (mass/s)
                    and the current amount ChannelSubs (mass) in suspension+solution
                 */
-                //routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQS, ChannelQSn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSubs);
+            //routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQS, ChannelQSn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSubs);
 
-            }
         }
     }
+    // }
 
     ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output
     ChannelQsn->cover(LDD, 0);
@@ -270,6 +267,8 @@ void TWorld::ChannelFlow(void)
 
 }
 //---------------------------------------------------------------------------
+#define Drci Data[r+dr[i]][c+dc[i]]
+
 void TWorld::ChannelFlood(void)
 {
     if (!SwitchIncludeChannel)
@@ -277,304 +276,173 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    tm->fill(0); //channel waterheight above water surface
-    tma->fill(0); //dem+wh
-    tmb->fill(0);
-
-    ChannelHeight->cover(LDD,0);
-
-    // channel overflow water sticking out above flood water level
-    FOR_ROW_COL_MV_CH
-    {
-        tm->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc - WHflood->Drc);
-        tm->Drc = 1.0;//tm->Drc*_dx/tmb->Drc;
-    }
+    int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dr[9] = {1,1,1,  0, 0, 0,  -1, -1, -1};
 
     FOR_ROW_COL_MV
     {
         if (ChannelHeight->Drc > 0)
-            WHflood->Drc = 1.0;
-        DEMflood->Drc = DEM->Drc + WHflood->Drc;// + tm->Drc;
+            hmx->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc)*ChannelWidthUpDX->Drc/_dx;
     }
-    // add surplus water to DEM
 
-    double courant_number = 0.7;
+    double courant_number = 0.1;
     double froude_limit = 0.8;
-    double local_time_factor = time_factor;
-    double hflow = 0;
-    //double edgeslope = 0.001;
-    double hflow_threshold = 0.001;
-    double time_factor = 1.0;
-    int nrruns = 1;
+    double gravity = 9.81;
+    double h_min = 1e-6;
+    double timestep = 0;
+    double timesum = 0;
+    double sumh_t = hmx->mapTotal();
+    double diff;
 
-    local_time_factor = time_factor;
-    double maxdepth = qMin(10.0, qMax(0.1, WHflood->mapMaximum()));
+    // do one _dt with varying timestep based on courant condition
+    do {
+        sumh_t = hmx->mapTotal();
 
-    if (local_time_factor > (courant_number * _dx / qSqrt(9.8*maxdepth) ))
-        local_time_factor = courant_number * _dx / qSqrt(9.8*maxdepth);
+        Hmx->calc2Maps(DEM, hmx, ADD);
 
-    if (local_time_factor > _dt)
-        local_time_factor = _dt;
-    else
-    {
-        nrruns = qFloor(_dt/(local_time_factor+0.1))+1;
-        local_time_factor = _dt/(double)nrruns;
-    }
+        double maxdepth = qMax(0.01, hmx->mapMaximum());
+        // find maxdepth
+        timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
+        timestep = qMax(0.01, qMin(timestep, _dt-timesum));
+        // determine timestep
 
-    qDebug() << nrruns << local_time_factor;
-    // calculate fluxes qx and qy
-    DEBUG(QString("flood timestep %1, nr floodsteps %2, maxdepth %3.").arg(local_time_factor).arg(nrruns).arg(maxdepth));
+        Qxsum->fill(0);
+        // map with fluxes to/from central cell
+        FloodDomain->fill(0);
 
-    int ymax = _nrRows-1;
-    int xmax = _nrCols-1;
-    int y, x;
-
-
-
-    for (int nr = 0; nr < nrruns; nr++)
-    {
-        for(y = 0; y <= ymax; y++)
-            for(x = 0; x <= xmax; x++)
-                tmb->Data[x][y] = 0;
-
-        for(y =1; y <= ymax; y++)
+        // prepare maps in direction i;
+        for (int i = 0; i < 9; i++)
         {
-            int inc = 1;
-            for(x = xmax; x >= 1; x--)
+            double _dx2 = (((i+1) % 2) == 0 ? _dx : _dx*qSqrt(2));
+
+            // get the relevant maps and fill with 0 if outside
+            Hx->fill(0);   // dem+wh
+            hx->fill(0);   // wh
+            Nx->copy(N);   // manning
+            dHdLx->fill(0);
+            FOR_ROW_COL_MV
+                    if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
+                        c+dc[i] > 0 && c+dc[i] < _nrCols &&
+                        !IS_MV_REAL8(&hmx->Drci))
             {
-                if ((!IS_MV_REAL8(&WHflood->Data[x][y]) &&
-                     !IS_MV_REAL8(&WHflood->Data[x-1][y]) &&
-                     !IS_MV_REAL8(&WHflood->Data[x+1][y]) &&
-                     !IS_MV_REAL8(&WHflood->Data[x][y-1]) &&
-                     !IS_MV_REAL8(&WHflood->Data[x][y+1]))
-                        )
-                {
-
-                    if ((WHflood->Data[x][y]>0
-                         || WHflood->Data[x-1][y] > 0
-                         || WHflood->Data[x+1][y] > 0
-                         || WHflood->Data[x][y-1] > 0
-                         || WHflood->Data[x][y+1] > 0))
-                    {
-                        tmb->Data[y][inc] = (REAL8)x;
-                        inc++;
-                    }
-                }
+                Hx->Drc = DEM->Drci + hmx->Drci;
+                hx->Drc = hmx->Drci;
+                Nx->Drc = N->Drci;
+                dHdLx->Drc = (Hx->Drc - Hmx->Drc)/_dx2;
             }
-        }
-        tmb->report("tmb");
 
-        //FOR_ROW_COL_MV
-        for(y = 1; y <= ymax; y++)
+            // calc and sum fluxes in 8 directions, 4 = central cell
+            FOR_ROW_COL_MV
+            {
+                double Qx = 0, qlx = 0, qlx1 = 0, qlx2 = 0;
+
+                double dHdLxi = dHdLx->Drc;
+                double signx = (dHdLxi < 0 ? -1.0 : 1.0);
+                double hxi = hx->Drc;
+                double qxi = qx[i].m->Drc;
+                double NN = Nx->Drc;
+
+                if (hxi > h_min)
+                    qlx = (qxi - (gravity*hxi*timestep*dHdLxi))/
+                            (1.0 + (gravity*hxi*timestep*NN*NN*qxi)/qPow(hxi, 10.0/3.0));
+                else
+                    qlx = 0;
+                // explicit solution of saint venant equation (m2/s), Bates et al. 2010
+                qlx1 = hxi*qSqrt(gravity*hxi)*froude_limit;
+                // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
+                qlx2 = (hxi - hmx->Drc)*_dx2/timestep;
+                // limit max flux to width * water difference with central cell (m2/s)
+                Qx = signx * qMin(qMin(qAbs(qlx1), qAbs(qlx2)), qAbs(qlx));
+                // Qx is the min of all possible fluxes, preserve sign
+                if (i != 4)
+                    Qxsum->Drc += Qx/_dx2*0.5;
+                // add fluxes of 8 directions, qsum has unit m2/s /m = m/s
+                // 0.5 accounts for the fact that the central cell has a boundary
+                // of 4 sides is 4*dx, touching only EW and NS directions. Adding
+                // four more diagonal fluxes would cause twice the flow, so all fluxes
+                // are assumed to have a width of 0.5*dx * 8 = 4 dx.
+                // using 8 instead of 4 directions seems to give a much better flow
+                // for 4 directions do i += 2 instead of i++
+
+                //QV = max(QV, abs(qx*0.5));
+                // velocity calculated below with maximum of fluxes to/from central cell
+
+                if (i == 4)
+                    qx[i].m->Drc = signx * qMin(qlx, qlx1);
+                else
+                    qx[i].m->Drc = Qx;
+                // save flux in direction i, min of st venant and wave velocity flux
+            }
+        } // i = 1 to 9
+
+        FOR_ROW_COL_MV
         {
-            int inc = 1;
-            qDebug() << y << inc << tmb->Data[y][inc];
-            while (tmb->Data[y][inc] > 0)
-            {
-                x = (int)tmb->Data[y][inc];
-                inc++;
-                // calc qx, in x direction
-                if ((WHflood->Data[x][y] > 0 || WHflood->Data[x - 1][y] > 0) && !IS_MV_REAL8(&DEM->Data[x-1][y]))
-                {
-                    hflow = qMax(DEMflood->Data[x][y], DEMflood->Data[x-1][y]) - qMax(DEM->Data[x][y], DEM->Data[x-1][y]);
-
-                    if (hflow > hflow_threshold)
-                    {
-                        double tempslope = (DEMflood->Data[x][y] - DEMflood->Data[x-1][y])/_dx;
-
-                        //                if (x == xmax) tempslope = edgeslope;
-                        //                if (x <= 2) tempslope = 0 - edgeslope;
-
-                        qx->Data[x][y] = (qx->Data[x][y] - (9.8 * hflow * local_time_factor * tempslope)) /
-                                (1 + 9.8 * hflow * local_time_factor * N->Data[x][y]*N->Data[x][y] * qAbs(qx->Data[x][y])/qPow(hflow,10/3));
-
-                        //if (oldqx != 0) qx->Data[x][y] = (oldqx + qx->Data[x][y]) / 2;
-
-                        // need to have these lines to stop too much water moving from one cell to another
-                        // - resulting in -ve discharges
-                        // which causes a large instability to develop - only in steep catchments really
-                        if (qx->Data[x][y] > 0 && (qx->Data[x][y]/hflow)/qSqrt(9.8*hflow) > froude_limit )
-                            qx->Data[x][y] = hflow * qSqrt(9.8*hflow) * froude_limit;
-                        if (qx->Data[x][y] < 0 && qAbs(qx->Data[x][y]/hflow)/qSqrt(9.8*hflow) > froude_limit )
-                            qx->Data[x][y] = 0 - hflow * qSqrt(9.8*hflow) * froude_limit;
-
-                        if (qx->Data[x][y] > 0 && (qx->Data[x][y]*local_time_factor/_dx) > (WHflood->Data[x][y]/4.0))
-                            qx->Data[x][y] = ((WHflood->Data[x][y]*_dx)/5.0)/local_time_factor;
-                        if (qx->Data[x][y] < 0 && qAbs(qx->Data[x][y] * local_time_factor/_dx) > (WHflood->Data[x-1][y]/4.0))
-                            qx->Data[x][y] = 0 - ((WHflood->Data[x-1][y]*_dx)/5.0)/local_time_factor;
-                    }
-                    else
-                        qx->Data[x][y] = 0;
-                }
-
-                //                // calc qy, in y direction
-                if ((WHflood->Data[x][y] > 0 || WHflood->Data[x][y-1] > 0) && !IS_MV_REAL8(&DEM->Data[x][y-1]))
-                {
-
-                    hflow = qMax(DEMflood->Data[x][y], DEMflood->Data[x][y-1]) - qMax(DEM->Data[x][y], DEM->Data[x][y-1]);
-
-                    if (hflow > hflow_threshold)
-                    {
-                        double tempslope = (DEMflood->Data[x][y] - DEMflood->Data[x][y-1])/_dx;
-
-                        //                if (x == xmax) tempslope = edgeslope;
-                        //                if (x <= 2) tempslope = 0 - edgeslope;
-
-                        //double oldqx = qx->Data[x][y];
-                        qy->Data[x][y] = (qy->Data[x][y] - (9.8 * hflow * local_time_factor * tempslope)) /
-                                (1 + 9.8 * hflow * local_time_factor * N->Data[x][y]*N->Data[x][y] * qAbs(qy->Data[x][y])/qPow(hflow,10/3));
-
-                        //if (oldqy != 0) qy->Data[x][y] = (oldqy + qy->Data[x][y]) / 2;
-
-                        // need to have these lines to stop too much water moving from one cell to another
-                        // - resulting in -ve discharges
-                        // which causes a large instability to develop - only in steep catchments really
-                        if (qy->Data[x][y] > 0 && (qy->Data[x][y]/hflow)/qSqrt(9.8*hflow) > froude_limit )
-                            qy->Data[x][y] = hflow * qSqrt(9.8*hflow) * froude_limit;
-                        if (qy->Data[x][y] < 0 && qAbs(qy->Data[x][y]/hflow)/qSqrt(9.8*hflow) > froude_limit )
-                            qy->Data[x][y] = 0 - hflow * qSqrt(9.8*hflow) * froude_limit;
-
-                        if (qy->Data[x][y] > 0 && (qy->Data[x][y]*local_time_factor/_dx) > (WHflood->Data[x][y]/4.0))
-                            qy->Data[x][y] = ((WHflood->Data[x][y]*_dx)/5.0)/local_time_factor;
-                        if (qy->Data[x][y] < 0 && qAbs(qy->Data[x][y] * local_time_factor/_dx) > (WHflood->Data[x][y-1]/4.0))
-                            qy->Data[x][y] = 0 - ((WHflood->Data[x][y-1]*_dx)/5.0)/local_time_factor;
-                    }
-                    else
-                        qy->Data[x][y] = 0;
-                }
-
-                //            }
-                //update water heights with fluxes qx and qy
-
-                for(y = 1; y <= ymax; y++)
-                {
-                    int inc = 1;
-                    while (tmb->Data[y][inc] > 0)
-                    {
-                        x = (int)tmb->Data[y][inc];
-                        inc++;
-                        WHflood->Data[x][y] += local_time_factor * (qx->Data[x + 1][y] - qx->Data[x][y] + qy->Data[x][y + 1] - qy->Data[x][y]) / _dx;
-
-                    }
-
-                }
-                WHflood->report("whf");
-                qx->report("qx");
-                qy->report("qy");
-            }
+            hmx->Drc += timestep*Qxsum->Drc;
+            // add sum q*dt (= m/s * s) to h
+            hmx->Drc = max(0, hmx->Drc);
+            // not below 0
         }
-    }
-}
-//---------------------------------------------------------------------------
 
 
+        // correction, flow cannot lead to water level rise above neaghbours,
+        // water cannot flow up in this simplified solution (no momentum)
+        FOR_ROW_COL_MV
+        {
+            double hmax = 0;
+            for (int i = 0; i < 9; i++)
+                if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
+                        c+dc[i] > 0 && c+dc[i] < _nrCols &&
+                        i != 4 && !IS_MV_REAL8(&hmx->Drci))
+                {
+                    hmax = qMax(hmax, hmx->Drci);
+                    // find the hieghest water level around centre cell
+                }
+            hmx->Drc = qMin(hmx->Drc, hmax);
+        }
 
-//  ChannelHeight->cover(LDD,0);
-//  actFloodArea->copy(floodArea);
-//  // initialize floodarea
+        FOR_ROW_COL_MV
+        {
+            if (hmx->Drc > 0)
+                FloodDomain->Drc = 1;
+            else
+                FloodDomain->Drc = 0;
+        }
+        double cells = qMax(1.0, FloodDomain->mapTotal());
+        // wet cells
 
-//  FOR_ROW_COL_MV
-//      DEMflood->Drc = DEM->Drc + WHflood->Drc;
-//  DEMflood->report("dfld");
-//  tmb->copy(ChannelWidthUpDX);
-//  tmb->cover(LDD, 0);
-//  FOR_ROW_COL_MV_CH
-//  {
-//    tm->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc - WHflood->Drc);
-//    tm->Drc = tm->Drc*_dx/tmb->Drc;
-//  }
-//  tm->cover(LDD, 0);
-//  // channel water rising above current flood plain
-//  tm->report("ch");
+        // calculate mass balance and correct h with average error over wet cells, instead of true iteration
+        double sumh_t1 = sumh_t1 = hmx->mapTotal();
+        diff = (sumh_t - sumh_t1)/cells;
 
-//  FOR_ROW_COL_MV
-//      tma->Drc = DEMflood->Drc + tm->Drc;
-//  // initial water + DEM
+        qDebug() << timesum << timestep  << diff << sumh_t << sumh_t1 ;
 
-//  for (int i = 0; i < 12; i++)
-//    {
-//      tmb->copy(tma);
-//      // reset to original level
-//      tmb->areaAverage(actFloodArea);
-//      // average dem+water level in flooded area
+        timesum = timesum + timestep;
+        // sum to reach _dt
 
-//      FOR_ROW_COL_MV
-//      {
-//        if(actFloodArea->Drc == 0)
-//          tmb->Drc = DEMflood->Drc;
-//      }
-//      // Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-//      // set to DEM outside flood area
+    } while (timesum  < _dt);
+    // continue while _dt is not reached
 
-//      FOR_ROW_COL_MV
-//      {
-//        if (tmb->Drc > DEMflood->Drc)
-//          actFloodArea->Drc = floodArea->Drc;
-//        else
-//          actFloodArea->Drc = 0;
-//      }
-//      // Lake = if(Dem > DemDam, PotLake, 0);
-//      // adapt flood area
-
-//      DEMflood->copy(tmb);
-
-//      FOR_ROW_COL_MV
-//      {
-//        WHflood->Drc = max(0, DEMflood->Drc - DEM->Drc);
-//        Vflood->Drc = _dt*pow(WHflood->Drc,(2/3))*sqrt(Grad->Drc)/N->Drc;
-//      }
-//      tmb->copy(Vflood);
-//      tmb->areaAverage(actFloodArea);
-//      FOR_ROW_COL_MV
-//      {
-//        if (tmb->Drc > floodDist->Drc)
-//          actFloodArea->Drc = 0;
-//      }
-//    }
-
-//  WHflood->report("whf");
-//  DEMflood->report("dflda");
-//  actFloodArea->report("area");
-//    FOR_ROW_COL_MV_CH
-//    {
-//      if (tm->Drc > 0)
-//        ChannelWH->Drc = ChannelHeight->Drc + WHflood->Drc;
-//    }
 //    FOR_ROW_COL_MV
+//            if (FloodDomain->Drc > 0)
 //    {
-//      if (actFloodArea->Drc > 0)
-//        WH->Drc = WHflood->Drc;
+//        WH->Drc = hmx->Drc + WHstore->Drc;
+//        WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
 //    }
-//    WH->report("wh");
-//}
 
-//binding
-// DemDam = dem10m.map;
-// PotLake = floodarea.map;
-// WL = ch;
-
-//timer
-//1 200 1;
-
-//initial
-//Dem = DemDam;
-
-//dynamic
-
-// DemPit = timeinput(WL)+Dem;
-// Lake = PotLake;
-
-// Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-// Lake = if(Dem > DemDam, PotLake, 0);
-// Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-// Lake = if(Dem > DemDam, PotLake, 0);
-// Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-// Lake = if(Dem > DemDam, PotLake, 0);
-// Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-// Lake = if(Dem > DemDam, PotLake, 0);
-//## Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-//## Lake = if(Dem > DemDam, PotLake, 0);
-//## Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-//## Lake = if(Dem > DemDam, PotLake, 0);
-// report Dem = if(Lake ne 0,areaaverage(DemPit ,Lake),DemDam);
-// report Lake = if(Dem > DemDam, PotLake,0);
+    hmx->report("h0toc");
+    FloodDomain->report("FD");
+    tmb->calc2Maps(DEM, hmx, ADD);
+    tmb->report("hxdem");
+tma->fill(0);
+    FOR_ROW_COL_MV_CH
+    {
+        if (ChannelHeight->Drc > 0 && hmx->Drc > ChannelHeight->Drc)
+        {
+            tma->Drc = ChannelWH->Drc - (hmx->Drc + ChannelHeight->Drc);
+//            ChannelWH->Drc = hmx->Drc + ChannelHeight->Drc;
+//            ChannelWaterVol->Drc = ChannelWH->Drc *
+//                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
+        }
+    }
+    tma->report("diff");
+}

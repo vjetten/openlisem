@@ -130,6 +130,7 @@ void lisemqt::SetConnections()
 {
   connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
   connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
+  connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
   connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
   connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
@@ -317,7 +318,7 @@ void lisemqt::setMapDir()
 //  if (pathin.isEmpty())
 //    pathin = currentDir;
   path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
-                                           pathin, QFileDialog::ReadOnly);//,QFileDialog::ShowDirsOnly);
+                                           pathin, QFileDialog::DontUseNativeDialog);//ReadOnly);//,QFileDialog::ShowDirsOnly);
   if(!path.isEmpty())
     E_MapDir->setText( path );
 }
@@ -338,7 +339,7 @@ void lisemqt::setResultDir()
 //    pathin = currentDir;
 
   path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
-                                           pathin, QFileDialog::ReadOnly);//,QFileDialog::ShowDirsOnly);
+                                           pathin, QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
 
   if(!path.isEmpty())
     E_ResultDir->setText( path );
@@ -362,7 +363,7 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
 //  pathin = pathin + "/..";
 
   path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                           pathin, QFileDialog::ReadOnly);//,QFileDialog::ShowDirsOnly);
+                                           pathin, QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
 
   if(!path.isEmpty())
     {
@@ -860,6 +861,7 @@ void lisemqt::resetAll()
   checkHardsurface->setChecked(check);
   //houses
   checkHouses->setChecked(check);
+  checkRaindrum->setChecked(check);
   // flooded areas
   checkChannelFlood->setChecked(check);
   checkLimitTC->setChecked(check);

@@ -53,8 +53,8 @@ void TWorld::OutputUI(void)
     op.DrawMap->copy(InfilmmCum);  //infil in mm
   if (SwitchErosion && op.drawMapType == 3)
     {
-      tmb->calc2Maps(TotalSoillossMap,CellArea, MUL);
-      tmb->calcValue(1000, DIV);
+      tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
+      tmb->calcValue(10, MUL); /* in kg/cell so div by area for kg/m2 and x10 for ton/ha */
 
       op.DrawMap->copy(tmb);  //soilloss in ton/ha
     }
@@ -94,7 +94,7 @@ void TWorld::OutputUI(void)
   op.ChannelDetTot=ChannelDetTot*0.001; // convert from kg to ton
   op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
   op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
-  op.ChannelWH = ChannelWH->DrcOutlet;
+  op.ChannelWH = ChannelWH->DrcPlot;
 
   op.SoilLossTot=SoilLossTotOutlet*0.001; // convert from kg to ton
 

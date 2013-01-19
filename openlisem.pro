@@ -42,7 +42,6 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/LisUIDefaultNames.cpp \
     ui_full/lisemqt.cpp \
     ui_full/LisUIplot.cpp \
-    ui_full/LisUImap.cpp \
     CsfMap.cpp \
     lisChannelflow.cpp \
     lisTiledrainflow.cpp \
@@ -65,7 +64,8 @@ SOURCES += lisTotalsMB.cpp \
     swatre/lutio.cpp \
     swatre/lookup.cpp \
     swatre/swatinp.cpp \
-    LisKinematicSorted.cpp
+    LisKinematicSorted.cpp \
+    ui_full/LisUImapplot.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
    greaterThan(OLVC, 0) {

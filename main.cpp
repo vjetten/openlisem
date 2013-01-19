@@ -50,12 +50,12 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon("openlisem.ico"));
 
-    op.LisemDir = QCoreApplication::applicationDirPath() + QDir::separator();
+    op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 
     lisemqt iface;
 
-	 iface.setWindowTitle(VERSION);
+     iface.setWindowTitle(VERSION);
 
     if (argc <= 1)
     {

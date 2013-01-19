@@ -45,8 +45,6 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
    DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
    DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
-   DEFmaps.append("2;Flood;floodarea.map;Zones (value > 0) that can potentially be flooded (1,2,3,...);floodarea");
-   DEFmaps.append("2;Flood;flooddist.map;Distance to the channel in m;flooddist");
    DEFmaps.append("0;Landuse");
    DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
    DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");
@@ -143,6 +141,9 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("2;Class 4;mu4.map;Soil texture fraction for class 4 (-);fractionmu4");
    DEFmaps.append("2;Class 5;mu5.map;Soil texture fraction for class 5 (-);fractionmu5");
    DEFmaps.append("0;Nutrients");
+   DEFmaps.append("1;Pesticdes");
+   DEFmaps.append("2;something;something.map;bla bla;something");
+   DEFmaps.append("2;something;something.map;bla bla;something2");
    DEFmaps.append("1;Phosphorus");
    DEFmaps.append("2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk");
    DEFmaps.append("2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont");
@@ -270,6 +271,8 @@ void lisemqt::defaultRunFile()
    namelist[i].value = QString("0");
    //houses
    namelist[i++].name = QString("Include house storage");
+   namelist[i].value = QString("0");
+   namelist[i++].name = QString("Include raindrum storage");
    namelist[i].value = QString("0");
    namelist[i++].name = QString("All water and sediment to outlet");
    namelist[i].value = QString("0");

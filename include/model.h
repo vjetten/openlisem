@@ -203,7 +203,7 @@ public:
   SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
   SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
   SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-  SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood;
+  SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum;
 
   // multiple options that are set in interface or runfile, see defines above
   /// Interception storage function based on LAI
@@ -330,6 +330,8 @@ public:
   QString GetName(QString p);
   void ParseRunfileData(void);
   void GetRunFile(void);
+  MapListStruct qx[9];
+  //MapListStruct hx[9];
 
   // LISEM model processes
   //void GetRainfallData(void);   // get input timeseries
@@ -402,7 +404,7 @@ public:
   long lddlistchnr;
   LDD_POINT **lddlisttile;
   long lddlisttilenr;
-  QVector <TMMap> Substance;
+ // QVector <TMMap> Substance;
 
   //SWATRE
   /// filenames for Swatre soil information

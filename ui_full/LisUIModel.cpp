@@ -43,6 +43,14 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
+    if(W)
+    {
+        if (W->waitRequested)
+            pausemodel();
+        return;
+    }
+
+
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
     {
@@ -97,9 +105,24 @@ void lisemqt::pausemodel()
         W->waitRequested = !W->waitRequested;
         if (!W->waitRequested)
         {
+            runAct->setChecked(true);
+            stopAct->setChecked(false);
+            pauseAct->setChecked(false);
             label_debug->setText("User continue...");
             W->condition.wakeAll();
         }
+        else
+        {
+            stopAct->setChecked(false);
+            runAct->setChecked(false);
+            pauseAct->setChecked(true);
+        }
+    }
+    else
+    {
+        stopAct->setChecked(false);
+        runAct->setChecked(false);
+        pauseAct->setChecked(false);
     }
 }
 //---------------------------------------------------------------------------
@@ -219,9 +242,12 @@ void lisemqt::worldDone(const QString &results)
 
     //killMapPlot();
     // free the map plot discharge bdata
-
-    QFile(QString(op.LisemDir+"openlisemtmp.run")).remove();
+    bool hoi = QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
     // delete the temp run file
+qDebug() << hoi;
+    stopAct->setChecked(false);
+    runAct->setChecked(false);
+    pauseAct->setChecked(false);
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

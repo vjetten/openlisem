@@ -221,6 +221,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     if (SwitchErosion)
         _Qsn->fill(0);
     // set output sed flux to 0
+    _Qn->setMV();
+    // flag all Qn gridcell with MV
 
     while (list != NULL)
     {
@@ -250,7 +252,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
 
             // check if there are more cells upstream, if not subCatchDone remains true
             if (IS_MV_REAL4(&_Qn->Drc) &&
-                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
                 temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -268,14 +270,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
         if (subCachDone)
         {
             double Qin=0.0, Sin=0.0;
-
-            // multiclass and nutrients
-            //         double MCin[6];
-            //         double NUTin[12];
-            //         for (i = 0; i < 6; i++)
-            //            MCin[i] = 0;
-            //         for (i = 0; i < 12; i++)
-            //            NUTin[i] = 0;
 
             // for all incoming cells of a cell, sum Q and Sed and put in Qin and Sin
             // note these are values of Qn and Qsn so the new flux
