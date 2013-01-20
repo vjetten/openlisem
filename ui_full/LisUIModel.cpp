@@ -215,6 +215,7 @@ void lisemqt::worldShow()
             textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
 
+    ShowBaseMap();
     ShowMap();
 
     if (doShootScreens)
@@ -244,7 +245,7 @@ void lisemqt::worldDone(const QString &results)
     // free the map plot discharge bdata
     bool hoi = QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
     // delete the temp run file
-qDebug() << hoi;
+qDebug() << "deleted" << hoi;
     stopAct->setChecked(false);
     runAct->setChecked(false);
     pauseAct->setChecked(false);

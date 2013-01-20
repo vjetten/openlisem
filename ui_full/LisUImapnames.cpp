@@ -109,76 +109,76 @@ void lisemqt::fillMapnames()
 /** enables or disables a branch and expands or contracts it */
 void lisemqt::checkMapNameModel(int parentrow, int selrow, bool setit)
 {
-	if (MapNameModel)
-	{
-		QModelIndex indexParent = MapNameModel->index(parentrow, 0);
-		// select and expand chosen main and sub-branch
-		if (selrow >= 0)
-		{
-			MapNameModel->setFlag(setit, parentrow);
-			// set top level node
-			if (selrow == 0)
-				for (int k = 0; k < MapNameModel->rowCount(indexParent); k++)
-					MapNameModel->setFlag(setit, k, indexParent);
-			else
-				if (selrow >= 10)
-				{
-					selrow -= 10;
-					MapNameModel->setFlag(setit, selrow, indexParent);
+    if (MapNameModel)
+    {
+        QModelIndex indexParent = MapNameModel->index(parentrow, 0);
+        // select and expand chosen main and sub-branch
+        if (selrow >= 0)
+        {
+            MapNameModel->setFlag(setit, parentrow);
+            // set top level node
+            if (selrow == 0)
+                for (int k = 0; k < MapNameModel->rowCount(indexParent); k++)
+                    MapNameModel->setFlag(setit, k, indexParent);
+            else
+                if (selrow >= 10)
+                {
+                    selrow -= 10;
+                    MapNameModel->setFlag(setit, selrow, indexParent);
 
-					QModelIndex indexChild = MapNameModel->index(selrow, 0, indexParent);
+                    QModelIndex indexChild = MapNameModel->index(selrow, 0, indexParent);
 
-					for (int k = 0; k < MapNameModel->rowCount(indexChild); k++)
-						MapNameModel->setFlag(setit, k, indexChild);
-				}
+                    for (int k = 0; k < MapNameModel->rowCount(indexChild); k++)
+                        MapNameModel->setFlag(setit, k, indexChild);
+                }
 
-			if (setit)
-			{
-				treeView->expand(MapNameModel->index(parentrow,0));
-				if (selrow >= 0)
-					treeView->expand(MapNameModel->index(selrow, 0, indexParent));
-			}
-			else
-			{
-				if (selrow >= 0)
-					treeView->collapse(MapNameModel->index(selrow, 0, indexParent));
-				if (selrow == 0)
-					treeView->collapse(MapNameModel->index(parentrow,0));
-			}
-		}
-	}
+            if (setit)
+            {
+                treeView->expand(MapNameModel->index(parentrow,0));
+                if (selrow >= 0)
+                    treeView->expand(MapNameModel->index(selrow, 0, indexParent));
+            }
+            else
+            {
+                if (selrow >= 0)
+                    treeView->collapse(MapNameModel->index(selrow, 0, indexParent));
+                if (selrow == 0)
+                    treeView->collapse(MapNameModel->index(parentrow,0));
+            }
+        }
+    }
 }
 //--------------------------------------------------------------------
 /** initialize the map tree interface, this function is called twice: first to initialize the interface
 also after each call of a runfile so that the runfile mapnames are loaded */
 void lisemqt::initMapTree()
 {
-	if (MapNameModel)
-	{
-		delete MapNameModel;
-		MapNameModel = NULL;
-	}
+    if (MapNameModel)
+    {
+        delete MapNameModel;
+        MapNameModel = NULL;
+    }
 
    MapNameModel = new TreeModel(DEFmaps);
    // DEFmaps is used to construct the interface tree struture
 
-	treeView->setModel(MapNameModel);
+    treeView->setModel(MapNameModel);
 
-	treeView->setColumnWidth(0,196);
-	treeView->setColumnWidth(1,196);
-	treeView->setColumnWidth(2,400);
-	treeView->setColumnWidth(3,0);
-	treeView->setColumnWidth(4,0);
-	treeView->setAlternatingRowColors(true);
+    treeView->setColumnWidth(0,196);
+    treeView->setColumnWidth(1,196);
+    treeView->setColumnWidth(2,400);
+    treeView->setColumnWidth(3,0);
+    treeView->setColumnWidth(4,0);
+    treeView->setAlternatingRowColors(true);
 
    checkMapNameModel(RAINFALLMAPS,0, true);
    checkMapNameModel(CATCHMENTMAPS,0, true);
    checkMapNameModel(LANDUSEMAPS,0, true);
    checkMapNameModel(SURFACEMAPS,0, true);
    checkMapNameModel(EROSIONMAPS,0, true);
-	// enable basic maps, tree nodes 0-4 = first 5 branches
-   
-	treeView->collapseAll();
+    // enable basic maps, tree nodes 0-4 = first 5 branches
+
+    treeView->collapseAll();
 }
 //--------------------------------------------------------------------
 /** edit mapname in reponse to edit keys (like F2)
@@ -193,7 +193,7 @@ void lisemqt::editMapname(QModelIndex topLeft, QModelIndex bottomRight )
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELSMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
 
    for (int k = 0; k < nrmaplist; k++)
@@ -224,7 +224,7 @@ void lisemqt::openMapname(QModelIndex topLeft)
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELSMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
    // correct for 3 level structures
 

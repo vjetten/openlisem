@@ -93,7 +93,7 @@
          </rect>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1474,7 +1474,7 @@
              <item row="0" column="0" colspan="2">
               <widget class="QGroupBox" name="groupBox">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1717,7 +1717,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Allow flooding of channels (GIS type overflow, not physical)</string>
+                   <string>Allow flooding from channels (experimental)</string>
                   </property>
                  </widget>
                 </item>
@@ -6131,7 +6131,7 @@ p, li { white-space: pre-wrap; }
            <item row="2" column="1">
             <widget class="QLineEdit" name="E_RainfallName">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -6246,7 +6246,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="1">
             <widget class="QComboBox" name="E_runFileList">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -6367,7 +6367,7 @@ p, li { white-space: pre-wrap; }
            <item row="1" column="1">
             <widget class="QLineEdit" name="E_MapDir">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -6491,7 +6491,7 @@ p, li { white-space: pre-wrap; }
               <bool>false</bool>
              </property>
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -7914,7 +7914,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="1" colspan="2">
             <widget class="QLineEdit" name="E_ResultDir">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -8249,7 +8249,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -13315,7 +13315,7 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL"/>
                 </item>
                </layout>
               </widget>

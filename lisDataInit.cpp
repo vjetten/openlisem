@@ -454,25 +454,14 @@ void TWorld::InitChannel(void)
     ChannelTC = NewMap(0);
     ChannelY = NewMap(0);
 
+    hmx = NewMap(0);
+    FloodDomain = NewMap(0);
+
     if (SwitchIncludeChannel)
     {
         //## channel maps
         LDDChannel = InitMaskChannel(getvaluename("lddchan"));
         // must be first" LDDChannel is the mask for channels
-
-        if (SwitchChannelFlood)
-        {
-            ChannelHeight = ReadMap(LDDChannel, getvaluename("chanheight"));
-            FOR_ROW_COL_MV_CH
-            {
-                if (ChannelHeight->Drc <= 0)
-                {
-                    ErrorString = QString("Map %1 contains channel cells with height = 0").arg(getvaluename("chanheigth"));
-                    throw 1;
-                }
-            }
-            ChannelHeight->cover(LDD,0);
-        }
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
         ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
@@ -505,6 +494,7 @@ void TWorld::InitChannel(void)
             ChannelKsat->cover(LDD, 0);
             ChannelKsat->calcValue(ChKsatCalibration, MUL);
             ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
+            // store not used?
         }
         ChannelWidthUpDX->copy(ChannelWidth);
         ChannelWidthUpDX->cover(LDD, 0);
@@ -514,8 +504,31 @@ void TWorld::InitChannel(void)
             ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
 
-        if (useSorted)
-            lddlistch = makeSortedNetwork(LDDChannel, &lddlistchnr);
+        if (SwitchChannelFlood)
+        {
+            for (int i = 0; i < 9; i++)
+                qx[i].m = NULL;
+            for (int i = 0; i < 9; i++)
+                qx[i].m = NewMap(0);
+
+            Vflood = NewMap(0);
+            Qxsum = NewMap(0);
+            Hx = NewMap(0);
+            hx = NewMap(0);
+            Hmx = NewMap(0);
+            Nx = NewMap(0);
+            dHdLx = NewMap(0);
+
+            ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+            ChannelDepth->cover(LDD,0);
+            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
+            Barriers->cover(LDD,0);
+            ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
+            ChannelMaxQ->cover(LDD,0);
+        }
+
+        //        if (useSorted)
+        //            lddlistch = makeSortedNetwork(LDDChannel, &lddlistchnr);
         //VJ 110123 sorted channel network
     }
 }
@@ -570,25 +583,6 @@ void TWorld::GetInputData(void)
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
 
-    hmx = NewMap(0);
-    FloodDomain = NewMap(0);
-
-    if (SwitchChannelFlood)
-    {
-        for (int i = 0; i < 9; i++)
-            qx[i].m = NULL;
-        for (int i = 0; i < 9; i++)
-            qx[i].m = NewMap(0);
-
-        Vflood = NewMap(0);
-        Qxsum = NewMap(0);
-        Hx = NewMap(0);
-        hx = NewMap(0);
-        Hmx = NewMap(0);
-        Nx = NewMap(0);
-        dHdLx = NewMap(0);
-    }
-
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
     Grad->calcValue(0.001, MAX);
@@ -642,6 +636,7 @@ void TWorld::GetInputData(void)
     FOR_ROW_COL_MV
     {
         Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        if (Shade->Drc == 0) Shade->Drc = 0.2;
     }
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));

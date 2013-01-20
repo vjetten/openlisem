@@ -28,7 +28,7 @@
 
 functions: \n
 - void TWorld::CalcVelDischChannel(void) calculate Velocity, alpha and Q in the channel \n
-- void TWorld::ChannelFlow(void) calculate channelflow, channelheight, do kinematic wave \n
+- void TWorld::ChannelFlow(void) calculate channelflow, ChannelDepth, do kinematic wave \n
 */
 
 #include "model.h"
@@ -63,6 +63,9 @@ void TWorld::CalcVelDischChannel(void)
         else
         {
             Perim = FW + 2*wh;
+            if (ChannelMaxQ->Drc > 0)
+                Perim = FW + 2*wh + FW;
+            // box culvert more friction
             Area = FW*wh;
         }
         //Perim = ChannelWidth->Drc + 2*wh/cos(atan(ChannelSide->Drc));
@@ -86,16 +89,9 @@ void TWorld::CalcVelDischChannel(void)
 
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
     }
-    //   else // WHY THIS??? RELIC !!!
-    //   {
-    //      ChannelAlpha->Drc = 0;
-    //      ChannelQ->Drc = 0;
-    //      ChannelV->Drc = 0;
-    //      ChannelPerimeter->Drc = 0;
-    //   }
 }
 //---------------------------------------------------------------------------
-//! calc channelflow, channelheight, kin wave
+//! calc channelflow, ChannelDepth, kin wave
 void TWorld::ChannelFlow(void)
 {
     if (!SwitchIncludeChannel)
@@ -152,6 +148,12 @@ void TWorld::ChannelFlow(void)
                 throw 1;
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
+        }
+
+        if (SwitchChannelFlood)
+        {
+            if (ChannelMaxQ->Drc > 0)
+                ChannelWH->Drc = min(ChannelDepth->Drc-0.01, ChannelWH->Drc);
         }
 
         if (ChannelWidthUpDX->Drc > _dx)
@@ -281,8 +283,9 @@ void TWorld::ChannelFlood(void)
 
     FOR_ROW_COL_MV
     {
-        if (ChannelHeight->Drc > 0)
-            hmx->Drc = max(0, ChannelWH->Drc - ChannelHeight->Drc)*ChannelWidthUpDX->Drc/_dx;
+        if (ChannelDepth->Drc > 0)
+            hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc)*ChannelWidthUpDX->Drc/_dx;
+        // note this lets you also control which channels flood: those that are 0 react as usual
     }
 
     double courant_number = 0.1;
@@ -291,14 +294,17 @@ void TWorld::ChannelFlood(void)
     double h_min = 1e-6;
     double timestep = 0;
     double timesum = 0;
-    double sumh_t = hmx->mapTotal();
-    double diff;
+  //  double sumh_t = hmx->mapTotal();
+  //  double diff;
 
     // do one _dt with varying timestep based on courant condition
     do {
-        sumh_t = hmx->mapTotal();
+    //    sumh_t = hmx->mapTotal();
 
-        Hmx->calc2Maps(DEM, hmx, ADD);
+        FOR_ROW_COL_MV
+        {
+            Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
+        }
 
         double maxdepth = qMax(0.01, hmx->mapMaximum());
         // find maxdepth
@@ -308,7 +314,20 @@ void TWorld::ChannelFlood(void)
 
         Qxsum->fill(0);
         // map with fluxes to/from central cell
-        FloodDomain->fill(0);
+
+        //flag which cells need processing
+        tma->fill(0);
+        for (int i = 0; i < 9; i++)
+        {
+            FOR_ROW_COL_MV
+                    if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
+                        c+dc[i] > 0 && c+dc[i] < _nrCols &&
+                        !IS_MV_REAL8(&hmx->Drci))
+            {
+                if (hx->Drci > 0)
+                    tma->Drc = 1;
+            }
+        }
 
         // prepare maps in direction i;
         for (int i = 0; i < 9; i++)
@@ -316,23 +335,33 @@ void TWorld::ChannelFlood(void)
             double _dx2 = (((i+1) % 2) == 0 ? _dx : _dx*qSqrt(2));
 
             // get the relevant maps and fill with 0 if outside
-            Hx->fill(0);   // dem+wh
-            hx->fill(0);   // wh
-            Nx->copy(N);   // manning
-            dHdLx->fill(0);
+//            Hx->fill(0);   // dem+wh
+//            hx->fill(0);   // wh
+//            Nx->copy(N);   // manning
+//            dHdLx->fill(0);
             FOR_ROW_COL_MV
-                    if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
+            {
+                if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                         c+dc[i] > 0 && c+dc[i] < _nrCols &&
                         !IS_MV_REAL8(&hmx->Drci))
-            {
-                Hx->Drc = DEM->Drci + hmx->Drci;
-                hx->Drc = hmx->Drci;
-                Nx->Drc = N->Drci;
-                dHdLx->Drc = (Hx->Drc - Hmx->Drc)/_dx2;
+                {
+                    Hx->Drc = DEM->Drci + hmx->Drci;
+                    hx->Drc = hmx->Drci;
+                    Nx->Drc = N->Drci;
+                    dHdLx->Drc = (Hx->Drc - Hmx->Drc)/_dx2;
+                }
+                else
+                {
+                    Hx->Drc = 0;
+                    hx->Drc = 0;
+                    Nx->Drc = N->Drc;
+                    dHdLx->Drc = 0;
+                }
             }
 
             // calc and sum fluxes in 8 directions, 4 = central cell
             FOR_ROW_COL_MV
+                    if (tma->Drc == 1)
             {
                 double Qx = 0, qlx = 0, qlx1 = 0, qlx2 = 0;
 
@@ -350,7 +379,7 @@ void TWorld::ChannelFlood(void)
                 // explicit solution of saint venant equation (m2/s), Bates et al. 2010
                 qlx1 = hxi*qSqrt(gravity*hxi)*froude_limit;
                 // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
-                qlx2 = (hxi - hmx->Drc)*_dx2/timestep;
+                qlx2 = (hxi - hmx->Drc)*_dx/timestep;
                 // limit max flux to width * water difference with central cell (m2/s)
                 Qx = signx * qMin(qMin(qAbs(qlx1), qAbs(qlx2)), qAbs(qlx));
                 // Qx is the min of all possible fluxes, preserve sign
@@ -383,7 +412,6 @@ void TWorld::ChannelFlood(void)
             // not below 0
         }
 
-
         // correction, flow cannot lead to water level rise above neaghbours,
         // water cannot flow up in this simplified solution (no momentum)
         FOR_ROW_COL_MV
@@ -407,42 +435,32 @@ void TWorld::ChannelFlood(void)
             else
                 FloodDomain->Drc = 0;
         }
-        double cells = qMax(1.0, FloodDomain->mapTotal());
-        // wet cells
+        //        double cells = qMax(1.0, FloodDomain->mapTotal());
+        //        // wet cells
 
-        // calculate mass balance and correct h with average error over wet cells, instead of true iteration
-        double sumh_t1 = sumh_t1 = hmx->mapTotal();
-        diff = (sumh_t - sumh_t1)/cells;
+        //        // calculate mass balance and correct h with average error over wet cells, instead of true iteration
+        //        double sumh_t1 = sumh_t1 = hmx->mapTotal();
+        //        diff = (sumh_t - sumh_t1)/cells;
 
-        qDebug() << timesum << timestep  << diff << sumh_t << sumh_t1 ;
+        //        qDebug() << timesum << timestep  << diff << sumh_t << sumh_t1 ;
 
         timesum = timesum + timestep;
         // sum to reach _dt
 
+        debug(QString("Flooding: %1 %2").arg(timesum).arg(timestep));
+
     } while (timesum  < _dt);
     // continue while _dt is not reached
 
-//    FOR_ROW_COL_MV
-//            if (FloodDomain->Drc > 0)
-//    {
-//        WH->Drc = hmx->Drc + WHstore->Drc;
-//        WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
-//    }
+    hmx->report("hmx");
 
-    hmx->report("h0toc");
-    FloodDomain->report("FD");
-    tmb->calc2Maps(DEM, hmx, ADD);
-    tmb->report("hxdem");
-tma->fill(0);
-    FOR_ROW_COL_MV_CH
-    {
-        if (ChannelHeight->Drc > 0 && hmx->Drc > ChannelHeight->Drc)
-        {
-            tma->Drc = ChannelWH->Drc - (hmx->Drc + ChannelHeight->Drc);
-//            ChannelWH->Drc = hmx->Drc + ChannelHeight->Drc;
-//            ChannelWaterVol->Drc = ChannelWH->Drc *
-//                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
-        }
-    }
-    tma->report("diff");
+    //    FOR_ROW_COL_MV_CH
+    //    {
+    //        if (ChannelDepth->Drc > 0 && hmx->Drc > ChannelDepth->Drc)
+    //        {
+    ////            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
+    ////            ChannelWaterVol->Drc = ChannelWH->Drc *
+    ////                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
+    //        }
+    //    }
 }

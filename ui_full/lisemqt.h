@@ -69,7 +69,7 @@
 #define SURFACEMAPS 3
 #define EROSIONMAPS 4
 #define INFILTRATIONMAPS 5
-#define CHANNELSMAPS 6
+#define CHANNELMAPS 6
 #define BUFFERSMAPS 7
 #define SNOWMELTMAPS 8
 #define TILEDRAINMAPS 9   //VJ 110111
@@ -127,6 +127,8 @@ public:
    void ShowMap();
    void ShowBaseMap();
    void fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
+   void fillDrawMapBaseData(TMMap *_M, TMMap *_M2);
+
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
    QwtPlotSpectrogram *baseMap;  // raster map drawing
@@ -139,7 +141,7 @@ public:
    void killMapPlot();
    QwtScaleWidget *rightAxis;
    QwtPlotRescaler *mapRescaler;
-   double maxAxis1, maxAxis2, maxAxis3;
+   double maxAxis1, maxAxis2, maxAxis3, maxAxis4;
    int pstep;
    QwtPlotMagnifier *magnifier;
    QwtPlotPanner *panner;
@@ -241,6 +243,7 @@ public slots:
 
    void on_checkChannelInfil_clicked();
    void on_checkChannelBaseflow_clicked();
+   void on_checkChannelFlood_clicked();
    void on_checkNoErosion_clicked();
    void on_checkIncludeChannel_clicked();
    void on_checkIncludeTiledrains_clicked();

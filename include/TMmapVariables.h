@@ -32,15 +32,6 @@
 TMMap
 
 *DEM,                        //!< DEM [m]
-*Vflood,
-*Hx,
-*hx,
-*Hmx,
-*hmx,
-*Nx,
-*dHdLx,
-*Qxsum,
-*FloodDomain,
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -181,7 +172,6 @@ TMMap
 *LDDChannel,                 //!<
 *RunoffVolinToChannel,       //!<
 *ChannelWidth,               //!<
-*ChannelHeight,               //!<
 *ChannelSide,                //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
@@ -198,16 +188,28 @@ TMMap
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
-*ChannelStore,                //!<
+*ChannelStore,               //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 *ChannelSed,                 //!<
 *ChannelConc,                //!<
 *ChannelTC,                  //!<
 *SedToChannel,               //!<
-//*ChannelQsoutflow,           //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
+// flood maps
+*ChannelDepth,               //!<
+*Vflood,                     //!<
+*Hx,                         //!<
+*Hmx,                        //!<
+*hx,                         //!<
+*hmx,                        //!<
+*Nx,                         //!<
+*dHdLx,                      //!<
+*Qxsum,                      //!<
+*FloodDomain,                //!<
+*Barriers,                    //!<
+*ChannelMaxQ,                //!<
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

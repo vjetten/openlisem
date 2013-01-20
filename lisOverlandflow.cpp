@@ -56,8 +56,15 @@ void TWorld::ToChannel(void)
                     fractiontochannel = 1.0;
             // where there is a buffer in the channel, all goes in the channel
 
-            if (FloodDomain->Drc == 1)
-                fractiontochannel = 0;
+            if (SwitchChannelFlood)
+            {
+                if (FloodDomain->Drc == 1)
+                    fractiontochannel = 0;
+                // no inflow when flooded
+                if (ChannelMaxQ->Drc > 0)
+                    fractiontochannel = 0;
+                // no surface inflow when culverts and bridges
+            }
 
             RunoffVolinToChannel->Drc = fractiontochannel*Volume;
             // water diverted to the channel

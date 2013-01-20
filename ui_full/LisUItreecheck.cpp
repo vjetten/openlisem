@@ -43,7 +43,7 @@ LANDUSEMAPS
 SURFACEMAPS
 EROSIONMAPS
 INFILTRATIONMAPS
-CHANNELSMAPS
+CHANNELMAPS
 BUFFERSMAPS
 SNOWMELTMAPS
 WHEELTRACKSMAPS
@@ -63,10 +63,11 @@ void lisemqt::on_checkIncludeChannel_clicked()
 {
     if (checkIncludeChannel->isChecked())
     {
-        checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-        checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+        checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
+        checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+        checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
     }
-    checkMapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
+    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
@@ -83,18 +84,29 @@ void lisemqt::on_checkChannelInfil_clicked()
 {
     if (checkChannelBaseflow->isChecked())
         checkChannelBaseflow->setChecked(false);
-    checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
-    checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
+    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+    checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
+    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
 {
     if (checkChannelInfil->isChecked())
         checkChannelInfil->setChecked(false);
-    checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-    checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
+    checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
+    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+
     QMessageBox::warning(this,"openLISEM",QString("NOT IMPLEMENTED YET"));
     checkChannelBaseflow->setChecked(false);
+
+    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+}
+//--------------------------------------------------------------------
+void lisemqt::on_checkChannelFlood_clicked()
+{
+    checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
+
+    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
@@ -262,9 +274,10 @@ void lisemqt::RunAllChecks()
 
     // PROCESS IN REVERSE ORDER
 
-    checkMapNameModel(CHANNELSMAPS, 11, checkChannelInfil->isChecked());
-    checkMapNameModel(CHANNELSMAPS, 12, checkChannelBaseflow->isChecked());
-    checkMapNameModel(CHANNELSMAPS, 10, checkIncludeChannel->isChecked());
+    checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
+    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+    checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
+    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
     checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());

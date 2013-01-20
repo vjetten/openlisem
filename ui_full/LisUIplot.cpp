@@ -281,7 +281,7 @@ void lisemqt::startPlots()
 {
   if (startplot)
     {
-      startplot = false;
+      //startplot = false;
 
       yas = 0.1;
       y2as = 0.1;

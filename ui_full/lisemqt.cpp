@@ -265,6 +265,7 @@ void lisemqt::SetToolBar()
   connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
   connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
   connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+  connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
   connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
 }
@@ -853,6 +854,7 @@ void lisemqt::resetAll()
   checkIncludeChannel->setChecked(check);
   checkChannelInfil->setChecked(check);
   checkChannelBaseflow->setChecked(check);
+  checkChannelFlood->setChecked(check);
   //	checkAllinChannel->setChecked(check);
   checkSnowmelt->setChecked(check);
   checkRainfall->setChecked(true);

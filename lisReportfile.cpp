@@ -58,6 +58,10 @@ void TWorld::OutputUI(void)
 
       op.DrawMap->copy(tmb);  //soilloss in ton/ha
     }
+  if (SwitchChannelFlood && op.drawMapType == 4)
+    {
+      op.DrawMap->copy(hmx);  //flood level in m
+    }
   op.baseMap->copy(Shade);
 
   op.dx = _dx;
