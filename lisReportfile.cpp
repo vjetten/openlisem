@@ -60,7 +60,14 @@ void TWorld::OutputUI(void)
     }
   if (SwitchChannelFlood && op.drawMapType == 4)
     {
-      op.DrawMap->copy(hmx);  //flood level in m
+      FOR_ROW_COL_MV
+      {
+          tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+          if (ChannelDepth->Drc > 0)
+             tmb->Drc = max(0.02, hmx->Drc);
+
+      }
+      op.DrawMap->copy(tmb);  //flood level in m
     }
   op.baseMap->copy(Shade);
 

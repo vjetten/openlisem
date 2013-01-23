@@ -69,9 +69,9 @@ lisemqt::lisemqt(QWidget *parent)
   //   setStatusBar(0);
   tabWidgetOptions->setCurrentIndex(1);
   tabWidgetOptions->setTabEnabled(0,false);
-  tabWidget_OutputMaps->setTabEnabled(1,false);
-  tabWidget_OutputMaps->setTabEnabled(2,false);
-  tabWidget_OutputMaps->setTabEnabled(3,false);
+//  tabWidget_OutputMaps->setTabEnabled(1,false);
+//  tabWidget_OutputMaps->setTabEnabled(2,false);
+//  tabWidget_OutputMaps->setTabEnabled(3,false);
  // checkChannelFlood->hide();
   groupBox_spare->hide();
   MapNameModel = NULL;

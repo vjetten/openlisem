@@ -121,6 +121,7 @@ void lisemqt::ParseInputData()
       if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
       if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
       if (p1.compare("Include flooding")==0)               checkChannelFlood->setChecked(check);
+      if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
 
       if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
       if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -424,14 +425,19 @@ void lisemqt::updateModelData()
       QString p1 = namelist[j].name;
       QString p;
       if (p1.compare("No Erosion simulation")==0) 	   namelist[j].value.setNum((int)checkNoErosion->isChecked());
+      //channels
       if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
       if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
       if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+      //flooding
       if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
+      if (p1.compare("Flooding courant factor")==0)  namelist[j].value = E_courantFactor->text();
+      //tile drains
       if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
       //houses
       if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
       if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
+
       if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
       if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
       if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());

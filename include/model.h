@@ -372,8 +372,7 @@ public:
   void ChannelFlowDetachment(void);
   //flood
   void ChannelFlood(void);
-  double time_factor;
-  double min_time_step;
+  double courant_factor;
 
   void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                  TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,

@@ -93,6 +93,9 @@ void lisemqt::setupMapPlot()
     baseMap->attach( MPlot );
     // shaded relief base map
 
+    // the order in which these are attached is the order displayed.
+    // So baseMap is now transparant ON TOP OF drawMap!!!
+
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
 
@@ -110,17 +113,15 @@ void lisemqt::setupMapPlot()
     mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
     mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
     mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting );
+    mapRescaler->setEnabled( true );
+    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     // rescaling fixed to avoid deformation
-
 
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( MPlot->yRight, false );
 
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
-
-    //   (void) new QwtPlotPanner( MPlot->canvas() );
-    //   (void) new QwtPlotMagnifier( MPlot->canvas() );
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -187,7 +188,7 @@ void lisemqt::fillDrawMapBaseData(TMMap *_M, TMMap *_M2)
 // not how they are done here!
 void lisemqt::ShowMap()
 {
-    double MinV = 0.1;
+    double MinV;
     fillDrawMapData(op.DrawMap, RD);
 
     op.DrawMap->ResetMinMax();
@@ -197,6 +198,7 @@ void lisemqt::ShowMap()
 
     if (op.drawMapType == 1)
     {
+        MinV = 0.1;
         MPlot->setTitle("Runoff (l/s)");
         drawMap->setColorMap(new colorMapWaterLog());
         maxAxis1 = qMax(maxAxis1, MaxV);
@@ -229,12 +231,13 @@ void lisemqt::ShowMap()
             else
                 if (op.drawMapType == 4)
                 {
+                    MinV = 0;
                     MPlot->setTitle("Flood level (m)");
                     drawMap->setColorMap(new colorMapFlood());
                     maxAxis4 = qMax(maxAxis4, MaxV);
                     if (doubleSpinBoxFL->value() > 0)
                         maxAxis4 = doubleSpinBoxFL->value();
-                    RD->setInterval( Qt::ZAxis, QwtInterval( 0.001, maxAxis4));
+                    RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
                 }
 
     drawMap->setData(RD);
@@ -243,6 +246,7 @@ void lisemqt::ShowMap()
     // add legend right of axis
     if (op.drawMapType == 1)
     {
+
         // log scale for runoff
         rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
         if (maxAxis1 < 100)
@@ -271,7 +275,7 @@ void lisemqt::ShowMap()
                 if (op.drawMapType == 4)
                 {
                     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
-                    MPlot->setAxisScale( MPlot->yRight, 0.001, maxAxis4);
+                    MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
                     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
                 }
     MPlot->enableAxis( MPlot->yRight );
@@ -283,10 +287,10 @@ void lisemqt::ShowMap()
     MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
     MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-    mapRescaler->setEnabled( true );
-    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+//    mapRescaler->setEnabled( true );
+//    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
 
-//      ShowBaseMap();
+//    ShowBaseMap();
 //    drawMap->setAlpha(transparency->value());
 
     MPlot->replot();

@@ -525,6 +525,8 @@ void TWorld::InitChannel(void)
             Barriers->cover(LDD,0);
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
+
+            courant_factor = getvaluedouble("Flooding courant factor");
         }
 
         //        if (useSorted)

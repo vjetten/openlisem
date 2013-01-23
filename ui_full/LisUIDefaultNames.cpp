@@ -268,8 +268,11 @@ void lisemqt::defaultRunFile()
    namelist[i].value = QString("0");
    namelist[i++].name = QString("Include channel baseflow");
    namelist[i].value = QString("0");
+   //flooding
    namelist[i++].name = QString("Include channel flooding");
    namelist[i].value = QString("0");
+   namelist[i++].name = QString("Flooding courant factor");
+   namelist[i].value = QString("0.1");
    namelist[i++].name = QString("Include tile drains");
    namelist[i].value = QString("0");
    //houses
