@@ -432,8 +432,20 @@ void TWorld::Infiltration(void)
         if (SwitchChannelFlood)
         {
             if (hmx->Drc > 0)
+            {
                 hmx->Drc += RainNet->Drc;
+            }
+//            else
+//                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         }
+        //else
+//        if (SwitchChannelFlood)
+//        {
+//            if (hmx->Drc > 0)
+//            {
+//                WH->Drc = hmx->Drc;
+//            }
+//        }
 
         WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         // add net to water rainfall on soil surface (in m)
@@ -509,21 +521,31 @@ void TWorld::Infiltration(void)
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
         {
             WH->Drc -= fact->Drc;
+            // subtract fact->Drc from WH, cannot be more than WH
             if (WH->Drc < 0) // in case of rounding of errors
             {
                 fact->Drc += WH->Drc;
+                // add negative WH to act infil
                 WH->Drc = 0;
             }
-            // subtract fact->Drc from WH, cannot be more than WH
+
+            // do the same for flooded water levels
             if (SwitchChannelFlood)
             {
-                if (hmx->Drc > 0)
-                    hmx->Drc = max(hmx->Drc+fact->Drc, 0);
+                if (hmx->Drc > 0)  // if flood domain
+                {
+                    hmx->Drc -= fact->Drc;
+                    if (hmx->Drc < 0) // in case of rounding of errors
+                    {
+                        fact->Drc += hmx->Drc;
+                        // add negative flood level to act infil
+                        hmx->Drc = 0;
+                    }
+                }
             }
 
             Fcum->Drc += fact->Drc;
             // cumulative infil in m
-
             if (GrassFraction->Drc > 0)
             {
                 WHGrass->Drc -= factgr->Drc;
@@ -537,9 +559,10 @@ void TWorld::Infiltration(void)
             // calculate and correct water height on grass strips
         }
 
+
         if (GrassFraction->Drc > 0)
             WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
-        // average water height if grasstrip present
+        // correct average water height if grasstrip present
 
         FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
@@ -555,6 +578,14 @@ void TWorld::Infiltration(void)
         InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         //	InfilVol->Drc = max(0, InfilVol->Drc);
         // infil volume is WH before - water after
+
+//        if (SwitchChannelFlood)
+//        {
+//            if (hmx->Drc > 0)
+//            {
+//                hmx->Drc = WH->Drc;
+//            }
+//        }
     }
 }
 //---------------------------------------------------------------------------

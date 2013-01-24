@@ -107,6 +107,12 @@ void TWorld::CalcVelDisch(void)
         else
             Q->Drc = 0;
 
+//        if (FloodDomain->Drc == 1)
+//        {
+//            Q->Drc = 0;
+//        }
+
+
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
     }
 }
@@ -118,18 +124,10 @@ void TWorld::OverlandFlow(void)
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
-        //        if (FloodDomain->Drc == 0)
-        //        {
         WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*_dx/_dt;
         // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
-        //        }
-        //        else
-        //        {
-        //            WaterVolin->Drc = 0;
-        //            Q->Drc = 0;
-        //        }
     }
 
     //NOTE if buffers: all water into channel
@@ -145,14 +143,8 @@ void TWorld::OverlandFlow(void)
         }
     }
 
-    // do kin wave for all pits
-    //   if (useSorted)
-    //   {
-    //      KinematicSorted(lddlist, lddlistnr, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
-    //      // useSorted is experimental
-    //   }
-    //   else
-    //   {
+    Qn->setMV();
+    // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV
     {
         if (LDD->Drc == 5) // if outflow point, pit
@@ -170,7 +162,6 @@ void TWorld::OverlandFlow(void)
             //  routeSunstance(r,c, LDD, Q, Qn, QS, QSn, Alpha, DX, WaterVolin, Subs);
 
         }
-        //}
     }
 
     // calculate resulting flux Qn back to water height on surface
@@ -179,14 +170,6 @@ void TWorld::OverlandFlow(void)
         double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);
         // WH based on A/dx = alpha Q^beta / dx
         /* TODO _dx also needs to be corrected for wheeltracks and gullies */
-
-        //        if (FloodDomain->Drc > 0)
-        //        {
-        //            Qn->Drc = 0;
-        //            // assume no kin wave flux because there is a flood flux
-        //            WHoutavg = hmx->Drc;
-        //            // water height is the flood level
-        //        }
 
         WHroad->Drc = WHoutavg;
         // set road to average outflowing wh, no surface storage.
@@ -201,7 +184,7 @@ void TWorld::OverlandFlow(void)
         // new water volume after kin wave, all water incl depr storage
 
         double diff = 0;
-        //if (FloodDomain->Drc == 0)
+
         diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 

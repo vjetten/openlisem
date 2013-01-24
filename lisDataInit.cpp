@@ -518,6 +518,7 @@ void TWorld::InitChannel(void)
             Hmx = NewMap(0);
             Nx = NewMap(0);
             dHdLx = NewMap(0);
+            FloodWaterVol = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             ChannelDepth->cover(LDD,0);
@@ -525,7 +526,6 @@ void TWorld::InitChannel(void)
             Barriers->cover(LDD,0);
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
-
             courant_factor = getvaluedouble("Flooding courant factor");
         }
 

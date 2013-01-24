@@ -142,7 +142,7 @@ void TWorld::TileFlow(void)
    CalcVelDischTile();
 
    TileQn->setMV();
-
+   // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
@@ -151,11 +151,6 @@ void TWorld::TileFlow(void)
                    TileWaterVol, tm, tma, tmb);
       }
    }
-
-   //   TileQoutflow->DrcOutlet = TileQn->DrcOutlet * _dt;
-//   FOR_ROW_COL_MV_TILE
-//      //   if (LDDTile->Drc == 5)
-//         TileQoutflow->Drc = TileQn->Drc * _dt;
 
    TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
    TileQs->cover(LDD, 0);

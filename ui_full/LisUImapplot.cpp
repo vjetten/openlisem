@@ -30,7 +30,6 @@
 void lisemqt::ssetAlpha(int v)
 {
     baseMap->setAlpha(v);
-    MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
@@ -41,6 +40,7 @@ void lisemqt::selectMapType(bool doit)
     if (radioButton_FL->isChecked())    op.drawMapType = 4;
 }
 //---------------------------------------------------------------------------
+// called when a model run is started
 void lisemqt::initMapPlot()
 {
     op.drawMapType = 1;
@@ -65,6 +65,7 @@ void lisemqt::initMapPlot()
 }
 
 //---------------------------------------------------------------------------
+// called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
     op.drawMapType = 1;
@@ -74,6 +75,7 @@ void lisemqt::setupMapPlot()
     MPlot = new QwtPlot(title, this);
     // make the plot window
     Layout_Map->insertWidget(0, MPlot, 1);
+    // put it on screen
     //MPlot->canvas()->setBorderRadius( 0 );
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
 
@@ -131,6 +133,7 @@ void lisemqt::setupMapPlot()
 
 }
 //---------------------------------------------------------------------------
+// fill the current raster data structure with new data, called each run step
 void lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 {
     mapData.clear();
@@ -184,6 +187,7 @@ void lisemqt::fillDrawMapBaseData(TMMap *_M, TMMap *_M2)
 }
 
 //---------------------------------------------------------------------------
+// show the maps on screen
 // the order of showing layers is determined by the order in how they are added to MPlot,
 // not how they are done here!
 void lisemqt::ShowMap()
@@ -193,9 +197,11 @@ void lisemqt::ShowMap()
 
     op.DrawMap->ResetMinMax();
     double MaxV = (double)op.DrawMap->MH.maxVal;
-    double nrCols = (double)op.DrawMap->nrCols;
-    double nrRows = (double)op.DrawMap->nrRows;
+    // find the new max value
+    double nrCols = (double)op.baseMap->nrCols;
+    double nrRows = (double)op.baseMap->nrRows;
 
+    // link the palettes to the map type and set the display interval to the current min/max
     if (op.drawMapType == 1)
     {
         MinV = 0.1;
@@ -225,7 +231,7 @@ void lisemqt::ShowMap()
                 if (doubleSpinBoxSL->value() > 0)
                     maxAxis3 = doubleSpinBoxSL->value();
                 RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
-                // use max and -max for sediemnt delivery so that white legend color is in the middle, no activity
+                // use max and -max for sediment delivery so that white legend color is in the middle, no activity
                 // cyan is deposition and dark orange is erosion
             }
             else
@@ -241,12 +247,11 @@ void lisemqt::ShowMap()
                 }
 
     drawMap->setData(RD);
-    // link raster data to drawMap
+    // link raster data to drawMap after setInterval
 
-    // add legend right of axis
+    // add legend right of axis in the proper palette
     if (op.drawMapType == 1)
     {
-
         // log scale for runoff
         rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
         if (maxAxis1 < 100)
@@ -280,21 +285,13 @@ void lisemqt::ShowMap()
                 }
     MPlot->enableAxis( MPlot->yRight );
 
-    MPlot->plotLayout()->setAlignCanvasToScales( true );
-
-    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
-    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
-    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
-
-//    mapRescaler->setEnabled( true );
-//    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
-
-//    ShowBaseMap();
-//    drawMap->setAlpha(transparency->value());
+    ShowBaseMap();
+    // done only once
 
     MPlot->replot();
-    mapRescaler->rescale();
+
+    // do not do resets panning
+    //mapRescaler->rescale();
 
 }
 //---------------------------------------------------------------------------
@@ -311,6 +308,22 @@ void lisemqt::ShowBaseMap()
     baseMap->setData(RDb);
 
     baseMap->setAlpha(transparency->value());
+
+    double nrCols = (double)op.baseMap->nrCols;
+    double nrRows = (double)op.baseMap->nrRows;
+
+
+    // reset the axes to the correct rows/cols
+    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
+    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
+    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+
+    // align the map
+    mapRescaler->setEnabled( true );
+    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+
+    MPlot->plotLayout()->setAlignCanvasToScales( true );
 
     startplot = false;
 }

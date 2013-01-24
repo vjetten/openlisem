@@ -48,8 +48,8 @@ public:
         QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
     {
         addColorStop( 0.0, Qt::yellow );
-        addColorStop( 0.2, QColor("#FFFF55") );
-        addColorStop( 0.6, QColor("#8080FF") );
+        addColorStop( 0.1, QColor("#FFFF55") );
+        addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );
     }
 };

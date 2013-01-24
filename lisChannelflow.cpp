@@ -63,8 +63,9 @@ void TWorld::CalcVelDischChannel(void)
         else
         {
             Perim = FW + 2*wh;
-            if (ChannelMaxQ->Drc > 0)
-                Perim = FW + 2*wh + FW;
+            if (SwitchChannelFlood)
+                if (ChannelMaxQ->Drc > 0)
+                    Perim = FW + 2*wh + FW;
             // box culvert more friction
             Area = FW*wh;
         }
@@ -86,6 +87,10 @@ void TWorld::CalcVelDischChannel(void)
             ChannelQ->Drc = qPow(Area/ChannelAlpha->Drc, beta1);
         else
             ChannelQ->Drc = 0;
+
+        if (SwitchChannelFlood)
+            if (ChannelMaxQ->Drc > 0)
+                ChannelQ->Drc  = min(ChannelQ->Drc, ChannelMaxQ->Drc);
 
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
     }
@@ -200,15 +205,8 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    //    ChannelQn->setMV();
-
-    //    if (useSorted)
-    //    {
-    //        KinematicSorted(lddlistch, lddlistchnr, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-    //                        ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-    //    }
-    //    else
-    //    {
+    ChannelQn->setMV();
+    // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
@@ -227,7 +225,6 @@ void TWorld::ChannelFlow(void)
 
         }
     }
-    // }
 
     ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output
     ChannelQsn->cover(LDD, 0);
@@ -287,7 +284,7 @@ void TWorld::ChannelFlood(void)
     // there is no runoff into the channel if it is flooding
 
     // get flood level in channel from 1D kin wave channel
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0)
             hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc)*ChannelWidthUpDX->Drc/_dx;
@@ -308,6 +305,7 @@ void TWorld::ChannelFlood(void)
     {
         // do one _dt with varying timestep based on courant condition
         do {
+            sumh_t = hmx->mapTotal();
             // make Hydraulic head, gravity (dem+barriers) + water level
             FOR_ROW_COL_MV
             {
@@ -332,7 +330,7 @@ void TWorld::ChannelFlood(void)
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
                             !IS_MV_REAL8(&hmx->Drci))
                 {
-                    if (hx->Drci > 0)
+                    if (hmx->Drci > 0) //hx?
                         tma->Drc = 1;
                 }
             }
@@ -453,17 +451,19 @@ void TWorld::ChannelFlood(void)
                     FloodDomain->Drc = 0;
             }
 
-            //        int n = 0;
-            //        do {
-            //            n++;
-            //            sumh_t1 = hmx->mapTotal();
-            //            diff = (sumh_t1 > 0 ? (sumh_t - sumh_t1)/sumh_t1 : 0);
-            //            FOR_ROW_COL_MV
-            //            {
-            //                double fh = hmx->Drc * diff;
-            //                hmx->Drc = max(hmx->Drc + fh, 0);
-            //            }
-            //        } while (n < 5);
+            sumh_t1 = hmx->mapTotal();
+            diff = (sumh_t - sumh_t1)/cells;
+
+//            int n = 0;
+//            do {
+//                n++;
+//                sumh_t1 = hmx->mapTotal();
+//                diff = (sumh_t - sumh_t1)/cells;
+//                FOR_ROW_COL_MV
+//                    hmx->Drc = max(hmx->Drc + diff, 0);
+//                FOR_ROW_COL_MV
+//                    hmx->Drc = min(hmx->Drc, tmc->Drc);
+//            } while (n < 3);
 
             timesum = timesum + timestep;
             // sum to reach _dt
@@ -474,11 +474,15 @@ void TWorld::ChannelFlood(void)
         diff = (sumh_t - sumh_t1)/cells;
         qDebug() << sumh_t << sumh_t1 << diff;
         // echo to screen
-        debug(QString("Flooding: %1 %2 avg err h in flooded cells %3").arg(sumh_t,8,'f',3).arg(sumh_t1,8,'f',3).arg(diff,8,'f',3));
+        debug(QString("Flooding: %1 %2 - avg err h in flooded cells %3 m").arg(sumh_t,8,'f',3).arg(sumh_t1,8,'f',3).arg(diff,8,'e',3));
     }
 
     // report flood maps
     hmx->report("hmx");
+
+    FOR_ROW_COL_MV
+        FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
+
 
     // put new flood level in channel for next 1D kin wave channel
     FOR_ROW_COL_MV_CH

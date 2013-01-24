@@ -210,6 +210,7 @@ TMMap
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
+*FloodWaterVol,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

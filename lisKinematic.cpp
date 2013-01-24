@@ -221,7 +221,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     if (SwitchErosion)
         _Qsn->fill(0);
     // set output sed flux to 0
-    _Qn->setMV();
+ //   _Qn->setMV();
     // flag all Qn gridcell with MV
 
     while (list != NULL)
