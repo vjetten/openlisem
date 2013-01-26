@@ -77,7 +77,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -14314,7 +14314,10 @@ p, li { white-space: pre-wrap; }
                    <number>255</number>
                   </property>
                   <property name="value">
-                   <number>100</number>
+                   <number>180</number>
+                  </property>
+                  <property name="sliderPosition">
+                   <number>180</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>

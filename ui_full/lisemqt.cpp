@@ -757,6 +757,10 @@ void lisemqt::shootScreen()
         else
           if (op.drawMapType == 3)
             type = QString("_e%1.png").arg(op.runstep,5,'d',0,'0');
+          else
+              if (op.drawMapType == 4)
+                  type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
+
       fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + type;
 
       originalPixmap.save(fileName, format.toAscii());

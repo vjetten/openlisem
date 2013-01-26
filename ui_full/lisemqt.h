@@ -125,9 +125,12 @@ public:
    void setupMapPlot();
    void initMapPlot();
    void ShowMap();
+   void ShowMap1();
+   void ShowMap2();
+   void ShowMap3();
+   void ShowMap4();
    void ShowBaseMap();
-   void fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
-   void fillDrawMapBaseData(TMMap *_M, TMMap *_M2);
+   double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing

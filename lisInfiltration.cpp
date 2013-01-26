@@ -435,8 +435,6 @@ void TWorld::Infiltration(void)
             {
                 hmx->Drc += RainNet->Drc;
             }
-//            else
-//                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         }
         //else
 //        if (SwitchChannelFlood)

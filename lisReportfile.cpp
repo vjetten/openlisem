@@ -123,7 +123,6 @@ void TWorld::OutputUI(void)
   op.BufferVolTot = BufferVolin;//Tot;
   op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition
 
-
   //emit show();
   // send the op structure with data to function worldShow the interface
   // in file LisUIModel

@@ -12,9 +12,7 @@ public:
     colorMapGray():
         QwtLinearColorMap( QColor(BGc), Qt::white  )
     {
-     //   addColorStop(0, Qt::transparent);
-        addColorStop(0.0, QColor("#111111"));
-        //addColorStop(0, QColor("#555555"));
+        addColorStop(0, QColor("#111111"));
     }
 };
 
@@ -35,7 +33,7 @@ public:
         QwtLinearColorMap( QColor(BGc), QColor(0,0,128))//Qt::darkBlue )
     {
         addColorStop( 0.0, Qt::yellow );
-        addColorStop( 0.05, QColor(128,128,255,0));
+        addColorStop( 0.05, QColor(128,128,255));
         addColorStop( 0.1, QColor(64,64,255) );
         addColorStop( 0.5, QColor(0,0,255));//Qt::blue );
     }
@@ -47,6 +45,8 @@ public:
     colorMapWater():
         QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
     {
+//        addColorStop( 0.0, qRgba(0, 0, 0, 0));//Qt::transparent);
+//        addColorStop( 0.0, qRgba( 191, 191, 0, 0));
         addColorStop( 0.0, Qt::yellow );
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
@@ -61,7 +61,7 @@ public:
     colorMapFlood():
         QwtLinearColorMap( QColor(BGc), QColor("#000080"))
     {
-        //addColorStop( 0.0, Qt::transparent);
+//        addColorStop( 0.0, qRgba( 191, 191, 254, 0));//Qt::transparent);
         addColorStop( 0.0, QColor("#bfbffe"));
         addColorStop( 0.2, QColor("#8080ff"));
         addColorStop( 0.6, QColor("#0000ff"));

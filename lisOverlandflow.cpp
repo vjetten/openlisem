@@ -107,11 +107,10 @@ void TWorld::CalcVelDisch(void)
         else
             Q->Drc = 0;
 
-//        if (FloodDomain->Drc == 1)
-//        {
-//            Q->Drc = 0;
-//        }
-
+        if (FloodDomain->Drc == 1)
+        {
+            Q->Drc = 0;
+        }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
     }
