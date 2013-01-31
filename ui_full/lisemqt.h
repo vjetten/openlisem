@@ -222,7 +222,7 @@ public slots:
    void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
    void openMapname(QModelIndex topLeft);
 
-   QString findValidDir(QString path);
+   QString findValidDir(QString path, bool up);
    //void on_toolButton_MapDir_clicked();
    void setMapDir();
    //void on_toolButton_ResultDir_clicked();

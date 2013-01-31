@@ -38,7 +38,6 @@
 #include "global.h"
 
 //---------------------------------------------------------------------------
-//VJ 110107 corrections
 // fill namelist with the actual runfile data but correct for old runfiles
 // so that faulty data or obsolete vars are ignored
 void lisemqt::GetRunfile()
@@ -52,6 +51,13 @@ void lisemqt::GetRunfile()
       return;
    }
 
+   currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
+   QDir::setCurrent(currentDir);
+
+   // read all lines in the runfile BUT
+   // each line is compared to the hardcoded name in lisemqt::defaultRunFile()
+   // so old junk or misspelled stuff is simply IGNORED
+   // namelist now contains the actual runfile data
    oldRunfile = false;
    int i = 0;
    while (!fin.atEnd())
@@ -75,13 +81,12 @@ void lisemqt::GetRunfile()
                break;
             }
          }
-         // VJ 110107 only read those variables that are in the coded definition to avoid
-         //old junk that is read
       }
-      // namelist now contains the actual runfile data
+
    }
 }
 //---------------------------------------------------------------------------
+//! ParseInputData : interpret runfile text and fill interface variables
 void lisemqt::ParseInputData()
 {
    int j=0;
@@ -383,7 +388,7 @@ void lisemqt::ParseInputData()
 
    // fill the mapList structure with all map names fom the runfile
    // if there are new variables that are not in the run file
-   // the maplist contains he default names already
+   // the maplist contains the default names already
    // this is to get the correct names for the model run
    fillNamelistMapnames(false);
    for (int k = 0; k < nrmaplist; k++)
@@ -573,6 +578,7 @@ void lisemqt::updateModelData()
       }
       //VJ 110110 added
 
+      // make a string for all output maps
       if (p1.compare("CheckOutputMaps")==0)
       {
          outputcheck.clear();
@@ -590,7 +596,6 @@ void lisemqt::updateModelData()
          if (       checkBox_OutTiledrain->isChecked()) outputcheck << "1"; else outputcheck << "0";
          namelist[j].value = outputcheck.join(",");
       }
-      //namelist[j].value = p;
    }
 
    //get all actual mapnames from the mapList structure

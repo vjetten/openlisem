@@ -65,7 +65,8 @@ SOURCES += lisTotalsMB.cpp \
     swatre/lookup.cpp \
     swatre/swatinp.cpp \
     LisKinematicSorted.cpp \
-    ui_full/LisUImapplot.cpp
+    ui_full/LisUImapplot.cpp \
+    lisChannelflood.cpp
 FORMS += ui_full/lisemqt.ui
 CONFIG(debug, debug|release) {
    greaterThan(OLVC, 0) {

@@ -171,6 +171,7 @@ void lisemqt::ShowMap()
 {
     ShowBaseMap();
 
+    drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) ShowMap1();
     if (op.drawMapType == 2) ShowMap2();
     if (op.drawMapType == 3) ShowMap3();
@@ -293,6 +294,8 @@ void lisemqt::ShowMap4()
     drawMap->setData(RD);
     drawMap->setColorMap(new colorMapFlood());
     //QwtPlotSpectrogram
+
+    drawMap->setAlpha(-1);
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);

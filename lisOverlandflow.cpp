@@ -109,7 +109,8 @@ void TWorld::CalcVelDisch(void)
 
         if (FloodDomain->Drc == 1)
         {
-            Q->Drc = 0;
+            Q->Drc *= 0.5;
+            //decrease overlandflow activity in flooddomain
         }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;

@@ -6,6 +6,17 @@
 //---------------------------------------------------------------------------
 #define BGc "#eeeeee" // background grey for missing value in maps
 
+class alphaLinearColorMap: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value == 0 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+};
+
 class colorMapGray: public QwtLinearColorMap
 {
 public:
@@ -23,11 +34,19 @@ public:
         QwtLinearColorMap( QColor(BGc), Qt::white  )
     {
         addColorStop(0.0, Qt::darkYellow);
+        addColorStop(0.5, Qt::yellow);
     }
 };
 
 class colorMapWaterLog: public QwtLinearColorMap
 {
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value == 0 )
+//            return qRgba( 0, 0, 0, 0 );
+
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
 public:
     colorMapWaterLog():
         QwtLinearColorMap( QColor(BGc), QColor(0,0,128))//Qt::darkBlue )
@@ -41,12 +60,17 @@ public:
 
 class colorMapWater: public QwtLinearColorMap
 {
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value == 0 )
+//            return qRgba( 0, 0, 0, 0 );
+
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
 public:
     colorMapWater():
         QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
     {
-//        addColorStop( 0.0, qRgba(0, 0, 0, 0));//Qt::transparent);
-//        addColorStop( 0.0, qRgba( 191, 191, 0, 0));
         addColorStop( 0.0, Qt::yellow );
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
@@ -57,19 +81,62 @@ public:
 //http://www.color-hex.com/color/8080ff
 class colorMapFlood: public QwtLinearColorMap
 {
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value == 0 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
 public:
     colorMapFlood():
-        QwtLinearColorMap( QColor(BGc), QColor("#000080"))
+        QwtLinearColorMap( QColor(BGc), QColor("#0e0e4c"))
     {
-//        addColorStop( 0.0, qRgba( 191, 191, 254, 0));//Qt::transparent);
-        addColorStop( 0.0, QColor("#bfbffe"));
-        addColorStop( 0.2, QColor("#8080ff"));
-        addColorStop( 0.6, QColor("#0000ff"));
+        addColorStop( 0.000, QColor("#6666d2"));
+        addColorStop( 0.125, QColor("#3a3ac5"));
+        addColorStop( 0.250, QColor("#2525bf"));
+        addColorStop( 0.375, QColor("#2121ab"));
+        addColorStop( 0.500, QColor("#1d1d98"));
+        addColorStop( 0.625, QColor("#191985"));
+        addColorStop( 0.750, QColor("#161672"));
+        addColorStop( 0.875, QColor("#12125f"));
     }
 };
 
+//http://www.color-hex.com/color/2525bf
+//#ffffff
+//#d3d3f2
+//#bdbdeb
+//#a7a7e5
+//#9292df
+//#7c7cd8
+//#6666d2
+//#5050cb
+
+//addColorStop( 0.000, QColor("#3a3ac5"));
+//addColorStop( 0.125, QColor("#2525bf"));
+//addColorStop( 0.250, QColor("#2121ab"));
+//addColorStop( 0.375, QColor("#1d1d98"));
+//addColorStop( 0.500, QColor("#191985"));
+//addColorStop( 0.625, QColor("#161672"));
+//addColorStop( 0.750, QColor("#12125f"));
+
+//#0e0e4c
+//#0b0b39
+//#070726
+//#030313
+//#000000
+
+
 class colorMapSed: public QwtLinearColorMap
 {
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value == 0 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
 public:
     colorMapSed():
         QwtLinearColorMap( QColor(BGc),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
@@ -83,6 +150,13 @@ public:
 
 class colorMapSedB: public QwtLinearColorMap
 {
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value == 0 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
 public:
     colorMapSedB():
         QwtLinearColorMap( QColor(BGc),Qt::red)

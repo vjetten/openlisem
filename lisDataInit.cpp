@@ -512,6 +512,7 @@ void TWorld::InitChannel(void)
                 qx[i].m = NewMap(0);
 
             Vflood = NewMap(0);
+            Qflood = NewMap(0);
             Qxsum = NewMap(0);
             Hx = NewMap(0);
             hx = NewMap(0);
