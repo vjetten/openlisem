@@ -37,6 +37,23 @@ functions: \n
 //---------------------------------------------------------------------------
 #define Drci Data[r+dr[i]][c+dc[i]]
 
+#define SUMH(v) v=0;FOR_ROW_COL_MV\
+    if (ChannelDepth->Drc == 0)\
+    v += hmx->Drc;
+
+#define MAXH(v) v=0;FOR_ROW_COL_MV\
+    if (ChannelDepth->Drc == 0)\
+    v = (v<hmx->Drc?hmx->Drc:v);
+
+//---------------------------------------------------------------------------
+// flood level function consists of the following parts:
+// 1) get channel overflow level
+// 2) do loop with varying timestep depending on max level
+// in that loop
+// 3) get hydraulic head and manning for flood level cells and surrounding cells in 3x3 window
+// 4) calc flux to/from central cell in 8 directions and limit to wave velocity flux
+// 5) update flood level with flux and correct errors: level cannot be higher than surrounding cells outside channel
+// 6) calc avg water level (mass balance) error
 
 void TWorld::ChannelFlood(void)
 {
@@ -54,11 +71,14 @@ void TWorld::ChannelFlood(void)
     // there is no runoff into the channel if it is flooding
 
     // get flood level in channel from 1D kin wave channel
+    bool startflood = false;
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0)
             hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc)*ChannelWidthUpDX->Drc/_dx;
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
+        if (hmx->Drc > 0)
+            startflood = true;
     }
 
     tmc->copy(hmx);
@@ -73,12 +93,15 @@ void TWorld::ChannelFlood(void)
     double sumh_t, sumh_t1, diff, cells;
 
     sumh_t = hmx->mapTotal();
+
     // if there is no flood skip everything
-    if (sumh_t > 0)
+    if (startflood)
     {
         // do one _dt with varying timestep based on courant condition
         do {
-            //sumh_t = hmx->mapTotal();
+            sumh_t = hmx->mapTotal();
+            // sum all levels for mass balance
+
             // make Hydraulic head, gravity (dem+barriers) + water level
             FOR_ROW_COL_MV
             {
@@ -106,7 +129,7 @@ void TWorld::ChannelFlood(void)
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
                             !IS_MV_REAL8(&hmx->Drci))
                 {
-                    if (hmx->Drci > 0) //hx?
+                    if (hmx->Drci > 0)
                         tma->Drc = 1;
                 }
             }
@@ -176,11 +199,8 @@ void TWorld::ChannelFlood(void)
                     // using 8 instead of 4 directions seems to give a much better flow
                     // for 4 directions do i += 2 instead of i++
 
-                    //QV = max(QV, abs(qx*0.5));
-                    // velocity calculated below with maximum of fluxes to/from central cell
-
-                    if (i == 4)
-                        qx[i].m->Drc = signx * qMin(qlx, qlx1);
+                    if (i == 4) // cedntral cell
+                        qx[i].m->Drc = signx * qMin(qlx, qlx1); //qlx2 is always 0 for i = 4
                     else
                         qx[i].m->Drc = Qx;
                     // save flux in direction i for next flood timestep
@@ -191,25 +211,26 @@ void TWorld::ChannelFlood(void)
 
 
             // add sum q*dt (= m/s * s) to h and h > 0
+            cells = 1;
             FOR_ROW_COL_MV
-//                    if (tma->Drc == 1) //???????
+                    if (tma->Drc == 1)
             {
                 hmx->Drc += timestep*Qxsum->Drc;
                 hmx->Drc = max(0, hmx->Drc);
                 if (hmx->Drc > 0)
-                    tma->Drc = 1;
-                else
-                    tma->Drc = 0;
+                    cells++;
             }
 
-            // simple correction, flow cannot lead to water level rise above neighbours,
+
+
+            // simple correction, flow cannot lead to water level rise above neighbours outside channel,
             // water cannot flow uphill in this simplified solution (no momentum)
             // use Hydraulic Head H (=h+z)
             tmb->fill(0);
             FOR_ROW_COL_MV
             {
-                //if (hmx->Drc > 0)
-                if (tma->Drc == 1)
+                if (hmx->Drc > 0)
+                //if (tma->Drc == 1)
                 {
                     double hmax = 0;
                     // find max in 8 directions
@@ -229,56 +250,37 @@ void TWorld::ChannelFlood(void)
                 }
             }
 
+// NOTE: any correction causes instabilities!
+//            FOR_ROW_COL_MV
+//                    if (hmx->Drc > 0 && ChannelDepth->Drc == 0)
+//            {
+//                hmx->Drc = hmx->Drc+0.5*diff;
+//                hmx->Drc = max(0, hmx->Drc);
+//            }
+//            qDebug() << sumh_t << sumh_t1 << diff;
+
             FOR_ROW_COL_MV
-                    //if (hmx->Drc > 0)
-                    if (tma->Drc == 1 && ChannelDepth->Drc == 0)
+                    if (hmx->Drc > 0 && ChannelDepth->Drc == 0)
             {
                 hmx->Drc = min(hmx->Drc, tmb->Drc - DEM->Drc - Barriers->Drc);
                 // hmx is smaller than the largers water height next to it
             }
 
-//            FOR_ROW_COL_MV
-//                    if (tma->Drc == 1)
-//            {
-//                double hmax = 0;
-//                for (int i = 0; i < 9; i++)
-//                    if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
-//                            c+dc[i] > 0 && c+dc[i] < _nrCols &&
-//                            i != 4 &&                     // not the central cell
-//                            !IS_MV_REAL8(&hmx->Drci))
-//                    {
-//                        hmax = qMax(hmax, hmx->Drci);
-//                        // find the highest water level around centre cell
-//                    }
-//                if (ChannelDepth->Drc == 0)
-//                    hmx->Drc = qMin(hmx->Drc, hmax);
-//                // correct hmx if not channel cell
-//            }
-
             // find current flood domain (hmx > 0) and nr of flooded cells
             cells = 1;
-            sumh_t1 = 0;
             FOR_ROW_COL_MV
             {
                 if (hmx->Drc > 0)
                 {
                     FloodDomain->Drc = 1;
                     cells++;
-                    sumh_t1 += hmx->Drc;
                 }
                 else
                     FloodDomain->Drc = 0;
             }
-
+            //SUMH(sumh_t1);
+            sumh_t1 = hmx->mapTotal();
             diff = (sumh_t - sumh_t1)/cells;
-
-            //            FOR_ROW_COL_MV
-            //                    //if (hmx->Drc > 0)
-            //                    if (tma->Drc == 1)
-            //            {
-            //                hmx->Drc += diff;
-            //                hmx->Drc = max(0, hmx->Drc);
-            //            }
 
             timesum = timesum + timestep;
             // sum to reach _dt
@@ -286,9 +288,7 @@ void TWorld::ChannelFlood(void)
         } while (timesum  < _dt);
         // continue while _dt is not reached
 
-        sumh_t1 = hmx->mapTotal();
-        diff = (sumh_t - sumh_t1)/cells;
-        qDebug() << sumh_t << sumh_t1 << diff;
+        //   qDebug() << sumh_t << sumh_t1 << diff;
         // echo to screen
         debug(QString("Flooding: %1 %2 - avg err h in flooded cells %3 m").arg(sumh_t,8,'f',3).arg(sumh_t1,8,'f',3).arg(diff,8,'e',3));
     }
@@ -314,3 +314,22 @@ void TWorld::ChannelFlood(void)
     hmx->report("hmx");
     Qflood->report("qf");
 }
+
+
+//            FOR_ROW_COL_MV
+//                    if (tma->Drc == 1)
+//            {
+//                double hmax = 0;
+//                for (int i = 0; i < 9; i++)
+//                    if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
+//                            c+dc[i] > 0 && c+dc[i] < _nrCols &&
+//                            i != 4 &&                     // not the central cell
+//                            !IS_MV_REAL8(&hmx->Drci))
+//                    {
+//                        hmax = qMax(hmax, hmx->Drci);
+//                        // find the highest water level around centre cell
+//                    }
+//                if (ChannelDepth->Drc == 0)
+//                    hmx->Drc = qMin(hmx->Drc, hmax);
+//                // correct hmx if not channel cell
+//            }

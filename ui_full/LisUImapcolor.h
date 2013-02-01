@@ -83,7 +83,7 @@ class colorMapFlood: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value == 0 )
+        if ( value < 0.001 )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -150,13 +150,13 @@ public:
 
 class colorMapSedB: public QwtLinearColorMap
 {
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value == 0 )
-            return qRgba( 0, 0, 0, 0 );
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value == 0)//< 1 && value > -1 )
+//            return qRgba( 0, 0, 0, 0 );
 
-        return QwtLinearColorMap::rgb( interval, value );
-    }
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
 public:
     colorMapSedB():
         QwtLinearColorMap( QColor(BGc),Qt::red)

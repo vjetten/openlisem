@@ -178,12 +178,10 @@ void TWorld::Totals(void)
         //Qtotmm = Qtot*catchmentAreaFlatMM;
         // recalc in mm for screen output
 
-        //QtotOutlet += TileQoutflow->DrcOutlet;
         QtotOutlet += TileQn->DrcOutlet * _dt;
         // add channel outflow (in m3) to total for main outlet
-        //QtotPlot += TileQoutflow->DrcPlot;
         QtotPlot += TileQn->DrcPlot * _dt;
-        // add channel outflow (in m3) to total for main outlet
+        // add channel outflow (in m3) to total for subcatch outlet
         TotalWatervol->calcMap(TileWaterVol,ADD);
         // add channel volume to total for sed conc calc
 

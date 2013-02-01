@@ -28,316 +28,421 @@
 
   This file contains all the functions to plot the hydrographs
   it uses the op data for each next step
+
+
  */
 
 #include "lisemqt.h"
 #include "global.h"
 
-
 //---------------------------------------------------------------------------
-/// initialize graph plotting
+/// set up discharge plot, graphics part (not data)
+/// this is called at the start of lisem, initplot() is called at the start of a model run
+void lisemqt::setupPlot()
+{
+    QColor col;
+    QwtText title;
+    title.setText("Hydrograph outlet");
+    title.setFont(QFont("MS Shell Dlg 2",12));
+    HPlot = new QwtPlot(title, this);
+    layout_Plot->insertWidget(0, HPlot, 1);
+    HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
+
+    // panning with the left mouse button
+    (void) new QwtPlotPanner( HPlot->canvas() );
+
+    // zoom in/out with the wheel
+    (void) new QwtPlotMagnifier( HPlot->canvas() );
+
+    PGraph = new QwtPlotCurve("Rainfall");
+    QGraph = new QwtPlotCurve("Discharge");
+    QsGraph = new QwtPlotCurve("Sediment discharge");
+    CGraph = new QwtPlotCurve("Concentration");
+    QtileGraph = new QwtPlotCurve("Tile drain");
+
+    PGraph->attach(HPlot);
+    QGraph->attach(HPlot);
+
+    // order determines order of display in Legend
+    //VJ 101223 changed for qwt 6.0.0
+
+    col.setRgb( 60,60,200,255 );
+    QGraph->setPen(QPen(col));
+    PGraph->setPen(QPen("#000000"));
+    PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+    QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+
+    QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+    col.setRgb( 0,160,160,255 );
+    QtileGraph->setPen(QPen(col));
+
+    QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    QsGraph->setPen(QPen(Qt::red));
+    col.setRgb( 200,0,0,255 ); // darkred
+    CGraph->setPen(QPen(col));
+
+    PGraph->setStyle(QwtPlotCurve::Steps);
+    QGraph->setStyle(QwtPlotCurve::Lines);
+    QtileGraph->setStyle(QwtPlotCurve::Lines);
+    QsGraph->setStyle(QwtPlotCurve::Lines);
+    CGraph->setStyle(QwtPlotCurve::Lines);
+
+    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QtileGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+    HPlot->setCanvasBackground(QBrush(Qt::white));
+
+    // set axes
+    HPlot->enableAxis(HPlot->yRight,true);
+    HPlot->enableAxis(HPlot->yLeft,true);
+    HPlot->enableAxis(HPlot->xBottom,true);
+    HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
+    HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
+    HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+    HPlot->setAxisScale(HPlot->yRight, 0, 1);
+    HPlot->setAxisScale(HPlot->yLeft, 0, 100);
+    HPlot->setAxisScale(HPlot->xBottom, 0, 100);
+
+    // set gridlines
+    QwtPlotGrid *grid = new QwtPlotGrid();
+    grid->enableXMin(true);
+    grid->enableYMin(true);
+    col.setRgb( 180,180,180,180 );
+    grid->setMajPen(QPen(col, 0, Qt::DashLine));
+    col.setRgb( 210,210,210,180 );
+    grid->setMinPen(QPen(col, 0 , Qt::DotLine));
+    grid->attach(HPlot);
+
+    HPlot->replot();
+    // draw empty plot
+}
+//---------------------------------------------------------------------------
+/// set up small discharge plot on mapplot page
+/// this is called at the start of lisem, initsmallplot() is called at the start of a model run
+void lisemqt::setupSmallPlot()
+{
+    QwtText title;
+    title.setText("Hydrograph");
+    title.setFont(QFont("MS Shell Dlg 2",8));
+    smallPlot = new QwtPlot(title, this);
+    smallPlot->setMinimumSize(300,300);
+    smallPlot->resize(500,500);
+    verticalLayout_6->insertWidget(0, smallPlot, 1);
+    smallPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
+
+    sPGraph = new QwtPlotCurve("Rainfall");
+    sQGraph = new QwtPlotCurve("Discharge");
+
+    sPGraph->attach(smallPlot);
+    sQGraph->attach(smallPlot);
+    // order determines order of display in Legend
+    //VJ 101223 changed for qwt 6.0.0
+    sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
+    sQGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
+
+    // do not attach yet
+    if(!checkNoErosion->isChecked())
+    {
+        sQsGraph = new QwtPlotCurve("Sediment discharge");
+        sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
+        sQsGraph->setPen(QPen(Qt::red));
+        sQsGraph->setStyle(QwtPlotCurve::Lines);
+        sQsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    }
+
+    QColor col;
+    col.setRgb( 60,60,200,255 );
+    sQGraph->setPen(QPen(col));
+    sPGraph->setPen(QPen("#000000"));
+
+    sPGraph->setStyle(QwtPlotCurve::Steps);
+    sQGraph->setStyle(QwtPlotCurve::Lines);
+
+    sPGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+    sQGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+    smallPlot->setCanvasBackground(QBrush(Qt::white));
+
+    // set axes
+    smallPlot->enableAxis(smallPlot->yLeft,true);
+    smallPlot->enableAxis(smallPlot->xBottom,true);
+    if(!checkNoErosion->isChecked())
+        smallPlot->enableAxis(smallPlot->yRight,true);
+
+    title.setText("time (min)");
+    title.setFont(QFont("MS Shell Dlg 2",8));
+    smallPlot->setAxisTitle(smallPlot->xBottom, title);
+    title.setText("Q (l/s)/P (mm/h)");
+    smallPlot->setAxisTitle(smallPlot->yLeft, title);
+    smallPlot->setAxisScale(smallPlot->yLeft, 0, 100);
+    smallPlot->setAxisScale(smallPlot->xBottom, 0, 100);
+    if(!checkNoErosion->isChecked())
+    {
+        title.setText("Qs (kg/s)");
+        smallPlot->setAxisTitle(smallPlot->yRight, title);
+        smallPlot->setAxisScale(smallPlot->yRight, 0, 1);
+    }
+
+    // set gridlines
+
+    QwtPlotGrid *grid = new QwtPlotGrid();
+    col.setRgb( 180,180,180,180 );
+    grid->setMajPen(QPen(col, 0, Qt::DotLine));
+    grid->attach(smallPlot);
+
+    smallPlot->replot();
+}
+//---------------------------------------------------------------------------
+/// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
 {
-  startplot = true;
+    startplot = true;
 
-  op.outputpointnr = spinBoxPointtoShow->value();
-  spinBoxPointtoShow->setEnabled(false);
-  HPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
-  // VJ 110630 show hydrograph for selected output point
-  label_qtotm3sub->setEnabled(op.outputpointnr > 1);
+    op.outputpointnr = spinBoxPointtoShow->value();
+    spinBoxPointtoShow->setEnabled(false);
+    HPlot->setTitle("Hydrograph Outlet");
+    // VJ 110630 show hydrograph for selected output point
+    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
 
-  textGraph->setMaximumBlockCount(6);
-  textGraph->setWordWrapMode(QTextOption::NoWrap);
-  textGraph->setMaximumHeight(90);
+//    textGraph->setMaximumBlockCount(6);
+//    textGraph->setWordWrapMode(QTextOption::NoWrap);
+//    textGraph->setMaximumHeight(90);
 }
 //---------------------------------------------------------------------------
 /// free data structures graph
 void lisemqt::killPlot()
 {
-  PData.clear();
-  TData.clear();
-  QData.clear();
-  QtileData.clear();
-  QsData.clear();
-  CData.clear();
+    PData.clear();
+    TData.clear();
+    QData.clear();
+    QtileData.clear();
+    QsData.clear();
+    CData.clear();
 
-  spinBoxPointtoShow->setEnabled(true);
+    spinBoxPointtoShow->setEnabled(true);
 
-  startplot = true;
-
-}
-//---------------------------------------------------------------------------
-/// set up discharge plot, graphics part (not data)
-void lisemqt::setupPlot()
-{
-  QColor col;
-  QwtText title;
-  title.setText("Hydrograph outlet");
-  title.setFont(QFont("MS Shell Dlg 2",12));
-  HPlot = new QwtPlot(title, this);
-  layout_Plot->insertWidget(0, HPlot, 1);
-  HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
-
-  // panning with the left mouse button
-  (void) new QwtPlotPanner( HPlot->canvas() );
-
-  // zoom in/out with the wheel
-  (void) new QwtPlotMagnifier( HPlot->canvas() );
-
-  PGraph = new QwtPlotCurve("Rainfall");
-  QGraph = new QwtPlotCurve("Discharge");
-  QsGraph = new QwtPlotCurve("Sediment discharge");
-  CGraph = new QwtPlotCurve("Concentration");
-  QtileGraph = new QwtPlotCurve("Tile drain");
-
-  PGraph->attach(HPlot);
-  QGraph->attach(HPlot);
-
-  // order determines order of display in Legend
-  //VJ 101223 changed for qwt 6.0.0
-
-  col.setRgb( 60,60,200,255 );
-  QGraph->setPen(QPen(col));
-  PGraph->setPen(QPen("#000000"));
-  PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-  QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-
-  QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-  col.setRgb( 0,160,160,255 );
-  QtileGraph->setPen(QPen(col));
-
-  QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-  CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-  QsGraph->setPen(QPen(Qt::red));
-  col.setRgb( 200,0,0,255 ); // darkred
-  CGraph->setPen(QPen(col));
-
-  PGraph->setStyle(QwtPlotCurve::Steps);
-  QGraph->setStyle(QwtPlotCurve::Lines);
-  QtileGraph->setStyle(QwtPlotCurve::Lines);
-  QsGraph->setStyle(QwtPlotCurve::Lines);
-  CGraph->setStyle(QwtPlotCurve::Lines);
-
-  PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-  QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-  QtileGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-  QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-  CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-  HPlot->setCanvasBackground(QBrush(Qt::white));
-
-  // set axes
-  HPlot->enableAxis(HPlot->yRight,true);
-  HPlot->enableAxis(HPlot->yLeft,true);
-  HPlot->enableAxis(HPlot->xBottom,true);
-  HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
-  HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
-  HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
-  HPlot->setAxisScale(HPlot->yRight, 0, 1);
-  HPlot->setAxisScale(HPlot->yLeft, 0, 100);
-  HPlot->setAxisScale(HPlot->xBottom, 0, 100);
-
-  // set gridlines
-  QwtPlotGrid *grid = new QwtPlotGrid();
-  grid->enableXMin(true);
-  grid->enableYMin(true);
-  col.setRgb( 180,180,180,180 );
-  grid->setMajPen(QPen(col, 0, Qt::DashLine));
-  col.setRgb( 210,210,210,180 );
-  grid->setMinPen(QPen(col, 0 , Qt::DotLine));
-  grid->attach(HPlot);
-
-
-  HPlot->replot();
-  // draw empty plot
-
+    startplot = true;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
 
-  QData << op.Q;
-  QtileData << op.Qtile;
-  QsData << op.Qs;
-  CData << op.C;
-  PData << op.P;
-  TData << op.time;
+    QData << op.Q;
+    QtileData << op.Qtile;
+    QsData << op.Qs;
+    CData << op.C;
+    PData << op.P;
+    TData << op.time;
 
-  QGraph->setSamples(TData,QData);
-  PGraph->setSamples(TData,PData);
-  if(!checkNoErosion->isChecked())
+    QGraph->setSamples(TData,QData);
+    PGraph->setSamples(TData,PData);
+    if(!checkNoErosion->isChecked())
     {
-      QsGraph->setSamples(TData,QsData);
-      CGraph->setSamples(TData,CData);
-      y2as = max(y2as, op.Qs);
-      y2as = max(y2as, op.C);
-      HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
+        QsGraph->setSamples(TData,QsData);
+        CGraph->setSamples(TData,CData);
+        y2as = max(y2as, op.Qs);
+        y2as = max(y2as, op.C);
+        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
-  if(checkIncludeTiledrains->isChecked())
-    QtileGraph->setSamples(TData,QtileData);
+    if(checkIncludeTiledrains->isChecked())
+        QtileGraph->setSamples(TData,QtileData);
 
 
-  yas = max(yas, op.Q);
-  yas = max(yas, op.P);
-  HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
+    yas = max(yas, op.Q);
+    yas = max(yas, op.P);
+    HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
-  HPlot->replot();
+    HPlot->replot();
 
-}
-//---------------------------------------------------------------------------
-/// set up discharge plot, graphics part (not data)
-void lisemqt::setupSmallPlot()
-{
-  QwtText title;
-  title.setText("Hydrograph");
-  title.setFont(QFont("MS Shell Dlg 2",8));
-  smallPlot = new QwtPlot(title, this);
-  smallPlot->setMinimumSize(300,300);
-  smallPlot->resize(500,500);
-  verticalLayout_6->insertWidget(0, smallPlot, 1);
-  smallPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
-
-  sPGraph = new QwtPlotCurve("Rainfall");
-  sQGraph = new QwtPlotCurve("Discharge");
-
-  sPGraph->attach(smallPlot);
-  sQGraph->attach(smallPlot);
-  // order determines order of display in Legend
-  //VJ 101223 changed for qwt 6.0.0
-  sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-  sQGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-
-  // do not attach yet
-  if(!checkNoErosion->isChecked())
-    {
-      sQsGraph = new QwtPlotCurve("Sediment discharge");
-      sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
-      sQsGraph->setPen(QPen(Qt::red));
-      sQsGraph->setStyle(QwtPlotCurve::Lines);
-      sQsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    }
-
-  QColor col;
-  col.setRgb( 60,60,200,255 );
-  sQGraph->setPen(QPen(col));
-  sPGraph->setPen(QPen("#000000"));
-
-  sPGraph->setStyle(QwtPlotCurve::Steps);
-  sQGraph->setStyle(QwtPlotCurve::Lines);
-
-  sPGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-  sQGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-  smallPlot->setCanvasBackground(QBrush(Qt::white));
-
-  // set axes
-  smallPlot->enableAxis(smallPlot->yLeft,true);
-  smallPlot->enableAxis(smallPlot->xBottom,true);
-  if(!checkNoErosion->isChecked())
-    smallPlot->enableAxis(smallPlot->yRight,true);
-
-  title.setText("time (min)");
-  title.setFont(QFont("MS Shell Dlg 2",8));
-  smallPlot->setAxisTitle(smallPlot->xBottom, title);
-  title.setText("Q (l/s)/P (mm/h)");
-  smallPlot->setAxisTitle(smallPlot->yLeft, title);
-  smallPlot->setAxisScale(smallPlot->yLeft, 0, 100);
-  smallPlot->setAxisScale(smallPlot->xBottom, 0, 100);
-  if(!checkNoErosion->isChecked())
-    {
-      title.setText("Qs (kg/s)");
-      smallPlot->setAxisTitle(smallPlot->yRight, title);
-      smallPlot->setAxisScale(smallPlot->yRight, 0, 1);
-    }
-
-  // set gridlines
-
-  QwtPlotGrid *grid = new QwtPlotGrid();
-  col.setRgb( 180,180,180,180 );
-  grid->setMajPen(QPen(col, 0, Qt::DotLine));
-  grid->attach(smallPlot);
-
-  smallPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::showSmallPlot()
 {
-  sQGraph->setSamples(TData,QData);
-  sPGraph->setSamples(TData,PData);
-  if(!checkNoErosion->isChecked())
-    sQsGraph->setSamples(TData,QsData);
+    sQGraph->setSamples(TData,QData);
+    sPGraph->setSamples(TData,PData);
+    if(!checkNoErosion->isChecked())
+        sQsGraph->setSamples(TData,QsData);
 
-  smallPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
+    smallPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
 
-  smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
-  if(!checkNoErosion->isChecked())
-    smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
+    smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
+    if(!checkNoErosion->isChecked())
+        smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
 
-  smallPlot->replot();
+    smallPlot->replot();
 
 }
 //---------------------------------------------------------------------------
+// initializes plot with world data, called in worldshow, done once
 void lisemqt::startPlots()
 {
-  if (startplot)
-    {
-      //startplot = false;
+    if (!startplot)
+        return;
 
-      yas = 0.1;
-      y2as = 0.1;
+    yas = 0.1;
+    y2as = 0.1;
 
-      PData.clear();
-      TData.clear();
-      QData.clear();
-      QtileData.clear();
-      QsData.clear();
-      CData.clear();
+    PData.clear();
+    TData.clear();
+    QData.clear();
+    QtileData.clear();
+    QsData.clear();
+    CData.clear();
 
-      HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
-      smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
+    smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
 
-      if(checkIncludeTiledrains->isChecked())
+    if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
 
-      if(!checkNoErosion->isChecked())
-        {
-          QsGraph->attach(HPlot);
-          CGraph->attach(HPlot);
+    if(!checkNoErosion->isChecked())
+    {
+        QsGraph->attach(HPlot);
+        CGraph->attach(HPlot);
 
-          sQsGraph->attach(smallPlot);
-        }
-      else
-        {
-          HPlot->enableAxis(HPlot->yRight,false);
-          smallPlot->enableAxis(smallPlot->yRight,false);
-        }
+        sQsGraph->attach(smallPlot);
+    }
+    else
+    {
+        HPlot->enableAxis(HPlot->yRight,false);
+        smallPlot->enableAxis(smallPlot->yRight,false);
+    }
 
-      if(checkNoErosion->isChecked())
-        {
-          HPlot->setAxisTitle(HPlot->yRight, "");
-          HPlot->setAxisScale(HPlot->yRight, 0, 1);
-          smallPlot->setAxisTitle(HPlot->yRight, "");
-          smallPlot->setAxisScale(HPlot->yRight, 0, 1);
-        }
+    if(checkNoErosion->isChecked())
+    {
+        HPlot->setAxisTitle(HPlot->yRight, "");
+        HPlot->setAxisScale(HPlot->yRight, 0, 1);
+        smallPlot->setAxisTitle(HPlot->yRight, "");
+        smallPlot->setAxisScale(HPlot->yRight, 0, 1);
+    }
 
-      QwtLegend *legend = new QwtLegend(HPlot);
-      legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-      HPlot->insertLegend(legend, QwtPlot::BottomLegend);
-      //legend
-      QwtLegend *slegend = new QwtLegend(smallPlot);
-      slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-      smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
-      //legend
+    QwtLegend *legend = new QwtLegend(HPlot);
+    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
+    //legend
+    QwtLegend *slegend = new QwtLegend(smallPlot);
+    slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+    smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
+    //legend
 
-      label_pointOutput->setText(op.outputpointdata);
-      // VJ 110630 show hydrograph for selected output point
+    label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
+    // VJ 110630 show hydrograph for selected output point
 
-      HPlot->setTitle(op.outputpointdata);//QString("Hydrograph point %1").arg(op.outputpointnr));
-      // VJ 110630 show hydrograph for selected output point
+    HPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
+    // VJ 110630 show hydrograph for selected output point
+}
+//---------------------------------------------------------------------------
+// max 6 line text output below hydrographs
+void lisemqt::initOutputData()
+{
+    textGraph->setMaximumBlockCount(6);
+    textGraph->setWordWrapMode(QTextOption::NoWrap);
+    textGraph->setMaximumHeight(90);
+    textGraph->clear();
+
+//    if (checkNoErosion->isChecked())
+//    {
+//        if(!checkIncludeTiledrains->isChecked())
+//            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
+//        else
+//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+//    }
+//    else
+//    {
+//        if(!checkIncludeTiledrains->isChecked())
+//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+//        else
+//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+//    }
+}
+//---------------------------------------------------------------------------
+// max 6 line text output below hydrographs
+void lisemqt::showOutputData()
+{
+    // copy the run results from the "output structure op" to the ui labels
+    // "op" is filled in the model run each timestep
+    // "op" struct is declared in lisUIoutput.h
+    // "op" struct is shared everywhere in global.h
+    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
+
+    label_dx->setText(QString::number(op.dx,'f',3));
+    label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
+    label_time->setText(QString::number(op.time,'f',3));
+    label_endtime->setText(QString::number(op.EndTime,'f',3));
+    label_runtime->setText(QString::number(op.t,'f',3));
+    label_endruntime->setText(QString::number(op.maxtime,'f',3));
+
+    // mass balance
+    label_MB->setText(QString::number(op.MB,'e',3));
+
+    // mm output
+    label_raintot->setText(QString::number(op.RainTotmm,'f',3));
+    label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',3));
+    label_qtot->setText(QString::number(op.Qtotmm,'f',3));
+    label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
+    label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
+    label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
+
+    // m3
+    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
+    if (op.outputpointnr > 1)
+        label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
+
+    // peak time
+    label_qpeak->setText(QString::number(op.Qpeak,'f',3));
+    label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
+    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
+    label_discharge->setText(QString::number(op.Q,'f',3));
+    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
+
+    // buffers
+    if (checkBuffers->isChecked())
+        label_buffervol->setText(QString::number(op.BufferVolTot,'f',3));
+
+    if (!checkNoErosion->isChecked())
+    {
+        int dig = 2;
+        label_MBs->setText(QString::number(op.MBs,'e',dig));
+        label_splashdet->setText(QString::number(op.DetTotSplash,'f',dig));
+        label_flowdet->setText(QString::number(op.DetTotFlow,'f',dig));
+        label_sedvol->setText(QString::number(op.SedTot,'f',dig));
+        label_dep->setText(QString::number(op.DepTot,'f',dig));
+
+        label_detch->setText(QString::number(op.ChannelDetTot,'f',dig));
+        label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
+        label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
+
+        label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
+        label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));
+
+        double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
+        SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
+        SDR = min(SDR ,100);
+        label_SDR->setText(QString::number(SDR,'f',dig));
+        if (checkBuffers->isChecked() || checkSedtrap->isChecked())
+            label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
     }
 
 
-}
+    // max 6 line text output below hydrographs
+    if (checkNoErosion->isChecked())
+    {
+        if(!checkIncludeTiledrains->isChecked())
+            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
+        else
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+    }
+    else
+    {
+        if(!checkIncludeTiledrains->isChecked())
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+        else
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+    }
 
-//---------------------------------------------------------------------------
+}

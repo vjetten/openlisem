@@ -116,9 +116,9 @@ void TWorld::DoModel()
          {
             r_plot = r;
             c_plot = c;
-            op.outputpointdata = QString("Hydrograph point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+            op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
             if( op.outputpointnr == 1)
-               op.outputpointdata = QString("Hydrograph main outlet");
+               op.outputpointdata = QString("main outlet");
             found = true;
          }
       }

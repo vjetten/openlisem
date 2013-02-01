@@ -831,7 +831,7 @@ void lisemqt::resetAll()
     E_InfiltrationMethod->addItem("Subtract Ksat");
     E_InfiltrationMethod->setCurrentIndex(0);
 
-    InitOP();
+    initOP();
     progressBar->setValue(0);
 
     bool check = false;
@@ -895,8 +895,6 @@ void lisemqt::resetAll()
     spinKEparameterB3->setValue(0.22);
 
     checkKETimebased->setChecked(false);
-
-
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)
@@ -915,6 +913,7 @@ QString lisemqt::findValidDir(QString path, bool up)
     qDebug() << path;
     return (path);
 }
+//--------------------------------------------------------------------
 
 
 

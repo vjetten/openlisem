@@ -167,22 +167,22 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 // show the maps on screen
 // the order of showing layers is determined by the order in how they are added to MPlot,
 // not how they are done here!
-void lisemqt::ShowMap()
+void lisemqt::showMap()
 {
-    ShowBaseMap();
+//    ShowBaseMap();
 
     drawMap->setAlpha(transparency->value());
-    if (op.drawMapType == 1) ShowMap1();
-    if (op.drawMapType == 2) ShowMap2();
-    if (op.drawMapType == 3) ShowMap3();
-    if (op.drawMapType == 4) ShowMap4();
+    if (op.drawMapType == 1) showMap1();
+    if (op.drawMapType == 2) showMap2();
+    if (op.drawMapType == 3) showMap3();
+    if (op.drawMapType == 4) showMap4();
 
     MPlot->replot();
     // do not do resets panning
     //   mapRescaler->rescale();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ShowBaseMap()
+void lisemqt::showBaseMap()
 {
     if (!startplot)
         return;
@@ -209,7 +209,7 @@ void lisemqt::ShowBaseMap()
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-void lisemqt::ShowMap1()
+void lisemqt::showMap1()
 {
     MPlot->setTitle("Runoff (l/s)");
 
@@ -232,7 +232,7 @@ void lisemqt::ShowMap1()
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-void lisemqt::ShowMap2()
+void lisemqt::showMap2()
 {
     MPlot->setTitle("Infiltration (mm)");
 
@@ -257,7 +257,7 @@ void lisemqt::ShowMap2()
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-void lisemqt::ShowMap3()
+void lisemqt::showMap3()
 {
     MPlot->setTitle("Soil loss (ton/ha)");
 
@@ -274,12 +274,12 @@ void lisemqt::ShowMap3()
     //QwtPlotSpectrogram
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSedB());
-    MPlot->setAxisScale( MPlot->yRight, 0, maxAxis3);
+    MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-void lisemqt::ShowMap4()
+void lisemqt::showMap4()
 {
     MPlot->setTitle("Flood level (m)");
 
@@ -301,3 +301,4 @@ void lisemqt::ShowMap4()
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
+//---------------------------------------------------------------------------

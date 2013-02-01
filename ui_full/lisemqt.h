@@ -117,19 +117,30 @@ public:
    QString CheckDir(QString p);
    void RunAllChecks();
    void savefile(QString name);
-   void InitOP();
    void SetConnections();
    QStringList runfilelist;
+
+   // graph functions
+   void initOP();
+   void setupPlot();
+   void setupSmallPlot();
+   void startPlots();
+   void showPlot();
+   void initPlot();
+   void killPlot();
+   void showSmallPlot();
+   void initOutputData();
+   void showOutputData();
 
    // Map drawing variable
    void setupMapPlot();
    void initMapPlot();
-   void ShowMap();
-   void ShowMap1();
-   void ShowMap2();
-   void ShowMap3();
-   void ShowMap4();
-   void ShowBaseMap();
+   void showMap();
+   void showMap1();
+   void showMap2();
+   void showMap3();
+   void showMap4();
+   void showBaseMap();
    double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;
@@ -141,7 +152,6 @@ public:
 
    QVector<double> mapData;
    QwtInterval legend;
-   void killMapPlot();
    QwtScaleWidget *rightAxis;
    QwtPlotRescaler *mapRescaler;
    double maxAxis1, maxAxis2, maxAxis3, maxAxis4;
@@ -151,13 +161,6 @@ public:
    //QwtPlotZoomer* zoomer;
 
    // graph variables
-   void startPlots();
-   void showPlot();
-   void initPlot();
-   void killPlot();
-   void setupPlot();
-   void setupSmallPlot();
-   void showSmallPlot();
    QwtPlot *HPlot;
    QwtPlot *smallPlot;
    QwtPlotCurve *QGraph;
