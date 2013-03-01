@@ -527,20 +527,6 @@ void TWorld::Infiltration(void)
                 WH->Drc = 0;
             }
 
-            // do the same for flooded water levels
-            if (SwitchChannelFlood)
-            {
-                if (hmx->Drc > 0)  // if flood domain
-                {
-                    hmx->Drc -= fact->Drc;
-                    if (hmx->Drc < 0) // in case of rounding of errors
-                    {
-                        fact->Drc += hmx->Drc;
-                        // add negative flood level to act infil
-                        hmx->Drc = 0;
-                    }
-                }
-            }
 
             Fcum->Drc += fact->Drc;
             // cumulative infil in m
@@ -572,6 +558,24 @@ void TWorld::Infiltration(void)
         if (FFull->Drc == 1)
             FSurplus->Drc = 0;
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
+
+
+        // subtract the total remaining infil capacity from the flood water
+        // FSurplus is negative so add
+        if (SwitchChannelFlood)
+        {
+            if (hmx->Drc > 0)  // if flood domain subtract infil
+            {
+                hmx->Drc += FSurplus->Drc;
+                if (hmx->Drc < 0) // if all infiltrates
+                {
+                    FSurplus->Drc -= hmx->Drc;
+                    // add negative flood level to act infil, so decrease fact
+                    hmx->Drc = 0;
+                }
+            }
+        }
+
 
         InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         //	InfilVol->Drc = max(0, InfilVol->Drc);

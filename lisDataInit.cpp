@@ -1026,6 +1026,8 @@ void TWorld::IntializeData(void)
     Qtot = 0;
     QtotOutlet = 0;
     QtotPlot = 0;
+    QpeakPlot = 0;
+    SoilLossTotPlot = 0;
     Qtotmm = 0;
     Qpeak = 0;
     QpeakTime = 0;
@@ -1099,6 +1101,7 @@ void TWorld::IntializeData(void)
     DepTot = 0;
     SoilLossTot = 0;
     SoilLossTotOutlet = 0;
+    SoilLossTotSub = 0;
     SedTot = 0;
     Qs = NewMap(0);
     Qsn = NewMap(0);

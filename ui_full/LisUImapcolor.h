@@ -83,7 +83,7 @@ class colorMapFlood: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < 0.001 )
+        if ( value < 0.0001 )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -92,40 +92,30 @@ public:
     colorMapFlood():
         QwtLinearColorMap( QColor(BGc), QColor("#0e0e4c"))
     {
-        addColorStop( 0.000, QColor("#6666d2"));
-        addColorStop( 0.125, QColor("#3a3ac5"));
-        addColorStop( 0.250, QColor("#2525bf"));
-        addColorStop( 0.375, QColor("#2121ab"));
-        addColorStop( 0.500, QColor("#1d1d98"));
-        addColorStop( 0.625, QColor("#191985"));
-        addColorStop( 0.750, QColor("#161672"));
-        addColorStop( 0.875, QColor("#12125f"));
+        addColorStop( 	0	, QColor("	#8e8ecb	");
+        addColorStop( 	0.1	, QColor("	#7777c1	");
+        addColorStop( 	0.2	, QColor("	#6060b6	");
+        addColorStop( 	0.3	, QColor("	#4a4aac	");
+        addColorStop( 	0.4	, QColor("	#3333a2	");
+        addColorStop( 	0.5	, QColor("	#1d1d98	");
+        addColorStop( 	0.6	, QColor("	#1a1a88	");
+        addColorStop( 	0.7	, QColor("	#171779	");
+        addColorStop( 	0.8	, QColor("	#14146a	");
+        addColorStop( 	0.9	, QColor("	#11115b	");
+
+//        addColorStop( 0.000, QColor("#6666d2"));
+//        addColorStop( 0.125, QColor("#3a3ac5"));
+//        addColorStop( 0.250, QColor("#2525bf"));
+//        addColorStop( 0.375, QColor("#2121ab"));
+//        addColorStop( 0.500, QColor("#1d1d98"));
+//        addColorStop( 0.625, QColor("#191985"));
+//        addColorStop( 0.750, QColor("#161672"));
+//        addColorStop( 0.875, QColor("#12125f"));
+
     }
 };
 
 //http://www.color-hex.com/color/2525bf
-//#ffffff
-//#d3d3f2
-//#bdbdeb
-//#a7a7e5
-//#9292df
-//#7c7cd8
-//#6666d2
-//#5050cb
-
-//addColorStop( 0.000, QColor("#3a3ac5"));
-//addColorStop( 0.125, QColor("#2525bf"));
-//addColorStop( 0.250, QColor("#2121ab"));
-//addColorStop( 0.375, QColor("#1d1d98"));
-//addColorStop( 0.500, QColor("#191985"));
-//addColorStop( 0.625, QColor("#161672"));
-//addColorStop( 0.750, QColor("#12125f"));
-
-//#0e0e4c
-//#0b0b39
-//#070726
-//#030313
-//#000000
 
 
 class colorMapSed: public QwtLinearColorMap

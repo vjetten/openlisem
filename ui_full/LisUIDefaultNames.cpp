@@ -108,7 +108,7 @@ void lisemqt::DefaultMapnames()
    DEFmaps.append("1;Channel Flood");
    DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
    DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
-   DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Non-zero value is maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
+   DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
    DEFmaps.append("0;Buffers");
    DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
    DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");

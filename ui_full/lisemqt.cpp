@@ -63,6 +63,7 @@ lisemqt::lisemqt(QWidget *parent)
     // set up interface
     setMinimumSize(800,600);
     resize(1060, 732);
+    showMaximized();
 
     //   setStatusBar(0);
     tabWidgetOptions->setCurrentIndex(1);
@@ -280,12 +281,16 @@ void lisemqt::SetStyleUI()
     label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
     label_interctot->setStyleSheet("* { background-color: #ffff77 }");
     label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
-    label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
     label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
     label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     label_discharge->setStyleSheet("* { background-color: #ffff77 }");
+
+    label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
+    label_dischargesub->setStyleSheet("* { background-color: #ffff77 }");
+    label_qpeaksub->setStyleSheet("* { background-color: #ffff77 }");
+    label_soillosssub->setStyleSheet("* { background-color: #ffff77 }");
 
     label_splashdet->setStyleSheet("* { background-color: #ffff77 }");
     label_flowdet->setStyleSheet("* { background-color: #ffff77 }");
@@ -609,8 +614,11 @@ void lisemqt::GetStorePath()
 
         QFileInfo fi(S);
         QDir dir = fi.absoluteDir();
-        currentDir = dir.absolutePath();
-        dir.setPath(S);
+        if (dir.exists())
+        {
+            currentDir = dir.absolutePath();
+            dir.setPath(S);
+        }
     }
     E_runFileList->addItems(runfilelist);
 }
@@ -879,7 +887,7 @@ void lisemqt::resetAll()
 
     tabWidget->setCurrentIndex(0);
 
-    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+    //buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
 
     //VJ 110706 KE equations
@@ -915,34 +923,3 @@ QString lisemqt::findValidDir(QString path, bool up)
 }
 //--------------------------------------------------------------------
 
-
-
-
-//void lisemqt::resetOutput()
-//{
-//    op.runstep = 0;
-//    op.printstep;
-//    int maxstep;
-//    bool doScreenShot;
-
-//    int outputpointnr;
-//    QString outputpointdata;
-
-//    double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
-
-//    double MB, Qtot, QtotPlot, Qtotmm, Qpeak, IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
-//            RainTotmm, SurfStormm, InfilKWTotmm,
-//            MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot,
-//            ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-//            RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, C, P, Qtile,
-//            BufferVolTot, BufferSedTot;
-
-//    TMMap *DrawMap;
-//    TMMap *baseMap;
-//    int drawMapType;
-
-//    //bool SwitchErosion;
-//    //bool SwitchIncludeChannel;
-//    QString runfilename;
-//    QString LisemDir;
-//}

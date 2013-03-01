@@ -237,18 +237,19 @@ public:
 
   /// totals for mass balance checks and output
   /// Water totals for mass balance and output (in m3)
-  double MB, Qtot, QtotOutlet, QtotPlot, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+  double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
   //houses
   double IntercHouseTot, IntercHouseTotmm;
   double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
   /// Sediment totals for mass balance and output (in kg)
-  double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot;
+  double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
   /// Water totals for output in file and UI (in mm), copied to 'op' structure
   double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
   /// peak times (min)
   double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
   double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
   double nrCells, CatchmentArea;
+  double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
 
   int c_outlet;  /// copy of outlet col number
   int r_outlet;  /// copy of outlet row number

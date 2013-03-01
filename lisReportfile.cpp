@@ -80,20 +80,24 @@ void TWorld::OutputUI(void)
 
     op.CatchmentArea = CatchmentArea;
 
-    op.RainTotmm=RainTotmm + SnowTotmm;
-    op.WaterVolTotmm=WaterVolTotmm-SurfStoremm;
-    op.Qtotmm=Qtotmm;
-    op.Qtot=QtotOutlet;
-    op.QtotPlot=QtotPlot;  //VJ 110701
-    op.Qpeak=Qpeak;
-    op.QpeakTime=QpeakTime/60;
-    op.RainpeakTime=RainpeakTime/60;
-    op.InfilTotmm=InfilTotmm;
-    op.SurfStormm=SurfStoremm;
+    op.RainTotmm = RainTotmm + SnowTotmm;
+    op.WaterVolTotmm = WaterVolTotmm-SurfStoremm;
+    op.Qtotmm = Qtotmm;
+    op.Qtot = QtotOutlet;
+    op.QPlot = QPlot;  //VJ 110701
+    op.QtotPlot = QtotPlot;  //VJ 110701
+    op.QpeakPlot = QpeakPlot;  //VJ 110701
+    op.SoilLossTotPlot = SoilLossTotPlot;
+    op.Qpeak = Qpeak;
+    op.QpeakTime = QpeakTime/60;
+    op.RainpeakTime = RainpeakTime/60;
+
+    op.InfilTotmm = InfilTotmm;
+    op.SurfStormm = SurfStoremm;
+    op.IntercTotmm = IntercTotmm;// + IntercHouseTotmm;
     //houses
-    op.IntercTotmm=IntercTotmm+IntercHouseTotmm;
-    op.IntercHouseTotmm=IntercHouseTotmm;
-    op.InfilKWTotmm=InfilKWTot; // infil part in kin wave not used
+    op.IntercHouseTotmm = IntercHouseTotmm;
+    op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
     op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
 
     op.MBs = MBs;
@@ -113,7 +117,7 @@ void TWorld::OutputUI(void)
     op.time = time/60;
     op.maxtime = op.t/runstep * op.maxstep;
 
-    op.P = (RainAvgmm + SnowAvgmm)*3600/_dt;
+    op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
     op.Q = Qoutput->DrcPlot; //Outlet;  //=> includes channel and tile
     op.Qs = Qsoutput->DrcPlot; //Outlet;
     op.C = TotalConc->DrcPlot; //Outlet;

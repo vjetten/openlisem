@@ -206,7 +206,8 @@ void lisemqt::initPlot()
     spinBoxPointtoShow->setEnabled(false);
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
-    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
+//    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
+    subcatchgroup->setEnabled(op.outputpointnr > 1);
 
 //    textGraph->setMaximumBlockCount(6);
 //    textGraph->setWordWrapMode(QTextOption::NoWrap);
@@ -235,7 +236,7 @@ void lisemqt::showPlot()
     QtileData << op.Qtile;
     QsData << op.Qs;
     CData << op.C;
-    PData << op.P;
+    PData << op.Pmm;
     TData << op.time;
 
     QGraph->setSamples(TData,QData);
@@ -253,7 +254,7 @@ void lisemqt::showPlot()
 
 
     yas = max(yas, op.Q);
-    yas = max(yas, op.P);
+    yas = max(yas, op.Pmm);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     HPlot->replot();
@@ -344,21 +345,6 @@ void lisemqt::initOutputData()
     textGraph->setWordWrapMode(QTextOption::NoWrap);
     textGraph->setMaximumHeight(90);
     textGraph->clear();
-
-//    if (checkNoErosion->isChecked())
-//    {
-//        if(!checkIncludeTiledrains->isChecked())
-//            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
-//        else
-//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
-//    }
-//    else
-//    {
-//        if(!checkIncludeTiledrains->isChecked())
-//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
-//        else
-//            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
-//    }
 }
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs
@@ -386,18 +372,26 @@ void lisemqt::showOutputData()
     label_qtot->setText(QString::number(op.Qtotmm,'f',3));
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
-    label_interctot->setText(QString::number(op.IntercTotmm,'f',3));
+    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
 
-    // m3
-    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
+
     if (op.outputpointnr > 1)
+    {
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
+        label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
+        label_dischargesub->setText(QString::number(op.QPlot,'f',3));
+        if (!checkNoErosion->isChecked())
+            label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
+    }
+
+    // outlet
+    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
+    label_discharge->setText(QString::number(op.Q,'f',3));
 
     // peak time
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
-    label_discharge->setText(QString::number(op.Q,'f',3));
     label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
 
     // buffers
@@ -433,16 +427,16 @@ void lisemqt::showOutputData()
     if (checkNoErosion->isChecked())
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
     else
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.P,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
 
 }

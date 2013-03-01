@@ -298,6 +298,7 @@ void lisemqt::showMap4()
     drawMap->setAlpha(-1);
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
+//    MPlot->setAxisScale( MPlot->yRight, 0.001, maxAxis4);
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
