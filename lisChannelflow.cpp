@@ -58,15 +58,11 @@ void TWorld::CalcVelDischChannel(void)
         {
             //			Perim = FW + 2*sqrt(wh*wh + dw*dw);
             Perim = FW + 2*wh/cos(atan(ChannelSide->Drc));
-            Area = FW*wh + wh*dw;// NOT*2 BECAUSE TRIANGLE !!;
+            Area = FW*wh + wh*dw;
         }
         else
         {
             Perim = FW + 2*wh;
-            if (SwitchChannelFlood)
-                if (ChannelMaxQ->Drc > 0)
-                    Perim = FW + 2*wh + FW;
-            // box culvert more friction
             Area = FW*wh;
         }
         //Perim = ChannelWidth->Drc + 2*wh/cos(atan(ChannelSide->Drc));
@@ -111,11 +107,23 @@ void TWorld::ChannelFlow(void)
         Channelq->Drc = 0;
         ChannelWH->Drc = 0;
 
-        ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
-        // add inflow to channel
-        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
-        // add rainfall in m3, no interception, rainfall so do not use ChannelDX
-
+        if (SwitchChannelFlood)
+        {
+            if (ChannelMaxQ->Drc == 0)
+            {
+                ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+                // add inflow to channel
+                ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+                // add rainfall in m3, no interception, rainfall so do not use ChannelDX
+            }
+        }
+        else
+        {
+            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+            // add inflow to channel
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+            // add rainfall in m3, no interception, rainfall so do not use ChannelDX
+        }
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
             ChannelBufferVol->Drc -= ChannelWaterVol->Drc;

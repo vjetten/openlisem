@@ -318,6 +318,7 @@ public:
   void InitTiledrains(void); //VJ 110112
   void InitBuffers(void); //VJ 110112
   void InitChannel(void); //VJ 110112
+  void InitShade(void); //VJ 130301
   void InitMulticlass(void); //VJ 110511
   void GetInputData(void);      // get and make input maps
   void IntializeData(void);     // make all non-input maps

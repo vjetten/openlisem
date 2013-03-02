@@ -64,12 +64,13 @@ void TWorld::OutputUI(void)
         {
             tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
             if (ChannelDepth->Drc > 0)
-                tmb->Drc = max(0.02, hmx->Drc);
+                tmb->Drc = max(0.01, ChannelWH->Drc);
 
         }
         op.DrawMap->copy(tmb);  //flood level in m
     }
     op.baseMap->copy(Shade);
+    op.channelMap->copy(ChannelWidth);
 
     op.dx = _dx;
     op.MB = MB;

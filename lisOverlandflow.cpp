@@ -110,7 +110,6 @@ void TWorld::CalcVelDisch(void)
         if (FloodDomain->Drc == 1)
         {
             Q->Drc *= 0;
-            Alpha->Drc *= 0;
             //decrease overlandflow activity in flooddomain
         }
 
@@ -160,7 +159,7 @@ void TWorld::OverlandFlow(void)
               and it will give outgoing flux QSn (mass/s)
               and the current amount Subs (mass) in suspension+solution
            */
-            //  routeSunstance(r,c, LDD, Q, Qn, QS, QSn, Alpha, DX, WaterVolin, Subs);
+            //  routeSubstance(r,c, LDD, Q, Qn, QS, QSn, Alpha, DX, WaterVolin, Subs);
 
         }
     }

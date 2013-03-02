@@ -424,6 +424,65 @@ void TWorld::InitBuffers(void)
 }
 //---------------------------------------------------------------------------
 // read and Intiialize all channel variables and maps
+void TWorld::InitShade(void)
+{
+    Shade = NewMap(0);
+    //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
+    if (SwitchChannelFlood)
+        DEM->calcMap(Barriers, ADD);
+
+    FOR_ROW_COL_MV
+    {
+        double Incl = 20.0/180.0*PI;
+        double Decl = 300/180.0*PI;
+        double mat[9];
+        double dx, dy, aspect;
+        for (int i = 0; i < 9; i++)
+            mat[i] = DEM->Drc;
+        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
+        {
+            if(!IS_MV_REAL8(&LDD->Data[r-1][c-1]))
+                mat[0] = DEM->Data[r-1][c-1];
+            if(!IS_MV_REAL8(&LDD->Data[r-1][c  ]))
+                mat[1] = DEM->Data[r-1][c  ];
+            if(!IS_MV_REAL8(&LDD->Data[r-1][c+1]))
+                mat[2] = DEM->Data[r-1][c+1];
+            if(!IS_MV_REAL8(&LDD->Data[r  ][c-1]))
+                mat[3] = DEM->Data[r  ][c-1];
+
+            if(!IS_MV_REAL8(&LDD->Data[r  ][c+1]))
+                mat[5] = DEM->Data[r  ][c+1];
+            if(!IS_MV_REAL8(&LDD->Data[r+1][c-1]))
+                mat[6] = DEM->Data[r+1][c-1];
+            if(!IS_MV_REAL8(&LDD->Data[r+1][c  ]))
+                mat[7] = DEM->Data[r+1][c  ];
+            if(!IS_MV_REAL8(&LDD->Data[r+1][c+1]))
+                mat[8] = DEM->Data[r+1][c+1];
+        }
+        dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
+        dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
+        if (dy < 0)
+            aspect = atan(dx/dy)+2*PI;
+        else
+            if (dy > 0)
+                aspect = atan(dx/dy)+PI;
+            else
+                aspect = 0;
+        //qDebug() << r << c << aspect;
+        Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
+    }
+    double MaxV = Shade->mapMaximum();
+    double MinV = Shade->mapMinimum();
+
+    FOR_ROW_COL_MV
+    {
+        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        if (Shade->Drc == 0) Shade->Drc = 0.2;
+    }
+
+}
+//---------------------------------------------------------------------------
+// read and Intiialize all channel variables and maps
 void TWorld::InitChannel(void)
 {
     // channel vars and maps that must be there even if channel is switched off
@@ -590,58 +649,6 @@ void TWorld::GetInputData(void)
     Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
     Grad->calcValue(0.001, MAX);
 
-    Shade = NewMap(0);
-    //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
-
-    FOR_ROW_COL_MV
-    {
-        double Incl = 20.0/180.0*PI;
-        double Decl = 300/180.0*PI;
-        double mat[9];
-        double dx, dy, aspect;
-        for (int i = 0; i < 9; i++)
-            mat[i] = DEM->Drc;
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
-        {
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c-1]))
-                mat[0] = DEM->Data[r-1][c-1];
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c  ]))
-                mat[1] = DEM->Data[r-1][c  ];
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c+1]))
-                mat[2] = DEM->Data[r-1][c+1];
-            if(!IS_MV_REAL8(&LDD->Data[r  ][c-1]))
-                mat[3] = DEM->Data[r  ][c-1];
-
-            if(!IS_MV_REAL8(&LDD->Data[r  ][c+1]))
-                mat[5] = DEM->Data[r  ][c+1];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c-1]))
-                mat[6] = DEM->Data[r+1][c-1];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c  ]))
-                mat[7] = DEM->Data[r+1][c  ];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c+1]))
-                mat[8] = DEM->Data[r+1][c+1];
-        }
-        dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
-        dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
-        if (dy < 0)
-            aspect = atan(dx/dy)+2*PI;
-        else
-            if (dy > 0)
-                aspect = atan(dx/dy)+PI;
-            else
-                aspect = 0;
-        //qDebug() << r << c << aspect;
-        Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
-    }
-    double MaxV = Shade->mapMaximum();
-    double MinV = Shade->mapMinimum();
-
-    FOR_ROW_COL_MV
-    {
-        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
-        if (Shade->Drc == 0) Shade->Drc = 0.2;
-    }
-
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     Outlet->cover(LDD, 0);
     // fill outlet with zero, some users have MV where no outlet
@@ -666,7 +673,6 @@ void TWorld::GetInputData(void)
 
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
     //map with points for output data
-
 
     if (SwitchRainfall)
     {
@@ -856,6 +862,8 @@ void TWorld::GetInputData(void)
 
     //## read and initialize all channel maps and variables
     InitChannel();
+
+    InitShade();
 
     //## read and initialize all buffer maps and variables
     InitBuffers();

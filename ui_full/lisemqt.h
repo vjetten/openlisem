@@ -141,14 +141,17 @@ public:
    void showMap3();
    void showMap4();
    void showBaseMap();
+   void showChannelMap();
    double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
    QwtPlotSpectrogram *baseMap;  // raster map drawing
+   QwtPlotSpectrogram *channelMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
    QwtMatrixRasterData *RDb;
+   QwtMatrixRasterData *RDc;
 
    QVector<double> mapData;
    QwtInterval legend;

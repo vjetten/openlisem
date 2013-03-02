@@ -56,6 +56,7 @@ struct output{
 
     TMMap *DrawMap;
     TMMap *baseMap;
+    TMMap *channelMap;
     int drawMapType;
 
     QString runfilename;

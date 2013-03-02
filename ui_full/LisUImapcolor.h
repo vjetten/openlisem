@@ -60,13 +60,6 @@ public:
 
 class colorMapWater: public QwtLinearColorMap
 {
-//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-//    {
-//        if ( value == 0 )
-//            return qRgba( 0, 0, 0, 0 );
-
-//        return QwtLinearColorMap::rgb( interval, value );
-//    }
 public:
     colorMapWater():
         QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
@@ -75,6 +68,23 @@ public:
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );
+    }
+};
+
+class colorMapGreen: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value == 0 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapGreen():
+        QwtLinearColorMap( QColor(BGc), Qt::darkGreen  )
+    {
+        addColorStop( 0.0, Qt::darkYellow );
     }
 };
 
@@ -90,21 +100,26 @@ class colorMapFlood: public QwtLinearColorMap
     }
 public:
     colorMapFlood():
-        QwtLinearColorMap( QColor(BGc), QColor("#0e0e4c"))
+        QwtLinearColorMap( QColor(BGc),  Qt::darkBlue)//QColor("#0e0e4c"))
     {
-        addColorStop( 	0	, QColor("	#8e8ecb	");
-        addColorStop( 	0.1	, QColor("	#7777c1	");
-        addColorStop( 	0.2	, QColor("	#6060b6	");
-        addColorStop( 	0.3	, QColor("	#4a4aac	");
-        addColorStop( 	0.4	, QColor("	#3333a2	");
-        addColorStop( 	0.5	, QColor("	#1d1d98	");
-        addColorStop( 	0.6	, QColor("	#1a1a88	");
-        addColorStop( 	0.7	, QColor("	#171779	");
-        addColorStop( 	0.8	, QColor("	#14146a	");
-        addColorStop( 	0.9	, QColor("	#11115b	");
+
+        addColorStop( 0.0, QColor("#8080FF") );
+        addColorStop( 0.5, Qt::blue );
+        addColorStop( 0.95, Qt::darkBlue);
+
+//        addColorStop( 	0.0, QColor("#8e8ecb"));
+//        addColorStop( 	0.1, QColor("#7777c1"));
+//        addColorStop( 	0.2, QColor("#6060b6"));
+//        addColorStop( 	0.3, QColor("#4a4aac"));
+//        addColorStop( 	0.4, QColor("#3333a2"));
+//        addColorStop( 	0.5, QColor("#1d1d98"));
+//        addColorStop( 	0.6, QColor("#1a1a88"));
+//        addColorStop( 	0.7, QColor("#171779"));
+//        addColorStop( 	0.8, QColor("#14146a"));
+//        addColorStop( 	0.9, QColor("#11115b"));
 
 //        addColorStop( 0.000, QColor("#6666d2"));
-//        addColorStop( 0.125, QColor("#3a3ac5"));
+//        addColorStop( 0.1, QColor("#3a3ac5"));
 //        addColorStop( 0.250, QColor("#2525bf"));
 //        addColorStop( 0.375, QColor("#2121ab"));
 //        addColorStop( 0.500, QColor("#1d1d98"));

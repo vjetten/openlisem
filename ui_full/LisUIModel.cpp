@@ -153,6 +153,8 @@ void lisemqt::worldShow()
 
     showMap(); // show map
 
+   // showChannelMap(); // show channel map
+
     if (doShootScreens)
        shootScreen();
 }
@@ -197,6 +199,7 @@ void lisemqt::initOP()
 {
     op.DrawMap = NULL;
     op.baseMap = NULL;
+    op.channelMap = NULL;
 
     op.runstep = 0;
     op.printstep = 0;

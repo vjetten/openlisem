@@ -100,8 +100,14 @@ void lisemqt::setupMapPlot()
     drawMap->setAlpha(180);
     // NOTE the order in which these are attached is the order displayed.
 
+    channelMap = new QwtPlotSpectrogram();
+    channelMap->setRenderThreadCount( 0 );
+    channelMap->attach( MPlot );
+    // channel map
+
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
+    RDc = new QwtMatrixRasterData();
 
     // raster data to link to plot
 
@@ -169,8 +175,6 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 // not how they are done here!
 void lisemqt::showMap()
 {
-//    ShowBaseMap();
-
     drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) showMap1();
     if (op.drawMapType == 2) showMap2();
@@ -188,7 +192,6 @@ void lisemqt::showBaseMap()
         return;
 
     double res = fillDrawMapData(op.baseMap, RDb);
-    qDebug() << res;
 
     baseMap->setColorMap(new colorMapGray());
     RDb->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
@@ -206,6 +209,16 @@ void lisemqt::showBaseMap()
     MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
     startplot = false;
+}
+//---------------------------------------------------------------------------
+void lisemqt::showChannelMap()
+{
+    double res = fillDrawMapData(op.channelMap, RDc);
+
+    channelMap->setAlpha(255);
+    channelMap->setColorMap(new colorMapGreen());
+    RDc->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
+    channelMap->setData(RDc);
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
@@ -293,13 +306,11 @@ void lisemqt::showMap4()
 
     drawMap->setData(RD);
     drawMap->setColorMap(new colorMapFlood());
-    //QwtPlotSpectrogram
-
-    drawMap->setAlpha(-1);
+    // draw map
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
-//    MPlot->setAxisScale( MPlot->yRight, 0.001, maxAxis4);
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+    // draw legend
 }
 //---------------------------------------------------------------------------

@@ -99,8 +99,8 @@ void TWorld::Totals(void)
     WaterVolTot = WaterVolall->mapTotal();//m3
 
     // replace water volume in flooded areas with flood volume for water balance
-    if (SwitchChannelFlood)
-        WaterVolTot += FloodWaterVol->mapTotal();
+    //if (SwitchChannelFlood)
+      //  WaterVolTot += FloodWaterVol->mapTotal();
 
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm
@@ -193,11 +193,6 @@ void TWorld::Totals(void)
     {
         Qoutput->Drc = 1000*qMax(1e-6, Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
         // added minimum here to avoid strange maps
-        if (SwitchChannelFlood)
-            if (hmx->Drc > 0)
-        {
-      //          Qoutput->Drc = Qflood->Drc*1000;
-        }
     }
 
     Qtotmm = Qtot*catchmentAreaFlatMM;

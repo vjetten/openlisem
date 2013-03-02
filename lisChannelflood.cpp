@@ -79,10 +79,16 @@ void TWorld::ChannelFlood(void)
 
     // get flood level in channel from 1D kin wave channel
     bool startflood = false;
+    tmc->fill(0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
+        {
             hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc);
+          //  hmx->Drc *= ChannelWidthUpDX->Drc/_dx;
+            if (hmx->Drc > 0)
+                tmc->Drc = 1;
+        }
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
     }
     FOR_ROW_COL_MV
@@ -122,7 +128,7 @@ void TWorld::ChannelFlood(void)
             Qxsum->fill(0);
             // map with fluxes to/from central cell
 
-            //flag which cells need processing, flood domain
+            // flag which cells need processing, flood domain
             // this is the cell where hmx > 0 and any cell adjacent even if dry
             tma->fill(0);
             for (int i = 0; i < 9; i++)
@@ -137,9 +143,6 @@ void TWorld::ChannelFlood(void)
                     // flag
                 }
             }
-            FOR_ROW_COL_MV
-                    if (ChannelMaxQ->Drc > 0)
-                    tma->Drc = 0;
 
             // prepare maps in direction i;
             for (int i = 0; i < 9; i++)
@@ -147,10 +150,6 @@ void TWorld::ChannelFlood(void)
                 double _dx2 = ((i+1) % 2 == 0 ? _dx : _dx*qSqrt(2));
                 // diagonal cells have sqrt(2) dx
 
-//                Hx->fill(0);   // dem+wh
-//                hx->fill(0);   // wh
-//                Nx->copy(N);   // manning
-//                dHdLx->fill(0);
                 // get the pressure and N in 8 directions, and fill with 0 if outside boundaries
                 FOR_ROW_COL_MV
                 {
@@ -214,8 +213,6 @@ void TWorld::ChannelFlood(void)
                     else
                         qx[i].m->Drc = Qx;
                     // save flux in direction i for next flood timestep
-
-                    //Qflood->Drc = max(Qflood->Drc, Qx);
                 } // for all flood cells
             } // for i = 1 to 9
 
@@ -230,10 +227,12 @@ void TWorld::ChannelFlood(void)
                 if (hmx->Drc > 0)
                     cells++;
             }
+
             //            FOR_ROW_COL_MV
             //            {
             //                Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
             //            }
+
             FOR_ROW_COL_MV
                     if (tma->Drc == 1)
             {
@@ -241,7 +240,7 @@ void TWorld::ChannelFlood(void)
                 for (int i = 0; i < 9; i++)
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            i != 4 &&                     // not the central cell
+                            i != 4 &&                     // not the centre cell
                             !IS_MV_REAL8(&Hmx->Drci))
                     {
                         hmax = qMax(hmax, hmx->Drci);
@@ -251,14 +250,21 @@ void TWorld::ChannelFlood(void)
                     hmx->Drc = qMin(hmx->Drc, hmax);
                 // correct hmx if not channel cell
             }
+            //simple correction, flow cannot lead to water level rise above neighbours outside channel,
+            //water cannot flow uphill in this simplified solution (no momentum)
+            //if we use Hydraulic Head H (=h+z), instabilities occur !!!
+
             //            FOR_ROW_COL_MV
             //            {
             //                hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
             //            }
 
-            //simple correction, flow cannot lead to water level rise above neighbours outside channel,
-            //water cannot flow uphill in this simplified solution (no momentum)
-            //if we use Hydraulic Head H (=h+z), instabilities occur !!!
+
+            FOR_ROW_COL_MV
+                    if (ChannelMaxQ->Drc > 0)
+            {
+                hmx->Drc = 0;
+            }
 
             // find current flood domain (hmx > 0) and nr of flooded cells
             // used in the other processes, infiltration, runoff etc
@@ -283,7 +289,8 @@ void TWorld::ChannelFlood(void)
 
     sumh_t1 = hmx->mapTotal();
     diff = (sumh_t - sumh_t1)/cells;
-    debug(QString("Flooding (dt %4): %1 %2 - avg err h in flooded cells %3 m").arg(sumh_t,8,'f',3).arg(sumh_t1,8,'f',3).arg(diff,8,'e',3).arg(timestep1,8,'e',3));
+    double avgh = sumh_t1/cells;
+    debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(timestep1,6,'f',3));
 
     Qflood->fill(0);
     FloodWaterVol->fill(0);
@@ -292,25 +299,33 @@ void TWorld::ChannelFlood(void)
     {
         Qflood->Drc = qPow(hmx->Drc, 0.667)*qSqrt(Grad->Drc)/N->Drc;
         // estimate resulting flux simply by manning
-        FloodWaterVol->Drc = hmx->Drc*(_dx-ChannelWidth->Drc)*DX->Drc;
+        FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
     }
 
     // put new flood level in channel for next 1D kin wave channel
-    //    FOR_ROW_COL_MV_CH
-    //    {
-    //        if (hmx->Drc > 0 && ChannelMaxQ->Drc == 0)
-    //        {
-    //            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
-    //            ChannelWaterVol->Drc = ChannelWH->Drc *
-    //                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
-    //        }
-    //    }
-
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_CH
     {
-        Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
+        if (hmx->Drc > 0 && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
+        {
+            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
+            if (ChannelMaxQ->Drc > 0)
+            {
+                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
+                hmx->Drc = 0;
+            }
+
+            ChannelWaterVol->Drc = ChannelWH->Drc *
+                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
+        }
     }
+
+    //    FOR_ROW_COL_MV
+    //    {
+    //        Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
+    //    }
     // report flood maps
+
+    FloodDomain->report("fd");
     hmx->report("hmx");
     Qflood->report("qf");
 }

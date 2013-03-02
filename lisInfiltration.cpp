@@ -435,17 +435,11 @@ void TWorld::Infiltration(void)
             {
                 hmx->Drc += RainNet->Drc;
             }
+            else
+                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         }
-        //else
-//        if (SwitchChannelFlood)
-//        {
-//            if (hmx->Drc > 0)
-//            {
-//                WH->Drc = hmx->Drc;
-//            }
-//        }
-
-        WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+        else
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         // add net to water rainfall on soil surface (in m)
 
         if (GrassFraction->Drc > 0)
@@ -477,6 +471,7 @@ void TWorld::Infiltration(void)
             if (SwitchHardsurface && HardSurface->Drc > 0)
                 Ksateff->Drc = (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
             //VJ 110111 no infiltration on hard surfaces
+            Ksateff->Drc = (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
 
             //houses
             if (SwitchHouses)
@@ -518,9 +513,12 @@ void TWorld::Infiltration(void)
 
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
         {
+            if (RoadWidthDX->Drc == _dx)
+                fact->Drc = 0;
+
             WH->Drc -= fact->Drc;
             // subtract fact->Drc from WH, cannot be more than WH
-            if (WH->Drc < 0) // in case of rounding of errors
+            if (WH->Drc < 0)
             {
                 fact->Drc += WH->Drc;
                 // add negative WH to act infil

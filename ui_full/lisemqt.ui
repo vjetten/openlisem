@@ -1490,6 +1490,35 @@
                   </sizepolicy>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_24">
+                  <item row="11" column="0" colspan="3">
+                   <widget class="QFrame" name="frame_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::HLine</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0" colspan="3">
+                   <widget class="QFrame" name="frame_3">
+                    <property name="frameShape">
+                     <enum>QFrame::HLine</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="0">
                    <widget class="QCheckBox" name="checkNoErosion">
                     <property name="palette">
@@ -1770,7 +1799,7 @@
                      <bool>false</bool>
                     </property>
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1854,101 +1883,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1">
-                   <widget class="QDoubleSpinBox" name="E_minFloodDt">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>3</number>
-                    </property>
-                    <property name="minimum">
-                     <double>0.001000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>5.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.001000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="2">
-                   <widget class="QLabel" name="label_56">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Minmimum dt in flood domain (sec)</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="6" column="0" colspan="3">
-                   <widget class="QFrame" name="frame_3">
-                    <property name="frameShape">
-                     <enum>QFrame::HLine</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkIncludeTiledrains">
                     <property name="palette">
                      <palette>
@@ -1998,7 +1933,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="0" colspan="3">
+                  <item row="7" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkHardsurface">
                     <property name="enabled">
                      <bool>true</bool>
@@ -2051,7 +1986,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0" colspan="3">
+                  <item row="8" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkHouses">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -2107,7 +2042,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="0">
+                  <item row="9" column="0">
                    <widget class="QCheckBox" name="checkRaindrum">
                     <property name="enabled">
                      <bool>false</bool>
@@ -2160,7 +2095,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="11" column="0" colspan="2">
+                  <item row="10" column="0" colspan="2">
                    <widget class="QCheckBox" name="checkPesticides">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -2216,26 +2151,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0" colspan="3">
-                   <widget class="QFrame" name="frame_2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::HLine</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="lineWidth">
-                     <number>1</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="13" column="0">
+                  <item row="12" column="0">
                    <widget class="QLabel" name="label_55">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -2248,7 +2164,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="0" colspan="3">
+                  <item row="13" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkLimitTC">
                     <property name="palette">
                      <palette>
