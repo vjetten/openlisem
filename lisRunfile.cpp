@@ -384,6 +384,9 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
       if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
       if (p1.compare("OUTTILED" )==0)  OutTiledrain  = GetName(p);
+      if (p1.compare("OUTHMX" )==0)    OutHmx  = GetName(p);
+      if (p1.compare("OUTQF" )==0)     OutQf  = GetName(p);
+      if (p1.compare("OUTVF" )==0)     OutVf  = GetName(p);
    }
 
    if (InfilMethod == INFIL_SWATRE)

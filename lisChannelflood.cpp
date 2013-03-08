@@ -32,7 +32,9 @@ functions: \n
 - void TWorld::ChannelFlood(void) calculate maps channelflood height (hmx) and FloodDomain
 */
 
+#include "lisemqt.h"
 #include "model.h"
+#include "global.h"
 
 //---------------------------------------------------------------------------
 #define Drci Data[r+dr[i]][c+dc[i]]
@@ -80,12 +82,13 @@ void TWorld::ChannelFlood(void)
     // get flood level in channel from 1D kin wave channel
     bool startflood = false;
     tmc->fill(0);
+
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
             hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc);
-          //  hmx->Drc *= ChannelWidthUpDX->Drc/_dx;
+            //  hmx->Drc *= ChannelWidthUpDX->Drc/_dx;
             if (hmx->Drc > 0)
                 tmc->Drc = 1;
         }
@@ -121,6 +124,8 @@ void TWorld::ChannelFlood(void)
             // find maxdepth
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
             timestep = qMax(0.001, timestep);
+            timestep = qMax(minFloodDt, timestep);
+            timestep = qMax(op.minFlood_dt, timestep);
             timestep1 = timestep;
             timestep = qMin(timestep, _dt-timesum);
             // determine timestep
@@ -247,10 +252,13 @@ void TWorld::ChannelFlood(void)
                         // find the highest water level around centre cell
                     }
                 if (ChannelDepth->Drc == 0)
+                {
                     hmx->Drc = qMin(hmx->Drc, hmax);
+                    hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
+                }
                 // correct hmx if not channel cell
             }
-            //simple correction, flow cannot lead to water level rise above neighbours outside channel,
+            //simple correction,outside channels flow cannot lead to water level rise above neighbours outside channel,
             //water cannot flow uphill in this simplified solution (no momentum)
             //if we use Hydraulic Head H (=h+z), instabilities occur !!!
 
@@ -293,13 +301,12 @@ void TWorld::ChannelFlood(void)
     debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(timestep1,6,'f',3));
 
     Qflood->fill(0);
-    FloodWaterVol->fill(0);
     FOR_ROW_COL_MV
             if(hmx->Drc > 0)// && ChannelDepth->Drc == 0)
     {
-        Qflood->Drc = qPow(hmx->Drc, 0.667)*qSqrt(Grad->Drc)/N->Drc;
+        Vflood->Drc = qPow(hmx->Drc, 0.667)*qSqrt(Grad->Drc)/N->Drc;
+        Qflood->Drc = Vflood->Drc * hmx->Drc * _dx;
         // estimate resulting flux simply by manning
-        FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
     }
 
     // put new flood level in channel for next 1D kin wave channel
@@ -319,15 +326,49 @@ void TWorld::ChannelFlood(void)
         }
     }
 
+    FloodWaterVol->fill(0);
+    FOR_ROW_COL_MV
+    {
+        if (ChannelDepth->Drc == 0)
+        {
+            FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
+        }
+        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
+    }
+
+//    hmx->report("hmx");
+//    Qflood->report("Qf");
+//    Vflood->report("Vf");
+//    maxflood->report("maxflood.map");
     //    FOR_ROW_COL_MV
     //    {
-    //        Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
-    //    }
-    // report flood maps
+    //        double Perim = 2*hmx->Drc+_dx;
 
-    FloodDomain->report("fd");
-    hmx->report("hmx");
-    Qflood->report("qf");
+    //        AlphaF->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 0.6667),0.6);
+
+    //        if (AlphaF->Drc > 0)
+    //            QF->Drc = pow((_dx*hmx->Drc)/AlphaF->Drc, 1/0.6);
+    //        else
+    //            QF->Drc = 0;
+    //        if (ChannelDepth->Drc > 0)
+    //            QF->Drc = 0;
+    //    }
+    //    QnF->setMV();
+    //    tma->fill(0);
+    //    // flag all new flux as missing value, needed in kin wave and replaced by new flux
+    //    FOR_ROW_COL_MV
+    //    {
+    //        if (LDD->Drc == 5) // if outflow point, pit
+    //        {
+    //            Kinematic(r,c, LDD, QF, QnF, Qs, Qsn, tma, AlphaF, DX, WaterVolin, Sed, BufferVol, BufferSed);
+    //            //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
+    //        }
+    //    }
+
+    //    // calculate resulting flux Qn back to water height on surface
+    //    FOR_ROW_COL_MV
+    //        hmx->Drc = (AlphaF->Drc*pow(QnF->Drc, 0.6))/_dx;
+    //    hmx->report("hmxa");
 }
 
 

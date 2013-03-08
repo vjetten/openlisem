@@ -46,23 +46,23 @@ void TWorld::GridCell(void)
       //VJ 100609 cannot have a road with a buffer, to complicated
 
       if (SwitchIncludeChannel)
-         if (RoadWidthDX->Drc > 0 && ChannelWidthUpDX->Drc > 0)
-           {
-             RoadWidthDX->Drc = min(_dx-ChannelWidthUpDX->Drc, RoadWidthDX->Drc);
-           }
-            //ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
+         if (RoadWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
+               RoadWidthDX->Drc = max(0, _dx-ChannelWidthUpDX->Drc);
+      // channel takes priority
 
       /** wheeltracks are not implemented yet */
-      WheelWidthDX->Drc = 0;
-      if (SwitchWheelPresent)
-         WheelWidthDX->Drc = max(0,_dx-RoadWidthDX->Drc-ChannelWidthUpDX->Drc)/_dx * WheelWidth->Drc;
+//      WheelWidthDX->Drc = 0;
+//      if (SwitchWheelPresent)
+//         WheelWidthDX->Drc = max(0,_dx-RoadWidthDX->Drc-ChannelWidthUpDX->Drc)/_dx * WheelWidth->Drc;
       // adjust wheelwidth in cells with other surfaces
       /** TODO is wheelwidth needed or just an extra map? */
 
-      SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
-                             - GullyWidthDX->Drc
-                             - RoadWidthDX->Drc
-                             - WheelWidthDX->Drc);
+      SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc - RoadWidthDX->Drc);
+
+//      SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
+//                             - GullyWidthDX->Drc
+//                             - RoadWidthDX->Drc
+//                             - WheelWidthDX->Drc);
    }
 }
 //---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void TWorld::SurfaceStorage(void)
       // average water stored on flowwidth and not available for flow, in m
 
       //houses
-      if(SwitchHouses)
+      if (SwitchHouses)
       {
          WHstore->Drc *= (1-HouseCover->Drc);
          whflow = wh - WHstore->Drc;

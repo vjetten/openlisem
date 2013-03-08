@@ -81,6 +81,7 @@ void TWorld::DoModel()
       op.DrawMap = NewMap(0);
       op.baseMap = NewMap(0);
       op.channelMap = NewMap(0);
+      op.roadMap = NewMap(0);
       // initialize maps for output to screen
       // must be done after Initialize Data because then we know how large the map is
 
@@ -167,9 +168,9 @@ void TWorld::DoModel()
          ToTiledrain();       // fraction going into tiledrain directly from surface, , recalc Q and V
          OverlandFlow();      // overland flow kin wave
 
+         ChannelFlow();       // channel erosion and kin wave
          ChannelFlood();      // st venant near channel flooding, based on ChannelWH prev timestep
                               // recalculates WH and channelvol so do first
-         ChannelFlow();       // channel erosion and kin wave
 
          TileFlow();          // tile drain flow kin wave
 

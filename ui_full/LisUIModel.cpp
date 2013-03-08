@@ -153,7 +153,9 @@ void lisemqt::worldShow()
 
     showMap(); // show map
 
-   // showChannelMap(); // show channel map
+    showChannelMap(); // show channel map
+
+    showRoadMap(); // show road map
 
     if (doShootScreens)
        shootScreen();
@@ -200,6 +202,8 @@ void lisemqt::initOP()
     op.DrawMap = NULL;
     op.baseMap = NULL;
     op.channelMap = NULL;
+    op.roadMap = NULL;
+    op.minFlood_dt = 0.001;
 
     op.runstep = 0;
     op.printstep = 0;

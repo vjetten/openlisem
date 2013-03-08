@@ -264,7 +264,9 @@ void lisemqt::SetToolBar()
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-
+    connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
+    connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
+    connect(minFlood_dt, SIGNAL(valueChanged(double)), this, SLOT(ssetFloodDt(double)));
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -602,11 +604,14 @@ void lisemqt::GetStorePath()
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             continue;
 
-        //qDebug() << line;
+        qDebug() << line;
         runfilelist << QString(line);
         //E_runFileList->addItem(QString(line));
     }
     fff.close();
+
+    if (runfilelist.count() == 0)
+        return;
 
     if (!runfilelist[0].isEmpty())
     {
@@ -828,6 +833,9 @@ void lisemqt::resetAll()
     checkBox_OutSurfStor->setChecked(false);
     checkBox_OutChanVol->setChecked(false);
     checkBox_OutTiledrain->setChecked(false);
+    checkBox_OutHmx->setChecked(false);
+    checkBox_OutQf->setChecked(false);
+    checkBox_OutVf->setChecked(false);
 
     printinterval->setValue(1);
 

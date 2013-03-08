@@ -6,16 +6,6 @@
 //---------------------------------------------------------------------------
 #define BGc "#eeeeee" // background grey for missing value in maps
 
-class alphaLinearColorMap: public QwtLinearColorMap
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value == 0 )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-};
 
 class colorMapGray: public QwtLinearColorMap
 {
@@ -49,12 +39,12 @@ class colorMapWaterLog: public QwtLinearColorMap
 //    }
 public:
     colorMapWaterLog():
-        QwtLinearColorMap( QColor(BGc), QColor(0,0,128))//Qt::darkBlue )
+        QwtLinearColorMap( QColor(BGc), QColor("#0000AA"))
     {
         addColorStop( 0.0, Qt::yellow );
         addColorStop( 0.05, QColor(128,128,255));
         addColorStop( 0.1, QColor(64,64,255) );
-        addColorStop( 0.5, QColor(0,0,255));//Qt::blue );
+        addColorStop( 0.5, QColor("#0000FF"));
     }
 };
 
@@ -62,9 +52,17 @@ class colorMapWater: public QwtLinearColorMap
 {
 public:
     colorMapWater():
-        QwtLinearColorMap( QColor(BGc), Qt::darkBlue  )
+        QwtLinearColorMap( QColor(BGc),QColor("#0000AA"))
     {
         addColorStop( 0.0, Qt::yellow );
+////        addColorStop(0.000,QColor("#6565FF"));
+//        addColorStop(0.125,QColor("#4B4BFF"));
+//        addColorStop(0.250,QColor("#3333FF"));
+//        addColorStop(0.375,QColor("#1919FF"));
+//        addColorStop(0.500,QColor("#0000FE"));
+//        addColorStop(0.625,QColor("#0000E4"));
+//        addColorStop(0.750,QColor("#0000CC"));
+//        addColorStop(0.875,QColor("#0000B2"));
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );
@@ -82,13 +80,13 @@ class colorMapGreen: public QwtLinearColorMap
     }
 public:
     colorMapGreen():
-        QwtLinearColorMap( QColor(BGc), Qt::darkGreen  )
+        QwtLinearColorMap( QColor(BGc), QColor("#008800")  )
     {
         addColorStop( 0.0, Qt::darkYellow );
     }
 };
 
-//http://www.color-hex.com/color/8080ff
+//http://www.color-hex.com/color/
 class colorMapFlood: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -100,44 +98,25 @@ class colorMapFlood: public QwtLinearColorMap
     }
 public:
     colorMapFlood():
-        QwtLinearColorMap( QColor(BGc),  Qt::darkBlue)//QColor("#0e0e4c"))
+        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
     {
-
-        addColorStop( 0.0, QColor("#8080FF") );
-        addColorStop( 0.5, Qt::blue );
-        addColorStop( 0.95, Qt::darkBlue);
-
-//        addColorStop( 	0.0, QColor("#8e8ecb"));
-//        addColorStop( 	0.1, QColor("#7777c1"));
-//        addColorStop( 	0.2, QColor("#6060b6"));
-//        addColorStop( 	0.3, QColor("#4a4aac"));
-//        addColorStop( 	0.4, QColor("#3333a2"));
-//        addColorStop( 	0.5, QColor("#1d1d98"));
-//        addColorStop( 	0.6, QColor("#1a1a88"));
-//        addColorStop( 	0.7, QColor("#171779"));
-//        addColorStop( 	0.8, QColor("#14146a"));
-//        addColorStop( 	0.9, QColor("#11115b"));
-
-//        addColorStop( 0.000, QColor("#6666d2"));
-//        addColorStop( 0.1, QColor("#3a3ac5"));
-//        addColorStop( 0.250, QColor("#2525bf"));
-//        addColorStop( 0.375, QColor("#2121ab"));
-//        addColorStop( 0.500, QColor("#1d1d98"));
-//        addColorStop( 0.625, QColor("#191985"));
-//        addColorStop( 0.750, QColor("#161672"));
-//        addColorStop( 0.875, QColor("#12125f"));
-
+        addColorStop(0.000,QColor("#6565FF"));
+        addColorStop(0.125,QColor("#4B4BFF"));
+        addColorStop(0.250,QColor("#3333FF"));
+        addColorStop(0.375,QColor("#1919FF"));
+        addColorStop(0.500,QColor("#0000FE"));
+        addColorStop(0.625,QColor("#0000E4"));
+        addColorStop(0.750,QColor("#0000CC"));
+        addColorStop(0.875,QColor("#0000B2"));
     }
 };
-
-//http://www.color-hex.com/color/2525bf
 
 
 class colorMapSed: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value == 0 )
+        if ( value > -0.1 && value < 0.1 )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -148,7 +127,7 @@ public:
     {
         addColorStop( 0.0, Qt::darkCyan );//QColor("#108030"));
         addColorStop( 0.3, Qt::cyan );//QColor("#30ffcc"));
-        addColorStop( 0.5, Qt::transparent);//Qt::white );
+        addColorStop( 0.5, Qt::white );
         addColorStop( 0.7, Qt::yellow);
     }
 };
@@ -174,3 +153,14 @@ public:
 };
 
 #endif // LISUIMAPCOLOR_H
+
+//class alphaLinearColorMap: public QwtLinearColorMap
+//{
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value == 0 )
+//            return qRgba( 0, 0, 0, 0 );
+
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
+//};

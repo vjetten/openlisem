@@ -43,6 +43,8 @@
 #define SMALLER 8
 #define LARGEREQUAL 9
 #define SMALLEREQUAL 10
+#define HIGHER 11
+#define LOWER 12
 
 
 /// class defining some basic map algebra operations

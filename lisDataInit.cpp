@@ -515,6 +515,7 @@ void TWorld::InitChannel(void)
 
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
+    maxflood = NewMap(0);
 
     if (SwitchIncludeChannel)
     {
@@ -622,6 +623,8 @@ void TWorld::GetInputData(void)
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
+    maxFloodLevel = getvaluedouble("Max flood level");
+    minFloodDt = getvaluedouble("Min flood dt");
     //VJ 110829 water repellency
     waterRep_a = getvaluedouble("Water Repellency A");
     waterRep_b = getvaluedouble("Water Repellency B");
@@ -722,6 +725,8 @@ void TWorld::GetInputData(void)
     RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
     RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
     HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
+    HardSurface->calcValue(1.0, MIN);
+    HardSurface->calcValue(0.0, MAX);
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -1050,6 +1055,11 @@ void TWorld::IntializeData(void)
     fpa = NewMap(0);
     V = NewMap(0);
     Alpha = NewMap(0);
+
+    AlphaF = NewMap(0);
+    QF = NewMap(0);
+    QnF = NewMap(0);
+
     Q = NewMap(0);
     Qn = NewMap(0);
     Qoutput = NewMap(0);

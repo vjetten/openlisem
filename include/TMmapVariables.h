@@ -74,6 +74,9 @@ TMMap
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
+*AlphaF,
+*QF,
+*QnF,
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
@@ -201,6 +204,7 @@ TMMap
 *ChannelDepth,               //!<
 *Vflood,                     //!<
 *Qflood,
+*maxflood,
 *Hx,                         //!<
 *Hmx,                        //!<
 *hx,                         //!<

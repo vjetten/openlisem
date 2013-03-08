@@ -99,8 +99,8 @@ void TWorld::Totals(void)
     WaterVolTot = WaterVolall->mapTotal();//m3
 
     // replace water volume in flooded areas with flood volume for water balance
-    //if (SwitchChannelFlood)
-      //  WaterVolTot += FloodWaterVol->mapTotal();
+//    if (SwitchChannelFlood)
+//        WaterVolTot += FloodWaterVol->mapTotal();
 
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm

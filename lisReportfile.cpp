@@ -61,16 +61,12 @@ void TWorld::OutputUI(void)
     if (SwitchChannelFlood && op.drawMapType == 4)
     {
         FOR_ROW_COL_MV
-        {
             tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
-            if (ChannelDepth->Drc > 0)
-                tmb->Drc = max(0.01, ChannelWH->Drc);
-
-        }
         op.DrawMap->copy(tmb);  //flood level in m
     }
     op.baseMap->copy(Shade);
     op.channelMap->copy(ChannelWidth);
+    op.roadMap->copy(RoadWidthDX);
 
     op.dx = _dx;
     op.MB = MB;
@@ -577,12 +573,22 @@ void TWorld::ReportMaps(void)
     if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
 
     if (outputcheck.count() > 11)
+    {
         if (outputcheck[11].toInt() == 1)
         {
             tm->calcMapValue(TileQn, 1000, MUL);// in mm
             tm->report(OutTiledrain);
         }
-
+    }
+    if (outputcheck.count() > 12)
+    {
+        if (outputcheck[12].toInt() == 1)
+            hmx->report(OutHmx);
+        if (outputcheck[13].toInt() == 1)
+            hmx->report(OutQf);
+        if (outputcheck[14].toInt() == 1)
+            hmx->report(OutVf);
+     }
     /* from old LISEM: order in run file
    char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
    q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;

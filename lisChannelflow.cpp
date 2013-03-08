@@ -107,23 +107,11 @@ void TWorld::ChannelFlow(void)
         Channelq->Drc = 0;
         ChannelWH->Drc = 0;
 
-        if (SwitchChannelFlood)
-        {
-            if (ChannelMaxQ->Drc == 0)
-            {
-                ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
-                // add inflow to channel
-                ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
-                // add rainfall in m3, no interception, rainfall so do not use ChannelDX
-            }
-        }
-        else
-        {
-            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
-            // add inflow to channel
-            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
-            // add rainfall in m3, no interception, rainfall so do not use ChannelDX
-        }
+        ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+        // add inflow to channel
+        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+        // add rainfall in m3, no interception, rainfall so do not use ChannelDX
+
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
             ChannelBufferVol->Drc -= ChannelWaterVol->Drc;
@@ -166,7 +154,7 @@ void TWorld::ChannelFlow(void)
         if (SwitchChannelFlood)
         {
             if (ChannelMaxQ->Drc > 0)
-                ChannelWH->Drc = min(ChannelDepth->Drc-0.01, ChannelWH->Drc);
+                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
         }
 
         if (ChannelWidthUpDX->Drc > _dx)

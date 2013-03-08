@@ -230,6 +230,8 @@ public:
   double StripN;
   double StemflowFraction;
   double CanopyOpeness; // VJ 110209 added Aston factor as user input
+  double maxFloodLevel;
+  double minFloodDt;
   double waterRep_a;
   double waterRep_b;
   double waterRep_c;
@@ -292,7 +294,8 @@ public:
   QString temprunname;
   QStringList outputcheck;
   /// standard names of output map series
-  QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol, OutTiledrain;
+  QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
+          OutTiledrain, OutHmx, OutVf, OutQf;
 
   // list with class values of land unit map
   UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!

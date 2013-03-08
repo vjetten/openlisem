@@ -43,7 +43,7 @@ void TWorld::ToChannel(void)
     {
         FOR_ROW_COL_MV_CH
         {
-            double fractiontochannel = min(_dt*V->Drc/(0.5*(_dx-ChannelWidthUpDX->Drc)), 1.0);
+            double fractiontochannel = min(_dt*V->Drc/(0.5*max(0.01,_dx-ChannelWidthUpDX->Drc)), 1.0);
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
             if (SwitchAllinChannel)
@@ -58,7 +58,7 @@ void TWorld::ToChannel(void)
 
             if (SwitchChannelFlood)
             {
-                if (FloodDomain->Drc == 1)
+                if (ChannelWH->Drc > ChannelDepth->Drc)
                     fractiontochannel = 0;
                 // no inflow when flooded
                 if (ChannelMaxQ->Drc > 0)
@@ -106,11 +106,18 @@ void TWorld::CalcVelDisch(void)
             Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
         else
             Q->Drc = 0;
-
-        if (FloodDomain->Drc == 1)
+        if (SwitchChannelFlood)
         {
-            Q->Drc *= 0;
-            //decrease overlandflow activity in flooddomain
+//            if (FloodDomain->Drc == 1)
+//            {
+//                  Q->Drc *= 0;
+//                //decrease overlandflow activity in flooddomain
+//            }
+            if (ChannelWH->Drc > ChannelDepth->Drc)
+            {
+                Q->Drc *= 0;
+                //decrease overlandflow activity in flooddomain
+            }
         }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
@@ -194,7 +201,6 @@ void TWorld::OverlandFlow(void)
         //			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
         //          InfilVolKinWave->Drc = diff;
         //		}
-
 
         if (SwitchBuffers && BufferVol->Drc > 0)
         {

@@ -52,6 +52,7 @@
 #include <qwt_plot_rescaler.h>
 #include <qwt_scale_engine.h>
 #include <qwt_plot_zoomer.h>
+#include <qwt_picker.h>
 
 
 #include "version.h"
@@ -78,6 +79,26 @@
 #define TEXTUREMAPS 12
 #define NUTRIENTSMAPS 13
 #define GULLIESMAPS 14
+
+//class MyZoomer: public QwtPlotZoomer
+//{
+//public:
+//    MyZoomer( QwtPlotCanvas *canvas ):
+//        QwtPlotZoomer( canvas )
+//    {
+//        setTrackerMode( AlwaysOn );
+//    }
+
+//    virtual QwtText trackerTextF( const QPointF &pos ) const
+//    {
+//        QColor bg( Qt::white );
+//        bg.setAlpha( 100 );
+
+//        QwtText text = QwtPlotZoomer::trackerTextF( pos );
+//        text.setBackgroundBrush( QBrush( bg ) );
+//        return text;
+//    }
+//};
 
 //---------------------------------------------------------------------------
 /// map name list structure for interaction with interface
@@ -142,16 +163,21 @@ public:
    void showMap4();
    void showBaseMap();
    void showChannelMap();
+   void showRoadMap();
    double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
    QwtPlotSpectrogram *baseMap;  // raster map drawing
    QwtPlotSpectrogram *channelMap;  // raster map drawing
+   QwtPlotSpectrogram *roadMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
    QwtMatrixRasterData *RDb;
    QwtMatrixRasterData *RDc;
+   QwtMatrixRasterData *RDd;
+   int channelMapAlpha;
+   int roadMapAlpha;
 
    QVector<double> mapData;
    QwtInterval legend;
@@ -161,7 +187,8 @@ public:
    int pstep;
    QwtPlotMagnifier *magnifier;
    QwtPlotPanner *panner;
-   //QwtPlotZoomer* zoomer;
+   QwtPlotZoomer* zoomer;
+   QwtPlotPicker *picker;
 
    // graph variables
    QwtPlot *HPlot;
@@ -271,6 +298,9 @@ public slots:
 
    void selectMapType(bool doit);
    void ssetAlpha(int v);
+   void ssetAlpha2(int v);
+   void ssetAlpha3(int v);
+   void ssetFloodDt(double v);
 
    void setWriteOutputSOBEK(bool doit);
    void setWriteOutputCSV(bool doit);
