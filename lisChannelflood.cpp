@@ -125,7 +125,6 @@ void TWorld::ChannelFlood(void)
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
             timestep = qMax(0.001, timestep);
             timestep = qMax(minFloodDt, timestep);
-            timestep = qMax(op.minFlood_dt, timestep);
             timestep1 = timestep;
             timestep = qMin(timestep, _dt-timesum);
             // determine timestep

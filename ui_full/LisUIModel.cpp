@@ -203,7 +203,6 @@ void lisemqt::initOP()
     op.baseMap = NULL;
     op.channelMap = NULL;
     op.roadMap = NULL;
-    op.minFlood_dt = 0.001;
 
     op.runstep = 0;
     op.printstep = 0;

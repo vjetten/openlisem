@@ -51,7 +51,7 @@ struct output{
     ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
     WHflood, Qflood,
     BufferVolTot, BufferSedTot,
-    QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot, minFlood_dt;
+    QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 
     TMMap *DrawMap;
     TMMap *baseMap;

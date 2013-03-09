@@ -31,7 +31,7 @@ HEADERS += \
     include/swatresoillut.h \
     include/swatre_g.h \
     include/TMmapVariables.h \
-    ui_full/LisUImapcolor.h
+    ui_full/LisUImapplot.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \
@@ -68,35 +68,43 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/LisUImapplot.cpp \
     lisChannelflood.cpp
 FORMS += ui_full/lisemqt.ui
+# debug version
 CONFIG(debug, debug|release) {
-   greaterThan(OLVC, 0) {
+  greaterThan(OLVC, 0) {
+    # VC version
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"debug/vc" -lcsfvcd
+    LIBS += -L"debug/vc/static" -lcsfvcd
     LIBS += -L"debug/vc" -lqwtvcd  #-L"$${QWTDIR}/lib"
     DESTDIR = debug/vc
   }else{
+    # mingw version
     LIBS += -L"debug" -llibcsfd
     LIBS += -L"$${QWTDIR}/lib" -lqwtd
     DESTDIR = debug
-    MOC_DIR = debug/moc
-    OBJECTS_DIR= debug/objs
-    UI_DIR= debug/ui
   }
+  MOC_DIR = debug/moc
+  OBJECTS_DIR= debug/objs
+  UI_DIR= debug/ui
+  RCC_DIR = debug/rc
 }
+#release version
 else {
    greaterThan(OLVC, 0) {
+   # VC version
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"bin/vc" -lcsfvc
+    LIBS += -L"bin/vc/static" -lcsfvc
     LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc
     DESTDIR = bin/vc
   }else{
+    # mingw version
     LIBS += -L"bin" -llibcsf
     LIBS += -L"$${QWTDIR}/lib" -lqwt
     DESTDIR = bin
   }
-    MOC_DIR = bin/moc
-    OBJECTS_DIR= bin/objs
-    UI_DIR= bin/ui
+  MOC_DIR = bin/moc
+  OBJECTS_DIR= bin/objs
+  UI_DIR = bin/ui
+  RCC_DIR = bin/rc
 }
 INCLUDEPATH += "include"
 INCLUDEPATH += "ui_full"

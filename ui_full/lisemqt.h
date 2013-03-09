@@ -59,8 +59,8 @@
 #include "ui_lisemqt.h"
 #include "model.h"
 #include "LisUIoutput.h"
-
 #include "LisUItreemodel.h"
+#include "LisUImapplot.h"
 
 
 // constants to define the place of the main parts in the map tree structure
@@ -79,26 +79,6 @@
 #define TEXTUREMAPS 12
 #define NUTRIENTSMAPS 13
 #define GULLIESMAPS 14
-
-//class MyZoomer: public QwtPlotZoomer
-//{
-//public:
-//    MyZoomer( QwtPlotCanvas *canvas ):
-//        QwtPlotZoomer( canvas )
-//    {
-//        setTrackerMode( AlwaysOn );
-//    }
-
-//    virtual QwtText trackerTextF( const QPointF &pos ) const
-//    {
-//        QColor bg( Qt::white );
-//        bg.setAlpha( 100 );
-
-//        QwtText text = QwtPlotZoomer::trackerTextF( pos );
-//        text.setBackgroundBrush( QBrush( bg ) );
-//        return text;
-//    }
-//};
 
 //---------------------------------------------------------------------------
 /// map name list structure for interaction with interface
@@ -188,7 +168,7 @@ public:
    QwtPlotMagnifier *magnifier;
    QwtPlotPanner *panner;
    QwtPlotZoomer* zoomer;
-   QwtPlotPicker *picker;
+   MyPicker *picker;
 
    // graph variables
    QwtPlot *HPlot;
@@ -300,7 +280,6 @@ public slots:
    void ssetAlpha(int v);
    void ssetAlpha2(int v);
    void ssetAlpha3(int v);
-   void ssetFloodDt(double v);
 
    void setWriteOutputSOBEK(bool doit);
    void setWriteOutputCSV(bool doit);
