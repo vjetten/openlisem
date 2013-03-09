@@ -61,7 +61,7 @@ class colorMapYellow: public QwtLinearColorMap
     }
 public:
     colorMapYellow():
-        QwtLinearColorMap( QColor(BGc), Qt::darkYellow)
+        QwtLinearColorMap( QColor(BGc), QColor("#888800"))
     {
         addColorStop(0.0, Qt::yellow);
     }

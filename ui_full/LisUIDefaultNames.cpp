@@ -267,24 +267,24 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
-    namelist[i].value = QString("0");
     //flooding
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("0.1");
-    namelist[i++].name = QString("Max flood level");
+    namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("10.0");
-    namelist[i++].name = QString("Min flood dt");
+    namelist[i++].name = QString("Max flood level");
     namelist[i].value = QString("0.01");
+    namelist[i++].name = QString("Min flood dt");
 
-    namelist[i++].name = QString("Include tile drains");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include tile drains");
     //houses
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include house storage");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include raindrum storage");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("All water and sediment to outlet");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("No erosion at outlet");
@@ -296,8 +296,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Hard Surfaces");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Limit TC");
-    namelist[i++].name = QString("");
+    namelist[i].name = QString("0");
     namelist[i++].name = QString("Limit Deposition TC");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Interception]");
     namelist[i].value = QString("0");
@@ -308,6 +309,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Stemflow fraction");
     namelist[i].value = QString("0.45");
     namelist[i++].name = QString("Canopy Openess");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
     namelist[i++].name = QString("Infil Method");
@@ -330,6 +332,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Water Repellency C");
     namelist[i].value = QString("1.00");
     namelist[i++].name = QString("Water Repellency D");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Kinetic Energy]");
     namelist[i].value = QString("1,28.300,0.520,0.042");
@@ -340,6 +343,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("KE parameters EQ3");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("KE time based");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");
     namelist[i].value = QString("0");
@@ -350,6 +354,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Sediment bulk density");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Sediment traps");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Calibration]");
     namelist[i].value = QString("1.0");
@@ -366,6 +371,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel N calibration");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Splash Delivery Ratio");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Gully options]");
     namelist[i++].name = QString("Fcrit relation");
@@ -375,6 +381,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("QW param B");
     namelist[i++].name = QString("Gully infiltration");
     namelist[i++].name = QString("Use initial gully dimensions");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output maps]");
     namelist[i++].name = QString("Runoff maps in l/s/m");
@@ -388,45 +395,49 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("CheckOutputMapsNUT");
     namelist[i++].name = QString("CheckOutputMapsMC");
     namelist[i++].name = QString("CheckOutputMapsGUL");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Texture classes]");
+    namelist[i].name = QString("2,16,32,53,75,105");
     namelist[i++].name = QString("ClassMu");
 
     // output maps have standard names
     // input maps names are defined in DEFmaps
+    namelist[i++].name = QString("");
     namelist[i++].name = QString("[map names]");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[OutputBASIC]");
-    namelist[i++].name = QString("OUTRUNOFF");
     namelist[i].value = QString("ro");
-    namelist[i++].name = QString("OUTCONC");
+    namelist[i++].name = QString("OUTRUNOFF");
     namelist[i].value = QString("conc");
-    namelist[i++].name = QString("OUTWH");
+    namelist[i++].name = QString("OUTCONC");
     namelist[i].value = QString("wh");
-    namelist[i++].name = QString("OUTRWH");
+    namelist[i++].name = QString("OUTWH");
     namelist[i].value = QString("whc");
-    namelist[i++].name = QString("OUTTC");
+    namelist[i++].name = QString("OUTRWH");
     namelist[i].value = QString("tc");
-    namelist[i++].name = QString("OUTEROS");
+    namelist[i++].name = QString("OUTTC");
     namelist[i].value = QString("det");
-    namelist[i++].name = QString("OUTDEPO");
+    namelist[i++].name = QString("OUTEROS");
     namelist[i].value = QString("dep");
-    namelist[i++].name = QString("OUTVELO");
+    namelist[i++].name = QString("OUTDEPO");
     namelist[i].value = QString("velo");
-    namelist[i++].name = QString("OUTINF");
+    namelist[i++].name = QString("OUTVELO");
     namelist[i].value = QString("inf");
-    namelist[i++].name = QString("OUTSS");
+    namelist[i++].name = QString("OUTINF");
     namelist[i].value = QString("sstor");
-    namelist[i++].name = QString("OUTCHVOL");
+    namelist[i++].name = QString("OUTSS");
     namelist[i].value = QString("chvol");
-    namelist[i++].name = QString("OUTTILED");
+    namelist[i++].name = QString("OUTCHVOL");
     namelist[i].value = QString("Qtile");
-    namelist[i++].name = QString("OUTHMX");
+    namelist[i++].name = QString("OUTTILED");
     namelist[i].value = QString("hmx");
-    namelist[i++].name = QString("OUTQF");
+    namelist[i++].name = QString("OUTHMX");
     namelist[i].value = QString("qf");
-    namelist[i++].name = QString("OUTVF");
+    namelist[i++].name = QString("OUTQF");
     namelist[i].value = QString("vf");
+    namelist[i++].name = QString("OUTVF");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[OutputMC]");
     namelist[i++].name = QString("OUTMU0");

@@ -605,6 +605,7 @@ void lisemqt::updateModelData()
             if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutTiledrain->isChecked()) outputcheck << "1"; else outputcheck << "0";
+
             if (       checkBox_OutHmx->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutQf->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutVf->isChecked()) outputcheck << "1"; else outputcheck << "0";

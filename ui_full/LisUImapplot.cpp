@@ -246,7 +246,7 @@ void lisemqt::showChannelMap()
     channelMap->setAlpha(transparency2->value());
 
     channelMap->setColorMap(new colorMapFlood());
-    RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1));
+    RDc->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
     channelMap->setData(RDc);
 }
 //---------------------------------------------------------------------------
@@ -256,12 +256,9 @@ void lisemqt::showRoadMap()
 
     roadMap->setAlpha(transparency3->value());
 
-//    if (op.drawMapType == 4)
     roadMap->setColorMap(new colorMapYellow());
-//    else
-//        roadMap->setColorMap(new colorMapGreen());
 
-    RDd->setInterval( Qt::ZAxis, QwtInterval( 0,1));
+    RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
     roadMap->setData(RDd);
 }
 //---------------------------------------------------------------------------
