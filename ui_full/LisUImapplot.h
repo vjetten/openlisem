@@ -1,7 +1,7 @@
 #ifndef LISUIMAPCOLOR_H
 #define LISUIMAPCOLOR_H
 
-//#include "lisemqt.h"
+#include "lisemqt.h"
 
 //---------------------------------------------------------------------------
 #define BGc "#eeeeee" // background grey for missing value in maps
@@ -48,6 +48,7 @@ public:
         addColorStop(0, QColor("#111111"));
     }
 };
+//---------------------------------------------------------------------------
 
 class colorMapYellow: public QwtLinearColorMap
 {
@@ -60,11 +61,12 @@ class colorMapYellow: public QwtLinearColorMap
     }
 public:
     colorMapYellow():
-        QwtLinearColorMap( QColor(BGc), QColor("AAAA00"))
+        QwtLinearColorMap( QColor(BGc), Qt::darkYellow)
     {
         addColorStop(0.0, Qt::yellow);
     }
 };
+//---------------------------------------------------------------------------
 
 class colorMapGreen: public QwtLinearColorMap
 {
@@ -82,6 +84,7 @@ public:
         addColorStop( 0.0, Qt::green );
     }
 };
+//---------------------------------------------------------------------------
 
 class colorMapWaterLog: public QwtLinearColorMap
 {
@@ -95,6 +98,7 @@ public:
         addColorStop( 0.5, QColor("#0000FF"));
     }
 };
+//---------------------------------------------------------------------------
 
 class colorMapWater: public QwtLinearColorMap
 {
@@ -108,6 +112,7 @@ public:
         addColorStop( 0.9, Qt::blue );
     }
 };
+//---------------------------------------------------------------------------
 
 //http://www.color-hex.com/color/
 class colorMapFlood: public QwtLinearColorMap
@@ -133,7 +138,7 @@ public:
         addColorStop(0.875,QColor("#0000B2"));
     }
 };
-
+//---------------------------------------------------------------------------
 
 class colorMapSed: public QwtLinearColorMap
 {
@@ -154,6 +159,7 @@ public:
         addColorStop( 0.7, Qt::yellow);
     }
 };
+//---------------------------------------------------------------------------
 
 class colorMapSedB: public QwtLinearColorMap
 {

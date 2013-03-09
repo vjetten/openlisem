@@ -401,7 +401,12 @@ void TWorld::ParseRunfileData(void)
 
    if (!SwitchIncludeTile && outputcheck.count() > 11)
       outputcheck[11] = "0";
-
+   if (!SwitchIncludeChannel)
+   {
+       SwitchChannelBaseflow = false;
+       SwitchChannelFlood = false;
+       SwitchChannelInfil = false;
+   }
 }
 //------------------------------------------------------------------------------
 void TWorld::GetRunFile(void)

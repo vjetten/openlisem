@@ -65,7 +65,8 @@ void TWorld::OutputUI(void)
         op.DrawMap->copy(tmb);  //flood level in m
     }
     op.baseMap->copy(Shade);
-    op.channelMap->copy(ChannelWidth);
+    if (SwitchIncludeChannel)
+        op.channelMap->copy(ChannelWidth);
     op.roadMap->copy(RoadWidthDX);
 
     op.dx = _dx;
