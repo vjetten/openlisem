@@ -15068,7 +15068,7 @@ p, li { white-space: pre-wrap; }
                    <number>255</number>
                   </property>
                   <property name="value">
-                   <number>128</number>
+                   <number>180</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -15088,28 +15088,6 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSlider" name="transparency2">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximum">
-                   <number>255</number>
-                  </property>
-                  <property name="value">
-                   <number>128</number>
-                  </property>
-                  <property name="sliderPosition">
-                   <number>128</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -15180,6 +15158,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="4" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxINF">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="decimals">
                    <number>1</number>
                   </property>
@@ -15200,6 +15184,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="5" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="decimals">
                    <number>1</number>
                   </property>
@@ -15219,7 +15209,59 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="6" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL"/>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSlider" name="transparency2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximum">
+                   <number>255</number>
+                  </property>
+                  <property name="value">
+                   <number>180</number>
+                  </property>
+                  <property name="sliderPosition">
+                   <number>180</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QSlider" name="floodCutoffLevel">
+                  <property name="maximum">
+                   <number>2</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>1</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TicksBelow</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QLabel" name="label_93">
+                  <property name="text">
+                   <string>cutoff 0.05/0.1m</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>

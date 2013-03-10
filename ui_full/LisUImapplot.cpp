@@ -77,7 +77,7 @@ void lisemqt::initMapPlot()
     pstep = 0;
     transparency->setValue(180);
     transparency2->setValue(128);
-    transparency3->setValue(128);
+    transparency3->setValue(180);
     // slider setting basemap transparency
 
 }
@@ -337,20 +337,28 @@ void lisemqt::showMap4()
 {
     MPlot->setTitle("Flood level (m)");
 
+    double MinV = 0;
     double MaxV = fillDrawMapData(op.DrawMap, RD);
     // fill vector and find the new max value
 
     maxAxis4 = qMax(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
-    RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis4));
+//    if (doubleSpinBoxFLmin->value() > 0)
+//        MinV = doubleSpinBoxFLmin->value();
+
+    RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
 
     drawMap->setData(RD);
-    drawMap->setColorMap(new colorMapFlood());
+    if (floodCutoffLevel->value() == 0) drawMap->setColorMap(new colorMapFlood());
+    if (floodCutoffLevel->value() == 1) drawMap->setColorMap(new colorMapFlood005());
+    if (floodCutoffLevel->value() == 2) drawMap->setColorMap(new colorMapFlood01());
     // draw map
 
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
-    MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
+    if (floodCutoffLevel->value() == 0) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
+    if (floodCutoffLevel->value() == 1) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood005());
+    if (floodCutoffLevel->value() == 2) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood01());
+    MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     // draw legend
 }

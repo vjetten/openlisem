@@ -61,7 +61,7 @@ class colorMapYellow: public QwtLinearColorMap
     }
 public:
     colorMapYellow():
-        QwtLinearColorMap( QColor(BGc), QColor("#888800"))
+        QwtLinearColorMap( QColor(BGc), QColor("#cc8800"))//888800"))
     {
         addColorStop(0.0, Qt::yellow);
     }
@@ -139,7 +139,55 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+class colorMapFlood005: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.05 )
+            return qRgba( 0, 0, 0, 0 );
 
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapFlood005():
+        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
+    {
+        addColorStop(0.000,QColor("#6565FF"));
+        addColorStop(0.125,QColor("#4B4BFF"));
+        addColorStop(0.250,QColor("#3333FF"));
+        addColorStop(0.375,QColor("#1919FF"));
+        addColorStop(0.500,QColor("#0000FE"));
+        addColorStop(0.625,QColor("#0000E4"));
+        addColorStop(0.750,QColor("#0000CC"));
+        addColorStop(0.875,QColor("#0000B2"));
+    }
+};
+//---------------------------------------------------------------------------
+class colorMapFlood01: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.1 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapFlood01():
+        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
+    {
+        addColorStop(0.000,QColor("#6565FF"));
+        addColorStop(0.125,QColor("#4B4BFF"));
+        addColorStop(0.250,QColor("#3333FF"));
+        addColorStop(0.375,QColor("#1919FF"));
+        addColorStop(0.500,QColor("#0000FE"));
+        addColorStop(0.625,QColor("#0000E4"));
+        addColorStop(0.750,QColor("#0000CC"));
+        addColorStop(0.875,QColor("#0000B2"));
+    }
+};
+
+//---------------------------------------------------------------------------
 class colorMapSed: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
