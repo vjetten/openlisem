@@ -108,11 +108,11 @@ void TWorld::CalcVelDisch(void)
             Q->Drc = 0;
         if (SwitchChannelFlood)
         {
-//            if (FloodDomain->Drc == 1)
-//            {
-//                  Q->Drc *= 0;
-//                //decrease overlandflow activity in flooddomain
-//            }
+            if (FloodDomain->Drc == 1)
+            {
+                  Q->Drc *= 0;
+                //decrease overlandflow activity in flooddomain
+            }
             if (ChannelWH->Drc > ChannelDepth->Drc)
             {
                 Q->Drc *= 0;

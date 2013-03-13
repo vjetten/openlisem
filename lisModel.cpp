@@ -131,7 +131,7 @@ void TWorld::DoModel()
       }
 
       DEBUG("Running...");
-
+printinterval = 3;
       for (time = BeginTime; time < EndTime; time += _dt)
       {
           if (runstep > 0 && runstep % printinterval == 0)

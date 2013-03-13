@@ -1,10 +1,9 @@
-openLISEM README (130309)
+openLISEM README (130310)
 =========================
 LATEST CHANGES (v 1.57-1-60)
 - Added FLOODING!!! Still in beta stage but seems to work for shalow floods from channel system. 
-ToDo: mass balance with flooding not correct
 - Added better map display with roads and channels
-
+ToDo: mass balance with flooding not correct
 
 LATEST CHANGES (v 1.55-1.56)
 - Added shaded relief for map display (needs dem.map)

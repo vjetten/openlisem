@@ -148,6 +148,12 @@ void TWorld::ChannelFlood(void)
                 }
             }
 
+//            FOR_ROW_COL_MV
+//            {
+//                if (hmx->Drc == 0 && tma->Drc == 1)
+//                    hmx->Drc = WH->Drc;
+//            }
+
             // prepare maps in direction i;
             for (int i = 0; i < 9; i++)
             {
@@ -334,40 +340,16 @@ void TWorld::ChannelFlood(void)
         }
         maxflood->Drc = max(maxflood->Drc, hmx->Drc);
     }
+    FOR_ROW_COL_MV
+    {
+        if(FloodDomain->Drc == 1)
+            WH->Drc = hmx->Drc;
+    }
 
 //    hmx->report("hmx");
 //    Qflood->report("Qf");
 //    Vflood->report("Vf");
 //    maxflood->report("maxflood.map");
-    //    FOR_ROW_COL_MV
-    //    {
-    //        double Perim = 2*hmx->Drc+_dx;
-
-    //        AlphaF->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 0.6667),0.6);
-
-    //        if (AlphaF->Drc > 0)
-    //            QF->Drc = pow((_dx*hmx->Drc)/AlphaF->Drc, 1/0.6);
-    //        else
-    //            QF->Drc = 0;
-    //        if (ChannelDepth->Drc > 0)
-    //            QF->Drc = 0;
-    //    }
-    //    QnF->setMV();
-    //    tma->fill(0);
-    //    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-    //    FOR_ROW_COL_MV
-    //    {
-    //        if (LDD->Drc == 5) // if outflow point, pit
-    //        {
-    //            Kinematic(r,c, LDD, QF, QnF, Qs, Qsn, tma, AlphaF, DX, WaterVolin, Sed, BufferVol, BufferSed);
-    //            //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
-    //        }
-    //    }
-
-    //    // calculate resulting flux Qn back to water height on surface
-    //    FOR_ROW_COL_MV
-    //        hmx->Drc = (AlphaF->Drc*pow(QnF->Drc, 0.6))/_dx;
-    //    hmx->report("hmxa");
 }
 
 

@@ -73,8 +73,8 @@ CONFIG(debug, debug|release) {
   greaterThan(OLVC, 0) {
     # VC version
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"debug/vc/static" -lcsfvcd
-    LIBS += -L"debug/vc" -lqwtvcd  #-L"$${QWTDIR}/lib"
+    LIBS += -L"debug/vc/static" -lcsfvcd -lqwtd
+ #   LIBS += -L"debug/vc" -lqwtvcd  #-L"$${QWTDIR}/lib"
     DESTDIR = debug/vc
   }else{
     # mingw version
@@ -92,8 +92,8 @@ else {
    greaterThan(OLVC, 0) {
    # VC version
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L"bin/vc/static" -lcsfvc
-    LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc
+    LIBS += -L"bin/vc/static" -lcsfvc -lqwt
+    #LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc
     DESTDIR = bin/vc
   }else{
     # mingw version

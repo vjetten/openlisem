@@ -431,14 +431,14 @@ void TWorld::Infiltration(void)
     FOR_ROW_COL_MV
     {
         // add net to water rainfall on soil surface (in m)
-        if (SwitchChannelFlood)
-        {
-            if (hmx->Drc > 0)
-                hmx->Drc += RainNet->Drc;
-            else
-                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-        }
-        else
+//        if (SwitchChannelFlood)
+//        {
+//            if (hmx->Drc > 0)
+//                hmx->Drc += RainNet->Drc;
+//            else
+//                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+//        }
+//        else
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
 
         if (GrassFraction->Drc > 0)
@@ -449,9 +449,9 @@ void TWorld::Infiltration(void)
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
         // assume no interception and infiltration on roads, gross rainfall
 
-        if (SwitchChannelFlood && hmx->Drc > 0)
-            InfilVol->Drc = DX->Drc*(hmx->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        else
+//        if (SwitchChannelFlood && hmx->Drc > 0)
+//            InfilVol->Drc = DX->Drc*(hmx->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+//        else
             InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 
         // potential water volume on surface before infil
@@ -522,25 +522,25 @@ void TWorld::Infiltration(void)
             }
 
             double wh = WH->Drc;
-            if (SwitchChannelFlood)
-            {
-                if (hmx->Drc > 0)
-                    wh = hmx->Drc;
-            }
+//            if (SwitchChannelFlood)
+//            {
+//                if (hmx->Drc > 0)
+//                    wh = hmx->Drc;
+//            }
             wh -= fact->Drc;
             if (wh < 0)
             {
                 fact->Drc += wh;                // add negative WH to act infil
                 wh = 0;
             }
-            if (SwitchChannelFlood)
-            {
-                if (hmx->Drc > 0)
-                    hmx->Drc= wh;
-                else
-                    WH->Drc = wh;
-            }
-            else
+//            if (SwitchChannelFlood)
+//            {
+//                if (hmx->Drc > 0)
+//                    hmx->Drc= wh;
+//                else
+//                    WH->Drc = wh;
+//            }
+//            else
                 WH->Drc = wh;
 
             Fcum->Drc += fact->Drc;
@@ -574,9 +574,9 @@ void TWorld::Infiltration(void)
             FSurplus->Drc = 0;
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
 
-        if (SwitchChannelFlood && hmx->Drc > 0)
-                InfilVol->Drc -= DX->Drc*(hmx->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        else
+//        if (SwitchChannelFlood && hmx->Drc > 0)
+//                InfilVol->Drc -= DX->Drc*(hmx->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+//        else
             InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // infil volume is WH before - water after
         // used for water balance and screen display
