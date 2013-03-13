@@ -1,15 +1,13 @@
 TEMPLATE = app
 TARGET = openLisem
-QWTDIR = c:/Qt/qwt
-# CSFDIR = d:/prgc/libcsf/
-# change the QWT directory to your own install
 QT += core \
     gui
+QWTDIR = c:/Qt/qwt
+#CSFDIR = d:/prgc/libcsf/
+#change the QWT directory to your own install
 #CONFIG += console
 # this echos qdebug to screen in dos mode
 CONFIG += exceptions
-OLVC = 1
-# compile release with visual C 2010
 HEADERS += \
     ui_full/LisUItreeitem.h \
     ui_full/LisUItreemodel.h \
@@ -70,7 +68,7 @@ SOURCES += lisTotalsMB.cpp \
 FORMS += ui_full/lisemqt.ui
 # debug version
 CONFIG(debug, debug|release) {
-  greaterThan(OLVC, 0) {
+  win32:win32-msvc2010{
     # VC version
     DEFINES += _CRT_SECURE_NO_WARNINGS
     LIBS += -L"debug/vc/static" -lcsfvcd -lqwtd
@@ -89,8 +87,7 @@ CONFIG(debug, debug|release) {
 }
 #release version
 else {
-   greaterThan(OLVC, 0) {
-   # VC version
+  win32:win32-msvc2010{
     DEFINES += _CRT_SECURE_NO_WARNINGS
     LIBS += -L"bin/vc/static" -lcsfvc -lqwt
     #LIBS += -L"bin/vc" -L"$${QWTDIR}/lib" -lqwtvc

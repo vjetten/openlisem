@@ -83,6 +83,12 @@ void TWorld::ChannelFlood(void)
     bool startflood = false;
     tmc->fill(0);
 
+    FOR_ROW_COL_MV
+    {
+        if(FloodDomain->Drc == 1)
+            hmx->Drc = WH->Drc;
+    }
+
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
@@ -108,7 +114,6 @@ void TWorld::ChannelFlood(void)
     // if there is no flood skip everything
     if (startflood)
     {
-
         // do one _dt with varying timestep based on courant condition
         do {
             // sumh_t = hmx->mapTotal();
@@ -340,6 +345,7 @@ void TWorld::ChannelFlood(void)
         }
         maxflood->Drc = max(maxflood->Drc, hmx->Drc);
     }
+
     FOR_ROW_COL_MV
     {
         if(FloodDomain->Drc == 1)
