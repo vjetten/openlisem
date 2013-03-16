@@ -86,7 +86,9 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV
     {
         if(FloodDomain->Drc == 1)
-            hmx->Drc = WH->Drc;
+            hmx->Drc = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc )/_dx;
+
+
     }
 
     FOR_ROW_COL_MV_CH
@@ -152,12 +154,6 @@ void TWorld::ChannelFlood(void)
                     // flag
                 }
             }
-
-//            FOR_ROW_COL_MV
-//            {
-//                if (hmx->Drc == 0 && tma->Drc == 1)
-//                    hmx->Drc = WH->Drc;
-//            }
 
             // prepare maps in direction i;
             for (int i = 0; i < 9; i++)
@@ -349,7 +345,11 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV
     {
         if(FloodDomain->Drc == 1)
+        {
             WH->Drc = hmx->Drc;
+            WHroad->Drc = hmx->Drc;
+        }
+
     }
 
 //    hmx->report("hmx");

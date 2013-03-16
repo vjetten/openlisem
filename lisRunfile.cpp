@@ -193,7 +193,7 @@ void TWorld::ParseRunfileData(void)
 
       if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
       if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
-      if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
+  //    if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
       if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
       if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
       if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
@@ -214,7 +214,7 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
       if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
       if (p1.compare("Output interval")==0)					  printinterval = iii;
-      if (p1.compare("No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
+ //     if (p1.compare("No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
       if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
       if (p1.compare("Gully infiltration")==0)             SwitchGullyInfil =       iii == 1;
       if (p1.compare("Use initial gully dimensions")==0)   SwitchGullyInit =        iii == 1;

@@ -310,12 +310,25 @@ void TWorld::Interception(void)
             Smax *= (1-HardSurface->Drc);
         //VJ 110111 no interception on hard surfaces
 
+        if (SwitchChannelFlood)
+        {
+            if (PlantHeight->Drc < hmx->Drc)
+            {
+                Smax = 0;
+                hmx->Drc += CS;
+                CS = 0;
+            }
+        }
+        //VJ floods
+
+
         if (Smax > 0)
         {
             double k = exp(-CanopyOpeness*LAIv);
             CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
             //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-            //VJ 110209 direct use of openess, astons value too open. A good guess is using the cover LAI relation
+            //VJ 110209 direct use of openess, astons value too open.
+            //A good guess is using the cover LAI relation
             //and interpreting cover as openess: k = exp(-0.45*LAI)
         }
         else

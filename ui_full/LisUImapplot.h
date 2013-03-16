@@ -93,8 +93,8 @@ public:
         QwtLinearColorMap( QColor(BGc), QColor("#0000AA"))
     {
         addColorStop( 0.0, Qt::yellow );
-        addColorStop( 0.03,QColor(128,128,255));
-        addColorStop( 0.1, QColor(64,64,255) );
+        addColorStop( 0.005,QColor("#8080FF"));
+        addColorStop( 0.05, QColor("#4040ff") );
         addColorStop( 0.5, QColor("#0000FF"));
     }
 };

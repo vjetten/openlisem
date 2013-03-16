@@ -195,7 +195,7 @@ public:
   bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
   SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
   startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
-  SwitchSimpleDepression, SwitchBuffers, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
+  SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
   SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
   SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
   SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
@@ -354,10 +354,10 @@ public:
   /// subtract water retained on houses, for urban projects
   void Infiltration(void);
   void InfilSwatre(void);
-  void InfilGreenAmpt1(void);
-  void InfilSmithParlange1(void);
-  void InfilMorelSeytoux1(void);
-  void InfilKsat(void);
+  void InfilGreenAmpt1(TMMap *_WH);
+  void InfilSmithParlange1(TMMap *_WH);
+  void InfilMorelSeytoux1(TMMap *_WH);
+  void InfilKsat(TMMap *_WH);
   double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
   void SoilWater(void);
 

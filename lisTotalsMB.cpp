@@ -191,7 +191,9 @@ void TWorld::Totals(void)
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000*qMax(1e-6, Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
+        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
+        if (Qoutput->Drc < 0.0001)
+            Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
     }
 

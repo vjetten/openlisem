@@ -130,12 +130,13 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
-        if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
-        if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
+//        if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
+       // if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
         if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
-        if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
+//        if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
         if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
+        if (p1.compare("Buffers impermeable")==0)            checkBuffersImpermeable->setChecked(check);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
         if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
@@ -150,7 +151,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
         // if (p1.compare("Regular runoff output")==0)          checkOutputTimeStep->setChecked(check);
         // if (p1.compare("User defined output")==0)            checkOutputTimeUser->setChecked(check);
-        if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
+        //if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
         //    if (p1.compare("Subsoil drainage")==0)               checkDrainage->setChecked(check);
         //    if (p1.compare("Gully infiltration")==0)             checkGullyInfil->setChecked(check);
         //    if (p1.compare("Use initial gully dimensions")==0)   checkGullyInit->setChecked(check);
@@ -454,12 +455,13 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
-        if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
-        if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
+//        if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
+     //   if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
-        if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
+ //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
+        if (p1.compare("Buffers impermeable")==0)            namelist[j].value.setNum((int)checkBuffersImpermeable->isChecked());
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
@@ -472,7 +474,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());
         //if (p1.compare("Regular runoff output")==0)          namelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
         //if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
-        if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
+        //if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
         if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();

@@ -66,12 +66,12 @@ lisemqt::lisemqt(QWidget *parent)
     showMaximized();
 
     //   setStatusBar(0);
-    tabWidgetOptions->setCurrentIndex(1);
-    tabWidgetOptions->setTabEnabled(0,false);
+    tabWidgetOptions->setCurrentIndex(0);
+    //tabWidgetOptions->setTabEnabled(0,false);
     //  tabWidget_OutputMaps->setTabEnabled(1,false);
     //  tabWidget_OutputMaps->setTabEnabled(2,false);
     //  tabWidget_OutputMaps->setTabEnabled(3,false);
-    groupBox_spare->hide();
+    //groupBox_spare->hide();
     MapNameModel = NULL;
     HPlot = NULL;
     MPlot = NULL;
@@ -859,8 +859,8 @@ void lisemqt::resetAll()
     //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
-    checkAltErosion->setChecked(check);
-    checkSimpleDepression->setChecked(check);
+ //   checkAltErosion->setChecked(check);
+  //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
     //houses
     checkHouses->setChecked(check);
@@ -868,7 +868,7 @@ void lisemqt::resetAll()
     // flooded areas
     checkChannelFlood->setChecked(check);
     checkLimitTC->setChecked(check);
-    checkLimitDepTC->setChecked(check);
+ //   checkLimitDepTC->setChecked(check);
     checkBuffers->setChecked(check);
     checkSedtrap->setChecked(check);
     checkInfilCompact->setChecked(check);
@@ -883,7 +883,7 @@ void lisemqt::resetAll()
     checkWriteCommaDelimited->setChecked(true);
     //checkOutputTimeStep->setChecked(true);
     //checkOutputTimeUser->setChecked(check);
-    checkNoErosionOutlet->setChecked(check);
+    //checkNoErosionOutlet->setChecked(check);
     //	checkDrainage->setChecked(check);
     //	checkGullyInfil->setChecked(check);
     //	checkGullyInit->setChecked(check);
@@ -891,7 +891,7 @@ void lisemqt::resetAll()
     checkWriteSOBEK->setChecked(check);
     SOBEKdatestring->setText("10/01/01");
     //checkInterceptionLAI->setChecked(true);
-    E_BulkDens->setText("1200.00");
+    E_BulkDens->setText("1400.00");
 
     tabWidget->setCurrentIndex(0);
 

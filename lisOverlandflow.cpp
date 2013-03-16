@@ -58,7 +58,7 @@ void TWorld::ToChannel(void)
 
             if (SwitchChannelFlood)
             {
-                if (ChannelWH->Drc > ChannelDepth->Drc)
+                if (ChannelWH->Drc >= ChannelDepth->Drc*0.95)
                     fractiontochannel = 0;
                 // no inflow when flooded
                 if (ChannelMaxQ->Drc > 0)
@@ -106,6 +106,7 @@ void TWorld::CalcVelDisch(void)
             Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
         else
             Q->Drc = 0;
+
         if (SwitchChannelFlood)
         {
             if (FloodDomain->Drc == 1)
@@ -113,11 +114,11 @@ void TWorld::CalcVelDisch(void)
                 Q->Drc *= 0;
                 //decrease overlandflow activity in flooddomain
             }
-            if (ChannelWH->Drc > ChannelDepth->Drc)
-            {
-                Q->Drc *= 0;
-                //decrease overlandflow activity in flooddomain
-            }
+//            if (ChannelWH->Drc >= ChannelDepth->Drc)
+//            {
+//                Q->Drc *= 0;
+//                //decrease overlandflow activity in flooddomain
+//            }
         }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;

@@ -156,9 +156,9 @@ void lisemqt::setupMapPlot()
     panner->setAxisEnabled( MPlot->yRight, false );
 
     picker = new MyPicker( MPlot->canvas() );
-//    const QColor c( Qt::red );
-//    picker->setRubberBandPen( c );
-//    picker->setTrackerPen( c );
+    //    const QColor c( Qt::red );
+    //    picker->setRubberBandPen( c );
+    //    picker->setTrackerPen( c );
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -281,7 +281,14 @@ void lisemqt::showMap1()
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
 
-    MPlot->setAxisScale( MPlot->yRight, 0.1, qMax((maxAxis1 < 100 ? 1.0 : 10.0),maxAxis1));
+    if (maxAxis1 < 10)
+        MPlot->setAxisScale( MPlot->yRight, 0.01, qMax(1.0,maxAxis1));
+    else
+        if (maxAxis1 < 100)
+            MPlot->setAxisScale( MPlot->yRight, 0.1, qMax(10.0,maxAxis1));
+        else
+            MPlot->setAxisScale( MPlot->yRight, 0.1, qMax(100.0,maxAxis1));
+
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
 }
 //---------------------------------------------------------------------------
@@ -344,8 +351,8 @@ void lisemqt::showMap4()
     maxAxis4 = qMax(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
-//    if (doubleSpinBoxFLmin->value() > 0)
-//        MinV = doubleSpinBoxFLmin->value();
+    //    if (doubleSpinBoxFLmin->value() > 0)
+    //        MinV = doubleSpinBoxFLmin->value();
 
     RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
 

@@ -796,7 +796,10 @@ void TWorld::GetInputData(void)
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
         }
         else
+        {
             CrustFraction = NewMap(0);
+            KsatCrust = NewMap(0);
+        }
 
         if (SwitchInfilCompact)
         {
@@ -805,7 +808,10 @@ void TWorld::GetInputData(void)
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
         }
         else
+        {
             CompactFraction = NewMap(0);
+            KsatCompact = NewMap(0);
+        }
     }
 
     // SWATRE infiltration read maps and structures
