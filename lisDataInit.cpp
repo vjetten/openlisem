@@ -812,6 +812,13 @@ void TWorld::GetInputData(void)
             CompactFraction = NewMap(0);
             KsatCompact = NewMap(0);
         }
+        FOR_ROW_COL_MV
+        {
+            if (CrustFraction->Drc +  CompactFraction->Drc > 1.0)
+            {
+                CrustFraction->Drc = 1.0-CompactFraction->Drc;
+            }
+        }
     }
 
     // SWATRE infiltration read maps and structures

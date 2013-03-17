@@ -39,14 +39,6 @@ functions: \n
 //---------------------------------------------------------------------------
 #define Drci Data[r+dr[i]][c+dc[i]]
 
-#define SUMH(v) v=0;FOR_ROW_COL_MV\
-    if (ChannelDepth->Drc == 0)\
-    v += hmx->Drc;
-
-#define MAXH(v) v=0;FOR_ROW_COL_MV\
-    if (ChannelDepth->Drc == 0)\
-    v = (v<hmx->Drc?hmx->Drc:v);
-
 //---------------------------------------------------------------------------
 // flood level function consists of the following parts:
 // 1) get channel overflow level
@@ -81,27 +73,16 @@ void TWorld::ChannelFlood(void)
 
     // get flood level in channel from 1D kin wave channel
     bool startflood = false;
-    tmc->fill(0);
-
-    FOR_ROW_COL_MV
-    {
-        if(FloodDomain->Drc == 1)
-            hmx->Drc = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc )/_dx;
-
-
-    }
-
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-            hmx->Drc = max(0, ChannelWH->Drc - ChannelDepth->Drc);
-            //  hmx->Drc *= ChannelWidthUpDX->Drc/_dx;
-            if (hmx->Drc > 0)
-                tmc->Drc = 1;
+            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);
+            hmx->Drc = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(_dx-ChannelWidthUpDX->Drc)/_dx;
         }
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
     }
+
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
@@ -112,15 +93,13 @@ void TWorld::ChannelFlood(void)
     }
 
     sumh_t = hmx->mapTotal();
+    // sum all levels for mass balance
 
     // if there is no flood skip everything
     if (startflood)
     {
         // do one _dt with varying timestep based on courant condition
         do {
-            // sumh_t = hmx->mapTotal();
-            // sum all levels for mass balance
-
             // make Hydraulic head, gravity (dem+barriers) + water level
             FOR_ROW_COL_MV
             {
@@ -252,7 +231,7 @@ void TWorld::ChannelFlood(void)
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
                             i != 4 &&                     // not the centre cell
-                            !IS_MV_REAL8(&Hmx->Drci))
+                            !IS_MV_REAL8(&hmx->Drci))
                     {
                         hmax = qMax(hmax, hmx->Drci);
                         // find the highest water level around centre cell
@@ -305,6 +284,7 @@ void TWorld::ChannelFlood(void)
     diff = (sumh_t - sumh_t1)/cells;
     double avgh = sumh_t1/cells;
     debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(timestep1,6,'f',3));
+    // some error reporting
 
     Qflood->fill(0);
     FOR_ROW_COL_MV
@@ -318,7 +298,7 @@ void TWorld::ChannelFlood(void)
     // put new flood level in channel for next 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
-        if (hmx->Drc > 0 && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
+        if (hmx->Drc > 0)// && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
         {
             ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
             if (ChannelMaxQ->Drc > 0)
@@ -340,22 +320,23 @@ void TWorld::ChannelFlood(void)
             FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
         }
         maxflood->Drc = max(maxflood->Drc, hmx->Drc);
+        // for output
     }
 
-    FOR_ROW_COL_MV
-    {
-        if(FloodDomain->Drc == 1)
-        {
-            WH->Drc = hmx->Drc;
-            WHroad->Drc = hmx->Drc;
-        }
+//    FOR_ROW_COL_MV
+//    {
+//        if(FloodDomain->Drc == 1)
+//        {
+//            WH->Drc = hmx->Drc;
+//            WHroad->Drc = hmx->Drc;
+//        }
+//    }
+    // put flood water level back in overland flow water level in flooddomain
 
-    }
-
-//    hmx->report("hmx");
-//    Qflood->report("Qf");
-//    Vflood->report("Vf");
-//    maxflood->report("maxflood.map");
+    //    hmx->report("hmx");
+    //    Qflood->report("Qf");
+    //    Vflood->report("Vf");
+    //    maxflood->report("maxflood.map");
 }
 
 

@@ -98,10 +98,6 @@ void TWorld::Totals(void)
 
     WaterVolTot = WaterVolall->mapTotal();//m3
 
-    // replace water volume in flooded areas with flood volume for water balance
-//    if (SwitchChannelFlood)
-//        WaterVolTot += FloodWaterVol->mapTotal();
-
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
@@ -177,6 +173,20 @@ void TWorld::Totals(void)
         // add channel volume to total for sed conc calc
 
     }
+//    double avgh = 0;
+//    if (SwitchChannelFlood)
+//    {
+//        double cells = 0;
+//        FOR_ROW_COL_MV
+//                if(FloodDomain->Drc == 1 && ChannelDepth->Drc == 0)
+//        {
+//            cells+=1.0;
+//            avgh = avgh + hmx->Drc;
+//        }
+//        avgh = avgh / cells * 1000;
+//    }
+//    WaterVolTotmm += avgh; //mm
+
 
     if (SwitchBuffers)
     {

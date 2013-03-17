@@ -159,6 +159,7 @@ printinterval = 3;
          InterceptionHouses();// do urban interception
 
          Infiltration();      // soil infil, decrease WH
+         InfiltrationFlood();
          //SoilWater();       // soil water balance not implemented yet
          SurfaceStorage();    // surface storage and flow width, split WH in WHrunoff and WHstore
          CalcVelDisch();      // overland flow velocity, discharge and alpha

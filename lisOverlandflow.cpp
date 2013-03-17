@@ -58,7 +58,7 @@ void TWorld::ToChannel(void)
 
             if (SwitchChannelFlood)
             {
-                if (ChannelWH->Drc >= ChannelDepth->Drc*0.95)
+                if (ChannelWH->Drc >= ChannelDepth->Drc)
                     fractiontochannel = 0;
                 // no inflow when flooded
                 if (ChannelMaxQ->Drc > 0)
@@ -95,6 +95,11 @@ void TWorld::CalcVelDisch(void)
         // avg WH from soil surface and roads, over width FlowWidth
 
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
+
+        if (SwitchChannelFlood)
+        {
+            Perim = 2*hmx->Drc+_dx;
+        }
         if (Perim > 0)
             R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
         else
@@ -109,16 +114,12 @@ void TWorld::CalcVelDisch(void)
 
         if (SwitchChannelFlood)
         {
-            if (FloodDomain->Drc == 1)
+            if (hmx->Drc > 1.0)
             {
-                Q->Drc *= 0;
-                //decrease overlandflow activity in flooddomain
+                Q->Drc = 0;
+                Alpha->Drc = 0;
+                //decrease overlandflow activity in flooddomain//
             }
-//            if (ChannelWH->Drc >= ChannelDepth->Drc)
-//            {
-//                Q->Drc *= 0;
-//                //decrease overlandflow activity in flooddomain
-//            }
         }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
@@ -194,6 +195,9 @@ void TWorld::OverlandFlow(void)
         double diff = 0;
 
         diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
+
+//        if (FloodDomain->Drc == 1)
+//            diff = 0;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
         // q contains infiltrated water after kin wave

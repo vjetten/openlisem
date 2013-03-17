@@ -353,6 +353,7 @@ public:
   void InterceptionHouses(void);
   /// subtract water retained on houses, for urban projects
   void Infiltration(void);
+  void InfiltrationFlood(void);
   void InfilSwatre(void);
   void InfilGreenAmpt1(TMMap *_WH);
   void InfilSmithParlange1(TMMap *_WH);

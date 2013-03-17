@@ -90,11 +90,11 @@ class colorMapWaterLog: public QwtLinearColorMap
 {
 public:
     colorMapWaterLog():
-        QwtLinearColorMap( QColor(BGc), QColor("#0000AA"))
+        QwtLinearColorMap( QColor(BGc), QColor("#000080"))
     {
         addColorStop( 0.0, Qt::yellow );
-        addColorStop( 0.005,QColor("#8080FF"));
-        addColorStop( 0.05, QColor("#4040ff") );
+        addColorStop( 0.002,QColor("#8080FF"));
+        addColorStop( 0.03, QColor("#4040ff") );
         addColorStop( 0.5, QColor("#0000FF"));
     }
 };
