@@ -64,6 +64,23 @@ void TWorld::OutputUI(void)
             tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
         op.DrawMap->copy(tmb);  //flood level in m
     }
+
+    op.DrawMap1->copy(Qoutput);  //all output in m3/s
+    op.DrawMap2->copy(InfilmmCum);  //infil in mm
+    if (SwitchErosion)
+    {
+        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
+        tmb->calcValue(10, MUL); /* in kg/cell so div by area for kg/m2 and x10 for ton/ha */
+
+        op.DrawMap3->copy(tmb);  //soilloss in ton/ha
+    }
+    if (SwitchChannelFlood)
+    {
+        FOR_ROW_COL_MV
+            tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+        op.DrawMap4->copy(tmb);  //flood level in m
+    }
+
     op.baseMap->copy(Shade);
     if (SwitchIncludeChannel)
         op.channelMap->copy(ChannelWidth);

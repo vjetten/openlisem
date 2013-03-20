@@ -114,12 +114,18 @@ void TWorld::CalcVelDisch(void)
 
         if (SwitchChannelFlood)
         {
-            if (hmx->Drc > 1.0)
-            {
-                Q->Drc = 0;
-                Alpha->Drc = 0;
-                //decrease overlandflow activity in flooddomain//
-            }
+//            if (hmx->Drc > 1.0)
+//            {
+//                Q->Drc = 0;
+//                Alpha->Drc = 0;
+//                //no overlandflow activity in flooddomain
+//            }
+//            if (ChannelWH->Drc >= ChannelDepth->Drc)
+//            {
+//                Q->Drc = 0;
+//                Alpha->Drc = 0;
+//                //no overlandflow activity in flooddomain
+//            }
         }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
@@ -189,18 +195,15 @@ void TWorld::OverlandFlow(void)
         //V->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
         // recalc velocity for output to map ????
 
-        WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc );
+        WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // new water volume after kin wave, all water incl depr storage
 
-        double diff = 0;
+        double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
 
-        diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
-
-//        if (FloodDomain->Drc == 1)
-//            diff = 0;
+        if (FloodDomain->Drc == 1)
+            diff = 0;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
-        // q contains infiltrated water after kin wave
         //		if (InfilMethod == INFIL_NONE)
         //		{
         //			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;

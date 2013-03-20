@@ -310,16 +310,12 @@ void TWorld::Interception(void)
             Smax *= (1-HardSurface->Drc);
         //VJ 110111 no interception on hard surfaces
 
-        if (SwitchChannelFlood)
+        if (PlantHeight->Drc < WH->Drc)
         {
-            if (PlantHeight->Drc < hmx->Drc)
-            {
-                Smax = 0;
-                hmx->Drc += CS;
-                CS = 0;
-            }
+            Smax = 0;
+            CS = 0;
         }
-        //VJ floods
+        //VJ no interception when water level is heigher than plants
 
 
         if (Smax > 0)

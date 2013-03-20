@@ -54,7 +54,10 @@ struct output{
     QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 
     TMMap *DrawMap;
-    TMMap *baseMap;
+    TMMap *DrawMap1;
+    TMMap *DrawMap2;
+    TMMap *DrawMap3;
+    TMMap *baseMap4;
     TMMap *channelMap;
     TMMap *roadMap;
 

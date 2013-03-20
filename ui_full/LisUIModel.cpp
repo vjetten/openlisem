@@ -200,6 +200,10 @@ void lisemqt::worldDebug(const QString &results)
 void lisemqt::initOP()
 {
     op.DrawMap = NULL;
+    op.DrawMap1 = NULL;
+    op.DrawMap2 = NULL;
+    op.DrawMap3 = NULL;
+    op.DrawMap4 = NULL;
     op.baseMap = NULL;
     op.channelMap = NULL;
     op.roadMap = NULL;

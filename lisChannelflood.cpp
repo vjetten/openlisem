@@ -68,8 +68,8 @@ void TWorld::ChannelFlood(void)
     double sumh_t = 0, sumh_t1 = 0, diff = 0, cells = 1;
     // NOTE
     // hmx is flood level is looped
-    // hmx receives net rainfall and decreases with infiltration in infiltration module
-    // there is no runoff into the channel if it is flooding
+    // hmx receives net rainfall and decreases with infiltration in infiltrationflood module
+    // there is no runoff in the FloodDOmain
 
     // get flood level in channel from 1D kin wave channel
     bool startflood = false;
@@ -218,10 +218,10 @@ void TWorld::ChannelFlood(void)
                     cells++;
             }
 
-            //            FOR_ROW_COL_MV
-            //            {
-            //                Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
-            //            }
+                        FOR_ROW_COL_MV
+                        {
+                            Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
+                        }
 
             FOR_ROW_COL_MV
                     if (tma->Drc == 1)
@@ -233,13 +233,13 @@ void TWorld::ChannelFlood(void)
                             i != 4 &&                     // not the centre cell
                             !IS_MV_REAL8(&hmx->Drci))
                     {
-                        hmax = qMax(hmax, hmx->Drci);
+                        hmax = qMax(hmax, Hmx->Drci);
                         // find the highest water level around centre cell
                     }
                 if (ChannelDepth->Drc == 0)
                 {
-                    hmx->Drc = qMin(hmx->Drc, hmax);
-                    hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
+                    Hmx->Drc = qMin(Hmx->Drc, hmax);
+                   // hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
                 }
                 // correct hmx if not channel cell
             }
@@ -247,10 +247,10 @@ void TWorld::ChannelFlood(void)
             //water cannot flow uphill in this simplified solution (no momentum)
             //if we use Hydraulic Head H (=h+z), instabilities occur !!!
 
-            //            FOR_ROW_COL_MV
-            //            {
-            //                hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
-            //            }
+                        FOR_ROW_COL_MV
+                        {
+                            hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
+                        }
 
 
             FOR_ROW_COL_MV
@@ -258,6 +258,7 @@ void TWorld::ChannelFlood(void)
             {
                 hmx->Drc = 0;
             }
+            // no flood in culvert cells
 
             // find current flood domain (hmx > 0) and nr of flooded cells
             // used in the other processes, infiltration, runoff etc
@@ -323,20 +324,19 @@ void TWorld::ChannelFlood(void)
         // for output
     }
 
-//    FOR_ROW_COL_MV
-//    {
-//        if(FloodDomain->Drc == 1)
-//        {
-//            WH->Drc = hmx->Drc;
-//            WHroad->Drc = hmx->Drc;
-//        }
-//    }
+    //    FOR_ROW_COL_MV
+    //    {
+    //        if(FloodDomain->Drc == 1)
+    //        {
+    //            WH->Drc = hmx->Drc;
+    //            WHroad->Drc = hmx->Drc;
+    //        }
     // put flood water level back in overland flow water level in flooddomain
 
     //    hmx->report("hmx");
     //    Qflood->report("Qf");
     //    Vflood->report("Vf");
-    //    maxflood->report("maxflood.map");
+    maxflood->report("maxflood.map");
 }
 
 

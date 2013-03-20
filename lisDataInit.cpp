@@ -719,6 +719,8 @@ void TWorld::GetInputData(void)
             }
         }
     }
+    else
+        KsatGrass = NewMap(0);
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));

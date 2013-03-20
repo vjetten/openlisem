@@ -79,6 +79,10 @@ void TWorld::DoModel()
       IntializeData();
 
       op.DrawMap = NewMap(0);
+      op.DrawMap1 = NewMap(0);
+      op.DrawMap2 = NewMap(0);
+      op.DrawMap3 = NewMap(0);
+      op.DrawMap4 = NewMap(0);
       op.baseMap = NewMap(0);
       op.channelMap = NewMap(0);
       op.roadMap = NewMap(0);
@@ -131,7 +135,7 @@ void TWorld::DoModel()
       }
 
       DEBUG("Running...");
-printinterval = 3;
+
       for (time = BeginTime; time < EndTime; time += _dt)
       {
           if (runstep > 0 && runstep % printinterval == 0)

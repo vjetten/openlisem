@@ -268,6 +268,7 @@ void lisemqt::showMap1()
     MPlot->setTitle("Runoff (l/s)");
 
     double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap1, RD);
     // fill vector and find the new max value
 
     // set intervals for rasterdata, x,y,z min and max
@@ -299,6 +300,7 @@ void lisemqt::showMap2()
 
     // fill vector RD with matrix data and find the new max value
     double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap2, RD);
 
     // set the new interval to the new max value
     maxAxis2 = qMax(maxAxis2, MaxV);
@@ -323,6 +325,7 @@ void lisemqt::showMap3()
     MPlot->setTitle("Soil loss (ton/ha)");
 
     double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap3, RD);
     // fill vector and find the new max value
 
     maxAxis3 = qMax(maxAxis3, MaxV);
@@ -346,6 +349,7 @@ void lisemqt::showMap4()
 
     double MinV = 0;
     double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap4, RD);
     // fill vector and find the new max value
 
     maxAxis4 = qMax(maxAxis4, MaxV);
