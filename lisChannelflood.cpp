@@ -218,28 +218,30 @@ void TWorld::ChannelFlood(void)
                     cells++;
             }
 
-                        FOR_ROW_COL_MV
-                        {
-                            Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
-                        }
+//            FOR_ROW_COL_MV
+//                    Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
+            // new hydraulic head
 
             FOR_ROW_COL_MV
                     if (tma->Drc == 1)
             {
                 double hmax = 0;
+               // double Hmax = 0;
                 for (int i = 0; i < 9; i++)
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
                             i != 4 &&                     // not the centre cell
                             !IS_MV_REAL8(&hmx->Drci))
                     {
-                        hmax = qMax(hmax, Hmx->Drci);
+                      //  Hmax = qMax(hmax, Hmx->Drci);
+                        hmax = qMax(hmax, hmx->Drci);
                         // find the highest water level around centre cell
                     }
                 if (ChannelDepth->Drc == 0)
                 {
-                    Hmx->Drc = qMin(Hmx->Drc, hmax);
-                   // hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
+               //     Hmx->Drc = qMin(Hmx->Drc, Hmax);
+                    hmx->Drc = qMin(hmx->Drc, hmax);
+//                    hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
                 }
                 // correct hmx if not channel cell
             }
@@ -247,11 +249,8 @@ void TWorld::ChannelFlood(void)
             //water cannot flow uphill in this simplified solution (no momentum)
             //if we use Hydraulic Head H (=h+z), instabilities occur !!!
 
-                        FOR_ROW_COL_MV
-                        {
-                            hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
-                        }
-
+     //       FOR_ROW_COL_MV
+       //             hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
 
             FOR_ROW_COL_MV
                     if (ChannelMaxQ->Drc > 0)
