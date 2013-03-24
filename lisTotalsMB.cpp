@@ -306,9 +306,9 @@ void TWorld::MassBalance()
     //      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
     //             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
-    if (SwitchErosion && SoilLossTot > 1e-9)
-        MBs = (DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-               DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTot) *100;
+    if (SwitchErosion && SoilLossTotOutlet > 1e-9)
+        MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
+               DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTotOutlet))*100;
     //VJ 121212 changed to mass balance relative to soil loss
 }
 //---------------------------------------------------------------------------
