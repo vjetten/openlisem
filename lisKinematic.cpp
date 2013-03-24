@@ -398,10 +398,10 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                     _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
                                                              _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-               // _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+                _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
                 // no more sediment outflow than total sed in cell
 
-                //  _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+                _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
                 // GIVES MASS BALANCE ERROR!!!!!!!
 
@@ -533,7 +533,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
             _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            // _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
             // GIVES MASS BALANCE ERROR!!!!!!!
 
