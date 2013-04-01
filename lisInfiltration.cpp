@@ -695,7 +695,7 @@ void TWorld::InfiltrationFlood(void)
         FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
 
-FSurplus->Drc = 0;
+//FSurplus->Drc = 0;
 
         InfilVol->Drc -= DX->Drc*hmx->Drc*_dx;
         // infil volume is WH before - water after

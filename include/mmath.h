@@ -60,6 +60,7 @@ class TMMap : public cTMap
    void calc2Maps(cTMap *m1, cTMap *m2, int oper);
    void calcMapValue(cTMap *m1, double V, int oper);
    void copy(cTMap *m);
+   void shift(cTMap *M, int dr, int dc);
    void cover(cTMap *m, double v);
    void setMV();
    void checkMap(int oper, double V, QString SS);

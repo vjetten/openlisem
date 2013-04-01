@@ -135,6 +135,7 @@ void TWorld::SplashDetachment(void)
 
       DETSplash->Drc *= (SoilWidthDX->Drc*DX->Drc);
       // kg/cell, only splash over soilwidth, not roads and channels
+      // FROM KG/M2 TO KG/CELL
 
       DETSplash->Drc = (1-StoneFraction->Drc) * DETSplash->Drc;
       // no splash on stone surfaces
@@ -158,9 +159,12 @@ void TWorld::SplashDetachment(void)
 
       DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
       // no splash on snow deck
+
+      // IN KG/CELL
    }
 }
 //---------------------------------------------------------------------------
+// IN KG/CELL
 void TWorld::FlowDetachment(void)
 {
    if (!SwitchErosion)
@@ -252,6 +256,8 @@ void TWorld::FlowDetachment(void)
          DETFlow->Drc = (1-HouseCover->Drc)*DETFlow->Drc;
       // no flow det from house roofs
 
+      // IN KG/CELL
+
       //DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
       /* TODO: CHECK THIS no flow detachment on snow */
       //is there erosion and sedimentation under the snowdeck?
@@ -285,6 +291,7 @@ void TWorld::FlowDetachment(void)
       //? bit tricky, maximizes effect on grassstrips ?
 
       DEP->Drc += deposition;
+      // IN KG/CELL
 
       //### sediment balance
       Sed->Drc += DETFlow->Drc;

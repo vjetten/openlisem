@@ -64,7 +64,8 @@ SOURCES += lisTotalsMB.cpp \
     swatre/swatinp.cpp \
     LisKinematicSorted.cpp \
     ui_full/LisUImapplot.cpp \
-    lisChannelflood.cpp
+    lisChannelflood.cpp \
+    lisSWOF2D.cpp
 FORMS += ui_full/lisemqt.ui
 # debug version
 CONFIG(debug, debug|release) {

@@ -174,7 +174,7 @@ void TWorld::DoModel()
          OverlandFlow();      // overland flow kin wave
 
          ChannelFlow();       // channel erosion and kin wave
-         ChannelFlood();      // st venant near channel flooding, based on ChannelWH prev timestep
+         ChannelFlood1();      // st venant near channel flooding, based on ChannelWH prev timestep
                               // recalculates WH and channelvol so do first
 
          TileFlow();          // tile drain flow kin wave

@@ -279,12 +279,30 @@ void TMMap::copy(cTMap *M)
 {
     for (int r = 0; r < M->nrRows; r++)
         for (int c = 0; c < M->nrCols; c++)
+        {
             if (!IS_MV_REAL8(&M->Data[r][c])&& !IS_MV_REAL8(&Data[r][c]))
             {
                 Data[r][c] = M->Data[r][c];
             }
             else
                 SET_MV_REAL4(&Data[r][c]);
+        }
+}
+//---------------------------------------------------------------------------
+void TMMap::shift(cTMap *M, int dr, int dc)
+{
+    for (int r = 0; r < M->nrRows; r++)
+        for (int c = 0; c < M->nrCols; c++)
+        {
+            if (!IS_MV_REAL8(&M->Data[r][c])&& !IS_MV_REAL8(&Data[r][c]))
+            {
+                Data[r][c] = M->Data[r][c];
+                if (!IS_MV_REAL8(&Data[r+dr][c+dc]))
+                    Data[r][c] = M->Data[r+dr][c+dc];
+            }
+            else
+                SET_MV_REAL4(&Data[r][c]);
+        }
 }
 //---------------------------------------------------------------------------
 void TMMap::setMV()

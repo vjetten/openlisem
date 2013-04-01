@@ -341,10 +341,10 @@ void lisemqt::showMap3()
     RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
 
     drawMap->setData(RD);
-    drawMap->setColorMap(new colorMapSedB());
+    drawMap->setColorMap(new colorMapSed());
     //QwtPlotSpectrogram
 
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSedB());
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSed());
     MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }

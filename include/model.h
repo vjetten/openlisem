@@ -74,18 +74,26 @@
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
-  for (int c = 0; c < _nrCols; c++)\
-  if(!IS_MV_REAL8(&LDD->Data[r][c]))
+    for (int c = 0; c < _nrCols; c++)\
+    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+
+#define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
+    for (int c = 1; c < _nrCols-1; c++)\
+    if(!IS_MV_REAL8(&LDD->Data[r][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r-1][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
+    !IS_MV_REAL8(&LDD->Data[r][c+1]))
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
-  for (int  c = 0; c < _nrCols; c++)\
-  if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
+    for (int  c = 0; c < _nrCols; c++)\
+    if(!IS_MV_REAL8(&LDDChannel->Data[r][c]))
 
 /// shortcut for tile network row and col loop.
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
-  for (int  c = 0; c < _nrCols; c++)\
-  if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
+    for (int  c = 0; c < _nrCols; c++)\
+    if(!IS_MV_REAL8(&LDDTile->Data[r][c]))
 
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
@@ -121,43 +129,43 @@
 ReadMap(cTMap *Mask, QString name) put a map on this list
 */
 typedef struct MapListStruct {
-  TMMap *m;
+    TMMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------
 /// linked list structure for network in kin wave
 typedef struct LDD_LINKEDLIST {
-  int rowNr;
-  int colNr;
-  struct LDD_LINKEDLIST *prev;
+    int rowNr;
+    int colNr;
+    struct LDD_LINKEDLIST *prev;
 }  LDD_LINKEDLIST;
 //---------------------------------------------------------------------------
 /// structure used for sorting of the LDD
 typedef struct LDD_POINT {
-  int rowNr;
-  int colNr;
+    int rowNr;
+    int colNr;
 }  LDD_POINT;
 //---------------------------------------------------------------------------
 /// name list structure used to read run file
 typedef struct NAME_LIST {
-  QString name;
-  QString value;
+    QString name;
+    QString value;
 } NAME_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
 typedef struct UNIT_LIST {
-  long nr;
-  double area;
-  double totdet;
-  double totdep;
-  double totsl;
+    long nr;
+    double area;
+    double totdet;
+    double totdep;
+    double totsl;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 typedef struct RAIN_LIST {
-  double time;
-  //double *intensity;
-  QVector <double> intensity;
-  bool isMap;
-  QString name;
+    double time;
+    //double *intensity;
+    QVector <double> intensity;
+    bool isMap;
+    QString name;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
 
@@ -174,326 +182,349 @@ typedef struct RAIN_LIST {
 
 class TWorld: public QThread
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  TWorld(QObject *parent = 0);
-  ~TWorld();
+    TWorld(QObject *parent = 0);
+    ~TWorld();
 
-  /// copy of overall rows and columns, set in initmask
-  long _nrRows;
-  long _nrCols;
+    /// copy of overall rows and columns, set in initmask
+    long _nrRows;
+    long _nrCols;
 
-  /// map management structure, automatic adding and deleting of all TMMap variables
-  MapListStruct maplistTMMap[NUMNAMES];
-  int maplistnr;
+    /// map management structure, automatic adding and deleting of all TMMap variables
+    MapListStruct maplistTMMap[NUMNAMES];
+    int maplistnr;
 
-  /// variable declaration list of all maps with comments:
+    /// variable declaration list of all maps with comments:
 #include "TMmapVariables.h"
 
-  /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
-  bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
-  SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
-  startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
-  SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
-  SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
-  SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
-  SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
-  SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
-  SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-  SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
-  SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-  SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum;
+    /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
+    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
+    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+    startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
+    SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
+    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
+    SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
+    SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
+    SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
+    SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
+    SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
+    SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum;
 
-  // multiple options that are set in interface or runfile, see defines above
-  /// Interception storage function based on LAI
-  int InterceptionLAIType;
-  /// infiltration method
-  int InfilMethod;
-  /// erosion units in output: to/ha; kg/cell; kg/m2
-  int ErosionUnits;
-  /// calibration factors
-  int KEequationType;
-  /// type of kinetic energy equation;
-  double KEParamater_a1, KEParamater_b1, KEParamater_c1;
-  double KEParamater_a2, KEParamater_b2;
-  double KEParamater_a3, KEParamater_b3;
-  /// parameters in KE equations
+    // multiple options that are set in interface or runfile, see defines above
+    /// Interception storage function based on LAI
+    int InterceptionLAIType;
+    /// infiltration method
+    int InfilMethod;
+    /// erosion units in output: to/ha; kg/cell; kg/m2
+    int ErosionUnits;
+    /// calibration factors
+    int KEequationType;
+    /// type of kinetic energy equation;
+    double KEParamater_a1, KEParamater_b1, KEParamater_c1;
+    double KEParamater_a2, KEParamater_b2;
+    double KEParamater_a3, KEParamater_b3;
+    /// parameters in KE equations
 
-  double ksatCalibration;
-  double nCalibration;
-  double thetaCalibration;
-  double psiCalibration;
-  double ChnCalibration;
-  double ChKsatCalibration;
-  double SplashDelivery;
-  double StripN;
-  double StemflowFraction;
-  double CanopyOpeness; // VJ 110209 added Aston factor as user input
-  double maxFloodLevel;
-  double minFloodDt;
-  double waterRep_a;
-  double waterRep_b;
-  double waterRep_c;
-  double waterRep_d;
+    double ksatCalibration;
+    double nCalibration;
+    double thetaCalibration;
+    double psiCalibration;
+    double ChnCalibration;
+    double ChKsatCalibration;
+    double SplashDelivery;
+    double StripN;
+    double StemflowFraction;
+    double CanopyOpeness; // VJ 110209 added Aston factor as user input
+    double maxFloodLevel;
+    double minFloodDt;
+    double waterRep_a;
+    double waterRep_b;
+    double waterRep_c;
+    double waterRep_d;
 
-  /// totals for mass balance checks and output
-  /// Water totals for mass balance and output (in m3)
-  double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
-  //houses
-  double IntercHouseTot, IntercHouseTotmm;
-  double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
-  /// Sediment totals for mass balance and output (in kg)
-  double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
-  /// Water totals for output in file and UI (in mm), copied to 'op' structure
-  double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
-  /// peak times (min)
-  double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
-  double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
-  double nrCells, CatchmentArea;
-  double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
+    /// totals for mass balance checks and output
+    /// Water totals for mass balance and output (in m3)
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    //houses
+    double IntercHouseTot, IntercHouseTotmm;
+    double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
+    /// Sediment totals for mass balance and output (in kg)
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
+    /// Water totals for output in file and UI (in mm), copied to 'op' structure
+    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
+    /// peak times (min)
+    double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
+    double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
+    double nrCells, CatchmentArea;
+    double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
 
-  int c_outlet;  /// copy of outlet col number
-  int r_outlet;  /// copy of outlet row number
+    int c_outlet;  /// copy of outlet col number
+    int r_outlet;  /// copy of outlet row number
 
-  int c_plot;  /// copy of col number of hydrograph plotted on screen
-  int r_plot;  /// copy of row number of hydrograph plotted on screen
+    int c_plot;  /// copy of col number of hydrograph plotted on screen
+    int r_plot;  /// copy of row number of hydrograph plotted on screen
 
-  /// time and dx parameters
-  double time, BeginTime, EndTime;
-  double _dt, _dx;
-  long runstep, printstep, printinterval;
+    /// time and dx parameters
+    double time, BeginTime, EndTime;
+    double _dt, _dx;
+    long runstep, printstep, printinterval;
 
-  /// timeseries variables and output strings
-  //double **RainfallSeries;
-  int nrRainfallseries;
-  int nrSnowmeltseries;
-  //double **SnowmeltSeries;
-  //int nrSnowmeltstations, nrSnowmeltseries;
-  //RAIN_LIST *RainfallSeriesM;
-  QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
-  QVector <RAIN_LIST> SnowmeltSeriesM;
+    /// timeseries variables and output strings
+    //double **RainfallSeries;
+    int nrRainfallseries;
+    int nrSnowmeltseries;
+    //double **SnowmeltSeries;
+    //int nrSnowmeltstations, nrSnowmeltseries;
+    //RAIN_LIST *RainfallSeriesM;
+    QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
+    QVector <RAIN_LIST> SnowmeltSeriesM;
 
-  // output formatting for SOBEK flood model input
-  QString SOBEKdatestring;
-  int SOBEKnrlines;
+    // output formatting for SOBEK flood model input
+    QString SOBEKdatestring;
+    int SOBEKnrlines;
 
-  // file and directory names
-  QString resultDir;
-  QString inputDir;
-  QString outflowFileName;
-  QString totalErosionFileName;
-  QString totalDepositionFileName;
-  QString totalSoillossFileName;
-  QString totalLandunitFileName;
-  QString rainFileName;
-  QString rainFileDir;
-  QString snowmeltFileName;
-  QString snowmeltFileDir;
-  QString resultFileName;
-  QString temprunname;
-  QStringList outputcheck;
-  /// standard names of output map series
-  QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
-          OutTiledrain, OutHmx, OutVf, OutQf;
+    // file and directory names
+    QString resultDir;
+    QString inputDir;
+    QString outflowFileName;
+    QString totalErosionFileName;
+    QString totalDepositionFileName;
+    QString totalSoillossFileName;
+    QString totalLandunitFileName;
+    QString rainFileName;
+    QString rainFileDir;
+    QString snowmeltFileName;
+    QString snowmeltFileDir;
+    QString resultFileName;
+    QString temprunname;
+    QStringList outputcheck;
+    /// standard names of output map series
+    QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
+    OutTiledrain, OutHmx, OutVf, OutQf;
 
-  // list with class values of land unit map
-  UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
-  QVector <UNIT_LIST> unitListM;
-  int landUnitNr;
-  // data initialization, runfile reading and parsing
-  NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
-  int nrrunnamelist;
+    // list with class values of land unit map
+    UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
+    QVector <UNIT_LIST> unitListM;
+    int landUnitNr;
+    // data initialization, runfile reading and parsing
+    NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
+    int nrrunnamelist;
 
-  // list of pointers for substance maps: sediment, sed classes, nutrients etc.
-  // used in kin wave for routing of substances
-  MapListStruct SubsMaps[32];
-  int nrSubsMaps;
+    // list of pointers for substance maps: sediment, sed classes, nutrients etc.
+    // used in kin wave for routing of substances
+    MapListStruct SubsMaps[32];
+    int nrSubsMaps;
 
-  // functions in lisDataInit.cpp
-  void InitMapList(void);
-  TMMap *NewMap(double value);
-  TMMap *ReadMap(cTMap *Mask, QString name);
-  void DestroyData(void);
-  TMMap *InitMask(QString name);
-  TMMap *InitMaskChannel(QString name);
-  TMMap *InitMaskTiledrain(QString name);
-  void InitTiledrains(void); //VJ 110112
-  void InitBuffers(void); //VJ 110112
-  void InitChannel(void); //VJ 110112
-  void InitShade(void); //VJ 130301
-  void InitMulticlass(void); //VJ 110511
-  void GetInputData(void);      // get and make input maps
-  void IntializeData(void);     // make all non-input maps
-  void IntializeOptions(void);  // set all options to false etc
+    // functions in lisDataInit.cpp
+    void InitMapList(void);
+    TMMap *NewMap(double value);
+    TMMap *ReadMap(cTMap *Mask, QString name);
+    void DestroyData(void);
+    TMMap *InitMask(QString name);
+    TMMap *InitMaskChannel(QString name);
+    TMMap *InitMaskTiledrain(QString name);
+    void InitTiledrains(void); //VJ 110112
+    void InitBuffers(void); //VJ 110112
+    void InitChannel(void); //VJ 110112
+    void InitShade(void); //VJ 130301
+    void InitMulticlass(void); //VJ 110511
+    void GetInputData(void);      // get and make input maps
+    void IntializeData(void);     // make all non-input maps
+    void IntializeOptions(void);  // set all options to false etc
 
-  // functions in lisRunfile.cpp
-  QString getvaluename(QString vname);
-  double getvaluedouble(QString vname);
-  int getvalueint(QString vname);
-  QString CheckDir(QString p);
-  QString GetName(QString p);
-  void ParseRunfileData(void);
-  void GetRunFile(void);
-  MapListStruct qx[9];
-  //MapListStruct hx[9];
+    // functions in lisRunfile.cpp
+    QString getvaluename(QString vname);
+    double getvaluedouble(QString vname);
+    int getvalueint(QString vname);
+    QString CheckDir(QString p);
+    QString GetName(QString p);
+    void ParseRunfileData(void);
+    void GetRunFile(void);
+    MapListStruct qx[9];
 
-  // LISEM model processes
-  //void GetRainfallData(void);   // get input timeseries
-  void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
-  //void GetSnowmeltData(void);   // get input timeseries
-  /// convert rainfall of a timestep into a map
-  void RainfallMap(void);
-  /// convert snowmelt of a timestep into a map
-  void SnowmeltMap(void);
-  /// interception of vegetation canopy resulting in rainnet
-  void Interception(void);
-  /// infiltration function calling all infiltration methods
-  /// add rainnet to WH and calculating new WH
-  void InterceptionHouses(void);
-  /// subtract water retained on houses, for urban projects
-  void Infiltration(void);
-  void InfiltrationFlood(void);
-  void InfilSwatre(void);
-  void InfilGreenAmpt1(TMMap *_WH);
-  void InfilSmithParlange1(TMMap *_WH);
-  void InfilMorelSeytoux1(TMMap *_WH);
-  void InfilKsat(TMMap *_WH);
-  double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
-  void SoilWater(void);
+    //FLOOD according to FULLSWOF2D
+    void fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    void boundary();
+    double limiter(double a, double b);
+    void initMUSCL(TMMap *z);
+    void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z,
+               TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
+               TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
+               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
+    void bloc1(double cflfix, double T, double tps,
+               double dt_max, double dt, double &dt_cal, double cfl_new);
+    void bloc2(TMMap *he, TMMap *ve1, TMMap *ve2, TMMap *qe1, TMMap *qe2,
+               TMMap *hes, TMMap *ves1, TMMap *ves2, TMMap *qes1, TMMap *qes2);
+    //, TMMap *Vin,double tps, double, int n, double dtheta )
+    void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
+    void Fr_ManningSf(double h, double u, double v, double cf);
 
-  void SurfaceStorage(void);
-  void OverlandFlow(void);
-  void ChannelFlow(void);
-  void ToChannel(void);
-  void CalcVelDisch(void);
-  void CalcVelDischChannel(void);
-  void ToTiledrain(void);
-  void TileFlow(void);
-  void CalcVelDischTile(void);
-  void GridCell(void);
-  void SplashDetachment(void);
-  void FlowDetachment(void);
-  double MaxConcentration(double watvol, double sedvol);
-  void ChannelFlowDetachment(void);
-  //flood
-  void ChannelFlood(void);
-  double courant_factor;
 
-  void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                 TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
-                 TMMap *_StorVol, TMMap*_StorVolSed);
+    void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
+    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
+    double dt_tmp, dt_max, dt_fix, T, dt1, dt, tps, tx, ty;
+    double dx, dy;
+    double q1mod, q2mod, Sf1, Sf2;
 
-  double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
-  double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
-                        double Sji1, double alpha, double dt, double dx);
-  double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
+    //input timeseries
+    void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
+    //void GetSnowmeltData(void);   // get input timeseries
+    /// convert rainfall of a timestep into a map
+    void RainfallMap(void);
+    /// convert snowmelt of a timestep into a map
+    void SnowmeltMap(void);
+    /// interception of vegetation canopy resulting in rainnet
+    void Interception(void);
+    /// infiltration function calling all infiltration methods
+    /// add rainnet to WH and calculating new WH
+    void InterceptionHouses(void);
+    /// subtract water retained on houses, for urban projects
+    void Infiltration(void);
+    void InfiltrationFlood(void);
+    void InfilSwatre(void);
+    void InfilGreenAmpt1(TMMap *_WH);
+    void InfilSmithParlange1(TMMap *_WH);
+    void InfilMorelSeytoux1(TMMap *_WH);
+    void InfilKsat(TMMap *_WH);
+    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
+    void SoilWater(void);
 
-  void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
-                              TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
-                              TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed);
+    void SurfaceStorage(void);
+    void OverlandFlow(void);
+    void ChannelFlow(void);
+    void ToChannel(void);
+    void CalcVelDisch(void);
+    void CalcVelDischChannel(void);
+    void ToTiledrain(void);
+    void TileFlow(void);
+    void CalcVelDischTile(void);
+    void GridCell(void);
+    void SplashDetachment(void);
+    void FlowDetachment(void);
+    double MaxConcentration(double watvol, double sedvol);
+    void ChannelFlowDetachment(void);
+    //flood
+    void ChannelFlood(void);
+    void ChannelFlood1(void);
+    double courant_factor;
 
-  // alternative kin wave based on a pre-sorted network
-  bool useSorted;
-  LDD_POINT **makeSortedNetwork(TMMap *_LDD, long *lddlistnr);
-  void KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
-                       TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
-                       TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
-                       TMMap *_StorVol, TMMap*_StorVolSed);
+    void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
+                   TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+                   TMMap *_StorVol, TMMap*_StorVolSed);
 
-  //   QList <LDD_POINT *> listldd;
-  //VJ 110123 sorted networks for faster kin wave
-  LDD_POINT **lddlist;
-  long lddlistnr;
-  LDD_POINT **lddlistch;
-  long lddlistchnr;
-  LDD_POINT **lddlisttile;
-  long lddlisttilenr;
- // QVector <TMMap> Substance;
+    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
+    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
+                          double Sji1, double alpha, double dt, double dx);
+    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
-  //SWATRE
-  /// filenames for Swatre soil information
-  QString SwatreTableDir;
-  QString SwatreTableName;
-  QString initheadName;
+    void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
+                                TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
+                                TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed);
 
-  double swatreDT;
-  bool initSwatreStructure;
+    // alternative kin wave based on a pre-sorted network
+    bool useSorted;
+    LDD_POINT **makeSortedNetwork(TMMap *_LDD, long *lddlistnr);
+    void KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
+                         TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
+                         TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
+                         TMMap *_StorVol, TMMap*_StorVolSed);
 
-  /// SWATRE infiltration model 3D soil structure
-  SOIL_MODEL *SwatreSoilModel;
-  SOIL_MODEL *SwatreSoilModelCrust;
-  SOIL_MODEL *SwatreSoilModelCompact;
-  SOIL_MODEL *SwatreSoilModelGrass;
-  PROFILE **profileList;
-  int nrProfileList, sizeProfileList;
-  ZONE *zone;
-  double precision;
-  int tnode; //VJ 110122 node nr in profile with tile drains
+    //   QList <LDD_POINT *> listldd;
+    //VJ 110123 sorted networks for faster kin wave
+    LDD_POINT **lddlist;
+    long lddlistnr;
+    LDD_POINT **lddlistch;
+    long lddlistchnr;
+    LDD_POINT **lddlisttile;
+    long lddlisttilenr;
+    // QVector <TMMap> Substance;
 
-  SOIL_MODEL *InitSwatre(TMMap *profileMap);//, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
-  void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
-  void CloseSwatre(SOIL_MODEL *s);
-  void FreeSwatreInfo(void);
-  //VJ 111104 old stuff, no longer used but kept for now
-  int ReadSwatreInput(QString fileName, QString tablePath);
-  ZONE *ReadNodeDefinition(FILE *f);
-  PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
-  PROFILE *ProfileNr(int profileNr);
-  // VJ 111104 constructing profile with Qt commands
-  QStringList swatreProfileDef;
-  QList<int> swatreProfileNr;
-  int *profileNr;
-  void ReadSwatreInputNew(void);
-  ZONE *ReadNodeDefinitionNew(void);
-  PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
+    //SWATRE
+    /// filenames for Swatre soil information
+    QString SwatreTableDir;
+    QString SwatreTableName;
+    QString initheadName;
 
-  HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
-  double *ReadSoilTable(const char *fileName, int *nrRows);
-  void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
-  void InitializeProfile(void);
-  void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
-                const double  *hPrev, const double  *kavg, const double  *dimoca,
-                bool fltsat, double dt, double pond, double qtop, double qbot);
-  double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
-                      double precParam, double dtMin, double dtMax);
-  void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                       double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
+    double swatreDT;
+    bool initSwatreStructure;
 
-  void Totals(void);
-  void MassBalance(void);
-  void OutputUI(void);
-  void reportAll(void);
-  void ReportTimeseriesNew(void);
-  //void ReportTotals(void);
-  void ReportMaps(void);
-  void ReportTotalsNew(void);
-  void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
-  void CountLandunits(void); //VJ 110107 report erosion stats per land unit
+    /// SWATRE infiltration model 3D soil structure
+    SOIL_MODEL *SwatreSoilModel;
+    SOIL_MODEL *SwatreSoilModelCrust;
+    SOIL_MODEL *SwatreSoilModelCompact;
+    SOIL_MODEL *SwatreSoilModelGrass;
+    PROFILE **profileList;
+    int nrProfileList, sizeProfileList;
+    ZONE *zone;
+    double precision;
+    int tnode; //VJ 110122 node nr in profile with tile drains
 
-  double itercount;
-  // thread management variables
-  bool stopRequested;
-  bool waitRequested;
-  bool noInterface;
-  bool noOutput;
-  QMutex mutex;
-  QWaitCondition condition;
-  void stop();
+    SOIL_MODEL *InitSwatre(TMMap *profileMap);//, QString initHeadMaps, TMMap *tiledepthMap, double dtMin);
+    void SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where);
+    void CloseSwatre(SOIL_MODEL *s);
+    void FreeSwatreInfo(void);
+    //VJ 111104 old stuff, no longer used but kept for now
+    int ReadSwatreInput(QString fileName, QString tablePath);
+    ZONE *ReadNodeDefinition(FILE *f);
+    PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+    PROFILE *ProfileNr(int profileNr);
+    // VJ 111104 constructing profile with Qt commands
+    QStringList swatreProfileDef;
+    QList<int> swatreProfileNr;
+    int *profileNr;
+    void ReadSwatreInputNew(void);
+    ZONE *ReadNodeDefinitionNew(void);
+    PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
+
+    HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
+    double *ReadSoilTable(const char *fileName, int *nrRows);
+    void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
+    void InitializeProfile(void);
+    void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
+                  const double  *hPrev, const double  *kavg, const double  *dimoca,
+                  bool fltsat, double dt, double pond, double qtop, double qbot);
+    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
+                        double precParam, double dtMin, double dtMax);
+    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
+                         double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
+
+    void Totals(void);
+    void MassBalance(void);
+    void OutputUI(void);
+    void reportAll(void);
+    void ReportTimeseriesNew(void);
+    //void ReportTotals(void);
+    void ReportMaps(void);
+    void ReportTotalsNew(void);
+    void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
+    void CountLandunits(void); //VJ 110107 report erosion stats per land unit
+
+    double itercount;
+    // thread management variables
+    bool stopRequested;
+    bool waitRequested;
+    bool noInterface;
+    bool noOutput;
+    QMutex mutex;
+    QWaitCondition condition;
+    void stop();
 
 protected:
-  void run();
-  QTime time_ms;
+    void run();
+    QTime time_ms;
 
-  // talk to the interface
+    // talk to the interface
 signals:
-  void done(const QString &results);
-  void debug(const QString &results);
-  void show(); //use the output structure "op" declared in global.h and LisUIoutput.h
+    void done(const QString &results);
+    void debug(const QString &results);
+    void show(); //use the output structure "op" declared in global.h and LisUIoutput.h
 
 private slots:   //note, was private loop but dixygen does not recognize that
-  /// the main model loop, from here all processes are called in a time loop
-  void DoModel();
+    /// the main model loop, from here all processes are called in a time loop
+    void DoModel();
 
 };
 

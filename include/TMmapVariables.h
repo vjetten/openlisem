@@ -212,10 +212,36 @@ TMMap
 *Nx,                         //!<
 *dHdLx,                      //!<
 *Qxsum,                      //!<
+*qx0,
+*qx1,
+*qx2,
+*qx3,
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
 *FloodWaterVol,
+
+// FULLSWOF2D
+//*h1,
+//*v1,
+//*u1,
+//*z1, *z2,
+*z1r, *z1l,
+*z2r, *z2l,
+*delta_z1, *delta_z2,
+*h1r, *h1l,
+*h2r, *h2l,
+*v1r, *v1l,
+*v2r, *v2l,
+*u1r, *u1l,
+*u2r, *u2l,
+*delzc1, *delzc2,
+*delz1, *delz2,
+*f1, *f2, *f3,
+*g1, *g2, *g3,
+*h1d, *h1g, *h2d, *h2g,
+*hs, *vs, *us,
+*qs1, *qs2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

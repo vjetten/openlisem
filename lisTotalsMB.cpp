@@ -173,20 +173,6 @@ void TWorld::Totals(void)
         // add channel volume to total for sed conc calc
 
     }
-//    double avgh = 0;
-//    if (SwitchChannelFlood)
-//    {
-//        double cells = 0;
-//        FOR_ROW_COL_MV
-//                if(FloodDomain->Drc == 1 && ChannelDepth->Drc == 0)
-//        {
-//            cells+=1.0;
-//            avgh = avgh + hmx->Drc;
-//        }
-//        avgh = avgh / cells * 1000;
-//    }
-//    WaterVolTotmm += avgh; //mm
-
 
     if (SwitchBuffers)
     {
@@ -217,7 +203,7 @@ void TWorld::Totals(void)
     // peak flow and peak time calculation, based on sum channel and runoff
 
     /***** SEDIMENT *****/
-
+  // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
     if (SwitchErosion)
     {
         DetSplashTot += DETSplash->mapTotal();

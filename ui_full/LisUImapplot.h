@@ -190,13 +190,13 @@ public:
 //---------------------------------------------------------------------------
 class colorMapSed: public QwtLinearColorMap
 {
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value > -0.1 && value < 0.1 )
-            return qRgba( 0, 0, 0, 0 );
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value > -0.1 && value < 0.1 )
+//            return qRgba( 0, 0, 0, 0 );
 
-        return QwtLinearColorMap::rgb( interval, value );
-    }
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
 public:
     colorMapSed():
         QwtLinearColorMap( QColor(BGc),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);

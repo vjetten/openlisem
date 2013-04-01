@@ -53,8 +53,8 @@ void TWorld::OutputUI(void)
         op.DrawMap->copy(InfilmmCum);  //infil in mm
     if (SwitchErosion && op.drawMapType == 3)
     {
-        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
-        tmb->calcValue(10, MUL); /* in kg/cell so div by area for kg/m2 and x10 for ton/ha */
+        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);//from kg/cell to kg/m2
+        tmb->calcValue(10, MUL); // from kg/m2 to ton/ha
 
         op.DrawMap->copy(tmb);  //soilloss in ton/ha
     }
@@ -529,8 +529,8 @@ void TWorld::ReportMaps(void)
             tm->calcMap(CellArea, DIV);
         if (ErosionUnits == 0) // ton/ha
         {
-            tm->calcMap(CellArea, DIV);
-            tm->calcValue(10, MUL);
+            tm->calcMap(CellArea, DIV); //to kg/m2
+            tm->calcValue(10, MUL); // * 0.001*10000 = ton/ha
         }
 
         tm->report(totalErosionFileName);
