@@ -49,6 +49,8 @@ functions: \n
 // 5) update flood level with flux and correct errors: level cannot be higher than surrounding cells outside channel
 // 6) calc avg water level (mass balance) error
 
+
+// NOTE DEM has barriers included, done in shade map calculation !!!!
 void TWorld::ChannelFlood(void)
 {
     if (!SwitchIncludeChannel)
@@ -56,23 +58,11 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dr[9] = {1,1,1,  0, 0, 0,  -1, -1, -1};
-    double courant_number = courant_factor;
-    double froude_limit = 0.8;
-    double gravity = 9.81;
-    double h_min = 1e-6;
-    double timestep = 0;
-    double timestep1 = 0;
-    double timesum = 0;
-    double sumh_t = 0, sumh_t1 = 0, diff = 0, cells = 1;
-    // NOTE
-    // hmx is flood level is looped
-    // hmx receives net rainfall and decreases with infiltration in infiltrationflood module
-    // there is no runoff in the FloodDOmain
+    SwitchFloodExplicit = false;//true;
+    SwitchFloodSWOForder1 = true;
+    SwitchFloodSWOForder2 = false;//false;
 
     // get flood level in channel from 1D kin wave channel
-    bool startflood = false;
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
@@ -83,21 +73,83 @@ void TWorld::ChannelFlood(void)
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
     }
 
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            startflood = true;
-            break;
-        }
-    }
+    double sumh_t = 0, sumh_t1 = 0, diff = 0, cells = 1, dtflood;
 
     sumh_t = hmx->mapTotal();
     // sum all levels for mass balance
 
+
+    if (SwitchFloodExplicit)
+    {
+        dtflood = floodExplicit();
+    }
+    if (SwitchFloodSWOForder2)
+    {
+        dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+    }
+
+    if (SwitchFloodSWOForder1)
+    {
+        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+    }
+
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > 0)
+            cells++;
+    }
+
+    sumh_t1 = hmx->mapTotal();
+    diff = (sumh_t - sumh_t1)/cells;
+    double avgh = sumh_t1/cells;
+    debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(dtflood,6,'f',3));
+    // some error reporting
+
+    // put new flood level in channel for next 1D kin wave channel
+    FOR_ROW_COL_MV_CH
+    {
+        if (hmx->Drc > 0)// && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
+        {
+            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
+            if (ChannelMaxQ->Drc > 0)
+            {
+                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
+                hmx->Drc = 0;
+            }
+
+            ChannelWaterVol->Drc = ChannelWH->Drc *
+                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
+        }
+    }
+
+    // floodwater volume and max flood map
+    FloodWaterVol->fill(0);
+    FOR_ROW_COL_MV
+    {
+        if (ChannelDepth->Drc == 0)
+        {
+            FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
+        }
+        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
+        // for output
+    }
+
+    maxflood->report("maxflood.map");
+}
+
+/*
     // if there is no flood skip everything
     if (startflood)
     {
+        int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
+        int dr[9] = {1,1,1,  0, 0, 0,  -1, -1, -1};
+        double courant_number = courant_factor;
+        double froude_limit = 0.8;
+        double gravity = 9.81;
+        double h_min = 1e-6;
+        double timestep = 0;
+        double timestep1 = 0;
+        double timesum = 0;
         // do one _dt with varying timestep based on courant condition
         do {
             // make Hydraulic head, gravity (dem+barriers) + water level
@@ -241,7 +293,6 @@ void TWorld::ChannelFlood(void)
                 {
 //                    Hmx->Drc = qMin(Hmx->Drc, Hmax);
 //                    hmx->Drc = qMin(hmx->Drc, hmax);
-//                    hmx->Drc = qMin(hmx->Drc, maxFloodLevel);
                 }
                 // correct hmx if not channel cell
             }
@@ -252,6 +303,7 @@ void TWorld::ChannelFlood(void)
 //            FOR_ROW_COL_MV
 //                    hmx->Drc = max(0, Hmx->Drc - DEM->Drc - Barriers->Drc);
 */
+/*
             FOR_ROW_COL_MV
                     if (ChannelMaxQ->Drc > 0)
             {
@@ -330,6 +382,7 @@ void TWorld::ChannelFlood(void)
     //            WH->Drc = hmx->Drc;
     //            WHroad->Drc = hmx->Drc;
     //        }
+    //    }
     // put flood water level back in overland flow water level in flooddomain
 
     //    hmx->report("hmx");
@@ -337,40 +390,16 @@ void TWorld::ChannelFlood(void)
     //    Vflood->report("Vf");
     maxflood->report("maxflood.map");
 }
+*/
 
-void TWorld::ChannelFlood1(void)
+
+double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood)
 {
-    if (!SwitchIncludeChannel)
-        return;
-    if (!SwitchChannelFlood)
-        return;
-
-    int dc[4] = {0, -1, 1, 0};
-    int dr[4] = {-1, 0,  0,1};
-    double courant_number = courant_factor;
-    double froude_limit = 0.8;
-    double gravity = 9.81;
-    double h_min = 1e-6;
-    double timestep = 0;
-    double timestep1 = 0;
+    int n = 1;
     double timesum = 0;
-    double sumh_t = 0, sumh_t1 = 0, diff = 0, cells = 1;
-    // NOTE
-    // hmx is flood level is looped
-    // hmx receives net rainfall and decreases with infiltration in infiltrationflood module
-    // there is no runoff in the FloodDOmain
 
     // get flood level in channel from 1D kin wave channel
     bool startflood = false;
-    FOR_ROW_COL_MV_CH
-    {
-        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
-        {
-            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);
-            hmx->Drc = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(_dx-ChannelWidthUpDX->Drc)/_dx;
-        }
-        // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
-    }
 
     FOR_ROW_COL_MV
     {
@@ -381,28 +410,31 @@ void TWorld::ChannelFlood1(void)
         }
     }
 
-    sumh_t = hmx->mapTotal();
-    // sum all levels for mass balance
-
     // if there is no flood skip everything
     if (startflood)
     {
+        int dc[4] = {0, -1, 1, 0};
+        int dr[4] = {-1, 0,  0,1};
+        double courant_number = courant_factor;
+        double froude_limit = 0.8;
+        double gravity = 9.81;
+        double h_min = 1e-6;
+        double timestep = 0;
+
         // do one _dt with varying timestep based on courant condition
         do {
+            n++;
             // make Hydraulic head, gravity (dem+barriers) + water level
-            FOR_ROW_COL_MV
-            {
-                Hmx->Drc = DEM->Drc + Barriers->Drc + hmx->Drc;
-            }
+            // barriers are already in the dem
+            Hmx->calc2Maps(DEM, hmx, ADD);
 
             double maxdepth = qMax(0.01, hmx->mapMaximum());
             // find maxdepth
+
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
-            timestep = qMax(0.001, timestep);
-            timestep = qMax(minFloodDt, timestep);
-            timestep1 = timestep;
-            timestep = qMin(timestep, _dt-timesum);
             // determine timestep
+            timestep = qMax(0.001, timestep);
+            timestep = qMin(timestep, _dt-timesum);
 
             Qxsum->fill(0);
             // map with fluxes to/from central cell
@@ -496,19 +528,17 @@ void TWorld::ChannelFlood1(void)
                 hmx->Drc = max(0, hmx->Drc);
                 if (ChannelMaxQ->Drc > 0)
                     hmx->Drc = 0;
-                    // no flood in culvert cells
+                // no flood in culvert cells
             }
 
 
             // find current flood domain (hmx > 0) and nr of flooded cells
             // used in the other processes, infiltration, runoff etc
-            cells = 1;
             FOR_ROW_COL_MV
             {
                 if (hmx->Drc > 0)
                 {
                     FloodDomain->Drc = 1;
-                    cells++;
                 }
                 else
                     FloodDomain->Drc = 0;
@@ -521,12 +551,6 @@ void TWorld::ChannelFlood1(void)
         // continue while _dt is not reached
     }
 
-    sumh_t1 = hmx->mapTotal();
-    diff = (sumh_t - sumh_t1)/cells;
-    double avgh = sumh_t1/cells;
-    debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(timestep1,6,'f',3));
-    // some error reporting
-
     Qflood->fill(0);
     FOR_ROW_COL_MV
             if(hmx->Drc > 0)// && ChannelDepth->Drc == 0)
@@ -536,47 +560,7 @@ void TWorld::ChannelFlood1(void)
         // estimate resulting flux simply by manning
     }
 
-    // put new flood level in channel for next 1D kin wave channel
-    FOR_ROW_COL_MV_CH
-    {
-//        if (hmx->Drc > 0)// && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
-//        {
-//            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
-//            if (ChannelMaxQ->Drc > 0)
-//            {
-//                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
-//                hmx->Drc = 0;
-//            }
-
-//            ChannelWaterVol->Drc = ChannelWH->Drc *
-//                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
-//        }
-    }
-
-    FloodWaterVol->fill(0);
-    FOR_ROW_COL_MV
-    {
-        if (ChannelDepth->Drc == 0)
-        {
-            FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
-        }
-        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
-        // for output
-    }
-
-    //    FOR_ROW_COL_MV
-    //    {
-    //        if(FloodDomain->Drc == 1)
-    //        {
-    //            WH->Drc = hmx->Drc;
-    //            WHroad->Drc = hmx->Drc;
-    //        }
-    // put flood water level back in overland flow water level in flooddomain
-
-    //    hmx->report("hmx");
-    //    Qflood->report("Qf");
-    //    Vflood->report("Vf");
-    maxflood->report("maxflood.map");
+    return(timesum/(n-1));
 }
 
 

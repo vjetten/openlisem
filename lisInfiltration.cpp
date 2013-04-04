@@ -448,13 +448,13 @@ void TWorld::Infiltration(void)
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
         {
             Ksateff->Drc = Ksat1->Drc;
-//            if (SwitchInfilCrust)
-//                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-//            if (SwitchInfilCompact)
-//                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-//            if (SwitchInfilCrust && SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
-                        KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+            //            if (SwitchInfilCrust)
+            //                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+            //            if (SwitchInfilCompact)
+            //                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+            //            if (SwitchInfilCrust && SwitchInfilCompact)
+            Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
+                    KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
             // avg ksat of "normal" surface with crusting and compaction fraction
             // adjust effective infil for crusting and compaction
             //VJ 110106 adapted this calculation
@@ -689,13 +689,13 @@ void TWorld::InfiltrationFlood(void)
             // cumulative infil in m used in G&A infil function
         }
 
-//        if (GrassFraction->Drc > 0)
-//            WHGrass->Drc = hmx->Drc; //???
+        //        if (GrassFraction->Drc > 0)
+        //            WHGrass->Drc = hmx->Drc; //???
 
         FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
 
-//FSurplus->Drc = 0;
+        //FSurplus->Drc = 0;
 
         InfilVol->Drc -= DX->Drc*hmx->Drc*_dx;
         // infil volume is WH before - water after

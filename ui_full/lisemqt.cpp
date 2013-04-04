@@ -768,6 +768,8 @@ void lisemqt::shootScreen()
         QString fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + ".png";
 
         originalPixmap.save(fileName, format.toAscii());
+
+
     }
 }
 //--------------------------------------------------------------------

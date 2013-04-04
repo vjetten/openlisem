@@ -239,8 +239,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
         if (p1.compare("Canopy Openess")==0)           E_CanopyOpeness->setValue(val);
         // VJ 110209 canopy openess, factor Aston as user input
-        if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
-        if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
+     //   if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
+     //   if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
 
         //VJ 111120 water repellency
         if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
@@ -541,8 +541,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
-        if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
-        if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
+     //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
+     //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
 
         if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
         if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);

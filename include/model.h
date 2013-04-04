@@ -211,7 +211,8 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum;
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -238,8 +239,8 @@ public:
     double StripN;
     double StemflowFraction;
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
-    double maxFloodLevel;
-    double minFloodDt;
+//    double maxFloodLevel;
+//    double minFloodDt;
     double waterRep_a;
     double waterRep_b;
     double waterRep_c;
@@ -255,6 +256,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
+    double floodTotmm;
     /// peak times (min)
     double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
@@ -345,29 +347,34 @@ public:
     void GetRunFile(void);
     MapListStruct qx[9];
 
+    //FLOOD according to LISFLOOD
+    double floodExplicit();//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood);
     //FLOOD according to FULLSWOF2D
-    void fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
-    void boundary();
+    double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double limiter(double a, double b);
-    void initMUSCL(TMMap *z);
     void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z,
                TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
                TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
                TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-    void bloc1(double cflfix, double T, double tps,
-               double dt_max, double dt, double &dt_cal, double cfl_new);
-    void bloc2(TMMap *he, TMMap *ve1, TMMap *ve2, TMMap *qe1, TMMap *qe2,
-               TMMap *hes, TMMap *ves1, TMMap *ves2, TMMap *qes1, TMMap *qes2);
+//    void bloc1(double cflfix, double T, double tps,
+//               double dt_max, double dt, double &dt_cal, double cfl_new);
+    double bloc1(double dt, double dt_max);
+
+    void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, TMMap *qe2,*/
+               TMMap *hes, TMMap *ves1, TMMap *ves2);//, TMMap *qes1, TMMap *qes2);
     //, TMMap *Vin,double tps, double, int n, double dtheta )
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
     void Fr_ManningSf(double h, double u, double v, double cf);
-
+    void setZero(TMMap *h, TMMap *u, TMMap *v, TMMap *q1, TMMap *q2);
 
     void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
+    void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
-    double dt_tmp, dt_max, dt_fix, T, dt1, dt, tps, tx, ty;
-    double dx, dy;
+    double dt1, dx, dy, dt_max, tx, ty;
     double q1mod, q2mod, Sf1, Sf2;
+    bool prepareFlood;
+
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries

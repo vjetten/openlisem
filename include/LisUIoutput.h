@@ -49,7 +49,7 @@ struct output{
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
     RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, Qtile, Qpeak,
     ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-    WHflood, Qflood,
+    WHflood, Qflood, volFloodmm,
     BufferVolTot, BufferSedTot,
     QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 

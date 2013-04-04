@@ -263,5 +263,6 @@ void lisemqt::initOP()
     op.BufferVolTot = 0;
     op.BufferSedTot = 0;
 
+    op.volFloodmm = 0;
 }
 //---------------------------------------------------------------------------

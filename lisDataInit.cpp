@@ -424,6 +424,7 @@ void TWorld::InitBuffers(void)
 }
 //---------------------------------------------------------------------------
 // read and Intiialize all channel variables and maps
+//WARNING barriers are added here!!!!
 void TWorld::InitShade(void)
 {
     Shade = NewMap(0);
@@ -570,6 +571,10 @@ void TWorld::InitChannel(void)
                 qx[i].m = NULL;
             for (int i = 0; i < 9; i++)
                 qx[i].m = NewMap(0);
+            SwitchFloodExplicit = true;
+            SwitchFloodSWOForder1 = false;
+            SwitchFloodSWOForder2 = false;
+            prepareFlood = true;
 
             Vflood = NewMap(0);
             Qflood = NewMap(0);
@@ -593,16 +598,19 @@ void TWorld::InitChannel(void)
             ChannelMaxQ->cover(LDD,0);
             courant_factor = getvaluedouble("Flooding courant factor");
 
-//            h_1_0 = NewMap(0);
-//            v_1_0 = NewMap(0);
-//            u_1_0 = NewMap(0);
-//            h_1_0 = NewMap(0);
-//            v_1_0 = NewMap(0);
-//            u_1_0 = NewMap(0);
-//FULLSWOF2D
+            //            h_1_0 = NewMap(0);
+            //            v_1_0 = NewMap(0);
+            //            u_1_0 = NewMap(0);
+            //            h_1_0 = NewMap(0);
+            //            v_1_0 = NewMap(0);
+            //            u_1_0 = NewMap(0);
+            //FULLSWOF2D
             hs = NewMap(0);
             vs = NewMap(0);
             us = NewMap(0);
+            hsa = NewMap(0);
+            vsa = NewMap(0);
+            usa = NewMap(0);
             qs1 = NewMap(0);
             qs2 = NewMap(0);
             z1r = NewMap(0);
@@ -637,6 +645,11 @@ void TWorld::InitChannel(void)
             h1g = NewMap(0);
             h2d = NewMap(0);
             h2g = NewMap(0);
+
+            Uflood = NewMap(0);
+            q1flood = NewMap(0);
+            //Vflood = NewMap(0);
+            q2flood = NewMap(0);
 
 
         }
@@ -674,8 +687,8 @@ void TWorld::GetInputData(void)
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
-    maxFloodLevel = getvaluedouble("Max flood level");
-    minFloodDt = getvaluedouble("Min flood dt");
+  //  maxFloodLevel = getvaluedouble("Max flood level");
+  //  minFloodDt = getvaluedouble("Min flood dt");
     //VJ 110829 water repellency
     waterRep_a = getvaluedouble("Water Repellency A");
     waterRep_b = getvaluedouble("Water Repellency B");
@@ -1069,6 +1082,8 @@ void TWorld::IntializeData(void)
     WaterVolTot = 0;
     WaterVolSoilTot = 0;
     WaterVolTotmm = 0;
+    floodTotmm= 0;
+
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilVolCum = NewMap(0);

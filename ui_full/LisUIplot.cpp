@@ -392,7 +392,8 @@ void lisemqt::showOutputData()
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
-    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
+    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));    
+    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
     // buffers
     if (checkBuffers->isChecked())

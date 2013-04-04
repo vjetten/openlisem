@@ -138,6 +138,7 @@ void TWorld::OutputUI(void)
     op.C = TotalConc->DrcPlot; //Outlet;
     op.Qtile = 1000*TileQn->DrcPlot; //Outlet;
     // VJ 110630 show hydrograph for selected output point
+    op.volFloodmm = floodTotmm;
 
     op.BufferVolTot = BufferVolin;//Tot;
     op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition

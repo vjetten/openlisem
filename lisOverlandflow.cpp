@@ -112,21 +112,16 @@ void TWorld::CalcVelDisch(void)
         else
             Q->Drc = 0;
 
-        if (SwitchChannelFlood)
-        {
-//            if (hmx->Drc > 1.0)
+//        if (SwitchChannelFlood)
+//        {
+//            if (FloodDomain->Drc == 1)
+////            if (ChannelWH->Drc >= ChannelDepth->Drc)
 //            {
-//                Q->Drc = 0;
-//                Alpha->Drc = 0;
+//         //       Q->Drc = 0;
+//         //       Alpha->Drc = 0;
 //                //no overlandflow activity in flooddomain
 //            }
-//            if (ChannelWH->Drc >= ChannelDepth->Drc)
-//            {
-//                Q->Drc = 0;
-//                Alpha->Drc = 0;
-//                //no overlandflow activity in flooddomain
-//            }
-        }
+//        }
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
     }
