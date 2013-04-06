@@ -92,6 +92,8 @@ void TWorld::CalcVelDisch(void)
         const double _23 = 2.0/3.0;
         double beta1 = 1/beta;
 
+        double NN = N->Drc + qMin(1.0, N->Drc * (1+hmx->Drc)) ;
+
         // avg WH from soil surface and roads, over width FlowWidth
 
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
@@ -105,7 +107,7 @@ void TWorld::CalcVelDisch(void)
         else
             R->Drc = 0;
 
-        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, _23),beta);
+        Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
 
         if (Alpha->Drc > 0)
             Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
@@ -123,7 +125,7 @@ void TWorld::CalcVelDisch(void)
 //            }
 //        }
 
-        V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/N->Drc;
+        V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
     }
 }
 //---------------------------------------------------------------------------

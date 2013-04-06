@@ -238,6 +238,7 @@ TMMap
 *Uflood,
 *q1flood,
 *q2flood,
+*som_z1, *som_z2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

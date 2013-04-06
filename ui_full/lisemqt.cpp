@@ -604,7 +604,7 @@ void lisemqt::GetStorePath()
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             continue;
 
-        qDebug() << line;
+       // qDebug() << line;
         runfilelist << QString(line);
         //E_runFileList->addItem(QString(line));
     }

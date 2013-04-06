@@ -650,7 +650,8 @@ void TWorld::InitChannel(void)
             q1flood = NewMap(0);
             //Vflood = NewMap(0);
             q2flood = NewMap(0);
-
+            som_z1 = NewMap(0);
+            som_z2= NewMap(0);
 
         }
 

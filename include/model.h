@@ -357,8 +357,14 @@ public:
                TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
                TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
                TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-//    void bloc1(double cflfix, double T, double tps,
-//               double dt_max, double dt, double &dt_cal, double cfl_new);
+    void MUSCL2(TMMap *h,TMMap *u,TMMap *v,TMMap *z,
+               TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
+               TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
+               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
+    void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z,TMMap *delzc1,TMMap *delzc2,
+             TMMap *delz1,TMMap *delz2,TMMap *h1r,TMMap *u1r,TMMap *v1r,
+             TMMap *h1l,TMMap *u1l,TMMap *v1l,TMMap *h2r,TMMap *u2r,
+             TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
     double bloc1(double dt, double dt_max);
 
     void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, TMMap *qe2,*/
@@ -370,10 +376,12 @@ public:
 
     void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
     void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
+    void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double dt1, dx, dy, dt_max, tx, ty;
     double q1mod, q2mod, Sf1, Sf2;
     bool prepareFlood;
+    int verif;
 
 
     //input timeseries

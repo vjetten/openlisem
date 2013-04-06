@@ -270,8 +270,14 @@ void lisemqt::defaultRunFile()
     //flooding
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood method explicit");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Flooding courant factor");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Flood method SWOF2D order 1");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood method SWOF2D order 2");
 //    namelist[i].value = QString("10.0");
 //    namelist[i++].name = QString("Max flood level");
 //    namelist[i].value = QString("0.01");
