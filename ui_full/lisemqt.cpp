@@ -144,6 +144,9 @@ void lisemqt::SetConnections()
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+//    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+//    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+//    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -734,6 +737,7 @@ void lisemqt::shootScreen()
     QString format = "png";
     QFileInfo fi(op.runfilename);
     QString fileName;
+//HBITMAP	toWinHBITMAP ( HBitmapFormat format = NoAlpha ) const
 
     if (doShootScreens)
     {
@@ -913,6 +917,13 @@ void lisemqt::resetAll()
     spinKEparameterB3->setValue(0.22);
 
     checkKETimebased->setChecked(false);
+
+    checkFloodExplicit->setChecked(check);
+    checkFloodSWOForder1->setChecked(check);
+    checkFloodSWOForder2->setChecked(check);
+    E_cflFactor->setValue(0.4);
+    E_courantFactor->setValue(0.2);
+
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)

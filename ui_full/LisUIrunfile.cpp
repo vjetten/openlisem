@@ -119,14 +119,19 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
-        if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
+        if (p1.compare("Include channel flooding")==0)
+            checkChannelFlood->setChecked(check);
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
-        //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
+        //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);                  
         //houses
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
-        if (p1.compare("Include flooding")==0)               checkChannelFlood->setChecked(check);
+        // flooding
+        if (p1.compare("Flood method explicit")==0)          checkFloodExplicit->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
+        if (p1.compare("Flood method SWOF2D order 1")==0)    checkFloodSWOForder1->setChecked(check);
+        if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
+        if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -446,7 +451,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
-        if (p1.compare("Flooding courant factor")==0)  namelist[j].value = E_courantFactor->text();
+        if (p1.compare("Flood method explicit")==0)          namelist[j].value.setNum((int)checkFloodExplicit->isChecked());
+        if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
+        if (p1.compare("Flood method SWOF2D order 1")==0)    namelist[j].value.setNum((int)checkFloodSWOForder1->isChecked());
+        if (p1.compare("Flood method SWOF2D order 2")==0)    namelist[j].value.setNum((int)checkFloodSWOForder2->isChecked());
+        if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         //houses

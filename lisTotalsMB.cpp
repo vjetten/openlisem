@@ -138,7 +138,6 @@ void TWorld::Totals(void)
         // add channel outflow (in m3) to total for main outlet
         TotalWatervol->calcMap(ChannelWaterVol,ADD);
         // add channel volume to total for sed conc calc
-        floodTotmm = FloodWaterVol->mapTotal()*catchmentAreaFlatMM;
 
         if (SwitchChannelFlood)
         {
@@ -148,8 +147,8 @@ void TWorld::Totals(void)
                 if (hmx->Drc > 0)
                     totwh = totwh + WH->Drc*_dx*DX->Drc;
             }
+            floodTotmm = FloodWaterVol->mapTotal()*catchmentAreaFlatMM;
         }
-       // floodTotmm = totwh*catchmentAreaFlatMM;
     }
 
     if (SwitchIncludeTile)

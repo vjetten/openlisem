@@ -47,9 +47,9 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    SwitchFloodExplicit = false;//true;
-    SwitchFloodSWOForder1 = false;
-    SwitchFloodSWOForder2 = true;//false;
+//    SwitchFloodExplicit = false;//true;
+//    SwitchFloodSWOForder1 = false;
+//    SwitchFloodSWOForder2 = true;//false;
 
     // get flood level in channel from 1D kin wave channel
     FOR_ROW_COL_MV_CH

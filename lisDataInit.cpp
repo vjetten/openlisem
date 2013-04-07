@@ -567,10 +567,10 @@ void TWorld::InitChannel(void)
 
         if (SwitchChannelFlood)
         {
-            for (int i = 0; i < 9; i++)
-                qx[i].m = NULL;
-            for (int i = 0; i < 9; i++)
-                qx[i].m = NewMap(0);
+//            for (int i = 0; i < 9; i++)
+//                qx[i].m = NULL;
+//            for (int i = 0; i < 9; i++)
+//                qx[i].m = NewMap(0);
             SwitchFloodExplicit = true;
             SwitchFloodSWOForder1 = false;
             SwitchFloodSWOForder2 = false;
@@ -597,6 +597,7 @@ void TWorld::InitChannel(void)
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
             courant_factor = getvaluedouble("Flooding courant factor");
+            cfl_fix = getvaluedouble("Flooding SWOF csf factor");
 
             //            h_1_0 = NewMap(0);
             //            v_1_0 = NewMap(0);
@@ -648,7 +649,6 @@ void TWorld::InitChannel(void)
 
             Uflood = NewMap(0);
             q1flood = NewMap(0);
-            //Vflood = NewMap(0);
             q2flood = NewMap(0);
             som_z1 = NewMap(0);
             som_z2= NewMap(0);

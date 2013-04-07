@@ -345,7 +345,7 @@ public:
     QString GetName(QString p);
     void ParseRunfileData(void);
     void GetRunFile(void);
-    MapListStruct qx[9];
+    //MapListStruct qx[9];
 
     //FLOOD according to LISFLOOD
     double floodExplicit();//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood);
@@ -425,6 +425,7 @@ public:
     void ChannelFlood(void);
     void ChannelFlood1(void);
     double courant_factor;
+    double cfl_fix;
 
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,

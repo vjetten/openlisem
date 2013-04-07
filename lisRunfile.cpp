@@ -180,10 +180,14 @@ void TWorld::ParseRunfileData(void)
       //options in the main code, order is not important
       if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
       if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
-      if (p1.compare("Include channel infil")==0)          SwitchChannelInfil =     iii == 1;
-      if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow =  iii == 1;
-      if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood    =   iii == 1;
-      if (p1.compare("Include tile drains")==0)            SwitchIncludeTile    =   iii == 1;
+      if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
+      if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
+      if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
+      if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
+      if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
+      if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
+      if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
+
       //houses
       if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
       if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;

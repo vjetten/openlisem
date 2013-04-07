@@ -63,7 +63,7 @@ public:
     colorMapYellow():
         QwtLinearColorMap( QColor(BGc), QColor("#cc8800"))//888800"))
     {
-        addColorStop(0.0, Qt::yellow);
+        addColorStop(0.0, QColor("#cc8800"));
     }
 };
 //---------------------------------------------------------------------------
