@@ -221,7 +221,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     if (SwitchErosion)
         _Qsn->fill(0);
     // set output sed flux to 0
- //   _Qn->setMV();
+    //   _Qn->setMV();
     // flag all Qn gridcell with MV
 
     while (list != NULL)
@@ -252,7 +252,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
 
             // check if there are more cells upstream, if not subCatchDone remains true
             if (IS_MV_REAL4(&_Qn->Drc) &&
-                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
                 temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -403,9 +403,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
 
                 _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
-                // GIVES MASS BALANCE ERROR!!!!!!!
-
-            }
+                           }
             /* cell rowN, colNr is now done */
 
             temp=list;
@@ -535,7 +533,6 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
 
             _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
-            // GIVES MASS BALANCE ERROR!!!!!!!
 
             /* cell rowN, colNr is now done */
 
