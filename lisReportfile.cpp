@@ -608,13 +608,11 @@ void TWorld::ReportMaps(void)
                 hmx->report(OutHmx);
             if (outputcheck[13].toInt() == 1)
             {
-                Qflood->calc2Maps(q1flood, q2flood, ADD);
                 Qflood->report(OutQf);
             }
             if (outputcheck[14].toInt() == 1)
             {
-                tm->calc2Maps(Vflood, Uflood, ADD);
-                tm->report(OutVf);
+                UVflood->report(OutVf);
             }
         }
     }

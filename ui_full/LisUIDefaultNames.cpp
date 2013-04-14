@@ -280,6 +280,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood method SWOF2D order 2");
     namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding SWOF csf factor");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("Flooding SWOF scheme");
+    namelist[i].value = QString("0.000");
+    namelist[i++].name = QString("Flood channel side levee");
+
 //    namelist[i].value = QString("10.0");
 //    namelist[i++].name = QString("Max flood level");
 //    namelist[i].value = QString("0.01");
@@ -302,6 +307,8 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Simple depression storage");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Hard Surfaces");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include road system");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Limit TC");
     namelist[i].name = QString("0");

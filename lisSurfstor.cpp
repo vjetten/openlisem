@@ -133,16 +133,6 @@ void TWorld::SurfaceStorage(void)
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
 
-//        if(SwitchChannelFlood)
-//        {
-//            if(FloodDomain->Drc == 1)
-//                WHrunoff->Drc = 0;
-//        }
-
-
-        //CalcVelDisch();
-        // not necessary here
-
         WHrunoffCum->Drc += WHrunoff->Drc * 1000;
         // cumulative runoff for output maps, in mm
 

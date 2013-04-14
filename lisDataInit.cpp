@@ -571,12 +571,12 @@ void TWorld::InitChannel(void)
 //                qx[i].m = NULL;
 //            for (int i = 0; i < 9; i++)
 //                qx[i].m = NewMap(0);
-            SwitchFloodExplicit = true;
-            SwitchFloodSWOForder1 = false;
-            SwitchFloodSWOForder2 = false;
             prepareFlood = true;
+            F_scheme = 3;
+            iter_n = 0;
 
-            Vflood = NewMap(0);
+            FloodVoltoChannel = NewMap(0);
+            UVflood = NewMap(0);
             Qflood = NewMap(0);
             Qxsum = NewMap(0);
             qx0 = NewMap(0);
@@ -596,15 +596,12 @@ void TWorld::InitChannel(void)
             Barriers->cover(LDD,0);
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
+
             courant_factor = getvaluedouble("Flooding courant factor");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
+            F_scheme = getvalueint("Flooding SWOF scheme");
+            F_levee = getvaluedouble("Flood channel side levee");
 
-            //            h_1_0 = NewMap(0);
-            //            v_1_0 = NewMap(0);
-            //            u_1_0 = NewMap(0);
-            //            h_1_0 = NewMap(0);
-            //            v_1_0 = NewMap(0);
-            //            u_1_0 = NewMap(0);
             //FULLSWOF2D
             hs = NewMap(0);
             vs = NewMap(0);
@@ -612,8 +609,6 @@ void TWorld::InitChannel(void)
             hsa = NewMap(0);
             vsa = NewMap(0);
             usa = NewMap(0);
-            qs1 = NewMap(0);
-            qs2 = NewMap(0);
             z1r = NewMap(0);
             z1l = NewMap(0);
             z2r = NewMap(0);
@@ -648,6 +643,7 @@ void TWorld::InitChannel(void)
             h2g = NewMap(0);
 
             Uflood = NewMap(0);
+            Vflood = NewMap(0);
             q1flood = NewMap(0);
             q2flood = NewMap(0);
             som_z1 = NewMap(0);
@@ -789,8 +785,13 @@ void TWorld::GetInputData(void)
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
-    RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-    RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
+    if (SwitchRoadsystem)
+    {
+        RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+        RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
+    }
+    else
+        RoadWidthDX = NewMap(0);
     HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
     HardSurface->calcValue(1.0, MIN);
     HardSurface->calcValue(0.0, MAX);
@@ -1095,6 +1096,7 @@ void TWorld::IntializeData(void)
     fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     FSurplus = NewMap(0);
+    FfSurplus = NewMap(0);
     FFull = NewMap(0);
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)

@@ -129,6 +129,7 @@ TMMap
 
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
+*FfSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
@@ -202,7 +203,7 @@ TMMap
 *ChannelY,                   //!<
 // flood maps
 *ChannelDepth,               //!<
-*Vflood,                     //!<
+*UVflood,                     //!<
 *Qflood,
 *maxflood,
 *Hx,                         //!<
@@ -220,6 +221,7 @@ TMMap
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
 *FloodWaterVol,
+*FloodVoltoChannel,
 
 // FULLSWOF2D
 *z1r, *z1l, *z2r, *z2l,
@@ -234,8 +236,8 @@ TMMap
 *g1, *g2, *g3,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
-*qs1, *qs2,
 *Uflood,
+*Vflood,
 *q1flood,
 *q2flood,
 *som_z1, *som_z2,

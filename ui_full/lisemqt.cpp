@@ -144,9 +144,9 @@ void lisemqt::SetConnections()
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-//    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-//    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-//    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+    //    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+    //    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+    //    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -607,7 +607,7 @@ void lisemqt::GetStorePath()
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             continue;
 
-       // qDebug() << line;
+        // qDebug() << line;
         runfilelist << QString(line);
         //E_runFileList->addItem(QString(line));
     }
@@ -737,7 +737,7 @@ void lisemqt::shootScreen()
     QString format = "png";
     QFileInfo fi(op.runfilename);
     QString fileName;
-//HBITMAP	toWinHBITMAP ( HBitmapFormat format = NoAlpha ) const
+    //HBITMAP	toWinHBITMAP ( HBitmapFormat format = NoAlpha ) const
 
     if (doShootScreens)
     {
@@ -768,9 +768,28 @@ void lisemqt::shootScreen()
         originalPixmap = QPixmap::grabWidget(tabWidget->currentWidget());
 
         QString format = "png";
+        QString type = ".png";
 
-        QString fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + ".png";
+        if (tabWidget->currentIndex() == 2)
+            type = "_q.png";
+        else
+            if (tabWidget->currentIndex() == 3)
+            {
 
+                if (op.drawMapType == 1)
+                    type = QString("_r%1.png").arg(op.runstep,5,'d',0,'0');
+                else
+                    if (op.drawMapType == 2)
+                        type = QString("_i%1.png").arg(op.runstep,5,'d',0,'0');
+                    else
+                        if (op.drawMapType == 3)
+                            type = QString("_e%1.png").arg(op.runstep,5,'d',0,'0');
+                        else
+                            if (op.drawMapType == 4)
+                                type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
+
+            }
+        fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + type;
         originalPixmap.save(fileName, format.toAscii());
 
 
@@ -862,11 +881,12 @@ void lisemqt::resetAll()
     checkChannelInfil->setChecked(check);
     checkChannelBaseflow->setChecked(check);
     checkChannelFlood->setChecked(check);
+    checkRoadsystem->setChecked(check);
     //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
- //   checkAltErosion->setChecked(check);
-  //  checkSimpleDepression->setChecked(check);
+    //   checkAltErosion->setChecked(check);
+    //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
     //houses
     checkHouses->setChecked(check);
@@ -874,7 +894,7 @@ void lisemqt::resetAll()
     // flooded areas
     checkChannelFlood->setChecked(check);
     checkLimitTC->setChecked(check);
- //   checkLimitDepTC->setChecked(check);
+    //   checkLimitDepTC->setChecked(check);
     checkBuffers->setChecked(check);
     checkSedtrap->setChecked(check);
     checkInfilCompact->setChecked(check);

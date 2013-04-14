@@ -173,9 +173,9 @@ void TWorld::DoModel()
          ToTiledrain();       // fraction going into tiledrain directly from surface, , recalc Q and V
          OverlandFlow();      // overland flow kin wave
 
+
          ChannelFlow();       // channel erosion and kin wave
-         ChannelFlood();      // st venant near channel flooding, based on ChannelWH prev timestep
-                              // recalculates WH and channelvol so do first
+         ChannelFlood();      // st venant channel flooding
 
          TileFlow();          // tile drain flow kin wave
 

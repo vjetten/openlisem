@@ -282,6 +282,8 @@ void lisemqt::showMap1()
     maxAxis1 = qMax(maxAxis1, MaxV);
     if (doubleSpinBoxRO->value() > 0)
         maxAxis1 = doubleSpinBoxRO->value();
+/*    else
+        maxAxis1 = MaxV*/;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(0.1, maxAxis1)));
 
     drawMap->setData(RD);
@@ -313,6 +315,8 @@ void lisemqt::showMap2()
     maxAxis2 = qMax(maxAxis2, MaxV);
     if (doubleSpinBoxINF->value() > 0)
         maxAxis2 = doubleSpinBoxINF->value();
+    else
+        maxAxis2 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
 
     // point spectrogram to data
@@ -338,6 +342,8 @@ void lisemqt::showMap3()
     maxAxis3 = qMax(maxAxis3, MaxV);
     if (doubleSpinBoxSL->value() > 0)
         maxAxis3 = doubleSpinBoxSL->value();
+    else
+        maxAxis3 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
 
     drawMap->setData(RD);
@@ -362,6 +368,8 @@ void lisemqt::showMap4()
     maxAxis4 = qMax(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
+    else
+        maxAxis4 = MaxV;
     //    if (doubleSpinBoxFLmin->value() > 0)
     //        MinV = doubleSpinBoxFLmin->value();
 

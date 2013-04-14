@@ -36,6 +36,7 @@ functions: \n
 #include "model.h"
 #include "global.h"
 
+#define Drci Data[r+dr[i]][c+dc[i]]
 
 //---------------------------------------------------------------------------
 
@@ -47,26 +48,20 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-//    SwitchFloodExplicit = false;//true;
-//    SwitchFloodSWOForder1 = false;
-//    SwitchFloodSWOForder2 = true;//false;
-
     // get flood level in channel from 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
+        // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);
-            hmx->Drc = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(_dx-ChannelWidthUpDX->Drc)/_dx;
+
+            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
+            hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
+           // qDebug() << whsurp << hmx->Drc;
         }
-        // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
     }
 
-    double sumh_t = 0, sumh_t1 = 0, diff = 0, cells = 1, dtflood;
-
-    sumh_t = hmx->mapTotal();
-    // sum all levels for mass balance
-
+    double sumh_t1 = 0, cells = 1, dtflood;
 
     if (SwitchFloodExplicit)
     {
@@ -75,41 +70,63 @@ void TWorld::ChannelFlood(void)
     if (SwitchFloodSWOForder2)
     {
         dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+        FOR_ROW_COL_MV
+        {
+            Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*DX->Drc; //???
+            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+        }
     }
 
     if (SwitchFloodSWOForder1)
     {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+        FOR_ROW_COL_MV
+        {
+            Qflood->Drc = (q1flood->Drc + q2flood->Drc)*DX->Drc;
+            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+        }
     }
 
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
-            cells++;
+            FloodDomain->Drc = 1;
+        else
+            FloodDomain->Drc = 0;
     }
 
+    cells = FloodDomain->mapTotal();
+
     sumh_t1 = hmx->mapTotal();
-    diff = (sumh_t - sumh_t1)/cells;
-    double avgh = sumh_t1/cells;
-    debug(QString("Flooding (dt %3): avg h%1, avg err h %2 m").arg(avgh,8,'f',3).arg(diff,8,'e',3).arg(dtflood,6,'f',3));
+    double avgh = sumh_t1/max(1,cells);
+    double area = cells*_dx*_dx;
+    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
 
     // put new flood level in channel for next 1D kin wave channel
+ //   ChannelQn->report("cqn");
     FOR_ROW_COL_MV_CH
     {
-        if (hmx->Drc > 0)// && tmc->Drc == 1)// && ChannelMaxQ->Drc == 0)
+        if (hmx->Drc > F_levee)//!!!!! 0.1 is the channelside levee?
         {
-            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
-            if (ChannelMaxQ->Drc > 0)
+            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc - F_levee;
+            if (ChannelMaxQ->Drc > 0)// && Outlet->Drc == 0)
             {
                 ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
                 hmx->Drc = 0;
             }
 
-            ChannelWaterVol->Drc = ChannelWH->Drc *
-                    ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2) * ChannelDX->Drc;
+            double ChannelArea = ChannelWH->Drc * ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
+       //     double ChannelPerim = 2*ChannelWH->Drc + ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
+
+            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelArea * ChannelDX->Drc;
+
+       //     ChannelQn->Drc = Qflood->Drc;
+            //pow(ChannelArea/ChannelPerim, 2/3)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc;
+
         }
     }
+ //   ChannelQn->report("cqna");
 
     // floodwater volume and max flood map
     FloodWaterVol->fill(0);
@@ -127,11 +144,10 @@ void TWorld::ChannelFlood(void)
 }
 //---------------------------------------------------------------------------
 // explicit LISFLOOD solution Bates et al journal of hydrology 2010
-#define Drci Data[r+dr[i]][c+dc[i]]
 
 double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood)
 {
-    int n = 1;
+    int n = 0;
     double timesum = 0;
 
     // get flood level in channel from 1D kin wave channel
@@ -166,8 +182,10 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
 
             double maxdepth = qMax(0.01, hmx->mapMaximum());
             // find maxdepth
+            double maxv = qMax(0.01, Vflood->mapMaximum());
 
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
+            timestep = courant_number*_dx/(maxv+qSqrt(gravity*maxdepth));
             // determine timestep
             timestep = qMax(0.001, timestep);
             timestep = qMin(timestep, _dt-timesum);
@@ -178,7 +196,7 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
             // flag which cells need processing, flood domain
             // this is the cell where hmx > 0 and any cell adjacent even if dry
             tma->fill(0);
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 4; i++)
             {
                 FOR_ROW_COL_MV
                         if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
@@ -291,12 +309,12 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
     FOR_ROW_COL_MV
             if(hmx->Drc > 0)// && ChannelDepth->Drc == 0)
     {
-        Vflood->Drc = qPow(hmx->Drc, 0.667)*qSqrt(Grad->Drc)/N->Drc;
-        Qflood->Drc = Vflood->Drc * hmx->Drc * _dx;
+        UVflood->Drc = qPow(hmx->Drc, 0.667)*qSqrt(Grad->Drc)/N->Drc;
+        Qflood->Drc = UVflood->Drc * hmx->Drc * DX->Drc;
         // estimate resulting flux simply by manning
     }
 
-    return(timesum/(n-1));
+    return(timesum/(n+1));
 }
 
 /*

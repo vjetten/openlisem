@@ -212,7 +212,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchRoadsystem;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -352,36 +352,41 @@ public:
     //FLOOD according to FULLSWOF2D
     double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double limiter(double a, double b);
-    void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z,
+    void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+    /*
                TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
                TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
                TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-    void MUSCL2(TMMap *h,TMMap *u,TMMap *v,TMMap *z,
+*/
+    void MUSCL2(TMMap *h, TMMap *u,TMMap *v,TMMap *z);
+    /*
                TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
                TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
-               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-    void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z,TMMap *delzc1,TMMap *delzc2,
+               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);*/
+    void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+    /*,TMMap *delzc1,TMMap *delzc2,
              TMMap *delz1,TMMap *delz2,TMMap *h1r,TMMap *u1r,TMMap *v1r,
              TMMap *h1l,TMMap *u1l,TMMap *v1l,TMMap *h2r,TMMap *u2r,
              TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
+*/
     double bloc1(double dt, double dt_max);
-
-    void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, TMMap *qe2,*/
-               TMMap *hes, TMMap *ves1, TMMap *ves2);//, TMMap *qes1, TMMap *qes2);
-    //, TMMap *Vin,double tps, double, int n, double dtheta )
+    void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
     void Fr_ManningSf(double h, double u, double v, double cf);
-    void setZero(TMMap *h, TMMap *u, TMMap *v, TMMap *q1, TMMap *q2);
-
+    void setZero(TMMap *h, TMMap *u, TMMap *v);//, TMMap *q1, TMMap *q2);
     void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
     void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
     void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);
+    int F_scheme;
+    double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double dt1, dx, dy, dt_max, tx, ty;
     double q1mod, q2mod, Sf1, Sf2;
     bool prepareFlood;
     int verif;
+    int iter_n;
 
 
     //input timeseries
@@ -423,7 +428,6 @@ public:
     void ChannelFlowDetachment(void);
     //flood
     void ChannelFlood(void);
-    void ChannelFlood1(void);
     double courant_factor;
     double cfl_fix;
 

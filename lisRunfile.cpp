@@ -183,6 +183,7 @@ void TWorld::ParseRunfileData(void)
       if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
       if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
       if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
+      if (p1.compare("Include road system")==0)       SwitchRoadsystem     = iii == 1;
       if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
       if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
       if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;

@@ -429,7 +429,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 void TWorld::Infiltration(void)
 {
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc == 0)
+    //        if(FloodDomain->Drc == 0)
     {
         WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         // add net to water rainfall on soil surface (in m)
@@ -496,7 +496,7 @@ void TWorld::Infiltration(void)
     // each function deals with grass strips as a separate infiltration process
 
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc == 0)
+      //      if(FloodDomain->Drc == 0)
     {
         if (SwitchBuffers && !SwitchSedtrap)
             if(BufferID->Drc > 0 && BufferVol->Drc > 0)
@@ -553,7 +553,6 @@ void TWorld::Infiltration(void)
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
 
         InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        //	InfilVol->Drc = max(0, InfilVol->Drc);
         // infil volume is WH before - water after
     }
 }
@@ -598,13 +597,14 @@ void TWorld::SoilWater()
     }
 }
 //---------------------------------------------------------------------------
+// do infiltration for flooded area exclusing channel cells
 void TWorld::InfiltrationFlood(void)
 {
     if (!SwitchChannelFlood)
         return;
 
     FOR_ROW_COL_MV
-            if (FloodDomain->Drc == 1)
+            if (FloodDomain->Drc == 1 && ChannelDepth->Drc == 0)
     {
         if (PlantHeight->Drc > hmx->Drc)
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -640,11 +640,12 @@ void TWorld::InfiltrationFlood(void)
             if (SwitchBuffers && !SwitchSedtrap && SwitchBuffersImpermeable)
                 if(BufferID->Drc > 0)
                     Ksateff->Drc = 0;
+
         }
     } //row col
 
     //select an infiltration type,
-    //the infiltration functions call a function to increase the infiltration depth (except swatre)
+    //the infiltration functions call a function to increase the infiltration depth (except swatre)    
     switch (InfilMethod)
     {
     case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
@@ -661,7 +662,7 @@ void TWorld::InfiltrationFlood(void)
     // each function deals with grass strips as a separate infiltration process
 
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc == 1)
+            if(FloodDomain->Drc == 1  && ChannelDepth->Drc == 0)
     {
         if (SwitchBuffers && !SwitchSedtrap)
             if(BufferID->Drc > 0 && BufferVol->Drc > 0)
@@ -692,10 +693,10 @@ void TWorld::InfiltrationFlood(void)
         //        if (GrassFraction->Drc > 0)
         //            WHGrass->Drc = hmx->Drc; //???
 
-        FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
+        FfSurplus->Drc = min(0, fact->Drc - fpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
-
-        //FSurplus->Drc = 0;
+        if (FFull->Drc == 1)
+            FfSurplus->Drc = 0;
 
         InfilVol->Drc -= DX->Drc*hmx->Drc*_dx;
         // infil volume is WH before - water after

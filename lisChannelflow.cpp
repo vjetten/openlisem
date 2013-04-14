@@ -84,9 +84,9 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
-        if (SwitchChannelFlood)
-            if (ChannelMaxQ->Drc > 0)
-                ChannelQ->Drc  = min(ChannelQ->Drc, ChannelMaxQ->Drc);
+//        if (SwitchChannelFlood)
+//            if (ChannelMaxQ->Drc > 0)
+//                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
 
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
     }
@@ -107,7 +107,9 @@ void TWorld::ChannelFlow(void)
         Channelq->Drc = 0;
         ChannelWH->Drc = 0;
 
+
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+
         // add inflow to channel
         ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
@@ -151,11 +153,11 @@ void TWorld::ChannelFlow(void)
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
         }
 
-        if (SwitchChannelFlood)
-        {
-            if (ChannelMaxQ->Drc > 0)
-                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
-        }
+//        if (SwitchChannelFlood)
+//        {
+//            if (ChannelMaxQ->Drc > 0)
+//                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
+//        }
 
         if (ChannelWidthUpDX->Drc > _dx)
         {
@@ -209,7 +211,9 @@ void TWorld::ChannelFlow(void)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-
+            if (SwitchChannelFlood)
+                if (ChannelMaxQ->Drc > 0)
+                    ChannelQn->Drc  = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
             /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known
@@ -228,8 +232,12 @@ void TWorld::ChannelFlow(void)
     FOR_ROW_COL_MV_CH
     {
         double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
-        // in buffers ChannelQn = 0;
-        //qDebug() << ChannelArea << ChannelWidthUpDX->Drc << ChannelWidth->Drc;
+
+        if (SwitchChannelFlood)
+        {
+            if (ChannelMaxQ->Drc > 0)
+                ChannelArea = qMin(ChannelArea,ChannelWidthUpDX->Drc*ChannelDepth->Drc);
+        }
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
         // water height is not used except for output i.e. watervolume is cycled
