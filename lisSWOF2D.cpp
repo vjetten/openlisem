@@ -1075,21 +1075,21 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
 
             FOR_ROW_COL_MV_MV
             {
-                h1r->Drc = hs->Drc;
-                u1r->Drc = us->Drc;
-                v1r->Drc = vs->Drc;
-                h1l->Data[r][c-1] = hs->Data[r][c-1];
-                u1l->Data[r][c-1] = us->Data[r][c-1];
-                v1l->Data[r][c-1] = vs->Data[r][c-1];
+                h1l->Drc = hs->Drc;
+                u1l->Drc = us->Drc;
+                v1l->Drc = vs->Drc;
+                h1r->Data[r][c-1] = hs->Data[r][c-1];
+                u1r->Data[r][c-1] = us->Data[r][c-1];
+                v1r->Data[r][c-1] = vs->Data[r][c-1];
             }
             FOR_ROW_COL_MV_MV
             {
-                h2r->Drc = hs->Drc;
-                u2r->Drc = us->Drc;
-                v2r->Drc = vs->Drc;
-                h2l->Data[r-1][c] = hs->Data[r-1][c];
-                u2l->Data[r-1][c] = us->Data[r-1][c];
-                v2l->Data[r-1][c] = vs->Data[r-1][c];
+                h2l->Drc = hs->Drc;
+                u2l->Drc = us->Drc;
+                v2l->Drc = vs->Drc;
+                h2r->Data[r-1][c] = hs->Data[r-1][c];
+                u2r->Data[r-1][c] = us->Data[r-1][c];
+                v2r->Data[r-1][c] = vs->Data[r-1][c];
             }
 
             dt1 = bloc1(dt1, dt_max);
@@ -1101,12 +1101,12 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
 
             FOR_ROW_COL_MV
             {
-                double tmp = 0.5*(hs->Drc+hsa->Drc);
+                double tmp = 0.5*(h->Drc+hsa->Drc);
                 if (tmp >= he_ca)
                 {
-                    q1->Drc = 0.5*(hs->Drc*us->Drc + hsa->Drc*usa->Drc);
+                    q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
                     u->Drc = q1->Drc/tmp;
-                    q2->Drc = 0.5*(hs->Drc*vs->Drc + hsa->Drc*vsa->Drc);
+                    q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
                     v->Drc = q2->Drc/tmp;
                     h->Drc = tmp;
                 }

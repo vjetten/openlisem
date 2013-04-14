@@ -54,7 +54,6 @@ void TWorld::ChannelFlood(void)
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-
             double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
             hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
            // qDebug() << whsurp << hmx->Drc;
@@ -104,13 +103,12 @@ void TWorld::ChannelFlood(void)
     // some error reporting
 
     // put new flood level in channel for next 1D kin wave channel
- //   ChannelQn->report("cqn");
     FOR_ROW_COL_MV_CH
     {
-        if (hmx->Drc > F_levee)//!!!!! 0.1 is the channelside levee?
+        if (hmx->Drc > F_levee)  //!!!!!
         {
             ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc - F_levee;
-            if (ChannelMaxQ->Drc > 0)// && Outlet->Drc == 0)
+            if (ChannelMaxQ->Drc > 0)
             {
                 ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
                 hmx->Drc = 0;
@@ -119,14 +117,13 @@ void TWorld::ChannelFlood(void)
             double ChannelArea = ChannelWH->Drc * ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
        //     double ChannelPerim = 2*ChannelWH->Drc + ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 
-            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelArea * ChannelDX->Drc;
+            ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
 
-       //     ChannelQn->Drc = Qflood->Drc;
+            ChannelQn->Drc = Qflood->Drc;
             //pow(ChannelArea/ChannelPerim, 2/3)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc;
 
         }
     }
- //   ChannelQn->report("cqna");
 
     // floodwater volume and max flood map
     FloodWaterVol->fill(0);
@@ -285,19 +282,6 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
                 // no flood in culvert cells
             }
 
-
-            // find current flood domain (hmx > 0) and nr of flooded cells
-            // used in the other processes, infiltration, runoff etc
-            FOR_ROW_COL_MV
-            {
-                if (hmx->Drc > 0)
-                {
-                    FloodDomain->Drc = 1;
-                }
-                else
-                    FloodDomain->Drc = 0;
-            }
-
             timesum = timesum + timestep;
             // sum to reach _dt
 
@@ -314,6 +298,7 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
         // estimate resulting flux simply by manning
     }
 
+    iter_n = n;
     return(timesum/(n+1));
 }
 
