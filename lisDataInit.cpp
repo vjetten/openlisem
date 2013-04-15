@@ -785,6 +785,7 @@ void TWorld::GetInputData(void)
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
+
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
@@ -792,6 +793,7 @@ void TWorld::GetInputData(void)
     }
     else
         RoadWidthDX = NewMap(0);
+
     HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
     HardSurface->calcValue(1.0, MIN);
     HardSurface->calcValue(0.0, MAX);
@@ -1085,6 +1087,7 @@ void TWorld::IntializeData(void)
     WaterVolSoilTot = 0;
     WaterVolTotmm = 0;
     floodTotmm= 0;
+    FloodVolTot = 0;
 
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);

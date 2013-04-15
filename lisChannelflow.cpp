@@ -107,11 +107,11 @@ void TWorld::ChannelFlow(void)
         Channelq->Drc = 0;
         ChannelWH->Drc = 0;
 
-
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
 
         // add inflow to channel
-        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+        if (FloodDomain->Drc == 0)
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -134,15 +134,15 @@ void TWorld::ChannelFlow(void)
    \  |            |  /
     \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
      \|____________|/
-   area = vol/dx = h*w + h*dw
+   area = h*w + h*dw
    dw = h*tan(a)
-   vol/dx = w*h + dw*h = w*h + tan(a)*h*h
-   tan(a)h^2 + wh - vol/dx = 0
-     aa (h2)   +   bb(h) +  cc
+   area = wh+tan(a)h^2
+   tan(a)h^2 + wh - area = 0
+   aa (h2)   +   bb(h) +  cc = 0
 */
             double aa = ChannelSide->Drc;  //=tan(a)
             double bb = ChannelWidth->Drc; //=w
-            double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=vol/DX
+            double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=area
 
             ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
             if (ChannelWH->Drc < 0)
@@ -170,14 +170,14 @@ void TWorld::ChannelFlow(void)
             throw 1;
         }
 
-        ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
+        ChannelWidthUpDX->Drc = min(0.95*_dx, ChannelWidthUpDX->Drc);
         // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
         // cannot be more than 0.9*_dx
 
-        if (RoadWidthDX->Drc > 0)
-            ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
-        // channel cannot be wider than _dx-road
-        /* TODO zit al in gridcell, nodig hier? */
+//        if (RoadWidthDX->Drc > 0)
+//            ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
+//        // channel cannot be wider than _dx-road
+//        /* TODO zit al in gridcell, nodig hier? */
 
         if (SwitchChannelInfil)
         {
@@ -198,9 +198,7 @@ void TWorld::ChannelFlow(void)
         ChannelFlowDetachment();
 
         FOR_ROW_COL_MV_CH
-        {
             ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
-        }
     }
 
     ChannelQn->setMV();

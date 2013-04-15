@@ -84,7 +84,8 @@ void TWorld::OutputUI(void)
     op.baseMap->copy(Shade);
     if (SwitchIncludeChannel)
         op.channelMap->copy(ChannelWidth);
-    op.roadMap->copy(RoadWidthDX);
+    if (SwitchRoadsystem)
+        op.roadMap->copy(RoadWidthDX);
 
     op.dx = _dx;
     op.MB = MB;

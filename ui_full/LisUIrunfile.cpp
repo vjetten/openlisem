@@ -131,6 +131,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method explicit")==0)          checkFloodExplicit->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
         if (p1.compare("Flood method SWOF2D order 1")==0)    checkFloodSWOForder1->setChecked(check);
+        if (p1.compare("Flood method SWOF2D order 1a")==0)    checkFloodSWOForder1a->setChecked(check);
         if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
         if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
@@ -458,6 +459,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood method explicit")==0)          namelist[j].value.setNum((int)checkFloodExplicit->isChecked());
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Flood method SWOF2D order 1")==0)    namelist[j].value.setNum((int)checkFloodSWOForder1->isChecked());
+        if (p1.compare("Flood method SWOF2D order 1a")==0)    namelist[j].value.setNum((int)checkFloodSWOForder1a->isChecked());
         if (p1.compare("Flood method SWOF2D order 2")==0)    namelist[j].value.setNum((int)checkFloodSWOForder2->isChecked());
         if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();

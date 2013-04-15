@@ -939,10 +939,12 @@ void lisemqt::resetAll()
     checkKETimebased->setChecked(false);
 
     checkFloodExplicit->setChecked(check);
-    checkFloodSWOForder1->setChecked(check);
+    checkFloodSWOForder1->setChecked(true);
+    checkFloodSWOForder1a->setChecked(check);
     checkFloodSWOForder2->setChecked(check);
     E_cflFactor->setValue(0.4);
     E_courantFactor->setValue(0.2);
+    E_courantFactor->setEnabled(false);
 
 }
 //--------------------------------------------------------------------

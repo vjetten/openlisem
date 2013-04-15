@@ -212,7 +212,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchRoadsystem;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder1a, SwitchFloodSWOForder2, SwitchRoadsystem;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -248,7 +248,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, FloodVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -384,7 +384,7 @@ public:
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double dt1, dx, dy, dt_max, tx, ty;
     double q1mod, q2mod, Sf1, Sf2;
-    bool prepareFlood;
+    bool prepareFlood, startFlood;
     int verif;
     int iter_n;
 
