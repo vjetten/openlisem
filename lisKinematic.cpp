@@ -604,7 +604,7 @@ void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
 
         if (subCachDone)
         {
-            double edge = 1;
+            double edge = 0;
 
             for (i=1;i<=9;i++)
             {
@@ -633,7 +633,8 @@ void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
 
 
             if (edge > 0)
-                FloodDomain->Data[rowNr][colNr] = edge;
+                FloodDomain->Data[rowNr][colNr] = 2;
+
             tm->Data[rowNr][colNr] = 1;
 
             temp=list;

@@ -48,7 +48,6 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-
     // get flood level in channel from 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
@@ -57,7 +56,23 @@ void TWorld::ChannelFlood(void)
         {
             double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
             hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
-           // qDebug() << whsurp << hmx->Drc;
+            // qDebug() << whsurp << hmx->Drc;
+        }
+    }
+
+    FOR_ROW_COL_MV
+    {
+        if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
+        {
+            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
+//            if(hmx->Drc > 0)
+//            {
+                double f = 1.0;//qMin(1.0, hmx->Drc/(wh+0.001));
+                hmx->Drc += wh*f;
+                WH->Drc *= (1-f);
+                WHroad->Drc *= (1-f);
+                WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+//            }
         }
     }
 
@@ -107,11 +122,12 @@ void TWorld::ChannelFlood(void)
 
     cells = FloodDomain->mapTotal();
 
-    FOR_ROW_COL_MV
-    {
-        if (LDD->Drc == 5)
-            findFlood(r,c, LDD);
-    }
+    //    FOR_ROW_COL_MV
+    //    {
+    //        if (LDD->Drc == 5)
+    //            findFlood(r,c, LDD);
+    //    }
+
 
 
     sumh_t1 = hmx->mapTotal();
@@ -133,7 +149,7 @@ void TWorld::ChannelFlood(void)
             }
 
             double ChannelArea = ChannelWH->Drc * ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
-           // double ChannelPerim = 2*ChannelWH->Drc + ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
+            // double ChannelPerim = 2*ChannelWH->Drc + ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 
             ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
 
@@ -154,6 +170,8 @@ void TWorld::ChannelFlood(void)
     }
 
     maxflood->report("maxflood.map");
+
+
 }
 //---------------------------------------------------------------------------
 // explicit LISFLOOD solution Bates et al journal of hydrology 2010

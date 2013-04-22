@@ -43,7 +43,7 @@ void TWorld::ToFlood(void)
 
 
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc > 1)
+            if(FloodDomain->Drc == 2 && ChannelDepth->Drc == 0)
     {
         double fractiontoflood = min(_dt*V->Drc/(max(0.01,_dx)), 1.0);
         double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
@@ -117,18 +117,14 @@ void TWorld::CalcVelDisch(void)
 
         double NN = N->Drc;
 
-        if (SwitchChannelFlood)
-            //          NN = qMin(1.0,N->Drc * qExp(1.2*hmx->Drc));
-            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
+//        if (SwitchChannelFlood)
+//            //          NN = qMin(1.0,N->Drc * qExp(1.2*hmx->Drc));
+//            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
 
         // avg WH from soil surface and roads, over width FlowWidth
 
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
 
-        //        if (SwitchChannelFlood)
-        //        {
-        //            Perim = 2*hmx->Drc+_dx;
-        //        }
         if (Perim > 0)
             R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
         else
