@@ -107,6 +107,13 @@ void TWorld::ChannelFlood(void)
 
     cells = FloodDomain->mapTotal();
 
+    FOR_ROW_COL_MV
+    {
+        if (LDD->Drc == 5)
+            findFlood(r,c, LDD);
+    }
+
+
     sumh_t1 = hmx->mapTotal();
     double avgh = sumh_t1/max(1,cells);
     double area = cells*_dx*_dx;

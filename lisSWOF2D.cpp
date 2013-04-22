@@ -419,7 +419,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
 //rec->calcul(h,u,v,z,delzc1,delzc2,delz1,delz2,h1r,u1r,v1r,h1l,u1l,v1l,h2r,u2r,v2r,h2l,u2l,v2l);
 
 void TWorld::MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
-/*,
+/*
                    TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
                    TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
                    TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l)
@@ -1024,7 +1024,8 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
         do {
             n++;
 
-            dt1 = min(dt1*qSqrt(double(n)), dt_max);
+//            dt1 = min(dt1*qSqrt(double(n)), dt_max);
+            dt1 = min(dt1*n, dt_max);
 
             setZero(h, u, v);//, q1, q2);
 

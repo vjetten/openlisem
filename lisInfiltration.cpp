@@ -604,7 +604,7 @@ void TWorld::InfiltrationFlood(void)
         return;
 
     FOR_ROW_COL_MV
-            if (FloodDomain->Drc == 1 && ChannelDepth->Drc == 0)
+            if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
     {
         if (PlantHeight->Drc > hmx->Drc)
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -662,7 +662,7 @@ void TWorld::InfiltrationFlood(void)
     // each function deals with grass strips as a separate infiltration process
 
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc == 1  && ChannelDepth->Drc == 0)
+            if(FloodDomain->Drc > 0  && ChannelDepth->Drc == 0)
     {
         if (SwitchBuffers && !SwitchSedtrap)
             if(BufferID->Drc > 0 && BufferVol->Drc > 0)

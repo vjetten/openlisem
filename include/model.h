@@ -416,6 +416,7 @@ public:
     void OverlandFlow(void);
     void ChannelFlow(void);
     void ToChannel(void);
+    void ToFlood(void);
     void CalcVelDisch(void);
     void CalcVelDischChannel(void);
     void ToTiledrain(void);
@@ -440,9 +441,10 @@ public:
                           double Sji1, double alpha, double dt, double dx);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
-    void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
+    void routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                                 TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
                                 TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed);
+    void findFlood(int pitRowNr, int pitColNr, TMMap *_LDD);
 
     // alternative kin wave based on a pre-sorted network
     bool useSorted;

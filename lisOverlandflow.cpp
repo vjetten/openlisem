@@ -36,6 +36,28 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
+void TWorld::ToFlood(void)
+{
+    if (!SwitchChannelFlood)
+        return;
+
+
+    FOR_ROW_COL_MV
+            if(FloodDomain->Drc > 1)
+    {
+        double fractiontoflood = min(_dt*V->Drc/(max(0.01,_dx)), 1.0);
+        double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+        hmx->Drc += fractiontoflood*Volume/(_dx*DX->Drc);
+        // water diverted to the flood domain
+        WHrunoff->Drc *= (1-fractiontoflood);
+        // adjust water height
+    }
+
+    CalcVelDisch();
+    // recalc velocity and discharge
+}
+//---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
 {
@@ -64,6 +86,7 @@ void TWorld::ToChannel(void)
                 if (ChannelMaxQ->Drc > 0)
                     fractiontochannel = 0;
                 // no surface inflow when culverts and bridges
+
             }
 
             RunoffVolinToChannel->Drc = fractiontochannel*Volume;
@@ -95,17 +118,17 @@ void TWorld::CalcVelDisch(void)
         double NN = N->Drc;
 
         if (SwitchChannelFlood)
-    //          NN = qMin(1.0,N->Drc * qExp(1.2*hmx->Drc));
-      NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
+            //          NN = qMin(1.0,N->Drc * qExp(1.2*hmx->Drc));
+            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
 
         // avg WH from soil surface and roads, over width FlowWidth
 
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
 
-//        if (SwitchChannelFlood)
-//        {
-//            Perim = 2*hmx->Drc+_dx;
-//        }
+        //        if (SwitchChannelFlood)
+        //        {
+        //            Perim = 2*hmx->Drc+_dx;
+        //        }
         if (Perim > 0)
             R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
         else
@@ -122,8 +145,8 @@ void TWorld::CalcVelDisch(void)
         {
             if (ChannelWH->Drc >= ChannelDepth->Drc)
             {
-         //       Q->Drc = 0;
-         //       Alpha->Drc = 0;
+                //       Q->Drc = 0;
+                //       Alpha->Drc = 0;
                 //no overlandflow activity in flooddomain
             }
         }
@@ -201,8 +224,8 @@ void TWorld::OverlandFlow(void)
         double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
-//        if (FloodDomain->Drc == 1)
-//            diff = 0;
+        //        if (FloodDomain->Drc > 0)
+        //            diff = 0;
 
         //		if (InfilMethod == INFIL_NONE)
         //		{

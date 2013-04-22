@@ -293,6 +293,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                         !IS_MV_REAL4(&_LDD->Drc) )
                 {
                     Qin += _Qn->Drc; //_Qn->Drc;
+
                     if (SwitchErosion)
                         Sin += _Qsn->Drc; //_Qsn->Drc;
 
@@ -403,7 +404,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
 
                 _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
-                           }
+            }
             /* cell rowN, colNr is now done */
 
             temp=list;
@@ -545,112 +546,102 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
     } /* eowhile list != NULL */
 }
 
-//void TWorld::SaintVenant(void)
-////Appendix I. Source code for explicit solution of Saint-Venant equations
-//{
-//#include "stdio.h"
-//#include "math.h"
-//   main()
-//   {
-//      FILE *in;
-//      FILE *out;
-//      int i,j,k,n;
-//      double timein[100];
-//      double qinn[100];
-//      double depth[200][2];
-//      double velocity[200][2];
-//      double time, y, u, alpha, beta, q, dummy;
-//      double timestep = 3.0;
-//      double deltax = 50.0;
-//      double slope = 0.005;
-//      double manning = 30.0;
-//      int sections = 99;
-//      in = fopen("inflow","r");
-//      out = fopen("outflow","w");
-//      fclose(out);
-//      /* reading time series */
-//      n=0;
-//      for(j=0;j<100;j++) {
-//         if(fscanf(in,"%lf %lf",&timein[j], &qinn[j]) != 2) break;
-//         n++;
-//      }
-//      fclose(in);
-//      /* initialization */
-//      y = pow (qinn[0]/(manning*sqrt(slope)),0.6);
-//      u = qinn[0] / y;
-//      for(i=0;i<sections+1;i++) {
-//         depth[i][0] = y;
-//         depth[i][1] = y;
-//         velocity[i][0] = u;
-//         velocity[i][1] = u;
-//      }
-//      /* main loop */
-//      time = timein[0];
-//      for(j=0;j<=1000;j++)
-//      {
-//         //Numerical Modelling and Hydraulics 131
-//               /* boundary conditions */
-//               for(k=0;k<n;k++) if(timein[k]>time) break;
-//         beta = (timein[k] - time) / (timein[k] - timein[k-1]);
-//         q = qinn[k-1] * beta + qinn[k] * (1.0-beta);
-//         y = pow (q/(manning*sqrt(slope)),0.6);
-//         u = q / y;
-//         velocity[0][0] = u;
-//         velocity[0][1] = u;
-//         depth[0][0] = y;
-//         depth[0][1] = y;
-//         velocity[sections][0] = velocity[sections-1][1];
-//         depth[sections][0] = depth[sections-1][1];
-//         /* first computation of the water depth, according to Eq. 3.4.5 */
-//         for(i=1;i<sections;i++) {
-//            depth[i][1] = depth[i][0] - timestep / (2.0 * deltax) * (velocity[i][0] *
-//                                                                     (depth[i+1][0] - depth[i-1][0]) + depth[i][0] *
-//                                                                     (velocity[i+1][0] - velocity[i-1][0]));
-//         }
-//         /* compute the water velocity */
-//         for(i=1;i<sections;i++) {
-//            dummy = - velocity[i][0] * timestep * 0.5 / deltax
-//                  * (velocity[i+1][0] - velocity[i-1][0]);
-//            dummy += - 9.81 * (timestep * 0.5 / deltax) * (depth[i+1][0] -
-//                                                           depth[i-1][0]);
-//            dummy += 9.81 * slope * timestep;
-//            dummy += - velocity[i][0] * velocity[i][0] * timestep * 9.81
-//                  / (pow(depth[i][0],1.3333) * manning * manning);
-//            velocity[i][1] = velocity[i][0] + dummy;
-//         }
-//         /* depth according to continuity - control volume approach*/
-//         for(i=1;i<sections;i++) {
-//            u = 0.5 * (velocity[i][0] + velocity[i][1]);
-//            depth[i][1] =
-//                  (0.25 * (velocity[i-1][1] + velocity[i-1][0]) *
-//                   (depth[i-1][1]+depth[i-1][0])
-//                   + depth[i][0] * (deltax / timestep - 0.5 * u ))
-//                  / (deltax / timestep + 0.5 * u );
-//         }
-//         /* updating variables */
-//         for(i=1;i<sections;i++) {
-//            velocity[i][0] = velocity[i][1];
-//            depth[i][0] = depth[i][1];
-//         }
-//         Numerical Modelling and Hydraulics 132
-//               /* printing */
-//               time = time+timestep;
-//         out = fopen("outflow","a");
-//         fprintf(out,"%lf ", time);
-//         fprintf(out,"%lf ",velocity[0][1]*depth[0][1]);
-//         fprintf(out,"%lf ",velocity[1][1]*depth[1][1]);
-//         fprintf(out,"%lf ",velocity[sections/4][1]*depth[sections/4][1]);
-//         fprintf(out,"%lf ",velocity[sections/2][1]*depth[sections/2][1]);
-//         fprintf(out,"%lf ",velocity[sections-1][1]*depth[sections-1][1]);
-//         fprintf(out,"\n");
-//         fclose(out);
-//      }
-//   }
-//   INFLOW FILE:
-//      0.0 10.0
-//      100.0 15.0
-//      200.0 20.0
-//      300.0 15.0
-//      400.0 10.0
-//      10000.0 10.0
-//}
+void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+    LDD_LINKEDLIST *list = NULL, *temp = NULL;
+    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+    list->prev = NULL;
+    /// start gridcell: outflow point of area
+    list->rowNr = pitRowNr;
+    list->colNr = pitColNr;
+
+    tm->setMV();
+
+    while (list != NULL)
+    {
+        int i = 0;
+        bool  subCachDone = true; // are sub-catchment cells done ?
+        int rowNr = list->rowNr;
+        int colNr = list->colNr;
+
+        /** put all points that have to be calculated to calculate the current point in the list,
+         before the current point */
+        for (i=1; i<=9; i++)
+        {
+            int r, c;
+            int ldd = 0;
+
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            r = rowNr+dy[i];
+            c = colNr+dx[i];
+
+            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+                ldd = (int) _LDD->Drc;
+            else
+                continue;
+
+            // check if there are more cells upstream, if not subCatchDone remains true
+            if (IS_MV_REAL4(&tm->Drc) &&
+                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                    INSIDE(r, c))
+            {
+                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                temp->prev = list;
+                list = temp;
+                list->rowNr = r;
+                list->colNr = c;
+                subCachDone = false;
+            }
+        }
+
+        if (subCachDone)
+        {
+            double edge = 1;
+
+            for (i=1;i<=9;i++)
+            {
+                int r, c, ldd = 0;
+
+                if (i==5)  // Skip current cell
+                    continue;
+
+                r = rowNr+dy[i];
+                c = colNr+dx[i];
+
+                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+                    ldd = (int) _LDD->Drc;
+                else
+                    continue;
+
+                if (INSIDE(r, c) &&
+                        FLOWS_TO(ldd, r,c,rowNr, colNr) &&
+                        !IS_MV_REAL4(&_LDD->Drc) )
+                {
+                    if (FloodDomain->Drc == 0 &&
+                            FloodDomain->Data[rowNr][colNr] > 0)
+                        edge += 1;
+                }
+            }
+
+
+            if (edge > 0)
+                FloodDomain->Data[rowNr][colNr] = edge;
+            tm->Data[rowNr][colNr] = 1;
+
+            temp=list;
+            list=list->prev;
+            free(temp);
+            // go to the previous cell in the list
+
+        }/* eof subcatchment done */
+    } /* eowhile list != NULL */
+    FloodDomain->report("fd");
+}
