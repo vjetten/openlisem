@@ -39,7 +39,9 @@ functions: \n
 
 #define he_ca 1e-12
 #define ve_ca 1e-12
+
 #define dt_ca 1e-6
+
 #define grav 9.81
 #define scheme_type 1
 
@@ -78,9 +80,9 @@ void TWorld::setZero(TMMap *h, TMMap *u, TMMap *v)
             //q2->Drc = 0;
         }
     }
-    h->DrcOutlet = 0;
-    v->DrcOutlet = 0;
-    u->DrcOutlet = 0;
+//    h->DrcOutlet = 0;
+//    v->DrcOutlet = 0;
+//    u->DrcOutlet = 0;
 }
 //---------------------------------------------------------------------------
 //friction slope
@@ -685,7 +687,7 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, T
         // f1 comes from MUSCL calculations
         hes->Drc = he->Drc-tx*(f1->Data[r][c+1]-f1->Drc)-ty*(g1->Data[r+1][c]-g1->Drc);
 
-     //   hes->Drc += FfSurplus->Drc*dt/_dt;
+        hes->Drc += FfSurplus->Drc*dt/_dt;
         // add infiltration here
 
         if (hes->Drc > he_ca)
@@ -906,7 +908,7 @@ double TWorld::fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMM
         do {
             n++;
             dt1 = min(dt1*qSqrt(double(n)), dt_max);
-            dt1 = min(dt1*(double(n)), dt_max);
+//            dt1 = min(dt1*(double(n)), dt_max);
 //            dt1 = dt_max;
 
  //           if (verif == 1)
@@ -1005,8 +1007,18 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
         }
     }
 
+    bool startflood = false;
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > 0)
+        {
+            startflood = true;
+            break;
+        }
+    }
+
     // if there is no flood skip everything
-    if (startFlood)
+    if (startflood)
     {
 
         do {
@@ -1044,21 +1056,21 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
 
             FOR_ROW_COL_MV_MV
             {
-                h1r->Drc = hs->Drc;
-                u1r->Drc = us->Drc;
-                v1r->Drc = vs->Drc;
-                h1l->Data[r][c+1] = hs->Data[r][c+1];
-                u1l->Data[r][c+1] = us->Data[r][c+1];
-                v1l->Data[r][c+1] = vs->Data[r][c+1];
+                h1l->Drc = hs->Drc;
+                u1l->Drc = us->Drc;
+                v1l->Drc = vs->Drc;
+                h1r->Data[r][c-1] = hs->Data[r][c-1];
+                u1r->Data[r][c-1] = us->Data[r][c-1];
+                v1r->Data[r][c-1] = vs->Data[r][c-1];
             }
             FOR_ROW_COL_MV_MV
             {
-                h2r->Drc = hs->Drc;
-                u2r->Drc = us->Drc;
-                v2r->Drc = vs->Drc;
-                h2l->Data[r+1][c] = hs->Data[r+1][c];
-                u2l->Data[r+1][c] = us->Data[r+1][c];
-                v2l->Data[r+1][c] = vs->Data[r+1][c];
+                h2l->Drc = hs->Drc;
+                u2l->Drc = us->Drc;
+                v2l->Drc = vs->Drc;
+                h2r->Data[r-1][c] = hs->Data[r-1][c];
+                u2r->Data[r-1][c] = us->Data[r-1][c];
+                v2r->Data[r-1][c] = vs->Data[r-1][c];
             }
 
             dt1 = bloc1(dt1, dt_max);
