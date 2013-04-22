@@ -48,27 +48,16 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    startFlood = false;
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            startFlood = true;
-            break;
-        }
-    }
+
     // get flood level in channel from 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-            double whsurp = ChannelWH->Drc - ChannelDepth->Drc;
-            // can be negative
-            double f = ChannelWidthUpDX->Drc/_dx;
-            if(whsurp > 0)
-                hmx->Drc = max(0, whsurp*f + hmx->Drc*(1-f));
-            //hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
+            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
+            hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
+           // qDebug() << whsurp << hmx->Drc;
         }
     }
 
@@ -78,6 +67,16 @@ void TWorld::ChannelFlood(void)
     {
         dtflood = floodExplicit();
     }
+    if (SwitchFloodSWOForder2)
+    {
+        dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+        FOR_ROW_COL_MV
+        {
+            Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*DX->Drc; //???
+            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+        }
+    }
+
     if (SwitchFloodSWOForder1)
     {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
@@ -87,21 +86,13 @@ void TWorld::ChannelFlood(void)
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
         }
     }
+
     if (SwitchFloodSWOForder1a)
     {
         dtflood = fullSWOF2Do1a(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
             Qflood->Drc = (q1flood->Drc + q2flood->Drc)*DX->Drc;
-            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
-        }
-    }
-    if (SwitchFloodSWOForder2)
-    {
-        dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
-        FOR_ROW_COL_MV
-        {
-            Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*DX->Drc; //???
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
         }
     }
@@ -125,50 +116,9 @@ void TWorld::ChannelFlood(void)
     // put new flood level in channel for next 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
-        double f = ChannelWidthUpDX->Drc/_dx;
-
-        if (hmx->Drc > F_levee)
+        if (hmx->Drc > F_levee)  //!!!!!
         {
-            if (hmx->Drc > 0)
-            {
-                double w = ChannelWidthUpDX->Drc;
-                //water in channel is below level but there is some flood water
-                // fill up
-                if (ChannelWH->Drc < ChannelDepth->Drc)
-                {
-                    double dhw = (ChannelDepth->Drc-ChannelWH->Drc)*w;
-                    double dhw1 = hmx->Drc*(_dx-w);
-                    double dh = hmx->Drc*(_dx-w)/w;
-                    ChannelWH->Drc += dh;
-                    if (ChannelWH->Drc > ChannelDepth->Drc)
-                    {
-                        dh = ChannelWH->Drc - ChannelDepth->Drc;
-                        ChannelWH->Drc = ChannelDepth->Drc + dh*w/_dx;
-                        hmx->Drc = dh*(1-w/_dx);
-                    }
-                    else
-                    {
-                        hmx->Drc = 0;
-                    }
-
-//                    if (dhw > dhw1)
-//                    {
-//                        ChannelWH->Drc += hmx->Drc * (_dx-w)/w;
-//                        hmx->Drc = 0;
-//                    }
-//                    else
-//                    {
-//                        hmx->Drc = (dhw1-dhw) / (_dx-w);
-//                        ChannelWH->Drc = ChannelDepth->Drc;
-//                    }
-
-
-              //      ChannelWH->Drc = hmx->Drc*(1-f) + ChannelWH->Drc * f;
-
-                }
-                else
-                    ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc;
-            }
+            ChannelWH->Drc = hmx->Drc + ChannelDepth->Drc - F_levee;
             if (ChannelMaxQ->Drc > 0)
             {
                 ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
@@ -176,13 +126,11 @@ void TWorld::ChannelFlood(void)
             }
 
             double ChannelArea = ChannelWH->Drc * ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
-            double Perim = 2*ChannelWH->Drc + (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2;
+           // double ChannelPerim = 2*ChannelWH->Drc + ((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
 
             ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
-            ChannelAlpha->Drc = qPow(ChannelN->Drc/ChannelGrad->Drc * qPow(Perim, 2/3),0.6);
 
-            ChannelQn->Drc = qPow(ChannelArea/ChannelAlpha->Drc, 1.66667);
-
+            ChannelQn->Drc = qPow(ChannelArea/ChannelAlpha->Drc, (1.0/0.6));
         }
     }
 
@@ -190,8 +138,10 @@ void TWorld::ChannelFlood(void)
     FloodWaterVol->fill(0);
     FOR_ROW_COL_MV
     {
-        FloodWaterVol->Drc = hmx->Drc*DX->Drc*(_dx-ChannelWidthUpDX->Drc);
-
+        if (ChannelDepth->Drc == 0)
+        {
+            FloodWaterVol->Drc = hmx->Drc*_dx*DX->Drc;
+        }
         maxflood->Drc = max(maxflood->Drc, hmx->Drc);
         // for output
     }
@@ -206,8 +156,20 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
     int n = 0;
     double timesum = 0;
 
+    // get flood level in channel from 1D kin wave channel
+    bool startflood = false;
+
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > 0)
+        {
+            startflood = true;
+            break;
+        }
+    }
+
     // if there is no flood skip everything
-    if (startFlood)
+    if (startflood)
     {
         int dc[4] = {0, -1, 1, 0};
         int dr[4] = {-1, 0,  0,1};
