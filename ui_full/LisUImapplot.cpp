@@ -54,7 +54,7 @@ void lisemqt::selectMapType(bool doit)
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
     if (radioButton_FL->isChecked())    op.drawMapType = 4;
 
-//    showMap(); // show map
+    showMap(); // show map
 
 //    showChannelMap(); // show channel map
 

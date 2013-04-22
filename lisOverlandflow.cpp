@@ -58,7 +58,7 @@ void TWorld::ToChannel(void)
 
             if (SwitchChannelFlood)
             {
-                if (ChannelWH->Drc >= ChannelDepth->Drc)
+                if (ChannelWH->Drc >= ChannelDepth->Drc+F_levee)
                     fractiontochannel = 0;
                 // no inflow when flooded
                 if (ChannelMaxQ->Drc > 0)
@@ -102,10 +102,10 @@ void TWorld::CalcVelDisch(void)
 
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
 
-        if (SwitchChannelFlood)
-        {
-            Perim = 2*hmx->Drc+_dx;
-        }
+//        if (SwitchChannelFlood)
+//        {
+//            Perim = 2*hmx->Drc+_dx;
+//        }
         if (Perim > 0)
             R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
         else
