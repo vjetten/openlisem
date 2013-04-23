@@ -1134,7 +1134,7 @@ void TWorld::IntializeData(void)
     WH = NewMap(0);
     WHbef = NewMap(0);
     WHrunoff = NewMap(0);
-    WHrunoffCum = NewMap(0);
+    //WHrunoffCum = NewMap(0);
     WHstore = NewMap(0);
     WHroad = NewMap(0);
     WHGrass = NewMap(0);

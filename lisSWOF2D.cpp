@@ -908,8 +908,6 @@ double TWorld::fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMM
         do {
             n++;
             dt1 = min(dt1*qSqrt(double(n)), dt_max);
-//            dt1 = min(dt1*(double(n)), dt_max);
-//            dt1 = dt_max;
 
  //           if (verif == 1)
  //           {
@@ -1007,25 +1005,15 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
         }
     }
 
-    bool startflood = false;
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            startflood = true;
-            break;
-        }
-    }
-
     // if there is no flood skip everything
-    if (startflood)
+    if (startFlood)
     {
 
         do {
             n++;
 
-//            dt1 = min(dt1*qSqrt(double(n)), dt_max);
-            dt1 = min(dt1*n, dt_max);
+            dt1 = min(dt1*qSqrt(double(n)), dt_max);
+//            dt1 = min(dt1*n, dt_max);
 
             setZero(h, u, v);//, q1, q2);
 

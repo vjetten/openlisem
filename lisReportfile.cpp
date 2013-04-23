@@ -47,26 +47,27 @@ functions: \n
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
+    // MAP DISPLAY VARIABLES
     if (op.drawMapType == 1)
         op.DrawMap->copy(Qoutput);  //all output in m3/s
-    if (op.drawMapType == 2)
-        op.DrawMap->copy(InfilmmCum);  //infil in mm
-    if (SwitchErosion && op.drawMapType == 3)
-    {
-        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);//from kg/cell to kg/m2
-        tmb->calcValue(10, MUL); // from kg/m2 to ton/ha
+//    if (op.drawMapType == 2)
+//        op.DrawMap->copy(InfilmmCum);  //infil in mm
+//    if (SwitchErosion && op.drawMapType == 3)
+//    {
+//        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);//from kg/cell to kg/m2
+//        tmb->calcValue(10, MUL); // from kg/m2 to ton/ha
 
-        op.DrawMap->copy(tmb);  //soilloss in ton/ha
-    }
-    if (SwitchChannelFlood && op.drawMapType == 4)
-    {
-        FOR_ROW_COL_MV
-                tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
-        op.DrawMap->copy(tmb);  //flood level in m
-    }
+//        op.DrawMap->copy(tmb);  //soilloss in ton/ha
+//    }
+//    if (SwitchChannelFlood && op.drawMapType == 4)
+//    {
+//        FOR_ROW_COL_MV
+//                tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+//        op.DrawMap->copy(tmb);  //flood level in m
+//    }
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s
-    op.DrawMap2->copy(InfilmmCum);  //infil in mm
+    op.DrawMap2->copy(WH);//InfilmmCum);  //infil in mm
     if (SwitchErosion)
     {
         tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
@@ -86,6 +87,8 @@ void TWorld::OutputUI(void)
         op.channelMap->copy(ChannelWidth);
     if (SwitchRoadsystem)
         op.roadMap->copy(RoadWidthDX);
+
+    // MAP DISPLAY VARIABLES
 
     op.dx = _dx;
     op.MB = MB;
@@ -517,12 +520,6 @@ void TWorld::ReportTotalsNew(void)
 /// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps(void)
 {
-    //   if (units == 0)
-    //      checkUnits_tonha->setChecked(true);
-    //   if (units == 1)
-    //      checkUnits_kgcell->setChecked(true);
-    //   if (units == 2)
-    //      checkUnits_kgm2->setChecked(true);
     if(SwitchErosion)
     {
         // VJ 110111 erosion units
@@ -572,8 +569,8 @@ void TWorld::ReportMaps(void)
         tm->calcMapValue(WH, 1000, MUL);// WH in mm
         tm->report(Outwh);
     }
-    if (outputcheck[3].toInt() == 1)
-        WHrunoffCum->report(Outrwh); // in mm
+//    if (outputcheck[3].toInt() == 1)
+//        WHrunoffCum->report(Outrwh); // in mm
 
     if (outputcheck[7].toInt() == 1) V->report(Outvelo);
     FOR_ROW_COL_MV

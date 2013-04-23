@@ -36,6 +36,7 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
+//NOT USED!!!
 void TWorld::ToFlood(void)
 {
     if (!SwitchChannelFlood)
@@ -118,7 +119,7 @@ void TWorld::CalcVelDisch(void)
         double NN = N->Drc;
 
 //        if (SwitchChannelFlood)
-//            //          NN = qMin(1.0,N->Drc * qExp(1.2*hmx->Drc));
+//            NN = qMin(2.0,N->Drc * qExp(1.2*hmx->Drc));
 //            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
 
         // avg WH from soil surface and roads, over width FlowWidth

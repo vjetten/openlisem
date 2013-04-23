@@ -274,7 +274,7 @@ void lisemqt::showMap1()
 {
     MPlot->setTitle("Runoff (l/s)");
 
-    double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap1, RD);
     MaxV = fillDrawMapData(op.DrawMap1, RD);
     // fill vector and find the new max value
 
@@ -308,7 +308,7 @@ void lisemqt::showMap2()
     MPlot->setTitle("Infiltration (mm)");
 
     // fill vector RD with matrix data and find the new max value
-    double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap2, RD);
     MaxV = fillDrawMapData(op.DrawMap2, RD);
 
     // set the new interval to the new max value
@@ -335,7 +335,7 @@ void lisemqt::showMap3()
 {
     MPlot->setTitle("Soil loss (ton/ha)");
 
-    double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap3, RD);
     MaxV = fillDrawMapData(op.DrawMap3, RD);
     // fill vector and find the new max value
 
@@ -361,7 +361,7 @@ void lisemqt::showMap4()
     MPlot->setTitle("Flood level (m)");
 
     double MinV = 0;
-    double MaxV = fillDrawMapData(op.DrawMap, RD);
+    double MaxV = fillDrawMapData(op.DrawMap4, RD);
     MaxV = fillDrawMapData(op.DrawMap4, RD);
     // fill vector and find the new max value
 

@@ -48,36 +48,47 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
+    double dtflood = 0;
+
     // get flood level in channel from 1D kin wave channel
     FOR_ROW_COL_MV_CH
     {
         // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-            double whsurp = max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
+            double whsurp = ChannelWH->Drc - ChannelDepth->Drc;
+                    //max(0, ChannelWH->Drc - ChannelDepth->Drc);// - F_levee);
             hmx->Drc = max(0, whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx));
             // qDebug() << whsurp << hmx->Drc;
         }
     }
 
+//    FOR_ROW_COL_MV
+//    {
+//        if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
+//        {
+//            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
+//            double f = (wh > 0 ? hmx->Drc/wh : 1.0);
+//            f = min(f, 1.0);
+////            if(hmx->Drc > wh)
+////            {
+//                hmx->Drc += wh*f;
+//                WH->Drc *= (1-f);
+//                WHroad->Drc *= (1-f);
+//                WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+////            }
+//        }
+//    }
+
+    startFlood = false;
     FOR_ROW_COL_MV
     {
-        if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
+        if (hmx->Drc > 0)
         {
-            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
-//            if(hmx->Drc > 0)
-//            {
-                double f = 1.0;//qMin(1.0, hmx->Drc/(wh+0.001));
-                hmx->Drc += wh*f;
-                WH->Drc *= (1-f);
-                WHroad->Drc *= (1-f);
-                WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-//            }
+            startFlood = true;
+            break;
         }
     }
-
-    double sumh_t1 = 0, cells = 1, dtflood;
-
     if (SwitchFloodExplicit)
     {
         dtflood = floodExplicit();
@@ -120,7 +131,6 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-    cells = FloodDomain->mapTotal();
 
     //    FOR_ROW_COL_MV
     //    {
@@ -129,9 +139,9 @@ void TWorld::ChannelFlood(void)
     //    }
 
 
-
-    sumh_t1 = hmx->mapTotal();
-    double avgh = sumh_t1/max(1,cells);
+    double cells = FloodDomain->mapTotal();
+    double sumh_t1 = hmx->mapTotal();
+    double avgh = (cells > 0 ? sumh_t1/cells : 0);
     double area = cells*_dx*_dx;
     debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
@@ -181,20 +191,8 @@ double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qf
     int n = 0;
     double timesum = 0;
 
-    // get flood level in channel from 1D kin wave channel
-    bool startflood = false;
-
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            startflood = true;
-            break;
-        }
-    }
-
     // if there is no flood skip everything
-    if (startflood)
+    if (startFlood)
     {
         int dc[4] = {0, -1, 1, 0};
         int dr[4] = {-1, 0,  0,1};

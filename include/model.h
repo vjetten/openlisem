@@ -239,8 +239,6 @@ public:
     double StripN;
     double StemflowFraction;
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
-//    double maxFloodLevel;
-//    double minFloodDt;
     double waterRep_a;
     double waterRep_b;
     double waterRep_c;
@@ -387,7 +385,6 @@ public:
     bool prepareFlood, startFlood;
     int verif;
     int iter_n;
-
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
