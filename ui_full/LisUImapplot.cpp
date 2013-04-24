@@ -49,6 +49,9 @@ void lisemqt::ssetAlpha3(int v)
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
+    if (stopplot)
+        return;
+
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
     if (radioButton_INF->isChecked())   op.drawMapType = 2;
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
