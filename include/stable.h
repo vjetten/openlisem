@@ -40,9 +40,32 @@
 #include <QMutex.h>
 #include <qfile.h>
 #include <qdir.h>
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_grid.h"
-#include "qwt_plot_marker.h"
-#include "qwt_legend.h"
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_marker.h>
+#include <qwt_legend.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_magnifier.h>
+#include <qwt_color_map.h>
+#include <qwt_plot_spectrogram.h>
+#include <qwt_plot_layout.h>
+#include <qwt_matrix_raster_data.h>
+#include <qwt_scale_widget.h>
+#include <qwt_plot_renderer.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_rescaler.h>
+#include <qwt_scale_engine.h>
+#include <qwt_plot_zoomer.h>
+#include <qwt_picker.h>
+
+#include <csf.h>
+#include <csfattr.h>
+#include <csfimpl.h>
+#include <CsfMap.h>
+#include <csftypes.h>
+#include <error.h>
+#include <mmath.h>
+
 #endif

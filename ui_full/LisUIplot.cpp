@@ -201,6 +201,7 @@ void lisemqt::setupSmallPlot()
 void lisemqt::initPlot()
 {
     startplot = true;
+    stopplot = false;
 
     op.outputpointnr = spinBoxPointtoShow->value();
     spinBoxPointtoShow->setEnabled(false);
@@ -225,8 +226,8 @@ void lisemqt::killPlot()
     CData.clear();
 
     spinBoxPointtoShow->setEnabled(true);
-
-    startplot = true;
+    stopplot = true;
+ //   startplot = true;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()

@@ -156,6 +156,8 @@ public:
    QwtMatrixRasterData *RDb;
    QwtMatrixRasterData *RDc;
    QwtMatrixRasterData *RDd;
+   double drawNrCols;
+   double drawNrRows;
    int channelMapAlpha;
    int roadMapAlpha;
 
@@ -182,6 +184,7 @@ public:
    QwtPlotCurve *sQGraph;
    QwtPlotCurve *sQsGraph;
    bool startplot;
+   bool stopplot;
    double yas, y2as;
    QVector <double> QData;
    QVector <double> QtileData;

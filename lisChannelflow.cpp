@@ -84,33 +84,27 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
-//        if (SwitchChannelFlood)
-//            if (ChannelMaxQ->Drc > 0)
-//                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
+        //        if (SwitchChannelFlood)
+        //            if (ChannelMaxQ->Drc > 0)
+        //                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
 
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
+
+        ChannelWaterVol->Drc = Area * ChannelDX->Drc;
     }
 }
 //---------------------------------------------------------------------------
-//! calc channelflow, ChannelDepth, kin wave
-void TWorld::ChannelFlow(void)
+void TWorld::ChannelWaterHeight(void)
 {
-    if (!SwitchIncludeChannel)
-        return;
-
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
-        /*---- Water ----*/
-
-        ChannelQsn->Drc = 0;
-        Channelq->Drc = 0;
         ChannelWH->Drc = 0;
 
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+        // water from overland flow in channel cells
 
-        // add inflow to channel
-        if (FloodDomain->Drc == 0)
+     //   if (FloodDomain->Drc == 0)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
@@ -121,14 +115,16 @@ void TWorld::ChannelFlow(void)
             // add inflow from slopes and rainfall to buffer
         }
 
-        if (ChannelSide->Drc == 0)// && ChannelWidth->Drc > 0)// rectangular channel
+        // calculate ChannelWH
+        if (ChannelSide->Drc == 0) // rectangular channel
         {
             ChannelWidthUpDX->Drc = ChannelWidth->Drc;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
         }
-        else  // non-rectangular
+        else
         {
             /*
+ * non-rectangular
    ABC fornula
     dw      w       dw
    \  |            |  /
@@ -151,81 +147,74 @@ void TWorld::ChannelFlow(void)
                 throw 1;
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
+
+            if (ChannelWidthUpDX->Drc > _dx)
+            {
+                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
+                throw 1;
+            }
+            if (ChannelWidthUpDX->Drc < 0)
+            {
+                ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
+                throw 1;
+            }
+
+            ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
+            // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
+            // cannot be more than 0.9*_dx
         }
-
-//        if (SwitchChannelFlood)
-//        {
-//            if (ChannelMaxQ->Drc > 0)
-//                ChannelWH->Drc = min(ChannelDepth->Drc, ChannelWH->Drc);
-//        }
-
-        if (ChannelWidthUpDX->Drc > _dx)
-        {
-            ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
-            throw 1;
-        }
-        if (ChannelWidthUpDX->Drc < 0)
-        {
-            ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
-            throw 1;
-        }
-
-        ChannelWidthUpDX->Drc = min(0.95*_dx, ChannelWidthUpDX->Drc);
-        // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
-        // cannot be more than 0.9*_dx
-
-//        if (RoadWidthDX->Drc > 0)
-//            ChannelWidthUpDX->Drc = min(0.9*_dx-RoadWidthDX->Drc, ChannelWidthUpDX->Drc);
-//        // channel cannot be wider than _dx-road
-//        /* TODO zit al in gridcell, nodig hier? */
-
-        if (SwitchChannelInfil)
-        {
-            Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
-            //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
-        }
-        // NOTE: for buffers channelksat = 0
-
     }
-
-    CalcVelDischChannel();
-    // alpha, V and Q from Manning
-
-    /*---- Sediment ----*/
+}
+//---------------------------------------------------------------------------
+//! calc channelflow, ChannelDepth, kin wave
+void TWorld::ChannelFlow(void)
+{
+    if (!SwitchIncludeChannel)
+        return;
 
     if (SwitchErosion)
     {
         ChannelFlowDetachment();
+    }
 
-        FOR_ROW_COL_MV_CH
-            ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
+    // initialize some channel stuff
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelQsn->Drc = 0;
+        Channelq->Drc = 0;
+        if (SwitchChannelInfil)
+        {
+            // NOTE: for buffers channelksat = 0
+            Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
+            //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
+        }
     }
 
     ChannelQn->setMV();
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
+
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
-            if (SwitchChannelFlood)
-                if (ChannelMaxQ->Drc > 0)
-                    ChannelQn->Drc  = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
+
+            //routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQS, ChannelQSn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSubs);
             /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known
                    you need to have the ingoing substance flux ChannelQS (mass/s)
                    and it will give outgoing flux ChannelQSn (mass/s)
                    and the current amount ChannelSubs (mass) in suspension+solution
-                */
-            //routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQS, ChannelQSn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSubs);
+             */
 
         }
     }
 
-    ChannelQn->cover(LDD, 0); // avoid missing values around channel for adding to Qn for output
+    ChannelQn->cover(LDD, 0);
     ChannelQsn->cover(LDD, 0);
+    // avoid missing values around channel for adding to Qn for output
 
     FOR_ROW_COL_MV_CH
     {
@@ -234,7 +223,10 @@ void TWorld::ChannelFlow(void)
         if (SwitchChannelFlood)
         {
             if (ChannelMaxQ->Drc > 0)
+            {
+                ChannelQn->Drc  = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
                 ChannelArea = qMin(ChannelArea,ChannelWidthUpDX->Drc*ChannelDepth->Drc);
+            }
         }
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
@@ -264,6 +256,7 @@ void TWorld::ChannelFlow(void)
             // so the display shows the conc after the kin wave
         }
     }
+
     ChannelWH->cover(LDD, 0);
 
 }

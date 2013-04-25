@@ -412,6 +412,7 @@ public:
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void ChannelFlow(void);
+    void ChannelWaterHeight(void);
     void ToChannel(void);
     void ToFlood(void);
     void CalcVelDisch(void);

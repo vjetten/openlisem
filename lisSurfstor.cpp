@@ -137,24 +137,6 @@ void TWorld::SurfaceStorage(void)
         // cumulative runoff for output maps, in mm
 
     }
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
-        {
-            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
-            double f = (wh > 0 ? hmx->Drc/wh : 1.0);
-            f = min(f, 1.0);
-            if(hmx->Drc > 0.05)//wh)
-            {
-                hmx->Drc += wh*f;
-                WH->Drc *= (1-f);
-                WHroad->Drc *= (1-f);
-                WHrunoff->Drc *= (1-f);
-                WHstore->Drc = 0;
-                WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-            }
-        }
-    }
 }
 //---------------------------------------------------------------------------
 

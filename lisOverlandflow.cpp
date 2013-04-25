@@ -36,27 +36,34 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
-//NOT USED!!!
+// Dtermines if the kin wave stops in the flood domain
+// if the WH is thrown in the hmx immedately there is no more runoff feeding the channel
+// and flood levels are extreme.
 void TWorld::ToFlood(void)
 {
-    if (!SwitchChannelFlood)
+//    if (!SwitchChannelFlood)
         return;
 
-
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc == 2 && ChannelDepth->Drc == 0)
     {
-        double fractiontoflood = min(_dt*V->Drc/(max(0.01,_dx)), 1.0);
-        double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+        if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
+        {
+            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
+            double whp = wh+hmx->Drc;
+            double f = (wh > 0 ? hmx->Drc/wh : 1.0);
+            f = min(f, 1.0);
+            if(hmx->Drc > 0.00)
+            {
+                hmx->Drc += whp*f;
+                WHroad->Drc = (1-f)*whp;
+                WH->Drc = (1-f)*whp;
 
-        hmx->Drc += fractiontoflood*Volume/(_dx*DX->Drc);
-        // water diverted to the flood domain
-        WHrunoff->Drc *= (1-fractiontoflood);
-        // adjust water height
+//                hmx->Drc += wh;
+//                WHroad->Drc *= (1-f);
+//                WH->Drc *= (1-f);
+            }
+        }
     }
-
-    CalcVelDisch();
-    // recalc velocity and discharge
 }
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
@@ -120,7 +127,7 @@ void TWorld::CalcVelDisch(void)
 
 //        if (SwitchChannelFlood)
 //            NN = qMin(2.0,N->Drc * qExp(1.2*hmx->Drc));
-//            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
+        //            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
 
         // avg WH from soil surface and roads, over width FlowWidth
 
@@ -142,7 +149,7 @@ void TWorld::CalcVelDisch(void)
         {
             if (ChannelWH->Drc >= ChannelDepth->Drc)
             {
-                //       Q->Drc = 0;
+                //Q->Drc = 0;
                 //       Alpha->Drc = 0;
                 //no overlandflow activity in flooddomain
             }
@@ -220,9 +227,6 @@ void TWorld::OverlandFlow(void)
 
         double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
-
-        //        if (FloodDomain->Drc > 0)
-        //            diff = 0;
 
         //		if (InfilMethod == INFIL_NONE)
         //		{

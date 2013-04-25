@@ -162,21 +162,28 @@ void TWorld::DoModel()
          Interception();      // do interception by plants
          InterceptionHouses();// do urban interception
 
+         ToFlood();           // mix overland flow with flood domain
+
          Infiltration();      // soil infil, decrease WH
-         InfiltrationFlood();
+         InfiltrationFlood(); // infil in flooded area
+
          //SoilWater();       // soil water balance not implemented yet
          SurfaceStorage();    // surface storage and flow width, split WH in WHrunoff and WHstore
+
          CalcVelDisch();      // overland flow velocity, discharge and alpha
+
          SplashDetachment();  // splash detachment
          FlowDetachment();    // flow detachment
+
          ToChannel();         // fraction of water and sed going into channel in channel cells, recalc Q and V         
          ToTiledrain();       // fraction going into tiledrain directly from surface, , recalc Q and V
-     //    ToFlood();
-         OverlandFlow();      // overland flow kin wave
 
+         OverlandFlow();      // overland flow kin wave for water and sed
 
-         ChannelFlow();       // channel erosion and kin wave
+         ChannelWaterHeight();// get channelwaterheight from volume
          ChannelFlood();      // st venant channel flooding
+         CalcVelDischChannel();// alpha, V and Q from Manning
+         ChannelFlow();       // channel erosion and kin wave
 
          TileFlow();          // tile drain flow kin wave
 

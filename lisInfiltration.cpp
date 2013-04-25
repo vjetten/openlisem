@@ -429,7 +429,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 void TWorld::Infiltration(void)
 {
     FOR_ROW_COL_MV
-    //        if(FloodDomain->Drc == 0)
+            if(FloodDomain->Drc == 0)
     {
         WH->Drc += RainNet->Drc + Snowmeltc->Drc;
         // add net to water rainfall on soil surface (in m)
@@ -496,7 +496,7 @@ void TWorld::Infiltration(void)
     // each function deals with grass strips as a separate infiltration process
 
     FOR_ROW_COL_MV
-      //      if(FloodDomain->Drc == 0)
+            if(FloodDomain->Drc == 0)
     {
         if (SwitchBuffers && !SwitchSedtrap)
             if(BufferID->Drc > 0 && BufferVol->Drc > 0)
@@ -604,7 +604,7 @@ void TWorld::InfiltrationFlood(void)
         return;
 
     FOR_ROW_COL_MV
-            if (FloodDomain->Drc > 0 && ChannelDepth->Drc == 0)
+            if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
     {
         if (PlantHeight->Drc > hmx->Drc)
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -612,7 +612,7 @@ void TWorld::InfiltrationFlood(void)
             hmx->Drc += Rainc->Drc + Snowmeltc->Drc;
         // add net to water rainfall on soil surface (in m)
 
-        InfilVol->Drc = DX->Drc*hmx->Drc*_dx;
+        InfilVol->Drc = (DX->Drc-ChannelWidthUpDX->Drc)*hmx->Drc*_dx;
         // potential water volume on surface before infil
 
         // calculate effective ksat for various situations
@@ -662,7 +662,7 @@ void TWorld::InfiltrationFlood(void)
     // each function deals with grass strips as a separate infiltration process
 
     FOR_ROW_COL_MV
-            if(FloodDomain->Drc > 0  && ChannelDepth->Drc == 0)
+            if(FloodDomain->Drc > 0)//  && ChannelDepth->Drc == 0)
     {
         if (SwitchBuffers && !SwitchSedtrap)
             if(BufferID->Drc > 0 && BufferVol->Drc > 0)
@@ -698,7 +698,7 @@ void TWorld::InfiltrationFlood(void)
         if (FFull->Drc == 1)
             FfSurplus->Drc = 0;
 
-        InfilVol->Drc -= DX->Drc*hmx->Drc*_dx;
+        InfilVol->Drc -= (DX->Drc-ChannelWidthUpDX->Drc)*hmx->Drc*_dx;
         // infil volume is WH before - water after
         // used for water balance and screen display
 

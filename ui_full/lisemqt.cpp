@@ -214,13 +214,11 @@ void lisemqt::SetToolBar()
     toolBar->addAction(saveasAct);
     toolBar->addSeparator();
 
-    shootscreenAct = new QAction(QIcon(":/screenshots.png"), "make a screendump", this);
-    shootscreenAct->setStatusTip("make a screendump");
+    shootscreenAct = new QAction(QIcon(":/screenshots.png"), "make a screendump of the current page", this);
     connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
     toolBar->addAction(shootscreenAct);
 
     shootMscreenAct = new QAction(QIcon(":/Mscreenshots.png"), "Save the run in multiple screendumps", this);
-    shootMscreenAct->setStatusTip("Save the run in multiple screendumps");
     shootMscreenAct->setCheckable(true);
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
@@ -543,7 +541,9 @@ void lisemqt::savefile(QString name)
 //--------------------------------------------------------------------
 void lisemqt::deleteRunFileList()
 {
+    qDebug() << E_runFileList->currentIndex();
     E_runFileList->removeItem(E_runFileList->currentIndex());
+    qDebug() << E_runFileList->currentIndex();
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()
@@ -637,7 +637,7 @@ void lisemqt::StorePath()
         return;
 
     QFile fff(op.LisemDir + "openlisem.ini");
-    if (!fff.open(QIODevice::ReadWrite | QIODevice::Text))
+    if (!fff.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     QTextStream ts( &fff );
@@ -769,9 +769,10 @@ void lisemqt::shootScreen()
 
         QString format = "png";
         QString type = ".png";
-
+        QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
+        qDebug() << DT;
         if (tabWidget->currentIndex() == 2)
-            type = "_q.png";
+            type = QString("%1_q.png").arg(DT);
         else
             if (tabWidget->currentIndex() == 3)
             {
@@ -804,9 +805,10 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
-                               QString("openLISEM verion %6 (%7) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
-                               .arg("- Qt cross platform application and UI framework version 4.8.X based on MingW (http://qt.nokia.com/).")
+                               QString("openLISEM verion %7 (%8) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n")
+                               .arg("- Qt cross platform application and UI framework version 4.8.X based on MSVC2010 (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
+                               .arg("- Flood source code based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
                                .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
                                .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/csfapi.html")
                                .arg("Details can be found at: http://lisem.sourceforge.net")

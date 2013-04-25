@@ -680,7 +680,6 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, T
 {
     tx=dt/dx;
     ty=dt/dy;
-
     FOR_ROW_COL_MV_MV
     {
         // Solution of the equation of mass conservation (First equation of Saint venant)
@@ -688,7 +687,6 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, T
         hes->Drc = he->Drc-tx*(f1->Data[r][c+1]-f1->Drc)-ty*(g1->Data[r+1][c]-g1->Drc);
 
         hes->Drc += FfSurplus->Drc*dt/_dt;
-        // add infiltration here
 
         if (hes->Drc > he_ca)
         {
@@ -831,7 +829,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     // if there is no flood skip everything
     if (startFlood)
     {
-
+    //    InfilVolFlood->copy(h);
         do {
             n++;
 
@@ -880,8 +878,12 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
         } while (timesum  < _dt);
 
+        //   InfilVolFlood->calcMap(h, SUB);
+
     }
     //        Fr=froude_number(hs,us,vs);
+
+
     iter_n = n;
     return(timesum/(n+1));
 }
@@ -1048,18 +1050,18 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
                 h1l->Drc = hs->Drc;
                 u1l->Drc = us->Drc;
                 v1l->Drc = vs->Drc;
-                h1r->Data[r][c-1] = hs->Data[r][c-1];
-                u1r->Data[r][c-1] = us->Data[r][c-1];
-                v1r->Data[r][c-1] = vs->Data[r][c-1];
+                h1r->Data[r][c+1] = hs->Data[r][c+1];
+                u1r->Data[r][c+1] = us->Data[r][c+1];
+                v1r->Data[r][c+1] = vs->Data[r][c+1];
             }
             FOR_ROW_COL_MV_MV
             {
                 h2l->Drc = hs->Drc;
                 u2l->Drc = us->Drc;
                 v2l->Drc = vs->Drc;
-                h2r->Data[r-1][c] = hs->Data[r-1][c];
-                u2r->Data[r-1][c] = us->Data[r-1][c];
-                v2r->Data[r-1][c] = vs->Data[r-1][c];
+                h2r->Data[r+1][c] = hs->Data[r+1][c];
+                u2r->Data[r+1][c] = us->Data[r+1][c];
+                v2r->Data[r+1][c] = vs->Data[r+1][c];
             }
 
             dt1 = bloc1(dt1, dt_max);
@@ -1071,12 +1073,12 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
 
             FOR_ROW_COL_MV
             {
-                double tmp = 0.5*(h->Drc+hsa->Drc);
+                double tmp = 0.5*(hs->Drc+hsa->Drc);
                 if (tmp >= he_ca)
                 {
-                    q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                    q1->Drc = 0.5*(hs->Drc*us->Drc + hsa->Drc*usa->Drc);
                     u->Drc = q1->Drc/tmp;
-                    q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                    q2->Drc = 0.5*(hs->Drc*vs->Drc + hsa->Drc*vsa->Drc);
                     v->Drc = q2->Drc/tmp;
                     h->Drc = tmp;
                 }

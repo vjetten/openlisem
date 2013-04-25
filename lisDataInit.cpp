@@ -478,7 +478,8 @@ void TWorld::InitShade(void)
     FOR_ROW_COL_MV
     {
         Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
-        if (Shade->Drc == 0) Shade->Drc = 0.2;
+        if (Shade->Drc == 0 && r > 0 && c > 0)
+            Shade->Drc = Shade->Data[r-1][c-1];
     }
 
 }
@@ -1089,6 +1090,7 @@ void TWorld::IntializeData(void)
     floodTotmm= 0;
     FloodVolTot = 0;
 
+    InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilVolCum = NewMap(0);

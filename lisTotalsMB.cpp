@@ -86,7 +86,7 @@ void TWorld::Totals(void)
     IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
-    InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal(); //m3
+    InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
     InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
     // infiltration mm and m3

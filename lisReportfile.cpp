@@ -48,8 +48,8 @@ functions: \n
 void TWorld::OutputUI(void)
 {
     // MAP DISPLAY VARIABLES
-    if (op.drawMapType == 1)
-        op.DrawMap->copy(Qoutput);  //all output in m3/s
+//    if (op.drawMapType == 1)
+//        op.DrawMap->copy(Qoutput);  //all output in m3/s
 //    if (op.drawMapType == 2)
 //        op.DrawMap->copy(InfilmmCum);  //infil in mm
 //    if (SwitchErosion && op.drawMapType == 3)
@@ -67,7 +67,7 @@ void TWorld::OutputUI(void)
 //    }
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s
-    op.DrawMap2->copy(WH);//InfilmmCum);  //infil in mm
+    op.DrawMap2->copy(InfilmmCum);  //infil in mm
     if (SwitchErosion)
     {
         tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
@@ -575,7 +575,7 @@ void TWorld::ReportMaps(void)
     if (outputcheck[7].toInt() == 1) V->report(Outvelo);
     FOR_ROW_COL_MV
     {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc ;
         InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
     }
     if (outputcheck[8].toInt() == 1) InfilmmCum->report(Outinf); // in mm

@@ -386,6 +386,9 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelSed->Drc += ChannelDetFlow->Drc;
 
       ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+
+      ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
+
    }
 }
 //---------------------------------------------------------------------------
