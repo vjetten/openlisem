@@ -80,9 +80,9 @@ void TWorld::setZero(TMMap *h, TMMap *u, TMMap *v)
             //q2->Drc = 0;
         }
     }
-//    h->DrcOutlet = 0;
-//    v->DrcOutlet = 0;
-//    u->DrcOutlet = 0;
+    //    h->DrcOutlet = 0;
+    //    v->DrcOutlet = 0;
+    //    u->DrcOutlet = 0;
 }
 //---------------------------------------------------------------------------
 //friction slope
@@ -674,19 +674,26 @@ void TWorld::MUSCL2(TMMap *h,TMMap *u,TMMap *v, TMMap *z)
 
 //---------------------------------------------------------------------------
 // St Venant equations: conservation of mass and momentum: h u et v
-void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, TMMap *qe2, */
+void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
                    TMMap *hes, TMMap *ves1, TMMap *ves2)
-//, TMMap *qes1, TMMap *qes2, TMMap *Vin, double tps, double, int n, double dtheta )
 {
-    tx=dt/dx;
-    ty=dt/dy;
     FOR_ROW_COL_MV_MV
     {
+        dx = _dx-ChannelWidthUpDX->Drc;
+        dy = DX->Drc; //_dx;
+        tx=dt/dx;
+        ty=dt/dy;
+
         // Solution of the equation of mass conservation (First equation of Saint venant)
         // f1 comes from MUSCL calculations
         hes->Drc = he->Drc-tx*(f1->Data[r][c+1]-f1->Drc)-ty*(g1->Data[r+1][c]-g1->Drc);
-
+        double hhh = hes->Drc;
         hes->Drc += FfSurplus->Drc*dt/_dt;
+
+        hes->Drc = max(he_ca, hes->Drc);
+        hhh -= hes->Drc;
+        hesinfil->Drc += hhh;
+
 
         if (hes->Drc > he_ca)
         {
@@ -694,18 +701,18 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2, /*TMMap *qe1, T
             double qes1;
             double qes2;
 
-            qes1 = he->Drc*ve1->Drc - tx*(f2->Data[r][c+1]-f2->Drc
-                    + grav*0.5*(h1g->Drc*h1g->Drc -
-                                h1l->Drc*h1l->Drc + h1r->Drc*h1r->Drc - h1d->Drc*h1d->Drc
-                                + (h1l->Drc+h1r->Drc)*delzc1->Drc))
-                    - ty*(g2->Data[r][c+1]-g2->Drc);
+            qes1 = he->Drc*ve1->Drc - tx*(f2->Data[r][c+1]-f2->Drc +
+                    grav*0.5*(h1g->Drc*h1g->Drc - h1l->Drc*h1l->Drc +
+                              h1r->Drc*h1r->Drc - h1d->Drc*h1d->Drc +
+                              (h1l->Drc + h1r->Drc)*delzc1->Drc)) -
+                    ty*(g2->Data[r][c+1]-g2->Drc);
 
-            qes2 = he->Drc*ve2->Drc -
-                    tx*(f3->Data[r][c+1]-f3->Drc) -
+            qes2 = he->Drc*ve2->Drc - tx*(f3->Data[r][c+1]-f3->Drc) -
                     ty*(g3->Data[r+1][c]-g3->Drc +
                     grav*0.5*(h2g->Drc*h2g->Drc - h2l->Drc*h2l->Drc +
                               h2r->Drc*h2r->Drc - h2d->Drc*h2d->Drc +
-                              (h2l->Drc+h2r->Drc)*delzc2->Drc));
+                              (h2l->Drc + h2r->Drc)*delzc2->Drc));
+
             //Calcul friction in semi-implicit.
             Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
             ves1->Drc = q1mod/hes->Drc;
@@ -737,6 +744,8 @@ double TWorld::bloc1(double dt, double dt_max)
 
     FOR_ROW_COL_MV_MV
     {
+        dx = _dx-ChannelWidthUpDX->Drc;
+
         h1d->Data[r][c-1] = max(0, h1r->Data[r][c-1] - max(0,  delz1->Data[r][c-1]));
         h1g->Drc          = max(0, h1l->Drc          - max(0, -delz1->Data[r][c-1]));
 
@@ -751,7 +760,6 @@ double TWorld::bloc1(double dt, double dt_max)
         f2->Drc = HLL2_f2;
         f3->Drc = HLL2_f3;
         cfl = HLL2_cfl;
-        //      cfl = min(1000,HLL2_cfl);
 
         if (HLL2_cfl*dt/dx == 0)
             dt_tmp = dt_max;
@@ -766,6 +774,8 @@ double TWorld::bloc1(double dt, double dt_max)
 
     FOR_ROW_COL_MV_MV
     {
+        dy = DX->Drc;
+
         h2d->Data[r-1][c] = max(0, h2r->Data[r-1][c] - max(0, delz2->Data[r-1][c]));
         h2g->Drc = max(0, h2l->Drc - max(0, -delz2->Data[r-1][c]));
         if (F_scheme == 1)
@@ -778,7 +788,6 @@ double TWorld::bloc1(double dt, double dt_max)
         g1->Drc = HLL2_f1;
         g2->Drc = HLL2_f3;
         g3->Drc = HLL2_f2;
-        //    cfl = min(1000, HLL2_cfl);
         cfl = HLL2_cfl;
 
         if (HLL2_cfl*dt/dy == 0)
@@ -810,10 +819,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     double timesum = 0;
     int n = 0;
 
-    dx = _dx;
-    dy = _dx; //TODO could be DX->Drc ? later !!!!
-
-    dt_max = min(dx/2,dy/2);
+    dt_max = _dx/2;
     dt1 = dt_max;
 
     if (prepareFlood)
@@ -829,7 +835,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     // if there is no flood skip everything
     if (startFlood)
     {
-    //    InfilVolFlood->copy(h);
+        hesinfil->fill(0);
         do {
             n++;
 
@@ -878,11 +884,8 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
         } while (timesum  < _dt);
 
-        //   InfilVolFlood->calcMap(h, SUB);
-
     }
     //        Fr=froude_number(hs,us,vs);
-
 
     iter_n = n;
     return(timesum/(n+1));
@@ -911,73 +914,73 @@ double TWorld::fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMM
             n++;
             dt1 = min(dt1*qSqrt(double(n)), dt_max);
 
- //           if (verif == 1)
- //           {
+            if (verif == 1)
+            {
 
-                setZero(h, u, v);//, q1, q2);
+                setZero(h, u, v);
 
                 // Reconstruction for order 2
                 MUSCL(h,u,v,z);
-     //       }
-            dt1 = bloc1(dt1, dt_max);
+                //       }
+                dt1 = bloc1(dt1, dt_max);
+                dt1 = qMin(dt1, _dt-timesum);
 
-            dt1 = qMin(dt1, _dt-timesum);
-
-            tx=dt1/dx;
-            ty=dt1/dy;
-
-            //h, u, v go in hs, vs, us come out
-            bloc2(dt1, h,u,v, hs,us,vs);
-            dt2 = dt1;
-
-            setZero(hs, us, vs);//, qs1, qs2);
-
-            //Reconstruction for order 2
-            MUSCL(hs,us,vs,z);
-
-            dt2 = bloc1(dt2, dt_max);
-
-            if (dt2 < dt1)
-            {
-                dt1 = dt2;
                 tx=dt1/dx;
                 ty=dt1/dy;
-                verif = 0;
-            }
-//            else
-//            {
-                verif = 1;
-                //hs, us, vs go in hsa, vsa, usa come out
-                bloc2(dt1, hs,us,vs, hsa, usa, vsa);
 
-                setZero(hsa, usa, vsa);//, qs1, qs2);
+                //h, u, v go in hs, vs, us come out
+                bloc2(dt1, h,u,v, hs,us,vs);
+                dt2 = dt1;
 
-                //Heun method (order 2 in time)
-                FOR_ROW_COL_MV
+                setZero(hs, us, vs);
+
+                //Reconstruction for order 2
+                MUSCL(hs,us,vs,z);
+
+                dt2 = bloc1(dt2, dt_max);
+
+                if (dt2 < dt1)
                 {
-                    double tmp = 0.5*(h->Drc + hsa->Drc);
-                    if (tmp >= he_ca)
-                    {
-                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                        u->Drc = q1->Drc/tmp;
-                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                        v->Drc = q2->Drc/tmp;
-                        h->Drc = tmp;
-                    }
-                    else
-                    {
-                        u->Drc = 0;
-                        q1->Drc = 0;
-                        v->Drc = 0;
-                        q2->Drc = 0;
-                        h->Drc = 0;
-                    }
-                }//Heun
-   //         }//end for else dt2<dt1
+                    dt1 = dt2;
+                    tx=dt1/dx;
+                    ty=dt1/dy;
+                    verif = 0;
+                }
+                else
+                {
+                    verif = 1;
+                    //hs, us, vs go in hsa, vsa, usa come out
+                    bloc2(dt1, hs,us,vs, hsa, usa, vsa);
 
+                    setZero(hsa, usa, vsa);
+
+                    //Heun method (order 2 in time)
+                    FOR_ROW_COL_MV
+                    {
+                        double tmp = 0.5*(h->Drc + hsa->Drc);
+                        if (tmp >= he_ca)
+                        {
+                            q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                            u->Drc = q1->Drc/tmp;
+                            q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                            v->Drc = q2->Drc/tmp;
+                            h->Drc = tmp;
+                        }
+                        else
+                        {
+                            u->Drc = 0;
+                            q1->Drc = 0;
+                            v->Drc = 0;
+                            q2->Drc = 0;
+                            h->Drc = 0;
+                        }
+                    }//Heun
+                }//end for else dt2<dt1
+            }
             timesum = timesum + dt1;
-            qDebug() << n;
+
         } while (timesum  < _dt);
+
     } // if floodstart
 
     iter_n = n;
@@ -1015,7 +1018,7 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
             n++;
 
             dt1 = min(dt1*qSqrt(double(n)), dt_max);
-//            dt1 = min(dt1*n, dt_max);
+            //            dt1 = min(dt1*n, dt_max);
 
             setZero(h, u, v);//, q1, q2);
 
@@ -1050,18 +1053,18 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
                 h1l->Drc = hs->Drc;
                 u1l->Drc = us->Drc;
                 v1l->Drc = vs->Drc;
-                h1r->Data[r][c+1] = hs->Data[r][c+1];
-                u1r->Data[r][c+1] = us->Data[r][c+1];
-                v1r->Data[r][c+1] = vs->Data[r][c+1];
+                h1r->Data[r][c-1] = hs->Data[r][c-1];
+                u1r->Data[r][c-1] = us->Data[r][c-1];
+                v1r->Data[r][c-1] = vs->Data[r][c-1];
             }
             FOR_ROW_COL_MV_MV
             {
                 h2l->Drc = hs->Drc;
                 u2l->Drc = us->Drc;
                 v2l->Drc = vs->Drc;
-                h2r->Data[r+1][c] = hs->Data[r+1][c];
-                u2r->Data[r+1][c] = us->Data[r+1][c];
-                v2r->Data[r+1][c] = vs->Data[r+1][c];
+                h2r->Data[r-1][c] = hs->Data[r-1][c];
+                u2r->Data[r-1][c] = us->Data[r-1][c];
+                v2r->Data[r-1][c] = vs->Data[r-1][c];
             }
 
             dt1 = bloc1(dt1, dt_max);

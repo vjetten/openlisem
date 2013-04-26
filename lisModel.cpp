@@ -162,7 +162,7 @@ void TWorld::DoModel()
          Interception();      // do interception by plants
          InterceptionHouses();// do urban interception
 
-         ToFlood();           // mix overland flow with flood domain
+        // ToFlood();           // mix overland flow with flood domain
 
          Infiltration();      // soil infil, decrease WH
          InfiltrationFlood(); // infil in flooded area
@@ -180,7 +180,7 @@ void TWorld::DoModel()
 
          OverlandFlow();      // overland flow kin wave for water and sed
 
-         ChannelWaterHeight();// get channelwaterheight from volume
+         ChannelWaterHeight();// add channel rainfall and runoff to channel and get channel WH from volume
          ChannelFlood();      // st venant channel flooding
          CalcVelDischChannel();// alpha, V and Q from Manning
          ChannelFlow();       // channel erosion and kin wave

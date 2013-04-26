@@ -113,6 +113,10 @@ void TWorld::SurfaceStorage(void)
         else
             fpa->Drc = 1-exp(-1.875*(wh/RRm));
         // fraction ponded area of a gridcell
+        if (SwitchChannelFlood)
+            if (FloodDomain->Drc > 0)
+                fpa->Drc = 1;
+
         FlowWidth->Drc = max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
         // calculate flowwidth by fpa*surface + road, excludes channel already
 

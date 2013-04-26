@@ -141,13 +141,6 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-//            double totwh = 0;
-//            FOR_ROW_COL_MV
-//            {
-//                if (hmx->Drc > 0)
-//                    totwh = totwh + WaterVolall->Drc;
-//            }
-//            WaterVolTot -= totwh;
             FloodVolTot = FloodWaterVol->mapTotal();
             floodTotmm = FloodVolTot*catchmentAreaFlatMM;
            // WaterVolTot += FloodWaterVol->mapTotal();

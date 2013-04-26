@@ -129,7 +129,8 @@ TMMap
 
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*FfSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
+*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
+*hesinfil,
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
@@ -228,7 +229,7 @@ TMMap
 *z1r, *z1l, *z2r, *z2l,
 *delta_z1, *delta_z2,
 *h1r, *h1l, *h2r, *h2l,
-*h1d, *h1g, *h2d, *h2g, // minmod of *h1r, *h1l, *h2r, *h2l,
+*h1d, *h1g, *h2d, *h2g,
 *v1r, *v1l, *v2r, *v2l,
 *u1r, *u1l, *u2r, *u2l,
 *delzc1, *delzc2,
@@ -237,11 +238,9 @@ TMMap
 *g1, *g2, *g3,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
-*Uflood,
-*Vflood,
-*q1flood,
-*q2flood,
-*som_z1, *som_z2,
+*Uflood,*Vflood,
+*q1flood,*q2flood,
+*som_z1,*som_z2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

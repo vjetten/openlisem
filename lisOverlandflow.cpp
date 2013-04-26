@@ -41,7 +41,7 @@ functions: \n
 // and flood levels are extreme.
 void TWorld::ToFlood(void)
 {
-//    if (!SwitchChannelFlood)
+    if (!SwitchChannelFlood)
         return;
 
     FOR_ROW_COL_MV
@@ -50,17 +50,18 @@ void TWorld::ToFlood(void)
         {
             double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
             double whp = wh+hmx->Drc;
-            double f = (wh > 0 ? hmx->Drc/wh : 1.0);
+            double f = 0.9;//(wh > 0 ? hmx->Drc/wh : 1.0);
             f = min(f, 1.0);
             if(hmx->Drc > 0.00)
             {
-                hmx->Drc += whp*f;
-                WHroad->Drc = (1-f)*whp;
-                WH->Drc = (1-f)*whp;
+//                hmx->Drc += whp*f;
+//                WHroad->Drc = (1-f)*whp;
+//                WH->Drc = (1-f)*whp;
 
-//                hmx->Drc += wh;
-//                WHroad->Drc *= (1-f);
-//                WH->Drc *= (1-f);
+                hmx->Drc += wh*f;
+                WHroad->Drc = wh*(1-f);
+                WH->Drc = wh*(1-f);
+
             }
         }
     }
@@ -94,12 +95,15 @@ void TWorld::ToChannel(void)
                 if (ChannelMaxQ->Drc > 0)
                     fractiontochannel = 0;
                 // no surface inflow when culverts and bridges
-
             }
 
             RunoffVolinToChannel->Drc = fractiontochannel*Volume;
             // water diverted to the channel
             WHrunoff->Drc *= (1-fractiontochannel);
+
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            //VJ 130425
+
             // adjust water height
             if (SwitchErosion)
             {
@@ -125,8 +129,8 @@ void TWorld::CalcVelDisch(void)
 
         double NN = N->Drc;
 
-//        if (SwitchChannelFlood)
-//            NN = qMin(2.0,N->Drc * qExp(1.2*hmx->Drc));
+        if (SwitchChannelFlood)
+            NN = qMin(2.0,N->Drc * qExp(1.5*hmx->Drc));
         //            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
 
         // avg WH from soil surface and roads, over width FlowWidth
@@ -145,16 +149,6 @@ void TWorld::CalcVelDisch(void)
         else
             Q->Drc = 0;
 
-        if (SwitchChannelFlood)
-        {
-            if (ChannelWH->Drc >= ChannelDepth->Drc)
-            {
-                //Q->Drc = 0;
-                //       Alpha->Drc = 0;
-                //no overlandflow activity in flooddomain
-            }
-        }
-
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
     }
 }
@@ -167,6 +161,7 @@ void TWorld::OverlandFlow(void)
     FOR_ROW_COL_MV
     {
         WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
+
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*_dx/_dt;
         // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
@@ -219,11 +214,20 @@ void TWorld::OverlandFlow(void)
         WH->Drc = WHoutavg + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        //V->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
+        ChannelV->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
         // recalc velocity for output to map ????
+//    }
+
+//    SurfaceStorage();
+//    //recalc flowwidth with new WH and so on
+
+//    FOR_ROW_COL_MV
+//    {
+
 
         WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // new water volume after kin wave, all water incl depr storage
+   //     WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
 
         double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after

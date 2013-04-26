@@ -77,6 +77,7 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!IS_MV_REAL8(&LDD->Data[r][c]))
 
+/// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
 #define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
     if(!IS_MV_REAL8(&LDD->Data[r][c]) && \
@@ -84,6 +85,7 @@
     !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
     !IS_MV_REAL8(&LDD->Data[r][c+1]))
+      //if (FloodDomain->Drc > 0)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\

@@ -560,6 +560,8 @@ void TWorld::InitChannel(void)
         }
         ChannelWidthUpDX->copy(ChannelWidth);
         ChannelWidthUpDX->cover(LDD, 0);
+        double v = 0.9*_dx;
+        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV_CH
         {
             ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
@@ -988,6 +990,11 @@ void TWorld::IntializeData(void)
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
+        if (SwitchIncludeChannel)
+            if (ChannelDX->Drc > 0)
+            {
+                DX->Drc = ChannelDX->Drc;
+            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = CellArea->mapTotal();
@@ -1102,6 +1109,7 @@ void TWorld::IntializeData(void)
     Ksateff = NewMap(0);
     FSurplus = NewMap(0);
     FfSurplus = NewMap(0);
+    hesinfil = NewMap(0);
     FFull = NewMap(0);
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)

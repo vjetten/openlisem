@@ -37,6 +37,9 @@ functions: \n
 // V, alpha and Q in the channel
 void TWorld::CalcVelDischChannel(void)
 {
+
+    if (!SwitchIncludeChannel)
+        return;
     /*
     dw      FW      dw
    \  |            |  /
@@ -84,18 +87,18 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
-        //        if (SwitchChannelFlood)
-        //            if (ChannelMaxQ->Drc > 0)
-        //                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
-
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
 
         ChannelWaterVol->Drc = Area * ChannelDX->Drc;
     }
 }
 //---------------------------------------------------------------------------
+//! add runofftocvhannel and rainfall and calc channel WH from volume
 void TWorld::ChannelWaterHeight(void)
 {
+
+    if (!SwitchIncludeChannel)
+        return;
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
@@ -104,8 +107,7 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
-     //   if (FloodDomain->Drc == 0)
-            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*DX->Drc;
+        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -167,6 +169,7 @@ void TWorld::ChannelWaterHeight(void)
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave
+//! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
     if (!SwitchIncludeChannel)
@@ -218,16 +221,13 @@ void TWorld::ChannelFlow(void)
 
     FOR_ROW_COL_MV_CH
     {
-        double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
-
         if (SwitchChannelFlood)
         {
             if (ChannelMaxQ->Drc > 0)
-            {
                 ChannelQn->Drc  = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
-                ChannelArea = qMin(ChannelArea,ChannelWidthUpDX->Drc*ChannelDepth->Drc);
-            }
         }
+
+        double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
         // water height is not used except for output i.e. watervolume is cycled

@@ -36,6 +36,7 @@
 #if defined __cplusplus
 #include <QtCore>
 #include <QtGui>
+/*
 #include <QFileDialog>
 #include <QMutex.h>
 #include <qfile.h>
@@ -67,5 +68,5 @@
 #include <csftypes.h>
 #include <error.h>
 #include <mmath.h>
-
+*/
 #endif
