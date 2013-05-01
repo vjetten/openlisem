@@ -47,7 +47,7 @@ void TWorld::GridCell(void)
 
         if (SwitchIncludeChannel)
             if (RoadWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
-                RoadWidthDX->Drc = max(0, _dx-ChannelWidthUpDX->Drc);
+                RoadWidthDX->Drc = max(0, ChannelAdj->Drc);
         // channel takes priority
 
         /** wheeltracks are not implemented yet */
@@ -113,6 +113,7 @@ void TWorld::SurfaceStorage(void)
         else
             fpa->Drc = 1-exp(-1.875*(wh/RRm));
         // fraction ponded area of a gridcell
+
         if (SwitchChannelFlood)
             if (FloodDomain->Drc > 0)
                 fpa->Drc = 1;

@@ -129,16 +129,23 @@ TMMap
 
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
 *hesinfil,
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
-*InfilVolFlood,
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
+
+*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
+*InfilVolFlood,
+*Ffcum,                       //!< cumulative infiltration [m]
+*ffact,                       //!< actual infiltration rate [m/s]
+*ffpot,                       //!< potential infiltration rate [m/s]
+*FfFull,                      //!< map flagging when the soil is full
+*Lf1,
+*Lf2,
 
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
@@ -191,6 +198,7 @@ TMMap
 *Channelq,                   //!<
 *ChannelAlpha,               //!<
 *ChannelWidthUpDX,           //!<
+*ChannelAdj,
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
@@ -208,6 +216,7 @@ TMMap
 *UVflood,                     //!<
 *Qflood,
 *maxflood,
+*timeflood,
 *Hx,                         //!<
 *Hmx,                        //!<
 *hx,                         //!<

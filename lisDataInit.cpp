@@ -494,6 +494,7 @@ void TWorld::InitChannel(void)
     ChannelDetTot = 0;
     SedToChannel = NewMap(0);
     ChannelWidthUpDX = NewMap(0);
+    ChannelAdj = NewMap(0);
     ChannelWaterVol = NewMap(0);
     //ChannelQoutflow = NewMap(0);
     RunoffVolinToChannel = NewMap(0);
@@ -518,6 +519,7 @@ void TWorld::InitChannel(void)
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
     maxflood = NewMap(0);
+    timeflood = NewMap(0);
 
     if (SwitchIncludeChannel)
     {
@@ -562,6 +564,12 @@ void TWorld::InitChannel(void)
         ChannelWidthUpDX->cover(LDD, 0);
         double v = 0.9*_dx;
         ChannelWidthUpDX->calcValue(v, MIN);
+        FOR_ROW_COL_MV
+        {
+            ChannelAdj->Drc = _dx - ChannelWidthUpDX->Drc;
+        }
+
+
         FOR_ROW_COL_MV_CH
         {
             ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
@@ -570,10 +578,10 @@ void TWorld::InitChannel(void)
 
         if (SwitchChannelFlood)
         {
-//            for (int i = 0; i < 9; i++)
-//                qx[i].m = NULL;
-//            for (int i = 0; i < 9; i++)
-//                qx[i].m = NewMap(0);
+            //            for (int i = 0; i < 9; i++)
+            //                qx[i].m = NULL;
+            //            for (int i = 0; i < 9; i++)
+            //                qx[i].m = NewMap(0);
             prepareFlood = true;
             F_scheme = 3;
             iter_n = 0;
@@ -650,7 +658,14 @@ void TWorld::InitChannel(void)
             q1flood = NewMap(0);
             q2flood = NewMap(0);
             som_z1 = NewMap(0);
-            som_z2= NewMap(0);
+            som_z2 = NewMap(0);
+
+            Ffcum = NewMap(1e-10);
+            ffact = NewMap(0);
+            ffpot = NewMap(0);
+            FfFull = NewMap(0);
+            Lf1 = NewMap(1e-10);
+            Lf2 = NewMap(1e-10);
 
         }
 
@@ -687,8 +702,8 @@ void TWorld::GetInputData(void)
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
-  //  maxFloodLevel = getvaluedouble("Max flood level");
-  //  minFloodDt = getvaluedouble("Min flood dt");
+    //  maxFloodLevel = getvaluedouble("Max flood level");
+    //  minFloodDt = getvaluedouble("Min flood dt");
     //VJ 110829 water repellency
     waterRep_a = getvaluedouble("Water Repellency A");
     waterRep_b = getvaluedouble("Water Repellency B");

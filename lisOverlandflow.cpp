@@ -43,6 +43,8 @@ void TWorld::ToFlood(void)
 {
     if (!SwitchChannelFlood)
         return;
+    if (!SwitchIncludeChannel)
+        return;
 
     FOR_ROW_COL_MV
     {
@@ -50,18 +52,12 @@ void TWorld::ToFlood(void)
         {
             double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
             double whp = wh+hmx->Drc;
-            double f = 0.9;//(wh > 0 ? hmx->Drc/wh : 1.0);
-            f = min(f, 1.0);
+            double f = (whp > 0 ? hmx->Drc/whp : 0);
             if(hmx->Drc > 0.00)
             {
-//                hmx->Drc += whp*f;
-//                WHroad->Drc = (1-f)*whp;
-//                WH->Drc = (1-f)*whp;
-
-                hmx->Drc += wh*f;
-                WHroad->Drc = wh*(1-f);
-                WH->Drc = wh*(1-f);
-
+                hmx->Drc = whp*f;
+                WHroad->Drc = (1-f)*whp;
+                WH->Drc = (1-f)*whp;
             }
         }
     }
@@ -74,7 +70,7 @@ void TWorld::ToChannel(void)
     {
         FOR_ROW_COL_MV_CH
         {
-            double fractiontochannel = min(_dt*V->Drc/(0.5*max(0.01,_dx-ChannelWidthUpDX->Drc)), 1.0);
+            double fractiontochannel = min(_dt*V->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
             if (SwitchAllinChannel)
@@ -204,7 +200,7 @@ void TWorld::OverlandFlow(void)
     // calculate resulting flux Qn back to water height on surface
     FOR_ROW_COL_MV
     {
-        double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/(_dx-ChannelWidthUpDX->Drc);
+        double WHoutavg = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
         // WH based on A/dx = alpha Q^beta / dx
         /* TODO _dx also needs to be corrected for wheeltracks and gullies */
 
@@ -214,20 +210,20 @@ void TWorld::OverlandFlow(void)
         WH->Drc = WHoutavg + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        ChannelV->Drc = Qn->Drc/(WHoutavg*(_dx-ChannelWidthUpDX->Drc));
+        ChannelV->Drc = Qn->Drc/(WHoutavg*ChannelAdj->Drc);
         // recalc velocity for output to map ????
-//    }
+        //    }
 
-//    SurfaceStorage();
-//    //recalc flowwidth with new WH and so on
+        //    SurfaceStorage();
+        //    //recalc flowwidth with new WH and so on
 
-//    FOR_ROW_COL_MV
-//    {
+        //    FOR_ROW_COL_MV
+        //    {
 
 
         WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // new water volume after kin wave, all water incl depr storage
-   //     WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
+        //     WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
 
         double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after

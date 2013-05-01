@@ -61,6 +61,7 @@
 
 /// shortcut to access data
 #define Drc     Data[r][c]
+#define Drci Data[r+dr[i]][c+dc[i]]
 
 /// shortcut to access the outlet point data
 #define DrcOutlet     Data[r_outlet][c_outlet]
@@ -408,8 +409,11 @@ public:
     void InfilSmithParlange1(TMMap *_WH);
     void InfilMorelSeytoux1(TMMap *_WH);
     void InfilKsat(TMMap *_WH);
-    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p);
+    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
+
+    void InfilKsatA(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
+    void InfilGreenAmpt1A(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
 
     void SurfaceStorage(void);
     void OverlandFlow(void);
@@ -429,6 +433,7 @@ public:
     void ChannelFlowDetachment(void);
     //flood
     void ChannelFlood(void);
+    void ChannelOverflow(void);
     double courant_factor;
     double cfl_fix;
 

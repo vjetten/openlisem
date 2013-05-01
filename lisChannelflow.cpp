@@ -68,17 +68,8 @@ void TWorld::CalcVelDischChannel(void)
             Perim = FW + 2*wh;
             Area = FW*wh;
         }
-        //Perim = ChannelWidth->Drc + 2*wh/cos(atan(ChannelSide->Drc));
-        // cos atanb more expensive than sqrt ?
-        //Area = ChannelWidth->Drc*wh + wh*(ChannelWidthUpDX->Drc - ChannelWidth->Drc);
 
-        ChannelPerimeter->Drc = Perim;
-        //VJ 110109 needed for channel infil
-
-        if (Perim > 0)
-            Radius = Area/Perim;
-        else
-            Radius = 0;
+        Radius = (Perim > 0 ? Area/Perim : 0);
 
         ChannelAlpha->Drc = qPow(ChannelN->Drc/grad * powl(Perim, _23),beta);
 
@@ -87,9 +78,25 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
+//        if (SwitchChannelFlood)
+//        {
+//            if (ChannelMaxQ->Drc > 0)
+//            {
+//                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
+//                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, 0.6);
+//                ChannelWH->Drc = Area/FW;
+//                Perim = FW+2*ChannelWH->Drc;
+//                Radius = (Perim > 0 ? Area/Perim : 0);
+//                ChannelAlpha->Drc = qPow(ChannelN->Drc/grad * powl(Perim, _23),beta);
+//            }
+//        }
+
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
 
         ChannelWaterVol->Drc = Area * ChannelDX->Drc;
+
+        ChannelPerimeter->Drc = Perim;
+        //VJ 110109 needed for channel infil
     }
 }
 //---------------------------------------------------------------------------
@@ -164,6 +171,8 @@ void TWorld::ChannelWaterHeight(void)
             ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
+
+            ChannelAdj->Drc = _dx - ChannelWidthUpDX->Drc;
         }
     }
 }

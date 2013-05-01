@@ -143,7 +143,7 @@ void TWorld::Totals(void)
         {
             FloodVolTot = FloodWaterVol->mapTotal();
             floodTotmm = FloodVolTot*catchmentAreaFlatMM;
-           // WaterVolTot += FloodWaterVol->mapTotal();
+
         }
     }
 

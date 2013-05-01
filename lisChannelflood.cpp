@@ -36,7 +36,33 @@ functions: \n
 #include "model.h"
 #include "global.h"
 
-#define Drci Data[r+dr[i]][c+dc[i]]
+
+//---------------------------------------------------------------------------
+// get flood level in channel from 1D kin wave channel
+// note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
+// checked with excel!
+void TWorld::ChannelOverflow(void)
+{
+    FOR_ROW_COL_MV_CH
+    {
+        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
+        {
+            double fc = ChannelWidthUpDX->Drc/_dx;
+            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc)*fc + hmx->Drc*(1-fc);
+
+            if (whlevel > 0)
+            {
+                hmx->Drc = whlevel;
+                ChannelWH->Drc = whlevel + ChannelDepth->Drc;
+            }
+            else
+            {
+                hmx->Drc = 0;
+                ChannelWH->Drc += hmx->Drc*fc;
+            }
+        }
+    }
+}
 
 //---------------------------------------------------------------------------
 
@@ -47,58 +73,13 @@ void TWorld::ChannelFlood(void)
         return;
     if (!SwitchChannelFlood)
         return;
+
+    ChannelOverflow();
+
+    double sumh_t = hmx->mapTotal();
     double dtflood = 0;
-
-    int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dr[9] = {-1, -1, -1, 0,0,0, 1,1,1};
-    FloodDomain->fill(1);
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            FloodDomain->Drc = 1;
-            for (int i = 0; i < 9; i++)
-            {
-                if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
-                        c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                        !IS_MV_REAL8(&hmx->Drci))
-                    FloodDomain->Drci = 1;
-            }
-        }
-    }
-
-
-    // get flood level in channel from 1D kin wave channel
-    FOR_ROW_COL_MV_CH
-    {
-
-        // note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
-        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
-        {
-//            double whsurp = ChannelWH->Drc - ChannelDepth->Drc;
-//            double whlevel = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx);
-
-//            if (whlevel > 0)
-//            {
-//                hmx->Drc = max(0, whlevel);
-//                ChannelWH->Drc = whlevel + ChannelDepth->Drc - F_levee;
-//            }
-
-            double whsurp = ChannelWH->Drc - ChannelDepth->Drc;
-            double whlevel = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx);
-
-            if (whlevel > 0)
-            {
-                hmx->Drc = whlevel;
-                if (ChannelWH->Drc > ChannelDepth->Drc)
-                    ChannelWH->Drc = whlevel + ChannelDepth->Drc;
-                else
-                    ChannelWH->Drc += whlevel;
-            }
-        }
-    }
-
     startFlood = false;
+
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
@@ -107,8 +88,10 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-//    double sumh_t = hmx->mapTotal();
-
+//    FOR_ROW_COL_MV
+//    {
+//        InfilVolFlood->Drc = hmx->Drc*DX->Drc*ChannelAdj->Drc;
+//    }
 
     if (SwitchFloodExplicit)
     {
@@ -120,8 +103,10 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*DX->Drc; //???
+            //Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+            Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+
         }
     }
 
@@ -130,8 +115,9 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            Qflood->Drc = (q1flood->Drc + q2flood->Drc)*(_dx-ChannelWidthUpDX->Drc);
+            //Qflood->Drc = (q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+            Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
     }
 
@@ -140,10 +126,29 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2Do1a(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            Qflood->Drc = (q1flood->Drc + q2flood->Drc)*(_dx-ChannelWidthUpDX->Drc);
+            //            Qflood->Drc = (q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+            Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
     }
+
+    double sumh_t2 = hmx->mapTotal();
+
+    ChannelOverflow();
+
+    // floodwater volume and max flood map
+    FloodWaterVol->fill(0);
+    FOR_ROW_COL_MV
+    {
+        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+
+        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
+        if (hmx->Drc > 0.05)
+            timeflood->Drc += _dt/60;
+        // for output
+    }
+    maxflood->report("maxflood.map");
+    timeflood->report("timeflood.map");
 
     FOR_ROW_COL_MV
     {
@@ -152,52 +157,23 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-//    FloodDomain->report("fd");
+    //FloodDomain->report("fd");
+
+//    FOR_ROW_COL_MV
+//    {
+//        InfilVolFlood->Drc -= hmx->Drc*DX->Drc*ChannelAdj->Drc;
+//    }
+
 
     double cells = FloodDomain->mapTotal();
     double sumh_t1 = hmx->mapTotal();
-    double avgh = (cells > 0 ? sumh_t1/cells : 0);
+    double avgh = (cells > 0 ? (sumh_t1)/cells : 0);
     double area = cells*_dx*_dx;
     debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
-  //  qDebug() << sumh_t - sumh_t1;
-    // put new flood level in channel for next 1D kin wave channel
-    FOR_ROW_COL_MV_CH
-    {
-        if (hmx->Drc > F_levee)  //!!!!!
-        {
-            double whsurp = ChannelWH->Drc - ChannelDepth->Drc;
-            double whlevel = whsurp*ChannelWidthUpDX->Drc/_dx + hmx->Drc*(1-ChannelWidthUpDX->Drc/_dx);
 
-            if (whlevel > 0)
-            {
-                hmx->Drc = whlevel;
-                if (ChannelWH->Drc > ChannelDepth->Drc)
-                    ChannelWH->Drc = whlevel + ChannelDepth->Drc;
-                else
-                    ChannelWH->Drc += whlevel;
-            }
-//            else
-//            {
-//                hmx->Drc = 0;
-//                ChannelWH->Drc += whlevel;
-//            }
-        }
-    }
-
-    // floodwater volume and max flood map
-    FloodWaterVol->fill(0);
-    FOR_ROW_COL_MV
-    {
-        if (ChannelDepth->Drc == 0)
-        {
-            FloodWaterVol->Drc = hmx->Drc*DX->Drc*(_dx-ChannelWidthUpDX->Drc);
-        }
-        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
-        // for output
-    }
-
-    maxflood->report("maxflood.map");
+    qDebug() << sumh_t - sumh_t1 << sumh_t - sumh_t2;
+    //correct mass balance error!
 
 }
 //---------------------------------------------------------------------------
