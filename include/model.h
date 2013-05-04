@@ -342,7 +342,7 @@ public:
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
     int getvalueint(QString vname);
-    QString CheckDir(QString p);
+    QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
     void ParseRunfileData(void);
     void GetRunFile(void);
@@ -401,20 +401,20 @@ public:
     /// infiltration function calling all infiltration methods
     /// add rainnet to WH and calculating new WH
     void InterceptionHouses(void);
-    /// subtract water retained on houses, for urban projects
+    /// subtract water retained on houses, for urban projects    
+    void addRainfallWH(void);
+    /// add net rainfall to WH, WHroads and WHgrass
+
     void Infiltration(void);
     void InfiltrationFlood(void);
     void InfilSwatre(void);
-    void InfilGreenAmpt1(TMMap *_WH);
-    void InfilSmithParlange1(TMMap *_WH);
+//    void InfilGreenAmpt1(TMMap *_WH);
+//    void InfilSmithParlange1(TMMap *_WH);
     void InfilMorelSeytoux1(TMMap *_WH);
-    void InfilKsat(TMMap *_WH);
+//    void InfilKsat(TMMap *_WH);
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
-
-    void InfilKsatA(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
-    void InfilGreenAmpt1A(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
-
+    void InfilMethods(TMMap *_Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void ChannelFlow(void);
@@ -535,6 +535,7 @@ public:
     bool waitRequested;
     bool noInterface;
     bool noOutput;
+    bool batchmode;
     QMutex mutex;
     QWaitCondition condition;
     void stop();

@@ -786,7 +786,7 @@ double TWorld::bloc1(double dt, double dt_max)
         velocity_max_x = max(velocity_max_x, cfl);
     }
 
-     qDebug() << "bloc1a" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
+    // qDebug() << "bloc1a" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
 
     FOR_ROW_COL_MV_MV_
     {
@@ -820,7 +820,7 @@ double TWorld::bloc1(double dt, double dt_max)
         velocity_max_y = max(velocity_max_y, cfl);
     }
 
-     qDebug() << "bloc1b" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
+ //    qDebug() << "bloc1b" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
 
     if (scheme_type == 1)
         return(max(dt_ca,min(dtx,dty)));
@@ -1031,12 +1031,14 @@ double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, 
 {
     double timesum = 0;
     int n = 0;
+    double dt2;
 
     dx = _dx;
     dy = _dx; //TODO could be DX->Drc ? later !!!!
 
     dt_max = min(dx/2,dy/2);
     dt1 = dt_max;
+    dt2 = dt_max;
 
     if (prepareFlood)
     {

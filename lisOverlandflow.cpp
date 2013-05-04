@@ -50,15 +50,22 @@ void TWorld::ToFlood(void)
     {
         if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
         {
-            double wh = (WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
-            double whp = wh+hmx->Drc;
-            double f = (whp > 0 ? hmx->Drc/whp : 0);
-            if(hmx->Drc > 0.00)
+            if(hmx->Drc > 0.0)
             {
-                hmx->Drc = whp*f;
-                WHroad->Drc = (1-f)*whp;
-                WH->Drc = (1-f)*whp;
+                double wh = 0.01*WH->Drc;//(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
+                hmx->Drc += wh;
+                //WHroad->Drc -= wh*RoadWidthDX->Drc/_dx;
+                WH->Drc -= wh;
             }
+
+//            double whp = wh+hmx->Drc;
+//            double f = (whp > 0 ? hmx->Drc/whp : 0);
+//            if(hmx->Drc > 0.00)
+//            {
+//                hmx->Drc = whp*f;
+//                WHroad->Drc = (1-f)*whp;
+//                WH->Drc = (1-f)*whp;
+//            }
         }
     }
 }

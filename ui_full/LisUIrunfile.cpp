@@ -38,8 +38,8 @@
 #include "global.h"
 
 //---------------------------------------------------------------------------
-// fill namelist with the actual runfile data but correct for old runfiles
-// so that faulty data or obsolete vars are ignored
+//! fill namelist with the actual runfile data but correct for old runfiles
+//! so that faulty data or obsolete vars are ignored
 void lisemqt::GetRunfile()
 {
     QFile fin(op.runfilename);

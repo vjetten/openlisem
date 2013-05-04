@@ -56,7 +56,7 @@ output op;
 // to the interface each timestep, defined in LisUIoutput.h
 
 //--------------------------------------------------------------------
-lisemqt::lisemqt(QWidget *parent)
+lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
 {
     setupUi(this);
@@ -113,14 +113,28 @@ lisemqt::lisemqt(QWidget *parent)
 
     E_runFileList->clear();
 
-    GetStorePath();
-    // get last place visited by opneLISEM and go there
-
+    doBatchmode = doBatch;
+    batchRunname = runname;
+    if(doBatchmode)
+    {
+        runfilelist.clear();
+        runfilelist << batchRunname;
+        E_runFileList->insertItem(0, batchRunname);
+        stopAct->setChecked(false);
+        runAct->setChecked(true);
+        pauseAct->setChecked(false);
+        runmodel();
+    }
+    else
+    {
+        GetStorePath();
+    }
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
-    StorePath();
+    if (!doBatchmode)
+        StorePath();
 }
 //--------------------------------------------------------------------
 void lisemqt::SetConnections()
@@ -541,9 +555,9 @@ void lisemqt::savefile(QString name)
 //--------------------------------------------------------------------
 void lisemqt::deleteRunFileList()
 {
-    qDebug() << E_runFileList->currentIndex();
+    //   qDebug() << E_runFileList->currentIndex();
     E_runFileList->removeItem(E_runFileList->currentIndex());
-    qDebug() << E_runFileList->currentIndex();
+    //  qDebug() << E_runFileList->currentIndex();
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()
@@ -737,12 +751,13 @@ void lisemqt::shootScreen()
     QString format = "png";
     QFileInfo fi(op.runfilename);
     QString fileName;
+    QString outdir = CheckDir(E_ResultDir->text());
     //HBITMAP	toWinHBITMAP ( HBitmapFormat format = NoAlpha ) const
 
     if (doShootScreens)
     {
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(2));
-        fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + QString("_q%1.png").arg(op.runstep,5,'d',0,'0');
+        fileName = outdir + fi.baseName() + QString("_q%1.png").arg(op.runstep,5,'d',0,'0');
         originalPixmap.save(fileName, format.toAscii());
 
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(3));
@@ -759,7 +774,7 @@ void lisemqt::shootScreen()
                     if (op.drawMapType == 4)
                         type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
 
-        fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + type;
+        fileName = outdir + fi.baseName() + type;
 
         originalPixmap.save(fileName, format.toAscii());
     }
@@ -770,13 +785,12 @@ void lisemqt::shootScreen()
         QString format = "png";
         QString type = ".png";
         QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
-        qDebug() << DT;
+
         if (tabWidget->currentIndex() == 2)
             type = QString("%1_q.png").arg(DT);
         else
             if (tabWidget->currentIndex() == 3)
             {
-
                 if (op.drawMapType == 1)
                     type = QString("_r%1.png").arg(op.runstep,5,'d',0,'0');
                 else
@@ -790,7 +804,7 @@ void lisemqt::shootScreen()
                                 type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
 
             }
-        fileName = CheckDir(E_ResultDir->text()) + fi.baseName() + type;
+        fileName = outdir + fi.baseName() + type;
         originalPixmap.save(fileName, format.toAscii());
 
 

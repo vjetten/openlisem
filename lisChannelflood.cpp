@@ -74,7 +74,13 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
+    //    FOR_ROW_COL_MV
+    //    {
+    //        InfilVolFlood->Drc += hmx->Drc*DX->Drc*ChannelAdj->Drc;
+    //    }
+
     ChannelOverflow();
+    // mix overflow water and flood water in channel cells
 
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
@@ -88,10 +94,6 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-//    FOR_ROW_COL_MV
-//    {
-//        InfilVolFlood->Drc = hmx->Drc*DX->Drc*ChannelAdj->Drc;
-//    }
 
     if (SwitchFloodExplicit)
     {
@@ -103,7 +105,6 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            //Qflood->Drc = 0.5*(q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
 
@@ -115,7 +116,6 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            //Qflood->Drc = (q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
@@ -126,7 +126,6 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2Do1a(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
-            //            Qflood->Drc = (q1flood->Drc + q2flood->Drc)*ChannelDX->Drc;
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
@@ -134,9 +133,32 @@ void TWorld::ChannelFlood(void)
 
     double sumh_t2 = hmx->mapTotal();
 
+    //    FOR_ROW_COL_MV
+    //    {
+    //        InfilVolFlood->Drc -= hmx->Drc*DX->Drc*ChannelAdj->Drc;
+    //    }
+
     ChannelOverflow();
 
+    double sumh_t3 = hmx->mapTotal();
+    double m = 0;
+    FOR_ROW_COL_MV
+    {
+        if(hmx->Drc > 0)
+            m+=1;
+    }
+    double dh = (m > 0 ? (sumh_t - sumh_t3)/m : 0);
+    FOR_ROW_COL_MV
+    {
+        if(hmx->Drc > 0)
+        {
+            hmx->Drc += dh;
+            hmx->Drc = max(hmx->Drc , 0);
+        }
+    }
+ //   sumh_t2 = hmx->mapTotal();
     // floodwater volume and max flood map
+
     FloodWaterVol->fill(0);
     FOR_ROW_COL_MV
     {
@@ -158,12 +180,6 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
     //FloodDomain->report("fd");
-
-//    FOR_ROW_COL_MV
-//    {
-//        InfilVolFlood->Drc -= hmx->Drc*DX->Drc*ChannelAdj->Drc;
-//    }
-
 
     double cells = FloodDomain->mapTotal();
     double sumh_t1 = hmx->mapTotal();

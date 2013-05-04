@@ -41,8 +41,8 @@ QString ErrorString;    // declare here, referenced by error.h
 
 void Error(QString s)
 {
-   ErrorString = s;
-   throw 1;
+    ErrorString = s;
+    throw 1;
 }
 
 int main(int argc, char *argv[])
@@ -53,54 +53,92 @@ int main(int argc, char *argv[])
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 
-    lisemqt iface;
-
-    iface.setWindowTitle(VERSION);
-
     if (argc <= 1)
     {
-         iface.show();
-         // make an instance of the interface and show it
+        lisemqt iface;
+
+        iface.setWindowTitle(VERSION);
+        iface.show();
+        // make an instance of the interface and show it
+
+        return app.exec();
     }
     else
     {
-       // run without interface
+        // run without interface
+        bool noInterface;
+        bool noOutput;
+        bool batchmode;
+        QString name;
 
-       QStringList args;
-       for (int i = 1; i < argc+1; i++)
+        QStringList args;
+        for (int i = 1; i < argc+1; i++)
             args << QString(argv[i]);
 
-       TWorld *W = new TWorld();
-       // make the model world
+        bool runfound = false;
 
-       if (args.contains("-ni"))
-       {
-          W->noInterface = true;
-          W->noOutput = false;
-       }
-       else
-       if (args.contains("-no"))
-       {
-          W->noInterface = true;
-          W->noOutput = true;
-       }
-       else
-       {
-          printf("syntax:\nopenlisem [-ni,-no] runfilename\n-ni = no inteface but counter and info\n-no = only error output\n");
-          delete W;
-          return 0;
-       }
+        int n = 0;
+        foreach (QString str, args)
+        {
+            if (str.contains("-r"))
+            {
+                runfound = true;
+                name = str;
+                name.remove("-r");
+                if (name.isEmpty())
+                    name= args[n+1];
+            }
+            n++;
+        }
 
-       W->stopRequested = false;
-       // stoprequested is used to stop the thread with the interface
-       W->waitRequested = false;
-       // waitrequested is used to pause the thread with the interface, only on windows machines!
-       int l = args.count()-2;
+        int count1 = args.indexOf("-ni");
+        int count2 = args.indexOf("-no");
+        int count3 = args.indexOf("-b");
 
-       W->temprunname = args[l];
+        //   qDebug() << count0 << count1 << count2;
 
-       W->start();
+        noInterface = count1 > -1;
+        noOutput = count2 > -1;
+        batchmode = count3 > -1;
+        if (!batchmode)
+        {
+            if (noInterface)
+                noOutput = false;
+            if (noOutput)
+                noInterface = true;
+        }
+
+        if (!runfound)
+        {
+            printf("syntax:\nopenlisem [-b,-ni,-no] -r runfilename\n"
+                   "-b batch mode with interface, run multiple files\n"
+                   "-ni = no inteface, with counter and info\n"
+                   "-no = only error output\n");
+            return 0;
+        }
+
+        if (runfound && !noInterface)
+        {
+            lisemqt iface(0, batchmode, name);
+//            iface.doBatchmode = batchmode;
+//            iface.batchRunname = name;
+            iface.setWindowTitle(VERSION);
+            iface.show();
+
+            return app.exec();
+        }
+        else
+        {
+            TWorld *W = new TWorld();
+            // make the model world
+            W->stopRequested = false;
+            W->waitRequested = false;
+            W->noInterface = noInterface;
+            W->noOutput = noOutput;
+            W->start();
+
+            return app.exec();
+        }
     }
 
-    return app.exec();
 }

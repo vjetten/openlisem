@@ -94,6 +94,7 @@ void lisemqt::runmodel()
     // waitrequested is used to pause the thread with the interface, only on windows machines!
     W->noInterface = false;
     W->noOutput = false;
+    W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
     W->start();
@@ -167,6 +168,7 @@ void lisemqt::worldDone(const QString &results)
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
 
+    tabWidget->setCurrentIndex(2);
     shootScreen();
 
     // arrive here after model emits done signal
@@ -181,13 +183,17 @@ void lisemqt::worldDone(const QString &results)
     // clear() plot data and set startplot to true
 
     // free the map plot discharge bdata
-    bool hoi = QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
+    QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
+
     // delete the temp run file
-    qDebug() << "deleted" << hoi;
+    qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";
 
     stopAct->setChecked(false);
     runAct->setChecked(false);
     pauseAct->setChecked(false);
+
+    if (doBatchmode)
+        close();
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

@@ -1357,7 +1357,7 @@ void TWorld::IntializeOptions(void)
     SwitchSimpleSedKinWave = false;
     SwitchSOBEKoutput = false;
     SwitchPCRoutput = false;
-    SwitchSoilwater = false;
+    SwitchSoilwater = true;
     SwitchGeometric = true;
 
     SwitchWriteHeaders = true; // write headers in output files in first timestep

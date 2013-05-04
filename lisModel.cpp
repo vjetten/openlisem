@@ -154,7 +154,10 @@ void TWorld::DoModel()
             runstep++;
 
             if (noInterface && !noOutput)
-                qDebug() << runstep << time ;
+            {
+                int maxstep = (int)(EndTime-BeginTime)/_dt ;
+                qDebug() << runstep << maxstep << time/60 ;
+            }
 
             mutex.lock();
             if(stopRequested) DEBUG("User interrupt...");
@@ -172,6 +175,7 @@ void TWorld::DoModel()
 
             Interception();      // do interception by plants
             InterceptionHouses();// do urban interception
+            addRainfallWH();
 
             //ToFlood();           // mix overland flow with flood domain
 

@@ -5,7 +5,7 @@ QT += core \
 QWTDIR = c:/Qt/qwt
 #CSFDIR = d:/prgc/libcsf/
 #change the QWT directory to your own install
-#CONFIG += console
+CONFIG += console
 # this echos qdebug to screen in dos mode
 CONFIG += exceptions
 HEADERS += \

@@ -96,10 +96,13 @@ class lisemqt : public QMainWindow, private Ui::lisemqtClass
    Q_OBJECT
 
 public:
-   lisemqt(QWidget *parent = 0);
+   lisemqt(QWidget *parent = 0, bool doBatch = false, QString runName = "");
    ~lisemqt();
 
    QProgressBar *pb;
+
+   bool doBatchmode;
+   QString batchRunname;
 
    void initMapTree();
    void DefaultMapnames();

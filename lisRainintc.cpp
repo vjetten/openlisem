@@ -419,6 +419,37 @@ void TWorld::InterceptionHouses(void)
     }
 }
 //---------------------------------------------------------------------------
+void TWorld::addRainfallWH(void)
+{
+    FOR_ROW_COL_MV
+    {
+        if (FloodDomain->Drc > 0)
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+        else
+        {
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // add net to water rainfall on soil surface (in m)
+
+            if (SwitchBuffers && !SwitchSedtrap)
+                if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+                {
+                    WH->Drc = 0;
+                    BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                }
+            // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
+            // not for sed traps, behave normally
+
+            if (GrassFraction->Drc > 0)
+                WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // net rainfall on grass strips, infil is calculated separately for grassstrips
+
+            if (RoadWidthDX->Drc > 0)
+                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+            // assume no interception and infiltration on roads, gross rainfall
+        }
+    }
+}
+//---------------------------------------------------------------------------
 /// read rainfall files of different types and put data in RainfallSeries
 /// reads also old RUU lisem rain files
 /// reads rainfall maps
@@ -526,6 +557,4 @@ void TWorld::GetRainfallData(void)
 }
 */
 //---------------------------------------------------------------------------
-
-
 

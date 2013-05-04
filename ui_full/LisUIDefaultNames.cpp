@@ -267,7 +267,44 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
-    //flooding
+
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include tile drains");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Hard Surfaces");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include road system");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include house storage");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include raindrum storage");
+
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Limit TC");
+    namelist[i].name = QString("0");
+    namelist[i++].name = QString("Limit Deposition TC");
+    // namelist[i].value = QString("1");
+    // namelist[i++].name = QString("All water and sediment to outlet");
+    //    namelist[i].value = QString("0");
+    //    namelist[i++].name = QString("No erosion at outlet");
+    //    namelist[i].value = QString("0");
+    //    namelist[i++].name = QString("Alternative flow detachment");
+    //    namelist[i].value = QString("0");
+    //    namelist[i++].name = QString("Simple depression storage");
+
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Interception]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use canopy storage map");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Canopy storage equation");
+    namelist[i].value = QString("0.05");
+    namelist[i++].name = QString("Stemflow fraction");
+    namelist[i].value = QString("0.45");
+    namelist[i++].name = QString("Canopy Openess");
+
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Flooding]");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
@@ -286,46 +323,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF scheme");
     namelist[i].value = QString("0.000");
     namelist[i++].name = QString("Flood channel side levee");
-
-//    namelist[i].value = QString("10.0");
-//    namelist[i++].name = QString("Max flood level");
-//    namelist[i].value = QString("0.01");
-//    namelist[i++].name = QString("Min flood dt");
-
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include tile drains");
-    //houses
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include house storage");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include raindrum storage");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("All water and sediment to outlet");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("No erosion at outlet");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Alternative flow detachment");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Simple depression storage");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Hard Surfaces");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Include road system");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Limit TC");
-    namelist[i].name = QString("0");
-    namelist[i++].name = QString("Limit Deposition TC");
-
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[Interception]");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use canopy storage map");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Canopy storage equation");
-    namelist[i].value = QString("0.05");
-    namelist[i++].name = QString("Stemflow fraction");
-    namelist[i].value = QString("0.45");
-    namelist[i++].name = QString("Canopy Openess");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

@@ -188,6 +188,422 @@ void TWorld::InfilMorelSeytoux1(TMMap *_WH)
     }
 }
 //---------------------------------------------------------------------------
+// Infiltration by Green and Ampt,Smith and Parlange or Ksat.
+// All the same except for calculation of the potential infiltration fpot
+// 1 layer and 2 layers
+/*!
+\brief function to calculate potential and actula infiltration rate according to
+Green and Mapt, Smith and Parlange or Ksat subtraction.
+
+This function deals with 1 or 2 layer infiltration, calls advance of wetting front
+and is called by normal soil infil and grass strip infil.
+*/
+void TWorld::InfilMethods(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull)
+{
+    FOR_ROW_COL_MV
+    {
+        double fact1 = 0;
+        double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
+        double fwh = _WH->Drc; // in m, WH is old WH + net rainfall
+        double Psi = Psi1->Drc;
+        double space = max(ThetaS1->Drc-ThetaI1->Drc, tiny);
+
+        if (SoilDepth1->Drc <= tiny)
+        {
+            _fpot->Drc = 0;
+            _fact->Drc = 0;
+            continue;
+        }
+        // outcrops etc: no infil in this cell
+
+        if (SwitchTwoLayer && _L1->Drc > SoilDepth1->Drc - tiny)
+        {
+            Ks = min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+            Psi = Psi2->Drc;
+            space = max(ThetaS2->Drc-ThetaI2->Drc, tiny);
+        }
+        // two layers
+
+        // calculate potential infiltration fpot in m
+        switch (InfilMethod)
+        {
+        case INFIL_KSAT : _fpot->Drc = Ks; break;
+        case INFIL_GREENAMPT :
+        case INFIL_GREENAMPT2 :
+            _fpot->Drc = Ks*(1+(Psi+fwh)/(_L1->Drc+_L2->Drc)); break;
+        case INFIL_SMITH :
+        case INFIL_SMITH2 :
+            double B = (fwh + Psi)*space;
+            double Cdexp = exp(Fcum->Drc/B);
+            _fpot->Drc = Ks*Cdexp/(Cdexp-1);
+            break;
+        }
+
+        fact1 = min(_fpot->Drc, fwh);
+        // actual infil in m, cannot have more infil than water on the surface
+
+        _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
+        // adjust fact and increase L1 and L2, for twolayer, impermeable etc
+    }
+}
+//---------------------------------------------------------------------------
+/*!
+\brief function to increase wetting front and deal with 2nd layer and impermeable subsoil
+ returns actual infiltration rate.
+
+ this function is called form all infiltration functions except Swatre
+possible situations:
+ one layer and not impermeable: L1+dL1
+ one layer and impermeable: L1+dL1 untill L = soildepth1
+ 2 layer and not impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 if L > soildepth1
+ 2 layer and impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 untill L = soildepth2
+*/
+double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
+{
+    double dL1, dL2; // increase in wetting front layer 1 and 2 in m
+    double L1, L2, FFull; // wetting front depth layer 1 and 2 in m
+    L1 = *L1p;
+    L2 = *L2p;
+    FFull = *FFullp;
+
+    if (FFull == 1)
+        return 0;
+
+    dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
+    // increase in depth (m) is actual infiltration/available porespace
+    // do this always, correct if 1st layer is full
+
+    // correct dL1 in case of 1 layer and water reached the bottom
+    if (!SwitchTwoLayer)
+    {
+        // reaches bottom in this timestep, dL1 is remaing space (can be 0)
+        // if impermeable fact = 0, if not impermeable fact is calculated with fixed L1
+        if (L1+dL1 > SoilDepth1->Drc)
+        {
+            dL1 = max(0, SoilDepth1->Drc - L1);
+            if (SwitchImpermeable)
+            {
+                FFull = 1;
+                fact = dL1 * (ThetaS1->Drc-ThetaI1->Drc);
+            }
+        }
+    }
+
+    L1 += dL1;
+    // increase infiltration depth L1  = fact/avail pore space
+
+    //infiltration can go on in the second layer & first layer is full
+    if (SwitchTwoLayer)
+    {
+        // water enters into second layer
+        if (L1 > SoilDepth1->Drc - tiny)
+        {
+            dL2 = fact/max(tiny, (ThetaS2->Drc-ThetaI2->Drc));
+            // increase in 2nd layer
+
+            // reaches bottom in this timestep, dL2 is remaing space (can be 0)
+            // if impermeable fact = 0, if not impermeable fact is calculated with fixed L1+L2
+            if (L2+dL2 > SoilDepth2->Drc && L2 < SoilDepth2->Drc)
+            {
+                dL2 = max(0, SoilDepth2->Drc - L2);
+                if (SwitchImpermeable)
+                {
+                    FFull = 1;
+                    fact = dL2 * (ThetaS2->Drc-ThetaI2->Drc);
+                }
+            }
+            L2 += dL2;
+            // increase infiltration depth L2  = fact/avail pore space
+        }
+    }
+
+    *L1p = (REAL8)L1;
+    *L2p = (REAL8)L2;
+
+    return fact;
+}
+//---------------------------------------------------------------------------
+/*!
+ \brief Main infiltration function, calls infiltration types (SWATRE, Green and Ampt,
+  Smith and Parlange, Ksat subtraction. Calculates effective Ksat based on different
+  surface types (crust, compaction).
+
+  Main infiltration function\n
+  - add net rainfall and snowmelt to surface water WH\n
+  - keep track of different surface types: grass strips, compaction, crusting, roads, hard surface
+  - do SWATRE or one of the others, SWATRE is a different set of functions\n
+  - for the other functions (Green and Ampt, Smith and Parlange, Ksat)
+  - calculate effective Ksat\n
+  - call one of the infiltration functions for the actual infiltration rate
+    and the infiltration surplus for the kinematic wave\n
+  - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
+  - decrease of surface water layer WH and calculate infiltration volume
+  */
+void TWorld::Infiltration(void)
+{
+    InfilVol->fill(0);
+
+    FOR_ROW_COL_MV
+      //      if(FloodDomain->Drc == 0)
+    {
+        InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        // potential water volume on surface before infil
+
+        // calculate effective ksat for various situations
+        if (InfilMethod != INFIL_SWATRE  && InfilMethod != INFIL_NONE)
+        {
+            Ksateff->Drc = Ksat1->Drc;
+            if (SwitchInfilCrust)
+                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+            if (SwitchInfilCompact)
+                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+            if (SwitchInfilCrust && SwitchInfilCompact)
+                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
+                        KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+            // avg ksat of "normal" surface with crusting and compaction fraction
+            // adjust effective infil for crusting and compaction
+            //VJ 110106 adapted this calculation
+
+            if (SwitchHardsurface && HardSurface->Drc > 0)
+                Ksateff->Drc = (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
+            //VJ 110111 no infiltration on hard surfaces
+
+            //houses
+            if (SwitchHouses)
+                Ksateff->Drc = Ksateff->Drc * (1-HouseCover->Drc);
+            //VJ decrease ksat for celss with houses
+
+            Ksateff->Drc *= ksatCalibration;
+            // apply runfile/iface calibration factor
+
+            if (SwitchBuffers && !SwitchSedtrap)
+                if(BufferID->Drc > 0)
+                    Ksateff->Drc = 0;
+            //VJ 1000608 no infil in buffers, , but sedtrap can have infil
+        }
+    } //row col
+
+    switch (InfilMethod)
+    {
+    case INFIL_NONE : fact->fill(0); fpot->fill(0); break;
+    case INFIL_SWATRE : InfilSwatre(); break;   // includes grasstrips, compaction etc
+    case INFIL_KSAT :
+    case INFIL_GREENAMPT :
+    case INFIL_GREENAMPT2 :
+    case INFIL_SMITH :
+    case INFIL_SMITH2 :
+        InfilMethods(Ksateff, WH, fpot, fact, L1, L2, FFull);
+        if(SwitchGrassStrip)
+            InfilMethods(KsatGrass, WHGrass, fpotgr, factgr, L1gr, L2gr, FFull);
+        break;
+    case INFIL_MOREL :
+    case INFIL_HOLTAN : break;
+    }
+    // this function results in an actual infiltration "fact" (in m) and
+    // potential infiltration "fpot" (in m), according to G&A, S&P etc.
+    // It deals with 1 or 2 layers and increase of water depth
+    // grass strips as a separate infiltration process (SWATRE grass is included)
+
+    FOR_ROW_COL_MV
+         //   if(FloodDomain->Drc == 0)
+    {
+        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
+        {
+            if (RoadWidthDX->Drc == _dx)
+            {
+                fact->Drc = 0;
+                fpot->Drc = 0;
+            }
+            // to make sure WH is not decreasd when all is road
+
+            WH->Drc -= fact->Drc;
+            if (WH->Drc < 0) // in case of rounding of errors
+            {
+                fact->Drc += WH->Drc;
+                WH->Drc = 0;
+            }
+            // subtract fact->Drc from WH, cannot be more than WH
+
+            Fcum->Drc += fact->Drc;
+            // cumulative infil in m
+
+            if (GrassFraction->Drc > 0)
+            {
+                WHGrass->Drc -= factgr->Drc;
+                if (WHGrass->Drc < 0) // in case of rounding of errors
+                {
+                    factgr->Drc += WHGrass->Drc;
+                    WHGrass->Drc = 0;
+                }
+                Fcumgr->Drc += factgr->Drc;
+            }
+            // calculate and correct water height on grass strips
+        }
+
+        if (GrassFraction->Drc > 0)
+            WH->Drc = (1-GrassFraction->Drc) * WH->Drc + GrassFraction->Drc * WHGrass->Drc;
+        // average water height if grasstrip present
+
+        FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
+        // negative surplus of infiltration in m for kinematic wave in m
+
+        if (GrassFraction->Drc > 0)
+            FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
+        // if grasstrip present use grasstrip surplus as entire surplus
+
+        if (FFull->Drc == 1)
+            FSurplus->Drc = 0;
+        //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
+
+        InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        // infil volume is WH before - water after
+    }
+}
+//---------------------------------------------------------------------------
+// do infiltration for flooded area exclusing channel cells
+void TWorld::InfiltrationFlood(void)
+{
+    if (!SwitchChannelFlood)
+        return;
+
+    if (InfilMethod == INFIL_NONE)
+        return;
+
+    InfilVolFlood->fill(0);
+
+    FOR_ROW_COL_MV
+            if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
+    {
+        //  hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+        // potentially wrong!! flood height can be larger than plant height so no interception.
+        // separate house interception
+
+        InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
+        // potential water volume on surface before infil
+
+        // calculate effective ksat for various situations
+        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
+        {
+            Ksateff->Drc = Ksat1->Drc;
+            if (SwitchInfilCrust)
+                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+            if (SwitchInfilCompact)
+                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+            if (SwitchInfilCrust && SwitchInfilCompact)
+                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
+                        KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+
+            if (SwitchHardsurface)
+                Ksateff->Drc *= (1-HardSurface->Drc);
+
+            if (SwitchHouses)
+                Ksateff->Drc *= (1-HouseCover->Drc);
+
+            if (RoadWidthDX->Drc > 0)
+                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
+
+            if (GrassFraction->Drc > 0)
+                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+
+            Ksateff->Drc *= ksatCalibration;
+            // apply runfile/iface calibration factor
+
+            if (SwitchBuffers && !SwitchSedtrap && SwitchBuffersImpermeable)
+                if(BufferID->Drc > 0)
+                    Ksateff->Drc = 0;
+        }
+    } //row col
+
+    switch (InfilMethod)
+    {
+    case INFIL_NONE : ffact->fill(0); ffpot->fill(0); break;
+    case INFIL_SWATRE : InfilSwatre(); break;   // includes grasstrips, compaction etc
+    case INFIL_KSAT :
+    case INFIL_GREENAMPT :
+    case INFIL_GREENAMPT2 :
+    case INFIL_SMITH :
+    case INFIL_SMITH2 :
+        InfilMethods(Ksateff, hmx, ffpot, ffact, Lf1, Lf2, FfFull); break;
+    }
+
+    FOR_ROW_COL_MV
+            if(FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
+    {
+        if (InfilMethod != INFIL_SWATRE)
+        {
+            if (RoadWidthDX->Drc == _dx)
+            {
+                fact->Drc = 0;
+                fpot->Drc = 0;
+            }
+
+            hmx->Drc -= ffact->Drc;
+            // decrease wh with net infil
+            if (hmx->Drc < 0)
+            {
+                ffact->Drc += hmx->Drc;
+                hmx->Drc = 0;
+            }
+
+            Ffcum->Drc += ffact->Drc;
+            // cumulative infil in m used in G&A infil function
+        }
+
+        FfSurplus->Drc = min(0, ffact->Drc - ffpot->Drc);
+        // negative surplus of infiltration in m for kinematic wave in m
+        if (FfFull->Drc == 1)
+            FfSurplus->Drc = 0;
+
+        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
+        // infil volume is WH before - water after
+        // used for water balance and screen display
+    }
+}
+//---------------------------------------------------------------------------
+// calculates decrease in soil moisture under wetting front
+// based on percolation = ksat*(theta/pore)*bca
+// bca is related to ksat when looking at brooks corey
+// effects in ksateff do not influence percolation so ksat1 or ksat2 are used
+void TWorld::SoilWater()
+{
+    if (!SwitchSoilwater
+            || InfilMethod == INFIL_SWATRE
+            || SwitchImpermeable
+            || InfilMethod == INFIL_NONE)
+        return;
+
+    FOR_ROW_COL_MV
+    {
+        double Percolation, bca;
+
+        if (!SwitchTwoLayer)
+        {
+            bca = 5.55*qPow(Ksat1->Drc,-0.114);
+            Percolation = Ksat1->Drc * pow(ThetaI1->Drc/ThetaS1->Drc, bca);
+
+            Soilwater->Drc = (SoilDepth1->Drc - L1->Drc)*ThetaI1->Drc;
+            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
+            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth1->Drc - L1->Drc)*ThetaS1->Drc);
+            ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : 1.0);
+            ThetaI1->Drc = min(ThetaI1->Drc, ThetaS1->Drc);
+        }
+        else
+        {
+            bca = 5.55*qPow(Ksat2->Drc,-0.114);
+            Percolation = Ksat2->Drc * pow(ThetaI2->Drc/ThetaS2->Drc, bca);
+
+            Soilwater->Drc = (SoilDepth2->Drc - L2->Drc)*ThetaI2->Drc;
+            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
+            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth2->Drc - L2->Drc)*ThetaS2->Drc);
+            ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : 1.0);
+            ThetaI2->Drc = min(ThetaI2->Drc, ThetaS2->Drc);
+        }
+
+    }
+}
+//---------------------------------------------------------------------------
+/*
 /// Solution Eurosem v2 manual page 10, Morgan et al 1998
 void TWorld::InfilSmithParlange1(TMMap *_WH)
 {
@@ -264,7 +680,6 @@ void TWorld::InfilGreenAmpt1(TMMap *_WH)
         }
         // outcrops etc: no infil
 
-
         if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
         {
             Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
@@ -337,452 +752,4 @@ void TWorld::InfilKsat(TMMap *_WH)
     }
 }
 //---------------------------------------------------------------------------
-/// Direct subtraction of Ksat, added for testing purposes!
-void TWorld::InfilKsatA(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull)
-{
-    FOR_ROW_COL_MV
-    {
-        double fact1;
-        double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
-        double fwh = _WH->Drc; // in m
-
-        if (SoilDepth1->Drc <= tiny)
-        {
-            _fpot->Drc = 0;
-            _fact->Drc = 0;
-            continue;
-        }
-
-        if (SwitchTwoLayer && _L1->Drc > SoilDepth1->Drc - tiny)
-            Ks = min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
-
-        _fpot->Drc = Ks;
-        // potential infil equals Ksat during this timestep, unit is m (not a flux)
-
-        fact1 = min(_fpot->Drc, fwh);
-        // actual infil in m, cannot have more infil than water on the surface
-        _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
-        // adjust fact for twolayer, impermeable etc
-
-        //        if(SwitchGrassStrip)
-        //        {
-        //            fwh = WHGrass->Drc; // in m
-        //            Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
-
-        //            if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
-        //                Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
-
-        //            fpotgr->Drc = Ks;
-
-        //            fact1 = min(fpotgr->Drc, fwh);
-
-        //            factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc);
-        //        }
-    }
-}
-void TWorld::InfilGreenAmpt1A(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull)
-{
-    FOR_ROW_COL_MV
-    {
-        double fact1;
-        double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
-        double fwh = _WH->Drc; // in m, WH is old WH + net rainfall
-        double Psi = Psi1->Drc;
-
-        if (SoilDepth1->Drc <= tiny)
-        {
-            _fpot->Drc = 0;
-            _fact->Drc = 0;
-            continue;
-        }
-        // outcrops etc: no infil
-
-
-        if (SwitchTwoLayer && _L1->Drc > SoilDepth1->Drc - tiny)
-        {
-            Ks = min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
-            // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-            Psi = Psi2->Drc;
-            //VJ 110118 added psi of layer 2, was a bug
-        }
-
-        _fpot->Drc = Ks*(1+(Psi+fwh)/(_L1->Drc+_L2->Drc));
-        // potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
-        // L1 initialized at 1e-10, psi in cm so in datainit multiplied by 0.01 for m
-
-        fact1 = min(_fpot->Drc, fwh);
-        // actual infil in m, cannot have more infil than water on the surface
-
-        _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
-        // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-    }
-}
-//---------------------------------------------------------------------------
-/*!
-\brief function to increase wetting front and deal with 2nd layer and impermeable subsoil
- returns actual infiltration rate.
-
- this function is called form all infiltration functions except Swatre
-possible situations:
- one layer and not impermeable: L1+dL1
- one layer and impermeable: L1+dL1 untill L = soildepth1
- 2 layer and not impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 if L > soildepth1
- 2 layer and impermeable: L1+dL1 if L <= soildepth1 and L2+dL2 untill L = soildepth2
 */
-double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
-{
-    double dL1, dL2; // increase in wetting front layer 1 and 2 in m
-    double L1, L2, FFull; // wetting front depth layer 1 and 2 in m
-    L1 = *L1p;
-    L2 = *L2p;
-    FFull = *FFullp;
-
-    if (FFull == 1)
-        return 0;
-
-    dL1 = fact/max(tiny, ThetaS1->Drc-ThetaI1->Drc);
-    // increase in depth (m) is actual infiltration/available porespace
-    // do this always, correct if 1st layer is full
-
-    // correct dL1 in case of 1 layer and water reached the bottom
-    if (!SwitchTwoLayer)
-    {
-        // reaches bottom in this timestep, dL1 is remaing space (can be 0)
-        // if impermeable fact = 0, if not impermeable fact is calculated with fixed L1
-        if (L1+dL1 > SoilDepth1->Drc)
-        {
-            dL1 = max(0, SoilDepth1->Drc - L1);
-            if (SwitchImpermeable)
-            {
-                FFull = 1;
-                fact = dL1 * (ThetaS1->Drc-ThetaI1->Drc);
-            }
-        }
-    }
-
-    L1 += dL1;
-    // increase infiltration depth L1  = fact/avail pore space
-
-    //infiltration can go on in the second layer & first layer is full
-    if (SwitchTwoLayer)
-    {
-        // water enters into second layer
-        if (L1 > SoilDepth1->Drc - tiny)
-        {
-            dL2 = fact/max(tiny, (ThetaS2->Drc-ThetaI2->Drc));
-            // increase in 2nd layer
-
-            // reaches bottom in this timestep, dL2 is remaing space (can be 0)
-            // if impermeable fact = 0, if not impermeable fact is calculated with fixed L1+L2
-            if (L2+dL2 > SoilDepth2->Drc && L2 < SoilDepth2->Drc)
-            {
-                dL2 = max(0, SoilDepth2->Drc - L2);
-                if (SwitchImpermeable)
-                {
-                    FFull = 1;
-                    fact = dL2 * (ThetaS2->Drc-ThetaI2->Drc);
-                }
-            }
-
-            L2 += dL2;
-            // increase infiltration depth L2  = fact/avail pore space
-
-        }
-    }
-
-    *L1p = (REAL8)L1;
-    *L2p = (REAL8)L2;
-
-    return fact;
-}
-//---------------------------------------------------------------------------
-/*!
-  Main infiltration function\n
-  - add net rainfall and snowmelt to surface water WH\n
-  - keep track of different surface types: grass strips, compaction, crusting, roads, hard surface
-  - do SWATRE or one of the others, SWATRE is a different set of functions\n
-  - for the other functions (Green and Ampt, Smith and Parlange, Ksat)
-  - calculate effective Ksat\n
-  - call one of the infiltration functions for the actual infiltration rate
-    and the infiltration surplus for the kinematic wave\n
-  - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
-  - decrease of surface water layer WH and calculate the infiltration volume
-  */
-void TWorld::Infiltration(void)
-{
-    FOR_ROW_COL_MV
-            //      if(FloodDomain->Drc == 0)
-    {
-        WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-        // add net to water rainfall on soil surface (in m)
-        if (GrassFraction->Drc > 0)
-            WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-        // net rainfall on grass strips, infil is calculated separately for grassstrips
-
-        if (RoadWidthDX->Drc > 0)
-            WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-        // assume no interception and infiltration on roads, gross rainfall
-
-        InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        // potential water volume on surface before infil
-
-        // calculate effective ksat for various situations
-        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-        {
-            Ksateff->Drc = Ksat1->Drc;
-            if (SwitchInfilCrust)
-                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-            if (SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-            if (SwitchInfilCrust && SwitchInfilCompact)
-                //            Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
-                //                    KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
-                // avg ksat of "normal" surface with crusting and compaction fraction
-                // adjust effective infil for crusting and compaction
-                //VJ 110106 adapted this calculation
-
-                if (SwitchHardsurface && HardSurface->Drc > 0)
-                    Ksateff->Drc = (1-HardSurface->Drc)*Ksateff->Drc;// =  0;
-            //VJ 110111 no infiltration on hard surfaces
-
-            //houses
-            if (SwitchHouses)
-                Ksateff->Drc = Ksateff->Drc * (1-HouseCover->Drc);
-            //VJ decrease ksat for celss with houses
-
-            Ksateff->Drc *= ksatCalibration;
-            // apply runfile/iface calibration factor
-
-            if (SwitchBuffers && !SwitchSedtrap)
-                if(BufferID->Drc > 0)
-                    Ksateff->Drc = 0;
-            //VJ 1000608 no infil in buffers, , but sedtrap can have infil
-        }
-    } //row col
-
-    //select an infiltration type,
-    //the infiltration functions call a function to increase the infiltration depth (except swatre)
-    switch (InfilMethod)
-    {
-    case INFIL_NONE : fact->fill(0); fpot->fill(0); break;
-    case INFIL_SWATRE : InfilSwatre(); break;
-    case INFIL_HOLTAN : break;
-        //    case INFIL_GREENAMPT: InfilGreenAmpt1(WH); break;
-    case INFIL_GREENAMPT : /*GA1 and GA2 in the same function */
-    case INFIL_GREENAMPT2 : InfilGreenAmpt1A(Ksateff, WH, fpot, fact, L1, L2, FFull);
-        if(SwitchGrassStrip)
-            InfilGreenAmpt1A(KsatGrass, WHGrass, fpotgr, factgr, L1gr, L2gr, FFull);
-        break;
-    case INFIL_KSAT : InfilKsat(WH); break;
-    case INFIL_MOREL : InfilMorelSeytoux1(WH); break; /** TODO: DOESN'T WORK YET */
-    case INFIL_SMITH : InfilSmithParlange1(WH); break;
-    }
-
-
-    // these function result in an actual infiltration "fact" (in m)
-    // and potential infiltration "fpot" (in m)
-    // each function deals with grass strips as a separate infiltration process
-
-    FOR_ROW_COL_MV
-            //    if(FloodDomain->Drc == 0)
-    {
-        if (SwitchBuffers && !SwitchSedtrap)
-            if(BufferID->Drc > 0 && BufferVol->Drc > 0)
-                WH->Drc = 0;
-        //VJ 100608 no infil in buffers until it is full
-
-        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-        {
-            if (RoadWidthDX->Drc == _dx)
-            {
-                fact->Drc = 0;
-                fpot->Drc = 0;
-            }
-
-            WH->Drc -= fact->Drc;
-            if (WH->Drc < 0) // in case of rounding of errors
-            {
-                fact->Drc += WH->Drc;
-                WH->Drc = 0;
-            }
-            // subtract fact->Drc from WH, cannot be more than WH
-
-            Fcum->Drc += fact->Drc;
-            // cumulative infil in m
-
-            if (GrassFraction->Drc > 0)
-            {
-                WHGrass->Drc -= factgr->Drc;
-                if (WHGrass->Drc < 0) // in case of rounding of errors
-                {
-                    factgr->Drc += WHGrass->Drc;
-                    WHGrass->Drc = 0;
-                }
-                Fcumgr->Drc += factgr->Drc;
-            }
-            // calculate and correct water height on grass strips
-        }
-
-        if (GrassFraction->Drc > 0)
-            WH->Drc = WH->Drc*(1-GrassFraction->Drc) + GrassFraction->Drc * WHGrass->Drc;
-        // average water height if grasstrip present
-
-        FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
-        // negative surplus of infiltration in m for kinematic wave in m
-
-        if (GrassFraction->Drc > 0)
-            FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
-        // if grasstrip present use grasstrip surplus as entire surplus
-
-        if (FFull->Drc == 1)
-            FSurplus->Drc = 0;
-        //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
-
-        InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        // infil volume is WH before - water after
-    }
-}
-//---------------------------------------------------------------------------
-// calculates decrease in soil moisture under wetting front
-// based on percolation = ksat*(theta/pore)*bca
-// bca is related to ksat when looking at brooks corey
-// effects in ksateff do not influence percolation so ksat1 or ksat2 are used
-void TWorld::SoilWater()
-{
-    if (!SwitchSoilwater || InfilMethod == INFIL_SWATRE || SwitchImpermeable)
-        return;
-
-    FOR_ROW_COL_MV
-    {
-        double Percolation, bca;
-
-        if (!SwitchTwoLayer)
-        {
-            bca = 5.55*qPow(Ksat1->Drc,-0.114);
-            Percolation = Ksat1->Drc * pow(ThetaI1->Drc/ThetaS1->Drc, bca);
-
-            Soilwater->Drc = (SoilDepth1->Drc - L1->Drc)*ThetaI1->Drc;
-            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
-            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth1->Drc - L1->Drc)*ThetaS1->Drc);
-            ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : 1.0);
-            ThetaI1->Drc = min(ThetaI1->Drc, ThetaS1->Drc);
-        }
-        else
-        {
-            bca = 5.55*qPow(Ksat2->Drc,-0.114);
-            Percolation = Ksat2->Drc * pow(ThetaI2->Drc/ThetaS2->Drc, bca);
-
-            Soilwater->Drc = (SoilDepth2->Drc - L2->Drc)*ThetaI2->Drc;
-            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
-            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth2->Drc - L2->Drc)*ThetaS2->Drc);
-            ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : 1.0);
-            ThetaI2->Drc = min(ThetaI2->Drc, ThetaS2->Drc);
-        }
-
-    }
-}
-//---------------------------------------------------------------------------
-// do infiltration for flooded area exclusing channel cells
-void TWorld::InfiltrationFlood(void)
-{
-    if (!SwitchChannelFlood)
-        return;
-
-    FOR_ROW_COL_MV
-            if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
-    {
-        //  hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        // potentially wrong!! flood height can be larger than plant height so no interception.
-        // separate house interception
-
-        InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
-        // potential water volume on surface before infil
-
-        // calculate effective ksat for various situations
-        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-        {
-            Ksateff->Drc = Ksat1->Drc;
-            if (SwitchInfilCrust)
-                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-            if (SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-            if (SwitchInfilCrust && SwitchInfilCompact)
-                //IF THESE ARE NOT SWITCHED ON ksat and fraction are 0
-
-                if (SwitchHardsurface)
-                    Ksateff->Drc *= (1-HardSurface->Drc);
-
-            if (SwitchHouses)
-                Ksateff->Drc *= (1-HouseCover->Drc);
-
-            if (RoadWidthDX->Drc > 0)
-                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-
-            if (GrassFraction->Drc > 0)
-                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
-
-            Ksateff->Drc *= ksatCalibration;
-            // apply runfile/iface calibration factor
-
-            if (SwitchBuffers && !SwitchSedtrap && SwitchBuffersImpermeable)
-                if(BufferID->Drc > 0)
-                    Ksateff->Drc = 0;
-
-        }
-    } //row col
-    //select an infiltration type,
-    //the infiltration functions call a function to increase the infiltration depth (except swatre)
-    //    switch (InfilMethod)
-    //    {
-    //    case INFIL_NONE : fact->fill(0); fpot->fill(0);break;
-    //    case INFIL_SWATRE : InfilSwatre(); break;
-    //    case INFIL_HOLTAN : break;
-    //    case INFIL_GREENAMPT : InfilGreenAmpt1(hmx); break;
-    //    case INFIL_GREENAMPT2 : InfilGreenAmpt1(hmx); break;
-    //    case INFIL_KSAT : InfilKsat(hmx); break;
-    //    case INFIL_MOREL : InfilMorelSeytoux1(hmx); break; /** TODO: DOESN'T WORK YET */
-    //    case INFIL_SMITH : InfilSmithParlange1(hmx); break;
-    //    }
-    // these function result in an actual infiltration "fact" (in m)
-    // and potential infiltration "fpot" (in m)
-    // each function deals with grass strips as a separate infiltration process
-
-
-    InfilGreenAmpt1A(Ksateff, hmx, ffpot, ffact, Lf1, Lf2, FfFull);
-    FfFull->report("fff");
-    Lf1->report("lf");
-
-    FOR_ROW_COL_MV
-            if(FloodDomain->Drc > 0)//  && ChannelDepth->Drc == 0)
-    {
-        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-        {
-            hmx->Drc -= ffact->Drc;
-            // decrease wh with net infil
-            if (hmx->Drc < 0)
-            {
-                ffact->Drc += hmx->Drc;
-                // add negative WH to act infil
-                hmx->Drc = 0;
-            }
-
-            Ffcum->Drc += ffact->Drc;
-            // cumulative infil in m used in G&A infil function
-        }
-
-        //        if (GrassFraction->Drc > 0)
-        //            WHGrass->Drc = hmx->Drc; //???
-
-        FfSurplus->Drc = min(0, ffact->Drc - ffpot->Drc);
-        // negative surplus of infiltration in m for kinematic wave in m
-        if (FfFull->Drc == 1)
-            FfSurplus->Drc = 0;
-
-        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
-        // infil volume is WH before - water after
-        // used for water balance and screen display
-
-    }
-    // FfSurplus->report("ffs");
-}
-//---------------------------------------------------------------------------
