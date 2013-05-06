@@ -6,10 +6,11 @@
 //---------------------------------------------------------------------------
 #define BGc "#eeeeee" // background grey for missing value in maps
 
+//http://www.color-hex.com/color/
 
 
 //---------------------------------------------------------------------------
-// shows value on cursor
+/// Shows value on cursor in map window
 class MyPicker: public QwtPlotPicker
 {
 public:
@@ -37,8 +38,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
-
+/// Gray scale legend for shaded relief map display
 class colorMapGray: public QwtLinearColorMap
 {
 public:
@@ -49,7 +49,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
+/// Dark yellow legend for maps for road map overlay
 class colorMapYellow: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -67,7 +67,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
+/// Green legend for maps for road map overlay
 class colorMapGreen: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -85,7 +85,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
+/// Logarithmic Yellow to blue legend for runoff map display
 class colorMapWaterLog: public QwtLinearColorMap
 {
 public:
@@ -99,7 +99,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
+/// Linear Yellow to blue legend for infil map display
 class colorMapWater: public QwtLinearColorMap
 {
 public:
@@ -113,8 +113,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
-//http://www.color-hex.com/color/
+/// Transparent  light to dark blue legend for flood display
 class colorMapFlood: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -139,6 +138,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+/// Transparent (to 0.05 m flood) light to dark blue legend for flood display
 class colorMapFlood005: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -163,6 +163,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+/// Transparent (to 0.1 m flood) light to dark blue legend for flood display
 class colorMapFlood01: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -188,6 +189,7 @@ public:
 };
 
 //---------------------------------------------------------------------------
+/// Cyan to red legend for sediment display
 class colorMapSed: public QwtLinearColorMap
 {
 //    virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -208,7 +210,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-
+/// Blue to red legend for sediment display
 class colorMapSedB: public QwtLinearColorMap
 {
     //    virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -231,13 +233,3 @@ public:
 
 #endif // LISUIMAPCOLOR_H
 
-//class alphaLinearColorMap: public QwtLinearColorMap
-//{
-//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-//    {
-//        if ( value == 0 )
-//            return qRgba( 0, 0, 0, 0 );
-
-//        return QwtLinearColorMap::rgb( interval, value );
-//    }
-//};

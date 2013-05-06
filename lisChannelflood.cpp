@@ -24,12 +24,15 @@
 
 /*!
  \file lisChannelflood.cpp
- \brief Channel flood using a simple solution of St Venant equations following Bates et al. 2010.\n
+ \brief Channel flood using a various solutions of St Venant equations: explicit following Bates et al. 2010.\n
+        and more stable 1st and 2nd order st Venant following the fullSWOF2D code (univ Orleans)\n
         called before ChannelFlow(), takes old channel overflow height and spreads it out, puts new channelWH \n
         back into channel before kin wave of channel is done in ChannelFlow()
 
 functions: \n
-- void TWorld::ChannelFlood(void) calculate maps channelflood height (hmx) and FloodDomain
+- void TWorld::ChannelOverflow(void) Mixing of flood and overflow in channel cells, source of overflow
+- void TWorld::ChannelFlood(void) Calculate channelflood height maps (hmx, QFlood, UVFlood) and FloodDomain
+- double TWorld::floodExplicit() Do flooding with explicit solution Bates et al (old lisflood)
 */
 
 #include "lisemqt.h"
@@ -38,9 +41,10 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-// get flood level in channel from 1D kin wave channel
-// note: ChannelDepth lets you also control which channels flood: those that are 0 react as usual
-// checked with excel!
+//! Get flood level in channel from 1D kin wave channel
+//! Instantaneous mixing of flood water and channel water in channel cells
+//! note: ChannelDepth lets you also control which channels flood:
+//! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
     FOR_ROW_COL_MV_CH
@@ -144,13 +148,14 @@ void TWorld::ChannelFlood(void)
     double m = 0;
     FOR_ROW_COL_MV
     {
-        if(hmx->Drc > 0)
+        if(hmx->Drc > 0.01)
             m+=1;
     }
     double dh = (m > 0 ? (sumh_t - sumh_t3)/m : 0);
+    qDebug() << dh;
     FOR_ROW_COL_MV
     {
-        if(hmx->Drc > 0)
+        if(hmx->Drc > 0.01)
         {
             hmx->Drc += dh;
             hmx->Drc = max(hmx->Drc , 0);
@@ -188,14 +193,14 @@ void TWorld::ChannelFlood(void)
     debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
 
-    qDebug() << sumh_t - sumh_t1 << sumh_t - sumh_t2;
+ //   qDebug() << sumh_t - sumh_t1 << sumh_t - sumh_t2;
     //correct mass balance error!
 
 }
 //---------------------------------------------------------------------------
 // explicit LISFLOOD solution Bates et al journal of hydrology 2010
 
-double TWorld::floodExplicit()//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood)
+double TWorld::floodExplicit()
 {
     int n = 0;
     double timesum = 0;

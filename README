@@ -1,7 +1,20 @@
-openLISEM README (130310)
+openLISEM README (130505)
 =========================
-LATEST CHANGES (v 1.57-1-60)
-- Added FLOODING!!! Still in beta stage but seems to work for shalow floods from channel system. 
+LATEST CHANGES (v 1.61-1.67)
+- Added flooding code from the fullSWOF2D project (Univ Orleans, http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)
+- Added a flood mass balance error spreading over flood area to keep mass balance below 0.1 percent
+- Runoff continues partly in flooded area with large flow resistsance
+- Restyled infiltration code to adapt to flooding
+- Changed gras strip infiltration to simpler change of effective Ksat to work with flooding
+- Added simple drainage function (soilwater) decrease when bottom layer is not impermebale, thetai is adapted
+- TODO: fullswof 2nd order doesn't work yet
+
+LATEST CHANGES (v 1.60-1.61)
+- Tuned flooding, mass balance error down to a few percent 
+- FIXED A BUG SINCE VERSION 1.55 FOR DEPOSITION
+
+LATEST CHANGES (v 1.57-1.60)
+- Added FLOODING!!! Still in beta stage but seems to work for shallow floods from channel system. 
 - Added better map display with roads and channels
 ToDo: mass balance with flooding not correct
 

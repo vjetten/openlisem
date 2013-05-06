@@ -163,6 +163,7 @@ typedef struct UNIT_LIST {
     double totsl;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
+/// Strunture to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
     double time;
     //double *intensity;
@@ -349,29 +350,15 @@ public:
     //MapListStruct qx[9];
 
     //FLOOD according to LISFLOOD
-    double floodExplicit();//TMMap *hmx, TMMap *Vflood, TMMap *DEM, TMMap *Qflood);
+    double floodExplicit();
     //FLOOD according to FULLSWOF2D
     double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double limiter(double a, double b);
     void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
-    /*
-               TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
-               TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
-               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-*/
     void MUSCL2(TMMap *h, TMMap *u,TMMap *v,TMMap *z);
-    /*
-               TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
-               TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
-               TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);*/
     void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
-    /*,TMMap *delzc1,TMMap *delzc2,
-             TMMap *delz1,TMMap *delz2,TMMap *h1r,TMMap *u1r,TMMap *v1r,
-             TMMap *h1l,TMMap *u1l,TMMap *v1l,TMMap *h2r,TMMap *u2r,
-             TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l);
-*/
     double bloc1(double dt, double dt_max);
     void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);

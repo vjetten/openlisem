@@ -24,7 +24,7 @@
 
 /*!
   \file global.h
-  \brief for acces to output structure used between interface and model
+  \brief external to output structure used between interface and model
   */
 
 #ifndef GLOBAL_H_

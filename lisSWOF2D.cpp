@@ -25,12 +25,26 @@
 /*!
  \file lisSWOF2d.cpp
  \brief Channel flood using the opensource code from the FullSWOF_2D project.
-        St Vennat equations
+        St Vennant equations
         authors: Olivier Delestre, Christian Laguerre, Carine Lucas, Ulrich Razafison, Marie Rousseau.
         website: http://www.univ-orleans.fr/mapmo/soft/FullSWOF/
 
 functions: \n
-- void TWorld::ChannelFlood(void) calculate maps channelflood height (hmx) and FloodDomain
+-   double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+-   double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+-   double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+-   void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+-   void MUSCL2(TMMap *h, TMMap *u,TMMap *v,TMMap *z);
+-   void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+-   double bloc1(double dt, double dt_max);
+-   void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
+-   void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
+-   void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
+-   void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);
+-   void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
+-   void Fr_ManningSf(double h, double u, double v, double cf);
+-   void setZero(TMMap *h, TMMap *u, TMMap *v);//, TMMap *q1, TMMap *q2);
+-   double limiter(double a, double b);
 */
 
 #include "lisemqt.h"

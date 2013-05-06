@@ -374,6 +374,9 @@ void TWorld::Infiltration(void)
                 Ksateff->Drc = Ksateff->Drc * (1-HouseCover->Drc);
             //VJ decrease ksat for celss with houses
 
+            if (GrassFraction->Drc > 0)
+                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+
             Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
 
@@ -394,8 +397,8 @@ void TWorld::Infiltration(void)
     case INFIL_SMITH :
     case INFIL_SMITH2 :
         InfilMethods(Ksateff, WH, fpot, fact, L1, L2, FFull);
-        if(SwitchGrassStrip)
-            InfilMethods(KsatGrass, WHGrass, fpotgr, factgr, L1gr, L2gr, FFull);
+//        if(SwitchGrassStrip)
+//            InfilMethods(KsatGrass, WHGrass, fpotgr, factgr, L1gr, L2gr, FFull);
         break;
     case INFIL_MOREL :
     case INFIL_HOLTAN : break;
@@ -428,29 +431,29 @@ void TWorld::Infiltration(void)
             Fcum->Drc += fact->Drc;
             // cumulative infil in m
 
-            if (GrassFraction->Drc > 0)
-            {
-                WHGrass->Drc -= factgr->Drc;
-                if (WHGrass->Drc < 0) // in case of rounding of errors
-                {
-                    factgr->Drc += WHGrass->Drc;
-                    WHGrass->Drc = 0;
-                }
-                Fcumgr->Drc += factgr->Drc;
-            }
+//            if (GrassFraction->Drc > 0)
+//            {
+//                WHGrass->Drc -= factgr->Drc;
+//                if (WHGrass->Drc < 0) // in case of rounding of errors
+//                {
+//                    factgr->Drc += WHGrass->Drc;
+//                    WHGrass->Drc = 0;
+//                }
+//                Fcumgr->Drc += factgr->Drc;
+//            }
             // calculate and correct water height on grass strips
         }
 
-        if (GrassFraction->Drc > 0)
-            WH->Drc = (1-GrassFraction->Drc) * WH->Drc + GrassFraction->Drc * WHGrass->Drc;
-        // average water height if grasstrip present
+//        if (GrassFraction->Drc > 0)
+//            WH->Drc = (1-GrassFraction->Drc) * WH->Drc + GrassFraction->Drc * WHGrass->Drc;
+//        // average water height if grasstrip present
 
         FSurplus->Drc = min(0, fact->Drc - fpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
 
-        if (GrassFraction->Drc > 0)
-            FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
-        // if grasstrip present use grasstrip surplus as entire surplus
+//        if (GrassFraction->Drc > 0)
+//            FSurplus->Drc = min(0, factgr->Drc - fpotgr->Drc);
+//        // if grasstrip present use grasstrip surplus as entire surplus
 
         if (FFull->Drc == 1)
             FSurplus->Drc = 0;

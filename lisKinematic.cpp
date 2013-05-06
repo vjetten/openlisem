@@ -427,9 +427,8 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_Qs, _Qsn	    incoming and outgoing sediment flux (kg/s)
 \param  	_Alpha              a in A=aQ^b
 \param  	_DX                 dx corrected for slope
+\param  	_Vol                water volume in cell (m3)
 \param  	_Sed                sediment load in cell (kg)
-\param  	_StorVol            water volume in buffers (m3)
-\param  	_StorSed            sediment volume in bufers (kg)
 */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                             TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
