@@ -87,6 +87,8 @@ void TWorld::OutputUI(void)
         op.channelMap->copy(ChannelWidth);
     if (SwitchRoadsystem)
         op.roadMap->copy(RoadWidthDX);
+    if (SwitchHouses)
+        op.houseMap->copy(HouseCover);
 
     // MAP DISPLAY VARIABLES
 

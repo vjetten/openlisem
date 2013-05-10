@@ -87,6 +87,7 @@ void TWorld::DoModel()
         op.baseMap = NewMap(0);
         op.channelMap = NewMap(0);
         op.roadMap = NewMap(0);
+        op.houseMap = NewMap(0);
         // initialize maps for output to screen
         // must be done after Initialize Data because then we know how large the map is
 

@@ -231,7 +231,7 @@ void TWorld::InfilMethods(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fa
         case INFIL_KSAT : _fpot->Drc = Ks; break;
         case INFIL_GREENAMPT :
         case INFIL_GREENAMPT2 :
-            _fpot->Drc = Ks*(1+(Psi+fwh)/(_L1->Drc+_L2->Drc)); break;
+            _fpot->Drc = Ks*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc)); break;
         case INFIL_SMITH :
         case INFIL_SMITH2 :
             double B = (fwh + Psi)*space;
@@ -691,7 +691,7 @@ void TWorld::InfilGreenAmpt1(TMMap *_WH)
             //VJ 110118 added psi of layer 2, was a bug
         }
 
-        fpot->Drc = Ks*(1+(Psi+fwh)/(L1->Drc+L2->Drc));
+        fpot->Drc = Ks*(1.0+(Psi+fwh)/(L1->Drc+L2->Drc));
         // potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
         // L1 initialized at 1e-10, psi in cm so in datainit multiplied by 0.01 for m
 
@@ -709,7 +709,7 @@ void TWorld::InfilGreenAmpt1(TMMap *_WH)
             if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
                 Ks = min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-            fpotgr->Drc = Ks*(1+(Psi+fwh)/(L1gr->Drc+L2->Drc));
+            fpotgr->Drc = Ks*(1.0+(Psi+fwh)/(L1gr->Drc+L2->Drc));
 
             fact1 = min(fpotgr->Drc, fwh);
 

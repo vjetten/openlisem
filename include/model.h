@@ -357,13 +357,13 @@ public:
     double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double limiter(double a, double b);
     void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
-    void MUSCL2(TMMap *h, TMMap *u,TMMap *v,TMMap *z);
     void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+    void simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v);
     double bloc1(double dt, double dt_max);
     void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
-    void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
+    void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
     void Fr_ManningSf(double h, double u, double v, double cf);
-    void setZero(TMMap *h, TMMap *u, TMMap *v);//, TMMap *q1, TMMap *q2);
+    void setZero(TMMap *_h, TMMap *_u, TMMap *_v);
     void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
     void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
     void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);

@@ -147,6 +147,7 @@ public:
    void showBaseMap();
    void showChannelMap();
    void showRoadMap();
+   void showHouseMap();
    double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;
@@ -154,11 +155,13 @@ public:
    QwtPlotSpectrogram *baseMap;  // raster map drawing
    QwtPlotSpectrogram *channelMap;  // raster map drawing
    QwtPlotSpectrogram *roadMap;  // raster map drawing
+   QwtPlotSpectrogram *houseMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
    QwtMatrixRasterData *RDb;
    QwtMatrixRasterData *RDc;
    QwtMatrixRasterData *RDd;
+   QwtMatrixRasterData *RDe;
    double drawNrCols;
    double drawNrRows;
    int channelMapAlpha;
@@ -286,6 +289,7 @@ public slots:
    void ssetAlpha(int v);
    void ssetAlpha2(int v);
    void ssetAlpha3(int v);
+   void ssetAlpha4(int v);
 
    void setWriteOutputSOBEK(bool doit);
    void setWriteOutputCSV(bool doit);

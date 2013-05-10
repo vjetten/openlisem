@@ -61,6 +61,8 @@ struct output{
     TMMap *baseMap;
     TMMap *channelMap;
     TMMap *roadMap;
+    TMMap *houseMap;
+
 
     int drawMapType;
 

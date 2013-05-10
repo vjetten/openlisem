@@ -281,6 +281,7 @@ void lisemqt::SetToolBar()
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
+    connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
 
 }
 //---------------------------------------------------------------------------

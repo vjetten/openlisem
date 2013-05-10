@@ -77,7 +77,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -6226,6 +6226,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="13" column="0">
                    <widget class="QRadioButton" name="checkFloodSWOForder1a">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="palette">
                      <palette>
                       <active>
@@ -14472,7 +14475,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_38">
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="label_91">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -14488,7 +14491,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
+                <item row="1" column="1">
                  <widget class="QSlider" name="transparency3">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -14510,7 +14513,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <widget class="QLabel" name="label_63">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -14526,7 +14529,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
+                <item row="3" column="0">
                  <widget class="QLabel" name="label_92">
                   <property name="text">
                    <string>Hydrology</string>
@@ -14536,7 +14539,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="3" column="1">
                  <widget class="QSlider" name="transparency">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -14561,7 +14564,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
+                <item row="4" column="0">
                  <widget class="QRadioButton" name="radioButton_RO">
                   <property name="text">
                    <string>Runoff</string>
@@ -14571,7 +14574,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
+                <item row="4" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxRO">
                   <property name="decimals">
                    <number>1</number>
@@ -14584,14 +14587,14 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QRadioButton" name="radioButton_INF">
                   <property name="text">
                    <string>Infil</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="5" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxINF">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -14610,14 +14613,14 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0">
+                <item row="6" column="0">
                  <widget class="QRadioButton" name="radioButton_SL">
                   <property name="text">
                    <string>Soil loss</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="6" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -14636,14 +14639,14 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0">
+                <item row="7" column="0">
                  <widget class="QRadioButton" name="radioButton_FL">
                   <property name="text">
                    <string>Flood depth</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="1">
+                <item row="7" column="1">
                  <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -14653,7 +14656,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="2" column="1">
                  <widget class="QSlider" name="transparency2">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -14675,7 +14678,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="1">
+                <item row="8" column="1">
                  <widget class="QSlider" name="floodCutoffLevel">
                   <property name="maximum">
                    <number>2</number>
@@ -14691,10 +14694,36 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0">
+                <item row="8" column="0">
                  <widget class="QLabel" name="label_93">
                   <property name="text">
                    <string>cutoff 0.05/0.1m</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSlider" name="transparency4">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>255</number>
+                  </property>
+                  <property name="value">
+                   <number>180</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_56">
+                  <property name="text">
+                   <string>Houses</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>

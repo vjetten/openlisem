@@ -47,6 +47,12 @@ void lisemqt::ssetAlpha3(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
+void lisemqt::ssetAlpha4(int v)
+{
+    houseMap->setAlpha(v);
+    MPlot->replot();
+}
+//---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
     if (stopplot)
@@ -80,6 +86,7 @@ void lisemqt::initMapPlot()
     else
         radioButton_FL->setEnabled(false);
 
+
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
@@ -88,6 +95,7 @@ void lisemqt::initMapPlot()
     transparency->setValue(180);
     transparency2->setValue(128);
     transparency3->setValue(180);
+    transparency4->setValue(128);
     // slider setting basemap transparency
 
 }
@@ -126,6 +134,11 @@ void lisemqt::setupMapPlot()
     drawMap->setAlpha(180);
     // NOTE the order in which these are attached is the order displayed.
 
+    houseMap = new QwtPlotSpectrogram();
+    houseMap->setRenderThreadCount( 0 );
+    houseMap->attach( MPlot );
+    // building structure map
+
     channelMap = new QwtPlotSpectrogram();
     channelMap->setRenderThreadCount( 0 );
     channelMap->attach( MPlot );
@@ -140,6 +153,7 @@ void lisemqt::setupMapPlot()
     RDb = new QwtMatrixRasterData();
     RDc = new QwtMatrixRasterData();
     RDd = new QwtMatrixRasterData();
+    RDe = new QwtMatrixRasterData();
 
     // raster data to link to plot
 
@@ -270,6 +284,18 @@ void lisemqt::showRoadMap()
 
     RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
     roadMap->setData(RDd);
+}
+//---------------------------------------------------------------------------
+void lisemqt::showHouseMap()
+{
+    double res = fillDrawMapData(op.houseMap, RDe);
+
+    houseMap->setAlpha(transparency4->value());
+
+    houseMap->setColorMap(new colorMapBlack());
+
+    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,1.0));
+    houseMap->setData(RDe);
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused

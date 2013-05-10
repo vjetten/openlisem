@@ -29,12 +29,30 @@ public:
         QwtPlotSpectrogram * sp = static_cast<QwtPlotSpectrogram *> (list.at(1));
         double z = sp->data()->value(pos.x(), pos.y());
         QString txt = "";
-        if (z > -1e19)
+        if (z > -1e10)
             txt.sprintf( "%.3f", z );
         QwtText text = QwtText(txt);
         text.setColor(Qt::black);
         text.setBackgroundBrush( QBrush( bg ) );
         return text;
+    }
+};
+//---------------------------------------------------------------------------
+/// Gray scale legend for shaded relief map display
+class colorMapBlack: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.05 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapBlack():
+        QwtLinearColorMap( QColor(BGc), Qt::black  )
+    {
+        addColorStop(0, QColor("#808080"));
     }
 };
 //---------------------------------------------------------------------------

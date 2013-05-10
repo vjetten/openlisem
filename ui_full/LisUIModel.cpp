@@ -158,6 +158,8 @@ void lisemqt::worldShow()
 
     showRoadMap(); // show road map
 
+    showHouseMap(); // show building structures map
+
     if (doShootScreens)
        shootScreen();
 }
@@ -213,6 +215,7 @@ void lisemqt::initOP()
     op.baseMap = NULL;
     op.channelMap = NULL;
     op.roadMap = NULL;
+    op.houseMap = NULL;
 
     op.runstep = 0;
     op.printstep = 0;
