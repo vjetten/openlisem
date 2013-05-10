@@ -51,23 +51,23 @@ void TWorld::ChannelOverflow(void)
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
             double fc = ChannelWidthUpDX->Drc/_dx;
-            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc)*fc + hmx->Drc*(1-fc);
+            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc)*fc + (hmx->Drc-F_levee)*(1-fc);
             //average water level
 
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
             if (whlevel > 0)
             {
-                hmx->Drc = whlevel;
+                hmx->Drc = whlevel+F_levee;
                 ChannelWH->Drc = whlevel + ChannelDepth->Drc;
             }
             // if average water level is negative, channel wh < depth, but there is hmx
             // some flood water moves into the channel accoridng to flood velocity
             else
-                if (hmx->Drc > 0)
+                if (hmx->Drc > F_levee)
                 {
                     double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
-                    double dh = hmx->Drc * fv;
+                    double dh = (hmx->Drc-F_levee) * fv;
                     hmx->Drc -= dh;
                     ChannelWH->Drc += dh;
                 }
@@ -126,16 +126,6 @@ void TWorld::ChannelFlood(void)
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
     }
-
-    //    if (SwitchFloodSWOForder1a)
-    //    {
-    //        dtflood = fullSWOF2Do1a(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
-    //        FOR_ROW_COL_MV
-    //        {
-    //            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
-    //            Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-    //        }
-    //    }
 
  //   double sumh_t2 = hmx->mapTotal();
 

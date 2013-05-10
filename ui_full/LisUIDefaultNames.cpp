@@ -313,8 +313,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood method SWOF2D order 1");
-  //  namelist[i].value = QString("0");
-  //  namelist[i++].name = QString("Flood method SWOF2D order 1a");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method SWOF2D order 2");
     namelist[i].value = QString("0.4");

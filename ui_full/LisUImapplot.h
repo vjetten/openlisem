@@ -43,16 +43,16 @@ class colorMapBlack: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < 0.05 )
+        if ( value < 0.1 )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
     colorMapBlack():
-        QwtLinearColorMap( QColor(BGc), Qt::black  )
+        QwtLinearColorMap( QColor(BGc), QColor("#440044"))//Qt::black  )
     {
-        addColorStop(0, QColor("#808080"));
+        addColorStop(0, QColor("#774477"));
     }
 };
 //---------------------------------------------------------------------------

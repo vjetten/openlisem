@@ -364,9 +364,9 @@ public:
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
     void Fr_ManningSf(double h, double u, double v, double cf);
     void setZero(TMMap *_h, TMMap *_u, TMMap *_v);
-    void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
-    void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
-    void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);
+    void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     int F_scheme;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;

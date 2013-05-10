@@ -92,10 +92,10 @@ void lisemqt::initMapPlot()
     maxAxis3 = -1e20;
     maxAxis4 = -1e20;
     pstep = 0;
-    transparency->setValue(180);
-    transparency2->setValue(128);
-    transparency3->setValue(180);
-    transparency4->setValue(128);
+    transparency->setValue(180);  //main data
+    transparency2->setValue(128); //channels
+    transparency3->setValue(180); //roads
+    transparency4->setValue(100); //houses
     // slider setting basemap transparency
 
 }

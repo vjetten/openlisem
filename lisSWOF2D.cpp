@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011  Victor Jetten
-**  contact:
+**  Copyright (C) 2010 - 2013  Victor Jetten
+**  contact: v.g.jetten@utwente.nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **
 **  Author: Victor Jetten
-**  Developed in: MingW/Qt/
+**  Developed in: VC2010/Qt
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
@@ -32,7 +32,6 @@
 functions: \n
 -   double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
 -   double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
--   double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
 -   void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
 -   void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
 -   double bloc1(double dt, double dt_max);
@@ -53,13 +52,14 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
-#define dt_ca 1e-6
+#define dt_ca 1e-5
 
-#define grav 9.81
+#define GRAV 9.8067   // to copy swof code directly
+#define EPSILON 1e-6
 #define scheme_type 1
 
-#define FOR_ROW_COL_MV_MV_   FOR_ROW_COL_MV_MV\
-                                if(FloodDomain->Drc > 0)
+#define FOR_ROW_COL_MV_MV_   FOR_ROW_COL_MV_MV
+//if(FloodDomain->Drc > 0)
 
 
 //---------------------------------------------------------------------------
@@ -102,8 +102,8 @@ void TWorld::setZero(TMMap *_h, TMMap *_u, TMMap *_v)
 //friction slope
 void TWorld::Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N)
 {
-    q1mod = q1new/(1.0+N*N*grav*sqrt(uold*uold+vold*vold)*dt/pow(hnew,4.0/3.0));
-    q2mod = q2new/(1.0+N*N*grav*sqrt(uold*uold+vold*vold)*dt/pow(hnew,4.0/3.0));
+    q1mod = q1new/(1.0+N*N*GRAV*sqrt(uold*uold+vold*vold)*dt/pow(hnew,4.0/3.0));
+    q2mod = q2new/(1.0+N*N*GRAV*sqrt(uold*uold+vold*vold)*dt/pow(hnew,4.0/3.0));
 }
 
 //Sf = Manning = v|v|/c^2*h^{4/3}
@@ -121,36 +121,36 @@ void TWorld::Fr_ManningSf(double h, double u, double v, double cf)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::F_HLL2(double hg, double ug, double vg, double hd, double ud, double vd)
+void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     double f1, f2, f3, cfl;
-    if (hg<=0. && hd<=0)
+    if (h_L<=0. && h_R<=0.)
     {
-        f1 = 0;
-        f2 = 0;
-        f3 = 0;
-        cfl = 0;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
     }
     else
     {
-        double grav_hg = grav*hg;
-        double grav_hd = grav*hd;
-        double sqrt_grav_hg = sqrt(grav_hg);  //wave velocity
-        double sqrt_grav_hd = sqrt(grav_hd);
-        double qd = ud*hd;
-        double qg = ug*hg;
-        double c1 = min(ug-sqrt_grav_hg,ud-sqrt_grav_hd); //we already have ug-sqrt_grav_hg<ug+sqrt_grav_hg and ud-sqrt_grav_hd<ud+sqrt_grav_hd
-        double c2 = max(ug+sqrt_grav_hg,ud+sqrt_grav_hd); //so we do not need all the eigenvalues to get c1 and c2
-        double tmp = 1./(c2-c1);
-        double t1 = (min(c2,0) - min(c1,0))*tmp;
-        double t2 = 1.-t1;
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double sqrt_grav_h_L = sqrt(grav_h_L);
+        double sqrt_grav_h_R = sqrt(grav_h_R);
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+
+        double c1 = min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
+        double c2 = max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
+        double tmp = min(1./(EPSILON), 1./(c2-c1));
+        double t1 = (min(c2,0.) - min(c1,0.))*tmp;
+        double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
 
-        f1 = t1*qd + t2*qg - t3*(hd-hg);
-        f2 = t1*(qd*ud+grav_hd*hd*0.5)+t2*(qg*ug+grav_hg*hg*0.5)-t3*(qd-qg);
-        f3 = t1*qd*vd+t2*qg*vg-t3*(hd*vd-hg*vg);
-        cfl = max(fabs(c1),fabs(c2));
-        //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
+        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
+        f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
+        cfl = max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -158,59 +158,45 @@ void TWorld::F_HLL2(double hg, double ug, double vg, double hd, double ud, doubl
     HLL2_f3 = f3;
 }
 
-void TWorld::F_HLL(double hg,double ug,double vg,double hd,double ud,double vd)
+void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     double f1, f2, f3, cfl;
-    if (hg<=0. && hd<=0)
-    {
-        f1 = 0;
-        f2 = 0;
-        f3 = 0;
-        cfl = 0;
-    }
-    else
-    {
-        double grav_hg = grav*hg;
-        double grav_hd = grav*hd;
-        double qd = ud*hd;
-        double qg = ug*hg;
-        double c1 = min(ug-sqrt(grav_hg),ud-sqrt(grav_hd));
-        double c2 = max(ug+sqrt(grav_hg),ud+sqrt(grav_hd));
+    if (h_L<=0. && h_R<=0.){
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        double c1 = min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
+        double c2 = max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
 
         //cfl is the velocity to calculate the real cfl=max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-        if (c1==0. && c2==0)
-        {
-            //dry
-            f1=0;
-            f2=0;
-            f3=0;
-            cfl=0; //max(fabs(c1),fabs(c2))=0
+        if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
+            f1=0.;
+            f2=0.;
+            f3=0.;
+            cfl=0.; //max(fabs(c1),fabs(c2))=0
+        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have max(abs(c1),abs(c2))=c2>0
+            f1=q_L;
+            f2=q_L*u_L+GRAV*h_L*h_L*0.5;
+            f3=q_L*v_L;
+            cfl=c2; //max(fabs(c1),fabs(c2))=c2>0
+        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have max(abs(c1),abs(c2))=-c1>0
+            f1=q_R;
+            f2=q_R*u_R+GRAV*h_R*h_R*0.5;
+            f3=q_R*v_R;
+            cfl=fabs(c1); //max(fabs(c1),fabs(c2))=fabs(c1)
+        }else{ //subcritical flow
+            double tmp = min(1./(EPSILON), 1./(c2-c1));
+            f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
+            f2=(c2*(q_L*u_L+GRAV*h_L*h_L*0.5)-c1*(q_R*u_R+GRAV*h_R*h_R*0.5))*tmp+c1*c2*(q_R-q_L)*tmp;
+            f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
+            cfl=max(fabs(c1),fabs(c2));
         }
-        else
-            if (c1>=0){
-                //supercritical flow, from left to right : we have max(abs(c1),abs(c2))=c2>0
-                f1=qg;
-                f2=qg*ug+grav*hg*hg*0.5;
-                f3=qg*vg;
-                cfl=c2; //max(fabs(c1),fabs(c2))=c2>0
-            }
-            else
-                if (c2<=0)
-                {
-                    //supercritical flow, from right to left : we have max(abs(c1),abs(c2))=-c1>0
-                    f1=qd;
-                    f2=qd*ud+grav*hd*hd*0.5;
-                    f3=qd*vd;
-                    cfl=fabs(c1); //max(fabs(c1),fabs(c2))=fabs(c1)
-                }
-                else
-                { //subcritical flow
-                    double tmp = 1./(c2-c1);
-                    f1=(c2*qg-c1*qd)*tmp+c1*c2*(hd-hg)*tmp;
-                    f2=(c2*(qg*ug+grav*hg*hg*0.5)-c1*(qd*ud+grav*hd*hd*0.5))*tmp+c1*c2*(qd-qg)*tmp;
-                    f3=(c2*(qg*vg)-c1*(qd*vd))*tmp+c1*c2*(hd*vd-hg*vg)*tmp;
-                    cfl = max(fabs(c1),fabs(c2));
-                }
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -219,28 +205,25 @@ void TWorld::F_HLL(double hg,double ug,double vg,double hd,double ud,double vd)
 }
 
 
-void TWorld::F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd)
+void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-    double c;
     double f1, f2, f3, cfl;
-    if (hg<=0. && hd<=0)
-    {
-        c = 0;
-        f1 = 0;
-        f2 = 0;
-        f3 = 0;
-        cfl = 0;
-    }
-    else
-    {
-        c = max(fabs(ug)+sqrt(grav*hg),fabs(ud)+sqrt(grav*hd));
+    double c;
+    if (h_L<=0. && h_R<=0.){
+        c = 0.;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        c = max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
         double cd = c*0.5;
-        double qd = ud*hd;
-        double qg = ug*hg;
-        f1 = (qg+qd)*0.5-cd*(hd-hg);
-        f2 = ((ug*qg)+(grav*0.5*hg*hg)+(ud*qd)+(grav*0.5*hd*hd))*0.5-cd*(qd-qg);
-        f3 = (qg*vg+qd*vd)*0.5-cd*(hd*vd-hg*vg);
-        cfl = c;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L);
+        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
+        f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
+        cfl = c;//*tx;
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -410,124 +393,124 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
 //---------------------------------------------------------------------------
 //reconstruction scheme
 //original matrix is col, row orientation (y,x), NOT row, col (x,y)
-//1 is in the y direction, 2 = x direction
 //TO DO: only in flood domain
-//called as
 //rec->calcul(h,u,v,z,delzc1,delzc2,delz1,delz2,h1r,u1r,v1r,h1l,u1l,v1l,h2r,u2r,v2r,h2l,u2l,v2l);
+// all maps are inherited so no need to put them in the header
 
-void TWorld::MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
-/*
-                   TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,
-                   TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,
-                   TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l)
-                   */
+void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
 {
     double delta_h1, delta_u1, delta_v1;
     double delta_h2, delta_u2, delta_v2;
     double dh, du, dv, dz_h;
-    bool startloop = true;
-    bool startloop1 = true;
 
     // first do 1: x direction (col+1 - col)
-    FOR_ROW_COL_MV_MV_
+    for (int r = 0; r < _nrRows; r++)
     {
-        delta_h2 = h->Data[r][c+1] - h->Drc;
-        delta_u2 = u->Data[r][c+1] - u->Drc;
-        delta_v2 = v->Data[r][c+1] - v->Drc;
-
-        if (startloop)
+        int c = 0;
+        if(!IS_MV_REAL8(&LDD->Data[r][c+1]) &&
+                !IS_MV_REAL8(&LDD->Data[r][c]))
         {
-            delta_h1 = delta_h2;
-            delta_u1 = delta_u2;
-            delta_v1 = delta_v2;
-            startloop = false;
+            delta_h1 = _h->Data[r][c+1] - _h->Drc;
+            delta_u1 = _u->Data[r][c+1] - _u->Drc;
+            delta_v1 = _v->Data[r][c+1] - _v->Drc;
+
+            for (c = 0; c < _nrCols-1; c++)
+                if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c+1]))
+                {
+                    delta_h2 = _h->Data[r][c+1] - _h->Drc;
+                    delta_u2 = _u->Data[r][c+1] - _u->Drc;
+                    delta_v2 = _v->Data[r][c+1] - _v->Drc;
+
+                    dh = limiter(delta_h1, delta_h2);
+                    dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+
+                    du = limiter(delta_u1, delta_u2);
+                    dv = limiter(delta_v1, delta_v2);
+
+                    h1r->Drc = _h->Drc+dh*0.5;
+                    h1l->Drc = _h->Drc-dh*0.5;
+
+                    z1r->Drc = _z->Drc+0.5*(dz_h-dh);
+                    z1l->Drc = _z->Drc+0.5*(dh-dz_h);
+                    delzc1->Drc = z1r->Drc-z1l->Drc;
+                    delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+
+                    if (_h->Drc > 0)
+                    {
+                        u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
+                        u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
+                        v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
+                        v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
+                    }
+                    else
+                    {
+                        u1r->Drc = _u->Drc + du*0.5;
+                        u1l->Drc = _u->Drc - du*0.5;
+                        v1r->Drc = _v->Drc + dv*0.5;
+                        v1l->Drc = _v->Drc - dv*0.5;
+                    }
+                    delta_h1 = delta_h2;
+                    delta_u1 = delta_u2;
+                    delta_v1 = delta_v2;
+                }
         }
-
-        dh = limiter(delta_h1, delta_h2);
-        dz_h = limiter(delta_h1+delta_z1->Data[r][c-1], delta_h2+delta_z1->Drc);
-
-        du = limiter(delta_u1, delta_u2);
-        dv = limiter(delta_v1, delta_v2);
-
-        h1r->Drc = h->Drc+dh*0.5;
-        h1l->Drc = h->Drc-dh*0.5;
-
-        z1r->Drc = z->Drc+0.5*(dz_h-dh);
-        z1l->Drc = z->Drc+0.5*(dh-dz_h);
-        delzc1->Drc = z1r->Drc-z1l->Drc;
-        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
-
-        if (h->Drc > 0)
-        {
-            u1r->Drc = u->Drc + h1l->Drc*du*0.5/h->Drc;
-            u1l->Drc = u->Drc - h1r->Drc*du*0.5/h->Drc;
-            v1r->Drc = v->Drc + h1l->Drc*dv*0.5/h->Drc;
-            v1l->Drc = v->Drc - h1r->Drc*dv*0.5/h->Drc;
-        }
-        else
-        {
-            u1r->Drc = u->Drc + du*0.5;
-            u1l->Drc = u->Drc - du*0.5;
-            v1r->Drc = v->Drc + dv*0.5;
-            v1l->Drc = v->Drc - dv*0.5;
-        }
-
-
-        delta_h1 = delta_h2;
-        delta_u1 = delta_u2;
-        delta_v1 = delta_v2;
     }
-
     // then do 2: y direction (row+1 - row)
-    FOR_ROW_COL_MV_MV_
+    for (int r = 0; r < _nrRows-1; r++)
     {
-        delta_h2 = h->Data[r+1][c] - h->Drc;
-        delta_u2 = u->Data[r+1][c] - u->Drc;
-        delta_v2 = v->Data[r+1][c] - v->Drc;
-
-        if (startloop1)
+        int c = 0;
+        if(!IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+                !IS_MV_REAL8(&LDD->Data[r][c]))
         {
-            delta_h1 = delta_h2;
-            delta_u1 = delta_u2;
-            delta_v1 = delta_v2;
-            startloop1 = false;
+            delta_h1 = _h->Data[r+1][c] - _h->Drc;
+            delta_u1 = _u->Data[r+1][c] - _u->Drc;
+            delta_v1 = _v->Data[r+1][c] - _v->Drc;
+
+            for (c = 0; c < _nrCols; c++)
+                if(!IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c]))
+                {
+                    delta_h2 = _h->Data[r+1][c] - _h->Drc;
+                    delta_u2 = _u->Data[r+1][c] - _u->Drc;
+                    delta_v2 = _v->Data[r+1][c] - _v->Drc;
+
+                    dh = limiter(delta_h1, delta_h2);
+                    dz_h = limiter(delta_h1+delta_z2->Data[r-1][c], delta_h2+delta_z2->Drc);
+
+                    du = limiter(delta_u1, delta_u2);
+                    dv = limiter(delta_v1, delta_v2);
+
+                    h2r->Drc = _h->Drc+dh*0.5;
+                    h2l->Drc = _h->Drc-dh*0.5;
+
+                    z2r->Drc = _z->Drc+0.5*(dz_h-dh);
+                    z2l->Drc = _z->Drc+0.5*(dh-dz_h);
+                    delzc2->Drc = z2r->Drc-z2l->Drc;
+                    delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+
+                    if (_h->Drc > 0)
+                    {
+                        u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
+                        u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
+                        v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
+                        v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
+                    }
+                    else
+                    {
+                        u2r->Drc = _u->Drc + du*0.5;
+                        u2l->Drc = _u->Drc - du*0.5;
+                        v2r->Drc = _v->Drc + dv*0.5;
+                        v2l->Drc = _v->Drc - dv*0.5;
+                    } //end if
+
+                    delta_h1 = delta_h2;
+                    delta_u1 = delta_u2;
+                    delta_v1 = delta_v2;
+                }
         }
-
-        dh = limiter(delta_h1, delta_h2);
-        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c], delta_h2+delta_z2->Drc);
-
-        du = limiter(delta_u1, delta_u2);
-        dv = limiter(delta_v1, delta_v2);
-
-        h2r->Drc = h->Drc+dh*0.5;
-        h2l->Drc = h->Drc-dh*0.5;
-
-        z2r->Drc = z->Drc+0.5*(dz_h-dh);
-        z2l->Drc = z->Drc+0.5*(dh-dz_h);
-        delzc2->Drc = z2r->Drc-z2l->Drc;
-        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
-
-        if (h->Drc > 0)
-        {
-            u2r->Drc = u->Drc + h2l->Drc*du*0.5/h->Drc;
-            u2l->Drc = u->Drc - h2r->Drc*du*0.5/h->Drc;
-            v2r->Drc = v->Drc + h2l->Drc*dv*0.5/h->Drc;
-            v2l->Drc = v->Drc - h2r->Drc*dv*0.5/h->Drc;
-        }
-        else
-        {
-            u2r->Drc = u->Drc + du*0.5;
-            u2l->Drc = u->Drc - du*0.5;
-            v2r->Drc = v->Drc + dv*0.5;
-            v2l->Drc = v->Drc - dv*0.5;
-        } //end if
-
-        delta_h1 = delta_h2;
-        delta_u1 = delta_u2;
-        delta_v1 = delta_v2;
     }
 }
-
 
 //---------------------------------------------------------------------------
 // St Venant equations: conservation of mass and momentum: h u et v
@@ -560,7 +543,7 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
 
             // fullswof version 1.04
             qes1 = he->Drc*ve1->Drc-tx*(f2->Data[r][c+1]-f2->Drc +
-                    grav*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
+                    GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
                               (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
                               (h1l->Drc+h1r->Drc)*delzc1->Drc)) -
                     ty*(g2->Data[r][c+1]-g2->Drc);
@@ -568,7 +551,7 @@ void TWorld::bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
             // fullswof version 1.04
             qes2 = he->Drc*ve2->Drc - tx*(f3->Data[r][c+1]-f3->Drc) -
                     ty*(g3->Data[r+1][c]-g3->Drc +
-                    grav*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
+                    GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
                               (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
                               (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
@@ -630,7 +613,7 @@ double TWorld::bloc1(double dt, double dt_max)
         velocity_max_x = max(velocity_max_x, cfl);
     }
 
- //   qDebug() << "bloc1a" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
+    //   qDebug() << "bloc1a" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
 
     FOR_ROW_COL_MV_MV_
     {
@@ -660,11 +643,11 @@ double TWorld::bloc1(double dt, double dt_max)
         velocity_max_y = max(velocity_max_y, cfl);
     }
 
-//    qDebug() << "bloc1b" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
+    //    qDebug() << "bloc1b" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
 
     if (scheme_type == 1)
-//        return(min(dtx,dty));
-    return(max(dt_ca,min(dtx,dty)));
+        //        return(min(dtx,dty));
+        return(max(dt_ca,min(dtx,dty)));
     else
     {
         //        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
@@ -701,8 +684,11 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
 // first order solution
 double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
 {
-    int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dr[9] = {-1,-1,-1,  0, 0, 0,  1, 1, 1};
+    //    int dc[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
+    //    int dr[9] = {-1,-1,-1,  0, 0, 0,  1, 1, 1};
+    int dc[18] = {-1, 0, 1, -1, 0, 1, -1, 0, 1, -2, 0, 2, -2, 0, 2, -2, 0, 2};
+    int dr[18] = {-1,-1,-1,  0, 0, 0,  1, 1, 1, -2,-2,-2,  0, 0, 0,  2, 2, 2};
+    int fd[18] = {2,2,2,2, 1, 2,  2, 2, 2, 3,3,3,  3, 1, 3,  3, 3, 3};
     double timesum = 0;
     int n = 0;
     dt_max = _dx/2;
@@ -729,41 +715,41 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
             {
                 if (h->Drc > 0)
                 {
-                    for (int i = 0; i < 9; i++)
+                    for (int i = 0; i < 18; i++)
                     {
                         if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                                 c+dc[i] > 0 && c+dc[i] < _nrCols &&
                                 !IS_MV_REAL8(&h->Drci))
-                            FloodDomain->Drci = 1;
+                            FloodDomain->Drci = fd[i];
                     }
                 }
             }
 
             // not faster, dt_max is fastest with the same error:
-           // dt1 = min(dt1*qSqrt(double(n)), dt_max);
+            // dt1 = min(dt1*qSqrt(double(n)), dt_max);
             // dt1 = min(dt1*(double(n)), dt_max);
             dt1 = dt_max;
 
             setZero(h, u, v);
-            FOR_ROW_COL_MV_MV_
-            {
-                h1r->Drc = h->Drc;
-                u1r->Drc = u->Drc;
-                v1r->Drc = v->Drc;
-                h1l->Data[r][c+1] = h->Data[r][c+1];
-                u1l->Data[r][c+1] = u->Data[r][c+1];
-                v1l->Data[r][c+1] = v->Data[r][c+1];
-            }
-            FOR_ROW_COL_MV_MV_
-            {
-                h2r->Drc = h->Drc;
-                u2r->Drc = u->Drc;
-                v2r->Drc = v->Drc;
-                h2l->Data[r+1][c] = h->Data[r+1][c];
-                u2l->Data[r+1][c] = u->Data[r+1][c];
-                v2l->Data[r+1][c] = v->Data[r+1][c];
-            }
-            //simpleScheme(h, u, v);
+            //            FOR_ROW_COL_MV_MV_
+            //            {
+            //                h1r->Drc = h->Drc;
+            //                u1r->Drc = u->Drc;
+            //                v1r->Drc = v->Drc;
+            //                h1l->Data[r][c+1] = h->Data[r][c+1];
+            //                u1l->Data[r][c+1] = u->Data[r][c+1];
+            //                v1l->Data[r][c+1] = v->Data[r][c+1];
+            //            }
+            //            FOR_ROW_COL_MV_MV_
+            //            {
+            //                h2r->Drc = h->Drc;
+            //                u2r->Drc = u->Drc;
+            //                v2r->Drc = v->Drc;
+            //                h2l->Data[r+1][c] = h->Data[r+1][c];
+            //                u2l->Data[r+1][c] = u->Data[r+1][c];
+            //                v2l->Data[r+1][c] = v->Data[r+1][c];
+            //            }
+            simpleScheme(h, u, v);
 
             dt1 = bloc1(dt1, dt_max);
             dt1 = qMin(dt1, _dt-timesum);
@@ -788,6 +774,8 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     }
     //        Fr=froude_number(hs,us,vs);
     // todo
+
+    FloodDomain->report("fd");
 
     iter_n = n;
     return(timesum/(n+1));
@@ -920,323 +908,3 @@ double TWorld::fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMM
 
 }
 //---------------------------------------------------------------------------
-double TWorld::fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
-{
-    double timesum = 0;
-    int n = 0;
-    double dx = _dx;
-    double dy = _dx; //TODO could be DX->Drc ? later !!!!
-    double dt_max = min(dx/2,dy/2);
-    double dt1 = dt_max;
-
-    if (prepareFlood)
-    {
-        prepareFlood = false;
-        FOR_ROW_COL_MV_MV_
-        {
-            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
-        }
-    }
-
-    // if there is no flood skip everything
-    if (startFlood)
-    {
-
-        do {
-            n++;
-
-            dt1 = min(dt1*qSqrt(double(n)), dt_max);
-            dt1 = dt_max;
-
-            setZero(h, u, v);//, q1, q2);
-
-            FOR_ROW_COL_MV_MV_
-            {
-                h1r->Drc = h->Drc;
-                u1r->Drc = u->Drc;
-                v1r->Drc = v->Drc;
-                h1l->Data[r][c+1] = h->Data[r][c+1];
-                u1l->Data[r][c+1] = u->Data[r][c+1];
-                v1l->Data[r][c+1] = v->Data[r][c+1];
-            }
-            FOR_ROW_COL_MV_MV_
-            {
-                h2r->Drc = h->Drc;
-                u2r->Drc = u->Drc;
-                v2r->Drc = v->Drc;
-                h2l->Data[r+1][c] = h->Data[r+1][c];
-                u2l->Data[r+1][c] = u->Data[r+1][c];
-                v2l->Data[r+1][c] = v->Data[r+1][c];
-            }
-
-            dt1 = bloc1(dt1, dt_max);
-            dt1 = qMin(dt1, _dt-timesum);
-
-            bloc2(dt1, h,u,v, hs,us,vs);
-
-            setZero(hs, us, vs);
-
-            FOR_ROW_COL_MV_MV_
-            {
-                h1l->Drc = hs->Drc;
-                u1l->Drc = us->Drc;
-                v1l->Drc = vs->Drc;
-                h1r->Data[r][c+1] = hs->Data[r][c+1];
-                u1r->Data[r][c+1] = us->Data[r][c+1];
-                v1r->Data[r][c+1] = vs->Data[r][c+1];
-            }
-            FOR_ROW_COL_MV_MV_
-            {
-                h2l->Drc = hs->Drc;
-                u2l->Drc = us->Drc;
-                v2l->Drc = vs->Drc;
-                h2r->Data[r+1][c] = hs->Data[r+1][c];
-                u2r->Data[r+1][c] = us->Data[r+1][c];
-                v2r->Data[r+1][c] = vs->Data[r+1][c];
-            }
-
-            dt1 = bloc1(dt1, dt_max);
-            dt1 = qMin(dt1, _dt-timesum);
-
-            bloc2(dt1, hs,us,vs, hsa,usa,vsa);
-
-            setZero(hsa, usa, vsa);//, q1, q2);
-
-            FOR_ROW_COL_MV
-            {
-                double tmp = 0.5*(h->Drc+hsa->Drc);
-                if (tmp >= he_ca)
-                {
-                    q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                    u->Drc = q1->Drc/tmp;
-                    q2->Drc = 0.5*(h->Drc*vs->Drc + hsa->Drc*vsa->Drc);
-                    v->Drc = q2->Drc/tmp;
-                    h->Drc = tmp;
-                }
-                else
-                {
-                    u->Drc = 0;
-                    q1->Drc = 0;
-                    v->Drc = 0;
-                    q2->Drc = 0;
-                    h->Drc = 0;
-                }
-            }//Heun
-
-            timesum = timesum + dt1;
-
-        } while (timesum  < _dt);
-    }
-
-    iter_n = n;
-    return(timesum/(n+1));
-}
-
-/*
-void swofv4()
-{
-
-    SCALAR dt2;
-
-
-    time(&start);
-    //time's iteration beginning
-
-    while (T > tps  && n < MAX_ITER+1)
-    {
-
-        if (1 == verif)
-        {
-            dt1=dt_max;
-
-            // save the data in huz_evolution.dat
-            if (tps >= T_output)
-            {
-                out->write(h,u,v,z,tps);
-                T_output+=dt_output;
-            }// end if
-
-
-            //boundary conditions
-            boundary(h,u,v,tps,NXCELL,NYCELL);
-
-
-            for (int i=1 ; i<NXCELL+1 ; i++)
-            {
-                for (int j=1 ; j<NYCELL+1 ; j++)
-                {
-                    if (h->Drc<=HE_CA)
-                    {
-                        h->Drc=0.;
-                        u->Drc = 0.;
-                        v->Drc = 0.;
-                    }
-                    if (fabs(u->Drc)<=VE_CA)
-                    {
-                        u->Drc=0.;
-                        q1->Drc=0.;
-                    }
-                    if (fabs(v->Drc)<=VE_CA)
-                    {
-                        v->Drc=0.;
-                        q2->Drc=0.;
-                    }
-                } //end for j
-            } //end for i
-
-            // Reconstruction for order 2
-            rec->calcul(h,u,v,z,delzc1,delzc2,delz1,delz2,h1r,u1r,v1r,h1l,u1l,v1l,h2r,u2r,v2r,h2l,u2l,v2l);
-
-
-        }
-        else
-        {
-            //if verif==0, ie dt2<dt1
-            //We return to the value of the previous time (i.e time=n)
-            for (int i=1 ; i<NXCELL+1 ; i++)
-                for (int j=1 ; j<NYCELL+1 ; j++)
-                    Vin1->Drc=Vin2->Drc;
-        }//end for if verif==1
-
-        maincalcflux(CFL_FIX,T, tps, dt_max, dt1, dt1);
-
-        dt1=min(T-tps,dt1);
-
-        tx=dt1/DX;
-        ty=dt1/DY;
-
-        maincalcscheme(h,u,v,q1,q2,hs,us,vs,qs1,qs2,Vin1,tps,dt1,n);
-        //    dt2=dt_max;
-        dt2=dt1;
-
-        //boundary conditions
-        boundary(hs,us,vs,tps+dt1,NXCELL,NYCELL);
-
-        for (int i=1 ; i<NXCELL+1 ; i++){
-            for (int j=1 ; j<NYCELL+1 ; j++){
-                if (hs->Drc<=HE_CA) {
-                    hs->Drc=0.;
-                    us->Drc = 0.;
-                    vs->Drc = 0.;
-                    qs1->Drc=0.;
-                    qs2->Drc=0.;
-                }
-                if (fabs(us->Drc)<=VE_CA){
-                    us->Drc=0.;
-                    qs1->Drc=0.;
-                }
-                if (fabs(vs->Drc)<=VE_CA){
-                    vs->Drc=0.;
-                    qs2->Drc=0.;
-                }
-            } //end for j
-        } //end for i
-
-
-        //Reconstruction for order 2
-        rec->calcul(hs,us,vs,z,delzc1,delzc2,delz1,delz2,h1r,u1r,v1r,h1l,u1l,v1l,h2r,u2r,v2r,h2l,u2l,v2l);
-
-
-        //commun bloc
-
-        maincalcflux(CFL_FIX,T,tps+dt1,dt_max,dt2,dt2);
-
-        if (dt2 < dt1)
-        {
-            dt1 = dt2;
-            tx = dt1/DX;
-            ty = dt1/DY;
-            verif = 0;
-        }
-        else
-        {
-
-            //Added to do calculus at the beginning
-            verif=1;
-            maincalcscheme(hs,us,vs,qs1,qs2,hsa,usa,vsa,qsa1,qsa2,Vin1,tps+dt1,dt1,n+1);
-
-
-            //the values of height_Vinf_tot and height_of_tot put to zero
-            //to compute infiltrated and overland flow volume
-            height_Vinf_tot=ZERO;
-            height_of_tot=ZERO;
-            //Heun method (order 2 in time)
-            for (int i=1 ; i<NXCELL+1 ; i++){
-                for (int j=1 ; j<NYCELL+1 ; j++){
-                    if (hsa->Drc<=HE_CA) {   hsa->Drc=0.;};
-                    if (abs(usa->Drc)<=VE_CA) {   usa->Drc=0.;};
-                    if (abs(vsa->Drc)<=VE_CA) {   vsa->Drc=0.;};
-                    tmp = 0.5*(h->Drc+hsa->Drc);
-                    if (tmp>=HE_CA){
-                        q1->Drc = 0.5*(h->Drc*u->Drc+hsa->Drc*usa->Drc);
-                        u->Drc = q1->Drc/tmp;
-                        q2->Drc = 0.5*(h->Drc*v->Drc+hsa->Drc*vsa->Drc);
-                        v->Drc = q2->Drc/tmp;
-                        h->Drc = tmp;
-                    }else{
-                        u->Drc = 0.;
-                        q1->Drc = 0.;
-                        v->Drc = 0.;
-                        q2->Drc = 0.;
-                        h->Drc = 0.;
-                    }
-                    Vin_tot->Drc = (Vin1->Drc + Vin2->Drc)*0.5;
-
-                    Vin1->Drc=Vin_tot->Drc;
-                    Vin2->Drc=Vin_tot->Drc;
-
-                    height_Vinf_tot+= Vin_tot->Drc;
-                    height_of_tot+=h->Drc;
-                } //end for j
-            } //end for i
-
-            //Computation of the cumulated infiltrated volume
-            Vol_inf_tot_cumul=height_Vinf_tot*DX*DY;
-
-            //Computation of the overland flow volume
-            Vol_of_tot=height_of_tot*DX*DY;
-
-            tps=tps+dt1;
-            n=n+1;
-
-#ifdef DEBUG
-            out->check_vol(tps,dt1,Volrain_Tot,Vol_inf_tot_cumul,Vol_of_tot,Total_discharge_outflow);
-#endif
-
-            //Display the percentage of elapsed time
-            cout  << '\r' << '\t' << "[" << int((tps/T)*100) << "%] done" ;
-
-        }//end for else dt2<dt1
-
-
-
-    } //end for while : loop in time
-
-    //Verify the reason of the run finished
-    if (n>MAX_ITER){
-        cerr << "\n order2: WARNING: the computation finished because the maximum number of time steps was reached (see MAX_ITER in misc.hpp)\n";
-    }
-
-    //to give the ultimate situation
-    out->write(h,u,v,z,tps);
-
-
-    //to give the computing time
-    time(&end);
-    timecomputation=difftime(end,start);
-
-    //to inform about the froude number
-    Fr=froude_number(hs,us,vs);
-
-
-    // The quantity of water outflow is the sum of flux at the boundary multiply by one cell area, so
-    //Outflow volum = (fluxNxcell_cum_T+fluxNycell_cum_T)*DX*DY*n1+(fluxx0_cum_T+fluxy0_cum_T)*DX*DY*n2
-    //In this case n1=1 and n2=-1 because we consider the direction of the flow
-    // is from left to the right (x=0 to x=Nxcell) and from bottom to the top (y=0 to y=NYCELL)
-    out->result(timecomputation,Volrain_Tot, Vol_inf_tot_cumul, Vol_of_tot,Fr,n,Total_discharge_outflow);
-    //storage of h u v value in the final time
-    out->final(DX, DY,z, h, u,v);
-}
-
-*/
