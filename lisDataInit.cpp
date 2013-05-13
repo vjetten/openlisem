@@ -583,7 +583,7 @@ void TWorld::InitChannel(void)
             //            for (int i = 0; i < 9; i++)
             //                qx[i].m = NewMap(0);
             prepareFlood = true;
-            F_scheme = 3;
+            //F_scheme = 3;
             iter_n = 0;
 
             FloodVoltoChannel = NewMap(0);

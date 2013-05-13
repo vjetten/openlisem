@@ -957,7 +957,6 @@ void lisemqt::resetAll()
 
     checkFloodExplicit->setChecked(check);
     checkFloodSWOForder1->setChecked(true);
-    checkFloodSWOForder1a->setChecked(check);
     checkFloodSWOForder2->setChecked(check);
     E_cflFactor->setValue(0.4);
     E_courantFactor->setValue(0.2);

@@ -38,8 +38,8 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-/// Gray scale legend for shaded relief map display
-class colorMapBlack: public QwtLinearColorMap
+/// House color legend
+class colorMapHouse: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -49,10 +49,10 @@ class colorMapBlack: public QwtLinearColorMap
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
-    colorMapBlack():
-        QwtLinearColorMap( QColor(BGc), QColor("#440044"))//Qt::black  )
+    colorMapHouse():
+        QwtLinearColorMap( QColor(BGc), QColor("#331900"))
     {
-        addColorStop(0, QColor("#774477"));
+        addColorStop(0, QColor("#cc6600"));
     }
 };
 //---------------------------------------------------------------------------
@@ -61,14 +61,14 @@ class colorMapGray: public QwtLinearColorMap
 {
 public:
     colorMapGray():
-        QwtLinearColorMap( QColor(BGc), Qt::white  )
+        QwtLinearColorMap( QColor(BGc),Qt::white  )
     {
         addColorStop(0, QColor("#111111"));
     }
 };
 //---------------------------------------------------------------------------
 /// Dark yellow legend for maps for road map overlay
-class colorMapYellow: public QwtLinearColorMap
+class colorMapRoads: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -78,7 +78,7 @@ class colorMapYellow: public QwtLinearColorMap
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
-    colorMapYellow():
+    colorMapRoads():
         QwtLinearColorMap( QColor(BGc), QColor("#cc8800"))//888800"))
     {
         addColorStop(0.0, QColor("#cc8800"));

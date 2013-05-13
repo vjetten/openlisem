@@ -70,6 +70,7 @@ void TWorld::ChannelOverflow(void)
                     double dh = (hmx->Drc-F_levee) * fv;
                     hmx->Drc -= dh;
                     ChannelWH->Drc += dh;
+
                 }
 
         }
@@ -91,6 +92,7 @@ void TWorld::ChannelFlood(void)
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
     startFlood = false;
+    SwitchLimiter = MINMOD;
 
     FOR_ROW_COL_MV
     {
@@ -108,7 +110,8 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchFloodSWOForder2)
     {
-        dtflood = fullSWOF2D(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+        SwitchMUSCL = true;
+        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
@@ -117,7 +120,7 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    if (SwitchFloodSWOForder1 || SwitchFloodSWOForder1a)
+    if (SwitchFloodSWOForder1)
     {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV

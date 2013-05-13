@@ -280,7 +280,7 @@ void lisemqt::showRoadMap()
 
     roadMap->setAlpha(transparency3->value());
 
-    roadMap->setColorMap(new colorMapYellow());
+    roadMap->setColorMap(new colorMapRoads());
 
     RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
     roadMap->setData(RDd);
@@ -292,7 +292,7 @@ void lisemqt::showHouseMap()
 
     houseMap->setAlpha(transparency4->value());
 
-    houseMap->setColorMap(new colorMapBlack());
+    houseMap->setColorMap(new colorMapHouse());
 
     RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,1.0));
     houseMap->setData(RDe);

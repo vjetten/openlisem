@@ -123,6 +123,9 @@
 #define KE_LOGFUNCTION 1
 #define KE_POWERFUNCTION 2
 
+#define MINMOD 0
+#define VANALBEDA 1
+#define VANLEER 2
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -204,7 +207,7 @@ public:
 #include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
-    bool SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
+    bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
@@ -216,7 +219,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSoilwater, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder1a, SwitchFloodSWOForder2, SwitchRoadsystem;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL;
 
     // multiple options that are set in interface or runfile, see defines above
     /// Interception storage function based on LAI
@@ -352,29 +355,29 @@ public:
     //FLOOD according to LISFLOOD
     double floodExplicit();
     //FLOOD according to FULLSWOF2D
-    double fullSWOF2D(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    double fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
-    double fullSWOF2Do1a(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double limiter(double a, double b);
-    void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
-    void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+    void MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az);
+    void ENO(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
     void simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v);
-    double bloc1(double dt, double dt_max);
-    void bloc2(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
+    double maincalcflux(double dt, double dt_max);
+    void maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
     void Fr_ManningSf(double h, double u, double v, double cf);
     void setZero(TMMap *_h, TMMap *_u, TMMap *_v);
-    void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    void F_HLL2(double hg, double ug, double vg, double hd, double ud, double vd);
+    //F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     int F_scheme;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
-    double dt1, dx, dy, dt_max, tx, ty;
     double q1mod, q2mod, Sf1, Sf2;
+    double dt_max, dt1;
     bool prepareFlood, startFlood;
-    int verif;
-    int iter_n;
+    int verif, iter_n;
+    int SwitchLimiter;
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
