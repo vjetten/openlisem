@@ -79,7 +79,7 @@ class colorMapRoads: public QwtLinearColorMap
     }
 public:
     colorMapRoads():
-        QwtLinearColorMap( QColor(BGc), QColor("#cc8800"))//888800"))
+        QwtLinearColorMap( QColor(BGc), QColor("#00cc00"))//888800"))
     {
         addColorStop(0.0, QColor("#cc8800"));
     }

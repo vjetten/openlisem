@@ -79,15 +79,48 @@ void TWorld::DoModel()
         DEBUG("IntializeData()");
         IntializeData();
 
-        op.DrawMap = NewMap(0);
-        op.DrawMap1 = NewMap(0);
-        op.DrawMap2 = NewMap(0);
-        op.DrawMap3 = NewMap(0);
-        op.DrawMap4 = NewMap(0);
-        op.baseMap = NewMap(0);
-        op.channelMap = NewMap(0);
-        op.roadMap = NewMap(0);
-        op.houseMap = NewMap(0);
+//        op.DrawMap = NewMap(0);
+//        op.DrawMap1 = NewMap(0);
+//        op.DrawMap2 = NewMap(0);
+//        op.DrawMap3 = NewMap(0);
+//        op.DrawMap4 = NewMap(0);
+//        op.baseMap = NewMap(0);
+//        op.channelMap = NewMap(0);
+//        op.roadMap = NewMap(0);
+//        op.houseMap = NewMap(0);
+
+        if (op.DrawMap1)
+        {
+            op.DrawMap1->KillMap();
+            op.DrawMap2->KillMap();
+            op.DrawMap3->KillMap();
+            op.DrawMap4->KillMap();
+            op.baseMap->KillMap();
+            op.channelMap->KillMap();
+            op.roadMap->KillMap();
+            op.houseMap->KillMap();
+        }
+
+        op.DrawMap1 = new TMMap();
+        op.DrawMap2 = new TMMap();
+        op.DrawMap3 = new TMMap();
+        op.DrawMap4 = new TMMap();
+        op.baseMap = new TMMap();
+        op.channelMap = new TMMap();
+        op.roadMap = new TMMap();
+        op.houseMap = new TMMap();
+
+        op.DrawMap1->MakeMap(LDD, 0);
+        op.DrawMap2->MakeMap(LDD, 0);
+        op.DrawMap3->MakeMap(LDD, 0);
+        op.DrawMap4->MakeMap(LDD, 0);
+        op.baseMap->MakeMap(LDD, 0);
+        op.channelMap->MakeMap(LDD, 0);
+        op.roadMap->MakeMap(LDD, 0);
+        op.houseMap->MakeMap(LDD, 0);
+
+                // changed to LDD instead of Mask
+
         // initialize maps for output to screen
         // must be done after Initialize Data because then we know how large the map is
 

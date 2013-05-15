@@ -226,7 +226,7 @@ void lisemqt::killPlot()
     CData.clear();
 
     spinBoxPointtoShow->setEnabled(true);
-    stopplot = true;
+  //  stopplot = true;
  //   startplot = true;
 }
 //---------------------------------------------------------------------------
