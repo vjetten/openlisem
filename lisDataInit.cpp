@@ -607,11 +607,12 @@ void TWorld::InitChannel(void)
             Barriers->cover(LDD,0);
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
+            ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
 
             courant_factor = getvaluedouble("Flooding courant factor");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF scheme");
-            F_levee = getvaluedouble("Flood channel side levee");
+            //F_levee = getvaluedouble("Flood channel side levee");
 
             //FULLSWOF2D
             hs = NewMap(0);

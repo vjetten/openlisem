@@ -52,7 +52,7 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
-#define dt_ca 1e-3
+#define dt_ca 1e-4
 
 #define GRAV 9.8067   // to copy swof code directly
 #define EPSILON 1e-6
@@ -149,8 +149,6 @@ void TWorld::F_HLL2(double hg, double ug, double vg, double hd, double ud, doubl
         f3 = t1*qd*vd+t2*qg*vg-t3*(hd*vd-hg*vg);
         cfl = max(fabs(c1),fabs(c2));
         //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-
-        //    qDebug() << cfl;
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -270,7 +268,6 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 //---------------------------------------------------------------------------
 
 void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
-//,TMMap *delzc1,TMMap *delzc2,TMMap *delz1,TMMap *delz2,TMMap *h1r,TMMap *u1r,TMMap *v1r,TMMap *h1l,TMMap *u1l,TMMap *v1l,TMMap *h2r,TMMap *u2r,TMMap *v2r,TMMap *h2l,TMMap *u2l,TMMap *v2l)
 {
     double ddh1 = 0;
     double ddz1 = 0;
@@ -282,34 +279,17 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
     double delta_h1, delta_v1, delta_u1;
     double delta_h2, delta_v2, delta_u2;
     double dh, du, dv, dz_h;
-    bool startloop = true;
-    bool startloop1 = true;
     double amortENO = 0.25;
     delta_h1 = 0;
     delta_u1 = 0;
     delta_v1 = 0;
 
-    //    FOR_ROW_COL_MV
-    //    {
-    //        h1r->Drc = h->Drc;
-    //        h1l->Drc = h->Drc;
-    //        h2r->Drc = h->Drc;
-    //        h2l->Drc = h->Drc;
-    //        u1r->Drc = u->Drc;
-    //        u1l->Drc = u->Drc;
-    //        u2r->Drc = u->Drc;
-    //        u2l->Drc = u->Drc;
-    //        v1r->Drc = v->Drc;
-    //        v1l->Drc = v->Drc;
-    //        v2r->Drc = v->Drc;
-    //        v2l->Drc = v->Drc;
-    //    }
-
-    FOR_ROW_COL_MV_MV_
+    FOR_ROW_COL_MV_MV
+            if(!IS_MV_REAL8(&LDD->Data[r][c+2]))
     {
-        hh2 = h->Drc-2.*h->Data[r+1][c]+h->Data[r+2][c];
-        uu2 = u->Drc-2.*u->Data[r+1][c]+u->Data[r+2][c];
-        vv2 = v->Drc-2.*v->Data[r+1][c]+v->Data[r+2][c];
+        hh2 = h->Drc-2.*h->Data[r][c+1]+h->Data[r][c+2];
+        uu2 = u->Drc-2.*u->Data[r][c+1]+u->Data[r][c+2];
+        vv2 = v->Drc-2.*v->Data[r][c+1]+v->Data[r][c+2];
 
         ddh2 = amortENO*limiter(hh1,hh2);
         ddu2 = amortENO*limiter(uu1,uu2);
@@ -320,27 +300,12 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
         delta_u2 = u->Data[r][c+1]-u->Drc;
         delta_v2 = v->Data[r][c+1]-v->Drc;
 
-        if (startloop)
-        {
-            ddh1 = ddh2;
-            ddz1 = ddz2;
-            ddu1 = ddu2;
-            ddv1 = ddv2;
-            delta_h1 = delta_h2;
-            delta_u1 = delta_u2;
-            delta_v1 = delta_v2;
-            startloop = false;
-        }
-
         dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-        dz_h = limiter(delta_h1+delta_z1->Data[r+1][c]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
+        dz_h = limiter(delta_h1+delta_z1->Data[r][c-1]+ddz1*0.5,
+                delta_h2+delta_z1->Drc-ddz2*0.5);
 
         du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
         dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-        delta_h1 = delta_h2;
-        delta_u1 = delta_u2;
-        delta_v1 = delta_v2;
 
         h1r->Drc=h->Drc+dh*0.5;
         h1l->Drc=h->Drc-dh*0.5;
@@ -349,7 +314,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
         z1l->Drc=z->Drc+0.5*(dh-dz_h);
 
         delzc1->Drc = z1r->Drc - z1l->Drc;
-        delz1->Data[r+1][c] = z1l->Drc - z1r->Data[r+1][c];
+        delz1->Data[r][c-1] = z1l->Drc - z1r->Data[r][c-1];
 
         if (h->Drc>0)
         {
@@ -366,6 +331,10 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
             v1l->Drc=v->Drc-dv*0.5;
         } //end if
 
+        delta_h1 = delta_h2;
+        delta_u1 = delta_u2;
+        delta_v1 = delta_v2;
+
         ddh1=ddh2;
         ddz1=ddz2;
         ddu1=ddu2;
@@ -373,7 +342,8 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
 
     }
 
-    FOR_ROW_COL_MV_MV_
+    FOR_ROW_COL_MV_MV
+            if(!IS_MV_REAL8(&LDD->Data[r+2][c]))
     {
         hh2 = h->Drc-2.*h->Data[r+1][c]+h->Data[r+2][c];
         uu2 = u->Drc-2.*u->Data[r+1][c]+u->Data[r+2][c];
@@ -388,28 +358,11 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
         delta_u2 = u->Data[r+1][c]-u->Drc;
         delta_v2 = v->Data[r+1][c]-v->Drc;
 
-        if (startloop1)
-        {
-            ddh1 = ddh2;
-            ddz1 = ddz2;
-            ddu1 = ddu2;
-            ddv1 = ddv2;
-            delta_h1 = delta_h2;
-            delta_u1 = delta_u2;
-            delta_v1 = delta_v2;
-            startloop1 = false;
-        }
-
-
         dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
         dz_h = limiter(delta_h1+delta_z2->Data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
 
         du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
         dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-        delta_h1 = delta_h2;
-        delta_u1 = delta_u2;
-        delta_v1 = delta_v2;
 
         h2r->Drc = h->Drc+dh*0.5;
         h2l->Drc = h->Drc-dh*0.5;
@@ -434,6 +387,9 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
             v2l->Drc = v->Drc-dv*0.5;
         } //end if
 
+        delta_h1 = delta_h2;
+        delta_u1 = delta_u2;
+        delta_v1 = delta_v2;
         ddh1=ddh2;
         ddz1=ddz2;
         ddu1=ddu2;
@@ -456,222 +412,114 @@ void TWorld::MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az)
     double delta_h2, delta_u2, delta_v2;
     double dh, du, dv, dz_h;
 
-    delta_h1 = 0;
-    delta_u1 = 0;
-    delta_v1 = 0;
-
-    // first do 1: x direction (col+1 - col col-1)
-//    for (int r = 0; r < _nrRows; r++)
-//    {
-//        int c = 1;
-//        if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-//                !IS_MV_REAL8(&LDD->Data[r][c+1]) &&
-//                !IS_MV_REAL8(&LDD->Data[r][c-1])
-//        {
-//            delta_h1 = ah->Data[r][c] - ah->Data[r][c-1];
-//            delta_u1 = au->Data[r][c] - au->Data[r][c-1];
-//            delta_v1 = av->Data[r][c] - av->Data[r][c-1];
-
-//            for (c = 1; c < _nrCols-1; c++)
-//                if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-//                        !IS_MV_REAL8(&LDD->Data[r][c+1]) &&
-//                        !IS_MV_REAL8(&LDD->Data[r][c-1])
-//                        )
-    FOR_ROW_COL_MV_MV
-                {
-                delta_h1 = ah->Data[r][c] - ah->Data[r][c-1];
-                delta_u1 = au->Data[r][c] - au->Data[r][c-1];
-                delta_v1 = av->Data[r][c] - av->Data[r][c-1];
-                    delta_h2 = ah->Data[r][c+1] - ah->Drc;
-                    delta_u2 = au->Data[r][c+1] - au->Drc;
-                    delta_v2 = av->Data[r][c+1] - av->Drc;
-
-                    dh = limiter(delta_h1, delta_h2);
-                    dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1],
-                            delta_h2 + delta_z1->Drc);
-                    du = limiter(delta_u1, delta_u2);
-                    dv = limiter(delta_v1, delta_v2);
-
-                    h1r->Drc = ah->Drc+dh*0.5;
-                    h1l->Drc = ah->Drc-dh*0.5;
-
-                    z1r->Drc = az->Drc+0.5*(dz_h-dh);
-                    z1l->Drc = az->Drc+0.5*(dh-dz_h);
-
-                    delzc1->Drc = z1r->Drc-z1l->Drc;
-                    delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
-
-                    if (ah->Drc > 0.)
-                    {
-                        u1r->Drc = au->Drc + h1l->Drc*du*0.5/ah->Drc;
-                        u1l->Drc = au->Drc - h1r->Drc*du*0.5/ah->Drc;
-                        v1r->Drc = av->Drc + h1l->Drc*dv*0.5/ah->Drc;
-                        v1l->Drc = av->Drc - h1r->Drc*dv*0.5/ah->Drc;
-                    }
-                    else
-                    {
-                        u1r->Drc = au->Drc + du*0.5;
-                        u1l->Drc = au->Drc - du*0.5;
-                        v1r->Drc = av->Drc + dv*0.5;
-                        v1l->Drc = av->Drc - dv*0.5;
-                    }
-                    delta_h1 = delta_h2;
-                    delta_u1 = delta_u2;
-                    delta_v1 = delta_v2;
-          //      }
-        //}
-    }
-
-//    delta_h1 = 0;
-//    delta_u1 = 0;
-//    delta_v1 = 0;
-
-//    for (int c = 0; c < _nrCols; c++)
-//    {
-//        int r = 0;
-//        if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-//           !IS_MV_REAL8(&LDD->Data[r+1][c]))
-//        {
-//            delta_h1 = ah->Data[r+1][c] - ah->Drc;
-//            delta_u1 = au->Data[r+1][c] - au->Drc;
-//            delta_v1 = av->Data[r+1][c] - av->Drc;
-
-//            for (r = 1; r < _nrRows-1; r++)
-//                if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-//                        !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-//                        !IS_MV_REAL8(&LDD->Data[r-1][c])
-//                        )
-                    FOR_ROW_COL_MV_MV
-                {
-                        delta_h1 = ah->Data[r][c] - ah->Data[r-1][c];
-                        delta_u1 = au->Data[r][c] - au->Data[r-1][c];
-                        delta_v1 = av->Data[r][c] - av->Data[r-1][c];
-                    delta_h2 = ah->Data[r+1][c] - ah->Drc;
-                    delta_u2 = au->Data[r+1][c] - au->Drc;
-                    delta_v2 = av->Data[r+1][c] - av->Drc;
-
-                    dh = limiter(delta_h1, delta_h2);
-                    dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],
-                            delta_h2+delta_z2->Drc);
-
-                    du = limiter(delta_u1, delta_u2);
-                    dv = limiter(delta_v1, delta_v2);
-
-                    h2r->Drc = ah->Drc+dh*0.5;
-                    h2l->Drc = ah->Drc-dh*0.5;
-
-                    z2r->Drc = az->Drc+0.5*(dz_h-dh);
-                    z2l->Drc = az->Drc+0.5*(dh-dz_h);
-                    delzc2->Drc = z2r->Drc - z2l->Drc;
-                    delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
-
-                    if (ah->Drc > 0)
-                    {
-                        u2r->Drc = au->Drc + h2l->Drc*du*0.5/ah->Drc;
-                        u2l->Drc = au->Drc - h2r->Drc*du*0.5/ah->Drc;
-                        v2r->Drc = av->Drc + h2l->Drc*dv*0.5/ah->Drc;
-                        v2l->Drc = av->Drc - h2r->Drc*dv*0.5/ah->Drc;
-                    }
-                    else
-                    {
-                        u2r->Drc = au->Drc + du*0.5;
-                        u2l->Drc = au->Drc - du*0.5;
-                        v2r->Drc = av->Drc + dv*0.5;
-                        v2l->Drc = av->Drc - dv*0.5;
-                    }
-
-                    delta_h1 = delta_h2;
-                    delta_u1 = delta_u2;
-                    delta_v1 = delta_v2;
-          //      }
-        //}
-    }
-//tm->report("dzh");
-//tma->report("dh");
-/*
-    delta_h1 = 0;
-    delta_u1 = 0;
-    delta_v1 = 0;
-    // then do 2: y direction (row+1 - row)
-    for (int r = 1; r < _nrRows-1; r++)
+    FOR_ROW_COL_MV
     {
-        int c = 0;
-
-        if(!IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-                !IS_MV_REAL8(&LDD->Data[r][c]) &&
-                !IS_MV_REAL8(&LDD->Data[r-1][c])
-                )
-        {
-            //            delta_h1 = ah->Data[r+1][c] - ah->Drc;
-            //            delta_u1 = au->Data[r+1][c] - au->Drc;
-            //            delta_v1 = av->Data[r+1][c] - av->Drc;
-
-            for (c = 0; c < _nrCols; c++)
-                //                if(!IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-                //                        !IS_MV_REAL8(&LDD->Data[r][c]))
-                //    FOR_ROW_COL_MV_MV
-            {
-                delta_h2 = ah->Data[r+1][c] - ah->Drc;
-                delta_u2 = au->Data[r+1][c] - au->Drc;
-                delta_v2 = av->Data[r+1][c] - av->Drc;
-
-                dh = limiter(delta_h1, delta_h2);
-                dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],
-                        delta_h2+delta_z2->Drc);
-
-                du = limiter(delta_u1, delta_u2);
-                dv = limiter(delta_v1, delta_v2);
-
-                h2r->Drc = ah->Drc+dh*0.5;
-                h2l->Drc = ah->Drc-dh*0.5;
-
-                z2r->Drc = az->Drc+0.5*(dz_h-dh);
-                z2l->Drc = az->Drc+0.5*(dh-dz_h);
-                delzc2->Drc = z2r->Drc - z2l->Drc;
-                delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
-
-                if (ah->Drc > 0)
-                {
-                    u2r->Drc = au->Drc + h2l->Drc*du*0.5/ah->Drc;
-                    u2l->Drc = au->Drc - h2r->Drc*du*0.5/ah->Drc;
-                    v2r->Drc = av->Drc + h2l->Drc*dv*0.5/ah->Drc;
-                    v2l->Drc = av->Drc - h2r->Drc*dv*0.5/ah->Drc;
-                }
-                else
-                {
-                    u2r->Drc = au->Drc + du*0.5;
-                    u2l->Drc = au->Drc - du*0.5;
-                    v2r->Drc = av->Drc + dv*0.5;
-                    v2l->Drc = av->Drc - dv*0.5;
-                }
-
-                delta_h1 = delta_h2;
-                delta_u1 = delta_u2;
-                delta_v1 = delta_v2;
-            }
-        }
+        tm->Drc = 0;
+        tma->Drc = 0;
+        tmb->Drc = 0;
     }
-    */
 
-    delzc2->report("dzc");
-    delz2->report("dz");
-//FOR_ROW_COL_MV_MV
-//{
-//    h2r->Drc = ah->Drc;
-//    u2r->Drc = au->Drc;
-//    v2r->Drc = av->Drc;
-//    z2r->Drc = az->Drc;
-//    h2l->Data[r+1][c] = ah->Data[r+1][c];
-//    u2l->Data[r+1][c] = au->Data[r+1][c];
-//    v2l->Data[r+1][c] = av->Data[r+1][c];
-//    z2l->Data[r+1][c] = az->Data[r+1][c];
-//}
-//    FOR_ROW_COL_MV_MV
-//    {
-//    delzc2->Drc = z2r->Drc - z2l->Drc;
-//    delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+    FOR_ROW_COL_MV_MV
+    {
+        delta_h1 = tm->Drc;
+        delta_u1 = tma->Drc;
+        delta_v1 = tmb->Drc;
 
-//}
+        delta_h2 = ah->Data[r][c+1] - ah->Drc;
+        delta_u2 = au->Data[r][c+1] - au->Drc;
+        delta_v2 = av->Data[r][c+1] - av->Drc;
+
+        dh = limiter(delta_h1, delta_h2);
+        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1],
+                delta_h2 + delta_z1->Drc);
+        du = limiter(delta_u1, delta_u2);
+        dv = limiter(delta_v1, delta_v2);
+
+        h1r->Drc = ah->Drc+dh*0.5;
+        h1l->Drc = ah->Drc-dh*0.5;
+
+        z1r->Drc = az->Drc+0.5*(dz_h-dh);
+        z1l->Drc = az->Drc+0.5*(dh-dz_h);
+
+        delzc1->Drc = z1r->Drc-z1l->Drc;
+        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+
+        if (ah->Drc > 0.)
+        {
+            u1r->Drc = au->Drc + h1l->Drc*du*0.5/ah->Drc;
+            u1l->Drc = au->Drc - h1r->Drc*du*0.5/ah->Drc;
+            v1r->Drc = av->Drc + h1l->Drc*dv*0.5/ah->Drc;
+            v1l->Drc = av->Drc - h1r->Drc*dv*0.5/ah->Drc;
+        }
+        else
+        {
+            u1r->Drc = au->Drc + du*0.5;
+            u1l->Drc = au->Drc - du*0.5;
+            v1r->Drc = av->Drc + dv*0.5;
+            v1l->Drc = av->Drc - dv*0.5;
+        }
+        tm->Drc = delta_h2;
+        tma->Drc = delta_u2;
+        tmb->Drc = delta_v2;
+    }
+
+    FOR_ROW_COL_MV
+    {
+        tm->Drc = 0;
+        tma->Drc = 0;
+        tmb->Drc = 0;
+    }
+
+//        for (int r = _nrRows-2; r > 0; r--)
+        for (int c = 0; c < _nrCols; c++)
+            for (int r = 1; r < _nrRows-1; r++)
+        if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+        !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+        !IS_MV_REAL8(&LDD->Data[r+1][c]))
+            //FOR_ROW_COL_MV_MV
+    {
+        delta_h1 = tm->Drc;
+        delta_u1 = tma->Drc;
+        delta_v1 = tmb->Drc;
+
+        delta_h2 = ah->Data[r+1][c] - ah->Drc;
+        delta_u2 = au->Data[r+1][c] - au->Drc;
+        delta_v2 = av->Data[r+1][c] - av->Drc;
+
+        dh = limiter(delta_h1, delta_h2);
+        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],
+                delta_h2+delta_z2->Drc);
+
+        du = limiter(delta_u1, delta_u2);
+        dv = limiter(delta_v1, delta_v2);
+
+        h2r->Drc = ah->Drc+dh*0.5;
+        h2l->Drc = ah->Drc-dh*0.5;
+
+        z2r->Drc = az->Drc+0.5*(dz_h-dh);
+        z2l->Drc = az->Drc+0.5*(dh-dz_h);
+        delzc2->Drc = z2r->Drc - z2l->Drc;
+        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+
+        if (ah->Drc > he_ca)
+        {
+            u2r->Drc = au->Drc + h2l->Drc*du*0.5/ah->Drc;
+            u2l->Drc = au->Drc - h2r->Drc*du*0.5/ah->Drc;
+            v2r->Drc = av->Drc + h2l->Drc*dv*0.5/ah->Drc;
+            v2l->Drc = av->Drc - h2r->Drc*dv*0.5/ah->Drc;
+        }
+        else
+        {
+            u2r->Drc = au->Drc + du*0.5;
+            u2l->Drc = au->Drc - du*0.5;
+            v2r->Drc = av->Drc + dv*0.5;
+            v2l->Drc = av->Drc - dv*0.5;
+        }
+
+        tm->Drc = delta_h2;
+        tma->Drc = delta_u2;
+        tmb->Drc = delta_v2;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -730,52 +578,6 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
             hes->Drc = 0;
         }
     }
-    /*
-    FOR_ROW_COL_MV_MV_
-    {
-        double dx = _dx;//-ChannelWidthUpDX->Drc;
-        double dy = DX->Drc;
-        double tx = dt/dx;
-        double ty = dt/dy;
-
-        // Solution of the equation of mass conservation (First equation of Saint venant)
-        // f1, f2, f3 and g1, g2, g3 comes from MUSCL calculations
-        hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
-
-        if (hes->Drc > he_ca)
-        {
-            //Solution of the equation of momentum (Second and third equation of Saint-venant)
-            double qes1;
-            double qes2;
-
-            // fullswof version 1.04
-            qes1 = he->Drc*ve1->Drc-tx*(f2->Data[r][c+1]-f2->Drc +
-                    GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
-                              (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
-                              (h1l->Drc+h1r->Drc)*delzc1->Drc)) -
-                    ty*(g2->Data[r][c+1]-g2->Drc);
-
-            // fullswof version 1.04
-            qes2 = he->Drc*ve2->Drc - tx*(f3->Data[r][c+1]-f3->Drc) -
-                    ty*(g3->Data[r+1][c]-g3->Drc +
-                    GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
-                              (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
-                              (h2l->Drc+h2r->Drc)*delzc2->Drc));
-
-            //Calcul friction in semi-implicit.
-            Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
-            ves1->Drc = q1mod/hes->Drc;
-            ves2->Drc = q2mod/hes->Drc;
-        }
-        else
-        {
-            // Case of height of water is zero.
-            ves1->Drc = 0;
-            ves2->Drc = 0;
-            hes->Drc = 0;
-        }
-    }
-    */
 }
 //---------------------------------------------------------------------------
 /*Construction varibles for hydrostatic reconstruction.
@@ -800,7 +602,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
         h1d->Data[r][c-1] = max(0, h1r->Data[r][c-1] - max(0,  delz1->Data[r][c-1]));
         h1g->Drc          = max(0, h1l->Drc          - max(0, -delz1->Data[r][c-1]));
 
-
         if (F_scheme == 1)
             F_Rusanov(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
         else
@@ -818,12 +619,13 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = cfl_fix*dx/cfl;
-
         dtx = min(min(dt, dt_tmp), dtx);
         velocity_max_x = max(velocity_max_x, cfl);
     }
 
-    qDebug() << "mainflux" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
+    qDebug() << "mainflux x" << dt << dtx << dt_tmp << velocity_max_x;
+
+
 
     FOR_ROW_COL_MV_MV_
     {
@@ -853,11 +655,12 @@ double TWorld::maincalcflux(double dt, double dt_max)
         velocity_max_y = max(velocity_max_y, cfl);
     }
 
-    qDebug() << "mainflux" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
+   qDebug() << "mainflux y" << dt << dty << dt_tmp << velocity_max_y;
 
     if (scheme_type == 1)
-        //        return(min(dtx,dty));
+    {
         return(max(dt_ca,min(dtx,dty)));
+    }
     else
     {
         //        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
@@ -867,93 +670,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
         //        return (dt_fix);
     }
 
-    /*
-    // double cflfix = cfl_fix;
-    double dt_tmp, dtx, dty;
-    double velocity_max_x, velocity_max_y;
-    dtx = dt_max;
-    dty = dt_max;
-    velocity_max_x = -ve_ca;
-    velocity_max_y = -ve_ca;
-    double cfl;
-
-    FOR_ROW_COL_MV_MV_
-    {
-        double dx = _dx;
-
-        h1d->Data[r][c-1] = max(0, h1r->Data[r][c-1] - max(0,  delz1->Data[r][c-1]));
-        h1g->Drc          = max(0, h1l->Drc          - max(0, -delz1->Data[r][c-1]));
-
-        if (F_scheme == 1)
-            F_Rusanov(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-        else
-            if (F_scheme == 2)
-                F_HLL(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-            else
-                F_HLL2(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-
-        f1->Drc = HLL2_f1;
-        f2->Drc = HLL2_f2;
-        f3->Drc = HLL2_f3;
-        cfl = HLL2_cfl;
-
-        if (qFabs(HLL2_cfl*dt/dx) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = cfl_fix*dx/cfl;
-
-        dtx = min(min(dt, dt_tmp), dtx);
-        velocity_max_x = max(velocity_max_x, cfl);
-    }
-
-    qDebug() << "bloc1a" << dt << dtx << dt_tmp << HLL2_cfl << velocity_max_x;
-
-    FOR_ROW_COL_MV_MV_
-    {
-        double dy = DX->Drc;
-
-        h2d->Data[r-1][c] = max(0, h2r->Data[r-1][c] - max(0,  delz2->Data[r-1][c]));
-        h2g->Drc          = max(0, h2l->Drc          - max(0, -delz2->Data[r-1][c]));
-
-        if (F_scheme == 1)
-            F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-        else
-            if (F_scheme == 2)
-                F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-            else
-                F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-
-        g1->Drc = HLL2_f1;
-        g2->Drc = HLL2_f3;
-        g3->Drc = HLL2_f2;
-        cfl = HLL2_cfl;
-
-        if (qFabs(HLL2_cfl*dt/dy) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = cfl_fix*dy/cfl;
-        dty = min(min(dt, dt_tmp), dty);
-        velocity_max_y = max(velocity_max_y, cfl);
-    }
-    qDebug() << "bloc1b" << dt << dty << dt_tmp << HLL2_cfl << velocity_max_y;
-
-    //    if (scheme_type == 1)
-    //    {
-    //        return(min(dtx,dty));
-    return(max(dt_ca, min(dtx,dty)));
-    //    }
-    //    else
-    //    {
-    //        //        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
-    //        //            qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
-    //        //            exit(1);
-    //        //        }
-    //        //        return (dt_fix);
-    //    }
-f1->report("fa");
-f2->report("fb");
-f3->report("fc");
-*/
 }
 //---------------------------------------------------------------------------
 void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
@@ -1003,29 +719,12 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
         do {
             // not faster, dt_max is fastest with the same error:
-            // dt1 = min(dt1*qSqrt(double(n)), dt_max);
-            // dt1 = min(dt1*(double(n)), dt_max);
+            //dt1 = min(dt1*qSqrt(double(n)), dt_max);
+            //dt1 = min(dt1*(double(n)), dt_max);
             dt1 = dt_max;
 
             setZero(h, u, v);
-            //            FOR_ROW_COL_MV_MV_
-            //            {
-            //                h1r->Drc = h->Drc;
-            //                u1r->Drc = u->Drc;
-            //                v1r->Drc = v->Drc;
-            //                h1l->Data[r][c+1] = h->Data[r][c+1];
-            //                u1l->Data[r][c+1] = u->Data[r][c+1];
-            //                v1l->Data[r][c+1] = v->Data[r][c+1];
-            //            }
-            //            FOR_ROW_COL_MV_MV_
-            //            {
-            //                h2r->Drc = h->Drc;
-            //                u2r->Drc = u->Drc;
-            //                v2r->Drc = v->Drc;
-            //                h2l->Data[r+1][c] = h->Data[r+1][c];
-            //                u2l->Data[r+1][c] = u->Data[r+1][c];
-            //                v2l->Data[r+1][c] = v->Data[r+1][c];
-            //            }
+
             simpleScheme(h, u, v);
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -1072,8 +771,9 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         {
             delta_z1->Drc = z->Data[r][c+1] - z->Drc;
             delta_z2->Drc = z->Data[r+1][c] - z->Drc;
-            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+
+//            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
+//            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
             som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
             som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
         }
@@ -1081,90 +781,144 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
     }
 
-
     // if there is no flood skip everything
     int n = 1;
     if (startFlood)
     {
 
         do {
-            if (verif == 1)
+            dt1 = dt_max;
+            dt2 = dt_max*0.2;
+qDebug() << "start" << dt1;
+            setZero(h, u, v);
+            MUSCL(h,u,v,z);
+
+            // semi-iteration: finding the smallest dt
+            do {
+                dt1 = maincalcflux(dt2, dt_max);
+                dt1 = min(dt1, _dt-timesum);
+
+                maincalcscheme(dt1, h,u,v, hs,us,vs);
+                setZero(hs, us, vs);
+                MUSCL(hs,us,vs,z);
+
+                dt2 = maincalcflux(dt1, dt_max);
+                qDebug() << dt2;
+
+            } while (dt2 < dt1);
+
+qDebug() << "done" << dt1 << timesum;
+
+            maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
+            setZero(hsa, usa, vsa);
+
+            //Heun method (order 2 in time)
+            FOR_ROW_COL_MV
             {
-                //                 dt1 = min(dt1*qSqrt(double(n)), dt_max);
-                dt1 = dt_max;
-
-                setZero(h, u, v);
-
-                // Reconstruction for order 2
-                // makes h1r, h1l, u1r, u1l, v1r, v1l
-                // makes h2r, h2l, u2r, u2l, v2r, v2l
-                // makes delzc1, delzc2, delz1, delz2
-                MUSCL(h,u,v,z);
-                //                h->report("h");
-                //                h1r->report("h1r");
-                //                h2r->report("h2r");
-                //      simpleScheme(h,u,v);
-            }
-            //            else
-            //               ; //reset infil!!!
-
-            dt1 = maincalcflux(dt1, dt_max);
-            dt1 = min(dt1, _dt-timesum);
-
-            //h, u, v go in hs, vs, us come out
-            maincalcscheme(dt1, h,u,v, hs,us,vs);
-            dt2 = dt1;
-
-            setZero(hs, us, vs);
-
-            //Reconstruction for order 2
-            MUSCL(hs,us,vs,z);
-            //  simpleScheme(hs,us,vs);
-            //    hs->report("hs");
-
-            dt2 = maincalcflux(dt2, dt_max);
-
-            if (dt2 < dt1)
-            {
-                dt1 = dt2;
-                verif = 0;
-            }
-            else
-            {
-                verif = 1;
-                //hs, us, vs go in hsa, vsa, usa come out
-                maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-
-                setZero(hsa, usa, vsa);
-
-                //Heun method (order 2 in time)
-                FOR_ROW_COL_MV
+                double tmp = 0.5*(h->Drc + hsa->Drc);
+                if (tmp >= he_ca)
                 {
-                    double tmp = 0.5*(h->Drc + hsa->Drc);
-                    if (tmp >= he_ca)
-                    {
-                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                        u->Drc = q1->Drc/tmp;
-                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                        v->Drc = q2->Drc/tmp;
-                        h->Drc = tmp;
-                    }
-                    else
-                    {
-                        u->Drc = 0;
-                        q1->Drc = 0;
-                        v->Drc = 0;
-                        q2->Drc = 0;
-                        h->Drc = 0;
-                    }
-                }//Heun
+                    q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                    u->Drc = q1->Drc/tmp;
+                    q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                    v->Drc = q2->Drc/tmp;
+                    h->Drc = tmp;
+                }
+                else
+                {
+                    u->Drc = 0;
+                    q1->Drc = 0;
+                    v->Drc = 0;
+                    q2->Drc = 0;
+                    h->Drc = 0;
+                }
+            }//Heun
 
-                timesum = timesum + dt1;
-                n++;
+            timesum = timesum + dt1;
+            n++;
 
-            }//end for else dt2<dt1
 
         } while (timesum  < _dt);
+
+//        FOR_ROW_COL_MV
+//        {
+//            if(u->Drc > 1000)
+//                u->Drc = v->Drc;
+//        }
+
+//        do {
+//            if (verif == 1)
+//            {
+//                dt1 = dt_max;
+
+//                setZero(h, u, v);
+//                // Reconstruction for order 2
+//                // makes h1r, h1l, u1r, u1l, v1r, v1l
+//                // makes h2r, h2l, u2r, u2l, v2r, v2l
+//                // makes delzc1, delzc2, delz1, delz2
+//                MUSCL(h,u,v,z);
+//                //      simpleScheme(h,u,v);
+//            }
+//            //            else
+//            //               ; //reset infil!!!
+
+//            dt1 = maincalcflux(dt1, dt_max);
+//            dt1 = min(dt1, _dt-timesum);
+
+//            //h, u, v go in hs, vs, us come out
+//            maincalcscheme(dt1, h,u,v, hs,us,vs);
+//            dt2 = dt1;
+
+//            setZero(hs, us, vs);
+
+//            //Reconstruction for order 2
+//            MUSCL(hs,us,vs,z);
+//            //  simpleScheme(hs,us,vs);
+//            //    hs->report("hs");
+
+//            dt2 = maincalcflux(dt2, dt_max);
+
+//            if (dt2 < dt1)
+//            {
+//                dt1 = dt2;
+//                verif = 0;
+//            }
+//            else
+//            {
+//                verif = 1;
+//                //hs, us, vs go in hsa, vsa, usa come out
+//                maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
+
+//                setZero(hsa, usa, vsa);
+
+//                //Heun method (order 2 in time)
+//                FOR_ROW_COL_MV
+//                {
+//                    double tmp = 0.5*(h->Drc + hsa->Drc);
+//                    if (tmp >= he_ca)
+//                    {
+//                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+//                        u->Drc = q1->Drc/tmp;
+//                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+//                        v->Drc = q2->Drc/tmp;
+//                        h->Drc = tmp;
+//                    }
+//                    else
+//                    {
+//                        u->Drc = 0;
+//                        q1->Drc = 0;
+//                        v->Drc = 0;
+//                        q2->Drc = 0;
+//                        h->Drc = 0;
+//                    }
+//                }//Heun
+
+//                timesum = timesum + dt1;
+//                n++;
+
+//            }//end for else dt2<dt1
+
+//        } while (timesum  < _dt);
 
     } // if floodstart
 

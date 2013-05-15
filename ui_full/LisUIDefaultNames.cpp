@@ -109,6 +109,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
+    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
@@ -315,12 +316,14 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood method SWOF2D order 1");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method SWOF2D order 2");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding SWOF csf factor");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("Flooding SWOF scheme");
-    namelist[i].value = QString("0.000");
-    namelist[i++].name = QString("Flood channel side levee");
+//    namelist[i].value = QString("0.000");
+//    namelist[i++].name = QString("Flood channel side levee");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

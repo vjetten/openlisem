@@ -119,7 +119,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
-        if (p1.compare("Include channel flooding")==0)             checkChannelFlood->setChecked(check);
+        if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
@@ -134,7 +134,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
         if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
-        if (p1.compare("Flood channel side levee")==0)       E_FloodLevee->setValue(val);
+        if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -461,7 +461,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood method SWOF2D order 2")==0)    namelist[j].value.setNum((int)checkFloodSWOForder2->isChecked());
         if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
-        if (p1.compare("Flood channel side levee")==0)       namelist[j].value = E_FloodLevee->text();
+        if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
