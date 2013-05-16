@@ -65,9 +65,9 @@ void lisemqt::selectMapType(bool doit)
 
     showMap(); // show map
 
-//    showChannelMap(); // show channel map
+    //    showChannelMap(); // show channel map
 
-//    showRoadMap(); // show road map
+    //    showRoadMap(); // show road map
 
 }
 //---------------------------------------------------------------------------
@@ -280,7 +280,10 @@ void lisemqt::showRoadMap()
 
     roadMap->setAlpha(transparency3->value());
 
-    roadMap->setColorMap(new colorMapRoads());
+    if (op.drawMapType == 1)
+        roadMap->setColorMap(new colorMapRoads());
+    else
+        roadMap->setColorMap(new colorMapRoads2());
 
     RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
     roadMap->setData(RDd);
@@ -311,7 +314,7 @@ void lisemqt::showMap1()
     maxAxis1 = qMax(maxAxis1, MaxV);
     if (doubleSpinBoxRO->value() > 0)
         maxAxis1 = doubleSpinBoxRO->value();
-/*    else
+    /*    else
         maxAxis1 = MaxV*/;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(0.1, maxAxis1)));
 

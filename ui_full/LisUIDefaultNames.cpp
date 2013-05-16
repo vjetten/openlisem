@@ -320,7 +320,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding SWOF csf factor");
-    namelist[i].value = QString("3");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Flooding SWOF Reconstruction");
+    namelist[i].value = QString("2");
     namelist[i++].name = QString("Flooding SWOF scheme");
 //    namelist[i].value = QString("0.000");
 //    namelist[i++].name = QString("Flood channel side levee");

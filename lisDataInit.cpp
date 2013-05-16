@@ -608,10 +608,13 @@ void TWorld::InitChannel(void)
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             ChannelMaxQ->cover(LDD,0);
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
+            if (!SwitchLevees)
+                ChannelLevee->fill(0);
 
             courant_factor = getvaluedouble("Flooding courant factor");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
-            F_scheme = getvalueint("Flooding SWOF scheme");
+            F_scheme = getvalueint("Flooding SWOF reconstruction");
+            SwitchMUSCL = (getvalueint("Flooding SWOF scheme") == 1);
             //F_levee = getvaluedouble("Flood channel side levee");
 
             //FULLSWOF2D
@@ -625,8 +628,6 @@ void TWorld::InitChannel(void)
             z1l = NewMap(0);
             z2r = NewMap(0);
             z2l = NewMap(0);
-            delta_z1 = NewMap(0);
-            delta_z2 = NewMap(0);
             h1r = NewMap(0);
             h1l = NewMap(0);
             h2r = NewMap(0);
@@ -639,16 +640,23 @@ void TWorld::InitChannel(void)
             u1l = NewMap(0);
             u2r = NewMap(0);
             u2l = NewMap(0);
+
+            delta_z1 = NewMap(0);
+            delta_z2 = NewMap(0);
             delzc1 = NewMap(0);
             delzc2 = NewMap(0);
             delz1 = NewMap(0);
             delz2 = NewMap(0);
+            som_z1 = NewMap(0);
+            som_z2 = NewMap(0);
+
             f1 = NewMap(0);
             f2 = NewMap(0);
             f3 = NewMap(0);
             g1 = NewMap(0);
             g2 = NewMap(0);
             g3 = NewMap(0);
+
             h1d = NewMap(0);
             h1g = NewMap(0);
             h2d = NewMap(0);
@@ -658,16 +666,14 @@ void TWorld::InitChannel(void)
             Vflood = NewMap(0);
             q1flood = NewMap(0);
             q2flood = NewMap(0);
-            som_z1 = NewMap(0);
-            som_z2 = NewMap(0);
 
+            //flood infiltration
             Ffcum = NewMap(1e-10);
             ffact = NewMap(0);
             ffpot = NewMap(0);
             FfFull = NewMap(0);
             Lf1 = NewMap(1e-10);
             Lf2 = NewMap(1e-10);
-
         }
 
         //        if (useSorted)

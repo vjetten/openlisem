@@ -5441,7 +5441,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0">
+                 <item row="7" column="0">
                   <widget class="QLabel" name="label_55">
                    <property name="palette">
                     <palette>
@@ -5487,15 +5487,15 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                    <property name="text">
-                    <string>1-Rusanov; 2-HLL; 3-HLL2</string>
+                    <string>1 - Rusanov; 2 - HLL; 3 - HLL2</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="1">
-                  <widget class="QSpinBox" name="E_FloodScheme">
+                 <item row="7" column="1">
+                  <widget class="QSpinBox" name="E_FloodRecon">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -5513,6 +5513,175 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="value">
                     <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="label_57">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Reconstruction of veocities and heights:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QSpinBox" name="E_FloodScheme">
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>2</number>
+                   </property>
+                   <property name="value">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="label_97">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>1 - MUSCL; 2 - ENO</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="label_98">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Numerical solution scheme</string>
                    </property>
                   </widget>
                  </item>
@@ -14952,11 +15121,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>354</y>
+     <x>140</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
+     <x>135</x>
      <y>380</y>
     </hint>
    </hints>
@@ -14968,8 +15137,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>354</y>
+     <x>140</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -14984,8 +15153,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>354</y>
+     <x>140</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>317</x>
@@ -15000,11 +15169,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
+     <x>141</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
+     <x>135</x>
      <y>429</y>
     </hint>
    </hints>
@@ -15016,7 +15185,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
+     <x>141</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -15032,11 +15201,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
+     <x>131</x>
      <y>452</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
+     <x>135</x>
      <y>478</y>
     </hint>
    </hints>
@@ -15048,7 +15217,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
+     <x>131</x>
      <y>452</y>
     </hint>
     <hint type="destinationlabel">
@@ -15064,11 +15233,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
-     <x>84</x>
+     <x>93</x>
      <y>609</y>
     </hint>
    </hints>
@@ -15080,11 +15249,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
-     <x>140</x>
+     <x>148</x>
      <y>609</y>
     </hint>
    </hints>
@@ -15096,7 +15265,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
@@ -15116,7 +15285,7 @@ p, li { white-space: pre-wrap; }
      <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
+     <x>150</x>
      <y>626</y>
     </hint>
    </hints>
@@ -15128,11 +15297,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>364</y>
     </hint>
     <hint type="destinationlabel">
-     <x>155</x>
+     <x>166</x>
      <y>410</y>
     </hint>
    </hints>
@@ -15144,11 +15313,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>364</y>
     </hint>
     <hint type="destinationlabel">
-     <x>155</x>
+     <x>166</x>
      <y>387</y>
     </hint>
    </hints>
@@ -15160,11 +15329,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
-     <x>202</x>
+     <x>205</x>
      <y>609</y>
     </hint>
    </hints>
@@ -15176,7 +15345,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
@@ -15192,7 +15361,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
@@ -15208,7 +15377,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
+     <x>131</x>
      <y>452</y>
     </hint>
     <hint type="destinationlabel">
@@ -15224,7 +15393,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
@@ -15240,7 +15409,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
+     <x>150</x>
      <y>586</y>
     </hint>
     <hint type="destinationlabel">
@@ -15256,11 +15425,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>364</y>
     </hint>
     <hint type="destinationlabel">
-     <x>155</x>
+     <x>166</x>
      <y>433</y>
     </hint>
    </hints>
@@ -15336,11 +15505,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
+     <x>149</x>
      <y>435</y>
     </hint>
     <hint type="destinationlabel">
-     <x>377</x>
+     <x>387</x>
      <y>461</y>
     </hint>
    </hints>
@@ -15352,11 +15521,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
+     <x>149</x>
      <y>386</y>
     </hint>
     <hint type="destinationlabel">
-     <x>377</x>
+     <x>387</x>
      <y>412</y>
     </hint>
    </hints>
@@ -15368,11 +15537,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
+     <x>149</x>
      <y>386</y>
     </hint>
     <hint type="destinationlabel">
-     <x>118</x>
+     <x>149</x>
      <y>412</y>
     </hint>
    </hints>
@@ -15384,11 +15553,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
+     <x>149</x>
      <y>435</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
+     <x>268</x>
      <y>461</y>
     </hint>
    </hints>
@@ -15400,11 +15569,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>511</y>
     </hint>
     <hint type="destinationlabel">
-     <x>155</x>
+     <x>166</x>
      <y>534</y>
     </hint>
    </hints>
@@ -15416,11 +15585,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>889</x>
+     <x>744</x>
      <y>352</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1028</x>
+     <x>995</x>
      <y>354</y>
     </hint>
    </hints>
@@ -15432,7 +15601,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>580</y>
     </hint>
     <hint type="destinationlabel">
@@ -15512,7 +15681,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
+     <x>150</x>
      <y>364</y>
     </hint>
     <hint type="destinationlabel">
@@ -15528,7 +15697,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
+     <x>166</x>
      <y>433</y>
     </hint>
     <hint type="destinationlabel">
@@ -15544,7 +15713,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
+     <x>166</x>
      <y>433</y>
     </hint>
     <hint type="destinationlabel">
@@ -15560,7 +15729,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
+     <x>166</x>
      <y>433</y>
     </hint>
     <hint type="destinationlabel">
@@ -15580,8 +15749,72 @@ p, li { white-space: pre-wrap; }
      <y>340</y>
     </hint>
     <hint type="destinationlabel">
-     <x>258</x>
+     <x>268</x>
      <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodExplicit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_courantFactor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>417</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodExplicit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_cflFactor</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>151</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>442</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodExplicit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodRecon</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>117</x>
+     <y>323</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>492</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodExplicit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodScheme</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>536</y>
     </hint>
    </hints>
   </connection>

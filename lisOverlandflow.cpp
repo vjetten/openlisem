@@ -92,7 +92,7 @@ void TWorld::ToChannel(void)
 
             if (SwitchChannelFlood)
             {
-                if (ChannelWH->Drc >= ChannelDepth->Drc+F_levee)
+                if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
                     fractiontochannel = 0;
                 // no inflow when flooded
                 if (ChannelMaxQ->Drc > 0)

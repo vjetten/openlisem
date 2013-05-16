@@ -79,14 +79,14 @@ class colorMapRoads: public QwtLinearColorMap
     }
 public:
     colorMapRoads():
-        QwtLinearColorMap( QColor(BGc), QColor("#00cc00"))//888800"))
+        QwtLinearColorMap( QColor(BGc), QColor("#277e00"))//00cc00"))//888800"))
     {
-        addColorStop(0.0, QColor("#cc8800"));
+        addColorStop(0.0, QColor("#277e00"));//QColor("#cc8800"));
     }
 };
 //---------------------------------------------------------------------------
 /// Green legend for maps for road map overlay
-class colorMapGreen: public QwtLinearColorMap
+class colorMapRoads2: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -96,10 +96,10 @@ class colorMapGreen: public QwtLinearColorMap
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
-    colorMapGreen():
-        QwtLinearColorMap( QColor(BGc), QColor("#008800")  )
+    colorMapRoads2():
+        QwtLinearColorMap( QColor(BGc), QColor("#eecc00")  )
     {
-        addColorStop( 0.0, Qt::green );
+        addColorStop( 0.0, Qt::yellow );
     }
 };
 //---------------------------------------------------------------------------

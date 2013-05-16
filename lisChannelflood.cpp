@@ -51,20 +51,17 @@ void TWorld::ChannelOverflow(void)
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
             double fc = ChannelWidthUpDX->Drc/_dx;
-            double levee = 0;
+            double levee = ChannelLevee->Drc;
 
-            if (SwitchLevees)
-                levee = ChannelLevee->Drc;
-
-            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc + max(0, hmx->Drc-levee)*(1-fc);
+            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
+                             max(0, hmx->Drc-levee)*(1-fc);
             //average water level
-            if (hmx->Drc > levee)
-                hmx->Drc = levee;
 
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
             if (whlevel > 0)
             {
+                hmx->Drc = min(hmx->Drc, levee);
                 hmx->Drc += whlevel;
                 ChannelWH->Drc = whlevel + ChannelDepth->Drc + levee;
             }
@@ -74,7 +71,7 @@ void TWorld::ChannelOverflow(void)
                 if (hmx->Drc > levee)
                 {
                     double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
-                    double dh = (hmx->Drc-levee) * fv;
+                    double dh = (hmx->Drc) * fv;
                     hmx->Drc -= dh;
                     ChannelWH->Drc += dh;
 
@@ -137,8 +134,6 @@ void TWorld::ChannelFlood(void)
         }
     }
 
- //   double sumh_t2 = hmx->mapTotal();
-
     ChannelOverflow();
 
     double sumh_t3 = hmx->mapTotal();
@@ -157,10 +152,6 @@ void TWorld::ChannelFlood(void)
             hmx->Drc = max(hmx->Drc , 0);
         }
     }
-//    sumh_t2 = hmx->mapTotal();
-
-//    qDebug() << dh << sumh_t - sumh_t2;
-
 
     // floodwater volume and max flood map
     FloodWaterVol->fill(0);
@@ -183,7 +174,6 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-    //FloodDomain->report("fd");
 
     double cells = FloodDomain->mapTotal();
     double sumh_t1 = hmx->mapTotal();
