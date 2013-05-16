@@ -114,7 +114,6 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchFloodSWOForder2)
     {
-        SwitchMUSCL = true;
         dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
         FOR_ROW_COL_MV
         {

@@ -431,12 +431,12 @@ void TWorld::MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az)
     }
 
     //        for (int r = _nrRows-2; r > 0; r--)
-    for (int c = 0; c < _nrCols; c++)
-        for (int r = 1; r < _nrRows-1; r++)
-            if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-                    !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-                    !IS_MV_REAL8(&LDD->Data[r+1][c]))
-                //FOR_ROW_COL_MV_MV
+//    for (int c = 0; c < _nrCols; c++)
+//        for (int r = 1; r < _nrRows-1; r++)
+//            if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+//                    !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+//                    !IS_MV_REAL8(&LDD->Data[r+1][c]))
+            FOR_ROW_COL_MV_MV
             {
                 delta_h1 = tm->Drc;
                 delta_u1 = tma->Drc;
@@ -750,9 +750,8 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     double dt_max = _dx/2;
 
     if (prepareFlood)
-        verif = 1;
-    if (prepareFlood)
     {
+        //verif = 1;
         prepareFlood = false;
         FOR_ROW_COL_MV_MV
         {
@@ -777,10 +776,10 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
             // makes h2r, h2l, u2r, u2l, v2r, v2l
             // makes delzc1, delzc2, delz1, delz2
             if (SwitchMUSCL)
-                MUSCL(hs,us,vs,z);
+                MUSCL(h,u,v,z);
             else
-                ENO(hs,us,vs,z);
-
+                ENO(h,u,v,z);
+//simpleScheme(h, u, v);
             // semi-iteration: optimize the timestep
             do {
                 dt1 = maincalcflux(dt2, dt_max);
