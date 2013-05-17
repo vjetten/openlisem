@@ -77,34 +77,31 @@ double TWorld::limiter(double a, double b)
     double eps = 1.e-15;
     double rec = 0.;
 
-//    if (a>=0. && b>=0)
-//        return(min(a,b));
-//    else
-//        if (a<=0. && b<=0)
-//            return(max(a,b));
-//        else
-//            return(0);
+    if (a == b)
+        return(b);
+    if (a*b == 0)
+        return(0.);
+    // save time
 
-    if (SwitchLimiter == MINMOD)
+    if (SwitchLimiter == VANLEER)
     {
-        if (a>=0. && b>=0)
-            rec = qMin(a, b);
-        else
-            if (a<=0. && b<=0)
-                rec = qMax(a, b);
+        if (a*b > 0.)
+            return (2.*a*b/(a+b));
     }
     else
-        if (SwitchLimiter == VANALBEDA)
+        if (SwitchLimiter == MINMOD)
         {
-            if (a*b >= 0.)
-                rec=(a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
+            if (a >= 0. && b >= 0.)
+                rec = qMin(a, b);
+            else
+                if (a<=0. && b<=0)
+                    rec = qMax(a, b);
         }
         else
-            if (SwitchLimiter == VANLEER)
+            if (SwitchLimiter == VANALBEDA)
             {
-                //                if ((a>0. && b>0.) || (a<0. && b<0.))
-                if (a*b > 0.)
-                    return (2.*a*b/(a+b));
+                if (a*b >= 0.)
+                    rec=(a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
             }
 
     return(rec);
