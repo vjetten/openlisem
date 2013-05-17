@@ -77,13 +77,13 @@ double TWorld::limiter(double a, double b)
     double eps = 1.e-15;
     double rec = 0.;
 
-    if (a>=0. && b>=0)
-        return(min(a,b));
-    else
-        if (a<=0. && b<=0)
-            return(max(a,b));
-        else
-            return(0);
+//    if (a>=0. && b>=0)
+//        return(min(a,b));
+//    else
+//        if (a<=0. && b<=0)
+//            return(max(a,b));
+//        else
+//            return(0);
 
     if (SwitchLimiter == MINMOD)
     {
