@@ -325,7 +325,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
         if (p1.compare("Result Directory")==0)
         {
-            E_ResultDir->setText(CheckDir(p));
+            E_ResultDir->setText(CheckDir(p, true));
         }
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
@@ -418,7 +418,7 @@ void lisemqt::ParseInputData()
     //obsolete: is done elsewhere
 }
 //---------------------------------------------------------------------------
-QString lisemqt::CheckDir(QString p)
+QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
@@ -429,8 +429,16 @@ QString lisemqt::CheckDir(QString p)
 
     if (!QDir(path).exists())
     {
+        if (makeit)
+        {
+            QDir(path).mkpath(path);
+            qDebug() << "NOTE: Result dir created !";
+        }
+        else
+        {
         QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
         path.clear();
+        }
     }
 
     return path;

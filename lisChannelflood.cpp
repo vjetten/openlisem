@@ -73,7 +73,7 @@ void TWorld::ChannelOverflow(void)
                     double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
                     double dh = (hmx->Drc) * fv;
                     hmx->Drc -= dh;
-                    ChannelWH->Drc += dh;
+                    ChannelWH->Drc += dh;// dh/fc
 
                 }
 
@@ -107,10 +107,6 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    if (SwitchFloodExplicit)
-    {
-        dtflood = floodExplicit();
-    }
 
     if (SwitchFloodSWOForder2)
     {
@@ -119,10 +115,9 @@ void TWorld::ChannelFlood(void)
         {
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-
         }
     }
-
+    else
     if (SwitchFloodSWOForder1)
     {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
@@ -131,6 +126,11 @@ void TWorld::ChannelFlood(void)
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
             Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         }
+    }
+    else
+    if (SwitchFloodExplicit)
+    {
+        dtflood = floodExplicit();
     }
 
     ChannelOverflow();

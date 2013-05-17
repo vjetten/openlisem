@@ -372,7 +372,7 @@ public:
     int F_scheme;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
-    double q1mod, q2mod, Sf1, Sf2;
+    double q1man, q2man;
     //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;

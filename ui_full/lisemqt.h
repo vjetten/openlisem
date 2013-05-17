@@ -118,7 +118,7 @@ public:
    void ParseInputData();
    void updateModelData();
    void defaultRunFile();
-   QString CheckDir(QString p);
+   QString CheckDir(QString p, bool makeit = false);
    void RunAllChecks();
    void savefile(QString name);
    void SetConnections();

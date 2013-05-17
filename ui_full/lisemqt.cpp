@@ -556,9 +556,7 @@ void lisemqt::savefile(QString name)
 //--------------------------------------------------------------------
 void lisemqt::deleteRunFileList()
 {
-    //   qDebug() << E_runFileList->currentIndex();
     E_runFileList->removeItem(E_runFileList->currentIndex());
-    //  qDebug() << E_runFileList->currentIndex();
 }
 //--------------------------------------------------------------------
 void lisemqt::openRunFile()
@@ -977,7 +975,7 @@ QString lisemqt::findValidDir(QString path, bool up)
     }
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
-    qDebug() << path;
+
     return (path);
 }
 //--------------------------------------------------------------------

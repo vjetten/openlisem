@@ -653,6 +653,8 @@ void TWorld::InitChannel(void)
             f1 = NewMap(0);
             f2 = NewMap(0);
             f3 = NewMap(0);
+            cflx = NewMap(0);
+            cfly = NewMap(0);
             g1 = NewMap(0);
             g2 = NewMap(0);
             g3 = NewMap(0);
