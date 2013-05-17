@@ -54,7 +54,7 @@ void TWorld::ChannelOverflow(void)
             double levee = ChannelLevee->Drc;
 
             double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
-                             max(0, hmx->Drc-levee)*(1-fc);
+                    max(0, hmx->Drc-levee)*(1-fc);
             //average water level
 
             //if average water level is positive, water redistributes instantaneously and
@@ -95,9 +95,9 @@ void TWorld::ChannelFlood(void)
 
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
-    startFlood = false;
     SwitchLimiter = MINMOD;
 
+    startFlood = false;
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
@@ -118,20 +118,20 @@ void TWorld::ChannelFlood(void)
         }
     }
     else
-    if (SwitchFloodSWOForder1)
-    {
-        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
-        FOR_ROW_COL_MV
+        if (SwitchFloodSWOForder1)
         {
-            UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
-            Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+            FOR_ROW_COL_MV
+            {
+                UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+                Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+            }
         }
-    }
-    else
-    if (SwitchFloodExplicit)
-    {
-        dtflood = floodExplicit();
-    }
+        else
+            if (SwitchFloodExplicit)
+            {
+                dtflood = floodExplicit();
+            }
 
     ChannelOverflow();
 
