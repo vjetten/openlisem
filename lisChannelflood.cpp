@@ -135,14 +135,17 @@ void TWorld::ChannelFlood(void)
 
     ChannelOverflow();
 
-    double sumh_t3 = hmx->mapTotal();
+    double sumh_t1 = 0;
     double m = 0;
     FOR_ROW_COL_MV
     {
         if(hmx->Drc > 0.0)
-            m+=1;
+        {
+            m += 1;
+            sumh_t1 += hmx->Drc;
+        }
     }
-    double dh = (m > 0 ? (sumh_t - sumh_t3)/m : 0);
+    double dh = (m > 0 ? (sumh_t - sumh_t1)/m : 0);
     FOR_ROW_COL_MV
     {
         if(hmx->Drc > 0.0)
@@ -163,26 +166,27 @@ void TWorld::ChannelFlood(void)
             timeflood->Drc += _dt/60;
         // for output
     }
+
     maxflood->report("maxflood.map");
     timeflood->report("timeflood.map");
 
+    double cells = 0;
+    sumh_t1 = 0;
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
+        {
             FloodDomain->Drc = 1;
+            cells += 1.0;
+            sumh_t1 += hmx->Drc;
+        }
         else
             FloodDomain->Drc = 0;
     }
 
-    double cells = FloodDomain->mapTotal();
-    double sumh_t1 = hmx->mapTotal();
     double avgh = (cells > 0 ? (sumh_t1)/cells : 0);
     double area = cells*_dx*_dx;
     debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
-
-    //   qDebug() << sumh_t - sumh_t1 << sumh_t - sumh_t2;
-    //correct mass balance error!
-
 }
 //---------------------------------------------------------------------------
