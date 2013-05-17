@@ -95,7 +95,7 @@ void TWorld::ChannelFlood(void)
 
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
-    SwitchLimiter = VANLEER;//MINMOD;
+    SwitchLimiter = VANLEER;//MINMOD;//VANALBEDA;
 
     startFlood = false;
     FOR_ROW_COL_MV
