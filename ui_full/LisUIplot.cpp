@@ -69,7 +69,7 @@ void lisemqt::setupPlot()
     col.setRgb( 60,60,200,255 );
     QGraph->setPen(QPen(col));
     PGraph->setPen(QPen("#000000"));
-    PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
     QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
 
     QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
@@ -101,8 +101,16 @@ void lisemqt::setupPlot()
     HPlot->enableAxis(HPlot->yLeft,true);
     HPlot->enableAxis(HPlot->xBottom,true);
     HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
-    HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
-    HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+    if(!checkNoErosion->isChecked())
+    {
+        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
+        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+    }
+    else
+    {
+        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+    }
     HPlot->setAxisScale(HPlot->yRight, 0, 1);
     HPlot->setAxisScale(HPlot->yLeft, 0, 100);
     HPlot->setAxisScale(HPlot->xBottom, 0, 100);
@@ -141,7 +149,7 @@ void lisemqt::setupSmallPlot()
     sQGraph->attach(smallPlot);
     // order determines order of display in Legend
     //VJ 101223 changed for qwt 6.0.0
-    sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
+    sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
     sQGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
 
     // do not attach yet
@@ -207,12 +215,15 @@ void lisemqt::initPlot()
     spinBoxPointtoShow->setEnabled(false);
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
-//    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
+    //    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
     subcatchgroup->setEnabled(op.outputpointnr > 1);
-
-//    textGraph->setMaximumBlockCount(6);
-//    textGraph->setWordWrapMode(QTextOption::NoWrap);
-//    textGraph->setMaximumHeight(90);
+    if(checkNoErosion->isChecked())
+    {
+        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+        smallPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+        smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
+    }
 }
 //---------------------------------------------------------------------------
 /// free data structures graph
@@ -226,8 +237,8 @@ void lisemqt::killPlot()
     CData.clear();
 
     spinBoxPointtoShow->setEnabled(true);
-  //  stopplot = true;
- //   startplot = true;
+    //  stopplot = true;
+    //   startplot = true;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
@@ -250,12 +261,17 @@ void lisemqt::showPlot()
         y2as = max(y2as, op.C);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
+    else
+    {
+        y2as = max(y2as, op.Pmm);
+        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
+    }
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->setSamples(TData,QtileData);
 
 
     yas = max(yas, op.Q);
-    yas = max(yas, op.Pmm);
+    //yas = max(yas, op.Pmm);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     HPlot->replot();
@@ -272,7 +288,7 @@ void lisemqt::showSmallPlot()
     smallPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
 
     smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
-    if(!checkNoErosion->isChecked())
+    //if(!checkNoErosion->isChecked())
         smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
 
     smallPlot->replot();
@@ -311,17 +327,17 @@ void lisemqt::startPlots()
     }
     else
     {
-        HPlot->enableAxis(HPlot->yRight,false);
-        smallPlot->enableAxis(smallPlot->yRight,false);
+       // HPlot->enableAxis(HPlot->yRight,false);
+       // smallPlot->enableAxis(smallPlot->yRight,false);
     }
 
-    if(checkNoErosion->isChecked())
-    {
-        HPlot->setAxisTitle(HPlot->yRight, "");
-        HPlot->setAxisScale(HPlot->yRight, 0, 1);
-        smallPlot->setAxisTitle(HPlot->yRight, "");
-        smallPlot->setAxisScale(HPlot->yRight, 0, 1);
-    }
+//    if(checkNoErosion->isChecked())
+//    {
+//        HPlot->setAxisTitle(HPlot->yRight, "");
+//        HPlot->setAxisScale(HPlot->yRight, 0, 1);
+//        smallPlot->setAxisTitle(HPlot->yRight, "");
+//        smallPlot->setAxisScale(HPlot->yRight, 0, 1);
+//    }
 
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
@@ -393,7 +409,7 @@ void lisemqt::showOutputData()
     label_qpeak->setText(QString::number(op.Qpeak,'f',3));
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
-    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));    
+    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
     label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
     // buffers

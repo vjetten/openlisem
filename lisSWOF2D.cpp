@@ -597,9 +597,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
     velocity_max_x = -ve_ca;
     velocity_max_y = -ve_ca;
     double dx, dy;
-    int dc[4] = { 0, -1, 1, 0};
-    int dr[4] = {-1, 0,  0, 1};
-
 
     FOR_ROW_COL_MV_MV
     {
@@ -745,7 +742,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 {
     double timesum = 0;
     int n = 0;
-    double dt_max = _dx/2;
+    double dt_max = min(_dt, _dx/2);
     double dt1 = dt_max;
 
     // do one tmime only at the start of simulation
@@ -814,7 +811,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
 {
     double dt1, dt2, timesum = 0;
-    double dt_max = _dx/2;
+    double dt_max = min(_dt, _dx/2);
 
     if (prepareFlood)
     {

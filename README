@@ -1,5 +1,10 @@
-openLISEM README (130515)
+openLISEM README (130517)
 =========================
+LATEST CHANGES (v 1.70-1.71)
+- Solution for 2nd order, works now!
+- map display shows meters on x and y axes insted of rows/cols
+- moved rainfall display to the right of the graph is there is no erosion
+
 LATEST CHANGES (v 1.67-1.69)
 - improved channel and flood water mixing
 - improved display, houses now also visible

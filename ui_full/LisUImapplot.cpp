@@ -115,6 +115,8 @@ void lisemqt::setupMapPlot()
     //MPlot->canvas()->setBorderRadius( 0 );
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
+    MPlot->setAxisTitle(HPlot->xBottom, "m");
+    MPlot->setAxisTitle(HPlot->yLeft, "m");
 
     // attach plot to widget in UI
 
@@ -139,14 +141,14 @@ void lisemqt::setupMapPlot()
     houseMap->attach( MPlot );
     // building structure map
 
-    channelMap = new QwtPlotSpectrogram();
-    channelMap->setRenderThreadCount( 0 );
-    channelMap->attach( MPlot );
-    // channel map
-
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
+    // channel map
+
+    channelMap = new QwtPlotSpectrogram();
+    channelMap->setRenderThreadCount( 0 );
+    channelMap->attach( MPlot );
     // channel map
 
     RD = new QwtMatrixRasterData();
@@ -179,10 +181,7 @@ void lisemqt::setupMapPlot()
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
 
-    picker = new MyPicker( MPlot->canvas() );
-    //    const QColor c( Qt::red );
-    //    picker->setRubberBandPen( c );
-    //    picker->setTrackerPen( c );
+    picker = new MyPicker( MPlot->canvas() );  
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -215,8 +214,8 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols );
     // set column number to divide vector into rows
-    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols, QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols*_M->MH.cellSizeX, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows*_M->MH.cellSizeY, QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
     return maxV;
 }
@@ -246,12 +245,12 @@ void lisemqt::showBaseMap()
 
     baseMap->setAlpha(255);
     baseMap->setColorMap(new colorMapGray());
-    RDb->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
+    RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    double nrCols = (double)op.baseMap->nrCols;
-    double nrRows = (double)op.baseMap->nrRows;
+    double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSizeX;
+    double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSizeY;
 
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
@@ -297,7 +296,7 @@ void lisemqt::showHouseMap()
 
     houseMap->setColorMap(new colorMapHouse());
 
-    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,1.0));
+    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
     houseMap->setData(RDe);
 }
 //---------------------------------------------------------------------------
