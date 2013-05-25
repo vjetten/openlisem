@@ -39,6 +39,7 @@ functions: \n
 // Dtermines if the kin wave stops in the flood domain
 // if the WH is thrown in the hmx immedately there is no more runoff feeding the channel
 // and flood levels are extreme.
+//NOT USED !!!!
 void TWorld::ToFlood(void)
 {
     if (!SwitchChannelFlood)
@@ -79,6 +80,8 @@ void TWorld::ToChannel(void)
         {
             double fractiontochannel = min(_dt*V->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+            // note ChanelAdj can be 0 then fraction is 1
 
             if (SwitchAllinChannel)
                 if (Outlet->Drc == 1)
@@ -217,7 +220,8 @@ void TWorld::OverlandFlow(void)
         WH->Drc = WHoutavg + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        ChannelV->Drc = Qn->Drc/(WHoutavg*ChannelAdj->Drc);
+        if (ChannelAdj->Drc > 0)
+            V->Drc = Qn->Drc/(WHoutavg*ChannelAdj->Drc);
         // recalc velocity for output to map ????
         //    }
 

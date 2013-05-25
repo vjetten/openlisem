@@ -446,7 +446,7 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
         delzc1->Drc = z1r->Drc-z1l->Drc;
         delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
 
-        if (_h->Drc > 0.)
+        if (_h->Drc > he_ca)
         {
             u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
             u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
@@ -647,15 +647,20 @@ double TWorld::maincalcflux(double dt, double dt_max)
     {
         if (cflx->Drc > 100 || cfly->Drc > 100)
         {
+            qDebug() << "oh oh";
             if (cflx->Drc > 100)
             {
+                qDebug() << "mainflux x" << dt << dtx << cflx->Drc << cfly->Drc;
                 cflx->Drc = cfly->Drc;
                 f1->Drc = g1->Drc;
                 f2->Drc = g2->Drc;
                 f3->Drc = g3->Drc;
+                //   qDebug() << "mainflux y" << dt << dty << velocity_max_y;
+
             }
             else
             {
+                qDebug() << "mainflux y" << dt << dty << cflx->Drc << cfly->Drc;
                 cfly->Drc = cflx->Drc;
                 g1->Drc = f1->Drc;
                 g2->Drc = f2->Drc;
@@ -664,8 +669,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
         }
     }
-
-
 
     // find largest velocity and determine dt
     FOR_ROW_COL_MV_MV
@@ -691,8 +694,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
         velocity_max_y = max(velocity_max_y, cfly->Drc);
     }
 
-    qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
-    qDebug() << "mainflux y" << dt << dty << velocity_max_y;
+ //   qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
+ //   qDebug() << "mainflux y" << dt << dty << velocity_max_y;
 
     if (scheme_type == 1)
         return(max(dt_ca, min(dtx,dty)));
@@ -706,8 +709,9 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
+void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v, TMMap *_z)
 {
+
     FOR_ROW_COL_MV_MV
     {
         h1r->Drc = _h->Drc;
@@ -716,6 +720,14 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
         h1l->Data[r][c+1] = _h->Data[r][c+1];
         u1l->Data[r][c+1] = _u->Data[r][c+1];
         v1l->Data[r][c+1] = _v->Data[r][c+1];
+
+//        h1r->Data[r][c] = (3.*_h->Data[r][c] + _h->Data[r][c-1])/4.;
+//        u1r->Data[r][c] = (3.*_u->Data[r][c] + _u->Data[r][c-1])/4.;
+//        v1r->Data[r][c] = (3.*_v->Data[r][c] + _v->Data[r][c-1])/4.;
+//        h1l->Data[r][c+1] = (3.*_h->Data[r][c+1] + _h->Data[r][c])/4.;
+//        u1l->Data[r][c+1] = (3.*_u->Data[r][c+1] + _u->Data[r][c])/4.;
+//        v1l->Data[r][c+1] = (3.*_v->Data[r][c+1] + _v->Data[r][c])/4.;
+
     }
     FOR_ROW_COL_MV_MV
     {
@@ -725,6 +737,14 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
         h2l->Data[r+1][c] = _h->Data[r+1][c];
         u2l->Data[r+1][c] = _u->Data[r+1][c];
         v2l->Data[r+1][c] = _v->Data[r+1][c];
+
+//        h2l->Data[r][c] = (3*_h->Data[r][c] + _h->Data[r-1][c])/4.0;
+//        u2l->Data[r][c] = (3*_u->Data[r][c] + _u->Data[r-1][c])/4.0;
+//        v2l->Data[r][c] = (3*_v->Data[r][c] + _v->Data[r-1][c])/4.0;
+//        h2l->Data[r+1][c] = (3*_h->Data[r+1][c] + _h->Drc)/4.0;
+//        u2l->Data[r+1][c] = (3*_u->Data[r+1][c] + _u->Drc)/4.0;
+//        v2l->Data[r+1][c] = (3*_v->Data[r+1][c] + _v->Drc)/4.0;
+
     }
 }
 //---------------------------------------------------------------------------
@@ -751,6 +771,9 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         prepareFlood = false;
         FOR_ROW_COL_MV_MV
         {
+            delta_z1->Drc = z->Data[r][c+1] - z->Drc;
+            delta_z2->Drc = z->Data[r+1][c] - z->Drc;
+
             delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
             delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
         }
@@ -762,13 +785,14 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
         do {
             // not faster, dt_max is fastest with the same error:
-            //dt1 = min(dt1*qSqrt(double(n)), dt_max);
+           // dt1 = min(dt1*qSqrt(double(n)), dt_max);
             //dt1 = min(dt1*(double(n)), dt_max);
             dt1 = dt_max;
 
             setZero(h, u, v);
 
-            simpleScheme(h, u, v);
+            //MUSCL(h,u,v,z);
+            simpleScheme(h, u, v, z);
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
@@ -819,6 +843,8 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         prepareFlood = false;
         FOR_ROW_COL_MV_MV
         {
+            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
+            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
             delta_z1->Drc = z->Data[r][c+1] - z->Drc;
             delta_z2->Drc = z->Data[r+1][c] - z->Drc;
             som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
@@ -843,7 +869,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 MUSCL(h,u,v,z);
             else
                 ENO(h,u,v,z);
-            //simpleScheme(h, u, v);
+//            simpleScheme(h, u, v, z);
             // semi-iteration: optimize the timestep
             do {
 
@@ -857,7 +883,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                     MUSCL(hs,us,vs,z);
                 else
                     ENO(hs,us,vs,z);
-                //simpleScheme(hs, us, vs);
+//                simpleScheme(hs,us,vs, z);
                 dt2 = maincalcflux(dt1, dt_max);
 
             } while (dt2 < dt1);

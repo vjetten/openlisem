@@ -152,13 +152,17 @@ void lisemqt::worldShow()
 
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
-    showMap(); // show map
+    //showMap(); // show map
 
     showChannelMap(); // show channel map
 
     showRoadMap(); // show road map
 
     showHouseMap(); // show building structures map
+
+    startplot = false;
+
+    showMap(); // show map
 
     if (doShootScreens)
        shootScreen();
@@ -235,6 +239,8 @@ void lisemqt::initOP()
     op.RainpeakTime = 0;
     op.QpeakTime = 0;
     op.RunoffFraction = 0;
+    op.FloodTotMax = 0;
+    op.FloodAreaMax = 0;
 
     op.Pmm = 0;
     op.Qtotmm = 0;

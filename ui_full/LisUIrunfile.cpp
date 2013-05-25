@@ -136,6 +136,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF reconstruction")==0)   E_FloodRecon->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
+        if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -472,6 +473,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodRecon->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
+        if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());

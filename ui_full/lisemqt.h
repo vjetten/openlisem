@@ -148,6 +148,7 @@ public:
    void showChannelMap();
    void showRoadMap();
    void showHouseMap();
+   void showHouseMapA();
    double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
 
    QwtText title;

@@ -114,7 +114,7 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
-        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
+        ChannelWaterVol->Drc += Rainc->Drc*min(_dx, ChannelWidthUpDX->Drc)*ChannelDX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -157,22 +157,23 @@ void TWorld::ChannelWaterHeight(void)
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
 
-            if (ChannelWidthUpDX->Drc > _dx)
-            {
-                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
-                throw 1;
-            }
+//            if (ChannelWidthUpDX->Drc > _dx)
+//            {
+//                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
+//                throw 1;
+//            }
             if (ChannelWidthUpDX->Drc < 0)
             {
                 ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
                 throw 1;
             }
 
-            ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
+            //ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
 
-            ChannelAdj->Drc = _dx - ChannelWidthUpDX->Drc;
+            ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
+            // experimental if channelwidth > dx
         }
     }
 }

@@ -562,11 +562,11 @@ void TWorld::InitChannel(void)
         }
         ChannelWidthUpDX->copy(ChannelWidth);
         ChannelWidthUpDX->cover(LDD, 0);
-        double v = 0.9*_dx;
-        ChannelWidthUpDX->calcValue(v, MIN);
+//        double v = 0.9*_dx;
+//        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = _dx - ChannelWidthUpDX->Drc;
+            ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
         }
 
 
@@ -615,6 +615,7 @@ void TWorld::InitChannel(void)
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF reconstruction");
             SwitchMUSCL = (getvalueint("Flooding SWOF scheme") == 1);
+            minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             //F_levee = getvaluedouble("Flood channel side levee");
 
             //FULLSWOF2D
@@ -789,6 +790,7 @@ void TWorld::GetInputData(void)
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
     Cover->checkMap(LARGER, 1.0, "vegetation cover fraction cannot be more than 1");
+
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     GrassFraction = NewMap(0);
 
@@ -798,13 +800,16 @@ void TWorld::GetInputData(void)
         GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
         GrassFraction->copy(GrassWidthDX);
         GrassFraction->calcValue(_dx, DIV);
+
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV
         {
             if (GrassWidthDX > 0)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
+                Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
             }
+            //adjust mann N Cover and height
         }
     }
     else
@@ -1119,7 +1124,9 @@ void TWorld::IntializeData(void)
     WaterVolSoilTot = 0;
     WaterVolTotmm = 0;
     floodTotmm= 0;
-    FloodVolTot = 0;
+    floodVolTot = 0;
+    floodVolTotMax = 0;
+    floodAreaMax = 0;
 
     InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);

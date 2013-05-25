@@ -41,30 +41,30 @@ functions: \n
 #include "model.h"
 #include "global.h"
 
+//---------------------------------------------------------------------------
+/// report to disk: timeseries at output points, totals, map series and land unit stats
+void TWorld::reportAll(void)
+{
+    ReportTimeseriesNew();
+    // report hydrographs ande sedigraphs at all points in outpoint.map
 
+    ReportTotalsNew();
+    // report totals to a text file
+
+    ReportMaps();
+    // report all maps and mapseries
+
+    ReportLandunits();
+    // reportstats per landunit class
+
+    ChannelFloodStatistics();
+}
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
     // MAP DISPLAY VARIABLES
-//    if (op.drawMapType == 1)
-//        op.DrawMap->copy(Qoutput);  //all output in m3/s
-//    if (op.drawMapType == 2)
-//        op.DrawMap->copy(InfilmmCum);  //infil in mm
-//    if (SwitchErosion && op.drawMapType == 3)
-//    {
-//        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);//from kg/cell to kg/m2
-//        tmb->calcValue(10, MUL); // from kg/m2 to ton/ha
-
-//        op.DrawMap->copy(tmb);  //soilloss in ton/ha
-//    }
-//    if (SwitchChannelFlood && op.drawMapType == 4)
-//    {
-//        FOR_ROW_COL_MV
-//                tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
-//        op.DrawMap->copy(tmb);  //flood level in m
-//    }
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s
     op.DrawMap2->copy(InfilmmCum);  //infil in mm
@@ -112,6 +112,8 @@ void TWorld::OutputUI(void)
     op.Qpeak = Qpeak;
     op.QpeakTime = QpeakTime/60;
     op.RainpeakTime = RainpeakTime/60;
+    op.FloodTotMax = floodVolTotMax;
+    op.FloodAreaMax = floodAreaMax;
 
     op.InfilTotmm = InfilTotmm;
     op.SurfStormm = SurfStoremm;
@@ -148,22 +150,6 @@ void TWorld::OutputUI(void)
 
     op.BufferVolTot = BufferVolin;//Tot;
     op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition
-}
-//---------------------------------------------------------------------------
-/// report to disk: timeseries at output points, totals, map series and land unit stats
-void TWorld::reportAll(void)
-{
-    ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
-
-    ReportTotalsNew();
-    // report totals to a text file
-
-    ReportMaps();
-    // report all maps and mapseries
-
-    ReportLandunits();
-    // reportstats per landunit class
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -487,32 +473,33 @@ void TWorld::ReportTotalsNew(void)
     out.setRealNumberPrecision(5);
     out.setFieldWidth(12);
     out.setRealNumberNotation(QTextStream::FixedNotation);
-    out << "LISEM run with:," << op.runfilename << "\n";
-    out << "LISEM results at time (min):," << op.time <<"\n";
-    out << "---------------------------------------------\n";
-    out << "Catchment area              (ha):," << op.CatchmentArea/10000.0<< "\n";
-    out << "Total rainfall              (mm):," << op.RainTotmm<< "\n";
-    out << "Total discharge             (mm):," << op.Qtotmm<< "\n";
-    out << "Total interception          (mm):," << op.IntercTotmm<< "\n";
-    out << "Total House interception    (mm):," << op.IntercHouseTotmm<< "\n";
-    out << "Total infiltration          (mm):," << op.InfilTotmm<< "\n";
-    out << "Surface storage             (mm):," << op.SurfStormm<< "\n";
-    out << "Water in runoff + channel   (mm):," << op.WaterVolTotmm<< "\n";
-    out << "Total discharge             (m3):," << op.Qtot<< "\n";
-    out << "Peak discharge             (l/s):," << op.Qpeak<< "\n";
-    out << "Peak time rainfall         (min):," << op.RainpeakTime<< "\n";
-    out << "Peak time discharge        (min):," << op.QpeakTime<< "\n";
-    out << "Discharge/Rainfall           (%):," << op.RunoffFraction*100<< "\n";
-    out << "Splash detachment (land)   (ton):," << op.DetTotSplash<< "\n";
-    out << "Flow detachment (land)     (ton):," << op.DetTotFlow<< "\n";
-    out << "Deposition (land)          (ton):," << op.DepTot<< "\n";
-    out << "Suspended Sediment (land)  (ton):," << op.SedTot<< "\n";
-    out << "Flow detachment (channels) (ton):," << op.ChannelDetTot<< "\n";
-    out << "Deposition (channels)      (ton):," << op.ChannelDepTot<< "\n";
-    out << "Susp. Sediment (channels)  (ton):," << op.ChannelSedTot<< "\n";
-    out << "Susp. Sediment (buffers)   (ton):," << op.BufferSedTot<< "\n";
-    out << "Total soil loss            (ton):," << op.SoilLossTot<< "\n";
-    out << "Average soil loss        (kg/ha):," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+    out << "\"LISEM run with:," << op.runfilename << "\"\n";
+    out << "\"LISEM results at time (min):," << op.time <<"\"\n";
+    out << "\"Catchment area              (ha):\"," << op.CatchmentArea/10000.0<< "\n";
+    out << "\"Total rainfall              (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
+    out << "\"Total interception          (mm):\"," << op.IntercTotmm<< "\n";
+    out << "\"Total House interception    (mm):\"," << op.IntercHouseTotmm<< "\n";
+    out << "\"Total infiltration          (mm):\"," << op.InfilTotmm<< "\n";
+    out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
+    out << "\"Water in runoff + channel   (mm):\"," << op.WaterVolTotmm<< "\n";
+    out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
+    out << "\"Peak discharge             (l/s):\"," << op.Qpeak<< "\n";
+    out << "\"Peak time rainfall         (min):\"," << op.RainpeakTime<< "\n";
+    out << "\"Peak time discharge        (min):\"," << op.QpeakTime<< "\n";
+    out << "\"Discharge/Rainfall           (%):\"," << op.RunoffFraction*100<< "\n";
+    out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";
+    out << "\"Flood area (max level)      (m2):\"," << op.FloodAreaMax<< "\n";
+    out << "\"Splash detachment (land)   (ton):\"," << op.DetTotSplash<< "\n";
+    out << "\"Flow detachment (land)     (ton):\"," << op.DetTotFlow<< "\n";
+    out << "\"Deposition (land)          (ton):\"," << op.DepTot<< "\n";
+    out << "\"Suspended Sediment (land)  (ton):\"," << op.SedTot<< "\n";
+    out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
+    out << "\"Deposition (channels)      (ton):\"," << op.ChannelDepTot<< "\n";
+    out << "\"Susp. Sediment (channels)  (ton):\"," << op.ChannelSedTot<< "\n";
+    out << "\"Susp. Sediment (buffers)   (ton):\"," << op.BufferSedTot<< "\n";
+    out << "\"Total soil loss            (ton):\"," << op.SoilLossTot<< "\n";
+    out << "\"Average soil loss        (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
 
     fp.flush();
     fp.close();
@@ -571,8 +558,8 @@ void TWorld::ReportMaps(void)
         tm->calcMapValue(WH, 1000, MUL);// WH in mm
         tm->report(Outwh);
     }
-//    if (outputcheck[3].toInt() == 1)
-//        WHrunoffCum->report(Outrwh); // in mm
+    //    if (outputcheck[3].toInt() == 1)
+    //        WHrunoffCum->report(Outrwh); // in mm
 
     if (outputcheck[7].toInt() == 1) V->report(Outvelo);
     FOR_ROW_COL_MV
@@ -640,10 +627,10 @@ void TWorld::CountLandunits(void)
     for (i = 0; i < 512; i++)
     {
         unitList[i].nr = 0;
-        unitList[i].area = 0;
-        unitList[i].totdet = 0;
-        unitList[i].totdep = 0;
-        unitList[i].totsl = 0;
+        unitList[i].var0 = 0;
+        unitList[i].var1 = 0;
+        unitList[i].var2 = 0;
+        unitList[i].var3 = 0;
     }
 
     i = 0;
@@ -675,10 +662,10 @@ void TWorld::ReportLandunits(void)
 
     for (int i = 0; i < landUnitNr; i++)
     {
-        unitList[i].area = 0;
-        unitList[i].totdet = 0;
-        unitList[i].totdep = 0;
-        unitList[i].totsl = 0;
+        unitList[i].var0 = 0;
+        unitList[i].var1 = 0;
+        unitList[i].var2 = 0;
+        unitList[i].var3 = 0;
     }
 
     FOR_ROW_COL_MV
@@ -687,10 +674,10 @@ void TWorld::ReportLandunits(void)
         for (int i = 0; i < landUnitNr; i++)
             if (unitList[i].nr == (long)LandUnit->Drc)
             {
-                unitList[i].area += CellArea->Drc/10000;//ha
-                unitList[i].totdet += TotalDetMap->Drc/1000; //ton/cell
-                unitList[i].totdep += TotalDepMap->Drc/1000;
-                unitList[i].totsl += TotalSoillossMap->Drc/1000;
+                unitList[i].var0 += CellArea->Drc/10000;//ha
+                unitList[i].var1 += TotalDetMap->Drc/1000; //ton/cell
+                unitList[i].var2 += TotalDepMap->Drc/1000;
+                unitList[i].var3 += TotalSoillossMap->Drc/1000;
             }
     }
 
@@ -708,9 +695,72 @@ void TWorld::ReportLandunits(void)
     out << "    Landunit        Area  Detachment  Deposition   Soil Loss\n";
     out << "           #          ha         ton         ton         ton\n";
     for (int i = 0; i < landUnitNr; i++)
-        out << unitList[i].nr << unitList[i].area << unitList[i].totdet
-            << unitList[i].totdep << unitList[i].totsl << "\n";
+        out << unitList[i].nr
+            << unitList[i].var0
+            << unitList[i].var1
+            << unitList[i].var2
+            << unitList[i].var3
+            << "\n";
     fout.close();
 
 }
 //---------------------------------------------------------------------------
+void TWorld::ChannelFloodStatistics(void)
+{
+    if (!SwitchIncludeChannel)
+        return;
+    if (!SwitchChannelFlood)
+        return;
+
+    for (int i = 0; i < 100; i++)
+    {
+        floodList[i].nr = i;
+        floodList[i].var0 = 0.1*i;
+        floodList[i].var1 = 0;
+        floodList[i].var2 = 0;
+        floodList[i].var3 = 0;
+        floodList[i].var4 = 0;
+    }
+    double area = _dx*_dx;
+    int nr = 0;
+    FOR_ROW_COL_MV
+    {
+        if(maxflood->Drc > minReportFloodHeight)
+        {
+            int i = (int)(maxflood->Drc*10);
+            nr = max(nr, i);
+            //qDebug() << nr << i << maxflood->Drc;
+            floodList[i].var1 += area; // area flooded in this class
+            floodList[i].var2 += area*maxflood->Drc; // vol flooded in this class
+            floodList[i].var3 += timeflood->Drc/60.0; // area flooded in this class
+            floodList[i].var4 += HouseCover->Drc*area;
+        }
+    }
+
+    QFile fp(resultDir + "floodedhouses.csv");
+    if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&fp);
+    out.setRealNumberPrecision(1);
+    //out.setFieldWidth(12);
+    out.setRealNumberNotation(QTextStream::FixedNotation);
+
+    out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
+    out << "\"results at time (min):" << op.time << "\"" <<"\n";
+    out << "\"Minimum flood considered (m):" << minReportFloodHeight << "\"" <<"\n";
+    out << "class,Depth,Area,Volume,Time,Structures\n";
+    out << "#,m,m2,m3,hrs,m2\n";
+    for (int i = 0; i < nr+1; i++)
+        out << i << "," //floodList[i].nr << ","
+            << floodList[i].var0 << ","
+            << floodList[i].var1 << ","
+            << floodList[i].var2 << ","
+            << floodList[i].var3 << ","
+            << floodList[i].var4
+            << "\n";
+
+    fp.flush();
+    fp.close();
+
+}//---------------------------------------------------------------------------

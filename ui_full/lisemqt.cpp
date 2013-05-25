@@ -204,7 +204,7 @@ void lisemqt::setWriteOutputPCR(bool doit)
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
-    restartAct = new QAction(QIcon(":/Undo-icon.png"), "&Reset...", this);
+    restartAct = new QAction(QIcon(":/refresh_24.png"), "&Reset...", this);
     connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
     toolBar->addAction(restartAct);
     toolBar->addSeparator();
@@ -507,8 +507,8 @@ void lisemqt::savefileas()
 {
     if (op.runfilename.isEmpty())
     {
-        QMessageBox::warning(this, "openLISEM","Select a runfile first.");
-        return;
+        QMessageBox::warning(this, "openLISEM","This runfile will habe no pathnames.");
+        //return;
     }
 
     QString selectedFilter;
@@ -755,6 +755,9 @@ void lisemqt::shootScreen()
 
     if (doShootScreens)
     {
+        if (op.runstep % printinterval->value() > 0)
+            return;
+
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(2));
         fileName = outdir + fi.baseName() + QString("_q%1.png").arg(op.runstep,5,'d',0,'0');
         originalPixmap.save(fileName, format.toAscii());

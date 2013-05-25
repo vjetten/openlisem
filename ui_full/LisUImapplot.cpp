@@ -259,11 +259,13 @@ void lisemqt::showBaseMap()
     MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
     MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-    startplot = false;
+   // startplot = false;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showChannelMap()
 {
+    if (!startplot)
+        return;
     double res = fillDrawMapData(op.channelMap, RDc);
 
     channelMap->setAlpha(transparency2->value());
@@ -275,11 +277,13 @@ void lisemqt::showChannelMap()
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
 {
+//    if (!startplot)
+//        return;
     double res = fillDrawMapData(op.roadMap, RDd);
 
     roadMap->setAlpha(transparency3->value());
 
-    if (op.drawMapType == 1)
+    if (op.drawMapType <= 2)
         roadMap->setColorMap(new colorMapRoads());
     else
         roadMap->setColorMap(new colorMapRoads2());
@@ -290,6 +294,10 @@ void lisemqt::showRoadMap()
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
+    if (!startplot)
+        return;
+
+    // set intervals for rasterdata, x,y,z min and max
     double res = fillDrawMapData(op.houseMap, RDe);
 
     houseMap->setAlpha(transparency4->value());
@@ -298,6 +306,52 @@ void lisemqt::showHouseMap()
 
     RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
     houseMap->setData(RDe);
+}
+//---------------------------------------------------------------------------
+void lisemqt::showHouseMapA()
+{
+    if (!startplot)
+        return;
+
+    double maxV = -1;
+    QVector<double> mapDataa;
+
+    TMMap *M = new TMMap();
+    M->PathName = W->inputDir + "lu5m.map";
+    bool res = M->LoadFromFile();
+    if (!res)
+    {
+        ErrorString = "Cannot find map " +M->PathName;
+        throw 1;
+    }
+
+    mapDataa.clear();
+
+    // copy map data into vector for the display structure
+    for(int r = M->nrRows-1; r >= 0; r--)
+        for(int c=0; c < M->nrCols; c++)
+        {
+            if(!IS_MV_REAL8(&M->Drc))
+            {
+                mapDataa << M->Drc;
+                maxV = qMax(maxV, M->Drc);
+            }
+            else
+                mapDataa << (double)-1e20;
+        }
+
+    // set intervals for rasterdata, x,y,z min and max
+    RDe->setValueMatrix( mapDataa, M->nrCols );
+
+    houseMap->setAlpha(transparency4->value());
+
+    houseMap->setColorMap(new colorMapGray());
+
+    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,maxV));
+    houseMap->setData(RDe);
+    MPlot->setAxisScale( MPlot->xBottom, 0.0, M->nrCols, M->nrCols/20);
+    MPlot->setAxisScale( MPlot->yLeft, 0.0, M->nrRows, M->nrRows/20);
+
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused

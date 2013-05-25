@@ -320,7 +320,8 @@ void TWorld::Interception(void)
 
         if (Smax > 0)
         {
-            double k = exp(-CanopyOpeness*LAIv);
+            double k = 1-exp(-CanopyOpeness*LAIv);
+            //VJ !!!!!!2013 05 18 BUG ! was k=exp(-coLAI) MUST BE 1-exp
             CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
             //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
             //VJ 110209 direct use of openess, astons value too open.
@@ -380,7 +381,7 @@ void TWorld::InterceptionHouses(void)
 
             if (Hmax > 0)
             {
-                double k = 0.5;
+                double k = 1.0;
                 // speed of filling of roof storage, very quickly
                 HS = Hmax*(1-exp(-k*RainCum->Drc/Hmax));
                 //roof storage in m

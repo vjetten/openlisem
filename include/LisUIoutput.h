@@ -44,7 +44,7 @@ struct output{
 
     double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
-    double MB, Qtot, Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
+    double MB, Qtot, FloodTotMax, FloodAreaMax, Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
     RainTotmm, SurfStormm, InfilKWTotmm, Pmm,
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
     RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, Qtile, Qpeak,

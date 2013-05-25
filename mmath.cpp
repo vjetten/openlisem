@@ -199,10 +199,10 @@ void TMMap::areaAverage(TMMap *area)
     {
         UNIT_LIST ul;
         ul.nr = 0;
-        ul.area = data[i];
-        ul.totdet = 0;
-        ul.totdep = 0;
-        ul.totsl = 0;
+        ul.var0 = data[i];
+        ul.var1 = 0;
+        ul.var2 = 0;
+        ul.var3 = 0;
         aList.append(ul);
     }
     // count, sort and initialize diff units
@@ -213,20 +213,20 @@ void TMMap::areaAverage(TMMap *area)
             {
                 for (i = 0; i < aList.count(); i++)
                 {
-                    if(area->Data[r][c] == aList[i].area)
+                    if(area->Data[r][c] == aList[i].var0)
                     {
-                        aList[i].totdet += 1.0;
-                        aList[i].totdep += Data[r][c];
+                        aList[i].var1 += 1.0;
+                        aList[i].var2 += Data[r][c];
                     }
                 }
             }
     // count the sums within each area
 
     for (i = 0; i < aList.count(); i++)
-        if(aList[i].totdet > 0)
-            aList[i].totsl = aList[i].totdep/aList[i].totdet;
+        if(aList[i].var1 > 0)
+            aList[i].var3 = aList[i].var2/aList[i].var1;
         else
-            aList[i].totsl = 0;
+            aList[i].var3 = 0;
     // calculate the average values for each area
 
     // for (i = 0; i < aList.count(); i++)
@@ -238,8 +238,8 @@ void TMMap::areaAverage(TMMap *area)
             {
                 for (i = 0; i < aList.count(); i++)
                 {
-                    if(area->Data[r][c] == aList[i].area)
-                        Data[r][c] = aList[i].totsl;
+                    if(area->Data[r][c] == aList[i].var0)
+                        Data[r][c] = aList[i].var3;
                 }
             }
 

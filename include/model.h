@@ -160,10 +160,11 @@ typedef struct NAME_LIST {
 /// structure for output of land unit stats
 typedef struct UNIT_LIST {
     long nr;
-    double area;
-    double totdet;
-    double totdep;
-    double totsl;
+    double var0;
+    double var1;
+    double var2;
+    double var3;
+    double var4;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames
@@ -253,7 +254,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, FloodVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -314,6 +315,7 @@ public:
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
+    UNIT_LIST floodList[512]; // just a fixed number for 512 classes, who cares!
     QVector <UNIT_LIST> unitListM;
     int landUnitNr;
     // data initialization, runfile reading and parsing
@@ -360,7 +362,7 @@ public:
     double limiter(double a, double b);
     void MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az);
     void ENO(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
-    void simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v);
+    void simpleScheme(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
     double maincalcflux(double dt, double dt_max);
     void maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
@@ -422,9 +424,11 @@ public:
     void ChannelFlowDetachment(void);
     //flood
     void ChannelFlood(void);
+    void ChannelFloodStatistics(void);
     void ChannelOverflow(void);
     double courant_factor;
     double cfl_fix;
+    double minReportFloodHeight;
 
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,

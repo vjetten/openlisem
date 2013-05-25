@@ -46,17 +46,18 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
+ //   tm->fill(0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
         {
-            double fc = ChannelWidthUpDX->Drc/_dx;
+            double fc = min(1.0, ChannelWidthUpDX->Drc/_dx);
             double levee = ChannelLevee->Drc;
 
             double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
                     max(0, hmx->Drc-levee)*(1-fc);
             //average water level
-
+     //       tm->Drc = whlevel;
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
             if (whlevel > 0)
@@ -67,18 +68,18 @@ void TWorld::ChannelOverflow(void)
             }
             // if average water level is negative, channel wh < depth, but there is hmx
             // some flood water moves into the channel accoridng to flood velocity
-            else
-                if (hmx->Drc > levee)
-                {
-                    double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
-                    double dh = (hmx->Drc) * fv;
-                    hmx->Drc -= dh;
-                    ChannelWH->Drc += dh;// dh/fc
-
-                }
+            //            else
+            //                if (hmx->Drc > levee)
+            //                {
+            //                    double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
+            //                    double dh = (hmx->Drc) * fv;
+            //                    hmx->Drc -= dh;
+            //                    ChannelWH->Drc += dh;// dh/fc
+            //                }
 
         }
     }
+   // tm->report("whl");
 }
 //---------------------------------------------------------------------------
 
@@ -95,7 +96,7 @@ void TWorld::ChannelFlood(void)
 
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
-    SwitchLimiter = VANLEER;//MINMOD;//VANALBEDA;
+    SwitchLimiter = MINMOD;//VANLEER;//VANALBEDA;//MINMOD;
 
     startFlood = false;
     FOR_ROW_COL_MV
@@ -162,9 +163,22 @@ void TWorld::ChannelFlood(void)
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
         maxflood->Drc = max(maxflood->Drc, hmx->Drc);
-        if (hmx->Drc > 0.05)
+        if (hmx->Drc > minReportFloodHeight)
             timeflood->Drc += _dt/60;
         // for output
+    }
+
+    floodVolTotMax = 0;
+    floodAreaMax = 0;
+    double area = _dx*_dx;
+    FOR_ROW_COL_MV
+    {
+        if (maxflood->Drc > minReportFloodHeight)
+        {
+            floodVolTotMax += maxflood->Drc*area;
+            floodAreaMax += area;
+        }
+
     }
 
     maxflood->report("maxflood.map");
@@ -185,8 +199,8 @@ void TWorld::ChannelFlood(void)
     }
 
     double avgh = (cells > 0 ? (sumh_t1)/cells : 0);
-    double area = cells*_dx*_dx;
+    area = cells*_dx*_dx;
     debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
     // some error reporting
 }
-//---------------------------------------------------------------------------
+
