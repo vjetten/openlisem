@@ -112,7 +112,7 @@ void lisemqt::setupPlot()
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
     }
     HPlot->setAxisScale(HPlot->yRight, 0, 1);
-    HPlot->setAxisScale(HPlot->yLeft, 0, 100);
+    HPlot->setAxisScale(HPlot->yLeft, 0, 1000000);
     HPlot->setAxisScale(HPlot->xBottom, 0, 100);
 
     // set gridlines
@@ -371,7 +371,8 @@ void lisemqt::showOutputData()
     // "op" is filled in the model run each timestep
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
-    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
+    subcatchgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
+//    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
 
     label_dx->setText(QString::number(op.dx,'f',3));
     label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));

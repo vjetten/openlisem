@@ -123,9 +123,9 @@
 #define KE_LOGFUNCTION 1
 #define KE_POWERFUNCTION 2
 
-#define MINMOD 0
-#define VANALBEDA 1
-#define VANLEER 2
+#define MINMOD 1
+#define VANALBEDA 2
+#define VANLEER 3
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -311,7 +311,7 @@ public:
     QStringList outputcheck;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
-    OutTiledrain, OutHmx, OutVf, OutQf;
+    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
@@ -362,7 +362,7 @@ public:
     double limiter(double a, double b);
     void MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az);
     void ENO(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
-    void simpleScheme(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
+    void simpleScheme(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z = NULL);
     double maincalcflux(double dt, double dt_max);
     void maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
@@ -371,14 +371,13 @@ public:
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme;
+    int F_scheme, F_fluxLimiter;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double q1man, q2man;
     //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;
-    int SwitchLimiter;
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
@@ -427,9 +426,10 @@ public:
     void ChannelFloodStatistics(void);
     void ChannelOverflow(void);
     double courant_factor;
+    double mixing_coefficient;
     double cfl_fix;
     double minReportFloodHeight;
-
+    double correctMassBalance(double sum1, TMMap *m);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                    TMMap *_StorVol, TMMap*_StorVolSed);

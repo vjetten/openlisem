@@ -53,6 +53,7 @@ TMMap
 *DStor,                      //!< actual drum storage of rainwater [m^3]
 *IntercHouse,                //!< actual roof storage volume [m^3]
 *HouseCover,                 //!< fraction cover of house in pixel [-]
+*HouseWidthDX,
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 
@@ -101,6 +102,7 @@ TMMap
 *RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 *RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
+*runoffFractionCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [m]
@@ -217,6 +219,8 @@ TMMap
 *Qflood,
 *maxflood,
 *timeflood,
+*maxChannelflow,
+*maxChannelWH,
 *Hx,                         //!<
 *Hmx,                        //!<
 *hx,                         //!<

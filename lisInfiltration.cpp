@@ -348,19 +348,24 @@ void TWorld::Infiltration(void)
       //      if(FloodDomain->Drc == 0)
     {
         InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
         // potential water volume on surface before infil
 
         // calculate effective ksat for various situations
         if (InfilMethod != INFIL_SWATRE  && InfilMethod != INFIL_NONE)
         {
             Ksateff->Drc = Ksat1->Drc;
-            if (SwitchInfilCrust)
-                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-            if (SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-            if (SwitchInfilCrust && SwitchInfilCompact)
+//            if (SwitchInfilCrust)
+//                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+//            if (SwitchInfilCompact)
+//                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+//            if (SwitchInfilCrust && SwitchInfilCompact)
+//                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
+//                        KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+            if (SwitchInfilCrust || SwitchInfilCompact)
                 Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
                         KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
+            // when not switched on fractions and ksat are 0
             // avg ksat of "normal" surface with crusting and compaction fraction
             // adjust effective infil for crusting and compaction
             //VJ 110106 adapted this calculation

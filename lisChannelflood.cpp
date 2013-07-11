@@ -46,7 +46,7 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
- //   tm->fill(0);
+    //   tm->fill(0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
@@ -57,29 +57,56 @@ void TWorld::ChannelOverflow(void)
             double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
                     max(0, hmx->Drc-levee)*(1-fc);
             //average water level
-     //       tm->Drc = whlevel;
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
             if (whlevel > 0)
             {
                 hmx->Drc = min(hmx->Drc, levee);
-                hmx->Drc += whlevel;
+                hmx->Drc += whlevel+levee;
                 ChannelWH->Drc = whlevel + ChannelDepth->Drc + levee;
             }
-            // if average water level is negative, channel wh < depth, but there is hmx
+            // if average water level is negative, channel wh < depth, but there can be hmx
             // some flood water moves into the channel accoridng to flood velocity
-            //            else
-            //                if (hmx->Drc > levee)
-            //                {
-            //                    double fv = min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
-            //                    double dh = (hmx->Drc) * fv;
-            //                    hmx->Drc -= dh;
-            //                    ChannelWH->Drc += dh;// dh/fc
-            //                }
+            // if fv = 1 and whlevel < 0 hmx always 0, see excel
+            else
+                if (hmx->Drc > levee)
+                {
+                    //                    double fv;
+                    //                    double dh = hmx->Drc;
+                    //                    fv = 1.0;//ChannelAdj->Drc > 0 ? min(_dt*UVflood->Drc/(0.5*ChannelAdj->Drc), 1.0) : 1.0;
 
+                    hmx->Drc = levee;
+                    //                   ChannelWH->Drc += dh*fv*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
+
+                }
         }
     }
-   // tm->report("whl");
+    // tm->report("whl");
+}
+//---------------------------------------------------------------------------
+// correct mass balance
+double TWorld::correctMassBalance(double sum1, TMMap *M)
+{
+    double sum2 = 0;
+    double n = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0.0)
+        {
+            n += 1;
+            sum2 += M->Drc;
+        }
+    }
+    double dh = (n > 0 ? (sum1 - sum2)/n : 0);
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0.0)
+        {
+            M->Drc += dh;
+            M->Drc = max(M->Drc , 0);
+        }
+    }
+    return dh;
 }
 //---------------------------------------------------------------------------
 
@@ -96,7 +123,6 @@ void TWorld::ChannelFlood(void)
 
     double sumh_t = hmx->mapTotal();
     double dtflood = 0;
-    SwitchLimiter = MINMOD;//VANLEER;//VANALBEDA;//MINMOD;
 
     startFlood = false;
     FOR_ROW_COL_MV
@@ -107,7 +133,6 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-
 
     if (SwitchFloodSWOForder2)
     {
@@ -135,26 +160,10 @@ void TWorld::ChannelFlood(void)
             }
 
     ChannelOverflow();
+    // mix overflow water and flood water in channel cells
 
-    double sumh_t1 = 0;
-    double m = 0;
-    FOR_ROW_COL_MV
-    {
-        if(hmx->Drc > 0.0)
-        {
-            m += 1;
-            sumh_t1 += hmx->Drc;
-        }
-    }
-    double dh = (m > 0 ? (sumh_t - sumh_t1)/m : 0);
-    FOR_ROW_COL_MV
-    {
-        if(hmx->Drc > 0.0)
-        {
-            hmx->Drc += dh;
-            hmx->Drc = max(hmx->Drc , 0);
-        }
-    }
+    double dh = correctMassBalance(sumh_t, hmx);
+    // correct mass balance
 
     // floodwater volume and max flood map
     FloodWaterVol->fill(0);
@@ -178,29 +187,36 @@ void TWorld::ChannelFlood(void)
             floodVolTotMax += maxflood->Drc*area;
             floodAreaMax += area;
         }
+    }
 
+    FOR_ROW_COL_MV_CH
+    {
+        maxChannelflow->Drc = max(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = max(maxChannelWH->Drc, ChannelWH->Drc);
     }
 
     maxflood->report("maxflood.map");
     timeflood->report("timeflood.map");
+    maxChannelflow->report("maxhannelq.map");
+    maxChannelWH->report("maxhannelwh.map");
 
     double cells = 0;
-    sumh_t1 = 0;
+    sumh_t = 0;
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
         {
             FloodDomain->Drc = 1;
             cells += 1.0;
-            sumh_t1 += hmx->Drc;
+            sumh_t += hmx->Drc;
         }
         else
             FloodDomain->Drc = 0;
     }
 
-    double avgh = (cells > 0 ? (sumh_t1)/cells : 0);
+    double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     area = cells*_dx*_dx;
-    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(avgh,8,'f',3).arg(area,8,'f',1));
+    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,8,'e',3).arg(area,8,'f',1));
     // some error reporting
 }
 

@@ -102,7 +102,18 @@ void TWorld::Totals(void)
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
-    // sum outflow m3 for all timesteps for the outlet, is already mult by dt
+    FOR_ROW_COL_MV
+    {
+        tm->Drc =
+                (Interc->Drc + IntercHouse->Drc +
+                  (InfilVol->Drc+InfilVolKinWave->Drc+InfilVolFlood->Drc)/(_dx*_dx)
+                 );
+        runoffFractionCell->Drc = (RainCum->Drc - tm->Drc)/RainCum->Drc;
+
+    }
+    runoffFractionCell->report("rofraction.map");
+
+    // sum outflow m3 for all timesteps for the outlet
     FOR_ROW_COL_MV
             if (LDD->Drc == 5)
             Qtot += Qn->Drc*_dt;
@@ -113,7 +124,9 @@ void TWorld::Totals(void)
 
     QtotOutlet += Qn->DrcOutlet*_dt;
     // for screen output, total main outlet in m3
+
     QtotPlot += Qn->DrcPlot * _dt;
+    QPlot += Qn->DrcPlot;
     //VJ 110701 for screen output, total of hydrograph point in m3
 
     TotalWatervol->copy(WaterVolall);
@@ -209,7 +222,7 @@ void TWorld::Totals(void)
     // peak flow and peak time calculation, based on sum channel and runoff
 
     /***** SEDIMENT *****/
-  // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
+    // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
     if (SwitchErosion)
     {
         DetSplashTot += DETSplash->mapTotal();
@@ -229,6 +242,8 @@ void TWorld::Totals(void)
         // for screen output, total main outlet sed loss in kg
         TotalSed->copy(Sed);
         // for sed conc
+
+        SoilLossTotPlot += Qsn->DrcPlot * _dt;
 
         if (SwitchIncludeChannel)
         {
@@ -300,7 +315,7 @@ void TWorld::MassBalance()
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTotOutlet > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-               DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTotOutlet))*100;
+                  DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTotOutlet))*100;
     //VJ 121212 changed to mass balance relative to soil loss
 }
 //---------------------------------------------------------------------------

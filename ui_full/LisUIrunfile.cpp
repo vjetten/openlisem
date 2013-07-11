@@ -123,7 +123,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
-        //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);                  
+        //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
         //houses
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
@@ -135,21 +135,24 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
         if (p1.compare("Flooding SWOF reconstruction")==0)   E_FloodRecon->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
+        if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
+        if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
-//        if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
-       // if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
+        //        if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
+        // if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
         if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
-//        if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
+        //        if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
         if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
         if (p1.compare("Buffers impermeable")==0)            checkBuffersImpermeable->setChecked(check);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
         if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
+        if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
         //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
@@ -249,8 +252,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
         if (p1.compare("Canopy Openess")==0)           E_CanopyOpeness->setValue(val);
         // VJ 110209 canopy openess, factor Aston as user input
-     //   if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
-     //   if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
+        //   if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
+        //   if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
 
         //VJ 111120 water repellency
         if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
@@ -277,6 +280,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("CheckOutputMaps")==0)
         {
             outputcheck = p.split(",");
+            outputcheck << "0";
+
             checkBox_OutRunoff->setChecked(bool(outputcheck.at(0).toInt() == 1));
             checkBox_OutWH->setChecked(bool(outputcheck.at(2).toInt() == 1));
             checkBox_OutWHC->setChecked(bool(outputcheck.at(3).toInt() == 1));
@@ -295,7 +300,7 @@ void lisemqt::ParseInputData()
                 checkBox_OutHmx->setChecked(bool(outputcheck.at(12).toInt() == 1));
                 checkBox_OutQf->setChecked(bool(outputcheck.at(13).toInt() == 1));
                 checkBox_OutVf->setChecked(bool(outputcheck.at(14).toInt() == 1));
-
+                checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
             }
             // checkboxes normal output map series, numbering according to original LISEM
         }
@@ -376,6 +381,12 @@ void lisemqt::ParseInputData()
         E_SwatreTableName->setText(SwatreTableName);
     }
 
+
+    checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
+    checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
+    checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
+    checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
+
     //****====------====****//
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
@@ -437,8 +448,8 @@ QString lisemqt::CheckDir(QString p, bool makeit)
         }
         else
         {
-        QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
-        path.clear();
+            QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
+            path.clear();
         }
     }
 
@@ -472,9 +483,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodRecon->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
+        if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
-
+        if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         //houses
@@ -483,16 +495,18 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
-//        if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
-     //   if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
+        //        if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
+        //   if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
- //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
+        //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
         if (p1.compare("Buffers impermeable")==0)            namelist[j].value.setNum((int)checkBuffersImpermeable->isChecked());
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
+        if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
+
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
@@ -569,8 +583,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
-     //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
-     //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
+        //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
+        //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
 
         if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
         if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
@@ -639,6 +653,7 @@ void lisemqt::updateModelData()
             if (       checkBox_OutHmx->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutQf->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if (       checkBox_OutVf->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if (       checkBox_OutHmxWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
             namelist[j].value = outputcheck.join(",");
         }
     }

@@ -309,6 +309,12 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include levees");
+    namelist[i].value = QString("0.05");
+    namelist[i++].name = QString("Minimum reported flood height");
+    namelist[i].value = QString("1.5");
+    namelist[i++].name = QString("Flooding mixing coefficient");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method explicit");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Flooding courant factor");
@@ -316,16 +322,14 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood method SWOF2D order 1");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method SWOF2D order 2");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include levees");
-    namelist[i].value = QString("0.05");
-    namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding SWOF csf factor");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Flooding SWOF scheme");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Flooding SWOF flux limiter");
 //    namelist[i].value = QString("0.000");
 //    namelist[i++].name = QString("Flood channel side levee");
 
@@ -367,7 +371,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Conservation]");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include grass strips");
-    namelist[i].value = QString("0.05");
+    namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Grassstrip Mannings n");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include buffers");
@@ -460,6 +464,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTQF");
     namelist[i].value = QString("vf");
     namelist[i++].name = QString("OUTVF");
+    namelist[i].value = QString("hmxwh");
+    namelist[i++].name = QString("OUTHMXWH");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[OutputMC]");

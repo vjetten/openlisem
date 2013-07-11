@@ -55,9 +55,11 @@ void lisemqt::ssetAlpha4(int v)
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
-    if (stopplot)
-        return;
 
+//    if (stopplot)
+//        return;
+
+    op.addWHtohmx = checkAddWHtohmx->isChecked();
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
     if (radioButton_INF->isChecked())   op.drawMapType = 2;
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
@@ -93,7 +95,7 @@ void lisemqt::initMapPlot()
     maxAxis4 = -1e20;
     pstep = 0;
     transparency->setValue(180);  //main data
-    transparency2->setValue(128); //channels
+    transparency2->setValue(180); //channels
     transparency3->setValue(180); //roads
     transparency4->setValue(100); //houses
     // slider setting basemap transparency
@@ -225,6 +227,9 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 // not how they are done here!
 void lisemqt::showMap()
 {
+//    if (!startplot)
+//        return;
+
     drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) showMap1();
     if (op.drawMapType == 2) showMap2();

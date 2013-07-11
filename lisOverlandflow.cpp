@@ -36,41 +36,6 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
-// Dtermines if the kin wave stops in the flood domain
-// if the WH is thrown in the hmx immedately there is no more runoff feeding the channel
-// and flood levels are extreme.
-//NOT USED !!!!
-void TWorld::ToFlood(void)
-{
-    if (!SwitchChannelFlood)
-        return;
-    if (!SwitchIncludeChannel)
-        return;
-
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0)// && ChannelDepth->Drc == 0)
-        {
-            if(hmx->Drc > 0.0)
-            {
-                double wh = 0.01*WH->Drc;//(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc)/_dx;
-                hmx->Drc += wh;
-                //WHroad->Drc -= wh*RoadWidthDX->Drc/_dx;
-                WH->Drc -= wh;
-            }
-
-//            double whp = wh+hmx->Drc;
-//            double f = (whp > 0 ? hmx->Drc/whp : 0);
-//            if(hmx->Drc > 0.00)
-//            {
-//                hmx->Drc = whp*f;
-//                WHroad->Drc = (1-f)*whp;
-//                WH->Drc = (1-f)*whp;
-//            }
-        }
-    }
-}
-//---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
 {
@@ -126,21 +91,25 @@ void TWorld::ToChannel(void)
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch(void)
 {
+    tm->fill(0);
+    tma->fill(0);
     FOR_ROW_COL_MV
     {
         double Perim;
         const double beta = 0.6;
         const double _23 = 2.0/3.0;
         double beta1 = 1/beta;
-
+        //double kinvisc = 1.1e-6; // 15 degrees celcius water
         double NN = N->Drc;
 
         if (SwitchChannelFlood)
-            NN = qMin(2.0,N->Drc * qExp(1.5*hmx->Drc));
-        //            NN = qMin(1.0,N->Drc * (1+hmx->Drc)*(1+hmx->Drc));
+            NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
+        // slow down water in flood zone
+//NOTE CALCULATE REYNOLDS AND SEE IF TURBULENCE MAKES COEFFICIENT HIGHER
+//LAMINAR MEANS NON-MIXING SO NN = N
+   //    tma->Drc = hmx->Drc * UVflood->Drc/1.1e-6;
 
         // avg WH from soil surface and roads, over width FlowWidth
-
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
 
         if (Perim > 0)
@@ -156,7 +125,11 @@ void TWorld::CalcVelDisch(void)
             Q->Drc = 0;
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
+        tm->Drc = V->Drc * R->Drc/1.1e-6;
     }
+   // tm->report("reyn");
+  //  tma->report("reynF");
+
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)

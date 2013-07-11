@@ -29,6 +29,7 @@
 
 functions: \n
 - void TWorld::GridCell(void) \n
+- void TWorld::addRainfallWH(void) \n
 - void TWorld::SurfaceStorage(void)\n
  */
 
@@ -45,9 +46,17 @@ void TWorld::GridCell(void)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
+        if (RoadWidthDX->Drc + HouseWidthDX->Drc > _dx)
+            HouseWidthDX->Drc = _dx-RoadWidthDX->Drc;
+        // road takes priority
+
         if (SwitchIncludeChannel)
+        {
             if (RoadWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
-                RoadWidthDX->Drc = max(0, ChannelAdj->Drc);
+                RoadWidthDX->Drc = ChannelAdj->Drc;
+            if (HouseWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
+                HouseWidthDX->Drc = ChannelAdj->Drc;
+        }
         // channel takes priority
 
         /** wheeltracks are not implemented yet */
@@ -57,12 +66,48 @@ void TWorld::GridCell(void)
         // adjust wheelwidth in cells with other surfaces
         /** TODO is wheelwidth needed or just an extra map? */
 
-        SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc - RoadWidthDX->Drc);
+        SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
+                                      - RoadWidthDX->Drc);
+                                      //- HouseWidthDX->Drc);
 
         //      SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
         //                             - GullyWidthDX->Drc
         //                             - RoadWidthDX->Drc
         //                             - WheelWidthDX->Drc);
+    }
+    SoilWidthDX->report("soilw.map");
+}
+
+//---------------------------------------------------------------------------
+/// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
+void TWorld::addRainfallWH(void)
+{
+    FOR_ROW_COL_MV
+    {
+        if (FloodDomain->Drc > 0)
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+        else
+        {
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // add net to water rainfall on soil surface (in m)
+
+            if (SwitchBuffers && !SwitchSedtrap)
+                if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+                {
+                    WH->Drc = 0;
+                    BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                }
+            // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
+            // not for sed traps, behave normally
+
+            if (GrassFraction->Drc > 0)
+                WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // net rainfall on grass strips, infil is calculated separately for grassstrips
+
+            if (RoadWidthDX->Drc > 0)
+                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+            // assume no interception and infiltration on roads, gross rainfall
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -95,7 +140,7 @@ void TWorld::SurfaceStorage(void)
         WHstore->Drc = wh - whflow;
         // average water stored on flowwidth and not available for flow, in m
 
-        //houses
+        //houses no surf storage
         if (SwitchHouses)
         {
             WHstore->Drc *= (1-HouseCover->Drc);
@@ -126,7 +171,7 @@ void TWorld::SurfaceStorage(void)
         // assume grassstrip spreads water over entire width
 
         //Houses
-        if (SwitchHouses && HouseCover->Drc > 0)
+        if (SwitchHouses)
             FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
         // assume house severely restricts flow width, 0.5 is arbitrary
         // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere

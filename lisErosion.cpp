@@ -155,6 +155,7 @@ void TWorld::SplashDetachment(void)
 
       if (SwitchHouses)
          DETSplash->Drc = (1-HouseCover->Drc)*DETSplash->Drc;
+      //is already contained in soilwidth
       // no splash from house roofs
 
       DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;

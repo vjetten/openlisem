@@ -77,30 +77,24 @@ double TWorld::limiter(double a, double b)
     double eps = 1.e-15;
     double rec = 0.;
 
-    if (a == b)
-        return(b);
-    if (a*b == 0)
-        return(0.);
-    // save time
-
-    if (SwitchLimiter == VANLEER)
+    if (F_fluxLimiter == (int)MINMOD)
     {
-        if (a*b > 0.)
-            return (2.*a*b/(a+b));
+        if (a >= 0. && b >= 0.)
+            rec = qMin(a, b);
+        else
+            if (a <= 0. && b <= 0.)
+                rec = qMax(a, b);
     }
     else
-        if (SwitchLimiter == MINMOD)
+        if (F_fluxLimiter == (int)VANLEER)
         {
-            if (a >= 0. && b >= 0.)
-                rec = qMin(a, b);
-            else
-                if (a<=0. && b<=0)
-                    rec = qMax(a, b);
+            if (a*b > 0.)
+                return (2.*a*b/(a+b));
         }
         else
-            if (SwitchLimiter == VANALBEDA)
+            if (F_fluxLimiter == (int)VANALBEDA)
             {
-                if (a*b >= 0.)
+                if (a*b > 0.)
                     rec=(a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
             }
 
@@ -531,8 +525,8 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
 {
     FOR_ROW_COL_MV_MV
     {
-        double dx = _dx;//-ChannelWidthUpDX->Drc;
-        double dy = DX->Drc; //_dx;
+        double dx = _dx-ChannelWidthUpDX->Drc;
+        double dy = DX->Drc;//_dx;
         double tx = dt/dx;
         double ty = dt/dy;
 
@@ -598,12 +592,11 @@ double TWorld::maincalcflux(double dt, double dt_max)
     velocity_max_y = -ve_ca;
     double dx, dy;
 
+
     FOR_ROW_COL_MV_MV
     {
-        dx = _dx;
         h1d->Data[r][c-1] = max(0, h1r->Data[r][c-1] - max(0,  delz1->Data[r][c-1]));
         h1g->Drc          = max(0, h1l->Drc          - max(0, -delz1->Data[r][c-1]));
-
         if (F_scheme == 1)
             F_Rusanov(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
         else
@@ -621,8 +614,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
     FOR_ROW_COL_MV_MV
     {
-        dy = DX->Drc;
-
         h2d->Data[r-1][c] = max(0, h2r->Data[r-1][c] - max(0,  delz2->Data[r-1][c]));
         h2g->Drc          = max(0, h2l->Drc          - max(0, -delz2->Data[r-1][c]));
 
@@ -650,7 +641,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
             qDebug() << "oh oh";
             if (cflx->Drc > 100)
             {
-                qDebug() << "mainflux x" << dt << dtx << cflx->Drc << cfly->Drc;
+                //qDebug() << "mainflux x" << dt << dtx << cflx->Drc << cfly->Drc;
                 cflx->Drc = cfly->Drc;
                 f1->Drc = g1->Drc;
                 f2->Drc = g2->Drc;
@@ -660,7 +651,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
             }
             else
             {
-                qDebug() << "mainflux y" << dt << dty << cflx->Drc << cfly->Drc;
+                //qDebug() << "mainflux y" << dt << dty << cflx->Drc << cfly->Drc;
                 cfly->Drc = cflx->Drc;
                 g1->Drc = f1->Drc;
                 g2->Drc = f2->Drc;
@@ -673,6 +664,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     // find largest velocity and determine dt
     FOR_ROW_COL_MV_MV
     {
+        dx = _dx-ChannelWidthUpDX->Drc;
         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -685,6 +677,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     // find largest velocity and determine dt
     FOR_ROW_COL_MV_MV
     {
+        dy = DX->Drc;
         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -694,8 +687,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
         velocity_max_y = max(velocity_max_y, cfly->Drc);
     }
 
- //   qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
- //   qDebug() << "mainflux y" << dt << dty << velocity_max_y;
+   // qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
+   // qDebug() << "mainflux y" << dt << dty << velocity_max_y;
 
     if (scheme_type == 1)
         return(max(dt_ca, min(dtx,dty)));
@@ -720,14 +713,6 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v, TMMap *_z)
         h1l->Data[r][c+1] = _h->Data[r][c+1];
         u1l->Data[r][c+1] = _u->Data[r][c+1];
         v1l->Data[r][c+1] = _v->Data[r][c+1];
-
-//        h1r->Data[r][c] = (3.*_h->Data[r][c] + _h->Data[r][c-1])/4.;
-//        u1r->Data[r][c] = (3.*_u->Data[r][c] + _u->Data[r][c-1])/4.;
-//        v1r->Data[r][c] = (3.*_v->Data[r][c] + _v->Data[r][c-1])/4.;
-//        h1l->Data[r][c+1] = (3.*_h->Data[r][c+1] + _h->Data[r][c])/4.;
-//        u1l->Data[r][c+1] = (3.*_u->Data[r][c+1] + _u->Data[r][c])/4.;
-//        v1l->Data[r][c+1] = (3.*_v->Data[r][c+1] + _v->Data[r][c])/4.;
-
     }
     FOR_ROW_COL_MV_MV
     {
@@ -737,14 +722,6 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v, TMMap *_z)
         h2l->Data[r+1][c] = _h->Data[r+1][c];
         u2l->Data[r+1][c] = _u->Data[r+1][c];
         v2l->Data[r+1][c] = _v->Data[r+1][c];
-
-//        h2l->Data[r][c] = (3*_h->Data[r][c] + _h->Data[r-1][c])/4.0;
-//        u2l->Data[r][c] = (3*_u->Data[r][c] + _u->Data[r-1][c])/4.0;
-//        v2l->Data[r][c] = (3*_v->Data[r][c] + _v->Data[r-1][c])/4.0;
-//        h2l->Data[r+1][c] = (3*_h->Data[r+1][c] + _h->Drc)/4.0;
-//        u2l->Data[r+1][c] = (3*_u->Data[r+1][c] + _u->Drc)/4.0;
-//        v2l->Data[r+1][c] = (3*_v->Data[r+1][c] + _v->Drc)/4.0;
-
     }
 }
 //---------------------------------------------------------------------------
@@ -773,9 +750,12 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         {
             delta_z1->Drc = z->Data[r][c+1] - z->Drc;
             delta_z2->Drc = z->Data[r+1][c] - z->Drc;
+            //needed in MUSCL
 
             delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
             delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+            // needed in maincalcflux
+
         }
     }
 
@@ -783,15 +763,16 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     if (startFlood)
     {
 
+        double sumh = h->mapTotal();
         do {
             // not faster, dt_max is fastest with the same error:
-           // dt1 = min(dt1*qSqrt(double(n)), dt_max);
+            //   dt1 = min(dt1*qSqrt(double(n)), dt_max);
             //dt1 = min(dt1*(double(n)), dt_max);
             dt1 = dt_max;
 
             setZero(h, u, v);
 
-            //MUSCL(h,u,v,z);
+            // MUSCL(h,u,v,z);
             simpleScheme(h, u, v, z);
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -812,8 +793,16 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
             timesum = timesum + dt1;
             n++;
+            double tmp = correctMassBalance(sumh, h);
 
         } while (timesum  < _dt);
+
+        FOR_ROW_COL_MV_MV
+        {
+            q1->Drc = h->Drc*u->Drc;
+            q2->Drc = h->Drc*v->Drc;
+        }
+
     }
     //        Fr=froude_number(hs,us,vs);
     // todo
@@ -869,26 +858,26 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 MUSCL(h,u,v,z);
             else
                 ENO(h,u,v,z);
-//            simpleScheme(h, u, v, z);
+            //            simpleScheme(h, u, v, z);
             // semi-iteration: optimize the timestep
-            do {
+            //     do {
 
-                dt1 = maincalcflux(dt2, dt_max);
-                dt1 = min(dt1, _dt-timesum);
+            dt1 = maincalcflux(dt2, dt_max);
+            dt1 = min(dt1, _dt-timesum);
 
-                maincalcscheme(dt1, h,u,v, hs,us,vs);
-                setZero(hs, us, vs);
+            maincalcscheme(dt1, h,u,v, hs,us,vs);
+            setZero(hs, us, vs);
 
-                if (SwitchMUSCL)
-                    MUSCL(hs,us,vs,z);
-                else
-                    ENO(hs,us,vs,z);
-//                simpleScheme(hs,us,vs, z);
-                dt2 = maincalcflux(dt1, dt_max);
+            if (SwitchMUSCL)
+                MUSCL(hs,us,vs,z);
+            else
+                ENO(hs,us,vs,z);
+            //                simpleScheme(hs,us,vs, z);
+            dt2 = maincalcflux(dt1, dt_max);
 
-            } while (dt2 < dt1);
+            //    } while (dt2 < dt1);
 
-
+            dt1=dt2;
             maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
             setZero(hsa, usa, vsa);
 

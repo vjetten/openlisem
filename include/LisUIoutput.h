@@ -44,13 +44,20 @@ struct output{
 
     double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
-    double MB, Qtot, FloodTotMax, FloodAreaMax, Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
+    double
+    // water
+    MB, Qtot, Q, Qtile, Qpeak, RunoffFraction, RainpeakTime, QpeakTime,
+    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
     RainTotmm, SurfStormm, InfilKWTotmm, Pmm,
-    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
-    RunoffFraction, RainpeakTime, QpeakTime, Q, Qs, Qtile, Qpeak,
+    // channel
     ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-    WHflood, Qflood, volFloodmm,
+    // flood
+    FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
+    // sediment
+    MBs, Qs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
+    // buffer
     BufferVolTot, BufferSedTot,
+    // screen output
     QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 
     TMMap *DrawMap;
@@ -63,7 +70,7 @@ struct output{
     TMMap *roadMap;
     TMMap *houseMap;
 
-
+    bool addWHtohmx;
     int drawMapType;
 
     QString runfilename;

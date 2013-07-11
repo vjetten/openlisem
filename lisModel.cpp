@@ -41,9 +41,9 @@
 
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
-   QThread(parent)
+    QThread(parent)
 {
-   moveToThread(this);
+    moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
@@ -79,15 +79,6 @@ void TWorld::DoModel()
         DEBUG("IntializeData()");
         IntializeData();
 
-//        op.DrawMap = NewMap(0);
-//        op.DrawMap1 = NewMap(0);
-//        op.DrawMap2 = NewMap(0);
-//        op.DrawMap3 = NewMap(0);
-//        op.DrawMap4 = NewMap(0);
-//        op.baseMap = NewMap(0);
-//        op.channelMap = NewMap(0);
-//        op.roadMap = NewMap(0);
-//        op.houseMap = NewMap(0);
 
         if (op.DrawMap1)
         {
@@ -118,9 +109,6 @@ void TWorld::DoModel()
         op.channelMap->MakeMap(LDD, 0);
         op.roadMap->MakeMap(LDD, 0);
         op.houseMap->MakeMap(LDD, 0);
-
-                // changed to LDD instead of Mask
-
         // initialize maps for output to screen
         // must be done after Initialize Data because then we know how large the map is
 
@@ -151,23 +139,27 @@ void TWorld::DoModel()
 
         // VJ 110630 show hydrograph for selected output point
         bool found = false;
-        FOR_ROW_COL_MV
+        if (op.outputpointnr > 1)
         {
-            if (op.outputpointnr == PointMap->Drc)
+            FOR_ROW_COL_MV
             {
-                r_plot = r;
-                c_plot = c;
-                op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
-                if( op.outputpointnr == 1)
-                    op.outputpointdata = QString("main outlet");
-                found = true;
+                if (op.outputpointnr == PointMap->Drc)
+                {
+                    r_plot = r;
+                    c_plot = c;
+                    op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+                    found = true;
+                }
+            }
+            if (!found)
+            {
+                ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
+                throw 1;
             }
         }
-        if (!found)
-        {
-            ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
-            throw 1;
-        }
+        else
+            op.outputpointdata = QString("main outlet");
+
         QFile efout(QString(resultDir+"error.txt"));
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
@@ -209,14 +201,13 @@ void TWorld::DoModel()
 
             Interception();      // do interception by plants
             InterceptionHouses();// do urban interception
-            addRainfallWH();
 
-            //ToFlood();           // mix overland flow with flood domain
+            addRainfallWH();     // adds rainfall to runoff water height or flood water height
 
             Infiltration();      // soil infil, decrease WH
             InfiltrationFlood(); // infil in flooded area
 
-            SoilWater();       // soil water balance not implemented yet
+            SoilWater();         // simple soil water balance
             SurfaceStorage();    // surface storage and flow width, split WH in WHrunoff and WHstore
 
             CalcVelDisch();      // overland flow velocity, discharge and alpha
@@ -234,9 +225,9 @@ void TWorld::DoModel()
             CalcVelDischChannel();// alpha, V and Q from Manning
             ChannelFlow();       // channel erosion and kin wave
 
-            //         ChannelFlood();      // st venant channel flooding
-            //         CalcVelDischChannel();// alpha, V and Q from Manning
-            //         ChannelQn->copy(ChannelQ);
+            //                     ChannelFlood();      // st venant channel flooding
+            //                     CalcVelDischChannel();// alpha, V and Q from Manning
+            //                     ChannelQn->copy(ChannelQ);
 
             TileFlow();          // tile drain flow kin wave
 
@@ -288,13 +279,13 @@ void TWorld::DoModel()
 //---------------------------------------------------------------------------
 void TWorld::run()
 {
-   QTimer::singleShot(0, this, SLOT(DoModel()));
-   exec();
+    QTimer::singleShot(0, this, SLOT(DoModel()));
+    exec();
 }
 //---------------------------------------------------------------------------
 void TWorld::stop()
 {
-   QMutexLocker locker(&mutex);
-   stopRequested = true;
+    QMutexLocker locker(&mutex);
+    stopRequested = true;
 }
 //---------------------------------------------------------------------------

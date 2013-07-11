@@ -66,7 +66,8 @@ SOURCES += lisTotalsMB.cpp \
     ui_full/LisUImapplot.cpp \
     lisChannelflood.cpp \
     lisSWOF2D.cpp \
-    lisChannelfloodexpl.cpp
+    lisChannelfloodexpl.cpp \
+    lisInterception.cpp
 FORMS += ui_full/lisemqt.ui
 # debug version
 CONFIG(debug, debug|release) {

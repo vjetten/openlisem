@@ -77,8 +77,16 @@ void TWorld::OutputUI(void)
     }
     if (SwitchChannelFlood)
     {
+        if (op.addWHtohmx)
+        {
         FOR_ROW_COL_MV
-                tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+            tmb->Drc = hmx->Drc + WH->Drc < 0.01 ? 0 : hmx->Drc + WH->Drc;
+        }
+        else
+        {
+        FOR_ROW_COL_MV
+            tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+        }
         op.DrawMap4->copy(tmb);  //flood level in m
     }
 
@@ -105,10 +113,16 @@ void TWorld::OutputUI(void)
     op.WaterVolTotmm = WaterVolTotmm-SurfStoremm;
     op.Qtotmm = Qtotmm;
     op.Qtot = QtotOutlet;
+    op.Q = Qoutput->DrcOutlet;  //=> includes channel and tile
+    op.Qs = Qsoutput->DrcOutlet;
+    op.C = TotalConc->DrcOutlet;
+    op.Qtile = 1000*TileQn->DrcOutlet;
+
     op.QPlot = QPlot;  //VJ 110701
     op.QtotPlot = QtotPlot;  //VJ 110701
     op.QpeakPlot = QpeakPlot;  //VJ 110701
-    op.SoilLossTotPlot = SoilLossTotPlot;
+    op.SoilLossTotPlot = SoilLossTotPlot; //VJ 110701
+
     op.Qpeak = Qpeak;
     op.QpeakTime = QpeakTime/60;
     op.RainpeakTime = RainpeakTime/60;
@@ -132,7 +146,7 @@ void TWorld::OutputUI(void)
     op.ChannelDetTot=ChannelDetTot*0.001; // convert from kg to ton
     op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
-    op.ChannelWH = ChannelWH->DrcPlot;
+    op.ChannelWH = ChannelWH->DrcOutlet;
 
     op.SoilLossTot=SoilLossTotOutlet*0.001; // convert from kg to ton
 
@@ -141,11 +155,6 @@ void TWorld::OutputUI(void)
     op.maxtime = op.t/runstep * op.maxstep;
 
     op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
-    op.Q = Qoutput->DrcPlot; //Outlet;  //=> includes channel and tile
-    op.Qs = Qsoutput->DrcPlot; //Outlet;
-    op.C = TotalConc->DrcPlot; //Outlet;
-    op.Qtile = 1000*TileQn->DrcPlot; //Outlet;
-    // VJ 110630 show hydrograph for selected output point
     op.volFloodmm = floodTotmm;
 
     op.BufferVolTot = BufferVolin;//Tot;
@@ -569,6 +578,8 @@ void TWorld::ReportMaps(void)
     }
     if (outputcheck[8].toInt() == 1) InfilmmCum->report(Outinf); // in mm
 
+    InfilmmCum->report("inftotal.map");
+
     if (outputcheck[9].toInt() == 1)
     {
         tm->calcMapValue(WHstore, 1000, MUL);// in mm
@@ -592,7 +603,9 @@ void TWorld::ReportMaps(void)
         if (outputcheck.count() > 12)
         {
             if (outputcheck[12].toInt() == 1)
+            {
                 hmx->report(OutHmx);
+            }
             if (outputcheck[13].toInt() == 1)
             {
                 Qflood->report(OutQf);
@@ -600,6 +613,11 @@ void TWorld::ReportMaps(void)
             if (outputcheck[14].toInt() == 1)
             {
                 UVflood->report(OutVf);
+            }
+            if (outputcheck[15].toInt() == 1)
+            {
+                tm->calc2Maps(hmx, WH, ADD);
+                tm->report(OutHmxWH);
             }
         }
     }
@@ -715,13 +733,13 @@ void TWorld::ChannelFloodStatistics(void)
     for (int i = 0; i < 100; i++)
     {
         floodList[i].nr = i;
-        floodList[i].var0 = 0.1*i;
+        floodList[i].var0 = 0.1*i; //depth
         floodList[i].var1 = 0;
         floodList[i].var2 = 0;
         floodList[i].var3 = 0;
         floodList[i].var4 = 0;
     }
-    double area = _dx*_dx;
+    double area = _dx*_dx;    
     int nr = 0;
     FOR_ROW_COL_MV
     {
@@ -732,27 +750,27 @@ void TWorld::ChannelFloodStatistics(void)
             //qDebug() << nr << i << maxflood->Drc;
             floodList[i].var1 += area; // area flooded in this class
             floodList[i].var2 += area*maxflood->Drc; // vol flooded in this class
-            floodList[i].var3 += timeflood->Drc/60.0; // area flooded in this class
-            floodList[i].var4 += HouseCover->Drc*area;
+            floodList[i].var3 = max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
+            if (SwitchHouses)
+                floodList[i].var4 += HouseCover->Drc*area;
         }
     }
 
-    QFile fp(resultDir + "floodedhouses.csv");
+    QFile fp(resultDir + "floodstats.csv");
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     QTextStream out(&fp);
-    out.setRealNumberPrecision(1);
-    //out.setFieldWidth(12);
+    out.setRealNumberPrecision(2);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
     out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
-    out << "\"results at time (min):" << op.time << "\"" <<"\n";
-    out << "\"Minimum flood considered (m):" << minReportFloodHeight << "\"" <<"\n";
+    out << "\"results at time (min):\"" << op.time << "\n";
+    out << "\"Minimum flood considered (m):\"" << minReportFloodHeight << "\n";
     out << "class,Depth,Area,Volume,Time,Structures\n";
     out << "#,m,m2,m3,hrs,m2\n";
     for (int i = 0; i < nr+1; i++)
-        out << i << "," //floodList[i].nr << ","
+        out << i << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
             << floodList[i].var2 << ","

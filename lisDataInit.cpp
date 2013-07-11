@@ -423,7 +423,7 @@ void TWorld::InitBuffers(void)
 
 }
 //---------------------------------------------------------------------------
-// read and Intiialize all channel variables and maps
+// Make a shaded relief map from the DEM for map display
 //WARNING barriers are added here!!!!
 void TWorld::InitShade(void)
 {
@@ -520,6 +520,8 @@ void TWorld::InitChannel(void)
     FloodDomain = NewMap(0);
     maxflood = NewMap(0);
     timeflood = NewMap(0);
+    maxChannelflow = NewMap(0);
+    maxChannelWH = NewMap(0);
 
     if (SwitchIncludeChannel)
     {
@@ -528,7 +530,7 @@ void TWorld::InitChannel(void)
         // must be first" LDDChannel is the mask for channels
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
-        ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
+   //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         //      ChannelWidth->calcValue(0.9*_dx, MIN);
         FOR_ROW_COL_MV_CH
@@ -612,8 +614,10 @@ void TWorld::InitChannel(void)
                 ChannelLevee->fill(0);
 
             courant_factor = getvaluedouble("Flooding courant factor");
+            mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF reconstruction");
+            F_fluxLimiter = getvalueint("Flooding SWOF flux limiter");
             SwitchMUSCL = (getvalueint("Flooding SWOF scheme") == 1);
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             //F_levee = getvaluedouble("Flood channel side levee");
@@ -685,6 +689,7 @@ void TWorld::InitChannel(void)
     }
 }
 //---------------------------------------------------------------------------
+// NOT USED FOR NOW
 void TWorld::InitMulticlass(void)
 {
     if (!SwitchMulticlass)
@@ -800,7 +805,6 @@ void TWorld::GetInputData(void)
         GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
         GrassFraction->copy(GrassWidthDX);
         GrassFraction->calcValue(_dx, DIV);
-
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV
         {
@@ -808,6 +812,7 @@ void TWorld::GetInputData(void)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
                 Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
+                LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*LAI->Drc;
             }
             //adjust mann N Cover and height
         }
@@ -967,8 +972,6 @@ void TWorld::GetInputData(void)
         //      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
         //      if (res)
         //         throw res;
-
-
     }
 
     //## erosion maps
@@ -983,6 +986,7 @@ void TWorld::GetInputData(void)
     //## read and initialize all channel maps and variables
     InitChannel();
 
+    //## make shaded relief map for display.
     InitShade();
 
     //## read and initialize all buffer maps and variables
@@ -991,15 +995,12 @@ void TWorld::GetInputData(void)
     //## read and initialize all tile drain system maps and variables
     InitTiledrains();
 
+    // not used
     InitMulticlass();
-
-    // not more than 1.0
-    //   CrustFraction->calcValue(1.0, MAX);
-    //   CompactFraction->calcValue(1.0, MAX);
 
 }
 //---------------------------------------------------------------------------
-/// called after get input data, initializes maps and variables
+/// called after get input data, initializes non-input maps and variables
 void TWorld::IntializeData(void)
 {
     //TO DO add units and descriptions --> TMmapVariables.h
@@ -1013,7 +1014,6 @@ void TWorld::IntializeData(void)
         nrCells+=1;
     }
 
-    //### terrain maps
     DX = NewMap(0);
     CellArea = NewMap(0);
     FOR_ROW_COL_MV
@@ -1028,14 +1028,17 @@ void TWorld::IntializeData(void)
     }
     CatchmentArea = CellArea->mapTotal();
 
-    WheelWidth = NewMap(0);
-    WheelWidthDX = NewMap(0);
     SoilWidthDX = NewMap(0);
-    GullyWidthDX = NewMap(0);
+    // not implemented
+    // WheelWidth = NewMap(0);
+    // WheelWidthDX = NewMap(0);
+    // GullyWidthDX = NewMap(0);
+
+    // surface storage
     MDS = NewMap(0);
     FOR_ROW_COL_MV
     {
-        double RRmm = 10* RR->Drc;
+        double RRmm = 10 * RR->Drc;
         MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
@@ -1077,7 +1080,7 @@ void TWorld::IntializeData(void)
     }
     if (SwitchInterceptionLAI)
     {
-        CanopyStorage = NewMap(0); //m
+        CanopyStorage = NewMap(0); //in m !!!
         FOR_ROW_COL_MV
         {
             switch (InterceptionLAIType)
@@ -1094,22 +1097,30 @@ void TWorld::IntializeData(void)
             }
         }
     }
-    CanopyStorage->calcValue(0.001, MUL); // to m
+    CanopyStorage->calcValue(0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
 
     if (SwitchHouses)
     {
-        //houses
-        //      DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
-        //      DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-        //      DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+        //houses info:
+        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
+        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
         HouseCover = ReadMap(LDD,getvaluename("housecover"));
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
         RoofStore->calcValue(0.001, MUL);
-        // to mm
+        // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
     }
+    else
+        HouseCover = NewMap(0);
 
+    HouseWidthDX = NewMap(0);
+    FOR_ROW_COL_MV
+    {
+        HouseWidthDX->Drc = min(0.9*_dx, HouseCover->Drc *_dx);
+        // assume there is always space next to house
+    }
 
     //### infiltration maps
     InfilTot = 0;
@@ -1123,6 +1134,7 @@ void TWorld::IntializeData(void)
     WaterVolTot = 0;
     WaterVolSoilTot = 0;
     WaterVolTotmm = 0;
+
     floodTotmm= 0;
     floodVolTot = 0;
     floodVolTotMax = 0;
@@ -1142,6 +1154,7 @@ void TWorld::IntializeData(void)
     FfSurplus = NewMap(0);
     hesinfil = NewMap(0);
     FFull = NewMap(0);
+    runoffFractionCell = NewMap(0);
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
