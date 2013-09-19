@@ -142,6 +142,7 @@ void TWorld::TileFlow(void)
    CalcVelDischTile();
 
    TileQn->setMV();
+   TileQsn->fill(0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE
    {

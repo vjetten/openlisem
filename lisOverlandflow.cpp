@@ -160,6 +160,7 @@ void TWorld::OverlandFlow(void)
     }
 
     Qn->setMV();
+    Qsn->fill(0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV
     {
@@ -231,7 +232,9 @@ void TWorld::OverlandFlow(void)
 
         if (SwitchErosion)
         {
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+            Conc->Drc = (Q->Drc > 1e-6 ? Qs->Drc/Q->Drc : 0);
+                    //MaxConcentration(WaterVolall->Drc, Sed->Drc);
+            // CHANGED, MORE STABLE CONC 19/9/13
             // correct for very high concentrations, 850 after Govers et al
             // recalc sediment volume
         }

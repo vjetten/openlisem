@@ -50,7 +50,7 @@ void TWorld::Totals(void)
     {
         RainAvgmm = Rain->mapAverage()*1000.0;
         RainTotmm += RainAvgmm;
-        // avg area rainfall in mm
+        // spatial avg area rainfall in mm
 
         tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
         rainfall = tm->mapTotal();
@@ -97,7 +97,6 @@ void TWorld::Totals(void)
     // does not go to MB, is already in tot water vol
 
     WaterVolTot = WaterVolall->mapTotal();//m3
-
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
@@ -126,7 +125,7 @@ void TWorld::Totals(void)
     // for screen output, total main outlet in m3
 
     QtotPlot += Qn->DrcPlot * _dt;
-    QPlot = Qn->DrcPlot;
+    //QPlot = Qn->DrcPlot;
     //VJ 110701 for screen output, total of hydrograph point in m3
 
     TotalWatervol->copy(WaterVolall);
@@ -188,8 +187,9 @@ void TWorld::Totals(void)
         // add channel outflow (in m3) to total for main outlet
         QtotPlot += TileQn->DrcPlot * _dt;
         // add channel outflow (in m3) to total for subcatch outlet
-        TotalWatervol->calcMap(TileWaterVol,ADD);
+      //  TotalWatervol->calcMap(TileWaterVol,ADD);
         // add channel volume to total for sed conc calc
+        //NO! do not mix tile with surface water
 
     }
 
@@ -211,6 +211,8 @@ void TWorld::Totals(void)
             Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
     }
+    QPlot = 1000*(Qn->DrcPlot + ChannelQn->DrcPlot + TileQn->DrcPlot);
+    // plot point output in l/s
 
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
@@ -220,6 +222,9 @@ void TWorld::Totals(void)
     if (oldrainpeak < Qpeak)
         QpeakTime = time;
     // peak flow and peak time calculation, based on sum channel and runoff
+
+    QpeakPlot = max(QpeakPlot, Qoutput->DrcPlot);
+
 
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
@@ -243,8 +248,6 @@ void TWorld::Totals(void)
         TotalSed->copy(Sed);
         // for sed conc
 
-        SoilLossTotPlot += Qsn->DrcPlot * _dt;
-
         if (SwitchIncludeChannel)
         {
             // units here in kg, conversion to ton in report functions
@@ -264,11 +267,10 @@ void TWorld::Totals(void)
             // needed for sed conc in file output
         }
 
-        FOR_ROW_COL_MV
-        {
-            TotalConc->Drc = ChannelConc->Drc;
-                    //MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
-        }
+//        FOR_ROW_COL_MV
+//        {
+//            TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
+//        }
         // for file output
 
         if (SwitchBuffers || SwitchSedtrap)
@@ -294,6 +296,13 @@ void TWorld::Totals(void)
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
+
+        SoilLossTotPlot += Qsoutput->DrcPlot * _dt;
+
+        FOR_ROW_COL_MV
+        {
+            TotalConc->Drc = (Qoutput->Drc > 1e-6 ? Qsoutput->Drc/Qoutput->Drc : 0);
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -307,16 +316,16 @@ void TWorld::MassBalance()
                 (RainTot + SnowTot + WaterVolSoilTot)*100;
     //watervoltot includes channel and tile
 
-    //  qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << BufferVolin << Qtot<< InfilKWTot;
+    //qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
     //   if (SwitchErosion && (DetTot + ChannelDetTot) > 0)
     //      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
     //             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
-    if (SwitchErosion && SoilLossTotOutlet > 1e-9)
+    if (SwitchErosion && SoilLossTot > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-                  DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTotOutlet))*100;
+                  DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTot))*100;
     //VJ 121212 changed to mass balance relative to soil loss
 }
 //---------------------------------------------------------------------------

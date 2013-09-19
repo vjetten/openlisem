@@ -204,6 +204,7 @@ void TWorld::ChannelFlow(void)
     }
 
     ChannelQn->setMV();
+    ChannelQsn->fill(0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
     FOR_ROW_COL_MV_CH
@@ -264,6 +265,8 @@ void TWorld::ChannelFlow(void)
             // correct for very high concentrations, max 850 g/l
             // NOTE: nothing is done with this concentration, only for display,
             // so the display shows the conc after the kin wave
+            ChannelConc->Drc = (ChannelQ->Drc > 1e-6 ? ChannelQs->Drc/ChannelQ->Drc : 0);
+            // CHANGED, MORE STABLE CONC 19/9/13
         }
     }
 

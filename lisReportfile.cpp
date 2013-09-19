@@ -122,7 +122,7 @@ void TWorld::OutputUI(void)
     op.QPlot = QPlot;  //VJ 110701
     op.QtotPlot = QtotPlot;  //VJ 110701
     op.QpeakPlot = QpeakPlot;  //VJ 110701
-    op.SoilLossTotPlot = SoilLossTotPlot; //VJ 110701
+    op.SoilLossTotPlot = SoilLossTotPlot*0.001; //VJ 110701
     op.Cplot = TotalConc->DrcPlot;
     op.Qsplot = Qsoutput->DrcPlot;
 
@@ -149,7 +149,7 @@ void TWorld::OutputUI(void)
     op.ChannelDetTot=ChannelDetTot*0.001; // convert from kg to ton
     op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
-    op.ChannelWH = ChannelWH->DrcOutlet;
+    op.ChannelWH = ChannelWH->DrcPlot;
 
     op.SoilLossTot=SoilLossTotOutlet*0.001; // convert from kg to ton
 
@@ -212,7 +212,7 @@ void TWorld::ReportTimeseriesNew(void)
                     // make filename using point number
 
                     QFile fout(newname1);
-                    fout.open(QIODevice::WriteOnly | QIODevice::Text);
+                    fout.open(QIODevice::WriteOnly | QIODevice::Text);                   
                     QTextStream out(&fout);
                     out.setRealNumberPrecision(3);
                     out.setFieldWidth(width);

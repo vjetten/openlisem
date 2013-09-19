@@ -69,7 +69,10 @@ void lisemqt::setupPlot()
     col.setRgb( 60,60,200,255 );
     QGraph->setPen(QPen(col));
     PGraph->setPen(QPen("#000000"));
-    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    if(checkNoErosion->isChecked())
+        PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    else
+        PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
     QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
 
     QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
@@ -155,6 +158,7 @@ void lisemqt::setupSmallPlot()
     // do not attach yet
     if(!checkNoErosion->isChecked())
     {
+        sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
         sQsGraph = new QwtPlotCurve("Sediment discharge");
         sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
         sQsGraph->setPen(QPen(Qt::red));
@@ -244,7 +248,7 @@ void lisemqt::killPlot()
 void lisemqt::showPlot()
 {
 
-    QData << op.Q;
+    QData << op.QPlot;
     QtileData << op.Qtile;
     QsData << op.Qsplot;
     CData << op.Cplot;
@@ -260,19 +264,20 @@ void lisemqt::showPlot()
         y2as = max(y2as, op.Qsplot);
         y2as = max(y2as, op.Cplot);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
+
+        yas = max(yas, op.Pmm);
     }
     else
     {
         y2as = max(y2as, op.Pmm);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
+
+    yas = max(yas, op.QPlot);
+    HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
+
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->setSamples(TData,QtileData);
-
-
-    yas = max(yas, op.Q);
-    //yas = max(yas, op.Pmm);
-    HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     HPlot->replot();
 
@@ -289,7 +294,7 @@ void lisemqt::showSmallPlot()
 
     smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
     //if(!checkNoErosion->isChecked())
-        smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
+    smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
 
     smallPlot->replot();
 
@@ -327,17 +332,17 @@ void lisemqt::startPlots()
     }
     else
     {
-       // HPlot->enableAxis(HPlot->yRight,false);
-       // smallPlot->enableAxis(smallPlot->yRight,false);
+        // HPlot->enableAxis(HPlot->yRight,false);
+        // smallPlot->enableAxis(smallPlot->yRight,false);
     }
 
-//    if(checkNoErosion->isChecked())
-//    {
-//        HPlot->setAxisTitle(HPlot->yRight, "");
-//        HPlot->setAxisScale(HPlot->yRight, 0, 1);
-//        smallPlot->setAxisTitle(HPlot->yRight, "");
-//        smallPlot->setAxisScale(HPlot->yRight, 0, 1);
-//    }
+    //    if(checkNoErosion->isChecked())
+    //    {
+    //        HPlot->setAxisTitle(HPlot->yRight, "");
+    //        HPlot->setAxisScale(HPlot->yRight, 0, 1);
+    //        smallPlot->setAxisTitle(HPlot->yRight, "");
+    //        smallPlot->setAxisScale(HPlot->yRight, 0, 1);
+    //    }
 
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
@@ -372,7 +377,7 @@ void lisemqt::showOutputData()
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
     subcatchgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
-//    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
+    //    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
 
     label_dx->setText(QString::number(op.dx,'f',3));
     label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
@@ -446,16 +451,38 @@ void lisemqt::showOutputData()
     if (checkNoErosion->isChecked())
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' ')
+                                       .arg(op.Qtile,15,'f',3,' '));
     }
     else
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qsplot,12,'f',3).arg(op.Cplot,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' ')
+                                       .arg(op.Qsplot,12,'f',3)
+                                       .arg(op.Cplot,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qsplot,12,'f',3).arg(op.Cplot,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' ')
+                                       .arg(op.Qsplot,12,'f',3)
+                                       .arg(op.Cplot,15,'f',3,' ')
+                                       .arg(op.Qtile,15,'f',3,' '));
     }
 
 }
