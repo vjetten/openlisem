@@ -184,6 +184,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include grass strips")==0)           SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
+        if (p1.compare("Include percolation")==0)           SwitchPercolation =      iii == 1;
         if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    		iii == 1;
         if (p1.compare("Use Water Repellency")==0)           SwitchWaterRepellency  = iii == 1;

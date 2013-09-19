@@ -246,8 +246,8 @@ void lisemqt::showPlot()
 
     QData << op.Q;
     QtileData << op.Qtile;
-    QsData << op.Qs;
-    CData << op.C;
+    QsData << op.Qsplot;
+    CData << op.Cplot;
     PData << op.Pmm;
     TData << op.time;
 
@@ -257,8 +257,8 @@ void lisemqt::showPlot()
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
-        y2as = max(y2as, op.Qs);
-        y2as = max(y2as, op.C);
+        y2as = max(y2as, op.Qsplot);
+        y2as = max(y2as, op.Cplot);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
     else
@@ -453,9 +453,9 @@ void lisemqt::showOutputData()
     else
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qsplot,12,'f',3).arg(op.Cplot,15,'f',3,' '));
         else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qs,12,'f',3).arg(op.C,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7").arg(op.time,15,'f',3,' ').arg(op.Pmm,15,'f',3,' ').arg(op.Q,15,'f',3,' ').arg(op.ChannelWH,15,'f',3,' ').arg(op.Qsplot,12,'f',3).arg(op.Cplot,15,'f',3,' ').arg(op.Qtile,15,'f',3,' '));
     }
 
 }

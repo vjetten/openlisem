@@ -55,6 +55,7 @@ struct output{
     FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
     // sediment
     MBs, Qs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
+    Cplot, Qsplot,
     // buffer
     BufferVolTot, BufferSedTot,
     // screen output

@@ -75,10 +75,12 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         // readLine also reads \n as a character on an empty line!
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
+        //qDebug() << S;
     }
     fff.close();
     // get all rainfall records without empty lines
-    rainRecs << QString("1000000 0");
+    //rainRecs << QString("1000000 0");
+    // DOES NOT WORK for more than one station
     // add a very large number so that the rainfall after the last timestep is 0
 
     //   qDebug() << rainRecs.count();

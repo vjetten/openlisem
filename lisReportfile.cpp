@@ -114,6 +114,7 @@ void TWorld::OutputUI(void)
     op.Qtotmm = Qtotmm;
     op.Qtot = QtotOutlet;
     op.Q = Qoutput->DrcOutlet;  //=> includes channel and tile
+
     op.Qs = Qsoutput->DrcOutlet;
     op.C = TotalConc->DrcOutlet;
     op.Qtile = 1000*TileQn->DrcOutlet;
@@ -122,6 +123,8 @@ void TWorld::OutputUI(void)
     op.QtotPlot = QtotPlot;  //VJ 110701
     op.QpeakPlot = QpeakPlot;  //VJ 110701
     op.SoilLossTotPlot = SoilLossTotPlot; //VJ 110701
+    op.Cplot = TotalConc->DrcPlot;
+    op.Qsplot = Qsoutput->DrcPlot;
 
     op.Qpeak = Qpeak;
     op.QpeakTime = QpeakTime/60;

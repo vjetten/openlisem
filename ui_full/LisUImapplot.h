@@ -146,6 +146,7 @@ public:
         QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
     {
         addColorStop(0.000,QColor("#6565FF"));
+        addColorStop(0.002,QColor("#6565FF"));
         addColorStop(0.125,QColor("#4B4BFF"));
         addColorStop(0.250,QColor("#3333FF"));
         addColorStop(0.375,QColor("#1919FF"));

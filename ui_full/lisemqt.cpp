@@ -924,6 +924,9 @@ void lisemqt::resetAll()
     //	checkDumphead->setChecked(check);
     checkGeometric->setChecked(true);
     //	checkRunoffPerM->setChecked(check);
+    checkPercolation->setChecked(check);
+
+
     checkWritePCRnames->setChecked(true);
     checkWritePCRaster->setChecked(check);
     checkWriteCommaDelimited->setChecked(true);

@@ -126,7 +126,7 @@ void TWorld::Totals(void)
     // for screen output, total main outlet in m3
 
     QtotPlot += Qn->DrcPlot * _dt;
-    QPlot += Qn->DrcPlot;
+    QPlot = Qn->DrcPlot;
     //VJ 110701 for screen output, total of hydrograph point in m3
 
     TotalWatervol->copy(WaterVolall);
@@ -266,7 +266,8 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV
         {
-            TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
+            TotalConc->Drc = ChannelConc->Drc;
+                    //MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
         }
         // for file output
 

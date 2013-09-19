@@ -1474,7 +1474,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -1520,6 +1520,25 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="12" column="0" colspan="3">
+                   <widget class="QFrame" name="frame_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::HLine</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -2092,25 +2111,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0" colspan="3">
-                   <widget class="QFrame" name="frame_2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::HLine</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                    <property name="lineWidth">
-                     <number>1</number>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkIncludeChannel">
                     <property name="sizePolicy">
@@ -2462,7 +2462,7 @@
                <string>Infiltration</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_2">
-               <item row="3" column="0" rowspan="2">
+               <item row="4" column="0" rowspan="2">
                 <widget class="QGroupBox" name="groupBox_SwatreOptions">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -3358,56 +3358,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QCheckBox" name="checkImpermeable">
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Impermeable lower soil boundary</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="3" column="0">
                    <widget class="QCheckBox" name="checkInfil2layer">
                     <property name="palette">
@@ -3458,10 +3408,110 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="5" column="0">
+                   <widget class="QCheckBox" name="checkPercolation">
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Percolation from lower soil boundary (experimental)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QCheckBox" name="checkImpermeable">
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Impermeable lower soil boundary</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </widget>
                </item>
-               <item row="5" column="0">
+               <item row="6" column="0">
                 <spacer name="verticalSpacer_3">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -3604,7 +3654,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1" rowspan="4">
+               <item row="2" column="1" rowspan="5">
                 <spacer name="horizontalSpacer_7">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -15631,7 +15681,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>E_InfiltrationMethod</tabstop>
   <tabstop>checkInfilCrust</tabstop>
   <tabstop>checkInfilCompact</tabstop>
-  <tabstop>checkImpermeable</tabstop>
   <tabstop>E_EndTime</tabstop>
  </tabstops>
  <resources>

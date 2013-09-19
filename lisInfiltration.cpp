@@ -575,7 +575,7 @@ void TWorld::InfiltrationFlood(void)
 // effects in ksateff do not influence percolation so ksat1 or ksat2 are used
 void TWorld::SoilWater()
 {
-    if (!SwitchSoilwater
+    if (!SwitchPercolation
             || InfilMethod == INFIL_SWATRE
             || SwitchImpermeable
             || InfilMethod == INFIL_NONE)
@@ -588,24 +588,54 @@ void TWorld::SoilWater()
         if (!SwitchTwoLayer)
         {
             bca = 5.55*qPow(Ksat1->Drc,-0.114);
-            Percolation = Ksat1->Drc * pow(ThetaI1->Drc/ThetaS1->Drc, bca);
+            // Brooks corey value based on non lin regeression Saxton stuff
+            Percolation = Ksat1->Drc * pow(ThetaI1->Drc/ThetaS1->Drc, bca)*_dt/3600000.0;
+            // percolation = unsaturated K per timestep, Brooks Corey estimate
+
+            if (L1->Drc > SoilDepth1->Drc-tiny)
+            {
+                L1->Drc = max(0.01, SoilDepth1->Drc-Percolation/(ThetaS1->Drc-ThetaI1->Drc+0.01));
+                // cannot be less than 0.01= 1 cm to avoid misery
+                // add 0.01 for safety to avoid division by zero
+            }
 
             Soilwater->Drc = (SoilDepth1->Drc - L1->Drc)*ThetaI1->Drc;
-            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
-            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth1->Drc - L1->Drc)*ThetaS1->Drc);
-            ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : 1.0);
-            ThetaI1->Drc = min(ThetaI1->Drc, ThetaS1->Drc);
+            // max available water = unsat zone depth * thetai
+            Percolation = min(Percolation, Soilwater->Drc);
+            // cannot have more percolation than available water
+
+            if (Soilwater->Drc-Percolation > 0.01*ThetaS1->Drc)
+                Soilwater->Drc -= Percolation;
+            // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
+
+            ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : ThetaS1->Drc);
+            ThetaI1->Drc = min(ThetaI1->Drc, ThetaS1->Drc);\
+            // recalc thetai1 with new soilwater
         }
         else
         {
             bca = 5.55*qPow(Ksat2->Drc,-0.114);
             Percolation = Ksat2->Drc * pow(ThetaI2->Drc/ThetaS2->Drc, bca);
 
+            if (L2->Drc > SoilDepth2->Drc-tiny)
+            {
+                L2->Drc = max(0.01, SoilDepth2->Drc-Percolation/(ThetaS2->Drc-ThetaI2->Drc+0.01));
+                // cannot be less than 0.01= 1 cm to avoid misery
+                // add 0.01 for safety to avoid division by zero
+            }
             Soilwater->Drc = (SoilDepth2->Drc - L2->Drc)*ThetaI2->Drc;
-            Soilwater->Drc = max(0, Soilwater->Drc - Percolation);
-            Soilwater->Drc = min(Soilwater->Drc, (SoilDepth2->Drc - L2->Drc)*ThetaS2->Drc);
-            ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : 1.0);
-            ThetaI2->Drc = min(ThetaI2->Drc, ThetaS2->Drc);
+            // max available water = unsat zone depth * thetai
+            Percolation = min(Percolation, Soilwater->Drc);
+            // cannot have more percolation than available water
+
+            if (Soilwater->Drc-Percolation > 0.01*ThetaS2->Drc)
+                Soilwater->Drc -= Percolation;
+            // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
+
+            ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : ThetaS2->Drc);
+            ThetaI2->Drc = min(ThetaI2->Drc, ThetaS2->Drc);\
+            // recalc thetai2 with new soilwater
+
         }
 
     }

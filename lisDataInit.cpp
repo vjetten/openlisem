@@ -494,7 +494,6 @@ void TWorld::InitChannel(void)
     ChannelDetTot = 0;
     SedToChannel = NewMap(0);
     ChannelWidthUpDX = NewMap(0);
-    ChannelAdj = NewMap(0);
     ChannelWaterVol = NewMap(0);
     //ChannelQoutflow = NewMap(0);
     RunoffVolinToChannel = NewMap(0);
@@ -522,6 +521,7 @@ void TWorld::InitChannel(void)
     timeflood = NewMap(0);
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
+    ChannelAdj = NewMap(_dx);
 
     if (SwitchIncludeChannel)
     {
@@ -1034,6 +1034,8 @@ void TWorld::IntializeData(void)
     // WheelWidthDX = NewMap(0);
     // GullyWidthDX = NewMap(0);
 
+
+
     // surface storage
     MDS = NewMap(0);
     FOR_ROW_COL_MV
@@ -1386,8 +1388,8 @@ void TWorld::IntializeOptions(void)
     SwitchSimpleSedKinWave = false;
     SwitchSOBEKoutput = false;
     SwitchPCRoutput = false;
-    SwitchSoilwater = true;
     SwitchGeometric = true;
+    SwitchPercolation = true;
 
     SwitchWriteHeaders = true; // write headers in output files in first timestep
 

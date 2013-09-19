@@ -339,6 +339,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include wheeltracks");
     namelist[i++].name = QString("Include crusts");
     namelist[i++].name = QString("Impermeable sublayer");
+    namelist[i++].name = QString("Include percolation");
     namelist[i++].name = QString("Subsoil drainage");
     namelist[i++].name = QString("Table Directory");
     namelist[i++].name = QString("Table File");
