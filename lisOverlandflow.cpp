@@ -105,9 +105,9 @@ void TWorld::CalcVelDisch(void)
         if (SwitchChannelFlood)
             NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
         // slow down water in flood zone
-//NOTE CALCULATE REYNOLDS AND SEE IF TURBULENCE MAKES COEFFICIENT HIGHER
-//LAMINAR MEANS NON-MIXING SO NN = N
-   //    tma->Drc = hmx->Drc * UVflood->Drc/1.1e-6;
+        //NOTE CALCULATE REYNOLDS AND SEE IF TURBULENCE MAKES COEFFICIENT HIGHER
+        //LAMINAR MEANS NON-MIXING SO NN = N
+        //    tma->Drc = hmx->Drc * UVflood->Drc/1.1e-6;
 
         // avg WH from soil surface and roads, over width FlowWidth
         Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
@@ -127,8 +127,8 @@ void TWorld::CalcVelDisch(void)
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
         tm->Drc = V->Drc * R->Drc/1.1e-6;
     }
-   // tm->report("reyn");
-  //  tma->report("reynF");
+    // tm->report("reyn");
+    //  tma->report("reynF");
 
 }
 //---------------------------------------------------------------------------
@@ -169,18 +169,40 @@ void TWorld::OverlandFlow(void)
             /* TODO: WHEN MORE PITS QPEAK IS FIRST INSTEAD OF MAIN PIT? */
             Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
-            /*
-              routing of substances add here!
-              do after kin wave so that the new flux Qn out of a cell is known
-              you need to have the ingoing substance flux QS (mass/s)
-              and it will give outgoing flux QSn (mass/s)
-              and the current amount Subs (mass) in suspension+solution
-           */
-            //  routeSubstance(r,c, LDD, Q, Qn, QS, QSn, Alpha, DX, WaterVolin, Subs);
-
         }
     }
 
+    /*
+      routing of substances add here!
+      do after kin wave so that the new flux Qn out of a cell is known
+      you need to have the ingoing substance flux QS (mass/s)
+      and it will give outgoing flux QSn (mass/s)
+      and the current amount Subs (mass) in suspension+solution
+    */
+
+    if (SwitchPesticide)
+    {
+        // calc pesticide flux going in kin wave as Qp = Q*C
+        FOR_ROW_COL_MV
+        {
+            Qp->Drc =  Q->Drc * C->Drc;
+            // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
+        }
+
+
+        Qpn->fill(0);
+        FOR_ROW_COL_MV
+        {
+            if (LDD->Drc == 5) // if outflow point, pit
+            {
+                routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);
+            }
+        }
+//        Qpn->report("qpn");
+//        Qp->report("qp");
+//        Pest->report("pesta");
+
+    }
     // calculate resulting flux Qn back to water height on surface
     FOR_ROW_COL_MV
     {
@@ -232,11 +254,21 @@ void TWorld::OverlandFlow(void)
 
         if (SwitchErosion)
         {
-            Conc->Drc = (Q->Drc > 1e-6 ? Qs->Drc/Q->Drc : 0);
-                    //MaxConcentration(WaterVolall->Drc, Sed->Drc);
+            Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
+            //MaxConcentration(WaterVolall->Drc, Sed->Drc);
             // CHANGED, MORE STABLE CONC 19/9/13
             // correct for very high concentrations, 850 after Govers et al
             // recalc sediment volume
+
+            if (SwitchPesticide)
+            {
+                //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
+                C->Drc = Qn->Drc > 1e-10 ? Qpn->Drc/Qn->Drc : 0;//ConcentrationP(WaterVolall->Drc, Pest->Drc);
+                C_N->Drc = C->Drc;
+                //qDebug()<< "ds overlandflow"<< C->Drc;
+                //qDebug()<< "ds overlandflow"<< Pest->Drc;
+            }
+
         }
     }
 }

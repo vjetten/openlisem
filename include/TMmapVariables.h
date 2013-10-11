@@ -129,6 +129,62 @@ TMMap
 *DG,                         //!< parameter Govers in TC equation
 *SettlingVelocity,           //!< settling velocity according to Stokes [m/s]
 
+
+*Vup,                        //!< updated runoff velocity for pesticides transport
+*Vup_old,
+*PCA,                        //!< applied dose [kg/m2]
+*epsil,                      //!< mixing layer depth (m]
+*KD,                         //!< soil water partition coefficient [m3/kg]
+*kr,                         //!< rate at which solute desorb [min-1]
+*rhob,                       //!< soil bulk density [kg/m3]
+*C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
+*Cold,
+*CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
+*CS,                        //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
+*C_N,
+*CM_N,
+*CS_N,
+*C_K,
+*C_Kold,
+*CM_K,
+*CS_K,
+*C_Kexplicit,
+*CS_Kexplicit,
+*CM_Kexplicit,
+*CM_Kexplicitold,
+*CS_Kexplicitold,
+*Qp,
+*Qpn,
+*C_Kn,
+*K1,
+*Kfilm,
+*pestiinf,
+*pestiinfold,
+*poro,
+*AX,
+*Fkold,
+*Fk,
+*Fmk,
+*flagpest,
+*PMassApplied,
+*PRunoffSpatial,
+*PDisMixing,
+*PSorMixing,
+*PInfilt,
+*PStorage,
+*PRunoffSpatialex,
+*PDisMixingex,
+*PSorMixingex,
+*PInfiltex,
+*Qin,
+*Sin,
+*Pest,
+*Fin,
+*Pdetach,
+*PCinfilt,
+*PCfilmexit,
+
+
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *hesinfil,
@@ -146,6 +202,7 @@ TMMap
 *ffact,                       //!< actual infiltration rate [m/s]
 *ffpot,                       //!< potential infiltration rate [m/s]
 *FfFull,                      //!< map flagging when the soil is full
+
 *Lf1,
 *Lf2,
 

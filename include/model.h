@@ -220,6 +220,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
+    Switchheaderpest, SwitchPesticide,
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees;
 
     // multiple options that are set in interface or runfile, see defines above
@@ -268,6 +269,12 @@ public:
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea;
     double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
+//pesticides
+    double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
+    double MBpex,PestRunoffSpatialex,PestDisMixingex,PestSorMixingex,PestInfiltex,PestLossTotOutletex;
+    int N_SPK;
+    double Maxsolubility;
+    double MaxVup;
 
     int c_outlet;  /// copy of outlet col number
     int r_outlet;  /// copy of outlet row number
@@ -378,6 +385,19 @@ public:
     //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;
+
+    void Pestmobilisation(void);
+//    void TransPesticide(int pitRowNr, int pitColNr,TMMap *_LDD,TMMap *_Qn, TMMap *_Vup, TMMap *_Vupold,TMMap *_WHoutavg,
+//                         TMMap *_WHoutavgold,TMMap *_RainNet,TMMap *_CM_N,TMMap *_C_N,TMMap *_CS_N,TMMap *_InfilVol,TMMap *_InfilVolold,
+//                         TMMap *_DX,TMMap *_C,TMMap *_Cold,TMMap *_CS,TMMap *_CM,TMMap *_Kfilm,TMMap *_epsil,
+//                         TMMap *_KD,TMMap *_poro,TMMap *_rhob,TMMap *_kr,TMMap *_Qin, TMMap *_Sin,TMMap *_Q,TMMap *_Alpha,TMMap *_Qpn);
+
+    double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
+    double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
+    double **Factorize(double **A, int n, int m);
+    double *Solve(int n,int m, double **A_LU, double *B);
+    double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
+    double ConcentrationP(double watvol, double pest);
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries

@@ -69,9 +69,9 @@ void lisemqt::setupPlot()
     col.setRgb( 60,60,200,255 );
     QGraph->setPen(QPen(col));
     PGraph->setPen(QPen("#000000"));
-    if(checkNoErosion->isChecked())
-        PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-    else
+//    if(checkNoErosion->isChecked())
+//        PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+//    else
         PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
     QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
 
@@ -192,12 +192,12 @@ void lisemqt::setupSmallPlot()
     smallPlot->setAxisTitle(smallPlot->yLeft, title);
     smallPlot->setAxisScale(smallPlot->yLeft, 0, 100);
     smallPlot->setAxisScale(smallPlot->xBottom, 0, 100);
-    if(!checkNoErosion->isChecked())
-    {
+    //if(!checkNoErosion->isChecked())
+    //{
         title.setText("Qs (kg/s)");
         smallPlot->setAxisTitle(smallPlot->yRight, title);
         smallPlot->setAxisScale(smallPlot->yRight, 0, 1);
-    }
+    //}
 
     // set gridlines
 
@@ -221,13 +221,13 @@ void lisemqt::initPlot()
     // VJ 110630 show hydrograph for selected output point
     //    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
     subcatchgroup->setEnabled(op.outputpointnr > 1);
-    if(checkNoErosion->isChecked())
-    {
-        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
-        smallPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-        smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
-    }
+//    if(checkNoErosion->isChecked())
+//    {
+//        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+//        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+//        smallPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+//        smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
+//    }
 }
 //---------------------------------------------------------------------------
 /// free data structures graph
@@ -257,8 +257,8 @@ void lisemqt::showPlot()
 
     QGraph->setSamples(TData,QData);
     PGraph->setSamples(TData,PData);
-    if(!checkNoErosion->isChecked())
-    {
+//    if(!checkNoErosion->isChecked())
+//    {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
         y2as = max(y2as, op.Qsplot);
@@ -266,12 +266,12 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
         yas = max(yas, op.Pmm);
-    }
-    else
-    {
-        y2as = max(y2as, op.Pmm);
-        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
-    }
+//    }
+//    else
+//    {
+//        y2as = max(y2as, op.Pmm);
+//        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
+//    }
 
     yas = max(yas, op.QPlot);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);

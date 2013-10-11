@@ -1,5 +1,23 @@
-openLISEM README (130517)
+openLISEM README (131010)
 =========================
+LATEST CHANGES (v 1.79)
+- fixed bug in interception that has been there since approximately version 1.63
+  this gave too high interception values
+
+LATEST CHANGES (v 1.75-1.78)
+- added possibility to switch on percolation from bottom layer soil profile in non-SWARE infiltration, according to K - unsat, option in infiltration 
+- fixed error in rainfall reading when mote than one station
+- further fixing interface showing outlet or points inside the catchment
+- changed concentration in output to Qs/Q, gives more stable results than sed/vol
+- added interface map display: flood level and runoff level in one display and mapseries output
+
+LATEST CHANGES (v 1.71-1.74)
+- Further tuning of flood models and additional parameters in the interface
+- more flooding output (needs to be standardized)
+- fixed interface showing outlet or points inside the catchment
+- added interface map display: flood level and runoff level in one display and mapseries output
+- fixed interface bugs
+
 LATEST CHANGES (v 1.70-1.71)
 - Solution for 2nd order, works now!
 - map display shows meters on x and y axes insted of rows/cols
@@ -105,7 +123,7 @@ Good Luck
 Victor Jetten
 
 Chair Natural Hazards and Disaster Risk Management 
-Department of Earth Systems Analysis  
+Department of Earth Systems Analysis Faculty 
 Faculty ITC, Twente University, 
 the Netherlands 
-
+jetten@itc.nl

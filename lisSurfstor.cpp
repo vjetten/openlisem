@@ -75,7 +75,6 @@ void TWorld::GridCell(void)
         //                             - RoadWidthDX->Drc
         //                             - WheelWidthDX->Drc);
     }
-    SoilWidthDX->report("soilw.map");
 }
 
 //---------------------------------------------------------------------------

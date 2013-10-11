@@ -215,6 +215,8 @@ void TWorld::DoModel()
             SplashDetachment();  // splash detachment
             FlowDetachment();    // flow detachment
 
+//Pestmobilisation();
+
             ToChannel();         // fraction of water and sed going into channel in channel cells, recalc Q and V
             ToTiledrain();       // fraction going into tiledrain directly from surface, , recalc Q and V
 

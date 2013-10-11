@@ -85,13 +85,16 @@ void TWorld::Interception(void)
 
         if (Smax > 0)
         {
-            double k = 1-exp(-CanopyOpeness*LAIv);
+            //double k = 1-exp(-CanopyOpeness*LAIv);
             //VJ !!!!!!2013 05 18 BUG ! was k=exp(-coLAI) MUST BE 1-exp
+            double k = exp(-CanopyOpeness*LAIv);
+            //VJ 131010 NOT !!!!! a dense canopy has a low openess factor, so little direct throughfall and high CS
+
             CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
             //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-            //VJ 110209 direct use of openess, astons value too open.
+            //VJ 110209 direct use of openess, astons value quite open for eucalypt.
             //A good guess is using the cover LAI relation
-            //and interpreting cover as openess: k = exp(-0.45*LAI)
+            //and interpreting cover as openess: k = exp(-0.45*LAI) BUT this is 0.065!!!
         }
         else
             CS = 0;

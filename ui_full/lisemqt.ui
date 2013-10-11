@@ -77,7 +77,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -1474,7 +1474,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6442,6 +6442,9 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
                     <property name="maximum">
                      <double>1000.000000000000000</double>
                     </property>
@@ -6541,6 +6544,9 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
@@ -6630,6 +6636,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="decimals">
                      <number>2</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.001000000000000</double>
@@ -6785,6 +6794,9 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
@@ -6803,6 +6815,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="decimals">
                      <number>2</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="maximum">
                      <double>100.000000000000000</double>
@@ -6881,6 +6896,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="decimals">
                      <number>2</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="maximum">
                      <double>1.000000000000000</double>
@@ -7036,6 +7054,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="decimals">
                      <number>2</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="maximum">
                      <double>100.000000000000000</double>

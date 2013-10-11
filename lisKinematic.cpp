@@ -446,8 +446,9 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
     list->rowNr = pitRowNr;
     list->colNr = pitColNr;
 
-    _Qsn->fill(0);
-    // VJ 12/12/12 !!!!!!!!!!!!!!!!! set output substance to zero
+    // _Qsn->fill(0);
+    // NOT wrong when multiple outlets! DO this befiore the loop
+    //VJ 12/12/12 set output substance to zero
 
     while (list != NULL)
     {
@@ -522,12 +523,12 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                 }
             }
 
-            if (!SwitchSimpleSedKinWave)
+//            if (!SwitchSimpleSedKinWave)
                 _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
                                                           Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
-            else
-                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
-                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
+//            else
+//                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
+//                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
             _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
@@ -545,7 +546,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
         }/* eof subcatchment done */
     } /* eowhile list != NULL */
 }
-
+/*
 void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -569,8 +570,8 @@ void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
         int rowNr = list->rowNr;
         int colNr = list->colNr;
 
-        /** put all points that have to be calculated to calculate the current point in the list,
-         before the current point */
+        // put all points that have to be calculated to calculate the current point in the list,
+         //before the current point
         for (i=1; i<=9; i++)
         {
             int r, c;
@@ -642,7 +643,8 @@ void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
             free(temp);
             // go to the previous cell in the list
 
-        }/* eof subcatchment done */
-    } /* eowhile list != NULL */
+        }
+    }
 
 }
+*/

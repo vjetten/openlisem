@@ -710,15 +710,34 @@ void TWorld::GetInputData(void)
     //## calibration factors
     ksatCalibration = getvaluedouble("Ksat calibration");
     nCalibration = getvaluedouble("N calibration");
+    if (nCalibration == 0)
+    {
+        ErrorString = QString("Calibration: the calibration factor for Mannings n for slopes cannot be zero.");
+        throw 1;
+    }
+
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
     ChnCalibration = getvaluedouble("Channel N calibration");
+    if (ChnCalibration == 0)
+    {
+        ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");
+        throw 1;
+    }
+
     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
+    SplashDelivery = getvaluedouble("Channel N calibration");
+    if (SplashDelivery == 0)
+    {
+        ErrorString = QString("Calibration: the splash delivery factor cannot be zero.");
+        throw 1;
+    }
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");
     //  minFloodDt = getvaluedouble("Min flood dt");
+
     //VJ 110829 water repellency
     waterRep_a = getvaluedouble("Water Repellency A");
     waterRep_b = getvaluedouble("Water Repellency B");
@@ -1101,7 +1120,6 @@ void TWorld::IntializeData(void)
     }
     CanopyStorage->calcValue(0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
-
     if (SwitchHouses)
     {
         //houses info:
@@ -1300,6 +1318,169 @@ void TWorld::IntializeData(void)
         }
     }
 
+    if (SwitchPesticide)
+    {
+    //### pesticides maps
+        PestMassApplied = 0.0;
+        PestLossTotOutlet = 0.0;
+        PestFluxTotOutlet = 0.0;
+        PestRunoffSpatial = 0.0;
+        PestDisMixing = 0.0;
+        PestSorMixing = 0.0;
+        PestInfilt = 0.0;
+        PestStorage = 0.0;
+        MaxVup = 0.0;
+        PestRunoffSpatialex = 0.0;
+        PestDisMixingex = 0.0;
+        PestSorMixingex = 0.0;
+        PestInfiltex = 0.0;
+        PestLossTotOutletex = 0.0;
+        Maxsolubility=530e-3; // max solubility kg/m3 metolachlor
+        Pestdetach = 0.0;
+        PestCinfilt=0.0;
+        PestCfilmexit=0.0;
+
+        KD=NewMap(0);
+        kr=NewMap(0);
+        rhob=NewMap(0);
+        pestiinf=NewMap(0);
+        pestiinfold=NewMap(0);
+        poro=NewMap(0);
+        Vup=NewMap(0);
+        Vup_old=NewMap(0);
+        PCA=NewMap(0);
+        epsil=NewMap(0);
+        Kfilm=NewMap(0);
+        K1=NewMap(0);
+        AX=NewMap(0);
+
+        C=NewMap(0);
+        Cold=NewMap(0);
+        C_Kn=NewMap(0);
+        CS=NewMap(0);
+        CM=NewMap(0);
+        C_Kexplicit=NewMap(0);
+        CM_Kexplicit=NewMap(0);
+        CS_Kexplicit=NewMap(0);
+        CM_Kexplicitold=NewMap(0);
+        CS_Kexplicitold=NewMap(0);
+        Qp=NewMap(0);
+        Qpn=NewMap(0);
+        Pest=NewMap(0);
+        PCinfilt=NewMap(0);
+        PCfilmexit=NewMap(0);
+
+        C_N=NewMap(0);
+        CM_N=NewMap(0);
+        CS_N=NewMap(0);
+
+        C_K=NewMap(0);
+        C_Kold=NewMap(0);
+        CM_K=NewMap(0);
+        CS_K=NewMap(0);
+
+        Fkold=NewMap(0);
+        Fk=NewMap(0);
+        Fmk=NewMap(0);
+        flagpest=NewMap(0);
+
+        PMassApplied=NewMap(0);
+        PRunoffSpatial=NewMap(0);
+        PDisMixing=NewMap(0);
+        PSorMixing=NewMap(0);
+        PInfilt=NewMap(0);
+        PStorage=NewMap(0);
+
+        PRunoffSpatialex=NewMap(0);
+        PDisMixingex=NewMap(0);
+        PSorMixingex=NewMap(0);
+        PInfiltex=NewMap(0);
+
+     //   Qin=NewMap(0);
+     //   Sin=NewMap(0);
+     //   Fin=NewMap(0);
+
+        Pdetach=NewMap(0);
+}
+    if (SwitchPesticide)
+    {
+        N_SPK=1;
+
+        //test Joyce papier
+        //PCA=NewMap(0.000180); //kg/m²
+        //epsil=NewMap(0.25E-2); //m
+        //KD=NewMap(0.00941);//m3/kg
+        //kr=NewMap(0.000833333); // /s
+        //poro=NewMap(0.47);
+        //Kfilm=NewMap(1.16667E-5); // m/s
+
+        // test 5-22
+        PCA=NewMap(0.0000174); //kg/m²
+        epsil=NewMap(0.001); //m
+        KD=NewMap(0.00617);//m3/kg
+        //KD=NewMap(0.0);//m3/kg
+        kr=NewMap(0.0012); // /s
+        poro=NewMap(0.37);
+        Kfilm=NewMap(1.16667E-5); // m/s
+
+       // qDebug()<< "initial " ;
+
+        FOR_ROW_COL_MV
+        {
+            PMassApplied->Drc = PCA->Drc*_dx*_dx*1000*1000*1000; //*SnowmeltZone->Drc; //µg for partial appli //DX
+            rhob->Drc=2.65E3*(1.0-poro->Drc);// soil bulk density g/m3 rhob=NewMap(1404.5); // kg/m3
+            C_N->Drc= 0.0; // initialisation for t=0 kg/m3
+            // partial application
+//            CM_N->Drc= (PCA->Drc*SnowmeltZone->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
+
+//VJ             CM_N->Drc= PCA->Drc*poro->Drc/epsil->Drc + (1-poro->Drc)*PCA->Drc/epsil->Drc*KD->Drc*rhob->Drc; // initialisation for t=0 kg/kg
+           CM_N->Drc= (PCA->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
+            CS_N->Drc = CM_N->Drc*KD->Drc; // ! initialisation for t=0 kg/m3
+       //     qDebug()<< "initial C:"<< C->Drc << "cm"<< CM->Drc << "CS"<< CS->Drc;
+
+            // no sorption
+           // CS_N->Drc=0.0;
+           // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
+
+
+            PDisMixing->Drc = CM_N->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
+            PSorMixing->Drc = CS_N->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
+        }
+
+        PestMassApplied = PMassApplied->mapTotal();
+        PestDisMixing = PDisMixing->mapTotal();
+        PestSorMixing = PSorMixing->mapTotal();
+
+        if(Switchheaderpest)
+        {
+            Switchheaderpest=false;
+            QFile fout("massbalancenew.txt");
+            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(3);
+            out.setFieldWidth(0);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+            out << "time" << " " << "PestMassApplied" << " " << "PestDisMixing" << " " << "PestSorMixing" << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
+                 << " " << "PestInfilt" << " " << "MBp" << " "
+                 << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                 << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
+                 << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
+                 << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
+                 << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
+            out << "\n";
+
+            out << "EI" << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
+                 << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
+                 << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                 << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
+                 << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
+                 << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
+                 << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
+            out << "\n";
+        }
+    }
+
+
     if (useSorted)
         lddlist = makeSortedNetwork(LDD, &lddlistnr);
 
@@ -1395,5 +1576,7 @@ void TWorld::IntializeOptions(void)
 
     initSwatreStructure = false;
     // check to flag when swatre 3D structure is created, needed to clean up data
+
+    SwitchPesticide = false;
 }
 //---------------------------------------------------------------------------

@@ -581,7 +581,7 @@ void TWorld::ReportMaps(void)
     }
     if (outputcheck[8].toInt() == 1) InfilmmCum->report(Outinf); // in mm
 
-    InfilmmCum->report("inftotal.map");
+//    InfilmmCum->report("inftotal.map");
 
     if (outputcheck[9].toInt() == 1)
     {
