@@ -163,10 +163,12 @@ public:
    QwtMatrixRasterData *RDc;
    QwtMatrixRasterData *RDd;
    QwtMatrixRasterData *RDe;
-   double drawNrCols;
-   double drawNrRows;
-   int channelMapAlpha;
-   int roadMapAlpha;
+//   double drawNrCols;
+//   double drawNrRows;
+   // vars for store map display in runfile
+   int MapDisplayMapSelection, MapDisplayBuilding, MapDisplayRoads, MapDisplayChannels, MapDisplayHydrology;
+   double MapDisplayRunoffMax, MapDisplayInfiltrationMax, MapDisplaySoillossMax, MapDisplayFlooddepthMax;
+   int MapDisplayIncludeRunoff, MapDisplayMinimumDepth, MapDisplayScreenDumps;
 
    QVector<double> mapData;
    QwtInterval legend;

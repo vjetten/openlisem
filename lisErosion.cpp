@@ -73,9 +73,9 @@ void TWorld::SplashDetachment(void)
 
       switch (KEequationType)
       {
-         case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int)));
-         case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0);
-         case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3);
+         case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int))); break;
+         case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0); break;
+         case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3); break;
             // kin energy in J/m2/mm
       }
       //VJ 110706  KE equations

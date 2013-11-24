@@ -250,5 +250,7 @@ public:
     }
 };
 
+
+
 #endif // LISUIMAPCOLOR_H
 

@@ -209,10 +209,38 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[LISEM main type]");
     namelist[i++].name = QString("LISEM Type");
     namelist[i++].name = QString("");
+
     // work directories are obsolete
     //	namelist[i++].name = QString("[Work Directory]");
     //	namelist[i++].name = QString("WorkDir");
     //	namelist[i++].name = QString("");
+
+    namelist[i++].name = QString("[Map Display]");
+    namelist[i++].name = QString("Map selection");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Building alpha");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Roads alpha");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Channels alpha");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Hydrology alpha");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Runoff max");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Infiltration max");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Soilloss max");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flooddepth max");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include runoff");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Minimum depth");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Screendumps");
+    namelist[i].value = QString("0");
+
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Map Directory");
     namelist[i++].name = QString("Include Rainfall");
@@ -532,6 +560,7 @@ void lisemqt::defaultRunFile()
                 namelist[j].value = SL[2];
                 j++;
             }
+        qDebug() << j << namelist[j-1].name ;
     }
     nrnamelist = j;
 

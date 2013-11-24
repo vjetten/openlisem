@@ -129,6 +129,8 @@ int main(int argc, char *argv[])
         }
         else
         {
+            op.runfilename = name;
+
             TWorld *W = new TWorld();
             // make the model world
             W->stopRequested = false;

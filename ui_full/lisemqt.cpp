@@ -128,6 +128,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     else
     {
         GetStorePath();
+        // this gets the lisem.ini file and reads the run files, the first runfile
+        // triggers also loading the interface with all variable values
+        // if ini is empty nothing happens
     }
 }
 //--------------------------------------------------------------------

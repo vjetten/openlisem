@@ -182,8 +182,10 @@ void TWorld::SurfaceStorage(void)
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
 
-//        WHrunoffCum->Drc += WHrunoff->Drc * 1000;
+        //WHrunoffCum->Drc += WHrunoff->Drc * 1000;
         // cumulative runoff for output maps, in mm
+        // make no sense? runoff isa water layer independent of the timestep,
+        // you cannot acumulate it like this.
 
     }
 }

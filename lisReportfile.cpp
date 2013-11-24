@@ -570,8 +570,9 @@ void TWorld::ReportMaps(void)
         tm->calcMapValue(WH, 1000, MUL);// WH in mm
         tm->report(Outwh);
     }
-    //    if (outputcheck[3].toInt() == 1)
-    //        WHrunoffCum->report(Outrwh); // in mm
+
+ //   if (outputcheck[3].toInt() == 1)
+ //       WHrunoffCum->report(Outrwh); // in mm
 
     if (outputcheck[7].toInt() == 1) V->report(Outvelo);
     FOR_ROW_COL_MV

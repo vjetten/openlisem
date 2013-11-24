@@ -76,6 +76,13 @@ void lisemqt::selectMapType(bool doit)
 // called when a model run is started
 void lisemqt::initMapPlot()
 {
+    maxAxis1 = -1e20;
+    maxAxis2 = -1e20;
+    maxAxis3 = -1e20;
+    maxAxis4 = -1e20;
+    pstep = 0;
+
+
     op.drawMapType = 1;
     radioButton_RO->setChecked(true);
     radioButton_INF->setChecked(false);
@@ -88,25 +95,44 @@ void lisemqt::initMapPlot()
     else
         radioButton_FL->setEnabled(false);
 
-
-    maxAxis1 = -1e20;
-    maxAxis2 = -1e20;
-    maxAxis3 = -1e20;
-    maxAxis4 = -1e20;
-    pstep = 0;
     transparency->setValue(180);  //main data
     transparency2->setValue(180); //channels
     transparency3->setValue(180); //roads
     transparency4->setValue(100); //houses
+
+    // link with runfile
+//    op.drawMapType = MapDisplayMapSelection;
+//    transparency->setValue(qMin(MapDisplayHydrology, 200));  //main data
+//    transparency2->setValue(qMin(MapDisplayChannels, 200)); //channels
+//    transparency3->setValue(qMin(MapDisplayRoads, 200)); //roads
+//    transparency4->setValue(qMin(MapDisplayBuilding, 200)); //houses
+
+//    doubleSpinBoxRO->setValue(MapDisplayRunoffMax);
+//    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
+//    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
+//    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
+//    op.addWHtohmx = MapDisplayIncludeRunoff == 1;
+//    floodCutoffLevel->setValue(qMax(qMin(MapDisplayMinimumDepth,2),0));
+
     // slider setting basemap transparency
-
+//    if (p1.compare("Building display")==0)  MapDisplayBuilding = iii;
+//    if (p1.compare("Roads display")==0)     MapDisplayRoads = iii;
+//    if (p1.compare("Channels display")==0)  MapDisplayChannels = iii;
+//    if (p1.compare("Hydrology display")==0) MapDisplayHydrology = iii;
+//    if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
+//    if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
+//    if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
+//    if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
+//    if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
+//    if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
+//    if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 }
-
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
     op.drawMapType = 1;
+    double alpha = 1;
 
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
@@ -131,6 +157,7 @@ void lisemqt::setupMapPlot()
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
     // shaded relief base map
+
 
     drawMap = new QwtPlotSpectrogram();
     drawMap->setRenderThreadCount( 0 );

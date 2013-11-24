@@ -55,6 +55,8 @@ void TWorld::DoModel()
 {
     if (!noInterface)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
+    else
+        temprunname = op.runfilename;
 
     time_ms.start();
     // get time to calc run length
@@ -79,7 +81,12 @@ void TWorld::DoModel()
         DEBUG("IntializeData()");
         IntializeData();
 
-
+        //Make the maps to bedrawn in the interface as a copy in the op starcture
+        // reason is that all pointers are destroyed after the run so when lisem finishes
+        // the information on the output screen points to an empty pointer
+        // by copying the info remains available
+        // initialize maps for output to screen
+        // must be done after Initialize Data because then we know how large the map is
         if (op.DrawMap1)
         {
             op.DrawMap1->KillMap();
@@ -109,8 +116,6 @@ void TWorld::DoModel()
         op.channelMap->MakeMap(LDD, 0);
         op.roadMap->MakeMap(LDD, 0);
         op.houseMap->MakeMap(LDD, 0);
-        // initialize maps for output to screen
-        // must be done after Initialize Data because then we know how large the map is
 
         if (SwitchRainfall)
         {

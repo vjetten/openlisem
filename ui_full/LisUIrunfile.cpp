@@ -103,7 +103,7 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
-        // main lisem types
+        // OBSOLETE main lisem types
         /*
           if (p1.compare("LISEM Type")==0)
           {
@@ -112,7 +112,21 @@ void lisemqt::ParseInputData()
               SwitchNutrients = iii == LISEMNUTRIENTS;
               SwitchGullies = iii == LISEMGULLIES;
           }
-   */
+        */
+
+        // variables controling map display
+        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
+        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
+        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
+        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
+        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
+        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
+        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
+        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
+        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
+        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
+        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
+        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 
         //options in the main code, order is not important
         if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
@@ -436,7 +450,7 @@ void lisemqt::ParseInputData()
     // dir necessary?
 
     //RunAllChecks();
-    //obsolete: is done elsewhere
+    //obsolete: is done in void lisemqt::on_E_runFileList_currentIndexChanged(int)
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p, bool makeit)
