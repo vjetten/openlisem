@@ -24,11 +24,14 @@ public:
     {
         QColor bg( Qt::white );
         bg.setAlpha( 100 );
+        QString txt = "";
 
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
         QwtPlotSpectrogram * sp = static_cast<QwtPlotSpectrogram *> (list.at(1));
+        if (sp->data() == NULL)
+            return QwtText(txt);
         double z = sp->data()->value(pos.x(), pos.y());
-        QString txt = "";
+
         if (z > -1e10)
             txt.sprintf( "%.3f", z );
         QwtText text = QwtText(txt);

@@ -66,6 +66,24 @@ void lisemqt::on_checkIncludeChannel_clicked()
         checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
         checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
         checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
+
+        if (checkChannelFlood->isChecked())
+        {
+            E_FloodlevelMap->setEnabled(true);
+            E_FloodTimeMap->setEnabled(true);
+            E_FloodStats->setEnabled(true);
+            E_ChannelMaxQ->setEnabled(true);
+            E_ChannelMaxWH->setEnabled(true);
+        }
+    }
+    else
+    {
+        E_FloodlevelMap->setEnabled(false);
+        E_FloodTimeMap->setEnabled(false);
+        E_FloodStats->setEnabled(false);
+        E_ChannelMaxQ->setEnabled(false);
+        E_ChannelMaxWH->setEnabled(false);
+
     }
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }

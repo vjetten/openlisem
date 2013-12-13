@@ -484,11 +484,12 @@ void lisemqt::on_toolButton_SnowmeltShow_clicked()
     file.close();
 }
 //--------------------------------------------------------------------
+
 void lisemqt::on_toolButton_RainfallShow_clicked()
 {
 
     QFile file(RainFileDir + RainFileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
+    if (!file.open(QFile::ReadWrite | QFile::Text))
     {
         QMessageBox::warning(this, QString("openLISEM"),
                              QString("Cannot read file %1:\n%2.")
@@ -505,6 +506,19 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
     view->setMinimumHeight(500);
     view->setAttribute(Qt::WA_DeleteOnClose);
     view->show();
+    if (view->document()->isModified())
+    {
+        int ret =
+                QMessageBox::question(this, QString("openLISEM"),
+                                      QString("You have modified the contents of this file.\n"
+                                              "Do you want to save it?"),
+                                      QMessageBox::Ok |QMessageBox::Cancel,QMessageBox::Cancel);
+        if (ret == QMessageBox::Ok)
+        {
+            in.setString(&view->toPlainText());
+            qDebug() << "hoi";
+        }
+    }
 
     file.close();
 }
