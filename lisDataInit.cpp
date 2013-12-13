@@ -500,6 +500,7 @@ void TWorld::InitChannel(void)
     //ChannelQsoutflow = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQn = NewMap(0);
+    ChannelQntot = NewMap(0);
     ChannelQs = NewMap(0);
     ChannelQsn = NewMap(0);
     ChannelV = NewMap(0);
@@ -612,6 +613,14 @@ void TWorld::InitChannel(void)
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 ChannelLevee->fill(0);
+            hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+
+            floodactive = NewMap(1);
+            floodzone = ReadMap(LDD, getvaluename("floodzone"));
+            FOR_ROW_COL_MV
+            {
+                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
+            }
 
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
@@ -1078,6 +1087,7 @@ void TWorld::IntializeData(void)
     Rain = NewMap(0);
     Rainc = NewMap(0);
     RainCum = NewMap(0);
+    RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
     LeafDrain = NewMap(0);
     //not used RainIntensity = NewMap(0);
@@ -1163,8 +1173,8 @@ void TWorld::IntializeData(void)
     InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
-    InfilVolCum = NewMap(0);
     InfilmmCum = NewMap(0);
+    InfilVolCum = NewMap(0);
     fact = NewMap(0);
     fpot = NewMap(0);
     factgr = NewMap(0);
@@ -1175,6 +1185,7 @@ void TWorld::IntializeData(void)
     hesinfil = NewMap(0);
     FFull = NewMap(0);
     runoffFractionCell = NewMap(0);
+    runoffTotalCell = NewMap(0);
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
@@ -1498,11 +1509,23 @@ void TWorld::IntializeOptions(void)
     resultDir.clear();
     inputDir.clear();
     outflowFileName = QString("totals.txt");//.clear();
-    totalErosionFileName = QString("erososion.map");//.clear();
+    totalErosionFileName = QString("erosion.map");//.clear();
     totalDepositionFileName = QString("deposition.map");//.clear();
     totalSoillossFileName = QString("soilloss.map");//.clear();
     totalLandunitFileName = QString("totlandunit.txt");//.clear();
     outflowFileName = QString("hydrohgraph.csv");//.clear();
+
+    floodLevelFileName = QString("floodmax.map");//.clear();
+    floodTimeFileName = QString("floodtime.map");//.clear();
+    floodStatsFileName = QString("floodstats.csv");//.clear();
+
+    rainfallMapFileName = QString("rainfall.map");
+    interceptionMapFileName = QString("interception.map");
+    infiltrationMapFileName = QString("infiltration.map");
+    runoffMapFileName = QString("runoff.map");
+    runoffFractionMapFileName = QString("rofraction.map");
+    channelDischargeMapFileName = QString("chandism3.map");
+
     rainFileName.clear();
     rainFileDir.clear();
     snowmeltFileName.clear();

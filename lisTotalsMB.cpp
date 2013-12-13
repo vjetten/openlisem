@@ -105,21 +105,23 @@ void TWorld::Totals(void)
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
-//    FOR_ROW_COL_MV
-//    {
-//        tm->Drc =
-//                (Interc->Drc + IntercHouse->Drc +
-//                  (InfilVol->Drc+InfilVolKinWave->Drc+InfilVolFlood->Drc)/(_dx*_dx)
-//                 );
-//        runoffFractionCell->Drc = (RainCum->Drc - tm->Drc)/RainCum->Drc;
+    FOR_ROW_COL_MV
+            if(ChannelWidth->Drc == 0)
+    {
+        runoffTotalCell->Drc += Qn->Drc * _dt;
+    }
 
-//    }
-//    runoffFractionCell->report("rofraction.map");
+    upstream(LDD, runoffTotalCell, tm);
+
+    FOR_ROW_COL_MV
+    {
+        runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;
+    }
 
     // sum outflow m3 for all timesteps for the outlet
     FOR_ROW_COL_MV
     {
-            if (LDD->Drc == 5)
+        if (LDD->Drc == 5)
             Qtot += Qn->Drc*_dt;
     }
     // sum outflow m3 for all timesteps for the outlet, in m3
@@ -144,8 +146,12 @@ void TWorld::Totals(void)
         WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
         FOR_ROW_COL_MV_CH
-                if (LDDChannel->Drc == 5)
+        {
+            if (LDDChannel->Drc == 5)
                 Qtot += ChannelQn->Drc*_dt;
+            ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
+
+        }
         // add channel outflow (in m3) to total for all pits
         //Qtotmm = Qtot*catchmentAreaFlatMM;
         // recalc in mm for screen output
@@ -160,9 +166,11 @@ void TWorld::Totals(void)
         if (SwitchChannelFlood)
         {
             floodVolTot = FloodWaterVol->mapTotal();
-            floodTotmm = floodVolTot*catchmentAreaFlatMM;
-
+            floodTotmm = floodVolTot*catchmentAreaFlatMM;            
         }
+        if (runstep == 1)
+            floodVolTotInit = floodVolTot;
+
     }
 
     if (SwitchIncludeTile)
@@ -230,6 +238,13 @@ void TWorld::Totals(void)
     // peak flow and peak time calculation, based on sum channel and runoff
 
     QpeakPlot = max(QpeakPlot, Qoutput->DrcPlot);
+
+    // do this last because of possible flood inf volume
+    FOR_ROW_COL_MV
+    {
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc ;
+        InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000.0/CellArea->Drc);
+    }
 
 
     /***** SEDIMENT *****/
@@ -394,9 +409,9 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
-        MB = (RainTot + SnowTot + WaterVolSoilTot
+        MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin)/
-                (RainTot + SnowTot + WaterVolSoilTot)*100;
+                (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     //watervoltot includes channel and tile
 
     //qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;

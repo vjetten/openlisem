@@ -271,5 +271,13 @@ void TWorld::ChannelFlow(void)
     }
 
     ChannelWH->cover(LDD, 0);
+
+    FOR_ROW_COL_MV_CH
+    {
+        maxChannelflow->Drc = max(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = max(maxChannelWH->Drc, ChannelWH->Drc);
+    }
+
+
 }
 //---------------------------------------------------------------------------

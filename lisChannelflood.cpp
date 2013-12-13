@@ -56,6 +56,9 @@ void TWorld::ChannelOverflow(void)
 
             double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
                     max(0, hmx->Drc-levee)*(1-fc);
+
+            if (floodzone->Drc == 0)
+                whlevel = 0;
             //average water level
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
@@ -189,24 +192,13 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    FOR_ROW_COL_MV_CH
-    {
-        maxChannelflow->Drc = max(maxChannelflow->Drc, ChannelQn->Drc);
-        maxChannelWH->Drc = max(maxChannelWH->Drc, ChannelWH->Drc);
-    }
-
-    maxflood->report("maxflood.map");
-    timeflood->report("timeflood.map");
-    maxChannelflow->report("maxhannelq.map");
-    maxChannelWH->report("maxhannelwh.map");
-
     double cells = 0;
     sumh_t = 0;
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > 0)
         {
-            FloodDomain->Drc = 1;
+            FloodDomain->Drc = 1;// * floodzone->Drc;
             cells += 1.0;
             sumh_t += hmx->Drc;
         }
@@ -214,9 +206,11 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
+
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     area = cells*_dx*_dx;
-    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,8,'e',3).arg(area,8,'f',1));
+//    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
+    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1));
     // some error reporting
 }
 

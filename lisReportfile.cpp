@@ -55,9 +55,10 @@ void TWorld::reportAll(void)
     // report all maps and mapseries
 
     ReportLandunits();
-    // reportstats per landunit class
+    // reportc stats per landunit class
 
     ChannelFloodStatistics();
+    // report buildings submerged in flood level classes
 }
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
@@ -79,13 +80,13 @@ void TWorld::OutputUI(void)
     {
         if (op.addWHtohmx)
         {
-        FOR_ROW_COL_MV
-            tmb->Drc = hmx->Drc + WH->Drc < 0.01 ? 0 : hmx->Drc + WH->Drc;
+            FOR_ROW_COL_MV
+                    tmb->Drc = hmx->Drc + WH->Drc < 0.01 ? 0 : hmx->Drc + WH->Drc;
         }
         else
         {
-        FOR_ROW_COL_MV
-            tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
+            FOR_ROW_COL_MV
+                    tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
         }
         op.DrawMap4->copy(tmb);  //flood level in m
     }
@@ -212,7 +213,7 @@ void TWorld::ReportTimeseriesNew(void)
                     // make filename using point number
 
                     QFile fout(newname1);
-                    fout.open(QIODevice::WriteOnly | QIODevice::Text);                   
+                    fout.open(QIODevice::WriteOnly | QIODevice::Text);
                     QTextStream out(&fout);
                     out.setRealNumberPrecision(3);
                     out.setFieldWidth(width);
@@ -521,6 +522,25 @@ void TWorld::ReportTotalsNew(void)
 /// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps(void)
 {
+    FOR_ROW_COL_MV
+    {
+        tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
+        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc; // m3 to mm
+    }
+
+    tm->report(rainfallMapFileName);
+    InfilmmCum->report(infiltrationMapFileName);
+    tma->report(interceptionMapFileName);
+
+    runoffTotalCell->report(runoffMapFileName);
+    runoffFractionCell->report(runoffFractionMapFileName);
+
+
+    if (SwitchIncludeChannel)
+    {
+        ChannelQntot->report(channelDischargeMapFileName);
+    }
+
     if(SwitchErosion)
     {
         // VJ 110111 erosion units
@@ -563,6 +583,14 @@ void TWorld::ReportMaps(void)
         if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
     }
 
+    if (SwitchChannelFlood)
+    {
+        maxflood->report(floodLevelFileName);
+        timeflood->report(floodTimeFileName);
+        maxChannelflow->report(floodMaxQFileName);
+        maxChannelWH->report(floodMaxWHFileName);
+    }
+
     if (outputcheck[0].toInt() == 1)
         Qoutput->report(Outrunoff); // in l/s
     if (outputcheck[2].toInt() == 1)
@@ -571,18 +599,15 @@ void TWorld::ReportMaps(void)
         tm->report(Outwh);
     }
 
- //   if (outputcheck[3].toInt() == 1)
- //       WHrunoffCum->report(Outrwh); // in mm
+    if (outputcheck[3].toInt() == 1)
+        runoffTotalCell->report(Outrwh); // in mm
+    // changed to cum runoff in mm
 
-    if (outputcheck[7].toInt() == 1) V->report(Outvelo);
-    FOR_ROW_COL_MV
-    {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc ;
-        InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000/CellArea->Drc);
-    }
-    if (outputcheck[8].toInt() == 1) InfilmmCum->report(Outinf); // in mm
+    if (outputcheck[7].toInt() == 1)
+        V->report(Outvelo);
 
-//    InfilmmCum->report("inftotal.map");
+    if (outputcheck[8].toInt() == 1)
+        InfilmmCum->report(Outinf); // in mm
 
     if (outputcheck[9].toInt() == 1)
     {
@@ -743,7 +768,7 @@ void TWorld::ChannelFloodStatistics(void)
         floodList[i].var3 = 0;
         floodList[i].var4 = 0;
     }
-    double area = _dx*_dx;    
+    double area = _dx*_dx;
     int nr = 0;
     FOR_ROW_COL_MV
     {
@@ -760,7 +785,7 @@ void TWorld::ChannelFloodStatistics(void)
         }
     }
 
-    QFile fp(resultDir + "floodstats.csv");
+    QFile fp(resultDir + floodStatsFileName);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 

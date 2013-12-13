@@ -43,7 +43,8 @@ TMMap
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
-*RainCum,                    //!< cumulative rainfall [m]
+*RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
+*RainCumFlat,                //!< cumulative rainfall [m]
 *RainNet,                    //!< net rainfall after interception [m]
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
@@ -103,6 +104,7 @@ TMMap
 *RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
 *runoffFractionCell,
+*runoffTotalCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [m]
@@ -184,7 +186,6 @@ TMMap
 *PCinfilt,
 *PCfilmexit,
 
-
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *hesinfil,
@@ -247,6 +248,7 @@ TMMap
 *ChannelSide,                //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
+*ChannelQntot,
 *ChannelQs,                  //!<
 *ChannelQsn,                 //!<
 *ChannelGrad,                //!<
@@ -275,6 +277,8 @@ TMMap
 *UVflood,                     //!<
 *Qflood,
 *maxflood,
+*floodzone,
+*floodactive,
 *timeflood,
 *maxChannelflow,
 *maxChannelWH,
@@ -282,6 +286,7 @@ TMMap
 *Hmx,                        //!<
 *hx,                         //!<
 *hmx,                        //!<
+*hmxInit,
 *Nx,                         //!<
 *dHdLx,                      //!<
 *Qxsum,                      //!<

@@ -368,9 +368,23 @@ void lisemqt::ParseInputData()
             RainFileName = p;///*rainFileDir + */E_RainfallName->text();
         }
 
+        if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
+        if (p1.compare("Interception map")==0) E_InterceptionMap->setText(p);
+        if (p1.compare("Infiltration map")==0) E_InfiltrationMap->setText(p);
+        if (p1.compare("Runoff map")==0) E_RunoffMap->setText(p);
+        if (p1.compare("Runoff fraction map")==0) E_RunoffFractionMap->setText(p);
+        if (p1.compare("Channel discharge map")==0) E_ChannelQtotm3Map->setText(p);
+
         if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
         if (p1.compare("Deposition map")==0) E_DepositionMap->setText(p);
         if (p1.compare("Soilloss map")==0) E_SoillossMap->setText(p);
+
+        if (p1.compare("Flood level map")==0) E_FloodlevelMap->setText(p);
+        if (p1.compare("Flood time map")==0) E_FloodTimeMap->setText(p);
+        if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
+        if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
+        if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
+
         // resultDir is added in report operation
         //NO checking
         //		if (checkSnowmelt->isChecked())
@@ -480,12 +494,11 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 }
 //---------------------------------------------------------------------------
 // change runfile strings with current interface options, called by savefile
-// savefile is called just before the model is run with tmp runfile
+// savefile is also called just before the model is run to create a tmp runfile
 void lisemqt::updateModelData()
 {
     if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
         QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
-
 
     for (int j = 0; j < nrnamelist; j++)
     {
@@ -592,11 +605,26 @@ void lisemqt::updateModelData()
         if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
         if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName; //E_RainfallName->text();
+        if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
+        if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;//E_SnowmeltName->text();
+
+        if (p1.compare("Rainfall map")==0) namelist[j].value = E_RainfallMap->text();
+        if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();
+        if (p1.compare("Infiltration map")==0) namelist[j].value = E_InfiltrationMap->text();
+        if (p1.compare("Runoff map")==0) namelist[j].value = E_RunoffMap->text();
+        if (p1.compare("Runoff fraction map")==0) namelist[j].value = E_RunoffFractionMap->text();
+        if (p1.compare("Channel discharge map")==0) namelist[j].value = E_ChannelQtotm3Map->text();
+
+        if (p1.compare("Flood level map")==0) namelist[j].value = E_FloodlevelMap->text();
+        if (p1.compare("Flood time map")==0) namelist[j].value = E_FloodTimeMap->text();
+        if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
+        if (p1.compare("Channel Max Q")==0) namelist[j].value = E_ChannelMaxQ->text();
+        if (p1.compare("Channel Max WH")==0) namelist[j].value = E_ChannelMaxWH->text();
+
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
         if (p1.compare("Soilloss map")==0) namelist[j].value = E_SoillossMap->text();
-        if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
-        if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;//E_SnowmeltName->text();
+
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
@@ -607,6 +635,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
+
         //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
         //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
 
@@ -661,23 +690,23 @@ void lisemqt::updateModelData()
         if (p1.compare("CheckOutputMaps")==0)
         {
             outputcheck.clear();
-            if (			checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (	    	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (	          checkBox_OutTC->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (			   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (	    checkBox_OutSurfStor->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (       checkBox_OutChanVol->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (       checkBox_OutTiledrain->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if (       checkBox_OutTC->isChecked())  outputcheck << "1"; else outputcheck << "0";
+            if ( 	   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if ( 	   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutSurfStor->isChecked())   outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutTiledrain->isChecked())  outputcheck << "1"; else outputcheck << "0";
 
-            if (       checkBox_OutHmx->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (       checkBox_OutQf->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (       checkBox_OutVf->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (       checkBox_OutHmxWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutHmx->isChecked())        outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutQf->isChecked())         outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0";
             namelist[j].value = outputcheck.join(",");
         }
     }

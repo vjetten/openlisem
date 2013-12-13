@@ -214,20 +214,20 @@ void TWorld::RainfallMap(void)
 {
     //double timemin = time / 60;  //time in minutes
     double timeminprev = (time-_dt) / 60; //prev time in minutes
-    int  place;
+    int  rainplace;
     double tt = 3600000.0;
 
     if (!SwitchRainfall)
         return;
 
-    for (place = 0; place < nrRainfallseries; place++)
-        if (timeminprev < RainfallSeriesM[place].time)
+    for (rainplace = 0; rainplace < nrRainfallseries; rainplace++)
+        if (timeminprev < RainfallSeriesM[rainplace].time)
             break;
 
-    if (RainfallSeriesM[place].isMap)
+    if (RainfallSeriesM[rainplace].isMap)
     {
         TMMap *_M = new TMMap();
-        _M->PathName = RainfallSeriesM[place].name;
+        _M->PathName = RainfallSeriesM[rainplace].name;
         bool res = _M->LoadFromFile();
         if (!res)
         {
@@ -241,7 +241,7 @@ void TWorld::RainfallMap(void)
                 {
                     QString sr, sc;
                     sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[place].name;
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
                     throw 1;
                 }
         FOR_ROW_COL_MV
@@ -258,13 +258,14 @@ void TWorld::RainfallMap(void)
     {
         FOR_ROW_COL_MV
         {
-            Rain->Drc = RainfallSeriesM[place].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
             // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
             Rainc->Drc = Rain->Drc * _dx/DX->Drc;
             // correction for slope dx/DX, water spreads out over larger area
 
             //TODO: weighted average if dt larger than table dt
 
+            RainCumFlat->Drc += Rain->Drc;
             RainCum->Drc += Rainc->Drc;
             // cumulative rainfall corrected for slope, used in interception
             RainNet->Drc = Rainc->Drc;

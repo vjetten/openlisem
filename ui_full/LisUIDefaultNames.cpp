@@ -110,6 +110,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
+    DEFmaps.append("2;Floodzone;floodzone.map;Forced area including (1) and excluding floods (0);floodzone");
+    DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (0);hmxinit");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
@@ -266,7 +268,20 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Report point output for SOBEK");
     namelist[i].value = QString("10\01\01");
     namelist[i++].name = QString("SOBEK date string");
-    namelist[i].value = QString("eros.map");
+    namelist[i++].name = QString("");
+    namelist[i].value = QString("rainfall.map");
+    namelist[i++].name = QString("Rainfall map");
+    namelist[i].value = QString("interception.map");
+    namelist[i++].name = QString("Interception map");
+    namelist[i].value = QString("infiltration.map");
+    namelist[i++].name = QString("Infiltration map");
+    namelist[i].value = QString("runoff.map");
+    namelist[i++].name = QString("Runoff map");
+    namelist[i].value = QString("rofraction.map");
+    namelist[i++].name = QString("Runoff fraction map");
+    namelist[i].value = QString("chandism3.map");
+    namelist[i++].name = QString("Channel discharge map");
+    namelist[i].value = QString("detach.map");
     namelist[i++].name = QString("Erosion map");
     namelist[i].value = QString("depo.map");
     namelist[i++].name = QString("Deposition map");
@@ -274,6 +289,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Soilloss map");
     namelist[i].value = QString("totlandunit.txt");
     namelist[i++].name = QString("Filename landunit output");
+    namelist[i].value = QString("floodmax.map");
+    namelist[i++].name = QString("Flood level map");
+    namelist[i].value = QString("floodtime.map");
+    namelist[i++].name = QString("Flood time map");
+    namelist[i].value = QString("floodstats.txt");
+    namelist[i++].name = QString("Flood stats");
+    namelist[i].value = QString("channelmaxq.map");
+    namelist[i++].name = QString("Channel Max Q");
+    namelist[i].value = QString("channelmaxhw.map");
+    namelist[i++].name = QString("Channel Max WH");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
     namelist[i].value = QString("0");
@@ -358,8 +383,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF scheme");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flooding SWOF flux limiter");
-//    namelist[i].value = QString("0.000");
-//    namelist[i++].name = QString("Flood channel side levee");
+    //    namelist[i].value = QString("0.000");
+    //    namelist[i++].name = QString("Flood channel side levee");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
@@ -469,7 +494,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTCONC");
     namelist[i].value = QString("wh");
     namelist[i++].name = QString("OUTWH");
-    namelist[i].value = QString("whc");
+    namelist[i].value = QString("roc");
     namelist[i++].name = QString("OUTRWH");
     namelist[i].value = QString("tc");
     namelist[i++].name = QString("OUTTC");
@@ -495,6 +520,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTVF");
     namelist[i].value = QString("hmxwh");
     namelist[i++].name = QString("OUTHMXWH");
+    namelist[i].value = QString("sl");
+    namelist[i++].name = QString("OUTSOILLOSS");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[OutputMC]");
@@ -560,7 +587,6 @@ void lisemqt::defaultRunFile()
                 namelist[j].value = SL[2];
                 j++;
             }
-        qDebug() << j << namelist[j-1].name ;
     }
     nrnamelist = j;
 

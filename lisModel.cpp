@@ -175,7 +175,10 @@ void TWorld::DoModel()
         efout.flush();
         efout.close();
 
-
+FOR_ROW_COL_MV
+{
+        hmx->Drc = hmxInit->Drc;
+}
         DEBUG("Running...");
 
         for (time = BeginTime; time < EndTime; time += _dt)
@@ -199,7 +202,7 @@ void TWorld::DoModel()
             if (waitRequested) condition.wait(&mutex);
             mutex.unlock();
             // check if user wants to quit or pause
-
+//Allprocs();
             GridCell();          // set channel widths, flowwidths road widths etc
             RainfallMap();       // get rainfall
             SnowmeltMap();       // get snowmelt
@@ -248,12 +251,14 @@ void TWorld::DoModel()
             efout.flush();
             efout.close();
 
+            reportAll();          // report all maps and timeseries
+
             OutputUI();          // fill the "op" structure for screen output
+                                 // show after report calc is done
+
             if (!noInterface)
                 emit show();
             // send the op structure with data to function worldShow in LisUIModel.cpp
-
-            reportAll();          // report all maps and timeseries
         }
 
         DestroyData();  // destroy all maps automatically

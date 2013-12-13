@@ -52,7 +52,7 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
-#define dt_ca 1e-4
+#define dt_ca 1e-3
 #define dt_fix 0.125
 
 #define GRAV 9.8067
@@ -111,6 +111,7 @@ void TWorld::setZero(TMMap *_h, TMMap *_u, TMMap *_v)
             _u->Drc = 0;
             _v->Drc = 0;
         }
+
         //if (fabs(_u->Drc) <= ve_ca)
         if (_u->Drc <= ve_ca)
         {
@@ -525,8 +526,8 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
 {
     FOR_ROW_COL_MV_MV
     {
-        double dx = _dx-ChannelWidthUpDX->Drc;
-        double dy = DX->Drc;//_dx;
+        double dx = _dx;//-ChannelWidthUpDX->Drc;
+        double dy = _dx;//DX->Drc;
         double tx = dt/dx;
         double ty = dt/dy;
 
@@ -632,7 +633,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     }
 
     // VJ 130517: not in the original code!
-    // correct sudden extreme alues, swap x or y direction
+    // correct sudden extreme values, swap x or y direction
     // cfl = v+sqrt(v), cannot be extremely large
     FOR_ROW_COL_MV_MV
     {
@@ -664,7 +665,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     // find largest velocity and determine dt
     FOR_ROW_COL_MV_MV
     {
-        dx = _dx-ChannelWidthUpDX->Drc;
+        dx = _dx;//-ChannelWidthUpDX->Drc;
         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -677,7 +678,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     // find largest velocity and determine dt
     FOR_ROW_COL_MV_MV
     {
-        dy = DX->Drc;
+        dy = _dx;//DX->Drc;
         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -758,7 +759,6 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
         }
     }
-
     // if there is no flood skip everything
     if (startFlood)
     {
@@ -787,25 +787,38 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
                 v->Drc = vs->Drc;
-                q1->Drc = h->Drc*u->Drc;
-                q2->Drc = h->Drc*v->Drc;
+//                q1->Drc = h->Drc*u->Drc;
+//                q2->Drc = h->Drc*v->Drc;
+                if (h->Drc > 0 || (ChannelWidth->Drc > 0 && floodzone->Drc == 1))
+                {
+                    floodactive->Data[r-1][c-1] = 1;
+                    floodactive->Data[r-1][c] = 1;
+                    floodactive->Data[r-1][c+1] = 1;
+                    floodactive->Data[r][c-1] = 1;
+                    floodactive->Data[r][c] = 1;
+                    floodactive->Data[r][c+1] = 1;
+                    floodactive->Data[r+1][c-1] = 1;
+                    floodactive->Data[r+1][c] = 1;
+                    floodactive->Data[r+1][c+1] = 1;
+                }
+                else
+                    floodactive->Drc = 0;
             }
-
             timesum = timesum + dt1;
             n++;
             double tmp = correctMassBalance(sumh, h);
 
         } while (timesum  < _dt);
 
-        FOR_ROW_COL_MV_MV
-        {
-            q1->Drc = h->Drc*u->Drc;
-            q2->Drc = h->Drc*v->Drc;
-        }
 
     }
     //        Fr=froude_number(hs,us,vs);
     // todo
+    FOR_ROW_COL_MV_MV
+    {
+        q1->Drc = h->Drc*u->Drc;
+        q2->Drc = h->Drc*v->Drc;
+    }
 
     iter_n = n;
     return(timesum/(n+1));

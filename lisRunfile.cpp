@@ -140,11 +140,29 @@ QString TWorld::GetName(QString p)
     return(ss[n-1]);
 }
 //---------------------------------------------------------------------------
+QString TWorld::checkOutputMapName(QString p, QString S, int i)
+{
+    if (p.isEmpty())
+    {
+        ErrorString = "Please give a name for the "+S+".";
+        throw 1;
+    }
+    if (!p.contains("."))
+    {
+        if (i == 0)
+            ErrorString = "Please give a name with an extention, such as \".map\".";
+        else
+            ErrorString = "Please give a name with an extention, such as \".txt\" or \".csv\".";
+        throw 1;
+    }
+    return p;
+}
+//---------------------------------------------------------------------------
 void TWorld::ParseRunfileData(void)
 {
     int j=0;
 
-    // do all switches first
+    // do all switches (checkbox options) first
     for (j = 0; j < nrrunnamelist; j++)
     {
         int iii = runnamelist[j].value.toInt();
@@ -173,7 +191,7 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
-        //    if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
+        //  if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
         if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
         if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
@@ -195,15 +213,17 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
-        //     if (p1.compare("No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
+        // if (p1.compare("No erosion at outlet")==0)           SwitchNoErosionOutlet =  iii == 1;
         if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
         if (p1.compare("Gully infiltration")==0)             SwitchGullyInfil =       iii == 1;
         if (p1.compare("Use initial gully dimensions")==0)   SwitchGullyInit =        iii == 1;
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
-        if (p1.compare("Report point output for SOBEK")==0)
-            SwitchSOBEKoutput =      iii == 1;
-        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring = p;
-        SOBEKdatestring.remove(10,100);
+        if (p1.compare("Report point output for SOBEK")==0)  SwitchSOBEKoutput = iii == 1;
+        if (p1.compare("SOBEK date string")==0)
+        {
+            SOBEKdatestring = p;
+            SOBEKdatestring.remove(10,100);
+        }
         if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
         if (p1.compare("KE parameters EQ1")==0)
@@ -237,15 +257,38 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("KE time based")==0)   SwitchKETimebased = iii == 1;
 
         if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(",");
+        // outputcheck is a string with 0,1,0,1,... etc
 
-        if (p1.compare("Erosion map units (0/1/2)")==0)      ErosionUnits = iii;
+        if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
+
+        InfilMethod = getvalueint("Infil Method");
     }// first loop of runnamelist
 
-    InfilMethod = getvalueint("Infil Method");
+    // check a few things
     if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
         SwitchTwoLayer = true;
+    if (InfilMethod == INFIL_SWATRE)
+    {
+        swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+        SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
+        initheadName = getvaluename("inithead");
+        // only map name is needed, data is read in swatre lib
+        //profileName = getname("profile");//?????????????????????
+        // profile map name
+    }
 
-    // do the rest of the variables
+    if (!SwitchIncludeTile && outputcheck.count() > 11)
+        outputcheck[11] = "0";  //????????????
+
+    if (!SwitchIncludeChannel)
+    {
+        SwitchChannelBaseflow = false;
+        SwitchChannelFlood = false;
+        SwitchChannelInfil = false;
+    }
+
+    // start again and do the rest of the variables, map names etc.
+    // choice of options in first loop determines what happens in this loop
     for (j = 0; j < nrrunnamelist; j++)
     {
         QString p1 = runnamelist[j].name;
@@ -254,46 +297,13 @@ void TWorld::ParseRunfileData(void)
         // input ourput dirs and file names
         if (p1.compare("Map Directory")==0)
             inputDir=CheckDir(p);
-        if (p1.compare("Result Directory")==0)
-            resultDir = CheckDir(p, true);
 
         if (InfilMethod == INFIL_SWATRE)
         {
             if (p1.compare("Table Directory")==0)
-            {
                 SwatreTableDir = CheckDir(p);
-            }
             if (p1.compare("Table File")==0)
-            {
                 SwatreTableName = p;
-            }
-        }
-        if (p1.compare("Main results file")==0)
-        {
-            resultFileName =  p;
-            if (p.isEmpty())
-            {
-                ErrorString = "Please give a name for the main results file";
-                throw 1;
-            }
-        }
-        if (p1.compare("Filename point output")==0)
-        {
-            outflowFileName =  p;
-            if (p.isEmpty())
-            {
-                ErrorString = "Please give a name for the hydrograph file";
-                throw 1;
-            }
-        }
-        if (p1.compare("Filename landunit output")==0)
-        {
-            totalLandunitFileName =  p;
-            if (p.isEmpty())
-            {
-                ErrorString = "Please give a name for the Landunit stats output file";
-                throw 1;
-            }
         }
 
         if (SwitchRainfall)
@@ -306,53 +316,59 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
             if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
         }
+
+        // OUTPUT FILES
+        if (p1.compare("Result Directory")==0)
+            resultDir = CheckDir(p, true);
+           // QFileInfo("resultDir");
+           // WHAT IS THIS ?????????????????
+
+        if (p1.compare("Main results file")==0)
+            resultFileName = checkOutputMapName(p, "main results file", 1);
+        if (p1.compare("Filename point output")==0)
+            outflowFileName = checkOutputMapName(p, "hydrograph file(s)", 1);
+        if (p1.compare("Filename landunit output")==0)
+            totalLandunitFileName = checkOutputMapName(p, "Landunit stats output file",1);
+
+        if (p1.compare("Rainfall map")==0)
+            rainfallMapFileName = checkOutputMapName(p, "rainfall map", 0);
+        if (p1.compare("Interception map")==0)
+            interceptionMapFileName = checkOutputMapName(p, "interception map", 0);
+        if (p1.compare("Infiltration map")==0)
+            infiltrationMapFileName = checkOutputMapName(p, "infiltration map", 0);
+        if (p1.compare("Runoff map")==0)
+            runoffMapFileName = checkOutputMapName(p, "runoff map", 0);
+        if (p1.compare("Runoff fraction map")==0)
+            runoffFractionMapFileName = checkOutputMapName(p, "runoff fraction map", 0);
+        if (p1.compare("Channel discharge map")==0)
+            channelDischargeMapFileName = checkOutputMapName(p, "Channel discharge map", 0);
+
+
         if (SwitchErosion)
         {
             if (p1.compare("Erosion map")==0)
-            {
-                totalErosionFileName = p;
-                if (p.isEmpty())
-                {
-                    ErrorString = "Please give a name for the detachment map";
-                    throw 1;
-                }
-                if (!p.contains("."))
-                {
-                    ErrorString = "Please give a name with an extention (such as \".map\")";
-                    throw 1;
-                }
-            }
+                totalErosionFileName = checkOutputMapName(p, "detachment map",0);
             if (p1.compare("Deposition map")==0)
-            {
-                totalDepositionFileName =  p;
-                if (p.isEmpty())
-                {
-                    ErrorString = "Please give a name for the deposition map";
-                    throw 1;
-                }
-                if (!p.contains("."))
-                {
-                    ErrorString = "Please give a name with an extention (such as \".map\")";
-                    throw 1;
-                }
-            }
+                totalDepositionFileName = checkOutputMapName(p, "deposition map",0);
             if (p1.compare("Soilloss map")==0)
-            {
-                totalSoillossFileName =  p;
-                if (p.isEmpty())
-                {
-                    ErrorString = "Please give a name for the soil loss map";
-                    throw 1;
-                }
-                if (!p.contains("."))
-                {
-                    ErrorString = "Please give a name with an extention (such as \".map\")";
-                    throw 1;
-                }
-            }
-            // resultDir is added in report operation
+                totalSoillossFileName = checkOutputMapName(p, "soil loss map",0);
         }
 
+        if (SwitchChannelFlood)
+        {
+            if (p1.compare("Flood level map")==0)
+                floodLevelFileName = checkOutputMapName(p, "flood level map",0);
+            if (p1.compare("Flood time map")==0)
+                floodTimeFileName = checkOutputMapName(p, "flood time map",0);
+            if (p1.compare("Flood stats")==0)
+                floodStatsFileName =  p = checkOutputMapName(p, "flood statistics file",1); ;
+            if (p1.compare("Channel Max Q")==0)
+                floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0); ;
+            if (p1.compare("Channel Max WH")==0)
+                floodMaxWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
+        }
+
+        // output map timeseries, standard names, to avoid unreadable pcraster names
         if (p1.compare("OUTRUNOFF")==0)  Outrunoff = GetName(p);
         if (p1.compare("OUTCONC"  )==0)  Outconc   = GetName(p);
         if (p1.compare("OUTWH"    )==0)  Outwh     = GetName(p);
@@ -365,33 +381,14 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
         if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
         if (p1.compare("OUTTILED" )==0)  OutTiledrain  = GetName(p);
-        if (p1.compare("OUTHMX" )==0)    OutHmx  = GetName(p);
-        if (p1.compare("OUTQF" )==0)     OutQf  = GetName(p);
-        if (p1.compare("OUTVF" )==0)     OutVf  = GetName(p);
+        if (p1.compare("OUTHMX"   )==0)    OutHmx  = GetName(p);
+        if (p1.compare("OUTQF"    )==0)     OutQf  = GetName(p);
+        if (p1.compare("OUTVF"    )==0)     OutVf  = GetName(p);
         if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
+        if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
     }
 
 
-    QFileInfo("resultDir");
-
-    if (InfilMethod == INFIL_SWATRE)
-    {
-        swatreDT = getvaluedouble("SWATRE internal minimum timestep");
-        SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
-        initheadName = getvaluename("inithead");
-        // only map name is needed, data is read in swatre lib
-        //profileName = getname("profile");//?????????????????????
-        // profile map name
-    }
-
-    if (!SwitchIncludeTile && outputcheck.count() > 11)
-        outputcheck[11] = "0";
-    if (!SwitchIncludeChannel)
-    {
-        SwitchChannelBaseflow = false;
-        SwitchChannelFlood = false;
-        SwitchChannelInfil = false;
-    }
 }
 //------------------------------------------------------------------------------
 void TWorld::GetRunFile(void)

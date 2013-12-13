@@ -309,6 +309,7 @@ void lisemqt::SetStyleUI()
     label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     label_discharge->setStyleSheet("* { background-color: #ffff77 }");
+    label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
     label_dischargesub->setStyleSheet("* { background-color: #ffff77 }");
@@ -859,9 +860,11 @@ void lisemqt::resetAll()
     E_RainfallName->setText("");
     E_SnowmeltName->setText("");
     E_ResultDir->setText("");
-    E_DetachmentMap->setText("");
-    E_DepositionMap->setText("");
-    E_SoillossMap->setText("");
+
+    E_DetachmentMap->setText("detachment.map");
+    E_DepositionMap->setText("deposition.map");
+    E_SoillossMap->setText("soilloss.map");
+
     E_MainTotals->setText("");
     E_PointResults->setText("");
 

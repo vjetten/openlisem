@@ -56,8 +56,8 @@ void lisemqt::ssetAlpha4(int v)
 void lisemqt::selectMapType(bool doit)
 {
 
-//    if (stopplot)
-//        return;
+    //    if (stopplot)
+    //        return;
 
     op.addWHtohmx = checkAddWHtohmx->isChecked();
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
@@ -101,31 +101,31 @@ void lisemqt::initMapPlot()
     transparency4->setValue(100); //houses
 
     // link with runfile
-//    op.drawMapType = MapDisplayMapSelection;
-//    transparency->setValue(qMin(MapDisplayHydrology, 200));  //main data
-//    transparency2->setValue(qMin(MapDisplayChannels, 200)); //channels
-//    transparency3->setValue(qMin(MapDisplayRoads, 200)); //roads
-//    transparency4->setValue(qMin(MapDisplayBuilding, 200)); //houses
+    //    op.drawMapType = MapDisplayMapSelection;
+    //    transparency->setValue(qMin(MapDisplayHydrology, 200));  //main data
+    //    transparency2->setValue(qMin(MapDisplayChannels, 200)); //channels
+    //    transparency3->setValue(qMin(MapDisplayRoads, 200)); //roads
+    //    transparency4->setValue(qMin(MapDisplayBuilding, 200)); //houses
 
-//    doubleSpinBoxRO->setValue(MapDisplayRunoffMax);
-//    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
-//    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
-//    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
-//    op.addWHtohmx = MapDisplayIncludeRunoff == 1;
-//    floodCutoffLevel->setValue(qMax(qMin(MapDisplayMinimumDepth,2),0));
+    //    doubleSpinBoxRO->setValue(MapDisplayRunoffMax);
+    //    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
+    //    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
+    //    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
+    //    op.addWHtohmx = MapDisplayIncludeRunoff == 1;
+    //    floodCutoffLevel->setValue(qMax(qMin(MapDisplayMinimumDepth,2),0));
 
     // slider setting basemap transparency
-//    if (p1.compare("Building display")==0)  MapDisplayBuilding = iii;
-//    if (p1.compare("Roads display")==0)     MapDisplayRoads = iii;
-//    if (p1.compare("Channels display")==0)  MapDisplayChannels = iii;
-//    if (p1.compare("Hydrology display")==0) MapDisplayHydrology = iii;
-//    if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
-//    if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
-//    if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
-//    if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
-//    if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
-//    if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
-//    if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
+    //    if (p1.compare("Building display")==0)  MapDisplayBuilding = iii;
+    //    if (p1.compare("Roads display")==0)     MapDisplayRoads = iii;
+    //    if (p1.compare("Channels display")==0)  MapDisplayChannels = iii;
+    //    if (p1.compare("Hydrology display")==0) MapDisplayHydrology = iii;
+    //    if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
+    //    if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
+    //    if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
+    //    if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
+    //    if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
+    //    if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
+    //    if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 }
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
@@ -210,7 +210,7 @@ void lisemqt::setupMapPlot()
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
 
-    picker = new MyPicker( MPlot->canvas() );  
+    picker = new MyPicker( MPlot->canvas() );
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -243,6 +243,7 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols );
     // set column number to divide vector into rows
+
     _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols*_M->MH.cellSizeX, QwtInterval::ExcludeMaximum ) );
     _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows*_M->MH.cellSizeY, QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
@@ -254,8 +255,8 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 // not how they are done here!
 void lisemqt::showMap()
 {
-//    if (!startplot)
-//        return;
+    //    if (!startplot)
+    //        return;
 
     drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) showMap1();
@@ -286,32 +287,43 @@ void lisemqt::showBaseMap()
 
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
-    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
-    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
-    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-   // startplot = false;
+    if (nrRows > nrCols)
+    {
+        MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
+        MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+    }
+    else
+    {
+        MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
+        MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+    }
+    // startplot = false;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showChannelMap()
 {
     if (!startplot)
         return;
+
     double res = fillDrawMapData(op.channelMap, RDc);
 
     channelMap->setAlpha(transparency2->value());
 
     channelMap->setColorMap(new colorMapFlood());
     RDc->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
+
     channelMap->setData(RDc);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
 {
-//    if (!startplot)
-//        return;
-    double res = fillDrawMapData(op.roadMap, RDd);
+    if (startplot)
+    {
+        double res = fillDrawMapData(op.roadMap, RDd);
+        roadMap->setData(RDd);
+        RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
+    }
 
     roadMap->setAlpha(transparency3->value());
 
@@ -320,69 +332,73 @@ void lisemqt::showRoadMap()
     else
         roadMap->setColorMap(new colorMapRoads2());
 
-    RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
-    roadMap->setData(RDd);
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
-    if (!startplot)
-        return;
+    if (startplot)
+    {
 
-    // set intervals for rasterdata, x,y,z min and max
-    double res = fillDrawMapData(op.houseMap, RDe);
+        // set intervals for rasterdata, x,y,z min and max
+        double res = fillDrawMapData(op.houseMap, RDe);
+        RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
+        houseMap->setData(RDe);
+    }
 
     houseMap->setAlpha(transparency4->value());
 
-    houseMap->setColorMap(new colorMapHouse());
+    if (op.drawMapType == 4)
+        houseMap->setColorMap(new colorMapHouse());
+    else
+        houseMap->setColorMap(new colorMapWhite());
 
-    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
-    houseMap->setData(RDe);
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMapA()
 {
-    if (!startplot)
-        return;
+    //    if (!startplot)
+    //        return;
 
-    double maxV = -1;
-    QVector<double> mapDataa;
+    //    double maxV = -1;
+    //    QVector<double> mapDataa;
 
-    TMMap *M = new TMMap();
-    M->PathName = W->inputDir + "lu5m.map";
-    bool res = M->LoadFromFile();
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +M->PathName;
-        throw 1;
-    }
+    //    TMMap *M = new TMMap();
+    //    M->PathName = W->inputDir + "lu5m.map";
+    //    bool res = M->LoadFromFile();
+    //    if (!res)
+    //    {
+    //        ErrorString = "Cannot find map " +M->PathName;
+    //        throw 1;
+    //    }
 
-    mapDataa.clear();
+    //    mapDataa.clear();
 
-    // copy map data into vector for the display structure
-    for(int r = M->nrRows-1; r >= 0; r--)
-        for(int c=0; c < M->nrCols; c++)
-        {
-            if(!IS_MV_REAL8(&M->Drc))
-            {
-                mapDataa << M->Drc;
-                maxV = qMax(maxV, M->Drc);
-            }
-            else
-                mapDataa << (double)-1e20;
-        }
+    //    // copy map data into vector for the display structure
+    //    for(int r = M->nrRows-1; r >= 0; r--)
+    //        for(int c=0; c < M->nrCols; c++)
+    //        {
+    //            if(!IS_MV_REAL8(&M->Drc))
+    //            {
+    //                mapDataa << M->Drc;
+    //                maxV = qMax(maxV, M->Drc);
+    //            }
+    //            else
+    //                mapDataa << (double)-1e20;
+    //        }
 
-    // set intervals for rasterdata, x,y,z min and max
-    RDe->setValueMatrix( mapDataa, M->nrCols );
+    //    // set intervals for rasterdata, x,y,z min and max
+    //    RDe->setValueMatrix( mapDataa, M->nrCols );
 
-    houseMap->setAlpha(transparency4->value());
+    //    houseMap->setAlpha(transparency4->value());
 
-    houseMap->setColorMap(new colorMapGray());
+    //    houseMap->setColorMap(new colorMapGray());
 
-    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,maxV));
-    houseMap->setData(RDe);
-    MPlot->setAxisScale( MPlot->xBottom, 0.0, M->nrCols, M->nrCols/20);
-    MPlot->setAxisScale( MPlot->yLeft, 0.0, M->nrRows, M->nrRows/20);
+    //    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,maxV));
+    //    houseMap->setData(RDe);
+    //  //  MPlot->setAxisScale( MPlot->xBottom, 0.0, M->nrCols, M->nrCols/20);
+    //  //  MPlot->setAxisScale( MPlot->yLeft, 0.0, M->nrRows, M->nrRows/20);
 
 }
 //---------------------------------------------------------------------------
@@ -443,6 +459,7 @@ void lisemqt::showMap2()
 
     // set the right axis legend to the new interval
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWater());
+
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis2);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }

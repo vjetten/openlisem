@@ -45,9 +45,6 @@ functions: \n
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
-// check if cell is still inside the map boundaries
-//moved to model.h
-//#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 
 #define MAX_ITERS 10
 
@@ -218,8 +215,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     list->rowNr = pitRowNr;
     list->colNr = pitColNr;
 
-//    if (SwitchErosion)
-//        _Qsn->fill(0);
+    //    if (SwitchErosion)
+    //        _Qsn->fill(0);
     // set output sed flux to 0
     //   _Qn->setMV();
     // flag all Qn gridcell with MV
@@ -523,12 +520,12 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                 }
             }
 
-//            if (!SwitchSimpleSedKinWave)
-                _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
-                                                          Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
-//            else
-//                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
-//                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
+            //            if (!SwitchSimpleSedKinWave)
+            _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
+                                                      Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+            //            else
+            //                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
+            //                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
             _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
@@ -546,105 +543,41 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
         }/* eof subcatchment done */
     } /* eowhile list != NULL */
 }
-/*
-void TWorld::findFlood(int pitRowNr, int pitColNr, TMMap *_LDD)
+//---------------------------------------------------------------------------
+/// return the sum of all values upstream
+void TWorld::upstream(TMMap *_LDD, TMMap *_M, TMMap *out)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-    LDD_LINKEDLIST *list = NULL, *temp = NULL;
-    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-    list->prev = NULL;
-    /// start gridcell: outflow point of area
-    list->rowNr = pitRowNr;
-    list->colNr = pitColNr;
-
-    tm->setMV();
-
-    while (list != NULL)
+    FOR_ROW_COL_MV
     {
-        int i = 0;
-        bool  subCachDone = true; // are sub-catchment cells done ?
-        int rowNr = list->rowNr;
-        int colNr = list->colNr;
-
-        // put all points that have to be calculated to calculate the current point in the list,
-         //before the current point
-        for (i=1; i<=9; i++)
+        double tot = 0;
+        for (int i=1; i<=9; i++)
         {
-            int r, c;
-            int ldd = 0;
-
             // this is the current cell
             if (i==5)
                 continue;
 
-            r = rowNr+dy[i];
-            c = colNr+dx[i];
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
-            // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&tm->Drc) &&
-                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                    INSIDE(r, c))
+            // if no MVs and row,col flows to central cell r,c
+            if (  //INSIDE(row, col) &&
+                  // !IS_MV_REAL4(&_LDD->Data[row][col]) &&
+                  FLOWS_TO(ldd, row, col, r, c)
+                  )
             {
-                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                temp->prev = list;
-                list = temp;
-                list->rowNr = r;
-                list->colNr = c;
-                subCachDone = false;
+                tot += _M->Data[row][col];
             }
         }
-
-        if (subCachDone)
-        {
-            double edge = 0;
-
-            for (i=1;i<=9;i++)
-            {
-                int r, c, ldd = 0;
-
-                if (i==5)  // Skip current cell
-                    continue;
-
-                r = rowNr+dy[i];
-                c = colNr+dx[i];
-
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
-                else
-                    continue;
-
-                if (INSIDE(r, c) &&
-                        FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
-                {
-                    if (FloodDomain->Drc == 0 &&
-                            FloodDomain->Data[rowNr][colNr] > 0)
-                        edge += 1;
-                }
-            }
-
-
-            if (edge > 0)
-                FloodDomain->Data[rowNr][colNr] = 2;
-
-            tm->Data[rowNr][colNr] = 1;
-
-            temp=list;
-            list=list->prev;
-            free(temp);
-            // go to the previous cell in the list
-
-        }
+        out->Drc = tot;
     }
-
 }
-*/

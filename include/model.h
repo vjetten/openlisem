@@ -79,14 +79,15 @@
     if(!IS_MV_REAL8(&LDD->Data[r][c]))
 
 /// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
+/// and looking only in active flood domain = flood + 1 cell in all directions
 #define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
     if(!IS_MV_REAL8(&LDD->Data[r][c]) && \
     !IS_MV_REAL8(&LDD->Data[r-1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
-    !IS_MV_REAL8(&LDD->Data[r][c+1]))
-      //if (FloodDomain->Drc > 0)
+    !IS_MV_REAL8(&LDD->Data[r][c+1]))\
+    if (floodactive->Drc > 0)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -255,7 +256,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -263,7 +264,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
-    double floodTotmm;
+    double floodTotmm, floodTotmmInit;
     /// peak times (min)
     double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
@@ -309,6 +310,20 @@ public:
     QString totalDepositionFileName;
     QString totalSoillossFileName;
     QString totalLandunitFileName;
+
+    QString rainfallMapFileName;
+    QString interceptionMapFileName;
+    QString infiltrationMapFileName;
+    QString runoffMapFileName;
+    QString runoffFractionMapFileName;
+    QString channelDischargeMapFileName;
+
+    QString floodLevelFileName;
+    QString floodTimeFileName;
+    QString floodStatsFileName;
+    QString floodMaxQFileName;
+    QString floodMaxWHFileName;
+
     QString rainFileName;
     QString rainFileDir;
     QString snowmeltFileName;
@@ -318,7 +333,7 @@ public:
     QStringList outputcheck;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
-    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
+    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSL;
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
@@ -357,6 +372,7 @@ public:
     int getvalueint(QString vname);
     QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
+    QString checkOutputMapName(QString p, QString S, int i);
     void ParseRunfileData(void);
     void GetRunFile(void);
     //MapListStruct qx[9];
@@ -398,6 +414,9 @@ public:
     double *Solve(int n,int m, double **A_LU, double *B);
     double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
     double ConcentrationP(double watvol, double pest);
+
+
+    void Allprocs();
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
@@ -462,9 +481,10 @@ public:
     void routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                                 TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
                                 TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed);
-    void findFlood(int pitRowNr, int pitColNr, TMMap *_LDD);
+    void upstream(TMMap *_LDD, TMMap *_M, TMMap *out);
 
     // alternative kin wave based on a pre-sorted network
+    // not used!!
     bool useSorted;
     LDD_POINT **makeSortedNetwork(TMMap *_LDD, long *lddlistnr);
     void KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,

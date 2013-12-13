@@ -67,6 +67,23 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+class colorMapWhite: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.1 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapWhite():
+        QwtLinearColorMap( QColor(BGc),QColor("#111111")  )
+    {
+        addColorStop(0, Qt::white );
+    }
+};
+//---------------------------------------------------------------------------
 /// Dark yellow legend for maps for road map overlay
 class colorMapRoads: public QwtLinearColorMap
 {

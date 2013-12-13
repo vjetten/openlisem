@@ -34,7 +34,7 @@ functions: \n
  */
 
 #include "model.h"
-
+#define tiny 1e-8
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
@@ -91,8 +91,8 @@ void TWorld::ToChannel(void)
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch(void)
 {
-    tm->fill(0);
-    tma->fill(0);
+  //  tm->fill(0);
+ //   tma->fill(0);
     FOR_ROW_COL_MV
     {
         double Perim;
@@ -125,7 +125,7 @@ void TWorld::CalcVelDisch(void)
             Q->Drc = 0;
 
         V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
-        tm->Drc = V->Drc * R->Drc/1.1e-6;
+        //tm->Drc = V->Drc * R->Drc/1.1e-6;
     }
     // tm->report("reyn");
     //  tma->report("reynF");
@@ -251,6 +251,8 @@ void TWorld::OverlandFlow(void)
             InfilVolKinWave->Drc = diff;
         // correct infiltration in m3
         // TODO what if infiltration == none then correct watervolume out, but then Qn and watervolout do not match?
+
+
 
         if (SwitchErosion)
         {
