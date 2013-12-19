@@ -88,6 +88,7 @@ void TWorld::Interception(void)
             //double k = 1-exp(-CanopyOpeness*LAIv);
             //VJ !!!!!!2013 05 18 BUG ! was k=exp(-coLAI) MUST BE 1-exp
             double k = exp(-CanopyOpeness*LAIv);
+
             //VJ 131010 NOT !!!!! a dense canopy has a low openess factor, so little direct throughfall and high CS
 
             CS = Smax*(1-exp(-k*RainCum->Drc/Smax));

@@ -789,7 +789,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 v->Drc = vs->Drc;
 //                q1->Drc = h->Drc*u->Drc;
 //                q2->Drc = h->Drc*v->Drc;
-                if (h->Drc > 0 || (ChannelWidth->Drc > 0 && floodzone->Drc == 1))
+                if (h->Drc > 0 || (ChannelWidth->Drc > 0))
                 {
                     floodactive->Data[r-1][c-1] = 1;
                     floodactive->Data[r-1][c] = 1;

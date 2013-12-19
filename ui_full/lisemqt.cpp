@@ -281,6 +281,7 @@ void lisemqt::SetToolBar()
     connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
@@ -795,6 +796,9 @@ void lisemqt::shootScreen()
                 else
                     if (op.drawMapType == 4)
                         type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
+                    else
+                        if (op.drawMapType == 5)
+                            type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
 
         fileName = outdir + fi.baseName() + type;
 
@@ -824,6 +828,9 @@ void lisemqt::shootScreen()
                         else
                             if (op.drawMapType == 4)
                                 type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
+                            else
+                                if (op.drawMapType == 5)
+                                    type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
 
             }
         fileName = outdir + fi.baseName() + type;
@@ -875,10 +882,20 @@ void lisemqt::resetAll()
     E_SnowmeltName->setText("");
     E_ResultDir->setText("");
 
+    E_RainfallMap->setText("rainfall.map");
+    E_InterceptionMap->setText("interception.map");
+    E_InfiltrationMap->setText("infiltration.map");
+    E_RunoffMap->setText("runoff.map");
+    E_RunoffFractionMap->setText("rofraction.map");
+    E_ChannelQtotm3Map->setText("chandism3.map");
     E_DetachmentMap->setText("detachment.map");
     E_DepositionMap->setText("deposition.map");
     E_SoillossMap->setText("soilloss.map");
-
+    E_FloodlevelMap->setText("floodmax.map");
+    E_FloodTimeMap->setText("floodtime.map");
+    E_FloodStats->setText("floodstats.txt");
+    E_ChannelMaxQ->setText("channelmaxq.map");
+    E_ChannelMaxWH->setText("channelmaxhw.map");
     E_MainTotals->setText("");
     E_PointResults->setText("");
 
@@ -967,6 +984,11 @@ void lisemqt::resetAll()
     //buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
 
+
+    radioButton_1->setChecked(true); //<= grass interception
+    E_CanopyOpeness->setValue(0.45);
+    E_StemflowFraction->setValue(0.054);
+
     //VJ 110706 KE equations
     radioButtonKE1->setChecked(true);
     spinKEparameterA1->setValue(28.3);
@@ -981,12 +1003,17 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    checkFloodExplicit->setChecked(check);
+    checkFloodExplicit->setChecked(false);
     checkFloodSWOForder1->setChecked(true);
-    checkFloodSWOForder2->setChecked(check);
+    checkFloodSWOForder2->setChecked(false);
     E_cflFactor->setValue(0.4);
     E_courantFactor->setValue(0.2);
     E_courantFactor->setEnabled(false);
+    E_floodMinHeight->setValue(0.05);
+    E_mixingFactor->setValue(1.5);
+    E_FloodFluxLimiter->setValue(1);
+    E_FloodRecon->setValue(2);
+
 
 }
 //--------------------------------------------------------------------

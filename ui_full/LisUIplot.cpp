@@ -106,8 +106,8 @@ void lisemqt::setupPlot()
     HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
     if(!checkNoErosion->isChecked())
     {
-        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
-        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) & P (mm/h)");
+        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) & C (g/l)");
     }
     else
     {

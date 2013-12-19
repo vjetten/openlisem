@@ -64,6 +64,7 @@ void lisemqt::selectMapType(bool doit)
     if (radioButton_INF->isChecked())   op.drawMapType = 2;
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
     if (radioButton_FL->isChecked())    op.drawMapType = 4;
+    if (radioButton_FLV->isChecked())   op.drawMapType = 5;
 
     showMap(); // show map
 
@@ -80,6 +81,7 @@ void lisemqt::initMapPlot()
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
     maxAxis4 = -1e20;
+    maxAxis5 = -1e20;
     pstep = 0;
 
 
@@ -263,6 +265,7 @@ void lisemqt::showMap()
     if (op.drawMapType == 2) showMap2();
     if (op.drawMapType == 3) showMap3();
     if (op.drawMapType == 4) showMap4();
+    if (op.drawMapType == 5) showMap5();
 
     MPlot->replot();
     // do not do resets panning
@@ -348,10 +351,10 @@ void lisemqt::showHouseMap()
 
     houseMap->setAlpha(transparency4->value());
 
-    if (op.drawMapType == 4)
+//    if (op.drawMapType == 4)
         houseMap->setColorMap(new colorMapHouse());
-    else
-        houseMap->setColorMap(new colorMapWhite());
+//    else
+//        houseMap->setColorMap(new colorMapWhite());
 
 
 }
@@ -408,7 +411,7 @@ void lisemqt::showMap1()
     MPlot->setTitle("Runoff (l/s)");
 
     double MaxV = fillDrawMapData(op.DrawMap1, RD);
-    MaxV = fillDrawMapData(op.DrawMap1, RD);
+ //   MaxV = fillDrawMapData(op.DrawMap1, RD);
     // fill vector and find the new max value
 
     // set intervals for rasterdata, x,y,z min and max
@@ -442,7 +445,7 @@ void lisemqt::showMap2()
 
     // fill vector RD with matrix data and find the new max value
     double MaxV = fillDrawMapData(op.DrawMap2, RD);
-    MaxV = fillDrawMapData(op.DrawMap2, RD);
+ //   MaxV = fillDrawMapData(op.DrawMap2, RD);
 
     // set the new interval to the new max value
     maxAxis2 = qMax(maxAxis2, MaxV);
@@ -470,7 +473,7 @@ void lisemqt::showMap3()
     MPlot->setTitle("Soil loss (ton/ha)");
 
     double MaxV = fillDrawMapData(op.DrawMap3, RD);
-    MaxV = fillDrawMapData(op.DrawMap3, RD);
+ //   MaxV = fillDrawMapData(op.DrawMap3, RD);
     // fill vector and find the new max value
 
     maxAxis3 = qMax(maxAxis3, MaxV);
@@ -496,7 +499,7 @@ void lisemqt::showMap4()
 
     double MinV = 0;
     double MaxV = fillDrawMapData(op.DrawMap4, RD);
-    MaxV = fillDrawMapData(op.DrawMap4, RD);
+  //  MaxV = fillDrawMapData(op.DrawMap4, RD);
     // fill vector and find the new max value
 
     maxAxis4 = qMax(maxAxis4, MaxV);
@@ -521,5 +524,30 @@ void lisemqt::showMap4()
     MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     // draw legend
+}
+//---------------------------------------------------------------------------
+// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
+void lisemqt::showMap5()
+{
+    MPlot->setTitle("Flood Velocity (m/s)");
+
+    double MaxV = fillDrawMapData(op.DrawMap5, RD);
+ //   MaxV = fillDrawMapData(op.DrawMap5, RD);
+    // fill vector and find the new max value
+
+    maxAxis5 = qMax(maxAxis5, MaxV);
+    if (doubleSpinBoxSL->value() > 0)
+        maxAxis5 = doubleSpinBoxFLV->value();
+    else
+        maxAxis5 = MaxV;
+    RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
+
+    drawMap->setData(RD);
+    drawMap->setColorMap(new colorMapFloodV());
+    //QwtPlotSpectrogram
+
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFloodV());
+    MPlot->setAxisScale( MPlot->yRight, 0, maxAxis5);
+    MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------

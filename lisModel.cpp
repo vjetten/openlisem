@@ -93,6 +93,7 @@ void TWorld::DoModel()
             op.DrawMap2->KillMap();
             op.DrawMap3->KillMap();
             op.DrawMap4->KillMap();
+            op.DrawMap5->KillMap();
             op.baseMap->KillMap();
             op.channelMap->KillMap();
             op.roadMap->KillMap();
@@ -103,6 +104,7 @@ void TWorld::DoModel()
         op.DrawMap2 = new TMMap();
         op.DrawMap3 = new TMMap();
         op.DrawMap4 = new TMMap();
+        op.DrawMap5 = new TMMap();
         op.baseMap = new TMMap();
         op.channelMap = new TMMap();
         op.roadMap = new TMMap();
@@ -112,6 +114,7 @@ void TWorld::DoModel()
         op.DrawMap2->MakeMap(LDD, 0);
         op.DrawMap3->MakeMap(LDD, 0);
         op.DrawMap4->MakeMap(LDD, 0);
+        op.DrawMap5->MakeMap(LDD, 0);
         op.baseMap->MakeMap(LDD, 0);
         op.channelMap->MakeMap(LDD, 0);
         op.roadMap->MakeMap(LDD, 0);
@@ -175,10 +178,13 @@ void TWorld::DoModel()
         efout.flush();
         efout.close();
 
-FOR_ROW_COL_MV
-{
-        hmx->Drc = hmxInit->Drc;
-}
+//        if (SwitchChannelFlood)
+//        {
+//            //FOR_ROW_COL_MV
+//            {
+//                hmx->Drc = hmxInit->Drc;
+//            }
+//        }
         DEBUG("Running...");
 
         for (time = BeginTime; time < EndTime; time += _dt)

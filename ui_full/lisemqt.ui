@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>lisemqtClass</class>
  <widget class="QMainWindow" name="lisemqtClass">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -1474,7 +1477,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -3888,7 +3891,7 @@ p, li { white-space: pre-wrap; }
                       <double>0.001000000000000</double>
                      </property>
                      <property name="value">
-                      <double>0.750000000000000</double>
+                      <double>0.450000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -5334,6 +5337,9 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="0" column="0">
                 <widget class="QFrame" name="FloodParams">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <layout class="QGridLayout" name="gridLayout_24">
                   <item row="1" column="0" colspan="2">
                    <widget class="QLabel" name="label_99">
@@ -5490,6 +5496,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="9" column="2">
                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="palette">
                      <palette>
                       <active>
@@ -5593,6 +5602,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="11" column="2">
                    <widget class="QSpinBox" name="E_FloodRecon">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -5637,6 +5649,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="7" column="2">
                    <widget class="QDoubleSpinBox" name="E_cflFactor">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -5972,7 +5987,7 @@ p, li { white-space: pre-wrap; }
                   <item row="5" column="0" colspan="2">
                    <widget class="QRadioButton" name="checkFloodSWOForder1">
                     <property name="enabled">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="palette">
                      <palette>
@@ -6131,7 +6146,7 @@ p, li { white-space: pre-wrap; }
                   <item row="3" column="0" colspan="3">
                    <widget class="QRadioButton" name="checkFloodExplicit">
                     <property name="enabled">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="palette">
                      <palette>
@@ -9752,7 +9767,7 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                    <property name="text">
-                    <string>Total Channel runoff (m3)</string>
+                    <string>Total Channel Q (m3)</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -16284,32 +16299,39 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <layout class="QGridLayout" name="gridLayout_38">
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_91">
+                <item row="6" column="0">
+                 <widget class="QRadioButton" name="radioButton_SL">
+                  <property name="text">
+                   <string>Soil loss</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxINF">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text">
-                   <string>Roads</string>
+                  <property name="decimals">
+                   <number>1</number>
                   </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QSlider" name="transparency3">
+                <item row="2" column="1">
+                 <widget class="QSlider" name="transparency2">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
                   </property>
                   <property name="maximum">
                    <number>255</number>
@@ -16317,34 +16339,50 @@ p, li { white-space: pre-wrap; }
                   <property name="value">
                    <number>180</number>
                   </property>
+                  <property name="sliderPosition">
+                   <number>180</number>
+                  </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_63">
+                <item row="6" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text">
-                   <string>Channels</string>
+                  <property name="decimals">
+                   <number>1</number>
                   </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  <property name="maximum">
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_92">
-                  <property name="text">
-                   <string>Hydrology</string>
+                <item row="7" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
                   </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QRadioButton" name="radioButton_FL">
+                  <property name="text">
+                   <string>Flood depth</string>
                   </property>
                  </widget>
                 </item>
@@ -16383,22 +16421,20 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxRO">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                <item row="9" column="0">
+                 <widget class="QCheckBox" name="checkAddWHtohmx">
+                  <property name="text">
+                   <string>incl Runoff</string>
                   </property>
-                  <property name="decimals">
-                   <number>1</number>
+                 </widget>
+                </item>
+                <item row="11" column="0" colspan="2">
+                 <widget class="QLabel" name="label_93">
+                  <property name="text">
+                   <string>cutoff:    0.01 -  0.05 -  0.1m</string>
                   </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -16409,91 +16445,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxINF">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0">
-                 <widget class="QRadioButton" name="radioButton_SL">
-                  <property name="text">
-                   <string>Soil loss</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QRadioButton" name="radioButton_FL">
-                  <property name="text">
-                   <string>Flood depth</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QSlider" name="transparency2">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximum">
-                   <number>255</number>
-                  </property>
-                  <property name="value">
-                   <number>180</number>
-                  </property>
-                  <property name="sliderPosition">
-                   <number>180</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
+                <item row="9" column="1">
                  <widget class="QSlider" name="floodCutoffLevel">
                   <property name="maximum">
                    <number>2</number>
@@ -16506,6 +16458,16 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="tickPosition">
                    <enum>QSlider::TicksBelow</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_56">
+                  <property name="text">
+                   <string>Buildings (&gt;10%)</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -16525,30 +16487,100 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_56">
+                <item row="4" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxRO">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_92">
                   <property name="text">
-                   <string>Buildings (&gt;10%)</string>
+                   <string>Hydrology</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="0" colspan="2">
-                 <widget class="QLabel" name="label_93">
+                <item row="1" column="1">
+                 <widget class="QSlider" name="transparency3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>255</number>
+                  </property>
+                  <property name="value">
+                   <number>180</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_91">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
-                   <string>cutoff:    0.01 -  0.05 -  0.1m</string>
+                   <string>Roads</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="0">
-                 <widget class="QCheckBox" name="checkAddWHtohmx">
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_63">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
-                   <string>incl Runoff</string>
+                   <string>Channels</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="0">
+                 <widget class="QRadioButton" name="radioButton_FLV">
+                  <property name="text">
+                   <string>Flood Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFLV">
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -17520,6 +17552,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>901</x>
      <y>419</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodSWOForder2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodFluxLimiter</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>95</x>
+     <y>483</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>552</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodSWOForder2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodRecon</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>479</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>599</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodSWOForder2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodScheme</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>479</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>644</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFloodSWOForder2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_cflFactor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>313</x>
+     <y>506</y>
     </hint>
    </hints>
   </connection>

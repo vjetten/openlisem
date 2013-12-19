@@ -613,14 +613,14 @@ void TWorld::InitChannel(void)
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 ChannelLevee->fill(0);
-            hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+            //hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
 
             floodactive = NewMap(1);
-            floodzone = ReadMap(LDD, getvaluename("floodzone"));
-            FOR_ROW_COL_MV
-            {
-                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
-            }
+//            floodzone = ReadMap(LDD, getvaluename("floodzone"));
+//            FOR_ROW_COL_MV
+//            {
+//                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
+//            }
 
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");

@@ -246,6 +246,7 @@ void TWorld::InfilMethods(TMMap * _Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fa
         _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
     }
+    _L2->report("l2s");
 }
 //---------------------------------------------------------------------------
 /*!
@@ -320,6 +321,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 
     *L1p = (REAL8)L1;
     *L2p = (REAL8)L2;
+    *FFullp = (REAL8)FFull;
 
     return fact;
 }
@@ -467,6 +469,8 @@ void TWorld::Infiltration(void)
         InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // infil volume is WH before - water after
     }
+    FFull->report("ff");
+    Fcum->report("fc");
 }
 //---------------------------------------------------------------------------
 // do infiltration for flooded area exclusing channel cells

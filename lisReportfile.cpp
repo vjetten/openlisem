@@ -89,6 +89,10 @@ void TWorld::OutputUI(void)
                     tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
         }
         op.DrawMap4->copy(tmb);  //flood level in m
+
+        FOR_ROW_COL_MV
+                tmb->Drc = UVflood->Drc < 0.01 ? 0 : UVflood->Drc;
+        op.DrawMap5->copy(tmb);  //flood level in m
     }
 
     op.baseMap->copy(Shade);

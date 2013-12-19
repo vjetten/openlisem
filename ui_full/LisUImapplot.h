@@ -269,6 +269,26 @@ public:
         addColorStop( 0.7, Qt::yellow);
     }
 };
+//---------------------------------------------------------------------------
+class colorMapFloodV: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.001 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapFloodV():
+        QwtLinearColorMap( QColor(BGc),QColor("#BF0000"))
+    {
+        addColorStop( 0.0, QColor("#009900"));
+        addColorStop( 0.35, Qt::yellow);
+        addColorStop( 0.8, Qt::red);
+    }
+};
+//---------------------------------------------------------------------------
 
 
 
