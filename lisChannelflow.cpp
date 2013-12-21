@@ -245,7 +245,9 @@ void TWorld::ChannelFlow(void)
 
         double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell
-        // qDebug() << diff;
+
+        difkin->Drc += diff;
+
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
             //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;

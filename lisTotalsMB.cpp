@@ -91,8 +91,9 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
+    difkinTot +=  difkin->mapTotal();
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
-    InfilTotmm = max(0,InfilTot*catchmentAreaFlatMM);
+    InfilTotmm = max(0,(InfilTot+difkinTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
     tm->calcMapValue(WHstore, 1000, MUL); //mm
@@ -410,7 +411,7 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
-              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin)/
+              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     //watervoltot includes channel and tile
 

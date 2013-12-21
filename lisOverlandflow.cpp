@@ -171,7 +171,7 @@ void TWorld::OverlandFlow(void)
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
         }
     }
-
+//    KinWave(LDD, Q, Qn, q, Alpha, DX);
     /*
       routing of substances add here!
       do after kin wave so that the new flux Qn out of a cell is known
@@ -216,17 +216,11 @@ void TWorld::OverlandFlow(void)
         WH->Drc = WHoutavg + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        if (ChannelAdj->Drc > 0)
+        if (ChannelAdj->Drc > 0 && WHoutavg > 0)
             V->Drc = Qn->Drc/(WHoutavg*ChannelAdj->Drc);
+        else
+            V->Drc = 0;
         // recalc velocity for output to map ????
-        //    }
-
-        //    SurfaceStorage();
-        //    //recalc flowwidth with new WH and so on
-
-        //    FOR_ROW_COL_MV
-        //    {
-
 
         WaterVolall->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // new water volume after kin wave, all water incl depr storage
@@ -235,11 +229,11 @@ void TWorld::OverlandFlow(void)
         double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
-        //		if (InfilMethod == INFIL_NONE)
-        //		{
-        //			WaterVolall->Drc = q->Drc*_dt + WaterVolin->Drc - Qn->Drc*_dt;
-        //          InfilVolKinWave->Drc = diff;
-        //		}
+        double difff = diff;
+        diff = min(diff, -FSurplus->Drc*ChannelAdj->Drc*_dx/_dt);
+        if (FFull->Drc == 1)
+            diff = 0;
+        difkin->Drc = difff - diff;
 
         if (SwitchBuffers && BufferVol->Drc > 0)
         {
@@ -251,8 +245,6 @@ void TWorld::OverlandFlow(void)
             InfilVolKinWave->Drc = diff;
         // correct infiltration in m3
         // TODO what if infiltration == none then correct watervolume out, but then Qn and watervolout do not match?
-
-
 
         if (SwitchErosion)
         {
@@ -273,5 +265,6 @@ void TWorld::OverlandFlow(void)
 
         }
     }
+//    difkin->report("df");
 }
 //---------------------------------------------------------------------------

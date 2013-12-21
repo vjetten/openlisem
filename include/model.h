@@ -257,6 +257,7 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double difkinTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -434,13 +435,15 @@ public:
     void addRainfallWH(void);
     /// add net rainfall to WH, WHroads and WHgrass
 
+    void InfilEffectiveKsat();
     void Infiltration(void);
     void InfiltrationFlood(void);
+    void InfiltrationFloodNew(void);
     void InfilSwatre(void);
-//    void InfilGreenAmpt1(TMMap *_WH);
-//    void InfilSmithParlange1(TMMap *_WH);
+//    void InfilGreenAmpt1(TMMap *_WH);  //OBSOLETE
+//    void InfilSmithParlange1(TMMap *_WH); //OBSOLETE
     void InfilMorelSeytoux1(TMMap *_WH);
-//    void InfilKsat(TMMap *_WH);
+//    void InfilKsat(TMMap *_WH); //OBSOLETE
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
     void InfilMethods(TMMap *_Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
@@ -482,7 +485,7 @@ public:
                                 TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
                                 TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed);
     void upstream(TMMap *_LDD, TMMap *_M, TMMap *out);
-
+    void KinWave(TMMap *_LDD,TMMap *_Q, TMMap *_Qn,TMMap *_q, TMMap *_Alpha, TMMap *_DX);
     // alternative kin wave based on a pre-sorted network
     // not used!!
     bool useSorted;

@@ -68,7 +68,9 @@ void TWorld::OutputUI(void)
     // MAP DISPLAY VARIABLES
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s
-    op.DrawMap2->copy(InfilmmCum);  //infil in mm
+        FOR_ROW_COL_MV
+                tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
+    op.DrawMap2->copy(tmb);  //infil in mm
     if (SwitchErosion)
     {
         tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
@@ -444,12 +446,13 @@ void TWorld::ReportTimeseriesNew(void)
             else
                 out << time/60;
 
+            if (SwitchRainfall) out << sep << RainIntavg;
+            if (SwitchSnowmelt) out << sep << SnowIntavg;
             FOR_ROW_COL_MV
             {
                 if ( PointMap->Drc > 0 )
                 {
-                    if (SwitchRainfall) out << sep << RainIntavg;
-                    if (SwitchSnowmelt) out << sep << SnowIntavg;
+
                     out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
                     if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;

@@ -185,6 +185,10 @@ void TWorld::DoModel()
 //                hmx->Drc = hmxInit->Drc;
 //            }
 //        }
+
+        InfilEffectiveKsat();
+        // calc effective ksat from all surfaces once
+
         DEBUG("Running...");
 
         for (time = BeginTime; time < EndTime; time += _dt)
@@ -219,7 +223,7 @@ void TWorld::DoModel()
             addRainfallWH();     // adds rainfall to runoff water height or flood water height
 
             Infiltration();      // soil infil, decrease WH
-            InfiltrationFlood(); // infil in flooded area
+            InfiltrationFloodNew(); // infil in flooded area
 
             SoilWater();         // simple soil water balance
             SurfaceStorage();    // surface storage and flow width, split WH in WHrunoff and WHstore

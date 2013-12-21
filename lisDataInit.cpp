@@ -763,6 +763,7 @@ void TWorld::GetInputData(void)
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
+    difkin =  NewMap(0); // temp map for aux calculations
 
     for (int i = 0; i < 32; i++)
         SubsMaps[i].m = NULL;  // initialize substance structures
@@ -1062,8 +1063,6 @@ void TWorld::IntializeData(void)
     // WheelWidthDX = NewMap(0);
     // GullyWidthDX = NewMap(0);
 
-
-
     // surface storage
     MDS = NewMap(0);
     FOR_ROW_COL_MV
@@ -1153,6 +1152,7 @@ void TWorld::IntializeData(void)
     }
 
     //### infiltration maps
+    difkinTot = 0;
     InfilTot = 0;
     InfilTotmm = 0;
     InfilKWTot = 0;

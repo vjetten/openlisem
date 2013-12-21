@@ -46,7 +46,7 @@ functions: \n
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 10
+#define MAX_ITERS 20
 
 /*
   local drain direction maps have values for directions as follows:
@@ -206,6 +206,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+    long counter =0;
     /// Linked list of cells in order of LDD flow network, ordered from pit upwards
     LDD_LINKEDLIST *list = NULL, *temp = NULL;
     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -259,6 +260,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                 list->rowNr = r;
                 list->colNr = c;
                 subCachDone = false;
+                counter++;
+                tm->Drc = counter;
             }
         }
 
@@ -290,7 +293,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
                         !IS_MV_REAL4(&_LDD->Drc) )
                 {
-                    Qin += _Qn->Drc; //_Qn->Drc;
+                    Qin += _Qn->Drc;//_Qn->Drc;
 
                     if (SwitchErosion)
                         Sin += _Qsn->Drc; //_Qsn->Drc;
@@ -412,6 +415,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
 
         }/* eof subcatchment done */
     } /* eowhile list != NULL */
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -581,3 +585,119 @@ void TWorld::upstream(TMMap *_LDD, TMMap *_M, TMMap *out)
         out->Drc = tot;
     }
 }
+//---------------------------------------------------------------------------
+/// return the sum of all values upstream
+void TWorld::KinWave(TMMap *_LDD,TMMap *_Q, TMMap *_Qn,TMMap *_q, TMMap *_Alpha, TMMap *_DX)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    tm->fill(0);
+
+    FOR_ROW_COL_MV
+    {
+        for (int i=1; i<=9; i++)
+        {
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
+
+            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
+                ldd = (int) _LDD->Drc;
+            else
+                continue;
+
+            // if no MVs and row,col flows to central cell r,c
+            if (FLOWS_TO(ldd, row, col, r, c))
+            {
+                tm->Drc += _Q->Data[row][col];
+            }
+        }
+    }
+
+    FOR_ROW_COL_MV
+    {
+        _Qn->Drc = IterateToQnew(tm->Drc, _Q->Drc, _q->Drc,_Alpha->Drc, _dt, _DX->Drc);
+        // Newton Rapson iteration for water of current cell
+
+        _q->Drc = tm->Drc;
+        //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
+        // q is now in m3/s
+    }
+}
+/*
+long TWorld::SortNetwork(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Ksort)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+    long counter = 0;
+
+    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+    LDD_LINKEDLIST *list = NULL, *temp = NULL;
+    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+    list->prev = NULL;
+    /// start gridcell: outflow point of area
+    list->rowNr = pitRowNr;
+    list->colNr = pitColNr;
+
+    while (list != NULL)
+    {
+        int i = 0;
+        bool  subCachDone = true; // are sub-catchment cells done ?
+        int rowNr = list->rowNr;
+        int colNr = list->colNr;
+
+
+        for (i=1; i<=9; i++)
+        {
+            int r, c;
+            int ldd = 0;
+
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            r = rowNr+dy[i];
+            c = colNr+dx[i];
+
+            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+                ldd = (int) _LDD->Drc;
+            else
+                continue;
+
+            // check if there are more cells upstream, if not subCatchDone remains true
+            if (IS_MV_REAL4(&_Qn->Drc) &&
+                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                    INSIDE(r, c))
+            {
+                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                temp->prev = list;
+                list = temp;
+                list->rowNr = r;
+                list->colNr = c;
+                subCachDone = false;
+                counter++;
+                _Ksort->Drc = counter;
+            }
+        }
+
+        // all cells above a cell are linked in a "sub-catchment or branch
+        // continue with water and sed calculations
+        // rowNr and colNr are the last upstreM cell linked
+        if (subCachDone)
+        {
+            temp=list;
+            list=list->prev;
+            free(temp);
+            // go to the previous cell in the list
+        }
+    }
+    return counter;
+}
+*/
