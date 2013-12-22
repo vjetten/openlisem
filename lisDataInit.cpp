@@ -613,7 +613,9 @@ void TWorld::InitChannel(void)
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 ChannelLevee->fill(0);
-            //hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+
+            hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+            hmx->copy(hmxInit);
 
             floodactive = NewMap(1);
 //            floodzone = ReadMap(LDD, getvaluename("floodzone"));

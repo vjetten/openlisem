@@ -111,7 +111,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
 //    DEFmaps.append("2;Floodzone;floodzone.map;Forced area including (1) and excluding floods (0);floodzone");
-    DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (0);hmxinit");
+    DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");

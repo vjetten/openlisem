@@ -439,7 +439,7 @@ public:
     void Infiltration(void);
     void InfiltrationFlood(void);
     void InfiltrationFloodNew(void);
-    void InfilSwatre(void);
+    void InfilSwatre(TMMap *_WH);
 //    void InfilGreenAmpt1(TMMap *_WH);  //OBSOLETE
 //    void InfilSmithParlange1(TMMap *_WH); //OBSOLETE
     void InfilMorelSeytoux1(TMMap *_WH);

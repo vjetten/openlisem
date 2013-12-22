@@ -43,6 +43,7 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
+
     if(W)
     {
         if (W->waitRequested)

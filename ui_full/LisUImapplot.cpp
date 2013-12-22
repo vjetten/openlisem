@@ -55,9 +55,8 @@ void lisemqt::ssetAlpha4(int v)
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
-
-    //    if (stopplot)
-    //        return;
+//    if (!startplot)
+//        return;
 
     op.addWHtohmx = checkAddWHtohmx->isChecked();
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
