@@ -75,6 +75,9 @@ void TWorld::InfilEffectiveKsat(void)
             if (GrassFraction->Drc > 0)
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
 
+            Ksateff->Drc = max(0, Ksateff->Drc);
+            // incase combining all fractions lead to less than zero
+
             Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
 
@@ -414,19 +417,13 @@ void TWorld::Infiltration(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            if (RoadWidthDX->Drc == _dx)
-            {
-                fact->Drc = 0;
-                fpot->Drc = 0;
-            }
-            // to make sure WH is not decreasd when all is road
+            WH->Drc = max(0, WH->Drc - fact->Drc);
 
-            WH->Drc -= fact->Drc;
-            if (WH->Drc < 0) // in case of rounding of errors
-            {
-                fact->Drc += WH->Drc;
-                WH->Drc = 0;
-            }
+//            if (WH->Drc < 0) // in case of rounding of errors
+//            {
+//                fact->Drc += WH->Drc;
+//                WH->Drc = 0;
+//            }
             // subtract fact->Drc from WH, cannot be more than WH
 
             Fcum->Drc += fact->Drc;
@@ -483,8 +480,6 @@ void TWorld::InfiltrationFloodNew(void)
     case INFIL_SMITH :
     case INFIL_SMITH2 :
         InfilMethods(Ksateff, hmx, fpot, fact, L1, L2, FFull); break;
-
-        // WHY SEPARATE VARS FOR FLOOD AREAS? DEPTH is DEPTH and FULL IS FULL
     }
 
     FOR_ROW_COL_MV
@@ -492,26 +487,28 @@ void TWorld::InfiltrationFloodNew(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            if (RoadWidthDX->Drc == _dx)
-            {
-                fact->Drc = 0;
-                fpot->Drc = 0;
-            }
 
-            hmx->Drc -= fact->Drc;
-            // decrease wh with net infil
-            if (hmx->Drc < 0)
-            {
-                fact->Drc += hmx->Drc;
-                hmx->Drc = 0;
-            }
+//            double netinfil = min(hmx->Drc, fact->Drc);
+//            fact->Drc = netinfil;
+            // this is already taken care of
+
+            hmx->Drc = max(0, hmx->Drc - fact->Drc);
+
+//            hmx->Drc -= fact->Drc;
+//            // decrease wh with net infil
+//            if (hmx->Drc < 0)
+//            {
+//                // if
+//                fact->Drc += hmx->Drc;
+//                hmx->Drc = 0;
+//            }
 
             Fcum->Drc += fact->Drc;
             // cumulative infil in m used in G&A infil function
         }
 
         FSurplus->Drc = 0;
-        //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
+        // no surplus in floods, no kin wave!
 
         //        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
         InfilVolFlood->Drc -= hmx->Drc * _dx*DX->Drc;
