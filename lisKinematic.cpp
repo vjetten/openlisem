@@ -293,10 +293,11 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
                         !IS_MV_REAL4(&_LDD->Drc) )
                 {
-                    Qin += _Qn->Drc;//_Qn->Drc;
+                    Qin += _Qn->Drc;
+                    QinKW->Data[rowNr][colNr] = Qin;
 
                     if (SwitchErosion)
-                        Sin += _Qsn->Drc; //_Qsn->Drc;
+                        Sin += _Qsn->Drc;
 
                     // ADD MC and NUTs HERE
                 }
@@ -318,7 +319,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                     _StorVol->Data[rowNr][colNr] -= Qin*_dt;
                     // fill up storage with incoming water
 
-                    _q->Data[rowNr][colNr] = Qin;
+//                    _q->Data[rowNr][colNr] = Qin;
+                    QinKW->Data[rowNr][colNr] = Qin;
+
                     Qin = 0;
                     // assume first buffer is not full, no outflow
                     // trick kin wave by saying that the buffer storage is a ink (_q) like infiltration, taken out of the flow
@@ -385,7 +388,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                                                         _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
                 // Newton Rapson iteration for water of current cell
 
-                _q->Data[rowNr][colNr] = Qin;
+               // _q->Data[rowNr][colNr] = Qin;
                 //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
                 // q is now in m3/s
             }
@@ -414,8 +417,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
             // go to the previous cell in the list
 
         }/* eof subcatchment done */
-    } /* eowhile list != NULL */
-
+    } /* eowhile list != NULL */   
 }
 //---------------------------------------------------------------------------
 /**

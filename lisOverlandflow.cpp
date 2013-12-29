@@ -140,7 +140,6 @@ void TWorld::OverlandFlow(void)
     FOR_ROW_COL_MV
     {
         WaterVolin->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
-
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*_dx/_dt;
         // infil flux in kin wave <= 0, in m2/s, use _dx bexcause in kiv wave DX is used
@@ -161,6 +160,7 @@ void TWorld::OverlandFlow(void)
 
     Qn->setMV();
     Qsn->fill(0);
+    QinKW->fill(0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV
     {
@@ -203,6 +203,8 @@ void TWorld::OverlandFlow(void)
 //        Pest->report("pesta");
 
     }
+
+
     // calculate resulting flux Qn back to water height on surface
     FOR_ROW_COL_MV
     {
@@ -226,7 +228,8 @@ void TWorld::OverlandFlow(void)
         // new water volume after kin wave, all water incl depr storage
         //     WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*FlowWidth->Drc + WHstore->Drc*SoilWidthDX->Drc);
 
-        double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
+//        double diff = q->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
+        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
         double difff = diff;

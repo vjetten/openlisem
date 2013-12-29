@@ -93,7 +93,7 @@ void TWorld::Totals(void)
     InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
     difkinTot +=  difkin->mapTotal();
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
-    InfilTotmm = max(0,(InfilTot+difkinTot)*catchmentAreaFlatMM);
+    InfilTotmm = max(0,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
     tm->calcMapValue(WHstore, 1000, MUL); //mm

@@ -685,13 +685,13 @@ void TWorld::InitChannel(void)
             q1flood = NewMap(0);
             q2flood = NewMap(0);
 
-            //flood infiltration
-            Ffcum = NewMap(1e-10);
-            ffact = NewMap(0);
-            ffpot = NewMap(0);
-            FfFull = NewMap(0);
-            Lf1 = NewMap(1e-10);
-            Lf2 = NewMap(1e-10);
+//            //flood infiltration
+//            Ffcum = NewMap(1e-10);
+//            ffact = NewMap(0);
+//            ffpot = NewMap(0);
+//            FfFull = NewMap(0);
+//            Lf1 = NewMap(1e-10);
+//            Lf2 = NewMap(1e-10);
         }
 
         //        if (useSorted)
@@ -1191,9 +1191,9 @@ void TWorld::IntializeData(void)
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
-        Fcum = NewMap(1e-10);
-        L1 = NewMap(1e-10);
-        L2 = NewMap(1e-10);
+        Fcum = NewMap(0);
+        L1 = NewMap(0);
+        L2 = NewMap(0);
         Fcumgr = NewMap(1e-10);
         L1gr = NewMap(1e-10);
         L2gr = NewMap(1e-10);
@@ -1236,6 +1236,7 @@ void TWorld::IntializeData(void)
 
     Q = NewMap(0);
     Qn = NewMap(0);
+    QinKW = NewMap(0);
     Qoutput = NewMap(0);
     Houtput = NewMap(0);
     Qsoutput = NewMap(0);

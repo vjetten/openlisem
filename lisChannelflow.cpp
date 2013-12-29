@@ -205,6 +205,7 @@ void TWorld::ChannelFlow(void)
 
     ChannelQn->setMV();
     ChannelQsn->fill(0);
+    QinKW->fill(0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
     FOR_ROW_COL_MV_CH
@@ -243,7 +244,8 @@ void TWorld::ChannelFlow(void)
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
         // water height is not used except for output i.e. watervolume is cycled
 
-        double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
+        //double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
+        double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell
 
         difkin->Drc += diff;
