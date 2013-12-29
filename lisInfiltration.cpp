@@ -476,13 +476,13 @@ void TWorld::Infiltration(void)
         // infil volume is WH before - water after
     }
 
-    FFull->report("full.map");
-    L1->report("l1.map");
-    L2->report("l2.map");
-    //    SoilDepth1->report("sd1.map");
-    //     SoilDepth2->report("sd2.map");
-    Fcum->report("fc.map");
-    FSurplus->report("fs.map");
+//    FFull->report("full.map");
+//    L1->report("l1.map");
+//    L2->report("l2.map");
+//    //    SoilDepth1->report("sd1.map");
+//    //     SoilDepth2->report("sd2.map");
+//    Fcum->report("fc.map");
+//    FSurplus->report("fs.map");
 }
 
 //---------------------------------------------------------------------------
