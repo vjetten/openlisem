@@ -417,7 +417,7 @@ public:
     double ConcentrationP(double watvol, double pest);
 
 
-    void Allprocs();
+    //void Allprocs();
 
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
@@ -452,8 +452,8 @@ public:
     void ChannelFlow(void);
     void ChannelWaterHeight(void);
     void ToChannel(void);
-    void ToFlood(void);
-    void CalcVelDisch(void);
+    void QToChannel(void);
+    void CalcVelDisch(bool onlychannel);
     void CalcVelDischChannel(void);
     void ToTiledrain(void);
     void TileFlow(void);

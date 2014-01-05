@@ -34,7 +34,8 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
-// V, alpha and Q in the channel
+// V, alpha and Q in the channel, called after overland flow vol to channel
+// called after flood and uses new channel flood water height
 void TWorld::CalcVelDischChannel(void)
 {
 
@@ -55,7 +56,7 @@ void TWorld::CalcVelDischChannel(void)
         double wh = ChannelWH->Drc;
         double FW = ChannelWidth->Drc;
         double grad = sqrt(ChannelGrad->Drc);
-        double dw = 0.5*(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
+        double dw = /*0.5* */(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
 
         if (dw > 0)
         {
@@ -78,19 +79,6 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
-//        if (SwitchChannelFlood)
-//        {
-//            if (ChannelMaxQ->Drc > 0)
-//            {
-//                ChannelQ->Drc  = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
-//                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, 0.6);
-//                ChannelWH->Drc = Area/FW;
-//                Perim = FW+2*ChannelWH->Drc;
-//                Radius = (Perim > 0 ? Area/Perim : 0);
-//                ChannelAlpha->Drc = qPow(ChannelN->Drc/grad * powl(Perim, _23),beta);
-//            }
-//        }
-
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
 
         ChannelWaterVol->Drc = Area * ChannelDX->Drc;
@@ -100,12 +88,13 @@ void TWorld::CalcVelDischChannel(void)
     }
 }
 //---------------------------------------------------------------------------
-//! add runofftocvhannel and rainfall and calc channel WH from volume
+//! add runofftochannel and rainfall and calc channel WH from volume
 void TWorld::ChannelWaterHeight(void)
 {
 
     if (!SwitchIncludeChannel)
         return;
+
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
@@ -114,7 +103,7 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
-        ChannelWaterVol->Drc += Rainc->Drc*min(_dx, ChannelWidthUpDX->Drc)*ChannelDX->Drc;
+        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -157,18 +146,18 @@ void TWorld::ChannelWaterHeight(void)
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
 
-//            if (ChannelWidthUpDX->Drc > _dx)
-//            {
-//                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
-//                throw 1;
-//            }
+            //            if (ChannelWidthUpDX->Drc > _dx)
+            //            {
+            //                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
+            //                throw 1;
+            //            }
             if (ChannelWidthUpDX->Drc < 0)
             {
                 ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
                 throw 1;
             }
 
-            //ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
+            ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
 
@@ -231,24 +220,33 @@ void TWorld::ChannelFlow(void)
     ChannelQsn->cover(LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
+    double mb = 0;
+    long n = 1;
+    tm->fill(0);
+
     FOR_ROW_COL_MV_CH
     {
         if (SwitchChannelFlood)
         {
             if (ChannelMaxQ->Drc > 0)
-                ChannelQn->Drc  = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
+                ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
         }
+        // limit channel Q when culverts > 0
 
         double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
+        tm->Drc = ChannelArea;
 
-        ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2);
-        // water height is not used except for output i.e. watervolume is cycled
+        ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
+        // water height is not used except for output! i.e. watervolume is cycled
 
         //double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell
 
-        difkin->Drc += diff;
+        difkin->Drc = diff;
+//        mb += diff;
+//        if (ChannelWH->Drc > 0)
+//            n++;
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
@@ -258,14 +256,26 @@ void TWorld::ChannelFlow(void)
             if (SwitchChannelInfil)
                 InfilVolKinWave->Drc += diff;
         //VJ 110111 add channel infil to infil for mass balance
+    }
 
-        ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+    // mass balance correction, throw error on cells with WH
+//    mb = mb/n;
+//    FOR_ROW_COL_MV_CH
+//    {
+//        if (ChannelWH->Drc > 0)
+//            ChannelWH->Drc = max(0, ChannelWH->Drc + (mb/(ChannelWidthUpDX->Drc*DX->Drc)));
+//    }
+
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
+        //ChannelArea * ChannelDX->Drc;
         // total water vol after kin wave in m3, going to the next timestep
         // in a buffer ChannelArea = 0 so channelvolume is also 0
 
         if (SwitchErosion)
         {
-            ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+            //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
             // correct for very high concentrations, max 850 g/l
             // NOTE: nothing is done with this concentration, only for display,
             // so the display shows the conc after the kin wave

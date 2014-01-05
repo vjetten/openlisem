@@ -64,7 +64,7 @@ void TWorld::ToTiledrain(void)
             RunoffVolinToTile->Drc = 0;
       }
 
-      CalcVelDisch();
+      CalcVelDisch(true);
       // recalc velocity and discharge
    }
 }
@@ -143,6 +143,7 @@ void TWorld::TileFlow(void)
 
    TileQn->setMV();
    TileQsn->fill(0);
+   QinKW->fill(0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE
    {
@@ -159,7 +160,7 @@ void TWorld::TileFlow(void)
    FOR_ROW_COL_MV_TILE
    {
       double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
-      InfilVolKinWave->Drc += Tileq->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
+      InfilVolKinWave->Drc += QinKW->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
       // diff is a small error in this case added to kin wave infil!
 
       TileWaterVol->Drc = TileArea * TileDX->Drc;

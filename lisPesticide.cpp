@@ -116,7 +116,7 @@ void TWorld :: Pestmobilisation(void)
     C_N->report("C_N");
     Pest->report("pest");
 //    WaterVolall->report("wva");
-    double hoi1 = Pest->mapTotal();
+   // double hoi1 = Pest->mapTotal();
     //qDebug() << hoi << hoi1;
     //      qDebug()<< "Q<:C"<< C->DrcOutlet <<"cm"<< CM->DrcOutlet << "CS"<< CS->DrcOutlet;
 }

@@ -46,7 +46,7 @@ functions: \n
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 20
+#define MAX_ITERS 50
 
 /*
   local drain direction maps have values for directions as follows:
@@ -140,11 +140,11 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     const double beta = 0.6;
 
     /* if no input then output = 0 */
-    if ((Qin + Qold) <= q*deltaX)//0)
-    {
-        itercount = -1;
-        return(0);
-    }
+//    if ((Qin + Qold) <= q*deltaX)//0)
+//    {
+//        itercount = -1;
+//        return(0);
+//    }
 
     /* common terms */
     ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
@@ -154,28 +154,29 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     //C is unit volume of water
-    // first gues Qkx
-    Qkx   = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
+    Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
+    // first guess Qkx, VERY important
 
     // VJ 050704, 060830 infil so big all flux is gone
     //VJ 110114 without this de iteration cannot be solved for very small values
-    if (Qkx < MIN_FLUX)
-    {
-        itercount = -2;
-        return(0);
-    }
+//    if (Qkx < MIN_FLUX)
+//    {
+//        itercount = -2;
+//        return(0);
+//    }
 
-    Qkx   = max(Qkx, MIN_FLUX);
-
+    Qkx   = max(Qkx, 0);
     count = 0;
     do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */
+        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
-        Qkx   = max(Qkx, MIN_FLUX);
+
+        Qkx   = max(Qkx, 0);
+
         count++;
-        //qDebug() << count << fQkx << Qkx;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
+
     itercount = count;
     return Qkx;
 }

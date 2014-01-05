@@ -550,6 +550,8 @@ void TWorld::ReportMaps(void)
 
     if(SwitchErosion)
     {
+        //SHOULD CELLAREA NOT BE BASED ON CHANNLADJ?
+
         // VJ 110111 erosion units
         tm->copy(TotalDetMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2

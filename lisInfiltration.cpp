@@ -467,7 +467,7 @@ void TWorld::Infiltration(void)
                     FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
                 }
         }
-        //  FSurplus->Drc = 0;
+//FSurplus->Drc = 0;
         // negative surplus of infiltration in m for kinematic wave in m
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
         //VJ 131222 limit so that smaller than available room!

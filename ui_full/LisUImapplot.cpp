@@ -133,7 +133,7 @@ void lisemqt::initMapPlot()
 void lisemqt::setupMapPlot()
 {
     op.drawMapType = 1;
-    double alpha = 1;
+ //   double alpha = 1;
 
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));

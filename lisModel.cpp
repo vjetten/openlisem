@@ -205,41 +205,37 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 //Allprocs();
-            GridCell();          // set channel widths, flowwidths road widths etc
-            RainfallMap();       // get rainfall
-            SnowmeltMap();       // get snowmelt
+            GridCell();            // set channel widths, flowwidths road widths etc
+            RainfallMap();         // get rainfall from table or mpas
+            SnowmeltMap();         // get snowmelt
 
-            Interception();      // do interception by plants
-            InterceptionHouses();// do urban interception
+            Interception();        // vegetation interception
+            InterceptionHouses();  // urban interception
 
-            addRainfallWH();     // adds rainfall to runoff water height or flood water height
+            addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
-            Infiltration();      // soil infil, decrease WH
-            InfiltrationFloodNew(); // infil in flooded area
+            Infiltration();        // soil infil, decrease WH
+            InfiltrationFloodNew();// infil in flooded area
 
-            SoilWater();         // simple soil water balance
-            SurfaceStorage();    // surface storage and flow width, split WH in WHrunoff and WHstore
+            SoilWater();           // simple soil water balance, percolation from lower boundary
+            SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-            CalcVelDisch();      // overland flow velocity, discharge and alpha
+            CalcVelDisch(false);   // overland flow velocity, discharge and alpha
 
-            SplashDetachment();  // splash detachment
-            FlowDetachment();    // flow detachment
+            SplashDetachment();    // splash detachment
+            FlowDetachment();      // flow detachment
 
-//Pestmobilisation();
+            //Pestmobilisation();  // experimental
 
-            ToChannel();         // fraction of water and sed going into channel in channel cells, recalc Q and V
-            ToTiledrain();       // fraction going into tiledrain directly from surface, , recalc Q and V
+            QToChannel();          // water and sed flux going into channel in channel cells, recalc Q and V
+            ToTiledrain();         // fraction going into tiledrain directly from surface, , recalc Q and V
 
-            OverlandFlow();      // overland flow kin wave for water and sed
+            OverlandFlow();        // overland flow kin wave for water and sed
 
-            ChannelWaterHeight();// add channel rainfall and runoff to channel and get channel WH from volume
-            ChannelFlood();      // st venant channel flooding
-            CalcVelDischChannel();// alpha, V and Q from Manning
-            ChannelFlow();       // channel erosion and kin wave
-
-            //                     ChannelFlood();      // st venant channel flooding
-            //                     CalcVelDischChannel();// alpha, V and Q from Manning
-            //                     ChannelQn->copy(ChannelQ);
+            ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
+            ChannelFlood();        // st venant channel flooding
+            CalcVelDischChannel(); // alpha, V and Q from Manning
+            ChannelFlow();         // channel erosion and kin wave
 
             TileFlow();          // tile drain flow kin wave
 

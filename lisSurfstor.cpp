@@ -44,21 +44,35 @@ void TWorld::GridCell(void)
 {
     FOR_ROW_COL_MV
     {
+        double dxa = max(0, _dx - ChannelWidthUpDX->Drc);
+
+        ChannelAdj->Drc = dxa;
+
         if (BufferID->Drc > 0)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
-        if (RoadWidthDX->Drc + HouseWidthDX->Drc > _dx)
-            HouseWidthDX->Drc = _dx-RoadWidthDX->Drc;
+        if (RoadWidthDX->Drc > dxa)
+            RoadWidthDX->Drc = dxa-RoadWidthDX->Drc;
+        dxa = max(0, dxa - RoadWidthDX->Drc);
+
+        if (HouseWidthDX->Drc > dxa)
+            HouseWidthDX->Drc = dxa-HouseWidthDX->Drc;
+        dxa = max(0, dxa - HouseWidthDX->Drc);
+
+        SoilWidthDX->Drc = dxa;
+
+//        if (RoadWidthDX->Drc + HouseWidthDX->Drc > dxa)
+//            HouseWidthDX->Drc = dxa-RoadWidthDX->Drc;
         // road takes priority
 
-        if (SwitchIncludeChannel)
-        {
-            if (RoadWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
-                RoadWidthDX->Drc = ChannelAdj->Drc;
-            if (HouseWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
-                HouseWidthDX->Drc = ChannelAdj->Drc;
-        }
+//        if (SwitchIncludeChannel)
+//        {
+//            if (RoadWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
+//                RoadWidthDX->Drc = ChannelAdj->Drc;
+//            if (HouseWidthDX->Drc + ChannelWidthUpDX->Drc > _dx)
+//                HouseWidthDX->Drc = ChannelAdj->Drc;
+//        }
         // channel takes priority
 
         /** wheeltracks are not implemented yet */
@@ -68,15 +82,16 @@ void TWorld::GridCell(void)
         // adjust wheelwidth in cells with other surfaces
         /** TODO is wheelwidth needed or just an extra map? */
 
-        SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
-                               - RoadWidthDX->Drc);
-        //- HouseWidthDX->Drc);
+//        SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
+//                               - RoadWidthDX->Drc);
+        //- HouseWidthDX->Drc); ???
 
-        //      SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc
-        //                             - GullyWidthDX->Drc
-        //                             - RoadWidthDX->Drc
-        //                             - WheelWidthDX->Drc);
     }
+//    SoilWidthDX->report("sw");
+//    ChannelAdj->report("cha");
+//    RoadWidthDX->report("rw");
+//    ChannelWidthUpDX->report("cw");
+//    HouseWidthDX->report("hw");
 }
 
 //---------------------------------------------------------------------------
@@ -164,18 +179,22 @@ void TWorld::SurfaceStorage(void)
             if (FloodDomain->Drc > 0)
                 fpa->Drc = 1;
 
-        FlowWidth->Drc = max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
+        //Houses
+        double housefw = 1.0;
+        if (SwitchHouses)
+               housefw = (1-0.5*HouseCover->Drc);
+        //?????????????? FIX THIS AS SEPARATE COVER LIKE ROADS
+        // assume house severely restricts flow width, 0.5 is arbitrary
+        // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere
+
+        //FlowWidth->Drc = max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc*housefw + RoadWidthDX->Drc);
+        // VJ 140105:0.01 dx gave mas ba;ance errors !!!
+        FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc*housefw + RoadWidthDX->Drc;
         // calculate flowwidth by fpa*surface + road, excludes channel already
 
         if (GrassFraction->Drc > 0)
             FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
         // assume grassstrip spreads water over entire width
-
-        //Houses
-        if (SwitchHouses)
-            FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
-        // assume house severely restricts flow width, 0.5 is arbitrary
-        // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere
 
         if (FlowWidth->Drc > 0)
             WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);
@@ -185,15 +204,13 @@ void TWorld::SurfaceStorage(void)
         // this now takes care of ponded area, so water height is adjusted
 
         //WHrunoffCum->Drc += WHrunoff->Drc * 1000;
-        // cumulative runoff for output maps, in mm
-        // make no sense? runoff isa water layer independent of the timestep,
-        // you cannot acumulate it like this.
-
+        //WRONG or course, cumulative runoff must be based on Q if course no on WH
     }
 }
 //---------------------------------------------------------------------------
 
 // TRIAL TO PUT ALL PROCESSES IN ONE LOOP
+/*
 void TWorld::Allprocs(void)
 {
     double timeminprev = (time-_dt) / 60; //prev time in minutes
@@ -331,7 +348,7 @@ void TWorld::Allprocs(void)
                 double Dmax =0;
                 if (SwitchRaindrum)
                     if (HouseCover->Drc > 0)
-                        Dmax = DrumStore->Drc/(CellArea->Drc*HouseCover->Drc);
+                        Dmax = DrumStore->Drc/(ChannelAdj->Drc * DX->Drc *HouseCover->Drc);
                 //max drum storage in m
 
                 double housedrain = 0;
@@ -609,16 +626,17 @@ void TWorld::Allprocs(void)
             else
                 R->Drc = 0;
 
-            Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
+            Alpha->Drc = pow((NN/sqrtGrad->Drc) * pow(Perim, _23),beta);
 
             if (Alpha->Drc > 0)
                 Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
             else
                 Q->Drc = 0;
 
-            V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
+            V->Drc = pow(R->Drc, _23)*(sqrtGrad->Drc/NN);
 
 
     }//ROWCOL
 
 }
+*/

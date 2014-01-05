@@ -776,12 +776,15 @@ void TWorld::GetInputData(void)
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
     Grad->calcValue(0.001, MAX);
+    sqrtGrad = NewMap(0);
+
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     Outlet->cover(LDD, 0);
     // fill outlet with zero, some users have MV where no outlet
     FOR_ROW_COL_MV
     {
+        sqrtGrad->Drc = sqrt(Grad->Drc);
         if (Outlet->Drc == 1)
         {
             if (LDD->Drc != 5)
@@ -1169,6 +1172,7 @@ void TWorld::IntializeData(void)
 
     floodTotmm= 0;
     floodVolTot = 0;
+    floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
 
@@ -1315,7 +1319,6 @@ void TWorld::IntializeData(void)
     TotalDepMap = NewMap(0);
     TotalSoillossMap = NewMap(0);
     TotalSed = NewMap(0);
-    TotalWatervol = NewMap(0);
     TotalConc = NewMap(0);
 
 

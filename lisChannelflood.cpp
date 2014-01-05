@@ -155,6 +155,8 @@ double TWorld::correctMassBalance(double sum1, TMMap *M)
             sum2 += M->Drc;
         }
     }
+    // toal and cells active for M
+
     double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     FOR_ROW_COL_MV
     {

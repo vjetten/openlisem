@@ -44,9 +44,9 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
-//    QFile fout("massbalancenew.txt");
-//    fout.open(QIODevice::WriteOnly | QIODevice::Text);
-//    fout.close();
+    //    QFile fout("massbalancenew.txt");
+    //    fout.open(QIODevice::WriteOnly | QIODevice::Text);
+    //    fout.close();
 
     /***** WATER *****/
 
@@ -56,12 +56,19 @@ void TWorld::Totals(void)
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
-        tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
-        rainfall = tm->mapTotal();
-        RainTot += rainfall; // in m3
+//        tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
+//        rainfall = tm->mapTotal();
+//        RainTot += rainfall; // in m3
 
+        rainfall = 0;
         oldrainpeak = Rainpeak;
-        Rainpeak = max(Rainpeak, rainfall);
+        FOR_ROW_COL_MV
+        {
+            rainfall += (Rain->Drc*_dx*_dx);
+            Rainpeak = max(rainfall, Rainpeak);
+        }
+
+//        Rainpeak = max(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
@@ -91,7 +98,7 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
-    difkinTot +=  difkin->mapTotal();
+    difkinTot =0;//+=  difkin->mapTotal();
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
     InfilTotmm = max(0,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
@@ -106,12 +113,14 @@ void TWorld::Totals(void)
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
+
+    // runoff fracyion per cell calc as in-out/rainfall, indication of sinks and sources of runoff
+    // exclude channel cells
     FOR_ROW_COL_MV
-            if(ChannelWidth->Drc == 0)
+            if(ChannelWidthUpDX->Drc == 0)
     {
         runoffTotalCell->Drc += Qn->Drc * _dt;
     }
-
     upstream(LDD, runoffTotalCell, tm);
 
     FOR_ROW_COL_MV
@@ -125,20 +134,15 @@ void TWorld::Totals(void)
         if (LDD->Drc == 5)
             Qtot += Qn->Drc*_dt;
     }
-    // sum outflow m3 for all timesteps for the outlet, in m3
+    // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
-    //Qtotmm = Qtot*catchmentAreaFlatMM;
-    // in mm for screen output
 
     QtotOutlet += Qn->DrcOutlet*_dt;
     // for screen output, total main outlet in m3
 
     QtotPlot += Qn->DrcPlot * _dt;
     //QPlot = Qn->DrcPlot;
-    //VJ 110701 for screen output, total of hydrograph point in m3
-
-    TotalWatervol->copy(WaterVolall);
-    // for sed conc calc output
+    //VJ 110701 for screen output, total in hydrograph point n in m3
 
     if (SwitchIncludeChannel)
     {
@@ -161,13 +165,13 @@ void TWorld::Totals(void)
         // add channel outflow (in m3) to total for main outlet
         QtotPlot += ChannelQn->DrcPlot * _dt;
         // add channel outflow (in m3) to total for main outlet
-        TotalWatervol->calcMap(ChannelWaterVol,ADD);
+        // TotalWatervol->calcMap(ChannelWaterVol,ADD);
         // add channel volume to total for sed conc calc
 
         if (SwitchChannelFlood)
         {
             floodVolTot = FloodWaterVol->mapTotal();
-            floodTotmm = floodVolTot*catchmentAreaFlatMM;            
+            floodTotmm = floodVolTot*catchmentAreaFlatMM;
         }
         if (runstep == 1)
             floodVolTotInit = floodVolTot;
@@ -202,9 +206,6 @@ void TWorld::Totals(void)
         // add channel outflow (in m3) to total for main outlet
         QtotPlot += TileQn->DrcPlot * _dt;
         // add channel outflow (in m3) to total for subcatch outlet
-      //  TotalWatervol->calcMap(TileWaterVol,ADD);
-        // add channel volume to total for sed conc calc
-        //NO! do not mix tile with surface water
 
     }
 
@@ -289,12 +290,6 @@ void TWorld::Totals(void)
             // needed for sed conc in file output
         }
 
-//        FOR_ROW_COL_MV
-//        {
-//            TotalConc->Drc = MaxConcentration(TotalWatervol->Drc, TotalSed->Drc);
-//        }
-        // for file output
-
         if (SwitchBuffers || SwitchSedtrap)
         {
             BufferSedTot = BufferSed->mapTotal();
@@ -331,17 +326,17 @@ void TWorld::Totals(void)
     {
         FOR_ROW_COL_MV
         {
-                    // = WHoutavg->Drc*_dx*DX->Drc*C->Drc*1000*1000*1000; //µg
+            // = WHoutavg->Drc*_dx*DX->Drc*C->Drc*1000*1000*1000; //µg
             PDisMixing->Drc = CM->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
             PSorMixing->Drc = CS->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
             PInfilt->Drc = pestiinf->Drc*CM->Drc*_dx*_dx*_dt*1000*1000*1000; //µg
             PStorage->Drc= WHstore->Drc*_dx*_dx*C->Drc*1000*1000*1000; //µg
             PRunoffSpatial->Drc = Pest->Drc*1000*1000*1000; //µg
 
-//            PRunoffSpatialex->Drc= WHoutavg->Drc*_dx*DX->Drc*C_Kexplicit->Drc*1000*1000*1000; //µg
-//            PDisMixingex->Drc = CM_Kexplicit->Drc*epsil->Drc*poro->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-//            PSorMixingex->Drc = CS_Kexplicit->Drc*epsil->Drc*rhob->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-//            PInfiltex->Drc = pestiinf->Drc*CM_Kexplicit->Drc*_dx*DX->Drc*_dt*1000*1000*1000; //µg
+            //            PRunoffSpatialex->Drc= WHoutavg->Drc*_dx*DX->Drc*C_Kexplicit->Drc*1000*1000*1000; //µg
+            //            PDisMixingex->Drc = CM_Kexplicit->Drc*epsil->Drc*poro->Drc*_dx*DX->Drc*1000*1000*1000; //µg
+            //            PSorMixingex->Drc = CS_Kexplicit->Drc*epsil->Drc*rhob->Drc*_dx*DX->Drc*1000*1000*1000; //µg
+            //            PInfiltex->Drc = pestiinf->Drc*CM_Kexplicit->Drc*_dx*DX->Drc*_dt*1000*1000*1000; //µg
 
         }
 
@@ -357,49 +352,49 @@ void TWorld::Totals(void)
 
         double MBtest=0.0;
 
-       // if (PestLossTotOutlet > 1e-9)
-       // MBtest = (Pestdetach-PestCinfilt-PestRunoffSpatial-PestLossTotOutlet)*100/Pestdetach;
+        // if (PestLossTotOutlet > 1e-9)
+        // MBtest = (Pestdetach-PestCinfilt-PestRunoffSpatial-PestLossTotOutlet)*100/Pestdetach;
 
         //if (Pestdetach > 1e-9)
         MBtest = Pestdetach-PestCinfilt-PestCfilmexit-PestLossTotOutlet;
-       // qDebug()<< "pestdetach" << Pestdetach << "pestCinfilt"<< PestCinfilt << "pestCfilmexit"<< PestCfilmexit<< "pestlosstotoutlet"<<PestLossTotOutlet;
-       // qDebug()<< "MBtest" << MBtest;
+        // qDebug()<< "pestdetach" << Pestdetach << "pestCinfilt"<< PestCinfilt << "pestCfilmexit"<< PestCfilmexit<< "pestlosstotoutlet"<<PestLossTotOutlet;
+        // qDebug()<< "MBtest" << MBtest;
         double test=0.0;
         test += InfilVolKinWave->mapTotal();
 
-//        PestLossTotOutletex += Qn->DrcOutlet*C_Kexplicit->DrcOutlet*_dt*1000*1000*1000; //µg
-//        PestRunoffSpatialex = PRunoffSpatialex->mapTotal();
-//        PestDisMixingex = PDisMixingex->mapTotal();
-//        PestSorMixingex = PSorMixingex->mapTotal();
-//        PestInfiltex += PInfiltex->mapTotal();
+        //        PestLossTotOutletex += Qn->DrcOutlet*C_Kexplicit->DrcOutlet*_dt*1000*1000*1000; //µg
+        //        PestRunoffSpatialex = PRunoffSpatialex->mapTotal();
+        //        PestDisMixingex = PDisMixingex->mapTotal();
+        //        PestSorMixingex = PSorMixingex->mapTotal();
+        //        PestInfiltex += PInfiltex->mapTotal();
 
         // flux en µg
-//        double flux1=epsil->DrcOutlet*rhob->DrcOutlet*kr->DrcOutlet*KD->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-//        double flux2=kr->DrcOutlet*CS->DrcOutlet*rhob->DrcOutlet*epsil->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-//        double flux3=pestiinf->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-//        double flux4=Kfilm->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-//        double flux5=(Kfilm->DrcOutlet+pestiinf->DrcOutlet)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-//        double flux6=(Kfilm->DrcOutlet+RainNet->DrcOutlet/_dt)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux1=epsil->DrcOutlet*rhob->DrcOutlet*kr->DrcOutlet*KD->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux2=kr->DrcOutlet*CS->DrcOutlet*rhob->DrcOutlet*epsil->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux3=pestiinf->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux4=Kfilm->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux5=(Kfilm->DrcOutlet+pestiinf->DrcOutlet)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
+        //        double flux6=(Kfilm->DrcOutlet+RainNet->DrcOutlet/_dt)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
 
 
-//            QFile fout("massbalancenew.txt");
-//            fout.open(QIODevice::Append | QIODevice::Text);
-//            QTextStream out(&fout);
-//            out.setRealNumberPrecision(3);
-//            out.setFieldWidth(0);
-//            out.setRealNumberNotation(QTextStream::FixedNotation);
+        //            QFile fout("massbalancenew.txt");
+        //            fout.open(QIODevice::Append | QIODevice::Text);
+        //            QTextStream out(&fout);
+        //            out.setRealNumberPrecision(3);
+        //            out.setFieldWidth(0);
+        //            out.setRealNumberNotation(QTextStream::FixedNotation);
 
-//            out << time/60 << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << PestLossTotOutlet << " " << PestRunoffSpatial
-//                 << " " << PestInfilt << " " << (PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied << " "
-//                 << RainTot << " " << WaterVolSoilTot << " " << IntercTot << " " << InfilTot << " " << Qtot*1000*1000 << " "
-//                 << MBtest << " " << test << " "<< flux3 << " "<< flux4 << " "<< flux5 << " "<< flux6 <<" "<< pestiinf->DrcOutlet*pow(10.0,9)<< " "<<CM->DrcOutlet*pow(10.0,6)<<" "
-//                 << CS->DrcOutlet*pow(10.0,6)<<" "<< fact->DrcOutlet*1000<< " "<< InfilVol->DrcOutlet*1000*1000<<" "<<Qn->DrcOutlet*pow(10.0,6) << " "<< PDisMixing->DrcOutlet << " "<< poro->DrcOutlet
-//                 << " "<< epsil->DrcOutlet<< " "<< DX->DrcOutlet << " " << switchrunoff << " "<< K1->DrcOutlet << " "<< Q->DrcOutlet*pow(10.0,6)<< " "<< C->DrcOutlet*pow(10.0,10)
-//                 << " "<< WHoutavg->DrcOutlet << " "<< WHoutavgold->DrcOutlet<<" "<< (PestMassApplied-PestLossTotOutletex-PestRunoffSpatialex-PestDisMixingex-PestSorMixingex-PestInfiltex)*100/PestMassApplied
-//                 << " " << InfilVol->DrcOutlet*1000*1000 << " " << InfilVolold->DrcOutlet*1000*1000<< " " << Vup->DrcOutlet << " " << Vup_old->DrcOutlet << " "<< Cold->DrcOutlet*pow(10.0,10);
-//            out << "\n";
-//            out << MBp << "\n";
-//            fout.close();
+        //            out << time/60 << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << PestLossTotOutlet << " " << PestRunoffSpatial
+        //                 << " " << PestInfilt << " " << (PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied << " "
+        //                 << RainTot << " " << WaterVolSoilTot << " " << IntercTot << " " << InfilTot << " " << Qtot*1000*1000 << " "
+        //                 << MBtest << " " << test << " "<< flux3 << " "<< flux4 << " "<< flux5 << " "<< flux6 <<" "<< pestiinf->DrcOutlet*pow(10.0,9)<< " "<<CM->DrcOutlet*pow(10.0,6)<<" "
+        //                 << CS->DrcOutlet*pow(10.0,6)<<" "<< fact->DrcOutlet*1000<< " "<< InfilVol->DrcOutlet*1000*1000<<" "<<Qn->DrcOutlet*pow(10.0,6) << " "<< PDisMixing->DrcOutlet << " "<< poro->DrcOutlet
+        //                 << " "<< epsil->DrcOutlet<< " "<< DX->DrcOutlet << " " << switchrunoff << " "<< K1->DrcOutlet << " "<< Q->DrcOutlet*pow(10.0,6)<< " "<< C->DrcOutlet*pow(10.0,10)
+        //                 << " "<< WHoutavg->DrcOutlet << " "<< WHoutavgold->DrcOutlet<<" "<< (PestMassApplied-PestLossTotOutletex-PestRunoffSpatialex-PestDisMixingex-PestSorMixingex-PestInfiltex)*100/PestMassApplied
+        //                 << " " << InfilVol->DrcOutlet*1000*1000 << " " << InfilVolold->DrcOutlet*1000*1000<< " " << Vup->DrcOutlet << " " << Vup_old->DrcOutlet << " "<< Cold->DrcOutlet*pow(10.0,10);
+        //            out << "\n";
+        //            out << MBp << "\n";
+        //            fout.close();
 
     }
 
