@@ -531,7 +531,7 @@ void TWorld::InitChannel(void)
         // must be first" LDDChannel is the mask for channels
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
-   //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
+        //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         //      ChannelWidth->calcValue(0.9*_dx, MIN);
         FOR_ROW_COL_MV_CH
@@ -565,8 +565,8 @@ void TWorld::InitChannel(void)
         }
         ChannelWidthUpDX->copy(ChannelWidth);
         ChannelWidthUpDX->cover(LDD, 0);
-//        double v = 0.9*_dx;
-//        ChannelWidthUpDX->calcValue(v, MIN);
+        //        double v = 0.9*_dx;
+        //        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
             ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
@@ -614,15 +614,19 @@ void TWorld::InitChannel(void)
             if (!SwitchLevees)
                 ChannelLevee->fill(0);
 
-            hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
-            hmx->copy(hmxInit);
+            if (SwitchFloodInitial)
+            {
+                hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+                hmx->copy(hmxInit);
+            }
 
             floodactive = NewMap(1);
-//            floodzone = ReadMap(LDD, getvaluename("floodzone"));
-//            FOR_ROW_COL_MV
-//            {
-//                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
-//            }
+
+            //            floodzone = ReadMap(LDD, getvaluename("floodzone"));
+            //            FOR_ROW_COL_MV
+            //            {
+            //                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
+            //            }
 
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
@@ -685,13 +689,13 @@ void TWorld::InitChannel(void)
             q1flood = NewMap(0);
             q2flood = NewMap(0);
 
-//            //flood infiltration
-//            Ffcum = NewMap(1e-10);
-//            ffact = NewMap(0);
-//            ffpot = NewMap(0);
-//            FfFull = NewMap(0);
-//            Lf1 = NewMap(1e-10);
-//            Lf2 = NewMap(1e-10);
+            //            //flood infiltration
+            //            Ffcum = NewMap(1e-10);
+            //            ffact = NewMap(0);
+            //            ffpot = NewMap(0);
+            //            FfFull = NewMap(0);
+            //            Lf1 = NewMap(1e-10);
+            //            Lf2 = NewMap(1e-10);
         }
 
         //        if (useSorted)
@@ -861,6 +865,10 @@ void TWorld::GetInputData(void)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
         RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
+        FOR_ROW_COL_MV
+        {
+            N->Drc = N->Drc * (1-RoadWidthDX->Drc/_dx) + 0.001*RoadWidthDX->Drc/_dx;
+        }
     }
     else
         RoadWidthDX = NewMap(0);
@@ -1152,8 +1160,9 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        HouseWidthDX->Drc = min(0.9*_dx, HouseCover->Drc *_dx);
+        HouseWidthDX->Drc = min(_dx, HouseCover->Drc *_dx);
         // assume there is always space next to house
+      //  N->Drc += 0.25*HouseCover->Drc;
     }
 
     //### infiltration maps
@@ -1337,7 +1346,7 @@ void TWorld::IntializeData(void)
 
     if (SwitchPesticide)
     {
-    //### pesticides maps
+        //### pesticides maps
         PestMassApplied = 0.0;
         PestLossTotOutlet = 0.0;
         PestFluxTotOutlet = 0.0;
@@ -1413,12 +1422,12 @@ void TWorld::IntializeData(void)
         PSorMixingex=NewMap(0);
         PInfiltex=NewMap(0);
 
-     //   Qin=NewMap(0);
-     //   Sin=NewMap(0);
-     //   Fin=NewMap(0);
+        //   Qin=NewMap(0);
+        //   Sin=NewMap(0);
+        //   Fin=NewMap(0);
 
         Pdetach=NewMap(0);
-}
+    }
     if (SwitchPesticide)
     {
         N_SPK=1;
@@ -1440,7 +1449,7 @@ void TWorld::IntializeData(void)
         poro=NewMap(0.37);
         Kfilm=NewMap(1.16667E-5); // m/s
 
-       // qDebug()<< "initial " ;
+        // qDebug()<< "initial " ;
 
         FOR_ROW_COL_MV
         {
@@ -1448,16 +1457,16 @@ void TWorld::IntializeData(void)
             rhob->Drc=2.65E3*(1.0-poro->Drc);// soil bulk density g/m3 rhob=NewMap(1404.5); // kg/m3
             C_N->Drc= 0.0; // initialisation for t=0 kg/m3
             // partial application
-//            CM_N->Drc= (PCA->Drc*SnowmeltZone->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
+            //            CM_N->Drc= (PCA->Drc*SnowmeltZone->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
 
-//VJ             CM_N->Drc= PCA->Drc*poro->Drc/epsil->Drc + (1-poro->Drc)*PCA->Drc/epsil->Drc*KD->Drc*rhob->Drc; // initialisation for t=0 kg/kg
-           CM_N->Drc= (PCA->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
+            //VJ             CM_N->Drc= PCA->Drc*poro->Drc/epsil->Drc + (1-poro->Drc)*PCA->Drc/epsil->Drc*KD->Drc*rhob->Drc; // initialisation for t=0 kg/kg
+            CM_N->Drc= (PCA->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
             CS_N->Drc = CM_N->Drc*KD->Drc; // ! initialisation for t=0 kg/m3
-       //     qDebug()<< "initial C:"<< C->Drc << "cm"<< CM->Drc << "CS"<< CS->Drc;
+            //     qDebug()<< "initial C:"<< C->Drc << "cm"<< CM->Drc << "CS"<< CS->Drc;
 
             // no sorption
-           // CS_N->Drc=0.0;
-           // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
+            // CS_N->Drc=0.0;
+            // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
 
 
             PDisMixing->Drc = CM_N->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
@@ -1478,21 +1487,21 @@ void TWorld::IntializeData(void)
             out.setFieldWidth(0);
             out.setRealNumberNotation(QTextStream::FixedNotation);
             out << "time" << " " << "PestMassApplied" << " " << "PestDisMixing" << " " << "PestSorMixing" << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                 << " " << "PestInfilt" << " " << "MBp" << " "
-                 << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                 << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
-                 << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
-                 << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
-                 << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
+                << " " << "PestInfilt" << " " << "MBp" << " "
+                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
+                << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
+                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
+                << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
             out << "\n";
 
             out << "EI" << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                 << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
-                 << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                 << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
-                 << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
-                 << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
-                 << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
+                << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
+                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
+                << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
+                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
+                << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
             out << "\n";
         }
     }

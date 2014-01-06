@@ -56,19 +56,11 @@ void TWorld::Totals(void)
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
-//        tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
-//        rainfall = tm->mapTotal();
-//        RainTot += rainfall; // in m3
+        tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
+        rainfall = tm->mapTotal();
+        RainTot += rainfall; // in m3
 
-        rainfall = 0;
-        oldrainpeak = Rainpeak;
-        FOR_ROW_COL_MV
-        {
-            rainfall += (Rain->Drc*_dx*_dx);
-            Rainpeak = max(rainfall, Rainpeak);
-        }
-
-//        Rainpeak = max(Rainpeak, rainfall);
+        Rainpeak = max(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
@@ -99,6 +91,7 @@ void TWorld::Totals(void)
 
     InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
     difkinTot =0;//+=  difkin->mapTotal();
+
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
     InfilTotmm = max(0,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
@@ -194,7 +187,6 @@ void TWorld::Totals(void)
         WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
 
-        //Qtot += TileQoutflow->DrcOutlet;
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
                 Qtot += TileQn->Drc * _dt;
@@ -409,8 +401,7 @@ void TWorld::MassBalance()
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     //watervoltot includes channel and tile
-
-    //qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
+//    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
     //   if (SwitchErosion && (DetTot + ChannelDetTot) > 0)

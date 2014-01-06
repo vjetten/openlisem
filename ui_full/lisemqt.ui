@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -1477,7 +1477,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -5341,7 +5341,7 @@ p, li { white-space: pre-wrap; }
                   <bool>false</bool>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_24">
-                  <item row="1" column="0" colspan="2">
+                  <item row="2" column="0" colspan="2">
                    <widget class="QLabel" name="label_99">
                     <property name="palette">
                      <palette>
@@ -5391,7 +5391,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="2">
+                  <item row="2" column="2">
                    <widget class="QDoubleSpinBox" name="E_floodMinHeight">
                     <property name="font">
                      <font>
@@ -5410,7 +5410,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="2">
+                  <item row="5" column="2">
                    <widget class="QDoubleSpinBox" name="E_courantFactor">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5441,7 +5441,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0" colspan="2">
+                  <item row="10" column="0" colspan="2">
                    <widget class="QLabel" name="label_101">
                     <property name="palette">
                      <palette>
@@ -5494,7 +5494,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="2">
+                  <item row="10" column="2">
                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5550,7 +5550,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="0" colspan="2">
+                  <item row="11" column="0" colspan="2">
                    <widget class="QLabel" name="label_57">
                     <property name="palette">
                      <palette>
@@ -5600,7 +5600,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="11" column="2">
+                  <item row="12" column="2">
                    <widget class="QSpinBox" name="E_FloodRecon">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5625,7 +5625,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="2">
+                  <item row="14" column="2">
                    <widget class="QSpinBox" name="E_FloodScheme">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5647,7 +5647,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="2">
+                  <item row="8" column="2">
                    <widget class="QDoubleSpinBox" name="E_cflFactor">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5672,7 +5672,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0" colspan="2">
+                  <item row="13" column="0" colspan="2">
                    <widget class="QLabel" name="label_98">
                     <property name="palette">
                      <palette>
@@ -5722,7 +5722,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="11" column="0" colspan="2">
+                  <item row="12" column="0" colspan="2">
                    <widget class="QLabel" name="label_55">
                     <property name="palette">
                      <palette>
@@ -5775,7 +5775,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="0" colspan="2">
+                  <item row="14" column="0" colspan="2">
                    <widget class="QLabel" name="label_97">
                     <property name="palette">
                      <palette>
@@ -5828,7 +5828,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="0" colspan="2">
+                  <item row="9" column="0" colspan="2">
                    <widget class="QLabel" name="label_100">
                     <property name="palette">
                      <palette>
@@ -5878,7 +5878,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="0" colspan="2">
+                  <item row="8" column="0" colspan="2">
                    <widget class="QLabel" name="label_81">
                     <property name="palette">
                      <palette>
@@ -5931,7 +5931,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0" colspan="2">
+                  <item row="5" column="0" colspan="2">
                    <widget class="QLabel" name="label_96">
                     <property name="palette">
                      <palette>
@@ -5984,7 +5984,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0" colspan="2">
+                  <item row="6" column="0" colspan="2">
                    <widget class="QRadioButton" name="checkFloodSWOForder1">
                     <property name="enabled">
                      <bool>false</bool>
@@ -6040,7 +6040,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="0" colspan="2">
+                  <item row="7" column="0" colspan="2">
                    <widget class="QRadioButton" name="checkFloodSWOForder2">
                     <property name="enabled">
                      <bool>false</bool>
@@ -6149,7 +6149,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="0" colspan="3">
+                  <item row="4" column="0" colspan="3">
                    <widget class="QRadioButton" name="checkFloodExplicit">
                     <property name="enabled">
                      <bool>false</bool>
@@ -6202,7 +6202,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0" colspan="2">
+                  <item row="3" column="0" colspan="2">
                    <widget class="QLabel" name="label_106">
                     <property name="palette">
                      <palette>
@@ -6252,7 +6252,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="2">
+                  <item row="3" column="2">
                    <widget class="QDoubleSpinBox" name="E_mixingFactor">
                     <property name="font">
                      <font>
@@ -6268,6 +6268,56 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="value">
                      <double>1.500000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QCheckBox" name="checkFloodInitial">
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Include initial flood level map (hmxinit.map)</string>
                     </property>
                    </widget>
                   </item>

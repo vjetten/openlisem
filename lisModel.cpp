@@ -204,7 +204,7 @@ void TWorld::DoModel()
             if (waitRequested) condition.wait(&mutex);
             mutex.unlock();
             // check if user wants to quit or pause
-//Allprocs();
+
             GridCell();            // set channel widths, flowwidths road widths etc
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
@@ -227,7 +227,7 @@ void TWorld::DoModel()
 
             //Pestmobilisation();  // experimental
 
-            QToChannel();          // water and sed flux going into channel in channel cells, recalc Q and V
+            ToChannel();          // water and sed flux going into channel in channel cells, recalc Q and V
             ToTiledrain();         // fraction going into tiledrain directly from surface, , recalc Q and V
 
             OverlandFlow();        // overland flow kin wave for water and sed

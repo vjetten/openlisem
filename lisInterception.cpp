@@ -115,7 +115,6 @@ void TWorld::Interception(void)
         // put new storage back in map
         Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc; //*
         // only on soil surface, not channels or roads, in m3
-        // cover already implicit in CS, Smax
 
         RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
         // net rainfall is direct rainfall + drainage
@@ -177,8 +176,8 @@ void TWorld::InterceptionHouses(void)
             DStor->Drc = DS;
             // put new storage back in maps in m and m
 
-            IntercHouse->Drc = HouseCover->Drc * (HS+DS) * SoilWidthDX->Drc * DX->Drc;//_dx*_dx
-            // total interception in m3
+            IntercHouse->Drc = HouseCover->Drc * (HS+DS) * SoilWidthDX->Drc * DX->Drc;
+            // total interception in m3,exclude roads, channels
 
             RainNet->Drc = HouseCover->Drc*housedrain + (1-HouseCover->Drc)*RainNet->Drc;
             // net rainfall is direct rainfall + drainage

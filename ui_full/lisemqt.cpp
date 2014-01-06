@@ -942,7 +942,7 @@ void lisemqt::resetAll()
     //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
-    //   checkAltErosion->setChecked(check);
+    //  checkAltErosion->setChecked(check);
     //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(check);
     //houses
@@ -950,6 +950,8 @@ void lisemqt::resetAll()
     checkRaindrum->setChecked(check);
     // flooded areas
     checkChannelFlood->setChecked(check);
+    checkFloodInitial->setChecked(check);
+
     checkLimitTC->setChecked(check);
     //   checkLimitDepTC->setChecked(check);
     checkBuffers->setChecked(check);

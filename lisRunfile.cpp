@@ -181,6 +181,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)        SwitchFloodInitial     = iii == 1;
 //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;

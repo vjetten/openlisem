@@ -153,17 +153,17 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     deltaTX = deltaT/deltaX;
     C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
-    //C is unit volume of water
+    //C is unit volume of water    
+
+    // if C < 0 than all infiltrates, return 0
+    if (C < 0)
+    {
+        itercount = -2;
+        return(0);
+    }
+
     Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
     // first guess Qkx, VERY important
-
-    // VJ 050704, 060830 infil so big all flux is gone
-    //VJ 110114 without this de iteration cannot be solved for very small values
-//    if (Qkx < MIN_FLUX)
-//    {
-//        itercount = -2;
-//        return(0);
-//    }
 
     Qkx   = max(Qkx, 0);
     count = 0;
@@ -207,7 +207,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    long counter =0;
     /// Linked list of cells in order of LDD flow network, ordered from pit upwards
     LDD_LINKEDLIST *list = NULL, *temp = NULL;
     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -261,8 +260,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                 list->rowNr = r;
                 list->colNr = c;
                 subCachDone = false;
-                counter++;
-                tm->Drc = counter;
             }
         }
 

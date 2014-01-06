@@ -146,11 +146,12 @@ void TWorld::ChannelWaterHeight(void)
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
 
-            //            if (ChannelWidthUpDX->Drc > _dx)
-            //            {
-            //                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
-            //                throw 1;
-            //            }
+            if (ChannelWidthUpDX->Drc > _dx)
+            {
+                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
+                throw 1;
+            }
+
             if (ChannelWidthUpDX->Drc < 0)
             {
                 ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
@@ -193,7 +194,7 @@ void TWorld::ChannelFlow(void)
     }
 
     ChannelQn->setMV();
-    ChannelQsn->fill(0);
+    //ChannelQsn->fill(0);
     QinKW->fill(0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
@@ -221,7 +222,7 @@ void TWorld::ChannelFlow(void)
     // avoid missing values around channel for adding to Qn for output
 
     double mb = 0;
-    long n = 1;
+    double n = 0;
     tm->fill(0);
 
     FOR_ROW_COL_MV_CH
@@ -243,33 +244,41 @@ void TWorld::ChannelFlow(void)
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell
 
-        difkin->Drc = diff;
-//        mb += diff;
-//        if (ChannelWH->Drc > 0)
-//            n++;
+
+//        if (!SwitchChannelInfil)
+//        {
+//            difkin->Drc += 0;//diff;
+//            mb += diff;
+//            if (ChannelArea > 0)
+//                n+=1;
+//        }
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
             //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
         }
-        else
+            else
             if (SwitchChannelInfil)
                 InfilVolKinWave->Drc += diff;
         //VJ 110111 add channel infil to infil for mass balance
     }
 
     // mass balance correction, throw error on cells with WH
-//    mb = mb/n;
+//    if (n > 0)
+//        mb = mb/n;
 //    FOR_ROW_COL_MV_CH
 //    {
-//        if (ChannelWH->Drc > 0)
-//            ChannelWH->Drc = max(0, ChannelWH->Drc + (mb/(ChannelWidthUpDX->Drc*DX->Drc)));
+//        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
+//        if (ChannelWaterVol->Drc > 0)
+//            ChannelWaterVol->Drc = max(0, ChannelWaterVol->Drc+mb);
+//        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
+//        ChannelQn->Drc = qPow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, (1/0.6));
 //    }
 
     FOR_ROW_COL_MV_CH
     {
+        //ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
         ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
-        //ChannelArea * ChannelDX->Drc;
         // total water vol after kin wave in m3, going to the next timestep
         // in a buffer ChannelArea = 0 so channelvolume is also 0
 

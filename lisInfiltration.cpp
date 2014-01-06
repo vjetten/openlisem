@@ -389,6 +389,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 
     return fact;
     // return new fact
+
 }
 //---------------------------------------------------------------------------
 /*!
@@ -440,7 +441,13 @@ void TWorld::Infiltration(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            WH->Drc = max(0, WH->Drc - fact->Drc);
+            //WH->Drc = max(0, WH->Drc - fact->Drc);
+            WH->Drc -= fact->Drc;
+            if (WH->Drc < 0) // in case of rounding of errors
+            {
+                fact->Drc += WH->Drc;
+                WH->Drc = 0;
+            }
             // decrease WH with actual infil, note fact is already limited to WH in InfilMethods
             Fcum->Drc += fact->Drc;
             // cumulative infil in m
@@ -467,7 +474,6 @@ void TWorld::Infiltration(void)
                     FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
                 }
         }
-//FSurplus->Drc = 0;
         // negative surplus of infiltration in m for kinematic wave in m
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
         //VJ 131222 limit so that smaller than available room!
@@ -482,7 +488,7 @@ void TWorld::Infiltration(void)
 //    //    SoilDepth1->report("sd1.map");
 //    //     SoilDepth2->report("sd2.map");
 //    Fcum->report("fc.map");
-//    FSurplus->report("fs.map");
+//   FSurplus->report("fs.map");
 }
 
 //---------------------------------------------------------------------------
@@ -771,7 +777,6 @@ void TWorld::InfilKsat(TMMap *_WH)
         }
     }
 }
-//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 // do infiltration for flooded area exclusing channel cells
 void TWorld::InfiltrationFlood(void)

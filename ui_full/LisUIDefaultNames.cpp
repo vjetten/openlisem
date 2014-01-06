@@ -368,6 +368,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.5");
     namelist[i++].name = QString("Flooding mixing coefficient");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood initial level map");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method explicit");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Flooding courant factor");
