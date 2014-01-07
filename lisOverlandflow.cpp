@@ -36,8 +36,6 @@ functions: \n
 #include "model.h"
 #define tiny 1e-8
 
-#define FW ChannelAdj->Drc
-
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
@@ -49,21 +47,17 @@ void TWorld::ToChannel(void)
             double fractiontochannel;
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
-            //            if (Volume == 0)
-            //            {
-            //                SedToChannel->Drc = 0;
-            //                RunoffVolinToChannel->Drc = 0;
-            //                continue;
-            //            }
+            if (Volume == 0)
+            {
+                SedToChannel->Drc = 0;
+                RunoffVolinToChannel->Drc = 0;
+                continue;
+            }
 
             if (ChannelAdj->Drc == 0)
                 fractiontochannel = 1.0;
             else
                 fractiontochannel = min(1.0, _dt*V->Drc/max(0.01*_dx,0.5*ChannelAdj->Drc));
-
-            //            if (WHrunoff->Drc == 0)
-            //                fractiontochannel = 0;
-            //            //VJ 140105 to prevent sed to channel if there is no water
 
             if (SwitchBuffers)
                 if (BufferID->Drc > 0)
@@ -98,11 +92,9 @@ void TWorld::ToChannel(void)
                 //sediment diverted to the channel
                 Sed->Drc -= SedToChannel->Drc;
                 // adjust sediment in suspension
-
-
             }
         }
-        CalcVelDisch(true);
+        CalcVelDisch();
         // recalc velocity and discharge
     }
 
@@ -164,12 +156,12 @@ void TWorld::QToChannel(void)
             }
         }
 
-        CalcVelDisch(true);
+        CalcVelDisch();
         // recalc velocity and discharge with new HWrunoff
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::CalcVelDisch(bool onlychannel)
+void TWorld::CalcVelDisch()
 {
     //  tm->fill(0);
     //   tma->fill(0);
@@ -182,8 +174,6 @@ void TWorld::CalcVelDisch(bool onlychannel)
         //double kinvisc = 1.1e-6; // 15 degrees celcius water
         double NN = N->Drc;
 
-        //        if(onlychannel && ChannelWidthUpDX->Drc == 0)
-        //            continue;
 
         if (SwitchChannelFlood)
             NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
@@ -199,14 +189,14 @@ void TWorld::CalcVelDisch(bool onlychannel)
         else
             R->Drc = 0;
 
-        Alpha->Drc = pow(NN/sqrtGrad->Drc * pow(Perim, _23),beta);
+        Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
 
         if (Alpha->Drc > 0)
             Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
         else
             Q->Drc = 0;
 
-        V->Drc = pow(R->Drc, _23)*sqrtGrad->Drc/NN;
+        V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
 
         //tm->Drc = V->Drc * R->Drc/kinvisc;
         //Reynolds number
@@ -218,8 +208,6 @@ void TWorld::CalcVelDisch(bool onlychannel)
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-
-    /*---- Water ----*/
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
@@ -232,7 +220,6 @@ void TWorld::OverlandFlow(void)
 
     //NOTE if buffers: all water into channel
 
-    /*---- Sediment ----*/
     if (SwitchErosion)
     {
         // calc seediment flux going in kin wave as Qs = Q*C
@@ -309,6 +296,8 @@ void TWorld::OverlandFlow(void)
         double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolall->Drc - Qn->Drc*_dt;
         //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
 
+        difkin->Drc = diff;
+
         if (SwitchBuffers && BufferVol->Drc > 0)
         {
             //qDebug() << "slope" << BufferVol->Drc << q->Drc*_dt << WaterVolin->Drc << WaterVolall->Drc << Qn->Drc*_dt << diff;
@@ -341,14 +330,12 @@ void TWorld::OverlandFlow(void)
     }
 }
 //---------------------------------------------------------------------------
-/*
-
+void TWorld::OverlandFlowNew(void)
+{
 
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
-        //FSurplus->Drc = 0;
-
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
 
@@ -382,13 +369,13 @@ void TWorld::OverlandFlow(void)
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
         }
     }
-//
-//      routing of substances add here!
-//      do after kin wave so that the new flux Qn out of a cell is known
-//      you need to have the ingoing substance flux QS (mass/s)
-//      and it will give outgoing flux QSn (mass/s)
-//      and the current amount Subs (mass) in suspension+solution
-//
+    //
+    //      routing of substances add here!
+    //      do after kin wave so that the new flux Qn out of a cell is known
+    //      you need to have the ingoing substance flux QS (mass/s)
+    //      and it will give outgoing flux QSn (mass/s)
+    //      and the current amount Subs (mass) in suspension+solution
+    //
 
     if (SwitchPesticide)
     {
@@ -438,7 +425,7 @@ void TWorld::OverlandFlow(void)
         //                double A = h*w;
         //                double R = A/P;
 
-        //                F = max(0, 1 - Qn->Drc/(sqrtGrad->Drc/N->Drc*A*powl(R,_23)));
+        //                F = max(0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
         //                dF = (5*w+6*h)/(3*h*P);
         //                h1 = h - F/dF;
         //                // function divided by derivative
@@ -487,8 +474,6 @@ void TWorld::OverlandFlow(void)
         mb += (diff - InfilKWact);
         if (WHrunoff->Drc > 0)
             n+=1;
-        //        if (WH->Drc > 0)
-        //            mbarea += ChannelAdj->Drc * DX->Drc;
 
         if (SwitchBuffers && BufferVol->Drc > 0)
         {
@@ -501,6 +486,7 @@ void TWorld::OverlandFlow(void)
     }
 
     // mass balance correction, throw error on cells with WH
+    //qDebug() << mb;
     if (n > 0)
         mb = mb/n;
     FOR_ROW_COL_MV
@@ -535,7 +521,7 @@ void TWorld::OverlandFlow(void)
             if (SwitchPesticide)
             {
                 //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
-                C->Drc = Qn->Drc > 1e-10 ? Qpn->Drc/Qn->Drc : 0;//ConcentrationP(WaterVolall->Drc, Pest->Drc);
+                C->Drc = Qn->Drc > 1e-10 ? Qpn->Drc/Qn->Drc : 0;
                 C_N->Drc = C->Drc;
                 //qDebug()<< "ds overlandflow"<< C->Drc;
                 //qDebug()<< "ds overlandflow"<< Pest->Drc;
@@ -543,21 +529,4 @@ void TWorld::OverlandFlow(void)
 
         }
     }
-
- **/
-// newton raphson trials for h out of new Q
-// Alpha->Drc = pow(NN/sqrtGrad->Drc * pow(w+2h, _23),0.6);
-// wh = Alpha->Drc*pow(Qn->Drc, 0.6))
-// wh = pow(NN/sqrtGrad->Drc * pow(w+2h, _23),0.6)*pow(Qn->Drc, 0.6)
-// h = pow(N/G * pow(w+2h, 2/3)*Q, 0.6)/w;
-// h = pow( N/G * pow(w+2h,2/3)*wh*G/N*pow(wh/(w+2h),2/3), 0.6)/w;
-// h = pow(wh*pow(w+2h,2/3)*pow(wh/(w+2h),2/3), 0.6)/w;
-// h = pow(wh*pow(w+2h,2/3)*pow(wh,2/3)/pow(w+2h,2/3)    , 0.6)/w;
-// h = pow(pow(wh,5/3),0.6)/w;
-// F = h - pow(pow(wh,5/3),0.6)/w;
-//                F = 1 - Q/(gn*(powl(w*h,_53)/powl(P, _23)));
-//                F = 1 - wh* gn * powl(R, 2/3)/(gn*(powl(w*h,_53)/powl(P, _23)));
-//                F = 1 - wh* (powl(A,2/3)/powl(P,2/3)) / (powl(A,5/3)/powl(P, 2/3));
-//                F = 1 - A*powl(A,2/3)/powl(A,5/3);
-//                F = 1 - powl(A,5/3)/powl(A,5/3);
-
+}

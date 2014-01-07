@@ -62,8 +62,6 @@ void TWorld::ChannelOverflow(void)
                     max(0, hmx->Drc-levee)*(1-fc);
             // new water level = weighed values of channel surplus level + hmx
             // can be negatve if channelwh is below depth and little hmx
-//            if (floodzone->Drc == 0)
-//                whlevel = 0;
 
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal

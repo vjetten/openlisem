@@ -88,6 +88,7 @@
     !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
     !IS_MV_REAL8(&LDD->Data[r][c+1]))\
     if (floodactive->Drc > 0)
+    //if (floodzone->Drc == fZone)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -288,6 +289,7 @@ public:
     double time, BeginTime, EndTime;
     double _dt, _dx;
     long runstep, printstep, printinterval;
+    int fZone;
 
     /// timeseries variables and output strings
     //double **RainfallSeries;
@@ -383,10 +385,11 @@ public:
     //FLOOD according to FULLSWOF2D
     double fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
     double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    void findFloodDomain(TMMap *_h);
     double limiter(double a, double b);
     void MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az);
     void ENO(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z);
-    void simpleScheme(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z = NULL);
+    void simpleScheme(TMMap *_h, TMMap *_u, TMMap *_v);
     double maincalcflux(double dt, double dt_max);
     void maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
@@ -446,11 +449,12 @@ public:
     void InfilMethods(TMMap *_Ksateff, TMMap *_WH, TMMap *_fpot, TMMap *_fact, TMMap *_L1, TMMap *_L2, TMMap *_FFull);
     void SurfaceStorage(void);
     void OverlandFlow(void);
+    void OverlandFlowNew(void);
     void ChannelFlow(void);
     void ChannelWaterHeight(void);
     void ToChannel(void);
     void QToChannel(void);
-    void CalcVelDisch(bool onlychannel);
+    void CalcVelDisch();
     void CalcVelDischChannel(void);
     void ToTiledrain(void);
     void TileFlow(void);

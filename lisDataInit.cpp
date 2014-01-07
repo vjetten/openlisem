@@ -569,7 +569,8 @@ void TWorld::InitChannel(void)
         //        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
+            ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
         }
 
 
@@ -621,12 +622,7 @@ void TWorld::InitChannel(void)
             }
 
             floodactive = NewMap(1);
-
-            //            floodzone = ReadMap(LDD, getvaluename("floodzone"));
-            //            FOR_ROW_COL_MV
-            //            {
-            //                floodzone->Drc = (floodzone->Drc > 0? 1.0 : 0.0);
-            //            }
+            floodzone = NewMap(1);
 
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
@@ -688,6 +684,9 @@ void TWorld::InitChannel(void)
             Vflood = NewMap(0);
             q1flood = NewMap(0);
             q2flood = NewMap(0);
+
+            fdtx= NewMap(0);
+            fdty= NewMap(0);
 
             //            //flood infiltration
             //            Ffcum = NewMap(1e-10);
@@ -780,15 +779,12 @@ void TWorld::GetInputData(void)
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
     Grad->calcValue(0.001, MAX);
-    sqrtGrad = NewMap(0);
-
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     Outlet->cover(LDD, 0);
     // fill outlet with zero, some users have MV where no outlet
     FOR_ROW_COL_MV
     {
-        sqrtGrad->Drc = sqrt(Grad->Drc);
         if (Outlet->Drc == 1)
         {
             if (LDD->Drc != 5)
@@ -1162,7 +1158,7 @@ void TWorld::IntializeData(void)
     {
         HouseWidthDX->Drc = min(_dx, HouseCover->Drc *_dx);
         // assume there is always space next to house
-      //  N->Drc += 0.25*HouseCover->Drc;
+        N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }
 
     //### infiltration maps
@@ -1196,7 +1192,6 @@ void TWorld::IntializeData(void)
     fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     FSurplus = NewMap(0);
-    FfSurplus = NewMap(0);
     hesinfil = NewMap(0);
     FFull = NewMap(0);
     runoffFractionCell = NewMap(0);

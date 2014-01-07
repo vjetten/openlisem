@@ -1010,7 +1010,7 @@ void lisemqt::resetAll()
     checkFloodSWOForder2->setChecked(false);
     E_cflFactor->setValue(0.4);
     E_courantFactor->setValue(0.2);
-    E_courantFactor->setEnabled(false);
+    //E_courantFactor->setEnabled(false);
     E_floodMinHeight->setValue(0.05);
     E_mixingFactor->setValue(1.5);
     E_FloodFluxLimiter->setValue(1);

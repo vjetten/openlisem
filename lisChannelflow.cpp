@@ -245,13 +245,13 @@ void TWorld::ChannelFlow(void)
         //difference between fluxes and store in and out of channel cell
 
 
-//        if (!SwitchChannelInfil)
-//        {
-//            difkin->Drc += 0;//diff;
-//            mb += diff;
-//            if (ChannelArea > 0)
-//                n+=1;
-//        }
+        if (!SwitchChannelInfil)
+        {
+            difkin->Drc += 0;//diff;
+            mb += diff;
+            if (ChannelArea > 0)
+                n+=1;
+        }
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
@@ -264,16 +264,16 @@ void TWorld::ChannelFlow(void)
     }
 
     // mass balance correction, throw error on cells with WH
-//    if (n > 0)
-//        mb = mb/n;
-//    FOR_ROW_COL_MV_CH
-//    {
-//        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
-//        if (ChannelWaterVol->Drc > 0)
-//            ChannelWaterVol->Drc = max(0, ChannelWaterVol->Drc+mb);
-//        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
-//        ChannelQn->Drc = qPow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, (1/0.6));
-//    }
+    if (n > 0)
+        mb = mb/n;
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
+        if (ChannelWaterVol->Drc > 0)
+            ChannelWaterVol->Drc = max(0, ChannelWaterVol->Drc+mb);
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
+        ChannelQn->Drc = qPow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, (1/0.6));
+    }
 
     FOR_ROW_COL_MV_CH
     {

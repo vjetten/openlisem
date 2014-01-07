@@ -60,6 +60,7 @@ void TWorld::Totals(void)
         rainfall = tm->mapTotal();
         RainTot += rainfall; // in m3
 
+        oldrainpeak  = Rainpeak;
         Rainpeak = max(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
@@ -236,7 +237,7 @@ void TWorld::Totals(void)
     // do this last because of possible flood inf volume
     FOR_ROW_COL_MV
     {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc ;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
         InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000.0/CellArea->Drc);
     }
 
@@ -310,7 +311,8 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV
         {
-            TotalConc->Drc = (Qoutput->Drc > 1e-6 ? Qsoutput->Drc/Qoutput->Drc : 0);
+            double Q = Qoutput->Drc/1000;
+            TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
         }
     }
 

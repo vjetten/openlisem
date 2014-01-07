@@ -139,13 +139,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     const double _epsilon = 1e-12;
     const double beta = 0.6;
 
-    /* if no input then output = 0 */
-//    if ((Qin + Qold) <= q*deltaX)//0)
-//    {
-//        itercount = -1;
-//        return(0);
-//    }
-
     /* common terms */
     ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
     // derivative of diagonal average (space-time)
@@ -172,10 +165,12 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = max(Qkx, 0);
+        Qkx   = max(Qkx, MIN_FLUX);
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
+
+    Qkx   = (Qkx == MIN_FLUX ? 0 : Qkx);
 
     itercount = count;
     return Qkx;

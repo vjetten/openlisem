@@ -220,7 +220,7 @@ void TWorld::DoModel()
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-            CalcVelDisch(false);   // overland flow velocity, discharge and alpha
+            CalcVelDisch();   // overland flow velocity, discharge and alpha
 
             SplashDetachment();    // splash detachment
             FlowDetachment();      // flow detachment
@@ -230,7 +230,7 @@ void TWorld::DoModel()
             ToChannel();          // water and sed flux going into channel in channel cells, recalc Q and V
             ToTiledrain();         // fraction going into tiledrain directly from surface, , recalc Q and V
 
-            OverlandFlow();        // overland flow kin wave for water and sed
+            OverlandFlowNew();        // overland flow kin wave for water and sed
 
             ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
             ChannelFlood();        // st venant channel flooding

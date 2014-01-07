@@ -36,7 +36,6 @@ TMMap
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
-*sqrtGrad,
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
@@ -198,13 +197,13 @@ TMMap
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
-
-*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
 *InfilVolFlood,
-*Ffcum,                       //!< cumulative infiltration [m]
-*ffact,                       //!< actual infiltration rate [m/s]
-*ffpot,                       //!< potential infiltration rate [m/s]
-*FfFull,                      //!< map flagging when the soil is full
+
+//*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
+//*Ffcum,                       //!< cumulative infiltration [m]
+//*ffact,                       //!< actual infiltration rate [m/s]
+//*ffpot,                       //!< potential infiltration rate [m/s]
+//*FfFull,                      //!< map flagging when the soil is full
 
 *Lf1,
 *Lf2,
@@ -279,7 +278,7 @@ TMMap
 *UVflood,                     //!<
 *Qflood,
 *maxflood,
-//*floodzone,
+*floodzone,
 *floodactive,
 *timeflood,
 *maxChannelflow,
@@ -319,6 +318,7 @@ TMMap
 *Uflood,*Vflood,
 *q1flood,*q2flood,
 *som_z1,*som_z2,
+*fdtx, *fdty,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

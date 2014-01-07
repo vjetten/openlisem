@@ -534,14 +534,6 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
         // Solution of the equation of mass conservation (First equation of Saint venant)
         // f1 comes from MUSCL calculations
         hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
-
-        //        double hhh = hes->Drc;
-        //        double inf = ChannelDepth->Drc == 0 ? Ksat1->Drc*dt/3600000.0 : 0;
-        //        hhh = hhh - inf;
-        //        if (hhh < 0)
-        //            hhh = 0;
-        //        hes->Drc = hhh;
-
         if (hes->Drc > he_ca)
         {
             //Solution of the equation of momentum (Second and third equation of Saint-venant)
@@ -634,12 +626,12 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
     // VJ 130517: not in the original code!
     // correct sudden extreme values, swap x or y direction
-    // cfl = v+sqrt(v), cannot be extremely large
+    // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
     FOR_ROW_COL_MV_MV
     {
         if (cflx->Drc > 100 || cfly->Drc > 100)
         {
-            qDebug() << "oh oh";
+            qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
             if (cflx->Drc > 100)
             {
                 //qDebug() << "mainflux x" << dt << dtx << cflx->Drc << cfly->Drc;
@@ -658,7 +650,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
                 g2->Drc = f2->Drc;
                 g3->Drc = f3->Drc;
             }
-
+            qDebug() << "oh oh 2" << cflx->Drc << cfly->Drc;
         }
     }
 
@@ -670,9 +662,12 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = cfl_fix*dx/cflx->Drc;
-
+        // cfl_fix = 0.4
+        fdtx->Drc = min(dt, dt_tmp);
         dtx = min(min(dt, dt_tmp), dtx);
-        velocity_max_x = max(velocity_max_x, cflx->Drc);
+
+        //   velocity_max_x = max(velocity_max_x, cflx->Drc);
+
     }
 
     // find largest velocity and determine dt
@@ -683,13 +678,13 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = cfl_fix*dy/cfly->Drc;
-
+        fdty->Drc = min(dt, dt_tmp);
         dty = min(min(dt, dt_tmp), dty);
-        velocity_max_y = max(velocity_max_y, cfly->Drc);
+        //   velocity_max_y = max(velocity_max_y, cfly->Drc);
     }
 
-   // qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
-   // qDebug() << "mainflux y" << dt << dty << velocity_max_y;
+    // qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
+    // qDebug() << "mainflux y" << dt << dty << velocity_max_y;
 
     if (scheme_type == 1)
         return(max(dt_ca, min(dtx,dty)));
@@ -703,7 +698,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v, TMMap *_z)
+void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
 {
 
     FOR_ROW_COL_MV_MV
@@ -723,6 +718,27 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v, TMMap *_z)
         h2l->Data[r+1][c] = _h->Data[r+1][c];
         u2l->Data[r+1][c] = _u->Data[r+1][c];
         v2l->Data[r+1][c] = _v->Data[r+1][c];
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::findFloodDomain(TMMap *_h)
+{
+    FOR_ROW_COL_MV //_MV ???
+    {
+        if (_h->Drc > 0 || (ChannelDepth->Drc > 0))
+        {
+            floodactive->Data[r-1][c-1] = 1;
+            floodactive->Data[r-1][c  ] = 1;
+            floodactive->Data[r-1][c+1] = 1;
+            floodactive->Data[r  ][c-1] = 1;
+            floodactive->Data[r  ][c  ] = 1;
+            floodactive->Data[r  ][c+1] = 1;
+            floodactive->Data[r+1][c-1] = 1;
+            floodactive->Data[r+1][c  ] = 1;
+            floodactive->Data[r+1][c+1] = 1;
+        }
+        else
+            floodactive->Drc = 0;
     }
 }
 //---------------------------------------------------------------------------
@@ -762,18 +778,18 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     // if there is no flood skip everything
     if (startFlood)
     {
+        double timesum = 0;
+        int n = 0;
+        double dt_max = min(_dt, _dx/2);
+        double dt1 = dt_max;
 
         double sumh = h->mapTotal();
         do {
-            // not faster, dt_max is fastest with the same error:
-            //   dt1 = min(dt1*qSqrt(double(n)), dt_max);
-            //dt1 = min(dt1*(double(n)), dt_max);
             dt1 = dt_max;
 
             setZero(h, u, v);
 
-            // MUSCL(h,u,v,z);
-            simpleScheme(h, u, v, z);
+            simpleScheme(h, u, v);
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
@@ -787,33 +803,20 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
                 v->Drc = vs->Drc;
-//                q1->Drc = h->Drc*u->Drc;
-//                q2->Drc = h->Drc*v->Drc;
-                if (h->Drc > 0 || (ChannelWidth->Drc > 0))
-                {
-                    floodactive->Data[r-1][c-1] = 1;
-                    floodactive->Data[r-1][c] = 1;
-                    floodactive->Data[r-1][c+1] = 1;
-                    floodactive->Data[r][c-1] = 1;
-                    floodactive->Data[r][c] = 1;
-                    floodactive->Data[r][c+1] = 1;
-                    floodactive->Data[r+1][c-1] = 1;
-                    floodactive->Data[r+1][c] = 1;
-                    floodactive->Data[r+1][c+1] = 1;
-                }
-                else
-                    floodactive->Drc = 0;
             }
+
+            findFloodDomain(h);
+
             timesum = timesum + dt1;
             n++;
             double tmp = correctMassBalance(sumh, h);
 
         } while (timesum  < _dt);
-
-
     }
+
     //        Fr=froude_number(hs,us,vs);
     // todo
+
     FOR_ROW_COL_MV_MV
     {
         q1->Drc = h->Drc*u->Drc;
@@ -821,7 +824,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     }
 
     iter_n = n;
-    return(timesum/(n+1));
+    return(n > 0? _dt/n : _dt);
 }
 //---------------------------------------------------------------------------
 /**
@@ -841,7 +844,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
     if (prepareFlood)
     {
-        //verif = 1;
+        verif = 1;
         prepareFlood = false;
         FOR_ROW_COL_MV_MV
         {
@@ -855,149 +858,92 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     }
 
     // if there is no flood skip everything
-    int n = 1;
+    int n = 0;
     if (startFlood)
     {
-        do {
-            dt1 = dt_max;
-            dt2 = dt_max;
+        verif = 1;
 
-            setZero(h, u, v);
-            // Reconstruction for order 2
-            // makes h1r, h1l, u1r, u1l, v1r, v1l
-            // makes h2r, h2l, u2r, u2l, v2r, v2l
-            // makes delzc1, delzc2, delz1, delz2
+        double sumh = h->mapTotal();
+        do {
+            if (verif == 1)
+            {
+                dt1 = dt_max;
+
+                setZero(h, u, v);
+                // Reconstruction for order 2
+                // makes h1r, h1l, u1r, u1l, v1r, v1l
+                // makes h2r, h2l, u2r, u2l, v2r, v2l
+                // makes delzc1, delzc2, delz1, delz2
+                if (SwitchMUSCL)
+                    MUSCL(h,u,v,z);
+                else
+                    ENO(h,u,v,z);
+            }
+            //            else
+            //               ; //reset infil!!!
+
+            dt1 = maincalcflux(dt1, dt_max);
+            dt1 = min(dt1, _dt-timesum);
+
+            //h, u, v go in hs, vs, us come out
+            maincalcscheme(dt1, h,u,v, hs,us,vs);
+            dt2 = dt1;
+
+            setZero(hs, us, vs);
+
+            //Reconstruction for order 2
             if (SwitchMUSCL)
                 MUSCL(h,u,v,z);
             else
                 ENO(h,u,v,z);
-            //            simpleScheme(h, u, v, z);
-            // semi-iteration: optimize the timestep
-            //     do {
 
-            dt1 = maincalcflux(dt2, dt_max);
-            dt1 = min(dt1, _dt-timesum);
 
-            maincalcscheme(dt1, h,u,v, hs,us,vs);
-            setZero(hs, us, vs);
+            dt2 = maincalcflux(dt2, dt_max);
 
-            if (SwitchMUSCL)
-                MUSCL(hs,us,vs,z);
-            else
-                ENO(hs,us,vs,z);
-            //                simpleScheme(hs,us,vs, z);
-            dt2 = maincalcflux(dt1, dt_max);
-
-            //    } while (dt2 < dt1);
-
-            dt1=dt2;
-            maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-            setZero(hsa, usa, vsa);
-
-            //Heun method (order 2 in time)
-            FOR_ROW_COL_MV
+            if (dt2 < dt1)
             {
-                double tmp = 0.5*(h->Drc + hsa->Drc);
-                if (tmp >= he_ca)
+                dt1 = dt2;
+                verif = 0;
+            }
+            else
+            {
+                verif = 1;
+                //hs, us, vs go in hsa, vsa, usa come out
+                maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
+
+                setZero(hsa, usa, vsa);
+
+                //Heun method (order 2 in time)
+                FOR_ROW_COL_MV
                 {
-                    q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                    u->Drc = q1->Drc/tmp;
-                    q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                    v->Drc = q2->Drc/tmp;
-                    h->Drc = tmp;
-                }
-                else
-                {
-                    u->Drc = 0;
-                    q1->Drc = 0;
-                    v->Drc = 0;
-                    q2->Drc = 0;
-                    h->Drc = 0;
-                }
-            }//Heun
+                    double tmp = 0.5*(h->Drc + hsa->Drc);
+                    if (tmp >= he_ca)
+                    {
+                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                        u->Drc = q1->Drc/tmp;
+                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                        v->Drc = q2->Drc/tmp;
+                        h->Drc = tmp;
+                    }
+                    else
+                    {
+                        u->Drc = 0;
+                        q1->Drc = 0;
+                        v->Drc = 0;
+                        q2->Drc = 0;
+                        h->Drc = 0;
+                    }
+                }//Heun
+
+            }//end for else dt2<dt1
+
+            findFloodDomain(h);
 
             timesum = timesum + dt1;
             n++;
-
+            double tmp = correctMassBalance(sumh, h);
 
         } while (timesum  < _dt);
-
-        //        FOR_ROW_COL_MV
-        //        {
-        //            if(u->Drc > 1000)
-        //                u->Drc = v->Drc;
-        //        }
-
-        //        do {
-        //            if (verif == 1)
-        //            {
-        //                dt1 = dt_max;
-
-        //                setZero(h, u, v);
-        //                // Reconstruction for order 2
-        //                // makes h1r, h1l, u1r, u1l, v1r, v1l
-        //                // makes h2r, h2l, u2r, u2l, v2r, v2l
-        //                // makes delzc1, delzc2, delz1, delz2
-        //                MUSCL(h,u,v,z);
-        //            }
-        //            //            else
-        //            //               ; //reset infil!!!
-
-        //            dt1 = maincalcflux(dt1, dt_max);
-        //            dt1 = min(dt1, _dt-timesum);
-
-        //            //h, u, v go in hs, vs, us come out
-        //            maincalcscheme(dt1, h,u,v, hs,us,vs);
-        //            dt2 = dt1;
-
-        //            setZero(hs, us, vs);
-
-        //            //Reconstruction for order 2
-        //            MUSCL(hs,us,vs,z);
-
-        //            dt2 = maincalcflux(dt2, dt_max);
-
-        //            if (dt2 < dt1)
-        //            {
-        //                dt1 = dt2;
-        //                verif = 0;
-        //            }
-        //            else
-        //            {
-        //                verif = 1;
-        //                //hs, us, vs go in hsa, vsa, usa come out
-        //                maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-
-        //                setZero(hsa, usa, vsa);
-
-        //                //Heun method (order 2 in time)
-        //                FOR_ROW_COL_MV
-        //                {
-        //                    double tmp = 0.5*(h->Drc + hsa->Drc);
-        //                    if (tmp >= he_ca)
-        //                    {
-        //                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-        //                        u->Drc = q1->Drc/tmp;
-        //                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-        //                        v->Drc = q2->Drc/tmp;
-        //                        h->Drc = tmp;
-        //                    }
-        //                    else
-        //                    {
-        //                        u->Drc = 0;
-        //                        q1->Drc = 0;
-        //                        v->Drc = 0;
-        //                        q2->Drc = 0;
-        //                        h->Drc = 0;
-        //                    }
-        //                }//Heun
-
-        //                timesum = timesum + dt1;
-        //                n++;
-
-        //            }//end for else dt2<dt1
-
-        //        } while (timesum  < _dt);
 
     } // if floodstart
 
@@ -1007,3 +953,4 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
 }
 //---------------------------------------------------------------------------
+
