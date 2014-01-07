@@ -467,12 +467,6 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
         tmb->Drc = 0;
     }
 
-    //        for (int r = _nrRows-2; r > 0; r--)
-    //    for (int c = 0; c < _nrCols; c++)
-    //        for (int r = 1; r < _nrRows-1; r++)
-    //            if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-    //                    !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-    //                    !IS_MV_REAL8(&LDD->Data[r+1][c]))
     FOR_ROW_COL_MV_MV
     {
         delta_h1 = tm->Drc;
@@ -739,6 +733,9 @@ void TWorld::findFloodDomain(TMMap *_h)
         }
         else
             floodactive->Drc = 0;
+
+        if (LDD->Drc == 5)
+            floodactive->Drc = 0;
     }
 }
 //---------------------------------------------------------------------------
@@ -755,7 +752,7 @@ void TWorld::findFloodDomain(TMMap *_h)
 double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
 {
     double timesum = 0;
-    int n = 0;
+    int n = 1;
     double dt_max = min(_dt, _dx/2);
     double dt1 = dt_max;
 
@@ -778,11 +775,6 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     // if there is no flood skip everything
     if (startFlood)
     {
-        double timesum = 0;
-        int n = 0;
-        double dt_max = min(_dt, _dx/2);
-        double dt1 = dt_max;
-
         double sumh = h->mapTotal();
         do {
             dt1 = dt_max;
@@ -814,7 +806,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         } while (timesum  < _dt);
     }
 
-    //        Fr=froude_number(hs,us,vs);
+    //Fr=froude_number(hs,us,vs);
     // todo
 
     FOR_ROW_COL_MV_MV
@@ -824,7 +816,8 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     }
 
     iter_n = n;
-    return(n > 0? _dt/n : _dt);
+    dt1 = n > 0? _dt/n : dt1;
+    return(dt1);
 }
 //---------------------------------------------------------------------------
 /**
@@ -841,6 +834,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 {
     double dt1, dt2, timesum = 0;
     double dt_max = min(_dt, _dx/2);
+    int n = 0;
 
     if (prepareFlood)
     {
@@ -858,7 +852,6 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     }
 
     // if there is no flood skip everything
-    int n = 0;
     if (startFlood)
     {
         verif = 1;
@@ -879,8 +872,6 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 else
                     ENO(h,u,v,z);
             }
-            //            else
-            //               ; //reset infil!!!
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
@@ -948,8 +939,8 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     } // if floodstart
 
     iter_n = n;
-
-    return(timesum/(n+1));
+    dt1 = n > 0? _dt/n : dt1;
+    return(dt1);
 
 }
 //---------------------------------------------------------------------------

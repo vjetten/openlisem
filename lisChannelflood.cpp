@@ -49,7 +49,7 @@ void TWorld::ChannelOverflow(void)
 //       tm->fill(0);
     FOR_ROW_COL_MV_CH
     {
-        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0)
+        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
         {
 
             double fc = min(1.0, ChannelWidthUpDX->Drc/_dx);
