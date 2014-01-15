@@ -147,7 +147,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method SWOF2D order 1")==0)    checkFloodSWOForder1->setChecked(check);
         if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
         if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
-        if (p1.compare("Flooding SWOF reconstruction")==0)   E_FloodRecon->setValue(val);
+        if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodRecon->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);

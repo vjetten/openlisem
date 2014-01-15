@@ -55,8 +55,8 @@ void lisemqt::ssetAlpha4(int v)
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool doit)
 {
-//    if (!startplot)
-//        return;
+    //    if (!startplot)
+    //        return;
 
     op.addWHtohmx = checkAddWHtohmx->isChecked();
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
@@ -133,7 +133,7 @@ void lisemqt::initMapPlot()
 void lisemqt::setupMapPlot()
 {
     op.drawMapType = 1;
- //   double alpha = 1;
+    //   double alpha = 1;
 
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
@@ -227,6 +227,9 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
     double maxV = -1e20;
     mapData.clear();  //QVector double
 
+    if (_M == NULL)
+        return (maxV);
+
     // copy map data into vector for the display structure
     for(int r = _M->nrRows-1; r >= 0; r--)
         //      for(int r = 0; r < _M->nrRows; r++)
@@ -245,8 +248,8 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
     _RD->setValueMatrix( mapData, _M->nrCols );
     // set column number to divide vector into rows
 
-    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols*_M->MH.cellSizeX, QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows*_M->MH.cellSizeY, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols*_M->MH.cellSize, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows*_M->MH.cellSize, QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
     return maxV;
 }
@@ -256,8 +259,8 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
 // not how they are done here!
 void lisemqt::showMap()
 {
-    //    if (!startplot)
-    //        return;
+    //        if (!startplot)
+    //            return;
 
     drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) showMap1();
@@ -277,6 +280,8 @@ void lisemqt::showBaseMap()
         return;
 
     double res = fillDrawMapData(op.baseMap, RDb);
+    if (res == -1e20)
+        return;
 
     baseMap->setAlpha(255);
     baseMap->setColorMap(new colorMapGray());
@@ -284,22 +289,37 @@ void lisemqt::showBaseMap()
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSizeX;
-    double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSizeY;
-
+    double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSize;
+    double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSize;
+    double dx = max(nrCols,nrRows)/20;
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
 
-    if (nrRows > nrCols)
+    MPlot->setAxisAutoScale(MPlot->yRight, false);
+    MPlot->setAxisAutoScale(MPlot->xBottom, false);
+    MPlot->setAxisAutoScale(MPlot->yLeft, false);
+
+    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
+    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
+    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+
+    /*
+    if (nrRows < nrCols)
     {
         MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
         MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+        MPlot->setAxisScale( MPlot->yLeft, 0.0, nrCols, nrCols/20);
+        MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
     }
     else
     {
+        MPlot->setAxisScale( MPlot->xBottom, 0.0, nrRows, nrRows/20);
+        MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
         MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
         MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
     }
+    */
     // startplot = false;
 }
 //---------------------------------------------------------------------------
@@ -309,6 +329,8 @@ void lisemqt::showChannelMap()
         return;
 
     double res = fillDrawMapData(op.channelMap, RDc);
+    if (res ==-1e20)
+        return;
 
     channelMap->setAlpha(transparency2->value());
 
@@ -323,9 +345,12 @@ void lisemqt::showRoadMap()
     if (startplot)
     {
         double res = fillDrawMapData(op.roadMap, RDd);
-        roadMap->setData(RDd);
+        if (res ==-1e20)
+            return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
+        roadMap->setData(RDd);
     }
+
 
     roadMap->setAlpha(transparency3->value());
 
@@ -334,74 +359,26 @@ void lisemqt::showRoadMap()
     else
         roadMap->setColorMap(new colorMapRoads2());
 
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
     if (startplot)
     {
-
         // set intervals for rasterdata, x,y,z min and max
         double res = fillDrawMapData(op.houseMap, RDe);
+        if (res ==-1e20)
+            return;
         RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
         houseMap->setData(RDe);
     }
 
     houseMap->setAlpha(transparency4->value());
 
-//    if (op.drawMapType == 4)
-        houseMap->setColorMap(new colorMapHouse());
-//    else
-//        houseMap->setColorMap(new colorMapWhite());
-
-
-}
-//---------------------------------------------------------------------------
-void lisemqt::showHouseMapA()
-{
-    //    if (!startplot)
-    //        return;
-
-    //    double maxV = -1;
-    //    QVector<double> mapDataa;
-
-    //    TMMap *M = new TMMap();
-    //    M->PathName = W->inputDir + "lu5m.map";
-    //    bool res = M->LoadFromFile();
-    //    if (!res)
-    //    {
-    //        ErrorString = "Cannot find map " +M->PathName;
-    //        throw 1;
-    //    }
-
-    //    mapDataa.clear();
-
-    //    // copy map data into vector for the display structure
-    //    for(int r = M->nrRows-1; r >= 0; r--)
-    //        for(int c=0; c < M->nrCols; c++)
-    //        {
-    //            if(!IS_MV_REAL8(&M->Drc))
-    //            {
-    //                mapDataa << M->Drc;
-    //                maxV = qMax(maxV, M->Drc);
-    //            }
-    //            else
-    //                mapDataa << (double)-1e20;
-    //        }
-
-    //    // set intervals for rasterdata, x,y,z min and max
-    //    RDe->setValueMatrix( mapDataa, M->nrCols );
-
-    //    houseMap->setAlpha(transparency4->value());
-
-    //    houseMap->setColorMap(new colorMapGray());
-
-    //    RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,maxV));
-    //    houseMap->setData(RDe);
-    //  //  MPlot->setAxisScale( MPlot->xBottom, 0.0, M->nrCols, M->nrCols/20);
-    //  //  MPlot->setAxisScale( MPlot->yLeft, 0.0, M->nrRows, M->nrRows/20);
-
+    //    if (op.drawMapType == 4)
+    houseMap->setColorMap(new colorMapHouse());
+    //    else
+    //        houseMap->setColorMap(new colorMapWhite());
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
@@ -410,21 +387,25 @@ void lisemqt::showMap1()
     MPlot->setTitle("Runoff (l/s)");
 
     double MaxV = fillDrawMapData(op.DrawMap1, RD);
- //   MaxV = fillDrawMapData(op.DrawMap1, RD);
+    if (MaxV ==-1e20)
+        return;
     // fill vector and find the new max value
 
     // set intervals for rasterdata, x,y,z min and max
     maxAxis1 = qMax(maxAxis1, MaxV);
     if (doubleSpinBoxRO->value() > 0)
         maxAxis1 = doubleSpinBoxRO->value();
-    /*    else
-        maxAxis1 = MaxV*/;
+    // use userdefined if spinbox not 0
+
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(0.1, maxAxis1)));
+    // classify data from 0 to,ax
 
     drawMap->setData(RD);
     drawMap->setColorMap(new colorMapWaterLog());
+    // link data to map with a color palette
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWaterLog());
+    // set the legend with the same palette
 
     if (maxAxis1 < 10)
         MPlot->setAxisScale( MPlot->yRight, 0.01, qMax(1.0,maxAxis1));
@@ -438,14 +419,15 @@ void lisemqt::showMap1()
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
+// INFILTRATION
 void lisemqt::showMap2()
 {
     MPlot->setTitle("Infiltration (mm)");
 
     // fill vector RD with matrix data and find the new max value
     double MaxV = fillDrawMapData(op.DrawMap2, RD);
- //   MaxV = fillDrawMapData(op.DrawMap2, RD);
-
+    if (MaxV ==-1e20)
+        return;
     // set the new interval to the new max value
     maxAxis2 = qMax(maxAxis2, MaxV);
     if (doubleSpinBoxINF->value() > 0)
@@ -454,8 +436,8 @@ void lisemqt::showMap2()
         maxAxis2 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
 
-    // point spectrogram to data
     drawMap->setData(RD);
+    // point spectrogram to data
     drawMap->setColorMap(new colorMapWater());
     //drawMap = QwtPlotSpectrogram
 
@@ -472,7 +454,8 @@ void lisemqt::showMap3()
     MPlot->setTitle("Soil loss (ton/ha)");
 
     double MaxV = fillDrawMapData(op.DrawMap3, RD);
- //   MaxV = fillDrawMapData(op.DrawMap3, RD);
+    if (MaxV ==-1e20)
+        return;
     // fill vector and find the new max value
 
     maxAxis3 = qMax(maxAxis3, MaxV);
@@ -498,14 +481,15 @@ void lisemqt::showMap4()
 
     double MinV = 0;
     double MaxV = fillDrawMapData(op.DrawMap4, RD);
-  //  MaxV = fillDrawMapData(op.DrawMap4, RD);
+    if (MaxV ==-1e20)
+        return;
     // fill vector and find the new max value
 
     maxAxis4 = qMax(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
-    else
-        maxAxis4 = MaxV;
+//    else
+//        maxAxis4 = MaxV;
     //    if (doubleSpinBoxFLmin->value() > 0)
     //        MinV = doubleSpinBoxFLmin->value();
 
@@ -531,7 +515,8 @@ void lisemqt::showMap5()
     MPlot->setTitle("Flood Velocity (m/s)");
 
     double MaxV = fillDrawMapData(op.DrawMap5, RD);
- //   MaxV = fillDrawMapData(op.DrawMap5, RD);
+    if (MaxV ==-1e20)
+        return;
     // fill vector and find the new max value
 
     maxAxis5 = qMax(maxAxis5, MaxV);

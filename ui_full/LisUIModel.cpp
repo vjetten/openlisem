@@ -69,14 +69,20 @@ void lisemqt::runmodel()
     tabWidget->setCurrentIndex(2);
     //switch to output screen
 
+    startplot = true;
+    stopplot = false;
+
+    // initialize output graphs and maps
     initPlot();
 
     initMapPlot();
 
     initOutputData();
 
+
     initOP();
     // reset op structure
+
     showOutputData();
     // wipe the result screen after op reset
 
@@ -151,9 +157,8 @@ void lisemqt::worldShow()
 
     showSmallPlot(); // show small plot next map for point X
 
+    // draw maps
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
-
-    //showMap(); // show map
 
     showChannelMap(); // show channel map
 
@@ -187,7 +192,9 @@ void lisemqt::worldDone(const QString &results)
     //free the world instance
 
     killPlot();
-    // clear() plot data and set startplot to true
+    // clear() plot data
+
+    stopplot = true;
 
     // free the map plot discharge bdata
     QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));

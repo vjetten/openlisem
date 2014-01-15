@@ -212,9 +212,6 @@ void lisemqt::setupSmallPlot()
 /// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
 {
-    startplot = true;
-    stopplot = false;
-
     op.outputpointnr = spinBoxPointtoShow->value();
     spinBoxPointtoShow->setEnabled(false);
     HPlot->setTitle("Hydrograph Outlet");
@@ -241,8 +238,6 @@ void lisemqt::killPlot()
     CData.clear();
 
     spinBoxPointtoShow->setEnabled(true);
-    //  stopplot = true;
-    //   startplot = true;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
