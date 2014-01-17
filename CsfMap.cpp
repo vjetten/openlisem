@@ -170,8 +170,8 @@ void cTMap::MakeMap(cTMap *dup, REAL8 value)
   MH.cellRepr = dup->MH.cellRepr;
   MH.xUL = dup->MH.xUL;
   MH.yUL = dup->MH.yUL;
-  MH.cellSizeX  = dup->MH.cellSizeX;
-  MH.cellSizeY  = dup->MH.cellSizeX;
+  MH.cellSize  = dup->MH.cellSize;
+  //MH.cellSizeY  = dup->MH.cellSizeX;
   MH.angle = dup->MH.angle;
   projection = dup->projection;
 
@@ -237,7 +237,7 @@ void cTMap::WriteMap(QString Name)
 
   MH.cellRepr = CR_REAL4;
   out = Rcreate(Name.toAscii().constData(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
-                (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSizeX);
+                (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSize);
   RuseAs(out, CR_REAL4);
 
   for(r=0; r < nrRows; r++)

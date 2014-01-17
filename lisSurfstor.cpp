@@ -42,7 +42,7 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::GridCell(void)
 {
-/*
+
     FOR_ROW_COL_MV
     {
         double dxa = max(0, _dx - ChannelWidthUpDX->Drc);
@@ -58,10 +58,13 @@ void TWorld::GridCell(void)
 
         HouseWidthDX->Drc = min(dxa, HouseWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
+        if (Cover->Drc + HouseCover->Drc > 1.0)
+            Cover->Drc = 1.0-HouseCover->Drc;
 
         SoilWidthDX->Drc = dxa;
     }
-*/
+
+    /*
     FOR_ROW_COL_MV
     {
         ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
@@ -90,7 +93,7 @@ void TWorld::GridCell(void)
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
 
     }
-
+*/
 //    SoilWidthDX->report("sw");
 //    ChannelAdj->report("cha");
 //    RoadWidthDX->report("rw");

@@ -1,43 +1,24 @@
-/************************************************************************
-Copyright (c) 1997-2003, Utrecht University
-All rights reserved.
+/*
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-* Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+#ifndef CSF__IMPL_H
+#define CSF__IMPL_H
 
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided
-  with the distribution.
-
-* Neither the name of Utrecht University nor the names of its contributors
-  may be used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-website: http://pcraster.geo.uu.nl/csfapi.html
-
-************************************************************************/
-
-
-#ifndef CSF__CMPL_H
-#define CSF__CMPL_H
-
+#ifndef lint
+#define RCS_ID_CSFIMPL_H "$Header: /home/cvs/pcrteam/pcrtree/libs/csf/csfimpl.h,v 1.5 2004/11/09 10:52:51 cees Exp $"
+#endif
 
 /******************************************************************/
 /******************************************************************/
@@ -49,14 +30,10 @@ website: http://pcraster.geo.uu.nl/csfapi.html
  * FOPEN_MAX should be there in Ansi-C in <stdio.h>
  * stdio.h is included in csf.h, check if csf.h is included first
  */
-#ifndef CSF__H
+#ifndef INCLUDED_CSF
 # error csfimpl.h included before csf.h
 #endif
-#ifdef FOPEN_MAX
-# define MAX_MAPS FOPEN_MAX
-#else
-# define MAX_MAPS 40
-#endif
+
 /******************************************************************/
 /* CSFIMPL.H							  */
 /******************************************************************/
@@ -90,7 +67,7 @@ website: http://pcraster.geo.uu.nl/csfapi.html
 # define  CSF_MALLOC ChkMalloc
 # define  CSF_FREE   Free
 #else
-# include <stdlib.h>
+# include <stdlib.h> /* malloc, free,abs */
 # include <assert.h> 
 # define  CSF_MALLOC malloc
 # define  CSF_FREE   free
@@ -108,10 +85,6 @@ website: http://pcraster.geo.uu.nl/csfapi.html
 /******************************************************************/
 /* Definition of the main header                                  */
 /******************************************************************/
-
-/* value for first 27 bytes of MAIN_HEADER.signature */
-#define SIG  "RUU CROSS SYSTEM MAP FORMAT"
-#define SIZE_SIG (sizeof(SIG)-1)
 
 /* value for MAIN_HEADER.version */
 #define CSF_VERSION_1 1
@@ -143,15 +116,14 @@ website: http://pcraster.geo.uu.nl/csfapi.html
 #define NR_ATTR_IN_BLOCK 	10
 #define LAST_ATTR_IN_BLOCK 	(NR_ATTR_IN_BLOCK-1)
 
-/// PCRaster CSF structure, do not touch !
+
 typedef struct ATTR_REC 
 {
 		UINT2 attrId;	/* attribute identifier */
 		CSF_FADDR attrOffset;   /* file-offset of attribute */
-		UINT4 attrSize;	/* size of attibute in bytes */
+		UINT4 attrSize;	/* size of attribute in bytes */
 } ATTR_REC;
 
-/// PCRaster CSF structure, do not touch !
 typedef struct ATTR_CNTRL_BLOCK
 {
 	ATTR_REC attrs[NR_ATTR_IN_BLOCK];
@@ -233,7 +205,7 @@ typedef struct ATTR_CNTRL_BLOCK
 void TransForm(const MAP *map, UINT4 nrCells, void *buf);
  */
 
-void  CsfSetMapAngleCosSin(MAP *m);
+void  CsfFinishMapInit(MAP *m);
 void  CsfDummyConversion(size_t n, void *buf);
 int   CsfIsValidMap(const MAP *m);
 void  CsfUnloadMap(MAP *m);
@@ -280,4 +252,4 @@ int CsfValidSize(size_t size);
 				M_ERROR(ILLHANDLE);	\
 			}
 
-#endif /* CSF__CMPL_H */
+#endif /* CSF__IMPL_H */

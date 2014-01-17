@@ -235,21 +235,20 @@ void TWorld::RainfallMap(void)
             throw 1;
         }
 
-        for (int r = 0; r < _nrRows; r++)
-            for (int c = 0; c < _nrCols; c++)
-                if (!IS_MV_REAL8(&LDD->Drc) && IS_MV_REAL8(&_M->Drc))
-                {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
-                    throw 1;
-                }
+        //        for (int r = 0; r < _nrRows; r++)
+        //            for (int c = 0; c < _nrCols; c++)
+        //                if (!IS_MV_REAL8(&LDD->Drc) &&
+        FOR_ROW_COL_MV
+                if (IS_MV_REAL8(&_M->Drc))
+        {
+            QString sr, sc;
+            sr.setNum(r); sc.setNum(c);
+            ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
+            throw 1;
+        }
         FOR_ROW_COL_MV
         {
             Rain->Drc = _M->Drc *_dt/tt;
-            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-            RainCum->Drc += Rainc->Drc;
-            RainNet->Drc = Rainc->Drc;
         }
 
         _M->KillMap();
@@ -260,17 +259,22 @@ void TWorld::RainfallMap(void)
         {
             Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
             // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
-            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-            // correction for slope dx/DX, water spreads out over larger area
-
             //TODO: weighted average if dt larger than table dt
-
-            RainCumFlat->Drc += Rain->Drc;
-            RainCum->Drc += Rainc->Drc;
-            // cumulative rainfall corrected for slope, used in interception
-            RainNet->Drc = Rainc->Drc;
         }
     }
+
+    FOR_ROW_COL_MV
+    {
+        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+        // correction for slope dx/DX, water spreads out over larger area
+        RainCumFlat->Drc += Rain->Drc;
+        // cumulative rainfall
+        RainCum->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception
+        RainNet->Drc = Rainc->Drc;
+        // net rainfall in case of interception
+    }
+
 
 }
 //---------------------------------------------------------------------------

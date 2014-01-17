@@ -316,9 +316,8 @@ TMMap
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,
-*q1flood,*q2flood,
+//*q1flood,*q2flood,
 *som_z1,*som_z2,
-*fdtx, *fdty,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

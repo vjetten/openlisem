@@ -383,8 +383,8 @@ public:
     //FLOOD according to LISFLOOD
     double floodExplicit();
     //FLOOD according to FULLSWOF2D
-    double fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
-    double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+    double fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z);//, TMMap *q1, TMMap *q2);
+    double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z);//, TMMap *q1, TMMap *q2);
     void findFloodDomain(TMMap *_h);
     double limiter(double a, double b);
     void MUSCL(TMMap *ah, TMMap *au, TMMap *av, TMMap *az);
@@ -472,7 +472,7 @@ public:
     double mixing_coefficient;
     double cfl_fix;
     double minReportFloodHeight;
-    double correctMassBalance(double sum1, TMMap *m);
+    double correctMassBalance(double sum1, TMMap *M, double minV);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
                    TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap*SedVol,
                    TMMap *_StorVol, TMMap*_StorVolSed);

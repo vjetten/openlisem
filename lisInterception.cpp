@@ -52,6 +52,7 @@ void TWorld::Interception(void)
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
     FOR_ROW_COL_MV
+            if (Cover->Drc > 0)
     {
         double CS = CStor->Drc;
         //actual canopy storage in m
@@ -113,7 +114,7 @@ void TWorld::Interception(void)
 
         CStor->Drc = CS;
         // put new storage back in map
-        Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc; //*
+        Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc;
         // only on soil surface, not channels or roads, in m3
 
         RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
@@ -132,59 +133,61 @@ void TWorld::InterceptionHouses(void)
     {
         if (HouseCover->Drc > 0)
         {
-            double HS, DS;
+            //house on cell in m2
+            double HS = HStor->Drc;
             //actual roof storage in m
+            double DS = DStor->Drc;
+            //actual drum storage in m3
             double Hmax = RoofStore->Drc;
             //max roof storage in m
-            // HouseCover->Drc = qMin(HouseCover->Drc, 0.95);
 
-            double Dmax =0;
+            // GIVES MASS BALANCE ERRORS?
+            //            if (Hmax > 0)
+            //            {
+            //                double k = 1.0;
+            //                // speed of filling of roof storage, very quickly
+            //                HS = Hmax*(1-exp(-k*RainCum->Drc/Hmax));
+            //                //roof storage in m
+            //            }
+            //            else
+            //                HS = 0;
+
+            HS = HS + RainNet->Drc;
+            if (HS > Hmax)
+                HS = Hmax;
+
+            double housedrain = max(0, HouseCover->Drc * (RainNet->Drc - (HS - HStor->Drc)));
+            // overflow in m3/m2 of house
+            HStor->Drc = HS;
+            // put new storage back in maps in m
+
+            double Dmax = 0;
             if (SwitchRaindrum)
-                if (HouseCover->Drc > 0)
-                    Dmax = DrumStore->Drc/(CellArea->Drc*HouseCover->Drc);
-            //max drum storage in m
-
-            double housedrain = 0;
-            //overflow in m
-
-            if (Hmax > 0)
-            {
-                double k = 1.0;
-                // speed of filling of roof storage, very quickly
-                HS = Hmax*(1-exp(-k*RainCum->Drc/Hmax));
-                //roof storage in m
-            }
-            else
-                HS = 0;
+                Dmax = DrumStore->Drc;
+            //max drum storage in m3
 
             if (Dmax > 0)
             {
-                double k = 0.05;
-                // speed of filling of raindrum near house, slower
-                DS = Dmax*(1-exp(-k*RainCum->Drc/Dmax));
-                //drum storage in m
-
+                // housedrain water from roof in m, cover is already included
+                double dsm3 = (DS + housedrain)*SoilWidthDX->Drc*DX->Drc;
+                if (dsm3 < Dmax)
+                    dsm3 = Dmax;
+                DS = dsm3/(SoilWidthDX->Drc*DX->Drc);
+                housedrain = max(0, housedrain - (DS - DStor->Drc));
             }
             else
                 DS = 0;
 
-            housedrain = max(0, (RainNet->Drc - (HS - HStor->Drc) - (DS - DStor->Drc)));
-            // diff between new and old strage is subtracted from rainfall
-            // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
-
-            HStor->Drc = HS;
             DStor->Drc = DS;
-            // put new storage back in maps in m and m
+            // put new storage back in maps in m
 
             IntercHouse->Drc = HouseCover->Drc * (HS+DS) * SoilWidthDX->Drc * DX->Drc;
             // total interception in m3,exclude roads, channels
 
-            RainNet->Drc = HouseCover->Drc*housedrain + (1-HouseCover->Drc)*RainNet->Drc;
+            RainNet->Drc = housedrain + (1-HouseCover->Drc)*RainNet->Drc;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
         }
-        else
-            IntercHouse->Drc = 0;
     }
 }
 //---------------------------------------------------------------------------

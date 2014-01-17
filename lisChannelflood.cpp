@@ -55,7 +55,7 @@ void TWorld::ChannelOverflow(void)
             double fc = min(1.0, ChannelWidthUpDX->Drc/_dx);
             //double fc = 1.0-min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
             //fc = min(fc, ChannelWidthUpDX->Drc/_dx);
-            tm->Drc = fc;
+            //tm->Drc = fc;
             double levee = ChannelLevee->Drc;
 
             double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
@@ -75,8 +75,6 @@ void TWorld::ChannelOverflow(void)
                 ChannelWH->Drc = whlevel + ChannelDepth->Drc + levee;
             }
             // if average water level is negative, channel wh < depth, but there can be hmx
-            // some flood water moves into the channel accoridng to flood velocity
-            // if fv = 1 and whlevel < 0 hmx always 0, see excel
             else
                 if (hmx->Drc > levee)
                 {
@@ -141,16 +139,17 @@ void TWorld::ChannelOverflow(void)
 }
 //---------------------------------------------------------------------------
 // correct mass balance
-double TWorld::correctMassBalance(double sum1, TMMap *M)
+double TWorld::correctMassBalance(double sum1, TMMap *M, double minV)
 {
     double sum2 = 0;
     double n = 0;
     FOR_ROW_COL_MV
     {
-        if(M->Drc > 0.0)
+        if(M->Drc > 0)
         {
-            n += 1;
             sum2 += M->Drc;
+            if(M->Drc > minV)
+                n += 1;
         }
     }
     // toal and cells active for M
@@ -158,7 +157,7 @@ double TWorld::correctMassBalance(double sum1, TMMap *M)
     double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     FOR_ROW_COL_MV
     {
-        if(M->Drc > 0.0)
+        if(M->Drc > minV)
         {
             M->Drc += dh;
             M->Drc = max(M->Drc , 0);
@@ -194,7 +193,7 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchFloodSWOForder2)
     {
-        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
         FOR_ROW_COL_MV
         {
             UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
@@ -204,7 +203,7 @@ void TWorld::ChannelFlood(void)
     else
         if (SwitchFloodSWOForder1)
         {
-            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, q1flood, q2flood);
+            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
             FOR_ROW_COL_MV
             {
                 UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
@@ -217,10 +216,11 @@ void TWorld::ChannelFlood(void)
                 dtflood = floodExplicit();
             }
 
+
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
-    double dh = correctMassBalance(sumh_t, hmx);
+    double dh = correctMassBalance(sumh_t, hmx, 0);
     // correct mass balance
 
     // floodwater volume and max flood map

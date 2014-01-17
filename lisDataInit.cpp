@@ -173,7 +173,7 @@ TMMap *TWorld::InitMask(QString name)
         maplistnr++;
     }
 
-    _dx = _M->MH.cellSizeX*1.0000000;
+    _dx = _M->MH.cellSize*1.0000000;
     _nrRows = _M->nrRows;
     _nrCols = _M->nrCols;
 
@@ -627,7 +627,7 @@ void TWorld::InitChannel(void)
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
-            F_scheme = getvalueint("Flooding SWOF reconstruction");
+            F_scheme = getvalueint("Flooding SWOF Reconstruction");
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter");
             SwitchMUSCL = (getvalueint("Flooding SWOF scheme") == 1);
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
@@ -682,19 +682,9 @@ void TWorld::InitChannel(void)
 
             Uflood = NewMap(0);
             Vflood = NewMap(0);
-            q1flood = NewMap(0);
-            q2flood = NewMap(0);
+            //q1flood = NewMap(0);
+            //q2flood = NewMap(0);
 
-            fdtx= NewMap(0);
-            fdty= NewMap(0);
-
-            //            //flood infiltration
-            //            Ffcum = NewMap(1e-10);
-            //            ffact = NewMap(0);
-            //            ffpot = NewMap(0);
-            //            FfFull = NewMap(0);
-            //            Lf1 = NewMap(1e-10);
-            //            Lf2 = NewMap(1e-10);
         }
 
         //        if (useSorted)
@@ -1145,6 +1135,7 @@ void TWorld::IntializeData(void)
         //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
         //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
         HouseCover = ReadMap(LDD,getvaluename("housecover"));
+
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
         RoofStore->calcValue(0.001, MUL);
         // from mm to m

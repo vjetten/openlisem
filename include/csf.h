@@ -1,55 +1,43 @@
-/************************************************************************
-Copyright (c) 1997-2003, Utrecht University
-All rights reserved.
+/*
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-* Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided
-  with the distribution.
-
-* Neither the name of Utrecht University nor the names of its contributors
-  may be used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-website: http://pcraster.geo.uu.nl/csfapi.html
-
-************************************************************************/
-
-
-
-#ifndef CSF__H
-#define CSF__H
-
-#ifdef __cplusplus
- extern "C" {
-#endif 
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+#ifndef INCLUDED_CSF
+#define INCLUDED_CSF
 
 #ifdef CSF_V1
 # error new include file used while CSF_V1 is defined
 #endif
 
-#include <stdio.h>
+#ifndef INCLUDED_CSFTYPES
 #include "csftypes.h"
+#define INCLUDED_CSFTYPES
+#endif
+
+#ifdef __cplusplus
+ extern "C" {
+#endif 
+
+
+
+#include <stdio.h>
 #include "csfattr.h"
+
+
+#ifndef lint
+# define  RCS_ID_CSF_H "$Header: /home/cvs/pcrteam/pcrtree/libs/csf/csf.h,v 1.7 2004/07/07 19:42:54 cees Exp $"
+#endif
 
 /*****************************************************************/
 /*                                                               */
@@ -72,15 +60,18 @@ typedef REAL8 CSF_VAR_TYPE;
  */
 typedef UINT4 CSF_FADDR;
 
+/* value for first 27 bytes of MAIN_HEADER.signature */
+#define CSF_SIG  "RUU CROSS SYSTEM MAP FORMAT"
+#define CSF_SIZE_SIG (sizeof(CSF_SIG)-1)
+
 #define CSF_SIG_SPACE 32
 
-/// PCRaster CSF header, do not touch !
 typedef struct CSF_MAIN_HEADER
 {
  char    signature[CSF_SIG_SPACE];
  UINT2   version;
  UINT4   gisFileId;
- UINT2	 projection;
+ UINT2   projection;
  CSF_FADDR   attrTable;
  UINT2   mapType;
  UINT4   byteOrder;
@@ -95,99 +86,117 @@ typedef struct CSF_MAIN_HEADER
 /******************************************************************/
 /* Definition of the raster header                                */
 /******************************************************************/
-
-/// PCRaster CSF header, do not touch !
 typedef struct CSF_RASTER_HEADER
 {
-	 /* see #def's of VS_*
-	  */
-	 UINT2    valueScale;
-	 /* see #def's of CR_*
-	  */
-	 UINT2    cellRepr;
+   /* see #def's of VS_*
+    */
+   UINT2    valueScale;
+   /* see #def's of CR_*
+    */
+   UINT2    cellRepr;
 
-	/* minVal holds a value equal or less than the
-	 * minimum value in the cell matrix
-	 */
-	 CSF_VAR_TYPE minVal;
+  /* minVal holds a value equal or less than the
+   * minimum value in the cell matrix
+   */
+   CSF_VAR_TYPE minVal;
 
-	/* maxVal holds a value equal or greater than the
-	 * maximum value in the cell matrix
-	 */
-	 CSF_VAR_TYPE maxVal;
+  /* maxVal holds a value equal or greater than the
+   * maximum value in the cell matrix
+   */
+   CSF_VAR_TYPE maxVal;
 
-	/* co-ordinate of upper left corner
-	 */
-	 REAL8    xUL;
-	 REAL8    yUL;
+  /* co-ordinate of upper left corner
+   */
+   REAL8    xUL;
+   REAL8    yUL;
 
-	 UINT4    nrRows;
-	 UINT4    nrCols;
+   UINT4    nrRows;
+   UINT4    nrCols;
 
-	/* even though cellSizeX and cellSizeY
-	 * are stored separate, they should be equal
-	 * all apps. are working with square pixels
-	 */
-	 REAL8    cellSizeX;
-	 REAL8    cellSizeY;
+  /* CSF version 1 problem: X and Y cellsize 
+   * could differ, no longer the case
+   * even though cellSizeX and cellSizeY
+   * are stored separate, they should be equal
+   * all apps. are working with square pixels
+   */
+   REAL8    cellSize;     /* was cellSizeX */
+   REAL8    cellSizeDupl; /* was cellSizeY */
 
-	/* new in version 2
-	 * rotation angle of grid
-	 */
-	 REAL8    angle;
+  /* new in version 2
+   * rotation angle of grid
+   */
+   REAL8    angle;
+
+  /* remainder is not part of
+   * file header 
+   */
+  /* cosine and sine of
+   * the angle are computed
+   * when opening or creating
+   * the file
+   */
+  REAL8  angleCos;
+  REAL8  angleSin;
+  CSF_PT projection;   /* copy of main header */
 } CSF_RASTER_HEADER;
 
 /*******************************************************************/
-/*	mode values						   */
+/*  mode values               */
 /*******************************************************************/
 
 /* bit-mapped values: */
 enum MOPEN_PERM {
-	M_READ=1,      /* open read only */
-	M_WRITE=2,     /* open write only */
-	M_READ_WRITE=3 /* open for both reading and writing */
+  M_READ=1,      /* open read only */
+  M_WRITE=2,     /* open write only */
+  M_READ_WRITE=3 /* open for both reading and writing */
 };
 
 
 
 /****************************************************************/
-/* Error listing return messages        			*/
+/* Error listing return messages              */
 /****************************************************************/
 
-
 /* values for errolist  */
-#define NOERROR		0
-#define OPENFAILED 	1
-#define NOT_CSF		2
-#define BAD_VERSION    	3
-#define BAD_BYTEORDER  	4
-#define NOCORE          5
-#define BAD_CELLREPR	6
-#define NOACCESS	7
-#define ROWNR2BIG	8
-#define COLNR2BIG	9
-#define NOT_RASTER	10
-#define BAD_CONVERSION 	11
-#define NOSPACE		12
-#define WRITE_ERROR	13
-#define ILLHANDLE	14
-#define READ_ERROR	15
-#define BADACCESMODE	16
-#define ATTRNOTFOUND	17
-#define ATTRDUPL	18
+/* happens frequently 
+ * assure 0 value
+ * bogs on mingw
+ * # if NOERROR != 0
+ * #  error EXPECT NOERROR TO BE 0
+ */
+# define NOERROR         0
+
+#define OPENFAILED       1
+#define NOT_CSF          2
+#define BAD_VERSION      3
+#define BAD_BYTEORDER    4
+#define NOCORE           5
+#define BAD_CELLREPR     6
+#define NOACCESS         7
+#define ROWNR2BIG        8
+#define COLNR2BIG        9
+#define NOT_RASTER      10
+#define BAD_CONVERSION  11
+#define NOSPACE         12
+#define WRITE_ERROR     13
+#define ILLHANDLE       14
+#define READ_ERROR      15
+#define BADACCESMODE    16
+#define ATTRNOTFOUND    17
+#define ATTRDUPL        18
 #define ILL_CELLSIZE    19
-#define CONFL_CELLREPR	20
+#define CONFL_CELLREPR  20
 #define BAD_VALUESCALE  21
 #define XXXXXXXXXXXX    22
 #define BAD_ANGLE       23
-#define CANT_USE_AS_BOOLEAN 24
+#define CANT_USE_AS_BOOLEAN    24
 #define CANT_USE_WRITE_BOOLEAN 25
-#define CANT_USE_WRITE_LDD 26
-#define CANT_USE_AS_LDD 27
-#define CANT_USE_WRITE_OLDCR 28
-#define ILLEGAL_USE_TYPE 29
+#define CANT_USE_WRITE_LDD     26
+#define CANT_USE_AS_LDD        27
+#define CANT_USE_WRITE_OLDCR   28
+#define ILLEGAL_USE_TYPE       29
 /* number of errors  */
-#define ERRORNO  30
+#define ERRORNO                30
 
 typedef void (*CSF_CONV_FUNC)(size_t, void *);
 /* conversion function for reading
@@ -196,49 +205,52 @@ typedef void (*CSF_CONV_FUNC)(size_t, void *);
 typedef size_t (*CSF_WRITE_FUNC)(void *buf, size_t size, size_t n, FILE  *f);
 typedef size_t (*CSF_READ_FUNC)(void *buf, size_t size, size_t n, FILE *f);
 
-/// PCRaster CSF structure, do not touch!
 typedef struct MAP
 {
-	CSF_CONV_FUNC file2app;
-	CSF_CONV_FUNC app2file;
-   	UINT2 appCR;
-	CSF_MAIN_HEADER main;
-	CSF_RASTER_HEADER raster;
-	char *fileName;
-	FILE *fp;
-	int fileAccessMode;
-	int mapListId;
-	UINT2 minMaxStatus;
+  CSF_CONV_FUNC file2app;
+  CSF_CONV_FUNC app2file;
+     UINT2 appCR;
+  CSF_MAIN_HEADER main;
+  CSF_RASTER_HEADER raster;
+  char *fileName;
+  FILE *fp;
+  int fileAccessMode;
+  int mapListId;
+  UINT2 minMaxStatus;
 
-	/* cosine and sine of
-	 * the angle are computed
-	 * when opening or creating
-	 * the file
-	 */
-	REAL8 angleCos;
-	REAL8 angleSin;
-	CSF_WRITE_FUNC write;
-	CSF_READ_FUNC read;
+  CSF_WRITE_FUNC write;
+  CSF_READ_FUNC read;
 }MAP;
+
+typedef CSF_RASTER_HEADER CSF_RASTER_LOCATION_ATTRIBUTES;
 
 
 /************************************************************/
-/*							    */
-/*	PROTOTYPES OF  RUU CSF				    */
-/*							    */
+/*                  */
+/*  PROTOTYPES OF  RUU CSF            */
+/*                  */
 /************************************************************/
 
 MAP *Rcreate(const char *fileName, 
-		     size_t nrRows, size_t nrCols, 
-		     CSF_CR cellRepr, CSF_VS dataType, 
-		     CSF_PT projection, REAL8 xUL, REAL8 yUL, REAL8 angle, REAL8 cellSize);
+         size_t nrRows, size_t nrCols, 
+         CSF_CR cellRepr, CSF_VS dataType, 
+         CSF_PT projection, REAL8 xUL, REAL8 yUL, REAL8 angle, REAL8 cellSize);
 MAP  *Rdup(const char *toFile , const MAP *from, 
            CSF_CR cellRepr, CSF_VS dataType);
 void *Rmalloc(const MAP *m, size_t nrOfCells);
 int RuseAs(MAP *m, CSF_CR useType);
 
 MAP  *Mopen(const char *fname, enum MOPEN_PERM mode);
-int   Rcompare(const MAP *m1,const MAP *m2);
+enum MOPEN_PERM MopenPerm(const MAP *m);
+
+int Rcompare(const MAP *m1,const MAP *m2);
+int RgetLocationAttributes(
+  CSF_RASTER_LOCATION_ATTRIBUTES *l, /* fill in this struct */
+  const MAP *m); /* map handle to copy from */
+int RcompareLocationAttributes(
+  const CSF_RASTER_LOCATION_ATTRIBUTES *m1, /* */
+  const CSF_RASTER_LOCATION_ATTRIBUTES *m2); /* */
+
 int   Mclose(MAP *map);
 void  Merror(int nr);
 void  Mperror(const char *userString);
@@ -271,6 +283,7 @@ int    RvalueScaleIs(const MAP *m, CSF_VS vs);
 int    RvalueScale2(CSF_VS vs);
 CSF_CR RdefaultCellRepr(CSF_VS vs);
 CSF_CR RgetCellRepr(const MAP *map);
+CSF_CR RgetUseCellRepr(const MAP *map);
 
 int    RgetMinVal(const MAP *map, void *minVal);
 int    RgetMaxVal(const MAP *map, void *maxVal);
@@ -302,6 +315,8 @@ REAL8  RputCellSize(MAP *map, REAL8 newCellSize);
 
 int RgetCoords( const MAP *m, int inCelPos, size_t row, size_t col, double *x, double *y);
 int RrowCol2Coords(const MAP *m, double row, double col, double *x, double *y);
+void RasterRowCol2Coords(const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+double row, double col, double *x, double *y);
 
 CSF_PT MgetProjection(const MAP *map);
 CSF_PT MputProjection(MAP *map, CSF_PT p);
@@ -335,11 +350,18 @@ int MputColourPalette(MAP *m, UINT2 *pal, size_t nrTupels);
 int MputGreyPalette(MAP *m, UINT2 *pal, size_t nrTupels);
 
 int Rcoords2RowCol( const MAP *m,
-	double x,   double y,  
-	double *row, double *col);
-int RgetRowCol( const MAP *m,
-	double x,   double y,  
-	size_t *row, size_t *col);
+  double x,   double y,  
+  double *row, double *col);
+void RasterCoords2RowCol( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+  double x,   double y,  
+  double *row, double *col);
+int RasterCoords2RowColChecked( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+  double x,   double y,  
+  double *row, double *col);
+
+int RgetRowCol(const MAP *m,
+  double x,   double y,  
+  size_t *row, size_t *col);
 
 const char *RstrCellRepr(CSF_CR cr);
 const char *RstrValueScale(CSF_VS vs);
@@ -353,5 +375,5 @@ void RcomputeExtend(REAL8 *xUL, REAL8 *yUL, size_t *nrRows, size_t *nrCols,
  }
 #endif 
 
-/* CSF__H */
+/* INCLUDED_CSF */
 #endif 

@@ -532,9 +532,9 @@ void TWorld::ReportMaps(void)
     FOR_ROW_COL_MV
     {
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
-        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc; // m3 to mm
+        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/ChannelAdj->Drc;
+                //CellArea->Drc; // m3 to mm
     }
-
     tm->report(rainfallMapFileName);
     InfilmmCum->report(infiltrationMapFileName);
     tma->report(interceptionMapFileName);

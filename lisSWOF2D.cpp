@@ -578,7 +578,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
     velocity_max_x = -ve_ca;
     velocity_max_y = -ve_ca;
     double dx, dy;
-
+    //  int dc[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    //  int dr[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     FOR_ROW_COL_MV_MV
     {
@@ -623,12 +624,67 @@ double TWorld::maincalcflux(double dt, double dt_max)
     // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
     FOR_ROW_COL_MV_MV
     {
-        if (cflx->Drc > 100 || cfly->Drc > 100)
+        //        if (cflx->Drc > 100)
+        //        {
+        //            qDebug() << "oh oh x" << cflx->Drc;
+        //            double cflxx = 0;
+        //            double f11 = 0;
+        //            double f22 = 0;
+        //            double f33 = 0;
+        //            int count = 0;
+        //            for (int i = 1; i <= 9; i++)
+        //                if (i != 5 && cflx->Data[r+dr[i]][c+dc[i]] < 100)
+        //                {
+        //                    cflxx += cflx->Data[r+dr[i]][c+dc[i]];
+        //                    f11 += f1->Data[r+dr[i]][c+dc[i]];
+        //                    f22 += f2->Data[r+dr[i]][c+dc[i]];
+        //                    f33 += f3->Data[r+dr[i]][c+dc[i]];
+        //                    count++;
+        //                }
+
+        //            cflx->Drc = cflxx/count;
+        //            f1->Drc = f11/count;
+        //            f2->Drc = f22/count;
+        //            f3->Drc = f33/count;
+        //            qDebug() << "oh oh xn" << cflx->Drc;
+        //        }
+
+        //        if (cfly->Drc > 100)
+        //        {
+        //            qDebug() << "oh oh y" << cfly->Drc;
+        //            double cflxx = 0;
+        //            double f11 = 0;
+        //            double f22 = 0;
+        //            double f33 = 0;
+        //            int count = 0;
+        //            for (int i = 1; i <= 9; i++)
+        //                if (i != 5 && cfly->Data[r+dr[i]][c+dc[i]] < 100)
+        //                {
+        //                    cflxx += cfly->Data[r+dr[i]][c+dc[i]];
+        //                    f11 += g1->Data[r+dr[i]][c+dc[i]];
+        //                    f22 += g2->Data[r+dr[i]][c+dc[i]];
+        //                    f33 += g3->Data[r+dr[i]][c+dc[i]];
+        //                    count++;
+        //                }
+
+        //            cfly->Drc = cflxx/count;
+        //            g1->Drc = f11/count;
+        //            g2->Drc = f22/count;
+        //            g3->Drc = f33/count;
+        //            qDebug() << "oh oh yn" << cfly->Drc;
+        //        }
+        /*
+
+        if (cflx->Drc > 100 || cflx->Drc > 100)
         {
             qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
             if (cflx->Drc > 100)
             {
                 //qDebug() << "mainflux x" << dt << dtx << cflx->Drc << cfly->Drc;
+//                cflx->Drc = sqrt(cflx->Drc*cfly->Drc);
+//                f1->Drc = sqrt(f1->Drc*g1->Drc);
+//                f2->Drc = sqrt(f2->Drc*g2->Drc);
+//                f3->Drc = sqrt(f3->Drc*g3->Drc);
                 cflx->Drc = cfly->Drc;
                 f1->Drc = g1->Drc;
                 f2->Drc = g2->Drc;
@@ -643,9 +699,11 @@ double TWorld::maincalcflux(double dt, double dt_max)
                 g1->Drc = f1->Drc;
                 g2->Drc = f2->Drc;
                 g3->Drc = f3->Drc;
+
             }
-            qDebug() << "oh oh 2" << cflx->Drc << cfly->Drc;
+            qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
         }
+        */
     }
 
     // find largest velocity and determine dt
@@ -657,7 +715,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
         else
             dt_tmp = cfl_fix*dx/cflx->Drc;
         // cfl_fix = 0.4
-        fdtx->Drc = min(dt, dt_tmp);
         dtx = min(min(dt, dt_tmp), dtx);
 
         //   velocity_max_x = max(velocity_max_x, cflx->Drc);
@@ -672,7 +729,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = cfl_fix*dy/cfly->Drc;
-        fdty->Drc = min(dt, dt_tmp);
         dty = min(min(dt, dt_tmp), dty);
         //   velocity_max_y = max(velocity_max_y, cfly->Drc);
     }
@@ -717,7 +773,7 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
 //---------------------------------------------------------------------------
 void TWorld::findFloodDomain(TMMap *_h)
 {
-    FOR_ROW_COL_MV //_MV ???
+    FOR_ROW_COL_MV_MV
     {
         if (_h->Drc > 0 || (ChannelDepth->Drc > 0))
         {
@@ -745,11 +801,12 @@ void TWorld::findFloodDomain(TMMap *_h)
  * @param u : velocity in x-direction(m/s)
  * @param v : velocity in y-direction(m/s)
  * @param z : DTM = DEM and obstacles
- * @param q1: flux in the x-direction(m2/s)
- * @param q2: flux in the y-direction(m2/s)
  * @return average dt in flood loop
  */
-double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
+
+// * @param q1: flux in the x-direction(m2/s)
+// * @param q2: flux in the y-direction(m2/s)
+double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1, TMMap *q2)
 {
     double timesum = 0;
     int n = 1;
@@ -776,6 +833,8 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     if (startFlood)
     {
         double sumh = h->mapTotal();
+        tm->copy(h);
+
         do {
             dt1 = dt_max;
 
@@ -797,11 +856,12 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 v->Drc = vs->Drc;
             }
 
+
             findFloodDomain(h);
 
             timesum = timesum + dt1;
             n++;
-            double tmp = correctMassBalance(sumh, h);
+            double tmp = correctMassBalance(sumh, h, 1e-12);
 
         } while (timesum  < _dt);
     }
@@ -809,11 +869,11 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
     //Fr=froude_number(hs,us,vs);
     // todo
 
-    FOR_ROW_COL_MV_MV
-    {
-        q1->Drc = h->Drc*u->Drc;
-        q2->Drc = h->Drc*v->Drc;
-    }
+    //    FOR_ROW_COL_MV_MV
+    //    {
+    //        q1->Drc = h->Drc*u->Drc; //??? this is in m2/s, unit discharge
+    //        q2->Drc = h->Drc*v->Drc;
+    //    }
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;
@@ -826,13 +886,14 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
  * @param u : velocity in x-direction(m/s)
  * @param v : velocity in y-direction(m/s)
  * @param z : DTM = DEM and obstacles
- * @param q1: flux in the x-direction(m2/s)
- * @param q2: flux in the y-direction(m2/s)
  * @return average dt in flood loop
  */
-double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2)
+
+// * @param q1: flux in the x-direction(m2/s)
+// * @param q2: flux in the y-direction(m2/s)
+double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1, TMMap *q2)
 {
-    double dt1, dt2, timesum = 0;
+    double dt1 = 0, dt2, timesum = 0;
     double dt_max = min(_dt, _dx/2);
     int n = 0;
 
@@ -857,7 +918,10 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
         verif = 1;
 
         double sumh = h->mapTotal();
+     //   tmb->copy(h);
+        // has no effect
         do {
+
             if (verif == 1)
             {
                 dt1 = dt_max;
@@ -876,7 +940,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
 
-            //h, u, v go in hs, vs, us come out
+            //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
             dt2 = dt1;
 
@@ -884,9 +948,9 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
             //Reconstruction for order 2
             if (SwitchMUSCL)
-                MUSCL(h,u,v,z);
+                MUSCL(hs,us,vs,z);
             else
-                ENO(h,u,v,z);
+                ENO(hs,us,vs,z);
 
 
             dt2 = maincalcflux(dt2, dt_max);
@@ -907,32 +971,32 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
                 //Heun method (order 2 in time)
                 FOR_ROW_COL_MV
                 {
-                    double tmp = 0.5*(h->Drc + hsa->Drc);
-                    if (tmp >= he_ca)
+                    double havg = 0.5*(h->Drc + hsa->Drc);
+                    if (havg >= he_ca)
                     {
-                        q1->Drc = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                        u->Drc = q1->Drc/tmp;
-                        q2->Drc = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                        v->Drc = q2->Drc/tmp;
-                        h->Drc = tmp;
+                        double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                        u->Drc = q1/havg;
+                        double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                        v->Drc = q2/havg;
+                        h->Drc = havg;
                     }
                     else
                     {
                         u->Drc = 0;
-                        q1->Drc = 0;
                         v->Drc = 0;
-                        q2->Drc = 0;
                         h->Drc = 0;
                     }
                 }//Heun
+
+                timesum = timesum + dt1;
+                n++;
 
             }//end for else dt2<dt1
 
             findFloodDomain(h);
 
-            timesum = timesum + dt1;
-            n++;
-            double tmp = correctMassBalance(sumh, h);
+            double tmp = correctMassBalance(sumh, h, 1e-6);
+            // has no effect
 
         } while (timesum  < _dt);
 
@@ -944,4 +1008,63 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, T
 
 }
 //---------------------------------------------------------------------------
+/*
+void try(void)
+{
+    while (T > tps  && n < MAX_ITER+1)
+    {
 
+        if (1 == verif)
+        {
+            dt1=dt_max;
+
+            setZero(h,u,v,z);
+
+            MUSCL(h,u,v,z);
+
+        }
+
+        maincalcflux(CFL_FIX,T, tps, dt_max, dt1, dt1);
+
+        dt1=min(T-tps,dt1);
+
+        tx=dt1/DX;
+        ty=dt1/DY;
+
+        maincalcscheme(h,u,v,q1,q2,hs,us,vs,qs1,qs2,Vin1,tps,dt1,n);
+
+        dt2=dt1;
+
+
+        setZero(hs,us,vs,z);
+
+        MUSCL(hs,us,vs,z);
+
+        maincalcflux(CFL_FIX,T,tps+dt1,dt_max,dt2,dt2);
+
+        if (dt2<dt1)
+        {
+            dt1=dt2;
+            tx=dt1/DX;
+            ty=dt1/DY;
+            verif=0;
+        }
+        else
+        {
+
+            //Added to do calculus at the beginning
+            verif=1;
+            maincalcscheme(hs,us,vs,qs1,qs2,hsa,usa,vsa,qsa1,qsa2,Vin1,tps+dt1,dt1,n+1);
+
+
+            Heun method (order 2 in time)
+
+            tps=tps+dt1;
+            n=n+1;
+
+        }//end for else dt2<dt1
+
+
+    } //end for while : loop in time
+}
+*/
