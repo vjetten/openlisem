@@ -289,6 +289,24 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+class colorMapP: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.001 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapP():
+        QwtLinearColorMap( QColor(BGc),Qt::red)
+    {
+        addColorStop(0.0,QColor("#8888FF"));
+        addColorStop( 0.5, Qt::blue);
+    }
+};
+//---------------------------------------------------------------------------
 
 
 

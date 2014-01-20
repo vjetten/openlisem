@@ -66,10 +66,12 @@ void TWorld::reportAll(void)
 void TWorld::OutputUI(void)
 {
     // MAP DISPLAY VARIABLES
+    tma->calcMapValue(RainCumFlat,1000, MUL);
+    op.DrawMap6->copy(tma);
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s
-        FOR_ROW_COL_MV
-                tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
+    FOR_ROW_COL_MV
+            tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
     op.DrawMap2->copy(tmb);  //infil in mm
     if (SwitchErosion)
     {
@@ -533,7 +535,7 @@ void TWorld::ReportMaps(void)
     {
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
         tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/ChannelAdj->Drc;
-                //CellArea->Drc; // m3 to mm
+        //CellArea->Drc; // m3 to mm
     }
     tm->report(rainfallMapFileName);
     InfilmmCum->report(infiltrationMapFileName);

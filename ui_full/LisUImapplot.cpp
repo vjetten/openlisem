@@ -64,6 +64,7 @@ void lisemqt::selectMapType(bool doit)
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
     if (radioButton_FL->isChecked())    op.drawMapType = 4;
     if (radioButton_FLV->isChecked())   op.drawMapType = 5;
+    if (radioButton_P->isChecked())     op.drawMapType = 6;
 
     showMap(); // show map
 
@@ -95,6 +96,7 @@ void lisemqt::initMapPlot()
         radioButton_FL->setEnabled(true);
     else
         radioButton_FL->setEnabled(false);
+    radioButton_P->setChecked(false);
 
     transparency->setValue(180);  //main data
     transparency2->setValue(180); //channels
@@ -139,7 +141,7 @@ void lisemqt::setupMapPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    Layout_Map->insertWidget(0, MPlot, 1);
+    Layout_Map_2->insertWidget(0, MPlot, 1);
     // put it on screen
     //MPlot->canvas()->setBorderRadius( 0 );
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
@@ -268,6 +270,7 @@ void lisemqt::showMap()
     if (op.drawMapType == 3) showMap3();
     if (op.drawMapType == 4) showMap4();
     if (op.drawMapType == 5) showMap5();
+    if (op.drawMapType == 6) showMap6();
 
     MPlot->replot();
     // do not do resets panning
@@ -535,3 +538,28 @@ void lisemqt::showMap5()
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
+// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
+void lisemqt::showMap6()
+{
+    MPlot->setTitle("Precipitation (mm)");
+
+    double MaxV = fillDrawMapData(op.DrawMap6, RD);
+    if (MaxV ==-1e20)
+        return;
+    // fill vector and find the new max value
+
+    maxAxis6 = qMax(maxAxis6, MaxV);
+    if (doubleSpinBoxP->value() > 0)
+        maxAxis6 = doubleSpinBoxP->value();
+//    else
+//        maxAxis6 = MaxV;
+    RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis6));
+
+    drawMap->setData(RD);
+    drawMap->setColorMap(new colorMapP());
+    //QwtPlotSpectrogram
+
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapP());
+    MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
+    MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+}//---------------------------------------------------------------------------

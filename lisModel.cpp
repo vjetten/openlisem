@@ -94,6 +94,7 @@ void TWorld::DoModel()
             op.DrawMap3->KillMap();
             op.DrawMap4->KillMap();
             op.DrawMap5->KillMap();
+            op.DrawMap6->KillMap();
             op.baseMap->KillMap();
             op.channelMap->KillMap();
             op.roadMap->KillMap();
@@ -105,6 +106,7 @@ void TWorld::DoModel()
         op.DrawMap3 = new TMMap();
         op.DrawMap4 = new TMMap();
         op.DrawMap5 = new TMMap();
+        op.DrawMap6 = new TMMap();
         op.baseMap = new TMMap();
         op.channelMap = new TMMap();
         op.roadMap = new TMMap();
@@ -115,6 +117,7 @@ void TWorld::DoModel()
         op.DrawMap3->MakeMap(LDD, 0);
         op.DrawMap4->MakeMap(LDD, 0);
         op.DrawMap5->MakeMap(LDD, 0);
+        op.DrawMap6->MakeMap(LDD, 0);
         op.baseMap->MakeMap(LDD, 0);
         op.channelMap->MakeMap(LDD, 0);
         op.roadMap->MakeMap(LDD, 0);
@@ -252,7 +255,7 @@ void TWorld::DoModel()
             reportAll();          // report all maps and timeseries
 
             OutputUI();          // fill the "op" structure for screen output
-                                 // show after report calc is done
+            // show after report calc is done
 
             if (!noInterface)
                 emit show();

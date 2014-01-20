@@ -145,6 +145,7 @@ public:
    void showMap3();
    void showMap4();
    void showMap5();
+   void showMap6();
    void showBaseMap();
    void showChannelMap();
    void showRoadMap();
@@ -174,7 +175,7 @@ public:
    QwtInterval legend;
    QwtScaleWidget *rightAxis;
    QwtPlotRescaler *mapRescaler;
-   double maxAxis1, maxAxis2, maxAxis3, maxAxis4, maxAxis5;
+   double maxAxis1, maxAxis2, maxAxis3, maxAxis4, maxAxis5, maxAxis6;
    int pstep;
    QwtPlotMagnifier *magnifier;
    QwtPlotPanner *panner;

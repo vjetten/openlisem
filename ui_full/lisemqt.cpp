@@ -283,8 +283,9 @@ void lisemqt::SetToolBar()
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-
+    connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
+
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
     connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
@@ -799,6 +800,9 @@ void lisemqt::shootScreen()
                     else
                         if (op.drawMapType == 5)
                             type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
+                        else
+                            if (op.drawMapType == 6)
+                                type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
 
         fileName = outdir + fi.baseName() + type;
 
@@ -831,6 +835,9 @@ void lisemqt::shootScreen()
                             else
                                 if (op.drawMapType == 5)
                                     type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
+                                else
+                                    if (op.drawMapType == 6)
+                                        type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
 
             }
         fileName = outdir + fi.baseName() + type;
