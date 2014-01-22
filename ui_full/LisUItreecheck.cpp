@@ -303,6 +303,8 @@ void lisemqt::RunAllChecks()
     int nr = E_InfiltrationMethod->currentIndex();
     checkInfil2layer->setEnabled(bool(nr ==2 || nr == 3));
 
+    groupBox_SwatreOptions->setEnabled(bool(nr == 1));
+
     if (nr == 0)
         checkMapNameModel(INFILTRATIONMAPS, 0, false);
     else
@@ -340,12 +342,11 @@ void lisemqt::RunAllChecks()
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
     checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
     // VJ 110110
 
     buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked()); // bugfix
     sedgroup->setEnabled(!checkNoErosion->isChecked());
-
-    groupBox_SwatreOptions->setEnabled(E_InfiltrationMethod->currentIndex() == 1);
 
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 

@@ -17,5 +17,12 @@
         <file>Mscreenshots.png</file>
         <file>deletereport4.png</file>
         <file>refresh_24.png</file>
+        <file>vsplitter.png</file>
+        <file>black.qss</file>
+        <file>coffee.qss</file>
+        <file>default.qss</file>
+        <file>pagefold.qss</file>
+        <file>new1.qss</file>
+        <file>openlisem.qss</file>
     </qresource>
 </RCC>

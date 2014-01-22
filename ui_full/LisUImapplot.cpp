@@ -59,6 +59,8 @@ void lisemqt::selectMapType(bool doit)
     //        return;
 
     op.addWHtohmx = checkAddWHtohmx->isChecked();
+    op.displayPcum = checkDisplayPcum->isChecked();
+
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
     if (radioButton_INF->isChecked())   op.drawMapType = 2;
     if (radioButton_SL->isChecked())    op.drawMapType = 3;
@@ -491,8 +493,8 @@ void lisemqt::showMap4()
     maxAxis4 = qMax(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
-//    else
-//        maxAxis4 = MaxV;
+    //    else
+    //        maxAxis4 = MaxV;
     //    if (doubleSpinBoxFLmin->value() > 0)
     //        MinV = doubleSpinBoxFLmin->value();
 
@@ -541,7 +543,10 @@ void lisemqt::showMap5()
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 void lisemqt::showMap6()
 {
-    MPlot->setTitle("Precipitation (mm)");
+    if (op.displayPcum)
+        MPlot->setTitle("Cumulative Precipitation (mm)");
+    else
+        MPlot->setTitle("Precipitation (mm)");
 
     double MaxV = fillDrawMapData(op.DrawMap6, RD);
     if (MaxV ==-1e20)
@@ -551,8 +556,8 @@ void lisemqt::showMap6()
     maxAxis6 = qMax(maxAxis6, MaxV);
     if (doubleSpinBoxP->value() > 0)
         maxAxis6 = doubleSpinBoxP->value();
-//    else
-//        maxAxis6 = MaxV;
+    else
+        maxAxis6 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis6));
 
     drawMap->setData(RD);

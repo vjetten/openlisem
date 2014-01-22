@@ -1,0 +1,30 @@
+QSplitter::handle {
+background-color : #eee;
+border: 1px solid #777;
+width: 1px;
+height: 1px;
+margin-top: 1px;
+margin-bottom: 1px;
+border-radius: 2px;
+}
+
+QLabel#label_128 {
+color: #4364a0
+}
+QLabel#label_129 {
+color: #4364a0
+}
+QLabel#label_130 {
+color: #4364a0
+}
+QLabel#label_131 {
+color: #4364a0
+}
+QLabel#label_68 {
+color: #4364a0
+}
+
+QToolBar QToolButton {
+padding: 4px;
+border: none;
+}

@@ -756,18 +756,26 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
         h1r->Drc = _h->Drc;
         u1r->Drc = _u->Drc;
         v1r->Drc = _v->Drc;
-        h1l->Data[r][c+1] = _h->Data[r][c+1];
-        u1l->Data[r][c+1] = _u->Data[r][c+1];
-        v1l->Data[r][c+1] = _v->Data[r][c+1];
+        h1l->Drc = _h->Drc;
+        u1l->Drc = _u->Drc;
+        v1l->Drc = _v->Drc;
+
+//        h1l->Data[r][c+1] = _h->Data[r][c+1];
+//        u1l->Data[r][c+1] = _u->Data[r][c+1];
+//        v1l->Data[r][c+1] = _v->Data[r][c+1];
     }
     FOR_ROW_COL_MV_MV
     {
         h2r->Drc = _h->Drc;
         u2r->Drc = _u->Drc;
         v2r->Drc = _v->Drc;
-        h2l->Data[r+1][c] = _h->Data[r+1][c];
-        u2l->Data[r+1][c] = _u->Data[r+1][c];
-        v2l->Data[r+1][c] = _v->Data[r+1][c];
+        h2l->Drc = _h->Drc;
+        u2l->Drc = _u->Drc;
+        v2l->Drc = _v->Drc;
+
+//        h2l->Data[r+1][c] = _h->Data[r+1][c];
+//        u2l->Data[r+1][c] = _u->Data[r+1][c];
+//        v2l->Data[r+1][c] = _v->Data[r+1][c];
     }
 }
 //---------------------------------------------------------------------------
@@ -935,6 +943,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                     MUSCL(h,u,v,z);
                 else
                     ENO(h,u,v,z);
+ //               simpleScheme(h, u, v);
             }
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -951,7 +960,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 MUSCL(hs,us,vs,z);
             else
                 ENO(hs,us,vs,z);
-
+//simpleScheme(h, u, v);
 
             dt2 = maincalcflux(dt2, dt_max);
 

@@ -66,7 +66,11 @@ void TWorld::reportAll(void)
 void TWorld::OutputUI(void)
 {
     // MAP DISPLAY VARIABLES
-    tma->calcMapValue(RainCumFlat,1000, MUL);
+    tma->fill(0);
+    if (op.displayPcum)
+        tma->calcMapValue(RainCumFlat,1000, MUL);
+    else
+        tma->calcMapValue(Rain,1000, MUL);
     op.DrawMap6->copy(tma);
 
     op.DrawMap1->copy(Qoutput);  //all output in m3/s

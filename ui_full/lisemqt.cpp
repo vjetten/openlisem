@@ -59,11 +59,15 @@ output op;
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
 {
+    QList<int> list;
+    list << 300 << 600;
     setupUi(this);
     // set up interface
     setMinimumSize(800,600);
     resize(1060, 732);
+    splitter->setSizes(list);
     showMaximized();
+
 
     //   setStatusBar(0);
     tabWidgetOptions->setCurrentIndex(0);
@@ -76,7 +80,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     HPlot = NULL;
     MPlot = NULL;
     smallPlot = NULL;
-
 
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -283,6 +286,7 @@ void lisemqt::SetToolBar()
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 

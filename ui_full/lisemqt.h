@@ -90,6 +90,7 @@ typedef struct MAP_LIST {
    int varnr;
 } MAP_LIST;
 
+
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
 {

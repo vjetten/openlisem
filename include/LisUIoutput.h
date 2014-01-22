@@ -74,6 +74,7 @@ struct output{
     TMMap *houseMap;
 
     bool addWHtohmx;
+    bool displayPcum;
     int drawMapType;
 
     QString runfilename;

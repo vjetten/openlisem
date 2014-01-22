@@ -47,8 +47,17 @@ void Error(QString s)
 
 int main(int argc, char *argv[])
 {
+
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon("openlisem.ico"));
+
+    QFile file(":/openlisem.qss");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+    file.close();
+
+    qApp->setStyleSheet(styleSheet);
+
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
@@ -120,8 +129,8 @@ int main(int argc, char *argv[])
         if (runfound && !noInterface)
         {
             lisemqt iface(0, batchmode, name);
-//            iface.doBatchmode = batchmode;
-//            iface.batchRunname = name;
+            //            iface.doBatchmode = batchmode;
+            //            iface.batchRunname = name;
             iface.setWindowTitle(VERSION);
             iface.show();
 
