@@ -36,6 +36,7 @@
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+#include "option.h"
 
 //---------------------------------------------------------------------------
 //! fill namelist with the actual runfile data but correct for old runfiles
@@ -79,6 +80,32 @@ void lisemqt::GetRunfile()
                 {
                     namelist[j].value = SL[1].trimmed();
                     break;
+                }
+            }
+        }
+
+    }
+
+    if (optionList.count() > 0)
+    {
+        for (i=0; i< optionList.count(); i++)
+        {
+
+
+            if (optionList[i].contains("="))
+            {
+                QString S = optionList[i];
+                S.remove('[');
+                S.remove(']');
+                QStringList SL = S.split(QRegExp("="));
+
+                for (int j = 0; j < nrnamelist; j++)
+                {
+                    if (namelist[j].name == SL[0].trimmed())
+                    {
+                        namelist[j].value = SL[1].trimmed();
+                        break;
+                    }
                 }
             }
         }
@@ -147,13 +174,15 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method SWOF2D order 1")==0)    checkFloodSWOForder1->setChecked(check);
         if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
         if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
-        if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodRecon->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
+        if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
         if (p1.compare("Flood initial level map")==0)          checkFloodInitial->setChecked(check);
+        if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
+        if (p1.compare("Flood max velocity threshold")==0)  E_FloodMaxVelocity->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -518,13 +547,16 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood method SWOF2D order 1")==0)    namelist[j].value.setNum((int)checkFloodSWOForder1->isChecked());
         if (p1.compare("Flood method SWOF2D order 2")==0)    namelist[j].value.setNum((int)checkFloodSWOForder2->isChecked());
         if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
-        if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodRecon->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
+        if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
+        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value = E_FloodReplaceV->text();
+        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value =E_FloodMaxVelocity->text();
+
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         //houses

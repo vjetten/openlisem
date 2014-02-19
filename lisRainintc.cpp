@@ -194,6 +194,16 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
             SnowmeltSeriesM << rl;
     }
 
+    nrSeries++;
+    rl.time = 1e20;
+    for (int i = 1; i < nrStations; i++)
+        rl.intensity << 0.0;
+
+    if (israinfall)
+        RainfallSeriesM << rl;
+    else
+        SnowmeltSeriesM << rl;
+
     if (israinfall)
         nrRainfallseries = nrSeries;
     else

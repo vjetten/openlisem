@@ -265,6 +265,16 @@ void TWorld::ParseRunfileData(void)
         InfilMethod = getvalueint("Infil Method");
     }// first loop of runnamelist
 
+
+    if (SwitchFloodSWOForder2)
+    {
+        SwitchFloodSWOForder1 = false;
+        SwitchFloodExplicit = false;
+    }
+
+    if (SwitchChannelFlood && !SwitchFloodExplicit && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
+        SwitchFloodSWOForder1 = true;
+
     // check a few things
     if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
         SwitchTwoLayer = true;

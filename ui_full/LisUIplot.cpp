@@ -233,6 +233,8 @@ void lisemqt::killPlot()
     PData.clear();
     TData.clear();
     QData.clear();
+    QData1.clear();
+    QData2.clear();
     QtileData.clear();
     QsData.clear();
     CData.clear();
@@ -395,6 +397,7 @@ void lisemqt::showOutputData()
 
     if (op.outputpointnr > 1)
     {
+
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
         label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));

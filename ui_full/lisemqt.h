@@ -71,14 +71,16 @@
 #define EROSIONMAPS 4
 #define INFILTRATIONMAPS 5
 #define CHANNELMAPS 6
-#define BUFFERSMAPS 7
-#define SNOWMELTMAPS 8
-#define TILEDRAINMAPS 9   //VJ 110111
-#define HOUSESMAPS 10  //VJ 120314
-#define WHEELTRACKSMAPS 11
-#define TEXTUREMAPS 12
-#define NUTRIENTSMAPS 13
-#define GULLIESMAPS 14
+#define CHANNELFLOODMAPS 7
+#define BUFFERSMAPS 8
+#define SNOWMELTMAPS 9
+#define TILEDRAINMAPS 10   //VJ 110111
+#define HOUSESMAPS 11  //VJ 120314
+#define NUTRIENTSMAPS 12
+//#define TEXTUREMAPS 13
+//#define WHEELTRACKSMAPS 14
+//#define GULLIESMAPS 15
+
 
 //---------------------------------------------------------------------------
 /// map name list structure for interaction with interface
@@ -99,6 +101,8 @@ class lisemqt : public QMainWindow, private Ui::lisemqtClass
 public:
    lisemqt(QWidget *parent = 0, bool doBatch = false, QString runName = "");
    ~lisemqt();
+
+   int genfontsize;
 
    QProgressBar *pb;
 
@@ -198,6 +202,8 @@ public:
    bool stopplot;
    double yas, y2as;
    QVector <double> QData;
+   QVector <double> QData1;
+   QVector <double> QData2;
    QVector <double> QtileData;
    QVector <double> QsData;
    QVector <double> CData;
@@ -263,6 +269,7 @@ public slots:
    void on_toolButton_SwatreTableDir_clicked();
    void on_toolButton_SwatreTableFile_clicked();
    void on_toolButton_SwatreTableShow_clicked();
+   void on_E_FloodScheme_valueChanged(int nr);
 
    void doCheckSnowmelt(bool check);
    void doCheckRainfall(bool check);
@@ -300,6 +307,12 @@ public slots:
    void setWriteOutputCSV(bool doit);
    void setWriteOutputPCR(bool doit);
 
+   void fontSelect();
+   void fontDecrease();
+   void fontIncrease();
+
+   void on_checkBoxOverlay_stateChanged(int yes);
+
 private slots:
    // functions that interact with the world thread signals
    void worldShow();
@@ -321,6 +334,9 @@ private:
    QAction *aboutActI;
    QAction *restartAct;
 
+   QAction *fontAct;
+   QAction *fontIncreaseAct;
+   QAction *fontDecreaseAct;
    // the model world
    TWorld *W;
 

@@ -59,23 +59,23 @@ output op;
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
 {
-    QList<int> list;
-    list << 300 << 600;
+
+
     setupUi(this);
     // set up interface
     setMinimumSize(800,600);
-    resize(1060, 732);
+    resize(1280, 800);
+
+    QList<int> list;
+    list << 300 << 600;
     splitter->setSizes(list);
+
     showMaximized();
 
+    genfontsize = 8;
 
-    //   setStatusBar(0);
     tabWidgetOptions->setCurrentIndex(0);
-    //tabWidgetOptions->setTabEnabled(0,false);
-    //  tabWidget_OutputMaps->setTabEnabled(1,false);
-    //  tabWidget_OutputMaps->setTabEnabled(2,false);
-    //  tabWidget_OutputMaps->setTabEnabled(3,false);
-    //groupBox_spare->hide();
+
     MapNameModel = NULL;
     HPlot = NULL;
     MPlot = NULL;
@@ -122,7 +122,15 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     {
         runfilelist.clear();
         runfilelist << batchRunname;
+        op.runfilename = runname;
+        GetRunfile();   // get the nrunfile and fill namelist
+        ParseInputData(); // fill interface with namelist data and fill mapList
+        // also update DEFmaps for map tree view in interface
+        initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
+        RunAllChecks(); // activate the maps in the tree parts in response to checks
         E_runFileList->insertItem(0, batchRunname);
+
+
         stopAct->setChecked(false);
         runAct->setChecked(true);
         pauseAct->setChecked(false);
@@ -164,6 +172,8 @@ void lisemqt::SetConnections()
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+
+    //connect(E_FloodScheme,SIGNAL(valueChanged(int)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
@@ -243,6 +253,18 @@ void lisemqt::SetToolBar()
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
 
+
+    fontAct = new QAction(QIcon(":/fontselect.png"), "&Select font", this);
+    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
+    toolBar->addAction(fontAct);
+
+    fontIncreaseAct = new QAction(QIcon(":/fontbigger.png"), "&Increase font size", this);
+    connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
+    toolBar->addAction(fontIncreaseAct);
+    fontDecreaseAct = new QAction(QIcon(":/fontsmaller.png"), "&Decrease font size", this);
+    connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
+    toolBar->addAction(fontDecreaseAct);
+
     toolBar->addSeparator();
 
     runAct = new QAction(QIcon(":/start1.png"), "Run model...", this);
@@ -299,6 +321,44 @@ void lisemqt::SetToolBar()
 /// make some labels yellow
 void lisemqt::SetStyleUI()
 {
+    int w = 60, h = 1;//2*genfontsize;
+    label_dx->setMinimumSize(w,h);
+    label_area->setMinimumSize(w,h);
+    label_time->setMinimumSize(w,h);
+    label_endtime->setMinimumSize(w,h);
+    label_raintot->setMinimumSize(w,h);
+    label_watervoltot->setMinimumSize(w,h);
+    label_qtot->setMinimumSize(w,h);
+    label_infiltot->setMinimumSize(w,h);
+    label_surfstor->setMinimumSize(w,h);
+    label_interctot->setMinimumSize(w,h);
+    label_qtotm3->setMinimumSize(w,h);
+    label_qpeak->setMinimumSize(w,h);
+    label_qpeaktime->setMinimumSize(w,h);
+    label_ppeaktime->setMinimumSize(w,h);
+    label_QPfrac->setMinimumSize(w,h);
+    label_discharge->setMinimumSize(w,h);
+    label_floodVolmm->setMinimumSize(w,h);
+
+    label_qtotm3sub->setMinimumSize(w,h);
+    label_dischargesub->setMinimumSize(w,h);
+    label_qpeaksub->setMinimumSize(w,h);
+    label_soillosssub->setMinimumSize(w,h);
+
+    label_splashdet->setMinimumSize(w,h);
+    label_flowdet->setMinimumSize(w,h);
+    label_sedvol->setMinimumSize(w,h);
+    label_dep->setMinimumSize(w,h);
+    label_detch->setMinimumSize(w,h);
+    label_depch->setMinimumSize(w,h);
+    label_sedvolch->setMinimumSize(w,h);
+    label_soilloss->setMinimumSize(w,h);
+    label_soillosskgha->setMinimumSize(w,h);
+    label_SDR->setMinimumSize(w,h);
+
+    label_buffervol->setMinimumSize(w,h);
+    label_buffersed->setMinimumSize(w,h);
+
     label_dx->setStyleSheet("* { background-color: #ffffff }");
     label_area->setStyleSheet("* { background-color: #ffffff }");
     label_time->setStyleSheet("* { background-color: #ffffff }");
@@ -343,9 +403,10 @@ void lisemqt::setMapDir()
     QString pathin;
 
     pathin = findValidDir(E_MapDir->text(), false);
-
-    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
-                                             pathin, QFileDialog::ShowDirsOnly);
+    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
+ //   if (!native->isChecked())
+        options |= QFileDialog::DontUseNativeDialog;
+    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin, options);//QFileDialog::ShowDirsOnly);
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
@@ -357,13 +418,21 @@ void lisemqt::setResultDir()
 
     pathin = findValidDir(E_ResultDir->text(), true);
 
-    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
-                                             pathin, QFileDialog::ShowDirsOnly);//,QFileDialog::DontUseNativeDialog);
+    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
+ //   if (!native->isChecked())
+        options |= QFileDialog::DontUseNativeDialog;
+
+    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"), pathin, options);//QFileDialog::ShowDirsOnly);//,QFileDialog::DontUseNativeDialog);
 
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
 //--------------------------------------------------------------------
+void lisemqt::on_E_FloodScheme_valueChanged(int nr)
+{
+    E_FloodFluxLimiter->setEnabled(nr < 3);
+}
+
 // this is for the directory with the table files
 void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
@@ -372,17 +441,12 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
 
     pathin = findValidDir(E_SwatreTableDir->text(), false);
 
-    //  pathin = E_SwatreTableDir->text();
-    //  if (pathin.isEmpty())
-    //    pathin = E_MapDir->text();
-    //  if (pathin.isEmpty())
-    //    pathin = QFileInfo(op.runfilename).absolutePath();
-    //  if (pathin.isEmpty())
-    //    pathin = currentDir;
-    //  pathin = pathin + "/..";
+    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
+ //   if (!native->isChecked())
+        options |= QFileDialog::DontUseNativeDialog;
 
     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                             pathin, QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
+                                             pathin, options);//QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
 
     if(!path.isEmpty())
     {
@@ -522,7 +586,6 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
         if (ret == QMessageBox::Ok)
         {
             in.setString(&view->toPlainText());
-            qDebug() << "hoi";
         }
     }
 
@@ -689,6 +752,7 @@ void lisemqt::StorePath()
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_ShowRunfile_clicked()
 {
+
     QFile file(op.runfilename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, "openLISEM",
@@ -699,7 +763,11 @@ void lisemqt::on_toolButton_ShowRunfile_clicked()
     }
 
     QTextStream in(&file);
+
+
+
     QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
+    view->createStandardContextMenu ();
     view->setWindowTitle(op.runfilename);
     view->setMinimumWidth(400);
     view->setMinimumHeight(500);
@@ -1019,13 +1087,18 @@ void lisemqt::resetAll()
     checkFloodExplicit->setChecked(false);
     checkFloodSWOForder1->setChecked(true);
     checkFloodSWOForder2->setChecked(false);
-    E_cflFactor->setValue(0.4);
-    E_courantFactor->setValue(0.2);
-    //E_courantFactor->setEnabled(false);
+    E_cflFactor->setValue(0.2);
+    E_courantFactor->setValue(0.1);
+
     E_floodMinHeight->setValue(0.05);
-    E_mixingFactor->setValue(1.5);
-    E_FloodFluxLimiter->setValue(1);
-    E_FloodRecon->setValue(2);
+    E_mixingFactor->setValue(2.0);
+    E_FloodFluxLimiter->setValue(1); //min
+    E_FloodReconstruction->setValue(3); //set to HLL3
+    E_FloodScheme->setValue(1); //MUSCL
+
+    E_FloodReplaceV->setValue(1);
+    E_FloodMaxVelocity->setValue(10.0);
+
 
 
 }
@@ -1046,5 +1119,75 @@ QString lisemqt::findValidDir(QString path, bool up)
 
     return (path);
 }
-//--------------------------------------------------------------------
+//---------------------------------------------------------------
+void lisemqt::fontSelect()
+{
+    bool ok;
+    QFont font = QFontDialog::getFont(0, qApp->font());
+           //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
+  //  if (ok) {
+        // the user clicked OK and font is set to the font the user selected
+        qApp->setFont(font);
+        this->setStyleSheet(QString("\
+                                    QLabel {font: %1pt;} \
+                                    QGroupBox {font: %1pt;} \
+                                    QLineEdit {font: %1pt;} \
+                                    QCheckBox {font: %1pt;} \
+                                    QRadioButton {font: %1pt;} \
+                                    QSpeedButton {font: %1pt;} \
+                                    QDoubleSpinBox {font: %1pt;} \
+                                    QSpinBox {font: %1pt;} \
+                                    QComboBox {font: %1pt;} \
+                                    QTabWidget {font: %1pt;} \
+                                    QTreeView {font: %1pt;} \
+                                    QPlainTextEdit {font: %1pt;} \
+                                    ").arg(genfontsize));
+ //   } else {
 
+ //   }
+}
+//---------------------------------------------------------------
+void lisemqt::fontDecrease()
+{
+    genfontsize--;
+    genfontsize = max(6, genfontsize);
+
+    this->setStyleSheet(QString("\
+                                QLabel {font: %1pt;} \
+                                QGroupBox {font: %1pt;} \
+                                QLineEdit {font: %1pt;} \
+                                QCheckBox {font: %1pt;} \
+                                QRadioButton {font: %1pt;} \
+                                QSpeedButton {font: %1pt;} \
+                                QDoubleSpinBox {font: %1pt;} \
+                                QSpinBox {font: %1pt;} \
+                                QComboBox {font: %1pt;} \
+                                QTabWidget {font: %1pt;} \
+                                QTreeView {font: %1pt;} \
+                                QPlainTextEdit {font: %1pt;} \
+                                ").arg(genfontsize));
+
+
+
+}
+//---------------------------------------------------------------
+void lisemqt::fontIncrease()
+{
+    genfontsize++;
+    genfontsize = min(18, genfontsize);
+
+    this->setStyleSheet(QString("\
+                                QLabel {font: %1pt;} \
+                                QGroupBox {font: %1pt;} \
+                                QLineEdit {font: %1pt;} \
+                                QCheckBox {font: %1pt;} \
+                                QRadioButton {font: %1pt;} \
+                                QSpeedButton {font: %1pt;} \
+                                QDoubleSpinBox {font: %1pt;} \
+                                QSpinBox {font: %1pt;} \
+                                QComboBox {font: %1pt;} \
+                                QTabWidget {font: %1pt;} \
+                                QTreeView {font: %1pt;} \
+                                QPlainTextEdit {font: %1pt;} \
+                                ").arg(genfontsize));
+}

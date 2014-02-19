@@ -30,7 +30,6 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-
 //extern ifacebasic *iface;
 // global declaration of interface form, in main.cpp
 

@@ -129,6 +129,11 @@
 #define VANALBEDA 2
 #define VANLEER 3
 
+#define FMUSCL 1
+#define FENO 2
+#define FSIMPLE 3
+
+
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
 
@@ -398,7 +403,8 @@ public:
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter;
+    int F_scheme, F_fluxLimiter, F_diffScheme,F_replaceV;
+    double F_maxVelocity;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double q1man, q2man;

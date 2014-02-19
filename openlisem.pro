@@ -29,7 +29,8 @@ HEADERS += \
     include/swatresoillut.h \
     include/swatre_g.h \
     include/TMmapVariables.h \
-    ui_full/LisUImapplot.h
+    ui_full/LisUImapplot.h \
+    include/option.h
 SOURCES += lisTotalsMB.cpp \
     ui_full/LisUItreecheck.cpp \
     ui_full/LisUIModel.cpp \

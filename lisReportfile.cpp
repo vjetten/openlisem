@@ -538,13 +538,13 @@ void TWorld::ReportMaps(void)
     FOR_ROW_COL_MV
     {
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
-        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/ChannelAdj->Drc;
-        //CellArea->Drc; // m3 to mm
+        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
+
     tm->report(rainfallMapFileName);
-    InfilmmCum->report(infiltrationMapFileName);
     tma->report(interceptionMapFileName);
 
+    InfilmmCum->report(infiltrationMapFileName);
     runoffTotalCell->report(runoffMapFileName);
     runoffFractionCell->report(runoffFractionMapFileName);
 

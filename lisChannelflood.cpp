@@ -46,96 +46,67 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
-//       tm->fill(0);
+    tmc->fill(0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
         {
 
-            double fc = min(1.0, ChannelWidthUpDX->Drc/_dx);
-            //double fc = 1.0-min(_dt*UVflood->Drc/(0.5*max(0.01,ChannelAdj->Drc)), 1.0);
-            //fc = min(fc, ChannelWidthUpDX->Drc/_dx);
-            //tm->Drc = fc;
-            double levee = ChannelLevee->Drc;
+            if (hmx->Drc == 0 && ChannelWH->Drc < ChannelDepth->Drc)
+                continue;
 
-            double whlevel = (ChannelWH->Drc - ChannelDepth->Drc - levee)*fc +
-                    max(0, hmx->Drc-levee)*(1-fc);
-            // new water level = weighed values of channel surplus level + hmx
-            // can be negatve if channelwh is below depth and little hmx
+            double fc = ChannelWidthUpDX->Drc/_dx;
+
+            // fraction reaching the channel
+            double levee = ChannelLevee->Drc;
+            double chdepth = ChannelDepth->Drc + levee;
+
+            double whlevel = (ChannelWH->Drc - chdepth)*fc + max(0, hmx->Drc-levee)*(1-fc);
+            // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
+            // can be negative if channelwh is below channel depth and low hmx level
 
             //if average water level is positive, water redistributes instantaneously and
             // hmx and channel wh are equal
+            // normally this goes by a wave velocity probably because water level is flat V = sqrt(gh)
             if (whlevel > 0)
             {
                 hmx->Drc = min(hmx->Drc, levee);
-                // cutoff hmx at levee
+                // cutoff hmx at levee but can be smaller
                 hmx->Drc += whlevel;
-
-                //  hmx->Drc += whlevel+levee; //???
-                ChannelWH->Drc = whlevel + ChannelDepth->Drc + levee;
+                ChannelWH->Drc = whlevel + chdepth;
             }
-            // if average water level is negative, channel wh < depth, but there can be hmx
             else
                 if (hmx->Drc > levee)
                 {
+                    tmc->Drc = hmx->Drc;
+                    // double vol = min(UVflood->Drc * _dt, ChannelAdj->Drc) * hmx->Drc;
+
+                    //                    fc = min(1.0, /*sqrt(hmx->Drc*9.8)*/UVflood->Drc*_dt/(0.5*ChannelAdj->Drc));
+
+                    //                    ChannelWH->Drc += fc*hmx->Drc * ChannelWidthUpDX->Drc/ChannelAdj->Drc; //vol/ChannelWidthUpDX->Drc;
+                    //                    //hmx->Drc = max(0, hmx->Drc-vol/ChannelAdj->Drc);
+                    //                    hmx->Drc *= (1-fc);
+                    ChannelWH->Drc += max(0, hmx->Drc-levee);//*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
                     hmx->Drc = levee;
-                    ChannelWH->Drc += (hmx->Drc - levee)*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
                 }
 
-
-/*
-            double fc = ChannelWidthUpDX->Drc/_dx;
-            double whlevel = max(0, (ChannelWH->Drc - ChannelDepth->Drc)*fc + hmx->Drc*(1-fc));
-            // equilibrium water level
-
-
-            //channel water higher than flood plain => overflow
-            if (ChannelWH->Drc - ChannelDepth->Drc > hmx->Drc)
-            {
-                double dcwh = ChannelWH->Drc - ChannelDepth->Drc - hmx->Drc;
-                // water heigth above floodplain
-                double vol = _dt*ChannelV->Drc * dcwh*DX->Drc; //vol = dt * V * A   in m3
-                vol = min(vol, dcwh * ChannelWidthUpDX->Drc*DX->Drc);
-                // cannot be more than there is
-
-                hmx->Drc += vol/(ChannelAdj->Drc*DX->Drc);
-                ChannelWH->Drc -= vol /(ChannelWidthUpDX->Drc*DX->Drc);
-                // adjust both water heights
-
-                // if this results in channel dropping too far, set to equilibrium level
-                if (ChannelWH->Drc < hmx->Drc)
-                {
-                    hmx->Drc = whlevel;
-                    ChannelWH->Drc = whlevel + ChannelDepth->Drc;
-                }
-            }
-            else
-            //floodwater level higher than channel water => receeding
-            if ((ChannelWH->Drc - ChannelDepth->Drc) < hmx->Drc && hmx->Drc > 0)
-            {
-                double vol = _dt*UVflood->Drc * hmx->Drc*DX->Drc;
-                //potential volume of water flowing from plain into channel: vol = dt * V * A   in m3
-                vol = min(vol, hmx->Drc * ChannelAdj->Drc*DX->Drc);
-                // cannot be more than there is
-
-                hmx->Drc -= vol/(ChannelAdj->Drc*DX->Drc);
-                ChannelWH->Drc += vol /(ChannelWidthUpDX->Drc*DX->Drc);
-                // adjust both water levels
-
-                // if this results in channel wh > hmx then equalize
-                if (ChannelWH->Drc-ChannelDepth->Drc > hmx->Drc)
-                {
-                    whlevel = max(0, (ChannelWH->Drc - ChannelDepth->Drc)*fc + hmx->Drc*(1-fc));
-                    hmx->Drc = whlevel;
-                    ChannelWH->Drc = whlevel + ChannelDepth->Drc;
-                }
-
-            }
-            // else nothing happens
-*/
         }
-    }
-//     tm->report("fc");
+        ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
+        // recalc chjan volume for looping
+
+    } // channel cells
+//    double dh = tmc->mapTotal();
+//    double count = 0;
+//    FOR_ROW_COL_MV
+//    {
+//        if (hmx->Drc > 0)
+//            count+=1;
+//    }
+//    FOR_ROW_COL_MV
+//    {
+//        if (hmx->Drc > 0)
+//            hmx->Drc += dh/count;
+//    }
 }
 //---------------------------------------------------------------------------
 // correct mass balance
@@ -220,6 +191,52 @@ void TWorld::ChannelFlood(void)
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
+    //    FOR_ROW_COL_MV_CH
+    //    {
+    //        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
+    //        {
+
+    //            if (hmx->Drc == 0)
+    //                continue;
+    //            // no woman no cry
+
+    //            if (hmx->Drc > 0 && tmc->Drc == 1)//ChannelWH->Drc > ChannelDepth->Drc)
+    //            {
+    //               ChannelWH->Drc = ChannelDepth->Drc + hmx->Drc;
+    //               continue;
+    //            }
+    //            // before the flood the cells that have and equilibrium have that also after the flood of course
+    //            // flagged by tmc = 1
+
+    //            double fc = ChannelWidthUpDX->Drc/_dx;
+    //            // fraction reaching the channel
+    //            double levee = ChannelLevee->Drc;
+    //            double chdepth = ChannelDepth->Drc + levee;
+
+    //            double whlevel = (ChannelWH->Drc - chdepth)*fc + max(0, hmx->Drc-levee)*(1-fc);
+    //            // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
+    //            // can be negatve if channelwh is below depth and little hmx
+    //            //double controlvol = ChannelWH->Drc*ChannelWidthUpDX->Drc + hmx->Drc * ChannelAdj->Drc;
+
+    //            //if average water level is positive, water redistributes instantaneously and
+    //            // hmx and channel wh are equal
+    //            if (whlevel > 0)
+    //            {
+    //                hmx->Drc = min(hmx->Drc, levee);
+    //                // cutoff hmx at levee but can be smaller
+    //                hmx->Drc += whlevel;
+    //                ChannelWH->Drc = whlevel + chdepth;
+    //            }
+    //            else
+    //                if (hmx->Drc > levee)
+    //                {
+    //                    ChannelWH->Drc += max(0, hmx->Drc-levee)*ChannelWidthUpDX->Drc/ChannelAdj->Drc;
+    //                    hmx->Drc = levee;
+    //                }
+    //        }
+    //        ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
+
+    //    }
     double dh = correctMassBalance(sumh_t, hmx, 0);
     // correct mass balance
 
@@ -264,7 +281,7 @@ void TWorld::ChannelFlood(void)
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     area = cells*_dx*_dx;
-//    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
+    //    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1));
     // some error reporting
 }

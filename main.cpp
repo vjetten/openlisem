@@ -45,6 +45,8 @@ void Error(QString s)
     throw 1;
 }
 
+QStringList optionList;
+
 int main(int argc, char *argv[])
 {
 
@@ -57,7 +59,8 @@ int main(int argc, char *argv[])
     file.close();
 
     qApp->setStyleSheet(styleSheet);
-
+    QFont f("MS Shell Dlg 2", 8);
+    qApp->setFont( f);
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
@@ -78,7 +81,10 @@ int main(int argc, char *argv[])
         bool noInterface;
         bool noOutput;
         bool batchmode;
+        bool options;
+
         QString name;
+        QString optionStr;
 
         QStringList args;
         for (int i = 1; i < argc+1; i++)
@@ -86,6 +92,7 @@ int main(int argc, char *argv[])
 
         bool runfound = false;
 
+        //get run filename
         int n = 0;
         foreach (QString str, args)
         {
@@ -100,15 +107,41 @@ int main(int argc, char *argv[])
             n++;
         }
 
+        // get user defined individual options
+        optionList.clear();
+        foreach (QString str, args)
+        {
+            if (runfound)
+            {
+                optionStr += str+ " ";;
+                if (str.contains("]"))
+                {
+                    str.remove(']');
+                    options = false;
+                }
+            }
+            if (str.contains("["))
+            {
+                str.remove('[');
+                options = true;
+                optionStr = str+ " ";
+            }
+
+        }
+
+        //qDebug() << "-c" << optionStr;
+
         int count1 = args.indexOf("-ni");
         int count2 = args.indexOf("-no");
         int count3 = args.indexOf("-b");
+        int count4 = args.indexOf("-c");
 
         //   qDebug() << count0 << count1 << count2;
 
         noInterface = count1 > -1;
         noOutput = count2 > -1;
         batchmode = count3 > -1;
+        options = count4 > -1;
         if (!batchmode)
         {
             if (noInterface)
@@ -119,12 +152,21 @@ int main(int argc, char *argv[])
 
         if (!runfound)
         {
-            printf("syntax:\nopenlisem [-b,-ni,-no] -r runfilename\n"
+            printf("syntax:\nopenlisem [-b,-ni,-no] -r runfilename -c options\n"
                    "-b batch mode with interface, run multiple files\n"
                    "-ni = no inteface, with counter and info\n"
-                   "-no = only error output\n");
+                   "-no = only error output\n"
+                   "-c = seperate run file override options"
+                   "options = strings from the runfile within [ ] and separated with ; \n"
+                   "          for instance: -c [Flooding SWOF csf factor=0.20;Subsoil drainage=0]\n");
             return 0;
         }
+
+        if (runfound && options)
+        {
+            optionList = optionStr.split(';');
+        }
+
 
         if (runfound && !noInterface)
         {

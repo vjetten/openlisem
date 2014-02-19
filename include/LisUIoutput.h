@@ -30,7 +30,6 @@
 #ifndef LISUIOUTPUT_H_
 #define LISUIOUTPUT_H_
 
-
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
 

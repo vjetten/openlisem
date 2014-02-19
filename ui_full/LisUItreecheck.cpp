@@ -122,9 +122,7 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelFlood_clicked()
 {
-    checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
-
-    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+    checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
@@ -292,7 +290,7 @@ void lisemqt::RunAllChecks()
 
     // PROCESS IN REVERSE ORDER
 
-    checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
+    checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
@@ -350,7 +348,9 @@ void lisemqt::RunAllChecks()
 
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 
-
+//    checkMapNameModel(WHEELTRACKSMAPS, 0, false);
+//    checkMapNameModel(TEXTUREMAPS, 0, false);
+//    checkMapNameModel(GULLIESMAPS, 0, false);
     checkExpandActive->setChecked(false);
     treeView->collapseAll();
 }

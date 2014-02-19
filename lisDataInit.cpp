@@ -97,7 +97,9 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
             {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name;
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
+                        This is within the flow domain (the LDD has a value here).\n \
+                        This iusually happens when you have maps of different origin";
                 throw 1;
             }
 
@@ -587,7 +589,6 @@ void TWorld::InitChannel(void)
             //            for (int i = 0; i < 9; i++)
             //                qx[i].m = NewMap(0);
             prepareFlood = true;
-            //F_scheme = 3;
             iter_n = 0;
 
             FloodVoltoChannel = NewMap(0);
@@ -624,14 +625,15 @@ void TWorld::InitChannel(void)
             floodactive = NewMap(1);
             floodzone = NewMap(1);
 
+            minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             cfl_fix = getvaluedouble("Flooding SWOF csf factor");
-            F_scheme = getvalueint("Flooding SWOF Reconstruction");
-            F_fluxLimiter = getvalueint("Flooding SWOF flux limiter");
-            SwitchMUSCL = (getvalueint("Flooding SWOF scheme") == 1);
-            minReportFloodHeight = getvaluedouble("Minimum reported flood height");
-            //F_levee = getvaluedouble("Flood channel side levee");
+            F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
+            F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
+            F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple
+            F_replaceV = getvalueint("Flood limit max velocity");
+            F_maxVelocity = getvaluedouble("Flood max velocity threshold");
 
             //FULLSWOF2D
             hs = NewMap(0);

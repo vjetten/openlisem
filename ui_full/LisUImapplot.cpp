@@ -27,29 +27,53 @@
 #include "LisUImapplot.h"
 
 
+void lisemqt::on_checkBoxOverlay_stateChanged(int yes)
+{
+    if (yes == Qt::Unchecked)
+    {
+//        ssetAlpha2(0);
+//        ssetAlpha3(0);
+//        ssetAlpha4(0);
+    //    channelMap->setAlpha(0);
+        houseMap->setAlpha(0);
+  //      roadMap->setAlpha(0);
+ //       MPlot->replot();
+    }
+    else
+    {
+  //      ssetAlpha2(transparency2->sliderPosition ());
+   //     ssetAlpha3(transparency3->sliderPosition ());
+   //     ssetAlpha4(transparency4->sliderPosition ());
+
+    }
+}
 
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
     drawMap->setAlpha(v);
+
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha2(int v)
 {
     channelMap->setAlpha(v);
+    if (v > 0)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha3(int v)
 {
     roadMap->setAlpha(v);
+    if (v > 0)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha4(int v)
 {
     houseMap->setAlpha(v);
+    if (v > 0)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------

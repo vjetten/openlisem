@@ -24,5 +24,8 @@
         <file>pagefold.qss</file>
         <file>new1.qss</file>
         <file>openlisem.qss</file>
+        <file>fontbigger.png</file>
+        <file>fontselect.png</file>
+        <file>fontsmaller.png</file>
     </qresource>
 </RCC>

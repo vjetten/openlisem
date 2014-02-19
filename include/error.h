@@ -33,5 +33,4 @@
 extern QString ErrorString;
 extern void Error(QString s);
 
-
 #endif /* ERROR_H_ */
