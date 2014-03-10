@@ -118,6 +118,9 @@ void lisemqt::ParseInputData()
 {
     int j=0;
     bool dummyrain, dummysnow;
+    bool dummyFloodExplicit = false;
+    bool dummyFloodSWOF1 = false;
+    bool dummyFloodSWOF2 = false;
 
     // get all the options/checks
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
@@ -169,17 +172,18 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         // flooding
-        if (p1.compare("Flood method explicit")==0)          checkFloodExplicit->setChecked(check);
+        if (p1.compare("Flood method explicit")==0)          dummyFloodExplicit = check;
+        if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
+        if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
-        if (p1.compare("Flood method SWOF2D order 1")==0)    checkFloodSWOForder1->setChecked(check);
-        if (p1.compare("Flood method SWOF2D order 2")==0)    checkFloodSWOForder2->setChecked(check);
-        if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
+        //  if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
         if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
+        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(val);
         if (p1.compare("Flood initial level map")==0)          checkFloodInitial->setChecked(check);
         if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
         if (p1.compare("Flood max velocity threshold")==0)  E_FloodMaxVelocity->setValue(val);
@@ -365,6 +369,14 @@ void lisemqt::ParseInputData()
     checkRainfall->setChecked(dummyrain);
     checkSnowmelt->setChecked(dummysnow);
 
+
+    if (dummyFloodExplicit)
+        E_floodSolution->setValue(0);
+    if (dummyFloodSWOF1)
+        E_floodSolution->setValue(1);
+    if (dummyFloodSWOF2)
+        E_floodSolution->setValue(2);
+    qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
     // get directory and file names
     for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
     {
@@ -542,17 +554,24 @@ void lisemqt::updateModelData()
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
-        if (p1.compare("Flood method explicit")==0)          namelist[j].value.setNum((int)checkFloodExplicit->isChecked());
+        if (p1.compare("Flood method explicit")==0)
+            if (E_floodSolution->value() == 0)
+                namelist[j].value.setNum(1);
+        if (p1.compare("Flood method SWOF2D order 1")==0)
+            if (E_floodSolution->value() == 1)
+                namelist[j].value.setNum(1);
+        if (p1.compare("Flood method SWOF2D order 2")==0)
+            if (E_floodSolution->value() == 2)
+                namelist[j].value.setNum(1);
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Flood method SWOF2D order 1")==0)    namelist[j].value.setNum((int)checkFloodSWOForder1->isChecked());
-        if (p1.compare("Flood method SWOF2D order 2")==0)    namelist[j].value.setNum((int)checkFloodSWOForder2->isChecked());
-        if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
+        //  if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
+        if (p1.compare("Flooding runoff partitioning")==0)    namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Flood limit max velocity")==0)       namelist[j].value = E_FloodReplaceV->text();
         if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value =E_FloodMaxVelocity->text();

@@ -230,10 +230,10 @@ void TWorld::DoModel()
 
             //Pestmobilisation();  // experimental
 
-            ToChannel();          // water and sed flux going into channel in channel cells, recalc Q and V
+            ToChannel();           // water and sed flux going into channel in channel cells, recalc Q and V
             ToTiledrain();         // fraction going into tiledrain directly from surface, , recalc Q and V
 
-            OverlandFlowNew();        // overland flow kin wave for water and sed
+            OverlandFlowNew();     // overland flow kin wave for water and sed
 
             ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
             ChannelFlood();        // st venant channel flooding

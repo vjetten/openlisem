@@ -628,7 +628,9 @@ void TWorld::InitChannel(void)
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
-            cfl_fix = getvaluedouble("Flooding SWOF csf factor");
+            runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
+
+            //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
             F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple

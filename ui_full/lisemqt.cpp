@@ -64,7 +64,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupUi(this);
     // set up interface
     setMinimumSize(800,600);
-    resize(1280, 800);
+    resize(1280, 768);
 
     QList<int> list;
     list << 300 << 600;
@@ -1084,14 +1084,16 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    checkFloodExplicit->setChecked(false);
-    checkFloodSWOForder1->setChecked(true);
-    checkFloodSWOForder2->setChecked(false);
-    E_cflFactor->setValue(0.2);
-    E_courantFactor->setValue(0.1);
+//    checkFloodExplicit->setChecked(false);
+//    checkFloodSWOForder1->setChecked(true);
+//    checkFloodSWOForder2->setChecked(false);
+//    E_cflFactor->setValue(0.2);
+    E_courantFactor->setValue(0.2);
 
     E_floodMinHeight->setValue(0.05);
+
     E_mixingFactor->setValue(2.0);
+    E_runoffPartitioning->setValue(0.5);
     E_FloodFluxLimiter->setValue(1); //min
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL

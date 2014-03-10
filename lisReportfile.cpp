@@ -394,6 +394,7 @@ void TWorld::ReportTimeseriesNew(void)
         {
             if ( PointMap->Drc > 0 ) // all points in separate files
             {
+                qDebug() << PointMap->Drc << r << c;
                 newname1 = fi.path() + "/" + fi.baseName() + "_" +
                         QString::number((int)PointMap->Drc) + "." +  fi.suffix();
                 QFile fout(newname1);

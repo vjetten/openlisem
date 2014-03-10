@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
                    "-ni = no inteface, with counter and info\n"
                    "-no = only error output\n"
                    "-c = seperate run file override options"
-                   "options = strings from the runfile within [ ] and separated with ; \n"
-                   "          for instance: -c [Flooding SWOF csf factor=0.20;Subsoil drainage=0]\n");
+                   "options = exact strings from the run file within [ ] and separated with ; \n"
+                   "          for instance: -c [Subsoil drainage=0]\n");
             return 0;
         }
 

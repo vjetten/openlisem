@@ -737,7 +737,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
                     }
                 }
 
-                qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
+            //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
             }
         }
     }
@@ -748,8 +748,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
             dt_tmp = dt_max;
         else
-            dt_tmp = cfl_fix*dx/cflx->Drc;
-        // cfl_fix = 0.4
+            dt_tmp = courant_factor*dx/cflx->Drc;
+        // was cfl_fix = 0.4
         dtx = min(min(dt, dt_tmp), dtx);
 
         //   velocity_max_x = max(velocity_max_x, cflx->Drc);
@@ -763,7 +763,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
             dt_tmp = dt_max;
         else
-            dt_tmp = cfl_fix*dy/cfly->Drc;
+            dt_tmp = courant_factor*dy/cfly->Drc;
+
         dty = min(min(dt, dt_tmp), dty);
         //   velocity_max_y = max(velocity_max_y, cfly->Drc);
     }

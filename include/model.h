@@ -475,8 +475,8 @@ public:
     void ChannelFloodStatistics(void);
     void ChannelOverflow(void);
     double courant_factor;
-    double mixing_coefficient;
-    double cfl_fix;
+    double mixing_coefficient, runoff_partitioning;
+   // double cfl_fix;
     double minReportFloodHeight;
     double correctMassBalance(double sum1, TMMap *M, double minV);
     void Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,

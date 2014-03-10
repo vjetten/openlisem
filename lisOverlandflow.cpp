@@ -489,12 +489,27 @@ void TWorld::OverlandFlowNew(void)
     //qDebug() << mb;
     if (n > 0)
         mb = mb/n;
+
     FOR_ROW_COL_MV
     {
         if (WHrunoff->Drc > 0)
             WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+  //      WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    }
 
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > 0)
+        {
+            double wh = runoff_partitioning*WHrunoff->Drc;
+            hmx->Drc += wh;
+            WHrunoff->Drc -= wh;
+        }
+    }
+
+    FOR_ROW_COL_MV
+           // if (hmx->Drc == 0)
+    {
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 
@@ -506,6 +521,9 @@ void TWorld::OverlandFlowNew(void)
         else
             V->Drc = 0;
         // recalc velocity for output to map, is not used in other processes
+
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
     }
 
     FOR_ROW_COL_MV

@@ -46,7 +46,10 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
-    tmc->fill(0);
+  //  tmc->fill(0);
+
+
+
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
@@ -78,7 +81,7 @@ void TWorld::ChannelOverflow(void)
             else
                 if (hmx->Drc > levee)
                 {
-                    tmc->Drc = hmx->Drc;
+               //     tmc->Drc = hmx->Drc;
                     // double vol = min(UVflood->Drc * _dt, ChannelAdj->Drc) * hmx->Drc;
 
                     //                    fc = min(1.0, /*sqrt(hmx->Drc*9.8)*/UVflood->Drc*_dt/(0.5*ChannelAdj->Drc));
@@ -86,7 +89,7 @@ void TWorld::ChannelOverflow(void)
                     //                    ChannelWH->Drc += fc*hmx->Drc * ChannelWidthUpDX->Drc/ChannelAdj->Drc; //vol/ChannelWidthUpDX->Drc;
                     //                    //hmx->Drc = max(0, hmx->Drc-vol/ChannelAdj->Drc);
                     //                    hmx->Drc *= (1-fc);
-                    ChannelWH->Drc += max(0, hmx->Drc-levee);//*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
+                   // ChannelWH->Drc += max(0, hmx->Drc-levee);//*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
                     hmx->Drc = levee;
                 }
 
