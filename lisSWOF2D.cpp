@@ -81,25 +81,30 @@ double TWorld::limiter(double a, double b)
 
     if (F_fluxLimiter == (int)MINMOD)
     {
-        if (a >= 0. && b >= 0.)
+        if (a >= 0 && b >= 0)
             rec = qMin(a, b);
         else
-            if (a <= 0. && b <= 0.)
+            if (a <= 0 && b <= 0)
                 rec = qMax(a, b);
     }
     else
+    {
+        double ab = a*b;
+
         if (F_fluxLimiter == (int)VANLEER)
         {
-            if (a*b > 0.)
-                return (2.*a*b/(a+b));
+            if (ab > 0)
+                return (2*ab/(a+b));
         }
         else
             if (F_fluxLimiter == (int)VANALBEDA)
             {
-                if (a*b > 0.)
-                    rec=(a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
+                double aa = a*a;
+                double bb = b*b;
+                if (ab > 0)
+                    rec=(a*(bb+eps)+b*(aa+eps))/(aa+bb+2*eps);
             }
-
+    }
     return(rec);
 }
 //---------------------------------------------------------------------------
@@ -132,7 +137,7 @@ void TWorld::setZero(TMMap *_h, TMMap *_u, TMMap *_v)
 //friction slope
 void TWorld::Fr_Manning(double u, double v, double hnew, double q1new, double q2new, double dt, double N)
 {
-    double nsq = N*N*GRAV*qSqrt(u*u+v*v)*dt/qPow(hnew,4./3.);
+    double nsq = N*N*GRAV*sqrt(u*u+v*v)*dt/qPow(hnew,4./3.);
     q1man = q1new/(1.0+nsq);
     q2man = q2new/(1.0+nsq);
 }
@@ -141,7 +146,7 @@ void TWorld::Fr_Manning(double u, double v, double hnew, double q1new, double q2
 //Sf = Manning = v|v|/c^2*h^{4/3}
 void TWorld::Fr_ManningSf(double h, double u, double v, double N)
 {
-    double nsq = N*N*qSqrt(u*u+v*v)/qPow(h,4./3.);
+    double nsq = N*N*sqrt(u*u+v*v)/qPow(h,4./3.);
     if (h>he_ca)
     {
         q1man = u*nsq;
@@ -428,34 +433,64 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
         delta_u2 = _u->Data[r][c+1] - _u->Drc;
         delta_v2 = _v->Data[r][c+1] - _v->Drc;
 
-        dh = limiter(delta_h1, delta_h2);
-        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1],
-                delta_h2 + delta_z1->Drc);
-        du = limiter(delta_u1, delta_u2);
-        dv = limiter(delta_v1, delta_v2);
+//        dh   = limiter(delta_h1, delta_h2);
+//        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+//        du   = limiter(delta_u1, delta_u2);
+//        dv   = limiter(delta_v1, delta_v2);
 
-        h1r->Drc = _h->Drc+dh*0.5;
-        h1l->Drc = _h->Drc-dh*0.5;
+//        h1r->Drc = _h->Drc+dh*0.5;
+//        h1l->Drc = _h->Drc-dh*0.5;
 
-        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
-        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
+//        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
+//        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
+
+//        delzc1->Drc = z1r->Drc-z1l->Drc;
+//        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+
+//        if (_h->Drc > he_ca)
+//        {
+//            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
+//            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
+//            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
+//            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
+//        }
+//        else
+//        {
+//            u1r->Drc = _u->Drc + du*0.5;
+//            u1l->Drc = _u->Drc - du*0.5;
+//            v1r->Drc = _v->Drc + dv*0.5;
+//            v1l->Drc = _v->Drc - dv*0.5;
+//        }
+        dh   = 0.5*limiter(delta_h1, delta_h2);
+        dz_h = 0.5*limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+        du   = 0.5*limiter(delta_u1, delta_u2);
+        dv   = 0.5*limiter(delta_v1, delta_v2);
+
+        h1r->Drc = _h->Drc+dh;
+        h1l->Drc = _h->Drc-dh;
+
+        z1r->Drc = _z->Drc+(dz_h-dh);
+        z1l->Drc = _z->Drc+(dh-dz_h);
 
         delzc1->Drc = z1r->Drc-z1l->Drc;
         delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
 
         if (_h->Drc > he_ca)
         {
-            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
-            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
-            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
-            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
+            double h1lh = h1l->Drc/_h->Drc;
+            double h1rh = h1r->Drc/_h->Drc;
+
+            u1r->Drc = _u->Drc + h1lh * du;
+            u1l->Drc = _u->Drc - h1rh * du;
+            v1r->Drc = _v->Drc + h1lh * dv;
+            v1l->Drc = _v->Drc - h1rh * dv;
         }
         else
         {
-            u1r->Drc = _u->Drc + du*0.5;
-            u1l->Drc = _u->Drc - du*0.5;
-            v1r->Drc = _v->Drc + dv*0.5;
-            v1l->Drc = _v->Drc - dv*0.5;
+            u1r->Drc = _u->Drc + du;
+            u1l->Drc = _u->Drc - du;
+            v1r->Drc = _v->Drc + dv;
+            v1l->Drc = _v->Drc - dv;
         }
         tm->Drc = delta_h2;
         tma->Drc = delta_u2;
@@ -479,35 +514,64 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
         delta_u2 = _u->Data[r+1][c] - _u->Drc;
         delta_v2 = _v->Data[r+1][c] - _v->Drc;
 
-        dh = limiter(delta_h1, delta_h2);
-        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],
-                delta_h2+delta_z2->Drc);
+        dh   = 0.5*limiter(delta_h1, delta_h2);
+        dz_h = 0.5*limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+        du   = 0.5*limiter(delta_u1, delta_u2);
+        dv   = 0.5*limiter(delta_v1, delta_v2);
 
-        du = limiter(delta_u1, delta_u2);
-        dv = limiter(delta_v1, delta_v2);
+        h2r->Drc = _h->Drc+dh;
+        h2l->Drc = _h->Drc-dh;
 
-        h2r->Drc = _h->Drc+dh*0.5;
-        h2l->Drc = _h->Drc-dh*0.5;
-
-        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
-        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
+        z2r->Drc = _z->Drc+(dz_h-dh);
+        z2l->Drc = _z->Drc+(dh-dz_h);
         delzc2->Drc = z2r->Drc - z2l->Drc;
         delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
 
         if (_h->Drc > he_ca)
         {
-            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
-            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
-            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
-            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
+            double h2lh = h2l->Drc/_h->Drc;
+            double h2rh = h2r->Drc/_h->Drc;
+
+            u2r->Drc = _u->Drc + h2lh * du;
+            u2l->Drc = _u->Drc - h2rh * du;
+            v2r->Drc = _v->Drc + h2lh * dv;
+            v2l->Drc = _v->Drc - h2rh * dv;
         }
         else
         {
-            u2r->Drc = _u->Drc + du*0.5;
-            u2l->Drc = _u->Drc - du*0.5;
-            v2r->Drc = _v->Drc + dv*0.5;
-            v2l->Drc = _v->Drc - dv*0.5;
+            u2r->Drc = _u->Drc + du;
+            u2l->Drc = _u->Drc - du;
+            v2r->Drc = _v->Drc + dv;
+            v2l->Drc = _v->Drc - dv;
         }
+
+//        dh   = limiter(delta_h1, delta_h2);
+//        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+//        du   = limiter(delta_u1, delta_u2);
+//        dv   = limiter(delta_v1, delta_v2);
+
+//        h2r->Drc = _h->Drc+dh*0.5;
+//        h2l->Drc = _h->Drc-dh*0.5;
+
+//        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
+//        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
+//        delzc2->Drc = z2r->Drc - z2l->Drc;
+//        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+
+//        if (_h->Drc > he_ca)
+//        {
+//            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
+//            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
+//            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
+//            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
+//        }
+//        else
+//        {
+//            u2r->Drc = _u->Drc + du*0.5;
+//            u2l->Drc = _u->Drc - du*0.5;
+//            v2r->Drc = _v->Drc + dv*0.5;
+//            v2l->Drc = _v->Drc - dv*0.5;
+//        }
 
         tm->Drc = delta_h2;
         tma->Drc = delta_u2;
@@ -550,11 +614,13 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
                               (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
                               (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
-            //Calcul friction in semi-implicit with old v and u and new h
-            Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
+            //Calc friction semi-implicit with old v and u and new h
+            //Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
 
-            ves1->Drc = q1man/hes->Drc;
-            ves2->Drc = q2man/hes->Drc;
+            double nsq = N->Drc*N->Drc*GRAV*sqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc)*dt/qPow(hes->Drc,4.0/3.0);
+
+            ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
+            ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
         }
         else
         {
@@ -683,7 +749,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
             if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
             {
-                qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
+           //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
                 double e1, e2, e3, cfle;
 
                 if (F_replaceV == 2)
@@ -887,14 +953,14 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
             setZero(h, u, v);
 
-            if (F_diffScheme == (int)FSIMPLE)
+//            if (F_diffScheme == (int)FSIMPLE)
                 simpleScheme(h, u, v);
-            else
-                if (F_diffScheme == (int)FMUSCL)
-                    MUSCL(hs,us,vs,z);
-                else
-                    if (F_diffScheme == (int)FENO)
-                        ENO(hs,us,vs,z);
+//            else
+//                if (F_diffScheme == (int)FMUSCL)
+//                    MUSCL(hs,us,vs,z);
+//                else
+//                    if (F_diffScheme == (int)FENO)
+//                        ENO(hs,us,vs,z);
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
@@ -915,7 +981,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             timesum = timesum + dt1;
             n++;
 
-            double tmp = correctMassBalance(sumh, h, 1e-12);
+            double tmp = correctMassBalance(sumh, h, 1e-6);
 
             if (n > 100)
                 break;
@@ -986,14 +1052,14 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 // makes h1r, h1l, u1r, u1l, v1r, v1l
                 // makes h2r, h2l, u2r, u2l, v2r, v2l
                 // makes delzc1, delzc2, delz1, delz2
-                if (F_diffScheme == (int)FSIMPLE)
-                    simpleScheme(h, u, v);
-                else
-                    if (F_diffScheme == (int)FMUSCL)
+//                if (F_diffScheme == (int)FSIMPLE)
+//                    simpleScheme(h, u, v);
+//                else
+//                    if (F_diffScheme == (int)FMUSCL)
                         MUSCL(hs,us,vs,z);
-                    else
-                        if (F_diffScheme == (int)FENO)
-                            ENO(hs,us,vs,z);
+//                    else
+//                        if (F_diffScheme == (int)FENO)
+//                            ENO(hs,us,vs,z);
             }
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -1009,14 +1075,14 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             setZero(hs, us, vs);
 
             //Reconstruction for order 2
-            if (F_diffScheme == (int)FSIMPLE)
-                simpleScheme(h, u, v);
-            else
-                if (F_diffScheme == (int)FMUSCL)
+//            if (F_diffScheme == (int)FSIMPLE)
+//                simpleScheme(h, u, v);
+//            else
+//                if (F_diffScheme == (int)FMUSCL)
                     MUSCL(hs,us,vs,z);
-                else
-                    if (F_diffScheme == (int)FENO)
-                        ENO(hs,us,vs,z);
+//                else
+//                    if (F_diffScheme == (int)FENO)
+//                        ENO(hs,us,vs,z);
 
             dt2 = maincalcflux(dt2, dt_max);
 

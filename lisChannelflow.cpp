@@ -79,6 +79,18 @@ void TWorld::CalcVelDischChannel(void)
         else
             ChannelQ->Drc = 0;
 
+        if (SwitchChannelFlood)
+        {
+            if (ChannelMaxQ->Drc > 0)
+            {
+            //    ChannelQ->Drc = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
+//                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, beta);
+//                Perim = FW + Area/FW*2;
+//                ChannelWH->Drc = Area/FW;
+            }
+
+        }
+
         ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
 
         ChannelWaterVol->Drc = Area * ChannelDX->Drc;
@@ -227,11 +239,11 @@ void TWorld::ChannelFlow(void)
 
     FOR_ROW_COL_MV_CH
     {
-        if (SwitchChannelFlood)
-        {
-            if (ChannelMaxQ->Drc > 0)
-                ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
-        }
+//        if (SwitchChannelFlood)
+//        {
+//            if (ChannelMaxQ->Drc > 0)
+//                ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
+//        }
         // limit channel Q when culverts > 0
 
         double ChannelArea = ChannelAlpha->Drc*pow(ChannelQn->Drc, 0.6);
@@ -239,6 +251,7 @@ void TWorld::ChannelFlow(void)
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
+
 
         //double diff = Channelq->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
@@ -257,7 +270,7 @@ void TWorld::ChannelFlow(void)
         {
             //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
         }
-            else
+        else
             if (SwitchChannelInfil)
                 InfilVolKinWave->Drc += diff;
         //VJ 110111 add channel infil to infil for mass balance
@@ -278,7 +291,7 @@ void TWorld::ChannelFlow(void)
     FOR_ROW_COL_MV_CH
     {
         //ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
-        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
+        //     ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
         // total water vol after kin wave in m3, going to the next timestep
         // in a buffer ChannelArea = 0 so channelvolume is also 0
 

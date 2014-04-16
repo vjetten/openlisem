@@ -633,7 +633,7 @@ void TWorld::InitChannel(void)
             //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-            F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple
+            //F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
 
@@ -1302,8 +1302,8 @@ void TWorld::IntializeData(void)
     Qs = NewMap(0);
     Qsn = NewMap(0);
     //Qsoutflow = NewMap(0);
-    DETSplash = NewMap(0);
     DETFlow = NewMap(0);
+    DETSplash = NewMap(0);
     DEP = NewMap(0);
     Sed = NewMap(0);
     TC = NewMap(0);

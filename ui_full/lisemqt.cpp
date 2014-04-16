@@ -63,7 +63,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupUi(this);
     // set up interface
-    setMinimumSize(800,600);
+    setMinimumSize(1024,768);
     resize(1280, 768);
 
     QList<int> list;
@@ -115,6 +115,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // put the progress bar into the statusbar
 
     E_runFileList->clear();
+    E_FloodScheme->setVisible(false);
+    label_98->setVisible(false);
 
     doBatchmode = doBatch;
     batchRunname = runname;
@@ -1093,13 +1095,13 @@ void lisemqt::resetAll()
     E_floodMinHeight->setValue(0.05);
 
     E_mixingFactor->setValue(2.0);
-    E_runoffPartitioning->setValue(0.5);
+    //E_runoffPartitioning->setValue(0.5);
     E_FloodFluxLimiter->setValue(1); //min
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
 
-    E_FloodReplaceV->setValue(1);
-    E_FloodMaxVelocity->setValue(10.0);
+ //   E_FloodReplaceV->setValue(1);
+ //   E_FloodMaxVelocity->setValue(10.0);
 
 
 

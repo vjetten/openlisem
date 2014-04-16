@@ -26,7 +26,7 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
-
+/*
 void lisemqt::on_checkBoxOverlay_stateChanged(int yes)
 {
     if (yes == Qt::Unchecked)
@@ -47,7 +47,7 @@ void lisemqt::on_checkBoxOverlay_stateChanged(int yes)
 
     }
 }
-
+*/
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {

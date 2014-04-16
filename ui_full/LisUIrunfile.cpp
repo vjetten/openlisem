@@ -145,18 +145,18 @@ void lisemqt::ParseInputData()
         */
 
         // variables controling map display
-        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
-        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
-        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
-        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
-        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
-        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
-        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
-        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
-        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
-        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
-        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
-        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
+//        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
+//        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
+//        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
+//        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
+//        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
+//        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
+//        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
+//        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
+//        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
+//        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
+//        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
+//        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 
         //options in the main code, order is not important
         if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
@@ -177,24 +177,24 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
         //  if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
-        if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
+        //if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(val);
-        if (p1.compare("Flood initial level map")==0)          checkFloodInitial->setChecked(check);
+        if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
-        if (p1.compare("Flood max velocity threshold")==0)  E_FloodMaxVelocity->setValue(val);
+        if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
-        //        if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
+        // if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
         // if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
         if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
-        //        if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
+        // if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
         if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
         if (p1.compare("Buffers impermeable")==0)            checkBuffersImpermeable->setChecked(check);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
@@ -565,7 +565,7 @@ void lisemqt::updateModelData()
                 namelist[j].value.setNum(1);
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         //  if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
-        if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
+        //if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());

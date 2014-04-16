@@ -207,15 +207,15 @@ void lisemqt::defaultRunFile()
     i = 0;
     namelist[i++].name = QString("[openLISEM runfile version 4]");
     namelist[i++].name = QString("");
-    namelist[i++].name = QString("[LISEM main type]");
-    namelist[i++].name = QString("LISEM Type");
-    namelist[i++].name = QString("");
+ //   namelist[i++].name = QString("[LISEM main type]");
+ //   namelist[i++].name = QString("LISEM Type");
+ //   namelist[i++].name = QString("");
 
     // work directories are obsolete
     //	namelist[i++].name = QString("[Work Directory]");
     //	namelist[i++].name = QString("WorkDir");
     //	namelist[i++].name = QString("");
-
+/*
     namelist[i++].name = QString("[Map Display]");
     namelist[i++].name = QString("Map selection");
     namelist[i].value = QString("1");
@@ -241,7 +241,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Screendumps");
     namelist[i].value = QString("0");
-
+*/
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Map Directory");
     namelist[i++].name = QString("Include Rainfall");
@@ -267,7 +267,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Report point output for SOBEK");
     namelist[i].value = QString("10\01\01");
     namelist[i++].name = QString("SOBEK date string");
-    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("");
     namelist[i].value = QString("rainfall.map");
     namelist[i++].name = QString("Rainfall map");
     namelist[i].value = QString("interception.map");
@@ -384,8 +384,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("3"); //albeda
     namelist[i++].name = QString("Flooding SWOF flux limiter");
-    namelist[i].value = QString("1"); //MUSCL
-    namelist[i++].name = QString("Flooding SWOF scheme");
+//    namelist[i].value = QString("1"); //MUSCL
+//    namelist[i++].name = QString("Flooding SWOF scheme");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood limit max velocity");
     namelist[i].value = QString("10.0");

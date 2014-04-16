@@ -177,10 +177,20 @@ void cTMap::MakeMap(cTMap *dup, REAL8 value)
 
   Data = new REAL8*[nrRows];
   for(int r=0; r < nrRows; r++)
+  {
     Data[r] = new REAL8[nrCols];
-
+    if (Data[r] == NULL)
+    {
+        ErrorString = QString("memory error new");
+        throw 1;
+    }
+  }
   if (Data == NULL)
+  {
+      ErrorString = QString("memory error new");
+      throw 1;
     return;
+  }
 
   for(int r = 0; r < nrRows; r++)
     SetMemMV(Data[r],nrCols,CR_REAL8);

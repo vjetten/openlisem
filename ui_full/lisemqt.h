@@ -311,7 +311,7 @@ public slots:
    void fontDecrease();
    void fontIncrease();
 
-   void on_checkBoxOverlay_stateChanged(int yes);
+ //  void on_checkBoxOverlay_stateChanged(int yes);
 
 private slots:
    // functions that interact with the world thread signals
