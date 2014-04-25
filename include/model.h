@@ -39,9 +39,9 @@
 //#include <stdlib.h>
 
 #include <QtGui>
-#include <QMutex.h>
+#include <QMutex>
 
-#include "csfmap.h"
+#include "CsfMap.h"
 #include "mmath.h"
 #include "error.h"
 #include "swatre_p.h"

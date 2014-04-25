@@ -92,7 +92,7 @@ void TWorld::SplashDetachment(void)
       double WH0 = exp(-1.48*WH->Drc*1000);
       // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
-      if (AggrStab > 0)
+      if (AggrStab != 0)
       {
          strength = 2.82/AggrStab->Drc;
          b = 2.96;

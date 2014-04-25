@@ -191,7 +191,7 @@ void TWorld::InfilMorelSeytoux1(TMMap *_WH)
         double rt = fwh/_dt; // m/s pseudo rainfall, all water/dt = rate
         double A = 0, B, tp;
         double tt=time-BeginTime;
-        double Psi = Psi1->Drc;
+        // double Psi = Psi1->Drc;
 
         if (SoilDepth1->Drc <= tiny)
             continue;
@@ -201,7 +201,7 @@ void TWorld::InfilMorelSeytoux1(TMMap *_WH)
         {
             Ks = min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
             // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-            Psi = Psi2->Drc;
+            // Psi = Psi2->Drc;
         }
 
         B = (fwh+Psi1->Drc)*(ThetaS1->Drc-ThetaI1->Drc); //m
@@ -503,18 +503,22 @@ void TWorld::InfiltrationFloodNew(void)
 
 
     FOR_ROW_COL_MV
-            if (FloodDomain->Drc > 0)
     {
-        InfilVolFlood->Drc = hmx->Drc * _dx*DX->Drc;//ChannelAdj->Drc*DX->Drc;
-        // potential water volume on surface before infil
-        // is everywhere on cell except channel
+        if (FloodDomain->Drc > 0)
+        {
+            InfilVolFlood->Drc = hmx->Drc * _dx*DX->Drc;//ChannelAdj->Drc*DX->Drc;
+            // potential water volume on surface before infil
+            // is everywhere on cell except channel
 
-        if (ChannelWidthUpDX->Drc > 0)
-            Ksateff->Drc *= (1-ChannelWidthUpDX->Drc/_dx);
-        // if width is whole cell than adjust ksateff for channel cells
+            if (ChannelWidthUpDX->Drc > 0)
+                Ksateff->Drc *= (1-ChannelWidthUpDX->Drc/_dx);
+            // if width is whole cell than adjust ksateff for channel cells
+        }
+        else
+        {
+            InfilVolFlood->Drc = 0;
+        }
     }
-    else
-    InfilVolFlood->Drc = 0;
 
     switch (InfilMethod)
     {

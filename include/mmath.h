@@ -30,7 +30,7 @@
 #ifndef mmathH
 #define mmathH
 
-#include "csfmap.h"
+#include "CsfMap.h"
 
 #define ADD 0
 #define SUB 1

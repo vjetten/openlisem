@@ -240,7 +240,7 @@ double TWorld::floodExplicit()
                     Qx = signx * qMin(qMin(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
                     // Qx is the min of all possible fluxes, preserve sign
                     if (i != 4)
-                        Qxsum->Drc += Qx/_dx2;//*0.5;
+                        Qxsum->Drc += Qx/_dx2;// *0.5;
                     // using 4 directions
                     //                    if (i == 1 || i == 3 || i == 5 || i == 7)
                     //                          Qxsum->Drc += Qx/_dx;
@@ -262,3 +262,4 @@ double TWorld::floodExplicit()
 */
 //---------------------------------------------------------------------------
 
+>>>>>>> Ported to linux/x86_64/gcc-4.9

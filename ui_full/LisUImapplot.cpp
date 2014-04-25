@@ -77,7 +77,7 @@ void lisemqt::ssetAlpha4(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::selectMapType(bool doit)
+void lisemqt::selectMapType(bool /* doit */)
 {
     //    if (!startplot)
     //        return;
@@ -592,3 +592,4 @@ void lisemqt::showMap6()
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }//---------------------------------------------------------------------------
+>>>>>>> Ported to linux/x86_64/gcc-4.9

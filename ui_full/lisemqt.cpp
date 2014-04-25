@@ -195,7 +195,7 @@ void lisemqt::setWriteOutputCSV(bool doit)
     checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
-void lisemqt::setWriteOutputPCR(bool doit)
+void lisemqt::setWriteOutputPCR(bool /* doit */)
 {
     if (checkWriteSOBEK->isChecked())
     {
@@ -570,6 +570,7 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
         return;
     }
 
+    QString modifiedContents;
     QTextStream in(&file);
 
     QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
@@ -587,7 +588,10 @@ void lisemqt::on_toolButton_RainfallShow_clicked()
                                       QMessageBox::Ok |QMessageBox::Cancel,QMessageBox::Cancel);
         if (ret == QMessageBox::Ok)
         {
-            in.setString(&view->toPlainText());
+            // Don't take the address of a temporary!
+            // in.setString(&view->toPlainText());
+            modifiedContents = view->toPlainText();
+            in.setString(&modifiedContents);
         }
     }
 
@@ -1126,7 +1130,7 @@ QString lisemqt::findValidDir(QString path, bool up)
 //---------------------------------------------------------------
 void lisemqt::fontSelect()
 {
-    bool ok;
+    // bool ok;
     QFont font = QFontDialog::getFont(0, qApp->font());
            //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
   //  if (ok) {

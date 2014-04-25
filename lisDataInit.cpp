@@ -1,4 +1,3 @@
-
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
@@ -836,7 +835,7 @@ void TWorld::GetInputData(void)
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV
         {
-            if (GrassWidthDX > 0)
+            if (GrassWidthDX != 0)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
                 Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
@@ -1608,3 +1607,4 @@ void TWorld::IntializeOptions(void)
     SwitchPesticide = false;
 }
 //---------------------------------------------------------------------------
+>>>>>>> Ported to linux/x86_64/gcc-4.9

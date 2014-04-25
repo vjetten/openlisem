@@ -240,7 +240,7 @@ void TWorld::ChannelFlood(void)
     //        ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
 
     //    }
-    double dh = correctMassBalance(sumh_t, hmx, 0);
+    // double dh = correctMassBalance(sumh_t, hmx, 0);
     // correct mass balance
 
     // floodwater volume and max flood map
@@ -288,4 +288,3 @@ void TWorld::ChannelFlood(void)
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1));
     // some error reporting
 }
-

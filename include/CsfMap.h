@@ -31,9 +31,10 @@
 #define CsfMapH
 
 #include "csf.h"
+#include <QString>
 
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
+// #define max(a, b)  (((a) > (b)) ? (a) : (b))
+// #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
 //---------------------------------------------------------------------------
 /// CSF map construction, reading, writing series etc.
