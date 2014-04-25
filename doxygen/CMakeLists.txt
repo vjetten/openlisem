@@ -1,0 +1,3 @@
+IF(DOXYGEN_FOUND)
+    INCLUDE(DoxygenDoc)
+ENDIF()
