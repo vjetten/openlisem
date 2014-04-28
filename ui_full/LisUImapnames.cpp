@@ -266,4 +266,3 @@ void lisemqt::openMapname(QModelIndex topLeft)
    }
 }
 //--------------------------------------------------------------------
->>>>>>> Ported to linux/x86_64/gcc-4.9

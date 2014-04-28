@@ -1144,5 +1144,3 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
 }
 //---------------------------------------------------------------------------
-
->>>>>>> Ported to linux/x86_64/gcc-4.9

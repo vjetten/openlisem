@@ -1607,4 +1607,3 @@ void TWorld::IntializeOptions(void)
     SwitchPesticide = false;
 }
 //---------------------------------------------------------------------------
->>>>>>> Ported to linux/x86_64/gcc-4.9
