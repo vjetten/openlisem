@@ -63,6 +63,7 @@ ADD_EXECUTABLE(lisem
 )
 TARGET_LINK_LIBRARIES(lisem
     ${LISEM_EXTERNAL_LIBRARIES}
+    stdc++
 )
 
 # TODO CONFIG += exceptions

@@ -11,18 +11,11 @@ ENDIF()
 
 
 # Find packages. ---------------------------------------------------------------
-FIND_PACKAGE(Qt4 4.8 REQUIRED QtCore QtGui)
-FIND_PACKAGE(Qwt 6 REQUIRED)
+FIND_PACKAGE(Qt4 4 REQUIRED QtCore QtGui)
+FIND_PACKAGE(Qwt REQUIRED)
+FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
 FIND_PACKAGE(Doxygen)
 
-# <HACK>
-SET(PCRASTER_RASTER_FORMAT_SOURCE_ROOT
-    /home/kor/Development/projects/rasterformat/sources/pcraster_raster_format
-)
-SET(PCRASTER_RASTER_FORMAT_BINARY_ROOT
-    /home/kor/Development/objects/gcc-4_x86-64/Debug/rasterformat/bin
-)
-# </HACK>
 
 # Configure project. -----------------------------------------------------------
 INCLUDE(${QT_USE_FILE})
@@ -30,11 +23,11 @@ INCLUDE(${QT_USE_FILE})
 INCLUDE_DIRECTORIES(
     SYSTEM
     ${QWT_INCLUDE_DIRS}
-    ${PCRASTER_RASTER_FORMAT_SOURCE_ROOT}
+    ${PCRASTER_RASTER_FORMAT_INCLUDE_DIRS}
 )
 
 SET(LISEM_EXTERNAL_LIBRARIES
     ${QWT_LIBRARIES}
     ${QT_LIBRARIES}
-    ${PCRASTER_RASTER_FORMAT_BINARY_ROOT}/libpcraster_raster_format.a
+    ${PCRASTER_RASTER_FORMAT_LIBRARIES}
 )
