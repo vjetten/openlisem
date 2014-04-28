@@ -30,6 +30,8 @@
 #ifndef ERROR_H_
 #define ERROR_H_
 
+#include <QString>
+
 extern QString ErrorString;
 extern void Error(QString s);
 

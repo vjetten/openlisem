@@ -344,13 +344,13 @@ void TWorld::Totals(void)
         PestInfilt += PInfilt->mapTotal();
         PestStorage = PStorage->mapTotal();
 
-        double MBtest=0.0;
+        // double MBtest=0.0;
 
         // if (PestLossTotOutlet > 1e-9)
         // MBtest = (Pestdetach-PestCinfilt-PestRunoffSpatial-PestLossTotOutlet)*100/Pestdetach;
 
         //if (Pestdetach > 1e-9)
-        MBtest = Pestdetach-PestCinfilt-PestCfilmexit-PestLossTotOutlet;
+        // MBtest = Pestdetach-PestCinfilt-PestCfilmexit-PestLossTotOutlet;
         // qDebug()<< "pestdetach" << Pestdetach << "pestCinfilt"<< PestCinfilt << "pestCfilmexit"<< PestCfilmexit<< "pestlosstotoutlet"<<PestLossTotOutlet;
         // qDebug()<< "MBtest" << MBtest;
         double test=0.0;

@@ -36,7 +36,7 @@
 
 #include "swatre_p.h"
 #include "swatresoillut.h"
-#include "swatrelookup.h"
+#include "swatreLookup.h"
 
 //-----------------------------------------------------------------------------------
 /// head from theta

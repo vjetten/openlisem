@@ -77,7 +77,7 @@ void lisemqt::ssetAlpha4(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::selectMapType(bool doit)
+void lisemqt::selectMapType(bool /* doit */)
 {
     //    if (!startplot)
     //        return;

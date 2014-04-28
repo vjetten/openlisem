@@ -184,7 +184,7 @@ void lisemqt::initMapTree()
 /** edit mapname in reponse to edit keys (like F2)
  get user edited name from the tree and put it in mapList structure for saving
  */
-void lisemqt::editMapname(QModelIndex topLeft, QModelIndex bottomRight )
+void lisemqt::editMapname(QModelIndex topLeft, QModelIndex /* bottomRight */)
 {
    int groupnr = topLeft.parent().parent().row(); // assume 3 level structure
    int varnr = topLeft.row();

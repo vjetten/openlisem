@@ -640,11 +640,11 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
 double TWorld::maincalcflux(double dt, double dt_max)
 {
     double dt_tmp, dtx, dty;
-    double velocity_max_x, velocity_max_y;
+    // double velocity_max_x, velocity_max_y;
     dtx = dt_max;
     dty = dt_max;
-    velocity_max_x = -ve_ca;
-    velocity_max_y = -ve_ca;
+    // velocity_max_x = -ve_ca;
+    // velocity_max_y = -ve_ca;
     double dx, dy;
     //  int dc[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     //  int dr[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -981,7 +981,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             timesum = timesum + dt1;
             n++;
 
-            double tmp = correctMassBalance(sumh, h, 1e-6);
+            /* double tmp = */ correctMassBalance(sumh, h, 1e-6);
 
             if (n > 100)
                 break;
@@ -1131,7 +1131,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
             findFloodDomain(h);
 
-            double tmp = correctMassBalance(sumh, h, 1e-6);
+            /* double tmp = */ correctMassBalance(sumh, h, 1e-6);
             // has no effect
 
         } while (timesum  < _dt);
@@ -1144,4 +1144,3 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
 }
 //---------------------------------------------------------------------------
-

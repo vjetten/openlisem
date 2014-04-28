@@ -429,7 +429,7 @@ calculating the fluxes from upstream to downstream.\n
 */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
                             TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
-                            TMMap *_Alpha, TMMap *_DX, TMMap*_Vol, TMMap*_Sed) //,TMMap *_StorVol, TMMap *_StorSed)
+                            TMMap *_Alpha, TMMap *_DX, TMMap* /* _Vol */, TMMap*_Sed) //,TMMap *_StorVol, TMMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

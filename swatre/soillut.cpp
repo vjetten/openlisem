@@ -69,7 +69,7 @@ int intervalBsearch(
         width, int (*cmp)(const void *e1, const void *e2))
 {
     int l,r,x, cmpVal;
-    void *a;
+    void const*a;
     l=0;
     r=(int)num;
     do {
@@ -81,7 +81,7 @@ int intervalBsearch(
         if (x == (int)num) /* reached the end, return last element */
             return x-1;
 
-        a = ((char *)base)+(x*width);
+        a = ((char const*)base)+(x*width);
         //      xVal = *((double *)a);
         /* debug code patch here */
         cmpVal = cmp(key, a);

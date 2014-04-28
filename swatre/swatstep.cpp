@@ -44,7 +44,7 @@
  */
 #include "csf.h"
 #include "model.h"
-#include "swatrelookup.h"
+#include "swatreLookup.h"
 
 
 

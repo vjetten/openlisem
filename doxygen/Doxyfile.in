@@ -1,0 +1,6 @@
+PROJECT_NAME            = ${PROJECT_NAME}
+INPUT                   = ${CMAKE_SOURCE_DIR} # \
+                          # ${CMAKE_BINARY_DIR}
+${DOXYGEN_TEMPLATE}
+EXCLUDE_PATTERNS        = ${CMAKE_SOURCE_DIR}/ui
+PROJECT_LOGO            = ${CMAKE_SOURCE_DIR}/resources/openLisem.png

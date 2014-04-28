@@ -1,0 +1,72 @@
+INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
+    ${CMAKE_CURRENT_BINARY_DIR}/.
+)
+SET(SOURCES
+    lisTotalsMB
+    ui_full/LisUItreecheck
+    ui_full/LisUIModel
+    ui_full/LisUIrunfile
+    ui_full/LisUImapnames
+    ui_full/LisUItreeitem
+    ui_full/LisUItreemodel
+    ui_full/LisUIDefaultNames
+    ui_full/lisemqt
+    ui_full/LisUIplot
+    CsfMap
+    lisChannelflow
+    lisTiledrainflow
+    lisDataInit
+    lisErosion
+    lisInfiltration
+    lisKinematic
+    lisModel
+    lisOverlandflow
+    lisRainintc
+    lisReportfile
+    lisRunfile
+    lisSurfstor
+    lisSnowmelt
+    main
+    mmath
+    swatre/swatstep
+    swatre/swatinit
+    swatre/soillut
+    swatre/lutio
+    swatre/lookup
+    swatre/swatinp
+    LisKinematicSorted
+    ui_full/LisUImapplot
+    lisChannelflood
+    lisSWOF2D
+    lisChannelfloodexpl
+    lisInterception
+    lisPesticide.cpp
+)
+QT4_WRAP_CPP(MOC_SOURCES
+    include/model.h
+    ui_full/lisemqt.h
+    ui_full/LisUItreemodel.h
+)
+QT4_WRAP_UI(UI_SOURCES
+    ui_full/lisemqt.ui
+)
+QT4_ADD_RESOURCES(RCC_SOURCES
+    resources/openlisem.qrc
+)
+ADD_EXECUTABLE(lisem
+    ${MOC_SOURCES}
+    ${UI_SOURCES}
+    ${RCC_SOURCES}
+    ${SOURCES}
+)
+TARGET_LINK_LIBRARIES(lisem
+    ${LISEM_EXTERNAL_LIBRARIES}
+    stdc++
+)
+
+# TODO CONFIG += exceptions
+# TODO CONFIG += precompile_header
+# TODO PRECOMPILED_HEADER = include/stable.h
+# TODO RC_FILE = openlisemico.rc

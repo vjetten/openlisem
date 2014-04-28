@@ -127,6 +127,7 @@ void TWorld::GetSnowmeltData(void)
 	// end series with 0 value and extreme time
 	fff.close();
 }
+*/
 //---------------------------------------------------------------------------
 /**
  snowmelt intensity read is that reported with the next line: example

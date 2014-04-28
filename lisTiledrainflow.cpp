@@ -1,4 +1,3 @@
-
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
@@ -74,7 +73,7 @@ void TWorld::CalcVelDischTile()
 {
    FOR_ROW_COL_MV_TILE
    {
-      double Perim, Radius, Area;
+      double Perim, /* Radius, */ Area;
       const double beta = 0.6;
       const double _23 = 2.0/3.0;
       double beta1 = 1/beta;
@@ -85,10 +84,10 @@ void TWorld::CalcVelDischTile()
       Perim = FW + 2*wh;
       Area = FW*wh;
 
-      if (Perim > 0)
-         Radius = Area/Perim;
-      else
-         Radius = 0;
+      // if (Perim > 0)
+      //    Radius = Area/Perim;
+      // else
+      //    Radius = 0;
 
       TileAlpha->Drc = qPow(TileN->Drc/grad * powl(Perim, _23),beta);
 
@@ -168,4 +167,3 @@ void TWorld::TileFlow(void)
    }
 }
 //---------------------------------------------------------------------------
-
