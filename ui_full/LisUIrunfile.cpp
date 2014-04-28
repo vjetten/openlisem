@@ -117,7 +117,8 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
     int j=0;
-    bool dummyrain, dummysnow;
+    bool dummyrain = false;
+    bool dummysnow = false;
     bool dummyFloodExplicit = false;
     bool dummyFloodSWOF1 = false;
     bool dummyFloodSWOF2 = false;
@@ -768,4 +769,3 @@ void lisemqt::updateModelData()
     fillNamelistMapnames(true);
 
 }
-//---------------------------------------------------------------------------

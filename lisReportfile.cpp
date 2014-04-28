@@ -185,7 +185,9 @@ void TWorld::OutputUI(void)
 void TWorld::ReportTimeseriesNew(void)
 {
     int nr = 0;
-    int hour, min, sec;
+    int hour = 0;
+    int min = 0;
+    int sec = 0;
     //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
     double RainIntavg = RainAvgmm * 3600/_dt;
     double SnowIntavg = SnowAvgmm * 3600/_dt;

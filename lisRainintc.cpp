@@ -51,7 +51,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     int nrStations = 0;
     int nrSeries = 0;
     int skiprows = 0;
-    double time;
+    double time = 0.0;
     QString errorS = (israinfall ? "Rainfall" : "Snowmelt");
     bool oldformat = true;
 

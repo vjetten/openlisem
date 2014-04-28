@@ -69,7 +69,7 @@ void TWorld::SplashDetachment(void)
       double Int = Rain->Drc * 3600/_dt * 1000;
       // intensity in mm/h, Rain is in m
 
-      double KE_DT;
+      double KE_DT = 0.0;
 
       switch (KEequationType)
       {

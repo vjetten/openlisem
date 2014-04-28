@@ -750,7 +750,10 @@ double TWorld::maincalcflux(double dt, double dt_max)
             if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
             {
            //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
-                double e1, e2, e3, cfle;
+                double e1 = 0.0;
+                double e2 = 0.0;
+                double e3 = 0.0;
+                double cfle = 0.0;
 
                 if (F_replaceV == 2)
                 {
