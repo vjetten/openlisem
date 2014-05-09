@@ -3,11 +3,56 @@ set -e
 set -x
 
 
+# TODO Add arguments:
+# - build_root
+# - install_prefix
+
+
+# Path to ml64.exe, required by Boost.Context.
+vs_2008_root=`cygpath "$VS90COMNTOOLS"`
+amd64_root="$vs_2008_root/../../VC/BIN/amd64"
+
+# Path to compiler.
+mingw_root=/cygdrive/c/mingw64/bin
+
+export PATH="$mingw_root:$amd64_root:$PATH"
+
+
 build_root=$HOME/tmp/lisem_external_build
 install_prefix=$HOME/tmp/lisem_external
 
 
-export PATH=/cygdrive/c/mingw64/bin:$PATH
+unset PCRTEAM_EXTERN
+cmake=cmake
+cmake_generator="Unix Makefiles"
+find=/usr/bin/find
+make=mingw32-make
+cmake_make_program=$make
+wget=wget
+unzip=unzip
+sed="sed -i.tmp"  # Make sure this is GNU sed!
+
+
+raster_format_version=head
+raster_format_install_prefix=$install_prefix/pcraster_raster_format-$raster_format_version
+
+qt_version=4.8.4
+read qt_main_version qt_sub_version qt_patch_version \
+    < <(IFS=.; echo $qt_version)
+qt_base=qt-everywhere-opensource-src-$qt_version
+qt_make_spec=win32-g++  # Yes, 32.
+qt_install_prefix=$install_prefix/qt-$qt_version
+
+qwt_version=6.0.1
+qwt_base=qwt-$qwt_version
+qwt_install_prefix=$install_prefix/$qwt_base
+
+boost_version=1.55.0
+boost_base=boost_${boost_version//./_}
+boost_install_prefix=$install_prefix/$boost_base
+
+fern_version=head
+fern_install_prefix=$install_prefix/fern-$fern_version
 
 
 function native_path()
@@ -20,31 +65,26 @@ function native_path()
 }
 
 
-unset PCRTEAM_EXTERN
-cmake=cmake
-cmake_generator="Unix Makefiles"
-cmake_make_program=mingw32-make
-wget=wget
-unzip=unzip
-sed="sed -i.tmp"  # Make sure this is GNU sed!
-
-
-function build_using_cmake()
+function rebuild_using_cmake()
 {
     local source_directory=$1
     local binary_directory=$2
     local install_prefix=$3
     local build_type=$4
+    local options=$5
 
     native_path $source_directory native_source_directory
     native_path $install_prefix native_install_prefix
 
+    mkdir -p $binary_directory
     cd $binary_directory
+    rm -fr *
     $cmake \
         -DCMAKE_BUILD_TYPE=$build_type \
         -G"$cmake_generator" \
+        -DCMAKE_MAKE_PROGRAM=$cmake_make_program \
         -DCMAKE_INSTALL_PREFIX="$native_install_prefix" \
-        -DCMAKE_MAKE_PROGRAM="$cmake_make_program" \
+        $options \
         $native_source_directory
     $cmake --build . --config $build_type
     $cmake --build . --config $build_type --target install
@@ -61,16 +101,12 @@ function build_pcraster_raster_format()
             pcraster_raster_format_sources
     fi
 
-    rm -fr pcraster_raster_format_objects
-    mkdir pcraster_raster_format_objects
-
-    local raster_format_install_prefix=$install_prefix/pcraster_raster_format
     rm -fr $raster_format_install_prefix
 
     function build()
     {
         local build_type=$1
-        build_using_cmake \
+        rebuild_using_cmake \
             $build_root/pcraster_raster_format_sources \
             $build_root/pcraster_raster_format_objects \
             $raster_format_install_prefix \
@@ -80,14 +116,6 @@ function build_pcraster_raster_format()
     build Debug
     build Release
 }
-
-
-qt_version=4.8.4
-read qt_main_version qt_sub_version qt_patch_version \
-    < <(IFS=.; echo $qt_version)
-qt_base=qt-everywhere-opensource-src-$qt_version
-qt_make_spec=win32-g++  # Yes, 32.
-qt_install_prefix=$install_prefix/qt-$qt_version
 
 
 function build_qt()
@@ -111,6 +139,7 @@ function build_qt()
 
     configure_arguments="
         -opensource
+        -platform $qt_make_spec
         -debug-and-release
         -no-qt3support
         -no-xmlpatterns
@@ -129,15 +158,14 @@ function build_qt()
     $accept_license_answer
 ACCEPT_LICENSE
 
-    $cmake_make_program
+    $make
+    $make clean
+    rm -fr demos examples qmake tmp
+    $find . -name "*.o" -exec rm -f {} \;
 }
 
 
-build_qwt() {
-    local qwt_version=6.0.1
-    local qwt_base=qwt-$qwt_version
-    local qwt_install_prefix=$install_prefix/$qwt_base
-
+function build_qwt() {
     cd $build_root
 
     if [ ! -e $qwt_base.tar.bz2 ]; then
@@ -151,12 +179,8 @@ build_qwt() {
     # Our install prefix.
     $sed "28s!^!QWT_INSTALL_PREFIX = $qwt_install_prefix!" qwtconfig.pri
 
-    # We don't have svg support.
-    $sed "s!QWT_CONFIG     += QwtSvg!# QWT_CONFIG     += QwtSvg!" qwtconfig.pri
-
-    # # Uncomment an error message that is not relevant for us, but will stop
-    # # the build.
-    # $sed "57,69s/^/# /" qwtbuild.pri
+    ### # We don't have svg support.
+    ### $sed "s!QWT_CONFIG     += QwtSvg!# QWT_CONFIG     += QwtSvg!" qwtconfig.pri
 
     # http://ehc.ac/p/qwt/mailman/message/29258218/
     $sed "3625s/unsigned long/unsigned long long/" \
@@ -164,10 +188,103 @@ build_qwt() {
 
     $qt_install_prefix/bin/qmake -spec $qt_make_spec qwt.pro
 
-    $cmake_make_program install
+    $make install
+}
+
+
+function build_boost() {
+    local boost_toolset=mingw
+    local boost_address_model=64
+    local boost_variant="debug,release"
+    # local boost_link="static,shared"
+    local boost_link="shared"
+    local boost_threading=multi
+
+    cd $build_root
+
+    if [ ! -e $boost_base.tar.bz2 ]; then
+        $wget http://downloads.sourceforge.net/project/boost/boost/$boost_version/$boost_base.tar.bz2
+    fi
+
+    rm -fr $boost_base
+    tar jxf $boost_base.tar.bz2
+
+    cd $boost_base
+    cd tools/build/v2
+    ./bootstrap.sh --with-toolset=$boost_toolset
+    cp engine/bin.ntx86_64/{b2,bjam}.exe ../../..
+    cd ../../..
+    rm -fr $boost_install_prefix
+    # http://www.boost.org/boost-build2/doc/html/bbv2/overview/invocation.html
+    ./b2 \
+        -j 4 \
+        --layout=tagged \
+        --prefix=`cygpath -m $boost_install_prefix` \
+        --without-mpi \
+        --without-python \
+        toolset=gcc \
+        variant=$boost_variant \
+        address-model=$boost_address_model \
+        link=$boost_link \
+        threading=$boost_threading \
+        install
+}
+
+
+function build_fern()
+{
+    cd $build_root
+
+    if [ ! -d fern_sources ]; then
+        rm -fr fern_sources
+        git clone ssh://root@agung/mnt/Depot/fern fern_sources
+        cd fern_sources
+        git checkout feature/operation/laplacian
+        cd ..
+    fi
+
+    rm -fr $fern_install_prefix
+
+    function build()
+    {
+        local build_type=$1
+        local options="
+            -DFERN_ALGORITHM_ONLY:BOOL=TRUE
+            -DBOOST_ROOT=`cygpath -m $boost_install_prefix`
+        "
+        rebuild_using_cmake \
+            $build_root/fern_sources \
+            $build_root/fern_objects \
+            $fern_install_prefix \
+            $build_type \
+            "$options"
+
+        # TODO Test fails in release build.
+        # PATH="$boost_install_prefix/lib:$PATH" $cmake \
+        #     --build `cygpath -m $build_root/fern_objects` \
+        #     --config $build_type \
+        #     --target test
+    }
+
+    build Debug
+    build Release
+}
+
+
+function create_zip()
+{
+    install_prefix_basename=`basename $install_prefix`
+    zip_filename=${install_prefix_basename}.zip
+
+    cd $install_prefix/..
+    zip -r -q -9 $zip_filename $install_prefix_basename
+    echo `pwd`/$zip_filename
 }
 
 
 build_pcraster_raster_format
 build_qt
 build_qwt
+build_boost
+build_fern
+create_zip
