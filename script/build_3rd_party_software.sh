@@ -287,7 +287,10 @@ function build_fern()
         #     --target test
     }
 
-    build Debug
+    if [ $os == "Cygwin" ]; then
+        build Debug
+    fi
+
     build Release
 }
 
