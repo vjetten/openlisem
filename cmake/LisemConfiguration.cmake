@@ -5,6 +5,16 @@ IF(DEFINED ENV{LISEM_3RD_PARTY_ROOT})
         $ENV{LISEM_3RD_PARTY_ROOT}
     )
 
+    # Boost.
+    FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/boost-*)
+    IF(NOT DEFAULT_PATH)
+        SET(DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT})
+    ENDIF()
+    SET(LISEM_BOOST_ROOT
+        ${DEFAULT_PATH}
+        CACHE PATH "Path to root of Boost software"
+    )
+
     # Qt.
     FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/qt-*)
     IF(NOT DEFAULT_PATH)
@@ -47,6 +57,10 @@ IF(DEFINED ENV{LISEM_3RD_PARTY_ROOT})
 ELSE()
     # Add cache variables so the user can tell us where the various 3rd party
     # software packages are located.
+    SET(LISEM_BOOST_ROOT
+        ""
+        CACHE PATH "Path to root of Boost software"
+    )
     SET(LISEM_QT_ROOT
         ""
         CACHE PATH "Path to root of Qt software"
@@ -68,6 +82,11 @@ ENDIF()
 
 # In case we are provided with paths to 3rd party software, then we need to
 # tell cmake to look into these locations.
+IF(LISEM_BOOST_ROOT)
+    LIST(APPEND CMAKE_PREFIX_PATH
+        ${LISEM_BOOST_ROOT}
+    )
+ENDIF()
 IF(LISEM_QT_ROOT)
     LIST(APPEND CMAKE_PREFIX_PATH
         ${LISEM_QT_ROOT}

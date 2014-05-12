@@ -2,6 +2,7 @@
 
 
 # Find packages. ---------------------------------------------------------------
+FIND_PACKAGE(Boost REQUIRED)
 FIND_PACKAGE(Qt4 4 REQUIRED QtCore QtGui)
 FIND_PACKAGE(Qwt REQUIRED)
 FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
@@ -14,6 +15,7 @@ INCLUDE(${QT_USE_FILE})
 
 INCLUDE_DIRECTORIES(
     SYSTEM
+    ${Boost_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
 )
 
