@@ -1,16 +1,17 @@
-### # https://help.github.com/articles/dealing-with-line-endings
-### 
-### # Set the default behavior, in case people don't have core.autocrlf set.
-### * text=auto
-### 
-### # Explicitly declare text files you want to always be normalized and converted
-### # to native line endings on checkout.
-### *.c text
-### *.h text
-### 
-### # Declare files that will always have CRLF line endings on checkout.
-### *.sln text eol=crlf
-### 
-### # Denote all files that are truly binary and should not be modified.
-### *.png binary
-### *.jpg binary
+# https://help.github.com/articles/dealing-with-line-endings
+# http://stackoverflow.com/questions/170961/whats-the-best-crlf-handling-strategy-with-git/10855862#10855862
+# https://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
+
+# Set the default behavior, in case people don't have core.autocrlf set.
+# Auto detect text files and perform LF normalization.
+* text=auto
+
+# Files that must always have LF line endings on checkout.
+*.sh text eol=lf
+
+# Files that must always have CRLF line endings on checkout.
+*.sln text eol=crlf
+
+# Files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
