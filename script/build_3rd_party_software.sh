@@ -3,30 +3,44 @@ set -e
 set -x
 
 
+unset PCRTEAM_EXTERN
+
+
 # TODO Add arguments:
 # - build_root
 # - install_prefix
-
-
-# Path to ml64.exe, required by Boost.Context.
-vs_2008_root=`cygpath "$VS90COMNTOOLS"`
-amd64_root="$vs_2008_root/../../VC/BIN/amd64"
-
-# Path to compiler.
-mingw_root=/cygdrive/c/mingw64/bin
-
-export PATH="$mingw_root:$amd64_root:$PATH"
-
-
 build_root=$HOME/tmp/lisem_external_build
 install_prefix=$HOME/tmp/lisem_external
 
+mkdir -p $build_root $install_prefix
 
-unset PCRTEAM_EXTERN
+
+if [ `uname -o 2>/dev/null` ]; then
+    os=`uname -o`
+else
+    os=`uname`
+fi
+
+
+if [ $os == "Cygwin" ]; then
+    # Path to ml64.exe, required by Boost.Context.
+    vs_2008_root=`cygpath "$VS90COMNTOOLS"`
+    amd64_root="$vs_2008_root/../../VC/BIN/amd64"
+
+    # Path to compiler.
+    mingw_root=/cygdrive/c/mingw64/bin
+
+    export PATH="$mingw_root:$amd64_root:$PATH"
+
+    make=mingw32-make
+else
+    make=make
+fi
+
+
 cmake=cmake
 cmake_generator="Unix Makefiles"
 find=/usr/bin/find
-make=mingw32-make
 cmake_make_program=$make
 wget=wget
 unzip=unzip
@@ -59,8 +73,12 @@ function native_path()
 {
     local pathname=$1
     local variable_name=$2
+    local native_pathname=$pathname
 
-    native_pathname=`cygpath -m $pathname`
+    if [ $os == "Cygwin" ]; then
+        native_pathname=`cygpath -m $native_pathname`
+    fi
+
     eval $variable_name="$native_pathname"
 }
 
@@ -113,7 +131,10 @@ function build_pcraster_raster_format()
             $build_type
     }
 
-    build Debug
+    if [ $os == "Cygwin" ]; then
+        build Debug
+    fi
+
     build Release
 }
 

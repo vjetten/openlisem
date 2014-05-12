@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
         //get run filename
         int n = 0;
-        foreach (QString str, args)
+        for(QString const& str: args)
         {
             if (str.contains("-r"))
             {
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
         // get user defined individual options
         optionList.clear();
-        foreach (QString str, args)
+        for(QString str: args)
         {
             if (runfound)
             {

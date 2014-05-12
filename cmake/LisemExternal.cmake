@@ -1,12 +1,3 @@
-IF(DEFINED ENV{LISEM_EXTERN})
-    # Configure search path to find packages.
-    SET(CMAKE_PREFIX_PATH
-        ${CMAKE_PREFIX_PATH}
-        $ENV{LISEM_EXTERN}
-    )
-ENDIF()
-
-
 # Configure packages. ----------------------------------------------------------
 
 
