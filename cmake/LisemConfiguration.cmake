@@ -34,6 +34,16 @@ IF(DEFINED ENV{LISEM_3RD_PARTY_ROOT})
         ${DEFAULT_PATH}
         CACHE PATH "Path to root of PCRaster raster format software"
     )
+
+    # Fern.
+    FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/fern-*)
+    IF(NOT DEFAULT_PATH)
+        SET(DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT})
+    ENDIF()
+    SET(LISEM_FERN_ROOT
+        ${DEFAULT_PATH}
+        CACHE PATH "Path to root of Fern software"
+    )
 ELSE()
     # Add cache variables so the user can tell us where the various 3rd party
     # software packages are located.
@@ -48,6 +58,10 @@ ELSE()
     SET(LISEM_RASTER_FORMAT_ROOT
         ""
         CACHE PATH "Path to root of PCRaster raster format software"
+    )
+    SET(LISEM_FERN_ROOT
+        ""
+        CACHE PATH "Path to root of Fern software"
     )
 ENDIF()
 
@@ -67,5 +81,10 @@ ENDIF()
 IF(LISEM_RASTER_FORMAT_ROOT)
     LIST(APPEND CMAKE_PREFIX_PATH
         ${LISEM_RASTER_FORMAT_ROOT}
+    )
+ENDIF()
+IF(LISEM_FERN_ROOT)
+    LIST(APPEND CMAKE_PREFIX_PATH
+        ${LISEM_FERN_ROOT}
     )
 ENDIF()
