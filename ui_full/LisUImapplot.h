@@ -25,15 +25,32 @@ public:
         QColor bg( Qt::white );
         bg.setAlpha( 100 );
         QString txt = "";
+        QString unit = "";
 
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
         QwtPlotSpectrogram * sp = static_cast<QwtPlotSpectrogram *> (list.at(1));
+        QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(list.count()-1));
+        // elevation info
+
         if (sp->data() == NULL)
             return QwtText(txt);
         double z = sp->data()->value(pos.x(), pos.y());
+        double z0 = sp0->data()->value(pos.x(), pos.y());
 
+//        if (checkUnits_tonha->isChecked()) unit = "ton/ha";// ton/ha
+//        if (checkUnits_kgcell->isChecked()) unit = "kg/cell"; // in kg/cell
+//        if (checkUnits_kgm2->isChecked()) unit = "kg/m2"; // in kg/m2
         if (z > -1e10)
-            txt.sprintf( "%.3f", z );
+        {
+          if (sp->data()->value(0,0) == 1) txt = QString("%1 l/s [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
+          if (sp->data()->value(0,0) == 2) txt = QString("%1 mm [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
+          if (sp->data()->value(0,0) == 3)
+              txt = QString("%1 %2[%3m]").arg(z,0,'f',1).arg(unit).arg(z0,0,'f',1);
+          if (sp->data()->value(0,0) == 4) txt = QString("%1 m [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
+          if (sp->data()->value(0,0) == 5) txt = QString("%1 m/s [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
+          if (sp->data()->value(0,0) == 6) txt = QString("%1 mm [%2m]").arg(z,0,'f',3).arg(z0,0,'f',1);
+        }
+
         QwtText text = QwtText(txt);
         text.setColor(Qt::black);
         text.setBackgroundBrush( QBrush( bg ) );

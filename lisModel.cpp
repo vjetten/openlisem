@@ -96,6 +96,7 @@ void TWorld::DoModel()
             op.DrawMap5->KillMap();
             op.DrawMap6->KillMap();
             op.baseMap->KillMap();
+            op.baseMapDEM->KillMap();
             op.channelMap->KillMap();
             op.roadMap->KillMap();
             op.houseMap->KillMap();
@@ -108,6 +109,7 @@ void TWorld::DoModel()
         op.DrawMap5 = new TMMap();
         op.DrawMap6 = new TMMap();
         op.baseMap = new TMMap();
+        op.baseMapDEM = new TMMap();
         op.channelMap = new TMMap();
         op.roadMap = new TMMap();
         op.houseMap = new TMMap();
@@ -119,6 +121,7 @@ void TWorld::DoModel()
         op.DrawMap5->MakeMap(LDD, 0);
         op.DrawMap6->MakeMap(LDD, 0);
         op.baseMap->MakeMap(LDD, 0);
+        op.baseMapDEM->MakeMap(LDD, 0);
         op.channelMap->MakeMap(LDD, 0);
         op.roadMap->MakeMap(LDD, 0);
         op.houseMap->MakeMap(LDD, 0);

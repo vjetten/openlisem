@@ -432,6 +432,8 @@ void TWorld::InitShade(void)
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     if (SwitchChannelFlood)
         DEM->calcMap(Barriers, ADD);
+    double MaxDem = DEM->mapMaximum();
+    double MinDem = DEM->mapMinimum();
 
     FOR_ROW_COL_MV
     {
@@ -481,6 +483,7 @@ void TWorld::InitShade(void)
         Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
         if (Shade->Drc == 0 && r > 0 && c > 0)
             Shade->Drc = Shade->Data[r-1][c-1];
+        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
     }
 
 }

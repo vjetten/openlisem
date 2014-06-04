@@ -117,6 +117,12 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     E_runFileList->clear();
     E_FloodScheme->setVisible(false);
     label_98->setVisible(false);
+    checkAddWHtohmx->setVisible(false);
+    label_125->setVisible(false);
+
+    floodCutoffLevel->setVisible(false);
+    label_127->setVisible(false);
+    label_93->setVisible(false);
 
     doBatchmode = doBatch;
     batchRunname = runname;

@@ -209,8 +209,13 @@ void lisemqt::setupMapPlot()
     channelMap->attach( MPlot );
     // channel map
 
+    baseMapDEM = new QwtPlotSpectrogram();
+    baseMapDEM->setRenderThreadCount( 0 );
+    baseMapDEM->attach( MPlot );
+    // DEM information
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
+    RDbb = new QwtMatrixRasterData();
     RDc = new QwtMatrixRasterData();
     RDd = new QwtMatrixRasterData();
     RDe = new QwtMatrixRasterData();
@@ -250,7 +255,7 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
+double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD, double type)
 {
     double maxV = -1e20;
     mapData.clear();  //QVector double
@@ -271,6 +276,9 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD)
             else
                 mapData << (double)-1e20;
         }
+
+    mapData.replace(0, (double)type);
+    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols );
@@ -308,7 +316,7 @@ void lisemqt::showBaseMap()
     if (!startplot)
         return;
 
-    double res = fillDrawMapData(op.baseMap, RDb);
+    double res = fillDrawMapData(op.baseMap, RDb, 0);
     if (res == -1e20)
         return;
 
@@ -318,6 +326,14 @@ void lisemqt::showBaseMap()
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
+    res = fillDrawMapData(op.baseMapDEM, RDbb, 7);
+    if (res == -1e20)
+        return;
+    double mindem = op.baseMapDEM->mapMinimum();
+    baseMapDEM->setAlpha(0);
+    baseMapDEM->setColorMap(new colorMapGray());
+    RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
+    baseMapDEM->setData(RDbb);
     double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSize;
     double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSize;
     double dx = max(nrCols,nrRows)/20;
@@ -357,7 +373,7 @@ void lisemqt::showChannelMap()
     if (!startplot)
         return;
 
-    double res = fillDrawMapData(op.channelMap, RDc);
+    double res = fillDrawMapData(op.channelMap, RDc,0 );
     if (res ==-1e20)
         return;
 
@@ -373,7 +389,7 @@ void lisemqt::showRoadMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.roadMap, RDd);
+        double res = fillDrawMapData(op.roadMap, RDd, 0);
         if (res ==-1e20)
             return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
@@ -395,7 +411,7 @@ void lisemqt::showHouseMap()
     if (startplot)
     {
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.houseMap, RDe);
+        double res = fillDrawMapData(op.houseMap, RDe, 0);
         if (res ==-1e20)
             return;
         RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
@@ -415,7 +431,7 @@ void lisemqt::showMap1()
 {
     MPlot->setTitle("Runoff (l/s)");
 
-    double MaxV = fillDrawMapData(op.DrawMap1, RD);
+    double MaxV = fillDrawMapData(op.DrawMap1, RD, 1);
     if (MaxV ==-1e20)
         return;
     // fill vector and find the new max value
@@ -454,7 +470,7 @@ void lisemqt::showMap2()
     MPlot->setTitle("Infiltration (mm)");
 
     // fill vector RD with matrix data and find the new max value
-    double MaxV = fillDrawMapData(op.DrawMap2, RD);
+    double MaxV = fillDrawMapData(op.DrawMap2, RD, 2);
     if (MaxV ==-1e20)
         return;
     // set the new interval to the new max value
@@ -482,7 +498,7 @@ void lisemqt::showMap3()
 {
     MPlot->setTitle("Soil loss (ton/ha)");
 
-    double MaxV = fillDrawMapData(op.DrawMap3, RD);
+    double MaxV = fillDrawMapData(op.DrawMap3, RD, 3);
     if (MaxV ==-1e20)
         return;
     // fill vector and find the new max value
@@ -509,7 +525,7 @@ void lisemqt::showMap4()
     MPlot->setTitle("Flood level (m)");
 
     double MinV = 0;
-    double MaxV = fillDrawMapData(op.DrawMap4, RD);
+    double MaxV = fillDrawMapData(op.DrawMap4, RD, 4);
     if (MaxV ==-1e20)
         return;
     // fill vector and find the new max value
@@ -543,7 +559,7 @@ void lisemqt::showMap5()
 {
     MPlot->setTitle("Flood Velocity (m/s)");
 
-    double MaxV = fillDrawMapData(op.DrawMap5, RD);
+    double MaxV = fillDrawMapData(op.DrawMap5, RD, 5);
     if (MaxV ==-1e20)
         return;
     // fill vector and find the new max value
@@ -572,7 +588,7 @@ void lisemqt::showMap6()
     else
         MPlot->setTitle("Precipitation (mm)");
 
-    double MaxV = fillDrawMapData(op.DrawMap6, RD);
+    double MaxV = fillDrawMapData(op.DrawMap6, RD, 6);
     if (MaxV ==-1e20)
         return;
     // fill vector and find the new max value

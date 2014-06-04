@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1508</width>
+    <width>1538</width>
     <height>1109</height>
    </rect>
   </property>
@@ -204,8 +204,8 @@
               <property name="verticalSpacing">
                <number>3</number>
               </property>
-              <item row="0" column="3">
-               <widget class="QLineEdit" name="E_EndTime">
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_7">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -255,12 +255,18 @@
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="text">
+                 <string>End time (min)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="E_Timestep">
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="E_EndTime">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -313,7 +319,7 @@
               <item row="0" column="1">
                <widget class="QLineEdit" name="E_BeginTime">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -422,7 +428,7 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
+              <item row="0" column="4">
                <widget class="QLabel" name="label_8">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -481,10 +487,23 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_7">
+              <item row="0" column="6">
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="5">
+               <widget class="QLineEdit" name="E_Timestep">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -532,26 +551,7 @@
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="text">
-                 <string>End time (min)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
                </widget>
-              </item>
-              <item row="0" column="4">
-               <spacer name="horizontalSpacer_10">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </widget>
@@ -1711,7 +1711,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -4126,11 +4126,20 @@ p, li { white-space: pre-wrap; }
                     <bool>false</bool>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_5">
+                    <property name="leftMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>4</number>
+                    </property>
                     <property name="verticalSpacing">
                      <number>2</number>
-                    </property>
-                    <property name="margin">
-                     <number>4</number>
                     </property>
                     <item row="0" column="0">
                      <widget class="QRadioButton" name="radioButton_1">
@@ -6594,7 +6603,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="inputMask">
-                     <string>9999.99; </string>
+                     <string>9999.99</string>
                     </property>
                     <property name="text">
                      <string>1200.00</string>
@@ -6675,7 +6684,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="inputMask">
-                     <string>9.999; </string>
+                     <string>9.999</string>
                     </property>
                     <property name="text">
                      <string>0.1</string>
@@ -9104,7 +9113,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="2" rowspan="5">
+                 <item row="8" column="2" rowspan="4">
                   <widget class="QGroupBox" name="groupBox_2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
@@ -9238,7 +9247,7 @@ p, li { white-space: pre-wrap; }
                    </layout>
                   </widget>
                  </item>
-                 <item row="10" column="0">
+                 <item row="9" column="0">
                   <widget class="QLabel" name="label_18">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -9300,7 +9309,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="10" column="1">
+                 <item row="9" column="1">
                   <widget class="QLineEdit" name="E_DepositionMap">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -9353,7 +9362,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="11" column="0">
+                 <item row="10" column="0">
                   <widget class="QLabel" name="label_19">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -9415,7 +9424,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="11" column="1">
+                 <item row="10" column="1">
                   <widget class="QLineEdit" name="E_SoillossMap">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -9468,7 +9477,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="12" column="0">
+                 <item row="11" column="0">
                   <widget class="QLabel" name="label_61">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -9530,7 +9539,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="12" column="1">
+                 <item row="11" column="1">
                   <widget class="QLineEdit" name="E_LandunitResults">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -9586,7 +9595,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="13" column="0">
+                 <item row="12" column="0">
                   <widget class="QLabel" name="label_109">
                    <property name="palette">
                     <palette>
@@ -9636,7 +9645,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="14" column="0">
+                 <item row="13" column="0">
                   <widget class="QLabel" name="label_110">
                    <property name="palette">
                     <palette>
@@ -9689,7 +9698,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="14" column="1">
+                 <item row="13" column="1">
                   <widget class="QLineEdit" name="E_FloodlevelMap">
                    <property name="enabled">
                     <bool>false</bool>
@@ -9702,7 +9711,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="15" column="0">
+                 <item row="14" column="0">
                   <widget class="QLabel" name="label_111">
                    <property name="palette">
                     <palette>
@@ -9755,7 +9764,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="15" column="1">
+                 <item row="14" column="1">
                   <widget class="QLineEdit" name="E_FloodTimeMap">
                    <property name="enabled">
                     <bool>false</bool>
@@ -9768,7 +9777,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="16" column="0">
+                 <item row="15" column="0">
                   <widget class="QLabel" name="label_112">
                    <property name="palette">
                     <palette>
@@ -9821,7 +9830,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="16" column="1">
+                 <item row="15" column="1">
                   <widget class="QLineEdit" name="E_FloodStats">
                    <property name="enabled">
                     <bool>false</bool>
@@ -9834,7 +9843,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="17" column="0">
+                 <item row="16" column="0">
                   <widget class="QLabel" name="label_119">
                    <property name="palette">
                     <palette>
@@ -9887,7 +9896,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="17" column="1">
+                 <item row="16" column="1">
                   <widget class="QLineEdit" name="E_ChannelMaxQ">
                    <property name="enabled">
                     <bool>false</bool>
@@ -9900,7 +9909,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="18" column="0">
+                 <item row="17" column="0">
                   <widget class="QLabel" name="label_120">
                    <property name="palette">
                     <palette>
@@ -9953,7 +9962,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="18" column="1">
+                 <item row="17" column="1">
                   <widget class="QLineEdit" name="E_ChannelMaxWH">
                    <property name="enabled">
                     <bool>false</bool>
@@ -9965,19 +9974,6 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                   </widget>
-                 </item>
-                 <item row="9" column="0">
-                  <spacer name="horizontalSpacer_13">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>355</width>
-                     <height>189</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -16615,7 +16611,16 @@ p, li { white-space: pre-wrap; }
             <number>1</number>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
              <number>1</number>
             </property>
             <item>
@@ -16643,7 +16648,14 @@ p, li { white-space: pre-wrap; }
                <property name="verticalSpacing">
                 <number>2</number>
                </property>
-               <item row="11" column="2">
+               <item row="7" column="3">
+                <widget class="QCheckBox" name="checkDisplayPcum">
+                 <property name="text">
+                  <string>Cumulative</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -16662,14 +16674,14 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="11" column="0" colspan="2">
+               <item row="10" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_SL">
                  <property name="text">
                   <string>Soil loss</string>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="2">
+               <item row="9" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxINF">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -16726,7 +16738,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="9" column="0" colspan="2">
+               <item row="8" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_RO">
                  <property name="text">
                   <string>Runoff</string>
@@ -16736,7 +16748,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="12" column="0" colspan="2">
+               <item row="11" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_FL">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16746,7 +16758,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="12" column="2">
+               <item row="11" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16756,6 +16768,9 @@ p, li { white-space: pre-wrap; }
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
                  </property>
                  <property name="singleStep">
                   <double>0.010000000000000</double>
@@ -16787,7 +16802,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="10" column="0" colspan="2">
+               <item row="9" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_INF">
                  <property name="text">
                   <string>Infil</string>
@@ -16820,7 +16835,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="9" column="2">
+               <item row="8" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxRO">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -16894,7 +16909,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="19" column="0" colspan="2">
+               <item row="18" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_FLV">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16904,7 +16919,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="19" column="2">
+               <item row="18" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFLV">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16927,21 +16942,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="8" column="1" colspan="2">
-                <widget class="QCheckBox" name="checkDisplayPcum">
-                 <property name="text">
-                  <string>Cumulative precipitation</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="0">
-                <widget class="QLabel" name="label_126">
-                 <property name="text">
-                  <string>-</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="14" column="2">
+               <item row="13" column="2">
                 <widget class="QSlider" name="floodCutoffLevel">
                  <property name="maximum">
                   <number>2</number>
@@ -16957,7 +16958,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="15" column="2">
+               <item row="14" column="2">
                 <widget class="QLabel" name="label_93">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16970,7 +16971,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="14" column="1">
+               <item row="13" column="1">
                 <widget class="QLabel" name="label_127">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16983,7 +16984,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="13" column="1">
+               <item row="12" column="1">
                 <widget class="QCheckBox" name="checkAddWHtohmx">
                  <property name="enabled">
                   <bool>false</bool>
@@ -16996,7 +16997,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="13" column="0">
+               <item row="12" column="0">
                 <widget class="QLabel" name="label_125">
                  <property name="text">
                   <string>-</string>
@@ -17033,6 +17034,16 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="text">
                   <string>Overlay information</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="3">
+                <widget class="QCheckBox" name="checkFloodCutoff">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>deeper&gt;0.1m</string>
                  </property>
                 </widget>
                </item>
@@ -17092,7 +17103,16 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Sunken</enum>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
              <number>1</number>
             </property>
             <item>
@@ -17190,7 +17210,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>E_RainfallName</tabstop>
   <tabstop>E_SnowmeltName</tabstop>
   <tabstop>E_BeginTime</tabstop>
-  <tabstop>E_Timestep</tabstop>
   <tabstop>E_InfiltrationMethod</tabstop>
   <tabstop>checkInfilCrust</tabstop>
   <tabstop>checkInfilCompact</tabstop>
@@ -17207,7 +17226,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
+     <x>726</x>
      <y>197</y>
     </hint>
     <hint type="destinationlabel">
@@ -17223,11 +17242,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
+     <x>726</x>
      <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>727</x>
+     <x>671</x>
      <y>202</y>
     </hint>
    </hints>
@@ -17239,11 +17258,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
+     <x>726</x>
      <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>760</x>
+     <x>704</x>
      <y>202</y>
     </hint>
    </hints>
@@ -17256,11 +17275,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>89</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>71</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -17272,11 +17291,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>89</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -17288,11 +17307,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>89</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -17304,11 +17323,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>80</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
      <x>71</x>
-     <y>376</y>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -17320,11 +17339,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>80</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
-     <y>376</y>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -17336,11 +17355,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>71</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>71</x>
-     <y>373</y>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -17352,11 +17371,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>71</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
-     <y>373</y>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -17368,11 +17387,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>60</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17384,11 +17403,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>67</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17400,11 +17419,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>79</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17416,11 +17435,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
    </hints>
   </connection>
@@ -17432,11 +17451,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -17448,11 +17467,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>73</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17464,11 +17483,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>85</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17480,11 +17499,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>91</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17496,11 +17515,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>71</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
    </hints>
   </connection>
@@ -17512,11 +17531,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>97</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17528,11 +17547,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>398</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
-     <y>383</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -17544,11 +17563,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
    </hints>
   </connection>
@@ -17560,11 +17579,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>753</y>
     </hint>
    </hints>
   </connection>
@@ -17576,11 +17595,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>776</y>
     </hint>
    </hints>
   </connection>
@@ -17592,11 +17611,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>540</y>
     </hint>
    </hints>
   </connection>
@@ -17608,11 +17627,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>799</y>
     </hint>
    </hints>
   </connection>
@@ -17624,11 +17643,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
-     <y>373</y>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -17640,11 +17659,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
-     <y>376</y>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
-     <y>375</y>
+     <y>371</y>
     </hint>
    </hints>
   </connection>
@@ -17656,11 +17675,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
-     <y>376</y>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>90</x>
-     <y>375</y>
+     <y>371</y>
     </hint>
    </hints>
   </connection>
@@ -17672,11 +17691,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>90</x>
-     <y>373</y>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -17688,11 +17707,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>
-     <y>374</y>
+     <y>370</y>
     </hint>
    </hints>
   </connection>
@@ -17703,8 +17722,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1115</x>
-     <y>258</y>
+     <x>1059</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>1346</x>
@@ -17720,11 +17739,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>372</y>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>646</y>
+     <x>818</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -17736,11 +17755,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1364</x>
-     <y>457</y>
+     <x>859</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -17752,11 +17771,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1364</x>
-     <y>484</y>
+     <x>859</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -17768,11 +17787,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1364</x>
-     <y>538</y>
+     <x>859</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -17784,11 +17803,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1364</x>
-     <y>565</y>
+     <x>859</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -17800,11 +17819,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>619</y>
+     <x>818</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -17816,11 +17835,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>696</y>
+     <x>818</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>
@@ -17832,11 +17851,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>750</y>
+     <x>818</x>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -17848,11 +17867,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>777</y>
+     <x>818</x>
+     <y>358</y>
     </hint>
    </hints>
   </connection>
@@ -17864,11 +17883,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>108</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
    </hints>
   </connection>
@@ -17880,11 +17899,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1129</x>
-     <y>723</y>
+     <x>818</x>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -17896,11 +17915,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
-     <y>368</y>
+     <y>364</y>
     </hint>
    </hints>
   </connection>
@@ -17912,11 +17931,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>839</y>
     </hint>
    </hints>
   </connection>
@@ -17928,11 +17947,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>862</y>
     </hint>
    </hints>
   </connection>
@@ -17944,11 +17963,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>885</y>
     </hint>
    </hints>
   </connection>
@@ -17960,11 +17979,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>908</y>
     </hint>
    </hints>
   </connection>
@@ -17976,11 +17995,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>931</y>
     </hint>
    </hints>
   </connection>
@@ -17992,11 +18011,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>379</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1364</x>
-     <y>511</y>
+     <x>859</x>
+     <y>351</y>
     </hint>
    </hints>
   </connection>
@@ -18008,11 +18027,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>378</y>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
-     <x>938</x>
-     <y>375</y>
+     <x>1325</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -18024,11 +18043,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>90</y>
+     <x>326</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>
@@ -18040,11 +18059,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>377</y>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>90</y>
+     <x>378</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>
@@ -18055,12 +18074,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>90</y>
+     <x>150</x>
+     <y>974</y>
     </hint>
    </hints>
   </connection>
@@ -18071,12 +18090,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>90</y>
+     <x>270</x>
+     <y>1000</y>
     </hint>
    </hints>
   </connection>
@@ -18087,12 +18106,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
-     <y>90</y>
+     <x>262</x>
+     <y>1018</y>
     </hint>
    </hints>
   </connection>
@@ -18103,12 +18122,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>90</y>
+     <x>270</x>
+     <y>952</y>
     </hint>
    </hints>
   </connection>
@@ -18119,12 +18138,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>90</y>
+     <x>132</x>
+     <y>951</y>
     </hint>
    </hints>
   </connection>
@@ -18135,12 +18154,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>90</y>
+     <x>132</x>
+     <y>1041</y>
     </hint>
    </hints>
   </connection>
@@ -18151,12 +18170,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>90</y>
+     <x>150</x>
+     <y>1000</y>
     </hint>
    </hints>
   </connection>
@@ -18167,12 +18186,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>377</y>
+     <x>107</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
      <x>216</x>
      <y>1031</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelFlood</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkFloodCutoff</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>324</x>
+     <y>941</y>
     </hint>
    </hints>
   </connection>
