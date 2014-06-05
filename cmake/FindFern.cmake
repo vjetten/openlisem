@@ -1,0 +1,73 @@
+# Geoneric Fern library is available at
+# https://www.geoneric.eu
+#
+# This module defines the following variables:
+#  FERN_FOUND
+#  FERN_INCLUDE_DIRS
+#  FERN_LIBRARIES
+FIND_PATH(FERN_INCLUDE_DIRS
+    NAMES fern/core/string.h
+)
+
+
+FIND_LIBRARY(FERN_ALGORITHM_CORE_LIBRARY
+    NAMES fern_algorithm_core
+)
+IF(WIN32)
+    FIND_LIBRARY(FERN_ALGORITHM_CORE_DEBUG_LIBRARY
+        NAMES fern_algorithm_cored
+    )
+    SET(FERN_ALGORITHM_CORE_LIBRARY
+        optimized ${FERN_ALGORITHM_CORE_LIBRARY}
+        debug ${FERN_ALGORITHM_CORE_DEBUG_LIBRARY}
+    )
+ENDIF()
+
+
+FIND_LIBRARY(FERN_FEATURE_CORE_LIBRARY
+    NAMES fern_feature_core
+)
+IF(WIN32)
+    FIND_LIBRARY(FERN_FEATURE_CORE_DEBUG_LIBRARY
+        NAMES fern_feature_cored
+    )
+    SET(FERN_FEATURE_CORE_LIBRARY
+        optimized ${FERN_FEATURE_CORE_LIBRARY}
+        debug ${FERN_FEATURE_CORE_DEBUG_LIBRARY}
+    )
+ENDIF()
+
+
+FIND_LIBRARY(FERN_CORE_LIBRARY
+    NAMES fern_core
+)
+IF(WIN32)
+    FIND_LIBRARY(FERN_CORE_DEBUG_LIBRARY
+        NAMES fern_cored
+    )
+    SET(FERN_CORE_LIBRARY
+        optimized ${FERN_CORE_LIBRARY}
+        debug ${FERN_CORE_DEBUG_LIBRARY}
+    )
+ENDIF()
+
+
+SET(FERN_LIBRARIES
+    ${FERN_ALGORITHM_CORE_LIBRARY}
+    ${FERN_FEATURE_CORE_LIBRARY}
+    ${FERN_CORE_LIBRARY}
+)
+
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Fern
+    REQUIRED_VARS
+        FERN_LIBRARIES
+        FERN_INCLUDE_DIRS
+)
+
+
+MARK_AS_ADVANCED(
+    FERN_LIBRARIES
+    FERN_INCLUDE_DIRS
+)

@@ -63,7 +63,7 @@ qwt_install_prefix=$install_prefix/$qwt_base
 
 boost_version=1.55.0
 boost_base=boost_${boost_version//./_}
-boost_install_prefix=$install_prefix/$boost_base
+boost_install_prefix=$install_prefix/boost-${boost_version}
 
 fern_version=head
 fern_install_prefix=$install_prefix/fern-$fern_version
@@ -287,7 +287,10 @@ function build_fern()
         #     --target test
     }
 
-    build Debug
+    if [ $os == "Cygwin" ]; then
+        build Debug
+    fi
+
     build Release
 }
 
@@ -295,7 +298,8 @@ function build_fern()
 function create_zip()
 {
     install_prefix_basename=`basename $install_prefix`
-    zip_filename=${install_prefix_basename}.zip
+    date=`date +%Y%m%d`
+    zip_filename=${install_prefix_basename}-${date}.zip
 
     cd $install_prefix/..
     zip -r -q -9 $zip_filename $install_prefix_basename
