@@ -183,6 +183,9 @@ ACCEPT_LICENSE
     $make clean
     rm -fr demos examples qmake tmp
     $find . -name "*.o" -exec rm -f {} \;
+
+    # This will make the qt installation moveable.
+    echo -e "[Paths]\nPrefix=.." > bin/qt.conf
 }
 
 
@@ -302,6 +305,7 @@ function create_zip()
     zip_filename=${install_prefix_basename}-${date}.zip
 
     cd $install_prefix/..
+    rm -f $zip_filename
     zip -r -q -9 $zip_filename $install_prefix_basename
     echo `pwd`/$zip_filename
 }
