@@ -99,7 +99,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
                         This is within the flow domain (the LDD has a value here).\n \
                         This iusually happens when you have maps of different origin";
-                throw 1;
+                        throw 1;
             }
 
     if (_M)
