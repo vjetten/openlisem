@@ -952,6 +952,9 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
         tm->copy(h);
 
         do {
+            ChannelOverflow();
+            // set overflow to inside loop, reduce MB errors
+
             dt1 = dt_max;
 
             setZero(h, u, v);
@@ -1048,6 +1051,9 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
             if (verif == 1)
             {
+                ChannelOverflow();
+                // set overflow to inside loop, reduce MB errors
+
                 dt1 = dt_max;
 
                 setZero(h, u, v);
