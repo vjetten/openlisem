@@ -155,17 +155,19 @@ public:
    void showChannelMap();
    void showRoadMap();
    void showHouseMap();
-   double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD);
+   double fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD, double type);
 
    QwtText title;
    QwtPlotSpectrogram *drawMap;  // raster map drawing
    QwtPlotSpectrogram *baseMap;  // raster map drawing
+   QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
    QwtPlotSpectrogram *channelMap;  // raster map drawing
    QwtPlotSpectrogram *roadMap;  // raster map drawing
    QwtPlotSpectrogram *houseMap;  // raster map drawing
    QwtPlot *MPlot;               // plot in which the raster map is drawn
    QwtMatrixRasterData *RD;
    QwtMatrixRasterData *RDb;
+   QwtMatrixRasterData *RDbb;
    QwtMatrixRasterData *RDc;
    QwtMatrixRasterData *RDd;
    QwtMatrixRasterData *RDe;

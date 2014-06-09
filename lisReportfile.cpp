@@ -79,10 +79,27 @@ void TWorld::OutputUI(void)
     op.DrawMap2->copy(tmb);  //infil in mm
     if (SwitchErosion)
     {
-        tmb->calc2Maps(TotalSoillossMap,CellArea, DIV);
-        tmb->calcValue(10, MUL); /* in kg/cell so div by area for kg/m2 and x10 for ton/ha */
+        tmb->copy(TotalSoillossMap); //kg/cell
+        if (ErosionUnits == 2 || ErosionUnits == 0)  // in kg/m2
+            tmb->calcMap(CellArea, DIV);
+        if (ErosionUnits == 0) // ton/ha
+            tmb->calcValue(10, MUL);
 
-        op.DrawMap3->copy(tmb);  //soilloss in ton/ha
+/*
+        if (ErosionUnits == 1)  // in kg/m2
+            tmb->copy(TotalSoillossMap); //kg/cell
+        if (ErosionUnits == 2)  // in kg/m2
+        {
+            FOR_ROW_COL_MV
+                    tmb->Drc = TotalSoillossMap->Drc/CellArea->Drc;
+            if (ErosionUnits == 0) // ton/ha
+            {
+                FOR_ROW_COL_MV
+                        tmb->Drc = TotalSoillossMap->Drc*10/CellArea->Drc;
+            }
+            // in kg/cell so div by area for kg/m2 and x10 for ton/ha
+  */
+            op.DrawMap3->copy(tmb);  //soilloss
     }
     if (SwitchChannelFlood)
     {
@@ -104,6 +121,8 @@ void TWorld::OutputUI(void)
     }
 
     op.baseMap->copy(Shade);
+    op.baseMapDEM->copy(DEM);
+
     if (SwitchIncludeChannel)
         op.channelMap->copy(ChannelWidth);
     if (SwitchRoadsystem)

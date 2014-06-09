@@ -377,7 +377,7 @@ void lisemqt::ParseInputData()
         E_floodSolution->setValue(1);
     if (dummyFloodSWOF2)
         E_floodSolution->setValue(2);
-    qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
+   // qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
     // get directory and file names
     for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
     {
