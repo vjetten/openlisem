@@ -90,6 +90,22 @@
     if (floodactive->Drc > 0)
     //if (floodzone->Drc == fZone)
 
+#define FOR_ROW_COL_MV_MV2 for (int r = 2; r < _nrRows-2; r++)\
+    for (int c = 2; c < _nrCols-2; c++)\
+    if(\
+    !IS_MV_REAL8(&LDD->Data[r][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r-1][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
+    !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
+    !IS_MV_REAL8(&LDD->Data[r][c+1]) &&\
+!IS_MV_REAL8(&LDD->Data[r-2][c]) && \
+!IS_MV_REAL8(&LDD->Data[r+2][c]) && \
+!IS_MV_REAL8(&LDD->Data[r][c-2]) && \
+!IS_MV_REAL8(&LDD->Data[r][c+2])\
+)\
+    if (floodactive->Drc > 0)
+    //if (floodzone->Drc == fZone)
+
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
