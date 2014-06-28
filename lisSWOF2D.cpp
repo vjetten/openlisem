@@ -58,7 +58,7 @@ functions: \n
 #define GRAV 9.8067
 #define EPSILON 1e-6
 #define scheme_type 1   //return calculated or fixed dt
-
+#define MAXITER 200
 
 //---------------------------------------------------------------------------
 /**
@@ -293,8 +293,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
     delta_v1 = 0;
 
     //x-direction
-    FOR_ROW_COL_MV_MV
-            if(c < _nrCols-2 && !IS_MV_REAL8(&LDD->Data[r][c+2]))
+    FOR_ROW_COL_MV_MV2
     {
         hh2 = h->Drc-2.*h->Data[r][c+1]+h->Data[r][c+2];
         uu2 = u->Drc-2.*u->Data[r][c+1]+u->Data[r][c+2];
@@ -310,8 +309,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
         delta_v2 = v->Data[r][c+1]-v->Drc;
 
         dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-        dz_h = limiter(delta_h1+delta_z1->Data[r][c-1]+ddz1*0.5,
-                delta_h2+delta_z1->Drc-ddz2*0.5);
+        dz_h = limiter(delta_h1+delta_z1->Data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
 
         du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
         dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
@@ -352,8 +350,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
     }
 
     //y-direction
-    FOR_ROW_COL_MV_MV
-            if(r < _nrRows-2 && !IS_MV_REAL8(&LDD->Data[r+2][c]))
+    FOR_ROW_COL_MV_MV2
     {
         hh2 = h->Drc-2.*h->Data[r+1][c]+h->Data[r+2][c];
         uu2 = u->Drc-2.*u->Data[r+1][c]+u->Data[r+2][c];
@@ -634,7 +631,8 @@ void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
 //---------------------------------------------------------------------------
 /**
  Construction of variables for hydrostatic reconstruction using HLL or Rusanov
- Flux in x and y direction.
+ Flux in x and y direction. The method is based solving PDEs with an estimate of the status
+ of a domain based on spatial averages of the previous timestep, this is the hydrostatic equlibrium
  Calculaton of the time steps in relation to cfl.
 */
 double TWorld::maincalcflux(double dt, double dt_max)
@@ -833,7 +831,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = courant_factor*dy/cfly->Drc;
-
         dty = min(min(dt, dt_tmp), dty);
         //   velocity_max_y = max(velocity_max_y, cfly->Drc);
     }
@@ -949,11 +946,9 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
     if (startFlood)
     {
         double sumh = h->mapTotal();
-        tm->copy(h);
+
 
         do {
-            ChannelOverflow();
-            // set overflow to inside loop, reduce MB errors
 
             dt1 = dt_max;
 
@@ -969,6 +964,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 //                        ENO(hs,us,vs,z);
 
             dt1 = maincalcflux(dt1, dt_max);
+
             dt1 = min(dt1, _dt-timesum);
 
             maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -987,9 +983,9 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             timesum = timesum + dt1;
             n++;
 
-            /* double tmp = */ correctMassBalance(sumh, h, 1e-6);
+            /* double tmp =  correctMassBalance(sumh, h, 1e-6);*/
 
-            if (n > 100)
+            if (n > MAXITER)
                 break;
         } while (timesum  < _dt);
     }
@@ -1024,6 +1020,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
     double dt1 = 0, dt2, timesum = 0;
     double dt_max = min(_dt, _dx*0.5);
     int n = 0;
+    double sumh = 0;
 
     if (prepareFlood)
     {
@@ -1045,15 +1042,11 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
     {
         verif = 1;
         double sumh = h->mapTotal();
-        //   tmb->copy(h);
         // has no effect
         do {
 
             if (verif == 1)
             {
-                ChannelOverflow();
-                // set overflow to inside loop, reduce MB errors
-
                 dt1 = dt_max;
 
                 setZero(h, u, v);
@@ -1073,7 +1066,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = min(dt1, _dt-timesum);
-            dt1 = max(0.001, dt1);
+            //dt1 = max(0.001, dt1);
 
             //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -1106,7 +1099,6 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 //hs, us, vs go in hsa, vsa, usa come out
                 maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
                 dt1 = min(dt1, _dt-timesum);
-                dt1 = max(0.001, dt1);
 
                 setZero(hsa, usa, vsa);
 
@@ -1133,7 +1125,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 timesum = timesum + dt1;
                 n++;
 
-                if (n > 100)
+                if (n > MAXITER)
                     break;
 
             }//end for else dt2<dt1
