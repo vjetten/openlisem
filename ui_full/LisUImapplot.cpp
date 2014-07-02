@@ -541,14 +541,22 @@ void lisemqt::showMap4()
     RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
 
     drawMap->setData(RD);
-    if (floodCutoffLevel->value() == 0) drawMap->setColorMap(new colorMapFlood());
-    if (floodCutoffLevel->value() == 1) drawMap->setColorMap(new colorMapFlood005());
-    if (floodCutoffLevel->value() == 2) drawMap->setColorMap(new colorMapFlood01());
-    // draw map
+    if (checkFloodCutoff->isChecked())
+        drawMap->setColorMap(new colorMapFlood005());
+    else
+        drawMap->setColorMap(new colorMapFlood());
 
-    if (floodCutoffLevel->value() == 0) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
-    if (floodCutoffLevel->value() == 1) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood005());
-    if (floodCutoffLevel->value() == 2) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood01());
+//    if (floodCutoffLevel->value() == 0) drawMap->setColorMap(new colorMapFlood());
+//    if (floodCutoffLevel->value() == 1) drawMap->setColorMap(new colorMapFlood005());
+//    if (floodCutoffLevel->value() == 2) drawMap->setColorMap(new colorMapFlood01());
+    // draw map
+    if (checkFloodCutoff->isChecked())
+        rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood005());
+    else
+        rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
+    //    if (floodCutoffLevel->value() == 0) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood());
+    //    if (floodCutoffLevel->value() == 1) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood005());
+    //    if (floodCutoffLevel->value() == 2) rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFlood01());
     MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     // draw legend

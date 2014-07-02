@@ -309,6 +309,8 @@ public slots:
    void setWriteOutputCSV(bool doit);
    void setWriteOutputPCR(bool doit);
 
+   void setFloodErosion();
+
    void fontSelect();
    void fontDecrease();
    void fontIncrease();

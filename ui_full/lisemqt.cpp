@@ -181,10 +181,18 @@ void lisemqt::SetConnections()
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
+    connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
+
     //connect(E_FloodScheme,SIGNAL(valueChanged(int)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
     //    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+}
+//--------------------------------------------------------------------
+void lisemqt::setFloodErosion()
+{
+    if (checkChannelFlood->isChecked())
+            checkNoErosion->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -898,7 +906,7 @@ void lisemqt::shootScreen()
 
         QString format = "png";
         QString type = ".png";
-        QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
+        QString DT = QDateTime().currentDateTime().toString("yyMMdd-hhmm");//"hh.mm-yy.MM.dd");
 
         if (tabWidget->currentIndex() == 2)
             type = QString("%1_q.png").arg(DT);
@@ -1100,6 +1108,7 @@ void lisemqt::resetAll()
 //    checkFloodSWOForder1->setChecked(true);
 //    checkFloodSWOForder2->setChecked(false);
 //    E_cflFactor->setValue(0.2);
+
     E_courantFactor->setValue(0.2);
 
     E_floodMinHeight->setValue(0.05);
@@ -1112,8 +1121,6 @@ void lisemqt::resetAll()
 
  //   E_FloodReplaceV->setValue(1);
  //   E_FloodMaxVelocity->setValue(10.0);
-
-
 
 }
 //--------------------------------------------------------------------

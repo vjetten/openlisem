@@ -73,7 +73,9 @@ void TWorld::OutputUI(void)
         tma->calcMapValue(Rain,1000, MUL);
     op.DrawMap6->copy(tma);
 
-    op.DrawMap1->copy(Qoutput);  //all output in m3/s
+    op.DrawMap1->copy(Qoutput);  //output in l/s
+    //Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
+
     FOR_ROW_COL_MV
             tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
     op.DrawMap2->copy(tmb);  //infil in mm

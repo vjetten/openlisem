@@ -326,8 +326,8 @@ void TWorld::InitBuffers(void)
             if (SwitchBuffers && BufferID->Drc > 0)
             {
                 Grad->Drc = 0.001;
-                RR->Drc = 0.01;
-                N->Drc = 0.25;
+//                RR->Drc = 0.01;
+//                N->Drc = 0.25;
                 // note ksateff in filtration is also set to 0
 
                 // very arbitrary!!!
@@ -1333,6 +1333,10 @@ void TWorld::IntializeData(void)
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
             Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+//            if (StoneFraction->Drc > 0)
+//                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
+// GOED IDEE
+
         }
     }
 

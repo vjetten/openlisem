@@ -430,34 +430,34 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
         delta_u2 = _u->Data[r][c+1] - _u->Drc;
         delta_v2 = _v->Data[r][c+1] - _v->Drc;
 
-//        dh   = limiter(delta_h1, delta_h2);
-//        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
-//        du   = limiter(delta_u1, delta_u2);
-//        dv   = limiter(delta_v1, delta_v2);
+        //        dh   = limiter(delta_h1, delta_h2);
+        //        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+        //        du   = limiter(delta_u1, delta_u2);
+        //        dv   = limiter(delta_v1, delta_v2);
 
-//        h1r->Drc = _h->Drc+dh*0.5;
-//        h1l->Drc = _h->Drc-dh*0.5;
+        //        h1r->Drc = _h->Drc+dh*0.5;
+        //        h1l->Drc = _h->Drc-dh*0.5;
 
-//        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
-//        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
+        //        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
+        //        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
 
-//        delzc1->Drc = z1r->Drc-z1l->Drc;
-//        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+        //        delzc1->Drc = z1r->Drc-z1l->Drc;
+        //        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
 
-//        if (_h->Drc > he_ca)
-//        {
-//            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
-//            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
-//            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
-//            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
-//        }
-//        else
-//        {
-//            u1r->Drc = _u->Drc + du*0.5;
-//            u1l->Drc = _u->Drc - du*0.5;
-//            v1r->Drc = _v->Drc + dv*0.5;
-//            v1l->Drc = _v->Drc - dv*0.5;
-//        }
+        //        if (_h->Drc > he_ca)
+        //        {
+        //            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
+        //            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
+        //            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
+        //            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
+        //        }
+        //        else
+        //        {
+        //            u1r->Drc = _u->Drc + du*0.5;
+        //            u1l->Drc = _u->Drc - du*0.5;
+        //            v1r->Drc = _v->Drc + dv*0.5;
+        //            v1l->Drc = _v->Drc - dv*0.5;
+        //        }
         dh   = 0.5*limiter(delta_h1, delta_h2);
         dz_h = 0.5*limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
         du   = 0.5*limiter(delta_u1, delta_u2);
@@ -542,33 +542,33 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
             v2l->Drc = _v->Drc - dv;
         }
 
-//        dh   = limiter(delta_h1, delta_h2);
-//        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
-//        du   = limiter(delta_u1, delta_u2);
-//        dv   = limiter(delta_v1, delta_v2);
+        //        dh   = limiter(delta_h1, delta_h2);
+        //        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+        //        du   = limiter(delta_u1, delta_u2);
+        //        dv   = limiter(delta_v1, delta_v2);
 
-//        h2r->Drc = _h->Drc+dh*0.5;
-//        h2l->Drc = _h->Drc-dh*0.5;
+        //        h2r->Drc = _h->Drc+dh*0.5;
+        //        h2l->Drc = _h->Drc-dh*0.5;
 
-//        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
-//        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
-//        delzc2->Drc = z2r->Drc - z2l->Drc;
-//        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+        //        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
+        //        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
+        //        delzc2->Drc = z2r->Drc - z2l->Drc;
+        //        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
 
-//        if (_h->Drc > he_ca)
-//        {
-//            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
-//            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
-//            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
-//            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
-//        }
-//        else
-//        {
-//            u2r->Drc = _u->Drc + du*0.5;
-//            u2l->Drc = _u->Drc - du*0.5;
-//            v2r->Drc = _v->Drc + dv*0.5;
-//            v2l->Drc = _v->Drc - dv*0.5;
-//        }
+        //        if (_h->Drc > he_ca)
+        //        {
+        //            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
+        //            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
+        //            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
+        //            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
+        //        }
+        //        else
+        //        {
+        //            u2r->Drc = _u->Drc + du*0.5;
+        //            u2l->Drc = _u->Drc - du*0.5;
+        //            v2r->Drc = _v->Drc + dv*0.5;
+        //            v2l->Drc = _v->Drc - dv*0.5;
+        //        }
 
         tm->Drc = delta_h2;
         tma->Drc = delta_u2;
@@ -747,7 +747,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
             if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
             {
-           //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
+                //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
                 double e1 = 0.0;
                 double e2 = 0.0;
                 double e3 = 0.0;
@@ -804,7 +804,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
                     }
                 }
 
-            //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
+                //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
             }
         }
     }
@@ -946,22 +946,20 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
     if (startFlood)
     {
         double sumh = h->mapTotal();
-
-
         do {
 
             dt1 = dt_max;
 
             setZero(h, u, v);
 
-//            if (F_diffScheme == (int)FSIMPLE)
-                simpleScheme(h, u, v);
-//            else
-//                if (F_diffScheme == (int)FMUSCL)
-//                    MUSCL(hs,us,vs,z);
-//                else
-//                    if (F_diffScheme == (int)FENO)
-//                        ENO(hs,us,vs,z);
+            //            if (F_diffScheme == (int)FSIMPLE)
+            simpleScheme(h, u, v);
+            //            else
+            //                if (F_diffScheme == (int)FMUSCL)
+            //                    MUSCL(hs,us,vs,z);
+            //                else
+            //                    if (F_diffScheme == (int)FENO)
+            //                        ENO(hs,us,vs,z);
 
             dt1 = maincalcflux(dt1, dt_max);
 
@@ -983,10 +981,15 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             timesum = timesum + dt1;
             n++;
 
-            /* double tmp =  correctMassBalance(sumh, h, 1e-6);*/
+            /* double tmp =*/
+        //    correctMassBalance(sumh, h, 0);
 
             if (n > MAXITER)
+            {
+                correctMassBalance(sumh, h, 1e-6);
                 break;
+            }
+
         } while (timesum  < _dt);
     }
 
@@ -1037,12 +1040,13 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
         }
     }
 
+
+    sumh = h->mapTotal();
     // if there is no flood skip everything
     if (startFlood)
     {
         verif = 1;
-        double sumh = h->mapTotal();
-        // has no effect
+
         do {
 
             if (verif == 1)
@@ -1054,14 +1058,14 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 // makes h1r, h1l, u1r, u1l, v1r, v1l
                 // makes h2r, h2l, u2r, u2l, v2r, v2l
                 // makes delzc1, delzc2, delz1, delz2
-//                if (F_diffScheme == (int)FSIMPLE)
-//                    simpleScheme(h, u, v);
-//                else
-//                    if (F_diffScheme == (int)FMUSCL)
-                        MUSCL(hs,us,vs,z);
-//                    else
-//                        if (F_diffScheme == (int)FENO)
-//                            ENO(hs,us,vs,z);
+                //                if (F_diffScheme == (int)FSIMPLE)
+                //                    simpleScheme(h, u, v);
+                //                else
+                //                    if (F_diffScheme == (int)FMUSCL)
+                MUSCL(hs,us,vs,z);
+                //                    else
+                //                        if (F_diffScheme == (int)FENO)
+                //                            ENO(hs,us,vs,z);
             }
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -1077,14 +1081,14 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             setZero(hs, us, vs);
 
             //Reconstruction for order 2
-//            if (F_diffScheme == (int)FSIMPLE)
-//                simpleScheme(h, u, v);
-//            else
-//                if (F_diffScheme == (int)FMUSCL)
-                    MUSCL(hs,us,vs,z);
-//                else
-//                    if (F_diffScheme == (int)FENO)
-//                        ENO(hs,us,vs,z);
+            //            if (F_diffScheme == (int)FSIMPLE)
+            //                simpleScheme(h, u, v);
+            //            else
+            //                if (F_diffScheme == (int)FMUSCL)
+            MUSCL(hs,us,vs,z);
+            //                else
+            //                    if (F_diffScheme == (int)FENO)
+            //                        ENO(hs,us,vs,z);
 
             dt2 = maincalcflux(dt2, dt_max);
 
@@ -1126,22 +1130,18 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 n++;
 
                 if (n > MAXITER)
+                {
+                    correctMassBalance(sumh, h, 1e-6);
                     break;
+                }
 
             }//end for else dt2<dt1
 
             findFloodDomain(h);
 
-            /* double tmp = */ correctMassBalance(sumh, h, 1e-6);
-            // has no effect
-
         } while (timesum  < _dt);
 
     } // if floodstart
-
-
-
-
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;

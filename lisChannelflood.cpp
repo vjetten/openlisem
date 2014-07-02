@@ -38,29 +38,28 @@ functions: \n
 #include "model.h"
 #include "global.h"
 
-
+#define MINHMX 0.0
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
-void TWorld::ChannelOverflow(void)
+void TWorld::ChannelOverflow(int nr)
 {
-    //  tmc->fill(0);
-
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
         {
-
-            if (hmx->Drc == 0 && ChannelWH->Drc < ChannelDepth->Drc)
-                continue;
-
             double fc = ChannelWidthUpDX->Drc/_dx;
 
             // fraction reaching the channel
             double levee = ChannelLevee->Drc;
             double chdepth = ChannelDepth->Drc + levee;
+
+
+            if (hmx->Drc < MINHMX+levee && ChannelWH->Drc < chdepth+MINHMX)
+                continue;
+
 
             double whlevel = (ChannelWH->Drc - chdepth)*fc + max(0, hmx->Drc-levee)*(1-fc);
             // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
@@ -75,19 +74,21 @@ void TWorld::ChannelOverflow(void)
                 // cutoff hmx at levee but can be smaller
                 hmx->Drc += whlevel;
                 ChannelWH->Drc = whlevel + chdepth;
+
             }
             else
-                if (hmx->Drc > levee)
-                {
-                    hmx->Drc = levee;
-                }
-
+            {
+                //qDebug() << nr << r << c << chdepth << whlevel << ChannelWH->Drc << ChannelWH->Drc+hmx->Drc/fc << hmx->Drc <<  fc;
+                ChannelWH->Drc = ChannelWH->Drc+min(0,hmx->Drc-levee-MINHMX)/fc;
+                hmx->Drc = min(MINHMX+levee, hmx->Drc);
+            }
         }
-        ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
-        // recalc chjan volume for looping
-
+        // ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
+        // recalc chan volume for looping
+        // only necessary if flooding is done after kin wave channel, gives instability here
     } // channel cells
 }
+
 //---------------------------------------------------------------------------
 // correct mass balance
 double TWorld::correctMassBalance(double sum1, TMMap *M, double minV)
@@ -126,7 +127,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    ChannelOverflow();
+    ChannelOverflow(1);
     // mix overflow water and flood water in channel cells
 
     double sumh_t = hmx->mapTotal();
@@ -167,10 +168,11 @@ void TWorld::ChannelFlood(void)
                 dtflood = floodExplicit();
             }
 
-    ChannelOverflow();
+
+    ChannelOverflow(2);
     // mix overflow water and flood water in channel cells
 
-    /* double dh = */ correctMassBalance(sumh_t, hmx, 0);
+    correctMassBalance(sumh_t, hmx, 1e-6);
     // correct mass balance
 
     // floodwater volume and max flood map

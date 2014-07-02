@@ -58,6 +58,9 @@ void TWorld::DoModel()
     else
         temprunname = op.runfilename;
 
+  //  QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
+    errorFileName = QString(resultDir + "error"+QDateTime().currentDateTime().toString("yy.MM.dd-hh.mm")+".txt");
+
     time_ms.start();
     // get time to calc run length
 
@@ -174,7 +177,7 @@ void TWorld::DoModel()
         else
             op.outputpointdata = QString("main outlet");
 
-        QFile efout(QString(resultDir+"error.txt"));
+        QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
         eout << "#error tryout\n";
@@ -248,7 +251,7 @@ void TWorld::DoModel()
             Totals();            // calculate all totals and cumulative values
             MassBalance();       // check water and sed mass balance
 
-            QFile efout(QString(resultDir+"error.txt"));
+            QFile efout(resultDir+errorFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
             eout << " " << runstep << " " << MB << "\n";

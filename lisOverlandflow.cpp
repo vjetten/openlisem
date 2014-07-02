@@ -74,7 +74,7 @@ void TWorld::ToChannel(void)
                 // no surface inflow when culverts and bridges
             }
             if (SwitchAllinChannel)
-                if (LDD->Drc == 5)    ///////////// VJ 5-1-14, for all outlets
+                if (LDD->Drc == 5)    // VJ 5-1-14, for all outlets
                     fractiontochannel = 1.0;
             // in catchment outlet cell, throw everything in channel
 
@@ -98,67 +98,6 @@ void TWorld::ToChannel(void)
         // recalc velocity and discharge
     }
 
-}
-//---------------------------------------------------------------------------
-//fraction of water and sediment flowing into the channel
-void TWorld::QToChannel(void)
-{
-    if (SwitchIncludeChannel)
-    {
-        FOR_ROW_COL_MV_CH
-        {
-            double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
-
-            if (Volume == 0)
-            {
-                SedToChannel->Drc = 0;
-                RunoffVolinToChannel->Drc = 0;
-                continue;
-            }
-
-            double R = (2*WHrunoff->Drc+FlowWidth->Drc)/(WHrunoff->Drc*FlowWidth->Drc);
-            double vtoc = pow(R,2/3)*sqrt(WHrunoff->Drc/(0.5*ChannelAdj->Drc))/N->Drc;
-            //assume slope perpendicular to flow is based on water level only
-            double qtoc = min(Volume, 2 * vtoc * WHrunoff->Drc*FlowWidth->Drc * _dt);
-            // 2 because flux comes from both sides, cannot be more than volume itself
-
-            if (SwitchBuffers)
-                if (BufferID->Drc > 0)
-                    qtoc = Volume;
-            // where there is a buffer in the channel, all goes in the channel
-
-            if (SwitchChannelFlood)
-            {
-                if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
-                    qtoc = 0;
-                // no inflow when flooded
-                if (ChannelMaxQ->Drc > 0)
-                    qtoc = 0;
-                // no surface inflow when culverts and bridges
-            }
-
-            if (SwitchAllinChannel && LDD->Drc == 5)
-                qtoc = Volume;
-            // in catchment outlet cell, throw everything in channel
-
-            RunoffVolinToChannel->Drc = qtoc;
-            // water diverted to the channel
-            WHrunoff->Drc = (Volume-qtoc)/(FlowWidth->Drc * DX->Drc);
-
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-
-            if (SwitchErosion)
-            {
-                SedToChannel->Drc = ChannelConc->Drc*qtoc;
-                //sediment diverted to the channel in kg
-                Sed->Drc -= SedToChannel->Drc;
-                // adjust sediment in suspension
-            }
-        }
-
-        CalcVelDisch();
-        // recalc velocity and discharge with new HWrunoff
-    }
 }
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch()
@@ -203,7 +142,6 @@ void TWorld::CalcVelDisch()
     }
     // tm->report("reyn");
     //  tma->report("reynF");
-
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)

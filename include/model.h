@@ -358,6 +358,7 @@ public:
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
     OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSL;
+    QString errorFileName;
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
@@ -475,7 +476,6 @@ public:
     void ChannelFlow(void);
     void ChannelWaterHeight(void);
     void ToChannel(void);
-    void QToChannel(void);
     void CalcVelDisch();
     void CalcVelDischChannel(void);
     void ToTiledrain(void);
@@ -489,7 +489,7 @@ public:
     //flood
     void ChannelFlood(void);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(void);
+    void ChannelOverflow(int nr);
     double courant_factor;
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;

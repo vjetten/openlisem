@@ -1,0 +1,48 @@
+
+
+    FOR_ROW_COL_MV_MV
+            if(FloodDomain->Drc > 0 && ChannelWidthUpDX->Drc == 0)
+    {
+        double maxh = -1;
+        double avgh = 0;
+        maxh = max(maxh, hmx->Data[r-1][c-1]);
+        maxh = max(maxh, hmx->Data[r-1][c]);
+        maxh = max(maxh, hmx->Data[r-1][c+1]);
+        maxh = max(maxh, hmx->Data[r][c-1]);
+        maxh = max(maxh, hmx->Data[r][c+1]);
+        maxh = max(maxh, hmx->Data[r+1][c-1]);
+        maxh = max(maxh, hmx->Data[r+1][c]);
+        maxh = max(maxh, hmx->Data[r+1][c+1]);
+
+        int n = 0;
+        if (hmx->Data[r-1][c-1] > 0) { avgh += hmx->Data[r-1][c-1]; n++; }
+        if (hmx->Data[r-1][c] > 0) {avgh += hmx->Data[r-1][c];n++; }
+        if (hmx->Data[r-1][c+1] > 0) {avgh += hmx->Data[r-1][c+1];n++; }
+        if (hmx->Data[r][c-1] > 0) {avgh += hmx->Data[r][c-1];n++; }
+        if (hmx->Data[r][c+1] > 0) {avgh += hmx->Data[r][c+1];n++; }
+        if (hmx->Data[r+1][c-1] > 0) {avgh += hmx->Data[r+1][c-1];n++; }
+        if (hmx->Data[r+1][c] > 0) {avgh += hmx->Data[r+1][c];n++; }
+        if (hmx->Data[r+1][c+1] > 0) {avgh += hmx->Data[r+1][c+1];n++; }
+        avgh = avgh/n;
+        if (hmx->Drc > maxh + 1 && maxh > 0)
+            qDebug() << hmx->Drc << avgh << maxh;
+//            hmx->Drc = avgh;
+    }
+
+tm->fill(0);
+for (int r = 1; r < _nrRows-1; r++)\
+    for (int c = 1; c < _nrCols-1; c++)\
+    {
+        if (
+                IS_MV_REAL8(&LDD->Data[r-1][c-1]) || \
+                IS_MV_REAL8(&LDD->Data[r  ][c-1]) || \
+                IS_MV_REAL8(&LDD->Data[r+1][c-1]) || \
+                IS_MV_REAL8(&LDD->Data[r-1][c  ]) || \
+                IS_MV_REAL8(&LDD->Data[r+1][c  ]) || \
+                IS_MV_REAL8(&LDD->Data[r-1][c+1]) || \
+                IS_MV_REAL8(&LDD->Data[r  ][c+1]) || \
+                IS_MV_REAL8(&LDD->Data[r+1][c+1]) \
+            )
+            tm->Drc = 1;
+    }
+    tm->report("edge.map");
