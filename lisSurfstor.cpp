@@ -213,8 +213,6 @@ void TWorld::SurfaceStorage(void)
         //WHrunoffCum->Drc += WHrunoff->Drc * 1000;
         //WRONG or course, cumulative runoff must be based on Q if course no on WH
     }
-    WHrunoff->report("whro");
-    FloodDomain->report("fd");
 }
 //---------------------------------------------------------------------------
 
