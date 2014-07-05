@@ -118,6 +118,7 @@ void lisemqt::initMapPlot()
         radioButton_SL->setEnabled(false);
     else
         radioButton_SL->setEnabled(true);
+
     if (checkChannelFlood->isChecked())
         radioButton_FL->setEnabled(true);
     else

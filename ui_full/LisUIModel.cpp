@@ -59,7 +59,7 @@ void lisemqt::runmodel()
         return;
     }
 
-    label_runfilename->setText(op.runfilename);
+    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
     /* TODO if run from commandline this name must exist */
 
     savefile(QString(op.LisemDir+"openlisemtmp.run"));

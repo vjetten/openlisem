@@ -115,14 +115,20 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // put the progress bar into the statusbar
 
     E_runFileList->clear();
+
+
     E_FloodScheme->setVisible(false);
     label_98->setVisible(false);
     checkAddWHtohmx->setVisible(false);
     label_125->setVisible(false);
-
     floodCutoffLevel->setVisible(false);
     label_127->setVisible(false);
     label_93->setVisible(false);
+    checkChannelBaseflow->setVisible(false);
+    label_103->setVisible(false);
+    //buffergroup->setVisible(false);
+    // interface elements that are not visible for now
+
 
     doBatchmode = doBatch;
     batchRunname = runname;
@@ -168,7 +174,7 @@ void lisemqt::SetConnections()
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
-
+    connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -192,7 +198,7 @@ void lisemqt::SetConnections()
 void lisemqt::setFloodErosion()
 {
     if (checkChannelFlood->isChecked())
-            checkNoErosion->setChecked(false);
+        checkNoErosion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -337,7 +343,8 @@ void lisemqt::SetToolBar()
 /// make some labels yellow
 void lisemqt::SetStyleUI()
 {
-    int w = 60, h = 1;//2*genfontsize;
+
+    int w = 80, h = 15;//2*genfontsize;
     label_dx->setMinimumSize(w,h);
     label_area->setMinimumSize(w,h);
     label_time->setMinimumSize(w,h);
@@ -374,6 +381,9 @@ void lisemqt::SetStyleUI()
 
     label_buffervol->setMinimumSize(w,h);
     label_buffersed->setMinimumSize(w,h);
+    label_MBs->setMinimumSize(w,h);
+    label_MB->setMinimumSize(w,h);
+
 
     label_dx->setStyleSheet("* { background-color: #ffffff }");
     label_area->setStyleSheet("* { background-color: #ffffff }");
@@ -419,14 +429,29 @@ void lisemqt::setMapDir()
     QString pathin;
 
     pathin = findValidDir(E_MapDir->text(), false);
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin, options);//QFileDialog::ShowDirsOnly);
+
+    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
+                                                   pathin,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
 //--------------------------------------------------------------------
+void lisemqt::setWorkDir()
+{
+    QString path;
+    QString pathin;
+
+    pathin = findValidDir(E_WorkDir->text(), false);
+
+    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
+                                                   pathin,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+    if(!path.isEmpty())
+        E_WorkDir->setText( path );
+}//--------------------------------------------------------------------
 void lisemqt::setResultDir()
 {
     QString path;
@@ -434,12 +459,10 @@ void lisemqt::setResultDir()
 
     pathin = findValidDir(E_ResultDir->text(), true);
 
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-
-    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"), pathin, options);//QFileDialog::ShowDirsOnly);//,QFileDialog::DontUseNativeDialog);
-
+    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
+                                                   pathin,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
@@ -448,7 +471,7 @@ void lisemqt::on_E_FloodScheme_valueChanged(int nr)
 {
     E_FloodFluxLimiter->setEnabled(nr < 3);
 }
-
+//--------------------------------------------------------------------
 // this is for the directory with the table files
 void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
@@ -457,13 +480,10 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
 
     pathin = findValidDir(E_SwatreTableDir->text(), false);
 
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-
     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                             pathin, options);//QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
-
+                                                   pathin,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
     {
         E_SwatreTableDir->setText( path );
@@ -480,7 +500,6 @@ void lisemqt::on_toolButton_SwatreTableFile_clicked()
                                         SwatreTableName,"Profiles (*.inp);;All files (*.*)");
     if(!path.isEmpty())
     {
-        QFileInfo fi(path);
         SwatreTableName = path;
         E_SwatreTableName->setText(path);
     }
@@ -1082,9 +1101,10 @@ void lisemqt::resetAll()
 
     tabWidget->setCurrentIndex(0);
 
-    //buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
-
+    label_31->setEnabled(!checkNoErosion->isChecked());
+    label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
 
     radioButton_1->setChecked(true); //<= grass interception
     E_CanopyOpeness->setValue(0.45);
@@ -1129,7 +1149,14 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = E_MapDir->text();
     if (!QFileInfo(path).exists() || path.isEmpty())
-        path = QFileInfo(op.runfilename).absolutePath();
+        path = E_WorkDir->text();
+    if (!QFileInfo(path).exists() || path.isEmpty())
+    {
+    //    path = QFileInfo(op.runfilename).absolutePath();
+        QDir ddir(op.runfilename);
+        ddir.cdUp();
+        path = ddir.absolutePath();
+    }
     if (up)
     {
         QDir dir = QDir(path + "/..");

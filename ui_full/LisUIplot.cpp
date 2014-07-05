@@ -103,17 +103,6 @@ void lisemqt::setupPlot()
     HPlot->enableAxis(HPlot->xBottom,true);
     HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
 
-//    if(!checkNoErosion->isChecked())
-//    {
-//        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) & P (mm/h)");
-//        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) & C (g/l)");
-//    }
-//    else
-//    {
-//        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-//        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
-//    }
-
     HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
     HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
 
@@ -212,6 +201,9 @@ void lisemqt::initPlot()
     // VJ 110630 show hydrograph for selected output point
     //    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
     subcatchgroup->setEnabled(op.outputpointnr > 1);
+    frameSL1->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+    label_soillosssub->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+    label_94->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
 
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
@@ -372,9 +364,9 @@ void lisemqt::startPlots()
 // max 6 line text output below hydrographs
 void lisemqt::initOutputData()
 {
-    textGraph->setMaximumBlockCount(6);
+    textGraph->setMaximumBlockCount(4);
     textGraph->setWordWrapMode(QTextOption::NoWrap);
-    textGraph->setMaximumHeight(90);
+    textGraph->setMaximumHeight(80);
     textGraph->clear();
 }
 //---------------------------------------------------------------------------
@@ -385,8 +377,8 @@ void lisemqt::showOutputData()
     // "op" is filled in the model run each timestep
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
-    subcatchgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
-    //    outletgroup->setTitle(QString("Data %1").arg(op.outputpointdata));
+    if (op.outputpointnr > 1)
+        subcatchgroup->setTitle(op.outputpointdata);
 
     label_dx->setText(QString::number(op.dx,'f',3));
     label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
@@ -415,16 +407,20 @@ void lisemqt::showOutputData()
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));
         if (!checkNoErosion->isChecked())
             label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
+        {
+            label_31->setEnabled(false);
+            label_soillosskgha->setEnabled(false);
+        }
     }
 
     // outlet
-    label_qtotm3->setText(QString::number(op.Qtot,'f',3));
-    label_discharge->setText(QString::number(op.Q,'f',3));
+    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
+    label_discharge->setText(QString::number(op.Q,'f',2));
 
     // peak time
-    label_qpeak->setText(QString::number(op.Qpeak,'f',3));
-    label_qpeaktime->setText(QString::number(op.QpeakTime,'f',3));
-    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
+    label_qpeak->setText(QString::number(op.Qpeak,'f',2));
+    label_qpeaktime->setText(QString::number(op.QpeakTime,'f',2));
+    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',2));
     label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
     label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 

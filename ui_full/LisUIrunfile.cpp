@@ -52,8 +52,8 @@ void lisemqt::GetRunfile()
         return;
     }
 
-    currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
-    QDir::setCurrent(currentDir);
+ //   currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
+ //   QDir::setCurrent(currentDir);
 
     // read all lines in the runfile BUT
     // each line is compared to the hardcoded name in lisemqt::defaultRunFile()
@@ -163,7 +163,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-        if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+   //     if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
@@ -379,7 +379,7 @@ void lisemqt::ParseInputData()
         E_floodSolution->setValue(2);
     // qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
     // get directory and file names
-    for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
+    for (j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
@@ -394,10 +394,34 @@ void lisemqt::ParseInputData()
         }
 
         // input ourput dirs and file names
-        if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
+        if (p1.compare("Work Directory")==0)
+        {
+            E_WorkDir->setText(CheckDir(p));
+        }
+
+        if (p1.compare("Map Directory")==0)
+        {
+            E_MapDir->setText(CheckDir(p));
+            if (!p.isEmpty() && E_WorkDir->text().isEmpty())
+            {
+                E_WorkDir->setText(E_MapDir->text());
+                QDir dir(E_WorkDir->text());
+                if (dir.cdUp())
+                    E_WorkDir->setText(dir.absolutePath()+"/");
+            }
+            if (E_MapDir->text().isEmpty() && !E_WorkDir->text().isEmpty())
+            {
+                E_MapDir->setText(E_WorkDir->text()+"maps/");
+                if (!QFileInfo(E_MapDir->text()).exists())
+                    E_MapDir->setText("");
+            }
+        }
         if (p1.compare("Result Directory")==0)
         {
-            E_ResultDir->setText(CheckDir(p, true));
+            E_ResultDir->setText(CheckDir(p, false));
+            if (!QFileInfo(E_ResultDir->text()).exists())
+                E_ResultDir->setText(E_WorkDir->text()+"res/");
+
         }
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
@@ -409,6 +433,11 @@ void lisemqt::ParseInputData()
         {
             E_RainfallName->setText(RainFileDir + p);
             RainFileName = p;///*rainFileDir + */E_RainfallName->text();
+            if (!QFileInfo(E_RainfallName->text()).exists())
+            {
+                RainFileDir = QString(E_WorkDir->text() + "rain/");
+                E_RainfallName->setText(RainFileDir + p);
+            }
         }
 
         if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
@@ -428,19 +457,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
         if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
 
-        // resultDir is added in report operation
-        //NO checking
-        //		if (checkSnowmelt->isChecked())
-        //	{
         if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
         if (p1.compare("Snowmelt file")==0)
         {
             E_SnowmeltName->setText(SnowmeltFileDir + p);
-            SnowmeltFileName = p;///*SnowmeltFileDir + */E_SnowmeltName->text();
+            SnowmeltFileName = p;// /*SnowmeltFileDir + */E_SnowmeltName->text();
         }
-        //}
 
-        if (p1.compare("Table Directory")==0)
+        if (uiInfilMethod == 0 && p1.compare("Table Directory")==0)
         {
             SwatreTableDir = CheckDir(p);
             if (SwatreTableDir.isEmpty())
@@ -514,6 +538,10 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
+
+    if (p.isEmpty())
+        return(p);
+
     path = QDir(p).fromNativeSeparators(p);
     path = QDir(path).absoluteFilePath(path);
     if (!path.endsWith("/"))
@@ -528,7 +556,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
         }
         else
         {
-            QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
+            QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
             path.clear();
         }
     }
@@ -551,7 +579,7 @@ void lisemqt::updateModelData()
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-        if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+     //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
@@ -664,6 +692,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
         if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
+        if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
         if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
@@ -780,4 +809,6 @@ void lisemqt::updateModelData()
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 
+    currentDir = E_WorkDir->text();
+    QDir::setCurrent(currentDir);
 }

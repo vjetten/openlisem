@@ -170,12 +170,12 @@ void TWorld::DoModel()
             }
             if (!found)
             {
-                ErrorString = QString("Point %1 for hydrograph plotting not found").arg(op.outputpointnr);
+                ErrorString = QString("Point %1 for hydrograph outputpoint 2 not found").arg(op.outputpointnr);
                 throw 1;
             }
         }
         else
-            op.outputpointdata = QString("main outlet");
+            op.outputpointdata = QString("Main Outlet");
 
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
