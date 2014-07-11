@@ -115,7 +115,7 @@ void TWorld::OutputUI(void)
             FOR_ROW_COL_MV
                     tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
         }
-        op.DrawMap4->copy(tmb);  //flood level in m
+        op.DrawMap4->copy(hmx);  //flood level in m
 
         FOR_ROW_COL_MV
                 tmb->Drc = UVflood->Drc < 0.01 ? 0 : UVflood->Drc;

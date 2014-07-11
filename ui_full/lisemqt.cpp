@@ -119,11 +119,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     E_FloodScheme->setVisible(false);
     label_98->setVisible(false);
-    checkAddWHtohmx->setVisible(false);
-    label_125->setVisible(false);
-    floodCutoffLevel->setVisible(false);
-    label_127->setVisible(false);
-    label_93->setVisible(false);
+    //checkAddWHtohmx->setVisible(false);
+    //label_125->setVisible(false);
+    //floodCutoffLevel->setVisible(false);
+    //label_127->setVisible(false);
+    //label_93->setVisible(false);
     checkChannelBaseflow->setVisible(false);
     label_103->setVisible(false);
     //buffergroup->setVisible(false);
@@ -329,9 +329,12 @@ void lisemqt::SetToolBar()
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(doubleSpinBoxFLmin, SIGNAL(valueChanged(double)), this, SLOT(adjustThresholdMap(double)));
+
+
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));

@@ -189,6 +189,8 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
+    QwtLinearColorMap *pal1;
+    QwtLinearColorMap *pal2;
     // graph variables
     QwtPlot *HPlot;
     QwtPlot *smallPlot;
@@ -305,6 +307,7 @@ public slots:
     void ssetAlpha2(int v);
     void ssetAlpha3(int v);
     void ssetAlpha4(int v);
+    void adjustThresholdMap(double v);
 
     void setWriteOutputSOBEK(bool doit);
     void setWriteOutputCSV(bool doit);

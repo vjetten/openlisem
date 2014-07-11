@@ -37,18 +37,18 @@ public:
         double z = sp->data()->value(pos.x(), pos.y());
         double z0 = sp0->data()->value(pos.x(), pos.y());
 
-//        if (checkUnits_tonha->isChecked()) unit = "ton/ha";// ton/ha
-//        if (checkUnits_kgcell->isChecked()) unit = "kg/cell"; // in kg/cell
-//        if (checkUnits_kgm2->isChecked()) unit = "kg/m2"; // in kg/m2
+        //        if (checkUnits_tonha->isChecked()) unit = "ton/ha";// ton/ha
+        //        if (checkUnits_kgcell->isChecked()) unit = "kg/cell"; // in kg/cell
+        //        if (checkUnits_kgm2->isChecked()) unit = "kg/m2"; // in kg/m2
         if (z > -1e10)
         {
-          if (sp->data()->value(0,0) == 1) txt = QString("%1 l/s [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
-          if (sp->data()->value(0,0) == 2) txt = QString("%1 mm [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
-          if (sp->data()->value(0,0) == 3)
-              txt = QString("%1 %2[%3m]").arg(z,0,'f',1).arg(unit).arg(z0,0,'f',1);
-          if (sp->data()->value(0,0) == 4) txt = QString("%1 m [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
-          if (sp->data()->value(0,0) == 5) txt = QString("%1 m/s [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
-          if (sp->data()->value(0,0) == 6) txt = QString("%1 mm [%2m]").arg(z,0,'f',3).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 1) txt = QString("%1 l/s [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 2) txt = QString("%1 mm [%2m]").arg(z,0,'f',1).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 3)
+                txt = QString("%1 %2[%3m]").arg(z,0,'f',1).arg(unit).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 4) txt = QString("%1 m [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 5) txt = QString("%1 m/s [%2m]").arg(z,0,'f',2).arg(z0,0,'f',1);
+            if (sp->data()->value(0,0) == 6) txt = QString("%1 mm [%2m]").arg(z,0,'f',3).arg(z0,0,'f',1);
         }
 
         QwtText text = QwtText(txt);
@@ -63,6 +63,9 @@ class colorMapHouse: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
         if ( value < 0.1 )
             return qRgba( 0, 0, 0, 0 );
 
@@ -91,6 +94,9 @@ class colorMapWhite: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
         if ( value < 0.1 )
             return qRgba( 0, 0, 0, 0 );
 
@@ -109,7 +115,10 @@ class colorMapRoads: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value == 0 )
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -127,7 +136,10 @@ class colorMapRoads2: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value == 0 )
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -143,6 +155,16 @@ public:
 /// Logarithmic Yellow to blue legend for runoff map display
 class colorMapWaterLog: public QwtLinearColorMap
 {
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+        if ( value <= thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+
 public:
     colorMapWaterLog():
         QwtLinearColorMap( QColor(BGc), QColor("#000080"))
@@ -157,6 +179,15 @@ public:
 /// Linear Yellow to blue legend for infil map display
 class colorMapWater: public QwtLinearColorMap
 {
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+        if ( value <= thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
 public:
     colorMapWater():
         QwtLinearColorMap( QColor(BGc),QColor("#0000AA"))
@@ -171,91 +202,36 @@ public:
 /// Transparent  light to dark blue legend for flood display
 class colorMapFlood: public QwtLinearColorMap
 {
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    virtual QRgb rgb( const QwtInterval &interval, double value) const
     {
-        if ( value < 0.001 )
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
     colorMapFlood():
-        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
+        QwtLinearColorMap( QColor(Qt::blue).lighter(150) ,  QColor(Qt::blue).darker(300))
     {
-        addColorStop(0.000,QColor("#6565FF"));
-//        addColorStop(0.002,QColor("#6565FF"));
-//        addColorStop(0.125,QColor("#4B4BFF"));
-//        addColorStop(0.250,QColor("#3333FF"));
-//        addColorStop(0.375,QColor("#1919FF"));
-//        addColorStop(0.500,QColor("#0000FE"));
-//        addColorStop(0.625,QColor("#0000E4"));
-//        addColorStop(0.750,QColor("#0000CC"));
-//        addColorStop(0.875,QColor("#0000B2"));
+        addColorStop(0.00,QColor(Qt::blue).lighter(150));
+        addColorStop(0.500,Qt::blue);
+        addColorStop(1.0,QColor(Qt::blue).darker(400));
     }
 };
-//---------------------------------------------------------------------------
-/// Transparent (to 0.05 m flood) light to dark blue legend for flood display
-class colorMapFlood005: public QwtLinearColorMap
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value < 0.05 )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-public:
-    colorMapFlood005():
-        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
-    {
-        addColorStop(0.000,QColor("#6565FF"));
-//        addColorStop(0.125,QColor("#4B4BFF"));
-//        addColorStop(0.250,QColor("#3333FF"));
-//        addColorStop(0.375,QColor("#1919FF"));
-//        addColorStop(0.500,QColor("#0000FE"));
-//        addColorStop(0.625,QColor("#0000E4"));
-//        addColorStop(0.750,QColor("#0000CC"));
-//        addColorStop(0.875,QColor("#0000B2"));
-    }
-};
-//---------------------------------------------------------------------------
-/// Transparent (to 0.1 m flood) light to dark blue legend for flood display
-class colorMapFlood01: public QwtLinearColorMap
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value < 0.1 )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-public:
-    colorMapFlood01():
-        QwtLinearColorMap( QColor(BGc),  QColor("#000098"))
-    {
-      //  addColorStop(0.000,QColor("#7f7fff"));
-                addColorStop(0.000,QColor("#6565FF"));
-//        addColorStop(0.125,QColor("#4B4BFF"));
-//        addColorStop(0.250,QColor("#3333FF"));
-//        addColorStop(0.375,QColor("#1919FF"));
-//        addColorStop(0.500,QColor("#0000FE"));
-//        addColorStop(0.625,QColor("#0000E4"));
-//        addColorStop(0.750,QColor("#0000CC"));
-//        addColorStop(0.875,QColor("#0000B2"));
-    }
-};
-
 //---------------------------------------------------------------------------
 /// Cyan to red legend for sediment display
 class colorMapSed: public QwtLinearColorMap
 {
-//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-//    {
-//        if ( value > -0.1 && value < 0.1 )
-//            return qRgba( 0, 0, 0, 0 );
+    //    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    //    {
+    //        if ( value > -thresholdCLM && value < thresholdCLM )
+    //            return qRgba( 0, 0, 0, 0 );
 
-//        return QwtLinearColorMap::rgb( interval, value );
-//    }
+    //        return QwtLinearColorMap::rgb( interval, value );
+    //    }
 public:
     colorMapSed():
         QwtLinearColorMap( QColor(BGc),Qt::red)//QColor("#903000") )//QColor("#cc3000"));//Qt::darkYellow);
@@ -292,7 +268,10 @@ class colorMapFloodV: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < 0.001 )
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -311,7 +290,10 @@ class colorMapP: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < 0.001 )
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
