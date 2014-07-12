@@ -189,10 +189,6 @@ void lisemqt::SetConnections()
 
     connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
 
-    //connect(E_FloodScheme,SIGNAL(valueChanged(int)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
 }
 //--------------------------------------------------------------------
 void lisemqt::setFloodErosion()
@@ -332,8 +328,6 @@ void lisemqt::SetToolBar()
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(doubleSpinBoxFLmin, SIGNAL(valueChanged(double)), this, SLOT(adjustThresholdMap(double)));
-
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
@@ -434,9 +428,9 @@ void lisemqt::setMapDir()
     pathin = findValidDir(E_MapDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
-                                                   pathin,
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
@@ -449,9 +443,9 @@ void lisemqt::setWorkDir()
     pathin = findValidDir(E_WorkDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
-                                                   pathin,
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_WorkDir->setText( path );
 }//--------------------------------------------------------------------
@@ -463,9 +457,9 @@ void lisemqt::setResultDir()
     pathin = findValidDir(E_ResultDir->text(), true);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
-                                                   pathin,
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
@@ -484,9 +478,9 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
     pathin = findValidDir(E_SwatreTableDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                                   pathin,
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
     {
         E_SwatreTableDir->setText( path );
@@ -1127,10 +1121,10 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-//    checkFloodExplicit->setChecked(false);
-//    checkFloodSWOForder1->setChecked(true);
-//    checkFloodSWOForder2->setChecked(false);
-//    E_cflFactor->setValue(0.2);
+    //    checkFloodExplicit->setChecked(false);
+    //    checkFloodSWOForder1->setChecked(true);
+    //    checkFloodSWOForder2->setChecked(false);
+    //    E_cflFactor->setValue(0.2);
 
     E_courantFactor->setValue(0.2);
 
@@ -1142,8 +1136,8 @@ void lisemqt::resetAll()
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
 
- //   E_FloodReplaceV->setValue(1);
- //   E_FloodMaxVelocity->setValue(10.0);
+    //   E_FloodReplaceV->setValue(1);
+    //   E_FloodMaxVelocity->setValue(10.0);
 
 }
 //--------------------------------------------------------------------
@@ -1155,7 +1149,7 @@ QString lisemqt::findValidDir(QString path, bool up)
         path = E_WorkDir->text();
     if (!QFileInfo(path).exists() || path.isEmpty())
     {
-    //    path = QFileInfo(op.runfilename).absolutePath();
+        //    path = QFileInfo(op.runfilename).absolutePath();
         QDir ddir(op.runfilename);
         ddir.cdUp();
         path = ddir.absolutePath();
@@ -1175,27 +1169,27 @@ void lisemqt::fontSelect()
 {
     // bool ok;
     QFont font = QFontDialog::getFont(0, qApp->font());
-           //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
-  //  if (ok) {
-        // the user clicked OK and font is set to the font the user selected
-        qApp->setFont(font);
-        this->setStyleSheet(QString("\
-                                    QLabel {font: %1pt;} \
-                                    QGroupBox {font: %1pt;} \
-                                    QLineEdit {font: %1pt;} \
-                                    QCheckBox {font: %1pt;} \
-                                    QRadioButton {font: %1pt;} \
-                                    QSpeedButton {font: %1pt;} \
-                                    QDoubleSpinBox {font: %1pt;} \
-                                    QSpinBox {font: %1pt;} \
-                                    QComboBox {font: %1pt;} \
-                                    QTabWidget {font: %1pt;} \
-                                    QTreeView {font: %1pt;} \
-                                    QPlainTextEdit {font: %1pt;} \
-                                    ").arg(genfontsize));
- //   } else {
+    //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
+    //  if (ok) {
+    // the user clicked OK and font is set to the font the user selected
+    qApp->setFont(font);
+    this->setStyleSheet(QString("\
+                                QLabel {font: %1pt;} \
+                                QGroupBox {font: %1pt;} \
+                                QLineEdit {font: %1pt;} \
+                                QCheckBox {font: %1pt;} \
+                                QRadioButton {font: %1pt;} \
+                                QSpeedButton {font: %1pt;} \
+                                QDoubleSpinBox {font: %1pt;} \
+                                QSpinBox {font: %1pt;} \
+                                QComboBox {font: %1pt;} \
+                                QTabWidget {font: %1pt;} \
+                                QTreeView {font: %1pt;} \
+                                QPlainTextEdit {font: %1pt;} \
+                                ").arg(genfontsize));
+                                //   } else {
 
- //   }
+                                //   }
 }
 //---------------------------------------------------------------
 void lisemqt::fontDecrease()

@@ -1,5 +1,15 @@
-openLISEM README (131010)
+At this point there are two developments:
+- lisem 64bit for large projects, ONLY FOR WIN 64bit machines. This is being co-developed by Kor de Jong for parallel processing and adding debrisflows.
+- lisem 32bit. Kept in parallel for now but will merge better soon with the 64bit version.
+
+
+openLISEM README (140712)
 =========================
+LATEST CHANGES (v1.8-1.92)
+- Changed map display layout and options
+- Changes to flood calculations and 1D/2D linking
+- MOVED to GIT and 64bit compilations for larger projects!
+
 LATEST CHANGES (v 1.79)
 - fixed bug in interception that has been there since approximately version 1.63
   this gave too high interception values

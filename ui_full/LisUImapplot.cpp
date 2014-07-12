@@ -26,28 +26,6 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
-/*
-void lisemqt::on_checkBoxOverlay_stateChanged(int yes)
-{
-    if (yes == Qt::Unchecked)
-    {
-//        ssetAlpha2(0);
-//        ssetAlpha3(0);
-//        ssetAlpha4(0);
-    //    channelMap->setAlpha(0);
-        houseMap->setAlpha(0);
-  //      roadMap->setAlpha(0);
- //       MPlot->replot();
-    }
-    else
-    {
-  //      ssetAlpha2(transparency2->sliderPosition ());
-   //     ssetAlpha3(transparency3->sliderPosition ());
-   //     ssetAlpha4(transparency4->sliderPosition ());
-
-    }
-}
-*/
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
@@ -60,29 +38,25 @@ void lisemqt::ssetAlpha2(int v)
 {
     channelMap->setAlpha(v);
     if (v > 0)
-    MPlot->replot();
+        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha3(int v)
 {
     roadMap->setAlpha(v);
     if (v > 0)
-    MPlot->replot();
+        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha4(int v)
 {
     houseMap->setAlpha(v);
     if (v > 0)
-    MPlot->replot();
+        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool /* doit */)
 {
-    //    if (!startplot)
-    //        return;
-
-    op.addWHtohmx = false;//checkAddWHtohmx->isChecked();
     op.displayPcum = checkDisplayPcum->isChecked();
 
     if (radioButton_RO->isChecked())    op.drawMapType = 1;
@@ -92,7 +66,7 @@ void lisemqt::selectMapType(bool /* doit */)
     if (radioButton_FLV->isChecked())   op.drawMapType = 5;
     if (radioButton_P->isChecked())     op.drawMapType = 6;
 
-    showMap(); // show map
+    showMap();
 }
 //---------------------------------------------------------------------------
 // called when a model run is started
@@ -105,7 +79,6 @@ void lisemqt::initMapPlot()
     maxAxis5 = -1e20;
     pstep = 0;
 
-
     op.drawMapType = 1;
     radioButton_RO->setChecked(true);
     radioButton_INF->setChecked(false);
@@ -113,9 +86,9 @@ void lisemqt::initMapPlot()
     radioButton_FL->setEnabled(checkChannelFlood->isChecked());
     radioButton_P->setChecked(false);
 
-    transparency->setValue(180);  //main data
-    transparency2->setValue(180); //channels
-    transparency3->setValue(180); //roads
+    transparency->setValue(128);  //main data
+    transparency2->setValue(160); //channels
+    transparency3->setValue(160); //roads
     transparency4->setValue(100); //houses
 
     // link with runfile
@@ -129,7 +102,6 @@ void lisemqt::initMapPlot()
     //    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
     //    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
     //    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
-    //    op.addWHtohmx = MapDisplayIncludeRunoff == 1;
     //    floodCutoffLevel->setValue(qMax(qMin(MapDisplayMinimumDepth,2),0));
 
     // slider setting basemap transparency
@@ -158,7 +130,6 @@ void lisemqt::setupMapPlot()
     // make the plot window
     Layout_Map_2->insertWidget(0, MPlot, 1);
     // put it on screen
-    //MPlot->canvas()->setBorderRadius( 0 );
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
     MPlot->setAxisTitle(HPlot->xBottom, "m");
@@ -170,18 +141,21 @@ void lisemqt::setupMapPlot()
     grid->setPen( QPen( Qt::DotLine ) );
     grid->attach( MPlot );
 
+    // NOTE the order in which these are attached is the order displayed.
+    baseMapDEM = new QwtPlotSpectrogram();
+    baseMapDEM->setRenderThreadCount( 0 );
+    baseMapDEM->attach( MPlot );
+    // dem
 
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
-    // shaded relief base map
-
+    // shaded relief
 
     drawMap = new QwtPlotSpectrogram();
     drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
-    drawMap->setAlpha(180);
-    // NOTE the order in which these are attached is the order displayed.
+    //map for runoff, infil, flood etc
 
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
@@ -191,17 +165,13 @@ void lisemqt::setupMapPlot()
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
-    // channel map
+    // road map
 
     channelMap = new QwtPlotSpectrogram();
     channelMap->setRenderThreadCount( 0 );
     channelMap->attach( MPlot );
     // channel map
 
-    baseMapDEM = new QwtPlotSpectrogram();
-    baseMapDEM->setRenderThreadCount( 0 );
-    baseMapDEM->attach( MPlot );
-    // DEM information
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
     RDbb = new QwtMatrixRasterData();
@@ -284,9 +254,6 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD, double type
 // not how they are done here!
 void lisemqt::showMap()
 {
-    //        if (!startplot)
-    //            return;
-
     drawMap->setAlpha(transparency->value());
     if (op.drawMapType == 1) showMap1();
     if (op.drawMapType == 2) showMap2();
@@ -296,23 +263,6 @@ void lisemqt::showMap()
     if (op.drawMapType == 6) showMap6();
 
     MPlot->replot();
-    // do not do resets panning
-    //   mapRescaler->rescale();
-}
-//---------------------------------------------------------------------------
-// show the maps on screen
-// the order of showing layers is determined by the order in how they are added to MPlot,
-// not how they are done here!
-void lisemqt::adjustThresholdMap(double)
-{
-    pal1->setThreshold(doubleSpinBoxFLmin->value());
-    pal2->setThreshold(doubleSpinBoxFLmin->value());
-
-    drawMap->setColorMap(pal1);
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal2);
-
-    MPlot->replot();
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()
@@ -324,7 +274,7 @@ void lisemqt::showBaseMap()
     if (res == -1e20)
         return;
 
-    baseMap->setAlpha(255);
+    baseMap->setAlpha(150);
     baseMap->setColorMap(new colorMapGray());
     RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
     baseMap->setData(RDb);
@@ -334,10 +284,12 @@ void lisemqt::showBaseMap()
     if (res == -1e20)
         return;
     double mindem = op.baseMapDEM->mapMinimum();
-    baseMapDEM->setAlpha(0);
-    baseMapDEM->setColorMap(new colorMapGray());
+
+    baseMapDEM->setAlpha(255);
+    baseMapDEM->setColorMap(new colorMapElevation());
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
+
     double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSize;
     double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSize;
     double dx = max(nrCols,nrRows)/20;
@@ -353,44 +305,29 @@ void lisemqt::showBaseMap()
     MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
     MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
-    /*
-    if (nrRows < nrCols)
-    {
-        MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, nrCols/20);
-        MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-        MPlot->setAxisScale( MPlot->yLeft, 0.0, nrCols, nrCols/20);
-        MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
-    }
-    else
-    {
-        MPlot->setAxisScale( MPlot->xBottom, 0.0, nrRows, nrRows/20);
-        MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-        MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, nrRows/20);
-        MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
-    }
-    */
-    // startplot = false;
 }
 //---------------------------------------------------------------------------
 void lisemqt::showChannelMap()
 {
-    if (!startplot)
-        return;
+    if (startplot)
+    {
+        double res = fillDrawMapData(op.channelMap, RDc,0 );
+        if (res ==-1e20)
+            return;
+        QwtLinearColorMap *pala = new colorMapFlood();
+        pala->thresholdLCM = 0.01;
 
-    double res = fillDrawMapData(op.channelMap, RDc,0 );
-    if (res ==-1e20)
-        return;
+        channelMap->setColorMap(pala);
+        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
+        channelMap->setData(RDc);
+    }
 
-    channelMap->setAlpha(transparency2->value());
+    if (checkMapChannels->isChecked())
+        channelMap->setAlpha(transparency2->value());
+    else
+        channelMap->setAlpha(0);
+    //channelMap->setAlpha(transparency2->value());
 
-
-    QwtLinearColorMap *pala = new colorMapFlood();
-    pala->thresholdLCM = 0.01;
-
-    channelMap->setColorMap(pala);
-    RDc->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
-
-    channelMap->setData(RDc);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
@@ -404,8 +341,12 @@ void lisemqt::showRoadMap()
         roadMap->setData(RDd);
     }
 
+    if (checkMapRoads->isChecked())
+        roadMap->setAlpha(transparency3->value());
+    else
+        roadMap->setAlpha(0);
 
-    roadMap->setAlpha(transparency3->value());
+    //roadMap->setAlpha(transparency3->value());
 
     if (op.drawMapType <= 2)
         roadMap->setColorMap(new colorMapRoads());
@@ -425,13 +366,12 @@ void lisemqt::showHouseMap()
         RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
         houseMap->setData(RDe);
     }
+    if (checkMapBuildings->isChecked())
+        houseMap->setAlpha(transparency4->value());
+    else
+        houseMap->setAlpha(0);
 
-    houseMap->setAlpha(transparency4->value());
-
-    //    if (op.drawMapType == 4)
     houseMap->setColorMap(new colorMapHouse());
-    //    else
-    //        houseMap->setColorMap(new colorMapWhite());
 }
 //---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
@@ -538,8 +478,8 @@ void lisemqt::showMap4()
 {
     MPlot->setTitle("Flood level (m)");
 
-    pal1 = new colorMapFlood();
-    pal2 = new colorMapFlood();
+    pal4a = new colorMapFlood();
+    pal4b = new colorMapFlood();
 
     double MinV = 0;
     double MaxV = fillDrawMapData(op.DrawMap4, RD, 4);
@@ -554,19 +494,12 @@ void lisemqt::showMap4()
     RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
 
     drawMap->setData(RD);
-//    if (checkFloodCutoff->isChecked())
- //   {
-    pal1->setThreshold(doubleSpinBoxFLmin->value());
-    pal2->setThreshold(doubleSpinBoxFLmin->value());
- //   }
- //   else
- //   {
- //       pal1->setThreshold(0.001);
- //       pal2->setThreshold(0.001);
- //   }
 
-    drawMap->setColorMap(pal1);
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal2);
+    pal4a->setThreshold(doubleSpinBoxFLmin->value());
+    pal4b->setThreshold(doubleSpinBoxFLmin->value());
+
+    drawMap->setColorMap(pal4a);
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal4b);
 
     MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
@@ -576,6 +509,9 @@ void lisemqt::showMap4()
 void lisemqt::showMap5()
 {
     MPlot->setTitle("Flood Velocity (m/s)");
+
+    pal5a = new colorMapFloodV();
+    pal5b = new colorMapFloodV();
 
     double MaxV = fillDrawMapData(op.DrawMap5, RD, 5);
     if (MaxV ==-1e20)
@@ -589,11 +525,14 @@ void lisemqt::showMap5()
         maxAxis5 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
 
+    pal5a->setThreshold(qMax(doubleSpinBoxFLVmin->value(),0.001));
+    pal5b->setThreshold(qMax(doubleSpinBoxFLVmin->value(),0.001));
+
     drawMap->setData(RD);
-    drawMap->setColorMap(new colorMapFloodV());
+    drawMap->setColorMap(pal5a);
     //QwtPlotSpectrogram
 
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapFloodV());
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal5b);
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis5);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }

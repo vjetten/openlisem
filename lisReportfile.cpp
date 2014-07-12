@@ -105,21 +105,8 @@ void TWorld::OutputUI(void)
     }
     if (SwitchChannelFlood)
     {
-        if (op.addWHtohmx)
-        {
-            FOR_ROW_COL_MV
-                    tmb->Drc = hmx->Drc + WH->Drc < 0.01 ? 0 : hmx->Drc + WH->Drc;
-        }
-        else
-        {
-            FOR_ROW_COL_MV
-                    tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
-        }
         op.DrawMap4->copy(hmx);  //flood level in m
-
-        FOR_ROW_COL_MV
-                tmb->Drc = UVflood->Drc < 0.01 ? 0 : UVflood->Drc;
-        op.DrawMap5->copy(tmb);  //flood level in m
+        op.DrawMap5->copy(UVflood);  //flood level in m
     }
 
     op.baseMap->copy(Shade);

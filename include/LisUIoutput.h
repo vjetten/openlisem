@@ -73,7 +73,6 @@ struct output{
     TMMap *roadMap;
     TMMap *houseMap;
 
-    bool addWHtohmx;
     bool displayPcum;
     int drawMapType;
 
