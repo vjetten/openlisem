@@ -65,6 +65,7 @@ void lisemqt::selectMapType(bool /* doit */)
     if (radioButton_FL->isChecked())    op.drawMapType = 4;
     if (radioButton_FLV->isChecked())   op.drawMapType = 5;
     if (radioButton_P->isChecked())     op.drawMapType = 6;
+    if (radioButton_FEW->isChecked())   op.drawMapType = 7;
 
     showMap();
 }
@@ -261,6 +262,7 @@ void lisemqt::showMap()
     if (op.drawMapType == 4) showMap4();
     if (op.drawMapType == 5) showMap5();
     if (op.drawMapType == 6) showMap6();
+    if (op.drawMapType == 7) showMap7();
 
     MPlot->replot();
 }
@@ -286,7 +288,7 @@ void lisemqt::showBaseMap()
     double mindem = op.baseMapDEM->mapMinimum();
 
     baseMapDEM->setAlpha(255);
-    baseMapDEM->setColorMap(new colorMapElevation());
+    baseMapDEM->setColorMap(new colorMapGray());//colorMapElevation());
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
 
@@ -563,5 +565,36 @@ void lisemqt::showMap6()
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapP());
     MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
+    MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+}//---------------------------------------------------------------------------
+// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
+void lisemqt::showMap7()
+{
+    MPlot->setTitle("Moment of inundation after start of rainfall (min)");
+
+    pal7a = new colorMapFEW();
+    pal7b = new colorMapFEW();
+
+    double MinV = 0;
+    double MaxV = fillDrawMapData(op.DrawMap7, RD, 7);
+    if (MaxV ==-1e20)
+        return;
+    // fill vector and find the new max value
+
+    maxAxis7 = qMax(maxAxis7, MaxV);
+    if (doubleSpinBoxFEW->value() > 0)
+        maxAxis7 = doubleSpinBoxFEW->value();
+
+    RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis7));
+
+    drawMap->setData(RD);
+
+    pal7a->setThreshold(qMax(doubleSpinBoxFEWmin->value(),0.001));
+    pal7b->setThreshold(qMax(doubleSpinBoxFEWmin->value(),0.001));
+
+    drawMap->setColorMap(pal7a);
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal7b);
+
+    MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis7);
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }//---------------------------------------------------------------------------

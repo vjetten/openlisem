@@ -325,6 +325,7 @@ void lisemqt::SetToolBar()
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_FEW, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
@@ -1011,6 +1012,7 @@ void lisemqt::resetAll()
     E_FloodStats->setText("floodstats.txt");
     E_ChannelMaxQ->setText("channelmaxq.map");
     E_ChannelMaxWH->setText("channelmaxhw.map");
+    E_FloodFEW->setText("floodstart.map");
     E_MainTotals->setText("");
     E_PointResults->setText("");
 

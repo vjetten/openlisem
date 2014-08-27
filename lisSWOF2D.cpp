@@ -881,6 +881,7 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
     }
 }
 //---------------------------------------------------------------------------
+/// finds flood domain and one dry cell in each direction more (1) and outside (0)
 void TWorld::findFloodDomain(TMMap *_h)
 {
     FOR_ROW_COL_MV_MV

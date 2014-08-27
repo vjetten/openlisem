@@ -14,6 +14,7 @@ SET(SOURCES
     ui_full/LisUIDefaultNames
     ui_full/lisemqt
     ui_full/LisUIplot
+    ui_full/LisUImapplot
     CsfMap
     lisChannelflow
     lisTiledrainflow
@@ -37,7 +38,6 @@ SET(SOURCES
     swatre/lookup
     swatre/swatinp
     LisKinematicSorted
-    ui_full/LisUImapplot
     lisChannelflood
     lisSWOF2D
     lisChannelfloodexpl

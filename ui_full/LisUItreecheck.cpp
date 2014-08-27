@@ -82,6 +82,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
             E_FloodStats->setEnabled(true);
             E_ChannelMaxQ->setEnabled(true);
             E_ChannelMaxWH->setEnabled(true);
+            E_FloodFEW->setEnabled(true);
         }
     }
     else
@@ -91,7 +92,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
         E_FloodStats->setEnabled(false);
         E_ChannelMaxQ->setEnabled(false);
         E_ChannelMaxWH->setEnabled(false);
-
+        E_FloodFEW->setEnabled(false);
     }
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }

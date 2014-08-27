@@ -456,6 +456,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
         if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
         if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
+        if (p1.compare("Flood start time")==0) E_FloodFEW->setText(p);
 
         if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
         if (p1.compare("Snowmelt file")==0)
@@ -715,6 +716,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
         if (p1.compare("Channel Max Q")==0) namelist[j].value = E_ChannelMaxQ->text();
         if (p1.compare("Channel Max WH")==0) namelist[j].value = E_ChannelMaxWH->text();
+        if (p1.compare("Flood start time")==0) namelist[j].value = E_FloodFEW->text();
 
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();

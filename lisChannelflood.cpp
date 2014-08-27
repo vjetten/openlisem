@@ -44,7 +44,7 @@ functions: \n
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
-void TWorld::ChannelOverflow(int nr)
+void TWorld::ChannelOverflow(void)
 {
     FOR_ROW_COL_MV_CH
     {
@@ -118,7 +118,43 @@ double TWorld::correctMassBalance(double sum1, TMMap *M, double minV)
     return dh;
 }
 //---------------------------------------------------------------------------
+void TWorld::FloodMaxandTiming()
+{
+    // floodwater volume and max flood map
+    FloodWaterVol->fill(0);
+    FOR_ROW_COL_MV
+    {
+        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
+        floodHmxMax->Drc = max(floodHmxMax->Drc, hmx->Drc);
+        if (hmx->Drc > minReportFloodHeight)
+            timeflood->Drc += _dt/60;
+        // for output
+    }
+
+    floodVolTotMax = 0;
+    floodAreaMax = 0;
+    double area = _dx*_dx;
+    FOR_ROW_COL_MV
+    {
+        if (floodHmxMax->Drc > minReportFloodHeight)
+        {
+            floodVolTotMax += floodHmxMax->Drc*area;
+            floodAreaMax += area;
+        }
+    }
+
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > minReportFloodHeight && FloodTimeStart->Drc == 0)
+        {
+//            FloodTimeStart->Drc = (time - RainpeakTime)/60;
+            FloodTimeStart->Drc = (time - RainstartTime)/60;
+            // time since first pixel received rainfall
+        }
+    }
+}
+//---------------------------------------------------------------------------
 // NOTE DEM has barriers included, done in shade map calculation !!!!
 void TWorld::ChannelFlood(void)
 {
@@ -127,7 +163,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    ChannelOverflow(1);
+    ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
     double sumh_t = hmx->mapTotal();
@@ -169,35 +205,14 @@ void TWorld::ChannelFlood(void)
             }
 
 
-    ChannelOverflow(2);
+    ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
     correctMassBalance(sumh_t, hmx, 1e-6);
     // correct mass balance
 
-    // floodwater volume and max flood map
-    FloodWaterVol->fill(0);
-    FOR_ROW_COL_MV
-    {
-        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
-        maxflood->Drc = max(maxflood->Drc, hmx->Drc);
-        if (hmx->Drc > minReportFloodHeight)
-            timeflood->Drc += _dt/60;
-        // for output
-    }
-
-    floodVolTotMax = 0;
-    floodAreaMax = 0;
-    double area = _dx*_dx;
-    FOR_ROW_COL_MV
-    {
-        if (maxflood->Drc > minReportFloodHeight)
-        {
-            floodVolTotMax += maxflood->Drc*area;
-            floodAreaMax += area;
-        }
-    }
+    FloodMaxandTiming();
 
     //new flood domain
     double cells = 0;
@@ -214,9 +229,8 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
-    area = cells*_dx*_dx;
+    double area = cells*_dx*_dx;
     //    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1));
     // some error reporting

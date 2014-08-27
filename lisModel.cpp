@@ -84,50 +84,11 @@ void TWorld::DoModel()
         DEBUG("IntializeData()");
         IntializeData();
 
-        //Make the maps to bedrawn in the interface as a copy in the op starcture
-        // reason is that all pointers are destroyed after the run so when lisem finishes
-        // the information on the output screen points to an empty pointer
-        // by copying the info remains available
-        // initialize maps for output to screen
+        DEBUG("setupDisplayMaps()");
+        setupDisplayMaps();
+        // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
-        if (op.DrawMap1)
-        {
-            op.DrawMap1->KillMap();
-            op.DrawMap2->KillMap();
-            op.DrawMap3->KillMap();
-            op.DrawMap4->KillMap();
-            op.DrawMap5->KillMap();
-            op.DrawMap6->KillMap();
-            op.baseMap->KillMap();
-            op.baseMapDEM->KillMap();
-            op.channelMap->KillMap();
-            op.roadMap->KillMap();
-            op.houseMap->KillMap();
-        }
 
-        op.DrawMap1 = new TMMap();
-        op.DrawMap2 = new TMMap();
-        op.DrawMap3 = new TMMap();
-        op.DrawMap4 = new TMMap();
-        op.DrawMap5 = new TMMap();
-        op.DrawMap6 = new TMMap();
-        op.baseMap = new TMMap();
-        op.baseMapDEM = new TMMap();
-        op.channelMap = new TMMap();
-        op.roadMap = new TMMap();
-        op.houseMap = new TMMap();
-
-        op.DrawMap1->MakeMap(LDD, 0);
-        op.DrawMap2->MakeMap(LDD, 0);
-        op.DrawMap3->MakeMap(LDD, 0);
-        op.DrawMap4->MakeMap(LDD, 0);
-        op.DrawMap5->MakeMap(LDD, 0);
-        op.DrawMap6->MakeMap(LDD, 0);
-        op.baseMap->MakeMap(LDD, 0);
-        op.baseMapDEM->MakeMap(LDD, 0);
-        op.channelMap->MakeMap(LDD, 0);
-        op.roadMap->MakeMap(LDD, 0);
-        op.houseMap->MakeMap(LDD, 0);
 
         if (SwitchRainfall)
         {
@@ -295,6 +256,58 @@ void TWorld::DoModel()
         }
     }
 }
+//---------------------------------------------------------------------------
+// Make the maps to bedrawn in the interface as a copy in the op starcture
+// reason is that all pointers are destroyed after the run so when lisem finishes
+// the information on the output screen points to an empty pointer
+// by copying the info remains available
+// initialize maps for output to screen
+// must be done after Initialize Data because then we know how large the map is
+void TWorld::setupDisplayMaps()
+{
+    if (op.DrawMap1)
+    {
+        op.DrawMap1->KillMap();
+        op.DrawMap2->KillMap();
+        op.DrawMap3->KillMap();
+        op.DrawMap4->KillMap();
+        op.DrawMap5->KillMap();
+        op.DrawMap6->KillMap();
+        op.DrawMap7->KillMap();
+        op.baseMap->KillMap();
+        op.baseMapDEM->KillMap();
+        op.channelMap->KillMap();
+        op.roadMap->KillMap();
+        op.houseMap->KillMap();
+    }
+
+    op.DrawMap1 = new TMMap();
+    op.DrawMap2 = new TMMap();
+    op.DrawMap3 = new TMMap();
+    op.DrawMap4 = new TMMap();
+    op.DrawMap5 = new TMMap();
+    op.DrawMap6 = new TMMap();
+    op.DrawMap7 = new TMMap();
+    op.baseMap = new TMMap();
+    op.baseMapDEM = new TMMap();
+    op.channelMap = new TMMap();
+    op.roadMap = new TMMap();
+    op.houseMap = new TMMap();
+
+    op.DrawMap1->MakeMap(LDD, 0);
+    op.DrawMap2->MakeMap(LDD, 0);
+    op.DrawMap3->MakeMap(LDD, 0);
+    op.DrawMap4->MakeMap(LDD, 0);
+    op.DrawMap5->MakeMap(LDD, 0);
+    op.DrawMap6->MakeMap(LDD, 0);
+    op.DrawMap7->MakeMap(LDD, 0);
+    op.baseMap->MakeMap(LDD, 0);
+    op.baseMapDEM->MakeMap(LDD, 0);
+    op.channelMap->MakeMap(LDD, 0);
+    op.roadMap->MakeMap(LDD, 0);
+    op.houseMap->MakeMap(LDD, 0);
+}
+
 //---------------------------------------------------------------------------
 void TWorld::run()
 {

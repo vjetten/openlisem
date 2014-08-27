@@ -326,8 +326,8 @@ void TWorld::InitBuffers(void)
             if (SwitchBuffers && BufferID->Drc > 0)
             {
                 Grad->Drc = 0.001;
-//                RR->Drc = 0.01;
-//                N->Drc = 0.25;
+                //                RR->Drc = 0.01;
+                //                N->Drc = 0.25;
                 // note ksateff in filtration is also set to 0
 
                 // very arbitrary!!!
@@ -475,16 +475,16 @@ void TWorld::InitShade(void)
         //qDebug() << r << c << aspect;
         Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
     }
-//    double MaxV = Shade->mapMaximum();
-//    double MinV = Shade->mapMinimum();
+    //    double MaxV = Shade->mapMaximum();
+    //    double MinV = Shade->mapMinimum();
 
-//    FOR_ROW_COL_MV
-//    {
-//        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
-//        if (Shade->Drc == 0 && r > 0 && c > 0)
-//            Shade->Drc = Shade->Data[r-1][c-1];
-//        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
-//    }
+    //    FOR_ROW_COL_MV
+    //    {
+    //        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+    //        if (Shade->Drc == 0 && r > 0 && c > 0)
+    //            Shade->Drc = Shade->Data[r-1][c-1];
+    //        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
+    //    }
 
 }
 //---------------------------------------------------------------------------
@@ -522,7 +522,7 @@ void TWorld::InitChannel(void)
 
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
-    maxflood = NewMap(0);
+    floodHmxMax = NewMap(0);
     timeflood = NewMap(0);
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
@@ -586,27 +586,34 @@ void TWorld::InitChannel(void)
 
         if (SwitchChannelFlood)
         {
-            //            for (int i = 0; i < 9; i++)
-            //                qx[i].m = NULL;
-            //            for (int i = 0; i < 9; i++)
-            //                qx[i].m = NewMap(0);
             prepareFlood = true;
             iter_n = 0;
 
-            FloodVoltoChannel = NewMap(0);
+            // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
-            Qxsum = NewMap(0);
-            qx0 = NewMap(0);
-            qx1 = NewMap(0);
-            qx2 = NewMap(0);
-            qx3 = NewMap(0);
-            Hx = NewMap(0);
-            hx = NewMap(0);
-            Hmx = NewMap(0);
-            Nx = NewMap(0);
-            dHdLx = NewMap(0);
+
+            // explicit
+            if (SwitchFloodExplicit)
+            {
+                Qxsum = NewMap(0);
+                qx0 = NewMap(0);
+                qx1 = NewMap(0);
+                qx2 = NewMap(0);
+                qx3 = NewMap(0);
+                Hx = NewMap(0);
+                hx = NewMap(0);
+                Hmx = NewMap(0);
+                Nx = NewMap(0);
+                dHdLx = NewMap(0);
+            }
+            //explicit
+
             FloodWaterVol = NewMap(0);
+
+            FloodTimeStart = NewMap(0);
+            //FloodTimeStart->setMV();
+            FloodTimeEnd = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             ChannelDepth->cover(LDD,0);
@@ -625,7 +632,6 @@ void TWorld::InitChannel(void)
             }
 
             floodactive = NewMap(1);
-            floodzone = NewMap(1);
 
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
@@ -1082,6 +1088,8 @@ void TWorld::IntializeData(void)
     RainTotmm = 0;
     Rainpeak = 0;
     RainpeakTime = 0;
+    RainstartTime = -1;
+    rainStarted = false;
     RainAvgmm = 0;
     SnowAvgmm = 0;
     SnowTot = 0;
@@ -1235,9 +1243,9 @@ void TWorld::IntializeData(void)
     V = NewMap(0);
     Alpha = NewMap(0);
 
-    AlphaF = NewMap(0);
-    QF = NewMap(0);
-    QnF = NewMap(0);
+    //    AlphaF = NewMap(0);
+    //    QF = NewMap(0);
+    //    QnF = NewMap(0);
 
     Q = NewMap(0);
     Qn = NewMap(0);
@@ -1333,9 +1341,9 @@ void TWorld::IntializeData(void)
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
             Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
-//            if (StoneFraction->Drc > 0)
-//                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
-// GOED IDEE
+            //            if (StoneFraction->Drc > 0)
+            //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
+            // GOED IDEE
 
         }
     }

@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -10030,6 +10030,23 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
+                 <item row="18" column="1">
+                  <widget class="QLineEdit" name="E_FloodFEW">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="18" column="0">
+                  <widget class="QLabel" name="label_93">
+                   <property name="text">
+                    <string>Flood start (min)</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </item>
                <item row="1" column="0">
@@ -17190,6 +17207,51 @@ p, li { white-space: pre-wrap; }
                   <double>0.010000000000000</double>
                  </property>
                  <property name="value">
+                  <double>0.010000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_FEW">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Early warning time</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFEW">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>9999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="3">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFEWmin">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>9999.000000000000000</double>
+                 </property>
+                 <property name="value">
                   <double>0.000000000000000</double>
                  </property>
                 </widget>
@@ -18023,14 +18085,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkBuffers</sender>
+   <sender>checkChannelFlood</sender>
    <signal>toggled(bool)</signal>
    <receiver>checkBuffersImpermeable</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>401</y>
+     <x>220</x>
+     <y>476</y>
     </hint>
     <hint type="destinationlabel">
      <x>105</x>
@@ -18310,10 +18372,74 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkChannelFlood</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_FEW</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>863</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelFlood</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBoxFEW</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>863</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelFlood</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBoxFEWmin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>863</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkChannelFlood</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodFEW</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1131</x>
+     <y>756</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

@@ -67,6 +67,7 @@ struct output{
     TMMap *DrawMap4;
     TMMap *DrawMap5;
     TMMap *DrawMap6;
+    TMMap *DrawMap7;
     TMMap *baseMap;
     TMMap *baseMapDEM;
     TMMap *channelMap;

@@ -46,6 +46,7 @@ public:
             if (sp2->data()->value(0,0) == 4) txt = QString("%1 m [%2m]").arg(z2,0,'f',2).arg(z0,0,'f',1);
             if (sp2->data()->value(0,0) == 5) txt = QString("%1 m/s [%2m]").arg(z2,0,'f',2).arg(z0,0,'f',1);
             if (sp2->data()->value(0,0) == 6) txt = QString("%1 mm [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',1);
+            if (sp2->data()->value(0,0) == 7) txt = QString("%1 min [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',1);
         }
 
         QwtText text = QwtText(txt);
@@ -70,27 +71,8 @@ class colorMapHouse: public QwtLinearColorMap
     }
 public:
     colorMapHouse():
-//        QwtLinearColorMap( QColor("#B9CECF"), QColor("#336666"))
-      QwtLinearColorMap( QColor("#111111"), QColor("#eeeeee"))
+        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
     {
-        addColorStop(0.000,QColor("#111111"));
-        //        addColorStop(0.5, QColor("#68909a"));
-
-        //        addColorStop(0.000,QColor("#FDFDFD"));
-        //        addColorStop(0.167,QColor("#F0F0F0"));
-        //        addColorStop(0.333,QColor("#E6E6E8"));
-        //        addColorStop(0.500,QColor("#BEC7CC"));
-        //        addColorStop(0.666,QColor("#72838B"));
-        //        addColorStop(0.833,QColor("#3D5056"));
-
-        //        addColorStop(0.000,QColor("#FFFFFF"));
-        //        addColorStop(0.143,QColor("#ECF4F5"));
-        //        addColorStop(0.0,QColor("#DAE4E4"));
-        //       addColorStop(0.25,QColor("#C2D7D8"));
-//        addColorStop(0,QColor("#B9CECF"));
-//        addColorStop(0.333,QColor("#68909A"));
-//        addColorStop(0.666,QColor("#547071"));
-//        addColorStop(1.0,QColor("#336666"));
     }
 };
 //---------------------------------------------------------------------------
@@ -128,29 +110,9 @@ class colorMapGray: public QwtLinearColorMap
     }
 public:
     colorMapGray():
-        QwtLinearColorMap( QColor("#111111"),QColor("#ffffff"))
+        QwtLinearColorMap( QColor("#555555"),QColor("#ffffff"))
     {
-        addColorStop(0.000,QColor("#111111"));
-    }
-};
-//---------------------------------------------------------------------------
-class colorMapWhite: public QwtLinearColorMap
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
-        if ( value < 0.1 )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-public:
-    colorMapWhite():
-        QwtLinearColorMap( Qt::white,QColor("#111111")  )
-    {
-        addColorStop(0, Qt::white );
+        addColorStop(0.000,QColor("#555555"));
     }
 };
 //---------------------------------------------------------------------------
@@ -352,6 +314,28 @@ public:
     {
         addColorStop(0.0,QColor("#8888FF"));
         addColorStop( 0.5, Qt::blue);
+    }
+};
+//---------------------------------------------------------------------------
+class colorMapFEW: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value < thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapFEW():
+        QwtLinearColorMap( Qt::darkRed,Qt::darkGreen)
+    {
+        addColorStop( 0.25, Qt::red);
+        addColorStop( 0.5, Qt::yellow);
+        addColorStop( 0.75, Qt::green);
     }
 };
 //---------------------------------------------------------------------------

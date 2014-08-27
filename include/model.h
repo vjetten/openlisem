@@ -289,7 +289,8 @@ public:
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
     double floodTotmm, floodTotmmInit;
     /// peak times (min)
-    double RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
+    double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
+    bool rainStarted;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea;
     double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
@@ -347,6 +348,7 @@ public:
     QString floodStatsFileName;
     QString floodMaxQFileName;
     QString floodMaxWHFileName;
+    QString floodFEWFileName;
 
     QString rainFileName;
     QString rainFileDir;
@@ -488,8 +490,9 @@ public:
     void ChannelFlowDetachment(void);
     //flood
     void ChannelFlood(void);
+    void FloodMaxandTiming(void);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(int nr);
+    void ChannelOverflow(void);
     double courant_factor;
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;
@@ -602,8 +605,10 @@ public:
 protected:
     void run();
     QTime time_ms;
-
     // talk to the interface
+
+    void setupDisplayMaps();
+
 signals:
     void done(const QString &results);
     void debug(const QString &results);

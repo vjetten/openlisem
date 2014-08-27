@@ -107,6 +107,7 @@ void TWorld::OutputUI(void)
     {
         op.DrawMap4->copy(hmx);  //flood level in m
         op.DrawMap5->copy(UVflood);  //flood level in m
+        op.DrawMap7->copy(FloodTimeStart);  // flood start since peak rainfall in min
     }
 
     op.baseMap->copy(Shade);
@@ -611,7 +612,7 @@ void TWorld::ReportMaps(void)
 
     if (SwitchChannelFlood)
     {
-        maxflood->report(floodLevelFileName);
+        floodHmxMax->report(floodLevelFileName);
         timeflood->report(floodTimeFileName);
         maxChannelflow->report(floodMaxQFileName);
         maxChannelWH->report(floodMaxWHFileName);
@@ -798,13 +799,13 @@ void TWorld::ChannelFloodStatistics(void)
     int nr = 0;
     FOR_ROW_COL_MV
     {
-        if(maxflood->Drc > minReportFloodHeight)
+        if(floodHmxMax->Drc > minReportFloodHeight)
         {
-            int i = (int)(maxflood->Drc*10);
+            int i = (int)(floodHmxMax->Drc*10);
             nr = max(nr, i);
-            //qDebug() << nr << i << maxflood->Drc;
+            //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
-            floodList[i].var2 += area*maxflood->Drc; // vol flooded in this class
+            floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
             floodList[i].var3 = max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
             if (SwitchHouses)
                 floodList[i].var4 += HouseCover->Drc*area;

@@ -377,6 +377,8 @@ void TWorld::ParseRunfileData(void)
                 floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0); ;
             if (p1.compare("Channel Max WH")==0)
                 floodMaxWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
+            if (p1.compare("Flood start time")==0)
+                floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
         }
 
         // output map timeseries, standard names, to avoid unreadable pcraster names

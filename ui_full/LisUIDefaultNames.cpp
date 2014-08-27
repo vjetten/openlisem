@@ -299,6 +299,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max Q");
     namelist[i].value = QString("channelmaxhw.map");
     namelist[i++].name = QString("Channel Max WH");
+    namelist[i].value = QString("floodstart.map");
+    namelist[i++].name = QString("Flood start time");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
     namelist[i].value = QString("0");

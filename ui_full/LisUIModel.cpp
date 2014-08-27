@@ -226,6 +226,7 @@ void lisemqt::initOP()
     op.DrawMap4 = NULL;
     op.DrawMap5 = NULL;
     op.DrawMap6 = NULL;
+    op.DrawMap7 = NULL;
     op.baseMap = NULL;
     op.baseMapDEM = NULL;
     op.channelMap = NULL;
