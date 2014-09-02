@@ -236,7 +236,7 @@ void TWorld::RainfallMap(void)
 
     if (RainfallSeriesM[rainplace].isMap)
     {
-        TMMap *_M = new TMMap();
+        CTMap *_M = new CTMap();
         _M->PathName = RainfallSeriesM[rainplace].name;
         bool res = _M->LoadFromFile();
         if (!res)

@@ -39,6 +39,8 @@
 #include "model.h"
 #include "global.h"
 
+#include "fern_operation.h"
+
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
     QThread(parent)
@@ -281,18 +283,18 @@ void TWorld::setupDisplayMaps()
         op.houseMap->KillMap();
     }
 
-    op.DrawMap1 = new TMMap();
-    op.DrawMap2 = new TMMap();
-    op.DrawMap3 = new TMMap();
-    op.DrawMap4 = new TMMap();
-    op.DrawMap5 = new TMMap();
-    op.DrawMap6 = new TMMap();
-    op.DrawMap7 = new TMMap();
-    op.baseMap = new TMMap();
-    op.baseMapDEM = new TMMap();
-    op.channelMap = new TMMap();
-    op.roadMap = new TMMap();
-    op.houseMap = new TMMap();
+    op.DrawMap1 = new CTMap();
+    op.DrawMap2 = new CTMap();
+    op.DrawMap3 = new CTMap();
+    op.DrawMap4 = new CTMap();
+    op.DrawMap5 = new CTMap();
+    op.DrawMap6 = new CTMap();
+    op.DrawMap7 = new CTMap();
+    op.baseMap = new CTMap();
+    op.baseMapDEM = new CTMap();
+    op.channelMap = new CTMap();
+    op.roadMap = new CTMap();
+    op.houseMap = new CTMap();
 
     op.DrawMap1->MakeMap(LDD, 0);
     op.DrawMap2->MakeMap(LDD, 0);

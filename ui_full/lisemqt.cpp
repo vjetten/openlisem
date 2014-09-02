@@ -1197,7 +1197,7 @@ void lisemqt::fontSelect()
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = max(6, genfontsize);
+    genfontsize = _max(6, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \
@@ -1221,7 +1221,7 @@ void lisemqt::fontDecrease()
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = min(18, genfontsize);
+    genfontsize = _min(18, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \

@@ -94,16 +94,16 @@ void lisemqt::initMapPlot()
 
     // link with runfile
     //    op.drawMapType = MapDisplayMapSelection;
-    //    transparency->setValue(qMin(MapDisplayHydrology, 200));  //main data
-    //    transparency2->setValue(qMin(MapDisplayChannels, 200)); //channels
-    //    transparency3->setValue(qMin(MapDisplayRoads, 200)); //roads
-    //    transparency4->setValue(qMin(MapDisplayBuilding, 200)); //houses
+    //    transparency->setValue(_min(MapDisplayHydrology, 200));  //main data
+    //    transparency2->setValue(_min(MapDisplayChannels, 200)); //channels
+    //    transparency3->setValue(_min(MapDisplayRoads, 200)); //roads
+    //    transparency4->setValue(_min(MapDisplayBuilding, 200)); //houses
 
     //    doubleSpinBoxRO->setValue(MapDisplayRunoffMax);
     //    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
     //    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
     //    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
-    //    floodCutoffLevel->setValue(qMax(qMin(MapDisplayMinimumDepth,2),0));
+    //    floodCutoffLevel->setValue(_max(_min(MapDisplayMinimumDepth,2),0));
 
     // slider setting basemap transparency
     //    if (p1.compare("Building display")==0)  MapDisplayBuilding = iii;
@@ -215,7 +215,7 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD, double type)
+double lisemqt::fillDrawMapData(CTMap *_M, QwtMatrixRasterData *_RD, double type)
 {
     double maxV = -1e20;
     mapData.clear();  //QVector double
@@ -231,7 +231,7 @@ double lisemqt::fillDrawMapData(TMMap *_M, QwtMatrixRasterData *_RD, double type
             if(!IS_MV_REAL8(&_M->Drc))
             {
                 mapData << _M->Drc;
-                maxV = qMax(maxV, _M->Drc);
+                maxV = _max(maxV, _M->Drc);
             }
             else
                 mapData << (double)-1e20;
@@ -294,7 +294,7 @@ void lisemqt::showBaseMap()
 
     double nrCols = (double)op.baseMap->nrCols*op.baseMap->MH.cellSize;
     double nrRows = (double)op.baseMap->nrRows*op.baseMap->MH.cellSize;
-    double dx = max(nrCols,nrRows)/20;
+    double dx = _max(nrCols,nrRows)/20;
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
 
@@ -393,12 +393,12 @@ void lisemqt::showMap1()
     // fill vector and find the new max value
 
     // set intervals for rasterdata, x,y,z min and max
-    maxAxis1 = qMax(maxAxis1, MaxV);
+    maxAxis1 = _max(maxAxis1, MaxV);
     if (doubleSpinBoxRO->value() > 0)
         maxAxis1 = doubleSpinBoxRO->value();
     // use userdefined if spinbox not 0
 
-    RD->setInterval( Qt::ZAxis, QwtInterval( 0, qMax(0.1, maxAxis1)));
+    RD->setInterval( Qt::ZAxis, QwtInterval( 0, _max(0.1, maxAxis1)));
     // classify data from 0 to,ax
 
     drawMap->setData(RD);
@@ -409,12 +409,12 @@ void lisemqt::showMap1()
     // set the legend with the same palette
 
     if (maxAxis1 < 10)
-        MPlot->setAxisScale( MPlot->yRight, 0.01, qMax(1.0,maxAxis1));
+        MPlot->setAxisScale( MPlot->yRight, 0.01, _max(1.0,maxAxis1));
     else
         if (maxAxis1 < 100)
-            MPlot->setAxisScale( MPlot->yRight, 0.1, qMax(10.0,maxAxis1));
+            MPlot->setAxisScale( MPlot->yRight, 0.1, _max(10.0,maxAxis1));
         else
-            MPlot->setAxisScale( MPlot->yRight, 0.1, qMax(100.0,maxAxis1));
+            MPlot->setAxisScale( MPlot->yRight, 0.1, _max(100.0,maxAxis1));
 
     MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
 }
@@ -430,7 +430,7 @@ void lisemqt::showMap2()
     if (MaxV ==-1e20)
         return;
     // set the new interval to the new max value
-    maxAxis2 = qMax(maxAxis2, MaxV);
+    maxAxis2 = _max(maxAxis2, MaxV);
     if (doubleSpinBoxINF->value() > 0)
         maxAxis2 = doubleSpinBoxINF->value();
     else
@@ -459,7 +459,7 @@ void lisemqt::showMap3()
         return;
     // fill vector and find the new max value
 
-    maxAxis3 = qMax(maxAxis3, MaxV);
+    maxAxis3 = _max(maxAxis3, MaxV);
     if (doubleSpinBoxSL->value() > 0)
         maxAxis3 = doubleSpinBoxSL->value();
     else
@@ -489,7 +489,7 @@ void lisemqt::showMap4()
         return;
     // fill vector and find the new max value
 
-    maxAxis4 = qMax(maxAxis4, MaxV);
+    maxAxis4 = _max(maxAxis4, MaxV);
     if (doubleSpinBoxFL->value() > 0)
         maxAxis4 = doubleSpinBoxFL->value();
 
@@ -520,15 +520,15 @@ void lisemqt::showMap5()
         return;
     // fill vector and find the new max value
 
-    maxAxis5 = qMax(maxAxis5, MaxV);
+    maxAxis5 = _max(maxAxis5, MaxV);
     if (doubleSpinBoxSL->value() > 0)
         maxAxis5 = doubleSpinBoxFLV->value();
     else
         maxAxis5 = MaxV;
     RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
 
-    pal5a->setThreshold(qMax(doubleSpinBoxFLVmin->value(),0.001));
-    pal5b->setThreshold(qMax(doubleSpinBoxFLVmin->value(),0.001));
+    pal5a->setThreshold(_max(doubleSpinBoxFLVmin->value(),0.001));
+    pal5b->setThreshold(_max(doubleSpinBoxFLVmin->value(),0.001));
 
     drawMap->setData(RD);
     drawMap->setColorMap(pal5a);
@@ -552,7 +552,7 @@ void lisemqt::showMap6()
         return;
     // fill vector and find the new max value
 
-    maxAxis6 = qMax(maxAxis6, MaxV);
+    maxAxis6 = _max(maxAxis6, MaxV);
     if (doubleSpinBoxP->value() > 0)
         maxAxis6 = doubleSpinBoxP->value();
     else
@@ -581,7 +581,7 @@ void lisemqt::showMap7()
         return;
     // fill vector and find the new max value
 
-    maxAxis7 = qMax(maxAxis7, MaxV);
+    maxAxis7 = _max(maxAxis7, MaxV);
     if (doubleSpinBoxFEW->value() > 0)
         maxAxis7 = doubleSpinBoxFEW->value();
 
@@ -589,8 +589,8 @@ void lisemqt::showMap7()
 
     drawMap->setData(RD);
 
-    pal7a->setThreshold(qMax(doubleSpinBoxFEWmin->value(),0.001));
-    pal7b->setThreshold(qMax(doubleSpinBoxFEWmin->value(),0.001));
+    pal7a->setThreshold(_max(doubleSpinBoxFEWmin->value(),0.001));
+    pal7b->setThreshold(_max(doubleSpinBoxFEWmin->value(),0.001));
 
     drawMap->setColorMap(pal7a);
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal7b);

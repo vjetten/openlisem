@@ -34,7 +34,7 @@ functions: \n
  */
 
 #include "model.h"
-
+#include "fern_operation.h"
 
 //---------------------------------------------------------------------------
 /// Interception()
@@ -62,7 +62,7 @@ void TWorld::Interception(void)
         if (SwitchInterceptionLAI)
             LAIv = LAI->Drc;
         else
-            LAIv = (log(1-Cover->Drc)/-0.4)/max(0.9,Cover->Drc);
+            LAIv = (log(1-Cover->Drc)/-0.4)/_max(0.9,Cover->Drc);
         //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
         // a low cover means a low LAI means little interception
         // avoid division by 0
@@ -104,10 +104,10 @@ void TWorld::Interception(void)
         // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
         // possible to use equation from Ahston but for very open Eucalypt
 
-        CS = max(0, CS * (1-StemflowFraction));
+        CS = _max(0.0, CS * (1-StemflowFraction));
         //VJ 110206 decrease storage with stemflow fraction!
 
-        LeafDrain->Drc = max(0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
+        LeafDrain->Drc = _max(0.0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
         // diff between new and old strage is subtracted from rainfall
         // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
         // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
@@ -156,7 +156,7 @@ void TWorld::InterceptionHouses(void)
             if (HS > Hmax)
                 HS = Hmax;
 
-            double housedrain = max(0, HouseCover->Drc * (RainNet->Drc - (HS - HStor->Drc)));
+            double housedrain = _max(0.0, HouseCover->Drc * (RainNet->Drc - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
             HStor->Drc = HS;
             // put new storage back in maps in m
@@ -173,7 +173,7 @@ void TWorld::InterceptionHouses(void)
                 if (dsm3 < Dmax)
                     dsm3 = Dmax;
                 DS = dsm3/(SoilWidthDX->Drc*DX->Drc);
-                housedrain = max(0, housedrain - (DS - DStor->Drc));
+                housedrain = _max(0.0, housedrain - (DS - DStor->Drc));
             }
             else
                 DS = 0;

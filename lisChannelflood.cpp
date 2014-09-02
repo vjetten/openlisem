@@ -61,7 +61,7 @@ void TWorld::ChannelOverflow(void)
                 continue;
 
 
-            double whlevel = (ChannelWH->Drc - chdepth)*fc + max(0, hmx->Drc-levee)*(1-fc);
+            double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
             // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
             // can be negative if channelwh is below channel depth and low hmx level
 
@@ -70,7 +70,7 @@ void TWorld::ChannelOverflow(void)
             // normally this goes by a wave velocity probably because water level is flat V = sqrt(gh)
             if (whlevel > 0)
             {
-                hmx->Drc = min(hmx->Drc, levee);
+                hmx->Drc = _min(hmx->Drc, levee);
                 // cutoff hmx at levee but can be smaller
                 hmx->Drc += whlevel;
                 ChannelWH->Drc = whlevel + chdepth;
@@ -79,8 +79,8 @@ void TWorld::ChannelOverflow(void)
             else
             {
                 //qDebug() << nr << r << c << chdepth << whlevel << ChannelWH->Drc << ChannelWH->Drc+hmx->Drc/fc << hmx->Drc <<  fc;
-                ChannelWH->Drc = ChannelWH->Drc+min(0,hmx->Drc-levee-MINHMX)/fc;
-                hmx->Drc = min(MINHMX+levee, hmx->Drc);
+                ChannelWH->Drc = ChannelWH->Drc+_min(0.0,hmx->Drc-levee-MINHMX)/fc;
+                hmx->Drc = _min(MINHMX+levee, hmx->Drc);
             }
         }
         // ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
@@ -91,7 +91,7 @@ void TWorld::ChannelOverflow(void)
 
 //---------------------------------------------------------------------------
 // correct mass balance
-double TWorld::correctMassBalance(double sum1, TMMap *M, double minV)
+double TWorld::correctMassBalance(double sum1, CTMap *M, double minV)
 {
     double sum2 = 0;
     double n = 0;
@@ -112,7 +112,7 @@ double TWorld::correctMassBalance(double sum1, TMMap *M, double minV)
         if(M->Drc > minV)
         {
             M->Drc += dh;
-            M->Drc = max(M->Drc , 0);
+            M->Drc = _max(M->Drc , 0.0);
         }
     }
     return dh;
@@ -126,7 +126,7 @@ void TWorld::FloodMaxandTiming()
     {
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
-        floodHmxMax->Drc = max(floodHmxMax->Drc, hmx->Drc);
+        floodHmxMax->Drc = _max(floodHmxMax->Drc, hmx->Drc);
         if (hmx->Drc > minReportFloodHeight)
             timeflood->Drc += _dt/60;
         // for output

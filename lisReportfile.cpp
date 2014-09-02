@@ -802,11 +802,11 @@ void TWorld::ChannelFloodStatistics(void)
         if(floodHmxMax->Drc > minReportFloodHeight)
         {
             int i = (int)(floodHmxMax->Drc*10);
-            nr = max(nr, i);
+            nr = _max(nr, i);
             //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
             floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-            floodList[i].var3 = max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var3 = _max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
             if (SwitchHouses)
                 floodList[i].var4 += HouseCover->Drc*area;
         }

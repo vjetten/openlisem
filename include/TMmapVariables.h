@@ -29,7 +29,7 @@
 
 // separte here for easier Doxygen comments
 
-TMMap
+CTMap
 
 *DEM,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
@@ -368,5 +368,6 @@ TMMap
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
 *tmc                        //!< Auxilary map
+
 ;
 

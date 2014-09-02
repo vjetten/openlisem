@@ -51,7 +51,7 @@ double TWorld::floodExplicit()
         double courant_number = courant_factor;
         double froude_limit = 0.8;
         double gravity = 9.81;
-        double h_min = 1e-6;
+        double hmin = 1e-6;
         double timestep = 0;
 
         // do one _dt with varying timestep based on courant condition
@@ -61,15 +61,15 @@ double TWorld::floodExplicit()
             // barriers are already in the dem
             Hmx->calc2Maps(DEM, hmx, ADD);
 
-            double maxdepth = qMax(0.01, hmx->mapMaximum());
+            double maxdepth = _max(0.01, hmx->mapMaximum());
             // find maxdepth
-            double maxv = qMax(0.01, Vflood->mapMaximum());
+            double maxv = _max(0.01, Vflood->mapMaximum());
 
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
             timestep = courant_number*_dx/(maxv+qSqrt(gravity*maxdepth));
             // determine timestep
-            timestep = qMax(0.001, timestep);
-            timestep = qMin(timestep, _dt-timesum);
+            timestep = _max(0.001, timestep);
+            timestep = _min(timestep, _dt-timesum);
 
             Qxsum->fill(0);
             // map with fluxes to/from central cell
@@ -132,7 +132,7 @@ double TWorld::floodExplicit()
                     if (i == 2) qxi = qx2->Drc;
                     if (i == 3) qxi = qx3->Drc;
 
-                    if (hxi > h_min)
+                    if (hxi > hmin)
                         qlx = (qxi - (gravity*hxi*timestep*dHdLxi))/
                                 (1.0 + (gravity*hxi*timestep*NN*NN*qxi)/qPow(hxi, 10.0/3.0));
                     else
@@ -142,7 +142,7 @@ double TWorld::floodExplicit()
                     // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
                     qlx2 = 1e6;//(hxi - hmx->Drc)*_dx/timestep;
                     // limit max flux to width * water difference with central cell (w*dh/dt  in m2/s)
-                    Qx = signx * qMin(qMin(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
+                    Qx = signx * _min(_min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
                     // Qx is the min of all possible fluxes, preserve sign
                     Qxsum->Drc += Qx/_dx;
 
@@ -160,7 +160,7 @@ double TWorld::floodExplicit()
                     if (tma->Drc == 1)
             {
                 hmx->Drc += timestep*Qxsum->Drc;
-                hmx->Drc = max(0, hmx->Drc);
+                hmx->Drc = _max(0.0, hmx->Drc);
                 if (ChannelMaxQ->Drc > 0)
                     hmx->Drc = 0;
                 // no flood in culvert cells
@@ -227,7 +227,7 @@ double TWorld::floodExplicit()
                     double qxi = qx[i].m->Drc;
                     double NN = Nx->Drc;
 
-                    if (hxi > h_min)
+                    if (hxi > hmin)
                         qlx = (qxi - (gravity*hxi*timestep*dHdLxi))/
                                 (1.0 + (gravity*hxi*timestep*NN*NN*qxi)/qPow(hxi, 10.0/3.0));
                     else
@@ -237,7 +237,7 @@ double TWorld::floodExplicit()
                     // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
                     qlx2 = (hxi - hmx->Drc)*_dx/timestep;
                     // limit max flux to width * water difference with central cell (w*dh/dt  in m2/s)
-                    Qx = signx * qMin(qMin(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
+                    Qx = signx * _min(_min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
                     // Qx is the min of all possible fluxes, preserve sign
                     if (i != 4)
                         Qxsum->Drc += Qx/_dx2;// *0.5;
@@ -253,7 +253,7 @@ double TWorld::floodExplicit()
                     // for 4 directions do i += 2 instead of i++
 
                     if (i == 4) // central cell
-                        qx[i].m->Drc = signx * qMin(qlx, qlx1); //qlx2 is always 0 for i = 4
+                        qx[i].m->Drc = signx * _min(qlx, qlx1); //qlx2 is always 0 for i = 4
                     else
                         qx[i].m->Drc = Qx;
                     // save flux in direction i for next flood timestep

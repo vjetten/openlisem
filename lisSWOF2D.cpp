@@ -30,18 +30,18 @@
         website: http://www.univ-orleans.fr/mapmo/soft/FullSWOF/
 
 functions: \n
--   double fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
--   double fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z, TMMap *q1, TMMap *q2);
+-   double fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z, CTMap *q1, CTMap *q2);
+-   double fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z, CTMap *q1, CTMap *q2);
 -   double maincalcflux(double dt, double dt_max);
--   void maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,TMMap *hes, TMMap *ves1, TMMap *ves2);
--   void MUSCL(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
--   void ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z);
+-   void maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,CTMap *hes, CTMap *ves1, CTMap *ves2);
+-   void MUSCL(CTMap *h,CTMap *u,CTMap *v,CTMap *z);
+-   void ENO(CTMap *h,CTMap *u,CTMap *v,CTMap *z);
 -   void F_HLL2(double hg,double ug,double vg,double hd,double ud,double vd);
 -   void F_HLL(double hg,double ug,double vg,double hd,double ud,double vd);
 -   void F_Rusanov(double hg,double ug,double vg,double hd,double ud,double vd);
 -   void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double cf);
 -   void Fr_ManningSf(double h, double u, double v, double cf);
--   void setZero(TMMap *h, TMMap *u, TMMap *v);//, TMMap *q1, TMMap *q2);
+-   void setZero(CTMap *h, CTMap *u, CTMap *v);//, CTMap *q1, CTMap *q2);
 -   double limiter(double a, double b);
 */
 
@@ -82,10 +82,10 @@ double TWorld::limiter(double a, double b)
     if (F_fluxLimiter == (int)MINMOD)
     {
         if (a >= 0 && b >= 0)
-            rec = qMin(a, b);
+            rec = _min(a, b);
         else
             if (a <= 0 && b <= 0)
-                rec = qMax(a, b);
+                rec = _max(a, b);
     }
     else
     {
@@ -108,7 +108,7 @@ double TWorld::limiter(double a, double b)
     return(rec);
 }
 //---------------------------------------------------------------------------
-void TWorld::setZero(TMMap *_h, TMMap *_u, TMMap *_v)
+void TWorld::setZero(CTMap *_h, CTMap *_u, CTMap *_v)
 {
     FOR_ROW_COL_MV
     {
@@ -182,17 +182,17 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
 
-        double c1 = min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        double c2 = max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
+        double c1 = _min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
+        double c2 = _max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
         double tmp = 1./(c2-c1);
-        double t1 = (min(c2,0.) - min(c1,0.))*tmp;
+        double t1 = (_min(c2,0.) - _min(c1,0.))*tmp;
         double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
 
         f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
         f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
         f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
-        cfl = max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = _max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition _max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -213,31 +213,31 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
         double grav_h_R = GRAV*h_R;
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
-        double c1 = min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
-        double c2 = max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
+        double c1 = _min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
+        double c2 = _max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
 
-        //cfl is the velocity to calculate the real cfl=max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        //cfl is the velocity to calculate the real cfl=_max(fabs(c1),fabs(c2))*tx with tx=dt/dx
         if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
             f1=0.;
             f2=0.;
             f3=0.;
-            cfl=0.; //max(fabs(c1),fabs(c2))=0
-        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have max(abs(c1),abs(c2))=c2>0
+            cfl=0.; //_max(fabs(c1),fabs(c2))=0
+        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have _max(abs(c1),abs(c2))=c2>0
             f1=q_L;
             f2=q_L*u_L+GRAV*h_L*h_L*0.5;
             f3=q_L*v_L;
-            cfl=c2; //max(fabs(c1),fabs(c2))=c2>0
-        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have max(abs(c1),abs(c2))=-c1>0
+            cfl=c2; //_max(fabs(c1),fabs(c2))=c2>0
+        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have _max(abs(c1),abs(c2))=-c1>0
             f1=q_R;
             f2=q_R*u_R+GRAV*h_R*h_R*0.5;
             f3=q_R*v_R;
-            cfl=fabs(c1); //max(fabs(c1),fabs(c2))=fabs(c1)
+            cfl=fabs(c1); //_max(fabs(c1),fabs(c2))=fabs(c1)
         }else{ //subcritical flow
             double tmp = 1./(c2-c1);
             f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
             f2=(c2*(q_L*u_L+GRAV*h_L*h_L*0.5)-c1*(q_R*u_R+GRAV*h_R*h_R*0.5))*tmp+c1*c2*(q_R-q_L)*tmp;
             f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
-            cfl=max(fabs(c1),fabs(c2));
+            cfl=_max(fabs(c1),fabs(c2));
         }
     }
     HLL2_cfl = cfl;
@@ -257,7 +257,7 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f3 = 0.;
         cfl = 0.;
     }else{
-        c = max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        c = _max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
         double cd = c*0.5;
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
@@ -275,7 +275,7 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 /// Essentially Non-Oscillatory schemes (ENO)
 /// second order scheme: based on [r, r+1, r+2] and [c, c+1, c+2]
 /// http://en.wikipedia.org/wiki/Shock_capturing_method
-void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
+void TWorld::ENO(CTMap *h,CTMap *u,CTMap *v,CTMap *z)
 {
     double ddh1 = 0;
     double ddz1 = 0;
@@ -407,7 +407,7 @@ void TWorld::ENO(TMMap *h,TMMap *u,TMMap *v,TMMap *z)
 //---------------------------------------------------------------------------
 /// MUSCL: Monotone Upstream-centered Schemes for Conservation Laws
 /// see http://en.wikipedia.org/wiki/MUSCL_scheme
-void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
+void TWorld::MUSCL(CTMap *_h, CTMap *_u, CTMap *_v, CTMap *_z)
 {
     double delta_h1, delta_u1, delta_v1;
     double delta_h2, delta_u2, delta_v2;
@@ -578,8 +578,8 @@ void TWorld::MUSCL(TMMap *_h, TMMap *_u, TMMap *_v, TMMap *_z)
 
 //---------------------------------------------------------------------------
 // St Venant equations: conservation of mass and momentum: h u et v
-void TWorld::maincalcscheme(double dt, TMMap *he, TMMap *ve1, TMMap *ve2,
-                            TMMap *hes, TMMap *ves1, TMMap *ves2)
+void TWorld::maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,
+                            CTMap *hes, CTMap *ves1, CTMap *ves2)
 {
     FOR_ROW_COL_MV_MV
     {
@@ -649,8 +649,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
     FOR_ROW_COL_MV_MV
     {
-        h1d->Data[r][c-1] = max(0, h1r->Data[r][c-1] - max(0,  delz1->Data[r][c-1]));
-        h1g->Drc          = max(0, h1l->Drc          - max(0, -delz1->Data[r][c-1]));
+        h1d->Data[r][c-1] = _max(0.0, h1r->Data[r][c-1] - _max(0.0,  delz1->Data[r][c-1]));
+        h1g->Drc          = _max(0.0, h1l->Drc          - _max(0.0, -delz1->Data[r][c-1]));
         if (F_scheme == 1)
             F_Rusanov(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
         else
@@ -668,8 +668,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
     FOR_ROW_COL_MV_MV
     {
-        h2d->Data[r-1][c] = max(0, h2r->Data[r-1][c] - max(0,  delz2->Data[r-1][c]));
-        h2g->Drc          = max(0, h2l->Drc          - max(0, -delz2->Data[r-1][c]));
+        h2d->Data[r-1][c] = _max(0.0, h2r->Data[r-1][c] - _max(0.0,  delz2->Data[r-1][c]));
+        h2g->Drc          = _max(0.0, h2l->Drc          - _max(0.0, -delz2->Data[r-1][c]));
 
         if (F_scheme == 1)
             F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
@@ -817,9 +817,9 @@ double TWorld::maincalcflux(double dt, double dt_max)
         else
             dt_tmp = courant_factor*dx/cflx->Drc;
         // was cfl_fix = 0.4
-        dtx = min(min(dt, dt_tmp), dtx);
+        dtx = _min(_min(dt, dt_tmp), dtx);
 
-        //   velocity_max_x = max(velocity_max_x, cflx->Drc);
+        //   velocity_max_x = _max(velocity_max_x, cflx->Drc);
 
     }
 
@@ -831,15 +831,15 @@ double TWorld::maincalcflux(double dt, double dt_max)
             dt_tmp = dt_max;
         else
             dt_tmp = courant_factor*dy/cfly->Drc;
-        dty = min(min(dt, dt_tmp), dty);
-        //   velocity_max_y = max(velocity_max_y, cfly->Drc);
+        dty = _min(_min(dt, dt_tmp), dty);
+        //   velocity_max_y = _max(velocity_max_y, cfly->Drc);
     }
 
     // qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
     // qDebug() << "mainflux y" << dt << dty << velocity_max_y;
 
     if (scheme_type == 1)
-        return(max(dt_ca, min(dtx,dty)));
+        return(_max(dt_ca, _min(dtx,dty)));
     else
     {
         //        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
@@ -850,7 +850,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
+void TWorld::simpleScheme(CTMap *_h,CTMap *_u,CTMap *_v)
 {
 
     FOR_ROW_COL_MV_MV
@@ -882,7 +882,7 @@ void TWorld::simpleScheme(TMMap *_h,TMMap *_u,TMMap *_v)
 }
 //---------------------------------------------------------------------------
 /// finds flood domain and one dry cell in each direction more (1) and outside (0)
-void TWorld::findFloodDomain(TMMap *_h)
+void TWorld::findFloodDomain(CTMap *_h)
 {
     FOR_ROW_COL_MV_MV
     {
@@ -917,11 +917,11 @@ void TWorld::findFloodDomain(TMMap *_h)
 
 // * @param q1: flux in the x-direction(m2/s)
 // * @param q2: flux in the y-direction(m2/s)
-double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1, TMMap *q2)
+double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1, CTMap *q2)
 {
     double timesum = 0;
     int n = 1;
-    double dt_max = min(_dt, _dx*0.5);
+    double dt_max = _min(_dt, _dx*0.5);
     double dt1 = dt_max;
 
     // do one tmime only at the start of simulation
@@ -964,7 +964,7 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
             dt1 = maincalcflux(dt1, dt_max);
 
-            dt1 = min(dt1, _dt-timesum);
+            dt1 = _min(dt1, _dt-timesum);
 
             maincalcscheme(dt1, h,u,v, hs,us,vs);
 
@@ -1019,10 +1019,10 @@ double TWorld::fullSWOF2Do1(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
 
 // * @param q1: flux in the x-direction(m2/s)
 // * @param q2: flux in the y-direction(m2/s)
-double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1, TMMap *q2)
+double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1, CTMap *q2)
 {
     double dt1 = 0, dt2, timesum = 0;
-    double dt_max = min(_dt, _dx*0.5);
+    double dt_max = _min(_dt, _dx*0.5);
     int n = 0;
     double sumh = 0;
 
@@ -1070,8 +1070,8 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
             }
 
             dt1 = maincalcflux(dt1, dt_max);
-            dt1 = min(dt1, _dt-timesum);
-            //dt1 = max(0.001, dt1);
+            dt1 = _min(dt1, _dt-timesum);
+            //dt1 = _max(0.001, dt1);
 
             //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -1103,7 +1103,7 @@ double TWorld::fullSWOF2Do2(TMMap *h, TMMap *u, TMMap *v, TMMap *z)//, TMMap *q1
                 verif = 1;
                 //hs, us, vs go in hsa, vsa, usa come out
                 maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-                dt1 = min(dt1, _dt-timesum);
+                dt1 = _min(dt1, _dt-timesum);
 
                 setZero(hsa, usa, vsa);
 

@@ -150,7 +150,7 @@ void TWorld::SnowmeltMap(void)
 
    if (SnowmeltSeriesM[place].isMap)
    {
-      TMMap *_M = new TMMap();
+      CTMap *_M = new CTMap();
       _M->PathName = SnowmeltSeriesM[place].name;
       bool res = _M->LoadFromFile();
       if (!res)

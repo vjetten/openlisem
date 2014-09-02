@@ -33,8 +33,8 @@
 #include "csf.h"
 #include <QString>
 
-// #define max(a, b)  (((a) > (b)) ? (a) : (b))
-// #define min(a, b)  (((a) < (b)) ? (a) : (b))
+ #define _max(a, b)  (((a) > (b)) ? (a) : (b))
+ #define _min(a, b)  (((a) < (b)) ? (a) : (b))
 
 //---------------------------------------------------------------------------
 /// CSF map construction, reading, writing series etc.
@@ -64,6 +64,22 @@ public:
     void WriteMapSeries(QString Dir, QString Name, int count);
     bool LoadFromFile();
     void ResetMinMax(void);
+
+    void fill(double value);
+    void calcValue(double v, int oper);
+    void calcMap(cTMap *m, int oper);
+    void calc2Maps(cTMap *m1, cTMap *m2, int oper);
+    void calcMapValue(cTMap *m1, double V, int oper);
+    void copy(cTMap *m);
+    void cover(cTMap *m, double v);
+    void setMV();
+    void checkMap(int oper, double V, QString SS);
+    int countUnits();
+    double mapTotal();
+    double mapAverage();
+    double mapMinimum();
+    double mapMaximum();
+
 
     cTMap();
     ~cTMap();

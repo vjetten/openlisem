@@ -61,7 +61,7 @@ void TWorld::Totals(void)
         RainTot += rainfall; // in m3
 
         oldrainpeak  = Rainpeak;
-        Rainpeak = max(Rainpeak, rainfall);
+        Rainpeak = _max(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
@@ -76,7 +76,7 @@ void TWorld::Totals(void)
         SnowTot += snowmelt; // in m3
 
         oldsnowpeak = Snowpeak;
-        Snowpeak = max(Snowpeak, snowmelt);
+        Snowpeak = _max(Snowpeak, snowmelt);
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
@@ -94,7 +94,7 @@ void TWorld::Totals(void)
     difkinTot =0;//+=  difkin->mapTotal();
 
     InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
-    InfilTotmm = max(0,(InfilTot)*catchmentAreaFlatMM);
+    InfilTotmm = _max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
     tm->calcMapValue(WHstore, 1000, MUL); //mm
@@ -227,18 +227,18 @@ void TWorld::Totals(void)
     // recalc to mm for screen output
 
     oldrainpeak = Qpeak;
-    Qpeak = max(Qpeak, Qoutput->DrcOutlet);
+    Qpeak = _max(Qpeak, Qoutput->DrcOutlet);
     if (oldrainpeak < Qpeak)
         QpeakTime = time;
     // peak flow and peak time calculation, based on sum channel and runoff
 
-    QpeakPlot = max(QpeakPlot, Qoutput->DrcPlot);
+    QpeakPlot = _max(QpeakPlot, Qoutput->DrcPlot);
 
     // do this last because of possible flood inf volume
     FOR_ROW_COL_MV
     {
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        InfilmmCum->Drc = max(0, InfilVolCum->Drc*1000.0/CellArea->Drc);
+        InfilmmCum->Drc = _max(0.0, InfilVolCum->Drc*1000.0/CellArea->Drc);
     }
 
 

@@ -29,10 +29,10 @@
 
 functions: \n
    - void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
-                     TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                     TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap *SedVol,
-                     TMMap *_StorVol, TMMap *_StorVolSed);\n
-   - LDD_POINT** TWorld::makeSortedNetwork(TMMap *_LDD, long *lddlistnr); \n
+                     CTMap *_Q, CTMap *_Qn, CTMap *_Qs,
+                     CTMap *_Qsn, CTMap *_q, CTMap *_Alpha, CTMap *_DX, CTMap *Vol, CTMap *SedVol,
+                     CTMap *_StorVol, CTMap *_StorVolSed);\n
+   - LDD_POINT** TWorld::makeSortedNetwork(CTMap *_LDD, long *lddlistnr); \n
 
  */
 
@@ -58,8 +58,8 @@ functions: \n
 
 //---------------------------------------------------------------------------
 void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
-                        TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX
-                        ,TMMap *_Vol, TMMap*_Sed, TMMap *_StorVol, TMMap *_StorSed)
+                        CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn, CTMap *_q, CTMap *_Alpha, CTMap *_DX
+                        ,CTMap *_Vol, CTMap*_Sed, CTMap *_StorVol, CTMap *_StorSed)
 {
    for (long count = 0; count < _lddlistnr; count++)
    {
@@ -131,7 +131,7 @@ void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
                // to the particle desity dens, because the pores are filled
                // if we use bulk dens here we assume pores are empty!
                //		_StorVol->Data[rowNr][colNr] -= incoming;
-               //	_StorVol->Data[rowNr][colNr] = max(0, _StorVol->Data[rowNr][colNr]);
+               //	_StorVol->Data[rowNr][colNr] = _max(0.0, _StorVol->Data[rowNr][colNr]);
                //	if (BufferVolInit->Data[rowNr][colNr] > 0)
                //		BufferVolInit->Data[rowNr][colNr] -= incoming;
                //	if (ChannelBufferVolInit->Data[rowNr][colNr] > 0)
@@ -152,7 +152,7 @@ void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
             if (isBufferCellSed)
             {
                _Qsn->Data[rowNr][colNr] = 0;
-               _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+               _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
             }
 
          }
@@ -179,9 +179,9 @@ void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
             _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
                                                   _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-         _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+         _Qsn->Data[rowNr][colNr] = _min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
          // no more sediment outflow than total sed in cell
-         _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+         _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
          // new sed volume based on all fluxes and org sed present
 
       }
@@ -191,7 +191,7 @@ void TWorld::KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
 }
 //---------------------------------------------------------------------------
 // this function makes an array of nrCells x 10 places for the LDD_POINT structure
-LDD_POINT** TWorld::makeSortedNetwork(TMMap *_LDD, long *_lddlistnr)
+LDD_POINT** TWorld::makeSortedNetwork(CTMap *_LDD, long *_lddlistnr)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

@@ -13,8 +13,8 @@
 
 #define DIR_PATH_DELIM_CHAR  '\\'
 #ifndef _MAX_
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
+#define __max(a, b)  (((a) > (b)) ? (a) : (b))
+#define __min(a, b)  (((a) < (b)) ? (a) : (b))
 #endif
 
 /* qsortcmp.c */

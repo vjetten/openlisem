@@ -57,7 +57,7 @@ void TWorld::ToChannel(void)
             if (ChannelAdj->Drc == 0)
                 fractiontochannel = 1.0;
             else
-                fractiontochannel = min(1.0, _dt*V->Drc/max(0.01*_dx,0.5*ChannelAdj->Drc));
+                fractiontochannel = _min(1.0, _dt*V->Drc/_max(0.01*_dx,0.5*ChannelAdj->Drc));
 
             if (SwitchBuffers)
                 if (BufferID->Drc > 0)
@@ -363,7 +363,7 @@ void TWorld::OverlandFlowNew(void)
         //                double A = h*w;
         //                double R = A/P;
 
-        //                F = max(0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
+        //                F = _max(0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
         //                dF = (5*w+6*h)/(3*h*P);
         //                h1 = h - F/dF;
         //                // function divided by derivative
@@ -399,7 +399,7 @@ void TWorld::OverlandFlowNew(void)
         // this is the actual infiltration in the kin wave
 
         double diff = InfilKWact;
-        InfilKWact = min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
+        InfilKWact = _min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
         // infil volume cannot be more than surplus infil
 
         if (FFull->Drc == 1)

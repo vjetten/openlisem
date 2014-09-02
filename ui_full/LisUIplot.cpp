@@ -112,8 +112,8 @@ void lisemqt::setupPlot()
 
     // set gridlines
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->enableXMin(true);
-    grid->enableYMin(true);
+//    grid->enableXmin(true);
+ //   grid->enableYmin(true);
     col.setRgb( 180,180,180,180 );
     grid->setMajPen(QPen(col, 0, Qt::DashLine));
     col.setRgb( 210,210,210,180 );
@@ -280,22 +280,22 @@ void lisemqt::showPlot()
     QGraph->setSamples(TData,QData);
     PGraph->setSamples(TData,PData);
 
-    yas = max(yas, op.QPlot);
+    yas = _max(yas, op.QPlot);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     if(!checkNoErosion->isChecked())
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
-        y2as = max(y2as, op.Qsplot);
-        y2as = max(y2as, op.Cplot);
+        y2as = _max(y2as, op.Qsplot);
+        y2as = _max(y2as, op.Cplot);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = max(yas, op.Pmm);
+        yas = _max(yas, op.Pmm);
     }
     else
     {
-        y2as = max(y2as, op.Pmm);
+        y2as = _max(y2as, op.Pmm);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
@@ -446,7 +446,7 @@ void lisemqt::showOutputData()
 
         double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
-        SDR = min(SDR ,100);
+        SDR = _min(SDR ,100.0);
         label_SDR->setText(QString::number(SDR,'f',dig));
         if (checkBuffers->isChecked() || checkSedtrap->isChecked())
             label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
