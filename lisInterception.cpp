@@ -34,7 +34,6 @@ functions: \n
  */
 
 #include "model.h"
-#include "fern_operation.h"
 
 //---------------------------------------------------------------------------
 /// Interception()

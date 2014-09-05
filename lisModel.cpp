@@ -39,8 +39,6 @@
 #include "model.h"
 #include "global.h"
 
-#include "fern_operation.h"
-
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
     QThread(parent)

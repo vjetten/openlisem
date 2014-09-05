@@ -36,7 +36,7 @@ functions: \n
 
 #include "model.h"
 #define tiny 1e-8
-//#include "fern_operation.h"
+
 
 
 //---------------------------------------------------------------------------
@@ -105,45 +105,33 @@ void TWorld::GridCell(void)
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH(void)
 {
-
-
-       fern::ThreadClient client;
-
-        //  auto raster3 = raster1 + raster2;
-
-    //    *hmx = *hmx + *FloodDomain * *RainNet;// * (RainNet + Snowmeltc);
-  //     *WH = *WH + (1.0-*FloodDomain) * *RainNet;// + *Snowmeltc);
-
-/*
-
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0)
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        else
-        {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // add net to water rainfall on soil surface (in m)
-
-            if (SwitchBuffers && !SwitchSedtrap)
-                if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+            FOR_ROW_COL_MV
+            {
+                if (FloodDomain->Drc > 0)
+                    hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+                else
                 {
-                    WH->Drc = 0;
-                    BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                    WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+                    // add net to water rainfall on soil surface (in m)
+
+                    if (SwitchBuffers && !SwitchSedtrap)
+                        if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+                        {
+                            WH->Drc = 0;
+                            BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                        }
+                    // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
+                    // not for sed traps, behave normally
+
+                    if (GrassFraction->Drc > 0)
+                        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+                    // net rainfall on grass strips, infil is calculated separately for grassstrips
+
+                    if (RoadWidthDX->Drc > 0)
+                        WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+                    // assume no interception and infiltration on roads, gross rainfall
                 }
-            // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
-            // not for sed traps, behave normally
-
-            if (GrassFraction->Drc > 0)
-                WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // net rainfall on grass strips, infil is calculated separately for grassstrips
-
-            if (RoadWidthDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-            // assume no interception and infiltration on roads, gross rainfall
-        }
-    }
-*/
+            }
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)

@@ -47,8 +47,6 @@
 #include "swatre_p.h"
 #include "swatre_g.h"
 
-#include "fern/core/thread_client.h"
-#include "fern_operation.h"
 
 #define OLDSWATRE 1
 
