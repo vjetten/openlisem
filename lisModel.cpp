@@ -205,6 +205,7 @@ void TWorld::DoModel()
             ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
             ChannelFlood();        // st venant channel flooding
             CalcVelDischChannel(); // alpha, V and Q from Manning
+
             ChannelFlow();         // channel erosion and kin wave
 
             TileFlow();          // tile drain flow kin wave

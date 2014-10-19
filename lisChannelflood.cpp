@@ -148,7 +148,7 @@ void TWorld::FloodMaxandTiming()
     {
         if (hmx->Drc > minReportFloodHeight && FloodTimeStart->Drc == 0)
         {
-//            FloodTimeStart->Drc = (time - RainpeakTime)/60;
+            //            FloodTimeStart->Drc = (time - RainpeakTime)/60;
             FloodTimeStart->Drc = (time - RainstartTime)/60;
             // time since first pixel received rainfall
         }
@@ -204,21 +204,43 @@ void TWorld::ChannelFlood(void)
                 dtflood = floodExplicit();
             }
 
-
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
-    correctMassBalance(sumh_t, hmx, 1e-6);
+    correctMassBalance(sumh_t, hmx, 1e-12);
     // correct mass balance
-
 
     FloodMaxandTiming();
 
     //new flood domain
     double cells = 0;
     sumh_t = 0;
+
     FOR_ROW_COL_MV
     {
+        double threshold = 0.5;
+        if (hmx->Drc > threshold)
+        {
+
+            if (qAbs( hmx->Drc - Hmx->Drc) > threshold)
+            {
+                qDebug() << "switch" << hmx->Drc << Hmx->Drc;
+                hmx->Drc = _min(hmx->Drc, tmc->Drc);
+                //            int i = 0;
+                //            double sum = 0;
+                //            if (hmx->Data[r-1][c-1]> 0) { sum += hmx->Data[r-1][c-1]; i++;}
+                //            if (hmx->Data[r-1][c]> 0)   { sum += hmx->Data[r-1][c]; i++;}
+                //            if (hmx->Data[r-1][c+1]> 0) { sum += hmx->Data[r-1][c+1]; i++;}
+                //            if (hmx->Data[r  ][c-1]> 0) { sum += hmx->Data[r][c-1]; i++;}
+                //            if (hmx->Data[r  ][c+1]> 0) { sum += hmx->Data[r][c+1]; i++;}
+                //            if (hmx->Data[r+1][c-1]> 0) { sum += hmx->Data[r+1][c-1]; i++;}
+                //            if (hmx->Data[r+1][c]> 0)   { sum += hmx->Data[r+1][c]; i++;}
+                //            if (hmx->Data[r+1][c+1]> 0) { sum += hmx->Data[r+1][c+1]; i++;}
+                //            hmx->Drc = (i > 0 ? sum / i : 0);
+                //            qDebug() << hmx->Drc << sum << i;
+            }
+        }
+
         if (hmx->Drc > 0)
         {
             FloodDomain->Drc = 1;
@@ -228,10 +250,13 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
+    Hmx->copy(hmx);
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = cells*_dx*_dx;
     //    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1));
     // some error reporting
+
+
 }

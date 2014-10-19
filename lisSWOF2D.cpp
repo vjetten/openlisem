@@ -52,13 +52,13 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
-#define dt_ca 1e-3
+#define dt_ca 0.01
 #define dt_fix 0.125
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
 #define scheme_type 1   //return calculated or fixed dt
-#define MAXITER 200
+#define MAXITER 1000
 
 //---------------------------------------------------------------------------
 /**
@@ -421,159 +421,159 @@ void TWorld::MUSCL(CTMap *_h, CTMap *_u, CTMap *_v, CTMap *_z)
     }
 
     FOR_ROW_COL_MV_MV
+            //{
+            delta_h1 = tm->Drc;
+    delta_u1 = tma->Drc;
+    delta_v1 = tmb->Drc;
+
+    delta_h2 = _h->Data[r][c+1] - _h->Drc;
+    delta_u2 = _u->Data[r][c+1] - _u->Drc;
+    delta_v2 = _v->Data[r][c+1] - _v->Drc;
+
+    //        dh   = limiter(delta_h1, delta_h2);
+    //        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+    //        du   = limiter(delta_u1, delta_u2);
+    //        dv   = limiter(delta_v1, delta_v2);
+
+    //        h1r->Drc = _h->Drc+dh*0.5;
+    //        h1l->Drc = _h->Drc-dh*0.5;
+
+    //        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
+    //        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
+
+    //        delzc1->Drc = z1r->Drc-z1l->Drc;
+    //        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+
+    //        if (_h->Drc > he_ca)
+    //        {
+    //            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
+    //            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
+    //            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
+    //            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
+    //        }
+    //        else
+    //        {
+    //            u1r->Drc = _u->Drc + du*0.5;
+    //            u1l->Drc = _u->Drc - du*0.5;
+    //            v1r->Drc = _v->Drc + dv*0.5;
+    //            v1l->Drc = _v->Drc - dv*0.5;
+    //        }
+    dh   = 0.5*limiter(delta_h1, delta_h2);
+    dz_h = 0.5*limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+    du   = 0.5*limiter(delta_u1, delta_u2);
+    dv   = 0.5*limiter(delta_v1, delta_v2);
+
+    h1r->Drc = _h->Drc+dh;
+    h1l->Drc = _h->Drc-dh;
+
+    z1r->Drc = _z->Drc+(dz_h-dh);
+    z1l->Drc = _z->Drc+(dh-dz_h);
+
+    delzc1->Drc = z1r->Drc-z1l->Drc;
+    delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+
+    if (_h->Drc > he_ca)
     {
-        delta_h1 = tm->Drc;
-        delta_u1 = tma->Drc;
-        delta_v1 = tmb->Drc;
+        double h1lh = h1l->Drc/_h->Drc;
+        double h1rh = h1r->Drc/_h->Drc;
 
-        delta_h2 = _h->Data[r][c+1] - _h->Drc;
-        delta_u2 = _u->Data[r][c+1] - _u->Drc;
-        delta_v2 = _v->Data[r][c+1] - _v->Drc;
-
-        //        dh   = limiter(delta_h1, delta_h2);
-        //        dz_h = limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
-        //        du   = limiter(delta_u1, delta_u2);
-        //        dv   = limiter(delta_v1, delta_v2);
-
-        //        h1r->Drc = _h->Drc+dh*0.5;
-        //        h1l->Drc = _h->Drc-dh*0.5;
-
-        //        z1r->Drc = _z->Drc+0.5*(dz_h-dh);
-        //        z1l->Drc = _z->Drc+0.5*(dh-dz_h);
-
-        //        delzc1->Drc = z1r->Drc-z1l->Drc;
-        //        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
-
-        //        if (_h->Drc > he_ca)
-        //        {
-        //            u1r->Drc = _u->Drc + h1l->Drc*du*0.5/_h->Drc;
-        //            u1l->Drc = _u->Drc - h1r->Drc*du*0.5/_h->Drc;
-        //            v1r->Drc = _v->Drc + h1l->Drc*dv*0.5/_h->Drc;
-        //            v1l->Drc = _v->Drc - h1r->Drc*dv*0.5/_h->Drc;
-        //        }
-        //        else
-        //        {
-        //            u1r->Drc = _u->Drc + du*0.5;
-        //            u1l->Drc = _u->Drc - du*0.5;
-        //            v1r->Drc = _v->Drc + dv*0.5;
-        //            v1l->Drc = _v->Drc - dv*0.5;
-        //        }
-        dh   = 0.5*limiter(delta_h1, delta_h2);
-        dz_h = 0.5*limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
-        du   = 0.5*limiter(delta_u1, delta_u2);
-        dv   = 0.5*limiter(delta_v1, delta_v2);
-
-        h1r->Drc = _h->Drc+dh;
-        h1l->Drc = _h->Drc-dh;
-
-        z1r->Drc = _z->Drc+(dz_h-dh);
-        z1l->Drc = _z->Drc+(dh-dz_h);
-
-        delzc1->Drc = z1r->Drc-z1l->Drc;
-        delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
-
-        if (_h->Drc > he_ca)
-        {
-            double h1lh = h1l->Drc/_h->Drc;
-            double h1rh = h1r->Drc/_h->Drc;
-
-            u1r->Drc = _u->Drc + h1lh * du;
-            u1l->Drc = _u->Drc - h1rh * du;
-            v1r->Drc = _v->Drc + h1lh * dv;
-            v1l->Drc = _v->Drc - h1rh * dv;
-        }
-        else
-        {
-            u1r->Drc = _u->Drc + du;
-            u1l->Drc = _u->Drc - du;
-            v1r->Drc = _v->Drc + dv;
-            v1l->Drc = _v->Drc - dv;
-        }
-        tm->Drc = delta_h2;
-        tma->Drc = delta_u2;
-        tmb->Drc = delta_v2;
+        u1r->Drc = _u->Drc + h1lh * du;
+        u1l->Drc = _u->Drc - h1rh * du;
+        v1r->Drc = _v->Drc + h1lh * dv;
+        v1l->Drc = _v->Drc - h1rh * dv;
     }
-
-    FOR_ROW_COL_MV
+    else
     {
-        tm->Drc = 0;
-        tma->Drc = 0;
-        tmb->Drc = 0;
+        u1r->Drc = _u->Drc + du;
+        u1l->Drc = _u->Drc - du;
+        v1r->Drc = _v->Drc + dv;
+        v1l->Drc = _v->Drc - dv;
     }
+    tm->Drc = delta_h2;
+    tma->Drc = delta_u2;
+    tmb->Drc = delta_v2;
+}
 
-    FOR_ROW_COL_MV_MV
-    {
-        delta_h1 = tm->Drc;
-        delta_u1 = tma->Drc;
-        delta_v1 = tmb->Drc;
+FOR_ROW_COL_MV
+{
+    tm->Drc = 0;
+    tma->Drc = 0;
+    tmb->Drc = 0;
+}
 
-        delta_h2 = _h->Data[r+1][c] - _h->Drc;
-        delta_u2 = _u->Data[r+1][c] - _u->Drc;
-        delta_v2 = _v->Data[r+1][c] - _v->Drc;
+FOR_ROW_COL_MV_MV
+//{
+delta_h1 = tm->Drc;
+delta_u1 = tma->Drc;
+delta_v1 = tmb->Drc;
 
-        dh   = 0.5*limiter(delta_h1, delta_h2);
-        dz_h = 0.5*limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
-        du   = 0.5*limiter(delta_u1, delta_u2);
-        dv   = 0.5*limiter(delta_v1, delta_v2);
+delta_h2 = _h->Data[r+1][c] - _h->Drc;
+delta_u2 = _u->Data[r+1][c] - _u->Drc;
+delta_v2 = _v->Data[r+1][c] - _v->Drc;
 
-        h2r->Drc = _h->Drc+dh;
-        h2l->Drc = _h->Drc-dh;
+dh   = 0.5*limiter(delta_h1, delta_h2);
+dz_h = 0.5*limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+du   = 0.5*limiter(delta_u1, delta_u2);
+dv   = 0.5*limiter(delta_v1, delta_v2);
 
-        z2r->Drc = _z->Drc+(dz_h-dh);
-        z2l->Drc = _z->Drc+(dh-dz_h);
-        delzc2->Drc = z2r->Drc - z2l->Drc;
-        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+h2r->Drc = _h->Drc+dh;
+h2l->Drc = _h->Drc-dh;
 
-        if (_h->Drc > he_ca)
-        {
-            double h2lh = h2l->Drc/_h->Drc;
-            double h2rh = h2r->Drc/_h->Drc;
+z2r->Drc = _z->Drc+(dz_h-dh);
+z2l->Drc = _z->Drc+(dh-dz_h);
+delzc2->Drc = z2r->Drc - z2l->Drc;
+delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
 
-            u2r->Drc = _u->Drc + h2lh * du;
-            u2l->Drc = _u->Drc - h2rh * du;
-            v2r->Drc = _v->Drc + h2lh * dv;
-            v2l->Drc = _v->Drc - h2rh * dv;
-        }
-        else
-        {
-            u2r->Drc = _u->Drc + du;
-            u2l->Drc = _u->Drc - du;
-            v2r->Drc = _v->Drc + dv;
-            v2l->Drc = _v->Drc - dv;
-        }
+if (_h->Drc > he_ca)
+{
+    double h2lh = h2l->Drc/_h->Drc;
+    double h2rh = h2r->Drc/_h->Drc;
 
-        //        dh   = limiter(delta_h1, delta_h2);
-        //        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
-        //        du   = limiter(delta_u1, delta_u2);
-        //        dv   = limiter(delta_v1, delta_v2);
+    u2r->Drc = _u->Drc + h2lh * du;
+    u2l->Drc = _u->Drc - h2rh * du;
+    v2r->Drc = _v->Drc + h2lh * dv;
+    v2l->Drc = _v->Drc - h2rh * dv;
+}
+else
+{
+u2r->Drc = _u->Drc + du;
+u2l->Drc = _u->Drc - du;
+v2r->Drc = _v->Drc + dv;
+v2l->Drc = _v->Drc - dv;
+}
 
-        //        h2r->Drc = _h->Drc+dh*0.5;
-        //        h2l->Drc = _h->Drc-dh*0.5;
+//        dh   = limiter(delta_h1, delta_h2);
+//        dz_h = limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+//        du   = limiter(delta_u1, delta_u2);
+//        dv   = limiter(delta_v1, delta_v2);
 
-        //        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
-        //        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
-        //        delzc2->Drc = z2r->Drc - z2l->Drc;
-        //        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+//        h2r->Drc = _h->Drc+dh*0.5;
+//        h2l->Drc = _h->Drc-dh*0.5;
 
-        //        if (_h->Drc > he_ca)
-        //        {
-        //            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
-        //            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
-        //            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
-        //            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
-        //        }
-        //        else
-        //        {
-        //            u2r->Drc = _u->Drc + du*0.5;
-        //            u2l->Drc = _u->Drc - du*0.5;
-        //            v2r->Drc = _v->Drc + dv*0.5;
-        //            v2l->Drc = _v->Drc - dv*0.5;
-        //        }
+//        z2r->Drc = _z->Drc+0.5*(dz_h-dh);
+//        z2l->Drc = _z->Drc+0.5*(dh-dz_h);
+//        delzc2->Drc = z2r->Drc - z2l->Drc;
+//        delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
 
-        tm->Drc = delta_h2;
-        tma->Drc = delta_u2;
-        tmb->Drc = delta_v2;
-    }
+//        if (_h->Drc > he_ca)
+//        {
+//            u2r->Drc = _u->Drc + h2l->Drc*du*0.5/_h->Drc;
+//            u2l->Drc = _u->Drc - h2r->Drc*du*0.5/_h->Drc;
+//            v2r->Drc = _v->Drc + h2l->Drc*dv*0.5/_h->Drc;
+//            v2l->Drc = _v->Drc - h2r->Drc*dv*0.5/_h->Drc;
+//        }
+//        else
+//        {
+//            u2r->Drc = _u->Drc + du*0.5;
+//            u2l->Drc = _u->Drc - du*0.5;
+//            v2r->Drc = _v->Drc + dv*0.5;
+//            v2l->Drc = _v->Drc - dv*0.5;
+//        }
+
+tm->Drc = delta_h2;
+tma->Drc = delta_u2;
+tmb->Drc = delta_v2;
+}
 }
 
 //---------------------------------------------------------------------------
@@ -582,51 +582,51 @@ void TWorld::maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,
                             CTMap *hes, CTMap *ves1, CTMap *ves2)
 {
     FOR_ROW_COL_MV_MV
+    //{
+    double dx = _dx;//-ChannelWidthUpDX->Drc;
+    double dy = DX->Drc;
+    double tx = dt/dx;
+    double ty = dt/dy;
+
+    // Solution of the equation of mass conservation (First equation of Saint venant)
+    // f1 comes from MUSCL calculations
+    hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
+    if (hes->Drc > he_ca)
     {
-        double dx = _dx;//-ChannelWidthUpDX->Drc;
-        double dy = _dx;//DX->Drc;
-        double tx = dt/dx;
-        double ty = dt/dy;
+        //Solution of the equation of momentum (Second and third equation of Saint-venant)
+        double qes1;
+        double qes2;
 
-        // Solution of the equation of mass conservation (First equation of Saint venant)
-        // f1 comes from MUSCL calculations
-        hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
-        if (hes->Drc > he_ca)
-        {
-            //Solution of the equation of momentum (Second and third equation of Saint-venant)
-            double qes1;
-            double qes2;
+        // fullswof version 1.04
+        qes1 = he->Drc*ve1->Drc - ty*(g2->Data[r+1][c]-g2->Drc) -
+                tx*(f2->Data[r][c+1]-f2->Drc +
+                GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
+                          (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
+                          (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
 
-            // fullswof version 1.04
-            qes1 = he->Drc*ve1->Drc - ty*(g2->Data[r+1][c]-g2->Drc) -
-                    tx*(f2->Data[r][c+1]-f2->Drc +
-                    GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
-                              (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
-                              (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
+        // fullswof version 1.04
+        qes2 = he->Drc*ve2->Drc - tx*(f3->Data[r][c+1]-f3->Drc) -
+                ty*(g3->Data[r+1][c]-g3->Drc +
+                GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
+                          (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
+                          (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
-            // fullswof version 1.04
-            qes2 = he->Drc*ve2->Drc - tx*(f3->Data[r][c+1]-f3->Drc) -
-                    ty*(g3->Data[r+1][c]-g3->Drc +
-                    GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
-                              (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
-                              (h2l->Drc+h2r->Drc)*delzc2->Drc));
+        //Calc friction semi-implicit with old v and u and new h
+        //Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
 
-            //Calc friction semi-implicit with old v and u and new h
-            //Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
+        double nsq = N->Drc*N->Drc*GRAV*sqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc)*dt/qPow(hes->Drc,4.0/3.0);
 
-            double nsq = N->Drc*N->Drc*GRAV*sqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc)*dt/qPow(hes->Drc,4.0/3.0);
-
-            ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
-            ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
-        }
-        else
-        {
-            // Case of height of water is zero.
-            ves1->Drc = 0;
-            ves2->Drc = 0;
-            hes->Drc = 0;
-        }
+        ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
+        ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
     }
+    else
+    {
+        // Case of height of water is zero.
+        ves1->Drc = 0;
+        ves2->Drc = 0;
+        hes->Drc = 0;
+    }
+}
 }
 //---------------------------------------------------------------------------
 /**
@@ -647,8 +647,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     //  int dc[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     //  int dr[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    FOR_ROW_COL_MV_MV
-    {
+    FOR_ROW_COL_MV_MV {
         h1d->Data[r][c-1] = _max(0.0, h1r->Data[r][c-1] - _max(0.0,  delz1->Data[r][c-1]));
         h1g->Drc          = _max(0.0, h1l->Drc          - _max(0.0, -delz1->Data[r][c-1]));
         if (F_scheme == 1)
@@ -663,190 +662,135 @@ double TWorld::maincalcflux(double dt, double dt_max)
         f2->Drc = HLL2_f2;
         f3->Drc = HLL2_f3;
         cflx->Drc = HLL2_cfl;
-    }
+    }}
 
 
-    FOR_ROW_COL_MV_MV
-    {
-        h2d->Data[r-1][c] = _max(0.0, h2r->Data[r-1][c] - _max(0.0,  delz2->Data[r-1][c]));
-        h2g->Drc          = _max(0.0, h2l->Drc          - _max(0.0, -delz2->Data[r-1][c]));
+FOR_ROW_COL_MV_MV {
+    h2d->Data[r-1][c] = _max(0.0, h2r->Data[r-1][c] - _max(0.0,  delz2->Data[r-1][c]));
+    h2g->Drc          = _max(0.0, h2l->Drc          - _max(0.0, -delz2->Data[r-1][c]));
 
-        if (F_scheme == 1)
-            F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+    if (F_scheme == 1)
+        F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+    else
+        if (F_scheme == 2)
+            F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
         else
-            if (F_scheme == 2)
-                F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-            else
-                F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+            F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
-        g1->Drc = HLL2_f1;
-        g2->Drc = HLL2_f3;
-        g3->Drc = HLL2_f2;
-        cfly->Drc = HLL2_cfl;
-    }
+    g1->Drc = HLL2_f1;
+    g2->Drc = HLL2_f3;
+    g3->Drc = HLL2_f2;
+    cfly->Drc = HLL2_cfl;
+}}
 
-    // VJ 130517: not in the original code!
-    // correct sudden extreme values, swap x or y direction
-    // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
+// VJ 130517: not in the original code!
+// correct sudden extreme values, swap x or y direction
+// cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
 
 
-    if (F_replaceV > 0)
-    {
-        FOR_ROW_COL_MV_MV
+if (F_replaceV > 0)
+{
+    FOR_ROW_COL_MV_MV {
+
+        if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
         {
-            //            if (cflx->Drc > F_maxVelocity)
-            //            {
-            //                qDebug() << "oh oh x" << cflx->Drc;
-            //                double cflxx = 0;
-            //                double f11 = 0;
-            //                double f22 = 0;
-            //                double f33 = 0;
-            //                int count = 0;
-            //                for (int i = 1; i <= 9; i++)
-            //                    if (i != 5 && cflx->Data[r+dr[i]][c+dc[i]] < 100)
-            //                    {
-            //                        cflxx += cflx->Data[r+dr[i]][c+dc[i]];
-            //                        f11 += f1->Data[r+dr[i]][c+dc[i]];
-            //                        f22 += f2->Data[r+dr[i]][c+dc[i]];
-            //                        f33 += f3->Data[r+dr[i]][c+dc[i]];
-            //                        count++;
-            //                    }
+            //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
+            double e1 = 0.0;
+            double e2 = 0.0;
+            double e3 = 0.0;
+            double cfle = 0.0;
 
-            //                cflx->Drc = cflxx/count;
-            //                f1->Drc = f11/count;
-            //                f2->Drc = f22/count;
-            //                f3->Drc = f33/count;
-            //                qDebug() << "oh oh xn" << cflx->Drc;
-            //            }
-
-            //        if (cfly->Drc > F_maxVelocity)
-            //        {
-            //            qDebug() << "oh oh y" << cfly->Drc;
-            //            double cflxx = 0;
-            //            double f11 = 0;
-            //            double f22 = 0;
-            //            double f33 = 0;
-            //            int count = 0;
-            //            for (int i = 1; i <= 9; i++)
-            //                if (i != 5 && cfly->Data[r+dr[i]][c+dc[i]] < 100)
-            //                {
-            //                    cflxx += cfly->Data[r+dr[i]][c+dc[i]];
-            //                    f11 += g1->Data[r+dr[i]][c+dc[i]];
-            //                    f22 += g2->Data[r+dr[i]][c+dc[i]];
-            //                    f33 += g3->Data[r+dr[i]][c+dc[i]];
-            //                    count++;
-            //                }
-
-            //            cfly->Drc = cflxx/count;
-            //            g1->Drc = f11/count;
-            //            g2->Drc = f22/count;
-            //            g3->Drc = f33/count;
-            //            qDebug() << "oh oh yn" << cfly->Drc;
-            //        }
-
-
-            if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
+            if (F_replaceV == 2)
             {
-                //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
-                double e1 = 0.0;
-                double e2 = 0.0;
-                double e3 = 0.0;
-                double cfle = 0.0;
-
-                if (F_replaceV == 2)
+                cfle = sqrt(cflx->Drc*cfly->Drc);
+                e1 = sqrt(f1->Drc*g1->Drc);
+                e2 = sqrt(f2->Drc*g2->Drc);
+                e3 = sqrt(f3->Drc*g3->Drc);
+            }
+            else
+                if (F_replaceV == 3)
                 {
-                    cfle = sqrt(cflx->Drc*cfly->Drc);
-                    e1 = sqrt(f1->Drc*g1->Drc);
-                    e2 = sqrt(f2->Drc*g2->Drc);
-                    e3 = sqrt(f3->Drc*g3->Drc);
+                    cfle = 0.5*(cflx->Drc+cfly->Drc);
+                    e1 = 0.5*(f1->Drc+g1->Drc);
+                    e2 = 0.5*(f2->Drc+g2->Drc);
+                    e3 = 0.5*(f3->Drc+g3->Drc);
+                }
+
+            if (cflx->Drc > F_maxVelocity)
+            {
+                if (F_replaceV == 1)
+                {
+                    cflx->Drc = cfly->Drc;
+                    f1->Drc = g1->Drc;
+                    f2->Drc = g2->Drc;
+                    f3->Drc = g3->Drc;
                 }
                 else
-                    if (F_replaceV == 3)
-                    {
-                        cfle = 0.5*(cflx->Drc+cfly->Drc);
-                        e1 = 0.5*(f1->Drc+g1->Drc);
-                        e2 = 0.5*(f2->Drc+g2->Drc);
-                        e3 = 0.5*(f3->Drc+g3->Drc);
-                    }
-
-                if (cflx->Drc > F_maxVelocity)
                 {
-                    if (F_replaceV == 1)
-                    {
-                        cflx->Drc = cfly->Drc;
-                        f1->Drc = g1->Drc;
-                        f2->Drc = g2->Drc;
-                        f3->Drc = g3->Drc;
-                    }
-                    else
-                    {
-                        cflx->Drc = cfle;
-                        f1->Drc = e1;
-                        f2->Drc = e2;
-                        f3->Drc = e3;
-                    }
+                    cflx->Drc = cfle;
+                    f1->Drc = e1;
+                    f2->Drc = e2;
+                    f3->Drc = e3;
                 }
-                if (cfly->Drc > F_maxVelocity)
-                {
-                    if (F_replaceV == 1)
-                    {
-                        cfly->Drc = cflx->Drc;
-                        g1->Drc = f1->Drc;
-                        g2->Drc = f2->Drc;
-                        g3->Drc = f3->Drc;
-                    }
-                    else
-                    {
-                        cfly->Drc = cfle;
-                        g1->Drc = e1;
-                        g2->Drc = e2;
-                        g3->Drc = e3;
-                    }
-                }
-
-                //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
             }
+            if (cfly->Drc > F_maxVelocity)
+            {
+                if (F_replaceV == 1)
+                {
+                    cfly->Drc = cflx->Drc;
+                    g1->Drc = f1->Drc;
+                    g2->Drc = f2->Drc;
+                    g3->Drc = f3->Drc;
+                }
+                else
+                {
+                    cfly->Drc = cfle;
+                    g1->Drc = e1;
+                    g2->Drc = e2;
+                    g3->Drc = e3;
+                }
+            }
+
+            //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
         }
-    }
-    // find largest velocity and determine dt
-    FOR_ROW_COL_MV_MV
-    {
-        dx = _dx;//-ChannelWidthUpDX->Drc;
-        if (qFabs(cflx->Drc*dt/dx) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = courant_factor*dx/cflx->Drc;
-        // was cfl_fix = 0.4
-        dtx = _min(_min(dt, dt_tmp), dtx);
-
-        //   velocity_max_x = _max(velocity_max_x, cflx->Drc);
-
-    }
-
-    // find largest velocity and determine dt
-    FOR_ROW_COL_MV_MV
-    {
-        dy = _dx;//DX->Drc;
-        if (qFabs(cfly->Drc*dt/dy) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = courant_factor*dy/cfly->Drc;
-        dty = _min(_min(dt, dt_tmp), dty);
-        //   velocity_max_y = _max(velocity_max_y, cfly->Drc);
-    }
-
-    // qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
-    // qDebug() << "mainflux y" << dt << dty << velocity_max_y;
-
-    if (scheme_type == 1)
-        return(_max(dt_ca, _min(dtx,dty)));
+    }}
+}
+// find largest velocity and determine dt
+FOR_ROW_COL_MV_MV {
+    dx = _dx;//-ChannelWidthUpDX->Drc;
+    if (qFabs(cflx->Drc*dt/dx) < 1e-10)
+        dt_tmp = dt_max;
     else
-    {
-        //        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
-        //            qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
-        //        }
-        return (dt_fix);
-    }
+        dt_tmp = courant_factor*dx/cflx->Drc;
+    // was cfl_fix = 0.4
+    dtx = _min(_min(dt, dt_tmp), dtx);
+
+    //   velocity_max_x = _max(velocity_max_x, cflx->Drc);
+}}
+
+// find largest velocity and determine dt
+FOR_ROW_COL_MV_MV {
+    dy = _dx;//DX->Drc;
+    if (qFabs(cfly->Drc*dt/dy) < 1e-10)
+        dt_tmp = dt_max;
+    else
+        dt_tmp = courant_factor*dy/cfly->Drc;
+    dty = _min(_min(dt, dt_tmp), dty);
+    //   velocity_max_y = _max(velocity_max_y, cfly->Drc);
+}}
+
+// qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
+// qDebug() << "mainflux y" << dt << dty << velocity_max_y;
+
+if (scheme_type == 1)
+return(_max(dt_ca, _min(dtx,dty)));
+else
+{
+//        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
+//            qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
+//        }
+return (dt_fix);
+}
 
 }
 //---------------------------------------------------------------------------
@@ -854,56 +798,79 @@ void TWorld::simpleScheme(CTMap *_h,CTMap *_u,CTMap *_v)
 {
 
     FOR_ROW_COL_MV_MV
-    {
-        h1r->Drc = _h->Drc;
-        u1r->Drc = _u->Drc;
-        v1r->Drc = _v->Drc;
-        h1l->Drc = _h->Drc;
-        u1l->Drc = _u->Drc;
-        v1l->Drc = _v->Drc;
+            //{
+            h1r->Drc = _h->Drc;
+    u1r->Drc = _u->Drc;
+    v1r->Drc = _v->Drc;
+    h1l->Drc = _h->Drc;
+    u1l->Drc = _u->Drc;
+    v1l->Drc = _v->Drc;
 
-        //        h1l->Data[r][c+1] = _h->Data[r][c+1];
-        //        u1l->Data[r][c+1] = _u->Data[r][c+1];
-        //        v1l->Data[r][c+1] = _v->Data[r][c+1];
-    }
-    FOR_ROW_COL_MV_MV
-    {
-        h2r->Drc = _h->Drc;
-        u2r->Drc = _u->Drc;
-        v2r->Drc = _v->Drc;
-        h2l->Drc = _h->Drc;
-        u2l->Drc = _u->Drc;
-        v2l->Drc = _v->Drc;
+    //        h1l->Data[r][c+1] = _h->Data[r][c+1];
+    //        u1l->Data[r][c+1] = _u->Data[r][c+1];
+    //        v1l->Data[r][c+1] = _v->Data[r][c+1];
+}
+FOR_ROW_COL_MV_MV
+// {
+h2r->Drc = _h->Drc;
+u2r->Drc = _u->Drc;
+v2r->Drc = _v->Drc;
+h2l->Drc = _h->Drc;
+u2l->Drc = _u->Drc;
+v2l->Drc = _v->Drc;
 
-        //        h2l->Data[r+1][c] = _h->Data[r+1][c];
-        //        u2l->Data[r+1][c] = _u->Data[r+1][c];
-        //        v2l->Data[r+1][c] = _v->Data[r+1][c];
-    }
+//        h2l->Data[r+1][c] = _h->Data[r+1][c];
+//        u2l->Data[r+1][c] = _u->Data[r+1][c];
+//        v2l->Data[r+1][c] = _v->Data[r+1][c];
+}
 }
 //---------------------------------------------------------------------------
 /// finds flood domain and one dry cell in each direction more (1) and outside (0)
 void TWorld::findFloodDomain(CTMap *_h)
 {
-    FOR_ROW_COL_MV_MV
-    {
-        if (_h->Drc > 0 || (ChannelDepth->Drc > 0))
-        {
-            floodactive->Data[r-1][c-1] = 1;
-            floodactive->Data[r-1][c  ] = 1;
-            floodactive->Data[r-1][c+1] = 1;
-            floodactive->Data[r  ][c-1] = 1;
-            floodactive->Data[r  ][c  ] = 1;
-            floodactive->Data[r  ][c+1] = 1;
-            floodactive->Data[r+1][c-1] = 1;
-            floodactive->Data[r+1][c  ] = 1;
-            floodactive->Data[r+1][c+1] = 1;
-        }
-        else
-            floodactive->Drc = 0;
+    for (int r = 1; r < _nrRows-1; r++)
+        for (int c = 1; c < _nrCols-1; c++)
+            if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+                    !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+                    !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+                    !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
+                    !IS_MV_REAL8(&LDD->Data[r][c+1]))
+            {
+                if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
+                {
+                    floodactive->Data[r-1][c-1] = 1;
+                    floodactive->Data[r-1][c  ] = 1;
+                    floodactive->Data[r-1][c+1] = 1;
+                    floodactive->Data[r  ][c-1] = 1;
+                    floodactive->Data[r  ][c  ] = 1;
+                    floodactive->Data[r  ][c+1] = 1;
+                    floodactive->Data[r+1][c-1] = 1;
+                    floodactive->Data[r+1][c  ] = 1;
+                    floodactive->Data[r+1][c+1] = 1;
+                }
+                else
+                    floodactive->Drc = 0;
 
-        if (LDD->Drc == 5)
-            floodactive->Drc = 0;
-    }
+                if (LDD->Drc == 5)
+                    floodactive->Drc = 0;
+            }
+
+
+
+    long _i = 0;
+    nrFloodcells = 0;
+    for (int r = _nrRows-2; r >= 1; r--)
+        for (int c = _nrCols-2; c >= 1; c--)
+            if(!IS_MV_REAL8(&LDD->Data[r][c]))
+                if (floodactive->Drc == 1)
+                {
+                    floodRow[_i] = r;
+                    floodCol[_i] = c;
+                    _i++;
+                }
+    nrFloodcells = _i;
+    //qDebug() << "coord" << nrFloodcells;
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -928,20 +895,30 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
     if (prepareFlood)
     {
         prepareFlood = false;
-        FOR_ROW_COL_MV_MV
-        {
-            delta_z1->Drc = z->Data[r][c+1] - z->Drc;
-            delta_z2->Drc = z->Data[r+1][c] - z->Drc;
-            //needed in MUSCL
+        findFloodDomain(h);
+        // setup coord;
 
-            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
-            // needed in maincalcflux
+        for (int r = 1; r < _nrRows-1; r++)
+            for (int c = 1; c < _nrCols-1; c++)
+                if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c+1]))
+                {
+                    delta_z1->Drc = z->Data[r][c+1] - z->Drc;
+                    delta_z2->Drc = z->Data[r+1][c] - z->Drc;
+                    //needed in MUSCL
 
-            som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
-            som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
-            //needed in ENO
-        }
+                    delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
+                    delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+                    // needed in maincalcflux
+
+                    //    som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
+                    //    som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
+                    //needed in ENO
+
+                }
     }
     // if there is no flood skip everything
     if (startFlood)
@@ -970,7 +947,7 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
             setZero(hs, us, vs);
 
-            FOR_ROW_COL_MV_MV
+            FOR_ROW_COL_MV
             {
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
@@ -983,22 +960,21 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
             n++;
 
             /* double tmp =*/
-        //    correctMassBalance(sumh, h, 0);
+            correctMassBalance(sumh, h, 1e-12);
 
             if (n > MAXITER)
             {
-                correctMassBalance(sumh, h, 1e-6);
+                // correctMassBalance(sumh, h, 1e-12);
                 break;
             }
 
         } while (timesum  < _dt);
     }
-
     //Fr=froude_number(hs,us,vs);
     // todo
 
     //    FOR_ROW_COL_MV_MV
-    //    {
+    //    //{
     //        q1->Drc = h->Drc*u->Drc; //??? this is in m2/s, unit discharge
     //        q2->Drc = h->Drc*v->Drc;
     //    }
@@ -1030,20 +1006,28 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
     {
         verif = 1;
         prepareFlood = false;
-        FOR_ROW_COL_MV_MV
-        {
-            delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-            delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
-            delta_z1->Drc = z->Data[r][c+1] - z->Drc;
-            delta_z2->Drc = z->Data[r+1][c] - z->Drc;
-            som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
-            som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
-        }
+
+        for (int r = 1; r < _nrRows-1; r++)
+            for (int c = 1; c < _nrCols-1; c++)
+                if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
+                        !IS_MV_REAL8(&LDD->Data[r][c+1]))
+                {
+                    delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
+                    delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+                    delta_z1->Drc = z->Data[r][c+1] - z->Drc;
+                    delta_z2->Drc = z->Data[r+1][c] - z->Drc;
+                    //   som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
+                    //   som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
+                }
     }
 
 
     sumh = h->mapTotal();
     // if there is no flood skip everything
+
     if (startFlood)
     {
         verif = 1;
@@ -1071,7 +1055,6 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = _min(dt1, _dt-timesum);
-            //dt1 = _max(0.001, dt1);
 
             //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -1109,6 +1092,7 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
                 //Heun method (order 2 in time)
                 FOR_ROW_COL_MV
+                        // if (floodactive->Drc > 0)
                 {
                     double havg = 0.5*(h->Drc + hsa->Drc);
                     if (havg >= he_ca)
@@ -1132,18 +1116,19 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
                 if (n > MAXITER)
                 {
-                    correctMassBalance(sumh, h, 1e-6);
+                    //     correctMassBalance(sumh, h, 1e-12);
                     break;
                 }
-
             }//end for else dt2<dt1
 
+            correctMassBalance(sumh, h, 1e-12);
             findFloodDomain(h);
 
+           // qDebug() << n << timesum << dt1;
         } while (timesum  < _dt);
+        //  findFloodDomain(h);
 
     } // if floodstart
-
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;
     return(dt1);

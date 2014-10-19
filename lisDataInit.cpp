@@ -528,6 +528,34 @@ void TWorld::InitChannel(void)
     maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
 
+    long nrc = 0;
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+        if(!IS_MV_REAL8(&LDD->Data[r][c]))
+        nrc++;
+
+    qDebug() << nrc;
+    cellRow = new int[nrc];
+    cellCol = new int[nrc];
+    long i = 0;
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+        if(!IS_MV_REAL8(&LDD->Data[r][c]))
+    {
+        cellRow[i] = r;
+        cellCol[i] = c;
+        i++;
+    }
+    nrGridcells = nrc;
+
+    floodRow = new int[nrc];
+    floodCol = new int[nrc];
+    for (long i = 0; i < nrc; i++)
+    {
+        floodRow[i] = 0;
+        floodCol[i] = 0;
+    }
+    nrFloodcells = 0;
     if (SwitchIncludeChannel)
     {
         //## channel maps
@@ -603,12 +631,12 @@ void TWorld::InitChannel(void)
                 qx3 = NewMap(0);
                 Hx = NewMap(0);
                 hx = NewMap(0);
-                Hmx = NewMap(0);
+
                 Nx = NewMap(0);
                 dHdLx = NewMap(0);
             }
             //explicit
-
+Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
             FloodTimeStart = NewMap(0);

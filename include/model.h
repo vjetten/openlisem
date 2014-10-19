@@ -81,6 +81,8 @@
 
 /// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
 /// and looking only in active flood domain = flood + 1 cell in all directions
+
+/*
 #define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
     if(!IS_MV_REAL8(&LDD->Data[r][c]) && \
@@ -88,8 +90,21 @@
     !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
     !IS_MV_REAL8(&LDD->Data[r][c+1]))\
-    if (floodactive->Drc > 0)
-    //if (floodzone->Drc == fZone)
+    if (floodactive->Drc > 0)\
+{
+
+
+#define FOR_ROW_COL_MV for (long _i = 0; _i < nrGridcells ; _i++)\
+{\
+    int r = cellRow[_i];\
+    int c = cellCol[_i];
+*/
+#define FOR_ROW_COL_MV_MV for (long _i = 0; _i < nrFloodcells ; _i++)\
+{\
+    int r = floodRow[_i];\
+    int c = floodCol[_i];
+
+
 
 #define FOR_ROW_COL_MV_MV2 for (int r = 2; r < _nrRows-2; r++)\
     for (int c = 2; c < _nrCols-2; c++)\
@@ -105,7 +120,6 @@
 !IS_MV_REAL8(&LDD->Data[r][c+2])\
 )\
     if (floodactive->Drc > 0)
-    //if (floodzone->Drc == fZone)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -490,6 +504,14 @@ public:
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachment(void);
     //flood
+    //QVector<int> cellRow;
+    //QVector<int> cellCol;
+    int *cellRow;
+    int *cellCol;
+    int *floodRow;
+    int *floodCol;
+    long nrGridcells;
+    long nrFloodcells;
     void ChannelFlood(void);
     void FloodMaxandTiming(void);
     void ChannelFloodStatistics(void);

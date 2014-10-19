@@ -258,7 +258,7 @@ void TWorld::MUSCL2(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
 
 
     FOR_ROW_COL_MV_MV
-    {
+    //{
         delta_h2 = h->Data[r][c+1] - h->Drc;
         delta_u2 = u->Data[r][c+1] - u->Drc;
         delta_v2 = v->Data[r][c+1] - v->Drc;
@@ -302,7 +302,7 @@ void TWorld::MUSCL2(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
     delta_v1 = 0;
 
     FOR_ROW_COL_MV_MV
-    {
+    //{
         delta_h2 = h->Data[r+1][c]-h->Drc;
         delta_u2 = u->Data[r+1][c]-u->Drc;
         delta_v2 = v->Data[r+1][c]-v->Drc;
@@ -366,7 +366,7 @@ void TWorld::ENO(CTMap *h,CTMap *u,CTMap *v,CTMap *z,CTMap *delzc1,CTMap *delzc2
     delta_v1 = 0;
 
     FOR_ROW_COL_MV_MV
-    {
+    //{
         delta_z1->Drc = z->Data[r+1][c]-z->Drc;
         delta_z2->Drc = z->Data[r+1][c]-z->Drc;
         som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
@@ -375,7 +375,7 @@ void TWorld::ENO(CTMap *h,CTMap *u,CTMap *v,CTMap *z,CTMap *delzc1,CTMap *delzc2
 
 
     FOR_ROW_COL_MV_MV
-    {
+    //{
         //        hh2 = h->Drc-2.*h->Data[r][c+1]+h[i+2][l];
         //        uu2 = u->Drc-2.*u->Data[r][c+1]+u[i+2][l];
         //        vv2 = v->Drc-2.*v->Data[r][c+1]+v[i+2][l];
@@ -451,7 +451,7 @@ void TWorld::ENO(CTMap *h,CTMap *u,CTMap *v,CTMap *z,CTMap *delzc1,CTMap *delzc2
     ddv1=0.;
 
     FOR_ROW_COL_MV_MV
-    {
+    //{
         //        hh2 = h->Drc-2.*h->Data[r+1][c]+h[i][l+2];
         //        uu2 = u->Drc-2.*u->Data[r+1][c]+u[i][l+2];
         //        vv2 = v->Drc-2.*v->Data[r+1][c]+v[i][l+2];
@@ -547,7 +547,7 @@ void TWorld::MUSCL(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
     {
         prepareFlood = false;
         FOR_ROW_COL_MV_MV
-        {
+        //{
             delta_z1->Drc = z->Data[r+1][c] - z->Drc;
             delta_z2->Drc = z->Data[r][c+1] - z->Drc;
         }
@@ -555,7 +555,7 @@ void TWorld::MUSCL(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
     bool hoi = true;
     // first do 1: x direction (col+1 - col)
     FOR_ROW_COL_MV_MV
-    {
+    //{
 
         delta_h2 = h->Data[r+1][c] - h->Drc;
         delta_u2 = u->Data[r+1][c] - u->Drc;
@@ -604,7 +604,7 @@ void TWorld::MUSCL(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
 
     // then do 2: y direction (row+1 - row)
     FOR_ROW_COL_MV_MV
-    {
+    //{
         delta_h2 = h->Data[r][c+1] - h->Drc;
         delta_u2 = u->Data[r][c+1] - u->Drc;
         delta_v2 = v->Data[r][c+1] - v->Drc;

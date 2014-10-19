@@ -165,7 +165,7 @@ void TWorld::Totals(void)
         if (SwitchChannelFlood)
         {
             floodVolTot = FloodWaterVol->mapTotal();
-            floodTotmm = floodVolTot*catchmentAreaFlatMM;
+            floodTotmm = hmx->mapAverage()*1000;//floodVolTot*catchmentAreaFlatMM;
         }
         if (runstep == 1)
             floodVolTotInit = floodVolTot;
@@ -399,9 +399,15 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
+    {
+        /*
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+                */
+        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
+        MB = MB/(RainTotmm + SnowTotmm) * 100;
+    }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
