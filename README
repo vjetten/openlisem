@@ -5,6 +5,11 @@ At this point there are two developments:
 
 openLISEM README (140712)
 =========================
+LATEST CHANGES (v1.93-1.94)
+- Fixed a bug that creates artificial flood boundaries, lisem now needs a map that delineates the potential floodzone (1,0)
+- Experimenting with faster flood calculations
+- corrections for spurious flood heights
+
 LATEST CHANGES (v1.8-1.92)
 - Changed map display layout and options
 - Changes to flood calculations and 1D/2D linking

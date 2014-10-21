@@ -42,6 +42,10 @@ functions: \n
 - void TWorld::ParseRunfileData() \n
 - void TWorld::GetRunFile() \n
 */
+QString TWorld::getvaluedescription(QString vname)
+{
+
+}
 
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
@@ -431,6 +435,7 @@ void TWorld::GetRunFile(void)
                 QStringList SL = S.split(QRegExp("="));
                 runnamelist[nrrunnamelist].name = SL[0].trimmed();
                 runnamelist[nrrunnamelist].value = SL[1].trimmed();
+
                 nrrunnamelist++;
             }
         }

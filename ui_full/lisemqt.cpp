@@ -117,8 +117,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     E_runFileList->clear();
 
 
-    E_FloodScheme->setVisible(false);
-    label_98->setVisible(false);
+    //E_FloodScheme->setVisible(false);
+    //label_98->setVisible(false);
     //checkAddWHtohmx->setVisible(false);
     //label_125->setVisible(false);
     //floodCutoffLevel->setVisible(false);
@@ -465,9 +465,11 @@ void lisemqt::setResultDir()
         E_ResultDir->setText( path );
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_FloodScheme_valueChanged(int nr)
+void lisemqt::on_E_floodSolution_valueChanged(int nr)
 {
-    E_FloodFluxLimiter->setEnabled(nr < 3);
+    E_FloodScheme->setEnabled(nr == 1);
+    label_98->setEnabled(nr == 1);
+
 }
 //--------------------------------------------------------------------
 // this is for the directory with the table files

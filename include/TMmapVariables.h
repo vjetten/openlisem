@@ -301,6 +301,8 @@ CTMap
 *ChannelMaxQ,                //!<
 *ChannelLevee,                //!<
 *FloodWaterVol,
+*FloodZonePotential,
+*FloodEdge,
 //*FloodVoltoChannel,
 *FloodTimeStart,
 *FloodTimeEnd,

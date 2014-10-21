@@ -165,7 +165,12 @@ void TWorld::Totals(void)
         if (SwitchChannelFlood)
         {
             floodVolTot = FloodWaterVol->mapTotal();
-            floodTotmm = hmx->mapAverage()*1000;//floodVolTot*catchmentAreaFlatMM;
+            double area = 0;
+            FOR_ROW_COL_MV
+            {
+                area += _dx*ChannelAdj->Drc;
+            }
+            floodTotmm = 1000*floodVolTot/area;
         }
         if (runstep == 1)
             floodVolTotInit = floodVolTot;

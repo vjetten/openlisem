@@ -75,7 +75,7 @@
 #define MV(r,c) IS_MV_REAL8(&LDD->Data[r][c])
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_MV for (int r = 0; r < _nrRows; r++)\
+#define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!IS_MV_REAL8(&LDD->Data[r][c]))
 
@@ -89,9 +89,9 @@
     !IS_MV_REAL8(&LDD->Data[r-1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
     !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
-    !IS_MV_REAL8(&LDD->Data[r][c+1]))\
-    if (floodactive->Drc > 0)\
-{
+    !IS_MV_REAL8(&LDD->Data[r][c+1])){
+    //if (floodactive->Drc > 0)
+
 
 
 #define FOR_ROW_COL_MV for (long _i = 0; _i < nrGridcells ; _i++)\
@@ -103,7 +103,6 @@
 {\
     int r = floodRow[_i];\
     int c = floodCol[_i];
-
 
 
 #define FOR_ROW_COL_MV_MV2 for (int r = 2; r < _nrRows-2; r++)\
@@ -162,7 +161,7 @@
 
 #define FMUSCL 1
 #define FENO 2
-#define FSIMPLE 3
+#define FENOMOD 3
 
 
 //---------------------------------------------------------------------------
@@ -411,6 +410,7 @@ public:
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
+    QString getvaluedescription(QString vname);
     int getvalueint(QString vname);
     QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
@@ -514,6 +514,8 @@ public:
     long nrFloodcells;
     void ChannelFlood(void);
     void FloodMaxandTiming(void);
+    void FloodBoundary(void);
+    void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(void);
     double courant_factor;

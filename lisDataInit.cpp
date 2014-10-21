@@ -433,7 +433,7 @@ void TWorld::InitShade(void)
     if (SwitchChannelFlood)
         DEM->calcMap(Barriers, ADD);
     //double MaxDem = DEM->mapMaximum();
-   // double MinDem = DEM->mapMinimum();
+    // double MinDem = DEM->mapMinimum();
 
     FOR_ROW_COL_MV
     {
@@ -528,34 +528,6 @@ void TWorld::InitChannel(void)
     maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
 
-    long nrc = 0;
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-        if(!IS_MV_REAL8(&LDD->Data[r][c]))
-        nrc++;
-
-    qDebug() << nrc;
-    cellRow = new int[nrc];
-    cellCol = new int[nrc];
-    long i = 0;
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-        if(!IS_MV_REAL8(&LDD->Data[r][c]))
-    {
-        cellRow[i] = r;
-        cellCol[i] = c;
-        i++;
-    }
-    nrGridcells = nrc;
-
-    floodRow = new int[nrc];
-    floodCol = new int[nrc];
-    for (long i = 0; i < nrc; i++)
-    {
-        floodRow[i] = 0;
-        floodCol[i] = 0;
-    }
-    nrFloodcells = 0;
     if (SwitchIncludeChannel)
     {
         //## channel maps
@@ -614,6 +586,71 @@ void TWorld::InitChannel(void)
 
         if (SwitchChannelFlood)
         {
+            FloodEdge = NewMap(0);
+            for (int r = 1; r < _nrRows-1; r++)
+                for (int c = 1; c < _nrCols-1; c++)
+                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+                    {
+                        if (FloodEdge->Drc == 0 &&
+                                (IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r-1][c+1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r  ][c-1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r  ][c+1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c-1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c+1]) )
+                                )
+                            FloodEdge->Drc = 1;
+                    }
+            tma->fill(0);
+            for (int r = 1; r < _nrRows-1; r++)
+                for (int c = 1; c < _nrCols-1; c++)
+                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+            {
+                if (FloodEdge->Drc == 0 && (
+                            FloodEdge->Data[r-1][c-1] == 1 ||
+                            FloodEdge->Data[r-1][c  ] == 1 ||
+                            FloodEdge->Data[r-1][c+1] == 1 ||
+                            FloodEdge->Data[r][c-1] == 1 ||
+                            FloodEdge->Data[r][c+1] == 1 ||
+                            FloodEdge->Data[r+1][c-1] == 1 ||
+                            FloodEdge->Data[r+1][c  ] == 1 ||
+                            FloodEdge->Data[r+1][c+1] == 1
+                            ))
+                    tma->Drc = 1;
+            }
+            FloodEdge->calcMap(tma, ADD);
+            FloodEdge->report("edge.map");
+
+            FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
+            long nrc = 0;
+            FOR_ROW_COL_MV
+            {
+                nrc++;
+            }
+            //            cellRow = new int[nrc];
+            //            cellCol = new int[nrc];
+            //            long i = 0;
+            //            for (int r = 0; r < _nrRows; r++)
+            //                for (int c = 0; c < _nrCols; c++)
+            //                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+            //                    {
+            //                        cellRow[i] = r;
+            //                        cellCol[i] = c;
+            //                        i++;
+            //                    }
+            //            nrGridcells = nrc;
+
+            floodRow = new int[nrc];
+            floodCol = new int[nrc];
+            for (long i = 0; i < nrc; i++)
+            {
+                floodRow[i] = 0;
+                floodCol[i] = 0;
+            }
+            nrFloodcells = 0;
+
             prepareFlood = true;
             iter_n = 0;
 
@@ -636,7 +673,7 @@ void TWorld::InitChannel(void)
                 dHdLx = NewMap(0);
             }
             //explicit
-Hmx = NewMap(0);
+            Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
             FloodTimeStart = NewMap(0);
@@ -660,6 +697,26 @@ Hmx = NewMap(0);
             }
 
             floodactive = NewMap(1);
+
+            long _i = 0;
+            nrFloodcells = 0;
+//            for (int r = 1; r < _nrRows-1; r++)
+//                for (int c = 1; c < _nrCols-1; c++)
+//                    if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
+//                            !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
+//                            !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
+//                            !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
+//                            !IS_MV_REAL8(&LDD->Data[r][c+1]))
+                        FOR_ROW_COL_MV
+                    {
+                        if (FloodZonePotential->Drc == 1 ||  ChannelDepth->Drc > 0)
+                        {
+                            floodRow[_i] = r;
+                            floodCol[_i] = c;
+                            _i++;
+                        }
+                    }
+            nrFloodcells = _i;
 
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");

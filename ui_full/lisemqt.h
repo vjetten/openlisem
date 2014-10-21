@@ -279,7 +279,7 @@ public slots:
     void on_toolButton_SwatreTableDir_clicked();
     void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
-    void on_E_FloodScheme_valueChanged(int nr);
+    void on_E_floodSolution_valueChanged(int nr);
 
     void doCheckSnowmelt(bool check);
     void doCheckRainfall(bool check);
