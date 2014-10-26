@@ -123,39 +123,18 @@ void TWorld::FloodSpuriousValues()
   tm->fill(0);
   FOR_ROW_COL_MV
   {
-    if (hmx->Drc > 3.0)
+    if (hmx->Drc > F_extremeHeight)
       {
-
-        //  qDebug() << "switch" << hmx->Drc << Hmx->Drc;
-
-        int i = 0;
-        double sum = 0;
-        if (hmx->Data[r-1][c-1]> 0) { sum += hmx->Data[r-1][c-1]; i++;}
-        if (hmx->Data[r-1][c]> 0)   { sum += hmx->Data[r-1][c  ]; i++;}
-        if (hmx->Data[r-1][c+1]> 0) { sum += hmx->Data[r-1][c+1]; i++;}
-        if (hmx->Data[r  ][c-1]> 0) { sum += hmx->Data[r  ][c-1]; i++;}
-        if (hmx->Data[r  ][c+1]> 0) { sum += hmx->Data[r  ][c+1]; i++;}
-        if (hmx->Data[r+1][c-1]> 0) { sum += hmx->Data[r+1][c-1]; i++;}
-        if (hmx->Data[r+1][c]> 0)   { sum += hmx->Data[r+1][c  ]; i++;}
-        if (hmx->Data[r+1][c+1]> 0) { sum += hmx->Data[r+1][c+1]; i++;}
-//        if (hmx->Data[r-1][c-1]> 0) { sum += hmx->Data[r-1][c-1]+DEM->Data[r-1][c-1]; i++;}
-//        if (hmx->Data[r-1][c]> 0)   { sum += hmx->Data[r-1][c  ]+DEM->Data[r-1][c  ]; i++;}
-//        if (hmx->Data[r-1][c+1]> 0) { sum += hmx->Data[r-1][c+1]+DEM->Data[r-1][c+1]; i++;}
-//        if (hmx->Data[r  ][c-1]> 0) { sum += hmx->Data[r  ][c-1]+DEM->Data[r  ][c-1]; i++;}
-//        if (hmx->Data[r  ][c+1]> 0) { sum += hmx->Data[r  ][c+1]+DEM->Data[r  ][c+1]; i++;}
-//        if (hmx->Data[r+1][c-1]> 0) { sum += hmx->Data[r+1][c-1]+DEM->Data[r+1][c-1]; i++;}
-//        if (hmx->Data[r+1][c]> 0)   { sum += hmx->Data[r+1][c  ]+DEM->Data[r+1][c  ]; i++;}
-//        if (hmx->Data[r+1][c+1]> 0) { sum += hmx->Data[r+1][c+1]+DEM->Data[r+1][+-1]; i++;}
-        tm->Drc = (i > 0 ? sum / i : 0);
+        tm->Drc = hmx->getWindowAverage(r, c);
       }
   }
 
   FOR_ROW_COL_MV
   {
-    if (hmx->Drc > 3.0 && hmx->Drc > tm->Drc + 1.0)
+    if (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff)
       {
         double htmp = hmx->Drc;
-        hmx->Drc = sqrt(Hmx->Drc * tm->Drc);//_min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
+        hmx->Drc = _min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
         qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
       }
   }
@@ -164,13 +143,20 @@ void TWorld::FloodSpuriousValues()
 //---------------------------------------------------------------------------
 void TWorld::FloodBoundary()
 {
+//  tm->copy(hmx);
   FOR_ROW_COL_MV
   {
-    if (FloodEdge->Drc == 1 && hmx->Drc > 0 && ChannelDepth->Drc == 0)
+    if (FloodEdge->Drc > 0 && hmx->Drc > 0)
       {
-        hmx->Drc = _max(0, hmx->Drc - Qflood->Drc*_dt/(_dx*_dx));
+   //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+        hmx->Drc = _max(0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
+        floodBoundaryTot += Qflood->Drc*_dt;
       }
   }
+   // tm->calcMap(hmx, SUB);
+  //  tm->report("diffh");
+
+  //volumme weg is sum diff * cell size
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming()
@@ -237,9 +223,14 @@ void TWorld::ChannelFlood(void)
   if (SwitchFloodSWOForder2)
     {
       dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
+      Uflood->report("uf");
+      Vflood->report("vf");
       FOR_ROW_COL_MV
       {
-        UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+        //UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+
+        UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
+
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
       }
     }

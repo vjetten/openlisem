@@ -228,7 +228,7 @@ void TWorld::Totals(void)
     QPlot = 1000*(Qn->DrcPlot + ChannelQn->DrcPlot + TileQn->DrcPlot);
     // plot point output in l/s
 
-    Qtotmm = Qtot*catchmentAreaFlatMM;
+    Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
 
     oldrainpeak = Qpeak;
@@ -405,13 +405,14 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
-        /*
+
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
-              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot)/
+              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
-                */
+       /*
         MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
         MB = MB/(RainTotmm + SnowTotmm) * 100;
+*/
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;

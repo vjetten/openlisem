@@ -371,6 +371,17 @@ void TWorld::OverlandFlowNew(void)
         //            }while(fabs(h1-h) > 1e-10 && count < 20);
         //        }
 
+//      FOR_ROW_COL_MV
+//      {
+//          if (hmx->Drc > 0)
+//          {
+//              double qh = runoff_partitioning*Qn->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+//              hmx->Drc += qh;
+//              Qn->Drc = Qn->Drc *(1-runoff_partitioning);
+//             // WHrunoff->Drc -= wh;
+//          }
+//      }
+
         WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
         //new WH based on A/dx = alpha Q^beta / dx
 
@@ -435,15 +446,15 @@ void TWorld::OverlandFlowNew(void)
   //      WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
     }
 
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            double wh = runoff_partitioning*WHrunoff->Drc;
-            hmx->Drc += wh;
-            WHrunoff->Drc -= wh;
-        }
-    }
+//    FOR_ROW_COL_MV
+//    {
+//        if (hmx->Drc > 0)
+//        {
+//            double wh = runoff_partitioning*WHrunoff->Drc;
+//            hmx->Drc += wh;
+//            WHrunoff->Drc -= wh;
+//        }
+//    }
 
     FOR_ROW_COL_MV
            // if (hmx->Drc == 0)

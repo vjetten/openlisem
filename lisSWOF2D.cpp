@@ -53,7 +53,7 @@ functions: \n
 #define ve_ca 1e-12
 
 #define dt_ca 0.01
-#define dt_fix 0.125
+#define dt_fix 0.05
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
@@ -110,8 +110,7 @@ double TWorld::limiter(double a, double b)
 //---------------------------------------------------------------------------
 void TWorld::setZero(CTMap *_h, CTMap *_u, CTMap *_v)
 {
-  FOR_ROW_COL_MV
-  {
+  FOR_ROW_COL_MV_MV  {
     if (_h->Drc <= he_ca)
       {
         _h->Drc = 0;
@@ -119,19 +118,15 @@ void TWorld::setZero(CTMap *_h, CTMap *_u, CTMap *_v)
         _v->Drc = 0;
       }
 
-    //if (fabs(_u->Drc) <= ve_ca)
-    if (_u->Drc <= ve_ca)
+    if (fabs(_u->Drc) <= ve_ca)
       {
         _u->Drc = 0;
-        //q1->Drc = 0;
       }
-    //if (fabs(_v->Drc) <= ve_ca)
-    if (_v->Drc <= ve_ca)
+    if (fabs(_v->Drc) <= ve_ca)
       {
         _v->Drc = 0;
-        //q2->Drc = 0;
       }
-  }
+  }}
 }
 //---------------------------------------------------------------------------
 //friction slope
@@ -615,11 +610,11 @@ void TWorld::maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,
         // This expression for the flux (instead of the differences of the squares) avoids numerical errors
         // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
         qes1 = (long double)he->Drc*(long double)ve1->Drc -
-                ty*((long double)g2->Data[r+1][c]-(long double)g2->Drc) -
-                tx*((long double)f2->Data[r][c+1]-(long double)f2->Drc +
-                   GRAV*0.5*(((long double)h1g->Drc-(long double)h1l->Drc)*((long double)h1g->Drc+(long double)h1l->Drc) +
-                             ((long double)h1r->Drc-(long double)h1d->Drc)*((long double)h1r->Drc+(long double)h1d->Drc) +
-                             ((long double)h1l->Drc+(long double)h1r->Drc)*(long double)delzc1->Drc)) ;
+            ty*((long double)g2->Data[r+1][c]-(long double)g2->Drc) -
+            tx*((long double)f2->Data[r][c+1]-(long double)f2->Drc +
+            GRAV*0.5*(((long double)h1g->Drc-(long double)h1l->Drc)*((long double)h1g->Drc+(long double)h1l->Drc) +
+                      ((long double)h1r->Drc-(long double)h1d->Drc)*((long double)h1r->Drc+(long double)h1d->Drc) +
+                      ((long double)h1l->Drc+(long double)h1r->Drc)*(long double)delzc1->Drc)) ;
 
         // fullswof version 1.04
         qes2 = (long double)he->Drc*(long double)ve2->Drc - tx*((long double)f3->Data[r][c+1]-(long double)f3->Drc) -
@@ -656,14 +651,9 @@ void TWorld::maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,
 double TWorld::maincalcflux(double dt, double dt_max)
 {
   double dt_tmp, dtx, dty;
-  // double velocity_max_x, velocity_max_y;
   dtx = dt_max;
   dty = dt_max;
-  // velocity_max_x = -ve_ca;
-  // velocity_max_y = -ve_ca;
   double dx, dy;
-  //  int dc[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-  //  int dr[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
   FOR_ROW_COL_MV_MV
       if (c > 0 && !IS_MV_REAL8(&LDD->Data[r][c-1]))
@@ -701,156 +691,117 @@ double TWorld::maincalcflux(double dt, double dt_max)
     cflx->Drc = HLL2_cfl;
   }}
 
-FOR_ROW_COL_MV_MV
-if(r > 0 && !IS_MV_REAL8(&LDD->Data[r-1][c]))
-{
+  FOR_ROW_COL_MV_MV
+  if(r > 0 && !IS_MV_REAL8(&LDD->Data[r-1][c]))
+  {
 
-  h2d->Data[r-1][c] = _max(0.0, h2r->Data[r-1][c] - _max(0.0,  delz2->Data[r-1][c]));
-  h2g->Drc          = _max(0.0, h2l->Drc          - _max(0.0, -delz2->Data[r-1][c]));
+    h2d->Data[r-1][c] = _max(0.0, h2r->Data[r-1][c] - _max(0.0,  delz2->Data[r-1][c]));
+    h2g->Drc          = _max(0.0, h2l->Drc          - _max(0.0, -delz2->Data[r-1][c]));
 
-  if (F_scheme == 1)
-    F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-  else
-    if (F_scheme == 2)
-      F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+    if (F_scheme == 1)
+      F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
     else
-      F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+      if (F_scheme == 2)
+        F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+      else
+        F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
-  g1->Drc = HLL2_f1;
-  g2->Drc = HLL2_f3;
-  g3->Drc = HLL2_f2;
-  cfly->Drc = HLL2_cfl;
-}
-else
-{
-h2d->Data[r][c] = _max(0.0, h2r->Data[r][c] - _max(0.0,  delz2->Data[r][c]));
-h2g->Drc        = _max(0.0, h2l->Drc        - _max(0.0, -delz2->Data[r][c]));
+    g1->Drc = HLL2_f1;
+    g2->Drc = HLL2_f3;
+    g3->Drc = HLL2_f2;
+    cfly->Drc = HLL2_cfl;
+  }
+  else
+  {
+     h2d->Data[r][c] = _max(0.0, h2r->Data[r][c] - _max(0.0,  delz2->Data[r][c]));
+     h2g->Drc        = _max(0.0, h2l->Drc        - _max(0.0, -delz2->Data[r][c]));
 
-if (F_scheme == 1)
-F_Rusanov(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
-else
-if (F_scheme == 2)
-F_HLL(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
-else
-F_HLL2(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     if (F_scheme == 1)
+     F_Rusanov(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     else
+     if (F_scheme == 2)
+     F_HLL(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     else
+     F_HLL2(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
-g1->Drc = HLL2_f1;
-g2->Drc = HLL2_f3;
-g3->Drc = HLL2_f2;
-cfly->Drc = HLL2_cfl;
-}
-}
-
-// VJ 130517: not in the original code!
-// correct sudden extreme values, swap x or y direction
-// cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-
-
-if (F_replaceV > 0)
-{
-  FOR_ROW_COL_MV_MV {
-
-    if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-      {
-        double tmp1 = cflx->Drc;
-        double tmp2 = cfly->Drc;
-        double e1 = 0.0;
-        double e2 = 0.0;
-        double e3 = 0.0;
-        double cfle = 0.0;
-
-        if (F_replaceV == 2)
-          {
-            cfle = sqrt(cflx->Drc*cfly->Drc);
-            e1 = sqrt(f1->Drc*g1->Drc);
-            e2 = sqrt(f2->Drc*g2->Drc);
-            e3 = sqrt(f3->Drc*g3->Drc);
-          }
-        else
-          if (F_replaceV == 3)
-            {
-              cfle = 0.5*(cflx->Drc+cfly->Drc);
-              e1 = 0.5*(f1->Drc+g1->Drc);
-              e2 = 0.5*(f2->Drc+g2->Drc);
-              e3 = 0.5*(f3->Drc+g3->Drc);
-            }
-
-        if (cflx->Drc > F_maxVelocity)
-          {
-            if (F_replaceV == 1)
-              {
-                cflx->Drc = cfly->Drc;
-                f1->Drc = g1->Drc;
-                f2->Drc = g2->Drc;
-                f3->Drc = g3->Drc;
-              }
-            else
-              {
-                cflx->Drc = cfle;
-                f1->Drc = e1;
-                f2->Drc = e2;
-                f3->Drc = e3;
-              }
-          }
-        if (cfly->Drc > F_maxVelocity)
-          {
-            if (F_replaceV == 1)
-              {
-                cfly->Drc = cflx->Drc;
-                g1->Drc = f1->Drc;
-                g2->Drc = f2->Drc;
-                g3->Drc = f3->Drc;
-              }
-            else
-              {
-                cfly->Drc = cfle;
-                g1->Drc = e1;
-                g2->Drc = e2;
-                g3->Drc = e3;
-              }
-          }
-
-        qDebug() << "oh oh n" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-      }
+     g1->Drc = HLL2_f1;
+     g2->Drc = HLL2_f3;
+     g3->Drc = HLL2_f2;
+     cfly->Drc = HLL2_cfl;
   }}
-}
-// find largest velocity and determine dt
-FOR_ROW_COL_MV_MV {
-  dx = _dx;//-ChannelWidthUpDX->Drc;
-  if (qFabs(cflx->Drc*dt/dx) < 1e-10)
-    dt_tmp = dt_max;
+
+  // VJ 130517: not in the original code!
+  // correct sudden extreme values, swap x or y direction
+  // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
+
+     if (F_replaceV > 0)
+     {
+       //long j = 0;
+       FOR_ROW_COL_MV_MV {
+         if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
+           {
+            // double tmp1 = cflx->Drc;
+            // double tmp2 = cfly->Drc;
+             if (cflx->Drc > F_maxVelocity)
+               {
+                 double avgcflx = cflx->getWindowAverage(r, c);
+                 double avgf1 = f1->getWindowAverage(r, c);
+                 double avgf2 = f2->getWindowAverage(r, c);
+                 double avgf3 = f3->getWindowAverage(r, c);
+                 cflx->Drc = avgcflx;
+                 f1->Drc = avgf1;
+                 f2->Drc = avgf2;
+                 f3->Drc = avgf3;
+               }
+             if (cfly->Drc > F_maxVelocity)
+               {
+                 double avgcfly = cfly->getWindowAverage(r, c);
+                 double avgg1 = g1->getWindowAverage(r, c);
+                 double avgg2 = g2->getWindowAverage(r, c);
+                 double avgg3 = g3->getWindowAverage(r, c);
+                 cfly->Drc = avgcfly;
+                 g1->Drc = avgg1;
+                 g2->Drc = avgg2;
+                 g3->Drc = avgg3;
+               }
+
+            // qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c << j++;
+           }
+       }}
+     }
+
+  // find largest velocity and determine dt
+  FOR_ROW_COL_MV_MV {
+    dx = _dx;//ChannelAdj->Drc;
+    if (qFabs(cflx->Drc*dt/dx) < 1e-10)
+      dt_tmp = dt_max;
+    else
+      dt_tmp = courant_factor*dx/cflx->Drc;
+    // was cfl_fix = 0.4
+    dtx = _min(_min(dt, dt_tmp), dtx);
+  }}
+
+  // find largest velocity and determine dt
+  FOR_ROW_COL_MV_MV {
+    dy = _dx;//DX->Drc;
+    if (qFabs(cfly->Drc*dt/dy) < 1e-10)
+      dt_tmp = dt_max;
+    else
+      dt_tmp = courant_factor*dy/cfly->Drc;
+    dty = _min(_min(dt, dt_tmp), dty);
+  }}
+
+  return(_max(dt_ca, _min(dtx,dty)));
+  /*
+  if (scheme_type == 1)
+     return(_max(dt_ca, _min(dtx,dty)));
   else
-    dt_tmp = courant_factor*dx/cflx->Drc;
-  // was cfl_fix = 0.4
-  dtx = _min(_min(dt, dt_tmp), dtx);
-
-  //   velocity_max_x = _max(velocity_max_x, cflx->Drc);
-}}
-
-// find largest velocity and determine dt
-FOR_ROW_COL_MV_MV {
-  dy = _dx;//DX->Drc;
-  if (qFabs(cfly->Drc*dt/dy) < 1e-10)
-    dt_tmp = dt_max;
-  else
-    dt_tmp = courant_factor*dy/cfly->Drc;
-  dty = _min(_min(dt, dt_tmp), dty);
-  //   velocity_max_y = _max(velocity_max_y, cfly->Drc);
-}}
-
-// qDebug() << "mainflux x" << dt << dtx << velocity_max_x;
-// qDebug() << "mainflux y" << dt << dty << velocity_max_y;
-
-if (scheme_type == 1)
-return(_max(dt_ca, _min(dtx,dty)));
-else
-{
-//        if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
-//            qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
-//        }
-return (dt_fix);
-}
-
+  {
+      if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
+      qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
+      return (dt_fix);
+  }
+  */
 }
 //---------------------------------------------------------------------------
 
@@ -859,17 +810,12 @@ void TWorld::simpleScheme(CTMap *_h,CTMap *_u,CTMap *_v)
 {
 
   FOR_ROW_COL_MV_MV {
-
     h1r->Drc = _h->Drc;
     u1r->Drc = _u->Drc;
     v1r->Drc = _v->Drc;
     h1l->Drc = _h->Drc;
     u1l->Drc = _u->Drc;
     v1l->Drc = _v->Drc;
-
-    //        h1l->Data[r][c+1] = _h->Data[r][c+1]; //???? why c+1 both? BS
-    //        u1l->Data[r][c+1] = _u->Data[r][c+1];
-    //        v1l->Data[r][c+1] = _v->Data[r][c+1];
   }}
 FOR_ROW_COL_MV_MV {
   h2r->Drc = _h->Drc;
@@ -878,10 +824,6 @@ FOR_ROW_COL_MV_MV {
   h2l->Drc = _h->Drc;
   u2l->Drc = _u->Drc;
   v2l->Drc = _v->Drc;
-
-  //        h2l->Data[r+1][c] = _h->Data[r+1][c];
-  //        u2l->Data[r+1][c] = _u->Data[r+1][c];
-  //        v2l->Data[r+1][c] = _v->Data[r+1][c];
 }}
 }
 //---------------------------------------------------------------------------
@@ -974,39 +916,38 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
           setZero(hs, us, vs);
 
-          FOR_ROW_COL_MV
-          {
+          FOR_ROW_COL_MV_MV {
             h->Drc = hs->Drc;
             u->Drc = us->Drc;
             v->Drc = vs->Drc;
-          }
+          }}
 
-          //findFloodDomain(h);
+      //findFloodDomain(h);
 
-          timesum = timesum + dt1;
-          n++;
+      timesum = timesum + dt1;
+      n++;
 
-          correctMassBalance(sumh, h, 1e-12);
-          if (n > MAXITER)
-            break;
+      correctMassBalance(sumh, h, 1e-12);
+      if (n > MAXITER)
+        break;
 
-        } while (timesum  < _dt);
-    }
+    } while (timesum  < _dt);
+}
 
 
 
-  //Fr=froude_number(hs,us,vs);
-  // todo
+//Fr=froude_number(hs,us,vs);
+// todo
 
-  //    FOR_ROW_COL_MV_MV
-  //    //{
-  //        q1->Drc = h->Drc*u->Drc; //??? this is in m2/s, unit discharge
-  //        q2->Drc = h->Drc*v->Drc;
-  //    }
+//    FOR_ROW_COL_MV_MV
+//    //{
+//        q1->Drc = h->Drc*u->Drc; //??? this is in m2/s, unit discharge
+//        q2->Drc = h->Drc*v->Drc;
+//    }
 
-  iter_n = n;
-  dt1 = n > 0? _dt/n : dt1;
-  return(dt1);
+iter_n = n;
+dt1 = n > 0? _dt/n : dt1;
+return(dt1);
 }
 //---------------------------------------------------------------------------
 /**
@@ -1087,8 +1028,8 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
               if (F_diffScheme == (int)FMUSCL)
                 MUSCL(hs,us,vs,z);
               else
-                if (F_diffScheme == (int)FENO)
-                  ENO(hs,us,vs,z);
+                //if (F_diffScheme == (int)FENO)
+                ENO(hs,us,vs,z);
             }
 
           dt1 = maincalcflux(dt1, dt_max);
@@ -1108,8 +1049,8 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
           if (F_diffScheme == (int)FMUSCL)
             MUSCL(hs,us,vs,z);
           else
-            if (F_diffScheme == (int)FENO)
-              ENO(hs,us,vs,z);
+            // if (F_diffScheme == (int)FENO)
+            ENO(hs,us,vs,z);
 
           dt2 = maincalcflux(dt2, dt_max);
 
@@ -1129,7 +1070,6 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
               //Heun method (order 2 in time)
               FOR_ROW_COL_MV
-                  // if (floodactive->Drc > 0)
               {
                 double havg = 0.5*(h->Drc + hsa->Drc);
                 if (havg >= he_ca)

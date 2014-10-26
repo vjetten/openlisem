@@ -601,27 +601,29 @@ void TWorld::InitChannel(void)
                                  IS_MV_REAL8(&LDD->Data[r+1][c  ]) ||
                                  IS_MV_REAL8(&LDD->Data[r+1][c+1]) )
                                 )
+                          if (ChannelWidthUpDX->Drc == 0)
                             FloodEdge->Drc = 1;
+                        // channel cells do not shed water to the outside
                     }
-            tma->fill(0);
-            for (int r = 1; r < _nrRows-1; r++)
-                for (int c = 1; c < _nrCols-1; c++)
-                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
-            {
-                if (FloodEdge->Drc == 0 && (
-                            FloodEdge->Data[r-1][c-1] == 1 ||
-                            FloodEdge->Data[r-1][c  ] == 1 ||
-                            FloodEdge->Data[r-1][c+1] == 1 ||
-                            FloodEdge->Data[r][c-1] == 1 ||
-                            FloodEdge->Data[r][c+1] == 1 ||
-                            FloodEdge->Data[r+1][c-1] == 1 ||
-                            FloodEdge->Data[r+1][c  ] == 1 ||
-                            FloodEdge->Data[r+1][c+1] == 1
-                            ))
-                    tma->Drc = 1;
-            }
-            FloodEdge->calcMap(tma, ADD);
-            FloodEdge->report("edge.map");
+//            tma->fill(0);
+//            for (int r = 1; r < _nrRows-1; r++)
+//                for (int c = 1; c < _nrCols-1; c++)
+//                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+//            {
+//                if (FloodEdge->Drc == 0 && (
+//                            FloodEdge->Data[r-1][c-1] == 1 ||
+//                            FloodEdge->Data[r-1][c  ] == 1 ||
+//                            FloodEdge->Data[r-1][c+1] == 1 ||
+//                            FloodEdge->Data[r][c-1] == 1 ||
+//                            FloodEdge->Data[r][c+1] == 1 ||
+//                            FloodEdge->Data[r+1][c-1] == 1 ||
+//                            FloodEdge->Data[r+1][c  ] == 1 ||
+//                            FloodEdge->Data[r+1][c+1] == 1
+//                            ))
+//                    tma->Drc = 2;
+//            }
+//            FloodEdge->calcMap(tma, ADD);
+//            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
             long nrc = 0;
@@ -699,23 +701,15 @@ void TWorld::InitChannel(void)
             floodactive = NewMap(1);
 
             long _i = 0;
-            nrFloodcells = 0;
-//            for (int r = 1; r < _nrRows-1; r++)
-//                for (int c = 1; c < _nrCols-1; c++)
-//                    if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-//                            !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-//                            !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-//                            !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
-//                            !IS_MV_REAL8(&LDD->Data[r][c+1]))
-                        FOR_ROW_COL_MV
-                    {
-                        if (FloodZonePotential->Drc == 1 ||  ChannelDepth->Drc > 0)
-                        {
-                            floodRow[_i] = r;
-                            floodCol[_i] = c;
-                            _i++;
-                        }
-                    }
+            FOR_ROW_COL_MV
+            {
+              if (FloodZonePotential->Drc == 1 ||  ChannelDepth->Drc > 0)
+                {
+                  floodRow[_i] = r;
+                  floodCol[_i] = c;
+                  _i++;
+                }
+            }
             nrFloodcells = _i;
 
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
@@ -726,9 +720,11 @@ void TWorld::InitChannel(void)
             //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-            //F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple
+            F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, ENOMOD
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
+            F_extremeHeight = getvaluedouble("Flood extreme value height");
+            F_extremeDiff = getvaluedouble("Flood extreme value Difference");
 
             //FULLSWOF2D
             hs = NewMap(0);
@@ -1270,6 +1266,7 @@ void TWorld::IntializeData(void)
     floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
+    floodBoundaryTot = 0;
 
     InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);

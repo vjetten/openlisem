@@ -3,8 +3,19 @@ At this point there are two developments:
 - lisem 32bit. Kept in parallel for now but will merge better soon with the 64bit version.
 
 
-openLISEM README (140712)
+openLISEM README (141026)
 =========================
+LATEST CHANGES (v1.95)
+- Corrrected MUSCL for boundary cells
+- Made ENO and Modified ENO operational
+- Fixed boundary flux, water flows outside on the boundary cell with a flux that equals Qflood
+  Boundary cell is made as one cell against MV boundary
+- Fixed error in Flood velocity: U and V can be negative or positive depending on direction of flow
+  UVflood is now 0.5*(abs(V)+abs(U)
+- Changed correction of spurious values in velocity by swapping to average of surrounding 8 cells
+- Added two user thresholds for correcting extreme flood heights: if h > T1 and h > T2 of the avg surrounding cells, 
+  than replace with avg of surrounding cells
+
 LATEST CHANGES (v1.93-1.94)
 - Fixed a bug that creates artificial flood boundaries, lisem now needs a map that delineates the potential floodzone (1,0)
 - Experimenting with faster flood calculations

@@ -104,22 +104,6 @@
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
-
-#define FOR_ROW_COL_MV_MV2 for (int r = 2; r < _nrRows-2; r++)\
-    for (int c = 2; c < _nrCols-2; c++)\
-    if(\
-    !IS_MV_REAL8(&LDD->Data[r][c]) && \
-    !IS_MV_REAL8(&LDD->Data[r-1][c]) && \
-    !IS_MV_REAL8(&LDD->Data[r+1][c]) && \
-    !IS_MV_REAL8(&LDD->Data[r][c-1]) && \
-    !IS_MV_REAL8(&LDD->Data[r][c+1]) &&\
-!IS_MV_REAL8(&LDD->Data[r-2][c]) && \
-!IS_MV_REAL8(&LDD->Data[r+2][c]) && \
-!IS_MV_REAL8(&LDD->Data[r][c-2]) && \
-!IS_MV_REAL8(&LDD->Data[r][c+2])\
-)\
-    if (floodactive->Drc > 0)
-
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
@@ -293,7 +277,7 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
-    double difkinTot;
+    double difkinTot, floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -439,6 +423,8 @@ public:
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     int F_scheme, F_fluxLimiter, F_diffScheme,F_replaceV;
     double F_maxVelocity;
+    double F_extremeHeight;
+    double F_extremeDiff;
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
     double q1man, q2man;

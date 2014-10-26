@@ -5082,7 +5082,7 @@ p, li { white-space: pre-wrap; }
                   <item row="22" column="4">
                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
                     <property name="enabled">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="palette">
                      <palette>
@@ -5142,7 +5142,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item row="27" column="4">
-                   <widget class="QDoubleSpinBox" name="E_hextremeDiff">
+                   <widget class="QDoubleSpinBox" name="E_FloodExtremeDiff">
                     <property name="decimals">
                      <number>1</number>
                     </property>
@@ -5155,7 +5155,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item row="27" column="2">
-                   <widget class="QDoubleSpinBox" name="E_hextremeHeight">
+                   <widget class="QDoubleSpinBox" name="E_FloodExtremeHeight">
                     <property name="decimals">
                      <number>1</number>
                     </property>
@@ -5186,6 +5186,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="22" column="1" colspan="3">
                    <widget class="QLabel" name="label_100">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="palette">
                      <palette>
                       <active>
@@ -5304,7 +5307,7 @@ p, li { white-space: pre-wrap; }
                   <item row="21" column="4">
                    <widget class="QSpinBox" name="E_FloodScheme">
                     <property name="enabled">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="toolTip">
                      <string>MUSCL = Monotonic Upstream-Centered Scheme for Conservation Laws; ENO = Essentially Non-Oscillatory scheme </string>
@@ -5320,7 +5323,7 @@ p, li { white-space: pre-wrap; }
                   <item row="21" column="1" colspan="3">
                    <widget class="QLabel" name="label_98">
                     <property name="enabled">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="palette">
                      <palette>
@@ -18529,8 +18532,8 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
-  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

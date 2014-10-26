@@ -385,3 +385,22 @@ int CTMap::countUnits()
             }
     return(list.count());
 }
+//---------------------------------------------------------------------------
+// gives back the average of surrounding cells
+double CTMap::getWindowAverage(int r, int c)
+{
+  double i = 0;
+  double sum = 0, avg = 0;
+  if (!IS_MV_REAL8(&Data[r-1][c-1]) && Data[r-1][c-1]> 0) { sum += Data[r-1][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r-1][c  ]) && Data[r-1][c  ]> 0) { sum += Data[r-1][c  ]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r-1][c+1]) && Data[r-1][c+1]> 0) { sum += Data[r-1][c+1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r  ][c-1]) && Data[r  ][c-1]> 0) { sum += Data[r  ][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r  ][c+1]) && Data[r  ][c+1]> 0) { sum += Data[r  ][c+1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c-1]) && Data[r+1][c-1]> 0) { sum += Data[r+1][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c  ]) && Data[r+1][c  ]> 0) { sum += Data[r+1][c  ]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c+1]) && Data[r+1][c+1]> 0) { sum += Data[r+1][c+1]; i+=1.0;}
+  avg = (i > 0 ? sum / i : 0);
+
+  return(avg);
+}
+//---------------------------------------------------------------------------

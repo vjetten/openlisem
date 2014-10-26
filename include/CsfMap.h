@@ -79,7 +79,7 @@ public:
     double mapAverage();
     double mapMinimum();
     double mapMaximum();
-
+    double getWindowAverage(int r, int c);
 
     cTMap();
     ~cTMap();
