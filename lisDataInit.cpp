@@ -27,12 +27,12 @@
  \brief All data handling functions, read, parse, initialize, make and delete the map structures etc.
 
  functions: \n
- - TMMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
- - TMMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
+ - CTMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
+ - CTMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
  - void TWorld::DestroyData(void) Destroy the list with all maps and pointers, no need to do this one by one.\n
- - TMMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
- - TMMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
- - TMMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
+ - CTMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
+ - CTMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
+ - CTMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
  - void TWorld::InitTiledrains(void) read and intiialize all Tile drain variables and maps \n
  - void TWorld::InitBuffers(void)  read and intiialize all buffer and sediment fence variables and maps \n
  - void TWorld::InitChannel(void)  read and intiialize all channel variables and maps \n
@@ -56,30 +56,30 @@ void TWorld::InitMapList(void)
     maplistnr = 0;
     for (int i = 0; i < NUMNAMES; i++)
     {
-        maplistTMMap[i].m = NULL;
+        maplistCTMap[i].m = NULL;
     }
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::NewMap(double value)
+CTMap *TWorld::NewMap(double value)
 {
-    TMMap *_M = new TMMap();
+    CTMap *_M = new CTMap();
 
     _M->MakeMap(LDD, value);
     // changed to LDD instead of Mask
 
     if (_M)
     {
-        maplistTMMap[maplistnr].m = _M;
+        maplistCTMap[maplistnr].m = _M;
         maplistnr++;
     }
 
     return(_M);
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
+CTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
-    TMMap *_M = new TMMap();
+    CTMap *_M = new CTMap();
 
     _M->PathName = /*inputdir + */name;
 
@@ -104,7 +104,7 @@ TMMap *TWorld::ReadMap(cTMap *Mask, QString name)
 
     if (_M)
     {
-        maplistTMMap[maplistnr].m = _M;
+        maplistCTMap[maplistnr].m = _M;
         maplistnr++;
     }
 
@@ -117,10 +117,10 @@ void TWorld::DestroyData(void)
     DEBUG("clear all maps");
     for (int i = 0; i < maplistnr; i++)
     {
-        if (maplistTMMap[i].m != NULL)
+        if (maplistCTMap[i].m != NULL)
         {
-            maplistTMMap[i].m->KillMap();
-            maplistTMMap[i].m = NULL;
+            maplistCTMap[i].m->KillMap();
+            maplistCTMap[i].m = NULL;
         }
     }
     DEBUG("clear rainfall structure");
@@ -154,11 +154,11 @@ void TWorld::DestroyData(void)
     }
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::InitMask(QString name)
+CTMap *TWorld::InitMask(QString name)
 {
     // read map and make a mask map
 
-    TMMap *_M = new TMMap();
+    CTMap *_M = new CTMap();
 
     _M->PathName = /*inputdir + */name;
     bool res = _M->LoadFromFile();
@@ -170,7 +170,7 @@ TMMap *TWorld::InitMask(QString name)
 
     if (_M)
     {
-        maplistTMMap[maplistnr].m = _M;
+        maplistCTMap[maplistnr].m = _M;
         maplistnr++;
     }
 
@@ -182,10 +182,10 @@ TMMap *TWorld::InitMask(QString name)
 
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::InitMaskChannel(QString name)
+CTMap *TWorld::InitMaskChannel(QString name)
 {
 
-    TMMap *_M = new TMMap();
+    CTMap *_M = new CTMap();
 
     _M->PathName = /*inputdir + */name;
     bool res = _M->LoadFromFile();
@@ -197,7 +197,7 @@ TMMap *TWorld::InitMaskChannel(QString name)
 
     if (_M)
     {
-        maplistTMMap[maplistnr].m = _M;
+        maplistCTMap[maplistnr].m = _M;
         maplistnr++;
     }
 
@@ -205,10 +205,10 @@ TMMap *TWorld::InitMaskChannel(QString name)
 
 }
 //---------------------------------------------------------------------------
-TMMap *TWorld::InitMaskTiledrain(QString name)
+CTMap *TWorld::InitMaskTiledrain(QString name)
 {
 
-    TMMap *_M = new TMMap();
+    CTMap *_M = new CTMap();
 
     _M->PathName = /*inputdir + */name;
     bool res = _M->LoadFromFile();
@@ -220,7 +220,7 @@ TMMap *TWorld::InitMaskTiledrain(QString name)
 
     if (_M)
     {
-        maplistTMMap[maplistnr].m = _M;
+        maplistCTMap[maplistnr].m = _M;
         maplistnr++;
     }
 
@@ -294,8 +294,8 @@ void TWorld::InitTiledrains(void)
         FOR_ROW_COL_MV_TILE
         {
             TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-            TileSinkhole->Drc = min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
-            //TileY->Drc = min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
+            TileSinkhole->Drc = _min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
+            //TileY->Drc = _min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
         }
 
         if (useSorted)
@@ -326,8 +326,8 @@ void TWorld::InitBuffers(void)
             if (SwitchBuffers && BufferID->Drc > 0)
             {
                 Grad->Drc = 0.001;
-                RR->Drc = 0.01;
-                N->Drc = 0.25;
+                //                RR->Drc = 0.01;
+                //                N->Drc = 0.25;
                 // note ksateff in filtration is also set to 0
 
                 // very arbitrary!!!
@@ -432,8 +432,8 @@ void TWorld::InitShade(void)
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     if (SwitchChannelFlood)
         DEM->calcMap(Barriers, ADD);
-    double MaxDem = DEM->mapMaximum();
-    double MinDem = DEM->mapMinimum();
+    //double MaxDem = DEM->mapMaximum();
+    // double MinDem = DEM->mapMinimum();
 
     FOR_ROW_COL_MV
     {
@@ -475,16 +475,16 @@ void TWorld::InitShade(void)
         //qDebug() << r << c << aspect;
         Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
     }
-    double MaxV = Shade->mapMaximum();
-    double MinV = Shade->mapMinimum();
+    //    double MaxV = Shade->mapMaximum();
+    //    double MinV = Shade->mapMinimum();
 
-    FOR_ROW_COL_MV
-    {
-        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
-        if (Shade->Drc == 0 && r > 0 && c > 0)
-            Shade->Drc = Shade->Data[r-1][c-1];
-        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
-    }
+    //    FOR_ROW_COL_MV
+    //    {
+    //        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+    //        if (Shade->Drc == 0 && r > 0 && c > 0)
+    //            Shade->Drc = Shade->Data[r-1][c-1];
+    //        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
+    //    }
 
 }
 //---------------------------------------------------------------------------
@@ -522,7 +522,7 @@ void TWorld::InitChannel(void)
 
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
-    maxflood = NewMap(0);
+    floodHmxMax = NewMap(0);
     timeflood = NewMap(0);
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
@@ -573,7 +573,7 @@ void TWorld::InitChannel(void)
         //        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = _max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
             ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
         }
 
@@ -581,32 +581,106 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
-            ChannelY->Drc = min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
+            ChannelY->Drc = _min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
 
         if (SwitchChannelFlood)
         {
-            //            for (int i = 0; i < 9; i++)
-            //                qx[i].m = NULL;
-            //            for (int i = 0; i < 9; i++)
-            //                qx[i].m = NewMap(0);
+            FloodEdge = NewMap(0);
+            for (int r = 1; r < _nrRows-1; r++)
+                for (int c = 1; c < _nrCols-1; c++)
+                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+                    {
+                        if (FloodEdge->Drc == 0 &&
+                                (IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r-1][c+1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r  ][c-1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r  ][c+1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c-1]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c  ]) ||
+                                 IS_MV_REAL8(&LDD->Data[r+1][c+1]) )
+                                )
+                          if (ChannelWidthUpDX->Drc == 0)
+                            FloodEdge->Drc = 1;
+                        // channel cells do not shed water to the outside
+                    }
+//            tma->fill(0);
+//            for (int r = 1; r < _nrRows-1; r++)
+//                for (int c = 1; c < _nrCols-1; c++)
+//                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+//            {
+//                if (FloodEdge->Drc == 0 && (
+//                            FloodEdge->Data[r-1][c-1] == 1 ||
+//                            FloodEdge->Data[r-1][c  ] == 1 ||
+//                            FloodEdge->Data[r-1][c+1] == 1 ||
+//                            FloodEdge->Data[r][c-1] == 1 ||
+//                            FloodEdge->Data[r][c+1] == 1 ||
+//                            FloodEdge->Data[r+1][c-1] == 1 ||
+//                            FloodEdge->Data[r+1][c  ] == 1 ||
+//                            FloodEdge->Data[r+1][c+1] == 1
+//                            ))
+//                    tma->Drc = 2;
+//            }
+//            FloodEdge->calcMap(tma, ADD);
+//            FloodEdge->report("edge.map");
+
+            FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
+            long nrc = 0;
+            FOR_ROW_COL_MV
+            {
+                nrc++;
+            }
+            //            cellRow = new int[nrc];
+            //            cellCol = new int[nrc];
+            //            long i = 0;
+            //            for (int r = 0; r < _nrRows; r++)
+            //                for (int c = 0; c < _nrCols; c++)
+            //                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+            //                    {
+            //                        cellRow[i] = r;
+            //                        cellCol[i] = c;
+            //                        i++;
+            //                    }
+            //            nrGridcells = nrc;
+
+            floodRow = new int[nrc];
+            floodCol = new int[nrc];
+            for (long i = 0; i < nrc; i++)
+            {
+                floodRow[i] = 0;
+                floodCol[i] = 0;
+            }
+            nrFloodcells = 0;
+
             prepareFlood = true;
             iter_n = 0;
 
-            FloodVoltoChannel = NewMap(0);
+            // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
-            Qxsum = NewMap(0);
-            qx0 = NewMap(0);
-            qx1 = NewMap(0);
-            qx2 = NewMap(0);
-            qx3 = NewMap(0);
-            Hx = NewMap(0);
-            hx = NewMap(0);
+
+            // explicit
+            if (SwitchFloodExplicit)
+            {
+                Qxsum = NewMap(0);
+                qx0 = NewMap(0);
+                qx1 = NewMap(0);
+                qx2 = NewMap(0);
+                qx3 = NewMap(0);
+                Hx = NewMap(0);
+                hx = NewMap(0);
+
+                Nx = NewMap(0);
+                dHdLx = NewMap(0);
+            }
+            //explicit
             Hmx = NewMap(0);
-            Nx = NewMap(0);
-            dHdLx = NewMap(0);
             FloodWaterVol = NewMap(0);
+
+            FloodTimeStart = NewMap(0);
+            //FloodTimeStart->setMV();
+            FloodTimeEnd = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             ChannelDepth->cover(LDD,0);
@@ -625,7 +699,18 @@ void TWorld::InitChannel(void)
             }
 
             floodactive = NewMap(1);
-            floodzone = NewMap(1);
+
+            long _i = 0;
+            FOR_ROW_COL_MV
+            {
+              if (FloodZonePotential->Drc == 1 ||  ChannelDepth->Drc > 0)
+                {
+                  floodRow[_i] = r;
+                  floodCol[_i] = c;
+                  _i++;
+                }
+            }
+            nrFloodcells = _i;
 
             minReportFloodHeight = getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
@@ -635,9 +720,11 @@ void TWorld::InitChannel(void)
             //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
             F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-            //F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, Simple
+            F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, ENOMOD
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
+            F_extremeHeight = getvaluedouble("Flood extreme value height");
+            F_extremeDiff = getvaluedouble("Flood extreme value Difference");
 
             //FULLSWOF2D
             hs = NewMap(0);
@@ -1073,7 +1160,7 @@ void TWorld::IntializeData(void)
     FOR_ROW_COL_MV
     {
         double RRmm = 10 * RR->Drc;
-        MDS->Drc = max(0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+        MDS->Drc = _max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
 
@@ -1082,6 +1169,8 @@ void TWorld::IntializeData(void)
     RainTotmm = 0;
     Rainpeak = 0;
     RainpeakTime = 0;
+    RainstartTime = -1;
+    rainStarted = false;
     RainAvgmm = 0;
     SnowAvgmm = 0;
     SnowTot = 0;
@@ -1153,7 +1242,7 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        HouseWidthDX->Drc = min(_dx, HouseCover->Drc *_dx);
+        HouseWidthDX->Drc = _min(_dx, HouseCover->Drc *_dx);
         // assume there is always space next to house
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }
@@ -1177,6 +1266,7 @@ void TWorld::IntializeData(void)
     floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
+    floodBoundaryTot = 0;
 
     InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);
@@ -1235,9 +1325,9 @@ void TWorld::IntializeData(void)
     V = NewMap(0);
     Alpha = NewMap(0);
 
-    AlphaF = NewMap(0);
-    QF = NewMap(0);
-    QnF = NewMap(0);
+    //    AlphaF = NewMap(0);
+    //    QF = NewMap(0);
+    //    QnF = NewMap(0);
 
     Q = NewMap(0);
     Qn = NewMap(0);
@@ -1332,7 +1422,11 @@ void TWorld::IntializeData(void)
             SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
-            Y->Drc = min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            Y->Drc = _min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            //            if (StoneFraction->Drc > 0)
+            //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
+            // GOED IDEE
+
         }
     }
 

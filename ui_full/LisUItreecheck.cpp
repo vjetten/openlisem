@@ -57,6 +57,12 @@ void lisemqt::on_checkNoErosion_clicked()
 {
     checkMapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
+
+    label_31->setEnabled(!checkNoErosion->isChecked());
+    label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
+
+    if (!checkNoErosion->isChecked())
+        checkChannelFlood->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
@@ -69,11 +75,14 @@ void lisemqt::on_checkIncludeChannel_clicked()
 
         if (checkChannelFlood->isChecked())
         {
+            checkNoErosion->setChecked(true);
+
             E_FloodlevelMap->setEnabled(true);
             E_FloodTimeMap->setEnabled(true);
             E_FloodStats->setEnabled(true);
             E_ChannelMaxQ->setEnabled(true);
             E_ChannelMaxWH->setEnabled(true);
+            E_FloodFEW->setEnabled(true);
         }
     }
     else
@@ -83,7 +92,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
         E_FloodStats->setEnabled(false);
         E_ChannelMaxQ->setEnabled(false);
         E_ChannelMaxWH->setEnabled(false);
-
+        E_FloodFEW->setEnabled(false);
     }
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }
@@ -123,6 +132,7 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 void lisemqt::on_checkChannelFlood_clicked()
 {
     checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
+    checkNoErosion->setChecked(true);
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
@@ -343,8 +353,11 @@ void lisemqt::RunAllChecks()
     checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
     // VJ 110110
 
-    buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked()); // bugfix
+    buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked());
+    buffergroup->setVisible(checkBuffers->isChecked() || checkSedtrap->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
+    frameSL1->setEnabled(!checkNoErosion->isChecked());
+
 
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 

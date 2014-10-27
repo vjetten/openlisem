@@ -46,9 +46,9 @@ void TWorld::ToTiledrain(void)
          {
             double fractiontotile = _dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc));
             // fraction based on velocity
-            fractiontotile = qMax(TileSinkhole->Drc/(_dx*DX->Drc),fractiontotile);
+            fractiontotile = _max(TileSinkhole->Drc/(_dx*DX->Drc),fractiontotile);
             // fraction based on surface, take the largest
-            fractiontotile = qMin(1.0, fractiontotile);
+            fractiontotile = _min(1.0, fractiontotile);
             // not more than 1.0
 
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
@@ -122,7 +122,7 @@ void TWorld::TileFlow(void)
       Tileq->Drc = 0;
       //TileQoutflow->Drc = 0;
 
-      //TileDrainSoil->Drc = min(TileDrainSoil->Drc, TileHeight->Drc );
+      //TileDrainSoil->Drc = _min(TileDrainSoil->Drc, TileHeight->Drc );
       // cannot have more water than fits in size
       TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * TileDX->Drc;
       // add inflow to Tile in m3, tiledrainsoil is in m per timestep

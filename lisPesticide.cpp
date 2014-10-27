@@ -101,7 +101,7 @@ void TWorld :: Pestmobilisation(void)
         }
 
         Pest->Drc = Pest->Drc+ (Kfilm->Drc*(CM->Drc-C_N->Drc)-pestiinf->Drc*C_N->Drc)*_dx*_dx*_dt;
-        Pest->Drc = max(0, Pest->Drc);
+        Pest->Drc = qMax(0.0, Pest->Drc);
 
         C->Drc =  ConcentrationP(WaterVolall->Drc, Pest->Drc);
 
@@ -146,7 +146,7 @@ double TWorld::Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i
     else
         Pj1i1 = 0;
 
-    return max(0,Pj1i1);
+    return qMax(0.0,Pj1i1);
 }
 //---------------------------------------------------------------------------
 double TWorld::ConcentrationP(double watvol, double pest)

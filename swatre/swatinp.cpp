@@ -331,7 +331,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
    /* make profileList index match the profileId's */
    mmax = 0;
    for (i = 0 ; i < nrProfileList; i++)
-      mmax = max(mmax, profileList[i]->profileId);
+      mmax = _max(mmax, profileList[i]->profileId);
    mmax++;
 
    tmpList = (PROFILE **)malloc(mmax*sizeof(PROFILE *));

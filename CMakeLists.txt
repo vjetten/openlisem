@@ -22,3 +22,4 @@ INCLUDE(Lisem)
 INCLUDE(Application)
 ADD_SUBDIRECTORY(doxygen)
 ADD_SUBDIRECTORY(example)
+

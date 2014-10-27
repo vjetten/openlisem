@@ -45,7 +45,7 @@ void TWorld::GridCell(void)
 
     FOR_ROW_COL_MV
     {
-        double dxa = max(0, _dx - ChannelWidthUpDX->Drc);
+        double dxa = _max(0.0, _dx - ChannelWidthUpDX->Drc);
 
         ChannelAdj->Drc = dxa;
 
@@ -53,10 +53,10 @@ void TWorld::GridCell(void)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
-        RoadWidthDX->Drc = min(dxa, RoadWidthDX->Drc);
-        dxa = max(0, dxa - RoadWidthDX->Drc);
+        RoadWidthDX->Drc = _min(dxa, RoadWidthDX->Drc);
+        dxa = _max(0.0, dxa - RoadWidthDX->Drc);
 
-        HouseWidthDX->Drc = min(dxa, HouseWidthDX->Drc);
+        HouseWidthDX->Drc = _min(dxa, HouseWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
         if (Cover->Drc + HouseCover->Drc > 1.0)
             Cover->Drc = 1.0-HouseCover->Drc;
@@ -67,14 +67,14 @@ void TWorld::GridCell(void)
     /*
     FOR_ROW_COL_MV
     {
-        ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
+        ChannelAdj->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc);
 
         if (BufferID->Drc > 0)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
 //        if (RoadWidthDX->Drc + HouseWidthDX->Drc > ChannelAdj->Drc)
-//            HouseWidthDX->Drc = max(0, ChannelAdj->Drc-RoadWidthDX->Drc);
+//            HouseWidthDX->Drc = _max(0.0, ChannelAdj->Drc-RoadWidthDX->Drc);
 
         if (RoadWidthDX->Drc + HouseWidthDX->Drc > _dx)
             HouseWidthDX->Drc = _dx-RoadWidthDX->Drc;
@@ -89,49 +89,49 @@ void TWorld::GridCell(void)
         }
         // channel takes priority
 
-        SoilWidthDX->Drc = max(0, _dx - ChannelWidthUpDX->Drc- RoadWidthDX->Drc);
+        SoilWidthDX->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc- RoadWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
 
     }
 */
-//    SoilWidthDX->report("sw");
-//    ChannelAdj->report("cha");
-//    RoadWidthDX->report("rw");
-//    ChannelWidthUpDX->report("cw");
-//    HouseWidthDX->report("hw");
+    //    SoilWidthDX->report("sw");
+    //    ChannelAdj->report("cha");
+    //    RoadWidthDX->report("rw");
+    //    ChannelWidthUpDX->report("cw");
+    //    HouseWidthDX->report("hw");
 }
 
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH(void)
 {
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0)
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        else
-        {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // add net to water rainfall on soil surface (in m)
-
-            if (SwitchBuffers && !SwitchSedtrap)
-                if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+            FOR_ROW_COL_MV
+            {
+                if (FloodDomain->Drc > 0)
+                    hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+                else
                 {
-                    WH->Drc = 0;
-                    BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                    WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+                    // add net to water rainfall on soil surface (in m)
+
+                    if (SwitchBuffers && !SwitchSedtrap)
+                        if(BufferID->Drc > 0 && BufferVol->Drc > 0)
+                        {
+                            WH->Drc = 0;
+                            BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
+                        }
+                    // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
+                    // not for sed traps, behave normally
+
+                    if (GrassFraction->Drc > 0)
+                        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+                    // net rainfall on grass strips, infil is calculated separately for grassstrips
+
+                    if (RoadWidthDX->Drc > 0)
+                        WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+                    // assume no interception and infiltration on roads, gross rainfall
                 }
-            // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
-            // not for sed traps, behave normally
-
-            if (GrassFraction->Drc > 0)
-                WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // net rainfall on grass strips, infil is calculated separately for grassstrips
-
-            if (RoadWidthDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-            // assume no interception and infiltration on roads, gross rainfall
-        }
-    }
+            }
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)
@@ -156,7 +156,7 @@ void TWorld::SurfaceStorage(void)
         else
             whflow = wh;
 
-        // whflow = max(0, wh-SDS);
+        // whflow = _max(0.0, wh-SDS);
         // subtract surface storage and calc water available for runoff, in m
         // assumed on soilsurface because there is the roughness
 
@@ -187,7 +187,7 @@ void TWorld::SurfaceStorage(void)
             if (FloodDomain->Drc > 0)
                 fpa->Drc = 1;
 
-        //FlowWidth->Drc = max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
+        //FlowWidth->Drc = _max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
         // VJ 140105:0.01 dx gave mas balance errors !!!
 
         FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc;
@@ -198,8 +198,8 @@ void TWorld::SurfaceStorage(void)
         // assume grassstrip spreads water over entire width
 
         //Houses
-//        if (SwitchHouses)
-//            FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
+        //        if (SwitchHouses)
+        //            FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
         // assume house severely restricts flow width, 0.5 is arbitrary
         // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere
 

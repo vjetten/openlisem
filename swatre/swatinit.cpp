@@ -27,7 +27,7 @@
 \brief SWATRE: initialize soil profile with inithead maps data and clean up after run
 
 functions:
-- SOIL_MODEL * TWorld::InitSwatre(TMMap *profileMap, QString initHeadMaps, double minDt); \n
+- SOIL_MODEL * TWorld::InitSwatre(CTMap *profileMap, QString initHeadMaps, double minDt); \n
 - void TWorld::CloseSwatre(SOIL_MODEL *s); \n
 */
 
@@ -36,9 +36,9 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
-SOIL_MODEL *TWorld::InitSwatre(TMMap *profileMap)
+SOIL_MODEL *TWorld::InitSwatre(CTMap *profileMap)
 //      QString initHeadMaps,
-//      TMMap *tiledepthMap,
+//      CTMap *tiledepthMap,
 //      double minDt)
 //initheadName, TileDepth, swatreDT);
 {
@@ -86,7 +86,7 @@ SOIL_MODEL *TWorld::InitSwatre(TMMap *profileMap)
       QString fname = QString("%1.%2").arg(initheadName).arg(n+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
-      TMMap *inith = ReadMap(LDD,fname);
+      CTMap *inith = ReadMap(LDD,fname);
       // get inithead information
 
 

@@ -46,13 +46,15 @@
 #define HIGHER 11
 #define LOWER 12
 
+#define CTMap cTMap
 
+/*
 /// class defining some basic map algebra operations
-class TMMap : public cTMap
+class CTMap : public cTMap
 {
  //protected:
  public:
-   cTMap *Mask;
+   //cTMap *Mask;
 
    void fill(double value);
    void calcValue(double v, int oper);
@@ -60,7 +62,7 @@ class TMMap : public cTMap
    void calc2Maps(cTMap *m1, cTMap *m2, int oper);
    void calcMapValue(cTMap *m1, double V, int oper);
    void copy(cTMap *m);
-   void shift(cTMap *M, int dr, int dc);
+ //  void shift(cTMap *M, int dr, int dc);
    void cover(cTMap *m, double v);
    void setMV();
    void checkMap(int oper, double V, QString SS);
@@ -69,11 +71,11 @@ class TMMap : public cTMap
    double mapAverage();
    double mapMinimum();
    double mapMaximum();
-   void areaAverage(TMMap *area);
+ //  void areaAverage(CTMap *area);
 
-   TMMap();
-   ~TMMap();
+   CTMap();
+   ~CTMap();
 };
 
-
+*/
 #endif

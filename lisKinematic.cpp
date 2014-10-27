@@ -30,9 +30,9 @@
   The routing functions use local variables because they are used for overland flow, channel flow, gully and tiledrain flow.
 
 functions: \n
-   - void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Q, TMMap *_Qn, TMMap *_Qs,
-                  TMMap *_Qsn, TMMap *_q, TMMap *_Alpha, TMMap *_DX, TMMap *Vol, TMMap *SedVol,
-                  TMMap *_StorVol, TMMap *_StorVolSed);\n
+   - void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Q, CTMap *_Qn, CTMap *_Qs,
+                  CTMap *_Qsn, CTMap *_q, CTMap *_Alpha, CTMap *_DX, CTMap *Vol, CTMap *SedVol,
+                  CTMap *_StorVol, CTMap *_StorVolSed);\n
    - double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);\n
    - double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);\n
@@ -75,7 +75,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
     double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
     if (totwater <= 1e-10)
         return (Qsn);
-    Qsn = min(totsed/dt, Qj1i1 * totsed/totwater);
+    Qsn = _min(totsed/dt, Qj1i1 * totsed/totwater);
     return (Qsn); // outflow is new concentration * new out flux
 
 }
@@ -117,7 +117,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     else
         Sj1i1 = 0;
 
-    return max(0,Sj1i1);
+    return _max(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /** Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
@@ -158,14 +158,14 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
     // first guess Qkx, VERY important
 
-    Qkx   = max(Qkx, 0);
+    Qkx   = _max(Qkx, 0.0);
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = max(Qkx, MIN_FLUX);
+        Qkx   = _max(Qkx, MIN_FLUX);
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
@@ -193,11 +193,11 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_StorVol            water volume in buffers (m3)
 \param  	_StorSed            sediment volume in bufers (kg)
 */
-void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
-                       TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
-                       TMMap *_q, TMMap *_Alpha, TMMap *_DX,
-                       TMMap *_Vol, TMMap*_Sed,
-                       TMMap *_StorVol, TMMap *_StorSed)
+void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD,
+                       CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
+                       CTMap *_q, CTMap *_Alpha, CTMap *_DX,
+                       CTMap *_Vol, CTMap*_Sed,
+                       CTMap *_StorVol, CTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -396,10 +396,10 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, TMMap *_LDD,
                     _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
                                                              _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-                _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+                _Qsn->Data[rowNr][colNr] = _min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
                 // no more sediment outflow than total sed in cell
 
-                _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+                _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
             }
             /* cell rowN, colNr is now done */
@@ -427,9 +427,9 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_Vol                water volume in cell (m3)
 \param  	_Sed                sediment load in cell (kg)
 */
-void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
-                            TMMap *_Q, TMMap *_Qn, TMMap *_Qs, TMMap *_Qsn,
-                            TMMap *_Alpha, TMMap *_DX, TMMap* /* _Vol */, TMMap*_Sed) //,TMMap *_StorVol, TMMap *_StorSed)
+void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
+                            CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
+                            CTMap *_Alpha, CTMap *_DX, CTMap* /* _Vol */, CTMap*_Sed) //,CTMap *_StorVol, CTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -526,10 +526,10 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
             //                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
             //                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-            _Qsn->Data[rowNr][colNr] = min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+            _Qsn->Data[rowNr][colNr] = _min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            _Sed->Data[rowNr][colNr] = max(0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */
@@ -544,7 +544,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, TMMap *_LDD,
 }
 //---------------------------------------------------------------------------
 /// return the sum of all values upstream
-void TWorld::upstream(TMMap *_LDD, TMMap *_M, TMMap *out)
+void TWorld::upstream(CTMap *_LDD, CTMap *_M, CTMap *out)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -582,7 +582,7 @@ void TWorld::upstream(TMMap *_LDD, TMMap *_M, TMMap *out)
 }
 //---------------------------------------------------------------------------
 /// return the sum of all values upstream
-void TWorld::KinWave(TMMap *_LDD,TMMap *_Q, TMMap *_Qn,TMMap *_q, TMMap *_Alpha, TMMap *_DX)
+void TWorld::KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha, CTMap *_DX)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -626,7 +626,7 @@ void TWorld::KinWave(TMMap *_LDD,TMMap *_Q, TMMap *_Qn,TMMap *_q, TMMap *_Alpha,
     }
 }
 /*
-long TWorld::SortNetwork(int pitRowNr, int pitColNr, TMMap *_LDD, TMMap *_Ksort)
+long TWorld::SortNetwork(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Ksort)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

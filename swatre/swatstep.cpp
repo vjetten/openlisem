@@ -40,7 +40,7 @@
   int nrNodes, double precParam, double dtMin, double dtMax) \n
 - void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
                              double *drain, SOIL_MODEL *s) \n
-- void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *where) \n
+- void TWorld::SwatreStep(SOIL_MODEL *s, CTMap *_WH, CTMap *_fpot, CTMap *_drain, CTMap *where) \n
  */
 #include "csf.h"
 #include "model.h"
@@ -281,16 +281,16 @@ double  TWorld::NewTimeStep(
 
    for(i=0; i < nrNodes; i++)
    {
-      double mdih = accur1 + accur2 * max(1.0, fabs(h[i]));
+      double mdih = accur1 + accur2 * _max(1.0, fabs(h[i]));
       double dih  = fabs(h[i] - hLast[i]);
       // if difference is small
       // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
       // mdih/dih = 2.1/10 =0.21
 
       if (dih > 0.10)
-         dt = min(dt, prevDt*mdih/dih);
+         dt = _min(dt, prevDt*mdih/dih);
    }
-   return (max(dt, dtMin));
+   return (_max(dt, dtMin));
 }
 //--------------------------------------------------------------------------------
 // Units are:
@@ -327,7 +327,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    while (elapsedTime < _dt)
    {
       bool ponded, fltsat;    // flag idf ponded and if profile fully saturated
-      double qmax, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
+      double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
       //--- get nodal values of theta, K, dif moist cap ---//
@@ -355,7 +355,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          }
          else
             *repel = 0;
-         *repel = qMax(0.0,qMin(1-*repel, 1.0));
+         *repel = _max(0.0,__min(1-*repel, 1.0));
 
          k[0] = k[0] * (*repel);
       }
@@ -397,11 +397,11 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);       
       
       // geometric avg of ksat and k[0]
-      qmax = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
       // maximum possible flux, compare to real top flux available
-      ponded = (qtop < qmax);
+      ponded = (qtop < _max);
       // if more flux then max possible flag ponded is true
-      // NOTE qtop and qmax are both negative !
+      // NOTE qtop and _max are both negative !
 
       //2nd check: ponded layer depth against storage
       if (!ponded)
@@ -463,7 +463,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       // decrease pond with top flux
       if (pond < POND_EPS)  // 10-6 cm
          pond = 0;
-      influx += qmax*dt;
+      influx += _max*dt;
       // add max infil to influx (negative), to get potential infil
 
       //--- calculate tile drain ---//
@@ -477,10 +477,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          double water = theta[tnode] * -DistNode(p)[tnode] * drainfraction;
          // total amonut of water available to drain in this node (cm)
          // note: distnode has a negative value
-         qdrain = min(qdrain, water/dt);
+         qdrain = _min(qdrain, water/dt);
          // cannot have more drainage than water available
 
-         theta[tnode] = max(0.001, theta[tnode] - (qdrain*dt)/DistNode(p)[tnode]* drainfraction);
+         theta[tnode] = _max(0.001, theta[tnode] - (qdrain*dt)/DistNode(p)[tnode]* drainfraction);
          // adjust theta with drainage removed
 
          h[tnode] = HNode(theta[tnode], Horizon(p, tnode) );
@@ -527,7 +527,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, TMMap *_theta, TMMap *where)
+void TWorld::SwatreStep(SOIL_MODEL *s, CTMap *_WH, CTMap *_fpot, CTMap *_drain, CTMap *_theta, CTMap *where)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
@@ -554,7 +554,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, TMMap *_WH, TMMap *_fpot, TMMap *_drain, 
       _WH->Drc = wh*0.01;
       //back to m
 
-      _fpot->Drc = max(0, -infil*0.01);
+      _fpot->Drc = _max(0.0, -infil*0.01);
       // infil is negative (downward flux * dt, in cm)
       //fpot is positive like in other infil  methods (in m)
 

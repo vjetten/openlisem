@@ -60,20 +60,20 @@ struct output{
     // screen output
     QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 
-    TMMap *DrawMap;
-    TMMap *DrawMap1;
-    TMMap *DrawMap2;
-    TMMap *DrawMap3;
-    TMMap *DrawMap4;
-    TMMap *DrawMap5;
-    TMMap *DrawMap6;
-    TMMap *baseMap;
-    TMMap *baseMapDEM;
-    TMMap *channelMap;
-    TMMap *roadMap;
-    TMMap *houseMap;
+    CTMap *DrawMap;
+    CTMap *DrawMap1;
+    CTMap *DrawMap2;
+    CTMap *DrawMap3;
+    CTMap *DrawMap4;
+    CTMap *DrawMap5;
+    CTMap *DrawMap6;
+    CTMap *DrawMap7;
+    CTMap *baseMap;
+    CTMap *baseMapDEM;
+    CTMap *channelMap;
+    CTMap *roadMap;
+    CTMap *houseMap;
 
-    bool addWHtohmx;
     bool displayPcum;
     int drawMapType;
 

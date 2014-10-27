@@ -83,7 +83,7 @@ void TWorld::CalcVelDischChannel(void)
         {
             if (ChannelMaxQ->Drc > 0)
             {
-            //    ChannelQ->Drc = qMin(ChannelQ->Drc, ChannelMaxQ->Drc);
+            //    ChannelQ->Drc = _min(ChannelQ->Drc, ChannelMaxQ->Drc);
 //                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, beta);
 //                Perim = FW + Area/FW*2;
 //                ChannelWH->Drc = Area/FW;
@@ -170,11 +170,11 @@ void TWorld::ChannelWaterHeight(void)
                 throw 1;
             }
 
-            ChannelWidthUpDX->Drc = min(0.9*_dx, ChannelWidthUpDX->Drc);
+            ChannelWidthUpDX->Drc = _min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
 
-            ChannelAdj->Drc = max(0, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc);
             // experimental if channelwidth > dx
         }
     }
@@ -242,7 +242,7 @@ void TWorld::ChannelFlow(void)
 //        if (SwitchChannelFlood)
 //        {
 //            if (ChannelMaxQ->Drc > 0)
-//                ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drc);
+//                ChannelQn->Drc = _min(ChannelQn->Drc, ChannelMaxQ->Drc);
 //        }
         // limit channel Q when culverts > 0
 
@@ -283,7 +283,7 @@ void TWorld::ChannelFlow(void)
     {
         ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
         if (ChannelWaterVol->Drc > 0)
-            ChannelWaterVol->Drc = max(0, ChannelWaterVol->Drc+mb);
+            ChannelWaterVol->Drc = _max(0.0, ChannelWaterVol->Drc+mb);
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
         ChannelQn->Drc = qPow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, (1/0.6));
     }
@@ -310,8 +310,8 @@ void TWorld::ChannelFlow(void)
 
     FOR_ROW_COL_MV_CH
     {
-        maxChannelflow->Drc = max(maxChannelflow->Drc, ChannelQn->Drc);
-        maxChannelWH->Drc = max(maxChannelWH->Drc, ChannelWH->Drc);
+        maxChannelflow->Drc = _max(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = _max(maxChannelWH->Drc, ChannelWH->Drc);
     }
 
 

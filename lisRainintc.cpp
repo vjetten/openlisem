@@ -99,7 +99,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     // if not, check if new PCRaster style rainfall rec
     if (!oldformat || !ok)
     {
-        if (rainRecs[1].count() == 1)
+        if (rainRecs[1].count() <= 2)   //VJ 140624 <= 2 in case there is a eol character that is missed, to interpret tss files
         {
             SL = rainRecs[1].split(QRegExp("\\s+"));
             nrStations = SL[0].toInt(&ok, 10);
@@ -236,7 +236,7 @@ void TWorld::RainfallMap(void)
 
     if (RainfallSeriesM[rainplace].isMap)
     {
-        TMMap *_M = new TMMap();
+        CTMap *_M = new CTMap();
         _M->PathName = RainfallSeriesM[rainplace].name;
         bool res = _M->LoadFromFile();
         if (!res)
@@ -259,6 +259,8 @@ void TWorld::RainfallMap(void)
         FOR_ROW_COL_MV
         {
             Rain->Drc = _M->Drc *_dt/tt;
+            if (!rainStarted && Rain->Drc  > 0)
+                rainStarted = true;
         }
 
         _M->KillMap();
@@ -270,8 +272,16 @@ void TWorld::RainfallMap(void)
             Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
             // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
             //TODO: weighted average if dt larger than table dt
+            if (!rainStarted && Rain->Drc  > 0)
+                rainStarted = true;
         }
     }
+
+    if (rainStarted && RainstartTime == -1)
+    {
+        RainstartTime = time;
+    }
+
 
     FOR_ROW_COL_MV
     {
@@ -283,9 +293,8 @@ void TWorld::RainfallMap(void)
         // cumulative rainfall corrected for slope, used in interception
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
+
     }
-
-
 }
 //---------------------------------------------------------------------------
 

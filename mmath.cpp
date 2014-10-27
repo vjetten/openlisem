@@ -28,35 +28,36 @@
   \brief basic map mathematics on two maps or maps and variables
 
 functions: \n
-- void TMMap::fill(double value)   \n
-- void TMMap::calcV(double v, int oper)   \n
-- void TMMap::calc(cTMap *m, int oper)   \n
-- void TMMap::calc2(cTMap *m1, cTMap *m2, int oper)   \n
-- void TMMap::calc2V(cTMap *m1, double V, int oper)   \n
-- void TMMap::copy(cTMap *m)   \n
-- void TMMap::cover(double v)   \n
-- void TMMap::setMV()   \n
-- double TMMap::mapTotal()   \n
+- void CTMap::fill(double value)   \n
+- void CTMap::calcV(double v, int oper)   \n
+- void CTMap::calc(cTMap *m, int oper)   \n
+- void CTMap::calc2(cTMap *m1, cTMap *m2, int oper)   \n
+- void CTMap::calc2V(cTMap *m1, double V, int oper)   \n
+- void CTMap::copy(cTMap *m)   \n
+- void CTMap::cover(double v)   \n
+- void CTMap::setMV()   \n
+- double CTMap::mapTotal()   \n
 operations for 'oper' are ADD, SUB, MUL, DIV, POW, MIN, MAX
 */
 
 
 #include "model.h"
 
-
+/*
 //__fastcall ---------------------------------------------------------------------------
-TMMap::TMMap()
+CTMap::CTMap()
     : cTMap()
 {
 
 }
 //__fastcall ---------------------------------------------------------------------------
-TMMap::~TMMap()
+CTMap::~CTMap()
 {
 
 }
+*/
 //---------------------------------------------------------------------------
-void TMMap::fill(double value)
+void CTMap::fill(double value)
 {
     int r, c;
 
@@ -68,7 +69,7 @@ void TMMap::fill(double value)
             }
 }
 //---------------------------------------------------------------------------
-void TMMap::cover(cTMap *M, double value)
+void CTMap::cover(cTMap *M, double value)
 {
     int r, c;
 
@@ -82,7 +83,7 @@ void TMMap::cover(cTMap *M, double value)
     //       SET_MV_REAL4(&Data[r][c]);
 }
 //---------------------------------------------------------------------------
-void TMMap::calcMap(cTMap *M, int oper)
+void CTMap::calcMap(cTMap *M, int oper)
 {
     for (int r = 0; r < M->nrRows; r++)
         for (int c = 0; c < M->nrCols; c++)
@@ -98,8 +99,8 @@ void TMMap::calcMap(cTMap *M, int oper)
                     case DIV: if (M->Data[r][c] > 0) Data[r][c] /= M->Data[r][c];
                         else SET_MV_REAL4(&Data[r][c]); break;
                     case POW: Data[r][c] = powl(Data[r][c],M->Data[r][c]); break;
-                    case MIN: Data[r][c] = min(M->Data[r][c], Data[r][c]); break; //VJ 110420 new
-                    case MAX: Data[r][c] = max(M->Data[r][c], Data[r][c]); break;
+                    case MIN: Data[r][c] = _min(M->Data[r][c], Data[r][c]); break; //VJ 110420 new
+                    case MAX: Data[r][c] = _max(M->Data[r][c], Data[r][c]); break;
                     }
                 }
                 else
@@ -107,7 +108,7 @@ void TMMap::calcMap(cTMap *M, int oper)
             }
 }
 //---------------------------------------------------------------------------
-void TMMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
+void CTMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
 {
     for (int r = 0; r < nrRows; r++)
         for (int c = 0; c < nrCols; c++)
@@ -123,8 +124,8 @@ void TMMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
                     case DIV: if (M2->Data[r][c] > 0) Data[r][c] = M1->Data[r][c] / M2->Data[r][c];
                         else SET_MV_REAL4(&Data[r][c]); break;
                     case POW: Data[r][c] = pow(M1->Data[r][c], M2->Data[r][c]); break;
-                    case MIN: Data[r][c] = min(M1->Data[r][c], M2->Data[r][c]); break; //VJ 110420 new
-                    case MAX: Data[r][c] = max(M1->Data[r][c], M2->Data[r][c]); break;
+                    case MIN: Data[r][c] = _min(M1->Data[r][c], M2->Data[r][c]); break; //VJ 110420 new
+                    case MAX: Data[r][c] = _max(M1->Data[r][c], M2->Data[r][c]); break;
                     }
                 }
                 else
@@ -132,7 +133,7 @@ void TMMap::calc2Maps(cTMap *M1, cTMap *M2, int oper)
             }
 }
 //---------------------------------------------------------------------------
-void TMMap::calcValue(double V, int oper)
+void CTMap::calcValue(double V, int oper)
 {
     for (int r = 0; r < nrRows; r++)
         for (int c = 0; c < nrCols; c++)
@@ -146,13 +147,13 @@ void TMMap::calcValue(double V, int oper)
                 case DIV: if (V > 0) Data[r][c] /= V;
                     else SET_MV_REAL4(&Data[r][c]); break;
                 case POW: Data[r][c] = pow(Data[r][c],V); break;
-                case MIN: Data[r][c] = min(Data[r][c],V); break;//VJ 110420 new
-                case MAX: Data[r][c] = max(Data[r][c],V); break;
+                case MIN: Data[r][c] = _min(Data[r][c],V); break;//VJ 110420 new
+                case MAX: Data[r][c] = _max(Data[r][c],V); break;
                 }
             }
 }
 //---------------------------------------------------------------------------
-double TMMap::mapTotal()
+double CTMap::mapTotal()
 {
     double total = 0;
     for (int r = 0; r < nrRows; r++)
@@ -165,7 +166,7 @@ double TMMap::mapTotal()
 
 }
 //---------------------------------------------------------------------------
-double TMMap::mapAverage()
+double CTMap::mapAverage()
 {
     double total = 0;
     double nrcells = 0;
@@ -179,8 +180,9 @@ double TMMap::mapAverage()
     return (total/nrcells);
 }
 //---------------------------------------------------------------------------
+/*
 // replaces value inside the areas with the average and retains the original values outside
-void TMMap::areaAverage(TMMap *area)
+void CTMap::areaAverage(CTMap *area)
 {
     QList <UNIT_LIST> aList;
     QList <double> data;
@@ -246,8 +248,9 @@ void TMMap::areaAverage(TMMap *area)
     return;
 
 }
+*/
 //---------------------------------------------------------------------------
-double TMMap::mapMaximum()
+double CTMap::mapMaximum()
 {
     double total = -1e20;
     for (int r = 0; r < nrRows; r++)
@@ -261,7 +264,7 @@ double TMMap::mapMaximum()
 
 }
 //---------------------------------------------------------------------------
-double TMMap::mapMinimum()
+double CTMap::mapMinimum()
 {
     double total = +1e20;
     for (int r = 0; r < nrRows; r++)
@@ -275,7 +278,7 @@ double TMMap::mapMinimum()
 
 }
 //---------------------------------------------------------------------------
-void TMMap::copy(cTMap *M)
+void CTMap::copy(cTMap *M)
 {
     for (int r = 0; r < M->nrRows; r++)
         for (int c = 0; c < M->nrCols; c++)
@@ -289,7 +292,8 @@ void TMMap::copy(cTMap *M)
         }
 }
 //---------------------------------------------------------------------------
-void TMMap::shift(cTMap *M, int dr, int dc)
+/*
+void CTMap::shift(cTMap *M, int dr, int dc)
 {
     for (int r = 0; r < M->nrRows; r++)
         for (int c = 0; c < M->nrCols; c++)
@@ -304,14 +308,15 @@ void TMMap::shift(cTMap *M, int dr, int dc)
                 SET_MV_REAL4(&Data[r][c]);
         }
 }
+*/
 //---------------------------------------------------------------------------
-void TMMap::setMV()
+void CTMap::setMV()
 {
     for(int r = 0; r < nrRows; r++)
         SetMemMV(Data[r],nrCols,CR_REAL8);
 }
 //---------------------------------------------------------------------------
-void TMMap::calcMapValue(cTMap *M1, double V, int oper)
+void CTMap::calcMapValue(cTMap *M1, double V, int oper)
 {
     for (int r = 0; r < nrRows; r++)
         for (int c = 0; c < nrCols; c++)
@@ -327,8 +332,8 @@ void TMMap::calcMapValue(cTMap *M1, double V, int oper)
                     case DIV: if (V > 0) Data[r][c] = M1->Data[r][c] / V;
                         else SET_MV_REAL4(&Data[r][c]); break;
                     case POW: Data[r][c] = pow(M1->Data[r][c],V); break;
-                    case MIN: Data[r][c] = min(M1->Data[r][c],V); break;//VJ 110420 new
-                    case MAX: Data[r][c] = max(M1->Data[r][c],V); break;
+                    case MIN: Data[r][c] = _min(M1->Data[r][c],V); break;//VJ 110420 new
+                    case MAX: Data[r][c] = _max(M1->Data[r][c],V); break;
                     }
                 }
                 else
@@ -336,7 +341,7 @@ void TMMap::calcMapValue(cTMap *M1, double V, int oper)
             }
 }
 //---------------------------------------------------------------------------
-void TMMap::checkMap(int oper, double V, QString SS)
+void CTMap::checkMap(int oper, double V, QString SS)
 {
     for (int r = 0; r < nrRows; r++)
         for (int c = 0; c < nrCols; c++)
@@ -368,7 +373,7 @@ void TMMap::checkMap(int oper, double V, QString SS)
             }
 }
 //---------------------------------------------------------------------------
-int TMMap::countUnits()
+int CTMap::countUnits()
 {
     QList <long> list;
     for (int r = 0; r < nrRows; r++)
@@ -380,3 +385,22 @@ int TMMap::countUnits()
             }
     return(list.count());
 }
+//---------------------------------------------------------------------------
+// gives back the average of surrounding cells
+double CTMap::getWindowAverage(int r, int c)
+{
+  double i = 0;
+  double sum = 0, avg = 0;
+  if (!IS_MV_REAL8(&Data[r-1][c-1]) && Data[r-1][c-1]> 0) { sum += Data[r-1][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r-1][c  ]) && Data[r-1][c  ]> 0) { sum += Data[r-1][c  ]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r-1][c+1]) && Data[r-1][c+1]> 0) { sum += Data[r-1][c+1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r  ][c-1]) && Data[r  ][c-1]> 0) { sum += Data[r  ][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r  ][c+1]) && Data[r  ][c+1]> 0) { sum += Data[r  ][c+1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c-1]) && Data[r+1][c-1]> 0) { sum += Data[r+1][c-1]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c  ]) && Data[r+1][c  ]> 0) { sum += Data[r+1][c  ]; i+=1.0;}
+  if (!IS_MV_REAL8(&Data[r+1][c+1]) && Data[r+1][c+1]> 0) { sum += Data[r+1][c+1]; i+=1.0;}
+  avg = (i > 0 ? sum / i : 0);
+
+  return(avg);
+}
+//---------------------------------------------------------------------------

@@ -57,7 +57,7 @@ void TWorld::ToChannel(void)
             if (ChannelAdj->Drc == 0)
                 fractiontochannel = 1.0;
             else
-                fractiontochannel = min(1.0, _dt*V->Drc/max(0.01*_dx,0.5*ChannelAdj->Drc));
+                fractiontochannel = _min(1.0, _dt*V->Drc/_max(0.01*_dx,0.5*ChannelAdj->Drc));
 
             if (SwitchBuffers)
                 if (BufferID->Drc > 0)
@@ -74,7 +74,7 @@ void TWorld::ToChannel(void)
                 // no surface inflow when culverts and bridges
             }
             if (SwitchAllinChannel)
-                if (LDD->Drc == 5)    ///////////// VJ 5-1-14, for all outlets
+                if (LDD->Drc == 5)    // VJ 5-1-14, for all outlets
                     fractiontochannel = 1.0;
             // in catchment outlet cell, throw everything in channel
 
@@ -98,67 +98,6 @@ void TWorld::ToChannel(void)
         // recalc velocity and discharge
     }
 
-}
-//---------------------------------------------------------------------------
-//fraction of water and sediment flowing into the channel
-void TWorld::QToChannel(void)
-{
-    if (SwitchIncludeChannel)
-    {
-        FOR_ROW_COL_MV_CH
-        {
-            double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
-
-            if (Volume == 0)
-            {
-                SedToChannel->Drc = 0;
-                RunoffVolinToChannel->Drc = 0;
-                continue;
-            }
-
-            double R = (2*WHrunoff->Drc+FlowWidth->Drc)/(WHrunoff->Drc*FlowWidth->Drc);
-            double vtoc = pow(R,2/3)*sqrt(WHrunoff->Drc/(0.5*ChannelAdj->Drc))/N->Drc;
-            //assume slope perpendicular to flow is based on water level only
-            double qtoc = min(Volume, 2 * vtoc * WHrunoff->Drc*FlowWidth->Drc * _dt);
-            // 2 because flux comes from both sides, cannot be more than volume itself
-
-            if (SwitchBuffers)
-                if (BufferID->Drc > 0)
-                    qtoc = Volume;
-            // where there is a buffer in the channel, all goes in the channel
-
-            if (SwitchChannelFlood)
-            {
-                if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
-                    qtoc = 0;
-                // no inflow when flooded
-                if (ChannelMaxQ->Drc > 0)
-                    qtoc = 0;
-                // no surface inflow when culverts and bridges
-            }
-
-            if (SwitchAllinChannel && LDD->Drc == 5)
-                qtoc = Volume;
-            // in catchment outlet cell, throw everything in channel
-
-            RunoffVolinToChannel->Drc = qtoc;
-            // water diverted to the channel
-            WHrunoff->Drc = (Volume-qtoc)/(FlowWidth->Drc * DX->Drc);
-
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-
-            if (SwitchErosion)
-            {
-                SedToChannel->Drc = ChannelConc->Drc*qtoc;
-                //sediment diverted to the channel in kg
-                Sed->Drc -= SedToChannel->Drc;
-                // adjust sediment in suspension
-            }
-        }
-
-        CalcVelDisch();
-        // recalc velocity and discharge with new HWrunoff
-    }
 }
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch()
@@ -203,7 +142,6 @@ void TWorld::CalcVelDisch()
     }
     // tm->report("reyn");
     //  tma->report("reynF");
-
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
@@ -425,13 +363,24 @@ void TWorld::OverlandFlowNew(void)
         //                double A = h*w;
         //                double R = A/P;
 
-        //                F = max(0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
+        //                F = _max(0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
         //                dF = (5*w+6*h)/(3*h*P);
         //                h1 = h - F/dF;
         //                // function divided by derivative
         //                count++;
         //            }while(fabs(h1-h) > 1e-10 && count < 20);
         //        }
+
+//      FOR_ROW_COL_MV
+//      {
+//          if (hmx->Drc > 0)
+//          {
+//              double qh = runoff_partitioning*Qn->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+//              hmx->Drc += qh;
+//              Qn->Drc = Qn->Drc *(1-runoff_partitioning);
+//             // WHrunoff->Drc -= wh;
+//          }
+//      }
 
         WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
         //new WH based on A/dx = alpha Q^beta / dx
@@ -461,7 +410,7 @@ void TWorld::OverlandFlowNew(void)
         // this is the actual infiltration in the kin wave
 
         double diff = InfilKWact;
-        InfilKWact = min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
+        InfilKWact = _min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
         // infil volume cannot be more than surplus infil
 
         if (FFull->Drc == 1)
@@ -497,15 +446,15 @@ void TWorld::OverlandFlowNew(void)
   //      WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
     }
 
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > 0)
-        {
-            double wh = runoff_partitioning*WHrunoff->Drc;
-            hmx->Drc += wh;
-            WHrunoff->Drc -= wh;
-        }
-    }
+//    FOR_ROW_COL_MV
+//    {
+//        if (hmx->Drc > 0)
+//        {
+//            double wh = runoff_partitioning*WHrunoff->Drc;
+//            hmx->Drc += wh;
+//            WHrunoff->Drc -= wh;
+//        }
+//    }
 
     FOR_ROW_COL_MV
            // if (hmx->Drc == 0)

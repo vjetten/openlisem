@@ -52,8 +52,8 @@ void lisemqt::GetRunfile()
         return;
     }
 
-    currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
-    QDir::setCurrent(currentDir);
+ //   currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
+ //   QDir::setCurrent(currentDir);
 
     // read all lines in the runfile BUT
     // each line is compared to the hardcoded name in lisemqt::defaultRunFile()
@@ -146,24 +146,24 @@ void lisemqt::ParseInputData()
         */
 
         // variables controling map display
-//        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
-//        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
-//        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
-//        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
-//        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
-//        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
-//        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
-//        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
-//        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
-//        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
-//        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
-//        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
+        //        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
+        //        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
+        //        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
+        //        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
+        //        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
+        //        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
+        //        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
+        //        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
+        //        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
+        //        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
+        //        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
+        //        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 
         //options in the main code, order is not important
         if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-        if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+   //     if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
@@ -178,7 +178,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
         //  if (p1.compare("Flooding SWOF csf factor")==0)       E_cflFactor->setValue(val);
-        //if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
+        if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
@@ -188,6 +188,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
         if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
+        if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
+        if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -313,7 +315,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(val);
 
 
-        if (p1.compare("Output interval")==0)   printinterval->setValue(max(1,iii));
+        if (p1.compare("Output interval")==0)   printinterval->setValue(_max(1,iii));
 
         if (p1.compare("Erosion map units (0/1/2)")==0)
         {
@@ -377,9 +379,9 @@ void lisemqt::ParseInputData()
         E_floodSolution->setValue(1);
     if (dummyFloodSWOF2)
         E_floodSolution->setValue(2);
-   // qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
+    // qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
     // get directory and file names
-    for (j = 0; j < nrnamelist; j++)//VJ 110107 changed to nrnamelist
+    for (j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
@@ -394,10 +396,34 @@ void lisemqt::ParseInputData()
         }
 
         // input ourput dirs and file names
-        if (p1.compare("Map Directory")==0) E_MapDir->setText(CheckDir(p));
+        if (p1.compare("Work Directory")==0)
+        {
+            E_WorkDir->setText(CheckDir(p));
+        }
+
+        if (p1.compare("Map Directory")==0)
+        {
+            E_MapDir->setText(CheckDir(p));
+            if (!p.isEmpty() && E_WorkDir->text().isEmpty())
+            {
+                E_WorkDir->setText(E_MapDir->text());
+                QDir dir(E_WorkDir->text());
+                if (dir.cdUp())
+                    E_WorkDir->setText(dir.absolutePath()+"/");
+            }
+            if (E_MapDir->text().isEmpty() && !E_WorkDir->text().isEmpty())
+            {
+                E_MapDir->setText(E_WorkDir->text()+"maps/");
+                if (!QFileInfo(E_MapDir->text()).exists())
+                    E_MapDir->setText("");
+            }
+        }
         if (p1.compare("Result Directory")==0)
         {
-            E_ResultDir->setText(CheckDir(p, true));
+            E_ResultDir->setText(CheckDir(p, false));
+            if (!QFileInfo(E_ResultDir->text()).exists())
+                E_ResultDir->setText(E_WorkDir->text()+"res/");
+
         }
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
@@ -409,6 +435,11 @@ void lisemqt::ParseInputData()
         {
             E_RainfallName->setText(RainFileDir + p);
             RainFileName = p;///*rainFileDir + */E_RainfallName->text();
+            if (!QFileInfo(E_RainfallName->text()).exists())
+            {
+                RainFileDir = QString(E_WorkDir->text() + "rain/");
+                E_RainfallName->setText(RainFileDir + p);
+            }
         }
 
         if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
@@ -427,20 +458,16 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
         if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
         if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
+        if (p1.compare("Flood start time")==0) E_FloodFEW->setText(p);
 
-        // resultDir is added in report operation
-        //NO checking
-        //		if (checkSnowmelt->isChecked())
-        //	{
         if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
         if (p1.compare("Snowmelt file")==0)
         {
             E_SnowmeltName->setText(SnowmeltFileDir + p);
-            SnowmeltFileName = p;///*SnowmeltFileDir + */E_SnowmeltName->text();
+            SnowmeltFileName = p;// /*SnowmeltFileDir + */E_SnowmeltName->text();
         }
-        //}
 
-        if (p1.compare("Table Directory")==0)
+        if (uiInfilMethod == 0 && p1.compare("Table Directory")==0)
         {
             SwatreTableDir = CheckDir(p);
             if (SwatreTableDir.isEmpty())
@@ -514,6 +541,10 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
+
+    if (p.isEmpty())
+        return(p);
+
     path = QDir(p).fromNativeSeparators(p);
     path = QDir(path).absoluteFilePath(path);
     if (!path.endsWith("/"))
@@ -528,7 +559,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
         }
         else
         {
-            QMessageBox::warning(this,"openLISEM",QString("Directory path %1 does not exist, provide an existing pathname").arg(path));
+            QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
             path.clear();
         }
     }
@@ -551,22 +582,34 @@ void lisemqt::updateModelData()
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-        if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+     //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Flood method explicit")==0)
+        {
             if (E_floodSolution->value() == 0)
                 namelist[j].value.setNum(1);
+            else
+                namelist[j].value.setNum(0);
+        }
         if (p1.compare("Flood method SWOF2D order 1")==0)
+        {
             if (E_floodSolution->value() == 1)
                 namelist[j].value.setNum(1);
+            else
+                namelist[j].value.setNum(0);
+        }
         if (p1.compare("Flood method SWOF2D order 2")==0)
+        {
             if (E_floodSolution->value() == 2)
                 namelist[j].value.setNum(1);
+            else
+                namelist[j].value.setNum(0);
+        }
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         //  if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
-        //if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
+        if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
@@ -575,8 +618,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding runoff partitioning")==0)    namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Flood limit max velocity")==0)       namelist[j].value = E_FloodReplaceV->text();
-        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value =E_FloodMaxVelocity->text();
-
+        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
+        if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
+        if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         //houses
@@ -652,6 +696,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
         if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
+        if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
         if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
@@ -674,6 +719,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
         if (p1.compare("Channel Max Q")==0) namelist[j].value = E_ChannelMaxQ->text();
         if (p1.compare("Channel Max WH")==0) namelist[j].value = E_ChannelMaxWH->text();
+        if (p1.compare("Flood start time")==0) namelist[j].value = E_FloodFEW->text();
 
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
@@ -768,4 +814,6 @@ void lisemqt::updateModelData()
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 
+    currentDir = E_WorkDir->text();
+    QDir::setCurrent(currentDir);
 }

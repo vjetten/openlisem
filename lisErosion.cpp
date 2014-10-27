@@ -83,7 +83,7 @@ void TWorld::SplashDetachment(void)
       double directrain = (1-Cover->Drc)*Rainc->Drc * 1000; //
       // rainfall between plants in mm
 
-      double KE_LD = max(15.3*sqrt(PlantHeight->Drc)-5.87, 0);
+      double KE_LD = _max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
       // kin energy in J/m2/mm
       double throughfall = Cover->Drc * LeafDrain->Drc * 1000;
       // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
@@ -183,7 +183,7 @@ void TWorld::FlowDetachment(void)
       // V in cm/s in this formula assuming grad is SINE
       double omegacrit = 0.4;
       // critical unit streampower in cm/s
-      TC->Drc = min(MAXCONC, 2650 * CG->Drc * pow(max(0, omega - omegacrit), DG->Drc));
+      TC->Drc = _min(MAXCONC, 2650 * CG->Drc * pow(_max(0.0, omega - omegacrit), DG->Drc));
       // not more than 2650*0.32 = 848 kg/m3
    }
 
@@ -203,12 +203,12 @@ void TWorld::FlowDetachment(void)
                    && !IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
-                  maxtc = qMax(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
+                  maxtc = _max(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }
-         TC->Drc = qMax(TC->Drc, avgtc/count);
-         TC->Drc = qMin(TC->Drc, maxtc);
+         TC->Drc = _max(TC->Drc, avgtc/count);
+         TC->Drc = _min(TC->Drc, maxtc);
       }
    }
 
@@ -224,9 +224,9 @@ void TWorld::FlowDetachment(void)
       Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
       // limit sed concentration to max
 
-      double maxTC = max(TC->Drc - Conc->Drc,0);
+      double maxTC = _max(TC->Drc - Conc->Drc,0.0);
       // positive difference: TC deficit becomes detachment (ppositive)
-      double minTC = min(TC->Drc - Conc->Drc,0);
+      double minTC = _min(TC->Drc - Conc->Drc,0.0);
       // negative difference: TC surplus becomes deposition (negative)
       // unit kg/m3
 
@@ -237,7 +237,7 @@ void TWorld::FlowDetachment(void)
 
       DETFlow->Drc = Y->Drc * maxTC * TransportFactor;
       // unit = kg/m3 * m3 = kg
-      DETFlow->Drc = min(DETFlow->Drc, maxTC * Q->Drc*_dt);
+      DETFlow->Drc = _min(DETFlow->Drc, maxTC * Q->Drc*_dt);
       // cannot have more detachment than remaining capacity in flow
       // use discharge because standing water has no erosion
 
@@ -278,9 +278,9 @@ void TWorld::FlowDetachment(void)
       // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
       if (SwitchLimitDepTC)
-         deposition = max(deposition, minTC * WaterVolall->Drc);
+         deposition = _max(deposition, minTC * WaterVolall->Drc);
       // cannot be more than sediment above capacity
-      deposition = max(deposition, -Sed->Drc);
+      deposition = _max(deposition, -Sed->Drc);
       // cannot have more depo than sediment present
       /* TODO what about this: which one to choose */
 
@@ -316,7 +316,7 @@ void TWorld::ChannelFlowDetachment(void)
       double omega = 100*ChannelV->Drc*ChannelGrad->Drc;
       double omegacrit = 0.4;
 
-      ChannelTC->Drc = min(MAXCONC, 2650 * CG->Drc * pow(max(0, omega - omegacrit), DG->Drc));
+      ChannelTC->Drc = _min(MAXCONC, 2650.0 * CG->Drc * pow(_max(0.0, omega - omegacrit), DG->Drc));
       // Channel transport capacity, ot more than 2650*0.32 = 848 kg/m3
    }
 
@@ -336,12 +336,12 @@ void TWorld::ChannelFlowDetachment(void)
                    && !IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
-                  maxtc = qMax(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);
+                  maxtc = _max(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }
-         ChannelTC->Drc = qMax(ChannelTC->Drc,  avgtc/count);
-         ChannelTC->Drc = qMin(ChannelTC->Drc, maxtc);
+         ChannelTC->Drc = _max(ChannelTC->Drc,  avgtc/count);
+         ChannelTC->Drc = _min(ChannelTC->Drc, maxtc);
       }
    }
 
@@ -358,15 +358,15 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
       // set conc to max and add surplus sed to ChannelDep
 
-      double maxTC = max(ChannelTC->Drc - ChannelConc->Drc,0);
-      double minTC = min(ChannelTC->Drc - ChannelConc->Drc,0);
+      double maxTC = _max(ChannelTC->Drc - ChannelConc->Drc,0.0);
+      double minTC = _min(ChannelTC->Drc - ChannelConc->Drc,0.0);
       // basic TC deficit, posiutive if detachment, negative if depositioin, units kg/m3
 
       double TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * ChannelWidthUpDX->Drc;
       // units s * m/s * m * m = m3
       ChannelDetFlow->Drc = ChannelY->Drc * maxTC * TransportFactor;
       // unit kg/m3 * m3 = kg
-      ChannelDetFlow->Drc = min(ChannelDetFlow->Drc, maxTC * ChannelWaterVol->Drc);
+      ChannelDetFlow->Drc = _min(ChannelDetFlow->Drc, maxTC * ChannelWaterVol->Drc);
       // cannot have more detachment than remaining capacity in flow
 
       //or:? ChannelDetFlow->Drc = ChannelY->Drc * maxTC * Q->Drc*_dt;
@@ -375,12 +375,12 @@ void TWorld::ChannelFlowDetachment(void)
       double deposition = minTC * TransportFactor;
       // max deposition in kg/s  < 0
       if (SwitchLimitDepTC)
-         deposition = max(deposition, -minTC * ChannelWaterVol->Drc);
+         deposition = _max(deposition, -minTC * ChannelWaterVol->Drc);
 
 
-      deposition = max(deposition, -ChannelSed->Drc);
+      deposition = _max(deposition, -ChannelSed->Drc);
       // cannot be more than sediment above capacity
-      //or:?     deposition = max(deposition, minTC * ChannelWaterVol->Drc);
+      //or:?     deposition = _max(deposition, minTC * ChannelWaterVol->Drc);
 
       ChannelDep->Drc += deposition;
       ChannelSed->Drc += deposition;

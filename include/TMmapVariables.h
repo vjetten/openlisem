@@ -29,7 +29,7 @@
 
 // separte here for easier Doxygen comments
 
-TMMap
+CTMap
 
 *DEM,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
@@ -76,9 +76,9 @@ TMMap
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
-*AlphaF,
-*QF,
-*QnF,
+//*AlphaF,
+//*QF,
+//*QnF,
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
@@ -143,7 +143,7 @@ TMMap
 *C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
 *Cold,
 *CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
-*CS,                        //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
+*CS,                         //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
 *C_N,
 *CM_N,
 *CS_N,
@@ -277,30 +277,35 @@ TMMap
 *ChannelDepth,               //!<
 *UVflood,                     //!<
 *Qflood,
-*maxflood,
-*floodzone,
+*floodHmxMax,
 *floodactive,
 *timeflood,
 *maxChannelflow,
 *maxChannelWH,
+*hmxInit,
+//explicit solution
 *Hx,                         //!<
 *Hmx,                        //!<
 *hx,                         //!<
 *hmx,                        //!<
-*hmxInit,
 *Nx,                         //!<
 *dHdLx,                      //!<
 *Qxsum,                      //!<
-*qx0,
-*qx1,
-*qx2,
-*qx3,
+*qx0,                        //!<
+*qx1,                        //!<
+*qx2,                        //!<
+*qx3,                        //!<
+//explicit solution
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
 *ChannelLevee,                //!<
 *FloodWaterVol,
-*FloodVoltoChannel,
+*FloodZonePotential,
+*FloodEdge,
+//*FloodVoltoChannel,
+*FloodTimeStart,
+*FloodTimeEnd,
 
 // FULLSWOF2D
 *z1r, *z1l, *z2r, *z2l,
@@ -365,5 +370,6 @@ TMMap
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
 *tmc                        //!< Auxilary map
+
 ;
 

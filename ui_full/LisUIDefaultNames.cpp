@@ -101,16 +101,17 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("1;Channel Infil");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-    DEFmaps.append("1;Channel Baseflow");
-    DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
-    DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
-    DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini");
+  //  DEFmaps.append("1;Channel Baseflow");
+  //  DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
+  //  DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
+  //  DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini");
     DEFmaps.append("0;Channel Flood");
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
+    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
@@ -243,6 +244,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
 */
     namelist[i++].name = QString("[Input]");
+    namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
     namelist[i++].name = QString("Include Rainfall");
     namelist[i++].name = QString("Rainfall Directory");
@@ -298,6 +300,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max Q");
     namelist[i].value = QString("channelmaxhw.map");
     namelist[i++].name = QString("Channel Max WH");
+    namelist[i].value = QString("floodstart.map");
+    namelist[i++].name = QString("Flood start time");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
     namelist[i].value = QString("0");
@@ -384,12 +388,17 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("3"); //albeda
     namelist[i++].name = QString("Flooding SWOF flux limiter");
-//    namelist[i].value = QString("1"); //MUSCL
-//    namelist[i++].name = QString("Flooding SWOF scheme");
+    namelist[i].value = QString("1"); //MUSCL
+    namelist[i++].name = QString("Flooding SWOF scheme");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood limit max velocity");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Flood max velocity threshold");
+    namelist[i].value = QString("3.0");
+    namelist[i++].name = QString("Flood extreme value height");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Flood extreme value difference");
+
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

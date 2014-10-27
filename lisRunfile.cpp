@@ -42,6 +42,10 @@ functions: \n
 - void TWorld::ParseRunfileData() \n
 - void TWorld::GetRunFile() \n
 */
+QString TWorld::getvaluedescription(QString vname)
+{
+
+}
 
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
@@ -173,7 +177,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
-        if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
+      //  if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
@@ -377,6 +381,8 @@ void TWorld::ParseRunfileData(void)
                 floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0); ;
             if (p1.compare("Channel Max WH")==0)
                 floodMaxWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
+            if (p1.compare("Flood start time")==0)
+                floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
         }
 
         // output map timeseries, standard names, to avoid unreadable pcraster names
@@ -429,6 +435,7 @@ void TWorld::GetRunFile(void)
                 QStringList SL = S.split(QRegExp("="));
                 runnamelist[nrrunnamelist].name = SL[0].trimmed();
                 runnamelist[nrrunnamelist].value = SL[1].trimmed();
+
                 nrrunnamelist++;
             }
         }

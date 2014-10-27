@@ -59,7 +59,7 @@ void lisemqt::runmodel()
         return;
     }
 
-    label_runfilename->setText(op.runfilename);
+    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
     /* TODO if run from commandline this name must exist */
 
     savefile(QString(op.LisemDir+"openlisemtmp.run"));
@@ -226,6 +226,7 @@ void lisemqt::initOP()
     op.DrawMap4 = NULL;
     op.DrawMap5 = NULL;
     op.DrawMap6 = NULL;
+    op.DrawMap7 = NULL;
     op.baseMap = NULL;
     op.baseMapDEM = NULL;
     op.channelMap = NULL;

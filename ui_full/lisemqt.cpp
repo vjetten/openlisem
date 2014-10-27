@@ -115,14 +115,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // put the progress bar into the statusbar
 
     E_runFileList->clear();
-    E_FloodScheme->setVisible(false);
-    label_98->setVisible(false);
-    checkAddWHtohmx->setVisible(false);
-    label_125->setVisible(false);
 
-    floodCutoffLevel->setVisible(false);
-    label_127->setVisible(false);
-    label_93->setVisible(false);
+
+    //E_FloodScheme->setVisible(false);
+    //label_98->setVisible(false);
+    //checkAddWHtohmx->setVisible(false);
+    //label_125->setVisible(false);
+    //floodCutoffLevel->setVisible(false);
+    label_132->setVisible(false);
+    label_133->setVisible(false);
+    E_FloodReplaceV->setVisible(false);
+    checkChannelBaseflow->setVisible(false);
+    label_103->setVisible(false);
+    //buffergroup->setVisible(false);
+    // interface elements that are not visible for now
+
 
     doBatchmode = doBatch;
     batchRunname = runname;
@@ -168,7 +175,7 @@ void lisemqt::SetConnections()
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
-
+    connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -181,10 +188,14 @@ void lisemqt::SetConnections()
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
-    //connect(E_FloodScheme,SIGNAL(valueChanged(int)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodExplicit,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodSWOForder1,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
-    //    connect(checkFloodSWOForder2,SIGNAL(toggled(bool)), this, SLOT(setFlooding(bool)));
+    connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
+
+}
+//--------------------------------------------------------------------
+void lisemqt::setFloodErosion()
+{
+    if (checkChannelFlood->isChecked())
+        checkNoErosion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -315,9 +326,11 @@ void lisemqt::SetToolBar()
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_FEW, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
@@ -329,7 +342,8 @@ void lisemqt::SetToolBar()
 /// make some labels yellow
 void lisemqt::SetStyleUI()
 {
-    int w = 60, h = 1;//2*genfontsize;
+
+    int w = 80, h = 15;//2*genfontsize;
     label_dx->setMinimumSize(w,h);
     label_area->setMinimumSize(w,h);
     label_time->setMinimumSize(w,h);
@@ -366,6 +380,9 @@ void lisemqt::SetStyleUI()
 
     label_buffervol->setMinimumSize(w,h);
     label_buffersed->setMinimumSize(w,h);
+    label_MBs->setMinimumSize(w,h);
+    label_MB->setMinimumSize(w,h);
+
 
     label_dx->setStyleSheet("* { background-color: #ffffff }");
     label_area->setStyleSheet("* { background-color: #ffffff }");
@@ -411,14 +428,29 @@ void lisemqt::setMapDir()
     QString pathin;
 
     pathin = findValidDir(E_MapDir->text(), false);
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin, options);//QFileDialog::ShowDirsOnly);
+
+    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
 //--------------------------------------------------------------------
+void lisemqt::setWorkDir()
+{
+    QString path;
+    QString pathin;
+
+    pathin = findValidDir(E_WorkDir->text(), false);
+
+    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
+    if(!path.isEmpty())
+        E_WorkDir->setText( path );
+}//--------------------------------------------------------------------
 void lisemqt::setResultDir()
 {
     QString path;
@@ -426,21 +458,22 @@ void lisemqt::setResultDir()
 
     pathin = findValidDir(E_ResultDir->text(), true);
 
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-
-    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"), pathin, options);//QFileDialog::ShowDirsOnly);//,QFileDialog::DontUseNativeDialog);
-
+    path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_FloodScheme_valueChanged(int nr)
+void lisemqt::on_E_floodSolution_valueChanged(int nr)
 {
-    E_FloodFluxLimiter->setEnabled(nr < 3);
+    E_FloodScheme->setEnabled(nr == 2);
+    label_98->setEnabled(nr == 2);
+    E_FloodFluxLimiter->setEnabled(nr == 2);
+    label_100->setEnabled(nr == 2);
 }
-
+//--------------------------------------------------------------------
 // this is for the directory with the table files
 void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
@@ -449,13 +482,10 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
 
     pathin = findValidDir(E_SwatreTableDir->text(), false);
 
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
- //   if (!native->isChecked())
-        options |= QFileDialog::DontUseNativeDialog;
-
     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                             pathin, options);//QFileDialog::DontUseNativeDialog);//,QFileDialog::ShowDirsOnly);
-
+                                             pathin,
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
     {
         E_SwatreTableDir->setText( path );
@@ -472,7 +502,6 @@ void lisemqt::on_toolButton_SwatreTableFile_clicked()
                                         SwatreTableName,"Profiles (*.inp);;All files (*.*)");
     if(!path.isEmpty())
     {
-        QFileInfo fi(path);
         SwatreTableName = path;
         E_SwatreTableName->setText(path);
     }
@@ -898,7 +927,7 @@ void lisemqt::shootScreen()
 
         QString format = "png";
         QString type = ".png";
-        QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
+        QString DT = QDateTime().currentDateTime().toString("yyMMdd-hhmm");//"hh.mm-yy.MM.dd");
 
         if (tabWidget->currentIndex() == 2)
             type = QString("%1_q.png").arg(DT);
@@ -987,6 +1016,7 @@ void lisemqt::resetAll()
     E_FloodStats->setText("floodstats.txt");
     E_ChannelMaxQ->setText("channelmaxq.map");
     E_ChannelMaxWH->setText("channelmaxhw.map");
+    E_FloodFEW->setText("floodstart.map");
     E_MainTotals->setText("");
     E_PointResults->setText("");
 
@@ -1074,9 +1104,10 @@ void lisemqt::resetAll()
 
     tabWidget->setCurrentIndex(0);
 
-    //buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
     sedgroup->setEnabled(!checkNoErosion->isChecked());
-
+    label_31->setEnabled(!checkNoErosion->isChecked());
+    label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
 
     radioButton_1->setChecked(true); //<= grass interception
     E_CanopyOpeness->setValue(0.45);
@@ -1096,10 +1127,11 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-//    checkFloodExplicit->setChecked(false);
-//    checkFloodSWOForder1->setChecked(true);
-//    checkFloodSWOForder2->setChecked(false);
-//    E_cflFactor->setValue(0.2);
+    //    checkFloodExplicit->setChecked(false);
+    //    checkFloodSWOForder1->setChecked(true);
+    //    checkFloodSWOForder2->setChecked(false);
+    //    E_cflFactor->setValue(0.2);
+
     E_courantFactor->setValue(0.2);
 
     E_floodMinHeight->setValue(0.05);
@@ -1110,10 +1142,8 @@ void lisemqt::resetAll()
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
 
- //   E_FloodReplaceV->setValue(1);
- //   E_FloodMaxVelocity->setValue(10.0);
-
-
+    //   E_FloodReplaceV->setValue(1);
+    //   E_FloodMaxVelocity->setValue(10.0);
 
 }
 //--------------------------------------------------------------------
@@ -1122,7 +1152,14 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = E_MapDir->text();
     if (!QFileInfo(path).exists() || path.isEmpty())
-        path = QFileInfo(op.runfilename).absolutePath();
+        path = E_WorkDir->text();
+    if (!QFileInfo(path).exists() || path.isEmpty())
+    {
+        //    path = QFileInfo(op.runfilename).absolutePath();
+        QDir ddir(op.runfilename);
+        ddir.cdUp();
+        path = ddir.absolutePath();
+    }
     if (up)
     {
         QDir dir = QDir(path + "/..");
@@ -1138,33 +1175,33 @@ void lisemqt::fontSelect()
 {
     // bool ok;
     QFont font = QFontDialog::getFont(0, qApp->font());
-           //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
-  //  if (ok) {
-        // the user clicked OK and font is set to the font the user selected
-        qApp->setFont(font);
-        this->setStyleSheet(QString("\
-                                    QLabel {font: %1pt;} \
-                                    QGroupBox {font: %1pt;} \
-                                    QLineEdit {font: %1pt;} \
-                                    QCheckBox {font: %1pt;} \
-                                    QRadioButton {font: %1pt;} \
-                                    QSpeedButton {font: %1pt;} \
-                                    QDoubleSpinBox {font: %1pt;} \
-                                    QSpinBox {font: %1pt;} \
-                                    QComboBox {font: %1pt;} \
-                                    QTabWidget {font: %1pt;} \
-                                    QTreeView {font: %1pt;} \
-                                    QPlainTextEdit {font: %1pt;} \
-                                    ").arg(genfontsize));
- //   } else {
+    //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
+    //  if (ok) {
+    // the user clicked OK and font is set to the font the user selected
+    qApp->setFont(font);
+    this->setStyleSheet(QString("\
+                                QLabel {font: %1pt;} \
+                                QGroupBox {font: %1pt;} \
+                                QLineEdit {font: %1pt;} \
+                                QCheckBox {font: %1pt;} \
+                                QRadioButton {font: %1pt;} \
+                                QSpeedButton {font: %1pt;} \
+                                QDoubleSpinBox {font: %1pt;} \
+                                QSpinBox {font: %1pt;} \
+                                QComboBox {font: %1pt;} \
+                                QTabWidget {font: %1pt;} \
+                                QTreeView {font: %1pt;} \
+                                QPlainTextEdit {font: %1pt;} \
+                                ").arg(genfontsize));
+                                //   } else {
 
- //   }
+                                //   }
 }
 //---------------------------------------------------------------
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = max(6, genfontsize);
+    genfontsize = _max(6, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \
@@ -1188,7 +1225,7 @@ void lisemqt::fontDecrease()
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = min(18, genfontsize);
+    genfontsize = _min(18, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \

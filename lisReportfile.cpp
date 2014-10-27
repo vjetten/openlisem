@@ -73,7 +73,9 @@ void TWorld::OutputUI(void)
         tma->calcMapValue(Rain,1000, MUL);
     op.DrawMap6->copy(tma);
 
-    op.DrawMap1->copy(Qoutput);  //all output in m3/s
+    op.DrawMap1->copy(Qoutput);  //output in l/s
+    //Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
+
     FOR_ROW_COL_MV
             tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
     op.DrawMap2->copy(tmb);  //infil in mm
@@ -103,21 +105,9 @@ void TWorld::OutputUI(void)
     }
     if (SwitchChannelFlood)
     {
-        if (op.addWHtohmx)
-        {
-            FOR_ROW_COL_MV
-                    tmb->Drc = hmx->Drc + WH->Drc < 0.01 ? 0 : hmx->Drc + WH->Drc;
-        }
-        else
-        {
-            FOR_ROW_COL_MV
-                    tmb->Drc = hmx->Drc < 0.01 ? 0 : hmx->Drc;
-        }
-        op.DrawMap4->copy(tmb);  //flood level in m
-
-        FOR_ROW_COL_MV
-                tmb->Drc = UVflood->Drc < 0.01 ? 0 : UVflood->Drc;
-        op.DrawMap5->copy(tmb);  //flood level in m
+        op.DrawMap4->copy(hmx);  //flood level in m
+        op.DrawMap5->copy(UVflood);  //flood level in m
+        op.DrawMap7->copy(FloodTimeStart);  // flood start since peak rainfall in min
     }
 
     op.baseMap->copy(Shade);
@@ -622,7 +612,7 @@ void TWorld::ReportMaps(void)
 
     if (SwitchChannelFlood)
     {
-        maxflood->report(floodLevelFileName);
+        floodHmxMax->report(floodLevelFileName);
         timeflood->report(floodTimeFileName);
         maxChannelflow->report(floodMaxQFileName);
         maxChannelWH->report(floodMaxWHFileName);
@@ -809,14 +799,14 @@ void TWorld::ChannelFloodStatistics(void)
     int nr = 0;
     FOR_ROW_COL_MV
     {
-        if(maxflood->Drc > minReportFloodHeight)
+        if(floodHmxMax->Drc > minReportFloodHeight)
         {
-            int i = (int)(maxflood->Drc*10);
-            nr = max(nr, i);
-            //qDebug() << nr << i << maxflood->Drc;
+            int i = (int)(floodHmxMax->Drc*10);
+            nr = _max(nr, i);
+            //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
-            floodList[i].var2 += area*maxflood->Drc; // vol flooded in this class
-            floodList[i].var3 = max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
+            floodList[i].var3 = _max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
             if (SwitchHouses)
                 floodList[i].var4 += HouseCover->Drc*area;
         }
