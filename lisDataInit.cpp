@@ -298,9 +298,6 @@ void TWorld::InitTiledrains(void)
             //TileY->Drc = _min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
         }
 
-        if (useSorted)
-            lddlisttile = makeSortedNetwork(LDDTile, &lddlisttilenr);
-        //VJ 110123 sorted tiledrain network
     }
 
 }
@@ -780,9 +777,6 @@ void TWorld::InitChannel(void)
 
         }
 
-        //        if (useSorted)
-        //            lddlistch = makeSortedNetwork(LDDChannel, &lddlistchnr);
-        //VJ 110123 sorted channel network
     }
 }
 //---------------------------------------------------------------------------
@@ -1592,10 +1586,6 @@ void TWorld::IntializeData(void)
         }
     }
 
-
-    if (useSorted)
-        lddlist = makeSortedNetwork(LDD, &lddlistnr);
-
     //VJ 110113 all channel and buffer initialization moved to separate functions
 
 }
@@ -1604,7 +1594,6 @@ void TWorld::IntializeOptions(void)
 {
     nrRainfallseries = 0;
     nrSnowmeltseries = 0;
-    useSorted = false; // do not use alternative kin wave for now!
 
     //dirs and names
     resultDir.clear();

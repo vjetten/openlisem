@@ -37,7 +37,6 @@ SET(SOURCES
     swatre/lutio
     swatre/lookup
     swatre/swatinp
-    LisKinematicSorted
     lisChannelflood
     lisSWOF2D
     lisChannelfloodexpl

@@ -158,19 +158,13 @@ ReadMap(cTMap *Mask, QString name) put a map on this list
 typedef struct MapListStruct {
     CTMap *m;
 }  MapListStruct;
-//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------list
 /// linked list structure for network in kin wave
 typedef struct LDD_LINKEDLIST {
     int rowNr;
     int colNr;
     struct LDD_LINKEDLIST *prev;
 }  LDD_LINKEDLIST;
-//---------------------------------------------------------------------------
-/// structure used for sorting of the LDD
-typedef struct LDD_POINT {
-    int rowNr;
-    int colNr;
-}  LDD_POINT;
 //---------------------------------------------------------------------------
 /// name list structure used to read run file
 typedef struct NAME_LIST {
@@ -523,23 +517,7 @@ public:
                                 CTMap *_Alpha, CTMap *_DX, CTMap*_Vol, CTMap*_Sed);
     void upstream(CTMap *_LDD, CTMap *_M, CTMap *out);
     void KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha, CTMap *_DX);
-    // alternative kin wave based on a pre-sorted network
-    // not used!!
-    bool useSorted;
-    LDD_POINT **makeSortedNetwork(CTMap *_LDD, long *lddlistnr);
-    void KinematicSorted(LDD_POINT **_lddlist, long _lddlistnr,
-                         CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
-                         CTMap *_q, CTMap *_Alpha, CTMap *_DX, CTMap *Vol, CTMap*SedVol,
-                         CTMap *_StorVol, CTMap*_StorVolSed);
 
-    //   QList <LDD_POINT *> listldd;
-    //VJ 110123 sorted networks for faster kin wave
-    LDD_POINT **lddlist;
-    long lddlistnr;
-    LDD_POINT **lddlistch;
-    long lddlistchnr;
-    LDD_POINT **lddlisttile;
-    long lddlisttilenr;
     // QVector <CTMap> Substance;
 
     //SWATRE
