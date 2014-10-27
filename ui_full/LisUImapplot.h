@@ -172,14 +172,23 @@ class colorMapWaterLog: public QwtLinearColorMap
     }
 
 public:
-    colorMapWaterLog():
-        QwtLinearColorMap( QColor("#f6f633"), QColor("#000080"))
-    {
-        addColorStop( 0.0, QColor("#f6f633"));//Qt::yellow );
-        addColorStop( 0.003,QColor("#8080FF"));
-        addColorStop( 0.03, QColor("#4040ff") );
-        addColorStop( 0.5, QColor("#0000FF"));
-    }
+//    colorMapWaterLog():
+//        QwtLinearColorMap( QColor("#f6f633"), QColor("#000080"))
+//    {
+//        addColorStop( 0.0, QColor("#f6f633").lighter(125));//Qt::yellow );
+//        addColorStop( 0.003,QColor("#8080FF"));
+//        addColorStop( 0.03, QColor("#4040ff") );
+//        addColorStop( 0.5, QColor("#0000FF"));
+//    }
+  colorMapWaterLog():
+      QwtLinearColorMap( QColor("#f6f633"), QColor("#ff3300"))
+  {
+      addColorStop( 0.0, QColor("#f6f633"));
+      addColorStop( 0.003,QColor("#8080FF"));
+      addColorStop( 0.03, QColor("#4040ff") );
+      addColorStop( 0.2, QColor("#0000FF"));
+      addColorStop( 0.9, QColor("#FF0000"));
+  }
 };
 //---------------------------------------------------------------------------
 /// Linear Yellow to blue legend for infil map display
@@ -196,9 +205,9 @@ class colorMapWater: public QwtLinearColorMap
     }
 public:
     colorMapWater():
-        QwtLinearColorMap( Qt::yellow,QColor("#0000AA"))
+        QwtLinearColorMap( QColor("#FFFF00").lighter(125),QColor("#0000AA"))
     {
-        addColorStop( 0.0, Qt::yellow );
+        addColorStop( 0.0, QColor("#FFFF00").lighter(125) );
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );
@@ -224,7 +233,7 @@ public:
     {
         addColorStop(0.00,QColor(Qt::blue).lighter(150));
         addColorStop(0.500,Qt::blue);
-        addColorStop(1.0,QColor(Qt::blue).darker(400));
+        addColorStop(1.0,QColor(Qt::blue).darker(300));
     }
 };
 //---------------------------------------------------------------------------

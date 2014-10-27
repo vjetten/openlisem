@@ -592,10 +592,9 @@ void TWorld::maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,
     double dy = _dx;//DX->Drc;
     long double tx = dt/dx;
     long double ty = dt/dy;
-
     // Solution of the equation of mass conservation (First equation of Saint venant)
     // f1 comes from MUSCL calculations
-    if (IS_MV_REAL8(&LDD->Data[r][c+1]) || IS_MV_REAL8(&LDD->Data[r+1][c]))
+    if ((r > _nrRows-2 || c > _nrCols-2) || (IS_MV_REAL8(&LDD->Data[r][c+1]) || IS_MV_REAL8(&LDD->Data[r+1][c])))
       hes->Drc = he->Drc;
     else
       hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
