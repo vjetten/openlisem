@@ -64,7 +64,7 @@ class colorMapHouse: public QwtLinearColorMap
         if ( value < -1e19 )
             return qRgba( 228, 228, 228, 255 );
 
-        if ( value < 0.1 )
+        if ( value < 0.05 )
             return qRgba( 0, 0, 0, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
@@ -72,7 +72,8 @@ class colorMapHouse: public QwtLinearColorMap
 public:
     colorMapHouse():
 //        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
-      QwtLinearColorMap( QColor("#c06969"), QColor("#421010"))
+ //     QwtLinearColorMap( QColor("#c06969"), QColor("#421010"))
+          QwtLinearColorMap( QColor("#777777"), QColor("#222222"))
     {
 
     }
@@ -109,7 +110,7 @@ public:
 //      addColorStop(0.500,QColor("#fdae61"));
 
 
-        addColorStop(0.250,QColor(198,164,136));
+        addColorStop(0.250,QColor(198,164,136)); // "skincolor"
         addColorStop(0.500,QColor(224,201,173));
         addColorStop(0.750,QColor(236,226,214));
 

@@ -388,7 +388,6 @@ public:
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
-    QString getvaluedescription(QString vname);
     int getvalueint(QString vname);
     QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
@@ -420,7 +419,7 @@ public:
     double F_extremeHeight;
     double F_extremeDiff;
     double F_levee;
-    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl;
+    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     double q1man, q2man;
     //double dt_max, dt1;
     bool prepareFlood, startFlood;

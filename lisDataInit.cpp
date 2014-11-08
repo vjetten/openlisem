@@ -765,6 +765,15 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
+            f1o = NewMap(0);
+            f2o = NewMap(0);
+            f3o = NewMap(0);
+            cflxo = NewMap(0);
+            cflyo = NewMap(0);
+            g1o = NewMap(0);
+            g2o = NewMap(0);
+            g3o = NewMap(0);
+
             h1d = NewMap(0);
             h1g = NewMap(0);
             h2d = NewMap(0);

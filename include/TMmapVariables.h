@@ -318,6 +318,8 @@ CTMap
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,
 *g1, *g2, *g3, *cfly,
+*f1o, *f2o, *f3o, *cflxo,
+*g1o, *g2o, *g3o, *cflyo,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,
