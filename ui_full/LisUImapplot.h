@@ -29,7 +29,7 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(2));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(1));
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
         // elevation info
 
@@ -71,8 +71,10 @@ class colorMapHouse: public QwtLinearColorMap
     }
 public:
     colorMapHouse():
-        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
+//        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
+      QwtLinearColorMap( QColor("#c06969"), QColor("#421010"))
     {
+
     }
 };
 //---------------------------------------------------------------------------
@@ -89,13 +91,30 @@ class colorMapElevation: public QwtLinearColorMap
     }
 public:
     colorMapElevation():
-        QwtLinearColorMap( QColor("#B17142"),QColor("#FFDFC7"))
+//        QwtLinearColorMap( QColor("#B17142"),QColor("#FFDFC7"))
+//              QwtLinearColorMap( QColor("#8d5524"),QColor("#ffdbac").lighter())
+//                          QwtLinearColorMap( QColor("#D7191C"),QColor("#ffffbf"))
+    QwtLinearColorMap( QColor(141,116,94),QColor(255,251,244))
     {
-        addColorStop(0.000,QColor("#B17142"));
-        addColorStop(0.250,QColor("#C48C63"));
-        addColorStop(0.500,QColor("#D8A885"));
-        addColorStop(0.750,QColor("#ECC4A6"));
-        addColorStop(1.000,QColor("#FFDFC7"));
+//        addColorStop(0.000,QColor("#B17142"));
+//        addColorStop(0.250,QColor("#C48C63"));
+//        addColorStop(0.500,QColor("#D8A885"));
+//        addColorStop(0.750,QColor("#ECC4A6"));
+//        addColorStop(1.000,QColor("#FFDFC7"));
+
+//        addColorStop(0.250,QColor("#c68642"));
+//        addColorStop(0.500,QColor("#e0ac69"));
+//        addColorStop(0.750,QColor("#ECC4A6"));
+
+//      addColorStop(0.500,QColor("#fdae61"));
+
+
+        addColorStop(0.250,QColor(198,164,136));
+        addColorStop(0.500,QColor(224,201,173));
+        addColorStop(0.750,QColor(236,226,214));
+
+
+
     }
 };//---------------------------------------------------------------------------
 /// Gray scale legend for shaded relief map display
@@ -181,12 +200,15 @@ public:
 //        addColorStop( 0.5, QColor("#0000FF"));
 //    }
   colorMapWaterLog():
-      QwtLinearColorMap( QColor("#f6f633"), QColor("#ff3300"))
+//      QwtLinearColorMap( QColor("#f6f666"), QColor("#ff3300"))
+    QwtLinearColorMap( QColor("#8c8cff"), QColor("#ff3300"))
+
   {
-      addColorStop( 0.0, QColor("#f6f633"));
-      addColorStop( 0.003,QColor("#8080FF"));
-      addColorStop( 0.03, QColor("#4040ff") );
-      addColorStop( 0.2, QColor("#0000FF"));
+     // addColorStop( 0.0, QColor("#f6f633"));
+      addColorStop( 0.0005,QColor("#8080FF"));
+      addColorStop( 0.01, QColor("#4040ff") );
+      addColorStop( 0.05, QColor("#0000FF"));
+      addColorStop( 0.1, QColor("#00006F"));
       addColorStop( 0.9, QColor("#FF0000"));
   }
 };
@@ -205,9 +227,9 @@ class colorMapWater: public QwtLinearColorMap
     }
 public:
     colorMapWater():
-        QwtLinearColorMap( QColor("#FFFF00").lighter(125),QColor("#0000AA"))
+        QwtLinearColorMap( QColor("#f6f666"),QColor("#0000AA"))
     {
-        addColorStop( 0.0, QColor("#FFFF00").lighter(125) );
+     //   addColorStop( 0.0, QColor("#FFFF00").lighter(125) );
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );

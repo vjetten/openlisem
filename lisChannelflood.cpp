@@ -131,7 +131,7 @@ void TWorld::FloodSpuriousValues()
 
   FOR_ROW_COL_MV
   {
-    if (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff)
+    if ((hmx->Drc > F_extremeHeight*2) || (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
       {
         double htmp = hmx->Drc;
         hmx->Drc = _min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
@@ -222,13 +222,10 @@ void TWorld::ChannelFlood(void)
 
   if (SwitchFloodSWOForder2)
     {
-      dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
-      Uflood->report("uf");
-      Vflood->report("vf");
+      dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);
+
       FOR_ROW_COL_MV
       {
-        //UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-
         UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
 
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
@@ -237,7 +234,7 @@ void TWorld::ChannelFlood(void)
   else
     if (SwitchFloodSWOForder1)
       {
-        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
+        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);
         FOR_ROW_COL_MV
         {
           UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
@@ -250,14 +247,15 @@ void TWorld::ChannelFlood(void)
           dtflood = floodExplicit();
         }
 
-  ChannelOverflow();
-  // mix overflow water and flood water in channel cells
+  FloodSpuriousValues();
+
 
   correctMassBalance(sumh_t, hmx, 1e-12);
   // correct mass balance
 
-  FloodSpuriousValues();
 
+  ChannelOverflow();
+  // mix overflow water and flood water in channel cells
 
   //new flood domain
   double cells = 0;

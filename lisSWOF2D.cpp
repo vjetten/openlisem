@@ -926,7 +926,7 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
       timesum = timesum + dt1;
       n++;
 
-      correctMassBalance(sumh, h, 1e-12);
+     correctMassBalance(sumh, h, 1e-12);
       if (n > MAXITER)
         break;
 
@@ -1092,7 +1092,6 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
               if (n > MAXITER)
                 {
-                  //     correctMassBalance(sumh, h, 1e-12);
                   break;
                 }
             }//end for else dt2<dt1
