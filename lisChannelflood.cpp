@@ -247,15 +247,15 @@ void TWorld::ChannelFlood(void)
           dtflood = floodExplicit();
         }
 
-  FloodSpuriousValues();
-
-
-  correctMassBalance(sumh_t, hmx, 1e-12);
-  // correct mass balance
 
 
   ChannelOverflow();
   // mix overflow water and flood water in channel cells
+
+  correctMassBalance(sumh_t, hmx, 1e-12);
+  // correct mass balance
+
+  FloodSpuriousValues();
 
   //new flood domain
   double cells = 0;

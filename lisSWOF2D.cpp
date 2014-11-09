@@ -58,7 +58,7 @@ functions: \n
 #define GRAV 9.8067
 #define EPSILON 1e-6
 #define scheme_type 1   //return calculated or fixed dt
-#define MAXITER 1000
+#define MAXITER 100
 
 //---------------------------------------------------------------------------
 /**
