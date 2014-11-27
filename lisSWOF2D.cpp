@@ -58,7 +58,7 @@ functions: \n
 #define GRAV 9.8067
 #define EPSILON 1e-6
 #define scheme_type 1   //return calculated or fixed dt
-#define MAXITER 1000
+#define MAXITER 100
 
 //---------------------------------------------------------------------------
 /**
@@ -160,7 +160,7 @@ void TWorld::Fr_ManningSf(double h, double u, double v, double N)
 /// TODO: 1/(c1-c2) can become 0?
 void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-  double f1, f2, f3, cfl;
+  double f1, f2, f3, cfl, tmp = 0;
   if (h_L<=0. && h_R<=0.)
     {
       f1 = 0.;
@@ -179,7 +179,7 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
 
       double c1 = _min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
       double c2 = _max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-      double tmp = 1./(c2-c1);
+       tmp = 1./(c2-c1);
       double t1 = (_min(c2,0.) - _min(c1,0.))*tmp;
       double t2 = 1. - t1;
       double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
@@ -189,6 +189,7 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
       f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
       cfl = _max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition _max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
+      HLL_tmp = tmp;
   HLL2_cfl = cfl;
   HLL2_f1 = f1;
   HLL2_f2 = f2;
@@ -197,7 +198,7 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
 
 void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-  double f1, f2, f3, cfl;
+  double f1, f2, f3, cfl, tmp = 0;
   if (h_L<=0. && h_R<=0.){
       f1 = 0.;
       f2 = 0.;
@@ -228,13 +229,18 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
           f3=q_R*v_R;
           cfl=fabs(c1); //_max(fabs(c1),fabs(c2))=fabs(c1)
         }else{ //subcritical flow
-          double tmp = 1./(c2-c1);
+           tmp = 1./(c2-c1);
+           if (tmp > 1000)
+             {
+             //qDebug() << tmp << h_L << h_R << u_L << u_R << c1 << c2;
+             }
           f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
           f2=(c2*(q_L*u_L+GRAV*h_L*h_L*0.5)-c1*(q_R*u_R+GRAV*h_R*h_R*0.5))*tmp+c1*c2*(q_R-q_L)*tmp;
           f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
           cfl=_max(fabs(c1),fabs(c2));
         }
     }
+  HLL_tmp = tmp;
   HLL2_cfl = cfl;
   HLL2_f1 = f1;
   HLL2_f2 = f2;
@@ -243,7 +249,7 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
 
 void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-  double f1, f2, f3, cfl;
+  double f1, f2, f3, cfl, tmp = 0;
   double c;
   if (h_L<=0. && h_R<=0.){
       c = 0.;
@@ -261,6 +267,7 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
       f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
       cfl = c;//*tx;
     }
+    HLL_tmp = tmp;
   HLL2_cfl = cfl;
   HLL2_f1 = f1;
   HLL2_f2 = f2;
@@ -652,7 +659,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
   double dt_tmp, dtx, dty;
   dtx = dt_max;
   dty = dt_max;
-  double dx, dy;
 
   FOR_ROW_COL_MV_MV
       if (c > 0 && !IS_MV_REAL8(&LDD->Data[r][c-1]))
@@ -671,6 +677,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     f2->Drc = HLL2_f2;
     f3->Drc = HLL2_f3;
     cflx->Drc = HLL2_cfl;
+    tm->Drc = HLL_tmp;
   }
   else
   {
@@ -688,6 +695,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     f2->Drc = HLL2_f2;
     f3->Drc = HLL2_f3;
     cflx->Drc = HLL2_cfl;
+    tm->Drc = HLL_tmp;
   }}
 
   FOR_ROW_COL_MV_MV
@@ -732,15 +740,86 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // VJ 130517: not in the original code!
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
+/*
+     FOR_ROW_COL_MV_MV
+          {
 
+
+              if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
+              {
+                  //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
+                  double e1 = 0.0;
+                  double e2 = 0.0;
+                  double e3 = 0.0;
+                  double cfle = 0.0;
+
+                  if (F_replaceV == 2)
+                  {
+                      cfle = sqrt(cflx->Drc*cfly->Drc);
+                      e1 = sqrt(f1->Drc*g1->Drc);
+                      e2 = sqrt(f2->Drc*g2->Drc);
+                      e3 = sqrt(f3->Drc*g3->Drc);
+                  }
+                  else
+                      if (F_replaceV == 3)
+                      {
+                          cfle = 0.5*(cflx->Drc+cfly->Drc);
+                          e1 = 0.5*(f1->Drc+g1->Drc);
+                          e2 = 0.5*(f2->Drc+g2->Drc);
+                          e3 = 0.5*(f3->Drc+g3->Drc);
+                      }
+
+                  if (cflx->Drc > F_maxVelocity)
+                  {
+                      if (F_replaceV == 1)
+                      {
+                          cflx->Drc = cfly->Drc;
+                          f1->Drc = g1->Drc;
+                          f2->Drc = g2->Drc;
+                          f3->Drc = g3->Drc;
+                      }
+                      else
+                      {
+                          cflx->Drc = cfle;
+                          f1->Drc = e1;
+                          f2->Drc = e2;
+                          f3->Drc = e3;
+                      }
+                  }
+                  if (cfly->Drc > F_maxVelocity)
+                  {
+                      if (F_replaceV == 1)
+                      {
+                          cfly->Drc = cflx->Drc;
+                          g1->Drc = f1->Drc;
+                          g2->Drc = f2->Drc;
+                          g3->Drc = f3->Drc;
+                      }
+                      else
+                      {
+                          cfly->Drc = cfle;
+                          g1->Drc = e1;
+                          g2->Drc = e2;
+                          g3->Drc = e3;
+                      }
+                  }
+
+                  //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
+              }
+          }
+      }
+     */
+
+     F_replaceV = 1;
      if (F_replaceV > 0)
      {
        //long j = 0;
        FOR_ROW_COL_MV_MV {
          if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
            {
-            // double tmp1 = cflx->Drc;
-            // double tmp2 = cfly->Drc;
+             double tmp1 = cflx->Drc;
+             double tmp2 = cfly->Drc;
+             /*
              if (cflx->Drc > F_maxVelocity)
                {
                  double avgcflx = cflx->getWindowAverage(r, c);
@@ -763,15 +842,58 @@ double TWorld::maincalcflux(double dt, double dt_max)
                  g2->Drc = avgg2;
                  g3->Drc = avgg3;
                }
+             */
+             double cfle =0;
+             double e1 = 0;
+             double e2 = 0;
+             double e3 = 0;
+             if (cflx->Drc < cfly->Drc)
+               {
+                 cfle = cflx->Drc;
+                 e1 = f1->Drc;
+                 e2 = f2->Drc;
+                 e3 = f3->Drc;
+               }
+             if (cfly->Drc < cflx->Drc)
+               {
+                 cfle = cfly->Drc;
+                 e1 = g1->Drc;
+                 e2 = g2->Drc;
+                 e3 = g3->Drc;
+               }
+             if (cflx->Drc > F_maxVelocity)
+               {
+                 cflx->Drc = cfle;
+                 f1->Drc = e1;
+                 f2->Drc = e2;
+                 f3->Drc = e3;
+               }
+             if (cfly->Drc > F_maxVelocity)
+               {
+                 cfly->Drc = cfle;
+                 g1->Drc = e1;
+                 g2->Drc = e2;
+                 g3->Drc = e3;
+               }
 
-            // qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c << j++;
+             qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
            }
        }}
      }
+//      FOR_ROW_COL_MV_MV {
+//        f1o->Drc = f1->Drc;
+//        f2o->Drc = f2->Drc;
+//        f3o->Drc = f3->Drc;
+//        cflx->Drc = cflxo->Drc;
+//        g1o->Drc = g1->Drc;
+//        g2o->Drc = g2->Drc;
+//        g3o->Drc = g3->Drc;
+//        cfly->Drc = cflyo->Drc;
+//      }}
 
   // find largest velocity and determine dt
   FOR_ROW_COL_MV_MV {
-    dx = _dx;//ChannelAdj->Drc;
+    double dx = _dx;//ChannelAdj->Drc;
     if (qFabs(cflx->Drc*dt/dx) < 1e-10)
       dt_tmp = dt_max;
     else
@@ -782,7 +904,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
 
   // find largest velocity and determine dt
   FOR_ROW_COL_MV_MV {
-    dy = _dx;//DX->Drc;
+    double dy = _dx;//DX->Drc;
     if (qFabs(cfly->Drc*dt/dy) < 1e-10)
       dt_tmp = dt_max;
     else
@@ -915,18 +1037,18 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
           setZero(hs, us, vs);
 
-          FOR_ROW_COL_MV {
+          FOR_ROW_COL_MV_MV {
             h->Drc = hs->Drc;
             u->Drc = us->Drc;
             v->Drc = vs->Drc;
-          }
+          }}
 
       //findFloodDomain(h);
 
       timesum = timesum + dt1;
       n++;
 
-      correctMassBalance(sumh, h, 1e-12);
+     correctMassBalance(sumh, h, 1e-12);
       if (n > MAXITER)
         break;
 
@@ -937,12 +1059,6 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
 //Fr=froude_number(hs,us,vs);
 // todo
-
-//    FOR_ROW_COL_MV_MV
-//    //{
-//        q1->Drc = h->Drc*u->Drc; //??? this is in m2/s, unit discharge
-//        q2->Drc = h->Drc*v->Drc;
-//    }
 
 iter_n = n;
 dt1 = n > 0? _dt/n : dt1;
@@ -1025,10 +1141,10 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
               simpleScheme(h, u, v);
               // used to fill the arrays in the boundary cells where c+1 etc is MV
               if (F_diffScheme == (int)FMUSCL)
-                MUSCL(h,u,v,z);
+                MUSCL(h,u,v,z);//MUSCL(hs,us,vs,z);
               else
                 //if (F_diffScheme == (int)FENO)
-                ENO(hs,us,vs,z);
+                ENO(h,u,v,z);//ENO(hs,us,vs,z);
             }
 
           dt1 = maincalcflux(dt1, dt_max);
@@ -1043,7 +1159,7 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
           setZero(hs, us, vs);
 
           //Reconstruction for order 2
-          simpleScheme(h, u, v);
+          simpleScheme(hs, us, vs);
           // used to fill the arrays in the boundary cells where c+1 etc is MV
           if (F_diffScheme == (int)FMUSCL)
             MUSCL(hs,us,vs,z);
@@ -1092,7 +1208,6 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
               if (n > MAXITER)
                 {
-                  //     correctMassBalance(sumh, h, 1e-12);
                   break;
                 }
             }//end for else dt2<dt1

@@ -107,7 +107,7 @@ void TWorld::OutputUI(void)
     {
         op.DrawMap4->copy(hmx);  //flood level in m
         op.DrawMap5->copy(UVflood);  //flood level in m
-        op.DrawMap7->copy(FloodTimeStart);  // flood start since peak rainfall in min
+        op.DrawMap7->copy(floodTimeStart);  // flood start since peak rainfall in min
     }
 
     op.baseMap->copy(Shade);
@@ -613,7 +613,8 @@ void TWorld::ReportMaps(void)
     if (SwitchChannelFlood)
     {
         floodHmxMax->report(floodLevelFileName);
-        timeflood->report(floodTimeFileName);
+        floodTime->report(floodTimeFileName);
+        floodTimeStart->report(floodFEWFileName);
         maxChannelflow->report(floodMaxQFileName);
         maxChannelWH->report(floodMaxWHFileName);
     }
@@ -705,6 +706,8 @@ void TWorld::CountLandunits(void)
         unitList[i].var1 = 0;
         unitList[i].var2 = 0;
         unitList[i].var3 = 0;
+        unitList[i].var4 = 0;
+        unitList[i].var5 = 0;
     }
 
     i = 0;
@@ -740,6 +743,8 @@ void TWorld::ReportLandunits(void)
         unitList[i].var1 = 0;
         unitList[i].var2 = 0;
         unitList[i].var3 = 0;
+        unitList[i].var4 = 0;
+        unitList[i].var5 = 0;
     }
 
     FOR_ROW_COL_MV
@@ -786,7 +791,7 @@ void TWorld::ChannelFloodStatistics(void)
     if (!SwitchChannelFlood)
         return;
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 512; i++)
     {
         floodList[i].nr = i;
         floodList[i].var0 = 0.1*i; //depth
@@ -794,6 +799,7 @@ void TWorld::ChannelFloodStatistics(void)
         floodList[i].var2 = 0;
         floodList[i].var3 = 0;
         floodList[i].var4 = 0;
+        floodList[i].var5 = 0;
     }
     double area = _dx*_dx;
     int nr = 0;
@@ -806,9 +812,10 @@ void TWorld::ChannelFloodStatistics(void)
             //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
             floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-            floodList[i].var3 = _max(timeflood->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var3 = _max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var4 = _max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
             if (SwitchHouses)
-                floodList[i].var4 += HouseCover->Drc*area;
+                floodList[i].var5 += HouseCover->Drc*area;
         }
     }
 
@@ -831,7 +838,8 @@ void TWorld::ChannelFloodStatistics(void)
             << floodList[i].var1 << ","
             << floodList[i].var2 << ","
             << floodList[i].var3 << ","
-            << floodList[i].var4
+            << floodList[i].var4 << ","
+            << floodList[i].var5
             << "\n";
 
     fp.flush();

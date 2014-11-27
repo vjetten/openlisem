@@ -520,7 +520,7 @@ void TWorld::InitChannel(void)
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
     floodHmxMax = NewMap(0);
-    timeflood = NewMap(0);
+    floodTime = NewMap(0);
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
@@ -577,7 +577,8 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-            ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
+//            ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
+            ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // on surface the length of the channel is the same else mass balance?
             ChannelY->Drc = _min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
 
@@ -675,9 +676,7 @@ void TWorld::InitChannel(void)
             Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
-            FloodTimeStart = NewMap(0);
-            //FloodTimeStart->setMV();
-            FloodTimeEnd = NewMap(0);
+            floodTimeStart = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             ChannelDepth->cover(LDD,0);
@@ -764,6 +763,15 @@ void TWorld::InitChannel(void)
             g1 = NewMap(0);
             g2 = NewMap(0);
             g3 = NewMap(0);
+
+            f1o = NewMap(0);
+            f2o = NewMap(0);
+            f3o = NewMap(0);
+            cflxo = NewMap(0);
+            cflyo = NewMap(0);
+            g1o = NewMap(0);
+            g2o = NewMap(0);
+            g3o = NewMap(0);
 
             h1d = NewMap(0);
             h1g = NewMap(0);
@@ -1607,6 +1615,8 @@ void TWorld::IntializeOptions(void)
 
     floodLevelFileName = QString("floodmax.map");//.clear();
     floodTimeFileName = QString("floodtime.map");//.clear();
+    floodFEWFileName = QString("floodstart.map");//.clear();
+
     floodStatsFileName = QString("floodstats.csv");//.clear();
 
     rainfallMapFileName = QString("rainfall.map");

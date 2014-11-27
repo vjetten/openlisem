@@ -42,10 +42,6 @@ functions: \n
 - void TWorld::ParseRunfileData() \n
 - void TWorld::GetRunFile() \n
 */
-QString TWorld::getvaluedescription(QString vname)
-{
-
-}
 
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
