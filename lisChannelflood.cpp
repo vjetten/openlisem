@@ -223,41 +223,25 @@ void TWorld::ChannelFlood(void)
   if (SwitchFloodSWOForder2)
     {
       dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
-      Uflood->report("uf");
-      Vflood->report("vf");
-      FOR_ROW_COL_MV
-      {
-        //UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-
-        UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
-
-        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-      }
     }
   else
     if (SwitchFloodSWOForder1)
       {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);//, q1flood, q2flood);
-        FOR_ROW_COL_MV
-        {
-          UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
-          Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-        }
       }
-    else
-      if (SwitchFloodExplicit)
-        {
-          dtflood = floodExplicit();
-        }
+//    else
+//      if (SwitchFloodExplicit)
+//        {
+//          dtflood = floodExplicit();
+//        }
 
   ChannelOverflow();
   // mix overflow water and flood water in channel cells
 
-  correctMassBalance(sumh_t, hmx, 1e-12);
-  // correct mass balance
-
   FloodSpuriousValues();
 
+  correctMassBalance(sumh_t, hmx, 1e-12);
+  // correct mass balance
 
   //new flood domain
   double cells = 0;
@@ -274,12 +258,16 @@ void TWorld::ChannelFlood(void)
       FloodDomain->Drc = 0;
   }
 
-
-  Hmx->copy(hmx);
-
   FloodMaxandTiming();
 
   FloodBoundary();
+
+  Hmx->copy(hmx);
+  FOR_ROW_COL_MV
+  {
+    UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
+    Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+  }
 
   //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
   double area = cells*_dx*_dx;

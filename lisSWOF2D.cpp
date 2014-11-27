@@ -915,11 +915,11 @@ double TWorld::fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
 
           setZero(hs, us, vs);
 
-          FOR_ROW_COL_MV_MV {
+          FOR_ROW_COL_MV {
             h->Drc = hs->Drc;
             u->Drc = us->Drc;
             v->Drc = vs->Drc;
-          }}
+          }
 
       //findFloodDomain(h);
 
@@ -1025,7 +1025,7 @@ double TWorld::fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z)//, CTMap *q1
               simpleScheme(h, u, v);
               // used to fill the arrays in the boundary cells where c+1 etc is MV
               if (F_diffScheme == (int)FMUSCL)
-                MUSCL(hs,us,vs,z);
+                MUSCL(h,u,v,z);
               else
                 //if (F_diffScheme == (int)FENO)
                 ENO(hs,us,vs,z);
