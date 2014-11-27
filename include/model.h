@@ -180,6 +180,7 @@ typedef struct UNIT_LIST {
     double var2;
     double var3;
     double var4;
+    double var5;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames

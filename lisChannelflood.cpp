@@ -46,22 +46,75 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
-  FOR_ROW_COL_MV_CH
-  {
-    if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
-      {
-        double fc = ChannelWidthUpDX->Drc/_dx;
+    tmc->fill(0);
+    FOR_ROW_COL_MV_CH
+    {
+        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
+        {
+            double levee = ChannelLevee->Drc;
+            double chdepth = ChannelDepth->Drc + levee;
+            double dH = _max(0, ChannelWH->Drc-chdepth);
 
-        // fraction reaching the channel
-        double levee = ChannelLevee->Drc;
-        double chdepth = ChannelDepth->Drc + levee;
+            if (fabs(hmx->Drc - dH) <= 0)// 0.001)
+                continue;
+
+            double fc = ChannelWidthUpDX->Drc/_dx;
+            // fraction reaching the channel
+            double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
+            // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
+            // can be negative if channelwh is below channel depth and low hmx level
 
 
-        if (hmx->Drc < MINHMX+levee && ChannelWH->Drc < chdepth+MINHMX)
-          continue;
+            double _hmx = hmx->Drc;
+            double Vollat = 0;
+            double surfch = ChannelWidthUpDX->Drc * DX->Drc;
+            double surfadj = ChannelAdj->Drc * DX->Drc;
+/*
+            // 1) channel is heigher than flood, flow outwards
+            if (dH > hmx->Drc)
+            {
+                Vollat = _min(sqrt(dH*9.81)*_dt*dH*DX->Drc, dH*surfch);   // vol = V*dt*A, outflow lateral by gravity
+tmc->Drc = Vollat;
+                dH -= Vollat/surfch; // new channel level
+                _hmx += Vollat/surfadj; // new flood level
+                if (dH < _hmx) // more water flowed out than possible just make an equilibrium
+                {
+                    hmx->Drc = _min(hmx->Drc, levee);
+                    // cutoff hmx at levee but can be smaller
+                    hmx->Drc += whlevel;
+                    ChannelWH->Drc = whlevel + chdepth;
+                }
+                else
+                {
+                    ChannelWH->Drc += Vollat/surfch; // not dH+chdepth because dH can be < chdepth
+                    hmx->Drc = _hmx;
+                }
+            }
+            // 2) flood is heigher than channel flow into channel
+            else
+            {                       //sqrt(_hmx*9.81)  UVflood->Drc
+               // double V = pow(_hmx, 2/3)*sqrt(Grad->Drc)/N->Drc;
+                Vollat = _min(UVflood->Drc*_dt*_hmx*DX->Drc, _hmx*surfadj);   // flow into channel based on average Vflood
+tmc->Drc = -Vollat;
+                _hmx -= Vollat/surfadj; // new flood level
+                dH += Vollat/surfch; // new channel level
+                if (_hmx < dH) // if too much flow, equilibrium
+                {
+                    hmx->Drc = _min(hmx->Drc, levee);
+                    // cutoff hmx at levee but can be smaller
+                    hmx->Drc += whlevel;
+                    ChannelWH->Drc = whlevel + chdepth;
+                }
+                else
+                {
+                    hmx->Drc = _hmx;
+                    ChannelWH->Drc += Vollat/surfch;
+                }
+            }
+*/
 
 
-        double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
+        //double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
         // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
         // can be negative if channelwh is below channel depth and low hmx level
 
@@ -86,204 +139,202 @@ void TWorld::ChannelOverflow(void)
     // ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
     // recalc chan volume for looping
     // only necessary if flooding is done after kin wave channel, gives instability here
-  } // channel cells
+
+      //  }
+    } // channel cells
+    //tmc->report("vol");
 }
 
 //---------------------------------------------------------------------------
 // correct mass balance
 double TWorld::correctMassBalance(double sum1, CTMap *M, double minV)
 {
-  double sum2 = 0;
-  double n = 0;
-  FOR_ROW_COL_MV
-  {
-    if(M->Drc > 0)
-      {
-        sum2 += M->Drc;
-        if(M->Drc > minV)
-          n += 1;
-      }
-  }
-  // toal and cells active for M
+    double sum2 = 0;
+    double n = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            sum2 += M->Drc;
+            if(M->Drc > minV)
+                n += 1;
+        }
+    }
+    // toal and cells active for M
 
-  double dh = (n > 0 ? (sum1 - sum2)/n : 0);
-  FOR_ROW_COL_MV
-  {
-    if(M->Drc > minV)
-      {
-        M->Drc += dh;
-        M->Drc = _max(M->Drc , 0.0);
-      }
-  }
-  return dh;
+    double dh = (n > 0 ? (sum1 - sum2)/n : 0);
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > minV)
+        {
+            M->Drc += dh;
+            M->Drc = _max(M->Drc , 0.0);
+        }
+    }
+    return dh;
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodSpuriousValues()
 {
-  tm->fill(0);
-  FOR_ROW_COL_MV
-  {
-    if (hmx->Drc > F_extremeHeight)
-      {
-        tm->Drc = hmx->getWindowAverage(r, c);
-      }
-  }
+    tm->fill(0);
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > F_extremeHeight)
+        {
+            tm->Drc = hmx->getWindowAverage(r, c);
+        }
+    }
 
-  FOR_ROW_COL_MV
-  {
-    if ((hmx->Drc > F_extremeHeight*2) || (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
-      {
-        double htmp = hmx->Drc;
-        hmx->Drc = _min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
-        qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
-      }
-  }
+    FOR_ROW_COL_MV
+    {
+        if ((hmx->Drc > F_extremeHeight*2) || (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
+        {
+            double htmp = hmx->Drc;
+            hmx->Drc = _min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
+            qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
+        }
+    }
 
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodBoundary()
 {
-//  tm->copy(hmx);
-  FOR_ROW_COL_MV
-  {
-    if (FloodEdge->Drc > 0 && hmx->Drc > 0)
-      {
-   //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
-        hmx->Drc = _max(0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
-        floodBoundaryTot += Qflood->Drc*_dt;
-      }
-  }
-   // tm->calcMap(hmx, SUB);
-  //  tm->report("diffh");
+    //  tm->copy(hmx);
+    FOR_ROW_COL_MV
+    {
+        if (FloodEdge->Drc > 0 && hmx->Drc > 0)
+        {
+            //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+            hmx->Drc = _max(0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
+            floodBoundaryTot += Qflood->Drc*_dt;
+        }
+    }
+    // tm->calcMap(hmx, SUB);
+    //  tm->report("diffh");
 
-  //volumme weg is sum diff * cell size
+    //volumme weg is sum diff * cell size
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming()
 {
-  // floodwater volume and max flood map
-  FloodWaterVol->fill(0);
-  FOR_ROW_COL_MV
-  {
-    FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+    // floodwater volume and max flood map
+    FloodWaterVol->fill(0);
+    FOR_ROW_COL_MV
+    {
+        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
-    floodHmxMax->Drc = _max(floodHmxMax->Drc, hmx->Drc);
-    if (hmx->Drc > minReportFloodHeight)
-      timeflood->Drc += _dt/60;
-    // for output
-  }
+        floodHmxMax->Drc = _max(floodHmxMax->Drc, hmx->Drc);
+        if (hmx->Drc > minReportFloodHeight)
+            floodTime->Drc += _dt/60;
+        // for output
+    }
 
-  floodVolTotMax = 0;
-  floodAreaMax = 0;
-  double area = _dx*_dx;
-  FOR_ROW_COL_MV
-  {
-    if (floodHmxMax->Drc > minReportFloodHeight)
-      {
-        floodVolTotMax += floodHmxMax->Drc*area;
-        floodAreaMax += area;
-      }
-  }
+    floodVolTotMax = 0;
+    floodAreaMax = 0;
+    double area = _dx*_dx;
+    FOR_ROW_COL_MV
+    {
+        if (floodHmxMax->Drc > minReportFloodHeight)
+        {
+            floodVolTotMax += floodHmxMax->Drc*area;
+            floodAreaMax += area;
+        }
+    }
 
-  FOR_ROW_COL_MV
-  {
-    if (hmx->Drc > minReportFloodHeight && FloodTimeStart->Drc == 0)
-      {
-        //            FloodTimeStart->Drc = (time - RainpeakTime)/60;
-        FloodTimeStart->Drc = (time - RainstartTime)/60;
-        // time since first pixel received rainfall
-      }
-  }
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)
+        {
+            //            FloodTimeStart->Drc = (time - RainpeakTime)/60;
+            floodTimeStart->Drc = (time - RainstartTime)/60;
+            // time since first pixel received rainfall
+        }
+    }
 }
 //---------------------------------------------------------------------------
 // NOTE DEM has barriers included, done in shade map calculation !!!!
 void TWorld::ChannelFlood(void)
 {
-  if (!SwitchIncludeChannel)
-    return;
-  if (!SwitchChannelFlood)
-    return;
+    if (!SwitchIncludeChannel)
+        return;
+    if (!SwitchChannelFlood)
+        return;
 
-  ChannelOverflow();
-  // mix overflow water and flood water in channel cells
+    ChannelOverflow();
+    // mix overflow water and flood water in channel cells
 
-  double sumh_t = hmx->mapTotal();
-  double dtflood = 0;
+    double sumh_t = hmx->mapTotal();
+    double dtflood = 0;
 
-  startFlood = false;
-  FOR_ROW_COL_MV
-  {
-    if (hmx->Drc > 0)
-      {
-        startFlood = true;
-        break;
-      }
-  }
-
-  if (SwitchFloodSWOForder2)
+    startFlood = false;
+    FOR_ROW_COL_MV
     {
-      dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);
-
-      FOR_ROW_COL_MV
-      {
-        UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
-
-        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-      }
+        if (hmx->Drc > 0)
+        {
+            startFlood = true;
+            break;
+        }
     }
-  else
-    if (SwitchFloodSWOForder1)
-      {
-        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);
-        FOR_ROW_COL_MV
-        {
-          UVflood->Drc = 0.5*(Uflood->Drc+Vflood->Drc);
-          Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-        }
-      }
+
+    if (SwitchFloodSWOForder2)
+    {
+        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);
+    }
     else
-      if (SwitchFloodExplicit)
+        if (SwitchFloodSWOForder1)
         {
-          dtflood = floodExplicit();
+            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);
         }
+        else
+            if (SwitchFloodExplicit)
+            {
+                dtflood = floodExplicit();
+            }
+
+    FOR_ROW_COL_MV
+    {
+        UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
+        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+    }
+
+    ChannelOverflow();
+    // mix overflow water and flood water in channel cells
+
+    correctMassBalance(sumh_t, hmx, 1e-12);
+    // correct mass balance
+
+    FloodSpuriousValues();
+
+    //new flood domain
+    double cells = 0;
+    sumh_t = 0;
+    FOR_ROW_COL_MV
+    {
+        if (hmx->Drc > 0)
+        {
+            FloodDomain->Drc = 1;
+            cells += 1.0;
+            sumh_t += hmx->Drc;
+        }
+        else
+            FloodDomain->Drc = 0;
+    }
 
 
+    Hmx->copy(hmx);
+    // copy flood level for next dt
 
-  ChannelOverflow();
-  // mix overflow water and flood water in channel cells
+    FloodMaxandTiming();
+    // flood max, start and duration
 
-  correctMassBalance(sumh_t, hmx, 1e-12);
-  // correct mass balance
+    FloodBoundary();
+    // boundary flow
 
-  FloodSpuriousValues();
-
-  //new flood domain
-  double cells = 0;
-  sumh_t = 0;
-  FOR_ROW_COL_MV
-  {
-    if (hmx->Drc > 0)
-      {
-        FloodDomain->Drc = 1;
-        cells += 1.0;
-        sumh_t += hmx->Drc;
-      }
-    else
-      FloodDomain->Drc = 0;
-  }
-
-
-  Hmx->copy(hmx);
-
-  FloodMaxandTiming();
-
-  FloodBoundary();
-
-  //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
-  double area = cells*_dx*_dx;
-  //    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
-  debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
-  // some error reporting
+    //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
+    double area = cells*_dx*_dx;
+    //    debug(QString("Flooding (dt %1 sec, n %2): avg h%3 m, area %4 m2").arg(dtflood,6,'f',3).arg(iter_n,4).arg(dh ,6,'e',1).arg(area,8,'f',1));
+    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
+    // some error reporting
 
 
 }

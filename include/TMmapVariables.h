@@ -279,7 +279,8 @@ CTMap
 *Qflood,
 *floodHmxMax,
 *floodactive,
-*timeflood,
+*floodTime,
+*floodTimeStart,                //!<
 *maxChannelflow,
 *maxChannelWH,
 *hmxInit,
@@ -300,12 +301,11 @@ CTMap
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
 *ChannelLevee,                //!<
-*FloodWaterVol,
-*FloodZonePotential,
-*FloodEdge,
-//*FloodVoltoChannel,
-*FloodTimeStart,
-*FloodTimeEnd,
+*FloodWaterVol,                //!<
+*FloodZonePotential,                //!<
+*FloodEdge,                //!<
+
+
 
 // FULLSWOF2D
 *z1r, *z1l, *z2r, *z2l,
