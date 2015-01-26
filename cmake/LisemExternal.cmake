@@ -1,8 +1,16 @@
 # Configure packages. ----------------------------------------------------------
+SET(Boost_USE_STATIC_LIBS OFF)
+SET(Boost_USE_STATIC_RUNTIME OFF)
+ADD_DEFINITIONS(
+    # Use dynamic libraries.
+    -DBOOST_ALL_DYN_LINK
+    # Prevent auto-linking.
+    -DBOOST_ALL_NO_LIB
+)
 
 
 # Find packages. ---------------------------------------------------------------
-FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
 FIND_PACKAGE(Qt4 4 REQUIRED QtCore QtGui)
 FIND_PACKAGE(Qwt REQUIRED)
 FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
