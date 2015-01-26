@@ -190,12 +190,12 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
-    QwtLinearColorMap *pal4a;
-    QwtLinearColorMap *pal4b;
-    QwtLinearColorMap *pal5a;
-    QwtLinearColorMap *pal5b;
-    QwtLinearColorMap *pal7a;
-    QwtLinearColorMap *pal7b;
+    QwtLinearColorMapVJ *pal4a;
+    QwtLinearColorMapVJ *pal4b;
+    QwtLinearColorMapVJ *pal5a;
+    QwtLinearColorMapVJ *pal5b;
+    QwtLinearColorMapVJ *pal7a;
+    QwtLinearColorMapVJ *pal7b;
     // graph variables
     QwtPlot *HPlot;
     QwtPlot *smallPlot;

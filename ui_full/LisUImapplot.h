@@ -56,6 +56,23 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+// class derived from QwtLinearColorMap to enable transparency thresholds
+class QwtLinearColorMapVJ: public QwtLinearColorMap
+{
+public:
+
+    QwtLinearColorMapVJ( const QColor &from, const QColor &to,
+        QwtLinearColorMap::Format = QwtColorMap::RGB );
+
+    virtual ~QwtLinearColorMapVJ();
+
+    double thresholdLCM;
+
+    void setThreshold(double v);
+
+};
+
+//---------------------------------------------------------------------------
 /// House color legend
 class colorMapHouse: public QwtLinearColorMap
 {
@@ -73,7 +90,7 @@ public:
     colorMapHouse():
 //        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
  //     QwtLinearColorMap( QColor("#c06969"), QColor("#421010"))
-          QwtLinearColorMap( QColor("#777777"), QColor("#222222"))
+          QwtLinearColorMap( QColor("#AAAAAA"), QColor("#222222"))
     {
 
     }
@@ -132,12 +149,12 @@ public:
     colorMapGray():
         QwtLinearColorMap( QColor("#555555"),QColor("#ffffff"))
     {
-        addColorStop(0.000,QColor("#555555"));
+//        addColorStop(0.000,QColor("#555555"));
     }
 };
 //---------------------------------------------------------------------------
 /// Dark yellow legend for maps for road map overlay
-class colorMapRoads: public QwtLinearColorMap
+class colorMapRoads: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -151,14 +168,14 @@ class colorMapRoads: public QwtLinearColorMap
     }
 public:
     colorMapRoads():
-        QwtLinearColorMap( QColor("#277e00"), QColor("#277e00"))//00cc00"))//888800"))
+        QwtLinearColorMapVJ( QColor("#277e00"), QColor("#277e00"))//00cc00"))//888800"))
     {
         addColorStop(0.0, QColor("#277e00"));//QColor("#cc8800"));
     }
 };
 //---------------------------------------------------------------------------
 /// Green legend for maps for road map overlay
-class colorMapRoads2: public QwtLinearColorMap
+class colorMapRoads2: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -172,14 +189,14 @@ class colorMapRoads2: public QwtLinearColorMap
     }
 public:
     colorMapRoads2():
-        QwtLinearColorMap( Qt::yellow, QColor("#eecc00")  )
+        QwtLinearColorMapVJ( Qt::yellow, QColor("#eecc00")  )
     {
         addColorStop( 0.0, Qt::yellow );
     }
 };
 //---------------------------------------------------------------------------
-/// Logarithmic Yellow to blue legend for runoff map display
-class colorMapWaterLog: public QwtLinearColorMap
+/// Logarithmic light bluie to blue to red legend for runoff map display
+class colorMapWaterLog: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -192,20 +209,10 @@ class colorMapWaterLog: public QwtLinearColorMap
     }
 
 public:
-//    colorMapWaterLog():
-//        QwtLinearColorMap( QColor("#f6f633"), QColor("#000080"))
-//    {
-//        addColorStop( 0.0, QColor("#f6f633").lighter(125));//Qt::yellow );
-//        addColorStop( 0.003,QColor("#8080FF"));
-//        addColorStop( 0.03, QColor("#4040ff") );
-//        addColorStop( 0.5, QColor("#0000FF"));
-//    }
   colorMapWaterLog():
-//      QwtLinearColorMap( QColor("#f6f666"), QColor("#ff3300"))
-    QwtLinearColorMap( QColor("#8c8cff"), QColor("#ff3300"))
+    QwtLinearColorMapVJ( QColor("#8c8cff"), QColor("#ff3300"))
 
   {
-     // addColorStop( 0.0, QColor("#f6f633"));
       addColorStop( 0.0005,QColor("#8080FF"));
       addColorStop( 0.01, QColor("#4040ff") );
       addColorStop( 0.05, QColor("#0000FF"));
@@ -215,7 +222,7 @@ public:
 };
 //---------------------------------------------------------------------------
 /// Linear Yellow to blue legend for infil map display
-class colorMapWater: public QwtLinearColorMap
+class colorMapWater: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -228,9 +235,8 @@ class colorMapWater: public QwtLinearColorMap
     }
 public:
     colorMapWater():
-        QwtLinearColorMap( QColor("#f6f666"),QColor("#0000AA"))
+        QwtLinearColorMapVJ( QColor("#f6f666"),QColor("#0000AA"))
     {
-     //   addColorStop( 0.0, QColor("#FFFF00").lighter(125) );
         addColorStop( 0.1, QColor("#FFFF55") );
         addColorStop( 0.4, QColor("#8080FF") );
         addColorStop( 0.9, Qt::blue );
@@ -238,7 +244,7 @@ public:
 };
 //---------------------------------------------------------------------------
 /// Transparent  light to dark blue legend for flood display
-class colorMapFlood: public QwtLinearColorMap
+class colorMapFlood: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value) const
     {
@@ -252,16 +258,15 @@ class colorMapFlood: public QwtLinearColorMap
     }
 public:
     colorMapFlood():
-        QwtLinearColorMap( QColor(Qt::blue).lighter(150) ,  QColor(Qt::blue).darker(300))
+        //#8c8cff
+        QwtLinearColorMapVJ( QColor("#5477ff"), QColor("#001462"))
     {
-        addColorStop(0.00,QColor(Qt::blue).lighter(150));
-        addColorStop(0.500,Qt::blue);
-        addColorStop(1.0,QColor(Qt::blue).darker(300));
+        addColorStop(0.500,QColor("#0023b1"));
     }
 };
 //---------------------------------------------------------------------------
 /// Cyan to red legend for sediment display
-class colorMapSed: public QwtLinearColorMap
+class colorMapSed: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -274,7 +279,7 @@ class colorMapSed: public QwtLinearColorMap
     }
 public:
     colorMapSed():
-        QwtLinearColorMap( Qt::darkCyan,Qt::red)
+        QwtLinearColorMapVJ( Qt::darkCyan,Qt::red)
     {
         addColorStop( 0.0, Qt::darkCyan );
         addColorStop( 0.3, Qt::cyan );
@@ -284,7 +289,7 @@ public:
 };
 //---------------------------------------------------------------------------
 /// Blue to red legend for sediment display
-class colorMapSedB: public QwtLinearColorMap
+class colorMapSedB: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -297,7 +302,7 @@ class colorMapSedB: public QwtLinearColorMap
     }
 public:
     colorMapSedB():
-        QwtLinearColorMap( Qt::blue,Qt::red)
+        QwtLinearColorMapVJ( Qt::blue,Qt::red)
     {
         addColorStop( 0.0, Qt::blue );
         addColorStop( 0.3, Qt::cyan );
@@ -306,7 +311,7 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-class colorMapFloodV: public QwtLinearColorMap
+class colorMapFloodV: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -320,15 +325,15 @@ class colorMapFloodV: public QwtLinearColorMap
     }
 public:
     colorMapFloodV():
-        QwtLinearColorMap( QColor("#009900"),QColor("#BF0000"))
+        QwtLinearColorMapVJ( QColor("#007300"),QColor("#A60000"))
     {
-        addColorStop( 0.0, QColor("#009900"));
+        addColorStop( 0.0, Qt::green);
         addColorStop( 0.25, Qt::yellow);
         addColorStop( 0.75, Qt::red);
     }
 };
 //---------------------------------------------------------------------------
-class colorMapP: public QwtLinearColorMap
+class colorMapP: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -342,14 +347,14 @@ class colorMapP: public QwtLinearColorMap
     }
 public:
     colorMapP():
-        QwtLinearColorMap( QColor(BGc),Qt::red)
+        QwtLinearColorMapVJ( QColor(BGc),Qt::red)
     {
         addColorStop(0.0,QColor("#8888FF"));
         addColorStop( 0.5, Qt::blue);
     }
 };
 //---------------------------------------------------------------------------
-class colorMapFEW: public QwtLinearColorMap
+class colorMapFEW: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -363,7 +368,7 @@ class colorMapFEW: public QwtLinearColorMap
     }
 public:
     colorMapFEW():
-        QwtLinearColorMap( Qt::darkRed,Qt::darkGreen)
+        QwtLinearColorMapVJ( QColor("#A60000"),QColor("#007300"))
     {
         addColorStop( 0.25, Qt::red);
         addColorStop( 0.5, Qt::yellow);

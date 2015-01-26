@@ -26,6 +26,22 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
+  QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):
+      QwtLinearColorMap( format )
+{
+    thresholdLCM = 0;
+    QwtLinearColorMap::setColorInterval( color1, color2 );
+}
+
+  QwtLinearColorMapVJ::~QwtLinearColorMapVJ()
+  {
+  }
+
+void QwtLinearColorMapVJ::setThreshold( double value)
+{
+    thresholdLCM = value;
+}
+
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
@@ -318,7 +334,7 @@ void lisemqt::showChannelMap()
       double res = fillDrawMapData(op.channelMap, RDc,0 );
       if (res ==-1e20)
         return;
-      QwtLinearColorMap *pala = new colorMapFlood();
+      QwtLinearColorMapVJ *pala = new colorMapFlood();
       pala->thresholdLCM = 0.01;
 
       channelMap->setColorMap(pala);
@@ -384,11 +400,9 @@ void lisemqt::showMap1()
 {
   MPlot->setTitle("Runoff (l/s)");
 
-  QwtLinearColorMap *pal1a = new colorMapWaterLog();
-  QwtLinearColorMap *pal1b = new colorMapWaterLog();
+  QwtLinearColorMapVJ *pal1a = new colorMapWaterLog();
+  QwtLinearColorMapVJ *pal1b = new colorMapWaterLog();
 
-  //    pala->thresholdLCM = 0.1;//-0.01;
-  //    palb->thresholdLCM = 0.1;//-0.01;
   pal1a->setThreshold(doubleSpinBoxROmin->value());
   pal1b->setThreshold(doubleSpinBoxROmin->value());
 
@@ -413,36 +427,6 @@ void lisemqt::showMap1()
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal1b);
   // set the legend with the same palette
 
-//  double maxv = 0;
-//  double minv = 0;
-//  if (maxAxis1 < 10)
-//    {
-//      maxv = _max(1.0,maxAxis1);
-//      minv = 0.001;
-//    }
-//  else
-//    if (maxAxis1 < 100)
-//      {
-//        maxv = _max(10.0,maxAxis1);
-//        minv = 0.01;
-//      }
-//    else
-//      if (maxAxis1 < 1000)
-//        {
-//          maxv = _max(100.0,maxAxis1);
-//          minv = 0.1;
-//        }
-//      else
-//        {
-//          maxv = _max(1000.0,maxAxis1);
-//          minv = 1.0;
-//        }
-
-//  MPlot->setAxisScale( MPlot->yRight, minv, maxv);
-//  doubleSpinBoxROmin->setValue(_max(minv,doubleSpinBoxROmin->value() ));
-
-
-
   if (maxAxis1 < 10)
     MPlot->setAxisScale( MPlot->yRight, 0.001, _max(1.0,maxAxis1));
   else
@@ -462,8 +446,6 @@ void lisemqt::showMap1()
           MPlot->setAxisScale( MPlot->yRight, 1, _max(1000.0,maxAxis1));
           doubleSpinBoxROmin->setValue(_max(1.0,doubleSpinBoxROmin->value() ));
         }
-
-
 
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
 }
@@ -574,18 +556,20 @@ void lisemqt::showMap5()
   maxAxis5 = _max(maxAxis5, MaxV);
   if (doubleSpinBoxSL->value() > 0)
     maxAxis5 = doubleSpinBoxFLV->value();
-  else
-    maxAxis5 = MaxV;
+//  else
+//    maxAxis5 = MaxV;
   RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
+
+  drawMap->setData(RD);
 
   pal5a->setThreshold(_max(doubleSpinBoxFLVmin->value(),0.001));
   pal5b->setThreshold(_max(doubleSpinBoxFLVmin->value(),0.001));
+//  pal5a->setThreshold(doubleSpinBoxFLVmin->value());
+//  pal5b->setThreshold(doubleSpinBoxFLVmin->value());
 
-  drawMap->setData(RD);
   drawMap->setColorMap(pal5a);
-  //QwtPlotSpectrogram
-
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal5b);
+
   MPlot->setAxisScale( MPlot->yRight, 0, maxAxis5);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
@@ -618,7 +602,9 @@ void lisemqt::showMap6()
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapP());
   MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}//---------------------------------------------------------------------------
+
+}
+//---------------------------------------------------------------------------
 // draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 // EARLY WARNING
 void lisemqt::showMap7()
@@ -650,4 +636,5 @@ void lisemqt::showMap7()
 
   MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis7);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}//---------------------------------------------------------------------------
+}
+//---------------------------------------------------------------------------
