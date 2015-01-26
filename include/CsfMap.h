@@ -32,6 +32,7 @@
 
 #include "csf.h"
 #include <QString>
+#include "masked_raster.h"
 
  #define _max(a, b)  (((a) > (b)) ? (a) : (b))
  #define _min(a, b)  (((a) < (b)) ? (a) : (b))
@@ -48,7 +49,7 @@ protected:
 public:
     CSF_RASTER_HEADER MH; ///PCRaster map header
     UINT2 projection;
-    REAL8 **Data;
+    MaskedRaster<REAL8> Data;
 
     QString MapName;
     QString PathName;
