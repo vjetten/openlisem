@@ -1,11 +1,34 @@
-IF(DEFINED ENV{LISEM_3RD_PARTY_ROOT})
+IF((NOT DEFINED LISEM_3RD_PARTY_ROOT) AND (NOT DEFINED
+        ENV{LISEM_3RD_PARTY_ROOT}))
+    # Third party software can be built using Peacock. In that case the
+    # PEACOCK_PREFIX environment or CMake variable should be set. Given its
+    # value the LISEM_3RD_PARTY_ROOT variable is set.
+    # PEACOCK_PREFIX is only used if LISEM_3RD_PARTY_ROOT is not set.
+    IF((NOT DEFINED PEACOCK_PREFIX) AND (DEFINED ENV{PEACOCK_PREFIX}))
+        SET(PEACOCK_PREFIX $ENV{PEACOCK_PREFIX})
+    ENDIF()
+
+
+    IF(DEFINED PEACOCK_PREFIX)
+        IF(EXISTS ${PEACOCK_PREFIX}/lisem)
+            SET(PEACOCK_PREFIX ${PEACOCK_PREFIX}/lisem)
+        ENDIF()
+
+        SET(LISEM_3RD_PARTY_ROOT ${PEACOCK_PREFIX}/${peacock_target_platform})
+    ENDIF()
+ENDIF()
+
+
+IF(NOT DEFINED LISEM_3RD_PARTY_ROOT AND DEFINED ENV{LISEM_3RD_PARTY_ROOT})
+    SET(LISEM_3RD_PARTY_ROOT $ENV{LISEM_3RD_PARTY_ROOT})
+ENDIF()
+
+
+IF(DEFINED LISEM_3RD_PARTY_ROOT)
     # Assume that all 3rd party software that LISEM depends on is rooted at
     # $LISEM_3RD_PARTY_ROOT. If not, the user can edit the cache variables.
-    SET(LISEM_3RD_PARTY_ROOT
-        $ENV{LISEM_3RD_PARTY_ROOT}
-    )
-
     # Boost.
+
     FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/boost-*)
     IF(NOT DEFAULT_PATH)
         SET(DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT})
