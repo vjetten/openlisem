@@ -48,7 +48,6 @@
 //---------------------------------------------------------------------------
 cTMap::cTMap()
 {
-  Data = NULL;
   Created = false;
   nrRows = 0;
   nrCols = 0;
@@ -63,13 +62,7 @@ cTMap::~cTMap()
 //---------------------------------------------------------------------------
 void cTMap::KillMap()
 {
-  if (Data && nrRows > 0)
-    {
-      for (int r=0; r < nrRows; r++)
-        delete[] Data[r];
-      delete[] Data;
-      Data = NULL;
-    }
+  Data = MaskedRaster<REAL8>();
   Created = false;
 }
 //---------------------------------------------------------------------------
@@ -103,16 +96,7 @@ void cTMap::CreateMap(QString Name)
   // now get the header for nrrows and nrcols
   GetMapHeader(Name);
 
-  Data = new REAL8*[nrRows];
-  for(int r=0; r < nrRows; r++)
-    Data[r] = new REAL8[nrCols];
-
-  if (Data == NULL)
-    Error(QString("Cannot create data structure for map: %1").arg(Name));
-  //   {
-  //      Error(QString("Cannot create data structure for map: %1").arg(Name));
-  //      throw 1;
-  //   }
+  Data = MaskedRaster<REAL8>(nrRows, nrCols);
 
   Created = true;
 }
@@ -175,22 +159,7 @@ void cTMap::MakeMap(cTMap *dup, REAL8 value)
   MH.angle = dup->MH.angle;
   projection = dup->projection;
 
-  Data = new REAL8*[nrRows];
-  for(int r=0; r < nrRows; r++)
-  {
-    Data[r] = new REAL8[nrCols];
-    if (Data[r] == NULL)
-    {
-        ErrorString = QString("memory error new");
-        throw 1;
-    }
-  }
-  if (Data == NULL)
-  {
-      ErrorString = QString("memory error new");
-      throw 1;
-    return;
-  }
+  Data = MaskedRaster<REAL8>(nrRows, nrCols);
 
   for(int r = 0; r < nrRows; r++)
     SetMemMV(Data[r],nrCols,CR_REAL8);
