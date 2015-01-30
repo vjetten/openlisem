@@ -33,6 +33,7 @@
  *
  */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -315,7 +316,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(val);
 
 
-        if (p1.compare("Output interval")==0)   printinterval->setValue(_max(1,iii));
+        if (p1.compare("Output interval")==0)   printinterval->setValue(std::max(1,iii));
 
         if (p1.compare("Erosion map units (0/1/2)")==0)
         {

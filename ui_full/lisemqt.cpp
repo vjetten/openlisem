@@ -46,6 +46,7 @@ update of the runfile before running:
 
 */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -1201,7 +1202,7 @@ void lisemqt::fontSelect()
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = _max(6, genfontsize);
+    genfontsize = std::max(6, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \
@@ -1225,7 +1226,7 @@ void lisemqt::fontDecrease()
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = _min(18, genfontsize);
+    genfontsize = std::min(18, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \

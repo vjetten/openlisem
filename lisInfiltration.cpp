@@ -29,17 +29,18 @@
 
 functions: \n
 - void TWorld::InfilEffectiveKsat(void)
-- void TWorld::InfilSwatre(CTMap *_WH)
-- void TWorld::InfilMorelSeytoux1(CTMap *_WH) Not working yet!
-- void TWorld::InfilMethods(CTMap * _Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fact, CTMap *_L1, CTMap *_L2, CTMap *_FFull)
+- void TWorld::InfilSwatre(cTMap *_WH)
+- void TWorld::InfilMorelSeytoux1(cTMap *_WH) Not working yet!
+- void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
 - double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
 - void TWorld::Infiltration(void)
 - void TWorld::InfiltrationFloodNew(void)
 - void TWorld::SoilWater()
  */
 
-
+#include <algorithm>
 #include "model.h"
+#include "operation.h"
 
 //NOTE fact and fpot have a unit of m (not m/s)
 
@@ -73,7 +74,7 @@ void TWorld::InfilEffectiveKsat(void)
             if (GrassFraction->Drc > 0)
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
 
-            Ksateff->Drc = _max(0.0, Ksateff->Drc);
+            Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             // incase combining all fractions lead to less than zero
 
             Ksateff->Drc *= ksatCalibration;
@@ -87,11 +88,11 @@ void TWorld::InfilEffectiveKsat(void)
 }
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
-void TWorld::InfilSwatre(CTMap *_WH)
+void TWorld::InfilSwatre(cTMap *_WH)
 {
-    WHbef->copy(_WH); // copy water height before infil
+    copy(*WHbef, *_WH); // copy water height before infil
 
-    tma->fill(1); // flag to indicate where the swatrestep model should be run
+    fill(*tma, 1.0); // flag to indicate where the swatrestep model should be run
 
     //calculate a new crustfraction for water repellency
     // formula = f = 1/(1+1.2^(theta-30)), theta in %
@@ -109,10 +110,10 @@ void TWorld::InfilSwatre(CTMap *_WH)
 
     if (SwitchInfilCrust)
     {
-        tm->copy(WHbef);
-        tma->fill(0);
-        tmb->fill(0);
-        tmc->fill(0);
+        copy(*tm, *WHbef);
+        fill(*tma, 0.0);
+        fill(*tmb, 0.0);
+        fill(*tmc, 0.0);
 
         SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
         // calculate crust SWATRE and get the soil moisture of the top node
@@ -131,10 +132,10 @@ void TWorld::InfilSwatre(CTMap *_WH)
 
     if (SwitchInfilCompact)
     {
-        tm->copy(WHbef);
-        tma->fill(0);
-        tmb->fill(0);
-        tmc->fill(0);
+        copy(*tm, *WHbef);
+        fill(*tma, 0.0);
+        fill(*tmb, 0.0);
+        fill(*tmc, 0.0);
 
         SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
 
@@ -152,9 +153,9 @@ void TWorld::InfilSwatre(CTMap *_WH)
 
     if (SwitchGrassStrip)
     {
-        tm->copy(WHGrass);
-        tmb->fill(0);
-        tmc->fill(0);
+        copy(*tm, *WHGrass);
+        fill(*tmb, 0.0);
+        fill(*tmc, 0.0);
 
         SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
 
@@ -181,7 +182,7 @@ void TWorld::InfilSwatre(CTMap *_WH)
 }
 //---------------------------------------------------------------------------
 /// DOESN'T WORK YET
-void TWorld::InfilMorelSeytoux1(CTMap *_WH)
+void TWorld::InfilMorelSeytoux1(cTMap *_WH)
 {
     FOR_ROW_COL_MV
     {
@@ -199,13 +200,13 @@ void TWorld::InfilMorelSeytoux1(CTMap *_WH)
 
         if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
         {
-            Ks = _min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
             // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
             // Psi = Psi2->Drc;
         }
 
         B = (fwh+Psi1->Drc)*(ThetaS1->Drc-ThetaI1->Drc); //m
-        tp = _max(0.0, Ks*B/(rt*rt - Ks*rt)); //sec
+        tp = std::max(0.0, Ks*B/(rt*rt - Ks*rt)); //sec
 
         if (Ks < rt )
         {
@@ -218,7 +219,7 @@ void TWorld::InfilMorelSeytoux1(CTMap *_WH)
         // potential infiltration in m
         // psi input map is in cm so multiply 0.01 for m
 
-        fact1 = _min(fpot->Drc, fwh);
+        fact1 = std::min(fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
 
         fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc, &FFull->Drc);
@@ -236,7 +237,7 @@ Green and Mapt, Smith and Parlange or Ksat subtraction.
 This function calculates the potential infiltration according to Ksat, G&A or S&P \n
 then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
-void TWorld::InfilMethods(CTMap * _Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fact, CTMap *_L1, CTMap *_L2, CTMap *_FFull)
+void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
 {
     FOR_ROW_COL_MV
     {
@@ -244,7 +245,7 @@ void TWorld::InfilMethods(CTMap * _Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fa
         double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
         double fwh = _WH->Drc; // in m, WH is old WH + net rainfall
         double Psi = Psi1->Drc;
-        double space = _max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
+        double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
 
         if (SoilDepth1->Drc <= tiny)
         {
@@ -256,10 +257,10 @@ void TWorld::InfilMethods(CTMap * _Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fa
 
         if (SwitchTwoLayer && _L1->Drc > SoilDepth1->Drc)
         {
-            Ks = _min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            Ks = std::min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
             // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
             Psi = Psi2->Drc;
-            space = _max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
+            space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
         }
         // two layers
 
@@ -278,7 +279,7 @@ void TWorld::InfilMethods(CTMap * _Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fa
             break;
         }
 
-        fact1 = _min(_fpot->Drc, fwh);
+        fact1 = std::min(_fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
 
         _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
@@ -312,7 +313,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         {
             FFull = 0;
             // because drainage can reset moisture content
-            dL1 = fact/_max(tiny, store1);
+            dL1 = fact/std::max(tiny, store1);
             // increase in depth (m) is actual infiltration/available porespace
             // do this always, correct if 1st layer is full
             L1 += dL1;
@@ -345,7 +346,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         if (L1 < SoilDepth1->Drc)
         {
             FFull = 0;
-            dL1 = fact/_max(tiny, store1);
+            dL1 = fact/std::max(tiny, store1);
             // tiny avoids dvision by 0
             L1 += dL1;
             if (L1 > SoilDepth1->Drc)
@@ -359,7 +360,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
             if (L1+L2 < SoilDepth2->Drc)
             {
                 FFull = 0;
-                dL2 = fact/_max(tiny, store2);
+                dL2 = fact/std::max(tiny, store2);
                 // increase in 2nd layer
                 L2+=dL2;
 
@@ -421,7 +422,7 @@ void TWorld::Infiltration(void)
 
     switch (InfilMethod)
     {
-    case INFIL_NONE : fact->fill(0); fpot->fill(0); break;
+    case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
     case INFIL_SWATRE : InfilSwatre(WH); break;   // includes grasstrips, compaction etc
     case INFIL_KSAT :
     case INFIL_GREENAMPT :
@@ -441,7 +442,7 @@ void TWorld::Infiltration(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            //WH->Drc = _max(0.0, WH->Drc - fact->Drc);
+            //WH->Drc = std::max(0.0, WH->Drc - fact->Drc);
             WH->Drc -= fact->Drc;
             if (WH->Drc < 0) // in case of rounding of errors
             {
@@ -459,7 +460,7 @@ void TWorld::Infiltration(void)
             FSurplus->Drc = 0;
         else
         {
-            FSurplus->Drc = _min(0.0, fact->Drc - fpot->Drc);
+            FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc);
 
             double room = 0;
             if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
@@ -522,7 +523,7 @@ void TWorld::InfiltrationFloodNew(void)
 
     switch (InfilMethod)
     {
-    case INFIL_NONE : fact->fill(0); fpot->fill(0); break;
+    case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
     case INFIL_SWATRE : InfilSwatre(hmx); break;   // includes grasstrips, compaction etc
     case INFIL_KSAT :
     case INFIL_GREENAMPT :
@@ -537,7 +538,7 @@ void TWorld::InfiltrationFloodNew(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            hmx->Drc = _max(0.0, hmx->Drc - fact->Drc);
+            hmx->Drc = std::max(0.0, hmx->Drc - fact->Drc);
 
             Fcum->Drc += fact->Drc;
             // cumulative infil in m used in G&A infil function
@@ -586,14 +587,14 @@ void TWorld::SoilWater()
 
             if (L1->Drc > SoilDepth1->Drc-tiny)
             {
-                L1->Drc = _max(0.01, SoilDepth1->Drc-Percolation/(ThetaS1->Drc-ThetaI1->Drc+0.01));
+                L1->Drc = std::max(0.01, SoilDepth1->Drc-Percolation/(ThetaS1->Drc-ThetaI1->Drc+0.01));
                 // cannot be less than 0.01= 1 cm to avoid misery
                 // add 0.01 for safety to avoid division by zero
             }
 
             Soilwater->Drc = (SoilDepth1->Drc - L1->Drc)*ThetaI1->Drc;
             // max available water = unsat zone depth * thetai
-            Percolation = _min(Percolation, Soilwater->Drc);
+            Percolation = std::min(Percolation, Soilwater->Drc);
             // cannot have more percolation than available water
 
             if (Soilwater->Drc-Percolation > 0.01*ThetaS1->Drc)
@@ -601,7 +602,7 @@ void TWorld::SoilWater()
             // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
 
             ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : ThetaS1->Drc);
-            ThetaI1->Drc = _min(ThetaI1->Drc, ThetaS1->Drc);\
+            ThetaI1->Drc = std::min(ThetaI1->Drc, ThetaS1->Drc);\
             // recalc thetai1 with new soilwater
         }
         else
@@ -611,13 +612,13 @@ void TWorld::SoilWater()
 
             if (L2->Drc > SoilDepth2->Drc-tiny)
             {
-                L2->Drc = _max(0.01, SoilDepth2->Drc-Percolation/(ThetaS2->Drc-ThetaI2->Drc+0.01));
+                L2->Drc = std::max(0.01, SoilDepth2->Drc-Percolation/(ThetaS2->Drc-ThetaI2->Drc+0.01));
                 // cannot be less than 0.01= 1 cm to avoid misery
                 // add 0.01 for safety to avoid division by zero
             }
             Soilwater->Drc = (SoilDepth2->Drc - L2->Drc)*ThetaI2->Drc;
             // max available water = unsat zone depth * thetai
-            Percolation = _min(Percolation, Soilwater->Drc);
+            Percolation = std::min(Percolation, Soilwater->Drc);
             // cannot have more percolation than available water
 
             if (Soilwater->Drc-Percolation > 0.01*ThetaS2->Drc)
@@ -625,7 +626,7 @@ void TWorld::SoilWater()
             // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
 
             ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : ThetaS2->Drc);
-            ThetaI2->Drc = _min(ThetaI2->Drc, ThetaS2->Drc);\
+            ThetaI2->Drc = std::min(ThetaI2->Drc, ThetaS2->Drc);\
             // recalc thetai2 with new soilwater
 
         }
@@ -635,7 +636,7 @@ void TWorld::SoilWater()
 //---------------------------------------------------------------------------
 /* OBSOLETE
 /// Solution Eurosem v2 manual page 10, Morgan et al 1998
-void TWorld::InfilSmithParlange1(CTMap *_WH)
+void TWorld::InfilSmithParlange1(cTMap *_WH)
 {
     FOR_ROW_COL_MV
     {
@@ -646,7 +647,7 @@ void TWorld::InfilSmithParlange1(CTMap *_WH)
         //VJ 110118 added psi of layer 2, was a bug
         double Cdexp, B;
 
-        B = (fwh + Psi)*_max(ThetaS1->Drc-ThetaI1->Drc, tiny);
+        B = (fwh + Psi)*std::max(ThetaS1->Drc-ThetaI1->Drc, tiny);
         // TODO what abbout 2 layers?
 
         if (SoilDepth1->Drc <= tiny)
@@ -656,7 +657,7 @@ void TWorld::InfilSmithParlange1(CTMap *_WH)
 
         if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
         {
-            Ks = _min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
             // smallest of the two ksats in two laters blocks the flow
             Psi = Psi2->Drc;
             //VJ 110118 added psi of layer 2, was a bug
@@ -665,7 +666,7 @@ void TWorld::InfilSmithParlange1(CTMap *_WH)
         fpot->Drc = Ks*Cdexp/(Cdexp-1);
         // potential infiltration in m
 
-        fact1 = _min(fpot->Drc, fwh);
+        fact1 = std::min(fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
 
         fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
@@ -677,15 +678,15 @@ void TWorld::InfilSmithParlange1(CTMap *_WH)
             Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
 
             if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
-                Ks = _min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
+                Ks = std::min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
-            B = (fwh + Psi)*_max(ThetaS1->Drc-ThetaI1->Drc, tiny);
+            B = (fwh + Psi)*std::max(ThetaS1->Drc-ThetaI1->Drc, tiny);
 
             Cdexp = exp(Fcum->Drc/B);
             fpotgr->Drc = Ks*Cdexp/(Cdexp-1);
             // potential infiltration in m
 
-            fact1 = _min(fpotgr->Drc, fwh);
+            fact1 = std::min(fpotgr->Drc, fwh);
 
             factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc, &FFull->Drc);
         }
@@ -693,7 +694,7 @@ void TWorld::InfilSmithParlange1(CTMap *_WH)
 }
 //---------------------------------------------------------------------------
 /// Solution Kutilek and Nielsen 2004 pag 138
-void TWorld::InfilGreenAmpt1(CTMap *_WH)
+void TWorld::InfilGreenAmpt1(cTMap *_WH)
 {
     FOR_ROW_COL_MV
     {
@@ -712,7 +713,7 @@ void TWorld::InfilGreenAmpt1(CTMap *_WH)
 
         if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
         {
-            Ks = _min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
             // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
             Psi = Psi2->Drc;
             //VJ 110118 added psi of layer 2, was a bug
@@ -722,7 +723,7 @@ void TWorld::InfilGreenAmpt1(CTMap *_WH)
         // potential infiltration in m, Darcy : Q = K * (dh/dz + 1)
         // L1 initialized at 1e-10, psi in cm so in datainit multiplied by 0.01 for m
 
-        fact1 = _min(fpot->Drc, fwh);
+        fact1 = std::min(fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
 
         fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
@@ -734,11 +735,11 @@ void TWorld::InfilGreenAmpt1(CTMap *_WH)
             Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
 
             if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
-                Ks = _min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
+                Ks = std::min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
             fpotgr->Drc = Ks*(1.0+(Psi+fwh)/(L1gr->Drc+L2->Drc));
 
-            fact1 = _min(fpotgr->Drc, fwh);
+            fact1 = std::min(fpotgr->Drc, fwh);
 
             factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc, &FFull->Drc);
         }
@@ -746,7 +747,7 @@ void TWorld::InfilGreenAmpt1(CTMap *_WH)
 }
 //---------------------------------------------------------------------------
 /// Direct subtraction of Ksat, added for testing purposes!
-void TWorld::InfilKsat(CTMap *_WH)
+void TWorld::InfilKsat(cTMap *_WH)
 {
     FOR_ROW_COL_MV
     {
@@ -755,12 +756,12 @@ void TWorld::InfilKsat(CTMap *_WH)
         double fwh = _WH->Drc; // in m
 
         if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc - tiny)
-            Ks = _min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+            Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
 
         fpot->Drc = Ks;
         // potential infil equals Ksat during this timestep, unit is m (not a flux)
 
-        fact1 = _min(fpot->Drc, fwh);
+        fact1 = std::min(fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
         fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
         // adjust fact for twolayer, impermeable etc
@@ -771,11 +772,11 @@ void TWorld::InfilKsat(CTMap *_WH)
             Ks = KsatGrass->Drc*_dt/3600000.0;  //in m
 
             if (SwitchTwoLayer && L1gr->Drc > SoilDepth1->Drc - tiny)
-                Ks = _min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
+                Ks = std::min(KsatGrass->Drc, Ksat2->Drc)*_dt/3600000.0;
 
             fpotgr->Drc = Ks;
 
-            fact1 = _min(fpotgr->Drc, fwh);
+            fact1 = std::min(fpotgr->Drc, fwh);
 
             factgr->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1gr->Drc, &L2gr->Drc, &FFull->Drc);
         }
@@ -873,7 +874,7 @@ void TWorld::InfiltrationFlood(void)
             // cumulative infil in m used in G&A infil function
         }
 
-        FfSurplus->Drc = _min(0, ffact->Drc - ffpot->Drc);
+        FfSurplus->Drc = std::min(0, ffact->Drc - ffpot->Drc);
         // negative surplus of infiltration in m for kinematic wave in m
         if (FfFull->Drc == 1)
             FfSurplus->Drc = 0;

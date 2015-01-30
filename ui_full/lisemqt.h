@@ -156,7 +156,7 @@ public:
     void showChannelMap();
     void showRoadMap();
     void showHouseMap();
-    double fillDrawMapData(CTMap *_M, QwtMatrixRasterData *_RD, double type);
+    double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type);
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing

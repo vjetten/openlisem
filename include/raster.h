@@ -13,7 +13,10 @@ public:
                    Raster              ();
 
                    Raster              (size_t nr_rows,
-                                        size_t nr_cols);
+                                        size_t nr_cols,
+                                        double north,
+                                        double west,
+                                        double cell_size);
 
                    Raster              (Raster const& other)=default;
 
@@ -30,6 +33,12 @@ public:
     size_t         nr_cols             () const;
 
     size_t         nr_cells            () const;
+
+    double         north               () const;
+
+    double         west                () const;
+
+    double         cell_size           () const;
 
     size_t         index               (size_t row,
                                         size_t col) const;
@@ -50,6 +59,12 @@ public:
 
 private:
 
+    double         _north;
+
+    double         _west;
+
+    double         _cell_size;
+
 };
 
 
@@ -57,7 +72,10 @@ template<
     typename T>
 inline Raster<T>::Raster()
 
-    : Array<T, 2>()
+    : Array<T, 2>(),
+      _north(),
+      _west(),
+      _cell_size()
 
 {
 }
@@ -67,9 +85,15 @@ template<
     typename T>
 inline Raster<T>::Raster(
     size_t nr_rows,
-    size_t nr_cols)
+    size_t nr_cols,
+    double north,
+    double west,
+    double cell_size)
 
-    : Array<T, 2>(nr_rows, nr_cols)
+    : Array<T, 2>(nr_rows, nr_cols),
+      _north(north),
+      _west(west),
+      _cell_size(cell_size)
 
 {
 }
@@ -96,6 +120,30 @@ template<
 inline size_t Raster<T>::nr_cells() const
 {
     return this->size();
+}
+
+
+template<
+    typename T>
+inline double Raster<T>::north() const
+{
+    return _north;
+}
+
+
+template<
+    typename T>
+inline double Raster<T>::west() const
+{
+    return _west;
+}
+
+
+template<
+    typename T>
+inline double Raster<T>::cell_size() const
+{
+    return _cell_size;
 }
 
 

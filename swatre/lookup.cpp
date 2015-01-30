@@ -34,6 +34,7 @@
 
 */
 
+#include <algorithm>
 #include "swatre_p.h"
 #include "swatresoillut.h"
 #include "swatreLookup.h"
@@ -52,7 +53,7 @@ double TheNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
 {
-    //head = _min( head, -1e-10);  //max or min ???? org was max! but head is < 0 !
+    //head = std::min( head, -1e-10);  //max or min ???? org was max! but head is < 0 !
     //VJ 110825 better to comment out this line, not useful
     if (head >= -1.0E-2)
        return LUT_Highest(hor->lut, THETA_COL);
@@ -88,8 +89,8 @@ double DmcNode(
 
     l = hor->lut;
     i = LUT_Index_LE(l, head, DMCH_COL);
-    i = __min(LUT_nrRows(l)-2, i);
-    i = _max(i, 0);
+    i = std::min(LUT_nrRows(l)-2, i);
+    i = std::max(i, 0);
 
     return LUT_ValueAt(l, DMCC_COL, i) +
             (head - LUT_ValueAt(l, DMCH_COL, i)) *

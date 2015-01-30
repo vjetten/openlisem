@@ -16,6 +16,7 @@ SET(SOURCES
     ui_full/LisUIplot
     ui_full/LisUImapplot
     CsfMap
+    io
     lisChannelflow
     lisTiledrainflow
     lisDataInit
@@ -30,7 +31,7 @@ SET(SOURCES
     lisSurfstor
     lisSnowmelt
     main
-    mmath
+    operation
     swatre/swatstep
     swatre/swatinit
     swatre/soillut

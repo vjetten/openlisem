@@ -245,8 +245,10 @@ void lisemqt::openMapname(QModelIndex topLeft)
 
    if (!path.isEmpty())// && QFileInfo(path).exists())
    {
-      MAP *m = Mopen(QFileInfo(path).absoluteFilePath().toAscii().constData(), M_READ);
-      if (m == NULL)
+      MapPtr m{Mopen(QFileInfo(path).absoluteFilePath().toAscii().constData(),
+          M_READ), close_csf_map};
+
+      if (m == nullptr)
       {
          QMessageBox::critical(this, "openLISEM",
                                QString("File \"%1\" is not a PCRaster map.")

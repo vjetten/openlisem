@@ -14,7 +14,10 @@ public:
                    MaskedRaster        ();
 
                    MaskedRaster        (size_t nr_rows,
-                                        size_t nr_cols);
+                                        size_t nr_cols,
+                                        double north,
+                                        double west,
+                                        double cell_size);
 
                    MaskedRaster        (MaskedRaster const& other)=default;
 
@@ -36,6 +39,8 @@ public:
   void             set_mv              (size_t row,
                                         size_t col);
 
+  void             set_all_mv          ();
+
 private:
 
 };
@@ -55,9 +60,12 @@ template<
     typename T>
 MaskedRaster<T>::MaskedRaster(
     size_t nr_rows,
-    size_t nr_cols)
+    size_t nr_cols,
+    double north,
+    double west,
+    double cell_size)
 
-    : Raster<T>(nr_rows, nr_cols)
+    : Raster<T>(nr_rows, nr_cols, north, west, cell_size)
 
 {
 }
@@ -98,4 +106,12 @@ void MaskedRaster<T>::set_mv(
     size_t col)
 {
     pcr::setMV<T>(this->cell(row, col));
+}
+
+
+template<
+    typename T>
+void MaskedRaster<T>::set_all_mv()
+{
+    pcr::setMV<T>(&this->cell(0), this->nr_cells());
 }

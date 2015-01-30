@@ -12,10 +12,6 @@
 #endif
 
 #define DIR_PATH_DELIM_CHAR  '\\'
-#ifndef _MAX_
-#define __max(a, b)  (((a) > (b)) ? (a) : (b))
-#define __min(a, b)  (((a) < (b)) ? (a) : (b))
-#endif
 
 /* qsortcmp.c */
  typedef int (*QSORT_CMP)(const void *e1, const void *e2);

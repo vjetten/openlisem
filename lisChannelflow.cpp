@@ -31,7 +31,9 @@ functions: \n
 - void TWorld::ChannelFlow(void) calculate channelflow, ChannelDepth, do kinematic wave \n
 */
 
+#include <algorithm>
 #include "model.h"
+#include "operation.h"
 
 //---------------------------------------------------------------------------
 // V, alpha and Q in the channel, called after overland flow vol to channel
@@ -83,7 +85,7 @@ void TWorld::CalcVelDischChannel(void)
         {
             if (ChannelMaxQ->Drc > 0)
             {
-            //    ChannelQ->Drc = _min(ChannelQ->Drc, ChannelMaxQ->Drc);
+            //    ChannelQ->Drc = std::min(ChannelQ->Drc, ChannelMaxQ->Drc);
 //                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, beta);
 //                Perim = FW + Area/FW*2;
 //                ChannelWH->Drc = Area/FW;
@@ -170,11 +172,11 @@ void TWorld::ChannelWaterHeight(void)
                 throw 1;
             }
 
-            ChannelWidthUpDX->Drc = _min(0.9*_dx, ChannelWidthUpDX->Drc);
+            ChannelWidthUpDX->Drc = std::min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
 
-            ChannelAdj->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
             // experimental if channelwidth > dx
         }
     }
@@ -207,7 +209,7 @@ void TWorld::ChannelFlow(void)
 
     ChannelQn->setMV();
     //ChannelQsn->fill(0);
-    QinKW->fill(0);
+    fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
     FOR_ROW_COL_MV_CH
@@ -229,20 +231,20 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->cover(LDD, 0);
-    ChannelQsn->cover(LDD, 0);
+    cover(*ChannelQn, *LDD, 0);
+    cover(*ChannelQsn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
     double mb = 0;
     double n = 0;
-    tm->fill(0);
+    fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
 //        if (SwitchChannelFlood)
 //        {
 //            if (ChannelMaxQ->Drc > 0)
-//                ChannelQn->Drc = _min(ChannelQn->Drc, ChannelMaxQ->Drc);
+//                ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
 //        }
         // limit channel Q when culverts > 0
 
@@ -283,7 +285,7 @@ void TWorld::ChannelFlow(void)
     {
         ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
         if (ChannelWaterVol->Drc > 0)
-            ChannelWaterVol->Drc = _max(0.0, ChannelWaterVol->Drc+mb);
+            ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc+mb);
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
         ChannelQn->Drc = qPow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, (1/0.6));
     }
@@ -306,12 +308,12 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelWH->cover(LDD, 0);
+    cover(*ChannelWH, *LDD, 0);
 
     FOR_ROW_COL_MV_CH
     {
-        maxChannelflow->Drc = _max(maxChannelflow->Drc, ChannelQn->Drc);
-        maxChannelWH->Drc = _max(maxChannelWH->Drc, ChannelWH->Drc);
+        maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
     }
 
 

@@ -33,7 +33,9 @@ functions: \n
 - void TWorld::OverlandFlow(void) \n
  */
 
+#include <algorithm>
 #include "model.h"
+#include "operation.h"
 #define tiny 1e-8
 
 //---------------------------------------------------------------------------
@@ -57,7 +59,7 @@ void TWorld::ToChannel(void)
             if (ChannelAdj->Drc == 0)
                 fractiontochannel = 1.0;
             else
-                fractiontochannel = _min(1.0, _dt*V->Drc/_max(0.01*_dx,0.5*ChannelAdj->Drc));
+                fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
 
             if (SwitchBuffers)
                 if (BufferID->Drc > 0)
@@ -169,8 +171,8 @@ void TWorld::OverlandFlow(void)
     }
 
     Qn->setMV();
-    Qsn->fill(0);
-    QinKW->fill(0);
+    fill(*Qsn, 0.0);
+    fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV
     {
@@ -200,7 +202,7 @@ void TWorld::OverlandFlow(void)
         }
 
 
-        Qpn->fill(0);
+        fill(*Qpn, 0.0);
         FOR_ROW_COL_MV
         {
             if (LDD->Drc == 5) // if outflow point, pit
@@ -295,8 +297,8 @@ void TWorld::OverlandFlowNew(void)
     }
 
     Qn->setMV();
-    Qsn->fill(0);
-    QinKW->fill(0);
+    fill(*Qsn, 0.0);
+    fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
     FOR_ROW_COL_MV
     {
@@ -324,7 +326,7 @@ void TWorld::OverlandFlowNew(void)
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
 
-        Qpn->fill(0);
+        fill(*Qpn, 0.0);
         FOR_ROW_COL_MV
         {
             if (LDD->Drc == 5) // if outflow point, pit
@@ -363,7 +365,7 @@ void TWorld::OverlandFlowNew(void)
         //                double A = h*w;
         //                double R = A/P;
 
-        //                F = _max(0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
+        //                F = std::max(0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
         //                dF = (5*w+6*h)/(3*h*P);
         //                h1 = h - F/dF;
         //                // function divided by derivative
@@ -410,7 +412,7 @@ void TWorld::OverlandFlowNew(void)
         // this is the actual infiltration in the kin wave
 
         double diff = InfilKWact;
-        InfilKWact = _min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
+        InfilKWact = std::min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
         // infil volume cannot be more than surplus infil
 
         if (FFull->Drc == 1)

@@ -32,6 +32,7 @@ functions: \n
 - void TWorld::SnowmeltMap(void) \n
  */
 
+#include "io.h"
 #include "model.h"
 
 //---------------------------------------------------------------------------
@@ -150,12 +151,12 @@ void TWorld::SnowmeltMap(void)
 
    if (SnowmeltSeriesM[place].isMap)
    {
-      CTMap *_M = new CTMap();
-      _M->PathName = SnowmeltSeriesM[place].name;
-      bool res = _M->LoadFromFile();
+      auto _M = std::unique_ptr<cTMap>(new cTMap);
+      _M->setPathName(SnowmeltSeriesM[place].name);
+      bool res = LoadFromFile(*_M);
       if (!res)
       {
-         ErrorString = "Cannot find Snowmelt map " +_M->PathName;
+         ErrorString = "Cannot find Snowmelt map " +_M->PathName();
          throw 1;
       }
 
@@ -174,8 +175,6 @@ void TWorld::SnowmeltMap(void)
          Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
          SnowmeltCum->Drc += Snowmeltc->Drc;
       }
-
-      _M->KillMap();
    }
    else
    {

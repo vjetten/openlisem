@@ -29,7 +29,7 @@
 
 // separte here for easier Doxygen comments
 
-CTMap
+cTMap
 
 *DEM,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]

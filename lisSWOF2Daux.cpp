@@ -33,6 +33,7 @@ functions: \n
 - void TWorld::ChannelFlood(void) calculate maps channelflood height (hmx) and FloodDomain
 */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -61,10 +62,10 @@ double TWorld::limiter(double a, double b)
 
 
     if (a>=0. && b>=0)
-        return(_min(a,b));
+        return(std::min(a,b));
     else
         if (a<=0. && b<=0)
-            return(_max(a,b));
+            return(std::max(a,b));
         else
             return(0);
 }
@@ -134,17 +135,17 @@ void TWorld::F_HLL2(double hg, double ug, double vg, double hd, double ud, doubl
         double sqrt_grav_hd = sqrt(grav_hd);
         double qd = ud*hd;
         double qg = ug*hg;
-        double c1 = _min(ug-sqrt_grav_hg,ud-sqrt_grav_hd); //we already have ug-sqrt_grav_hg<ug+sqrt_grav_hg and ud-sqrt_grav_hd<ud+sqrt_grav_hd
-        double c2 = _max(ug+sqrt_grav_hg,ud+sqrt_grav_hd); //so we do not need all the eigenvalues to get c1 and c2
+        double c1 = std::min(ug-sqrt_grav_hg,ud-sqrt_grav_hd); //we already have ug-sqrt_grav_hg<ug+sqrt_grav_hg and ud-sqrt_grav_hd<ud+sqrt_grav_hd
+        double c2 = std::max(ug+sqrt_grav_hg,ud+sqrt_grav_hd); //so we do not need all the eigenvalues to get c1 and c2
         double tmp = 1./(c2-c1);
-        double t1 = (_min(c2,0.)-_min(c1,0.))*tmp;
+        double t1 = (std::min(c2,0.)-std::min(c1,0.))*tmp;
         double t2 = 1.-t1;
         double t3 = (c2*fabs(c1)-c1*fabs(c2))*0.5*tmp;
 
         f1 = t1*qd+t2*qg-t3*(hd-hg);
         f2 = t1*(qd*ud+grav_hd*hd*0.5)+t2*(qg*ug+grav_hg*hg*0.5)-t3*(qd-qg);
         f3 = t1*qd*vd+t2*qg*vg-t3*(hd*vd-hg*vg);
-        cfl = _max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition _max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -168,34 +169,34 @@ void TWorld::F_HLL(double hg,double ug,double vg,double hd,double ud,double vd)
         double grav_hd = grav*hd;
         double qd = ud*hd;
         double qg = ug*hg;
-        double c1 = _min(ug-sqrt(grav_hg),ud-sqrt(grav_hd));
-        double c2 = _max(ug+sqrt(grav_hg),ud+sqrt(grav_hd));
+        double c1 = std::min(ug-sqrt(grav_hg),ud-sqrt(grav_hd));
+        double c2 = std::max(ug+sqrt(grav_hg),ud+sqrt(grav_hd));
 
-        //cfl is the velocity to calculate the real cfl=_max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        //cfl is the velocity to calculate the real cfl=std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
         if (c1==0. && c2==0.)
         {
             //dry
             f1=0.;
             f2=0.;
             f3=0.;
-            cfl=0.; //_max(fabs(c1),fabs(c2))=0
+            cfl=0.; //std::max(fabs(c1),fabs(c2))=0
         }
         else
             if (c1>=0.){
-                //supercritical flow, from left to right : we have _max(abs(c1),abs(c2))=c2>0
+                //supercritical flow, from left to right : we have std::max(abs(c1),abs(c2))=c2>0
                 f1=qg;
                 f2=qg*ug+grav*hg*hg*0.5;
                 f3=qg*vg;
-                cfl=c2; //_max(fabs(c1),fabs(c2))=c2>0
+                cfl=c2; //std::max(fabs(c1),fabs(c2))=c2>0
             }
             else
                 if (c2<=0.)
                 {
-                    //supercritical flow, from right to left : we have _max(abs(c1),abs(c2))=-c1>0
+                    //supercritical flow, from right to left : we have std::max(abs(c1),abs(c2))=-c1>0
                     f1=qd;
                     f2=qd*ud+grav*hd*hd*0.5;
                     f3=qd*vd;
-                    cfl=fabs(c1); //_max(fabs(c1),fabs(c2))=fabs(c1)
+                    cfl=fabs(c1); //std::max(fabs(c1),fabs(c2))=fabs(c1)
                 }
                 else
                 { //subcritical flow
@@ -203,7 +204,7 @@ void TWorld::F_HLL(double hg,double ug,double vg,double hd,double ud,double vd)
                     f1=(c2*qg-c1*qd)*tmp+c1*c2*(hd-hg)*tmp;
                     f2=(c2*(qg*ug+grav*hg*hg*0.5)-c1*(qd*ud+grav*hd*hd*0.5))*tmp+c1*c2*(qd-qg)*tmp;
                     f3=(c2*(qg*vg)-c1*(qd*vd))*tmp+c1*c2*(hd*vd-hg*vg)*tmp;
-                    cfl = _max(fabs(c1),fabs(c2));
+                    cfl = std::max(fabs(c1),fabs(c2));
                 }
     }
     HLL2_cfl = cfl;
@@ -227,7 +228,7 @@ void TWorld::F_Rusanov(double hg,double ug,double vg,double hd,double ud,double 
     }
     else
     {
-        c = _max(fabs(ug)+sqrt(grav*hg),fabs(ud)+sqrt(grav*hd));
+        c = std::max(fabs(ug)+sqrt(grav*hg),fabs(ud)+sqrt(grav*hd));
         double cd = c*0.5;
         double qd = ud*hd;
         double qg = ug*hg;

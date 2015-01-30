@@ -42,7 +42,7 @@
 #include <QMutex>
 
 #include "CsfMap.h"
-#include "mmath.h"
+#include "io.h"
 #include "error.h"
 #include "swatre_p.h"
 #include "swatre_g.h"
@@ -56,7 +56,7 @@
 #define DEBUG(s) emit debug(QString(s))
 
 //#define mwrite(name) WriteMap(QString(resultDir+name))
-#define report(name) WriteMapSeries(resultDir,QString(name), printstep)
+#define report(raster, name) WriteMapSeries(raster, resultDir,QString(name), printstep)
 
 // defines to make life easier
 
@@ -156,7 +156,7 @@
 ReadMap(cTMap *Mask, QString name) put a map on this list
 */
 typedef struct MapListStruct {
-    CTMap *m;
+    cTMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------list
 /// linked list structure for network in kin wave
@@ -216,7 +216,7 @@ public:
     long _nrRows;
     long _nrCols;
 
-    /// map management structure, automatic adding and deleting of all CTMap variables
+    /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
 
@@ -371,12 +371,12 @@ public:
 
     // functions in lisDataInit.cpp
     void InitMapList(void);
-    CTMap *NewMap(double value);
-    CTMap *ReadMap(cTMap *Mask, QString name);
+    cTMap *NewMap(double value);
+    cTMap *ReadMap(cTMap *Mask, QString name);
     void DestroyData(void);
-    CTMap *InitMask(QString name);
-    CTMap *InitMaskChannel(QString name);
-    CTMap *InitMaskTiledrain(QString name);
+    cTMap *InitMask(QString name);
+    cTMap *InitMaskChannel(QString name);
+    cTMap *InitMaskTiledrain(QString name);
     void InitTiledrains(void); //VJ 110112
     void InitBuffers(void); //VJ 110112
     void InitChannel(void); //VJ 110112
@@ -400,18 +400,18 @@ public:
     //FLOOD according to LISFLOOD
     double floodExplicit();
     //FLOOD according to FULLSWOF2D
-    double fullSWOF2Do2(CTMap *h, CTMap *u, CTMap *v, CTMap *z);//, CTMap *q1, CTMap *q2);
-    double fullSWOF2Do1(CTMap *h, CTMap *u, CTMap *v, CTMap *z);//, CTMap *q1, CTMap *q2);
-    void findFloodDomain(CTMap *_h);
+    double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
+    double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
+    void findFloodDomain(cTMap *_h);
     double limiter(double a, double b);
-    void MUSCL(CTMap *ah, CTMap *au, CTMap *av, CTMap *az);
-    void ENO(CTMap *_h, CTMap *_u, CTMap *_v, CTMap *_z);
-    void simpleScheme(CTMap *_h, CTMap *_u, CTMap *_v);
+    void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
+    void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
+    void simpleScheme(cTMap *_h, cTMap *_u, cTMap *_v);
     double maincalcflux(double dt, double dt_max);
-    void maincalcscheme(double dt, CTMap *he, CTMap *ve1, CTMap *ve2,CTMap *hes, CTMap *ves1, CTMap *ves2);
+    void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
     void Fr_ManningSf(double h, double u, double v, double cf);
-    void setZero(CTMap *_h, CTMap *_u, CTMap *_v);
+    void setZero(cTMap *_h, cTMap *_u, cTMap *_v);
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -427,10 +427,10 @@ public:
     int verif, iter_n;
 
     void Pestmobilisation(void);
-//    void TransPesticide(int pitRowNr, int pitColNr,CTMap *_LDD,CTMap *_Qn, CTMap *_Vup, CTMap *_Vupold,CTMap *_WHoutavg,
-//                         CTMap *_WHoutavgold,CTMap *_RainNet,CTMap *_CM_N,CTMap *_C_N,CTMap *_CS_N,CTMap *_InfilVol,CTMap *_InfilVolold,
-//                         CTMap *_DX,CTMap *_C,CTMap *_Cold,CTMap *_CS,CTMap *_CM,CTMap *_Kfilm,CTMap *_epsil,
-//                         CTMap *_KD,CTMap *_poro,CTMap *_rhob,CTMap *_kr,CTMap *_Qin, CTMap *_Sin,CTMap *_Q,CTMap *_Alpha,CTMap *_Qpn);
+//    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
+//                         cTMap *_WHoutavgold,cTMap *_RainNet,cTMap *_CM_N,cTMap *_C_N,cTMap *_CS_N,cTMap *_InfilVol,cTMap *_InfilVolold,
+//                         cTMap *_DX,cTMap *_C,cTMap *_Cold,cTMap *_CS,cTMap *_CM,cTMap *_Kfilm,cTMap *_epsil,
+//                         cTMap *_KD,cTMap *_poro,cTMap *_rhob,cTMap *_kr,cTMap *_Qin, cTMap *_Sin,cTMap *_Q,cTMap *_Alpha,cTMap *_Qpn);
 
     double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
     double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
@@ -459,14 +459,14 @@ public:
     void Infiltration(void);
     void InfiltrationFlood(void);
     void InfiltrationFloodNew(void);
-    void InfilSwatre(CTMap *_WH);
-//    void InfilGreenAmpt1(CTMap *_WH);  //OBSOLETE
-//    void InfilSmithParlange1(CTMap *_WH); //OBSOLETE
-    void InfilMorelSeytoux1(CTMap *_WH);
-//    void InfilKsat(CTMap *_WH); //OBSOLETE
+    void InfilSwatre(cTMap *_WH);
+//    void InfilGreenAmpt1(cTMap *_WH);  //OBSOLETE
+//    void InfilSmithParlange1(cTMap *_WH); //OBSOLETE
+    void InfilMorelSeytoux1(cTMap *_WH);
+//    void InfilKsat(cTMap *_WH); //OBSOLETE
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
-    void InfilMethods(CTMap *_Ksateff, CTMap *_WH, CTMap *_fpot, CTMap *_fact, CTMap *_L1, CTMap *_L2, CTMap *_FFull);
+    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void OverlandFlowNew(void);
@@ -502,23 +502,23 @@ public:
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;
     double minReportFloodHeight;
-    double correctMassBalance(double sum1, CTMap *M, double minV);
-    void Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Q, CTMap *_Qn, CTMap *_Qs,
-                   CTMap *_Qsn, CTMap *_q, CTMap *_Alpha, CTMap *_DX, CTMap *Vol, CTMap*SedVol,
-                   CTMap *_StorVol, CTMap*_StorVolSed);
+    double correctMassBalance(double sum1, cTMap *M, double minV);
+    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs,
+                   cTMap *_Qsn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *Vol, cTMap*SedVol,
+                   cTMap *_StorVol, cTMap*_StorVolSed);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                           double Sji1, double alpha, double dt, double dx);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
-    void routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
-                                CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
-                                CTMap *_Alpha, CTMap *_DX, CTMap*_Vol, CTMap*_Sed);
-    void upstream(CTMap *_LDD, CTMap *_M, CTMap *out);
-    void KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha, CTMap *_DX);
+    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
+                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                                cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);
+    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
+    void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
 
-    // QVector <CTMap> Substance;
+    // QVector <cTMap> Substance;
 
     //SWATRE
     /// filenames for Swatre soil information
@@ -540,8 +540,8 @@ public:
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
 
-    SOIL_MODEL *InitSwatre(CTMap *profileMap);//, QString initHeadMaps, CTMap *tiledepthMap, double dtMin);
-    void SwatreStep(SOIL_MODEL *s, CTMap *_WH, CTMap *_fpot, CTMap *_drain, CTMap *_theta, CTMap *where);
+    SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
+    void SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
     //VJ 111104 old stuff, no longer used but kept for now

@@ -32,7 +32,9 @@ functions: \n
 - void TWorld::TileFlow(void)\n
  */
 
+#include <algorithm>
 #include "model.h"
+#include "operation.h"
 
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing from the surface to the tiledrain system
@@ -46,9 +48,9 @@ void TWorld::ToTiledrain(void)
          {
             double fractiontotile = _dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc));
             // fraction based on velocity
-            fractiontotile = _max(TileSinkhole->Drc/(_dx*DX->Drc),fractiontotile);
+            fractiontotile = std::max(TileSinkhole->Drc/(_dx*DX->Drc),fractiontotile);
             // fraction based on surface, take the largest
-            fractiontotile = _min(1.0, fractiontotile);
+            fractiontotile = std::min(1.0, fractiontotile);
             // not more than 1.0
 
             double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
@@ -110,9 +112,9 @@ void TWorld::TileFlow(void)
    if (!SwitchIncludeTile)
       return;
 
-   tm->fill(0);
-   tma->fill(0);
-   tmb->fill(0);
+   fill(*tm, 0.0);
+   fill(*tma, 0.0);
+   fill(*tmb, 0.0);
    // calculate new Tile WH , WidthUp and Volume
    FOR_ROW_COL_MV_TILE
    {
@@ -122,7 +124,7 @@ void TWorld::TileFlow(void)
       Tileq->Drc = 0;
       //TileQoutflow->Drc = 0;
 
-      //TileDrainSoil->Drc = _min(TileDrainSoil->Drc, TileHeight->Drc );
+      //TileDrainSoil->Drc = std::min(TileDrainSoil->Drc, TileHeight->Drc );
       // cannot have more water than fits in size
       TileWaterVol->Drc += TileDrainSoil->Drc * TileWidth->Drc * TileDX->Drc;
       // add inflow to Tile in m3, tiledrainsoil is in m per timestep
@@ -141,8 +143,8 @@ void TWorld::TileFlow(void)
    CalcVelDischTile();
 
    TileQn->setMV();
-   TileQsn->fill(0);
-   QinKW->fill(0);
+   fill(*TileQsn, 0.0);
+   fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE
    {
@@ -153,8 +155,8 @@ void TWorld::TileFlow(void)
       }
    }
 
-   TileQn->cover(LDD, 0); // avoid missing values around Tile for adding to Qn for output
-   TileQs->cover(LDD, 0);
+   cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
+   cover(*TileQs, *LDD, 0);
 
    FOR_ROW_COL_MV_TILE
    {
