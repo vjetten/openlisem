@@ -610,7 +610,7 @@ void TWorld::MUSCL(CTMap *h,CTMap *u,CTMap *v,CTMap *z,
         delta_u2 = u->Data[r][c+1] - u->Drc;
         delta_v2 = v->Data[r][c+1] - v->Drc;
 
-        if (IS_MV_REAL8(&LDD->Data[r+1][c]))
+        if (pcr::isMV(LDD->Data[r+1][c]))
         {
             delta_h1 = delta_h2;
             delta_u1 = delta_u2;

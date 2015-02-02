@@ -247,7 +247,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
     //      for(int r = 0; r < _M->nrRows(); r++)
     for(int c=0; c < _M->nrCols(); c++)
       {
-        if(!IS_MV_REAL8(&_M->Drc))
+        if(!pcr::isMV(_M->Drc))
           {
             mapData << _M->Drc;
             maxV = std::max(maxV, _M->Drc);

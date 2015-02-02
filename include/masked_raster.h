@@ -23,23 +23,23 @@ public:
 
                    MaskedRaster        (MaskedRaster&& other)=default;
 
-  virtual          ~MaskedRaster       ()=default;
+    virtual        ~MaskedRaster       ()=default;
 
-  MaskedRaster&    operator=           (MaskedRaster const& other)=default;
+    MaskedRaster&  operator=           (MaskedRaster const& other)=default;
 
-  MaskedRaster&    operator=           (MaskedRaster&& other)=default;
+    MaskedRaster&  operator=           (MaskedRaster&& other)=default;
 
-  bool             is_mv               (size_t index) const;
+    bool           is_mv               (size_t index) const;
 
-  bool             is_mv               (size_t row,
+    bool           is_mv               (size_t row,
                                         size_t col) const;
 
-  void             set_mv              (size_t index);
+    void           set_mv              (size_t index);
 
-  void             set_mv              (size_t row,
+    void           set_mv              (size_t row,
                                         size_t col);
 
-  void             set_all_mv          ();
+    void           set_all_mv          ();
 
 private:
 

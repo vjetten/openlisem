@@ -201,7 +201,7 @@ void TWorld::FlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                   && !IS_MV_REAL8(&TC->Data[r+dx[i]][c+dy[i]]))
+                   && !pcr::isMV(TC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
                   maxtc = std::max(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
@@ -334,7 +334,7 @@ void TWorld::ChannelFlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                   && !IS_MV_REAL8(&ChannelTC->Data[r+dx[i]][c+dy[i]]))
+                   && !pcr::isMV(ChannelTC->Data[r+dx[i]][c+dy[i]]))
                {
                   avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
                   maxtc = std::max(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);

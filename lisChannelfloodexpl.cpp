@@ -84,7 +84,7 @@ double TWorld::floodExplicit()
                 FOR_ROW_COL_MV
                         if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                 {
                     if (hmx->Drci > 0)
                         tma->Drc = 1;
@@ -101,7 +101,7 @@ double TWorld::floodExplicit()
                 {
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                     {
                         Hx->Drc = DEM->Drci + hmx->Drci;
                         hx->Drc = hmx->Drci;
@@ -201,7 +201,7 @@ double TWorld::floodExplicit()
                 {
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                     {
                         Hx->Drc = DEM->Drci + hmx->Drci;
                         hx->Drc = hmx->Drci;

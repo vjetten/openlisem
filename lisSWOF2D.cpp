@@ -603,7 +603,7 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
     long double ty = dt/dy;
     // Solution of the equation of mass conservation (First equation of Saint venant)
     // f1 comes from MUSCL calculations
-    if ((r > _nrRows-2 || c > _nrCols-2) || (IS_MV_REAL8(&LDD->Data[r][c+1]) || IS_MV_REAL8(&LDD->Data[r+1][c])))
+    if ((r > _nrRows-2 || c > _nrCols-2) || (pcr::isMV(LDD->Data[r][c+1]) || pcr::isMV(LDD->Data[r+1][c])))
       hes->Drc = he->Drc;
     else
       hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
@@ -663,7 +663,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   dty = dt_max;
 
   FOR_ROW_COL_MV_MV
-      if (c > 0 && !IS_MV_REAL8(&LDD->Data[r][c-1]))
+      if (c > 0 && !pcr::isMV(LDD->Data[r][c-1]))
   {
     h1d->Data[r][c-1] = std::max(0.0, h1r->Data[r][c-1] - std::max(0.0,  delz1->Data[r][c-1]));
     h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->Data[r][c-1]));
@@ -701,7 +701,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   }}
 
   FOR_ROW_COL_MV_MV
-  if(r > 0 && !IS_MV_REAL8(&LDD->Data[r-1][c]))
+  if(r > 0 && !pcr::isMV(LDD->Data[r-1][c]))
   {
 
     h2d->Data[r-1][c] = std::max(0.0, h2r->Data[r-1][c] - std::max(0.0,  delz2->Data[r-1][c]));
@@ -956,11 +956,11 @@ void TWorld::findFloodDomain(cTMap *_h)
 {
   for (int r = 1; r < _nrRows-1; r++)
     for (int c = 1; c < _nrCols-1; c++)
-      if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-         !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-         !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-         !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
-         !IS_MV_REAL8(&LDD->Data[r][c+1]))
+      if(!pcr::isMV(LDD->Data[r][c]) &&
+         !pcr::isMV(LDD->Data[r-1][c]) &&
+         !pcr::isMV(LDD->Data[r+1][c]) &&
+         !pcr::isMV(LDD->Data[r][c-1]) &&
+         !pcr::isMV(LDD->Data[r][c+1]))
         {
           if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
             {
@@ -1010,9 +1010,9 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
       fill(*delz2, 0.0);
       for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
-          if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-             !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-             !IS_MV_REAL8(&LDD->Data[r][c-1])
+          if(!pcr::isMV(LDD->Data[r][c]) &&
+             !pcr::isMV(LDD->Data[r-1][c]) &&
+             !pcr::isMV(LDD->Data[r][c-1])
              )
             {
               delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
@@ -1099,11 +1099,11 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
 
       for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
-          if(!IS_MV_REAL8(&LDD->Data[r][c]) &&
-             !IS_MV_REAL8(&LDD->Data[r-1][c]) &&
-             !IS_MV_REAL8(&LDD->Data[r+1][c]) &&
-             !IS_MV_REAL8(&LDD->Data[r][c-1]) &&
-             !IS_MV_REAL8(&LDD->Data[r][c+1]))
+          if(!pcr::isMV(LDD->Data[r][c]) &&
+             !pcr::isMV(LDD->Data[r-1][c]) &&
+             !pcr::isMV(LDD->Data[r+1][c]) &&
+             !pcr::isMV(LDD->Data[r][c-1]) &&
+             !pcr::isMV(LDD->Data[r][c+1]))
             {
 
               delta_z1->Drc = z->Data[r][c+1] - z->Drc;

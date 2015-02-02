@@ -127,8 +127,9 @@ void TWorld::Totals(void)
     // sum outflow m3 for all timesteps for the outlet
     FOR_ROW_COL_MV
     {
-        if (LDD->Drc == 5)
+        if (LDD->Drc == 5) {
             Qtot += Qn->Drc*_dt;
+        }
     }
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance

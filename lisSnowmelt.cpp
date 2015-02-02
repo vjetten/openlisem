@@ -162,7 +162,7 @@ void TWorld::SnowmeltMap(void)
 
       for (int r = 0; r < _nrRows; r++)
          for (int c = 0; c < _nrCols; c++)
-            if (!IS_MV_REAL8(&LDD->Drc) && IS_MV_REAL8(&_M->Drc))
+            if (!pcr::isMV(LDD->Drc) && pcr::isMV(_M->Drc))
             {
                QString sr, sc;
                sr.setNum(r); sc.setNum(c);

@@ -95,7 +95,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
          s->pixel[r*_nrCols+c].h[n] = inith->Data[r][c];
 
          // find depth of tilenode
-         if (!IS_MV_REAL8(&TileDepth->Drc) && TileDepth->Drc > 0)
+         if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
          {
             // NOTE depth is in m while node info is in cm, so *100
             // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp

@@ -159,14 +159,14 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
     // first guess Qkx, VERY important
 
-    Qkx   = std::max(Qkx, 0.0);
+    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = std::max(Qkx, MIN_FLUX);
+        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, MIN_FLUX);
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
@@ -240,13 +240,13 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
@@ -278,14 +278,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                 r = rowNr+dy[i];
                 c = colNr+dx[i];
 
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+                if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                     ldd = (int) _LDD->Drc;
                 else
                     continue;
 
                 if (INSIDE(r, c) &&
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
+                        !pcr::isMV(_LDD->Drc) )
                 {
                     Qin += _Qn->Drc;
                     QinKW->Data[rowNr][colNr] = Qin;
@@ -468,13 +468,13 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
@@ -506,14 +506,14 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 r = rowNr+dy[i];
                 c = colNr+dx[i];
 
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+                if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                     ldd = (int) _LDD->Drc;
                 else
                     continue;
 
                 if (INSIDE(r, c) &&
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
+                        !pcr::isMV(_LDD->Drc) )
                 {
                     Qin += _Qn->Drc;
                     Sin += _Qsn->Drc;
@@ -564,14 +564,14 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // if no MVs and row,col flows to central cell r,c
             if (  //INSIDE(row, col) &&
-                  // !IS_MV_REAL4(&_LDD->Data[row][col]) &&
+                  // !pcr::isMV(_LDD->Data[row][col]) &&
                   FLOWS_TO(ldd, row, col, r, c)
                   )
             {
@@ -603,7 +603,7 @@ void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha,
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
@@ -662,13 +662,13 @@ long TWorld::SortNetwork(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Ksort)
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {

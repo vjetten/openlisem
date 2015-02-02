@@ -134,7 +134,7 @@ void cTMap::MakeMap(cTMap *dup, REAL8 value)
 
   for(int r=0; r < nrRows(); r++)
     for(int c=0; c < nrCols(); c++)
-      if (!IS_MV_REAL8(&dup->Data[r][c]))
+      if (!pcr::isMV(dup->Data[r][c]))
         {
           Data[r][c] = value;
         }
