@@ -3,7 +3,20 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
     ${CMAKE_CURRENT_BINARY_DIR}/.
 )
-SET(SOURCES
+
+SET(LIB_SOURCES
+    CsfMap
+    error
+    io
+)
+ADD_LIBRARY(liblisem STATIC
+    ${LIB_SOURCES}
+)
+SET_TARGET_PROPERTIES(liblisem
+    PROPERTIES
+        OUTPUT_NAME lisem)
+
+SET(APP_SOURCES
     lisTotalsMB
     ui_full/LisUItreecheck
     ui_full/LisUIModel
@@ -15,8 +28,6 @@ SET(SOURCES
     ui_full/lisemqt
     ui_full/LisUIplot
     ui_full/LisUImapplot
-    CsfMap
-    io
     lisChannelflow
     lisTiledrainflow
     lisDataInit
@@ -59,9 +70,10 @@ ADD_EXECUTABLE(lisem
     ${MOC_SOURCES}
     ${UI_SOURCES}
     ${RCC_SOURCES}
-    ${SOURCES}
+    ${APP_SOURCES}
 )
 TARGET_LINK_LIBRARIES(lisem
+    liblisem
     ${LISEM_EXTERNAL_LIBRARIES}
     stdc++
 )
