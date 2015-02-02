@@ -40,225 +40,102 @@
  - void cTMap::WriteMapSeries(QString Dir, QString Name, int count) \n
 */
 
-
+#include <memory>
+#include <cassert>
 #include "CsfMap.h"
 #include "error.h"
-#include <QtGui>
 
-//---------------------------------------------------------------------------
-cTMap::cTMap()
+
+bool cTMap::created() const
 {
-  Created = false;
-  nrRows = 0;
-  nrCols = 0;
-  MapName = "";
-  PathName = "";
+    return Data.nr_cells() > 0;
 }
-//---------------------------------------------------------------------------
-cTMap::~cTMap()
+
+
+int cTMap::nrRows() const
 {
-  KillMap();
+    return static_cast<int>(Data.nr_rows());
 }
-//---------------------------------------------------------------------------
-void cTMap::KillMap()
+
+
+int cTMap::nrCols() const
 {
-  Data = MaskedRaster<REAL8>();
-  Created = false;
+    return static_cast<int>(Data.nr_cols());
 }
-//---------------------------------------------------------------------------
-void cTMap::GetMapHeader(QString Name)
+
+
+double cTMap::north() const
 {
-  MAP *m = Mopen(Name.toAscii().constData(), M_READ);
-  if (m == NULL)
-    Error(QString("Map %1 cannot be opened.").arg(Name));
-  //   {
-  //      Error(QString("Map %1 cannot be opened.").arg(Name));
-  //      throw 1;
-  //   }
-
-  MH = m->raster;
-  projection = m->main.projection;
-
-  // easier to separate these
-  nrRows = (int)MH.nrRows;
-  nrCols = (int)MH.nrCols;
-
-  Mclose(m);
+    return Data.north();
 }
-//---------------------------------------------------------------------------
-/// make an empty map structure
-void cTMap::CreateMap(QString Name)
+
+
+double cTMap::west() const
 {
-  // if exist delete main map data structure and set Created to false
-  if (Created)
-    KillMap();
-
-  // now get the header for nrrows and nrcols
-  GetMapHeader(Name);
-
-  Data = MaskedRaster<REAL8>(nrRows, nrCols);
-
-  Created = true;
+    return Data.west();
 }
-//---------------------------------------------------------------------------
-// make an empty a map and load it from disk
-bool cTMap::LoadFromFile()
+
+
+double cTMap::cellSize() const
 {
-  MAP *m;
-  QFileInfo fi(PathName);
-
-  if (!fi.exists())
-    Error(QString("Map %1 does not exist.").arg(PathName));
-  //   {
-  //      Error(QString("Map %1 does not exist.").arg(PathName));
-  //      throw 1;
-  //   }
-
-  // make map structure
-  CreateMap(PathName);
-
-  if (!Created)
-    return(false);
-
-  MapName = PathName;
-
-  m = Mopen(MapName.toAscii().constData(), M_READ);
-
-  if (!m)
-    return(false);
-
-  RuseAs(m, CR_REAL8); //RgetCellRepr(m));
-  for(int r=0; r < nrRows; r++)
-    RgetSomeCells(m, (UINT4)r*nrCols, (UINT4)nrCols, Data[r]);
-
-  if (RgetCellRepr(m) == CR_REAL8)
-    ResetMinMax();
-
-  Mclose(m);
-  return(true);
+    return Data.cell_size();
 }
-//---------------------------------------------------------------------------
+
+
+QString const& cTMap::MapName() const
+{
+    return _MapName;
+}
+
+
+QString const& cTMap::PathName() const
+{
+    return _PathName;
+}
+
+
+void cTMap::setMapName(
+    QString const& mapName)
+{
+    _MapName = mapName;
+}
+
+
+void cTMap::setPathName(
+    QString const& pathName)
+{
+    _PathName = pathName;
+}
+
+
+void cTMap::setMV()
+{
+    Data.set_all_mv();
+}
+
+
+/// void cTMap::KillMap()
+/// {
+///   Data = MaskedRaster<REAL8>();
+///   assert(!created());
+/// }
+
+
 // make a new map according to dup as a mask and filled with value
 void cTMap::MakeMap(cTMap *dup, REAL8 value)
 {
   if (dup == NULL)
     return;
-  //MH = dup->MH;
-  MH.minVal = value;
-  MH.maxVal = value;
-  nrRows = dup->nrRows;
-  nrCols = dup->nrCols;
-  MH.nrRows = nrRows;
-  MH.nrCols = nrCols;
-  MH.valueScale = dup->MH.valueScale;
-  MH.cellRepr = dup->MH.cellRepr;
-  MH.xUL = dup->MH.xUL;
-  MH.yUL = dup->MH.yUL;
-  MH.cellSize  = dup->MH.cellSize;
-  //MH.cellSizeY  = dup->MH.cellSizeX;
-  MH.angle = dup->MH.angle;
-  projection = dup->projection;
 
-  Data = MaskedRaster<REAL8>(nrRows, nrCols);
+  Data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
+      dup->west(), dup->cellSize());
 
-  for(int r = 0; r < nrRows; r++)
-    SetMemMV(Data[r],nrCols,CR_REAL8);
+  Data.set_all_mv();
 
-  for(int r=0; r < nrRows; r++)
-    for(int c=0; c < nrCols; c++)
-      if (!IS_MV_REAL8(&dup->Data[r][c]))
+  for(int r=0; r < nrRows(); r++)
+    for(int c=0; c < nrCols(); c++)
+      if (!pcr::isMV(dup->Data[r][c]))
         {
           Data[r][c] = value;
         }
-
-  Created = true;
 }
-//---------------------------------------------------------------------------
-void cTMap::ResetMinMax(void)
-{
-  REAL8 minv = 1e30, maxv = -1e30;
-
-  if (!Created)
-    return;
-
-  for(int r=0; r < nrRows; r++)
-    for(int c=0; c < nrCols; c++)
-      if (!IS_MV_REAL8(&Data[r][c]))
-        {
-          if (maxv < Data[r][c]) maxv = Data[r][c];
-          if (minv > Data[r][c]) minv = Data[r][c];
-        }
-
-  MH.minVal = minv;
-  MH.maxVal = maxv;
-}
-//---------------------------------------------------------------------------
-/// write a map to disk
-void cTMap::WriteMap(QString Name)
-{
-  MAP *out;
-  long r, c;
-  REAL4 *Dt;
-
-  if (!Created)
-    return;
-
-  if (Name.isEmpty())
-    {
-      ErrorString = "Cannot write file, file name empty";
-      throw 1;
-    }
-
-  ResetMinMax();
-
-  Dt = new REAL4[nrCols];
-  // make an array for output
-
-  MH.cellRepr = CR_REAL4;
-  out = Rcreate(Name.toAscii().constData(),nrRows, nrCols, (CSF_CR)MH.cellRepr, VS_SCALAR,
-                (CSF_PT)projection, MH.xUL, MH.yUL, MH.angle, MH.cellSize);
-  RuseAs(out, CR_REAL4);
-
-  for(r=0; r < nrRows; r++)
-    {
-      for(c=0; c < nrCols; c++)
-        Dt[c] = (REAL4)Data[r][c];
-
-
-      if (RputRow(out, r, Dt) != (UINT4)nrCols)
-        {
-          ErrorString = "rputrow write error with" + Name;
-          throw 1;
-        }
-    }
-
-  delete Dt;
-
-  Mclose(out);
-
-}
-//---------------------------------------------------------------------------
-/// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
-void cTMap::WriteMapSeries(QString Dir, QString Name, int count)
-{
-  QString path;
-  QFileInfo fi(Name);
-
-  if (Name.indexOf(".") < 0)
-    {
-      QString nam, dig;
-
-      nam = Name + "00000000";
-
-      nam.remove(7, 10);
-      dig = QString("%1").arg(count,4,10,QLatin1Char('0'));
-      dig.insert(1,".");
-      Name = nam + dig;
-
-    }
-  path = Dir + Name;
-  WriteMap(path);
-}
-//---------------------------------------------------------------------------
-
-

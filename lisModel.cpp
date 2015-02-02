@@ -268,32 +268,32 @@ void TWorld::setupDisplayMaps()
 {
     if (op.DrawMap1)
     {
-        op.DrawMap1->KillMap();
-        op.DrawMap2->KillMap();
-        op.DrawMap3->KillMap();
-        op.DrawMap4->KillMap();
-        op.DrawMap5->KillMap();
-        op.DrawMap6->KillMap();
-        op.DrawMap7->KillMap();
-        op.baseMap->KillMap();
-        op.baseMapDEM->KillMap();
-        op.channelMap->KillMap();
-        op.roadMap->KillMap();
-        op.houseMap->KillMap();
+        delete op.DrawMap1;
+        delete op.DrawMap2;
+        delete op.DrawMap3;
+        delete op.DrawMap4;
+        delete op.DrawMap5;
+        delete op.DrawMap6;
+        delete op.DrawMap7;
+        delete op.baseMap;
+        delete op.baseMapDEM;
+        delete op.channelMap;
+        delete op.roadMap;
+        delete op.houseMap;
     }
 
-    op.DrawMap1 = new CTMap();
-    op.DrawMap2 = new CTMap();
-    op.DrawMap3 = new CTMap();
-    op.DrawMap4 = new CTMap();
-    op.DrawMap5 = new CTMap();
-    op.DrawMap6 = new CTMap();
-    op.DrawMap7 = new CTMap();
-    op.baseMap = new CTMap();
-    op.baseMapDEM = new CTMap();
-    op.channelMap = new CTMap();
-    op.roadMap = new CTMap();
-    op.houseMap = new CTMap();
+    op.DrawMap1 = new cTMap();
+    op.DrawMap2 = new cTMap();
+    op.DrawMap3 = new cTMap();
+    op.DrawMap4 = new cTMap();
+    op.DrawMap5 = new cTMap();
+    op.DrawMap6 = new cTMap();
+    op.DrawMap7 = new cTMap();
+    op.baseMap = new cTMap();
+    op.baseMapDEM = new cTMap();
+    op.channelMap = new cTMap();
+    op.roadMap = new cTMap();
+    op.houseMap = new cTMap();
 
     op.DrawMap1->MakeMap(LDD, 0);
     op.DrawMap2->MakeMap(LDD, 0);

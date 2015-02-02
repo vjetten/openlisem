@@ -32,7 +32,10 @@ functions: \n
 - void TWorld::RainfallMap(void) \n
  */
 
+#include <memory>
+#include "io.h"
 #include "model.h"
+#include "operation.h"
 
 
 //---------------------------------------------------------------------------
@@ -113,7 +116,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         }
     }
 
-    int nr = RainZone->countUnits();
+    int nr = countUnits(*RainZone);
     if (nr != nrStations-1)
     {
         ErrorString = QString("Number of stations in rainfall file (%1) does not match number of units in ID map (%2)").arg(nrStations-1).arg(nr);
@@ -236,20 +239,20 @@ void TWorld::RainfallMap(void)
 
     if (RainfallSeriesM[rainplace].isMap)
     {
-        CTMap *_M = new CTMap();
-        _M->PathName = RainfallSeriesM[rainplace].name;
-        bool res = _M->LoadFromFile();
+        auto _M = std::unique_ptr<cTMap>(new cTMap);
+        _M->setPathName(RainfallSeriesM[rainplace].name);
+        bool res = LoadFromFile(*_M);
         if (!res)
         {
-            ErrorString = "Cannot find map " +_M->PathName;
+            ErrorString = "Cannot find map " +_M->PathName();
             throw 1;
         }
 
         //        for (int r = 0; r < _nrRows; r++)
         //            for (int c = 0; c < _nrCols; c++)
-        //                if (!IS_MV_REAL8(&LDD->Drc) &&
+        //                if (!pcr::isMV(LDD->Drc) &&
         FOR_ROW_COL_MV
-                if (IS_MV_REAL8(&_M->Drc))
+                if (pcr::isMV(_M->Drc))
         {
             QString sr, sc;
             sr.setNum(r); sc.setNum(c);
@@ -262,8 +265,6 @@ void TWorld::RainfallMap(void)
             if (!rainStarted && Rain->Drc  > 0)
                 rainStarted = true;
         }
-
-        _M->KillMap();
     }
     else
     {

@@ -34,8 +34,10 @@ functions: \n
 - void TWorld::ChannelFlood(void) Calculate channelflood height maps (hmx, QFlood, UVFlood) and FloodDomain
 */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
+#include "operation.h"
 #include "global.h"
 
 #define MINHMX 0.0
@@ -46,40 +48,40 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow(void)
 {
-    tmc->fill(0);
+    fill(*tmc, 0.0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)
         {
             double levee = ChannelLevee->Drc;
             double chdepth = ChannelDepth->Drc + levee;
-            double dH = _max(0, ChannelWH->Drc-chdepth);
+            double dH = std::max(0.0, ChannelWH->Drc-chdepth);
 
             if (fabs(hmx->Drc - dH) <= 0)// 0.001)
                 continue;
 
             double fc = ChannelWidthUpDX->Drc/_dx;
             // fraction reaching the channel
-            double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
+            double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
             // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
             // can be negative if channelwh is below channel depth and low hmx level
 
-
+/*
             double _hmx = hmx->Drc;
             double Vollat = 0;
             double surfch = ChannelWidthUpDX->Drc * DX->Drc;
             double surfadj = ChannelAdj->Drc * DX->Drc;
-/*
+
             // 1) channel is heigher than flood, flow outwards
             if (dH > hmx->Drc)
             {
-                Vollat = _min(sqrt(dH*9.81)*_dt*dH*DX->Drc, dH*surfch);   // vol = V*dt*A, outflow lateral by gravity
+                Vollat = std::min(sqrt(dH*9.81)*_dt*dH*DX->Drc, dH*surfch);   // vol = V*dt*A, outflow lateral by gravity
 tmc->Drc = Vollat;
                 dH -= Vollat/surfch; // new channel level
                 _hmx += Vollat/surfadj; // new flood level
                 if (dH < _hmx) // more water flowed out than possible just make an equilibrium
                 {
-                    hmx->Drc = _min(hmx->Drc, levee);
+                    hmx->Drc = std::min(hmx->Drc, levee);
                     // cutoff hmx at levee but can be smaller
                     hmx->Drc += whlevel;
                     ChannelWH->Drc = whlevel + chdepth;
@@ -94,13 +96,13 @@ tmc->Drc = Vollat;
             else
             {                       //sqrt(_hmx*9.81)  UVflood->Drc
                // double V = pow(_hmx, 2/3)*sqrt(Grad->Drc)/N->Drc;
-                Vollat = _min(UVflood->Drc*_dt*_hmx*DX->Drc, _hmx*surfadj);   // flow into channel based on average Vflood
+                Vollat = std::min(UVflood->Drc*_dt*_hmx*DX->Drc, _hmx*surfadj);   // flow into channel based on average Vflood
 tmc->Drc = -Vollat;
                 _hmx -= Vollat/surfadj; // new flood level
                 dH += Vollat/surfch; // new channel level
                 if (_hmx < dH) // if too much flow, equilibrium
                 {
-                    hmx->Drc = _min(hmx->Drc, levee);
+                    hmx->Drc = std::min(hmx->Drc, levee);
                     // cutoff hmx at levee but can be smaller
                     hmx->Drc += whlevel;
                     ChannelWH->Drc = whlevel + chdepth;
@@ -114,7 +116,7 @@ tmc->Drc = -Vollat;
 */
 
 
-        //double whlevel = (ChannelWH->Drc - chdepth)*fc + _max(0.0, hmx->Drc-levee)*(1-fc);
+        //double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
         // new water level = weighed values of channel surplus level + hmx, levee is counted as barrier
         // can be negative if channelwh is below channel depth and low hmx level
 
@@ -123,7 +125,7 @@ tmc->Drc = -Vollat;
         // normally this goes by a wave velocity probably because water level is flat V = sqrt(gh)
         if (whlevel > 0)
           {
-            hmx->Drc = _min(hmx->Drc, levee);
+            hmx->Drc = std::min(hmx->Drc, levee);
             // cutoff hmx at levee but can be smaller
             hmx->Drc += whlevel;
             ChannelWH->Drc = whlevel + chdepth;
@@ -132,8 +134,8 @@ tmc->Drc = -Vollat;
         else
           {
             //qDebug() << nr << r << c << chdepth << whlevel << ChannelWH->Drc << ChannelWH->Drc+hmx->Drc/fc << hmx->Drc <<  fc;
-            ChannelWH->Drc = ChannelWH->Drc+_min(0.0,hmx->Drc-levee-MINHMX)/fc;
-            hmx->Drc = _min(MINHMX+levee, hmx->Drc);
+            ChannelWH->Drc = ChannelWH->Drc+std::min(0.0,hmx->Drc-levee-MINHMX)/fc;
+            hmx->Drc = std::min(MINHMX+levee, hmx->Drc);
           }
       }
     // ChannelWaterVol->Drc = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0 * ChannelDX->Drc;
@@ -147,7 +149,7 @@ tmc->Drc = -Vollat;
 
 //---------------------------------------------------------------------------
 // correct mass balance
-double TWorld::correctMassBalance(double sum1, CTMap *M, double minV)
+double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
 {
     double sum2 = 0;
     double n = 0;
@@ -168,7 +170,7 @@ double TWorld::correctMassBalance(double sum1, CTMap *M, double minV)
         if(M->Drc > minV)
         {
             M->Drc += dh;
-            M->Drc = _max(M->Drc , 0.0);
+            M->Drc = std::max(M->Drc , 0.0);
         }
     }
     return dh;
@@ -176,12 +178,12 @@ double TWorld::correctMassBalance(double sum1, CTMap *M, double minV)
 //---------------------------------------------------------------------------
 void TWorld::FloodSpuriousValues()
 {
-    tm->fill(0);
+    fill(*tm, 0.0);
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > F_extremeHeight)
         {
-            tm->Drc = hmx->getWindowAverage(r, c);
+            tm->Drc = getWindowAverage(*hmx, r, c);
         }
     }
 
@@ -190,7 +192,7 @@ void TWorld::FloodSpuriousValues()
         if ((hmx->Drc > F_extremeHeight*2) || (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
         {
             double htmp = hmx->Drc;
-            hmx->Drc = _min( tm->Drc, _min(hmx->Drc, Hmx->Drc));
+            hmx->Drc = std::min( tm->Drc, std::min(hmx->Drc, Hmx->Drc));
             qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
         }
     }
@@ -205,7 +207,7 @@ void TWorld::FloodBoundary()
         if (FloodEdge->Drc > 0 && hmx->Drc > 0)
         {
             //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
-            hmx->Drc = _max(0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
+            hmx->Drc = std::max(0.0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
             floodBoundaryTot += Qflood->Drc*_dt;
         }
     }
@@ -218,12 +220,12 @@ void TWorld::FloodBoundary()
 void TWorld::FloodMaxandTiming()
 {
     // floodwater volume and max flood map
-    FloodWaterVol->fill(0);
+    fill(*FloodWaterVol, 0.0);
     FOR_ROW_COL_MV
     {
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
-        floodHmxMax->Drc = _max(floodHmxMax->Drc, hmx->Drc);
+        floodHmxMax->Drc = std::max(floodHmxMax->Drc, hmx->Drc);
         if (hmx->Drc > minReportFloodHeight)
             floodTime->Drc += _dt/60;
         // for output
@@ -263,7 +265,7 @@ void TWorld::ChannelFlood(void)
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
-    double sumh_t = hmx->mapTotal();
+    double sumh_t = mapTotal(*hmx);
     double dtflood = 0;
 
     startFlood = false;
@@ -321,7 +323,7 @@ void TWorld::ChannelFlood(void)
     }
 
 
-    Hmx->copy(hmx);
+    copy(*Hmx, *hmx);
     // copy flood level for next dt
 
     FloodMaxandTiming();

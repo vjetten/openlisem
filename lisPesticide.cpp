@@ -111,11 +111,11 @@ void TWorld :: Pestmobilisation(void)
         C_N->Drc=C->Drc;
 
     }
-    CM_N->report("CM_N");
-    CS_N->report("CS_N");
-    C_N->report("C_N");
-    Pest->report("pest");
-//    WaterVolall->report("wva");
+    report(*CM_N, "CM_N");
+    report(*CS_N, "CS_N");
+    report(*C_N, "C_N");
+    report(*Pest, "pest");
+//    report(*WaterVolall, "wva");
    // double hoi1 = Pest->mapTotal();
     //qDebug() << hoi << hoi1;
     //      qDebug()<< "Q<:C"<< C->DrcOutlet <<"cm"<< CM->DrcOutlet << "CS"<< CS->DrcOutlet;

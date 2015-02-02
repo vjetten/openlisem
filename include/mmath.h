@@ -30,23 +30,23 @@
 #ifndef mmathH
 #define mmathH
 
-#include "CsfMap.h"
+/// #include "CsfMap.h"
 
-#define ADD 0
-#define SUB 1
-#define MUL 2
-#define DIV 3
-#define POW 4
-#define MIN 5  //VJ 041120 added this functionality
-#define MAX 6
-#define LARGER 7
-#define SMALLER 8
-#define LARGEREQUAL 9
-#define SMALLEREQUAL 10
-#define HIGHER 11
-#define LOWER 12
+/// #define ADD 0
+/// #define SUB 1
+/// #define MUL 2
+/// #define DIV 3
+/// #define POW 4
+/// #define MIN 5  //VJ 041120 added this functionality
+/// #define MAX 6
+/// #define LARGER 7
+/// #define SMALLER 8
+/// #define LARGEREQUAL 9
+/// #define SMALLEREQUAL 10
+/// #define HIGHER 11
+/// #define LOWER 12
 
-#define CTMap cTMap
+/// #define CTMap cTMap
 
 /*
 /// class defining some basic map algebra operations

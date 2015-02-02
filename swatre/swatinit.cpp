@@ -27,7 +27,7 @@
 \brief SWATRE: initialize soil profile with inithead maps data and clean up after run
 
 functions:
-- SOIL_MODEL * TWorld::InitSwatre(CTMap *profileMap, QString initHeadMaps, double minDt); \n
+- SOIL_MODEL * TWorld::InitSwatre(cTMap *profileMap, QString initHeadMaps, double minDt); \n
 - void TWorld::CloseSwatre(SOIL_MODEL *s); \n
 */
 
@@ -36,9 +36,9 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
-SOIL_MODEL *TWorld::InitSwatre(CTMap *profileMap)
+SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 //      QString initHeadMaps,
-//      CTMap *tiledepthMap,
+//      cTMap *tiledepthMap,
 //      double minDt)
 //initheadName, TileDepth, swatreDT);
 {
@@ -86,7 +86,7 @@ SOIL_MODEL *TWorld::InitSwatre(CTMap *profileMap)
       QString fname = QString("%1.%2").arg(initheadName).arg(n+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
-      CTMap *inith = ReadMap(LDD,fname);
+      cTMap *inith = ReadMap(LDD,fname);
       // get inithead information
 
 
@@ -95,7 +95,7 @@ SOIL_MODEL *TWorld::InitSwatre(CTMap *profileMap)
          s->pixel[r*_nrCols+c].h[n] = inith->Data[r][c];
 
          // find depth of tilenode
-         if (!IS_MV_REAL8(&TileDepth->Drc) && TileDepth->Drc > 0)
+         if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
          {
             // NOTE depth is in m while node info is in cm, so *100
             // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp

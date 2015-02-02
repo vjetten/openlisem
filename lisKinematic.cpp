@@ -30,9 +30,9 @@
   The routing functions use local variables because they are used for overland flow, channel flow, gully and tiledrain flow.
 
 functions: \n
-   - void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Q, CTMap *_Qn, CTMap *_Qs,
-                  CTMap *_Qsn, CTMap *_q, CTMap *_Alpha, CTMap *_DX, CTMap *Vol, CTMap *SedVol,
-                  CTMap *_StorVol, CTMap *_StorVolSed);\n
+   - void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs,
+                  cTMap *_Qsn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *Vol, cTMap *SedVol,
+                  cTMap *_StorVol, cTMap *_StorVolSed);\n
    - double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);\n
    - double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
                          double Sji1, double alpha, double dt, double dx);\n
@@ -40,6 +40,7 @@ functions: \n
  */
 
 #include "model.h"
+#include "operation.h"
 
 // check if cell From flows to To
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -75,7 +76,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
     double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
     if (totwater <= 1e-10)
         return (Qsn);
-    Qsn = _min(totsed/dt, Qj1i1 * totsed/totwater);
+    Qsn = std::min(totsed/dt, Qj1i1 * totsed/totwater);
     return (Qsn); // outflow is new concentration * new out flux
 
 }
@@ -117,7 +118,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     else
         Sj1i1 = 0;
 
-    return _max(0.0 ,Sj1i1);
+    return std::max(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /** Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
@@ -158,14 +159,14 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
     // first guess Qkx, VERY important
 
-    Qkx   = _max(Qkx, 0.0);
+    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = _max(Qkx, MIN_FLUX);
+        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, MIN_FLUX);
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
@@ -193,11 +194,11 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_StorVol            water volume in buffers (m3)
 \param  	_StorSed            sediment volume in bufers (kg)
 */
-void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD,
-                       CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
-                       CTMap *_q, CTMap *_Alpha, CTMap *_DX,
-                       CTMap *_Vol, CTMap*_Sed,
-                       CTMap *_StorVol, CTMap *_StorSed)
+void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
+                       cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                       cTMap *_q, cTMap *_Alpha, cTMap *_DX,
+                       cTMap *_Vol, cTMap*_Sed,
+                       cTMap *_StorVol, cTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -239,13 +240,13 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD,
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
@@ -277,14 +278,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD,
                 r = rowNr+dy[i];
                 c = colNr+dx[i];
 
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+                if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                     ldd = (int) _LDD->Drc;
                 else
                     continue;
 
                 if (INSIDE(r, c) &&
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
+                        !pcr::isMV(_LDD->Drc) )
                 {
                     Qin += _Qn->Drc;
                     QinKW->Data[rowNr][colNr] = Qin;
@@ -396,10 +397,10 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, CTMap *_LDD,
                     _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
                                                              _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-                _Qsn->Data[rowNr][colNr] = _min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+                _Qsn->Data[rowNr][colNr] = std::min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
                 // no more sediment outflow than total sed in cell
 
-                _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+                _Sed->Data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
             }
             /* cell rowN, colNr is now done */
@@ -427,9 +428,9 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_Vol                water volume in cell (m3)
 \param  	_Sed                sediment load in cell (kg)
 */
-void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
-                            CTMap *_Q, CTMap *_Qn, CTMap *_Qs, CTMap *_Qsn,
-                            CTMap *_Alpha, CTMap *_DX, CTMap* /* _Vol */, CTMap*_Sed) //,CTMap *_StorVol, CTMap *_StorSed)
+void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
+                            cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                            cTMap *_Alpha, cTMap *_DX, cTMap* /* _Vol */, cTMap*_Sed) //,cTMap *_StorVol, cTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -467,13 +468,13 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
@@ -505,14 +506,14 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
                 r = rowNr+dy[i];
                 c = colNr+dx[i];
 
-                if (INSIDE(r, c) && !IS_MV_REAL4(&_LDD->Drc))
+                if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                     ldd = (int) _LDD->Drc;
                 else
                     continue;
 
                 if (INSIDE(r, c) &&
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
-                        !IS_MV_REAL4(&_LDD->Drc) )
+                        !pcr::isMV(_LDD->Drc) )
                 {
                     Qin += _Qn->Drc;
                     Sin += _Qsn->Drc;
@@ -526,10 +527,10 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
             //                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
             //                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
 
-            _Qsn->Data[rowNr][colNr] = _min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+            _Qsn->Data[rowNr][colNr] = std::min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            _Sed->Data[rowNr][colNr] = _max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            _Sed->Data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */
@@ -544,7 +545,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, CTMap *_LDD,
 }
 //---------------------------------------------------------------------------
 /// return the sum of all values upstream
-void TWorld::upstream(CTMap *_LDD, CTMap *_M, CTMap *out)
+void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -563,14 +564,14 @@ void TWorld::upstream(CTMap *_LDD, CTMap *_M, CTMap *out)
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // if no MVs and row,col flows to central cell r,c
             if (  //INSIDE(row, col) &&
-                  // !IS_MV_REAL4(&_LDD->Data[row][col]) &&
+                  // !pcr::isMV(_LDD->Data[row][col]) &&
                   FLOWS_TO(ldd, row, col, r, c)
                   )
             {
@@ -582,12 +583,12 @@ void TWorld::upstream(CTMap *_LDD, CTMap *_M, CTMap *out)
 }
 //---------------------------------------------------------------------------
 /// return the sum of all values upstream
-void TWorld::KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha, CTMap *_DX)
+void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    tm->fill(0);
+    fill(*tm, 0.0);
 
     FOR_ROW_COL_MV
     {
@@ -602,7 +603,7 @@ void TWorld::KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha,
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !IS_MV_REAL4(&_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
@@ -626,7 +627,7 @@ void TWorld::KinWave(CTMap *_LDD,CTMap *_Q, CTMap *_Qn,CTMap *_q, CTMap *_Alpha,
     }
 }
 /*
-long TWorld::SortNetwork(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Ksort)
+long TWorld::SortNetwork(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Ksort)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -661,13 +662,13 @@ long TWorld::SortNetwork(int pitRowNr, int pitColNr, CTMap *_LDD, CTMap *_Ksort)
             r = rowNr+dy[i];
             c = colNr+dx[i];
 
-            if (INSIDE(r, c) && !IS_MV_REAL8(&_LDD->Drc))
+            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (IS_MV_REAL4(&_Qn->Drc) &&
+            if (pcr::isMV(_Qn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {

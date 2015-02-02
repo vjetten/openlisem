@@ -37,14 +37,6 @@ functions: \n
 #include "lisemqt.h"
 #include "global.h"
 
-QString ErrorString;    // declare here, referenced by error.h
-
-void Error(QString s)
-{
-    ErrorString = s;
-    throw 1;
-}
-
 QStringList optionList;
 
 int main(int argc, char *argv[])

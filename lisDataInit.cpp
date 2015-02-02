@@ -27,12 +27,12 @@
  \brief All data handling functions, read, parse, initialize, make and delete the map structures etc.
 
  functions: \n
- - CTMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
- - CTMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
+ - cTMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
+ - cTMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
  - void TWorld::DestroyData(void) Destroy the list with all maps and pointers, no need to do this one by one.\n
- - CTMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
- - CTMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
- - CTMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
+ - cTMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
+ - cTMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
+ - cTMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
  - void TWorld::InitTiledrains(void) read and intiialize all Tile drain variables and maps \n
  - void TWorld::InitBuffers(void)  read and intiialize all buffer and sediment fence variables and maps \n
  - void TWorld::InitChannel(void)  read and intiialize all channel variables and maps \n
@@ -41,9 +41,11 @@
  - void TWorld::IntializeOptions(void) Initialize all options (Switch...) before the run file.\n
 */
 
+#include <algorithm>
 #include <qstring.h>
-
+#include "io.h"
 #include "model.h"
+#include "operation.h"
 
 
 //---------------------------------------------------------------------------
@@ -60,9 +62,9 @@ void TWorld::InitMapList(void)
     }
 }
 //---------------------------------------------------------------------------
-CTMap *TWorld::NewMap(double value)
+cTMap *TWorld::NewMap(double value)
 {
-    CTMap *_M = new CTMap();
+    cTMap *_M = new cTMap();
 
     _M->MakeMap(LDD, value);
     // changed to LDD instead of Mask
@@ -76,23 +78,23 @@ CTMap *TWorld::NewMap(double value)
     return(_M);
 }
 //---------------------------------------------------------------------------
-CTMap *TWorld::ReadMap(cTMap *Mask, QString name)
+cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
-    CTMap *_M = new CTMap();
+    cTMap *_M = new cTMap();
 
-    _M->PathName = /*inputdir + */name;
+    _M->setPathName(/*inputdir + */name);
 
-    bool res = _M->LoadFromFile();
+    bool res = LoadFromFile(*_M);
     if (!res)
     {
-        ErrorString = "Cannot find map " +_M->PathName;
+        ErrorString = "Cannot find map " +_M->PathName();
         throw 1;
     }
 
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
-            if (!IS_MV_REAL8(&Mask->Drc) && IS_MV_REAL8(&_M->Drc))
+            if (!pcr::isMV(Mask->Drc) && pcr::isMV(_M->Drc))
             {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
@@ -119,7 +121,7 @@ void TWorld::DestroyData(void)
     {
         if (maplistCTMap[i].m != NULL)
         {
-            maplistCTMap[i].m->KillMap();
+            delete maplistCTMap[i].m;
             maplistCTMap[i].m = NULL;
         }
     }
@@ -154,17 +156,17 @@ void TWorld::DestroyData(void)
     }
 }
 //---------------------------------------------------------------------------
-CTMap *TWorld::InitMask(QString name)
+cTMap *TWorld::InitMask(QString name)
 {
     // read map and make a mask map
 
-    CTMap *_M = new CTMap();
+    cTMap *_M = new cTMap();
 
-    _M->PathName = /*inputdir + */name;
-    bool res = _M->LoadFromFile();
+    _M->setPathName(/*inputdir + */name);
+    bool res = LoadFromFile(*_M);
     if (!res)
     {
-        ErrorString = "Cannot find map " +_M->PathName;
+        ErrorString = "Cannot find map " +_M->PathName();
         throw 1;
     }
 
@@ -174,24 +176,24 @@ CTMap *TWorld::InitMask(QString name)
         maplistnr++;
     }
 
-    _dx = _M->MH.cellSize*1.0000000;
-    _nrRows = _M->nrRows;
-    _nrCols = _M->nrCols;
+    _dx = _M->cellSize()*1.0000000;
+    _nrRows = _M->nrRows();
+    _nrCols = _M->nrCols();
 
     return(_M);
 
 }
 //---------------------------------------------------------------------------
-CTMap *TWorld::InitMaskChannel(QString name)
+cTMap *TWorld::InitMaskChannel(QString name)
 {
 
-    CTMap *_M = new CTMap();
+    cTMap *_M = new cTMap();
 
-    _M->PathName = /*inputdir + */name;
-    bool res = _M->LoadFromFile();
+    _M->setPathName(/*inputdir + */name);
+    bool res = LoadFromFile(*_M);
     if (!res)
     {
-        ErrorString = "Cannot find map " +_M->PathName;
+        ErrorString = "Cannot find map " +_M->PathName();
         throw 1;
     }
 
@@ -205,16 +207,16 @@ CTMap *TWorld::InitMaskChannel(QString name)
 
 }
 //---------------------------------------------------------------------------
-CTMap *TWorld::InitMaskTiledrain(QString name)
+cTMap *TWorld::InitMaskTiledrain(QString name)
 {
 
-    CTMap *_M = new CTMap();
+    cTMap *_M = new cTMap();
 
-    _M->PathName = /*inputdir + */name;
-    bool res = _M->LoadFromFile();
+    _M->setPathName(/*inputdir + */name);
+    bool res = LoadFromFile(*_M);
     if (!res)
     {
-        ErrorString = "Cannot find map " +_M->PathName;
+        ErrorString = "Cannot find map " +_M->PathName();
         throw 1;
     }
 
@@ -277,25 +279,25 @@ void TWorld::InitTiledrains(void)
         TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
         TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-        TileGrad->checkMap(LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
-        TileGrad->calcValue(0.001, MAX);
+        checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
+        calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
 
-        TileGrad->cover(LDD, 0);
-        TileWidth->cover(LDD, 0);
-        TileHeight->cover(LDD, 0);
-        TileDepth->cover(LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
-        TileN->cover(LDD, 0);
-        TileSinkhole->cover(LDD, 0);
+        cover(*TileGrad, *LDD, 0);
+        cover(*TileWidth, *LDD, 0);
+        cover(*TileHeight, *LDD, 0);
+        cover(*TileDepth, *LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
+        cover(*TileN, *LDD, 0);
+        cover(*TileSinkhole, *LDD, 0);
 
         /* TODO ? */
 
         FOR_ROW_COL_MV_TILE
         {
             TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-            TileSinkhole->Drc = _min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
-            //TileY->Drc = _min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
+            TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
+            //TileY->Drc = std::min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
         }
 
     }
@@ -369,12 +371,12 @@ void TWorld::InitBuffers(void)
             }
             //split buffers in channel buffers and slope buffers
             // in "ToCHannel" all flow in a buffer is dumped in the channel
-            ChannelBufferVolInit->copy(ChannelBufferVol);
+            copy(*ChannelBufferVolInit, *ChannelBufferVol);
             // copy initial max volume of buffers in channels
         }
-        BufferVolInit->copy(BufferVol);
+        copy(*BufferVolInit, *BufferVol);
         // copy initial max volume of remaining buffers on slopes
-        BufferVolTotInit = BufferVolInit->mapTotal() + ChannelBufferVolInit->mapTotal();
+        BufferVolTotInit = mapTotal(*BufferVolInit) + mapTotal(*ChannelBufferVolInit);
         // sum up total initial volume available in buffers
         //BufferVol->fill(0);
         //ChannelBufferVol->fill(0);
@@ -428,7 +430,7 @@ void TWorld::InitShade(void)
     Shade = NewMap(0);
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     if (SwitchChannelFlood)
-        DEM->calcMap(Barriers, ADD);
+        calcMap(*DEM, *Barriers, ADD);
     //double MaxDem = DEM->mapMaximum();
     // double MinDem = DEM->mapMinimum();
 
@@ -442,22 +444,22 @@ void TWorld::InitShade(void)
             mat[i] = DEM->Drc;
         if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
         {
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c-1]))
+            if(!pcr::isMV(LDD->Data[r-1][c-1]))
                 mat[0] = DEM->Data[r-1][c-1];
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c  ]))
+            if(!pcr::isMV(LDD->Data[r-1][c  ]))
                 mat[1] = DEM->Data[r-1][c  ];
-            if(!IS_MV_REAL8(&LDD->Data[r-1][c+1]))
+            if(!pcr::isMV(LDD->Data[r-1][c+1]))
                 mat[2] = DEM->Data[r-1][c+1];
-            if(!IS_MV_REAL8(&LDD->Data[r  ][c-1]))
+            if(!pcr::isMV(LDD->Data[r  ][c-1]))
                 mat[3] = DEM->Data[r  ][c-1];
 
-            if(!IS_MV_REAL8(&LDD->Data[r  ][c+1]))
+            if(!pcr::isMV(LDD->Data[r  ][c+1]))
                 mat[5] = DEM->Data[r  ][c+1];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c-1]))
+            if(!pcr::isMV(LDD->Data[r+1][c-1]))
                 mat[6] = DEM->Data[r+1][c-1];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c  ]))
+            if(!pcr::isMV(LDD->Data[r+1][c  ]))
                 mat[7] = DEM->Data[r+1][c  ];
-            if(!IS_MV_REAL8(&LDD->Data[r+1][c+1]))
+            if(!pcr::isMV(LDD->Data[r+1][c+1]))
                 mat[8] = DEM->Data[r+1][c+1];
         }
         dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
@@ -546,31 +548,31 @@ void TWorld::InitChannel(void)
 
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-        ChannelGrad->checkMap(LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
-        ChannelGrad->calcValue(0.001, MAX);
+        checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
+        calcValue(*ChannelGrad, 0.001, MAX);
         ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
         ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
-        ChannelGrad->cover(LDD, 0);
-        ChannelSide->cover(LDD, 0);
-        ChannelWidth->cover(LDD, 0);
-        ChannelN->cover(LDD, 0);
+        cover(*ChannelGrad, *LDD, 0);
+        cover(*ChannelSide, *LDD, 0);
+        cover(*ChannelWidth, *LDD, 0);
+        cover(*ChannelN, *LDD, 0);
 
-        ChannelN->calcValue(ChnCalibration, MUL);
+        calcValue(*ChannelN, ChnCalibration, MUL);
         if (SwitchChannelInfil)
         {
             ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
-            ChannelKsat->cover(LDD, 0);
-            ChannelKsat->calcValue(ChKsatCalibration, MUL);
+            cover(*ChannelKsat, *LDD, 0);
+            calcValue(*ChannelKsat, ChKsatCalibration, MUL);
             ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
             // store not used?
         }
-        ChannelWidthUpDX->copy(ChannelWidth);
-        ChannelWidthUpDX->cover(LDD, 0);
+        copy(*ChannelWidthUpDX, *ChannelWidth);
+        cover(*ChannelWidthUpDX, *LDD, 0);
         //        double v = 0.9*_dx;
         //        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = _max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = std::max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
             ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
         }
 
@@ -579,7 +581,7 @@ void TWorld::InitChannel(void)
         {
 //            ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // on surface the length of the channel is the same else mass balance?
-            ChannelY->Drc = _min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
+            ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
 
         if (SwitchChannelFlood)
@@ -587,17 +589,17 @@ void TWorld::InitChannel(void)
             FloodEdge = NewMap(0);
             for (int r = 1; r < _nrRows-1; r++)
                 for (int c = 1; c < _nrCols-1; c++)
-                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+                    if(!pcr::isMV(LDD->Data[r][c]))
                     {
                         if (FloodEdge->Drc == 0 &&
-                                (IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
-                                 IS_MV_REAL8(&LDD->Data[r-1][c  ]) ||
-                                 IS_MV_REAL8(&LDD->Data[r-1][c+1]) ||
-                                 IS_MV_REAL8(&LDD->Data[r  ][c-1]) ||
-                                 IS_MV_REAL8(&LDD->Data[r  ][c+1]) ||
-                                 IS_MV_REAL8(&LDD->Data[r+1][c-1]) ||
-                                 IS_MV_REAL8(&LDD->Data[r+1][c  ]) ||
-                                 IS_MV_REAL8(&LDD->Data[r+1][c+1]) )
+                                (pcr::isMV(LDD->Data[r-1][c  ]) ||
+                                 pcr::isMV(LDD->Data[r-1][c  ]) ||
+                                 pcr::isMV(LDD->Data[r-1][c+1]) ||
+                                 pcr::isMV(LDD->Data[r  ][c-1]) ||
+                                 pcr::isMV(LDD->Data[r  ][c+1]) ||
+                                 pcr::isMV(LDD->Data[r+1][c-1]) ||
+                                 pcr::isMV(LDD->Data[r+1][c  ]) ||
+                                 pcr::isMV(LDD->Data[r+1][c+1]) )
                                 )
                           if (ChannelWidthUpDX->Drc == 0)
                             FloodEdge->Drc = 1;
@@ -606,7 +608,7 @@ void TWorld::InitChannel(void)
 //            tma->fill(0);
 //            for (int r = 1; r < _nrRows-1; r++)
 //                for (int c = 1; c < _nrCols-1; c++)
-//                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+//                    if(!pcr::isMV(LDD->Data[r][c]))
 //            {
 //                if (FloodEdge->Drc == 0 && (
 //                            FloodEdge->Data[r-1][c-1] == 1 ||
@@ -634,7 +636,7 @@ void TWorld::InitChannel(void)
             //            long i = 0;
             //            for (int r = 0; r < _nrRows; r++)
             //                for (int c = 0; c < _nrCols; c++)
-            //                    if(!IS_MV_REAL8(&LDD->Data[r][c]))
+            //                    if(!pcr::isMV(LDD->Data[r][c]))
             //                    {
             //                        cellRow[i] = r;
             //                        cellCol[i] = c;
@@ -679,19 +681,19 @@ void TWorld::InitChannel(void)
             floodTimeStart = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
-            ChannelDepth->cover(LDD,0);
+            cover(*ChannelDepth, *LDD,0);
             Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
-            Barriers->cover(LDD,0);
+            cover(*Barriers, *LDD,0);
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
-            ChannelMaxQ->cover(LDD,0);
+            cover(*ChannelMaxQ, *LDD,0);
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
-                ChannelLevee->fill(0);
+                fill(*ChannelLevee, 0.0);
 
             if (SwitchFloodInitial)
             {
                 hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
-                hmx->copy(hmxInit);
+                copy(*hmx, *hmxInit);
             }
 
             floodactive = NewMap(1);
@@ -862,11 +864,11 @@ void TWorld::GetInputData(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
-    Grad->checkMap(LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
-    Grad->calcValue(0.001, MAX);
+    checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
+    calcValue(*Grad, 0.001, MAX);
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
-    Outlet->cover(LDD, 0);
+    cover(*Outlet, *LDD, 0);
     // fill outlet with zero, some users have MV where no outlet
     FOR_ROW_COL_MV
     {
@@ -907,13 +909,13 @@ void TWorld::GetInputData(void)
 
     //## landuse and surface data
     N = ReadMap(LDD,getvaluename("manning"));
-    N->calcValue(nCalibration, MUL); //VJ 110112 moved
+    calcValue(*N, nCalibration, MUL); //VJ 110112 moved
 
     RR = ReadMap(LDD,getvaluename("RR"));
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
-    Cover->checkMap(LARGER, 1.0, "vegetation cover fraction cannot be more than 1");
+    checkMap(*Cover, LARGER, 1.0, "vegetation cover fraction cannot be more than 1");
 
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     GrassFraction = NewMap(0);
@@ -922,8 +924,8 @@ void TWorld::GetInputData(void)
     {
         KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
         GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
-        GrassFraction->copy(GrassWidthDX);
-        GrassFraction->calcValue(_dx, DIV);
+        copy(*GrassFraction, *GrassWidthDX);
+        calcValue(*GrassFraction, _dx, DIV);
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV
         {
@@ -945,7 +947,7 @@ void TWorld::GetInputData(void)
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        RoadWidthDX->checkMap(LARGER, _dx, "road width cannot be larger than gridcell size");
+        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
         FOR_ROW_COL_MV
         {
             N->Drc = N->Drc * (1-RoadWidthDX->Drc/_dx) + 0.001*RoadWidthDX->Drc/_dx;
@@ -955,15 +957,15 @@ void TWorld::GetInputData(void)
         RoadWidthDX = NewMap(0);
 
     HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
-    HardSurface->calcValue(1.0, MIN);
-    HardSurface->calcValue(0.0, MAX);
+    calcValue(*HardSurface, 1.0, MIN);
+    calcValue(*HardSurface, 0.0, MAX);
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
-        SoilDepth1->calcValue(1000, DIV);
+        calcValue(*SoilDepth1, 1000, DIV);
         //VJ 101213 fixed bug: convert from mm to m
         // can be zero for outcrops
         FOR_ROW_COL_MV
@@ -978,15 +980,15 @@ void TWorld::GetInputData(void)
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
 
-        ThetaI1->calcValue(thetaCalibration, MUL); //VJ 110712 calibration of theta
-        ThetaI1->calcMap(ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+        calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
+        calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
         //VJ 101221 all infil maps are needed except psi
         if(InfilMethod != INFIL_KSAT)
         {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            Psi1->calcValue(psiCalibration, MUL); //VJ 110712 calibration of psi
-            Psi1->calcValue(0.01, MUL); // convert to meter
+            calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+            calcValue(*Psi1, 0.01, MUL); // convert to meter
         }
 
         if (SwitchTwoLayer)
@@ -994,20 +996,20 @@ void TWorld::GetInputData(void)
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
 
-            ThetaI2->calcValue(thetaCalibration, MUL); //VJ 110712 calibration of theta
-            ThetaI2->calcMap(ThetaS2, MIN); //VJ 110712 cannot be more than porosity
+            calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
+            calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
 
             //VJ 101221 all infil maps are needed except psi
             if(InfilMethod != INFIL_KSAT)
             {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                Psi2->calcValue(psiCalibration, MUL); //VJ 110712 calibration of psi
-                Psi2->calcValue(0.01, MUL);
+                calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+                calcValue(*Psi2, 0.01, MUL);
             }
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            SoilDepth2->calcValue(1000, DIV);
+            calcValue(*SoilDepth2, 1000, DIV);
             //VJ 101213 fixed bug: convert from mm to m
 
             FOR_ROW_COL_MV
@@ -1022,7 +1024,7 @@ void TWorld::GetInputData(void)
         if (SwitchInfilCrust)
         {
             CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-            CrustFraction->checkMap(LARGER, 1.0, "crust fraction cannot be more than 1");
+            checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
         }
         else
@@ -1034,7 +1036,7 @@ void TWorld::GetInputData(void)
         if (SwitchInfilCompact)
         {
             CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-            CompactFraction->checkMap(LARGER, 1.0, "compacted area fraction cannot be more than 1");
+            checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
         }
         else
@@ -1149,7 +1151,7 @@ void TWorld::IntializeData(void)
             }
         CellArea->Drc = DX->Drc * _dx;
     }
-    CatchmentArea = CellArea->mapTotal();
+    CatchmentArea = mapTotal(*CellArea);
 
     SoilWidthDX = NewMap(0);
     // not implemented
@@ -1162,7 +1164,7 @@ void TWorld::IntializeData(void)
     FOR_ROW_COL_MV
     {
         double RRmm = 10 * RR->Drc;
-        MDS->Drc = _max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+        MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
 
@@ -1223,7 +1225,7 @@ void TWorld::IntializeData(void)
             }
         }
     }
-    CanopyStorage->calcValue(0.001, MUL); // from mm to m
+    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
     if (SwitchHouses)
     {
@@ -1234,7 +1236,7 @@ void TWorld::IntializeData(void)
         HouseCover = ReadMap(LDD,getvaluename("housecover"));
 
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-        RoofStore->calcValue(0.001, MUL);
+        calcValue(*RoofStore, 0.001, MUL);
         // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
     }
@@ -1244,7 +1246,7 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        HouseWidthDX->Drc = _min(_dx, HouseCover->Drc *_dx);
+        HouseWidthDX->Drc = std::min(_dx, HouseCover->Drc *_dx);
         // assume there is always space next to house
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }
@@ -1298,10 +1300,10 @@ void TWorld::IntializeData(void)
         {
             Soilwater = NewMap(0);
             Soilwater2 = NewMap(0);
-            Soilwater->calc2Maps(ThetaI1, SoilDepth1, MUL);
+            calc2Maps(*Soilwater, *ThetaI1, *SoilDepth1, MUL);
             if (SwitchTwoLayer)
             {
-                Soilwater2->calc2Maps(ThetaI2, SoilDepth2, MUL);
+                calc2Maps(*Soilwater2, *ThetaI2, *SoilDepth2, MUL);
             }
         }
     }
@@ -1424,7 +1426,7 @@ void TWorld::IntializeData(void)
             SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
-            Y->Drc = _min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
             //            if (StoneFraction->Drc > 0)
             //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
             // GOED IDEE
@@ -1561,9 +1563,9 @@ void TWorld::IntializeData(void)
             PSorMixing->Drc = CS_N->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
         }
 
-        PestMassApplied = PMassApplied->mapTotal();
-        PestDisMixing = PDisMixing->mapTotal();
-        PestSorMixing = PSorMixing->mapTotal();
+        PestMassApplied = mapTotal(*PMassApplied);
+        PestDisMixing = mapTotal(*PDisMixing);
+        PestSorMixing = mapTotal(*PSorMixing);
 
         if(Switchheaderpest)
         {

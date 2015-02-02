@@ -30,8 +30,10 @@ functions: \n
 - double TWorld::floodExplicit() Do flooding with explicit solution Bates et al (old lisflood)
 */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
+#include "operation.h"
 #include "global.h"
 
 
@@ -59,30 +61,30 @@ double TWorld::floodExplicit()
             n++;
             // make Hydraulic head, gravity (dem+barriers) + water level
             // barriers are already in the dem
-            Hmx->calc2Maps(DEM, hmx, ADD);
+            calc2Maps(*Hmx, *DEM, *hmx, ADD);
 
-            double maxdepth = _max(0.01, hmx->mapMaximum());
+            double maxdepth = std::max(0.01, mapMaximum(*hmx));
             // find maxdepth
-            double maxv = _max(0.01, Vflood->mapMaximum());
+            double maxv = std::max(0.01, mapMaximum(*Vflood));
 
             timestep = courant_number*_dx/qSqrt(gravity*maxdepth);
             timestep = courant_number*_dx/(maxv+qSqrt(gravity*maxdepth));
             // determine timestep
-            timestep = _max(0.001, timestep);
-            timestep = _min(timestep, _dt-timesum);
+            timestep = std::max(0.001, timestep);
+            timestep = std::min(timestep, _dt-timesum);
 
-            Qxsum->fill(0);
+            fill(*Qxsum, 0.0);
             // map with fluxes to/from central cell
 
             // flag which cells need processing, flood domain
             // this is the cell where hmx > 0 and any cell adjacent even if dry
-            tma->fill(0);
+            fill(*tma, 0.0);
             for (int i = 0; i < 4; i++)
             {
                 FOR_ROW_COL_MV
                         if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                 {
                     if (hmx->Drci > 0)
                         tma->Drc = 1;
@@ -99,7 +101,7 @@ double TWorld::floodExplicit()
                 {
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                     {
                         Hx->Drc = DEM->Drci + hmx->Drci;
                         hx->Drc = hmx->Drci;
@@ -142,7 +144,7 @@ double TWorld::floodExplicit()
                     // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
                     qlx2 = 1e6;//(hxi - hmx->Drc)*_dx/timestep;
                     // limit max flux to width * water difference with central cell (w*dh/dt  in m2/s)
-                    Qx = signx * _min(_min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
+                    Qx = signx * std::min(std::min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
                     // Qx is the min of all possible fluxes, preserve sign
                     Qxsum->Drc += Qx/_dx;
 
@@ -160,7 +162,7 @@ double TWorld::floodExplicit()
                     if (tma->Drc == 1)
             {
                 hmx->Drc += timestep*Qxsum->Drc;
-                hmx->Drc = _max(0.0, hmx->Drc);
+                hmx->Drc = std::max(0.0, hmx->Drc);
                 if (ChannelMaxQ->Drc > 0)
                     hmx->Drc = 0;
                 // no flood in culvert cells
@@ -173,7 +175,7 @@ double TWorld::floodExplicit()
         // continue while _dt is not reached
     }
 
-    Qflood->fill(0);
+    fill(*Qflood, 0.0);
     FOR_ROW_COL_MV
             if(hmx->Drc > 0)// && ChannelDepth->Drc == 0)
     {
@@ -199,7 +201,7 @@ double TWorld::floodExplicit()
                 {
                     if (r+dr[i] > 0 && r+dr[i] < _nrRows &&
                             c+dc[i] > 0 && c+dc[i] < _nrCols &&
-                            !IS_MV_REAL8(&hmx->Drci))
+                            !pcr::isMV(hmx->Drci))
                     {
                         Hx->Drc = DEM->Drci + hmx->Drci;
                         hx->Drc = hmx->Drci;
@@ -237,7 +239,7 @@ double TWorld::floodExplicit()
                     // limit max flux to h * wave velocity * froude number (m * m/s = m2/s)
                     qlx2 = (hxi - hmx->Drc)*_dx/timestep;
                     // limit max flux to width * water difference with central cell (w*dh/dt  in m2/s)
-                    Qx = signx * _min(_min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
+                    Qx = signx * std::min(std::min(qAbs(qlx1), qAbs(qlx)),qAbs(qlx2));
                     // Qx is the min of all possible fluxes, preserve sign
                     if (i != 4)
                         Qxsum->Drc += Qx/_dx2;// *0.5;
@@ -253,7 +255,7 @@ double TWorld::floodExplicit()
                     // for 4 directions do i += 2 instead of i++
 
                     if (i == 4) // central cell
-                        qx[i].m->Drc = signx * _min(qlx, qlx1); //qlx2 is always 0 for i = 4
+                        qx[i].m->Drc = signx * std::min(qlx, qlx1); //qlx2 is always 0 for i = 4
                     else
                         qx[i].m->Drc = Qx;
                     // save flux in direction i for next flood timestep

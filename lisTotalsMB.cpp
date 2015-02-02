@@ -33,7 +33,9 @@ functions: \n
  */
 
 
+#include <algorithm>
 #include "model.h"
+#include "operation.h"
 
 
 //---------------------------------------------------------------------------
@@ -52,57 +54,57 @@ void TWorld::Totals(void)
 
     if (SwitchRainfall)
     {
-        RainAvgmm = Rain->mapAverage()*1000.0;
+        RainAvgmm = mapAverage(*Rain)*1000.0;
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
-        tm->calcMapValue(Rain, (_dx*_dx), MUL); //in m3
-        rainfall = tm->mapTotal();
+        calcMapValue(*tm, *Rain, (_dx*_dx), MUL); //in m3
+        rainfall = mapTotal(*tm);
         RainTot += rainfall; // in m3
 
         oldrainpeak  = Rainpeak;
-        Rainpeak = _max(Rainpeak, rainfall);
+        Rainpeak = std::max(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm += Snowmelt->mapAverage()*1000;
+        SnowAvgmm += mapAverage(*Snowmelt)*1000;
         SnowTotmm += SnowAvgmm;
 
-        tm->calcMapValue(Snowmelt, (_dx*_dx), MUL); //in m3
-        snowmelt = tm->mapTotal();
+        calcMapValue(*tm, *Snowmelt, (_dx*_dx), MUL); //in m3
+        snowmelt = mapTotal(*tm);
         SnowTot += snowmelt; // in m3
 
         oldsnowpeak = Snowpeak;
-        Snowpeak = _max(Snowpeak, snowmelt);
+        Snowpeak = std::max(Snowpeak, snowmelt);
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
 
-    IntercTot = Interc->mapTotal();
+    IntercTot = mapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
     //houses
-    IntercHouseTot = IntercHouse->mapTotal();
+    IntercHouseTot = mapTotal(*IntercHouse);
     IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
-    InfilTot += InfilVol->mapTotal() + InfilVolKinWave->mapTotal() + InfilVolFlood->mapTotal(); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
     difkinTot =0;//+=  difkin->mapTotal();
 
-    InfilKWTot += InfilVolKinWave->mapTotal(); // not really used, available for output when needed
-    InfilTotmm = _max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+    InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
+    InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
-    tm->calcMapValue(WHstore, 1000, MUL); //mm
-    SurfStoremm = tm->mapAverage();
+    calcMapValue(*tm, *WHstore, 1000, MUL); //mm
+    SurfStoremm = mapAverage(*tm);
     // surface storage CHECK THIS
     // does not go to MB, is already in tot water vol
 
-    WaterVolTot = WaterVolall->mapTotal();//m3
+    WaterVolTot = mapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
@@ -125,8 +127,9 @@ void TWorld::Totals(void)
     // sum outflow m3 for all timesteps for the outlet
     FOR_ROW_COL_MV
     {
-        if (LDD->Drc == 5)
+        if (LDD->Drc == 5) {
             Qtot += Qn->Drc*_dt;
+        }
     }
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
@@ -140,7 +143,7 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeChannel)
     {
-        WaterVolTot += ChannelWaterVol->mapTotal(); //m3
+        WaterVolTot += mapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
         WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
@@ -164,7 +167,7 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-            floodVolTot = FloodWaterVol->mapTotal();
+            floodVolTot = mapTotal(*FloodWaterVol);
             double area = 0;
             FOR_ROW_COL_MV
             {
@@ -179,16 +182,16 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeTile)
     {
-        WaterVolSoilTot = TileWaterVolSoil->mapTotal();
+        WaterVolSoilTot = mapTotal(*TileWaterVolSoil);
         // input for mass balance, is the water seeping from the soil, input
         // this is the water before the kin wave
-        tm->calc2Maps(TileDrainSoil, TileWidth, MUL); //in m3
-        tm->calcMap(TileDX, MUL); //in m3
+        calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
+        calcMap(*tm, *TileDX, MUL); //in m3
         // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-        TileVolTot += tm->mapTotal(); // in m3
+        TileVolTot += mapTotal(*tm); // in m3
 
         // water after kin wave
-        WaterVolTot += TileWaterVol->mapTotal(); //m3
+        WaterVolTot += mapTotal(*TileWaterVol); //m3
         // add tile vol to total
         WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
@@ -209,9 +212,9 @@ void TWorld::Totals(void)
 
     if (SwitchBuffers)
     {
-        BufferVolTot = BufferVol->mapTotal(); // in m3
+        BufferVolTot = mapTotal(*BufferVol); // in m3
         if (SwitchIncludeChannel)
-            BufferVolTot += ChannelBufferVol->mapTotal();
+            BufferVolTot += mapTotal(*ChannelBufferVol);
         //sum up all volume remaining in all buffers (so the non-water!)
         BufferVolin = BufferVolTotInit - BufferVolTot;
         //subtract this from the initial volume to get the total water inflow in the buffers
@@ -232,18 +235,18 @@ void TWorld::Totals(void)
     // recalc to mm for screen output
 
     oldrainpeak = Qpeak;
-    Qpeak = _max(Qpeak, Qoutput->DrcOutlet);
+    Qpeak = std::max(Qpeak, Qoutput->DrcOutlet);
     if (oldrainpeak < Qpeak)
         QpeakTime = time;
     // peak flow and peak time calculation, based on sum channel and runoff
 
-    QpeakPlot = _max(QpeakPlot, Qoutput->DrcPlot);
+    QpeakPlot = std::max(QpeakPlot, Qoutput->DrcPlot);
 
     // do this last because of possible flood inf volume
     FOR_ROW_COL_MV
     {
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        InfilmmCum->Drc = _max(0.0, InfilVolCum->Drc*1000.0/CellArea->Drc);
+        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/CellArea->Drc);
     }
 
 
@@ -251,11 +254,11 @@ void TWorld::Totals(void)
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
     if (SwitchErosion)
     {
-        DetSplashTot += DETSplash->mapTotal();
-        DetFlowTot += DETFlow->mapTotal();
-        DepTot += DEP->mapTotal();
-        DetTot += DETSplash->mapTotal() + DETFlow->mapTotal();
-        SedTot = Sed->mapTotal();
+        DetSplashTot += mapTotal(*DETSplash);
+        DetFlowTot += mapTotal(*DETFlow);
+        DepTot += mapTotal(*DEP);
+        DetTot += mapTotal(*DETSplash) + mapTotal(*DETFlow);
+        SedTot = mapTotal(*Sed);
         // all in kg/cell
 
         //SoilLossTot += Qsoutflow->DrcOutlet;
@@ -266,15 +269,15 @@ void TWorld::Totals(void)
 
         SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
         // for screen output, total main outlet sed loss in kg
-        TotalSed->copy(Sed);
+        copy(*TotalSed, *Sed);
         // for sed conc
 
         if (SwitchIncludeChannel)
         {
             // units here in kg, conversion to ton in report functions
-            ChannelDetTot += ChannelDetFlow->mapTotal();
-            ChannelDepTot += ChannelDep->mapTotal();
-            ChannelSedTot = ChannelSed->mapTotal();
+            ChannelDetTot += mapTotal(*ChannelDetFlow);
+            ChannelDepTot += mapTotal(*ChannelDep);
+            ChannelSedTot = mapTotal(*ChannelSed);
 
             FOR_ROW_COL_MV_CH
                     if (LDDChannel->Drc == 5)
@@ -284,15 +287,15 @@ void TWorld::Totals(void)
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet
 
-            TotalSed->calcMap(ChannelSed, ADD);
+            calcMap(*TotalSed, *ChannelSed, ADD);
             // needed for sed conc in file output
         }
 
         if (SwitchBuffers || SwitchSedtrap)
         {
-            BufferSedTot = BufferSed->mapTotal();
+            BufferSedTot = mapTotal(*BufferSed);
             if (SwitchIncludeChannel)
-                BufferSedTot += ChannelBufferSed->mapTotal();
+                BufferSedTot += mapTotal(*ChannelBufferSed);
 
         }
         /** TODO add gully, wheeltracks etc */
@@ -339,15 +342,15 @@ void TWorld::Totals(void)
 
         }
 
-        Pestdetach += Pdetach ->mapTotal(); //KCM
-        PestCinfilt += PCinfilt->mapTotal(); //fc
-        PestCfilmexit += PCfilmexit->mapTotal(); //KC
+        Pestdetach += mapTotal(*Pdetach); //KCM
+        PestCinfilt += mapTotal(*PCinfilt); //fc
+        PestCfilmexit += mapTotal(*PCfilmexit); //KC
         PestLossTotOutlet += Qn->DrcOutlet*C->DrcOutlet*_dt*1000*1000*1000; //µg
-        PestRunoffSpatial = PRunoffSpatial->mapTotal();
-        PestDisMixing = PDisMixing->mapTotal();
-        PestSorMixing = PSorMixing->mapTotal();
-        PestInfilt += PInfilt->mapTotal();
-        PestStorage = PStorage->mapTotal();
+        PestRunoffSpatial = mapTotal(*PRunoffSpatial);
+        PestDisMixing = mapTotal(*PDisMixing);
+        PestSorMixing = mapTotal(*PSorMixing);
+        PestInfilt += mapTotal(*PInfilt);
+        PestStorage = mapTotal(*PStorage);
 
         // double MBtest=0.0;
 
@@ -359,7 +362,7 @@ void TWorld::Totals(void)
         // qDebug()<< "pestdetach" << Pestdetach << "pestCinfilt"<< PestCinfilt << "pestCfilmexit"<< PestCfilmexit<< "pestlosstotoutlet"<<PestLossTotOutlet;
         // qDebug()<< "MBtest" << MBtest;
         double test=0.0;
-        test += InfilVolKinWave->mapTotal();
+        test += mapTotal(*InfilVolKinWave);
 
         //        PestLossTotOutletex += Qn->DrcOutlet*C_Kexplicit->DrcOutlet*_dt*1000*1000*1000; //µg
         //        PestRunoffSpatialex = PRunoffSpatialex->mapTotal();

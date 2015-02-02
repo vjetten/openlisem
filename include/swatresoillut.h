@@ -48,8 +48,6 @@
 #define LUT_LOW(a,b)  QString("In lookup table: lowest value of column %1 is larger than requested value (%2)").arg(a).arg(b)
 #define LUT_HIGH(a,b) QString("In lookup table: highest value of column %1 is smaller than requested value (%2)").arg(a).arg(b)
 
-#define _max(a, b)  (((a) > (b)) ? (a) : (b))
-#define __min(a, b)  (((a) < (b)) ? (a) : (b))
 
 //---------------------------------------------------------------------------
 

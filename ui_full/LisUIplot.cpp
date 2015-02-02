@@ -32,6 +32,7 @@
 
  */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "global.h"
 
@@ -280,22 +281,22 @@ void lisemqt::showPlot()
     QGraph->setSamples(TData,QData);
     PGraph->setSamples(TData,PData);
 
-    yas = _max(yas, op.QPlot);
+    yas = std::max(yas, op.QPlot);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     if(!checkNoErosion->isChecked())
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
-        y2as = _max(y2as, op.Qsplot);
-        y2as = _max(y2as, op.Cplot);
+        y2as = std::max(y2as, op.Qsplot);
+        y2as = std::max(y2as, op.Cplot);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = _max(yas, op.Pmm);
+        yas = std::max(yas, op.Pmm);
     }
     else
     {
-        y2as = _max(y2as, op.Pmm);
+        y2as = std::max(y2as, op.Pmm);
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
@@ -446,7 +447,7 @@ void lisemqt::showOutputData()
 
         double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
-        SDR = _min(SDR ,100.0);
+        SDR = std::min(SDR ,100.0);
         label_SDR->setText(QString::number(SDR,'f',dig));
         if (checkBuffers->isChecked() || checkSedtrap->isChecked())
             label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));

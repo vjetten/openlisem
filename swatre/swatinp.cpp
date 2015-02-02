@@ -54,6 +54,7 @@ profile node setup:
     etc.
 */
 
+#include <algorithm>
 #include "error.h"
 #include "model.h"
 
@@ -331,7 +332,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
    /* make profileList index match the profileId's */
    mmax = 0;
    for (i = 0 ; i < nrProfileList; i++)
-      mmax = _max(mmax, profileList[i]->profileId);
+      mmax = std::max(mmax, profileList[i]->profileId);
    mmax++;
 
    tmpList = (PROFILE **)malloc(mmax*sizeof(PROFILE *));

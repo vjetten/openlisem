@@ -37,8 +37,10 @@ functions: \n
 - void TWorld::ReportLandunits() report text data per landunit\n
  */
 
+#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
+#include "operation.h"
 #include "global.h"
 
 //---------------------------------------------------------------------------
@@ -66,26 +68,26 @@ void TWorld::reportAll(void)
 void TWorld::OutputUI(void)
 {
     // MAP DISPLAY VARIABLES
-    tma->fill(0);
+    fill(*tma, 0.0);
     if (op.displayPcum)
-        tma->calcMapValue(RainCumFlat,1000, MUL);
+        calcMapValue(*tma, *RainCumFlat,1000, MUL);
     else
-        tma->calcMapValue(Rain,1000, MUL);
-    op.DrawMap6->copy(tma);
+        calcMapValue(*tma, *Rain,1000, MUL);
+    copy(*op.DrawMap6, *tma);
 
-    op.DrawMap1->copy(Qoutput);  //output in l/s
+    copy(*op.DrawMap1, *Qoutput);  //output in l/s
     //Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
 
     FOR_ROW_COL_MV
             tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
-    op.DrawMap2->copy(tmb);  //infil in mm
+    copy(*op.DrawMap2, *tmb);  //infil in mm
     if (SwitchErosion)
     {
-        tmb->copy(TotalSoillossMap); //kg/cell
+        copy(*tmb, *TotalSoillossMap); //kg/cell
         if (ErosionUnits == 2 || ErosionUnits == 0)  // in kg/m2
-            tmb->calcMap(CellArea, DIV);
+            calcMap(*tmb, *CellArea, DIV);
         if (ErosionUnits == 0) // ton/ha
-            tmb->calcValue(10, MUL);
+            calcValue(*tmb, 10, MUL);
 
 /*
         if (ErosionUnits == 1)  // in kg/m2
@@ -101,24 +103,24 @@ void TWorld::OutputUI(void)
             }
             // in kg/cell so div by area for kg/m2 and x10 for ton/ha
   */
-            op.DrawMap3->copy(tmb);  //soilloss
+            copy(*op.DrawMap3, *tmb);  //soilloss
     }
     if (SwitchChannelFlood)
     {
-        op.DrawMap4->copy(hmx);  //flood level in m
-        op.DrawMap5->copy(UVflood);  //flood level in m
-        op.DrawMap7->copy(floodTimeStart);  // flood start since peak rainfall in min
+        copy(*op.DrawMap4, *hmx);  //flood level in m
+        copy(*op.DrawMap5, *UVflood);  //flood level in m
+        copy(*op.DrawMap7, *floodTimeStart);  // flood start since peak rainfall in min
     }
 
-    op.baseMap->copy(Shade);
-    op.baseMapDEM->copy(DEM);
+    copy(*op.baseMap, *Shade);
+    copy(*op.baseMapDEM, *DEM);
 
     if (SwitchIncludeChannel)
-        op.channelMap->copy(ChannelWidth);
+        copy(*op.channelMap, *ChannelWidth);
     if (SwitchRoadsystem)
-        op.roadMap->copy(RoadWidthDX);
+        copy(*op.roadMap, *RoadWidthDX);
     if (SwitchHouses)
-        op.houseMap->copy(HouseCover);
+        copy(*op.houseMap, *HouseCover);
 
     // MAP DISPLAY VARIABLES
 
@@ -553,17 +555,17 @@ void TWorld::ReportMaps(void)
         tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
 
-    tm->report(rainfallMapFileName);
-    tma->report(interceptionMapFileName);
+    report(*tm, rainfallMapFileName);
+    report(*tma, interceptionMapFileName);
 
-    InfilmmCum->report(infiltrationMapFileName);
-    runoffTotalCell->report(runoffMapFileName);
-    runoffFractionCell->report(runoffFractionMapFileName);
+    report(*InfilmmCum, infiltrationMapFileName);
+    report(*runoffTotalCell, runoffMapFileName);
+    report(*runoffFractionCell, runoffFractionMapFileName);
 
 
     if (SwitchIncludeChannel)
     {
-        ChannelQntot->report(channelDischargeMapFileName);
+        report(*ChannelQntot, channelDischargeMapFileName);
     }
 
     if(SwitchErosion)
@@ -571,88 +573,88 @@ void TWorld::ReportMaps(void)
         //SHOULD CELLAREA NOT BE BASED ON CHANNLADJ?
 
         // VJ 110111 erosion units
-        tm->copy(TotalDetMap); //kg/cell
+        copy(*tm, *TotalDetMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2
-            tm->calcMap(CellArea, DIV);
+            calcMap(*tm, *CellArea, DIV);
         if (ErosionUnits == 0) // ton/ha
         {
-            tm->calcMap(CellArea, DIV); //to kg/m2
-            tm->calcValue(10, MUL); // * 0.001*10000 = ton/ha
+            calcMap(*tm, *CellArea, DIV); //to kg/m2
+            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
         }
 
-        tm->report(totalErosionFileName);
+        report(*tm, totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
-            tm->report(Outeros); // in units
+            report(*tm, Outeros); // in units
 
-        tm->copy(TotalDepMap); //kg/cell
+        copy(*tm, *TotalDepMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2
-            tm->calcMap(CellArea, DIV);
+            calcMap(*tm, *CellArea, DIV);
         if (ErosionUnits == 0) // ton/ha
         {
-            tm->calcMap(CellArea, DIV);
-            tm->calcValue(10, MUL);
+            calcMap(*tm, *CellArea, DIV);
+            calcValue(*tm, 10, MUL);
         }
-        tm->report(totalDepositionFileName);
+        report(*tm, totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
-            tm->report(Outdepo); // in units
+            report(*tm, Outdepo); // in units
 
-        tm->copy(TotalSoillossMap); //kg/cell
+        copy(*tm, *TotalSoillossMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2
-            tm->calcMap(CellArea, DIV);
+            calcMap(*tm, *CellArea, DIV);
         if (ErosionUnits == 0) // ton/ha
         {
-            tm->calcMap(CellArea, DIV);
-            tm->calcValue(10, MUL);
+            calcMap(*tm, *CellArea, DIV);
+            calcValue(*tm, 10, MUL);
         }
-        tm->report(totalSoillossFileName);
+        report(*tm, totalSoillossFileName);
 
-        if (outputcheck[1].toInt() == 1) Conc->report(Outconc);  // in g/l
-        if (outputcheck[4].toInt() == 1) TC->report(Outtc);      // in g/l
+        if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
+        if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
     }
 
     if (SwitchChannelFlood)
     {
-        floodHmxMax->report(floodLevelFileName);
-        floodTime->report(floodTimeFileName);
-        floodTimeStart->report(floodFEWFileName);
-        maxChannelflow->report(floodMaxQFileName);
-        maxChannelWH->report(floodMaxWHFileName);
+        report(*floodHmxMax, floodLevelFileName);
+        report(*floodTime, floodTimeFileName);
+        report(*floodTimeStart, floodFEWFileName);
+        report(*maxChannelflow, floodMaxQFileName);
+        report(*maxChannelWH, floodMaxWHFileName);
     }
 
     if (outputcheck[0].toInt() == 1)
-        Qoutput->report(Outrunoff); // in l/s
+        report(*Qoutput, Outrunoff); // in l/s
     if (outputcheck[2].toInt() == 1)
     {
-        tm->calcMapValue(WH, 1000, MUL);// WH in mm
-        tm->report(Outwh);
+        calcMapValue(*tm, *WH, 1000, MUL);// WH in mm
+        report(*tm, Outwh);
     }
 
     if (outputcheck[3].toInt() == 1)
-        runoffTotalCell->report(Outrwh); // in mm
+        report(*runoffTotalCell, Outrwh); // in mm
     // changed to cum runoff in mm
 
     if (outputcheck[7].toInt() == 1)
-        V->report(Outvelo);
+        report(*V, Outvelo);
 
     if (outputcheck[8].toInt() == 1)
-        InfilmmCum->report(Outinf); // in mm
+        report(*InfilmmCum, Outinf); // in mm
 
     if (outputcheck[9].toInt() == 1)
     {
-        tm->calcMapValue(WHstore, 1000, MUL);// in mm
-        tm->report(Outss);
+        calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
+        report(*tm, Outss);
         /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
     }
 
-    if (outputcheck[10].toInt() == 1) ChannelWaterVol->report(Outchvol);
+    if (outputcheck[10].toInt() == 1) report(*ChannelWaterVol, Outchvol);
 
 
     if (SwitchIncludeTile && outputcheck.count() > 11)
     {
         if (outputcheck[11].toInt() == 1)
         {
-            tm->calcMapValue(TileQn, 1000, MUL);// in mm
-            tm->report(OutTiledrain);
+            calcMapValue(*tm, *TileQn, 1000, MUL);// in mm
+            report(*tm, OutTiledrain);
         }
     }
     if (SwitchChannelFlood)
@@ -661,20 +663,20 @@ void TWorld::ReportMaps(void)
         {
             if (outputcheck[12].toInt() == 1)
             {
-                hmx->report(OutHmx);
+                report(*hmx, OutHmx);
             }
             if (outputcheck[13].toInt() == 1)
             {
-                Qflood->report(OutQf);
+                report(*Qflood, OutQf);
             }
             if (outputcheck[14].toInt() == 1)
             {
-                UVflood->report(OutVf);
+                report(*UVflood, OutVf);
             }
             if (outputcheck[15].toInt() == 1)
             {
-                tm->calc2Maps(hmx, WH, ADD);
-                tm->report(OutHmxWH);
+                calc2Maps(*tm, *hmx, *WH, ADD);
+                report(*tm, OutHmxWH);
             }
         }
     }
@@ -808,12 +810,12 @@ void TWorld::ChannelFloodStatistics(void)
         if(floodHmxMax->Drc > minReportFloodHeight)
         {
             int i = (int)(floodHmxMax->Drc*10);
-            nr = _max(nr, i);
+            nr = std::max(nr, i);
             //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
             floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-            floodList[i].var3 = _max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
-            floodList[i].var4 = _max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
+            floodList[i].var3 = std::max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var4 = std::max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
             if (SwitchHouses)
                 floodList[i].var5 += HouseCover->Drc*area;
         }

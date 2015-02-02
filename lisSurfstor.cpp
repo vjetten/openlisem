@@ -34,6 +34,7 @@ functions: \n
  */
 
 
+#include <algorithm>
 #include "model.h"
 #define tiny 1e-8
 
@@ -45,7 +46,7 @@ void TWorld::GridCell(void)
 
     FOR_ROW_COL_MV
     {
-        double dxa = _max(0.0, _dx - ChannelWidthUpDX->Drc);
+        double dxa = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
 
         ChannelAdj->Drc = dxa;
 
@@ -53,10 +54,10 @@ void TWorld::GridCell(void)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
-        RoadWidthDX->Drc = _min(dxa, RoadWidthDX->Drc);
-        dxa = _max(0.0, dxa - RoadWidthDX->Drc);
+        RoadWidthDX->Drc = std::min(dxa, RoadWidthDX->Drc);
+        dxa = std::max(0.0, dxa - RoadWidthDX->Drc);
 
-        HouseWidthDX->Drc = _min(dxa, HouseWidthDX->Drc);
+        HouseWidthDX->Drc = std::min(dxa, HouseWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
         if (Cover->Drc + HouseCover->Drc > 1.0)
             Cover->Drc = 1.0-HouseCover->Drc;
@@ -67,14 +68,14 @@ void TWorld::GridCell(void)
     /*
     FOR_ROW_COL_MV
     {
-        ChannelAdj->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc);
+        ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
 
         if (BufferID->Drc > 0)
             RoadWidthDX->Drc = 0;
         //VJ 100609 cannot have a road with a buffer, to complicated
 
 //        if (RoadWidthDX->Drc + HouseWidthDX->Drc > ChannelAdj->Drc)
-//            HouseWidthDX->Drc = _max(0.0, ChannelAdj->Drc-RoadWidthDX->Drc);
+//            HouseWidthDX->Drc = std::max(0.0, ChannelAdj->Drc-RoadWidthDX->Drc);
 
         if (RoadWidthDX->Drc + HouseWidthDX->Drc > _dx)
             HouseWidthDX->Drc = _dx-RoadWidthDX->Drc;
@@ -89,7 +90,7 @@ void TWorld::GridCell(void)
         }
         // channel takes priority
 
-        SoilWidthDX->Drc = _max(0.0, _dx - ChannelWidthUpDX->Drc- RoadWidthDX->Drc);
+        SoilWidthDX->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc- RoadWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
 
     }
@@ -156,7 +157,7 @@ void TWorld::SurfaceStorage(void)
         else
             whflow = wh;
 
-        // whflow = _max(0.0, wh-SDS);
+        // whflow = std::max(0.0, wh-SDS);
         // subtract surface storage and calc water available for runoff, in m
         // assumed on soilsurface because there is the roughness
 
@@ -187,7 +188,7 @@ void TWorld::SurfaceStorage(void)
             if (FloodDomain->Drc > 0)
                 fpa->Drc = 1;
 
-        //FlowWidth->Drc = _max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
+        //FlowWidth->Drc = std::max(0.01*_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc);
         // VJ 140105:0.01 dx gave mas balance errors !!!
 
         FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc;

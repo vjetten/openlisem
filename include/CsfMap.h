@@ -30,12 +30,8 @@
 #ifndef CsfMapH
 #define CsfMapH
 
-#include "csf.h"
 #include <QString>
 #include "masked_raster.h"
-
- #define _max(a, b)  (((a) > (b)) ? (a) : (b))
- #define _min(a, b)  (((a) < (b)) ? (a) : (b))
 
 //---------------------------------------------------------------------------
 /// CSF map construction, reading, writing series etc.
@@ -44,64 +40,57 @@
 */
 class cTMap
 {
-protected:
 
 public:
-    CSF_RASTER_HEADER MH; ///PCRaster map header
-    UINT2 projection;
+
+    //! The actual raster.
     MaskedRaster<REAL8> Data;
 
-    QString MapName;
-    QString PathName;
-   // QString desc;
-    int nrRows, nrCols;
-    bool Created;
-    
-    void KillMap();
-    void GetMapHeader(QString Name);
-    void CreateMap(QString Name);
-    void MakeMap(cTMap *dup, REAL8 value);
-    void WriteMap(QString Name);
-    void WriteMapSeries(QString Dir, QString Name, int count);
-    bool LoadFromFile();
-    void ResetMinMax(void);
+                   cTMap               ()=default;
 
-    void fill(double value);
-    void calcValue(double v, int oper);
-    void calcMap(cTMap *m, int oper);
-    void calc2Maps(cTMap *m1, cTMap *m2, int oper);
-    void calcMapValue(cTMap *m1, double V, int oper);
-    void copy(cTMap *m);
-    void cover(cTMap *m, double v);
-    void setMV();
-    void checkMap(int oper, double V, QString SS);
-    int countUnits();
-    double mapTotal();
-    double mapAverage();
-    double mapMinimum();
-    double mapMaximum();
-    double getWindowAverage(int r, int c);
+                   cTMap               (cTMap const& other)=delete;
 
-    cTMap();
-    ~cTMap();
+                   cTMap               (cTMap&& other)=delete;
+
+                   ~cTMap              ()=default;
+
+    cTMap&         operator=           (cTMap const& other)=delete;
+
+    cTMap&         operator=           (cTMap&& other)=delete;
+
+    bool           created             () const;
+
+    int            nrRows              () const;
+
+    int            nrCols              () const;
+
+    double         north               () const;
+
+    double         west                () const;
+
+    double         cellSize            () const;
+
+    QString const& MapName             () const;
+
+    QString const& PathName            () const;
+
+    void           setMapName          (QString const& mapName);
+
+    void           setPathName         (QString const& pathName);
+
+    void           setMV               ();
+
+    void           MakeMap             (cTMap *dup,
+                                        REAL8 value);
+
+    /// void           KillMap             ();
+
+private:
+
+    QString        _MapName;
+
+    QString        _PathName;
+
 };
 
 #endif
-
-/* for info:
-typedef struct CSF_RASTER_HEADER
-{
-	 UINT2    valueScale;
-	 UINT2    cellRepr;
-	 CSF_VAR_TYPE minVal;
-	 CSF_VAR_TYPE maxVal;
-	 REAL8    xUL;
-	 REAL8    yUL;
-	 UINT4    nrRows;
-	 UINT4    nrCols;
-	 REAL8    cellSizeX;
-	 REAL8    cellSizeY;
-	 REAL8    angle;
-} CSF_RASTER_HEADER;
-*/
-
