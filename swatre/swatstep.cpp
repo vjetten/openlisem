@@ -43,7 +43,6 @@
 - void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *where) \n
  */
 #include <algorithm>
-#include "csf.h"
 #include "model.h"
 #include "swatreLookup.h"
 

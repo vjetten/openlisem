@@ -31,7 +31,6 @@ functions:
 - void TWorld::CloseSwatre(SOIL_MODEL *s); \n
 */
 
-#include "csf.h"
 #include "error.h"
 #include "model.h"
 

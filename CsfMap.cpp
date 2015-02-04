@@ -114,13 +114,6 @@ void cTMap::setMV()
 }
 
 
-/// void cTMap::KillMap()
-/// {
-///   Data = MaskedRaster<REAL8>();
-///   assert(!created());
-/// }
-
-
 // make a new map according to dup as a mask and filled with value
 void cTMap::MakeMap(cTMap *dup, REAL8 value)
 {

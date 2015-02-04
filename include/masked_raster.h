@@ -13,11 +13,15 @@ public:
 
                    MaskedRaster        ();
 
+                   MaskedRaster        (std::initializer_list<
+                                            std::initializer_list<T>> const&
+                                                values);
+
                    MaskedRaster        (size_t nr_rows,
                                         size_t nr_cols,
-                                        double north,
-                                        double west,
-                                        double cell_size);
+                                        double north=0.0,
+                                        double west=0.0,
+                                        double cell_size=1.0);
 
                    MaskedRaster        (MaskedRaster const& other)=default;
 
@@ -48,7 +52,7 @@ private:
 
 template<
     typename T>
-MaskedRaster<T>::MaskedRaster()
+inline MaskedRaster<T>::MaskedRaster()
 
     : Raster<T>()
 
@@ -58,7 +62,18 @@ MaskedRaster<T>::MaskedRaster()
 
 template<
     typename T>
-MaskedRaster<T>::MaskedRaster(
+inline MaskedRaster<T>::MaskedRaster(
+    std::initializer_list<std::initializer_list<T>> const& values)
+
+    : Raster<T>(values)
+
+{
+}
+
+
+template<
+    typename T>
+inline MaskedRaster<T>::MaskedRaster(
     size_t nr_rows,
     size_t nr_cols,
     double north,
@@ -73,7 +88,7 @@ MaskedRaster<T>::MaskedRaster(
 
 template<
     typename T>
-bool MaskedRaster<T>::is_mv(
+inline bool MaskedRaster<T>::is_mv(
     size_t index) const
 {
     return pcr::isMV<T>(this->cell(index));
@@ -82,7 +97,7 @@ bool MaskedRaster<T>::is_mv(
 
 template<
     typename T>
-bool MaskedRaster<T>::is_mv(
+inline bool MaskedRaster<T>::is_mv(
     size_t row,
     size_t col) const
 {
@@ -92,7 +107,7 @@ bool MaskedRaster<T>::is_mv(
 
 template<
     typename T>
-void MaskedRaster<T>::set_mv(
+inline void MaskedRaster<T>::set_mv(
     size_t index)
 {
     pcr::setMV<T>(this->cell(index));
@@ -101,7 +116,7 @@ void MaskedRaster<T>::set_mv(
 
 template<
     typename T>
-void MaskedRaster<T>::set_mv(
+inline void MaskedRaster<T>::set_mv(
     size_t row,
     size_t col)
 {
@@ -111,7 +126,7 @@ void MaskedRaster<T>::set_mv(
 
 template<
     typename T>
-void MaskedRaster<T>::set_all_mv()
+inline void MaskedRaster<T>::set_all_mv()
 {
     pcr::setMV<T>(&this->cell(0), this->nr_cells());
 }

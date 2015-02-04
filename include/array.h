@@ -32,6 +32,8 @@ public:
 
     size_t         size                () const;
 
+    T*             data                ();
+
     T&             operator[]          (size_t index);
 
     T const&       operator[]          (size_t index) const;
@@ -109,6 +111,15 @@ template<
 inline size_t Array<T, nr_dimensions>::size() const
 {
     return _cells.size();
+}
+
+
+template<
+    typename T,
+    size_t nr_dimensions>
+inline T* Array<T, nr_dimensions>::data()
+{
+    return _cells.data();
 }
 
 

@@ -62,4 +62,26 @@ BOOST_AUTO_TEST_CASE(default_constructor)
     BOOST_CHECK_EQUAL(raster.cell_size(), 0u);
 }
 
+
+BOOST_AUTO_TEST_CASE(initializer_list_constructor)
+{
+    Raster<int> raster{
+        {-2, -1},
+        { 0,  9},
+        { 1,  2}};
+    BOOST_CHECK_EQUAL(raster.nr_rows(), 3u);
+    BOOST_CHECK_EQUAL(raster.nr_cols(), 2u);
+    BOOST_CHECK_EQUAL(raster.nr_cells(), 6u);
+    BOOST_CHECK_EQUAL(raster.north(), 0u);
+    BOOST_CHECK_EQUAL(raster.west(), 0u);
+    BOOST_CHECK_EQUAL(raster.cell_size(), 0u);
+
+    BOOST_CHECK_EQUAL(raster.cell(0, 0), -2);
+    BOOST_CHECK_EQUAL(raster.cell(0, 1), -1);
+    BOOST_CHECK_EQUAL(raster.cell(1, 0), 0);
+    BOOST_CHECK_EQUAL(raster.cell(1, 1), 9);
+    BOOST_CHECK_EQUAL(raster.cell(2, 0), 1);
+    BOOST_CHECK_EQUAL(raster.cell(2, 1), 2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

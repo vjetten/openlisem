@@ -44,7 +44,7 @@ class cTMap
 public:
 
     //! The actual raster.
-    MaskedRaster<REAL8> Data;
+    MaskedRaster<double> Data;
 
                    cTMap               ()=default;
 
@@ -56,7 +56,7 @@ public:
 
     cTMap&         operator=           (cTMap const& other)=delete;
 
-    cTMap&         operator=           (cTMap&& other)=delete;
+    cTMap&         operator=           (cTMap&& other)=default;
 
     bool           created             () const;
 
@@ -82,8 +82,6 @@ public:
 
     void           MakeMap             (cTMap *dup,
                                         REAL8 value);
-
-    /// void           KillMap             ();
 
 private:
 
