@@ -201,10 +201,10 @@ void TWorld::FlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                   && !pcr::isMV(TC->Data[r+dx[i]][c+dy[i]]))
+                   && !pcr::isMV(TC->data[r+dx[i]][c+dy[i]]))
                {
-                  avgtc = avgtc + TC->Data[r+dx[i]][c+dy[i]];
-                  maxtc = std::max(maxtc,TC->Data[r+dx[i]][c+dy[i]]);
+                  avgtc = avgtc + TC->data[r+dx[i]][c+dy[i]];
+                  maxtc = std::max(maxtc,TC->data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }
@@ -334,10 +334,10 @@ void TWorld::ChannelFlowDetachment(void)
             if(i != 5)
             {
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                   && !pcr::isMV(ChannelTC->Data[r+dx[i]][c+dy[i]]))
+                   && !pcr::isMV(ChannelTC->data[r+dx[i]][c+dy[i]]))
                {
-                  avgtc = avgtc + ChannelTC->Data[r+dx[i]][c+dy[i]];
-                  maxtc = std::max(maxtc,ChannelTC->Data[r+dx[i]][c+dy[i]]);
+                  avgtc = avgtc + ChannelTC->data[r+dx[i]][c+dy[i]];
+                  maxtc = std::max(maxtc,ChannelTC->data[r+dx[i]][c+dy[i]]);
                   count++;
                }
             }

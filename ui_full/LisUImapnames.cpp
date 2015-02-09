@@ -245,14 +245,10 @@ void lisemqt::openMapname(QModelIndex topLeft)
 
    if (!path.isEmpty())// && QFileInfo(path).exists())
    {
-      MapPtr m{Mopen(QFileInfo(path).absoluteFilePath().toAscii().constData(),
-          M_READ), close_csf_map};
-
-      if (m == nullptr)
-      {
+      if(!rasterCanBeOpenedForReading(path)) {
          QMessageBox::critical(this, "openLISEM",
-                               QString("File \"%1\" is not a PCRaster map.")
-                               .arg(path));
+            QString("File \"%1\" is not a supported raster map.")
+                .arg(path));
          return;
       }
 

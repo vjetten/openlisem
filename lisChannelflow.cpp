@@ -207,7 +207,7 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->setMV();
+    ChannelQn->setAllMV();
     //ChannelQsn->fill(0);
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux

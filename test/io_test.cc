@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "CsfMap.h"
 #include "error.h"
+#include "fixture.h"
 #include "io.h"
 
 
@@ -24,17 +25,15 @@ inline std::ostream& operator<<(
 } // namespace boost
 
 
-BOOST_AUTO_TEST_SUITE(io)
+BOOST_FIXTURE_TEST_SUITE(io, Fixture)
 
-BOOST_AUTO_TEST_CASE(load_from_file_does_no_exist)
+BOOST_AUTO_TEST_CASE(read_raster_does_no_exist)
 {
-    cTMap raster;
-    raster.setPathName("does_not_exist.map");
-
     bool exception_thrown = false;
+    ErrorString = "";
 
     try {
-        LoadFromFile(raster);
+        readRaster("does_not_exist.map");
         exception_thrown = false;
     }
     catch(...) {
@@ -42,19 +41,17 @@ BOOST_AUTO_TEST_CASE(load_from_file_does_no_exist)
     }
 
     BOOST_CHECK(exception_thrown);
-    BOOST_CHECK_EQUAL(ErrorString, "Map does_not_exist.map does not exist.");
+    BOOST_CHECK_EQUAL(ErrorString, "Map does_not_exist.map cannot be opened.");
 }
 
 
-BOOST_AUTO_TEST_CASE(load_from_file_wrong_format)
+BOOST_AUTO_TEST_CASE(read_raster_wrong_format)
 {
-    cTMap raster;
-    raster.setPathName("data/wrong_format.map");
-
     bool exception_thrown = false;
+    ErrorString = "";
 
     try {
-        LoadFromFile(raster);
+        readRaster("data/wrong_format.map");
         exception_thrown = false;
     }
     catch(...) {
@@ -67,30 +64,23 @@ BOOST_AUTO_TEST_CASE(load_from_file_wrong_format)
 }
 
 
-BOOST_AUTO_TEST_CASE(load_from_file)
+void test_default_raster(
+    std::string const& name)
 {
-    // Pattern:
-    // - Create a cTMap instance.
-    // - Set path name.
-    // - Read the raster.
-
     cTMap raster;
-    raster.setPathName("data/default.map");
-
-    bool success = false;
     bool exception_thrown = true;
+    ErrorString = "";
 
     try {
-        success = LoadFromFile(raster);
+        raster = readRaster(name.c_str());
         exception_thrown = false;
     }
     catch(...) {
-        BOOST_CHECK_EQUAL(ErrorString, "");
         exception_thrown = true;
     }
 
+    BOOST_CHECK_EQUAL(ErrorString, "");
     BOOST_REQUIRE(!exception_thrown);
-    BOOST_REQUIRE(success);
 
     BOOST_CHECK_EQUAL(raster.nrRows(), 3);
     BOOST_CHECK_EQUAL(raster.nrCols(), 2);
@@ -98,73 +88,81 @@ BOOST_AUTO_TEST_CASE(load_from_file)
     BOOST_CHECK_EQUAL(raster.west(), -100.0);
     BOOST_CHECK_EQUAL(raster.cellSize(), 5.0);
 
-    BOOST_CHECK(!raster.Data.is_mv(0, 0));
-    BOOST_CHECK(!raster.Data.is_mv(0, 1));
-    BOOST_CHECK(!raster.Data.is_mv(1, 0));
-    BOOST_CHECK( raster.Data.is_mv(1, 1));
-    BOOST_CHECK(!raster.Data.is_mv(2, 0));
-    BOOST_CHECK(!raster.Data.is_mv(2, 1));
+    BOOST_CHECK(!raster.data.is_mv(0, 0));
+    BOOST_CHECK(!raster.data.is_mv(0, 1));
+    BOOST_CHECK(!raster.data.is_mv(1, 0));
+    BOOST_CHECK( raster.data.is_mv(1, 1));
+    BOOST_CHECK(!raster.data.is_mv(2, 0));
+    BOOST_CHECK(!raster.data.is_mv(2, 1));
 
-    BOOST_CHECK_EQUAL(raster.Data[0][0], -2.0);
-    BOOST_CHECK_EQUAL(raster.Data[0][1], -1.0);
-    BOOST_CHECK_EQUAL(raster.Data[1][0],  0.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][0],  1.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][1],  2.0);
+    BOOST_CHECK_EQUAL(raster.data[0][0], -2.0);
+    BOOST_CHECK_EQUAL(raster.data[0][1], -1.0);
+    BOOST_CHECK_EQUAL(raster.data[1][0],  0.0);
+    BOOST_CHECK_EQUAL(raster.data[2][0],  1.0);
+    BOOST_CHECK_EQUAL(raster.data[2][1],  2.0);
+}
+
+
+BOOST_AUTO_TEST_CASE(read_raster)
+{
+    test_default_raster("data/default.map");
+    test_default_raster("data/default.img");
+}
+
+
+void test_twice_default_raster(
+    std::string const& name)
+{
+    cTMap raster;
+    bool exception_thrown = true;
+    ErrorString = "";
+
+    try {
+        raster = readRaster(name.c_str());
+        exception_thrown = false;
+    }
+    catch(...) {
+        exception_thrown = true;
+    }
+
+    BOOST_REQUIRE(!exception_thrown);
+    BOOST_CHECK_EQUAL(ErrorString, "");
+
+    BOOST_CHECK_EQUAL(raster.nrRows(), 3);
+    BOOST_CHECK_EQUAL(raster.nrCols(), 2);
+    BOOST_CHECK_EQUAL(raster.north(), 115.0);
+    BOOST_CHECK_EQUAL(raster.west(), -100.0);
+    BOOST_CHECK_EQUAL(raster.cellSize(), 5.0);
+
+    BOOST_CHECK(!raster.data.is_mv(0, 0));
+    BOOST_CHECK(!raster.data.is_mv(0, 1));
+    BOOST_CHECK(!raster.data.is_mv(1, 0));
+    BOOST_CHECK( raster.data.is_mv(1, 1));
+    BOOST_CHECK(!raster.data.is_mv(2, 0));
+    BOOST_CHECK(!raster.data.is_mv(2, 1));
+
+    BOOST_CHECK_EQUAL(raster.data[0][0], -4.0);
+    BOOST_CHECK_EQUAL(raster.data[0][1], -2.0);
+    BOOST_CHECK_EQUAL(raster.data[1][0],  0.0);
+    BOOST_CHECK_EQUAL(raster.data[2][0],  2.0);
+    BOOST_CHECK_EQUAL(raster.data[2][1],  4.0);
 }
 
 
 BOOST_AUTO_TEST_CASE(write_map)
 {
-    // Pattern:
-    // - Create a cTMap instance.
-    // - Set path name.
-    // - Write the raster.
-    cTMap raster;
-    raster.setPathName("data/default.map");
-    LoadFromFile(raster);
+    auto raster = readRaster("data/default.map");
 
-    raster.Data[0][0] *= 2;
-    raster.Data[0][1] *= 2;
-    raster.Data[2][0] *= 2;
-    raster.Data[2][1] *= 2;
+    raster.data[0][0] *= 2;
+    raster.data[0][1] *= 2;
+    raster.data[2][0] *= 2;
+    raster.data[2][1] *= 2;
 
-    WriteMap(raster, "twice_default.map");
+    writeRaster(raster, "twice_default.map", "PCRaster");
+    test_twice_default_raster("twice_default.map");
 
-    raster.setPathName("twice_default.map");
-
-    bool success = false;
-    bool exception_thrown = true;
-
-    try {
-        success = LoadFromFile(raster);
-        exception_thrown = false;
-    }
-    catch(...) {
-        BOOST_CHECK_EQUAL(ErrorString, "");
-        exception_thrown = true;
-    }
-
-    BOOST_REQUIRE(!exception_thrown);
-    BOOST_REQUIRE(success);
-
-    BOOST_CHECK_EQUAL(raster.nrRows(), 3);
-    BOOST_CHECK_EQUAL(raster.nrCols(), 2);
-    BOOST_CHECK_EQUAL(raster.north(), 115.0);
-    BOOST_CHECK_EQUAL(raster.west(), -100.0);
-    BOOST_CHECK_EQUAL(raster.cellSize(), 5.0);
-
-    BOOST_CHECK(!raster.Data.is_mv(0, 0));
-    BOOST_CHECK(!raster.Data.is_mv(0, 1));
-    BOOST_CHECK(!raster.Data.is_mv(1, 0));
-    BOOST_CHECK( raster.Data.is_mv(1, 1));
-    BOOST_CHECK(!raster.Data.is_mv(2, 0));
-    BOOST_CHECK(!raster.Data.is_mv(2, 1));
-
-    BOOST_CHECK_EQUAL(raster.Data[0][0], -4.0);
-    BOOST_CHECK_EQUAL(raster.Data[0][1], -2.0);
-    BOOST_CHECK_EQUAL(raster.Data[1][0],  0.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][0],  2.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][1],  4.0);
+    writeRaster(raster, "twice_default.map", "HFA");
+    test_twice_default_raster("twice_default.map");
 }
 
 

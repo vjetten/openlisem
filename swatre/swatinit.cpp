@@ -91,7 +91,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 
       FOR_ROW_COL_MV
       {
-         s->pixel[r*_nrCols+c].h[n] = inith->Data[r][c];
+         s->pixel[r*_nrCols+c].h[n] = inith->data[r][c];
 
          // find depth of tilenode
          if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)

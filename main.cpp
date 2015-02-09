@@ -34,6 +34,7 @@ functions: \n
 #include <QtGui>
 #include <QApplication>
 
+#include "fixture.h"
 #include "lisemqt.h"
 #include "global.h"
 
@@ -41,6 +42,7 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
+    Fixture fixture;
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon("openlisem.ico"));

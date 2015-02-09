@@ -45,6 +45,8 @@ public:
 
     void           set_all_mv          ();
 
+    void           replace_with_mv     (T const& value);
+
 private:
 
 };
@@ -129,4 +131,19 @@ template<
 inline void MaskedRaster<T>::set_all_mv()
 {
     pcr::setMV<T>(&this->cell(0), this->nr_cells());
+}
+
+
+template<
+    typename T>
+inline void MaskedRaster<T>::replace_with_mv(
+    T const& value)
+{
+    T* it = &this->cell(0);
+
+    for(size_t i = 0; i < this->nr_cells(); ++i, ++it) {
+        if(*it == value) {
+            pcr::setMV(*it);
+        }
+    }
 }

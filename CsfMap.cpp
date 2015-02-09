@@ -21,114 +21,94 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
-
-/*!
- \file CsfMap.cpp
- \brief file operations  class for PCRaster maps.
-
-  provide basic functionality to read and write PCRaster CSF maps, \n
-  can be altered to link to other file formats.
-
- functions: \n
- - void cTMap::KillMap(void)  \n
- - void cTMap::GetMapHeader(QString Name)  \n
- - void cTMap::CreateMap(QString Name) \n
- - bool cTMap::LoadFromFile() \n
- - void cTMap::MakeMap(cTMap *dup, REAL8 value) \n
- - void cTMap::ResetMinMax(void) \n
- - void cTMap::WriteMap(QString Name) \n
- - void cTMap::WriteMapSeries(QString Dir, QString Name, int count) \n
-*/
-
-#include <memory>
 #include <cassert>
 #include "CsfMap.h"
 #include "error.h"
 
+/*!
+    @brief      Constructor.
+    @param      data Properties of the raster and the cell values.
+    @param      projection Projection as a WKT string or an empty string.
+    @param      mapName Map name.
+*/
+cTMap::cTMap(
+    MaskedRaster<double>&& data,
+    QString const& projection,
+    QString const& mapName)
 
-bool cTMap::created() const
+    : data(std::forward<MaskedRaster<double>>(data)),
+      _projection(projection),
+      _mapName(mapName)
+
 {
-    return Data.nr_cells() > 0;
 }
 
 
 int cTMap::nrRows() const
 {
-    return static_cast<int>(Data.nr_rows());
+    return static_cast<int>(data.nr_rows());
 }
 
 
 int cTMap::nrCols() const
 {
-    return static_cast<int>(Data.nr_cols());
+    return static_cast<int>(data.nr_cols());
 }
 
 
 double cTMap::north() const
 {
-    return Data.north();
+    return data.north();
 }
 
 
 double cTMap::west() const
 {
-    return Data.west();
+    return data.west();
 }
 
 
 double cTMap::cellSize() const
 {
-    return Data.cell_size();
+    return data.cell_size();
 }
 
 
-QString const& cTMap::MapName() const
+QString const& cTMap::projection() const
 {
-    return _MapName;
+    return _projection;
 }
 
 
-QString const& cTMap::PathName() const
+QString const& cTMap::mapName() const
 {
-    return _PathName;
+    return _mapName;
 }
 
 
-void cTMap::setMapName(
-    QString const& mapName)
+void cTMap::setAllMV()
 {
-    _MapName = mapName;
-}
-
-
-void cTMap::setPathName(
-    QString const& pathName)
-{
-    _PathName = pathName;
-}
-
-
-void cTMap::setMV()
-{
-    Data.set_all_mv();
+    data.set_all_mv();
 }
 
 
 // make a new map according to dup as a mask and filled with value
-void cTMap::MakeMap(cTMap *dup, REAL8 value)
+void cTMap::MakeMap(
+    cTMap *dup,
+    REAL8 value)
 {
   if (dup == NULL)
     return;
 
-  Data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
+  data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
       dup->west(), dup->cellSize());
 
-  Data.set_all_mv();
+  data.set_all_mv();
 
   for(int r=0; r < nrRows(); r++)
     for(int c=0; c < nrCols(); c++)
-      if (!pcr::isMV(dup->Data[r][c]))
+      if (!pcr::isMV(dup->data[r][c]))
         {
-          Data[r][c] = value;
+          data[r][c] = value;
         }
 }

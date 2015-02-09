@@ -288,7 +288,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                         !pcr::isMV(_LDD->Drc) )
                 {
                     Qin += _Qn->Drc;
-                    QinKW->Data[rowNr][colNr] = Qin;
+                    QinKW->data[rowNr][colNr] = Qin;
 
                     if (SwitchErosion)
                         Sin += _Qsn->Drc;
@@ -305,16 +305,16 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             {
                 //_StorVol is remaining space in buffers, not water in buffers!
                 //_StorVol will go to 0
-                if (_StorVol->Data[rowNr][colNr] > 0)
+                if (_StorVol->data[rowNr][colNr] > 0)
                 {
                     isBufferCellWater = true;
                     //buffer still active, skip normal kin wave
 
-                    _StorVol->Data[rowNr][colNr] -= Qin*_dt;
+                    _StorVol->data[rowNr][colNr] -= Qin*_dt;
                     // fill up storage with incoming water
 
-//                    _q->Data[rowNr][colNr] = Qin;
-                    QinKW->Data[rowNr][colNr] = Qin;
+//                    _q->data[rowNr][colNr] = Qin;
+                    QinKW->data[rowNr][colNr] = Qin;
 
                     Qin = 0;
                     // assume first buffer is not full, no outflow
@@ -322,19 +322,19 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                     // and there is no incoming flux Qin to deal wth in the kin wave
 
                     // now check if the uffer was overflowing and there is a little bit of Qin!
-                    if (_StorVol->Data[rowNr][colNr] < 0)  // negative means overflowing
+                    if (_StorVol->data[rowNr][colNr] < 0)  // negative means overflowing
                     {
-                        Qin = -_StorVol->Data[rowNr][colNr]/_dt;
-                        //_q->Data[rowNr][colNr] -= Qin;
+                        Qin = -_StorVol->data[rowNr][colNr]/_dt;
+                        //_q->data[rowNr][colNr] -= Qin;
                         // overflow part becomes flux again
-                        _StorVol->Data[rowNr][colNr] = 0;
+                        _StorVol->data[rowNr][colNr] = 0;
                         // remaining store = 0
                         isBufferCellWater = false;
                         //buffer is full, go to normal kin wave outflow
                     }
 
                     if (isBufferCellWater)
-                        _Qn->Data[rowNr][colNr] = 0;
+                        _Qn->data[rowNr][colNr] = 0;
                     // if still volume left no outflow to downstream cell
                 }
             }
@@ -343,27 +343,27 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             if(SwitchErosion && (SwitchBuffers || SwitchSedtrap))
             {
                 // if there is water storage catch all the sediment
-                if (_StorVol->Data[rowNr][colNr] > 0)
+                if (_StorVol->data[rowNr][colNr] > 0)
                 {
                     isBufferCellSed = true;
                     //buffer still active
 
-                    _StorSed->Data[rowNr][colNr] += Sin*_dt;
+                    _StorSed->data[rowNr][colNr] += Sin*_dt;
                     Sin = 0;
 
                     if (!SwitchSedtrap)
                     {
-                        _StorVol->Data[rowNr][colNr] -= Sin/2600;
+                        _StorVol->data[rowNr][colNr] -= Sin/2600;
                         // decrease storvol with volume loss caused by incoming sediment
                         // the bulkdensity does not matter, the volume taken up is related
                         // to the particle desity dens, because the pores are filled with water
                         // if we use bulk dens here we assume pores are empty!
 
-                        if (_StorVol->Data[rowNr][colNr] < 0)
+                        if (_StorVol->data[rowNr][colNr] < 0)
                         {
-                            Qin = -_StorVol->Data[rowNr][colNr]/_dt;
+                            Qin = -_StorVol->data[rowNr][colNr]/_dt;
                             // overflow part becomes flux again
-                            _StorVol->Data[rowNr][colNr] = 0;
+                            _StorVol->data[rowNr][colNr] = 0;
                             // remaining store = 0
                             isBufferCellWater = false;
                             //buffer is full, outflow in kin wave
@@ -378,11 +378,11 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             if (!isBufferCellWater)
             {
                 itercount = 0;
-                _Qn->Data[rowNr][colNr] = IterateToQnew(Qin, _Q->Data[rowNr][colNr], _q->Data[rowNr][colNr],
-                                                        _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+                _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr],
+                                                        _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
                 // Newton Rapson iteration for water of current cell
 
-               // _q->Data[rowNr][colNr] = Qin;
+               // _q->data[rowNr][colNr] = Qin;
                 //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
                 // q is now in m3/s
             }
@@ -391,16 +391,16 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             if (SwitchErosion && !isBufferCellSed)
             {
                 if (!SwitchSimpleSedKinWave)
-                    _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
-                                                              Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+                    _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+                                                              Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
                 else
-                    _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
-                                                             _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
+                    _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
+                                                             _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
 
-                _Qsn->Data[rowNr][colNr] = std::min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+                _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
                 // no more sediment outflow than total sed in cell
 
-                _Sed->Data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+                _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
             }
             /* cell rowN, colNr is now done */
@@ -521,16 +521,16 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             }
 
             //            if (!SwitchSimpleSedKinWave)
-            _Qsn->Data[rowNr][colNr] = complexSedCalc(_Qn->Data[rowNr][colNr], Qin, _Q->Data[rowNr][colNr],
-                                                      Sin, _Qs->Data[rowNr][colNr], _Alpha->Data[rowNr][colNr], _dt, _DX->Data[rowNr][colNr]);
+            _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+                                                      Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
             //            else
-            //                _Qsn->Data[rowNr][colNr] = simpleSedCalc(_Qn->Data[rowNr][colNr], Qin, Sin, _dt,
-            //                                                         _Vol->Data[rowNr][colNr], _Sed->Data[rowNr][colNr]);
+            //                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
+            //                                                         _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
 
-            _Qsn->Data[rowNr][colNr] = std::min(_Qsn->Data[rowNr][colNr], Sin+_Sed->Data[rowNr][colNr]/_dt);
+            _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            _Sed->Data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->Data[rowNr][colNr] - _Qsn->Data[rowNr][colNr]*_dt);
+            _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */
@@ -564,18 +564,18 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
 
             // if no MVs and row,col flows to central cell r,c
             if (  //INSIDE(row, col) &&
-                  // !pcr::isMV(_LDD->Data[row][col]) &&
+                  // !pcr::isMV(_LDD->data[row][col]) &&
                   FLOWS_TO(ldd, row, col, r, c)
                   )
             {
-                tot += _M->Data[row][col];
+                tot += _M->data[row][col];
             }
         }
         out->Drc = tot;
@@ -603,7 +603,7 @@ void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha,
             int col = c+dx[i];
             int ldd = 0;
 
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->Data[row][col]))
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
                 ldd = (int) _LDD->Drc;
             else
                 continue;
@@ -611,7 +611,7 @@ void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha,
             // if no MVs and row,col flows to central cell r,c
             if (FLOWS_TO(ldd, row, col, r, c))
             {
-                tm->Drc += _Q->Data[row][col];
+                tm->Drc += _Q->data[row][col];
             }
         }
     }

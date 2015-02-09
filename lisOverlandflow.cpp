@@ -170,7 +170,7 @@ void TWorld::OverlandFlow(void)
         }
     }
 
-    Qn->setMV();
+    Qn->setAllMV();
     fill(*Qsn, 0.0);
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
@@ -296,7 +296,7 @@ void TWorld::OverlandFlowNew(void)
         }
     }
 
-    Qn->setMV();
+    Qn->setAllMV();
     fill(*Qsn, 0.0);
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux

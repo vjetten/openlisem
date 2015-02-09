@@ -21,22 +21,18 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
-/*!
-  \file CsfMap.h
-  \brief file operations  class for PCRaster maps.
-  */
-
-
 #ifndef CsfMapH
 #define CsfMapH
-
 #include <QString>
 #include "masked_raster.h"
 
-//---------------------------------------------------------------------------
-/// CSF map construction, reading, writing series etc.
-/** class to deal with CSF map construction, reading and writing etc.
-   Reading and writing of maps of other GIS systems can be added here in the future.
+
+/*!
+    @brief      A cTMap contains all relevant information about a raster.
+    @todo       The data member must be made private.
+
+    cTMap instances contain raster data, projection information and a map name.
+    I/O of cTMap instances is handles by functions defined in the io module.
 */
 class cTMap
 {
@@ -44,21 +40,23 @@ class cTMap
 public:
 
     //! The actual raster.
-    MaskedRaster<double> Data;
+    MaskedRaster<double> data;
 
                    cTMap               ()=default;
 
+                   cTMap               (MaskedRaster<double>&& data,
+                                        QString const& projection,
+                                        QString const& mapName);
+
                    cTMap               (cTMap const& other)=delete;
 
-                   cTMap               (cTMap&& other)=delete;
+                   cTMap               (cTMap&& other)=default;
 
                    ~cTMap              ()=default;
 
     cTMap&         operator=           (cTMap const& other)=delete;
 
     cTMap&         operator=           (cTMap&& other)=default;
-
-    bool           created             () const;
 
     int            nrRows              () const;
 
@@ -70,24 +68,21 @@ public:
 
     double         cellSize            () const;
 
-    QString const& MapName             () const;
+    QString const& projection          () const;
 
-    QString const& PathName            () const;
+    QString const& mapName             () const;
 
-    void           setMapName          (QString const& mapName);
-
-    void           setPathName         (QString const& pathName);
-
-    void           setMV               ();
+    void           setAllMV            ();
 
     void           MakeMap             (cTMap *dup,
                                         REAL8 value);
 
 private:
 
-    QString        _MapName;
+    //! Projection string as WKT string. Possibly empty.
+    QString        _projection;
 
-    QString        _PathName;
+    QString        _mapName;
 
 };
 

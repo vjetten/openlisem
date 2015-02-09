@@ -81,16 +81,7 @@ cTMap *TWorld::NewMap(double value)
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
-    cTMap *_M = new cTMap();
-
-    _M->setPathName(/*inputdir + */name);
-
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
@@ -104,11 +95,8 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                         throw 1;
             }
 
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 
@@ -160,21 +148,10 @@ cTMap *TWorld::InitMask(QString name)
 {
     // read map and make a mask map
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     _dx = _M->cellSize()*1.0000000;
     _nrRows = _M->nrRows();
@@ -187,21 +164,10 @@ cTMap *TWorld::InitMask(QString name)
 cTMap *TWorld::InitMaskChannel(QString name)
 {
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 
@@ -210,21 +176,10 @@ cTMap *TWorld::InitMaskChannel(QString name)
 cTMap *TWorld::InitMaskTiledrain(QString name)
 {
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 
@@ -444,23 +399,23 @@ void TWorld::InitShade(void)
             mat[i] = DEM->Drc;
         if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
         {
-            if(!pcr::isMV(LDD->Data[r-1][c-1]))
-                mat[0] = DEM->Data[r-1][c-1];
-            if(!pcr::isMV(LDD->Data[r-1][c  ]))
-                mat[1] = DEM->Data[r-1][c  ];
-            if(!pcr::isMV(LDD->Data[r-1][c+1]))
-                mat[2] = DEM->Data[r-1][c+1];
-            if(!pcr::isMV(LDD->Data[r  ][c-1]))
-                mat[3] = DEM->Data[r  ][c-1];
+            if(!pcr::isMV(LDD->data[r-1][c-1]))
+                mat[0] = DEM->data[r-1][c-1];
+            if(!pcr::isMV(LDD->data[r-1][c  ]))
+                mat[1] = DEM->data[r-1][c  ];
+            if(!pcr::isMV(LDD->data[r-1][c+1]))
+                mat[2] = DEM->data[r-1][c+1];
+            if(!pcr::isMV(LDD->data[r  ][c-1]))
+                mat[3] = DEM->data[r  ][c-1];
 
-            if(!pcr::isMV(LDD->Data[r  ][c+1]))
-                mat[5] = DEM->Data[r  ][c+1];
-            if(!pcr::isMV(LDD->Data[r+1][c-1]))
-                mat[6] = DEM->Data[r+1][c-1];
-            if(!pcr::isMV(LDD->Data[r+1][c  ]))
-                mat[7] = DEM->Data[r+1][c  ];
-            if(!pcr::isMV(LDD->Data[r+1][c+1]))
-                mat[8] = DEM->Data[r+1][c+1];
+            if(!pcr::isMV(LDD->data[r  ][c+1]))
+                mat[5] = DEM->data[r  ][c+1];
+            if(!pcr::isMV(LDD->data[r+1][c-1]))
+                mat[6] = DEM->data[r+1][c-1];
+            if(!pcr::isMV(LDD->data[r+1][c  ]))
+                mat[7] = DEM->data[r+1][c  ];
+            if(!pcr::isMV(LDD->data[r+1][c+1]))
+                mat[8] = DEM->data[r+1][c+1];
         }
         dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
         dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
@@ -481,7 +436,7 @@ void TWorld::InitShade(void)
     //    {
     //        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
     //        if (Shade->Drc == 0 && r > 0 && c > 0)
-    //            Shade->Drc = Shade->Data[r-1][c-1];
+    //            Shade->Drc = Shade->data[r-1][c-1];
     //        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
     //    }
 
@@ -589,17 +544,17 @@ void TWorld::InitChannel(void)
             FloodEdge = NewMap(0);
             for (int r = 1; r < _nrRows-1; r++)
                 for (int c = 1; c < _nrCols-1; c++)
-                    if(!pcr::isMV(LDD->Data[r][c]))
+                    if(!pcr::isMV(LDD->data[r][c]))
                     {
                         if (FloodEdge->Drc == 0 &&
-                                (pcr::isMV(LDD->Data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->Data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->Data[r-1][c+1]) ||
-                                 pcr::isMV(LDD->Data[r  ][c-1]) ||
-                                 pcr::isMV(LDD->Data[r  ][c+1]) ||
-                                 pcr::isMV(LDD->Data[r+1][c-1]) ||
-                                 pcr::isMV(LDD->Data[r+1][c  ]) ||
-                                 pcr::isMV(LDD->Data[r+1][c+1]) )
+                                (pcr::isMV(LDD->data[r-1][c  ]) ||
+                                 pcr::isMV(LDD->data[r-1][c  ]) ||
+                                 pcr::isMV(LDD->data[r-1][c+1]) ||
+                                 pcr::isMV(LDD->data[r  ][c-1]) ||
+                                 pcr::isMV(LDD->data[r  ][c+1]) ||
+                                 pcr::isMV(LDD->data[r+1][c-1]) ||
+                                 pcr::isMV(LDD->data[r+1][c  ]) ||
+                                 pcr::isMV(LDD->data[r+1][c+1]) )
                                 )
                           if (ChannelWidthUpDX->Drc == 0)
                             FloodEdge->Drc = 1;
@@ -608,17 +563,17 @@ void TWorld::InitChannel(void)
 //            tma->fill(0);
 //            for (int r = 1; r < _nrRows-1; r++)
 //                for (int c = 1; c < _nrCols-1; c++)
-//                    if(!pcr::isMV(LDD->Data[r][c]))
+//                    if(!pcr::isMV(LDD->data[r][c]))
 //            {
 //                if (FloodEdge->Drc == 0 && (
-//                            FloodEdge->Data[r-1][c-1] == 1 ||
-//                            FloodEdge->Data[r-1][c  ] == 1 ||
-//                            FloodEdge->Data[r-1][c+1] == 1 ||
-//                            FloodEdge->Data[r][c-1] == 1 ||
-//                            FloodEdge->Data[r][c+1] == 1 ||
-//                            FloodEdge->Data[r+1][c-1] == 1 ||
-//                            FloodEdge->Data[r+1][c  ] == 1 ||
-//                            FloodEdge->Data[r+1][c+1] == 1
+//                            FloodEdge->data[r-1][c-1] == 1 ||
+//                            FloodEdge->data[r-1][c  ] == 1 ||
+//                            FloodEdge->data[r-1][c+1] == 1 ||
+//                            FloodEdge->data[r][c-1] == 1 ||
+//                            FloodEdge->data[r][c+1] == 1 ||
+//                            FloodEdge->data[r+1][c-1] == 1 ||
+//                            FloodEdge->data[r+1][c  ] == 1 ||
+//                            FloodEdge->data[r+1][c+1] == 1
 //                            ))
 //                    tma->Drc = 2;
 //            }
@@ -636,7 +591,7 @@ void TWorld::InitChannel(void)
             //            long i = 0;
             //            for (int r = 0; r < _nrRows; r++)
             //                for (int c = 0; c < _nrCols; c++)
-            //                    if(!pcr::isMV(LDD->Data[r][c]))
+            //                    if(!pcr::isMV(LDD->data[r][c]))
             //                    {
             //                        cellRow[i] = r;
             //                        cellCol[i] = c;
