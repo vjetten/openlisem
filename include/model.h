@@ -61,23 +61,23 @@
 // defines to make life easier
 
 /// shortcut to access data
-#define Drc     Data[r][c]
-#define Drci Data[r+dr[i]][c+dc[i]]
+#define Drc     data[r][c]
+#define Drci data[r+dr[i]][c+dc[i]]
 
 /// shortcut to access the outlet point data
-#define DrcOutlet     Data[r_outlet][c_outlet]
+#define DrcOutlet     data[r_outlet][c_outlet]
 
 /// shortcut to access the point data plotted on screen
-#define DrcPlot     Data[r_plot][c_plot]
+#define DrcPlot     data[r_plot][c_plot]
 // VJ 110630 show hydrograph for selected output point
 
 /// shortcut missing value in map
-#define MV(r,c) pcr::isMV(LDD->Data[r][c])
+#define MV(r,c) pcr::isMV(LDD->data[r][c])
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(LDD->Data[r][c]))
+    if(!pcr::isMV(LDD->data[r][c]))
 
 /// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
 /// and looking only in active flood domain = flood + 1 cell in all directions
@@ -85,11 +85,11 @@
 /*
 #define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
-    if(!pcr::isMV(LDD->Data[r][c]) && \
-    !pcr::isMV(LDD->Data[r-1][c]) && \
-    !pcr::isMV(LDD->Data[r+1][c]) && \
-    !pcr::isMV(LDD->Data[r][c-1]) && \
-    !pcr::isMV(LDD->Data[r][c+1])){
+    if(!pcr::isMV(LDD->data[r][c]) && \
+    !pcr::isMV(LDD->data[r-1][c]) && \
+    !pcr::isMV(LDD->data[r+1][c]) && \
+    !pcr::isMV(LDD->data[r][c-1]) && \
+    !pcr::isMV(LDD->data[r][c+1])){
     //if (floodactive->Drc > 0)
 
 
@@ -107,12 +107,12 @@
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(LDDChannel->Data[r][c]))
+    if(!pcr::isMV(LDDChannel->data[r][c]))
 
 /// shortcut for tile network row and col loop.
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(LDDTile->Data[r][c]))
+    if(!pcr::isMV(LDDTile->data[r][c]))
 
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)

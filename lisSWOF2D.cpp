@@ -313,34 +313,34 @@ void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
     delta_u1 = tma->Drc;
     delta_v1 = tmb->Drc;
 
-    hh2 = h->Drc-2.*h->Data[r][c+1]+h->Data[r][c+2];
-    uu2 = u->Drc-2.*u->Data[r][c+1]+u->Data[r][c+2];
-    vv2 = v->Drc-2.*v->Data[r][c+1]+v->Data[r][c+2];
+    hh2 = h->Drc-2.*h->data[r][c+1]+h->data[r][c+2];
+    uu2 = u->Drc-2.*u->data[r][c+1]+u->data[r][c+2];
+    vv2 = v->Drc-2.*v->data[r][c+1]+v->data[r][c+2];
 
     ddh2 = amortENO*limiter(hh1,hh2);
     ddu2 = amortENO*limiter(uu1,uu2);
-    ddz2 = amortENO*limiter(hh1+som_z1->Drc,hh2+som_z1->Data[r][c+1]);
+    ddz2 = amortENO*limiter(hh1+som_z1->Drc,hh2+som_z1->data[r][c+1]);
     ddv2 = amortENO*limiter(vv1,vv2);
 
-    delta_h2 = h->Data[r][c+1]-h->Drc;
-    delta_u2 = u->Data[r][c+1]-u->Drc;
-    delta_v2 = v->Data[r][c+1]-v->Drc;
+    delta_h2 = h->data[r][c+1]-h->Drc;
+    delta_u2 = u->data[r][c+1]-u->Drc;
+    delta_v2 = v->data[r][c+1]-v->Drc;
 
 
     if (F_diffScheme == (int)FENO)
       {
         dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-        dz_h = limiter(delta_h1+delta_z1->Data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
+        dz_h = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
       }
     else
       {
         a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-        a4 = limiter(delta_h1+delta_z1->Data[r][c-1]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
+        a4 = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
 
         a1 = limiter(delta_h1,delta_h2);
         dh = limiter(2*MODIFENO*a1,a2);
 
-        a3 = limiter(delta_h1+delta_z1->Data[r][c-1],delta_h2+delta_z1->Drc);
+        a3 = limiter(delta_h1+delta_z1->data[r][c-1],delta_h2+delta_z1->Drc);
         dz_h = limiter(2*MODIFENO*a3,a4);
       }
     du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
@@ -353,7 +353,7 @@ void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
     z1l->Drc=z->Drc+0.5*(dh-dz_h);
 
     delzc1->Drc = z1r->Drc - z1l->Drc;
-    delz1->Data[r][c-1] = z1l->Drc - z1r->Data[r][c-1];
+    delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
 
     if (h->Drc>0)
       {
@@ -400,33 +400,33 @@ if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
   delta_u1 = tma->Drc;
   delta_v1 = tmb->Drc;
 
-  hh2 = h->Drc-2.*h->Data[r+1][c]+h->Data[r+2][c];
-  uu2 = u->Drc-2.*u->Data[r+1][c]+u->Data[r+2][c];
-  vv2 = v->Drc-2.*v->Data[r+1][c]+v->Data[r+2][c];
+  hh2 = h->Drc-2.*h->data[r+1][c]+h->data[r+2][c];
+  uu2 = u->Drc-2.*u->data[r+1][c]+u->data[r+2][c];
+  vv2 = v->Drc-2.*v->data[r+1][c]+v->data[r+2][c];
 
   ddh2 = amortENO*limiter(hh1,hh2);
   ddu2 = amortENO*limiter(uu1,uu2);
-  ddz2 = amortENO*limiter(hh1+som_z2->Drc,hh2+som_z2->Data[r+1][c]);
+  ddz2 = amortENO*limiter(hh1+som_z2->Drc,hh2+som_z2->data[r+1][c]);
   ddv2 = amortENO*limiter(vv1,vv2);
 
-  delta_h2 = h->Data[r+1][c]-h->Drc;
-  delta_u2 = u->Data[r+1][c]-u->Drc;
-  delta_v2 = v->Data[r+1][c]-v->Drc;
+  delta_h2 = h->data[r+1][c]-h->Drc;
+  delta_u2 = u->data[r+1][c]-u->Drc;
+  delta_v2 = v->data[r+1][c]-v->Drc;
 
   if (F_diffScheme == (int)FENO)
     {
       dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-      dz_h = limiter(delta_h1+delta_z2->Data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
+      dz_h = limiter(delta_h1+delta_z2->data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
     }
   else
     {
       a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-      a4 = limiter(delta_h1+delta_z1->Data[r-1][c]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
+      a4 = limiter(delta_h1+delta_z1->data[r-1][c]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
 
       a1 = limiter(delta_h1,delta_h2);
       dh = limiter(2*MODIFENO*a1,a2);
 
-      a3 = limiter(delta_h1+delta_z1->Data[r-1][c],delta_h2+delta_z1->Drc);
+      a3 = limiter(delta_h1+delta_z1->data[r-1][c],delta_h2+delta_z1->Drc);
       dz_h = limiter(2*MODIFENO*a3,a4);
     }
 
@@ -439,7 +439,7 @@ if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
   z2r->Drc = z->Drc+0.5*(dz_h-dh);
   z2l->Drc = z->Drc+0.5*(dh-dz_h);
   delzc2->Drc = z2r->Drc-z2l->Drc;
-  delz2->Data[r-1][c] = z2l->Drc-z2r->Data[r-1][c];
+  delz2->data[r-1][c] = z2l->Drc-z2r->data[r-1][c];
 
   if (h->Drc>0)
     {
@@ -495,12 +495,12 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     delta_u1 = tma->Drc;
     delta_v1 = tmb->Drc;
 
-    delta_h2 = _h->Data[r][c+1] - _h->Drc;
-    delta_u2 = _u->Data[r][c+1] - _u->Drc;
-    delta_v2 = _v->Data[r][c+1] - _v->Drc;
+    delta_h2 = _h->data[r][c+1] - _h->Drc;
+    delta_u2 = _u->data[r][c+1] - _u->Drc;
+    delta_v2 = _v->data[r][c+1] - _v->Drc;
 
     dh   = 0.5*limiter(delta_h1, delta_h2);
-    dz_h = 0.5*limiter(delta_h1 + delta_z1->Data[r][c-1], delta_h2 + delta_z1->Drc);
+    dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
     du   = 0.5*limiter(delta_u1, delta_u2);
     dv   = 0.5*limiter(delta_v1, delta_v2);
 
@@ -511,7 +511,7 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     z1l->Drc = _z->Drc+(dh-dz_h);
 
     delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
-    delz1->Data[r][c-1] = z1l->Drc-z1r->Data[r][c-1];
+    delz1->data[r][c-1] = z1l->Drc-z1r->data[r][c-1];
 
     if (_h->Drc > 0.)//he_ca)
       {
@@ -549,12 +549,12 @@ if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1, c))
   delta_u1 = tma->Drc;
   delta_v1 = tmb->Drc;
 
-  delta_h2 = _h->Data[r+1][c] - _h->Drc;
-  delta_u2 = _u->Data[r+1][c] - _u->Drc;
-  delta_v2 = _v->Data[r+1][c] - _v->Drc;
+  delta_h2 = _h->data[r+1][c] - _h->Drc;
+  delta_u2 = _u->data[r+1][c] - _u->Drc;
+  delta_v2 = _v->data[r+1][c] - _v->Drc;
 
   dh   = 0.5*limiter(delta_h1, delta_h2);
-  dz_h = 0.5*limiter(delta_h1+delta_z2->Data[r-1][c],delta_h2+delta_z2->Drc);
+  dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
   du   = 0.5*limiter(delta_u1, delta_u2);
   dv   = 0.5*limiter(delta_v1, delta_v2);
 
@@ -564,7 +564,7 @@ if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1, c))
   z2r->Drc = _z->Drc+(dz_h-dh);
   z2l->Drc = _z->Drc+(dh-dz_h);
   delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
-  delz2->Data[r-1][c] = z2l->Drc - z2r->Data[r-1][c];
+  delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
 
   if (_h->Drc > 0.)
     {
@@ -603,10 +603,10 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
     long double ty = dt/dy;
     // Solution of the equation of mass conservation (First equation of Saint venant)
     // f1 comes from MUSCL calculations
-    if ((r > _nrRows-2 || c > _nrCols-2) || (pcr::isMV(LDD->Data[r][c+1]) || pcr::isMV(LDD->Data[r+1][c])))
+    if ((r > _nrRows-2 || c > _nrCols-2) || (pcr::isMV(LDD->data[r][c+1]) || pcr::isMV(LDD->data[r+1][c])))
       hes->Drc = he->Drc;
     else
-      hes->Drc = he->Drc - tx*(f1->Data[r][c+1]-f1->Drc) - ty*(g1->Data[r+1][c]-g1->Drc);
+      hes->Drc = he->Drc - tx*(f1->data[r][c+1]-f1->Drc) - ty*(g1->data[r+1][c]-g1->Drc);
     if (hes->Drc > he_ca)
       {
         //Solution of the equation of momentum (Second and third equation of Saint-venant)
@@ -618,15 +618,15 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
         // This expression for the flux (instead of the differences of the squares) avoids numerical errors
         // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
         qes1 = (long double)he->Drc*(long double)ve1->Drc -
-            ty*((long double)g2->Data[r+1][c]-(long double)g2->Drc) -
-            tx*((long double)f2->Data[r][c+1]-(long double)f2->Drc +
+            ty*((long double)g2->data[r+1][c]-(long double)g2->Drc) -
+            tx*((long double)f2->data[r][c+1]-(long double)f2->Drc +
             GRAV*0.5*(((long double)h1g->Drc-(long double)h1l->Drc)*((long double)h1g->Drc+(long double)h1l->Drc) +
                       ((long double)h1r->Drc-(long double)h1d->Drc)*((long double)h1r->Drc+(long double)h1d->Drc) +
                       ((long double)h1l->Drc+(long double)h1r->Drc)*(long double)delzc1->Drc)) ;
 
         // fullswof version 1.04
-        qes2 = (long double)he->Drc*(long double)ve2->Drc - tx*((long double)f3->Data[r][c+1]-(long double)f3->Drc) -
-            ty*((long double)g3->Data[r+1][c]-(long double)g3->Drc +
+        qes2 = (long double)he->Drc*(long double)ve2->Drc - tx*((long double)f3->data[r][c+1]-(long double)f3->Drc) -
+            ty*((long double)g3->data[r+1][c]-(long double)g3->Drc +
             GRAV*0.5*(((long double)h2g->Drc-(long double)h2l->Drc)*((long double)h2g->Drc+(long double)h2l->Drc) +
                       ((long double)h2r->Drc-(long double)h2d->Drc)*((long double)h2r->Drc+(long double)h2d->Drc) +
                       ((long double)h2l->Drc+(long double)h2r->Drc)*(long double)delzc2->Drc));
@@ -663,17 +663,17 @@ double TWorld::maincalcflux(double dt, double dt_max)
   dty = dt_max;
 
   FOR_ROW_COL_MV_MV
-      if (c > 0 && !pcr::isMV(LDD->Data[r][c-1]))
+      if (c > 0 && !pcr::isMV(LDD->data[r][c-1]))
   {
-    h1d->Data[r][c-1] = std::max(0.0, h1r->Data[r][c-1] - std::max(0.0,  delz1->Data[r][c-1]));
-    h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->Data[r][c-1]));
+    h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]));
+    h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]));
     if (F_scheme == 1)
-      F_Rusanov(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+      F_Rusanov(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
     else
       if (F_scheme == 2)
-        F_HLL(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+        F_HLL(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
       else
-        F_HLL2(h1d->Data[r][c-1], u1r->Data[r][c-1], v1r->Data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+        F_HLL2(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
 
     f1->Drc = HLL2_f1;
     f2->Drc = HLL2_f2;
@@ -683,15 +683,15 @@ double TWorld::maincalcflux(double dt, double dt_max)
   }
   else
   {
-    h1d->Data[r][c] = std::max(0.0, h1r->Data[r][c] - std::max(0.0,  delz1->Data[r][c]));
-    h1g->Drc        = std::max(0.0, h1l->Drc        - std::max(0.0, -delz1->Data[r][c]));
+    h1d->data[r][c] = std::max(0.0, h1r->data[r][c] - std::max(0.0,  delz1->data[r][c]));
+    h1g->Drc        = std::max(0.0, h1l->Drc        - std::max(0.0, -delz1->data[r][c]));
     if (F_scheme == 1)
-      F_Rusanov(h1d->Data[r][c], u1r->Data[r][c], v1r->Data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
+      F_Rusanov(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
     else
       if (F_scheme == 2)
-        F_HLL(h1d->Data[r][c], u1r->Data[r][c], v1r->Data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
+        F_HLL(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
       else
-        F_HLL2(h1d->Data[r][c], u1r->Data[r][c], v1r->Data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
+        F_HLL2(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
 
     f1->Drc = HLL2_f1;
     f2->Drc = HLL2_f2;
@@ -701,19 +701,19 @@ double TWorld::maincalcflux(double dt, double dt_max)
   }}
 
   FOR_ROW_COL_MV_MV
-  if(r > 0 && !pcr::isMV(LDD->Data[r-1][c]))
+  if(r > 0 && !pcr::isMV(LDD->data[r-1][c]))
   {
 
-    h2d->Data[r-1][c] = std::max(0.0, h2r->Data[r-1][c] - std::max(0.0,  delz2->Data[r-1][c]));
-    h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->Data[r-1][c]));
+    h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]));
+    h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]));
 
     if (F_scheme == 1)
-      F_Rusanov(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+      F_Rusanov(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
     else
       if (F_scheme == 2)
-        F_HLL(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+        F_HLL(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
       else
-        F_HLL2(h2d->Data[r-1][c],v2r->Data[r-1][c],u2r->Data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
+        F_HLL2(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
     g1->Drc = HLL2_f1;
     g2->Drc = HLL2_f3;
@@ -722,16 +722,16 @@ double TWorld::maincalcflux(double dt, double dt_max)
   }
   else
   {
-     h2d->Data[r][c] = std::max(0.0, h2r->Data[r][c] - std::max(0.0,  delz2->Data[r][c]));
-     h2g->Drc        = std::max(0.0, h2l->Drc        - std::max(0.0, -delz2->Data[r][c]));
+     h2d->data[r][c] = std::max(0.0, h2r->data[r][c] - std::max(0.0,  delz2->data[r][c]));
+     h2g->Drc        = std::max(0.0, h2l->Drc        - std::max(0.0, -delz2->data[r][c]));
 
      if (F_scheme == 1)
-     F_Rusanov(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     F_Rusanov(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
      else
      if (F_scheme == 2)
-     F_HLL(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     F_HLL(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
      else
-     F_HLL2(h2d->Data[r][c],v2r->Data[r][c],u2r->Data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
+     F_HLL2(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
      g1->Drc = HLL2_f1;
      g2->Drc = HLL2_f3;
@@ -956,23 +956,23 @@ void TWorld::findFloodDomain(cTMap *_h)
 {
   for (int r = 1; r < _nrRows-1; r++)
     for (int c = 1; c < _nrCols-1; c++)
-      if(!pcr::isMV(LDD->Data[r][c]) &&
-         !pcr::isMV(LDD->Data[r-1][c]) &&
-         !pcr::isMV(LDD->Data[r+1][c]) &&
-         !pcr::isMV(LDD->Data[r][c-1]) &&
-         !pcr::isMV(LDD->Data[r][c+1]))
+      if(!pcr::isMV(LDD->data[r][c]) &&
+         !pcr::isMV(LDD->data[r-1][c]) &&
+         !pcr::isMV(LDD->data[r+1][c]) &&
+         !pcr::isMV(LDD->data[r][c-1]) &&
+         !pcr::isMV(LDD->data[r][c+1]))
         {
           if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
             {
-              floodactive->Data[r-1][c-1] = 1;
-              floodactive->Data[r-1][c  ] = 1;
-              floodactive->Data[r-1][c+1] = 1;
-              floodactive->Data[r  ][c-1] = 1;
-              floodactive->Data[r  ][c  ] = 1;
-              floodactive->Data[r  ][c+1] = 1;
-              floodactive->Data[r+1][c-1] = 1;
-              floodactive->Data[r+1][c  ] = 1;
-              floodactive->Data[r+1][c+1] = 1;
+              floodactive->data[r-1][c-1] = 1;
+              floodactive->data[r-1][c  ] = 1;
+              floodactive->data[r-1][c+1] = 1;
+              floodactive->data[r  ][c-1] = 1;
+              floodactive->data[r  ][c  ] = 1;
+              floodactive->data[r  ][c+1] = 1;
+              floodactive->data[r+1][c-1] = 1;
+              floodactive->data[r+1][c  ] = 1;
+              floodactive->data[r+1][c+1] = 1;
             }
           else
             floodactive->Drc = 0;
@@ -1010,13 +1010,13 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
       fill(*delz2, 0.0);
       for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->Data[r][c]) &&
-             !pcr::isMV(LDD->Data[r-1][c]) &&
-             !pcr::isMV(LDD->Data[r][c-1])
+          if(!pcr::isMV(LDD->data[r][c]) &&
+             !pcr::isMV(LDD->data[r-1][c]) &&
+             !pcr::isMV(LDD->data[r][c-1])
              )
             {
-              delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-              delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
               // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
     }
@@ -1099,23 +1099,23 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
 
       for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->Data[r][c]) &&
-             !pcr::isMV(LDD->Data[r-1][c]) &&
-             !pcr::isMV(LDD->Data[r+1][c]) &&
-             !pcr::isMV(LDD->Data[r][c-1]) &&
-             !pcr::isMV(LDD->Data[r][c+1]))
+          if(!pcr::isMV(LDD->data[r][c]) &&
+             !pcr::isMV(LDD->data[r-1][c]) &&
+             !pcr::isMV(LDD->data[r+1][c]) &&
+             !pcr::isMV(LDD->data[r][c-1]) &&
+             !pcr::isMV(LDD->data[r][c+1]))
             {
 
-              delta_z1->Drc = z->Data[r][c+1] - z->Drc;
-              delta_z2->Drc = z->Data[r+1][c] - z->Drc;
+              delta_z1->Drc = z->data[r][c+1] - z->Drc;
+              delta_z2->Drc = z->data[r+1][c] - z->Drc;
               // needed in MUSCL
 
-              delz1->Data[r][c-1] = z->Drc - z->Data[r][c-1];
-              delz2->Data[r-1][c] = z->Drc - z->Data[r-1][c];
+              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
               // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
 
-              som_z1->Drc = z->Data[r][c-1]-2*z->Drc+z->Data[r][c+1];
-              som_z2->Drc = z->Data[r-1][c]-2*z->Drc+z->Data[r+1][c];
+              som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
+              som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
               // needed in ENO
             }
     }

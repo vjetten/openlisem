@@ -88,18 +88,18 @@ void test_default_raster(
     BOOST_CHECK_EQUAL(raster.west(), -100.0);
     BOOST_CHECK_EQUAL(raster.cellSize(), 5.0);
 
-    BOOST_CHECK(!raster.Data.is_mv(0, 0));
-    BOOST_CHECK(!raster.Data.is_mv(0, 1));
-    BOOST_CHECK(!raster.Data.is_mv(1, 0));
-    BOOST_CHECK( raster.Data.is_mv(1, 1));
-    BOOST_CHECK(!raster.Data.is_mv(2, 0));
-    BOOST_CHECK(!raster.Data.is_mv(2, 1));
+    BOOST_CHECK(!raster.data.is_mv(0, 0));
+    BOOST_CHECK(!raster.data.is_mv(0, 1));
+    BOOST_CHECK(!raster.data.is_mv(1, 0));
+    BOOST_CHECK( raster.data.is_mv(1, 1));
+    BOOST_CHECK(!raster.data.is_mv(2, 0));
+    BOOST_CHECK(!raster.data.is_mv(2, 1));
 
-    BOOST_CHECK_EQUAL(raster.Data[0][0], -2.0);
-    BOOST_CHECK_EQUAL(raster.Data[0][1], -1.0);
-    BOOST_CHECK_EQUAL(raster.Data[1][0],  0.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][0],  1.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][1],  2.0);
+    BOOST_CHECK_EQUAL(raster.data[0][0], -2.0);
+    BOOST_CHECK_EQUAL(raster.data[0][1], -1.0);
+    BOOST_CHECK_EQUAL(raster.data[1][0],  0.0);
+    BOOST_CHECK_EQUAL(raster.data[2][0],  1.0);
+    BOOST_CHECK_EQUAL(raster.data[2][1],  2.0);
 }
 
 
@@ -134,18 +134,18 @@ void test_twice_default_raster(
     BOOST_CHECK_EQUAL(raster.west(), -100.0);
     BOOST_CHECK_EQUAL(raster.cellSize(), 5.0);
 
-    BOOST_CHECK(!raster.Data.is_mv(0, 0));
-    BOOST_CHECK(!raster.Data.is_mv(0, 1));
-    BOOST_CHECK(!raster.Data.is_mv(1, 0));
-    BOOST_CHECK( raster.Data.is_mv(1, 1));
-    BOOST_CHECK(!raster.Data.is_mv(2, 0));
-    BOOST_CHECK(!raster.Data.is_mv(2, 1));
+    BOOST_CHECK(!raster.data.is_mv(0, 0));
+    BOOST_CHECK(!raster.data.is_mv(0, 1));
+    BOOST_CHECK(!raster.data.is_mv(1, 0));
+    BOOST_CHECK( raster.data.is_mv(1, 1));
+    BOOST_CHECK(!raster.data.is_mv(2, 0));
+    BOOST_CHECK(!raster.data.is_mv(2, 1));
 
-    BOOST_CHECK_EQUAL(raster.Data[0][0], -4.0);
-    BOOST_CHECK_EQUAL(raster.Data[0][1], -2.0);
-    BOOST_CHECK_EQUAL(raster.Data[1][0],  0.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][0],  2.0);
-    BOOST_CHECK_EQUAL(raster.Data[2][1],  4.0);
+    BOOST_CHECK_EQUAL(raster.data[0][0], -4.0);
+    BOOST_CHECK_EQUAL(raster.data[0][1], -2.0);
+    BOOST_CHECK_EQUAL(raster.data[1][0],  0.0);
+    BOOST_CHECK_EQUAL(raster.data[2][0],  2.0);
+    BOOST_CHECK_EQUAL(raster.data[2][1],  4.0);
 }
 
 
@@ -153,10 +153,10 @@ BOOST_AUTO_TEST_CASE(write_map)
 {
     auto raster = readRaster("data/default.map");
 
-    raster.Data[0][0] *= 2;
-    raster.Data[0][1] *= 2;
-    raster.Data[2][0] *= 2;
-    raster.Data[2][1] *= 2;
+    raster.data[0][0] *= 2;
+    raster.data[0][1] *= 2;
+    raster.data[2][0] *= 2;
+    raster.data[2][1] *= 2;
 
     writeRaster(raster, "twice_default.map", "PCRaster");
     test_twice_default_raster("twice_default.map");

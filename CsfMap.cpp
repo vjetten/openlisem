@@ -21,37 +21,24 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
-
-/*!
- \file CsfMap.cpp
- \brief file operations  class for PCRaster maps.
-
-  provide basic functionality to read and write PCRaster CSF maps, \n
-  can be altered to link to other file formats.
-
- functions: \n
- - void cTMap::KillMap(void)  \n
- - void cTMap::GetMapHeader(QString Name)  \n
- - void cTMap::CreateMap(QString Name) \n
- - bool cTMap::LoadFromFile() \n
- - void cTMap::MakeMap(cTMap *dup, REAL8 value) \n
- - void cTMap::ResetMinMax(void) \n
- - void cTMap::WriteMap(QString Name) \n
- - void cTMap::WriteMapSeries(QString Dir, QString Name, int count) \n
-*/
-
-#include <memory>
 #include <cassert>
 #include "CsfMap.h"
 #include "error.h"
 
-
+/*!
+    @brief      Constructor.
+    @param      data Properties of the raster and the cell values.
+    @param      projection Projection as a WKT string or an empty string.
+    @param      mapName Map name.
+*/
 cTMap::cTMap(
-    MaskedRaster<double>&& Data,
+    MaskedRaster<double>&& data,
+    QString const& projection,
     QString const& mapName)
 
-    : Data(std::forward<MaskedRaster<double>>(Data)),
-      _MapName(mapName)
+    : data(std::forward<MaskedRaster<double>>(data)),
+      _projection(projection),
+      _mapName(mapName)
 
 {
 }
@@ -59,43 +46,49 @@ cTMap::cTMap(
 
 int cTMap::nrRows() const
 {
-    return static_cast<int>(Data.nr_rows());
+    return static_cast<int>(data.nr_rows());
 }
 
 
 int cTMap::nrCols() const
 {
-    return static_cast<int>(Data.nr_cols());
+    return static_cast<int>(data.nr_cols());
 }
 
 
 double cTMap::north() const
 {
-    return Data.north();
+    return data.north();
 }
 
 
 double cTMap::west() const
 {
-    return Data.west();
+    return data.west();
 }
 
 
 double cTMap::cellSize() const
 {
-    return Data.cell_size();
+    return data.cell_size();
 }
 
 
-QString const& cTMap::MapName() const
+QString const& cTMap::projection() const
 {
-    return _MapName;
+    return _projection;
 }
 
 
-void cTMap::setMV()
+QString const& cTMap::mapName() const
 {
-    Data.set_all_mv();
+    return _mapName;
+}
+
+
+void cTMap::setAllMV()
+{
+    data.set_all_mv();
 }
 
 
@@ -107,15 +100,15 @@ void cTMap::MakeMap(
   if (dup == NULL)
     return;
 
-  Data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
+  data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
       dup->west(), dup->cellSize());
 
-  Data.set_all_mv();
+  data.set_all_mv();
 
   for(int r=0; r < nrRows(); r++)
     for(int c=0; c < nrCols(); c++)
-      if (!pcr::isMV(dup->Data[r][c]))
+      if (!pcr::isMV(dup->data[r][c]))
         {
-          Data[r][c] = value;
+          data[r][c] = value;
         }
 }

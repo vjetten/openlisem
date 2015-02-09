@@ -32,6 +32,7 @@ functions: \n
 - void TWorld::SnowmeltMap(void) \n
  */
 
+#include <memory>
 #include "io.h"
 #include "model.h"
 

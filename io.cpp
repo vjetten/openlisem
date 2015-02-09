@@ -2,10 +2,26 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <QFileInfo>
 #include <gdal_priv.h>
+#include "csf.h"
 #include "CsfMap.h"
 #include "error.h"
+
+
+//! Function to close a CSF MAP.
+auto close_csf_map = [](MAP* map) { Mclose(map); };
+
+//! Auto-ptr type for CSF MAPs.
+using MapPtr = std::unique_ptr<MAP, decltype(close_csf_map)>;
+
+//! Function to close a GDAL GDALDataset.
+auto close_gdal_dataset = [](GDALDataset* dataset) { GDALClose(dataset); };
+
+//! Auto-ptr type for GDAL GDALDatasets.
+using GDALDatasetPtr = std::unique_ptr<GDALDataset, decltype(
+    close_gdal_dataset)>;
 
 
 /* for info:
@@ -26,11 +42,23 @@ typedef struct CSF_RASTER_HEADER
 */
 
 
-auto close_gdal_dataset = [](GDALDataset* dataset) { GDALClose(dataset); };
-using GDALDatasetPtr = std::unique_ptr<GDALDataset, decltype(
-    close_gdal_dataset)>;
+/*!
+    @brief      Return whether raster @a pathName can be opened for reading.
+*/
+bool rasterCanBeOpenedForReading(
+    QString const& pathName)
+{
+    GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
+        pathName.toAscii().constData(), GA_ReadOnly)), close_gdal_dataset);
+    bool result{dataset};
+
+    return result;
+}
 
 
+/*!
+    @brief      Read raster @a pathName and return the result.
+*/
 cTMap readRaster(
     QString const& pathName)
 {
@@ -48,6 +76,8 @@ cTMap readRaster(
 
     double transformation[6];
     dataset->GetGeoTransform(transformation);
+
+    QString projection{dataset->GetProjectionRef()};
 
 
     // Read the first raster band.
@@ -75,7 +105,7 @@ cTMap readRaster(
         raster_data.replace_with_mv(noDataValue);
     }
 
-    return cTMap(std::move(raster_data), pathName);
+    return cTMap(std::move(raster_data), projection, pathName);
 }
 
 
@@ -95,7 +125,7 @@ void writePCRasterRaster(
     RuseAs(csfMap.get(), CR_REAL8);
 
     // Copy cells to write to new buffer.
-    auto const& raster_data(raster.Data);
+    auto const& raster_data(raster.data);
     std::unique_ptr<double[]> buffer{new double[raster_data.nr_cells()]};
     std::memcpy(buffer.get(), raster_data[0], sizeof(double) *
         raster_data.nr_cells());
@@ -126,7 +156,7 @@ void writeGDALRaster(
         Error(QString("Dataset %1 cannot be created.").arg(pathName));
     }
 
-    MaskedRaster<double> const& raster_data{raster.Data};
+    MaskedRaster<double> const& raster_data{raster.data};
 
     // Set some metadata.
     double transformation[]{
@@ -137,6 +167,8 @@ void writeGDALRaster(
         0.0,
         raster_data.cell_size()};
     dataset->SetGeoTransform(transformation);
+
+    dataset->SetProjection(raster.projection().toAscii().constData());
 
     // PCRaster supports value scales, but other formats don't. We set the
     // value scale as a meta data item in the raster. If the format supports
@@ -158,6 +190,17 @@ void writeGDALRaster(
 }
 
 
+/*!
+    @brief      Write raster @a raster to @a pathName using format driver
+                @a format.
+    @param      raster Raster to write.
+    @param      pathName Name of dataset to write.
+    @param      format Name of driver to use for writing. Not that only drivers
+                that implement the Create() method can be used to write
+                rasters. (In case of the PCRaster driver an exception is made.
+                Its driver doesn't implement Create() yet, but we handle
+                saving to PCRaster raster format ourselves.)
+*/
 void writeRaster(
     cTMap const& raster,
     QString const& pathName,
@@ -185,18 +228,20 @@ void writeRaster(
     bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE,
         FALSE) != FALSE};
 
-    if(!driverSupportsCreate && format != "PCRaster") {
-        Error(QString(
-            "Format driver %1 cannot be used to create datasets.").arg(
-                format.toAscii().constData()));
+    if(driverSupportsCreate) {
+        // All is well, write using GDAL.
+        writeGDALRaster(raster, pathName, *driver);
     }
-
-
-    if(format == "PCRaster") {
+    else if(format == "PCRaster") {
+        // OK, until PCRaster supports Create(), we'll handle writing to
+        // PCRaster format ourselves. Work is underway to add support
+        // for Create() to the GDAL PCRaster driver.
         writePCRasterRaster(raster, pathName);
     }
     else {
-        writeGDALRaster(raster, pathName, *driver);
+        Error(QString(
+            "Format driver %1 cannot be used to create datasets.").arg(
+                format.toAscii().constData()));
     }
 }
 
