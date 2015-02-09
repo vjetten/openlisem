@@ -81,16 +81,7 @@ cTMap *TWorld::NewMap(double value)
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
 
-    cTMap *_M = new cTMap();
-
-    _M->setPathName(/*inputdir + */name);
-
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
@@ -104,11 +95,8 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                         throw 1;
             }
 
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 
@@ -160,21 +148,10 @@ cTMap *TWorld::InitMask(QString name)
 {
     // read map and make a mask map
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     _dx = _M->cellSize()*1.0000000;
     _nrRows = _M->nrRows();
@@ -187,21 +164,10 @@ cTMap *TWorld::InitMask(QString name)
 cTMap *TWorld::InitMaskChannel(QString name)
 {
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 
@@ -210,21 +176,10 @@ cTMap *TWorld::InitMaskChannel(QString name)
 cTMap *TWorld::InitMaskTiledrain(QString name)
 {
 
-    cTMap *_M = new cTMap();
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
-    _M->setPathName(/*inputdir + */name);
-    bool res = LoadFromFile(*_M);
-    if (!res)
-    {
-        ErrorString = "Cannot find map " +_M->PathName();
-        throw 1;
-    }
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
 
     return(_M);
 

@@ -12,7 +12,7 @@ auto close_csf_map = [](MAP* map) { Mclose(map); };
 //! Auto-ptr type for CSF MAPs.
 using MapPtr = std::unique_ptr<MAP, decltype(close_csf_map)>;
 
-bool               LoadFromFile        (cTMap& raster);
+cTMap              readRaster          (QString const& pathName);
 
 void               WriteMap            (cTMap const& raster,
                                         QString Name);

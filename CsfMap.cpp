@@ -46,9 +46,14 @@
 #include "error.h"
 
 
-bool cTMap::created() const
+cTMap::cTMap(
+    MaskedRaster<double>&& Data,
+    QString const& mapName)
+
+    : Data(std::forward<MaskedRaster<double>>(Data)),
+      _MapName(mapName)
+
 {
-    return Data.nr_cells() > 0;
 }
 
 
@@ -88,26 +93,6 @@ QString const& cTMap::MapName() const
 }
 
 
-QString const& cTMap::PathName() const
-{
-    return _PathName;
-}
-
-
-void cTMap::setMapName(
-    QString const& mapName)
-{
-    _MapName = mapName;
-}
-
-
-void cTMap::setPathName(
-    QString const& pathName)
-{
-    _PathName = pathName;
-}
-
-
 void cTMap::setMV()
 {
     Data.set_all_mv();
@@ -115,7 +100,9 @@ void cTMap::setMV()
 
 
 // make a new map according to dup as a mask and filled with value
-void cTMap::MakeMap(cTMap *dup, REAL8 value)
+void cTMap::MakeMap(
+    cTMap *dup,
+    REAL8 value)
 {
   if (dup == NULL)
     return;

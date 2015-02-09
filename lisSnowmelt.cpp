@@ -151,14 +151,8 @@ void TWorld::SnowmeltMap(void)
 
    if (SnowmeltSeriesM[place].isMap)
    {
-      auto _M = std::unique_ptr<cTMap>(new cTMap);
-      _M->setPathName(SnowmeltSeriesM[place].name);
-      bool res = LoadFromFile(*_M);
-      if (!res)
-      {
-         ErrorString = "Cannot find Snowmelt map " +_M->PathName();
-         throw 1;
-      }
+      auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
+          SnowmeltSeriesM[place].name)));
 
       for (int r = 0; r < _nrRows; r++)
          for (int c = 0; c < _nrCols; c++)

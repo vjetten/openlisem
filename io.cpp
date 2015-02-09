@@ -22,41 +22,33 @@ typedef struct CSF_RASTER_HEADER
 */
 
 
-bool LoadFromFile(
-    cTMap& raster)
+cTMap readRaster(
+    QString const& pathName)
 {
-    if(!QFileInfo(raster.PathName()).exists()) {
-        Error(QString("Map %1 does not exist.").arg(raster.PathName()));
+    if(!QFileInfo(pathName).exists()) {
+        Error(QString("Map %1 does not exist.").arg(pathName));
     }
 
-    raster.Data = MaskedRaster<double>();
-
-    // make map structure
-    MapPtr m{Mopen(raster.PathName().toAscii().constData(), M_READ),
-        close_csf_map};
-    if(m == nullptr) {
-        Error(QString("Map %1 cannot be opened.").arg(raster.PathName()));
+    MapPtr csfMap{Mopen(pathName.toAscii().constData(), M_READ), close_csf_map};
+    if(!csfMap) {
+        Error(QString("Map %1 cannot be opened.").arg(pathName));
     }
+    RuseAs(csfMap.get(), CR_REAL8);
 
-    auto header = m->raster;
-
-    raster.Data = MaskedRaster<REAL8>(header.nrRows, header.nrCols,
+    auto header = csfMap->raster;
+    MaskedRaster<double> raster_data(header.nrRows, header.nrCols,
         header.yUL, header.xUL, header.cellSize);
+    RgetSomeCells(csfMap.get(), 0, raster_data.nr_cells(), raster_data[0]);
 
-    if(!raster.created()) {
-        return(false);
-    }
-
-    raster.setMapName(raster.PathName());
-
-    RuseAs(m.get(), CR_REAL8); //RgetCellRepr(m));
-    RgetSomeCells(m.get(), 0, raster.Data.nr_cells(), raster.Data[0]);
-
-    /// KDJ: not needed ?! if (RgetCellRepr(m) == CR_REAL8)
-    /// KDJ: not needed ?!   ResetMinMax();
-
-    return true;
+    return cTMap(std::move(raster_data), pathName);
 }
+
+
+/// void writeRaster(
+///     cTMap const& raster,
+///     QString const& pathName)
+/// {
+/// }
 
 
 /// write a map to disk
@@ -64,7 +56,7 @@ void WriteMap(
     cTMap const& raster,
     QString Name)
 {
-    if(!raster.created()) {
+    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
         return;
     }
 

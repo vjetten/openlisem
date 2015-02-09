@@ -48,17 +48,18 @@ public:
 
                    cTMap               ()=default;
 
+                   cTMap               (MaskedRaster<double>&& Data,
+                                        QString const& mapName);
+
                    cTMap               (cTMap const& other)=delete;
 
-                   cTMap               (cTMap&& other)=delete;
+                   cTMap               (cTMap&& other)=default;
 
                    ~cTMap              ()=default;
 
     cTMap&         operator=           (cTMap const& other)=delete;
 
     cTMap&         operator=           (cTMap&& other)=default;
-
-    bool           created             () const;
 
     int            nrRows              () const;
 
@@ -72,12 +73,6 @@ public:
 
     QString const& MapName             () const;
 
-    QString const& PathName            () const;
-
-    void           setMapName          (QString const& mapName);
-
-    void           setPathName         (QString const& pathName);
-
     void           setMV               ();
 
     void           MakeMap             (cTMap *dup,
@@ -86,8 +81,6 @@ public:
 private:
 
     QString        _MapName;
-
-    QString        _PathName;
 
 };
 

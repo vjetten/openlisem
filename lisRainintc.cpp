@@ -239,14 +239,8 @@ void TWorld::RainfallMap(void)
 
     if (RainfallSeriesM[rainplace].isMap)
     {
-        auto _M = std::unique_ptr<cTMap>(new cTMap);
-        _M->setPathName(RainfallSeriesM[rainplace].name);
-        bool res = LoadFromFile(*_M);
-        if (!res)
-        {
-            ErrorString = "Cannot find map " +_M->PathName();
-            throw 1;
-        }
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
+            RainfallSeriesM[rainplace].name)));
 
         //        for (int r = 0; r < _nrRows; r++)
         //            for (int c = 0; c < _nrCols; c++)

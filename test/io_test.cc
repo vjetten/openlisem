@@ -26,15 +26,12 @@ inline std::ostream& operator<<(
 
 BOOST_AUTO_TEST_SUITE(io)
 
-BOOST_AUTO_TEST_CASE(load_from_file_does_no_exist)
+BOOST_AUTO_TEST_CASE(read_raster_does_no_exist)
 {
-    cTMap raster;
-    raster.setPathName("does_not_exist.map");
-
     bool exception_thrown = false;
 
     try {
-        LoadFromFile(raster);
+        readRaster("does_not_exist.map");
         exception_thrown = false;
     }
     catch(...) {
@@ -43,18 +40,16 @@ BOOST_AUTO_TEST_CASE(load_from_file_does_no_exist)
 
     BOOST_CHECK(exception_thrown);
     BOOST_CHECK_EQUAL(ErrorString, "Map does_not_exist.map does not exist.");
+    ErrorString = "";
 }
 
 
-BOOST_AUTO_TEST_CASE(load_from_file_wrong_format)
+BOOST_AUTO_TEST_CASE(read_raster_wrong_format)
 {
-    cTMap raster;
-    raster.setPathName("data/wrong_format.map");
-
     bool exception_thrown = false;
 
     try {
-        LoadFromFile(raster);
+        readRaster("data/wrong_format.map");
         exception_thrown = false;
     }
     catch(...) {
@@ -64,33 +59,25 @@ BOOST_AUTO_TEST_CASE(load_from_file_wrong_format)
     BOOST_CHECK(exception_thrown);
     BOOST_CHECK_EQUAL(ErrorString,
         "Map data/wrong_format.map cannot be opened.");
+    ErrorString = "";
 }
 
 
-BOOST_AUTO_TEST_CASE(load_from_file)
+BOOST_AUTO_TEST_CASE(read_raster)
 {
-    // Pattern:
-    // - Create a cTMap instance.
-    // - Set path name.
-    // - Read the raster.
-
     cTMap raster;
-    raster.setPathName("data/default.map");
-
-    bool success = false;
     bool exception_thrown = true;
 
     try {
-        success = LoadFromFile(raster);
+        raster = readRaster("data/default.map");
         exception_thrown = false;
     }
     catch(...) {
-        BOOST_CHECK_EQUAL(ErrorString, "");
         exception_thrown = true;
     }
 
     BOOST_REQUIRE(!exception_thrown);
-    BOOST_REQUIRE(success);
+    BOOST_CHECK_EQUAL(ErrorString, "");
 
     BOOST_CHECK_EQUAL(raster.nrRows(), 3);
     BOOST_CHECK_EQUAL(raster.nrCols(), 2);
@@ -115,13 +102,7 @@ BOOST_AUTO_TEST_CASE(load_from_file)
 
 BOOST_AUTO_TEST_CASE(write_map)
 {
-    // Pattern:
-    // - Create a cTMap instance.
-    // - Set path name.
-    // - Write the raster.
-    cTMap raster;
-    raster.setPathName("data/default.map");
-    LoadFromFile(raster);
+    auto raster = readRaster("data/default.map");
 
     raster.Data[0][0] *= 2;
     raster.Data[0][1] *= 2;
@@ -130,22 +111,18 @@ BOOST_AUTO_TEST_CASE(write_map)
 
     WriteMap(raster, "twice_default.map");
 
-    raster.setPathName("twice_default.map");
-
-    bool success = false;
     bool exception_thrown = true;
 
     try {
-        success = LoadFromFile(raster);
+        raster = readRaster("twice_default.map");
         exception_thrown = false;
     }
     catch(...) {
-        BOOST_CHECK_EQUAL(ErrorString, "");
         exception_thrown = true;
     }
 
     BOOST_REQUIRE(!exception_thrown);
-    BOOST_REQUIRE(success);
+    BOOST_CHECK_EQUAL(ErrorString, "");
 
     BOOST_CHECK_EQUAL(raster.nrRows(), 3);
     BOOST_CHECK_EQUAL(raster.nrCols(), 2);
