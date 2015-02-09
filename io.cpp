@@ -1,4 +1,6 @@
 #include "io.h"
+#include <cassert>
+#include <cstring>
 #include <QFileInfo>
 #include "CsfMap.h"
 #include "error.h"
@@ -44,49 +46,36 @@ cTMap readRaster(
 }
 
 
-/// void writeRaster(
-///     cTMap const& raster,
-///     QString const& pathName)
-/// {
-/// }
-
-
-/// write a map to disk
-void WriteMap(
+void writeRaster(
     cTMap const& raster,
-    QString Name)
+    QString pathName)
 {
     if(raster.nrRows() == 0 || raster.nrCols() == 0) {
         return;
     }
 
-    if(Name.isEmpty()) {
+    if(pathName.isEmpty()) {
         ErrorString = "Cannot write file, file name empty";
         throw 1;
     }
 
-    // KDJ: Not needed?!: raster.ResetMinMax();
-
-    // Make an array for output.
-    std::unique_ptr<REAL4[]> Dt{new REAL4[raster.nrCols()]};
-
-    /// KDJ: _MH.cellRepr = CR_REAL4;
-    auto deleter = [](MAP* map) { Mclose(map); };
-    std::unique_ptr<MAP, decltype(deleter)> out{Rcreate(
-        Name.toAscii().constData(), raster.nrRows(),
+    // Create and configure CSF map.
+    MapPtr csfMap{Rcreate(pathName.toAscii().constData(), raster.nrRows(),
         raster.nrCols(), CR_REAL4, VS_SCALAR, PT_YDECT2B, raster.west(),
-        raster.north(), 0.0, raster.cellSize()), deleter};
-    RuseAs(out.get(), CR_REAL4);
+        raster.north(), 0.0, raster.cellSize()), close_csf_map};
+    RuseAs(csfMap.get(), CR_REAL8);
 
-    for(long r=0; r < raster.nrRows(); ++r) {
-        for(long c=0; c < raster.nrCols(); c++) {
-            Dt[c] = static_cast<REAL4>(raster.Data[r][c]);
-        }
+    // Copy cells to write to new buffer.
+    auto const& raster_data(raster.Data);
+    std::unique_ptr<double[]> buffer{new double[raster_data.nr_cells()]};
+    std::memcpy(buffer.get(), raster_data[0], 8 * raster_data.nr_cells());
 
-        if(RputRow(out.get(), r, Dt.get()) != static_cast<UINT4>(raster.nrCols())) {
-            ErrorString = "rputrow write error with" + Name;
-            throw 1;
-        }
+    // Write cells from buffer to file.
+    size_t nr_cells_written = RputSomeCells(csfMap.get(), 0,
+        raster_data.nr_cells(), buffer.get());
+
+    if(!nr_cells_written == raster_data.nr_cells()) {
+        Error("rputsomecells write error with " + pathName);
     }
 }
 
@@ -113,5 +102,5 @@ void WriteMapSeries(
     }
 
     path = Dir + Name;
-    WriteMap(raster, path);
+    writeRaster(raster, path);
 }

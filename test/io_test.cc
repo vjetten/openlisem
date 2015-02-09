@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(write_map)
     raster.Data[2][0] *= 2;
     raster.Data[2][1] *= 2;
 
-    WriteMap(raster, "twice_default.map");
+    writeRaster(raster, "twice_default.map");
 
     bool exception_thrown = true;
 

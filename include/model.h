@@ -55,7 +55,7 @@
 
 #define DEBUG(s) emit debug(QString(s))
 
-//#define mwrite(name) WriteMap(QString(resultDir+name))
+//#define mwrite(name) writeRaster(QString(resultDir+name))
 #define report(raster, name) WriteMapSeries(raster, resultDir,QString(name), printstep)
 
 // defines to make life easier

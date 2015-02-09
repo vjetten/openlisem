@@ -14,7 +14,7 @@ using MapPtr = std::unique_ptr<MAP, decltype(close_csf_map)>;
 
 cTMap              readRaster          (QString const& pathName);
 
-void               WriteMap            (cTMap const& raster,
+void               writeRaster         (cTMap const& raster,
                                         QString Name);
 
 void               WriteMapSeries      (cTMap const& raster,
