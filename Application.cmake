@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(
 SET(LIB_SOURCES
     CsfMap
     error
+    fixture
     io
 )
 ADD_LIBRARY(liblisem STATIC

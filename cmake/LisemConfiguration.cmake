@@ -27,8 +27,8 @@ ENDIF()
 IF(DEFINED LISEM_3RD_PARTY_ROOT)
     # Assume that all 3rd party software that LISEM depends on is rooted at
     # $LISEM_3RD_PARTY_ROOT. If not, the user can edit the cache variables.
-    # Boost.
 
+    # Boost.
     FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/boost-*)
     IF(NOT DEFAULT_PATH)
         SET(DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT})
@@ -68,6 +68,16 @@ IF(DEFINED LISEM_3RD_PARTY_ROOT)
         CACHE PATH "Path to root of PCRaster raster format software"
     )
 
+    # GDAL.
+    FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/gdal-*)
+    IF(NOT DEFAULT_PATH)
+        SET(DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT})
+    ENDIF()
+    SET(LISEM_GDAL_ROOT
+        ${DEFAULT_PATH}
+        CACHE PATH "Path to root of GDAL software"
+    )
+
     # Fern.
     FILE(GLOB DEFAULT_PATH ${LISEM_3RD_PARTY_ROOT}/fern-*)
     IF(NOT DEFAULT_PATH)
@@ -96,6 +106,10 @@ ELSE()
         ""
         CACHE PATH "Path to root of PCRaster raster format software"
     )
+    SET(LISEM_GDAL_ROOT
+        ""
+        CACHE PATH "Path to root of GDAL software"
+    )
     SET(LISEM_FERN_ROOT
         ""
         CACHE PATH "Path to root of Fern software"
@@ -123,6 +137,11 @@ ENDIF()
 IF(LISEM_RASTER_FORMAT_ROOT)
     LIST(APPEND CMAKE_PREFIX_PATH
         ${LISEM_RASTER_FORMAT_ROOT}
+    )
+ENDIF()
+IF(LISEM_GDAL_ROOT)
+    LIST(APPEND CMAKE_PREFIX_PATH
+        ${LISEM_GDAL_ROOT}
     )
 ENDIF()
 IF(LISEM_FERN_ROOT)
