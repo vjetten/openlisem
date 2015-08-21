@@ -477,6 +477,7 @@ void TWorld::InitChannel(void)
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
     floodHmxMax = NewMap(0);
+    floodVMax = NewMap(0);
     floodTime = NewMap(0);
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
@@ -534,7 +535,7 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-//            ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
+ //           ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // on surface the length of the channel is the same else mass balance?
             ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
@@ -671,15 +672,15 @@ void TWorld::InitChannel(void)
             runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
 
             //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
-            F_scheme = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
+            F_reconstruction = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-            F_diffScheme = getvalueint("Flooding SWOF scheme"); // MUSCL, ENO, ENOMOD
+            F_scheme = getvalueint("Flooding SWOF scheme");                   // MUSCL, ENO, ENOMOD
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
             F_extremeHeight = getvaluedouble("Flood extreme value height");
             F_extremeDiff = getvaluedouble("Flood extreme value Difference");
+            F_MaxIter = getvalueint("Flood max Iterations");
 
-            //FULLSWOF2D
             hs = NewMap(0);
             vs = NewMap(0);
             us = NewMap(0);
@@ -871,6 +872,12 @@ void TWorld::GetInputData(void)
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
     checkMap(*Cover, LARGER, 1.0, "vegetation cover fraction cannot be more than 1");
+    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
+    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
+    checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     GrassFraction = NewMap(0);
@@ -911,9 +918,18 @@ void TWorld::GetInputData(void)
     else
         RoadWidthDX = NewMap(0);
 
+    if (SwitchHardsurface)
+    {
     HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
     calcValue(*HardSurface, 1.0, MIN);
     calcValue(*HardSurface, 0.0, MAX);
+        FOR_ROW_COL_MV
+        {
+            N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*HardSurface->Drc;
+        }
+    }
+    else
+        HardSurface = NewMap(0);
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -1099,11 +1115,11 @@ void TWorld::IntializeData(void)
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
-        if (SwitchIncludeChannel)
-            if (ChannelDX->Drc > 0)
-            {
-                DX->Drc = ChannelDX->Drc;
-            }
+//        if (SwitchIncludeChannel)
+//            if (ChannelDX->Drc > 0)
+//            {
+//                DX->Drc = ChannelDX->Drc;
+//            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = mapTotal(*CellArea);
@@ -1275,7 +1291,7 @@ void TWorld::IntializeData(void)
     WH = NewMap(0);
     WHbef = NewMap(0);
     WHrunoff = NewMap(0);
-    //WHrunoffCum = NewMap(0);
+    WHmax = NewMap(0);
     WHstore = NewMap(0);
     WHroad = NewMap(0);
     WHGrass = NewMap(0);

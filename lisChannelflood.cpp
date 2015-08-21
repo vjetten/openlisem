@@ -164,7 +164,7 @@ void TWorld::FloodMaxandTiming()
         if (hmx->Drc > 0)//minReportFloodHeight)
             floodTime->Drc += _dt/60;
         // for output
-        //floodVMax->Drc = std::max(floodVMax->Drc, UVflood->Drc);
+        floodVMax->Drc = std::max(floodVMax->Drc, UVflood->Drc);
         // max velocity
     }
 
@@ -192,19 +192,19 @@ void TWorld::FloodMaxandTiming()
     }
 }
 //---------------------------------------------------------------------------
-// change flood parameters while running
-//void TWorld::getFloodParameters(void)
-//{
-//    SwitchFloodSWOForder2 = (op.F_solution == 2);
-//    SwitchFloodSWOForder1 = (op.F_solution == 1);
-//    F_scheme = op.F_scheme;                        //MUSCL
-//    F_fluxLimiter = op.F_fluxLimiter;              //HLL
-//    F_replaceV = op.F_replaceV;
-//    F_maxVelocity = op.F_maxVelocity;
-//    F_extremeHeight = F_extremeHeight;
-//    F_extremeDiff = op.F_extremeDiff;
-//    courant_factor = op.F_courant;
-//}
+ //change flood parameters while running
+void TWorld::getFloodParameters(void)
+{
+    SwitchFloodSWOForder2 = (op.F_solution == 2);
+    SwitchFloodSWOForder1 = (op.F_solution == 1);
+    F_scheme = op.F_scheme;                        //MUSCL
+    F_fluxLimiter = op.F_fluxLimiter;              //HLL
+    F_replaceV = op.F_replaceV;
+    F_maxVelocity = op.F_maxVelocity;
+    F_extremeHeight = F_extremeHeight;
+    F_extremeDiff = op.F_extremeDiff;
+    courant_factor = op.F_courant;
+}
 //---------------------------------------------------------------------------
 // NOTE DEM has barriers included, done in shade map calculation !!!!
 void TWorld::ChannelFlood(void)
@@ -214,7 +214,8 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    //getFloodParameters();
+    getFloodParameters();
+
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
@@ -245,6 +246,7 @@ void TWorld::ChannelFlood(void)
 //            {
 //                dtflood = floodExplicit();
 //            }
+
     FloodSpuriousValues();
     //correct extremes
 

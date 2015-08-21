@@ -129,8 +129,9 @@ public:
     void SetConnections();
     QStringList runfilelist;
 
-    // graph functions
+    // structure output
     void initOP();
+    // graph functions
     void setupPlot();
     void setupSmallPlot();
     void startPlots();
@@ -190,10 +191,18 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
+    QwtLinearColorMapVJ *pal1a;
+    QwtLinearColorMapVJ *pal1b;
+    QwtLinearColorMapVJ *pal2a;
+    QwtLinearColorMapVJ *pal2b;
+    QwtLinearColorMapVJ *pal3a;
+    QwtLinearColorMapVJ *pal3b;
     QwtLinearColorMapVJ *pal4a;
     QwtLinearColorMapVJ *pal4b;
     QwtLinearColorMapVJ *pal5a;
     QwtLinearColorMapVJ *pal5b;
+    QwtLinearColorMapVJ *pal6a;
+    QwtLinearColorMapVJ *pal6b;
     QwtLinearColorMapVJ *pal7a;
     QwtLinearColorMapVJ *pal7b;
     // graph variables
@@ -323,7 +332,7 @@ public slots:
     void fontDecrease();
     void fontIncrease();
 
-
+    void setFloodOP(bool);
     //  void on_checkBoxOverlay_stateChanged(int yes);
 
 private slots:
