@@ -99,6 +99,11 @@
     int r = cellRow[_i];\
     int c = cellCol[_i];
 */
+#define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
+{\
+    int r = floodRow[_i];\
+    int c = floodCol[_i];
+
 #define FOR_ROW_COL_MV_MV for (long _i = 0; _i < nrFloodcells ; _i++)\
 {\
     int r = floodRow[_i];\

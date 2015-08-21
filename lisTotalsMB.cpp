@@ -46,12 +46,15 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
-    //    QFile fout("massbalancenew.txt");
-    //    fout.open(QIODevice::WriteOnly | QIODevice::Text);
-    //    fout.close();
-
     /***** WATER *****/
 
+
+    FOR_ROW_COL_MV
+    {
+ //      WHmax->Drc = std::max(WHmax->Drc, WH->Drc);
+    }
+
+    //=== precipitation ===//
     if (SwitchRainfall)
     {
         RainAvgmm = mapAverage(*Rain)*1000.0;
@@ -82,7 +85,8 @@ void TWorld::Totals(void)
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
-
+    
+    //=== interception ===//
     IntercTot = mapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
@@ -92,13 +96,24 @@ void TWorld::Totals(void)
     IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
+    //=== infiltration ===//
     InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
-    difkinTot =0;//+=  difkin->mapTotal();
+    difkinTot =0;//+=  difkin->mapTotal(); obsolete: already done
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
+    // flood infil
+    // used for reporting only
+    FOR_ROW_COL_MV
+    {
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
+        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));//CellArea->Drc);
+        //??? how can total be based on _dx*_dx and Drc not, on cellarea???
+    }
+
+    //=== surf store ===//
     calcMapValue(*tm, *WHstore, 1000, MUL); //mm
     SurfStoremm = mapAverage(*tm);
     // surface storage CHECK THIS
@@ -108,7 +123,6 @@ void TWorld::Totals(void)
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
-
 
     // runoff fracyion per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
@@ -124,6 +138,8 @@ void TWorld::Totals(void)
         runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;
     }
 
+    //=== all discharges ===//
+    
     // sum outflow m3 for all timesteps for the outlet
     FOR_ROW_COL_MV
     {
@@ -159,24 +175,22 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
         QtotOutlet += ChannelQn->DrcOutlet * _dt;
-        // add channel outflow (in m3) to total for main outlet
+        // sum: add channel outflow (in m3) to total for main outlet
         QtotPlot += ChannelQn->DrcPlot * _dt;
-        // add channel outflow (in m3) to total for main outlet
-        // TotalWatervol->calcMap(ChannelWaterVol,ADD);
-        // add channel volume to total for sed conc calc
+        // sum: add channel outflow (in m3) to total for main outlet
 
         if (SwitchChannelFlood)
         {
+       //     WaterVolTot += mapTotal(*FloodWaterVol); //m3
+            // add channel vol to total
+       //     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+
             floodVolTot = mapTotal(*FloodWaterVol);
-            double area = 0;
-            FOR_ROW_COL_MV
-            {
-                area += _dx*ChannelAdj->Drc;
-            }
-            floodTotmm = 1000*floodVolTot/area;
+            floodTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
         }
         if (runstep == 1)
             floodVolTotInit = floodVolTot;
+        // save initial flood level for mass balance if start with flood
 
     }
 
@@ -231,6 +245,7 @@ void TWorld::Totals(void)
     QPlot = 1000*(Qn->DrcPlot + ChannelQn->DrcPlot + TileQn->DrcPlot);
     // plot point output in l/s
 
+    // add flood boundary losses
     Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
 
@@ -242,12 +257,6 @@ void TWorld::Totals(void)
 
     QpeakPlot = std::max(QpeakPlot, Qoutput->DrcPlot);
 
-    // do this last because of possible flood inf volume
-    FOR_ROW_COL_MV
-    {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/CellArea->Drc);
-    }
 
 
     /***** SEDIMENT *****/
@@ -409,13 +418,12 @@ void TWorld::MassBalance()
     if (RainTot + SnowTot > 0)
     {
 
+  //      MB = (RainTot - IntercTot - InfilTot - WaterVolTot - Qtot)/(RainTot)*100;
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
-       /*
-        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
-        MB = MB/(RainTotmm + SnowTotmm) * 100;
-*/
+//        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
+//        MB = MB/(RainTotmm + SnowTotmm) * 100;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
