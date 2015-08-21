@@ -181,10 +181,6 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-            WaterVolTot += mapTotal(*FloodWaterVol); //m3
-            // add channel vol to total
-            WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-
             floodVolTot = mapTotal(*FloodWaterVol);
             floodTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
         }
