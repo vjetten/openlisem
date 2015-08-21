@@ -82,8 +82,8 @@
 /// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
 /// and looking only in active flood domain = flood + 1 cell in all directions
 
-/*
-#define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
+
+#define FOR_CELL_IN_FLOODAREA for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
     if(!pcr::isMV(LDD->data[r][c]) && \
     !pcr::isMV(LDD->data[r-1][c]) && \
@@ -92,18 +92,19 @@
     !pcr::isMV(LDD->data[r][c+1])){
     //if (floodactive->Drc > 0)
 
-
+/*
 
 #define FOR_ROW_COL_MV for (long _i = 0; _i < nrGridcells ; _i++)\
 {\
     int r = cellRow[_i];\
     int c = cellCol[_i];
-*/
-#define FOR_ROW_COL_MV_MV for (long _i = 0; _i < nrFloodcells ; _i++)\
+
+#define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
 {\
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
+*/
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
@@ -236,7 +237,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    Switchheaderpest, SwitchPesticide,
+    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial;
 
     // multiple options that are set in interface or runfile, see defines above
@@ -269,6 +270,7 @@ public:
     double waterRep_c;
     double waterRep_d;
 
+    double dummytot; // to be able to add things
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
@@ -342,6 +344,8 @@ public:
     QString floodMaxQFileName;
     QString floodMaxWHFileName;
     QString floodFEWFileName;
+    QString floodMaxVFileName;
+    QString timestamp;
 
     QString rainFileName;
     QString rainFileDir;
@@ -354,6 +358,7 @@ public:
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
     OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSL;
     QString errorFileName;
+    QString WHmaxFileName;
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
@@ -400,8 +405,10 @@ public:
     //FLOOD according to LISFLOOD
     double floodExplicit();
     //FLOOD according to FULLSWOF2D
+    void prepareFloodZ(cTMap *z);
     double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
+    void ChannelOverflowSWOF(double dt, cTMap *h);
     void findFloodDomain(cTMap *_h);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -415,7 +422,7 @@ public:
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_diffScheme,F_replaceV;
+    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter;
     double F_maxVelocity;
     double F_extremeHeight;
     double F_extremeDiff;
@@ -467,10 +474,12 @@ public:
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
+    void RunoffToFlood(void);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void OverlandFlowNew(void);
     void ChannelFlow(void);
+    double ChannelIterateWH(int r, int c);
     void ChannelWaterHeight(void);
     void ToChannel(void);
     void CalcVelDisch();
@@ -498,6 +507,7 @@ public:
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(void);
+    void getFloodParameters(void);
     double courant_factor;
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;

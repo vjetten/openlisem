@@ -68,7 +68,7 @@ cTMap
 *WHbef,                      //!< water height on the surface before infiltration [m]
 *WHroad,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
-//*WHrunoffCum,                //!< cumulative runoff water height for output to file series only [mm]
+*WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
@@ -281,6 +281,7 @@ cTMap
 *floodactive,
 *floodTime,
 *floodTimeStart,                //!<
+*floodVMax,
 *maxChannelflow,
 *maxChannelWH,
 *hmxInit,

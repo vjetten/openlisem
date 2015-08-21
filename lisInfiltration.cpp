@@ -415,11 +415,13 @@ void TWorld::Infiltration(void)
     //Ksateff calculated before loop
     //NOTE: if crusting is calculated during event then move to the loop!
 
+    // NOTE: do NOT include flooddomain here, runoff is everywhere also in flood domain so continue infil there too
+    // infil is minimal anyway, but needed for mass balance
     FOR_ROW_COL_MV
     {
         InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
     }
-
+    fill(*tm, 1.0);
     switch (InfilMethod)
     {
     case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
@@ -438,25 +440,26 @@ void TWorld::Infiltration(void)
     // potential infiltration "fpot" (in m), according to G&A, S&P etc.
     // It deals with 1 or 2 layers and increase of water depth
 
-    FOR_ROW_COL_MV
+    // calc surplus for kin wave, swatre does this internally
+    if (InfilMethod != INFIL_SWATRE)
     {
-        if (InfilMethod != INFIL_SWATRE)
-        {
-            //WH->Drc = std::max(0.0, WH->Drc - fact->Drc);
-            WH->Drc -= fact->Drc;
-            if (WH->Drc < 0) // in case of rounding of errors
+    FOR_ROW_COL_MV
+                //     if (FloodDomain->Drc == 0) // NOT !!!
+    {
+            if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
             {
-                fact->Drc += WH->Drc;
+                fact->Drc = WH->Drc;
                 WH->Drc = 0;
             }
+            else
+                WH->Drc -= fact->Drc;
             // decrease WH with actual infil, note fact is already limited to WH in InfilMethods
+
             Fcum->Drc += fact->Drc;
             // cumulative infil in m
 
-        }
-
         // calc surplus infiltration (negative in m) for kin wave
-        if (FFull->Drc == 1 || FloodDomain->Drc > 0)
+            if (FFull->Drc == 1)// || FloodDomain->Drc > 0)
             FSurplus->Drc = 0;
         else
         {
@@ -475,21 +478,18 @@ void TWorld::Infiltration(void)
                     FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
                 }
         }
+        }
         // negative surplus of infiltration in m for kinematic wave in m
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
         //VJ 131222 limit so that smaller than available room!
+    }
 
+    FOR_ROW_COL_MV
+    {
         InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         // infil volume is WH before - water after
     }
 
-//    FFull->report("full.map");
-//    L1->report("l1.map");
-//    L2->report("l2.map");
-//    //    SoilDepth1->report("sd1.map");
-//    //     SoilDepth2->report("sd2.map");
-//    Fcum->report("fc.map");
-//   FSurplus->report("fs.map");
 }
 
 //---------------------------------------------------------------------------
@@ -506,19 +506,9 @@ void TWorld::InfiltrationFloodNew(void)
     FOR_ROW_COL_MV
     {
         if (FloodDomain->Drc > 0)
-        {
-            InfilVolFlood->Drc = hmx->Drc * _dx*DX->Drc;//ChannelAdj->Drc*DX->Drc;
-            // potential water volume on surface before infil
-            // is everywhere on cell except channel
-
-            if (ChannelWidthUpDX->Drc > 0)
-                Ksateff->Drc *= (1-ChannelWidthUpDX->Drc/_dx);
-            // if width is whole cell than adjust ksateff for channel cells
-        }
-        else
-        {
-            InfilVolFlood->Drc = 0;
-        }
+            InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
+        // potential water volume on surface before infil
+        // is everywhere on cell except channel
     }
 
     switch (InfilMethod)
@@ -538,7 +528,14 @@ void TWorld::InfiltrationFloodNew(void)
     {
         if (InfilMethod != INFIL_SWATRE)
         {
-            hmx->Drc = std::max(0.0, hmx->Drc - fact->Drc);
+            if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
+            {
+                fact->Drc = hmx->Drc;
+                hmx->Drc = 0;
+            }
+            else
+                hmx->Drc -= fact->Drc;
+            // hmx->Drc = std::max(0.0, hmx->Drc - fact->Drc);
 
             Fcum->Drc += fact->Drc;
             // cumulative infil in m used in G&A infil function
@@ -547,8 +544,8 @@ void TWorld::InfiltrationFloodNew(void)
         FSurplus->Drc = 0;
         // no surplus in floods, no kin wave!
 
-        //        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
-        InfilVolFlood->Drc -= hmx->Drc * _dx*DX->Drc;
+        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
+        //  InfilVolFlood->Drc -= hmx->Drc * _dx*DX->Drc;
         // infil volume is WH before - water after
         // used for water balance and screen display
     }

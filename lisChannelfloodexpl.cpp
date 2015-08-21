@@ -42,6 +42,7 @@ functions: \n
 
 double TWorld::floodExplicit()
 {
+    /*s
     int n = 0;
     double timesum = 0;
 
@@ -186,6 +187,8 @@ double TWorld::floodExplicit()
 
     iter_n = n;
     return(timesum/(n+1));
+    */
+    return (0.0);
 }
 
 /*

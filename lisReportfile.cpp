@@ -793,7 +793,7 @@ void TWorld::ChannelFloodStatistics(void)
     if (!SwitchChannelFlood)
         return;
 
-    for (int i = 0; i < 512; i++)
+    for (int i = 0; i < 256; i++)
     {
         floodList[i].nr = i;
         floodList[i].var0 = 0.1*i; //depth
@@ -807,9 +807,13 @@ void TWorld::ChannelFloodStatistics(void)
     int nr = 0;
     FOR_ROW_COL_MV
     {
-        if(floodHmxMax->Drc > minReportFloodHeight)
+        if(floodHmxMax->Drc > 0)//minReportFloodHeight)
         {
-            int i = (int)(floodHmxMax->Drc*10);
+            int i = 0;
+            while (floodList[i].var0 < floodHmxMax->Drc && i < 256)
+                i++;
+            if (i > 0)
+                i--;
             nr = std::max(nr, i);
             //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
@@ -821,7 +825,9 @@ void TWorld::ChannelFloodStatistics(void)
         }
     }
 
-    QFile fp(resultDir + floodStatsFileName);
+    QString name;
+    name = resultDir + QFileInfo(floodStatsFileName).baseName()+timestamp+".csv";
+    QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -831,9 +837,8 @@ void TWorld::ChannelFloodStatistics(void)
 
     out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
     out << "\"results at time (min):\"" << op.time << "\n";
-    out << "\"Minimum flood considered (m):\"" << minReportFloodHeight << "\n";
-    out << "class,Depth,Area,Volume,Time,Structures\n";
-    out << "#,m,m2,m3,hrs,m2\n";
+    out << "class,Depth,Area,Volume,Duration,Start,Structures\n";
+    out << "#,m,m2,m3,h,h,m2\n";
     for (int i = 0; i < nr+1; i++)
         out << i << ","
             << floodList[i].var0 << ","
