@@ -42,64 +42,65 @@ functions: \n
 //fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
 {
-    if (SwitchIncludeChannel)
-    return;
-        FOR_ROW_COL_MV_CH
+    if (!SwitchIncludeChannel)
+        return;
+
+    FOR_ROW_COL_MV_CH
+    {
+        double fractiontochannel;
+        double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+        if (Volume == 0)
         {
-            double fractiontochannel;
-            double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+            SedToChannel->Drc = 0;
+            RunoffVolinToChannel->Drc = 0;
+            continue;
+        }
 
-            if (Volume == 0)
-            {
-                SedToChannel->Drc = 0;
-                RunoffVolinToChannel->Drc = 0;
-                continue;
-            }
+        if (ChannelAdj->Drc == 0)
+            fractiontochannel = 1.0;
+        else
+            fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
 
-            if (ChannelAdj->Drc == 0)
+        if (SwitchBuffers)
+            if (BufferID->Drc > 0)
                 fractiontochannel = 1.0;
-            else
-                fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
-
-            if (SwitchBuffers)
-                if (BufferID->Drc > 0)
-                    fractiontochannel = 1.0;
-            // where there is a buffer in the channel, all goes in the channel
+        // where there is a buffer in the channel, all goes in the channel
 
         // cannot flow into channel is water level in channel is higher than depth
-            if (SwitchChannelFlood)
-            {
-    //        if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
-//            if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
-          //      fractiontochannel = 0;
-                // no inflow when flooded
-                if (ChannelMaxQ->Drc > 0)
-                    fractiontochannel = 0;
-                // no surface inflow when culverts and bridges
-            }
-            if (SwitchAllinChannel)
-                if (LDD->Drc == 5)
-                    fractiontochannel = 1.0;
-            // in catchment outlet cell, throw everything in channel
-
-            RunoffVolinToChannel->Drc = fractiontochannel*Volume;
-            // water diverted to the channel
-            WHrunoff->Drc *= (1-fractiontochannel);
-
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-            //VJ 130425
-
-            // adjust water height
-            if (SwitchErosion)
-            {
-                SedToChannel->Drc = fractiontochannel*Sed->Drc;
-                //sediment diverted to the channel
-                Sed->Drc -= SedToChannel->Drc;
-                // adjust sediment in suspension
-            }
+        if (SwitchChannelFlood)
+        {
+            //        if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
+            //            if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
+            //      fractiontochannel = 0;
+            // no inflow when flooded
+            if (ChannelMaxQ->Drc > 0)
+                fractiontochannel = 0;
+            // no surface inflow when culverts and bridges
         }
-        CalcVelDisch();
-        // recalc velocity and discharge
+        if (SwitchAllinChannel)
+            if (LDD->Drc == 5)
+                fractiontochannel = 1.0;
+        // in catchment outlet cell, throw everything in channel
+
+        RunoffVolinToChannel->Drc = fractiontochannel*Volume;
+        // water diverted to the channel
+        WHrunoff->Drc *= (1-fractiontochannel);
+
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        //VJ 130425
+
+        // adjust water height
+        if (SwitchErosion)
+        {
+            SedToChannel->Drc = fractiontochannel*Sed->Drc;
+            //sediment diverted to the channel
+            Sed->Drc -= SedToChannel->Drc;
+            // adjust sediment in suspension
+        }
+    }
+    CalcVelDisch();
+    // recalc velocity and discharge
 
 
 }
@@ -221,7 +222,7 @@ void TWorld::OverlandFlowNew(void)
     FOR_ROW_COL_MV
     {
 
-     /*   VJ 140105
+        /*   VJ 140105
 //                NEWTOWNPAHSON TO iterate h from Q. Because else we use alpha from before iteration
 //                Does not make a difference NOT NECESSARY but interesting code!
         double h, h1;
@@ -299,7 +300,7 @@ void TWorld::OverlandFlowNew(void)
     }
 
     FOR_ROW_COL_MV
-           // if (hmx->Drc == 0)
+            // if (hmx->Drc == 0)
     {
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
