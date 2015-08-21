@@ -82,8 +82,8 @@
 /// shortcut for LDD row and col loop in SWOF, rows/cols 1 to nrRows/nrCols-1
 /// and looking only in active flood domain = flood + 1 cell in all directions
 
-/*
-#define FOR_ROW_COL_MV_MV for (int r = 1; r < _nrRows-1; r++)\
+
+#define FOR_CELL_IN_FLOODAREA for (int r = 1; r < _nrRows-1; r++)\
     for (int c = 1; c < _nrCols-1; c++)\
     if(!pcr::isMV(LDD->data[r][c]) && \
     !pcr::isMV(LDD->data[r-1][c]) && \
@@ -92,19 +92,19 @@
     !pcr::isMV(LDD->data[r][c+1])){
     //if (floodactive->Drc > 0)
 
-
+/*
 
 #define FOR_ROW_COL_MV for (long _i = 0; _i < nrGridcells ; _i++)\
 {\
     int r = cellRow[_i];\
     int c = cellCol[_i];
-*/
+
 #define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
 {\
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
-
+*/
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
