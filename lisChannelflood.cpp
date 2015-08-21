@@ -55,7 +55,8 @@ void TWorld::ChannelOverflow(void)
             double levee = ChannelLevee->Drc;
             double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
             double dH = std::max(0.0, ChannelWH->Drc-chdepth);
-
+            if (ChannelWH->Drc > 0)
+                qDebug() << ChannelWH->Drc << chdepth;
             if (dH == 0 && hmx->Drc <= levee)
                 continue;
             // no flow activity then continue

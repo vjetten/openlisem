@@ -78,7 +78,7 @@ void TWorld::ToChannel(void)
                 // no surface inflow when culverts and bridges
             }
             if (SwitchAllinChannel)
-                if (LDD->Drc == 5)    // VJ 5-1-14, for all outlets
+                if (LDD->Drc == 5)
                     fractiontochannel = 1.0;
             // in catchment outlet cell, throw everything in channel
 
