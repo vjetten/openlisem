@@ -821,30 +821,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
            {
              double tmp1 = cflx->Drc;
              double tmp2 = cfly->Drc;
-             /*
-             if (cflx->Drc > F_maxVelocity)
-               {
-                 double avgcflx = cflx->getWindowAverage(r, c);
-                 double avgf1 = f1->getWindowAverage(r, c);
-                 double avgf2 = f2->getWindowAverage(r, c);
-                 double avgf3 = f3->getWindowAverage(r, c);
-                 cflx->Drc = avgcflx;
-                 f1->Drc = avgf1;
-                 f2->Drc = avgf2;
-                 f3->Drc = avgf3;
-               }
-             if (cfly->Drc > F_maxVelocity)
-               {
-                 double avgcfly = cfly->getWindowAverage(r, c);
-                 double avgg1 = g1->getWindowAverage(r, c);
-                 double avgg2 = g2->getWindowAverage(r, c);
-                 double avgg3 = g3->getWindowAverage(r, c);
-                 cfly->Drc = avgcfly;
-                 g1->Drc = avgg1;
-                 g2->Drc = avgg2;
-                 g3->Drc = avgg3;
-               }
-             */
+
              double cfle =0;
              double e1 = 0;
              double e2 = 0;
