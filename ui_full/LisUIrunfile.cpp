@@ -364,6 +364,9 @@ void lisemqt::ParseInputData()
                 checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
             }
             // checkboxes normal output map series, numbering according to original LISEM
+
+            if (p1.compare("WH max level map")==0) E_WHmaxMap->setText(p);
+
         }
     }
 
@@ -421,6 +424,9 @@ void lisemqt::ParseInputData()
         }
         if (p1.compare("Result Directory")==0)
         {
+            if (doBatchmode)
+                E_ResultDir->setText(CheckDir(p, true));
+            else
             E_ResultDir->setText(CheckDir(p, false));
             if (!QFileInfo(E_ResultDir->text()).exists())
                 E_ResultDir->setText(E_WorkDir->text()+"res/");
@@ -456,10 +462,11 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Flood level map")==0) E_FloodlevelMap->setText(p);
         if (p1.compare("Flood time map")==0) E_FloodTimeMap->setText(p);
-        if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
+        if (p1.compare("Flood start time")==0) E_FloodFEW->setText(p);
+        if (p1.compare("Flood Max V")==0) E_FloodmaxVMap->setText(p);
         if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
         if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
-        if (p1.compare("Flood start time")==0) E_FloodFEW->setText(p);
+        if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
 
         if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
         if (p1.compare("Snowmelt file")==0)
@@ -468,7 +475,7 @@ void lisemqt::ParseInputData()
             SnowmeltFileName = p;// /*SnowmeltFileDir + */E_SnowmeltName->text();
         }
 
-        if (uiInfilMethod == 0 && p1.compare("Table Directory")==0)
+        if (uiInfilMethod == 1 && p1.compare("Table Directory")==0)
         {
             SwatreTableDir = CheckDir(p);
             if (SwatreTableDir.isEmpty())
@@ -495,6 +502,8 @@ void lisemqt::ParseInputData()
     checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
     checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
 
+    on_checkIncludeChannel_clicked();
+    on_checkChannelFlood_clicked();
     //****====------====****//
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
@@ -583,9 +592,11 @@ void lisemqt::updateModelData()
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-     //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+        //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
+        if (p1.compare("Include rainfall flooding")==0)       namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Flood method explicit")==0)
         {
@@ -618,10 +629,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         if (p1.compare("Flooding runoff partitioning")==0)    namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
-        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value = E_FloodReplaceV->text();
+        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value.setNum((int)E_FloodReplaceVcheck->isChecked());
         if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
         if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
         if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
+        if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         //houses
@@ -714,13 +726,15 @@ void lisemqt::updateModelData()
         if (p1.compare("Runoff map")==0) namelist[j].value = E_RunoffMap->text();
         if (p1.compare("Runoff fraction map")==0) namelist[j].value = E_RunoffFractionMap->text();
         if (p1.compare("Channel discharge map")==0) namelist[j].value = E_ChannelQtotm3Map->text();
+        if (p1.compare("WH max level map")==0) namelist[j].value = E_WHmaxMap->text();
 
         if (p1.compare("Flood level map")==0) namelist[j].value = E_FloodlevelMap->text();
         if (p1.compare("Flood time map")==0) namelist[j].value = E_FloodTimeMap->text();
-        if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
+        if (p1.compare("Flood start time")==0) namelist[j].value = E_FloodFEW->text();
+        if (p1.compare("Flood Max V")==0) namelist[j].value = E_FloodmaxVMap->text();
         if (p1.compare("Channel Max Q")==0) namelist[j].value = E_ChannelMaxQ->text();
         if (p1.compare("Channel Max WH")==0) namelist[j].value = E_ChannelMaxWH->text();
-        if (p1.compare("Flood start time")==0) namelist[j].value = E_FloodFEW->text();
+        if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
 
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();

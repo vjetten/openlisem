@@ -175,6 +175,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
       //  if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
+        if (p1.compare("Include rainfall flooding")==0)       SwitchRainfallFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
         if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
@@ -278,11 +279,13 @@ void TWorld::ParseRunfileData(void)
     // check a few things
     if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
         SwitchTwoLayer = true;
+    else
+        SwitchTwoLayer = false;
     if (InfilMethod == INFIL_SWATRE)
     {
         swatreDT = getvaluedouble("SWATRE internal minimum timestep");
         SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
-        initheadName = getvaluename("inithead");
+      //  initheadName = getvaluename("inithead");
         // only map name is needed, data is read in swatre lib
         //profileName = getname("profile");//?????????????????????
         // profile map name
@@ -298,8 +301,7 @@ void TWorld::ParseRunfileData(void)
         SwitchChannelInfil = false;
     }
 
-    // start again and do the rest of the variables, map names etc.
-    // choice of options in first loop determines what happens in this loop
+    // next get the main input directory
     for (j = 0; j < nrrunnamelist; j++)
     {
         QString p1 = runnamelist[j].name;
@@ -308,6 +310,17 @@ void TWorld::ParseRunfileData(void)
         // input ourput dirs and file names
         if (p1.compare("Map Directory")==0)
             inputDir=CheckDir(p);
+    }
+    // start again and do the rest of the variables, map names etc.
+    // choice of options in first loop determines what happens in this loop
+    for (j = 0; j < nrrunnamelist; j++)
+    {
+        QString p1 = runnamelist[j].name;
+        QString p = runnamelist[j].value;
+
+        // input ourput dirs and file names
+    //    if (p1.compare("Map Directory")==0)
+    //        inputDir=CheckDir(p);
 
         if (InfilMethod == INFIL_SWATRE)
         {
@@ -315,6 +328,7 @@ void TWorld::ParseRunfileData(void)
                 SwatreTableDir = CheckDir(p);
             if (p1.compare("Table File")==0)
                 SwatreTableName = p;
+            initheadName = getvaluename("inithead");
         }
 
         if (SwitchRainfall)
@@ -353,6 +367,8 @@ void TWorld::ParseRunfileData(void)
             runoffFractionMapFileName = checkOutputMapName(p, "runoff fraction map", 0);
         if (p1.compare("Channel discharge map")==0)
             channelDischargeMapFileName = checkOutputMapName(p, "Channel discharge map", 0);
+        if (p1.compare("WH max level map")==0)
+            WHmaxFileName = checkOutputMapName(p, "WH max level map",0);
 
 
         if (SwitchErosion)
@@ -379,6 +395,8 @@ void TWorld::ParseRunfileData(void)
                 floodMaxWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
             if (p1.compare("Flood start time")==0)
                 floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
+            if (p1.compare("Flood Max V")==0)
+                floodMaxVFileName = checkOutputMapName(p, "flood max velocity",0);
         }
 
         // output map timeseries, standard names, to avoid unreadable pcraster names

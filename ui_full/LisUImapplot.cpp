@@ -28,6 +28,7 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
+//---------------------------------------------------------------------------
   QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):
       QwtLinearColorMap( format )
 {
@@ -208,20 +209,24 @@ void lisemqt::setupMapPlot()
   // legend to the right of the plot
 
   mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
-  mapRescaler->setReferenceAxis( QwtPlot::yLeft );
+//  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
   mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
   mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
   mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting );
+//  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // also resets map to lower boundary
+//  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
   mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
-  mapRescaler->setEnabled( true );
+  //mapRescaler->setEnabled( true );
   // rescaling fixed to avoid deformation
 
   magnifier = new QwtPlotMagnifier( MPlot->canvas() );
   magnifier->setAxisEnabled( MPlot->yRight, false );
+  magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
+  // exclude right axis legend from rescaling
 
   panner = new QwtPlotPanner( MPlot->canvas() );
   panner->setAxisEnabled( MPlot->yRight, false );
+  // exclude right axis legend from panning
 
   picker = new MyPicker( MPlot->canvas() );
 
@@ -275,7 +280,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
 void lisemqt::showMap()
 {
   //drawMap->setAlpha(transparency->value());
-  drawMap->setAlpha(255);
+  //drawMap->setAlpha(255);
   if (op.drawMapType == 1) showMap1();
   if (op.drawMapType == 2) showMap2();
   if (op.drawMapType == 3) showMap3();
@@ -318,9 +323,9 @@ void lisemqt::showBaseMap()
   // reset the axes to the correct rows/cols,
   // do only once because resets zooming and panning
 
-  MPlot->setAxisAutoScale(MPlot->yRight, false);
-  MPlot->setAxisAutoScale(MPlot->xBottom, false);
-  MPlot->setAxisAutoScale(MPlot->yLeft, false);
+//  MPlot->setAxisAutoScale(MPlot->yRight, false);
+//  MPlot->setAxisAutoScale(MPlot->xBottom, true);
+//  MPlot->setAxisAutoScale(MPlot->yLeft, false);
 
   MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
   MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
@@ -396,7 +401,6 @@ void lisemqt::showHouseMap()
   houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 // RUNOFF
 void lisemqt::showMap1()
 {
@@ -405,24 +409,22 @@ void lisemqt::showMap1()
   QwtLinearColorMapVJ *pal1a = new colorMapWaterLog();
   QwtLinearColorMapVJ *pal1b = new colorMapWaterLog();
 
-  pal1a->setThreshold(doubleSpinBoxROmin->value());
-  pal1b->setThreshold(doubleSpinBoxROmin->value());
-
   double MaxV = fillDrawMapData(op.DrawMap1, RD, 1);
   if (MaxV ==-1e20)
     return;
-  // fill vector and find the new max value
 
-  // set intervals for rasterdata, x,y,z min and max
   maxAxis1 = std::max(maxAxis1, MaxV);
   if (doubleSpinBoxRO->value() > 0)
     maxAxis1 = doubleSpinBoxRO->value();
-  // use userdefined if spinbox not 0
 
   RD->setInterval( Qt::ZAxis, QwtInterval( 0, std::max(0.01, maxAxis1)));
   // classify data from 0 to,ax
 
   drawMap->setData(RD);
+
+  pal1a->setThreshold(doubleSpinBoxROmin->value());
+  pal1b->setThreshold(doubleSpinBoxROmin->value());
+
   drawMap->setColorMap(pal1a);
   // link data to map with a color palette
 
@@ -458,25 +460,26 @@ void lisemqt::showMap2()
 {
   MPlot->setTitle("Infiltration (mm)");
 
+  pal2a = new colorMapWater();
+  pal2b = new colorMapWater();
+
   // fill vector RD with matrix data and find the new max value
   double MaxV = fillDrawMapData(op.DrawMap2, RD, 2);
   if (MaxV ==-1e20)
     return;
-  // set the new interval to the new max value
+
   maxAxis2 = std::max(maxAxis2, MaxV);
   if (doubleSpinBoxINF->value() > 0)
     maxAxis2 = doubleSpinBoxINF->value();
   else
     maxAxis2 = MaxV;
+
   RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
 
   drawMap->setData(RD);
-  // point spectrogram to data
-  drawMap->setColorMap(new colorMapWater());
-  //drawMap = QwtPlotSpectrogram
+  drawMap->setColorMap(pal2a);
 
-  // set the right axis legend to the new interval
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapWater());
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal2b);
 
   MPlot->setAxisScale( MPlot->yRight, 0, maxAxis2);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
@@ -488,28 +491,30 @@ void lisemqt::showMap3()
 {
   MPlot->setTitle("Soil loss (ton/ha)");
 
+  pal3a = new colorMapSed();
+  pal3b = new colorMapSed();
+
   double MaxV = fillDrawMapData(op.DrawMap3, RD, 3);
   if (MaxV ==-1e20)
     return;
-  // fill vector and find the new max value
 
   maxAxis3 = std::max(maxAxis3, MaxV);
   if (doubleSpinBoxSL->value() > 0)
     maxAxis3 = doubleSpinBoxSL->value();
   else
     maxAxis3 = MaxV;
+
   RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
 
   drawMap->setData(RD);
-  drawMap->setColorMap(new colorMapSed());
-  //QwtPlotSpectrogram
+  drawMap->setColorMap(pal3a);
 
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapSed());
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal3b);
+
   MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 // FLOOD LEVEL
 void lisemqt::showMap4()
 {
@@ -518,31 +523,30 @@ void lisemqt::showMap4()
   pal4a = new colorMapFlood();
   pal4b = new colorMapFlood();
 
-  double MinV = 0;
   double MaxV = fillDrawMapData(op.DrawMap4, RD, 4);
   if (MaxV ==-1e20)
     return;
-  // fill vector and find the new max value
 
   maxAxis4 = std::max(maxAxis4, MaxV);
   if (doubleSpinBoxFL->value() > 0)
     maxAxis4 = doubleSpinBoxFL->value();
+  else
+    maxAxis4 = MaxV;
 
-  RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis4));
+  RD->setInterval( Qt::ZAxis, QwtInterval( 0.000, maxAxis4));
 
   drawMap->setData(RD);
 
-  pal4a->setThreshold(doubleSpinBoxFLmin->value());
+  pal4a->setThreshold(std::max(0.001,doubleSpinBoxFLmin->value()));
   pal4b->setThreshold(doubleSpinBoxFLmin->value());
 
   drawMap->setColorMap(pal4a);
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal4b);
 
-  MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis4);
+  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 void lisemqt::showMap5()
 {
   MPlot->setTitle("Flood Velocity (m/s)");
@@ -553,21 +557,19 @@ void lisemqt::showMap5()
   double MaxV = fillDrawMapData(op.DrawMap5, RD, 5);
   if (MaxV ==-1e20)
     return;
-  // fill vector and find the new max value
 
   maxAxis5 = std::max(maxAxis5, MaxV);
-  if (doubleSpinBoxSL->value() > 0)
+  if (doubleSpinBoxFLV->value() > 0)
     maxAxis5 = doubleSpinBoxFLV->value();
-//  else
-//    maxAxis5 = MaxV;
+  else
+    maxAxis5 = MaxV;
+
   RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
 
   drawMap->setData(RD);
 
   pal5a->setThreshold(std::max(doubleSpinBoxFLVmin->value(),0.001));
   pal5b->setThreshold(std::max(doubleSpinBoxFLVmin->value(),0.001));
-//  pal5a->setThreshold(doubleSpinBoxFLVmin->value());
-//  pal5b->setThreshold(doubleSpinBoxFLVmin->value());
 
   drawMap->setColorMap(pal5a);
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal5b);
@@ -576,14 +578,17 @@ void lisemqt::showMap5()
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 // PRECIPITATION
 void lisemqt::showMap6()
 {
+
   if (op.displayPcum)
     MPlot->setTitle("Cumulative Precipitation (mm)");
   else
     MPlot->setTitle("Precipitation (mm)");
+
+  pal6a = new colorMapP();
+  pal6b = new colorMapP();
 
   double MaxV = fillDrawMapData(op.DrawMap6, RD, 6);
   if (MaxV ==-1e20)
@@ -595,19 +600,18 @@ void lisemqt::showMap6()
     maxAxis6 = doubleSpinBoxP->value();
   else
     maxAxis6 = MaxV;
+
   RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis6));
 
   drawMap->setData(RD);
-  drawMap->setColorMap(new colorMapP());
-  //QwtPlotSpectrogram
+  drawMap->setColorMap(pal6a);
 
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), new colorMapP());
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal6b);
   MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 
 }
 //---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
 // EARLY WARNING
 void lisemqt::showMap7()
 {
@@ -616,7 +620,6 @@ void lisemqt::showMap7()
   pal7a = new colorMapFEW();
   pal7b = new colorMapFEW();
 
-  double MinV = 0;
   double MaxV = fillDrawMapData(op.DrawMap7, RD, 7);
   if (MaxV ==-1e20)
     return;
@@ -626,17 +629,17 @@ void lisemqt::showMap7()
   if (doubleSpinBoxFEW->value() > 0)
     maxAxis7 = doubleSpinBoxFEW->value();
 
-  RD->setInterval( Qt::ZAxis, QwtInterval( MinV, maxAxis7));
+  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis7));
 
   drawMap->setData(RD);
 
-  pal7a->setThreshold(0.001);//std::max(doubleSpinBoxFEWmin->value(),0.001));
-  pal7b->setThreshold(0.001);//std::max(doubleSpinBoxFEWmin->value(),0.001));
+  pal7a->setThreshold(0.001);
+  pal7b->setThreshold(0.001);
 
   drawMap->setColorMap(pal7a);
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal7b);
 
-  MPlot->setAxisScale( MPlot->yRight, MinV, maxAxis7);
+  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis7);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------

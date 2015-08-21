@@ -273,8 +273,8 @@ class colorMapSed: public QwtLinearColorMapVJ
         if ( value < -1e19 )
             return qRgba( 228, 228, 228, 255 );
 
-        if ( value < 0.01 && value > -0.01)//thresholdLCM )
-            return qRgba( 0, 0, 0, 0 );
+        //        if ( value < thresholdLCM )
+        //            return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
@@ -283,7 +283,7 @@ public:
     {
         addColorStop( 0.0, Qt::darkCyan );
         addColorStop( 0.3, Qt::cyan );
-        addColorStop( 0.5, QColor("#fee691"));//Qt::white );
+        addColorStop( 0.5, Qt::white );
         addColorStop( 0.7, Qt::yellow);
     }
 };

@@ -146,6 +146,7 @@ void lisemqt::DefaultMapnames()
 //    DEFmaps.append("2;Class 3;mu3.map;Soil texture fraction for class 3 (-);fractionmu3");
 //    DEFmaps.append("2;Class 4;mu4.map;Soil texture fraction for class 4 (-);fractionmu4");
 //    DEFmaps.append("2;Class 5;mu5.map;Soil texture fraction for class 5 (-);fractionmu5");
+    /*
     DEFmaps.append("0;Nutrients");
     DEFmaps.append("1;Pesticdes");
     DEFmaps.append("2;something;something.map;bla bla;something");
@@ -169,6 +170,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency");
     DEFmaps.append("2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp");
     DEFmaps.append("2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv");
+    */
 //    DEFmaps.append("0;Gullies");
 //    DEFmaps.append("1;General");
 //    //   DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
@@ -290,18 +292,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Soilloss map");
     namelist[i].value = QString("totlandunit.txt");
     namelist[i++].name = QString("Filename landunit output");
-    namelist[i].value = QString("floodmax.map");
-    namelist[i++].name = QString("Flood level map");
-    namelist[i].value = QString("floodtime.map");
-    namelist[i++].name = QString("Flood time map");
-    namelist[i].value = QString("floodstats.csv");
-    namelist[i++].name = QString("Flood stats");
-    namelist[i].value = QString("channelmaxq.map");
-    namelist[i++].name = QString("Channel Max Q");
-    namelist[i].value = QString("channelmaxhw.map");
-    namelist[i++].name = QString("Channel Max WH");
-    namelist[i].value = QString("floodstart.map");
-    namelist[i++].name = QString("Flood start time");
+    namelist[i].value = QString("WHmax.map");     namelist[i++].name = QString("WH max level map");
+
+    namelist[i].value = QString("floodmax.map");     namelist[i++].name = QString("Flood level map");
+    namelist[i].value = QString("floodtime.map");    namelist[i++].name = QString("Flood time map");
+    namelist[i].value = QString("floodstart.map");   namelist[i++].name = QString("Flood start time");
+    namelist[i].value = QString("floodmaxv.map");    namelist[i++].value = QString("Flood Max V");
+    namelist[i].value = QString("channelmaxq.map");  namelist[i++].name = QString("Channel Max Q");
+    namelist[i].value = QString("channelmaxhw.map"); namelist[i++].name = QString("Channel Max WH");
+    namelist[i].value = QString("floodstats.csv");   namelist[i++].name = QString("Flood stats");
+
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
     namelist[i].value = QString("0");
@@ -365,6 +365,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include rainfall flooding");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.05");
     namelist[i++].name = QString("Minimum reported flood height");
@@ -380,10 +382,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood method SWOF2D order 1");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood method SWOF2D order 2");
-    namelist[i].value = QString("0.2");
+    namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding courant factor");
-//    namelist[i].value = QString("0.2");
-//    namelist[i++].name = QString("Flooding SWOF csf factor");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Flood max iterations");
     namelist[i].value = QString("3"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("3"); //albeda
@@ -392,11 +394,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF scheme");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood limit max velocity");
-    namelist[i].value = QString("10.0");
+    namelist[i].value = QString("20.0");
     namelist[i++].name = QString("Flood max velocity threshold");
-    namelist[i].value = QString("3.0");
+    namelist[i].value = QString("5.0");
     namelist[i++].name = QString("Flood extreme value height");
-    namelist[i].value = QString("1.0");
+    namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flood extreme value difference");
 
 
@@ -537,42 +539,42 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("sl");
     namelist[i++].name = QString("OUTSOILLOSS");
 
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[OutputMC]");
-    namelist[i++].name = QString("OUTMU0");
-    namelist[i++].name = QString("OUTMU1");
-    namelist[i++].name = QString("OUTMU2");
-    namelist[i++].name = QString("OUTMU3");
-    namelist[i++].name = QString("OUTMU4");
-    namelist[i++].name = QString("OUTMU5");
-    namelist[i++].name = QString("OUTD50SUSP");
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[OutputNut]");
-    namelist[i++].name = QString("OUTPSOLUT");
-    namelist[i++].name = QString("OUTPSUS");
-    namelist[i++].name = QString("OUTPINF");
-    namelist[i++].name = QString("OUTNH4SOLUT");
-    namelist[i++].name = QString("OUTNH4SUS");
-    namelist[i++].name = QString("OUTNH4INF");
-    namelist[i++].name = QString("OUTNO3SOLUT");
-    namelist[i++].name = QString("OUTNO3SUS");
-    namelist[i++].name = QString("OUTNO3INF");
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[OutputNutErosDep]");
-    namelist[i++].name = QString("OUTPDEP");
-    namelist[i++].name = QString("OUTNH4DEP");
-    namelist[i++].name = QString("OUTNO3DEP");
-    namelist[i++].name = QString("OUTPDET");
-    namelist[i++].name = QString("OUTNH4DET");
-    namelist[i++].name = QString("OUTNO3DET");
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[OutputGul]");
-    namelist[i++].name = QString("OUTGULD");
-    namelist[i++].name = QString("OUTGULW");
-    namelist[i++].name = QString("OUTGULA");
-    namelist[i++].name = QString("OUTGULF");
-    namelist[i++].name = QString("OUTGULDEM");
-    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("[OutputMC]");
+//    namelist[i++].name = QString("OUTMU0");
+//    namelist[i++].name = QString("OUTMU1");
+//    namelist[i++].name = QString("OUTMU2");
+//    namelist[i++].name = QString("OUTMU3");
+//    namelist[i++].name = QString("OUTMU4");
+//    namelist[i++].name = QString("OUTMU5");
+//    namelist[i++].name = QString("OUTD50SUSP");
+//    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("[OutputNut]");
+//    namelist[i++].name = QString("OUTPSOLUT");
+//    namelist[i++].name = QString("OUTPSUS");
+//    namelist[i++].name = QString("OUTPINF");
+//    namelist[i++].name = QString("OUTNH4SOLUT");
+//    namelist[i++].name = QString("OUTNH4SUS");
+//    namelist[i++].name = QString("OUTNH4INF");
+//    namelist[i++].name = QString("OUTNO3SOLUT");
+//    namelist[i++].name = QString("OUTNO3SUS");
+//    namelist[i++].name = QString("OUTNO3INF");
+//    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("[OutputNutErosDep]");
+//    namelist[i++].name = QString("OUTPDEP");
+//    namelist[i++].name = QString("OUTNH4DEP");
+//    namelist[i++].name = QString("OUTNO3DEP");
+//    namelist[i++].name = QString("OUTPDET");
+//    namelist[i++].name = QString("OUTNH4DET");
+//    namelist[i++].name = QString("OUTNO3DET");
+//    namelist[i++].name = QString("");
+//    namelist[i++].name = QString("[OutputGul]");
+//    namelist[i++].name = QString("OUTGULD");
+//    namelist[i++].name = QString("OUTGULW");
+//    namelist[i++].name = QString("OUTGULA");
+//    namelist[i++].name = QString("OUTGULF");
+//    namelist[i++].name = QString("OUTGULDEM");
+//    namelist[i++].name = QString("");
 
     // input maps start here !!!
     mapstartnr = i;

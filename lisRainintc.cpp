@@ -198,7 +198,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     }
 
     nrSeries++;
-    rl.time = 1e20;
+    rl.time = 1440*365;
     for (int i = 1; i < nrStations; i++)
         rl.intensity << 0.0;
 
@@ -242,9 +242,6 @@ void TWorld::RainfallMap(void)
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
             RainfallSeriesM[rainplace].name)));
 
-        //        for (int r = 0; r < _nrRows; r++)
-        //            for (int c = 0; c < _nrCols; c++)
-        //                if (!pcr::isMV(LDD->Drc) &&
         FOR_ROW_COL_MV
                 if (pcr::isMV(_M->Drc))
         {

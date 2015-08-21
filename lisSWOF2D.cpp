@@ -54,13 +54,13 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
-#define dt_ca 0.01
+#define dt_ca 0.05
 #define dt_fix 0.05
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
 #define scheme_type 1   //return calculated or fixed dt
-#define MAXITER 100
+#define MAXITER 200   // obsolete
 
 //---------------------------------------------------------------------------
 /**
@@ -112,7 +112,8 @@ double TWorld::limiter(double a, double b)
 //---------------------------------------------------------------------------
 void TWorld::setZero(cTMap *_h, cTMap *_u, cTMap *_v)
 {
-  FOR_ROW_COL_MV_MV  {
+    FOR_CELL_IN_FLOODAREA
+    {
     if (_h->Drc <= he_ca)
       {
         _h->Drc = 0;
@@ -306,7 +307,7 @@ void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
   }
 
   //x-direction
-  FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
       if(c > 0 && c < _nrCols-2 && !MV(r,c-1) && !MV(r, c+1) && !MV(r, c+2))
   {
     delta_h1 = tm->Drc;
@@ -327,7 +328,7 @@ void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
     delta_v2 = v->data[r][c+1]-v->Drc;
 
 
-    if (F_diffScheme == (int)FENO)
+    if (F_scheme == (int)FENO)
       {
         dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
         dz_h = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
@@ -393,7 +394,7 @@ FOR_ROW_COL_MV
 }
 
 //y-direction
-FOR_ROW_COL_MV_MV
+FOR_CELL_IN_FLOODAREA
 if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
 {
   delta_h1 = tm->Drc;
@@ -413,7 +414,7 @@ if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
   delta_u2 = u->data[r+1][c]-u->Drc;
   delta_v2 = v->data[r+1][c]-v->Drc;
 
-  if (F_diffScheme == (int)FENO)
+  if (F_scheme == (int)FENO)
     {
       dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
       dz_h = limiter(delta_h1+delta_z2->data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
@@ -488,7 +489,7 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     tmb->Drc = 0;
   }
 
-  FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
       if(c > 0 && c < _nrCols-1 && !MV(r,c-1) && !MV(r, c+1))
   {
     delta_h1 = tm->Drc;
@@ -542,7 +543,7 @@ FOR_ROW_COL_MV
   tmb->Drc = 0;
 }
 
-FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
 if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1, c))
 {
   delta_h1 = tm->Drc;
@@ -595,10 +596,10 @@ if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1, c))
 void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                             cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
-  FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
   {
-    double dx = _dx;//-ChannelWidthUpDX->Drc;
-    double dy = _dx;//DX->Drc;
+    double dx = ChannelAdj->Drc;
+    double dy = DX->Drc;
     long double tx = dt/dx;
     long double ty = dt/dy;
     // Solution of the equation of mass conservation (First equation of Saint venant)
@@ -617,6 +618,7 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
         // Solution of the equation of momentum (Second and third equation of Shallow-Water)
         // This expression for the flux (instead of the differences of the squares) avoids numerical errors
         // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
+        // long double since new SWOF code ... needed?
         qes1 = (long double)he->Drc*(long double)ve1->Drc -
             ty*((long double)g2->data[r+1][c]-(long double)g2->Drc) -
             tx*((long double)f2->data[r][c+1]-(long double)f2->Drc +
@@ -662,7 +664,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   dtx = dt_max;
   dty = dt_max;
 
-  FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
       if (c > 0 && !pcr::isMV(LDD->data[r][c-1]))
   {
     h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]));
@@ -700,7 +702,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     tm->Drc = HLL_tmp;
   }}
 
-  FOR_ROW_COL_MV_MV
+  FOR_CELL_IN_FLOODAREA
   if(r > 0 && !pcr::isMV(LDD->data[r-1][c]))
   {
 
@@ -743,7 +745,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
 /*
-     FOR_ROW_COL_MV_MV
+     FOR_CELL_IN_FLOODAREA
           {
 
 
@@ -812,57 +814,20 @@ double TWorld::maincalcflux(double dt, double dt_max)
       }
      */
 
-     F_replaceV = 1;
+    // F_replaceV = 1;
      if (F_replaceV > 0)
      {
        //long j = 0;
-       FOR_ROW_COL_MV_MV {
+       FOR_CELL_IN_FLOODAREA {
          if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
            {
              double tmp1 = cflx->Drc;
              double tmp2 = cfly->Drc;
-             /*
-             if (cflx->Drc > F_maxVelocity)
-               {
-                 double avgcflx = cflx->getWindowAverage(r, c);
-                 double avgf1 = f1->getWindowAverage(r, c);
-                 double avgf2 = f2->getWindowAverage(r, c);
-                 double avgf3 = f3->getWindowAverage(r, c);
-                 cflx->Drc = avgcflx;
-                 f1->Drc = avgf1;
-                 f2->Drc = avgf2;
-                 f3->Drc = avgf3;
-               }
-             if (cfly->Drc > F_maxVelocity)
-               {
-                 double avgcfly = cfly->getWindowAverage(r, c);
-                 double avgg1 = g1->getWindowAverage(r, c);
-                 double avgg2 = g2->getWindowAverage(r, c);
-                 double avgg3 = g3->getWindowAverage(r, c);
-                 cfly->Drc = avgcfly;
-                 g1->Drc = avgg1;
-                 g2->Drc = avgg2;
-                 g3->Drc = avgg3;
-               }
-             */
-             double cfle =0;
-             double e1 = 0;
-             double e2 = 0;
-             double e3 = 0;
-             if (cflx->Drc < cfly->Drc)
-               {
-                 cfle = cflx->Drc;
-                 e1 = f1->Drc;
-                 e2 = f2->Drc;
-                 e3 = f3->Drc;
-               }
-             if (cfly->Drc < cflx->Drc)
-               {
-                 cfle = cfly->Drc;
-                 e1 = g1->Drc;
-                 e2 = g2->Drc;
-                 e3 = g3->Drc;
-               }
+
+             double e1 = 0.5 * (g1->Drc + f1->Drc);
+             double e2 = 0.5 * (g2->Drc + f2->Drc);
+             double e3 = 0.5 * (g3->Drc + f3->Drc);
+             double cfle = 0.5 * (cfly->Drc + cflx->Drc);
              if (cflx->Drc > F_maxVelocity)
                {
                  cflx->Drc = cfle;
@@ -878,24 +843,15 @@ double TWorld::maincalcflux(double dt, double dt_max)
                  g3->Drc = e3;
                }
 
-             qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
+             qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
            }
        }}
      }
-//      FOR_ROW_COL_MV_MV {
-//        f1o->Drc = f1->Drc;
-//        f2o->Drc = f2->Drc;
-//        f3o->Drc = f3->Drc;
-//        cflx->Drc = cflxo->Drc;
-//        g1o->Drc = g1->Drc;
-//        g2o->Drc = g2->Drc;
-//        g3o->Drc = g3->Drc;
-//        cfly->Drc = cflyo->Drc;
-//      }}
 
   // find largest velocity and determine dt
-  FOR_ROW_COL_MV_MV {
-    double dx = _dx;//ChannelAdj->Drc;
+  FOR_CELL_IN_FLOODAREA
+  {
+    double dx = ChannelAdj->Drc; // => als dit op _dx staat crasht ie! dt klopt dan niet!
     if (qFabs(cflx->Drc*dt/dx) < 1e-10)
       dt_tmp = dt_max;
     else
@@ -905,8 +861,9 @@ double TWorld::maincalcflux(double dt, double dt_max)
   }}
 
   // find largest velocity and determine dt
-  FOR_ROW_COL_MV_MV {
-    double dy = _dx;//DX->Drc;
+  FOR_CELL_IN_FLOODAREA 
+  {
+    double dy = DX->Drc;
     if (qFabs(cfly->Drc*dt/dy) < 1e-10)
       dt_tmp = dt_max;
     else
@@ -914,7 +871,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
     dty = std::min(std::min(dt, dt_tmp), dty);
   }}
 
-  return(std::max(dt_ca, std::min(dtx,dty)));
+  return(std::max(dt_ca, std::min(dtx,dty) ));
   /*
   if (scheme_type == 1)
      return(std::max(dt_ca, std::min(dtx,dty)));
@@ -932,7 +889,8 @@ double TWorld::maincalcflux(double dt, double dt_max)
 void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
 {
 
-  FOR_ROW_COL_MV_MV {
+    FOR_CELL_IN_FLOODAREA
+    {
     h1r->Drc = _h->Drc;
     u1r->Drc = _u->Drc;
     v1r->Drc = _v->Drc;
@@ -940,7 +898,8 @@ void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
     u1l->Drc = _u->Drc;
     v1l->Drc = _v->Drc;
   }}
-FOR_ROW_COL_MV_MV {
+    FOR_CELL_IN_FLOODAREA
+    {
   h2r->Drc = _h->Drc;
   u2r->Drc = _u->Drc;
   v2r->Drc = _v->Drc;
@@ -982,6 +941,96 @@ void TWorld::findFloodDomain(cTMap *_h)
         }
 }
 //---------------------------------------------------------------------------
+void TWorld::prepareFloodZ(cTMap *z)
+{
+    prepareFlood = false;
+    fill(*delz1, -9999);
+    fill(*delz2, -9999);
+
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 1; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r][c-1]))
+            {
+                delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+    for (int r = 1; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r-1][c]))
+            {
+                delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+
+
+    FOR_ROW_COL_MV
+    {
+        if (delz1->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r][c-1]))
+                delz1->Drc = delz1->data[r][c-1];
+            else
+                delz1->Drc = 0 ;
+        }
+        if (delz2->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r-1][c]))
+                delz2->Drc = delz2->data[r-1][c];
+            else
+                delz2->Drc = 0 ;
+        }
+    }
+
+    fill(*delta_z1,-9999);
+    fill(*delta_z2, -9999);
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r][c+1]))
+                delta_z1->Drc = z->data[r][c+1] - z->Drc;
+
+    for (int r = 0; r < _nrRows-1; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r+1][c]))
+                delta_z2->Drc = z->data[r+1][c] - z->Drc;
+
+    FOR_ROW_COL_MV
+    {
+        if (delta_z1->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r][c-1]))
+                delta_z1->Drc = delta_z1->data[r][c-1];
+            else
+                delta_z1->Drc = 0 ;
+        }
+        if (delta_z2->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r-1][c]))
+                delta_z2->Drc = delta_z2->data[r-1][c];
+            else
+                delta_z2->Drc = 0 ;
+        }
+    }
+
+    fill(*som_z1, 0);
+    fill(*som_z2, 0);
+    for (int r = 1; r < _nrRows-1; r++)
+        for (int c = 1; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r-1][c]) &&
+                    !pcr::isMV(LDD->data[r+1][c]) &&
+                    !pcr::isMV(LDD->data[r][c-1]) &&
+                    !pcr::isMV(LDD->data[r][c+1]))
+            {
+                som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
+                som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
+                // needed in ENO
+            }
+}
+//---------------------------------------------------------------------------
 /**
  * @brief TWorld::fullSWOF2Do1: first order solution for the st Venant equations
  * @param h : flood water level (m)
@@ -1002,24 +1051,8 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
 
   // do one tmime only at the start of simulation
   if (prepareFlood)
-    {
-      prepareFlood = false;
-      //findFloodDomain(h);
-      // setup coord;
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1])
-             )
-            {
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-            }
-    }
+      prepareFloodZ(z);
+  
   // if there is no flood skip everything
   if (startFlood)
     {
@@ -1033,25 +1066,25 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
           simpleScheme(h, u, v);
 
           dt1 = maincalcflux(dt1, dt_max);
-          dt1 = std::min(dt1, _dt-timesum);
+          dt1 = std::min(dt1, _dt-timesum + 1e-6);
 
           maincalcscheme(dt1, h,u,v, hs,us,vs);
 
           setZero(hs, us, vs);
 
-          FOR_ROW_COL_MV_MV {
+          FOR_CELL_IN_FLOODAREA
+          {
             h->Drc = hs->Drc;
             u->Drc = us->Drc;
             v->Drc = vs->Drc;
           }}
 
-      //findFloodDomain(h);
 
       timesum = timesum + dt1;
       n++;
 
      correctMassBalance(sumh, h, 1e-12);
-      if (n > MAXITER)
+      if (n > F_MaxIter)
         break;
 
     } while (timesum  < _dt);
@@ -1088,36 +1121,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
   if (prepareFlood)
     {
       verif = 1;
-      prepareFlood = false;
-
-      fill(*delta_z1, 0.0);
-      fill(*delta_z2, 0.0);
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      fill(*som_z1, 0.0);
-      fill(*som_z2, 0.0);
-
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r+1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1]) &&
-             !pcr::isMV(LDD->data[r][c+1]))
-            {
-
-              delta_z1->Drc = z->data[r][c+1] - z->Drc;
-              delta_z2->Drc = z->data[r+1][c] - z->Drc;
-              // needed in MUSCL
-
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-
-              som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
-              som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
-              // needed in ENO
-            }
+      prepareFloodZ(z);
     }
 
 
@@ -1142,15 +1146,15 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
               // makes delzc1, delzc2, delz1, delz2
               simpleScheme(h, u, v);
               // used to fill the arrays in the boundary cells where c+1 etc is MV
-              if (F_diffScheme == (int)FMUSCL)
+              if (F_scheme == (int)FMUSCL)
                 MUSCL(h,u,v,z);//MUSCL(hs,us,vs,z);
               else
-                //if (F_diffScheme == (int)FENO)
+                //if (F_scheme == (int)FENO)
                 ENO(h,u,v,z);//ENO(hs,us,vs,z);
             }
 
           dt1 = maincalcflux(dt1, dt_max);
-          dt1 = std::min(dt1, _dt-timesum);
+          dt1 = std::min(dt1, _dt-timesum+1e-6);
 
           //st venant equations, h, u, v go in hs, vs, us come out
           maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -1163,10 +1167,10 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
           //Reconstruction for order 2
           simpleScheme(hs, us, vs);
           // used to fill the arrays in the boundary cells where c+1 etc is MV
-          if (F_diffScheme == (int)FMUSCL)
+          if (F_scheme == (int)FMUSCL)
             MUSCL(hs,us,vs,z);
           else
-            // if (F_diffScheme == (int)FENO)
+            // if (F_scheme == (int)FENO)
             ENO(hs,us,vs,z);
 
           dt2 = maincalcflux(dt2, dt_max);
@@ -1181,7 +1185,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
               verif = 1;
               //hs, us, vs go in hsa, vsa, usa come out
               maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-              dt1 = std::min(dt1, _dt-timesum);
+              dt1 = std::min(dt1, _dt-timesum+1e-6);
 
               setZero(hsa, usa, vsa);
 
@@ -1208,7 +1212,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
               timesum = timesum + dt1;
               n++;
 
-              if (n > MAXITER)
+              if (n > F_MaxIter)// || dt1 < dt_max/MAXITER)
                 {
                   break;
                 }

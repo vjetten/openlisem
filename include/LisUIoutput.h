@@ -41,6 +41,18 @@ struct output{
     int outputpointnr;
     QString outputpointdata;
 
+    int
+    F_solution,
+    F_scheme,
+    F_fluxLimiter,
+    F_replaceV,
+    F_Maxiter;
+    double
+    F_maxVelocity,
+    F_extremeHeight,
+    F_extremeDiff,
+    F_courant;
+
     double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
     double

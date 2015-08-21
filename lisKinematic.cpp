@@ -135,7 +135,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
     double Qkx; //iterated discharge, becomes Qnew
-    double fQkx; //function
+    double fQkx = 1.0; //function
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
@@ -148,18 +148,32 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     //C is unit volume of water    
+    // can be negative because of q
 
-    // if C < 0 than all infiltrates, return 0
+    // if C < 0 than all infiltrates, return 0, if all fluxes 0 then return
     if (C < 0)
     {
         itercount = -2;
         return(0);
     }
 
-    Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
-    // first guess Qkx, VERY important
+    // pow function sum flux must be > 0
+    if (Qold+Qin > 0)
+    {
+        ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+        // derivative of diagonal average (space-time), must be > 0 because of pow function
+        Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
+        // explicit first guess Qkx, VERY important
+        Qkx   = std::max(Qkx, 0.0);
+    }
+    else
+        Qkx =  0;
 
-    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+   Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+   if (Qkx < MIN_FLUX)       
+      return(0);
+
+    // avoid spurious iteration
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
@@ -167,11 +181,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
         Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, MIN_FLUX);
+//            if(Qkx < MIN_FLUX)
+//                Qkx = 0;
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
 
-    Qkx   = (Qkx == MIN_FLUX ? 0 : Qkx);
+//Qkx   = (Qkx == MIN_FLUX ? 0 : Qkx);
 
     itercount = count;
     return Qkx;

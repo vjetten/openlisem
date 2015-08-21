@@ -64,8 +64,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupUi(this);
     // set up interface
-    setMinimumSize(1024,768);
-    resize(1280, 768);
+    setMinimumSize(1280,800);
+    resize(1280, 800);
 
     QList<int> list;
     list << 300 << 600;
@@ -123,12 +123,15 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     //checkAddWHtohmx->setVisible(false);
     //label_125->setVisible(false);
     //floodCutoffLevel->setVisible(false);
-    label_132->setVisible(false);
     label_133->setVisible(false);
     E_FloodReplaceV->setVisible(false);
     checkChannelBaseflow->setVisible(false);
     label_103->setVisible(false);
-    //buffergroup->setVisible(false);
+    E_CalibratePsi->setVisible(false);
+    label_77->setVisible(false);
+    label_79->setVisible(false);
+    E_floodMinHeight->setVisible(false);
+    label_99->setVisible(false);
     // interface elements that are not visible for now
 
 
@@ -331,6 +334,9 @@ void lisemqt::SetToolBar()
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
@@ -338,6 +344,7 @@ void lisemqt::SetToolBar()
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
     connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
 
+    connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -458,6 +465,8 @@ void lisemqt::setResultDir()
     QString pathin;
 
     pathin = findValidDir(E_ResultDir->text(), true);
+    if (pathin.isEmpty())
+        pathin =findValidDir( E_WorkDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
                                              pathin,
@@ -693,9 +702,14 @@ void lisemqt::deleteRunFileList()
 void lisemqt::openRunFile()
 {
     QString path;
+    QString openDir;
+    if (E_runFileList->count() > 0)
+        openDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
+    else
+        openDir = currentDir;
     path = QFileDialog::getOpenFileName(this,
                                         QString("Select run file(s)"),
-                                        currentDir,
+                                        openDir,
                                         QString("*.run"));
 
     if (path.isEmpty())
@@ -969,12 +983,11 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
-                               QString("openLISEM verion %7 (%8) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n")
-                               .arg("- Qt cross platform application and UI framework version 4.8.X based on MSVC2010 (http://qt.nokia.com/).")
+                               QString("openLISEM verion %7 (%8) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
+                               .arg("- Qt cross platform application and UI framework version 4.8.X based on MingW 64bit and CMake (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Flood source code based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
-                               .arg("- Tortoise SVN for version control: (http://tortoisesvn.net/)")
-                               .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/csfapi.html")
+                               .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/")
                                .arg("Details can be found at: http://lisem.sourceforge.net")
                                .arg(VERSIONNR)
                                .arg(DATE)
@@ -1012,12 +1025,14 @@ void lisemqt::resetAll()
     E_DetachmentMap->setText("detachment.map");
     E_DepositionMap->setText("deposition.map");
     E_SoillossMap->setText("soilloss.map");
+    E_WHmaxMap->setText("whmax.map");
     E_FloodlevelMap->setText("floodmax.map");
     E_FloodTimeMap->setText("floodtime.map");
     E_FloodStats->setText("floodstats.txt");
     E_ChannelMaxQ->setText("channelmaxq.map");
     E_ChannelMaxWH->setText("channelmaxhw.map");
     E_FloodFEW->setText("floodstart.map");
+    E_FloodmaxVMap->setText("floodmaxv.map");
     E_MainTotals->setText("");
     E_PointResults->setText("");
 
@@ -1049,7 +1064,7 @@ void lisemqt::resetAll()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Subtract Ksat");
+ //   E_InfiltrationMethod->addItem("Subtract Ksat");
     E_InfiltrationMethod->setCurrentIndex(0);
 
     initOP();
@@ -1143,6 +1158,7 @@ void lisemqt::resetAll()
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
 
+    E_FloodMaxIter->setValue(200);
     //   E_FloodReplaceV->setValue(1);
     //   E_FloodMaxVelocity->setValue(10.0);
 
