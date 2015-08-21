@@ -814,7 +814,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
       }
      */
 
-    // F_replaceV = 1;
      if (F_replaceV > 0)
      {
        //long j = 0;
@@ -891,21 +890,21 @@ void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
 
     FOR_CELL_IN_FLOODAREA
     {
-    h1r->Drc = _h->Drc;
-    u1r->Drc = _u->Drc;
-    v1r->Drc = _v->Drc;
-    h1l->Drc = _h->Drc;
-    u1l->Drc = _u->Drc;
-    v1l->Drc = _v->Drc;
-  }}
-    FOR_CELL_IN_FLOODAREA
-    {
-  h2r->Drc = _h->Drc;
-  u2r->Drc = _u->Drc;
-  v2r->Drc = _v->Drc;
-  h2l->Drc = _h->Drc;
-  u2l->Drc = _u->Drc;
-  v2l->Drc = _v->Drc;
+        h1r->Drc = _h->Drc;
+        u1r->Drc = _u->Drc;
+        v1r->Drc = _v->Drc;
+        h1l->Drc = _h->Drc;
+        u1l->Drc = _u->Drc;
+        v1l->Drc = _v->Drc;
+    }}
+FOR_CELL_IN_FLOODAREA
+{
+    h2r->Drc = _h->Drc;
+    u2r->Drc = _u->Drc;
+    v2r->Drc = _v->Drc;
+    h2l->Drc = _h->Drc;
+    u2l->Drc = _u->Drc;
+    v2l->Drc = _v->Drc;
 }}
 }
 //---------------------------------------------------------------------------

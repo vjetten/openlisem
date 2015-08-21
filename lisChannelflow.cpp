@@ -284,14 +284,14 @@ void TWorld::ChannelFlow(void)
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
 
-     //   ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+        ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // new channel water volume
+}
 
-
-/*}
+/*
  *
  * NECESSARY OR JUST FLUFF ????
- */
+ *
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell in m3,
         // ChannelWaterVol is still before, ChnnaelArea*DX is volumme after
@@ -315,8 +315,8 @@ void TWorld::ChannelFlow(void)
     }
 
     // mass balance correction, throw error on cells with WH
-//    if (n > 0)
-//        mb = mb/n;
+    if (n > 0)
+        mb = mb/n;
 
     FOR_ROW_COL_MV_CH
     {
@@ -332,7 +332,7 @@ void TWorld::ChannelFlow(void)
 
     }
 
-
+*/
     FOR_ROW_COL_MV_CH
     {
 
