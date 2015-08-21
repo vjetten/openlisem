@@ -290,6 +290,7 @@ void TWorld::OverlandFlowNew(void)
 
     // mass balance correction, throw error on cells with WH
     //qDebug() << mb;
+
     if (n > 0)
         mb = mb/n;
 

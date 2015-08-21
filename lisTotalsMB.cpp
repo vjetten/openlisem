@@ -51,6 +51,7 @@ void TWorld::Totals(void)
 
     FOR_ROW_COL_MV
     {
+
        WHmax->Drc = std::max(WHmax->Drc, WH->Drc);
     }
 
@@ -181,6 +182,10 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
+       //     WaterVolTot += mapTotal(*FloodWaterVol); //m3
+            // add channel vol to total
+       //     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+
             floodVolTot = mapTotal(*FloodWaterVol);
             floodTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
         }

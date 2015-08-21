@@ -286,7 +286,8 @@ void TWorld::ChannelFlow(void)
 
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // new channel water volume
-}
+
+    }
 
 /*
  *
@@ -332,7 +333,9 @@ void TWorld::ChannelFlow(void)
 
     }
 
+
 */
+
     FOR_ROW_COL_MV_CH
     {
 

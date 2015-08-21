@@ -536,7 +536,6 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
-//            ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // on surface the length of the channel is the same else mass balance?
             ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
         }
 
@@ -681,7 +680,6 @@ void TWorld::InitChannel(void)
             F_extremeDiff = getvaluedouble("Flood extreme value Difference");
             F_MaxIter = getvalueint("Flood max Iterations");
 
-            //FULLSWOF2D
             hs = NewMap(0);
             vs = NewMap(0);
             us = NewMap(0);

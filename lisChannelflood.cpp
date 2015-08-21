@@ -192,7 +192,7 @@ void TWorld::FloodMaxandTiming()
     }
 }
 //---------------------------------------------------------------------------
-// change flood parameters while running
+ //change flood parameters while running
 void TWorld::getFloodParameters(void)
 {
     SwitchFloodSWOForder2 = (op.F_solution == 2);
@@ -215,6 +215,7 @@ void TWorld::ChannelFlood(void)
         return;
 
     getFloodParameters();
+
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
@@ -245,6 +246,7 @@ void TWorld::ChannelFlood(void)
 //            {
 //                dtflood = floodExplicit();
 //            }
+
     FloodSpuriousValues();
     //correct extremes
 
