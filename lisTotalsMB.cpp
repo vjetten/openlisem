@@ -182,10 +182,6 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-       //     WaterVolTot += mapTotal(*FloodWaterVol); //m3
-            // add channel vol to total
-       //     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-
             floodVolTot = mapTotal(*FloodWaterVol);
             floodTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
         }
@@ -423,6 +419,7 @@ void TWorld::MassBalance()
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+
 //        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
 //        MB = MB/(RainTotmm + SnowTotmm) * 100;
     }

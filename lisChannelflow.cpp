@@ -262,9 +262,9 @@ void TWorld::ChannelFlow(void)
     cover(*ChannelQsn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
-    double mb = 0;
-    double n = 0;
-    fill(*tm, 0.0);
+//    double mb = 0;
+//    double n = 0;
+//    fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -279,7 +279,7 @@ void TWorld::ChannelFlow(void)
 
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-        tm->Drc = ChannelArea;
+       // tm->Drc = ChannelArea;
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
@@ -293,6 +293,7 @@ void TWorld::ChannelFlow(void)
  *
  * NECESSARY OR JUST FLUFF ????
  *
+
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell in m3,
         // ChannelWaterVol is still before, ChnnaelArea*DX is volumme after
@@ -345,7 +346,7 @@ void TWorld::ChannelFlow(void)
             // correct for very high concentrations, max 850 g/l
             // NOTE: nothing is done with this concentration, only for display,
             // so the display shows the conc after the kin wave
-            ChannelConc->Drc = (ChannelQ->Drc > 1e-6 ? ChannelQs->Drc/ChannelQ->Drc : 0);
+            ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
             // CHANGED, MORE STABLE CONC 19/9/13
         }
     }

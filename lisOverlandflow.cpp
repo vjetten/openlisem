@@ -70,9 +70,8 @@ void TWorld::ToChannel(void)
         // cannot flow into channel is water level in channel is higher than depth
         if (SwitchChannelFlood)
         {
-            //        if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
-            //            if (ChannelWH->Drc >= ChannelDepth->Drc+ChannelLevee->Drc)
-            //      fractiontochannel = 0;
+            if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
+                fractiontochannel = 0;
             // no inflow when flooded
             if (ChannelMaxQ->Drc > 0)
                 fractiontochannel = 0;

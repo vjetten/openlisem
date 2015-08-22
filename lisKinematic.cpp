@@ -170,8 +170,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
         Qkx =  0;
 
 //   Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
-   if (Qkx < MIN_FLUX)       
-      return(0);
+//   if (Qkx < MIN_FLUX)
+//      return(0);
 
     // avoid spurious iteration
     count = 0;
