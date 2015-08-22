@@ -262,9 +262,9 @@ void TWorld::ChannelFlow(void)
     cover(*ChannelQsn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
-    double mb = 0;
-    double n = 0;
-    fill(*tm, 0.0);
+//    double mb = 0;
+//    double n = 0;
+//    fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -292,8 +292,6 @@ void TWorld::ChannelFlow(void)
  *
  * NECESSARY OR JUST FLUFF ????
  *
-        //ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
-        // water height is not used except for output! i.e. watervolume is cycled
 
         double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
         //difference between fluxes and store in and out of channel cell in m3,
@@ -326,7 +324,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
 
         if (ChannelWaterVol->Drc > 0)
-            ChannelWaterVol->Drc = std::max((0.0, ChannelWaterVol->Drc + mb);
+            ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc + mb);
         // NEW VOLUME divide mb over volume
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
         // new WH after mb correction
