@@ -286,7 +286,7 @@ void TWorld::ChannelFlow(void)
 
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // new channel water volume
-
+        difkin->Drc += 0;
     }
 
 /*

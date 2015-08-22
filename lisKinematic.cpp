@@ -169,9 +169,9 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     else
         Qkx =  0;
 
-//   Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
-//   if (Qkx < MIN_FLUX)
-//      return(0);
+    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+    if (Qkx < MIN_FLUX)
+        return(0);
 
     // avoid spurious iteration
     count = 0;
@@ -180,14 +180,9 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-   //     Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, MIN_FLUX);
-        if(Qkx < MIN_FLUX)
-            Qkx = 0;
-
+        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-
-//Qkx   = (Qkx == MIN_FLUX ? 0 : Qkx);
 
     itercount = count;
     return Qkx;
