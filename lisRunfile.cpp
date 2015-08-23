@@ -175,10 +175,10 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
       //  if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
-        if (p1.compare("Include rainfall flooding")==0)       SwitchRainfallFlood     = iii == 1;
+        if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
-        if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
+     //   if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
@@ -264,16 +264,23 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 
         InfilMethod = getvalueint("Infil Method");
+
     }// first loop of runnamelist
 
+    rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
 
     if (SwitchFloodSWOForder2)
     {
         SwitchFloodSWOForder1 = false;
         SwitchFloodExplicit = false;
     }
+    if (SwitchFloodSWOForder1)
+    {
+        SwitchFloodSWOForder2 = false;
+        SwitchFloodExplicit = false;
+    }
 
-    if (SwitchChannelFlood && !SwitchFloodExplicit && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
+    if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;
 
     // check a few things

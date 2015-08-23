@@ -74,10 +74,10 @@ void TWorld::CalcVelDischChannel(void)
 
         Radius = (Perim > 0 ? Area/Perim : 0);
 
-        ChannelAlpha->Drc = qPow(ChannelN->Drc/grad * powl(Perim, _23),beta);
+        ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, _23),beta);
 
         if (ChannelAlpha->Drc > 0)
-            ChannelQ->Drc = qPow(Area/ChannelAlpha->Drc, beta1);
+            ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
         else
             ChannelQ->Drc = 0;
 
@@ -86,14 +86,14 @@ void TWorld::CalcVelDischChannel(void)
             if (ChannelMaxQ->Drc > 0)
             {
                 ChannelQ->Drc = std::min(ChannelQ->Drc, ChannelMaxQ->Drc);
-                Area = ChannelAlpha->Drc*pow(ChannelQ->Drc, beta);
+                Area = ChannelAlpha->Drc*std::pow(ChannelQ->Drc, beta);
                 Perim = FW + Area/FW*2;
                 ChannelWH->Drc = Area/FW;
             }
 
         }
 
-        ChannelV->Drc = pow(Radius, _23)*grad/ChannelN->Drc;
+        ChannelV->Drc = std::pow(Radius, _23)*grad/ChannelN->Drc;
 
         ChannelWaterVol->Drc = Area * ChannelDX->Drc;
 
@@ -262,9 +262,9 @@ void TWorld::ChannelFlow(void)
     cover(*ChannelQsn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
-//    double mb = 0;
-//    double n = 0;
-//    fill(*tm, 0.0);
+    double mb = 0;
+    double n = 0;
+    fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -279,7 +279,7 @@ void TWorld::ChannelFlow(void)
 
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-       // tm->Drc = ChannelArea;
+        tm->Drc = ChannelArea;
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
@@ -302,7 +302,6 @@ void TWorld::ChannelFlow(void)
         {
             difkin->Drc += 0;//diff;
             mb += diff;
-            dummytot += diff;
             // add all m3 error
             if (ChannelArea > 0)
                 n+=1;
@@ -333,9 +332,8 @@ void TWorld::ChannelFlow(void)
         // new Q after correction
 
     }
-
-
 */
+
 
     FOR_ROW_COL_MV_CH
     {

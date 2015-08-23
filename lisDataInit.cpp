@@ -637,8 +637,10 @@ void TWorld::InitChannel(void)
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
+
             Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
             cover(*Barriers, *LDD,0);
+
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
             ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
@@ -1091,7 +1093,7 @@ void TWorld::GetInputData(void)
     InitTiledrains();
 
     // not used
-    InitMulticlass();
+    //InitMulticlass();
 
 }
 //---------------------------------------------------------------------------

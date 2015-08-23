@@ -61,6 +61,7 @@ void TWorld::ToChannel(void)
             fractiontochannel = 1.0;
         else
             fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
+        // fraction to channel calc from half the adjacent area width and flow velocity
 
         if (SwitchBuffers)
             if (BufferID->Drc > 0)
@@ -89,7 +90,7 @@ void TWorld::ToChannel(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         //VJ 130425
 
-        // adjust water height
+
         if (SwitchErosion)
         {
             SedToChannel->Drc = fractiontochannel*Sed->Drc;
@@ -98,8 +99,9 @@ void TWorld::ToChannel(void)
             // adjust sediment in suspension
         }
     }
+
     CalcVelDisch();
-    // recalc velocity and discharge
+    // recalc velocity and discharge because water flowed into channel
 
 
 }
