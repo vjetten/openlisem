@@ -189,9 +189,9 @@ class colorMapRoads2: public QwtLinearColorMapVJ
     }
 public:
     colorMapRoads2():
-        QwtLinearColorMapVJ( Qt::yellow, QColor("#eecc00")  )
+        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
     {
-        addColorStop( 0.0, Qt::yellow );
+        addColorStop( 0.0, QColor("#f9fb44") );
     }
 };
 //---------------------------------------------------------------------------

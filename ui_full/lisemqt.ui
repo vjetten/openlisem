@@ -5181,7 +5181,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6049,12 +6049,12 @@
                   <item row="4" column="2">
                    <widget class="QCheckBox" name="checkRainfallFlood">
                     <property name="text">
-                     <string>2D Flooding by excessive rainfall, for slope angles &lt; than:</string>
+                     <string>(EXPERIMENTAL) 2D Flooding by excessive rainfall, gradient &lt;= </string>
                     </property>
                    </widget>
                   </item>
                   <item row="4" column="3">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                   <widget class="QDoubleSpinBox" name="E_RainFloodGradient">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -6097,12 +6097,12 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>239</width>
+                    <width>228</width>
                     <height>252</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -6114,8 +6114,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>278</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6127,7 +6127,8 @@
                      <property name="plainText">
                       <string>- No erosion = all sediment processes ignored, only water. Flooding cannot include sediment for now.
 - Include channel = switch on or off channels (defined in channel maps)
-- 2D flooding = 2D flooding from channels (see flood options tab). Flooding only takes place inside an area defined in floodzone.map, annd for channels that have a depth &gt; 0. Channel depth 0 means infinite depth, no ovverflow.
+- 2D flooding = 2D flooding from channels (see flood options tab). Flooding only takes place inside an area defined in floodzone.map, and for channels that have a depth &gt; 0. Channel depth 0 means infinite depth, no ovverflow.
+- 2D flood by excessive rainfall: on areas flatter than gradient, runoff that exceeds the surface storage will be converted to flood (Experimental, mass balance errors!)
 - Channel infiltration = water subtracted from the channnel discharge as defined in chanksat.map (mm/h).
 </string>
                      </property>
@@ -6143,8 +6144,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>278</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6168,8 +6169,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>278</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6261,12 +6262,12 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>262</width>
+                    <height>232</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -8341,12 +8342,12 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>339</width>
+                    <height>292</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -8481,6 +8482,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="2" column="1" colspan="3">
                    <widget class="QLabel" name="label_99">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="palette">
                      <palette>
                       <active>
@@ -9194,7 +9198,7 @@ p, li { white-space: pre-wrap; }
                      <double>0.010000000000000</double>
                     </property>
                     <property name="value">
-                     <double>0.050000000000000</double>
+                     <double>0.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -9354,12 +9358,12 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>129</width>
+                    <width>179</width>
                     <height>230</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -9523,12 +9527,12 @@ n = n * exp(-coeff * h)</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>251</width>
+                    <height>272</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -11902,12 +11906,12 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>330</width>
+                    <height>561</height>
                    </rect>
                   </property>
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/help1.png</normaloff>:/help1.png</iconset>
                   </attribute>
                   <attribute name="label">
@@ -19175,8 +19179,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

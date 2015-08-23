@@ -366,6 +366,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include rainfall flooding");
+    namelist[i].value = QString("0.01");
+    namelist[i++].name = QString("Rainfall flooding gradient");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.05");
@@ -376,8 +378,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding runoff partitioning");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood initial level map");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Flood method explicit");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Flood method explicit");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood method SWOF2D order 1");
     namelist[i].value = QString("0");

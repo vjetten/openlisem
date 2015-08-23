@@ -241,20 +241,25 @@ public:
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial;
 
     // multiple options that are set in interface or runfile, see defines above
+
     /// Interception storage function based on LAI
     int InterceptionLAIType;
+
     /// infiltration method
     int InfilMethod;
+
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;
-    /// calibration factors
-    int KEequationType;
+
     /// type of kinetic energy equation;
+    int KEequationType;
+
+    /// parameters in KE equations
     double KEParamater_a1, KEParamater_b1, KEParamater_c1;
     double KEParamater_a2, KEParamater_b2;
     double KEParamater_a3, KEParamater_b3;
-    /// parameters in KE equations
 
+    /// calibration parameters
     double ksatCalibration;
     double nCalibration;
     double thetaCalibration;
@@ -264,13 +269,16 @@ public:
     double SplashDelivery;
     double StripN;
     double StemflowFraction;
+
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
     double waterRep_a;
     double waterRep_b;
     double waterRep_c;
     double waterRep_d;
 
-    double dummytot; // to be able to add things
+    ///rainfall to flood max gradient
+    double rainFloodingGradient;
+
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
@@ -289,7 +297,8 @@ public:
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea;
     double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
-//pesticides
+
+    ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
     double MBpex,PestRunoffSpatialex,PestDisMixingex,PestSorMixingex,PestInfiltex,PestLossTotOutletex;
     int N_SPK;
@@ -309,12 +318,8 @@ public:
     int fZone;
 
     /// timeseries variables and output strings
-    //double **RainfallSeries;
     int nrRainfallseries;
     int nrSnowmeltseries;
-    //double **SnowmeltSeries;
-    //int nrSnowmeltstations, nrSnowmeltseries;
-    //RAIN_LIST *RainfallSeriesM;
     QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
     QVector <RAIN_LIST> SnowmeltSeriesM;
 
@@ -506,7 +511,7 @@ public:
     void FloodBoundary(void);
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(void);
+    void ChannelOverflow(bool flow);
     void getFloodParameters(void);
     double courant_factor;
     double mixing_coefficient, runoff_partitioning;

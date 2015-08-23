@@ -166,6 +166,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
    //     if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
+        if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
@@ -174,7 +175,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         // flooding
-        if (p1.compare("Flood method explicit")==0)          dummyFloodExplicit = check;
+       // if (p1.compare("Flood method explicit")==0)          dummyFloodExplicit = check;
         if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
         if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
@@ -191,6 +192,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
         if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
         if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
+        if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val);
+
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -209,7 +212,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
         //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
-        if (p1.compare("Include percolation")==0)           checkPercolation->setChecked(check);
+        if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
 
         //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
         if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
@@ -588,7 +591,7 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
         QString p;
-        if (p1.compare("No Erosion simulation")==0) 	   namelist[j].value.setNum((int)checkNoErosion->isChecked());
+        if (p1.compare("No Erosion simulation")==0) 	     namelist[j].value.setNum((int)checkNoErosion->isChecked());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
@@ -596,15 +599,16 @@ void lisemqt::updateModelData()
 
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
-        if (p1.compare("Include rainfall flooding")==0)       namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
+        if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
+        if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
-        if (p1.compare("Flood method explicit")==0)
-        {
-            if (E_floodSolution->value() == 0)
-                namelist[j].value.setNum(1);
-            else
-                namelist[j].value.setNum(0);
-        }
+//        if (p1.compare("Flood method explicit")==0)
+//        {
+//            if (E_floodSolution->value() == 0)
+//                namelist[j].value.setNum(1);
+//            else
+//                namelist[j].value.setNum(0);
+//        }
         if (p1.compare("Flood method SWOF2D order 1")==0)
         {
             if (E_floodSolution->value() == 1)
@@ -620,7 +624,6 @@ void lisemqt::updateModelData()
                 namelist[j].value.setNum(0);
         }
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        //  if (p1.compare("Flooding SWOF csf factor")==0)       namelist[j].value = E_cflFactor->text();
         if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
@@ -634,8 +637,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
         if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
+
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
+
         //houses
         if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());

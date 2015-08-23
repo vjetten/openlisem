@@ -183,6 +183,7 @@ void TWorld::DoModel()
             InterceptionHouses();  // urban interception
 
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
+     //       RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
             Infiltration();        // soil infil, decrease WH
             InfiltrationFloodNew();// infil in flooded area
@@ -203,7 +204,9 @@ void TWorld::DoModel()
             OverlandFlowNew();     // overland flow kin wave for water and sed
 
             ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
+
             ChannelFlood();        // st venant channel flooding
+
             CalcVelDischChannel(); // alpha, V and Q from Manning
 
             ChannelFlow();         // channel erosion and kin wave

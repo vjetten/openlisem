@@ -38,7 +38,8 @@ double             mapMaximum          (cTMap const& raster);
 
 double             getWindowAverage    (cTMap const& raster,
                                         int r,
-                                        int c);
+                                        int c,
+                                        bool center);
 
 void               cover               (cTMap& raster,
                                         cTMap const& value1,
