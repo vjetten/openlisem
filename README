@@ -3,9 +3,33 @@ At this point there are two developments:
 - lisem 64bit for large projects, ONLY FOR WIN 64bit machines. This is being co-developed by Kor de Jong for parallel processing and adding debrisflows.
 - lisem 32bit. Kept in parallel for now but will merge better soon with the 64bit version.
 
+If possible use the 64bit version!
 
-openLISEM README (141026)
+openLISEM README (150823)
 =========================
+LASEST CHANGES (v1.99-v2.01)
+- Prepare library GDAL for more GIS format possibilities (not activated yet)
+- fixed SWATRE table path reading bug
+- colour tweaking
+
+LATEST CHANGES (v1.97-1.99)
+- Fixed bug output flood max velocity map
+- Fixed bug zoomed in map stays on location when switching map type
+- Fixed bug in flood calculations for channel cells
+- Added max flood iterations to interface
+- Added brief help descriptions in the interface
+- Added hard surfaces to buildings in interface
+- tuned correction of spurious flood values
+
+LATEST CHANGES (v1.96)
+- Added flood start as early warning information, screen and map output
+- fixed bug reaading rainfall maps
+- smooting method for extreme values caused by unstable numerical solution (replaced by average of surrounding wet values)
+- tweaks in interface
+- depreciated flood explicit scheme, didn't work
+TODO
+- check tab output for outlets
+
 LATEST CHANGES (v1.95)
 - Corrrected MUSCL for boundary cells
 - Made ENO and Modified ENO operational
