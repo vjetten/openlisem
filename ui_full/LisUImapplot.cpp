@@ -172,6 +172,11 @@ void lisemqt::setupMapPlot()
   drawMap->attach( MPlot );
   //map for runoff, infil, flood etc
 
+  baseMap = new QwtPlotSpectrogram();
+  baseMap->setRenderThreadCount( 0 );
+  baseMap->attach( MPlot );
+  // shaded relief
+
   houseMap = new QwtPlotSpectrogram();
   houseMap->setRenderThreadCount( 0 );
   houseMap->attach( MPlot );
@@ -187,10 +192,7 @@ void lisemqt::setupMapPlot()
   channelMap->attach( MPlot );
   // channel map
 
-  baseMap = new QwtPlotSpectrogram();
-  baseMap->setRenderThreadCount( 0 );
-  baseMap->attach( MPlot );
-  // shaded relief
+
 
 
   RD = new QwtMatrixRasterData();

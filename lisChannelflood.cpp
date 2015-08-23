@@ -69,7 +69,7 @@ void TWorld::ChannelOverflow(bool flow)
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
             // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
             // can be negative if channelwh is below channel depth and low hmx level
-
+/*
             //State 1: channel water is higher than surroundin
             if (dH > hmx->Drc)
             {
@@ -106,9 +106,7 @@ void TWorld::ChannelOverflow(bool flow)
                     ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
                 }
             }
-
-/*
-ALL IS ALWAYS IN EQUILIBRIUM
+*/
 
             if(whlevel > 0)
             {
@@ -119,17 +117,14 @@ ALL IS ALWAYS IN EQUILIBRIUM
             }
             else
             {
-//                double frac = std::min(1.0, _dt*UVflood->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
+//                double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
 
-//                dH = std::min(0.0,frac*(hmx->Drc-levee));
-
-//                ChannelWH->Drc += dH*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
-//                hmx->Drc = std::max(0.0, hmx->Drc - dH);
+//                ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
+//                hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
 
           //      qDebug() << dH << hmx->Drc << frac;
 
             }
-*/
         }
     }
 }
@@ -165,11 +160,13 @@ double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
 void TWorld::FloodSpuriousValues()
 {
     fill(*tm, 0.0);
+    //calc2Maps(*tma, *DEM, *hmx, ADD);
     FOR_ROW_COL_MV
     {
         if (hmx->Drc > F_extremeHeight)
         {
-            tm->Drc = getWindowAverage(*hmx, r, c);
+            tm->Drc = getWindowAverage(*hmx, r, c, false);
+           // tm->Drc = getWindowAverage(*tma, r, c, false);
         }
     }
 
@@ -315,7 +312,7 @@ void TWorld::ChannelFlood(void)
     ChannelOverflow(false);
     // mix overflow water and flood water in channel cells
 
-  //  correctMassBalance(sumh_t, hmx, 1e-12);
+    correctMassBalance(sumh_t, hmx, 1e-12);
     // correct mass balance, VJ 150823: not nnecessary hhere if flow is false
 
     //new flood domain

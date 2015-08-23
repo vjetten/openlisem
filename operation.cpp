@@ -186,7 +186,8 @@ double mapMaximum(
 double getWindowAverage(
     cTMap const& raster,
     int r,
-    int c)
+    int c,
+    bool center)
 {
   double i = 0;
   double sum = 0, avg = 0;
@@ -194,6 +195,7 @@ double getWindowAverage(
   if (!pcr::isMV(raster.data[r-1][c  ]) && raster.data[r-1][c  ]> 0) { sum += raster.data[r-1][c  ]; i+=1.0;}
   if (!pcr::isMV(raster.data[r-1][c+1]) && raster.data[r-1][c+1]> 0) { sum += raster.data[r-1][c+1]; i+=1.0;}
   if (!pcr::isMV(raster.data[r  ][c-1]) && raster.data[r  ][c-1]> 0) { sum += raster.data[r  ][c-1]; i+=1.0;}
+  if (center && !pcr::isMV(raster.data[r  ][c]) && raster.data[r  ][c]> 0) { sum += raster.data[r  ][c]; i+=1.0;}
   if (!pcr::isMV(raster.data[r  ][c+1]) && raster.data[r  ][c+1]> 0) { sum += raster.data[r  ][c+1]; i+=1.0;}
   if (!pcr::isMV(raster.data[r+1][c-1]) && raster.data[r+1][c-1]> 0) { sum += raster.data[r+1][c-1]; i+=1.0;}
   if (!pcr::isMV(raster.data[r+1][c  ]) && raster.data[r+1][c  ]> 0) { sum += raster.data[r+1][c  ]; i+=1.0;}
