@@ -183,7 +183,8 @@ void TWorld::DoModel()
             InterceptionHouses();  // urban interception
 
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
-     //       RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
+
+//            RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
             Infiltration();        // infil of overland flow water, decrease WH
             InfiltrationFloodNew();// infil in flooded area, decrease hmx
@@ -197,6 +198,8 @@ void TWorld::DoModel()
             FlowDetachment();      // flow detachment
 
             //Pestmobilisation();  // experimental
+
+            RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
             ToFlood();             // overland flow water added to flood (not in channel cells)
             ToChannel();           // water and sed flux going into channel in channel cells

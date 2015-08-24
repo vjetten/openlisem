@@ -1061,26 +1061,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
   // do one tmime only at the start of simulation
   if (prepareFlood)
       prepareFloodZ(z);
-/*
-    {
-      prepareFlood = false;
-      //findFloodDomain(h);
-      // setup coord;
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1])
-             )
-            {
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-            }
-    }
-*/
+
   // if there is no flood skip everything
   if (startFlood)
     {
@@ -1148,42 +1129,6 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
 
   if (prepareFlood)
       prepareFloodZ(z);
-
-  /*
-    {
-      verif = 1;
-      prepareFlood = false;
-
-      fill(*delta_z1, 0.0);
-      fill(*delta_z2, 0.0);
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      fill(*som_z1, 0.0);
-      fill(*som_z2, 0.0);
-
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r+1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1]) &&
-             !pcr::isMV(LDD->data[r][c+1]))
-            {
-
-              delta_z1->Drc = z->data[r][c+1] - z->Drc;
-              delta_z2->Drc = z->data[r+1][c] - z->Drc;
-              // needed in MUSCL
-
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-
-              som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
-              som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
-              // needed in ENO
-            }
-    }
-*/
 
   sumh = mapTotal(*h);
   // if there is no flood skip everything

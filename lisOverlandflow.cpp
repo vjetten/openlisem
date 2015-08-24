@@ -56,6 +56,10 @@ void TWorld::ToFlood(void)
             hmx->Drc += dwh * FlowWidth->Drc/_dx;
             WH->Drc = WHstore->Drc;
             WHrunoff->Drc -= dwh;
+
+            WHGrass->Drc = WHstore->Drc; //?????
+            WHroad->Drc = 0;   //?????
+
         }
     }
 

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1491</width>
+    <width>1574</width>
     <height>1138</height>
    </rect>
   </property>
@@ -5181,7 +5181,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6097,7 +6097,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>228</width>
+                    <width>377</width>
                     <height>252</height>
                    </rect>
                   </property>
@@ -6114,8 +6114,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>377</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6144,8 +6144,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>377</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6169,8 +6169,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>377</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6262,7 +6262,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>212</width>
+                    <width>361</width>
                     <height>232</height>
                    </rect>
                   </property>
@@ -8342,7 +8342,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>289</width>
+                    <width>438</width>
                     <height>292</height>
                    </rect>
                   </property>
@@ -9358,8 +9358,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>129</width>
-                    <height>248</height>
+                    <width>100</width>
+                    <height>30</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -9405,7 +9405,7 @@ The initial flood level map is simply the existing flood water (in m) at the sta
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>195</width>
+                    <width>278</width>
                     <height>248</height>
                    </rect>
                   </property>
@@ -9531,7 +9531,7 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>201</width>
+                    <width>350</width>
                     <height>272</height>
                    </rect>
                   </property>
@@ -11910,7 +11910,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>280</width>
+                    <width>429</width>
                     <height>561</height>
                    </rect>
                   </property>
