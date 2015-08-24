@@ -403,7 +403,7 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Flood start time")==0)
                 floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
             if (p1.compare("Flood Max V")==0)
-                floodMaxVFileName = checkOutputMapName(p, "flood max velocity",0);
+                floodMaxVFileName = checkOutputMapName(p, "flood max V",0);
         }
 
         // output map timeseries, standard names, to avoid unreadable pcraster names

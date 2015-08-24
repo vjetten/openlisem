@@ -235,6 +235,9 @@ void lisemqt::initOP()
     op.roadMap = NULL;
     op.houseMap = NULL;
 
+    op.displayWH = false;
+    op.displayPcum = false;
+
     op.runstep = 0;
     op.printstep = 0;
     op.maxstep = 0;

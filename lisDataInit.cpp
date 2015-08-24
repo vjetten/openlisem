@@ -1577,9 +1577,10 @@ void TWorld::IntializeOptions(void)
     totalLandunitFileName = QString("totlandunit.txt");//.clear();
     outflowFileName = QString("hydrohgraph.csv");//.clear();
 
-    floodLevelFileName = QString("floodmax.map");//.clear();
+    floodLevelFileName = QString("floodmaxH.map");//.clear();
     floodTimeFileName = QString("floodtime.map");//.clear();
     floodFEWFileName = QString("floodstart.map");//.clear();
+    floodMaxVFileName = QString("floodmaxV.map");//.clear();
 
     floodStatsFileName = QString("floodstats.csv");//.clear();
 
