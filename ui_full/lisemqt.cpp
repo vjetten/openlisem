@@ -333,6 +333,7 @@ void lisemqt::SetToolBar()
     connect(radioButton_FEW, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(checkDisplayWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
@@ -1153,7 +1154,7 @@ void lisemqt::resetAll()
     E_floodMinHeight->setValue(0.05);
 
     E_mixingFactor->setValue(2.0);
-    //E_runoffPartitioning->setValue(0.5);
+    E_runoffPartitioning->setValue(0.5);
     E_FloodFluxLimiter->setValue(1); //min
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL

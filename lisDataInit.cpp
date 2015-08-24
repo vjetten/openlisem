@@ -586,19 +586,8 @@ void TWorld::InitChannel(void)
             {
                 nrc++;
             }
-            //            cellRow = new int[nrc];
-            //            cellCol = new int[nrc];
-            //            long i = 0;
-            //            for (int r = 0; r < _nrRows; r++)
-            //                for (int c = 0; c < _nrCols; c++)
-            //                    if(!pcr::isMV(LDD->data[r][c]))
-            //                    {
-            //                        cellRow[i] = r;
-            //                        cellCol[i] = c;
-            //                        i++;
-            //                    }
-            //            nrGridcells = nrc;
 
+            // create max structure for flood domain, all cells
             floodRow = new int[nrc];
             floodCol = new int[nrc];
             for (long i = 0; i < nrc; i++)
@@ -658,14 +647,15 @@ void TWorld::InitChannel(void)
             long _i = 0;
             FOR_ROW_COL_MV
             {
-              if (FloodZonePotential->Drc == 1 ||  ChannelDepth->Drc > 0)
+                // added rainFloodingGradient to ensure rainfall flood if needed
+              if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0 || Grad->Drc <= rainFloodingGradient)
                 {
                   floodRow[_i] = r;
                   floodCol[_i] = c;
                   _i++;
                 }
             }
-            nrFloodcells = _i;
+            nrFloodcells = _i;            
 
             minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
@@ -1587,9 +1577,10 @@ void TWorld::IntializeOptions(void)
     totalLandunitFileName = QString("totlandunit.txt");//.clear();
     outflowFileName = QString("hydrohgraph.csv");//.clear();
 
-    floodLevelFileName = QString("floodmax.map");//.clear();
+    floodLevelFileName = QString("floodmaxH.map");//.clear();
     floodTimeFileName = QString("floodtime.map");//.clear();
     floodFEWFileName = QString("floodstart.map");//.clear();
+    floodMaxVFileName = QString("floodmaxV.map");//.clear();
 
     floodStatsFileName = QString("floodstats.csv");//.clear();
 

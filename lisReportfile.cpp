@@ -107,7 +107,16 @@ void TWorld::OutputUI(void)
     }
     if (SwitchChannelFlood)
     {
-        copy(*op.DrawMap4, *hmx);  //flood level in m
+        if (op.displayWH)
+        {
+            FOR_ROW_COL_MV
+            {
+                tmb->Drc = WH->Drc*FlowWidth->Drc/_dx;
+            }
+            calc2Maps(*op.DrawMap4, *hmx, *tmb, ADD);  //flood level in m
+        }
+        else
+            copy(*op.DrawMap4, *hmx);  //flood level in m
         copy(*op.DrawMap5, *UVflood);  //flood level in m
         copy(*op.DrawMap7, *floodTimeStart);  // flood start since peak rainfall in min
     }
@@ -619,6 +628,7 @@ void TWorld::ReportMaps(void)
         report(*floodTimeStart, floodFEWFileName);
         report(*maxChannelflow, floodMaxQFileName);
         report(*maxChannelWH, floodMaxWHFileName);
+        report(*floodVMax, floodMaxVFileName);
     }
 
     if (outputcheck[0].toInt() == 1)

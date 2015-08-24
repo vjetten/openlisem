@@ -87,6 +87,7 @@ struct output{
     cTMap *houseMap;
 
     bool displayPcum;
+    bool displayWH;
     int drawMapType;
 
     QString runfilename;

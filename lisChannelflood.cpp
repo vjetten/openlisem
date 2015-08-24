@@ -302,11 +302,12 @@ void TWorld::ChannelFlood(void)
 
     FOR_ROW_COL_MV
     {
-        tmb->Drc = 0;
-        UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
+       // tmb->Drc = 0;
+        //UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
+        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
         // U and V are vectors so can be negative, UV is positive average
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-        tmb->Drc = (UVflood->Drc + sqrt(hmx->Drc * 9.8))*dtflood/_dx;
+        //tmb->Drc = (UVflood->Drc + sqrt(hmx->Drc * 9.8))*dtflood/_dx;
     }
 
     ChannelOverflow(false);

@@ -235,6 +235,9 @@ void lisemqt::initOP()
     op.roadMap = NULL;
     op.houseMap = NULL;
 
+    op.displayWH = false;
+    op.displayPcum = false;
+
     op.runstep = 0;
     op.printstep = 0;
     op.maxstep = 0;
@@ -317,20 +320,4 @@ void lisemqt::setFloodOP(bool)
     op.F_extremeDiff = E_FloodExtremeDiff->text().toDouble();
     op.F_courant = E_courantFactor->text().toDouble();
     op.F_Maxiter = E_FloodMaxIter->text().toInt();
-
-
-//    if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-//    //  if (p1.compare("Flooding SWOF csf factor")==0)   namelist[j].value = E_cflFactor->text();
-//    if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
-//    if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = ;
-//    if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
-//    if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
-//    if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
-//    if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-//    if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
-//    if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
-//    if (p1.compare("Flood limit max velocity")==0)       namelist[j].value = E_FloodReplaceV->text();
-//    if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
-//    if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
-//    if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
 }

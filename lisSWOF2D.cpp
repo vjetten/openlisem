@@ -859,16 +859,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
            }
        }}
      }
-//      FOR_CELL_IN_FLOODAREA {
-//        f1o->Drc = f1->Drc;
-//        f2o->Drc = f2->Drc;
-//        f3o->Drc = f3->Drc;
-//        cflx->Drc = cflxo->Drc;
-//        g1o->Drc = g1->Drc;
-//        g2o->Drc = g2->Drc;
-//        g3o->Drc = g3->Drc;
-//        cfly->Drc = cflyo->Drc;
-//      }}
 
   // find largest velocity and determine dt
   FOR_CELL_IN_FLOODAREA {
@@ -931,32 +921,123 @@ FOR_CELL_IN_FLOODAREA {
 /// VJ 141021 OBSOLETE, doesn't work!!!! the boundary has to more than 1 cell
 void TWorld::findFloodDomain(cTMap *_h)
 {
-  for (int r = 1; r < _nrRows-1; r++)
-    for (int c = 1; c < _nrCols-1; c++)
-      if(!pcr::isMV(LDD->data[r][c]) &&
-         !pcr::isMV(LDD->data[r-1][c]) &&
-         !pcr::isMV(LDD->data[r+1][c]) &&
-         !pcr::isMV(LDD->data[r][c-1]) &&
-         !pcr::isMV(LDD->data[r][c+1]))
-        {
-          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
-            {
-              floodactive->data[r-1][c-1] = 1;
-              floodactive->data[r-1][c  ] = 1;
-              floodactive->data[r-1][c+1] = 1;
-              floodactive->data[r  ][c-1] = 1;
-              floodactive->data[r  ][c  ] = 1;
-              floodactive->data[r  ][c+1] = 1;
-              floodactive->data[r+1][c-1] = 1;
-              floodactive->data[r+1][c  ] = 1;
-              floodactive->data[r+1][c+1] = 1;
-            }
-          else
-            floodactive->Drc = 0;
+//  for (int r = 1; r < _nrRows-1; r++)
+//    for (int c = 1; c < _nrCols-1; c++)
+//      if(!pcr::isMV(LDD->data[r][c]) &&
+//         !pcr::isMV(LDD->data[r-1][c]) &&
+//         !pcr::isMV(LDD->data[r+1][c]) &&
+//         !pcr::isMV(LDD->data[r][c-1]) &&
+//         !pcr::isMV(LDD->data[r][c+1]))
+//        {
+//          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
+//            {
+//              floodactive->data[r-1][c-1] = 1;
+//              floodactive->data[r-1][c  ] = 1;
+//              floodactive->data[r-1][c+1] = 1;
+//              floodactive->data[r  ][c-1] = 1;
+//              floodactive->data[r  ][c  ] = 1;
+//              floodactive->data[r  ][c+1] = 1;
+//              floodactive->data[r+1][c-1] = 1;
+//              floodactive->data[r+1][c  ] = 1;
+//              floodactive->data[r+1][c+1] = 1;
+//            }
+//          else
+//            floodactive->Drc = 0;
 
-          if (LDD->Drc == 5)
-            floodactive->Drc = 0;
+//          if (LDD->Drc == 5)
+//            floodactive->Drc = 0;
+//        }
+}
+//---------------------------------------------------------------------------
+void TWorld::prepareFloodZ(cTMap *z)
+{
+    prepareFlood = false;
+
+    fill(*delz1,-9999);
+    fill(*delz2,-9999);
+
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 1; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r][c-1]))
+            {
+                delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+    for (int r = 1; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r-1][c]))
+            {
+                delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+
+
+    FOR_ROW_COL_MV
+    {
+        if (delz1->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r][c-1]))
+                delz1->Drc = delz1->data[r][c-1];
+            else
+                delz1->Drc = 0 ;
         }
+        if (delz2->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r-1][c]))
+                delz2->Drc = delz2->data[r-1][c];
+            else
+                delz2->Drc = 0 ;
+        }
+    }
+
+    fill(*delta_z1, -9999);
+    fill(*delta_z2, -9999);
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r][c+1]))
+                delta_z1->Drc = z->data[r][c+1] - z->Drc;
+
+    for (int r = 0; r < _nrRows-1; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r+1][c]))
+                delta_z2->Drc = z->data[r+1][c] - z->Drc;
+
+    FOR_ROW_COL_MV
+    {
+        if (delta_z1->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r][c-1]))
+                delta_z1->Drc = delta_z1->data[r][c-1];
+            else
+                delta_z1->Drc = 0 ;
+        }
+        if (delta_z2->Drc == -9999)
+        {
+            if (!pcr::isMV(LDD->data[r-1][c]))
+                delta_z2->Drc = delta_z2->data[r-1][c];
+            else
+                delta_z2->Drc = 0 ;
+        }
+    }
+
+    fill(*som_z1, 0);
+    fill(*som_z2, 0);
+    for (int r = 1; r < _nrRows-1; r++)
+        for (int c = 1; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]) &&
+                    !pcr::isMV(LDD->data[r-1][c]) &&
+                    !pcr::isMV(LDD->data[r+1][c]) &&
+                    !pcr::isMV(LDD->data[r][c-1]) &&
+                    !pcr::isMV(LDD->data[r][c+1]))
+            {
+                som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
+                som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
+                // needed in ENO
+            }
 }
 //---------------------------------------------------------------------------
 /**
@@ -979,24 +1060,8 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
 
   // do one tmime only at the start of simulation
   if (prepareFlood)
-    {
-      prepareFlood = false;
-      //findFloodDomain(h);
-      // setup coord;
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1])
-             )
-            {
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-            }
-    }
+      prepareFloodZ(z);
+
   // if there is no flood skip everything
   if (startFlood)
     {
@@ -1063,40 +1128,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
   double sumh = 0;
 
   if (prepareFlood)
-    {
-      verif = 1;
-      prepareFlood = false;
-
-      fill(*delta_z1, 0.0);
-      fill(*delta_z2, 0.0);
-      fill(*delz1, 0.0);
-      fill(*delz2, 0.0);
-      fill(*som_z1, 0.0);
-      fill(*som_z2, 0.0);
-
-      for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-          if(!pcr::isMV(LDD->data[r][c]) &&
-             !pcr::isMV(LDD->data[r-1][c]) &&
-             !pcr::isMV(LDD->data[r+1][c]) &&
-             !pcr::isMV(LDD->data[r][c-1]) &&
-             !pcr::isMV(LDD->data[r][c+1]))
-            {
-
-              delta_z1->Drc = z->data[r][c+1] - z->Drc;
-              delta_z2->Drc = z->data[r+1][c] - z->Drc;
-              // needed in MUSCL
-
-              delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-              delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-              // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
-
-              som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
-              som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
-              // needed in ENO
-            }
-    }
-
+      prepareFloodZ(z);
 
   sumh = mapTotal(*h);
   // if there is no flood skip everything
