@@ -27,7 +27,7 @@
  \brief version information, add your name here if you contribute to the development
 
   Auhtors maintaining code: \n
- - VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, twente University, jetten@itc.nl\n
+ - VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, twente University, v.g.jetten@utwente.nl\n
  - XX = <name, affiliation, email>\n
  */
 

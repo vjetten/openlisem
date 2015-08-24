@@ -185,27 +185,30 @@ void TWorld::DoModel()
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
      //       RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
-            Infiltration();        // soil infil, decrease WH
-            InfiltrationFloodNew();// infil in flooded area
+            Infiltration();        // infil of overland flow water, decrease WH
+            InfiltrationFloodNew();// infil in flooded area, decrease hmx
 
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-            CalcVelDisch();   // overland flow velocity, discharge and alpha
+            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
             SplashDetachment();    // splash detachment
             FlowDetachment();      // flow detachment
 
             //Pestmobilisation();  // experimental
 
-            ToChannel();           // water and sed flux going into channel in channel cells, recalc Q and V
-            ToTiledrain();         // fraction going into tiledrain directly from surface, , recalc Q and V
+            ToFlood();             // overland flow water added to flood (not in channel cells)
+            ToChannel();           // water and sed flux going into channel in channel cells
+            ToTiledrain();         // fraction going into tiledrain directly from surface
+
+            CalcVelDisch();        // recalc overland flow velocity, discharge and alpha because of extractions
 
             OverlandFlowNew();     // overland flow kin wave for water and sed
 
-            ChannelWaterHeight();  // add channel rainfall and runoff to channel and get channel WH from volume
+            ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
 
-            ChannelFlood();        // st venant channel flooding
+            ChannelFlood();        // st venant channel 2D flooding from channel
 
             CalcVelDischChannel(); // alpha, V and Q from Manning
 

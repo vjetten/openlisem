@@ -487,6 +487,7 @@ public:
     double ChannelIterateWH(int r, int c);
     void ChannelWaterHeight(void);
     void ToChannel(void);
+    void ToFlood(void);
     void CalcVelDisch();
     void CalcVelDischChannel(void);
     void ToTiledrain(void);

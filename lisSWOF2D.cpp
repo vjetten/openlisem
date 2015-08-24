@@ -859,16 +859,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
            }
        }}
      }
-//      FOR_CELL_IN_FLOODAREA {
-//        f1o->Drc = f1->Drc;
-//        f2o->Drc = f2->Drc;
-//        f3o->Drc = f3->Drc;
-//        cflx->Drc = cflxo->Drc;
-//        g1o->Drc = g1->Drc;
-//        g2o->Drc = g2->Drc;
-//        g3o->Drc = g3->Drc;
-//        cfly->Drc = cflyo->Drc;
-//      }}
 
   // find largest velocity and determine dt
   FOR_CELL_IN_FLOODAREA {
@@ -931,32 +921,32 @@ FOR_CELL_IN_FLOODAREA {
 /// VJ 141021 OBSOLETE, doesn't work!!!! the boundary has to more than 1 cell
 void TWorld::findFloodDomain(cTMap *_h)
 {
-  for (int r = 1; r < _nrRows-1; r++)
-    for (int c = 1; c < _nrCols-1; c++)
-      if(!pcr::isMV(LDD->data[r][c]) &&
-         !pcr::isMV(LDD->data[r-1][c]) &&
-         !pcr::isMV(LDD->data[r+1][c]) &&
-         !pcr::isMV(LDD->data[r][c-1]) &&
-         !pcr::isMV(LDD->data[r][c+1]))
-        {
-          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
-            {
-              floodactive->data[r-1][c-1] = 1;
-              floodactive->data[r-1][c  ] = 1;
-              floodactive->data[r-1][c+1] = 1;
-              floodactive->data[r  ][c-1] = 1;
-              floodactive->data[r  ][c  ] = 1;
-              floodactive->data[r  ][c+1] = 1;
-              floodactive->data[r+1][c-1] = 1;
-              floodactive->data[r+1][c  ] = 1;
-              floodactive->data[r+1][c+1] = 1;
-            }
-          else
-            floodactive->Drc = 0;
+//  for (int r = 1; r < _nrRows-1; r++)
+//    for (int c = 1; c < _nrCols-1; c++)
+//      if(!pcr::isMV(LDD->data[r][c]) &&
+//         !pcr::isMV(LDD->data[r-1][c]) &&
+//         !pcr::isMV(LDD->data[r+1][c]) &&
+//         !pcr::isMV(LDD->data[r][c-1]) &&
+//         !pcr::isMV(LDD->data[r][c+1]))
+//        {
+//          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
+//            {
+//              floodactive->data[r-1][c-1] = 1;
+//              floodactive->data[r-1][c  ] = 1;
+//              floodactive->data[r-1][c+1] = 1;
+//              floodactive->data[r  ][c-1] = 1;
+//              floodactive->data[r  ][c  ] = 1;
+//              floodactive->data[r  ][c+1] = 1;
+//              floodactive->data[r+1][c-1] = 1;
+//              floodactive->data[r+1][c  ] = 1;
+//              floodactive->data[r+1][c+1] = 1;
+//            }
+//          else
+//            floodactive->Drc = 0;
 
-          if (LDD->Drc == 5)
-            floodactive->Drc = 0;
-        }
+//          if (LDD->Drc == 5)
+//            floodactive->Drc = 0;
+//        }
 }
 //---------------------------------------------------------------------------
 /**

@@ -40,6 +40,31 @@ functions: \n
 
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
+void TWorld::ToFlood(void)
+{
+    if (!SwitchChannelFlood)
+        return;
+
+    FOR_ROW_COL_MV
+    {
+        if (FloodDomain->Drc > 0)
+            if (WHrunoff->Drc > 0 && hmx->Drc > 0 && ChannelWidthUpDX->Drc == 0)
+        {
+            double frac = std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
+            double dwh = frac * WHrunoff->Drc;
+
+            hmx->Drc += dwh * FlowWidth->Drc/_dx;
+            WH->Drc = WHstore->Drc;
+            WHrunoff->Drc -= dwh;
+        }
+    }
+
+//    CalcVelDisch();
+    // recalc velocity and discharge because water flowed into channel
+
+}
+//---------------------------------------------------------------------------
+//fraction of water and sediment flowing into the channel
 void TWorld::ToChannel(void)
 {
     if (!SwitchIncludeChannel)
@@ -100,7 +125,7 @@ void TWorld::ToChannel(void)
         }
     }
 
-    CalcVelDisch();
+//    CalcVelDisch();
     // recalc velocity and discharge because water flowed into channel
 
 
@@ -152,7 +177,6 @@ void TWorld::CalcVelDisch()
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlowNew(void)
 {
-
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
@@ -318,6 +342,8 @@ void TWorld::OverlandFlowNew(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
+
     }
 
     FOR_ROW_COL_MV
