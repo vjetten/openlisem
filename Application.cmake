@@ -54,7 +54,11 @@ SET(APP_SOURCES
     lisSWOF2D
     lisChannelfloodexpl
     lisInterception
-    lisPesticide.cpp
+    lisPesticide
+    include/version.h
+    include/model.h
+    include/TMmapVariables.h
+    include/LisUIoutput.h
 )
 QT4_WRAP_CPP(MOC_SOURCES
     include/model.h

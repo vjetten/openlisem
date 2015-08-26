@@ -603,6 +603,11 @@ void TWorld::InitChannel(void)
             // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
+            QfloodPrev = NewMap(0);
+            QfloodSed = NewMap(0);
+            QfloodSedPrev = NewMap(0);
+            AlphaFlood = NewMap(0);
+            Sedflood = NewMap(0);
 
             // explicit
             if (SwitchFloodExplicit)

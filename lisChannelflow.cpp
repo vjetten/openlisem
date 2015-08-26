@@ -193,18 +193,18 @@ double TWorld::ChannelIterateWH(int r, int c)
     double Q = ChannelQn->Drc;
     int count = 0;
     do{
-      y = y1;
-      double P = width+2*y;
-      double A = y*width;
+        y = y1;
+        double P = width+2*y;
+        double A = y*width;
 
-      y1 = y - (1-Q/(sqrtgrad/n * ((qPow(A,5.0/3.0))/(qPow(P, 2.0/3.0))))) / ((5*width+6*y)/(3*y*P));
+        y1 = y - (1-Q/(sqrtgrad/n * ((qPow(A,5.0/3.0))/(qPow(P, 2.0/3.0))))) / ((5*width+6*y)/(3*y*P));
 
-      count++;
+        count++;
     }while(fabs(y1-y) > 1e-15 && count < 30);
 
-//    double a = ChannelAlpha->Drc;
-//    ChannelAlpha->Drc = qPow(n/sqrtgrad * powl((2*y1+width), 2/3),0.6);
-//    qDebug() << count << y1 << ChannelWH->Drc << a << ChannelAlpha->Drc;
+    //    double a = ChannelAlpha->Drc;
+    //    ChannelAlpha->Drc = qPow(n/sqrtgrad * powl((2*y1+width), 2/3),0.6);
+    //    qDebug() << count << y1 << ChannelWH->Drc << a << ChannelAlpha->Drc;
 
     return std::max(y1, 0.0);
 }
@@ -262,9 +262,12 @@ void TWorld::ChannelFlow(void)
     cover(*ChannelQsn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
 
+    bool do_mbcorr = false;
     double mb = 0;
     double n = 0;
-    fill(*tm, 0.0);
+
+    if (do_mbcorr)
+        fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -279,61 +282,66 @@ void TWorld::ChannelFlow(void)
 
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-        tm->Drc = ChannelArea;
+        if (do_mbcorr)
+            tm->Drc = ChannelArea;
 
         ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
 
-        ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+        if (!do_mbcorr)
+            ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+
         // new channel water volume
-        difkin->Drc += 0;
-    }
+        //difkin->Drc += 0;
 
-/*
- *
- * NECESSARY OR JUST FLUFF ????
- *
 
-        double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
-        //difference between fluxes and store in and out of channel cell in m3,
-        // ChannelWaterVol is still before, ChnnaelArea*DX is volumme after
-
-        if (!SwitchChannelInfil)
+        // NECESSARY OR JUST FLUFF ????
+        if (do_mbcorr)
         {
-            difkin->Drc += 0;//diff;
-            mb += diff;
-            // add all m3 error
-            if (ChannelArea > 0)
-                n+=1;
-            // count wet cells
+            double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
+            //difference between fluxes and store in and out of channel cell in m3,
+            // ChannelWaterVol is still before, ChnnaelArea*DX is volumme after
+
+            if (!SwitchChannelInfil)
+            {
+                difkin->Drc += 0;//diff;
+                mb += diff;
+                // add all m3 error
+                if (ChannelArea > 0)
+                    n+=1;
+                // count wet cells
+            }
+            // calc mass balance error and wet cells
         }
-        // calc mass balance error and wet cells
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
+            //??????????????
             //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
         }
     }
 
-    // mass balance correction, throw error on cells with WH
-    if (n > 0)
-        mb = mb/n;
+    // NECESSARY OR JUST FLUFF ????
 
-    FOR_ROW_COL_MV_CH
+    if (do_mbcorr)
     {
-        ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
+    // mass balance correction, throw error on cells with WH
+        if (n > 0)
+            mb = mb/n;
 
-        if (ChannelWaterVol->Drc > 0)
-            ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc + mb);
-        // NEW VOLUME divide mb over volume
-        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
-        // new WH after mb correction
-        ChannelQn->Drc = std::pow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, 1.66666667);//(1/0.6));
-        // new Q after correction
+        FOR_ROW_COL_MV_CH
+        {
+            ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
 
+            if (ChannelWaterVol->Drc > 0)
+                ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc + mb);
+            // NEW VOLUME divide mb over volume
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
+            // new WH after mb correction
+            ChannelQn->Drc = std::pow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, 1.66666667);//(1/0.6));
+            // new Q after correction
+        }
     }
-*/
-
 
     FOR_ROW_COL_MV_CH
     {

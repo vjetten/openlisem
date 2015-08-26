@@ -40,7 +40,6 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
-#define MINHMX 0.0
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
@@ -59,6 +58,9 @@ void TWorld::ChannelOverflow(bool flow)
             if (dH == 0 && hmx->Drc <= levee)
                 continue;
             // no flow activity then continue
+            if (dH == hmx->Drc)
+                continue;
+            // no diff in water level, no flow, continue
 
             double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*ChannelAdj->Drc));
             // fraction from hmx to channel based on avefrage flood velocity
@@ -69,45 +71,48 @@ void TWorld::ChannelOverflow(bool flow)
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
             // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
             // can be negative if channelwh is below channel depth and low hmx level
+            double cwa = ChannelWidthUpDX->Drc/ChannelAdj->Drc;
+
+
+            if (dH > hmx->Drc)   // flow from channel
+            {
+               double dwh = fracC * dH;
+               if (hmx->Drc + dwh*cwa > dH)   // if flow causes situation to reverse (channel dips below mhx)
+               {
+                   // do equilibrium
+                   hmx->Drc = std::min(hmx->Drc, levee);
+                   hmx->Drc +=  whlevel;
+                   // cutoff hmx at levee but can be smaller
+                   ChannelWH->Drc = whlevel + chdepth;
+               }
+               else
+               {
+                   // do the flow
+                   hmx->Drc += dwh*cwa;
+                   ChannelWH->Drc -= dwh;
+               }
+            }
+            else   // flow to channel
+            {
+               double dwh = fracA * std::min(0.0, hmx->Drc-levee); // amount flowing to channel
+               if (dH + dwh/cwa > hmx->Drc)   // if too much flow
+               {
+                   // do equilibrium level
+                   hmx->Drc = std::min(hmx->Drc, levee);
+                   hmx->Drc +=  whlevel;
+                   // cutoff hmx at levee but can be smaller
+                   ChannelWH->Drc = whlevel + chdepth;
+               }
+               else
+               {
+                   //do flow
+                   hmx->Drc -= dwh;
+                   ChannelWH->Drc += dwh/cwa;
+               }
+            }
+
+
 /*
-            //State 1: channel water is higher than surroundin
-            if (dH > hmx->Drc)
-            {
-                double dHC = (dH-hmx->Drc)*fracC; // diff between channel WH and surrounding hmx
-                qDebug() << dH << whlevel << hmx->Drc << dH-dHC << fracC;
-                if ((dH - dHC) < hmx->Drc)   // if too much outflow, equilibrium level
-                {
-                    hmx->Drc = std::min(hmx->Drc, levee);
-                    hmx->Drc +=  whlevel;
-                    ChannelWH->Drc = whlevel + chdepth;
-
-                }
-                else
-                    if (flow) // flow out of the channel
-                {
-                    // gives huge mass balance errors, must be false: gives huge mass balance errors!
-                    ChannelWH->Drc -= dHC;
-                    hmx->Drc += dHC*ChannelWidthUpDX->Drc/ChannelAdj->Drc;
-                }
-            }
-            else  //flow in
-            {
-                double dhmx = (hmx->Drc-dH)*fracA; // diff between channel WH and surrounding hmx
-                if (hmx->Drc - dhmx < dH) // if results in hmx dropping below channelWH
-                {
-                    hmx->Drc = std::min(hmx->Drc, levee);
-                    hmx->Drc +=  whlevel;
-                    ChannelWH->Drc = whlevel + chdepth;
-                }
-                else
-                    if (flow)  // flow into channel, must be false: gives huge mass balance errors!
-                {
-                    hmx->Drc -= dhmx;
-                    ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
-                }
-            }
-*/
-
             if(whlevel > 0)
             {
                 hmx->Drc = std::min(hmx->Drc, levee);
@@ -117,14 +122,16 @@ void TWorld::ChannelOverflow(bool flow)
             }
             else
             {
-//                double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
+                double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
 
-//                ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
-//                hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
+  //              ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
+   //             hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
 
-          //      qDebug() << dH << hmx->Drc << frac;
+//                qDebug() << dH << hmx->Drc << frac;
 
             }
+
+*/
         }
     }
 }
@@ -143,7 +150,7 @@ double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
                 n += 1;
         }
     }
-    // toal and cells active for M
+    // total and cells active for M
 
     double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     FOR_ROW_COL_MV
@@ -205,11 +212,8 @@ void TWorld::FloodBoundary()
 void TWorld::FloodMaxandTiming()
 {
     // floodwater volume and max flood map
-    fill(*FloodWaterVol, 0.0);
     FOR_ROW_COL_MV
     {
-       // FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-
         floodHmxMax->Drc = std::max(floodHmxMax->Drc, hmx->Drc);
         if (hmx->Drc > 0)//minReportFloodHeight)
             floodTime->Drc += _dt/60;
@@ -284,21 +288,19 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchFloodSWOForder2)
     {
-        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM);
+        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, true);
     }
     else
         if (SwitchFloodSWOForder1)
         {
-            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM);
+            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, true);
         }
-//        else
-//            if (SwitchFloodExplicit)
-//            {
-//                dtflood = floodExplicit();
-//            }
 
     FloodSpuriousValues();
     //correct extremes
+
+    copy(*QfloodPrev, *Qflood);
+    // copy the previous flood level, at t-1
 
     FOR_ROW_COL_MV
     {
@@ -306,8 +308,12 @@ void TWorld::ChannelFlood(void)
         //UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
         UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
         // U and V are vectors so can be negative, UV is positive average
+
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
         //tmb->Drc = (UVflood->Drc + sqrt(hmx->Drc * 9.8))*dtflood/_dx;
+
+        AlphaFlood->Drc = std::pow(N->Drc/Grad->Drc * std::pow(2*hmx->Drc+ChannelAdj->Drc, (2/3)),0.6);
+        // calc a fake alpha for sediment routing
     }
 
     ChannelOverflow(false);
@@ -340,16 +346,24 @@ void TWorld::ChannelFlood(void)
     FloodMaxandTiming();
     // flood max, start and duration
 
- //   fill(*FloodWaterVol, 0);
+    fill(*FloodWaterVol, 0);
     FOR_ROW_COL_MV
     {
-        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
     }
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = cells*_dx*_dx;
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
-    // some error reporting
+    // some screen error reporting
 
-
+/*
+    FOR_ROW_COL_MV
+    {
+        if (LDD->Drc == 5) // if outflow point, pit
+        {
+            routeSubstance(r,c, LDD, QfloodPrev, Qflood, QfloodSedPrev, QfloodSed, AlphaFlood, DX, FloodWaterVol, Sedflood);
+        }
+    }
+*/
 }
