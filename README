@@ -5,9 +5,21 @@ At this point there are two developments:
 
 If possible use the 64bit version!
 
-openLISEM README (150823)
-=========================
-LASEST CHANGES (v1.99-v2.01)
+openLISEM README (150826)
+======================================================================
+LATEST CHANGES (v2.03beta)
+- revamped channel overflow
+- bug fix in swof DX and ChannelAdj instead of _dx
+- changed replace extremee velocity to sqrt(a*b) instead of 0.5*(a+b)
+
+LATEST CHANGES (v2.02beta)
+- BUG fix: flood velocity reported is now is vector average sqrt(U*U+V*V)
+- better mixing overland flow and flood water (experimental)
+- flood when heavy rainfall on flat areas (experimental)
+- output map max flood velocity added
+- Optional: show waterlevel of runoff and flood at the same time
+
+LATEST CHANGES (v1.99-v2.01)
 - Prepare library GDAL for more GIS format possibilities (not activated yet)
 - fixed SWATRE table path reading bug
 - colour tweaking

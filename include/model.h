@@ -407,12 +407,11 @@ public:
     void GetRunFile(void);
     //MapListStruct qx[9];
 
-    //FLOOD according to LISFLOOD
-    double floodExplicit();
     //FLOOD according to FULLSWOF2D
     void prepareFloodZ(cTMap *z);
-    double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
-    double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z);//, cTMap *q1, cTMap *q2);
+    double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    double floodExplicit();
     void ChannelOverflowSWOF(double dt, cTMap *h);
     void findFloodDomain(cTMap *_h);
     double limiter(double a, double b);
@@ -431,6 +430,7 @@ public:
     double F_maxVelocity;
     double F_extremeHeight;
     double F_extremeDiff;
+
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     double q1man, q2man;

@@ -597,8 +597,8 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
 {
   FOR_CELL_IN_FLOODAREA
   {
-    double dx = _dx;//-ChannelWidthUpDX->Drc;
-    double dy = _dx;//DX->Drc;
+    double dx = ChannelAdj->Drc;
+    double dy = DX->Drc;
     long double tx = dt/dx;
     long double ty = dt/dy;
     // Solution of the equation of mass conservation (First equation of Saint venant)
@@ -811,7 +811,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
           }
       }
      */
-
+/*
      F_replaceV = 1;
      if (F_replaceV > 0)
      {
@@ -859,29 +859,64 @@ double TWorld::maincalcflux(double dt, double dt_max)
            }
        }}
      }
+     */
+#define AVG(a1,a2) ((a1*a2 > 0)?std::sqrt(a1*a2):0.5*(a1+a2))
+
+     if (F_replaceV > 0)
+     {
+         //long j = 0;
+         FOR_CELL_IN_FLOODAREA {
+             if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
+             {
+                 double tmp1 = cflx->Drc;
+                 double tmp2 = cfly->Drc;
+
+                 double e1 = AVG(g1->Drc,f1->Drc);
+                 double e2 = AVG(g2->Drc,f2->Drc);
+                 double e3 = AVG(g3->Drc,f3->Drc);
+                 double cfle = AVG(cfly->Drc,cflx->Drc);
+
+                 if (cflx->Drc > F_maxVelocity)
+                 {
+                     cflx->Drc = cfle;
+                     f1->Drc = e1;
+                     f2->Drc = e2;
+                     f3->Drc = e3;
+                 }
+                 if (cfly->Drc > F_maxVelocity)
+                 {
+                     cfly->Drc = cfle;
+                     g1->Drc = e1;
+                     g2->Drc = e2;
+                     g3->Drc = e3;
+                 }
+
+                 qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
+             }
+         }}
+     }
+     // find largest velocity and determine dt
+     FOR_CELL_IN_FLOODAREA {
+         double dx = ChannelAdj->Drc;
+         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
+             dt_tmp = dt_max;
+         else
+             dt_tmp = courant_factor*dx/cflx->Drc;
+         // was cfl_fix = 0.4
+         dtx = std::min(std::min(dt, dt_tmp), dtx);
+     }}
 
   // find largest velocity and determine dt
-  FOR_CELL_IN_FLOODAREA {
-    double dx = _dx;//ChannelAdj->Drc;
-    if (qFabs(cflx->Drc*dt/dx) < 1e-10)
-      dt_tmp = dt_max;
-    else
-      dt_tmp = courant_factor*dx/cflx->Drc;
-    // was cfl_fix = 0.4
-    dtx = std::min(std::min(dt, dt_tmp), dtx);
-  }}
+     FOR_CELL_IN_FLOODAREA {
+         double dy = DX->Drc;
+         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
+             dt_tmp = dt_max;
+         else
+             dt_tmp = courant_factor*dy/cfly->Drc;
+         dty = std::min(std::min(dt, dt_tmp), dty);
+     }}
 
-  // find largest velocity and determine dt
-  FOR_CELL_IN_FLOODAREA {
-    double dy = _dx;//DX->Drc;
-    if (qFabs(cfly->Drc*dt/dy) < 1e-10)
-      dt_tmp = dt_max;
-    else
-      dt_tmp = courant_factor*dy/cfly->Drc;
-    dty = std::min(std::min(dt, dt_tmp), dty);
-  }}
-
-  return(std::max(dt_ca, std::min(dtx,dty)));
+     return(std::max(dt_ca, std::min(dtx,dty)));
   /*
   if (scheme_type == 1)
      return(std::max(dt_ca, std::min(dtx,dty)));
@@ -1051,12 +1086,13 @@ void TWorld::prepareFloodZ(cTMap *z)
 
 // * @param q1: flux in the x-direction(m2/s)
 // * @param q2: flux in the y-direction(m2/s)
-double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1, cTMap *q2)
+double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
 {
   double timesum = 0;
   int n = 1;
   double dt_max = std::min(_dt, _dx*0.5);
   double dt1 = dt_max;
+  double sumh = 0;
 
   // do one tmime only at the start of simulation
   if (prepareFlood)
@@ -1065,7 +1101,9 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
   // if there is no flood skip everything
   if (startFlood)
     {
-      double sumh = mapTotal(*h);
+      if (correct)
+          sumh = mapTotal(*h);
+
       do {
 
           dt1 = dt_max;
@@ -1092,7 +1130,9 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
       timesum = timesum + dt1;
       n++;
 
-     correctMassBalance(sumh, h, 1e-12);
+      if (correct)
+          correctMassBalance(sumh, h, 1e-12);
+
       if (n > MAXITER)
         break;
 
@@ -1120,7 +1160,7 @@ return(dt1);
 
 // * @param q1: flux in the x-direction(m2/s)
 // * @param q2: flux in the y-direction(m2/s)
-double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1, cTMap *q2)
+double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
 {
   double dt1 = 0, dt2, timesum = 0;
   double dt_max = std::min(_dt, _dx*0.5);
@@ -1130,7 +1170,8 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
   if (prepareFlood)
       prepareFloodZ(z);
 
-  sumh = mapTotal(*h);
+  if (correct)
+      sumh = mapTotal(*h);
   // if there is no flood skip everything
 
   if (startFlood)
@@ -1223,8 +1264,8 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z)//, cTMap *q1
                 }
             }//end for else dt2<dt1
 
-          correctMassBalance(sumh, h, 1e-12);
-          //findFloodDomain(h);
+          if (correct)
+              correctMassBalance(sumh, h, 1e-12);
 
           // qDebug() << n << timesum << dt1;
         } while (timesum  < _dt);

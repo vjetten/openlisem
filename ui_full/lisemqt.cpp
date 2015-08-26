@@ -1144,11 +1144,6 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    //    checkFloodExplicit->setChecked(false);
-    //    checkFloodSWOForder1->setChecked(true);
-    //    checkFloodSWOForder2->setChecked(false);
-    //    E_cflFactor->setValue(0.2);
-
     E_courantFactor->setValue(0.2);
 
     E_floodMinHeight->setValue(0.05);

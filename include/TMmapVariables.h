@@ -276,15 +276,22 @@ cTMap
 // flood maps
 *ChannelDepth,               //!<
 *UVflood,                     //!<
-*Qflood,
-*floodHmxMax,
-*floodactive,
-*floodTime,
+*Qflood,                    //!<
+//sediment in flood
+*QfloodPrev,                    //!<
+*QfloodSed,                    //!<
+*QfloodSedPrev,                    //!<
+*AlphaFlood,                    //!<
+*Sedflood,                     //!<
+
+*floodHmxMax,                    //!<
+*floodactive,                    //!<
+*floodTime,                    //!<
 *floodTimeStart,                //!<
-*floodVMax,
-*maxChannelflow,
-*maxChannelWH,
-*hmxInit,
+*floodVMax,                    //!<
+*maxChannelflow,                    //!<
+*maxChannelWH,                    //!<
+*hmxInit,                    //!<
 //explicit solution
 *Hx,                         //!<
 *Hmx,                        //!<
