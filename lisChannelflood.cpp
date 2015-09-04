@@ -73,65 +73,64 @@ void TWorld::ChannelOverflow(bool flow)
             // can be negative if channelwh is below channel depth and low hmx level
             double cwa = ChannelWidthUpDX->Drc/ChannelAdj->Drc;
 
-
-            if (dH > hmx->Drc)   // flow from channel
+            if (SwitchFlood1D2DCoupling == 2)
             {
-               double dwh = fracC * dH;
-               if (hmx->Drc + dwh*cwa > dH)   // if flow causes situation to reverse (channel dips below mhx)
-               {
-                   // do equilibrium
-                   hmx->Drc = std::min(hmx->Drc, levee);
-                   hmx->Drc +=  whlevel;
-                   // cutoff hmx at levee but can be smaller
-                   ChannelWH->Drc = whlevel + chdepth;
-               }
-               else
-               {
-                   // do the flow
-                   hmx->Drc += dwh*cwa;
-                   ChannelWH->Drc -= dwh;
-               }
-            }
-            else   // flow to channel
-            {
-               double dwh = fracA * std::min(0.0, hmx->Drc-levee); // amount flowing to channel
-               if (dH + dwh/cwa > hmx->Drc)   // if too much flow
-               {
-                   // do equilibrium level
-                   hmx->Drc = std::min(hmx->Drc, levee);
-                   hmx->Drc +=  whlevel;
-                   // cutoff hmx at levee but can be smaller
-                   ChannelWH->Drc = whlevel + chdepth;
-               }
-               else
-               {
-                   //do flow
-                   hmx->Drc -= dwh;
-                   ChannelWH->Drc += dwh/cwa;
-               }
-            }
-
-
-/*
-            if(whlevel > 0)
-            {
-                hmx->Drc = std::min(hmx->Drc, levee);
-                hmx->Drc +=  whlevel;
-                // cutoff hmx at levee but can be smaller
-                ChannelWH->Drc = whlevel + chdepth;
+                if (dH > hmx->Drc)   // flow from channel
+                {
+                    double dwh = fracC * dH;
+                    if (hmx->Drc + dwh*cwa > dH)   // if flow causes situation to reverse (channel dips below mhx)
+                    {
+                        // do equilibrium
+                        hmx->Drc = std::min(hmx->Drc, levee);
+                        hmx->Drc +=  whlevel;
+                        // cutoff hmx at levee but can be smaller
+                        ChannelWH->Drc = whlevel + chdepth;
+                    }
+                    else
+                    {
+                        // do the flow
+                        hmx->Drc += dwh*cwa;
+                        ChannelWH->Drc -= dwh;
+                    }
+                }
+                else   // flow to channel
+                {
+                    double dwh = fracA * std::min(0.0, hmx->Drc-levee); // amount flowing to channel
+                    if (dH + dwh/cwa > hmx->Drc)   // if too much flow
+                    {
+                        // do equilibrium level
+                        hmx->Drc = std::min(hmx->Drc, levee);
+                        hmx->Drc +=  whlevel;
+                        // cutoff hmx at levee but can be smaller
+                        ChannelWH->Drc = whlevel + chdepth;
+                    }
+                    else
+                    {
+                        //do flow
+                        hmx->Drc -= dwh;
+                        ChannelWH->Drc += dwh/cwa;
+                    }
+                }
             }
             else
-            {
-                double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
+                if (SwitchFlood1D2DCoupling == 1)
+                {
+                    if(whlevel > 0)
+                    {
+                        hmx->Drc = std::min(hmx->Drc, levee);
+                        hmx->Drc +=  whlevel;
+                        // cutoff hmx at levee but can be smaller
+                        ChannelWH->Drc = whlevel + chdepth;
+                    }
+                    else
+                    {
+                        double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
 
-  //              ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
-   //             hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
+                        ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
+                        hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
+                    }
 
-//                qDebug() << dH << hmx->Drc << frac;
-
-            }
-
-*/
+                }
         }
     }
 }
@@ -258,6 +257,7 @@ void TWorld::getFloodParameters(void)
     F_extremeHeight = F_extremeHeight;
     F_extremeDiff = op.F_extremeDiff;
     courant_factor = op.F_courant;
+    F_MaxIter = op.F_Maxiter;
 }
 //---------------------------------------------------------------------------
 // NOTE DEM has barriers included, done in shade map calculation !!!!

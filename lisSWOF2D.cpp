@@ -742,124 +742,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // VJ 130517: not in the original code!
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-/*
-     FOR_CELL_IN_FLOODAREA
-          {
 
-
-              if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-              {
-                  //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
-                  double e1 = 0.0;
-                  double e2 = 0.0;
-                  double e3 = 0.0;
-                  double cfle = 0.0;
-
-                  if (F_replaceV == 2)
-                  {
-                      cfle = sqrt(cflx->Drc*cfly->Drc);
-                      e1 = sqrt(f1->Drc*g1->Drc);
-                      e2 = sqrt(f2->Drc*g2->Drc);
-                      e3 = sqrt(f3->Drc*g3->Drc);
-                  }
-                  else
-                      if (F_replaceV == 3)
-                      {
-                          cfle = 0.5*(cflx->Drc+cfly->Drc);
-                          e1 = 0.5*(f1->Drc+g1->Drc);
-                          e2 = 0.5*(f2->Drc+g2->Drc);
-                          e3 = 0.5*(f3->Drc+g3->Drc);
-                      }
-
-                  if (cflx->Drc > F_maxVelocity)
-                  {
-                      if (F_replaceV == 1)
-                      {
-                          cflx->Drc = cfly->Drc;
-                          f1->Drc = g1->Drc;
-                          f2->Drc = g2->Drc;
-                          f3->Drc = g3->Drc;
-                      }
-                      else
-                      {
-                          cflx->Drc = cfle;
-                          f1->Drc = e1;
-                          f2->Drc = e2;
-                          f3->Drc = e3;
-                      }
-                  }
-                  if (cfly->Drc > F_maxVelocity)
-                  {
-                      if (F_replaceV == 1)
-                      {
-                          cfly->Drc = cflx->Drc;
-                          g1->Drc = f1->Drc;
-                          g2->Drc = f2->Drc;
-                          g3->Drc = f3->Drc;
-                      }
-                      else
-                      {
-                          cfly->Drc = cfle;
-                          g1->Drc = e1;
-                          g2->Drc = e2;
-                          g3->Drc = e3;
-                      }
-                  }
-
-                  //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
-              }
-          }
-      }
-     */
-/*
-     F_replaceV = 1;
-     if (F_replaceV > 0)
-     {
-       //long j = 0;
-       FOR_CELL_IN_FLOODAREA {
-         if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-           {
-             double tmp1 = cflx->Drc;
-             double tmp2 = cfly->Drc;
-
-             double cfle =0;
-             double e1 = 0;
-             double e2 = 0;
-             double e3 = 0;
-             if (cflx->Drc < cfly->Drc)
-               {
-                 cfle = cflx->Drc;
-                 e1 = f1->Drc;
-                 e2 = f2->Drc;
-                 e3 = f3->Drc;
-               }
-             if (cfly->Drc < cflx->Drc)
-               {
-                 cfle = cfly->Drc;
-                 e1 = g1->Drc;
-                 e2 = g2->Drc;
-                 e3 = g3->Drc;
-               }
-             if (cflx->Drc > F_maxVelocity)
-               {
-                 cflx->Drc = cfle;
-                 f1->Drc = e1;
-                 f2->Drc = e2;
-                 f3->Drc = e3;
-               }
-             if (cfly->Drc > F_maxVelocity)
-               {
-                 cfly->Drc = cfle;
-                 g1->Drc = e1;
-                 g2->Drc = e2;
-                 g3->Drc = e3;
-               }
-
-             qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-           }
-       }}
-     }
-     */
 #define AVG(a1,a2) ((a1*a2 > 0)?std::sqrt(a1*a2):0.5*(a1+a2))
 
      if (F_replaceV > 0)
@@ -1133,7 +1016,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
       if (correct)
           correctMassBalance(sumh, h, 1e-12);
 
-      if (n > MAXITER)
+      if (n > F_MaxIter)
         break;
 
     } while (timesum  < _dt);
@@ -1258,7 +1141,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               timesum = timesum + dt1;
               n++;
 
-              if (n > MAXITER)
+              if (n > F_MaxIter)
                 {
                   break;
                 }
