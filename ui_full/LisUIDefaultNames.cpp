@@ -112,6 +112,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
+    DEFmaps.append("2;Watersheds;watershed.map;watersheds in the area (1,2,3,...);watershed");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
@@ -376,6 +377,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding mixing coefficient");
     namelist[i].value = QString("0.5");
     namelist[i++].name = QString("Flooding runoff partitioning");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Flooding 1D2D coupling");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood initial level map");
 //    namelist[i].value = QString("0");

@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5181,7 +5181,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6097,7 +6097,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>377</width>
+                    <width>228</width>
                     <height>252</height>
                    </rect>
                   </property>
@@ -6262,8 +6262,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>16</width>
-                    <height>16</height>
+                    <width>212</width>
+                    <height>232</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8342,8 +8342,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>50</width>
-                    <height>16</height>
+                    <width>289</width>
+                    <height>292</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8406,24 +8406,14 @@ p, li { white-space: pre-wrap; }
                   <property name="verticalSpacing">
                    <number>2</number>
                   </property>
-                  <item row="17" column="2">
-                   <widget class="QFrame" name="frame_2">
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="24" column="0">
+                  <item row="25" column="0">
                    <widget class="QLabel" name="label_126">
                     <property name="text">
                      <string>Finite volume method: </string>
                     </property>
                    </widget>
                   </item>
-                  <item row="25" column="0">
+                  <item row="26" column="0">
                    <widget class="QLabel" name="label_127">
                     <property name="text">
                      <string>Flux limiter: </string>
@@ -8536,17 +8526,17 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="2" colspan="2">
+                  <item row="13" column="2" colspan="2">
                    <widget class="QLabel" name="label_135">
                     <property name="text">
-                     <string>1 - SWOF order 1; 2 - SWOF order 2</string>
+                     <string>1 - SWOF first order solution; 2 - SWOF second order</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
-                  <item row="26" column="0" colspan="6">
+                  <item row="27" column="0" colspan="6">
                    <widget class="Line" name="line_8">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -8567,7 +8557,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="30" column="0" colspan="3">
+                  <item row="31" column="0" colspan="3">
                    <widget class="QCheckBox" name="E_FloodReplaceVcheck">
                     <property name="text">
                      <string>Correct extreme velocity</string>
@@ -8577,7 +8567,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="31" column="0" colspan="4">
+                  <item row="32" column="0" colspan="4">
                    <widget class="QLabel" name="label_101">
                     <property name="font">
                      <font>
@@ -8586,6 +8576,16 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="text">
                      <string>Replace extreme water levels by the average surrounding level if:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="18" column="2">
+                   <widget class="QFrame" name="frame_2">
+                    <property name="frameShape">
+                     <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
                     </property>
                    </widget>
                   </item>
@@ -8630,7 +8630,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="19" column="5">
+                  <item row="20" column="5">
                    <widget class="QSpinBox" name="E_FloodReconstruction">
                     <property name="enabled">
                      <bool>true</bool>
@@ -8661,7 +8661,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="28" column="0">
+                  <item row="29" column="0">
                    <widget class="QLabel" name="label_137">
                     <property name="font">
                      <font>
@@ -8674,7 +8674,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="19" column="2" colspan="2">
+                  <item row="20" column="2" colspan="2">
                    <widget class="QLabel" name="label_57">
                     <property name="palette">
                      <palette>
@@ -8728,7 +8728,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="17" column="5">
+                  <item row="18" column="5">
                    <widget class="QSpinBox" name="E_FloodMaxIter">
                     <property name="minimum">
                      <number>10</number>
@@ -8741,7 +8741,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="17" column="3">
+                  <item row="18" column="3">
                    <widget class="QLabel" name="label_132">
                     <property name="text">
                      <string>Max iterations:</string>
@@ -8751,7 +8751,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="33" column="5">
+                  <item row="34" column="5">
                    <widget class="QDoubleSpinBox" name="E_FloodExtremeDiff">
                     <property name="decimals">
                      <number>1</number>
@@ -8764,7 +8764,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="33" column="2">
+                  <item row="34" column="2">
                    <widget class="QDoubleSpinBox" name="E_FloodExtremeHeight">
                     <property name="decimals">
                      <number>1</number>
@@ -8777,14 +8777,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="33" column="3">
+                  <item row="34" column="3">
                    <widget class="QLabel" name="label_125">
                     <property name="text">
                      <string>and the difference (m) with surrounding cells is &gt;</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="29" column="0" colspan="4">
+                  <item row="30" column="0" colspan="4">
                    <widget class="QLabel" name="label_133">
                     <property name="enabled">
                      <bool>false</bool>
@@ -8797,7 +8797,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="25" column="1" colspan="3">
+                  <item row="26" column="1" colspan="3">
                    <widget class="QLabel" name="label_100">
                     <property name="enabled">
                      <bool>false</bool>
@@ -8854,7 +8854,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="0" colspan="4">
+                  <item row="15" column="0" colspan="4">
                    <widget class="QLabel" name="label_96">
                     <property name="palette">
                      <palette>
@@ -8920,7 +8920,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="24" column="5">
+                  <item row="25" column="5">
                    <widget class="QSpinBox" name="E_FloodScheme">
                     <property name="enabled">
                      <bool>false</bool>
@@ -8936,7 +8936,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="24" column="1" colspan="3">
+                  <item row="25" column="1" colspan="3">
                    <widget class="QLabel" name="label_98">
                     <property name="enabled">
                      <bool>false</bool>
@@ -9000,14 +9000,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0" colspan="6">
+                  <item row="10" column="0" colspan="6">
                    <widget class="Line" name="line_7">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
                    </widget>
                   </item>
-                  <item row="30" column="3">
+                  <item row="31" column="3">
                    <widget class="QLabel" name="label_134">
                     <property name="text">
                      <string>Extreme velocity threshold (m/s)</string>
@@ -9070,7 +9070,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="33" column="0" colspan="2">
+                  <item row="34" column="0" colspan="2">
                    <widget class="QLabel" name="label_104">
                     <property name="text">
                      <string>The water level (m) is&gt;</string>
@@ -9133,7 +9133,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="5">
+                  <item row="13" column="5">
                    <widget class="QSpinBox" name="E_floodSolution">
                     <property name="minimum">
                      <number>1</number>
@@ -9146,7 +9146,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="5">
+                  <item row="15" column="5">
                    <widget class="QDoubleSpinBox" name="E_courantFactor">
                     <property name="enabled">
                      <bool>true</bool>
@@ -9180,7 +9180,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="30" column="5">
+                  <item row="31" column="5">
                    <widget class="QDoubleSpinBox" name="E_FloodMaxVelocity">
                     <property name="toolTip">
                      <string>Threshold above which replacement is done</string>
@@ -9199,7 +9199,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="29" column="5">
+                  <item row="30" column="5">
                    <widget class="QSpinBox" name="E_FloodReplaceV">
                     <property name="enabled">
                      <bool>false</bool>
@@ -9218,7 +9218,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="25" column="5">
+                  <item row="26" column="5">
                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
                     <property name="enabled">
                      <bool>false</bool>
@@ -9276,7 +9276,7 @@ p, li { white-space: pre-wrap; }
                      <number>3</number>
                     </property>
                     <property name="value">
-                     <number>1</number>
+                     <number>2</number>
                     </property>
                    </widget>
                   </item>
@@ -9293,7 +9293,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0">
+                  <item row="13" column="0">
                    <widget class="QLabel" name="label_124">
                     <property name="font">
                      <font>
@@ -9307,7 +9307,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="19" column="0">
+                  <item row="20" column="0">
                    <widget class="QLabel" name="label_123">
                     <property name="text">
                      <string>PDE solution at t+1: </string>
@@ -9336,6 +9336,32 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
+                  <item row="9" column="0" colspan="4">
+                   <widget class="QLabel" name="label_140">
+                    <property name="text">
+                     <string>1D/2D channel coupling simple (1) or complex velocity based (2)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="5">
+                   <widget class="QDoubleSpinBox" name="E_1D2DCoupling">
+                    <property name="decimals">
+                     <number>0</number>
+                    </property>
+                    <property name="minimum">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>2.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </widget>
                </item>
@@ -9348,7 +9374,7 @@ p, li { white-space: pre-wrap; }
                   </sizepolicy>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="tabSpacing">
                   <number>7</number>
@@ -9358,8 +9384,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>129</width>
+                    <height>272</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -9531,8 +9557,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>16</width>
-                    <height>16</height>
+                    <width>201</width>
+                    <height>272</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -11910,8 +11936,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>22</width>
-                    <height>22</height>
+                    <width>280</width>
+                    <height>561</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -19222,8 +19248,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>
