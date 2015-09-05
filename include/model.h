@@ -513,7 +513,7 @@ public:
     void FloodBoundary(void);
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(bool flow);
+    void ChannelOverflow();
     void getFloodParameters(void);
     double courant_factor;
     double mixing_coefficient, runoff_partitioning;

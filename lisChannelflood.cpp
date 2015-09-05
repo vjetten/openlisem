@@ -45,7 +45,7 @@ functions: \n
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
-void TWorld::ChannelOverflow(bool flow)
+void TWorld::ChannelOverflow()
 {
     FOR_ROW_COL_MV_CH
     {
@@ -270,7 +270,7 @@ void TWorld::ChannelFlood(void)
 
     getFloodParameters();
 
-    ChannelOverflow(false);
+    ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
     double sumh_t = mapTotal(*hmx);
@@ -316,7 +316,7 @@ void TWorld::ChannelFlood(void)
         // calc a fake alpha for sediment routing
     }
 
-    ChannelOverflow(false);
+    ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
     correctMassBalance(sumh_t, hmx, 1e-12);
