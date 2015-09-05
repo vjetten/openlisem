@@ -414,7 +414,6 @@ public:
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double floodExplicit();
     void ChannelOverflowSWOF(double dt, cTMap *h);
-    void findFloodDomain(cTMap *_h);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
     void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);

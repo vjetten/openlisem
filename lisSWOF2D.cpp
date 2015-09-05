@@ -826,38 +826,6 @@ void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
     }}
 }
 //---------------------------------------------------------------------------
-/// finds flood domain and one dry cell in each direction more (1) and outside (0)
-/// VJ 141021 OBSOLETE, doesn't work!!!! the boundary has to more than 1 cell
-void TWorld::findFloodDomain(cTMap *_h)
-{
-//  for (int r = 1; r < _nrRows-1; r++)
-//    for (int c = 1; c < _nrCols-1; c++)
-//      if(!pcr::isMV(LDD->data[r][c]) &&
-//         !pcr::isMV(LDD->data[r-1][c]) &&
-//         !pcr::isMV(LDD->data[r+1][c]) &&
-//         !pcr::isMV(LDD->data[r][c-1]) &&
-//         !pcr::isMV(LDD->data[r][c+1]))
-//        {
-//          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
-//            {
-//              floodactive->data[r-1][c-1] = 1;
-//              floodactive->data[r-1][c  ] = 1;
-//              floodactive->data[r-1][c+1] = 1;
-//              floodactive->data[r  ][c-1] = 1;
-//              floodactive->data[r  ][c  ] = 1;
-//              floodactive->data[r  ][c+1] = 1;
-//              floodactive->data[r+1][c-1] = 1;
-//              floodactive->data[r+1][c  ] = 1;
-//              floodactive->data[r+1][c+1] = 1;
-//            }
-//          else
-//            floodactive->Drc = 0;
-
-//          if (LDD->Drc == 5)
-//            floodactive->Drc = 0;
-//        }
-}
-//---------------------------------------------------------------------------
 void TWorld::prepareFloodZ(cTMap *z)
 {
     prepareFlood = false;
@@ -974,7 +942,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
   // if there is no flood skip everything
   if (startFlood)
-    {
+  {
       if (correct)
           sumh = mapTotal(*h);
 
@@ -999,28 +967,22 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
             v->Drc = vs->Drc;
           }}
 
-      //findFloodDomain(h);
+          timesum = timesum + dt1;
+          n++;
 
-      timesum = timesum + dt1;
-      n++;
+          if (correct)
+              correctMassBalance(sumh, h, 1e-12);
 
-      if (correct)
-          correctMassBalance(sumh, h, 1e-12);
+          if (n > F_MaxIter)
+            break;
 
-      if (n > F_MaxIter)
-        break;
+        } while (timesum  < _dt);
+    }
 
-    } while (timesum  < _dt);
-}
+    iter_n = n;
+    dt1 = n > 0? _dt/n : dt1;
 
-
-
-//Fr=froude_number(hs,us,vs);
-// todo
-
-iter_n = n;
-dt1 = n > 0? _dt/n : dt1;
-return(dt1);
+    return(dt1);
 }
 //---------------------------------------------------------------------------
 /**
