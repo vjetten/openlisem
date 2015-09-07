@@ -292,6 +292,10 @@ void lisemqt::showMap()
   if (op.drawMapType == 6) showMap6();
   if (op.drawMapType == 7) showMap7();
 
+  channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
+  roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
+  houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
+
   MPlot->replot();
 }
 //---------------------------------------------------------------------------

@@ -193,6 +193,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
         if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
         if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val);
+        if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
 
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
