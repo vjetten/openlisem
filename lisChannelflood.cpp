@@ -47,6 +47,8 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
+//    fill(*tm, 0);
+//    fill(*tma, 0);
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
@@ -62,10 +64,13 @@ void TWorld::ChannelOverflow()
                 continue;
             // no diff in water level, no flow, continue
 
-            double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*ChannelAdj->Drc));
+            double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*_dx));//ChannelAdj->Drc));
             // fraction from hmx to channel based on avefrage flood velocity
-            double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*ChannelWidthUpDX->Drc));
+            //double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*_dx));//ChannelWidthUpDX->Drc));
             // fraction from channel to surrounding adj area based on gravity flow perpedicular to channel
+            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(Grad->Drc)/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
+//            tm->Drc = fracA;
+//            tma->Drc = fracC;
             double fc = ChannelWidthUpDX->Drc/_dx; // 1-fc = (dx-chw)/dx = chanadj/dx
             // fraction of the channel in the gridcell
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
@@ -78,16 +83,16 @@ void TWorld::ChannelOverflow()
                 if (dH > hmx->Drc)   // flow from channel
                 {
                     double dwh = fracC * dH;
-                    if (hmx->Drc + dwh*cwa > dH)   // if flow causes situation to reverse (channel dips below mhx)
+                    if (hmx->Drc + dwh*cwa > dH-dwh)   // if flow causes situation to reverse (channel dips below mhx)
                     {
                         // do equilibrium
-                        hmx->Drc = std::min(hmx->Drc, levee);
-                        hmx->Drc +=  whlevel;
+                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
                         // cutoff hmx at levee but can be smaller
                         ChannelWH->Drc = whlevel + chdepth;
                     }
                     else
                     {
+                        //qDebug() << "from" << fracC;
                         // do the flow
                         hmx->Drc += dwh*cwa;
                         ChannelWH->Drc -= dwh;
@@ -95,17 +100,16 @@ void TWorld::ChannelOverflow()
                 }
                 else   // flow to channel
                 {
-                    double dwh = fracA * std::min(0.0, hmx->Drc-levee); // amount flowing to channel
-                    if (dH + dwh/cwa > hmx->Drc)   // if too much flow
+                    double dwh = fracA * std::max(0.0, hmx->Drc-levee); // amount flowing to channel
+                    if (dH + dwh/cwa > hmx->Drc-dwh)   // if too much flow
                     {
                         // do equilibrium level
-                        hmx->Drc = std::min(hmx->Drc, levee);
-                        hmx->Drc +=  whlevel;
-                        // cutoff hmx at levee but can be smaller
+                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
                         ChannelWH->Drc = whlevel + chdepth;
                     }
                     else
                     {
+                        //qDebug() << "to" << fracA;
                         //do flow
                         hmx->Drc -= dwh;
                         ChannelWH->Drc += dwh/cwa;
@@ -117,22 +121,27 @@ void TWorld::ChannelOverflow()
                 {
                     if(whlevel > 0)
                     {
-                        hmx->Drc = std::min(hmx->Drc, levee);
-                        hmx->Drc +=  whlevel;
+                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
                         // cutoff hmx at levee but can be smaller
                         ChannelWH->Drc = whlevel + chdepth;
                     }
                     else
                     {
-                        double dhmx = std::min(0.0,fracA*(hmx->Drc-levee));
-
-                        ChannelWH->Drc += dhmx*ChannelAdj->Drc/ChannelWidthUpDX->Drc;
-                        hmx->Drc = std::max(0.0, hmx->Drc - dhmx);
+                        // always flow to channel
+                        double dhmx = std::max(0.0,fracA*(hmx->Drc-levee));
+                        qDebug() << "simple" << fracA;
+                        if (dH + dhmx/cwa < hmx->Drc-dhmx)   // if too much flow
+                        {
+                            ChannelWH->Drc += dhmx/cwa;
+                            hmx->Drc = hmx->Drc - dhmx;
+                        }
                     }
 
                 }
         }
     }
+//    report(*tm,"fraca");
+//    report(*tma,"fracc");
 }
 //---------------------------------------------------------------------------
 // correct mass balance
