@@ -129,7 +129,7 @@ void TWorld::ChannelOverflow()
                     {
                         // always flow to channel
                         double dhmx = std::max(0.0,fracA*(hmx->Drc-levee));
-                        qDebug() << "simple" << fracA;
+                   //     qDebug() << "simple" << fracA;
                         if (dH + dhmx/cwa < hmx->Drc-dhmx)   // if too much flow
                         {
                             ChannelWH->Drc += dhmx/cwa;
