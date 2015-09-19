@@ -49,6 +49,14 @@ void TWorld::ChannelOverflow()
 {
 //    fill(*tm, 0);
 //    fill(*tma, 0);
+
+//    double chcells = 0;
+//    FOR_ROW_COL_MV_CH
+//            if(ChannelWH->Drc > 0)
+//            chcells++;
+//    double cmb = MB/chcells;
+
+
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
@@ -127,20 +135,24 @@ void TWorld::ChannelOverflow()
                     }
                     else
                     {
-                        // always flow to channel
-                        double dhmx = std::max(0.0,fracA*(hmx->Drc-levee));
-                   //     qDebug() << "simple" << fracA;
-                        if (dH + dhmx/cwa < hmx->Drc-dhmx)   // if too much flow
-                        {
-                            ChannelWH->Drc += dhmx/cwa;
-                            hmx->Drc = hmx->Drc - dhmx;
-                        }
+//                        // always flow to channel
+//                        double dhmx = std::max(0.0,fracA*(hmx->Drc-levee));
+//                   //     qDebug() << "simple" << fracA;
+//                        if (dH + dhmx/cwa < hmx->Drc-dhmx)   // if too much flow
+//                        {
+//                           ChannelWH->Drc += dhmx/cwa;
+//                            hmx->Drc = hmx->Drc - dhmx;
+//                        }
+//                        tm->Drc = cmb/(ChannelWidthUpDX->Drc*DX->Drc);
+//                        if(ChannelWH->Drc > 0)
+//                            ChannelWH->Drc += cmb/(ChannelWidthUpDX->Drc*_dx);
+                        hmx->Drc = 0;
                     }
 
                 }
         }
     }
-//    report(*tm,"fraca");
+//    report(*tm,"err");
 //    report(*tma,"fracc");
 }
 //---------------------------------------------------------------------------
