@@ -99,34 +99,6 @@ void TWorld::addRainfallWH(void)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::RunoffToFlood(void)
-{
-    if (SwitchRainfallFlood)
-    {
-        FOR_CELL_IN_FLOODAREA
-                if ( Grad->Drc <= rainFloodingGradient)
-        {
-            // if it rains, and there is no flood, and it is flat, and there is sufficient runoff water, then this water kan turn to
-            // flood directly!
-            if (RainNet->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0 && ChannelWidthUpDX->Drc == 0)
-            {
-                double frac = exp(-2*WHrunoff->Drc);
-                double dwh = frac * WHrunoff->Drc;
-
-                if (dwh * FlowWidth->Drc/_dx > MDS->Drc)
-                {
-                    hmx->Drc = dwh * FlowWidth->Drc/_dx;
-                    WH->Drc = WHstore->Drc;
-
-                    WHGrass->Drc = WHstore->Drc;
-                    WHroad->Drc = 0;
-                }
-            }
-        }}
-    }
-
-}
-//---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)
 {
     FOR_ROW_COL_MV
@@ -156,9 +128,9 @@ void TWorld::SurfaceStorage(void)
         WHstore->Drc = wh - whflow;
         // average water stored on flowwidth and not available for flow, in m
 
-        if (SwitchChannelFlood)
-            if (FloodDomain->Drc > 0)
-                WHstore->Drc = 0;
+//        if (SwitchChannelFlood)
+//            if (FloodDomain->Drc > 0)
+//                WHstore->Drc = 0;
         // soilwidth already includes houses
         //houses no surf storage
         if (SwitchHouses)
@@ -186,9 +158,9 @@ void TWorld::SurfaceStorage(void)
             fpa->Drc = 1-exp(-1.875*(wh/RRm));
         // fraction ponded area of a gridcell
 
-        if (SwitchChannelFlood)
-            if (FloodDomain->Drc > 0)
-                fpa->Drc = 1;
+//        if (SwitchChannelFlood)
+//            if (FloodDomain->Drc > 0)
+//                fpa->Drc = 1;
 
         if (SwitchHardsurface)
             fpa->Drc = fpa->Drc *(1-HardSurface->Drc) + HardSurface->Drc*1.0;

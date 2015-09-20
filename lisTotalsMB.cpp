@@ -414,10 +414,9 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
-
-        MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
-              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
-                (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot);
+        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;

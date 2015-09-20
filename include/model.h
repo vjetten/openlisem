@@ -264,7 +264,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, MBeM3, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
     double difkinTot, floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
@@ -278,7 +278,7 @@ public:
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     bool rainStarted;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
-    double nrCells, CatchmentArea;
+    double nrCells, CatchmentArea, nrFloodedCells;
     double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
 
     ///pesticides
@@ -395,7 +395,8 @@ public:
     double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double floodExplicit();
-    void ChannelOverflowSWOF(double dt, cTMap *h);
+   // void ChannelOverflowSWOF(double dt, cTMap *h);
+    void ChannelOverflowWS(int wsnr, double dta, cTMap *_h);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
     void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
@@ -461,7 +462,7 @@ public:
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void RunoffToFlood(void);
+    void RainfallToFlood(void);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void OverlandFlowNew(void);

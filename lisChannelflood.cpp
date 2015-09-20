@@ -47,7 +47,7 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
-    fill(*tm, 0);
+   // fill(*tm, 0);
     double err = 0;
     FOR_ROW_COL_MV_CH
     {
@@ -127,33 +127,26 @@ void TWorld::ChannelOverflow()
                     }
                     else
                     {
-//                        // always flow to channel
-//                        double dhmx = std::max(0.0,fracA*(hmx->Drc-levee));
-//                   //     qDebug() << "simple" << fracA;
-//                        if (dH + dhmx/cwa < hmx->Drc-dhmx)   // if too much flow
-//                        {
-//                           ChannelWH->Drc += dhmx/cwa;
-//                            hmx->Drc = hmx->Drc - dhmx;
-//                        }
-//                        tm->Drc = cmb/(ChannelWidthUpDX->Drc*DX->Drc);
-//                        if(ChannelWH->Drc > 0)
-//                            ChannelWH->Drc += cmb/(ChannelWidthUpDX->Drc*_dx);
-                        tm->Drc = hmx->Drc;
+          //              tm->Drc = hmx->Drc;
                         err += hmx->Drc*DX->Drc*ChannelAdj->Drc;
-                        hmx->Drc = 0;
+                        hmx->Drc = -9999;
                     }
 
                 }
         }
     }
 
-
-    FOR_CELL_IN_FLOODAREA {
-
+    FOR_CELL_IN_FLOODAREA
+    {
+        if (hmx->Drc > 0)
+            hmx->Drc += (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
+        else
+            if (hmx->Drc == -9999)
+                hmx->Drc = (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
     }}
 
 
-    report(*tm,"err");
+//    report(*tm,"err");
 //    report(*tma,"fracc");
 }
 //---------------------------------------------------------------------------
@@ -212,7 +205,6 @@ void TWorld::FloodSpuriousValues()
 //---------------------------------------------------------------------------
 void TWorld::FloodBoundary()
 {
-    //  tm->copy(hmx);
     FOR_ROW_COL_MV
     {
         if (FloodEdge->Drc > 0 && hmx->Drc > 0)
@@ -224,16 +216,12 @@ void TWorld::FloodBoundary()
             floodBoundaryTot += Qflood->Drc*_dt;
         }
     }
-    // tm->calcMap(hmx, SUB);
-    //  tm->report("diffh");
-
-    //volumme weg is sum diff * cell size
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming()
 {
     // floodwater volume and max flood map
-    FOR_ROW_COL_MV
+    FOR_CELL_IN_FLOODAREA
     {
         floodHmxMax->Drc = std::max(floodHmxMax->Drc, hmx->Drc);
         if (hmx->Drc > 0)//minReportFloodHeight)
@@ -241,13 +229,12 @@ void TWorld::FloodMaxandTiming()
         // for output
         floodVMax->Drc = std::max(floodVMax->Drc, UVflood->Drc);
         // max velocity
-    }
+    }}
 
     floodVolTotMax = 0;
     floodAreaMax = 0;
     double area = _dx*_dx;
-    FOR_ROW_COL_MV
-    {
+    FOR_CELL_IN_FLOODAREA
         if (floodHmxMax->Drc > 0)//minReportFloodHeight)
         {
             floodVolTotMax += floodHmxMax->Drc*area;
@@ -255,10 +242,8 @@ void TWorld::FloodMaxandTiming()
         }
     }
 
-    FOR_ROW_COL_MV
-    {
-    //    if (hmx->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)
-            if (hmx->Drc > 0 && floodTimeStart->Drc == 0)
+    FOR_CELL_IN_FLOODAREA
+        if (hmx->Drc > 0 && floodTimeStart->Drc == 0)
         {
             //            FloodTimeStart->Drc = (time - RainpeakTime)/60;
             floodTimeStart->Drc = (time - RainstartTime)/60;
@@ -292,6 +277,16 @@ void TWorld::ChannelFlood(void)
 
     getFloodParameters();
 
+    FOR_CELL_IN_FLOODAREA
+    {
+        if (hmx->Drc > 0)
+        {
+            hmx->Drc += 0.5*(MBeM3/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
+            hmx->Drc = std::max(0.0, hmx->Drc);
+        }
+    }}
+
+
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
@@ -299,8 +294,7 @@ void TWorld::ChannelFlood(void)
     double dtflood = 0;
 
     startFlood = false;
-    FOR_ROW_COL_MV
-    {
+    FOR_CELL_IN_FLOODAREA
         if (hmx->Drc > 0)
         {
             startFlood = true;
@@ -324,19 +318,17 @@ void TWorld::ChannelFlood(void)
     copy(*QfloodPrev, *Qflood);
     // copy the previous flood level, at t-1
 
-    FOR_ROW_COL_MV
+    FOR_CELL_IN_FLOODAREA
     {
-       // tmb->Drc = 0;
         //UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
         UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
         // U and V are vectors so can be negative, UV is positive average
 
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-        //tmb->Drc = (UVflood->Drc + sqrt(hmx->Drc * 9.8))*dtflood/_dx;
 
-        AlphaFlood->Drc = std::pow(N->Drc/Grad->Drc * std::pow(2*hmx->Drc+ChannelAdj->Drc, (2/3)),0.6);
+        //AlphaFlood->Drc = std::pow(N->Drc/Grad->Drc * std::pow(2*hmx->Drc+ChannelAdj->Drc, (2/3)),0.6);
         // calc a fake alpha for sediment routing
-    }
+    }}
 
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
@@ -345,14 +337,13 @@ void TWorld::ChannelFlood(void)
     // correct mass balance, VJ 150823: not nnecessary hhere if flow is false
 
     //new flood domain
-    double cells = 0;
+    nrFloodedCells = 0;
     sumh_t = 0;
-    FOR_ROW_COL_MV
-    {
+    FOR_CELL_IN_FLOODAREA
         if (hmx->Drc > 0 && FloodZonePotential->Drc == 1)
         {
             FloodDomain->Drc = 1;
-            cells += 1.0;
+            nrFloodedCells += 1.0;
             sumh_t += hmx->Drc;
         }
         else
@@ -368,24 +359,14 @@ void TWorld::ChannelFlood(void)
     FloodMaxandTiming();
     // flood max, start and duration
 
-    fill(*FloodWaterVol, 0);
-    FOR_ROW_COL_MV
-    {
+  //  fill(*FloodWaterVol, 0);
+    FOR_CELL_IN_FLOODAREA
        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
     }
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
-    double area = cells*_dx*_dx;
-    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
+    double area = nrFloodedCells*_dx*_dx;
+    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));
     // some screen error reporting
 
-/*
-    FOR_ROW_COL_MV
-    {
-        if (LDD->Drc == 5) // if outflow point, pit
-        {
-            routeSubstance(r,c, LDD, QfloodPrev, Qflood, QfloodSedPrev, QfloodSed, AlphaFlood, DX, FloodWaterVol, Sedflood);
-        }
-    }
-*/
 }
