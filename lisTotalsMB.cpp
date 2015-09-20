@@ -415,42 +415,15 @@ void TWorld::MassBalance()
     if (RainTot + SnowTot > 0)
     {
 
-  //      MB = (RainTot - IntercTot - InfilTot - WaterVolTot - Qtot)/(RainTot)*100;
         MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
               - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
                 (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
-/*
-        double nr = 0;
-        FOR_CELL_IN_FLOODAREA {
-            if(hmx->Drc > 0)
-                nr++;
-        }}
-    FOR_CELL_IN_FLOODAREA {
-        if(hmx->Drc > 0)
-            hmx->Drc += MB/nr/(_dx*ChannelAdj->Drc);
-        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-
-    }}
-if (SwitchChannelFlood)
-{
-    floodVolTot = mapTotal(*FloodWaterVol);
-    floodTotmm = floodVolTot * 1000.0/(_dx*_dx*nrCells); // to mm
-}
-MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
-      - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
-        (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
-*/
-
-//        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
-//        MB = MB/(RainTotmm + SnowTotmm) * 100;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
-    //   if (SwitchErosion && (DetTot + ChannelDetTot) > 0)
-    //      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
-    //             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
+
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +

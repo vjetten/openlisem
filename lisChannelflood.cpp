@@ -47,16 +47,8 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
-//    fill(*tm, 0);
-//    fill(*tma, 0);
-
-//    double chcells = 0;
-//    FOR_ROW_COL_MV_CH
-//            if(ChannelWH->Drc > 0)
-//            chcells++;
-//    double cmb = MB/chcells;
-
-
+    fill(*tm, 0);
+    double err = 0;
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
@@ -91,7 +83,7 @@ void TWorld::ChannelOverflow()
                 if (dH > hmx->Drc)   // flow from channel
                 {
                     double dwh = fracC * dH;
-                    if (hmx->Drc + dwh*cwa > dH-dwh)   // if flow causes situation to reverse (channel dips below mhx)
+                    if (hmx->Drc + dwh*cwa > dH-dwh && whlevel > 0)   // if flow causes situation to reverse (channel dips below mhx)
                     {
                         // do equilibrium
                         hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
@@ -109,7 +101,7 @@ void TWorld::ChannelOverflow()
                 else   // flow to channel
                 {
                     double dwh = fracA * std::max(0.0, hmx->Drc-levee); // amount flowing to channel
-                    if (dH + dwh/cwa > hmx->Drc-dwh)   // if too much flow
+                    if (dH + dwh/cwa > hmx->Drc-dwh && whlevel > 0)   // if too much flow
                     {
                         // do equilibrium level
                         hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
@@ -146,13 +138,22 @@ void TWorld::ChannelOverflow()
 //                        tm->Drc = cmb/(ChannelWidthUpDX->Drc*DX->Drc);
 //                        if(ChannelWH->Drc > 0)
 //                            ChannelWH->Drc += cmb/(ChannelWidthUpDX->Drc*_dx);
+                        tm->Drc = hmx->Drc;
+                        err += hmx->Drc*DX->Drc*ChannelAdj->Drc;
                         hmx->Drc = 0;
                     }
 
                 }
         }
     }
-//    report(*tm,"err");
+
+
+    FOR_CELL_IN_FLOODAREA {
+
+    }}
+
+
+    report(*tm,"err");
 //    report(*tma,"fracc");
 }
 //---------------------------------------------------------------------------

@@ -101,35 +101,14 @@ void TWorld::addRainfallWH(void)
 //---------------------------------------------------------------------------
 void TWorld::RunoffToFlood(void)
 {
-    /*
     if (SwitchRainfallFlood)
     {
-        FOR_ROW_COL_MV
-        {
-            if (WH->Drc > MDS->Drc && FloodZonePotential->Drc == 1 && Grad->Drc <= rainFloodingGradient && hmx->Drc == 0)
-            {
-                hmx->Drc = WH->Drc*FlowWidth->Drc/_dx;
-                WH->Drc = 0;
-                WHGrass->Drc = 0;
-                WHstore->Drc = 0;
-
-                FloodDomain->Drc = 1;
-                WHroad->Drc = 0;
-                WHrunoff->Drc = 0;
-                FlowWidth->Drc = 0;
-                WaterVolall->Drc = 0;
-                Q->Drc = 0;
-            }
-        }
-    }
-   */
-    if (SwitchRainfallFlood)
-    {
-        FOR_ROW_COL_MV
+        FOR_CELL_IN_FLOODAREA
+                if ( Grad->Drc <= rainFloodingGradient)
         {
             // if it rains, and there is no flood, and it is flat, and there is sufficient runoff water, then this water kan turn to
             // flood directly!
-            if (RainNet->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0 && Grad->Drc <= rainFloodingGradient && ChannelWidthUpDX->Drc == 0)
+            if (RainNet->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0 && ChannelWidthUpDX->Drc == 0)
             {
                 double frac = exp(-2*WHrunoff->Drc);
                 double dwh = frac * WHrunoff->Drc;
@@ -143,7 +122,7 @@ void TWorld::RunoffToFlood(void)
                     WHroad->Drc = 0;
                 }
             }
-        }
+        }}
     }
 
 }
