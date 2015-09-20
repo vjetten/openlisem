@@ -184,13 +184,13 @@ void TWorld::DoModel()
 
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
-//            RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
-
             Infiltration();        // infil of overland flow water, decrease WH
             InfiltrationFloodNew();// infil in flooded area, decrease hmx
 
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
+
+            RainfallToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
             CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
@@ -198,8 +198,6 @@ void TWorld::DoModel()
             FlowDetachment();      // flow detachment
 
             //Pestmobilisation();  // experimental
-
-            RunoffToFlood();       // converts rainfall on flat areas to flood instead of runoff
 
             ToFlood();             // overland flow water added to flood (not in channel cells)
             ToChannel();           // water and sed flux going into channel in channel cells

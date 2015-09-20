@@ -417,11 +417,11 @@ void TWorld::Infiltration(void)
 
     // NOTE: do NOT include flooddomain here, runoff is everywhere also in flood domain so continue infil there too
     // infil is minimal anyway, but needed for mass balance
-    FOR_ROW_COL_MV
-    {
-        InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-    }
-    fill(*tm, 1.0);
+//    FOR_ROW_COL_MV
+//    {
+//        InfilVol->Drc = DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+//    }
+
     switch (InfilMethod)
     {
     case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
@@ -486,7 +486,8 @@ void TWorld::Infiltration(void)
 
     FOR_ROW_COL_MV
     {
-        InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+       // InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        InfilVolFlood->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
         // infil volume is WH before - water after
     }
 
@@ -503,13 +504,13 @@ void TWorld::InfiltrationFloodNew(void)
         return;
 
 
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0)
-            InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
-        // potential water volume on surface before infil
-        // is everywhere on cell except channel
-    }
+//    FOR_ROW_COL_MV
+//    {
+//        if (FloodDomain->Drc > 0)
+//            InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
+//        // potential water volume on surface before infil
+//        // is everywhere on cell except channel
+//    }
 
     switch (InfilMethod)
     {
@@ -544,8 +545,8 @@ void TWorld::InfiltrationFloodNew(void)
         FSurplus->Drc = 0;
         // no surplus in floods, no kin wave!
 
-        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
-        //  InfilVolFlood->Drc -= hmx->Drc * _dx*DX->Drc;
+//        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
+        InfilVolFlood->Drc = fact->Drc*ChannelAdj->Drc*DX->Drc;
         // infil volume is WH before - water after
         // used for water balance and screen display
     }

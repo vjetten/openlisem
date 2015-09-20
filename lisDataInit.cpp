@@ -1100,22 +1100,20 @@ void TWorld::IntializeData(void)
     //totals for mass balance
     MB = 0;
     MBs = 0;
+    MBeM3 = 0;
+
     nrCells = 0;
     FOR_ROW_COL_MV
     {
         nrCells+=1;
     }
+    nrFloodedCells = 0;
 
     DX = NewMap(0);
     CellArea = NewMap(0);
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
-//        if (SwitchIncludeChannel)
-//            if (ChannelDX->Drc > 0)
-//            {
-//                DX->Drc = ChannelDX->Drc;
-//            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = mapTotal(*CellArea);

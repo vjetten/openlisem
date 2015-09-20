@@ -39,33 +39,50 @@ functions: \n
 #define tiny 1e-8
 
 //---------------------------------------------------------------------------
+void TWorld::RainfallToFlood(void)
+{
+    if (SwitchRainfallFlood)
+    {
+        FOR_CELL_IN_FLOODAREA
+                if ( Grad->Drc <= rainFloodingGradient)
+        {
+            // if it rains, and there is no flood, and it is flat, and there is sufficient runoff water, then this water kan turn to
+            // flood directly!
+            if (RainNet->Drc > 0 && WHrunoff->Drc > 0.03 && hmx->Drc == 0 && ChannelWidthUpDX->Drc == 0)
+            {
+                double dwh =  WHrunoff->Drc;
+
+                hmx->Drc = dwh * FlowWidth->Drc/_dx;
+                WH->Drc -= dwh;
+                WHrunoff->Drc = 0;
+                WHGrass->Drc -= dwh;
+                WHroad->Drc -= dwh;
+            }
+        }}
+    }
+
+}
+//---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
 void TWorld::ToFlood(void)
 {
     if (!SwitchChannelFlood)
         return;
 
-    FOR_ROW_COL_MV
-    {
-        if (FloodDomain->Drc > 0)
+    FOR_CELL_IN_FLOODAREA
             if (WHrunoff->Drc > 0 && hmx->Drc > 0 && ChannelWidthUpDX->Drc == 0)
-        {
-            double frac = std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
-            double dwh = frac * WHrunoff->Drc;
+    {
+        double frac = std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
+        double dwh = frac * WHrunoff->Drc;
 
-            hmx->Drc += dwh * FlowWidth->Drc/_dx;
-            WH->Drc = WHstore->Drc;
-            WHrunoff->Drc -= dwh;
+        hmx->Drc += dwh * FlowWidth->Drc/_dx;
+        WH->Drc -= dwh;
+        WHrunoff->Drc -= dwh;
 
-            WHGrass->Drc = WHstore->Drc; //?????
-            WHroad->Drc = 0;   //?????
+        WHGrass->Drc -= dwh; //?????
+        WHroad->Drc -= dwh;   //?????
 
-        }
-    }
-
-//    CalcVelDisch();
-    // recalc velocity and discharge because water flowed into channel
-
+    }}
 }
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing into the channel
@@ -128,11 +145,6 @@ void TWorld::ToChannel(void)
             // adjust sediment in suspension
         }
     }
-
-//    CalcVelDisch();
-    // recalc velocity and discharge because water flowed into channel
-
-
 }
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch()

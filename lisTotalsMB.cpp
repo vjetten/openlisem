@@ -414,22 +414,15 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
-
-  //      MB = (RainTot - IntercTot - InfilTot - WaterVolTot - Qtot)/(RainTot)*100;
-        MB = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
-              - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot)/
-                (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
-
-//        MB = (RainTotmm + SnowTotmm) - ((WaterVolTotmm-SurfStoremm) + Qtotmm + InfilTotmm + SurfStoremm + IntercTotmm + IntercHouseTotmm + floodTotmm);
-//        MB = MB/(RainTotmm + SnowTotmm) * 100;
+        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot);
+        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
-    //   if (SwitchErosion && (DetTot + ChannelDetTot) > 0)
-    //      MBs = (DetTot + ChannelDetTot - SoilLossTot - SedTot - ChannelSedTot +
-    //             DepTot + ChannelDepTot - BufferSedTot)/(DetTot + ChannelDetTot)*100;
+
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +

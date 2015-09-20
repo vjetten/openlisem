@@ -742,124 +742,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // VJ 130517: not in the original code!
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-/*
-     FOR_CELL_IN_FLOODAREA
-          {
 
-
-              if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-              {
-                  //     qDebug() << "oh oh" << cflx->Drc << cfly->Drc;
-                  double e1 = 0.0;
-                  double e2 = 0.0;
-                  double e3 = 0.0;
-                  double cfle = 0.0;
-
-                  if (F_replaceV == 2)
-                  {
-                      cfle = sqrt(cflx->Drc*cfly->Drc);
-                      e1 = sqrt(f1->Drc*g1->Drc);
-                      e2 = sqrt(f2->Drc*g2->Drc);
-                      e3 = sqrt(f3->Drc*g3->Drc);
-                  }
-                  else
-                      if (F_replaceV == 3)
-                      {
-                          cfle = 0.5*(cflx->Drc+cfly->Drc);
-                          e1 = 0.5*(f1->Drc+g1->Drc);
-                          e2 = 0.5*(f2->Drc+g2->Drc);
-                          e3 = 0.5*(f3->Drc+g3->Drc);
-                      }
-
-                  if (cflx->Drc > F_maxVelocity)
-                  {
-                      if (F_replaceV == 1)
-                      {
-                          cflx->Drc = cfly->Drc;
-                          f1->Drc = g1->Drc;
-                          f2->Drc = g2->Drc;
-                          f3->Drc = g3->Drc;
-                      }
-                      else
-                      {
-                          cflx->Drc = cfle;
-                          f1->Drc = e1;
-                          f2->Drc = e2;
-                          f3->Drc = e3;
-                      }
-                  }
-                  if (cfly->Drc > F_maxVelocity)
-                  {
-                      if (F_replaceV == 1)
-                      {
-                          cfly->Drc = cflx->Drc;
-                          g1->Drc = f1->Drc;
-                          g2->Drc = f2->Drc;
-                          g3->Drc = f3->Drc;
-                      }
-                      else
-                      {
-                          cfly->Drc = cfle;
-                          g1->Drc = e1;
-                          g2->Drc = e2;
-                          g3->Drc = e3;
-                      }
-                  }
-
-                  //    qDebug() << "oh oh n" << cflx->Drc << cfly->Drc;
-              }
-          }
-      }
-     */
-/*
-     F_replaceV = 1;
-     if (F_replaceV > 0)
-     {
-       //long j = 0;
-       FOR_CELL_IN_FLOODAREA {
-         if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-           {
-             double tmp1 = cflx->Drc;
-             double tmp2 = cfly->Drc;
-
-             double cfle =0;
-             double e1 = 0;
-             double e2 = 0;
-             double e3 = 0;
-             if (cflx->Drc < cfly->Drc)
-               {
-                 cfle = cflx->Drc;
-                 e1 = f1->Drc;
-                 e2 = f2->Drc;
-                 e3 = f3->Drc;
-               }
-             if (cfly->Drc < cflx->Drc)
-               {
-                 cfle = cfly->Drc;
-                 e1 = g1->Drc;
-                 e2 = g2->Drc;
-                 e3 = g3->Drc;
-               }
-             if (cflx->Drc > F_maxVelocity)
-               {
-                 cflx->Drc = cfle;
-                 f1->Drc = e1;
-                 f2->Drc = e2;
-                 f3->Drc = e3;
-               }
-             if (cfly->Drc > F_maxVelocity)
-               {
-                 cfly->Drc = cfle;
-                 g1->Drc = e1;
-                 g2->Drc = e2;
-                 g3->Drc = e3;
-               }
-
-             qDebug() << "swap" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-           }
-       }}
-     }
-     */
 #define AVG(a1,a2) ((a1*a2 > 0)?std::sqrt(a1*a2):0.5*(a1+a2))
 
      if (F_replaceV > 0)
@@ -917,16 +800,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
      }}
 
      return(std::max(dt_ca, std::min(dtx,dty)));
-  /*
-  if (scheme_type == 1)
-     return(std::max(dt_ca, std::min(dtx,dty)));
-  else
-  {
-      if ((velocity_max_x*dt_fix/dx > cflfix)||(velocity_max_y*dt_fix/dy > cflfix)){
-      qDebug() << "the CFL condition is not satisfied: CFL >"<<cflfix << endl;
-      return (dt_fix);
-  }
-  */
+
 }
 //---------------------------------------------------------------------------
 
@@ -934,54 +808,22 @@ double TWorld::maincalcflux(double dt, double dt_max)
 void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
 {
 
-  FOR_CELL_IN_FLOODAREA {
-    h1r->Drc = _h->Drc;
-    u1r->Drc = _u->Drc;
-    v1r->Drc = _v->Drc;
-    h1l->Drc = _h->Drc;
-    u1l->Drc = _u->Drc;
-    v1l->Drc = _v->Drc;
-  }}
-FOR_CELL_IN_FLOODAREA {
-  h2r->Drc = _h->Drc;
-  u2r->Drc = _u->Drc;
-  v2r->Drc = _v->Drc;
-  h2l->Drc = _h->Drc;
-  u2l->Drc = _u->Drc;
-  v2l->Drc = _v->Drc;
-}}
-}
-//---------------------------------------------------------------------------
-/// finds flood domain and one dry cell in each direction more (1) and outside (0)
-/// VJ 141021 OBSOLETE, doesn't work!!!! the boundary has to more than 1 cell
-void TWorld::findFloodDomain(cTMap *_h)
-{
-//  for (int r = 1; r < _nrRows-1; r++)
-//    for (int c = 1; c < _nrCols-1; c++)
-//      if(!pcr::isMV(LDD->data[r][c]) &&
-//         !pcr::isMV(LDD->data[r-1][c]) &&
-//         !pcr::isMV(LDD->data[r+1][c]) &&
-//         !pcr::isMV(LDD->data[r][c-1]) &&
-//         !pcr::isMV(LDD->data[r][c+1]))
-//        {
-//          if (_h->Drc > 0 || (ChannelWH->Drc > ChannelDepth->Drc))//(ChannelDepth->Drc > 0))
-//            {
-//              floodactive->data[r-1][c-1] = 1;
-//              floodactive->data[r-1][c  ] = 1;
-//              floodactive->data[r-1][c+1] = 1;
-//              floodactive->data[r  ][c-1] = 1;
-//              floodactive->data[r  ][c  ] = 1;
-//              floodactive->data[r  ][c+1] = 1;
-//              floodactive->data[r+1][c-1] = 1;
-//              floodactive->data[r+1][c  ] = 1;
-//              floodactive->data[r+1][c+1] = 1;
-//            }
-//          else
-//            floodactive->Drc = 0;
-
-//          if (LDD->Drc == 5)
-//            floodactive->Drc = 0;
-//        }
+    FOR_CELL_IN_FLOODAREA {
+        h1r->Drc = _h->Drc;
+        u1r->Drc = _u->Drc;
+        v1r->Drc = _v->Drc;
+        h1l->Drc = _h->Drc;
+        u1l->Drc = _u->Drc;
+        v1l->Drc = _v->Drc;
+    }}
+    FOR_CELL_IN_FLOODAREA {
+        h2r->Drc = _h->Drc;
+        u2r->Drc = _u->Drc;
+        v2r->Drc = _v->Drc;
+        h2l->Drc = _h->Drc;
+        u2l->Drc = _u->Drc;
+        v2l->Drc = _v->Drc;
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::prepareFloodZ(cTMap *z)
@@ -1100,7 +942,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
   // if there is no flood skip everything
   if (startFlood)
-    {
+  {
       if (correct)
           sumh = mapTotal(*h);
 
@@ -1125,28 +967,22 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
             v->Drc = vs->Drc;
           }}
 
-      //findFloodDomain(h);
+          timesum = timesum + dt1;
+          n++;
 
-      timesum = timesum + dt1;
-      n++;
+          if (correct)
+              correctMassBalance(sumh, h, 1e-12);
 
-      if (correct)
-          correctMassBalance(sumh, h, 1e-12);
+          if (n > F_MaxIter)
+            break;
 
-      if (n > MAXITER)
-        break;
+        } while (timesum  < _dt);
+    }
 
-    } while (timesum  < _dt);
-}
+    iter_n = n;
+    dt1 = n > 0? _dt/n : dt1;
 
-
-
-//Fr=froude_number(hs,us,vs);
-// todo
-
-iter_n = n;
-dt1 = n > 0? _dt/n : dt1;
-return(dt1);
+    return(dt1);
 }
 //---------------------------------------------------------------------------
 /**
@@ -1170,18 +1006,18 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
   if (prepareFlood)
       prepareFloodZ(z);
 
-  if (correct)
-      sumh = mapTotal(*h);
   // if there is no flood skip everything
-
   if (startFlood)
-    {
+  {
+      if (correct)
+          sumh = mapTotal(*h);
+
       verif = 1;
 
       do {
 
           if (verif == 1)
-            {
+          {
               dt1 = dt_max;
 
               setZero(h, u, v);
@@ -1193,11 +1029,11 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               simpleScheme(h, u, v);
               // used to fill the arrays in the boundary cells where c+1 etc is MV
               if (F_scheme == (int)FMUSCL)
-                MUSCL(h,u,v,z);//MUSCL(hs,us,vs,z);
+                  MUSCL(h,u,v,z);//MUSCL(hs,us,vs,z);
               else
-                //if (F_scheme == (int)FENO)
-                ENO(h,u,v,z);//ENO(hs,us,vs,z);
-            }
+                  //if (F_scheme == (int)FENO)
+                  ENO(h,u,v,z);//ENO(hs,us,vs,z);
+          }
 
           dt1 = maincalcflux(dt1, dt_max);
           dt1 = std::min(dt1, _dt-timesum);
@@ -1205,8 +1041,6 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           //st venant equations, h, u, v go in hs, vs, us come out
           maincalcscheme(dt1, h,u,v, hs,us,vs);
           dt2 = dt1;
-
-          //boundary here
 
           setZero(hs, us, vs);
 
@@ -1216,18 +1050,17 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           if (F_scheme == (int)FMUSCL)
             MUSCL(hs,us,vs,z);
           else
-            // if (F_scheme == (int)FENO)
             ENO(hs,us,vs,z);
 
           dt2 = maincalcflux(dt2, dt_max);
 
           if (dt2 < dt1)
-            {
+          {
               dt1 = dt2;
               verif = 0;
-            }
+          }
           else
-            {
+          {
               verif = 1;
               //hs, us, vs go in hsa, vsa, usa come out
               maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
@@ -1238,31 +1071,29 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               //Heun method (order 2 in time)
               FOR_ROW_COL_MV
               {
-                double havg = 0.5*(h->Drc + hsa->Drc);
-                if (havg >= he_ca)
+                  double havg = 0.5*(h->Drc + hsa->Drc);
+                  if (havg >= he_ca)
                   {
-                    double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                    u->Drc = q1/havg;
-                    double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                    v->Drc = q2/havg;
-                    h->Drc = havg;
+                      double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                      u->Drc = q1/havg;
+                      double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                      v->Drc = q2/havg;
+                      h->Drc = havg;
                   }
-                else
+                  else
                   {
-                    u->Drc = 0;
-                    v->Drc = 0;
-                    h->Drc = 0;
+                      u->Drc = 0;
+                      v->Drc = 0;
+                      h->Drc = 0;
                   }
               }//Heun
 
               timesum = timesum + dt1;
               n++;
 
-              if (n > MAXITER)
-                {
+              if (n > F_MaxIter)
                   break;
-                }
-            }//end for else dt2<dt1
+          }//end for else dt2<dt1
 
           if (correct)
               correctMassBalance(sumh, h, 1e-12);

@@ -280,6 +280,8 @@ void TWorld::ParseRunfileData(void)
         SwitchFloodExplicit = false;
     }
 
+    SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
+qDebug() << SwitchFlood1D2DCoupling;
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;
 

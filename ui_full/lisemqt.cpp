@@ -1153,6 +1153,7 @@ void lisemqt::resetAll()
     E_FloodFluxLimiter->setValue(1); //min
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
+    E_1D2DCoupling->setValue(1);
 
     E_FloodMaxIter->setValue(200);
     //   E_FloodReplaceV->setValue(1);
