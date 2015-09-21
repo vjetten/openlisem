@@ -45,6 +45,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
+    DEFmaps.append("2;Watersheds;ws.map;watersheds (1,2,3,...);watershed");
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
     DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");
@@ -112,7 +113,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
-    DEFmaps.append("2;Watersheds;watershed.map;watersheds in the area (1,2,3,...);watershed");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");

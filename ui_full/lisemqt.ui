@@ -6097,8 +6097,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>50</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6262,8 +6262,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>16</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8342,8 +8342,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>50</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8932,7 +8932,7 @@ p, li { white-space: pre-wrap; }
                      <number>1</number>
                     </property>
                     <property name="maximum">
-                     <number>1</number>
+                     <number>3</number>
                     </property>
                    </widget>
                   </item>
@@ -9276,7 +9276,7 @@ p, li { white-space: pre-wrap; }
                      <number>3</number>
                     </property>
                     <property name="value">
-                     <number>2</number>
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -9358,7 +9358,7 @@ p, li { white-space: pre-wrap; }
                      <double>2.000000000000000</double>
                     </property>
                     <property name="value">
-                     <double>1.000000000000000</double>
+                     <double>2.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -9467,8 +9467,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>278</width>
-                    <height>272</height>
+                    <width>109</width>
+                    <height>109</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9557,8 +9557,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>16</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -11936,8 +11936,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>22</width>
+                    <height>22</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -19248,8 +19248,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

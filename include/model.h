@@ -85,6 +85,10 @@
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
+/// shortcut for all cell in watershed with nr wsnr
+#define FOR_WATERSHED_ROW_COL(wsnr) for (long k = 0; k < WS[wsnr].cr.count(); k++) {\
+    int c = WS[wsnr].cr[k]._c;\
+    int r = WS[wsnr].cr[k]._r;\
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -164,6 +168,23 @@ typedef struct UNIT_LIST {
     double var4;
     double var5;
 } UNIT_LIST;
+//---------------------------------------------------------------------------
+/// structure for output of land unit stats
+typedef struct COORD {
+    int _r;
+    int _c;
+} COORD;
+//--------------------------------------------------------------------------
+/// structure for watershed coordinates for flooding
+typedef struct WS_LIST {
+    bool flood;
+   QList <COORD> cr;
+   //  QVector <COORD> cr;
+    int ws;
+    double dt;
+    double dt2;
+    double dtsum;
+} WS_LIST;
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
@@ -357,6 +378,11 @@ public:
     NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names
     int nrrunnamelist;
 
+
+    QList <WS_LIST> WS;
+    QList <COORD> FA;
+
+
     // list of pointers for substance maps: sediment, sed classes, nutrients etc.
     // used in kin wave for routing of substances
     MapListStruct SubsMaps[32];
@@ -394,9 +420,6 @@ public:
     void prepareFloodZ(cTMap *z);
     double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double floodExplicit();
-   // void ChannelOverflowSWOF(double dt, cTMap *h);
-    void ChannelOverflowWS(int wsnr, double dta, cTMap *_h);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
     void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
@@ -420,6 +443,18 @@ public:
     //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;
+
+    // watershed based
+    double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    void MUSCLws(int wsnr, cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
+    void ENOws(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
+    void simpleSchemews(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
+    void maincalcfluxws(int wsnr);
+    void findDTws(int wsnr, bool two);
+    void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
+    void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
+    void MakeWatersheds(void);
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,

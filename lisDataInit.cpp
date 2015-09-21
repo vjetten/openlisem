@@ -581,6 +581,9 @@ void TWorld::InitChannel(void)
 //            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
+            WaterSheds = ReadMap(LDD, getvaluename("watershed"));
+            MakeWatersheds();
+
             long nrc = 0;
             FOR_ROW_COL_MV
             {
@@ -1669,5 +1672,58 @@ void TWorld::IntializeOptions(void)
     // check to flag when swatre 3D structure is created, needed to clean up data
 
     SwitchPesticide = false;
+}
+//---------------------------------------------------------------------------
+void TWorld::MakeWatersheds(void)
+{
+    int i = 0;
+    WS_LIST one;
+    COORD cr;
+
+    WS.clear(); // empty structure
+
+    cr._c = 0;
+    cr._r = 0;
+
+    one.ws = -1;
+    one.cr << cr;
+    one.dt = _dx/2;
+    one.dt2 = _dx/2;
+    one.dtsum = 0;
+    one.flood = false;
+
+    WS << one;
+
+
+    FOR_ROW_COL_MV
+            if (FloodZonePotential->Drc == 1)
+    {
+        bool found = false;
+
+        for(int j = 0; j <= i; j++)
+            if ((int)WaterSheds->Drc == WS[j].ws)
+            {
+                found = true;
+                cr._c = c;
+                cr._r = r;
+                WS[j].cr << cr;
+            }
+
+        if(!found)// && i < 512)
+        {
+            one.ws = (int)WaterSheds->Drc;
+            i++;
+            cr._c = c;
+            cr._r = r;
+            one.cr << cr;
+            one.dt = _dx/2;
+            one.dt2 = _dx/2;
+            one.dtsum = 0;
+            one.flood = false;
+            WS << one;
+        }
+    }
+//    for(int j = 0; j <= i; j++)
+    qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------
