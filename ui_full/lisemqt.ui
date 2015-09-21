@@ -6097,8 +6097,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>228</width>
-                    <height>252</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6262,8 +6262,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>212</width>
-                    <height>232</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8342,8 +8342,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>289</width>
-                    <height>292</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8932,7 +8932,7 @@ p, li { white-space: pre-wrap; }
                      <number>1</number>
                     </property>
                     <property name="maximum">
-                     <number>3</number>
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -9467,8 +9467,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>109</width>
-                    <height>109</height>
+                    <width>278</width>
+                    <height>272</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9486,7 +9486,7 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                      <property name="plainText">
                       <string>- order 1 = water pressures and velocities are based on the current cell (faster, less accurate); 
 - order 2 = water pressures and velocities are based on current and neighbouring cells (slower, more accurate but prone to instability in accented terain); 
-- Courant factor = determines smallest timestep in flooding (0.4)
+- Courant factor = determines smallest timestep in flooding (0.2)
 - Max iterations = max nr of flooding steps for each lisem timestep (200)
 - PDE solution at t+1: Rusanov and Harten-Lax-van Leer, numerical solution schemes for Partial Differential Equations
 - Finite volume method (only order 2): MUSCL and ENO are stability methods for rapidly changing circumstances (default MUSCL).
@@ -9557,8 +9557,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>201</width>
-                    <height>272</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -11936,8 +11936,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>280</width>
-                    <height>561</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -19248,8 +19248,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_4"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>
