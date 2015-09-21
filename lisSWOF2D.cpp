@@ -481,115 +481,131 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
   double delta_h2, delta_u2, delta_v2;
   double dh, du, dv, dz_h;
 
-  FOR_ROW_COL_MV
-  {
-    tm->Drc = 0;
-    tma->Drc = 0;
-    tmb->Drc = 0;
-  }
-
   FOR_CELL_IN_FLOODAREA
-      if(c > 0 && c < _nrCols-1 && !MV(r,c-1) && !MV(r, c+1))
   {
-    delta_h1 = tm->Drc;
-    delta_u1 = tma->Drc;
-    delta_v1 = tmb->Drc;
-
-    delta_h2 = _h->data[r][c+1] - _h->Drc;
-    delta_u2 = _u->data[r][c+1] - _u->Drc;
-    delta_v2 = _v->data[r][c+1] - _v->Drc;
-
-    dh   = 0.5*limiter(delta_h1, delta_h2);
-    dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
-    du   = 0.5*limiter(delta_u1, delta_u2);
-    dv   = 0.5*limiter(delta_v1, delta_v2);
-
-    h1r->Drc = _h->Drc+dh;
-    h1l->Drc = _h->Drc-dh;
-
-    z1r->Drc = _z->Drc+(dz_h-dh);
-    z1l->Drc = _z->Drc+(dh-dz_h);
-
-    delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
-    delz1->data[r][c-1] = z1l->Drc-z1r->data[r][c-1];
-
-    if (_h->Drc > 0.)//he_ca)
+      if(c == 0 || MV(r,c-1))
       {
-        double h1lh = h1l->Drc/_h->Drc;
-        double h1rh = h1r->Drc/_h->Drc;
+          u1r->Drc = _u->Drc;
+          u1l->Drc = _u->Drc;
+          v1r->Drc = _v->Drc;
+          v1l->Drc = _v->Drc;
+      }
 
-        u1r->Drc = _u->Drc + h1lh * du;
-        u1l->Drc = _u->Drc - h1rh * du;
-        v1r->Drc = _v->Drc + h1lh * dv;
-        v1l->Drc = _v->Drc - h1rh * dv;
-      }
-    else
+      if(c > 0 && !MV(r,c-1))
       {
-        u1r->Drc = _u->Drc + du;
-        u1l->Drc = _u->Drc - du;
-        v1r->Drc = _v->Drc + dv;
-        v1l->Drc = _v->Drc - dv;
+          delta_h1 = _h->data[r][c] - _h->data[c-1][r];
+          delta_u1 = _u->data[r][c] - _u->data[c-1][r];
+          delta_v1 = _v->data[r][c] - _v->data[c-1][r];
+
+          if (c < _nrCols-1 && !MV(r, c+1))
+          {
+              delta_h2 = _h->data[r][c+1] - _h->Drc;
+              delta_u2 = _u->data[r][c+1] - _u->Drc;
+              delta_v2 = _v->data[r][c+1] - _v->Drc;
+          }
+          else
+          {
+              delta_h2 = 0;
+              delta_u2 = 0;
+              delta_v2 = 0;
+          }
+
+          dh   = 0.5*limiter(delta_h1, delta_h2);
+          dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
+          du   = 0.5*limiter(delta_u1, delta_u2);
+          dv   = 0.5*limiter(delta_v1, delta_v2);
+
+          h1r->Drc = _h->Drc+dh;
+          h1l->Drc = _h->Drc-dh;
+
+          z1r->Drc = _z->Drc+(dz_h-dh);
+          z1l->Drc = _z->Drc+(dh-dz_h);
+
+          delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
+          delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
+
+          if (_h->Drc > 0.)//he_ca)
+          {
+              double h1lh = h1l->Drc/_h->Drc;
+              double h1rh = h1r->Drc/_h->Drc;
+
+              u1r->Drc = _u->Drc + h1lh * du;
+              u1l->Drc = _u->Drc - h1rh * du;
+              v1r->Drc = _v->Drc + h1lh * dv;
+              v1l->Drc = _v->Drc - h1rh * dv;
+          }
+          else
+          {
+              u1r->Drc = _u->Drc + du;
+              u1l->Drc = _u->Drc - du;
+              v1r->Drc = _v->Drc + dv;
+              v1l->Drc = _v->Drc - dv;
+          }
       }
-    tm->Drc = delta_h2;
-    tma->Drc = delta_u2;
-    tmb->Drc = delta_v2;
   }}
 
-FOR_ROW_COL_MV
-{
-  tm->Drc = 0;
-  tma->Drc = 0;
-  tmb->Drc = 0;
+  FOR_CELL_IN_FLOODAREA
+  {
+      if(r == 0 || MV(r-1,c))
+      {
+          u2r->Drc = _u->Drc;
+          u2l->Drc = _u->Drc;
+          v2r->Drc = _v->Drc;
+          v2l->Drc = _v->Drc;
+      }
+
+      if(r > 0 && !MV(r-1,c))
+      {
+          delta_h1 = _h->data[r][c] - _h->data[c][r-1];
+          delta_u1 = _u->data[r][c] - _u->data[c][r-1];
+          delta_v1 = _v->data[r][c] - _v->data[c][r-1];
+
+          if (r < _nrRows-1 && !MV(r+1, c))
+          {
+              delta_h2 = _h->data[r+1][c] - _h->Drc;
+              delta_u2 = _u->data[r+1][c] - _u->Drc;
+              delta_v2 = _v->data[r+1][c] - _v->Drc;
+          }
+          else
+          {
+              delta_h2 = 0;
+              delta_u2 = 0;
+              delta_v2 = 0;
+          }
+
+          dh   = 0.5*limiter(delta_h1, delta_h2);
+          dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
+          du   = 0.5*limiter(delta_u1, delta_u2);
+          dv   = 0.5*limiter(delta_v1, delta_v2);
+
+          h2r->Drc = _h->Drc+dh;
+          h2l->Drc = _h->Drc-dh;
+
+          z2r->Drc = _z->Drc+(dz_h-dh);
+          z2l->Drc = _z->Drc+(dh-dz_h);
+          delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
+          delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
+
+          if (_h->Drc > 0.)
+          {
+              double h2lh = h2l->Drc/_h->Drc;
+              double h2rh = h2r->Drc/_h->Drc;
+
+              u2r->Drc = _u->Drc + h2lh * du;
+              u2l->Drc = _u->Drc - h2rh * du;
+              v2r->Drc = _v->Drc + h2lh * dv;
+              v2l->Drc = _v->Drc - h2rh * dv;
+          }
+          else
+          {
+              u2r->Drc = _u->Drc + du;
+              u2l->Drc = _u->Drc - du;
+              v2r->Drc = _v->Drc + dv;
+              v2l->Drc = _v->Drc - dv;
+          }
+      }
+  }}
 }
-
-FOR_CELL_IN_FLOODAREA
-if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1, c))
-{
-  delta_h1 = tm->Drc;
-  delta_u1 = tma->Drc;
-  delta_v1 = tmb->Drc;
-
-  delta_h2 = _h->data[r+1][c] - _h->Drc;
-  delta_u2 = _u->data[r+1][c] - _u->Drc;
-  delta_v2 = _v->data[r+1][c] - _v->Drc;
-
-  dh   = 0.5*limiter(delta_h1, delta_h2);
-  dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
-  du   = 0.5*limiter(delta_u1, delta_u2);
-  dv   = 0.5*limiter(delta_v1, delta_v2);
-
-  h2r->Drc = _h->Drc+dh;
-  h2l->Drc = _h->Drc-dh;
-
-  z2r->Drc = _z->Drc+(dz_h-dh);
-  z2l->Drc = _z->Drc+(dh-dz_h);
-  delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
-  delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
-
-  if (_h->Drc > 0.)
-    {
-      double h2lh = h2l->Drc/_h->Drc;
-      double h2rh = h2r->Drc/_h->Drc;
-
-      u2r->Drc = _u->Drc + h2lh * du;
-      u2l->Drc = _u->Drc - h2rh * du;
-      v2r->Drc = _v->Drc + h2lh * dv;
-      v2l->Drc = _v->Drc - h2rh * dv;
-    }
-  else
-    {
-      u2r->Drc = _u->Drc + du;
-      u2l->Drc = _u->Drc - du;
-      v2r->Drc = _v->Drc + dv;
-      v2l->Drc = _v->Drc - dv;
-    }
-
-  tm->Drc = delta_h2;
-  tma->Drc = delta_u2;
-  tmb->Drc = delta_v2;
-}}
-}
-
 //---------------------------------------------------------------------------
 // St Venant equations: conservation of mass and momentum: h u et v
 void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
@@ -1026,7 +1042,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               // makes h1r, h1l, u1r, u1l, v1r, v1l
               // makes h2r, h2l, u2r, u2l, v2r, v2l
               // makes delzc1, delzc2, delz1, delz2
-              simpleScheme(h, u, v);
+            //  simpleScheme(h, u, v);
               // used to fill the arrays in the boundary cells where c+1 etc is MV
               if (F_scheme == (int)FMUSCL)
                   MUSCL(h,u,v,z);//MUSCL(hs,us,vs,z);
@@ -1045,7 +1061,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           setZero(hs, us, vs);
 
           //Reconstruction for order 2
-          simpleScheme(hs, us, vs);
+          //simpleScheme(hs, us, vs);
           // used to fill the arrays in the boundary cells where c+1 etc is MV
           if (F_scheme == (int)FMUSCL)
             MUSCL(hs,us,vs,z);
