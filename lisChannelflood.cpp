@@ -47,8 +47,8 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
-   // fill(*tm, 0);
     double err = 0;
+    double factor = 0.5;
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
@@ -59,6 +59,10 @@ void TWorld::ChannelOverflow()
 
             if (dH == 0 && hmx->Drc <= levee)
                 continue;
+
+            //            if (dH == 0 && hmx->Drc <= MDS->Drc)
+            //                continue;
+
             // no flow activity then continue
             if (dH == hmx->Drc)
                 continue;
@@ -69,8 +73,8 @@ void TWorld::ChannelOverflow()
             //double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*_dx));//ChannelWidthUpDX->Drc));
             // fraction from channel to surrounding adj area based on gravity flow perpedicular to channel
             double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(Grad->Drc)/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
-//            tm->Drc = fracA;
-//            tma->Drc = fracC;
+            //            tm->Drc = fracA;
+            //            tma->Drc = fracC;
             double fc = ChannelWidthUpDX->Drc/_dx; // 1-fc = (dx-chw)/dx = chanadj/dx
             // fraction of the channel in the gridcell
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
@@ -78,17 +82,16 @@ void TWorld::ChannelOverflow()
             // can be negative if channelwh is below channel depth and low hmx level
             double cwa = ChannelWidthUpDX->Drc/ChannelAdj->Drc;
 
+            bool dosimpel = (SwitchFlood1D2DCoupling == 1);
+
             if (SwitchFlood1D2DCoupling == 2)
             {
                 if (dH > hmx->Drc)   // flow from channel
                 {
-                    double dwh = fracC * dH;
-                    if (hmx->Drc + dwh*cwa > dH-dwh && whlevel > 0)   // if flow causes situation to reverse (channel dips below mhx)
+                    double dwh = fracC * dH; // amount flowing from channel
+                    if (hmx->Drc + dwh*cwa > dH-dwh)   // if flow causes situation to reverse (channel dips below hmx)
                     {
-                        // do equilibrium
-                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
-                        // cutoff hmx at levee but can be smaller
-                        ChannelWH->Drc = whlevel + chdepth;
+                        dosimpel = true;
                     }
                     else
                     {
@@ -101,11 +104,9 @@ void TWorld::ChannelOverflow()
                 else   // flow to channel
                 {
                     double dwh = fracA * std::max(0.0, hmx->Drc-levee); // amount flowing to channel
-                    if (dH + dwh/cwa > hmx->Drc-dwh && whlevel > 0)   // if too much flow
+                    if (dH + dwh/cwa > hmx->Drc-dwh)   // if too much flow
                     {
-                        // do equilibrium level
-                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
-                        ChannelWH->Drc = whlevel + chdepth;
+                        dosimpel = true;
                     }
                     else
                     {
@@ -116,38 +117,43 @@ void TWorld::ChannelOverflow()
                     }
                 }
             }
-            else
-                if (SwitchFlood1D2DCoupling == 1)
-                {
-                    if(whlevel > 0)
-                    {
-                        hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
-                        // cutoff hmx at levee but can be smaller
-                        ChannelWH->Drc = whlevel + chdepth;
-                    }
-                    else
-                    {
-          //              tm->Drc = hmx->Drc;
-                        err += hmx->Drc*DX->Drc*ChannelAdj->Drc;
-                        hmx->Drc = -9999;
-                    }
 
+            if (dosimpel)
+            {
+                if(whlevel > 0)
+                {
+                    hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
+                    // cutoff hmx at levee but can be smaller
+                    ChannelWH->Drc = whlevel + chdepth;
                 }
+                else
+                {
+
+                    err += factor*hmx->Drc*ChannelAdj->Drc*DX->Drc;
+                    hmx->Drc *= (1-factor);
+                }
+            }
         }
     }
-
+    qDebug() << err;
     FOR_CELL_IN_FLOODAREA
+            if (hmx->Drc > 0)
     {
-        if (hmx->Drc > 0)
-            hmx->Drc += (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
-        else
-            if (hmx->Drc == -9999)
-                hmx->Drc = (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
+        hmx->Drc += (err/(nrFloodedCells+1))/(ChannelAdj->Drc*DX->Drc);
+        hmx->Drc = std::max(0.0, hmx->Drc);
     }}
 
+//FOR_CELL_IN_FLOODAREA
+//{
+//    if (hmx->Drc > 0)
+//        hmx->Drc += (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
+//    else
+//        if (hmx->Drc == -9999)
+//            hmx->Drc = (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
+//}}
 
-//    report(*tm,"err");
-//    report(*tma,"fracc");
+
+
 }
 //---------------------------------------------------------------------------
 // correct mass balance
@@ -286,7 +292,6 @@ void TWorld::ChannelFlood(void)
         }
     }}
 
-
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
@@ -315,7 +320,7 @@ void TWorld::ChannelFlood(void)
     FloodSpuriousValues();
     //correct extremes
 
-    copy(*QfloodPrev, *Qflood);
+   // copy(*QfloodPrev, *Qflood);
     // copy the previous flood level, at t-1
 
     FOR_CELL_IN_FLOODAREA

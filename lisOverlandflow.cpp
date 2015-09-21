@@ -70,17 +70,18 @@ void TWorld::ToFlood(void)
         return;
 
     FOR_CELL_IN_FLOODAREA
-            if (WHrunoff->Drc > 0 && hmx->Drc > 0 && ChannelWidthUpDX->Drc == 0)
+            if (WHrunoff->Drc > 0.01 && hmx->Drc > 0.01 && ChannelWidthUpDX->Drc == 0)
     {
-        double frac = std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
+        double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
+                //std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
         double dwh = frac * WHrunoff->Drc;
 
         hmx->Drc += dwh * FlowWidth->Drc/_dx;
         WH->Drc -= dwh;
         WHrunoff->Drc -= dwh;
 
-        WHGrass->Drc -= dwh; //?????
-        WHroad->Drc -= dwh;   //?????
+        WHGrass->Drc -= dwh;
+        WHroad->Drc -= dwh;
 
     }}
 }
