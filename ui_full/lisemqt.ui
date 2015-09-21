@@ -8932,7 +8932,7 @@ p, li { white-space: pre-wrap; }
                      <number>1</number>
                     </property>
                     <property name="maximum">
-                     <number>1</number>
+                     <number>3</number>
                     </property>
                    </widget>
                   </item>
@@ -9276,7 +9276,7 @@ p, li { white-space: pre-wrap; }
                      <number>3</number>
                     </property>
                     <property name="value">
-                     <number>2</number>
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -19248,8 +19248,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

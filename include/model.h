@@ -420,9 +420,6 @@ public:
     void prepareFloodZ(cTMap *z);
     double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double floodExplicit();
-   // void ChannelOverflowSWOF(double dt, cTMap *h);
-    void ChannelOverflowWS(int wsnr, double dta, cTMap *_h);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
     void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
@@ -447,6 +444,7 @@ public:
     bool prepareFlood, startFlood;
     int verif, iter_n;
 
+    // watershed based
     double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     void MUSCLws(int wsnr, cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -456,6 +454,7 @@ public:
     void findDTws(int wsnr, bool two);
     void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
+    void MakeWatersheds(void);
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
