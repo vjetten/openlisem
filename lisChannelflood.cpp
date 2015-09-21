@@ -135,7 +135,8 @@ void TWorld::ChannelOverflow()
             }
         }
     }
-    qDebug() << err;
+   // qDebug() << err;
+   if (err > 0)
     FOR_CELL_IN_FLOODAREA
             if (hmx->Drc > 0)
     {
