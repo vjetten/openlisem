@@ -307,16 +307,25 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-
-    if (SwitchFloodSWOForder2)
+    if (SwitchWatershed)
     {
-        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, true);
+        if (SwitchFloodSWOForder1)
+            dtflood = fullSWOF2Do1ws(hmx, Uflood, Vflood, DEM, true);
+        else
+            dtflood = fullSWOF2Do2ws(hmx, Uflood, Vflood, DEM, true);
     }
     else
+    {
+        if (SwitchFloodSWOForder2)
+        {
+            dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, true);
+        }
+        else
         if (SwitchFloodSWOForder1)
         {
             dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, true);
         }
+    }
 
     FloodSpuriousValues();
     //correct extremes

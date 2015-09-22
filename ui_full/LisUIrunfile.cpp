@@ -188,10 +188,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(val);
         if (p1.compare("Flooding 1D2D coupling")==0)         E_1D2DCoupling->setValue(val);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
-        if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
+        //if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
         if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
         if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
         if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
+        if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
         if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
 
@@ -638,6 +639,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
         if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
         if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
+        if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
 
         //tile drains

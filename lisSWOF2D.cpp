@@ -55,12 +55,9 @@ functions: \n
 #define ve_ca 1e-12
 
 #define dt_ca 0.005
-#define dt_fix 0.05
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
-#define scheme_type 1   //return calculated or fixed dt
-#define MAXITER 100
 
 //---------------------------------------------------------------------------
 /**
@@ -231,10 +228,6 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
             cfl=fabs(c1); //std::max(fabs(c1),fabs(c2))=fabs(c1)
         }else{ //subcritical flow
             tmp = 1./(c2-c1);
-            if (tmp > 1000)
-            {
-                //qDebug() << tmp << h_L << h_R << u_L << u_R << c1 << c2;
-            }
             f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
             f2=(c2*(q_L*u_L+GRAV*h_L*h_L*0.5)-c1*(q_R*u_R+GRAV*h_R*h_R*0.5))*tmp+c1*c2*(q_R-q_L)*tmp;
             f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
