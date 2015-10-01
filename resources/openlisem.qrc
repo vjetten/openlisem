@@ -27,5 +27,6 @@
         <file>fontbigger.png</file>
         <file>fontselect.png</file>
         <file>fontsmaller.png</file>
+        <file>help1.png</file>
     </qresource>
 </RCC>

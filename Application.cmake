@@ -52,7 +52,7 @@ SET(APP_SOURCES
     swatre/swatinp
     lisChannelflood
     lisSWOF2D
-    lisChannelfloodexpl
+    lisSWOF2Daux
     lisInterception
     lisPesticide
     include/version.h
