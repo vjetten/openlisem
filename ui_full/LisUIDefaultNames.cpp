@@ -405,6 +405,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood extreme value height");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flood extreme value difference");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString(" Flood calc as watershed");
 
 
     namelist[i++].name = QString("");

@@ -123,8 +123,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     //checkAddWHtohmx->setVisible(false);
     //label_125->setVisible(false);
     //floodCutoffLevel->setVisible(false);
-    label_133->setVisible(false);
-    E_FloodReplaceV->setVisible(false);
+    //label_133->setVisible(false);
+    //E_FloodReplaceV->setVisible(false);
     checkChannelBaseflow->setVisible(false);
     label_103->setVisible(false);
     E_CalibratePsi->setVisible(false);
@@ -345,7 +345,7 @@ void lisemqt::SetToolBar()
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
     connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
 
-    connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
+    //connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -1089,6 +1089,7 @@ void lisemqt::resetAll()
     // flooded areas
     checkChannelFlood->setChecked(check);
     checkFloodInitial->setChecked(check);
+    checkWatershed->setChecked(check);
 
     checkLimitTC->setChecked(check);
     //   checkLimitDepTC->setChecked(check);
