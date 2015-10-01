@@ -57,6 +57,21 @@ void TWorld::ENOws(int wsnr, cTMap *h ,cTMap *u, cTMap *v, cTMap *z)
     double MODIFENO = 0.9;
     double a1, a2, a3, a4;
 
+    FOR_WATERSHED_ROW_COL(wsnr) {
+        h1r->Drc = h->Drc;
+        u1r->Drc = u->Drc;
+        v1r->Drc = v->Drc;
+        h1l->Drc = h->Drc;
+        u1l->Drc = u->Drc;
+        v1l->Drc = v->Drc;
+        h2r->Drc = h->Drc;
+        u2r->Drc = u->Drc;
+        v2r->Drc = v->Drc;
+        h2l->Drc = h->Drc;
+        u2l->Drc = u->Drc;
+        v2l->Drc = v->Drc;
+    }}
+
   //x-direction
     FOR_WATERSHED_ROW_COL(wsnr)
       if(c > 0 && c < _nrCols-2 && !MV(r,c-1) && !MV(r, c+1) && !MV(r, c+2))
@@ -216,112 +231,110 @@ void TWorld::MUSCLws(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     double delta_h2, delta_u2, delta_v2;
     double dh, du, dv, dz_h;
 
-    delta_u1 = 0;
-    delta_v1 = 0;
-    delta_h1 = 0;
-    delta_u2 = 0;
-    delta_v2 = 0;
-    delta_h2 = 0;
+    FOR_WATERSHED_ROW_COL(wsnr) {
+        h1r->Drc = _h->Drc;
+        u1r->Drc = _u->Drc;
+        v1r->Drc = _v->Drc;
+        h1l->Drc = _h->Drc;
+        u1l->Drc = _u->Drc;
+        v1l->Drc = _v->Drc;
+        h2r->Drc = _h->Drc;
+        u2r->Drc = _u->Drc;
+        v2r->Drc = _v->Drc;
+        h2l->Drc = _h->Drc;
+        u2l->Drc = _u->Drc;
+        v2l->Drc = _v->Drc;
+    }}
 
     FOR_WATERSHED_ROW_COL(wsnr)
+    if(c > 0 && c < _nrCols-1 && !MV(r,c-1) && !MV(r,c+1))
     {
-        if(c > 0 && c < _nrCols-1 && !MV(r,c-1) && !MV(r,c+1))
+        delta_h1 = _h->Drc - _h->data[r][c-1];
+        delta_u1 = _u->Drc - _u->data[r][c-1];
+        delta_v1 = _v->Drc - _v->data[r][c-1];
+
+        delta_h2 = _h->data[r][c+1] - _h->Drc;
+        delta_u2 = _u->data[r][c+1] - _u->Drc;
+        delta_v2 = _v->data[r][c+1] - _v->Drc;
+
+        dh   = 0.5*limiter(delta_h1, delta_h2);
+        dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
+        du   = 0.5*limiter(delta_u1, delta_u2);
+        dv   = 0.5*limiter(delta_v1, delta_v2);
+
+        h1r->Drc = _h->Drc+dh;
+        h1l->Drc = _h->Drc-dh;
+
+        z1r->Drc = _z->Drc+(dz_h-dh);
+        z1l->Drc = _z->Drc+(dh-dz_h);
+
+        delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
+        delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
+
+        if (_h->Drc > 0.)//he_ca)
         {
-            delta_h1 = _h->Drc - _h->data[r][c-1];
-            delta_u1 = _u->Drc - _u->data[r][c-1];
-            delta_v1 = _v->Drc - _v->data[r][c-1];
+            double h1lh = h1l->Drc/_h->Drc;
+            double h1rh = h1r->Drc/_h->Drc;
 
-            delta_h2 = _h->data[r][c+1] - _h->Drc;
-            delta_u2 = _u->data[r][c+1] - _u->Drc;
-            delta_v2 = _v->data[r][c+1] - _v->Drc;
-
-            dh   = 0.5*limiter(delta_h1, delta_h2);
-            dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
-            du   = 0.5*limiter(delta_u1, delta_u2);
-            dv   = 0.5*limiter(delta_v1, delta_v2);
-
-            h1r->Drc = _h->Drc+dh;
-            h1l->Drc = _h->Drc-dh;
-
-            z1r->Drc = _z->Drc+(dz_h-dh);
-            z1l->Drc = _z->Drc+(dh-dz_h);
-
-            delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
-            delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-
-            if (_h->Drc > 0.)//he_ca)
-            {
-                double h1lh = h1l->Drc/_h->Drc;
-                double h1rh = h1r->Drc/_h->Drc;
-
-                u1r->Drc = _u->Drc + h1lh * du;
-                u1l->Drc = _u->Drc - h1rh * du;
-                v1r->Drc = _v->Drc + h1lh * dv;
-                v1l->Drc = _v->Drc - h1rh * dv;
-            }
-            else
-            {
-                u1r->Drc = _u->Drc + du;
-                u1l->Drc = _u->Drc - du;
-                v1r->Drc = _v->Drc + dv;
-                v1l->Drc = _v->Drc - dv;
-            }
+            u1r->Drc = _u->Drc + h1lh * du;
+            u1l->Drc = _u->Drc - h1rh * du;
+            v1r->Drc = _v->Drc + h1lh * dv;
+            v1l->Drc = _v->Drc - h1rh * dv;
+        }
+        else
+        {
+            u1r->Drc = _u->Drc + du;
+            u1l->Drc = _u->Drc - du;
+            v1r->Drc = _v->Drc + dv;
+            v1l->Drc = _v->Drc - dv;
         }
     }}
 
-    delta_u1 = 0;
-    delta_v1 = 0;
-    delta_h1 = 0;
-    delta_u2 = 0;
-    delta_v2 = 0;
-    delta_h2 = 0;
 
     FOR_WATERSHED_ROW_COL(wsnr)
+    if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1,c))
     {
-      //  if(r > 0 && !MV(r-1,c))
-            if(r > 0 && r < _nrRows-1 && !MV(r-1,c) && !MV(r+1,c))
+        delta_h1 = _h->Drc - _h->data[r-1][c];
+        delta_u1 = _u->Drc - _u->data[r-1][c];
+        delta_v1 = _v->Drc - _v->data[r-1][c];
+
+        delta_h2 = _h->data[r+1][c] - _h->Drc;
+        delta_u2 = _u->data[r+1][c] - _u->Drc;
+        delta_v2 = _v->data[r+1][c] - _v->Drc;
+
+        dh   = 0.5*limiter(delta_h1, delta_h2);
+        dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
+        du   = 0.5*limiter(delta_u1, delta_u2);
+        dv   = 0.5*limiter(delta_v1, delta_v2);
+
+        h2r->Drc = _h->Drc+dh;
+        h2l->Drc = _h->Drc-dh;
+
+        z2r->Drc = _z->Drc+(dz_h-dh);
+        z2l->Drc = _z->Drc+(dh-dz_h);
+        delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
+        delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
+
+        if (_h->Drc > 0.)
         {
-            delta_h1 = _h->Drc - _h->data[r-1][c];
-            delta_u1 = _u->Drc - _u->data[r-1][c];
-            delta_v1 = _v->Drc - _v->data[r-1][c];
+            double h2lh = h2l->Drc/_h->Drc;
+            double h2rh = h2r->Drc/_h->Drc;
 
-            delta_h2 = _h->data[r+1][c] - _h->Drc;
-            delta_u2 = _u->data[r+1][c] - _u->Drc;
-            delta_v2 = _v->data[r+1][c] - _v->Drc;
-
-            dh   = 0.5*limiter(delta_h1, delta_h2);
-            dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
-            du   = 0.5*limiter(delta_u1, delta_u2);
-            dv   = 0.5*limiter(delta_v1, delta_v2);
-
-            h2r->Drc = _h->Drc+dh;
-            h2l->Drc = _h->Drc-dh;
-
-            z2r->Drc = _z->Drc+(dz_h-dh);
-            z2l->Drc = _z->Drc+(dh-dz_h);
-            delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
-            delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
-
-            if (_h->Drc > 0.)
-            {
-                double h2lh = h2l->Drc/_h->Drc;
-                double h2rh = h2r->Drc/_h->Drc;
-
-                u2r->Drc = _u->Drc + h2lh * du;
-                u2l->Drc = _u->Drc - h2rh * du;
-                v2r->Drc = _v->Drc + h2lh * dv;
-                v2l->Drc = _v->Drc - h2rh * dv;
-            }
-            else
-            {
-                u2r->Drc = _u->Drc + du;
-                u2l->Drc = _u->Drc - du;
-                v2r->Drc = _v->Drc + dv;
-                v2l->Drc = _v->Drc - dv;
-            }
+            u2r->Drc = _u->Drc + h2lh * du;
+            u2l->Drc = _u->Drc - h2rh * du;
+            v2r->Drc = _v->Drc + h2lh * dv;
+            v2l->Drc = _v->Drc - h2rh * dv;
+        }
+        else
+        {
+            u2r->Drc = _u->Drc + du;
+            u2l->Drc = _u->Drc - du;
+            v2r->Drc = _v->Drc + dv;
+            v2l->Drc = _v->Drc - dv;
         }
     }}
 }
+
 void TWorld::setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v)
 {
   FOR_WATERSHED_ROW_COL(wsnr) {
@@ -714,7 +727,7 @@ double TWorld::fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool corre
                     // makes h1r, h1l, u1r, u1l, v1r, v1l
                     // makes h2r, h2l, u2r, u2l, v2r, v2l
                     // makes delzc1, delzc2, delz1, delz2
-                    simpleSchemews(l, h,u,v);
+                    //simpleSchemews(l, h,u,v);
                     if (F_scheme == (int)FMUSCL)
                         MUSCLws(l, h,u,v,z);
                     else
@@ -729,7 +742,7 @@ double TWorld::fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool corre
                 //st venant equations
 
                 setZerows(l, hs, us, vs);
-                simpleSchemews(l, h,u,v);
+                //simpleSchemews(l, h,u,v);
                 if (F_scheme == (int)FMUSCL)
                     MUSCLws(l, hs,us,vs,z);
                 else

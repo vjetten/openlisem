@@ -5600,7 +5600,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6476,6 +6476,11 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                  </font>
+                 </property>
                  <property name="currentIndex">
                   <number>0</number>
                  </property>
@@ -6484,7 +6489,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
+                    <width>316</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -6501,7 +6506,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
+                    <width>316</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -6530,7 +6535,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
+                    <width>316</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -6555,7 +6560,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
+                    <width>316</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -6648,7 +6653,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>318</width>
+                    <width>289</width>
                     <height>232</height>
                    </rect>
                   </property>
@@ -8728,7 +8733,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>395</width>
+                    <width>366</width>
                     <height>292</height>
                    </rect>
                   </property>
@@ -9677,8 +9682,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>278</width>
-                    <height>328</height>
+                    <width>109</width>
+                    <height>109</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9834,8 +9839,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>307</width>
-                    <height>272</height>
+                    <width>100</width>
+                    <height>30</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -9879,8 +9884,8 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>307</width>
-                    <height>272</height>
+                    <width>109</width>
+                    <height>109</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9905,7 +9910,7 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>307</width>
+                    <width>278</width>
                     <height>272</height>
                    </rect>
                   </property>
@@ -12213,7 +12218,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>386</width>
+                    <width>357</width>
                     <height>561</height>
                    </rect>
                   </property>
@@ -19074,8 +19079,8 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

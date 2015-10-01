@@ -292,19 +292,9 @@ cTMap
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
 *hmxInit,                    //!<
-//explicit solution
-*Hx,                         //!<
-*Hmx,                        //!<
-*hx,                         //!<
 *hmx,                        //!<
-*Nx,                         //!<
-*dHdLx,                      //!<
-*Qxsum,                      //!<
-*qx0,                        //!<
-*qx1,                        //!<
-*qx2,                        //!<
-*qx3,                        //!<
-//explicit solution
+*Hmx,                        //!<
+
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
@@ -327,8 +317,8 @@ cTMap
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,
 *g1, *g2, *g3, *cfly,
-*f1o, *f2o, *f3o, *cflxo,
-*g1o, *g2o, *g3o, *cflyo,
+//*f1o, *f2o, *f3o, *cflxo,
+//*g1o, *g2o, *g3o, *cflyo,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,

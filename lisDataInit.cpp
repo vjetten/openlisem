@@ -612,21 +612,6 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
-            // explicit
-            if (SwitchFloodExplicit)
-            {
-                Qxsum = NewMap(0);
-                qx0 = NewMap(0);
-                qx1 = NewMap(0);
-                qx2 = NewMap(0);
-                qx3 = NewMap(0);
-                Hx = NewMap(0);
-                hx = NewMap(0);
-
-                Nx = NewMap(0);
-                dHdLx = NewMap(0);
-            }
-            //explicit
             Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
@@ -721,14 +706,14 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
-            f1o = NewMap(0);
-            f2o = NewMap(0);
-            f3o = NewMap(0);
-            cflxo = NewMap(0);
-            cflyo = NewMap(0);
-            g1o = NewMap(0);
-            g2o = NewMap(0);
-            g3o = NewMap(0);
+//            f1o = NewMap(0);
+//            f2o = NewMap(0);
+//            f3o = NewMap(0);
+//            cflxo = NewMap(0);
+//            cflyo = NewMap(0);
+//            g1o = NewMap(0);
+//            g2o = NewMap(0);
+//            g3o = NewMap(0);
 
             h1d = NewMap(0);
             h1g = NewMap(0);
