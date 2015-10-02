@@ -239,7 +239,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
+    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,SwitchKinematic2D,
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
 
     int SwitchFlood1D2DCoupling;
@@ -444,7 +444,7 @@ public:
     bool prepareFlood, startFlood;
     int verif, iter_n;
 
-    // watershed based
+    // floods watershed based
     double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     void MUSCLws(int wsnr, cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -456,6 +456,7 @@ public:
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
     void MakeWatersheds(void);
 
+    // pesticide
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
 //                         cTMap *_WHoutavgold,cTMap *_RainNet,cTMap *_CM_N,cTMap *_C_N,cTMap *_CS_N,cTMap *_InfilVol,cTMap *_InfilVolold,
@@ -469,6 +470,7 @@ public:
     double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
     double ConcentrationP(double watvol, double pest);
 
+    // 1D hydro processes
     //input timeseries
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
     //void GetSnowmeltData(void);   // get input timeseries
@@ -551,6 +553,21 @@ public:
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
+
+    // kinematic 2D
+    double K2DFlux(double dt);
+    void K2DSolve(double dt);
+    void K2DInit();
+    void K2DCalcVelDisch();
+    void K2DDEMA();
+    double K2DQOut;
+    double K2DQSOut;
+    double K2DQPOut;
+
+
+    static const int K2D_METHOD_FLUX = 1;
+    static const int K2D_METHOD_INTERPOLATION = 2;
+    int K2DSCHEME = K2D_METHOD_INTERPOLATION;
 
     // QVector <cTMap> Substance;
 

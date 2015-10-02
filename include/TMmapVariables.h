@@ -187,6 +187,47 @@ cTMap
 *PCinfilt,
 *PCfilmexit,
 
+//for the kinematic wave in 2D
+*K2DDEM,                        //!<
+*K2DPits,                       //!<
+*K2DOutlets,                    //!<
+*K2DQS,                         //!<
+*K2DQSX,                         //!<
+*K2DQSY,                         //!<
+*K2DS,                          //!<
+*K2DSC,                          //!<
+*K2DSCN,                          //!<
+*K2DQP,                         //!<
+*K2DQPX,                         //!<
+*K2DQPY,                         //!<
+*K2DP,                          //!<
+*K2DPC,                          //!<
+*K2DPCN,                          //!<
+*K2DDX,                         //!<
+*K2DDY,                         //!<
+*K2DSlopeX,                     //!<
+*K2DSlopeY,                     //!<
+*K2DSlope,                      //!<
+*K2DAspect,                     //!<
+*K2DHOld,                       //!<
+*K2DHNew,                       //!<
+*K2DQX,                         //!<
+*K2DQY,                         //!<
+*K2DQ,                          //!<
+*K2DQN,
+*K2DFX,                         //!<
+*K2DFY,                         //!<
+*K2DSFX,
+*K2DSFY,
+*K2DPFX,
+*K2DPFY,
+*K2DVX,                         //!<
+*K2DVY,                         //!<
+*K2DV,                          //!<
+*K2DI,                          //!<
+
+
+// infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *hesinfil,

@@ -5619,7 +5619,7 @@
                   </sizepolicy>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_17">
-                  <item row="12" column="2">
+                  <item row="13" column="2">
                    <widget class="QCheckBox" name="checkRaindrum">
                     <property name="enabled">
                      <bool>false</bool>
@@ -5678,7 +5678,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0" colspan="4">
+                  <item row="10" column="0" colspan="4">
                    <widget class="QCheckBox" name="checkRoadsystem">
                     <property name="palette">
                      <palette>
@@ -5731,7 +5731,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="11" column="0" colspan="4">
+                  <item row="12" column="0" colspan="4">
                    <widget class="QCheckBox" name="checkHouses">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -5787,7 +5787,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="0" colspan="4">
+                  <item row="11" column="0" colspan="4">
                    <widget class="QCheckBox" name="checkHardsurface">
                     <property name="enabled">
                      <bool>true</bool>
@@ -5918,43 +5918,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0">
-                   <widget class="QWidget" name="widget_3" native="true">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="0" colspan="4">
-                   <widget class="QFrame" name="frame_3">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::HLine</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QWidget" name="widget_2" native="true">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="12" column="1">
+                  <item row="13" column="1">
                    <widget class="QLabel" name="label_105">
                     <property name="palette">
                      <palette>
@@ -6275,7 +6239,178 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="0" colspan="4">
+                  <item row="14" column="0" colspan="4">
+                   <widget class="Line" name="line_10">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="15" column="0" colspan="4">
+                   <widget class="QCheckBox" name="checkPesticides">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Include Pesticides</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="16" column="0" colspan="4">
+                   <widget class="QCheckBox" name="checkIncludeTiledrains">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Include tile drain system ( only with SWATRE infil)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="13" column="0">
+                   <widget class="QWidget" name="widget_3" native="true">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="0" colspan="4">
+                   <widget class="QFrame" name="frame_3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::HLine</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Sunken</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QWidget" name="widget_2" native="true">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="0" colspan="4">
+                   <widget class="QCheckBox" name="checkKinematic2D">
+                    <property name="text">
+                     <string>(Experimental) Overland flow with 2D kin wave</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkNoErosion">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -6337,134 +6472,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="0" colspan="4">
-                   <widget class="Line" name="line_10">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="14" column="0" colspan="4">
-                   <widget class="QCheckBox" name="checkPesticides">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Include Pesticides</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="15" column="0" colspan="4">
-                   <widget class="QCheckBox" name="checkIncludeTiledrains">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Include tile drain system ( only with SWATRE infil)</string>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </widget>
                </item>
@@ -6489,8 +6496,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>316</width>
-                    <height>223</height>
+                    <width>298</width>
+                    <height>250</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6506,8 +6513,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>316</width>
-                    <height>223</height>
+                    <width>298</width>
+                    <height>250</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6535,8 +6542,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>316</width>
-                    <height>223</height>
+                    <width>298</width>
+                    <height>250</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6560,8 +6567,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>316</width>
-                    <height>223</height>
+                    <width>298</width>
+                    <height>250</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9839,8 +9846,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -17634,7 +17641,7 @@ Channels:
                <item row="7" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_P">
                  <property name="text">
-                  <string>Precipitation</string>
+                  <string>Precipitation (mm)</string>
                  </property>
                 </widget>
                </item>
@@ -17669,7 +17676,7 @@ Channels:
                <item row="6" column="0" colspan="2">
                 <widget class="QLabel" name="label_92">
                  <property name="text">
-                  <string>transparency relief</string>
+                  <string>transparency terrain</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -17888,7 +17895,7 @@ Channels:
                <item row="8" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_RO">
                  <property name="text">
-                  <string>Runoff</string>
+                  <string>Runoff (m3/s)</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -17898,14 +17905,14 @@ Channels:
                <item row="9" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_INF">
                  <property name="text">
-                  <string>Infil</string>
+                  <string>Infil (mm)</string>
                  </property>
                 </widget>
                </item>
                <item row="10" column="0" colspan="2">
                 <widget class="QRadioButton" name="radioButton_SL">
                  <property name="text">
-                  <string>Soil loss</string>
+                  <string>Soil loss (ton/ha)</string>
                  </property>
                 </widget>
                </item>
@@ -17937,7 +17944,7 @@ Channels:
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>Flood depth</string>
+                  <string>Flood depth (m)</string>
                  </property>
                 </widget>
                </item>
@@ -17972,7 +17979,7 @@ Channels:
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>Early warning time</string>
+                  <string>Early warning time (min)</string>
                  </property>
                 </widget>
                </item>
@@ -18005,7 +18012,7 @@ Channels:
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>Flood Velocity</string>
+                  <string>Flood Velocity (m/s)</string>
                  </property>
                 </widget>
                </item>
@@ -18034,7 +18041,7 @@ Channels:
                <item row="11" column="4">
                 <widget class="QCheckBox" name="checkDisplayWH">
                  <property name="text">
-                  <string>Add runoff</string>
+                  <string>Add runoff WH</string>
                  </property>
                 </widget>
                </item>
@@ -18066,7 +18073,7 @@ Channels:
                   <string>Show cumulative rainfall</string>
                  </property>
                  <property name="text">
-                  <string>Cumulative</string>
+                  <string>Cumulative P (mm)</string>
                  </property>
                 </widget>
                </item>
@@ -18086,6 +18093,13 @@ Channels:
                  </property>
                  <property name="value">
                   <double>0.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="4">
+                <widget class="QCheckBox" name="checkDisplayROWH">
+                 <property name="text">
+                  <string>water height (m)</string>
                  </property>
                 </widget>
                </item>
@@ -19080,7 +19094,7 @@ Channels:
  </connections>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

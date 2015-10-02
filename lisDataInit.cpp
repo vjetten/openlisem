@@ -556,29 +556,29 @@ void TWorld::InitChannel(void)
                                  pcr::isMV(LDD->data[r+1][c  ]) ||
                                  pcr::isMV(LDD->data[r+1][c+1]) )
                                 )
-                          if (ChannelWidthUpDX->Drc == 0)
-                            FloodEdge->Drc = 1;
+                            if (ChannelWidthUpDX->Drc == 0)
+                                FloodEdge->Drc = 1;
                         // channel cells do not shed water to the outside
                     }
-//            tma->fill(0);
-//            for (int r = 1; r < _nrRows-1; r++)
-//                for (int c = 1; c < _nrCols-1; c++)
-//                    if(!pcr::isMV(LDD->data[r][c]))
-//            {
-//                if (FloodEdge->Drc == 0 && (
-//                            FloodEdge->data[r-1][c-1] == 1 ||
-//                            FloodEdge->data[r-1][c  ] == 1 ||
-//                            FloodEdge->data[r-1][c+1] == 1 ||
-//                            FloodEdge->data[r][c-1] == 1 ||
-//                            FloodEdge->data[r][c+1] == 1 ||
-//                            FloodEdge->data[r+1][c-1] == 1 ||
-//                            FloodEdge->data[r+1][c  ] == 1 ||
-//                            FloodEdge->data[r+1][c+1] == 1
-//                            ))
-//                    tma->Drc = 2;
-//            }
-//            FloodEdge->calcMap(tma, ADD);
-//            FloodEdge->report("edge.map");
+            //            tma->fill(0);
+            //            for (int r = 1; r < _nrRows-1; r++)
+            //                for (int c = 1; c < _nrCols-1; c++)
+            //                    if(!pcr::isMV(LDD->data[r][c]))
+            //            {
+            //                if (FloodEdge->Drc == 0 && (
+            //                            FloodEdge->data[r-1][c-1] == 1 ||
+            //                            FloodEdge->data[r-1][c  ] == 1 ||
+            //                            FloodEdge->data[r-1][c+1] == 1 ||
+            //                            FloodEdge->data[r][c-1] == 1 ||
+            //                            FloodEdge->data[r][c+1] == 1 ||
+            //                            FloodEdge->data[r+1][c-1] == 1 ||
+            //                            FloodEdge->data[r+1][c  ] == 1 ||
+            //                            FloodEdge->data[r+1][c+1] == 1
+            //                            ))
+            //                    tma->Drc = 2;
+            //            }
+            //            FloodEdge->calcMap(tma, ADD);
+            //            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
             WaterSheds = ReadMap(LDD, getvaluename("watershed"));
@@ -641,14 +641,14 @@ void TWorld::InitChannel(void)
             FOR_ROW_COL_MV
             {
                 // added rainFloodingGradient to ensure rainfall flood if needed
-              if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0 || Grad->Drc <= rainFloodingGradient)
+                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0 || Grad->Drc <= rainFloodingGradient)
                 {
-                  floodRow[_i] = r;
-                  floodCol[_i] = c;
-                  _i++;
+                    floodRow[_i] = r;
+                    floodCol[_i] = c;
+                    _i++;
                 }
             }
-            nrFloodcells = _i;            
+            nrFloodcells = _i;
 
             minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
@@ -706,14 +706,14 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
-//            f1o = NewMap(0);
-//            f2o = NewMap(0);
-//            f3o = NewMap(0);
-//            cflxo = NewMap(0);
-//            cflyo = NewMap(0);
-//            g1o = NewMap(0);
-//            g2o = NewMap(0);
-//            g3o = NewMap(0);
+            //            f1o = NewMap(0);
+            //            f2o = NewMap(0);
+            //            f3o = NewMap(0);
+            //            cflxo = NewMap(0);
+            //            cflyo = NewMap(0);
+            //            g1o = NewMap(0);
+            //            g2o = NewMap(0);
+            //            g3o = NewMap(0);
 
             h1d = NewMap(0);
             h1g = NewMap(0);
@@ -904,9 +904,9 @@ void TWorld::GetInputData(void)
 
     if (SwitchHardsurface)
     {
-    HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
-    calcValue(*HardSurface, 1.0, MIN);
-    calcValue(*HardSurface, 0.0, MAX);
+        HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
+        calcValue(*HardSurface, 1.0, MIN);
+        calcValue(*HardSurface, 0.0, MAX);
         FOR_ROW_COL_MV
         {
             N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*HardSurface->Drc;
@@ -1288,6 +1288,50 @@ void TWorld::IntializeData(void)
 
     Q = NewMap(0);
     Qn = NewMap(0);
+    K2DDEM = NewMap(0);
+    K2DPits = NewMap(0);
+    K2DOutlets = NewMap(0);
+    K2DDX = NewMap(0);
+    K2DDY = NewMap(0);
+    K2DSlopeX = NewMap(0);
+    K2DSlopeY = NewMap(0);
+    K2DSlope = NewMap(0);
+    K2DAspect = NewMap(0);
+
+
+    K2DQS = NewMap(0);
+    K2DQSX = NewMap(0);
+    K2DQSY = NewMap(0);
+    K2DS = NewMap(0);
+    K2DSC = NewMap(0);
+    K2DSCN = NewMap(0);
+
+    if(SwitchPesticide)
+    {
+        K2DQP = NewMap(0);
+        K2DQPX = NewMap(0);
+        K2DQPY = NewMap(0);
+        K2DP = NewMap(0);
+        K2DPC = NewMap(0);
+        K2DPCN = NewMap(0);
+    }
+
+    K2DHOld = NewMap(0);
+    K2DHNew = NewMap(0);
+    K2DQX = NewMap(0);
+    K2DQY = NewMap(0);
+    K2DFX = NewMap(0);
+    K2DFY = NewMap(0);
+    K2DSFX = NewMap(0);
+    K2DSFY = NewMap(0);
+    K2DPFX = NewMap(0);
+    K2DPFY = NewMap(0);
+    K2DQ = NewMap(0);
+    K2DQN = NewMap(0);
+    K2DVX = NewMap(0);
+    K2DVY = NewMap(0);
+    K2DV = NewMap(0);
+    K2DI = NewMap(0);
     QinKW = NewMap(0);
     Qoutput = NewMap(0);
     Houtput = NewMap(0);
@@ -1549,7 +1593,8 @@ void TWorld::IntializeData(void)
         }
     }
 
-    //VJ 110113 all channel and buffer initialization moved to separate functions
+    //calculate slope, outlets and pitches for kinematic 2D
+    K2DDEMA();
 
 }
 //---------------------------------------------------------------------------
@@ -1708,7 +1753,7 @@ void TWorld::MakeWatersheds(void)
             WS << one;
         }
     }
-//    for(int j = 0; j <= i; j++)
+    //    for(int j = 0; j <= i; j++)
     qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------

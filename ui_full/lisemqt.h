@@ -153,6 +153,8 @@ public:
     void showMap5();
     void showMap6();
     void showMap7();
+    void showMap8();
+
     void showBaseMap();
     void showChannelMap();
     void showRoadMap();

@@ -88,6 +88,7 @@ struct output{
 
     bool displayPcum;
     bool displayWH;
+    bool displayROWH;
     int drawMapType;
 
     QString runfilename;

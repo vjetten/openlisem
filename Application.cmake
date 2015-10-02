@@ -42,6 +42,7 @@ SET(APP_SOURCES
     lisRunfile
     lisSurfstor
     lisSnowmelt
+    liskinematic2d
     main
     operation
     swatre/swatstep

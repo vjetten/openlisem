@@ -75,7 +75,10 @@ void TWorld::OutputUI(void)
         calcMapValue(*tma, *Rain,1000, MUL);
     copy(*op.DrawMap6, *tma);
 
-    copy(*op.DrawMap1, *Qoutput);  //output in l/s
+    if (op.displayROWH)
+        copy(*op.DrawMap1, *WH);  //output in m
+    else
+        copy(*op.DrawMap1, *Qoutput);  //output in l/s
     //Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
 
     FOR_ROW_COL_MV

@@ -79,6 +79,7 @@ void lisemqt::selectMapType(bool /* doit */)
 {
   op.displayPcum = checkDisplayPcum->isChecked();
   op.displayWH = checkDisplayWH->isChecked();
+  op.displayROWH = checkDisplayROWH->isChecked();
 
   if (radioButton_RO->isChecked())    op.drawMapType = 1;
   if (radioButton_INF->isChecked())   op.drawMapType = 2;
@@ -193,9 +194,6 @@ void lisemqt::setupMapPlot()
   channelMap->attach( MPlot );
   // channel map
 
-
-
-
   RD = new QwtMatrixRasterData();
   RDb = new QwtMatrixRasterData();
   RDbb = new QwtMatrixRasterData();
@@ -285,6 +283,7 @@ void lisemqt::showMap()
   //drawMap->setAlpha(transparency->value());
   //drawMap->setAlpha(255);
   if (op.drawMapType == 1) showMap1();
+  if (op.drawMapType == 1 && op.displayROWH) showMap8();
   if (op.drawMapType == 2) showMap2();
   if (op.drawMapType == 3) showMap3();
   if (op.drawMapType == 4) showMap4();
@@ -380,12 +379,12 @@ void lisemqt::showRoadMap()
   else
     roadMap->setAlpha(0);
 
-  //roadMap->setAlpha(transparency3->value());
+  roadMap->setColorMap(new colorMapRoads3());
 
-  if (op.drawMapType == 2)
-    roadMap->setColorMap(new colorMapRoads());
-  else
-    roadMap->setColorMap(new colorMapRoads2());
+//  if (op.drawMapType == 2)
+//    roadMap->setColorMap(new colorMapRoads());
+//  else
+//    roadMap->setColorMap(new colorMapRoads2());
 
 }
 //---------------------------------------------------------------------------
@@ -411,7 +410,7 @@ void lisemqt::showHouseMap()
 // RUNOFF
 void lisemqt::showMap1()
 {
-  MPlot->setTitle("Runoff (l/s)");
+  MPlot->setTitle("Runoff and channel flow (l/s)");
 
   QwtLinearColorMapVJ *pal1a = new colorMapWaterLog();
   QwtLinearColorMapVJ *pal1b = new colorMapWaterLog();
@@ -525,7 +524,10 @@ void lisemqt::showMap3()
 // FLOOD LEVEL
 void lisemqt::showMap4()
 {
-    if (op.displayWH)
+    if (op.displayROWH)
+        MPlot->setTitle("Overland flow level (m)");
+    else
+        if (op.displayWH)
         MPlot->setTitle("Overland flow and flood level (m)");
     else
         MPlot->setTitle("Flood level (m)");
@@ -650,6 +652,38 @@ void lisemqt::showMap7()
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal7b);
 
   MPlot->setAxisScale( MPlot->yRight, 0, maxAxis7);
+  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+}
+//---------------------------------------------------------------------------
+// FLOOD LEVEL
+void lisemqt::showMap8()
+{
+  MPlot->setTitle("Overland flow level (m)");
+
+  pal4a = new colorMapFlood();
+  pal4b = new colorMapFlood();
+
+  double MaxV = fillDrawMapData(op.DrawMap1, RD, 8);
+  if (MaxV ==-1e20)
+    return;
+
+  maxAxis4 = std::max(maxAxis4, MaxV);
+  if (doubleSpinBoxFL->value() > 0)
+    maxAxis4 = doubleSpinBoxFL->value();
+  else
+    maxAxis4 = MaxV;
+
+  RD->setInterval( Qt::ZAxis, QwtInterval( 0.000, maxAxis4));
+
+  drawMap->setData(RD);
+
+  pal4a->setThreshold(0);//std::max(0.000,doubleSpinBoxFLmin->value()));
+  pal4b->setThreshold(0);//doubleSpinBoxFLmin->value());
+
+  drawMap->setColorMap(pal4a);
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal4b);
+
+  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
