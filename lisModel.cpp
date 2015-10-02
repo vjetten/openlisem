@@ -89,7 +89,6 @@ void TWorld::DoModel()
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
 
-
         if (SwitchRainfall)
         {
             DEBUG("GetRainfallData()");

@@ -150,10 +150,11 @@ void TWorld::ToChannel(void)
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch()
 {
-    if(SwitchKinematic2D)
+    if(SwitchKinematic2D > 1)
     {
         return K2DCalcVelDisch();
     }
+
     FOR_ROW_COL_MV
     {
         double Perim;
@@ -211,8 +212,8 @@ void TWorld::OverlandFlowNew(void)
     fill(*Qsn, 0.0);
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
-    SwitchKinematic2D = true;
-    if(!SwitchKinematic2D)
+
+    if(SwitchKinematic2D == 1)
     {
 
         if (SwitchErosion)
@@ -261,15 +262,17 @@ void TWorld::OverlandFlowNew(void)
                 }
             }
         }
-    }else
+    }
+    else
     {
         //Kinematic wave solution in 2 dimensions
         //also includes sediment and pesticides transport
         //Functions are not generic since they are only used here
         //Buffers are neglected in this method!
 
-        //initial function, calculates slopes based of dem, and resets variables
-        K2DInit(_dt);
+        //initial function, calculates slopes based on dem, and resets variables
+        // if WH is not added to the DEM, this has to be done only once.
+        K2DInit();
 
         double dt = 1.0;
         double tof = 0.0;
@@ -336,7 +339,7 @@ void TWorld::OverlandFlowNew(void)
         }
       */
 
-        if(!SwitchKinematic2D)
+        if(SwitchKinematic2D == 1)
         {
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
 

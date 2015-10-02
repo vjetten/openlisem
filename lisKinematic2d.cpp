@@ -164,7 +164,7 @@ double TWorld::K2DFlux(double dtmax)
             double mindtr =0.8* (cdx*K2DHOld->Drc*cdy)/K2DQ->Drc;
             if(!std::isnan(mindtr))
             {
-                 dtr = std::min(mindtr ,dtr);
+                dtr = std::min(mindtr ,dtr);
             }
         }
 
@@ -178,29 +178,28 @@ double TWorld::K2DFlux(double dtmax)
 void TWorld::K2DSolve(double dt)
 {
     //either use the flux based method from () or the bilinear interpolated advection method
-    if(K2DSCHEME == K2D_METHOD_FLUX)
+    if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
     {
         FOR_ROW_COL_MV
         {
             if(K2DPits->Drc == 1)
             {
-                K2DQX->Drc =0;
+                K2DQX->Drc = 0;
                 K2DQY->Drc = 0;
                 continue;
             }
 
-            double slopexy = fabs(K2DSlopeY->Drc/K2DSlopeX->Drc);
+            double slopexy = K2DSlopeY->Drc/K2DSlopeX->Drc;
+            double powslopexy_025 = sqrt(sqrt(1.0 + slopexy*slopexy));
 
             //the weights for the x, any y component of the flow
             //The sqrt(x^2 + y^2) can not be used for components of discharge, since then Qx + Qy = Qtotal would not hold!
             //this distribution of flow between the x and y components is based on G Tayfur (2001)
-            double xw = (K2DSlopeX->Drc/fabs(K2DSlopeX->Drc))*pow(fabs(K2DSlopeX->Drc),0.5)/pow(1.0 + slopexy*slopexy,0.25);
-            double yw = (K2DSlopeY->Drc/fabs(K2DSlopeY->Drc))*pow(fabs(K2DSlopeY->Drc),0.5)/pow(1.0 + slopexy*slopexy,0.25);
+            double xw = (K2DSlopeX->Drc > 0? 1.0:-1.0)*sqrt(fabs(K2DSlopeX->Drc))/powslopexy_025;
+            double yw = (K2DSlopeX->Drc > 0? 1.0:-1.0)*sqrt(fabs(K2DSlopeY->Drc))/powslopexy_025;
             //if the slope in a direction is 0, then set the weight to 0, to correct for any devisions by 0
             if(K2DSlopeX->Drc == 0){xw = 0.0;yw = 1.0;};
             if(K2DSlopeY->Drc == 0){yw = 0.0;xw = 1.0;};
-
-
 
             //apply weights to components in x and y direction
             K2DQX->Drc = K2DQ->Drc*xw;
@@ -220,10 +219,12 @@ void TWorld::K2DSolve(double dt)
             if(std::isnan(K2DQX->Drc))
             {
                 K2DQX->Drc = 0;
+                qDebug() << "NaN K2DQX";
             }
             if(std::isnan(K2DQY->Drc))
             {
                 K2DQY->Drc = 0;
+                qDebug() << "NaN K2DQY";
             }
         }
 
@@ -357,9 +358,6 @@ void TWorld::K2DSolve(double dt)
                         K2DQPOut += dt* fabs(K2DQPY->data[r][c]);
                     }
                 }
-
-
-
             }
         }
 
@@ -383,114 +381,25 @@ void TWorld::K2DSolve(double dt)
             }
         }
 
-    }else
-    {
-        //this is the bilinear interpolated method!
-
-        FOR_ROW_COL_MV
+    }
+    else
+        if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
         {
-            //start with old height and concentration
-            K2DHNew->Drc = K2DHOld->Drc;
-            K2DSCN->Drc = K2DSC->Drc;
-            K2DPCN->Drc = K2DPC->Drc;
-            K2DQN->Drc = 0;
-        }
+            //this is the bilinear interpolated method!
 
-        //first calculate the weights for the cells that are closest to location that flow is advected to
-        FOR_ROW_COL_MV
-        {
-            if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
+            FOR_ROW_COL_MV
             {
-                continue;
+                //start with old height and concentration
+                K2DHNew->Drc = K2DHOld->Drc;
+                K2DQN->Drc = 0;
+
+                if(SwitchErosion)
+                    K2DSCN->Drc = K2DSC->Drc;
+                if(SwitchPesticide)
+                    K2DPCN->Drc = K2DPC->Drc;
             }
 
-            double DHL = pow(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc ,0.5);
-            double dsx = K2DSlopeX->Drc/DHL;
-            double dsy = K2DSlopeY->Drc/DHL;
-            //the sign of the x and y direction of flow
-            double yn = dsy/fabs(dsy);
-            double xn = dsx/fabs(dsx);
-
-            if(dsx == 0){xn = 1.0;};
-            if(dsy == 0){yn = 1.0;};
-
-            double cdx = DX->Drc;
-            double cdy = ChannelAdj->Drc;
-
-            //cell directions
-            int dx[4] = {0, 1, 1, 0};
-            int dy[4] = {1, 0, 1, 0};
-
-            //weights to be saved
-            double w[4] = {0.0,0.0,0.0,0.0};
-
-            //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
-            for (int i=0; i<4; i++)
-            {
-                int r2, c2;
-
-                //must multiply the cell directiosby the sign of the slope vector components
-                r2 = r+yn*dy[i];
-                c2 = c+xn*dx[i];
-
-                // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-                double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
-                double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
-
-                //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) *fabs(wdy);
-
-                w[i] = weight;
-
-
-
-            }
-            //normalize: sum of the 4 weights is equal to 1
-            double wt = 0.0;
-            for (int i=0; i<4; i++)
-            {
-                wt += w[i];
-            }
-            for (int i=0; i<4; i++)
-            {
-                w[i] = w[i]/wt;
-            }
-
-            //use the calculated weights to distribute flow
-            for (int i=0; i<4; i++)
-            {
-                int r2, c2;
-
-                //must multiply the cell directions by the sign of the slope vector components
-                r2 = r+yn*dy[i];
-                c2 = c+xn*dx[i];
-
-
-                {
-                    if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
-                    {
-                        double cdx2 = DX->data[r2][c2];
-                        double cdy2 = ChannelAdj->data[r2][c2];
-
-                        //weight * the flow is distributed to the ith cell that neighbours the advected flow.
-
-                        K2DHNew->data[r2][c2] +=  w[i]*dt*(K2DQ->Drc/(cdx2*cdy2));
-                        K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
-                        QinKW->data[r2][c2] += w[i] *K2DQ->Drc;
-
-                    }else if(K2DOutlets->Drc == 1)
-                    {
-                        K2DQOut +=  w[i]*dt*(K2DQ->Drc);
-                        K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
-                    }
-
-                }
-            }
-        }
-        //similar process as above for sediment and pesticides, sediment is distributed along with discharge using interpolation
-        //new water heights are needed for this routine
-        if(SwitchErosion || SwitchPesticide)
-        {
+            //first calculate the weights for the cells that are closest to location that flow is advected to
             FOR_ROW_COL_MV
             {
                 if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
@@ -498,9 +407,10 @@ void TWorld::K2DSolve(double dt)
                     continue;
                 }
 
-                double DHL = pow(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc ,0.5);
+                double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc*K2DSlopeY->Drc);
                 double dsx = K2DSlopeX->Drc/DHL;
                 double dsy = K2DSlopeY->Drc/DHL;
+                //the sign of the x and y direction of flow
                 double yn = dsy/fabs(dsy);
                 double xn = dsx/fabs(dsx);
 
@@ -514,14 +424,15 @@ void TWorld::K2DSolve(double dt)
                 int dx[4] = {0, 1, 1, 0};
                 int dy[4] = {1, 0, 1, 0};
 
+                //weights to be saved
                 double w[4] = {0.0,0.0,0.0,0.0};
 
                 //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
-                for (int i=0; i<3; i++)
+                for (int i=0; i<4; i++)
                 {
                     int r2, c2;
 
-                    //must multiply the cell directions by the sign of the slope vector components
+                    //must multiply the cell directiosby the sign of the slope vector components
                     r2 = r+yn*dy[i];
                     c2 = c+xn*dx[i];
 
@@ -534,12 +445,100 @@ void TWorld::K2DSolve(double dt)
 
                     w[i] = weight;
 
-                    //if the cell that flows needs to go to is out of bounds or missing value, skip
+                }
+                //normalize: sum of the 4 weights is equal to 1
+                double wt = 0.0;
+                for (int i=0; i<4; i++)
+                {
+                    wt += w[i];
+                }
+                for (int i=0; i<4; i++)
+                {
+                    w[i] = w[i]/wt;
+                }
 
+                //use the calculated weights to distribute flow
+                for (int i=0; i<4; i++)
+                {
+                    int r2, c2;
+
+                    //must multiply the cell directions by the sign of the slope vector components
+                    r2 = r+yn*dy[i];
+                    c2 = c+xn*dx[i];
+
+                    if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
                     {
+                        double cdx2 = DX->data[r2][c2];
+                        double cdy2 = ChannelAdj->data[r2][c2];
+
+                        //weight * the flow is distributed to the ith cell that neighbours the advected flow.
+
+                        K2DHNew->data[r2][c2] +=  w[i]*dt*(K2DQ->Drc/(cdx2*cdy2));
+                        K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
+                        QinKW->data[r2][c2] += w[i] *K2DQ->Drc;
+
+                    }
+                    else
+                        if(K2DOutlets->Drc == 1)
+                        {
+                            K2DQOut +=  w[i]*dt*(K2DQ->Drc);
+                            K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
+                        }
+
+                }
+            }
+
+            //similar process as above for sediment and pesticides, sediment is distributed along with discharge using interpolation
+            //new water heights are needed for this routine
+            if(SwitchErosion || SwitchPesticide)
+            {
+                FOR_ROW_COL_MV
+                {
+                    if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
+                    {
+                        continue;
+                    }
+
+                    double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
+                    double dsx = K2DSlopeX->Drc/DHL;
+                    double dsy = K2DSlopeY->Drc/DHL;
+                    double yn = dsy/fabs(dsy);
+                    double xn = dsx/fabs(dsx);
+
+                    if(dsx == 0){xn = 1.0;};
+                    if(dsy == 0){yn = 1.0;};
+
+                    double cdx = DX->Drc;
+                    double cdy = ChannelAdj->Drc;
+
+                    //cell directions
+                    int dx[4] = {0, 1, 1, 0};
+                    int dy[4] = {1, 0, 1, 0};
+
+                    double w[4] = {0.0,0.0,0.0,0.0};
+
+                    //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
+                    for (int i=0; i<3; i++)
+                    {
+                        int r2, c2;
+
+                        //must multiply the cell directions by the sign of the slope vector components
+                        r2 = r+yn*dy[i];
+                        c2 = c+xn*dx[i];
+
+                        // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
+                        double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
+                        double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
+
+                        //the distribution is inverly proportional to the squared distance
+                        double weight = fabs(wdx) *fabs(wdy);
+
+                        w[i] = weight;
+
+                        //if the cell that flows needs to go to is out of bounds or missing value, skip
+
                         if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
                         {
-
                             double cdx2 = DX->data[r2][c2];
                             double cdy2 = ChannelAdj->data[r2][c2];
 
@@ -579,7 +578,6 @@ void TWorld::K2DSolve(double dt)
                 }
             }
         }
-    }
 
     //finish by substracting infiltration, and calculating discharge from new water height
     FOR_ROW_COL_MV
@@ -589,6 +587,7 @@ void TWorld::K2DSolve(double dt)
         if(std::isnan(K2DHNew->Drc))
         {
             K2DHNew->Drc = 0;
+            qDebug() << "NAN!!!";
         }
         //calculate infiltartion in time step
         double infil = FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt;
@@ -621,37 +620,38 @@ void TWorld::K2DSolve(double dt)
             WHrunoff->Drc = 0;
             K2DHOld->Drc = K2DHNew->Drc;
 
-        //negative height not allowed
+            //negative height not allowed
         }else if(K2DHNew->Drc < 0)
         {
-           K2DHNew->Drc = 0;
-           K2DQ->Drc = 0;
-           Qn->Drc = K2DQ->Drc;
-           QinKW->Drc = 0;
-           WHrunoff->Drc = K2DHNew->Drc;
-           K2DHOld->Drc = K2DHNew->Drc;
+            K2DHNew->Drc = 0;
+            K2DQ->Drc = 0;
+            Qn->Drc = K2DQ->Drc;
+            QinKW->Drc = 0;
+            WHrunoff->Drc = K2DHNew->Drc;
+            K2DHOld->Drc = K2DHNew->Drc;
 
         }else
         {
             double Perim = 2.0*K2DHNew->Drc+FlowWidth->Drc;
 
             if (Perim > 0)
-            {
                 R->Drc = K2DHNew->Drc*FlowWidth->Drc/Perim;
-            }
             else
-            {
                 R->Drc = 0;
-            }
 
             Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+            //WHY aplha k2dlope and not grad?
 
-            K2DQ->Drc = pow((FlowWidth->Drc*K2DHNew->Drc)/Alpha->Drc, 1.0/0.6);
-            if(std::isnan(K2DQ->Drc))
-            {
+            if (Alpha->Drc == 0)
                 K2DQ->Drc = 0;
-            }
+            else
+                K2DQ->Drc = pow((FlowWidth->Drc*K2DHNew->Drc)/Alpha->Drc, 1.0/0.6);
 
+            //            if(std::isnan(K2DQ->Drc))
+            //            {
+            //                K2DQ->Drc = 0;
+            //                qDebug() << "NAN K2DQ";
+            //            }
 
             Qn->Drc = K2DQ->Drc;
             QinKW->Drc = K2DQ->Drc;
@@ -664,6 +664,7 @@ void TWorld::K2DSolve(double dt)
             if(std::isnan(K2DSCN->Drc))
             {
                 K2DSCN->Drc = 0;
+                qDebug() << "NAN K2DSCN";
             }
             K2DSC->Drc = K2DSCN->Drc;
             Qsn->Drc = K2DSCN->Drc * Qn->Drc;
@@ -674,7 +675,8 @@ void TWorld::K2DSolve(double dt)
         {
             if(std::isnan(K2DPCN->Drc))
             {
-                K2DSCN->Drc = 0;
+                K2DPCN->Drc = 0;
+                qDebug() << "NAN K2DPCN";
             }
             K2DPC->Drc = K2DPCN->Drc;
             Qpn->Drc = K2DPCN->Drc * Qn->Drc;
@@ -895,9 +897,9 @@ void TWorld::K2DDEMA()
         //if slope is really flat, follow ldd direction
         if(DHL < 0.0001 ||K2DOutlets->Drc == 1)
         {
-           K2DSlopeX->Drc = double(dxldd[(int)LDD->Drc]);
-           K2DSlopeY->Drc = double(dyldd[(int)LDD->Drc]);
-           DHL = pow(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc ,0.5);
+            K2DSlopeX->Drc = double(dxldd[(int)LDD->Drc]);
+            K2DSlopeY->Drc = double(dyldd[(int)LDD->Drc]);
+            DHL = pow(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc ,0.5);
         }
         //Angle of direction of steepest slope, compared to positive x-axis !not used!
         K2DAspect->Drc = atan2(Dhy,Dhx);

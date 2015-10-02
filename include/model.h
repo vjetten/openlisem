@@ -133,6 +133,9 @@
 #define FENO 2
 #define FENOMOD 3
 
+#define K1D_METHOD       1s
+#define K2D_METHOD_FLUX  2
+#define K2D_METHOD_INTER  3
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -239,10 +242,11 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,SwitchKinematic2D,
+    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
 
     int SwitchFlood1D2DCoupling;
+    int SwitchKinematic2D;
 
     // multiple options that are set in interface or runfile, see defines above
 
@@ -564,12 +568,6 @@ public:
     double K2DQSOut;
     double K2DQPOut;
 
-
-    static const int K2D_METHOD_FLUX = 1;
-    static const int K2D_METHOD_INTERPOLATION = 2;
-    int K2DSCHEME = K2D_METHOD_INTERPOLATION;
-
-    // QVector <cTMap> Substance;
 
     //SWATRE
     /// filenames for Swatre soil information

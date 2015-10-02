@@ -266,6 +266,8 @@ void TWorld::ParseRunfileData(void)
 
         InfilMethod = getvalueint("Infil Method");
 
+
+
     }// first loop of runnamelist
 
     rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
@@ -282,7 +284,8 @@ void TWorld::ParseRunfileData(void)
     }
 
     SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
-qDebug() << SwitchFlood1D2DCoupling;
+    SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
+
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;
 
