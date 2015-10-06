@@ -561,6 +561,8 @@ public:
     // kinematic 2D
     double K2DFlux(double dt);
     void K2DSolve(double dt);
+    void K2DSolvebyFlux(double dt);
+    void K2DSolvebyInterpolation(double dt);
     void K2DInit();
     void K2DCalcVelDisch();
     void K2DDEMA();

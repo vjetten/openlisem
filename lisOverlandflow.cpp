@@ -204,7 +204,7 @@ void TWorld::OverlandFlowNew(void)
         //volume runoff into the kin wave, needed to determine infil in kin wave
 
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
-        q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;
+        q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;  //???FlowWidth
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
     }
@@ -270,35 +270,46 @@ void TWorld::OverlandFlowNew(void)
         //Functions are not generic since they are only used here
         //Buffers are neglected in this method!
 
-        //initial function, calculates slopes based on dem, and resets variables
-        // if WH is not added to the DEM, this has to be done only once.
+        //initial function, set to zero
         K2DInit();
 
-        double dt = 1.0;
-        double tof = 0.0;
+        //calculate slopes based on dem, and resets variables
+        // if WH is not added to the DEM, this has to be done only once.
 
+fill(*tma, 0);
+fill(*tmb, 0);
+        double dt = _dt/2;  //1.0;
+        double tof = 0.0;
         //maximum time is the lisem-timestep _dt
-        while(tof < _dt)
+        while(tof < _dt-0.001)
         {
+            K2DDEMA();
+
             //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
             //function returns the minimal needed time-step for stable advection (dt > 1.0 for computational speed)
-            dt = K2DFlux(_dt);
+            dt = K2DFlux(dt);  //why _dt here???
 
-            //only move in time what is left of the Lisem-timestep
-            double dif = _dt - tof;
-            if(dif < dt)
-            {
-                dt = dif;
-            }
+            //only move in time that is left of the Lisem-timestep
+            dt = std::min(dt, _dt-tof);
+
+            if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
+                K2DSolvebyFlux(dt);
+            if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
+                K2DSolvebyInterpolation(dt);
 
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
-
             //total time this lisem-timestep
             tof += dt;
 
+            calcMap(*tma,*K2DQX, ADD);
+            calcMap(*tmb,*K2DQY, ADD);
         }
 
+        report(*K2DHNew,"K2DHN");
+        report(*tma,"K2DFX");
+        report(*tmb,"K2DFY");
+        report(*K2DSlope,"k2ds");
     }
 
     double mb = 0;
