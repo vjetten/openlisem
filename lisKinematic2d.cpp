@@ -440,17 +440,27 @@ void TWorld::K2DSolvebyFlux(double dt)
         //the weights for the x, any y component of the flow
         //The sqrt(x^2 + y^2) can not be used for components of discharge, since then Qx + Qy = Qtotal would not hold!
         //this distribution of flow between the x and y components is based on G Tayfur (2001)
-        double xw = (K2DSlopeX->Drc > 0? 1.0:-1.0)*sqrt(fabs(K2DSlopeX->Drc))/powslopexy_025;
-        double yw = (K2DSlopeY->Drc > 0? 1.0:-1.0)*sqrt(fabs(K2DSlopeY->Drc))/powslopeyx_025;
+        double xw = sqrt(fabs(K2DSlopeX->Drc))/powslopexy_025;
+        double yw = sqrt(fabs(K2DSlopeY->Drc))/powslopeyx_025;
 
         //if the slope in a direction is 0, then set the weight to 0, to correct for devisions by 0
         //Lim_{Sx ->0, Sy ->1} Wx(Sx,Sy) = 0 || Lim_{Sx ->0, Sy ->1} Wy(Sx,Sy) = 1|| Lim_{Sy ->0, Sx ->1} Wx(Sx,Sy) = 1 || Lim_{Sy ->0, Sx ->1} Wy(Sx,Sy) = 0
         if(K2DSlopeX->Drc == 0){xw = 0.0;yw = 1.0;};
         if(K2DSlopeY->Drc == 0){yw = 0.0;xw = 1.0;};
 
+
+
+        //make sure that total weight = 1
+        double wt = xw +yw;
+        if(wt != 0)
+        {
+            xw = xw/wt;
+            yw = yw/wt;
+        }
+
         //apply weights to components in x and y direction
-        K2DQX->Drc = K2DQ->Drc*xw;
-        K2DQY->Drc = K2DQ->Drc*yw;
+        K2DQX->Drc = K2DQ->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
+        K2DQY->Drc = K2DQ->Drc*yw * (K2DSlopeY->Drc > 0? 1.0:-1.0);
 
         //similar for sediment and pesticide transport
         if(SwitchErosion)
