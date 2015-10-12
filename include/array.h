@@ -69,7 +69,7 @@ inline Array<T, nr_dimensions>::Array(
     std::initializer_list<T> elements)
 
     : _cells(elements),
-      _shape{elements.size()}
+      _shape{{elements.size()}}
 
 {
     static_assert(nr_dimensions == 1, "");
@@ -83,7 +83,7 @@ inline Array<T, nr_dimensions>::Array(
     size_t size)
 
     : _cells(size),
-      _shape{size}
+      _shape{{size}}
 
 {
     static_assert(nr_dimensions == 1, "");
@@ -98,7 +98,7 @@ inline Array<T, nr_dimensions>::Array(
     size_t size2)
 
     : _cells(size1 * size2),
-      _shape{size1, size2}
+      _shape{{size1, size2}}
 
 {
     static_assert(nr_dimensions == 2, "");

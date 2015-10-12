@@ -83,6 +83,7 @@ cTMap
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
+*QoutKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Houtput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
@@ -189,7 +190,9 @@ cTMap
 
 //for the kinematic wave in 2D
 *K2DDEM,                        //!<
+*K2DWHStore,                    //!<
 *K2DPits,                       //!<
+*K2DPitsD,                       //!<
 *K2DOutlets,                    //!<
 *K2DQS,                         //!<
 *K2DQSX,                         //!<

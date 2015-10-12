@@ -125,7 +125,7 @@ void TWorld::Totals(void)
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
-    // runoff fracyion per cell calc as in-out/rainfall, indication of sinks and sources of runoff
+    // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
     FOR_ROW_COL_MV
             if(ChannelWidthUpDX->Drc == 0)
@@ -142,12 +142,21 @@ void TWorld::Totals(void)
     //=== all discharges ===//
     
     // sum outflow m3 for all timesteps for the outlet
-    FOR_ROW_COL_MV
+    if(SwitchKinematic2D)
     {
-        if (LDD->Drc == 5) {
-            Qtot += Qn->Drc*_dt;
+        FOR_ROW_COL_MV
+        {
+            if (LDD->Drc == 5) {
+                Qtot += Qn->Drc*_dt;
+            }
         }
+    }else
+    {
+
+        Qtot += K2DQOut;
     }
+
+
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 

@@ -1289,7 +1289,9 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
     K2DDEM = NewMap(0);
+    K2DWHStore = NewMap(0);
     K2DPits = NewMap(0);
+    K2DPitsD = NewMap(0);
     K2DOutlets = NewMap(0);
  //   K2DDX = NewMap(0);
  //   K2DDY = NewMap(0);
@@ -1335,6 +1337,7 @@ void TWorld::IntializeData(void)
 //    K2DV = NewMap(0);
     K2DI = NewMap(0);
     QinKW = NewMap(0);
+    QoutKW = NewMap(0);
     Qoutput = NewMap(0);
     Houtput = NewMap(0);
     Qsoutput = NewMap(0);

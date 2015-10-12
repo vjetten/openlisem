@@ -211,9 +211,10 @@ void TWorld::OverlandFlowNew(void)
     
     fill(*Qsn, 0.0);
     fill(*QinKW, 0.0);
+    fill(*QoutKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
-    if(SwitchKinematic2D == 1)
+    if(SwitchKinematic2D == K1D_METHOD)
     {
 
         if (SwitchErosion)
@@ -275,17 +276,15 @@ void TWorld::OverlandFlowNew(void)
 
         //calculate slopes based on dem, and resets variables
         // if WH is not added to the DEM, this has to be done only once.
-
-fill(*tma, 0);
-fill(*tmb, 0);
         double dt = _dt/2;  //1.0;
         double tof = 0.0;
         //maximum time is the lisem-timestep _dt
         while(tof < _dt-0.001)
         {
-            K2DDEMA();
 
+            K2DDEMA();
             //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
+
             //function returns the minimal needed time-step for stable advection (dt > 1.0 for computational speed)
             dt = K2DFlux(dt);  //why _dt here???
 
@@ -299,113 +298,115 @@ fill(*tmb, 0);
 
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
+
             //total time this lisem-timestep
             tof += dt;
-
-            calcMap(*tma,*K2DQX, ADD);
-            calcMap(*tmb,*K2DQY, ADD);
         }
-
-        report(*K2DHNew,"K2DHN");
-        report(*tma,"K2DFX");
-        report(*tmb,"K2DFY");
-        report(*K2DSlope,"k2ds");
     }
 
-    double mb = 0;
-    double n = 0;
-
-    // convert calculate Qn back to WH and volume for next loop
-    FOR_ROW_COL_MV
+    if(SwitchKinematic2D == K1D_METHOD)
     {
 
-        /*   VJ 140105
-//                NEWTOWNPAHSON TO iterate h from Q. Because else we use alpha from before iteration
-//                Does not make a difference NOT NECESSARY but interesting code!
-        double h, h1;
-        double w = ChannelAdj->Drc;
-        h = w > 0 ? (Alpha->Drc*pow(Qn->Drc, 0.6))/w : 0;//ChannelAdj->Drc;
-        // first guess new h with old alpha
-        h1 = h;
-        if (Qn->Drc > 0)
+        double mb = 0;
+        double n = 0;
+
+        // convert calculate Qn back to WH and volume for next loop
+        FOR_ROW_COL_MV
         {
-            double _23 = 2.0/3.0;
-            double F, dF;
-            int count = 0;
 
-            do{
-                h = h1;
-                if (h < 1e-10)
-                    break;
-                double P = w+2*h;
-                double A = h*w;
-                double R = A/P;
+            /*   VJ 140105
+    //                NEWTOWNPAHSON TO iterate h from Q. Because else we use alpha from before iteration
+    //                Does not make a difference NOT NECESSARY but interesting code!
+            double h, h1;
+            double w = ChannelAdj->Drc;
+            h = w > 0 ? (Alpha->Drc*pow(Qn->Drc, 0.6))/w : 0;//ChannelAdj->Drc;
+            // first guess new h with old alpha
+            h1 = h;
+            if (Qn->Drc > 0)
+            {
+                double _23 = 2.0/3.0;
+                double F, dF;
+                int count = 0;
 
-                F = std::max((0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
-                dF = (5*w+6*h)/(3*h*P);
-                h1 = h - F/dF;
-                // function divided by derivative
-                count++;
-            }while(fabs(h1-h) > 1e-10 && count < 20);
-        }
-      */
+                do{
+                    h = h1;
+                    if (h < 1e-10)
+                        break;
+                    double P = w+2*h;
+                    double A = h*w;
+                    double R = A/P;
 
-        if(SwitchKinematic2D == 1)
-        {
+                    F = std::max((0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
+                    dF = (5*w+6*h)/(3*h*P);
+                    h1 = h - F/dF;
+                    // function divided by derivative
+                    count++;
+                }while(fabs(h1-h) > 1e-10 && count < 20);
+            }
+          */
+
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
 
-        }else
-        {
-            if(!K2DPits->Drc == 1)
+
+            //new WH based on A/dx = alpha Q^beta / dx
+
+            double WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+            // new volume
+
+            double InfilKWact = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc*_dt;
+            //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
+            // this is the actual infiltration in the kin wave
+
+            double diff = InfilKWact;
+            InfilKWact = std::min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
+            // infil volume cannot be more than surplus infil
+
+
+            if (FFull->Drc == 1)
+                InfilKWact = 0;
+            //if profile full no more infil, surplus is 0
+
+            difkin->Drc = 0;//(diff - InfilKWact);
+            // difkin is not used, only to denug possible error in kin wave
+
+            mb += (diff - InfilKWact);
+            if (WHrunoff->Drc > 0)
+                n+=1;
+
+            if (SwitchBuffers && BufferVol->Drc > 0)
             {
-                WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
-
+                //qDebug() << "slope" << BufferVol->Drc << q->Drc*_dt << WaterVolin->Drc << WaterVolall->Drc << Qn->Drc*_dt << diff;
+                //NOTE: buffervolume is affected by sedimentation, this causes a water volume loss that is corrected in the
+                // totals and mass balance functions
             }
+            else
+                InfilVolKinWave->Drc = InfilKWact;
+
         }
-        //new WH based on A/dx = alpha Q^beta / dx
 
-        double WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
-        // new volume
 
-        double InfilKWact = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc*_dt;
-        //diff volume is sum of incoming fluxes+volume before - outgoing flux - volume after
-        // this is the actual infiltration in the kin wave
+        // mass balance correction, throw error on cells with WH
+        //qDebug() << mb;
 
-        double diff = InfilKWact;
-        InfilKWact = std::min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
-        // infil volume cannot be more than surplus infil
+        if (n > 0)
+            mb = mb/n;
 
-        if (FFull->Drc == 1)
-            InfilKWact = 0;
-        //if profile full no more infil, surplus is 0
-
-        difkin->Drc = 0;//(diff - InfilKWact);
-        // difkin is not used, only to denug possible error in kin wave
-
-        mb += (diff - InfilKWact);
-        if (WHrunoff->Drc > 0)
-            n+=1;
-
-        if (SwitchBuffers && BufferVol->Drc > 0)
+        FOR_ROW_COL_MV
         {
-            //qDebug() << "slope" << BufferVol->Drc << q->Drc*_dt << WaterVolin->Drc << WaterVolall->Drc << Qn->Drc*_dt << diff;
-            //NOTE: buffervolume is affected by sedimentation, this causes a water volume loss that is corrected in the
-            // totals and mass balance functions
+            if (WHrunoff->Drc > 0)
+                WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
         }
-        else
-            InfilVolKinWave->Drc = InfilKWact;
-    }
-
-    // mass balance correction, throw error on cells with WH
-    //qDebug() << mb;
-
-    if (n > 0)
-        mb = mb/n;
-
-    FOR_ROW_COL_MV
+    }else
     {
-        if (WHrunoff->Drc > 0)
-            WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
+        FOR_ROW_COL_MV
+        {
+
+
+            double err =  -WHrunoff->Drc * ChannelAdj->Drc * DX->Drc - QoutKW->Drc + QinKW->Drc +  WaterVolin->Drc - K2DI->Drc;
+            //throw calculation error in infiltration, error should be insignificant
+            InfilVolKinWave->Drc = K2DI->Drc + err;
+
+        }
     }
 
     FOR_ROW_COL_MV
@@ -429,27 +430,32 @@ fill(*tmb, 0);
 
     }
 
-    FOR_ROW_COL_MV
+    if(SwitchKinematic2D == K1D_METHOD)
     {
-        if (SwitchErosion)
+
+        FOR_ROW_COL_MV
         {
-            Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
-            //MaxConcentration(WaterVolall->Drc, Sed->Drc);
-            // CHANGED, MORE STABLE CONC 19/9/13
-            // correct for very high concentrations, 850 after Govers et al
-            // recalc sediment volume
-
-            if (SwitchPesticide)
+            if (SwitchErosion)
             {
-                //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
-                C->Drc = Qn->Drc > 1e-10 ? Qpn->Drc/Qn->Drc : 0;
-                C_N->Drc = C->Drc;
-                //qDebug()<< "ds overlandflow"<< C->Drc;
-                //qDebug()<< "ds overlandflow"<< Pest->Drc;
-            }
+                Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
+                //MaxConcentration(WaterVolall->Drc, Sed->Drc);
+                // CHANGED, MORE STABLE CONC 19/9/13
+                // correct for very high concentrations, 850 after Govers et al
+                // recalc sediment volume
 
+                if (SwitchPesticide)
+                {
+                    //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
+                    C->Drc = Qn->Drc > 1e-10 ? Qpn->Drc/Qn->Drc : 0;
+                    C_N->Drc = C->Drc;
+                    //qDebug()<< "ds overlandflow"<< C->Drc;
+                    //qDebug()<< "ds overlandflow"<< Pest->Drc;
+                }
+
+            }
         }
     }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)

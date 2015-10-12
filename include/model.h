@@ -133,7 +133,7 @@
 #define FENO 2
 #define FENOMOD 3
 
-#define K1D_METHOD       1s
+#define K1D_METHOD       1
 #define K2D_METHOD_FLUX  2
 #define K2D_METHOD_INTER  3
 
