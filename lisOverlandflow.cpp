@@ -83,6 +83,13 @@ void TWorld::ToFlood(void)
         WHGrass->Drc -= dwh;
         WHroad->Drc -= dwh;
 
+        if(SwitchErosion)
+        {
+            //SFlood->Drc += Sed->Drc * frac;
+            //Sed->Drc = Sed->Drc * (1-frac);
+            DEP->Drc += Sed->Drc * frac;
+            Sed->Drc = Sed->Drc * (1-frac);
+        }
     }}
 }
 //---------------------------------------------------------------------------

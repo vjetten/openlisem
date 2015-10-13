@@ -80,6 +80,7 @@ struct output{
     cTMap *DrawMap5;
     cTMap *DrawMap6;
     cTMap *DrawMap7;
+    cTMap *DrawMap8; //sediment concentration
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;

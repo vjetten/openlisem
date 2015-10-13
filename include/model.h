@@ -201,7 +201,7 @@ typedef struct RAIN_LIST {
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
   The class contains hydrological and erosion processes which are run in a time loop.\n
   The main function is <B>void TWorld::DoModel()</B>, which has the time loop calling ll processes\n
-  Every timestep the mass alance is calculated and output is reported to the UI and disk.
+  Every timestep the mass balance is calculated and output is reported to the UI and disk.
  */
 
 //http://blog.exys.org/entries/2010/QThread_affinity.html
@@ -455,6 +455,12 @@ public:
     void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
     void MakeWatersheds(void);
+
+    //sediment for SWOF flood model
+    void SWOFSedimentFlow(double dt);
+    void SWOFSedimentDet(double dt);
+    void SWOFSedimentFlowWS(int wsnr, double dt);
+    void SWOFSedimentDetWS(int wsnr, double dt);
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,

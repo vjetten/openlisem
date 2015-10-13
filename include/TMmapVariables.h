@@ -75,12 +75,15 @@ cTMap
 
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
+*Vx,                          //!< velocity of overland flow [m/s]
+*Vy,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 //*AlphaF,
 //*QF,
 //*QnF,
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
+
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
@@ -277,6 +280,7 @@ cTMap
 *ChannelDepth,               //!<
 *UVflood,                     //!<
 *Qflood,                    //!<
+
 //sediment in flood
 *QfloodPrev,                    //!<
 *QfloodSed,                    //!<
@@ -292,9 +296,19 @@ cTMap
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
 *hmxInit,                    //!<
-*hmx,                        //!<
+//explicit solution
+*Hx,                         //!<
 *Hmx,                        //!<
-
+*hx,                         //!<
+*hmx,                        //!<
+*Nx,                         //!<
+*dHdLx,                      //!<
+*Qxsum,                      //!<
+*qx0,                        //!<
+*qx1,                        //!<
+*qx2,                        //!<
+*qx3,                        //!<
+//explicit solution
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
@@ -302,7 +316,6 @@ cTMap
 *FloodWaterVol,                //!<
 *FloodZonePotential,                //!<
 *FloodEdge,                //!<
-*WaterSheds,
 
 
 
@@ -317,11 +330,14 @@ cTMap
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,
 *g1, *g2, *g3, *cfly,
-//*f1o, *f2o, *f3o, *cflxo,
-//*g1o, *g2o, *g3o, *cflyo,
+*f1o, *f2o, *f3o, *cflxo,
+*g1o, *g2o, *g3o, *cflyo,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,
+*SCFlood,*SFlood,*SCNFlood,*SNFlood,*TCFlood,*DepFlood,*DetFlood,
+
+
 //*q1flood,*q2flood,
 *som_z1,*som_z2,
 

@@ -44,6 +44,7 @@ SET(APP_SOURCES
     lisSnowmelt
     main
     operation
+    lisSWOF2DSediment
     swatre/swatstep
     swatre/swatinit
     swatre/soillut
@@ -53,6 +54,7 @@ SET(APP_SOURCES
     lisChannelflood
     lisSWOF2D
     lisSWOF2Daux
+    lisSWOF2DSediment
     lisInterception
     lisPesticide
     include/version.h

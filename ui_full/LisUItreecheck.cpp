@@ -61,8 +61,8 @@ void lisemqt::on_checkNoErosion_clicked()
     label_31->setEnabled(!checkNoErosion->isChecked());
     label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
 
-    if (!checkNoErosion->isChecked())
-        checkChannelFlood->setChecked(false);
+    //if (!checkNoErosion->isChecked())
+    //    checkChannelFlood->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
@@ -75,7 +75,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
 
         if (checkChannelFlood->isChecked())
         {
-            checkNoErosion->setChecked(true);
+            //checkNoErosion->setChecked(true);
 
             E_FloodlevelMap->setEnabled(true);
             E_FloodTimeMap->setEnabled(true);
@@ -134,7 +134,7 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 void lisemqt::on_checkChannelFlood_clicked()
 {
     checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
-    checkNoErosion->setChecked(true);
+    //checkNoErosion->setChecked(true);
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at

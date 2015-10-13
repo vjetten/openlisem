@@ -267,6 +267,15 @@ void TWorld::Totals(void)
         SedTot = mapTotal(*Sed);
         // all in kg/cell
 
+
+        if (SwitchChannelFlood)
+        {
+            DetFlowTot += mapTotal(*DetFlood);
+            DetTot += mapTotal(*DetFlood);
+            DepTot += mapTotal(*DepFlood);
+            SedTot += mapTotal(*SFlood);
+        }
+
         //SoilLossTot += Qsoutflow->DrcOutlet;
         FOR_ROW_COL_MV
                 if (LDD->Drc == 5)

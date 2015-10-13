@@ -192,14 +192,14 @@ void lisemqt::SetConnections()
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
-    connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
+    //connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
 
 }
 //--------------------------------------------------------------------
 void lisemqt::setFloodErosion()
 {
-    if (checkChannelFlood->isChecked())
-        checkNoErosion->setChecked(true);
+    //if (checkChannelFlood->isChecked())
+    //    checkNoErosion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -331,6 +331,7 @@ void lisemqt::SetToolBar()
     connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_FEW, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(radioButton_SS, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
@@ -932,6 +933,12 @@ void lisemqt::shootScreen()
                         else
                             if (op.drawMapType == 6)
                                 type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
+                            else
+                                if (op.drawMapType == 7)
+                                    type = QString("_EW%1.png").arg(op.runstep,5,'d',0,'0');
+                                else
+                                    if (op.drawMapType == 8)
+                                        type = QString("_SS%1.png").arg(op.runstep,5,'d',0,'0');
 
         fileName = outdir + fi.baseName() + type;
 
@@ -967,6 +974,12 @@ void lisemqt::shootScreen()
                                 else
                                     if (op.drawMapType == 6)
                                         type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
+                                    else
+                                        if (op.drawMapType == 7)
+                                            type = QString("_EW%1.png").arg(op.runstep,5,'d',0,'0');
+                                        else
+                                            if (op.drawMapType == 8)
+                                                type = QString("_SS%1.png").arg(op.runstep,5,'d',0,'0');
 
             }
         fileName = outdir + fi.baseName() + type;

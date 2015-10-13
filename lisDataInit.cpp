@@ -581,9 +581,6 @@ void TWorld::InitChannel(void)
 //            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
-            WaterSheds = ReadMap(LDD, getvaluename("watershed"));
-            MakeWatersheds();
-
             long nrc = 0;
             FOR_ROW_COL_MV
             {
@@ -612,6 +609,21 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
+            // explicit
+            if (SwitchFloodExplicit)
+            {
+                Qxsum = NewMap(0);
+                qx0 = NewMap(0);
+                qx1 = NewMap(0);
+                qx2 = NewMap(0);
+                qx3 = NewMap(0);
+                Hx = NewMap(0);
+                hx = NewMap(0);
+
+                Nx = NewMap(0);
+                dHdLx = NewMap(0);
+            }
+            //explicit
             Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
@@ -706,14 +718,14 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
-//            f1o = NewMap(0);
-//            f2o = NewMap(0);
-//            f3o = NewMap(0);
-//            cflxo = NewMap(0);
-//            cflyo = NewMap(0);
-//            g1o = NewMap(0);
-//            g2o = NewMap(0);
-//            g3o = NewMap(0);
+            f1o = NewMap(0);
+            f2o = NewMap(0);
+            f3o = NewMap(0);
+            cflxo = NewMap(0);
+            cflyo = NewMap(0);
+            g1o = NewMap(0);
+            g2o = NewMap(0);
+            g3o = NewMap(0);
 
             h1d = NewMap(0);
             h1g = NewMap(0);
@@ -724,6 +736,14 @@ void TWorld::InitChannel(void)
             Vflood = NewMap(0);
             //q1flood = NewMap(0);
             //q2flood = NewMap(0);
+
+            SCFlood = NewMap(0);
+            SFlood = NewMap(0);
+            SCNFlood = NewMap(0);
+            SNFlood = NewMap(0);
+            TCFlood = NewMap(0);
+            DepFlood = NewMap(0);
+            DetFlood = NewMap(0);
 
         }
 
@@ -802,6 +822,16 @@ void TWorld::GetInputData(void)
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
+
+    //experiment for runoff concentration in local depressions
+
+    /*for(int i =0; i < 15; i++)
+    {
+
+        DEM->data[263][205+i] = 40.0;
+
+
+    }*/
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
@@ -1088,20 +1118,22 @@ void TWorld::IntializeData(void)
     //totals for mass balance
     MB = 0;
     MBs = 0;
-    MBeM3 = 0;
-
     nrCells = 0;
     FOR_ROW_COL_MV
     {
         nrCells+=1;
     }
-    nrFloodedCells = 0;
 
     DX = NewMap(0);
     CellArea = NewMap(0);
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
+//        if (SwitchIncludeChannel)
+//            if (ChannelDX->Drc > 0)
+//            {
+//                DX->Drc = ChannelDX->Drc;
+//            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = mapTotal(*CellArea);
@@ -1280,6 +1312,8 @@ void TWorld::IntializeData(void)
     FlowWidth = NewMap(0);
     fpa = NewMap(0);
     V = NewMap(0);
+    Vx = NewMap(0);
+    Vy = NewMap(0);
     Alpha = NewMap(0);
 
     //    AlphaF = NewMap(0);
@@ -1288,6 +1322,7 @@ void TWorld::IntializeData(void)
 
     Q = NewMap(0);
     Qn = NewMap(0);
+
     QinKW = NewMap(0);
     Qoutput = NewMap(0);
     Houtput = NewMap(0);
@@ -1549,6 +1584,7 @@ void TWorld::IntializeData(void)
         }
     }
 
+
     //VJ 110113 all channel and buffer initialization moved to separate functions
 
 }
@@ -1657,58 +1693,5 @@ void TWorld::IntializeOptions(void)
     // check to flag when swatre 3D structure is created, needed to clean up data
 
     SwitchPesticide = false;
-}
-//---------------------------------------------------------------------------
-void TWorld::MakeWatersheds(void)
-{
-    int i = 0;
-    WS_LIST one;
-    COORD cr;
-
-    WS.clear(); // empty structure
-
-    cr._c = 0;
-    cr._r = 0;
-
-    one.ws = -1;
-    one.cr << cr;
-    one.dt = _dx/2;
-    one.dt2 = _dx/2;
-    one.dtsum = 0;
-    one.flood = false;
-
-    WS << one;
-
-
-    FOR_ROW_COL_MV
-            if (FloodZonePotential->Drc == 1)
-    {
-        bool found = false;
-
-        for(int j = 0; j <= i; j++)
-            if ((int)WaterSheds->Drc == WS[j].ws)
-            {
-                found = true;
-                cr._c = c;
-                cr._r = r;
-                WS[j].cr << cr;
-            }
-
-        if(!found)// && i < 512)
-        {
-            one.ws = (int)WaterSheds->Drc;
-            i++;
-            cr._c = c;
-            cr._r = r;
-            one.cr << cr;
-            one.dt = _dx/2;
-            one.dt2 = _dx/2;
-            one.dtsum = 0;
-            one.flood = false;
-            WS << one;
-        }
-    }
-//    for(int j = 0; j <= i; j++)
-    qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------

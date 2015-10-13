@@ -87,6 +87,7 @@ void lisemqt::selectMapType(bool /* doit */)
   if (radioButton_FLV->isChecked())   op.drawMapType = 5;
   if (radioButton_P->isChecked())     op.drawMapType = 6;
   if (radioButton_FEW->isChecked())   op.drawMapType = 7;
+  if (radioButton_SS->isChecked())   op.drawMapType = 8;
 
   showMap();
 }
@@ -291,7 +292,7 @@ void lisemqt::showMap()
   if (op.drawMapType == 5) showMap5();
   if (op.drawMapType == 6) showMap6();
   if (op.drawMapType == 7) showMap7();
-
+  if (op.drawMapType == 8) showMap8();
   channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
   roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
   houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
@@ -653,3 +654,36 @@ void lisemqt::showMap7()
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+// Sediment
+void lisemqt::showMap8()
+{
+  MPlot->setTitle("Suspended Sediment(kg/cell)");
+
+  pal8a = new colorMapP();
+  pal8b = new colorMapP();
+
+  double MaxV = fillDrawMapData(op.DrawMap8, RD, 8);
+  if (MaxV ==-1e20)
+    return;
+  // fill vector and find the new max value
+
+  maxAxis8 = std::max(maxAxis8, MaxV);
+  if (doubleSpinBoxSS->value() > 0)
+    maxAxis8 = doubleSpinBoxSS->value();
+
+  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis8));
+
+  drawMap->setData(RD);
+
+  pal8a->setThreshold(0.001);
+  pal8b->setThreshold(0.001);
+
+  drawMap->setColorMap(pal8a);
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal8b);
+
+  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis8);
+  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+}
+//---------------------------------------------------------------------------
+
