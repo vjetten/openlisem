@@ -249,7 +249,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         double w[4] = {0.0,0.0,0.0,0.0};
 
         //wich directions are used?
-        int end = 2;
+        int end = 3;
         int start = 0;
 
         if(K2DPitsD->Drc == 1)
