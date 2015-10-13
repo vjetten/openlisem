@@ -569,7 +569,8 @@ public:
     double K2DQOut;
     double K2DQSOut;
     double K2DQPOut;
-
+    double CourantKin;
+    double TimestepKinMin;
 
     //SWATRE
     /// filenames for Swatre soil information

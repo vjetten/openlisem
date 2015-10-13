@@ -285,6 +285,8 @@ void TWorld::ParseRunfileData(void)
 
     SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
+    CourantKin = getvaluedouble("Courant Kin Wave 2D");
+    TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
 
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;

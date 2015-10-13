@@ -318,6 +318,9 @@ public slots:
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
 
+
+    void on_setkinematic_method(int v);
+
     void selectMapType(bool doit);
     void ssetAlpha(int v);
     void ssetAlpha2(int v);

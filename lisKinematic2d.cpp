@@ -124,7 +124,7 @@ void TWorld::K2DInit()
 double TWorld::K2DFlux(double dtmax)
 {
     double dtr = dtmax;
-    double fraction = 0.5;
+    double fraction = CourantKin;
     FOR_ROW_COL_MV
     {
 
@@ -181,7 +181,7 @@ double TWorld::K2DFlux(double dtmax)
 
     }
 
-    dtr = std::max(dtr,1.0);
+    dtr = std::max(dtr,TimestepKinMin);
     FOR_ROW_COL_MV
     {
         //limit discharge to half of the cells water

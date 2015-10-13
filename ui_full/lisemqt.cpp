@@ -181,6 +181,8 @@ void lisemqt::SetConnections()
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
     connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
+    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_setkinematic_method(int)));
+
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
@@ -195,6 +197,21 @@ void lisemqt::SetConnections()
     connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
 
 }
+
+void lisemqt::on_setkinematic_method(int v)
+{
+    if(v != K1D_METHOD)
+    {
+        E_TimestepMin->setEnabled(true);
+        E_CourantFactorKin->setEnabled(true);
+    }else
+    {
+        E_TimestepMin->setEnabled(false);
+        E_CourantFactorKin->setEnabled(false);
+
+    }
+}
+
 //--------------------------------------------------------------------
 void lisemqt::setFloodErosion()
 {
