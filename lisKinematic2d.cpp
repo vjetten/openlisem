@@ -595,10 +595,10 @@ void TWorld::K2DSolvebyFlux(double dt)
             //calculate normalized direction of flow
             double dsx = K2DSlopeX->Drc;
             double dsy = K2DSlopeY->Drc;
-            int r2 = r + (dsx > 0? 1: -1);
-            int c2 = c + (dsy > 0? 1: -1);
+            int r2 = r + (dsy > 0? 1: -1);
+            int c2 = c + (dsx > 0? 1: -1);
             //is the cell in this direction either out of bounds, or missing value?
-            if(!INSIDE(r2,c) || pcr::isMV(LDD->data[r2][c]) )
+            if(!INSIDE(r,c2) || pcr::isMV(LDD->data[r][c2]) )
             {
                 //then add the flow to outflow, and subtract from cell
                 K2DFX->Drc -= fabs(K2DQX->data[r][c]);
@@ -617,7 +617,7 @@ void TWorld::K2DSolvebyFlux(double dt)
 
             }
             //is the cell in this direction either out of bounds, or missing value?
-            if(!INSIDE(r,c2) || pcr::isMV(LDD->data[r][c2]) )
+            if(!INSIDE(r2,c) || pcr::isMV(LDD->data[r2][c]) )
             {
                 //then add the flow to outflow, and subtract from cell
                 K2DFY->Drc -= fabs(K2DQY->data[r][c]);
