@@ -881,138 +881,176 @@ void TWorld::K2DDEMA()
             {
                 Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
                 if( Dhy < 0)
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
             if(pcr::isMV(K2DDEM->data[r+1][c]) && !pcr::isMV(K2DDEM->data[r-1][c]))
             {
                 Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
                 if( Dhy > 0)
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
             if(pcr::isMV(K2DDEM->data[r][c-1]) && !pcr::isMV(K2DDEM->data[r][c+1]))
             {
                 Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
                 if( Dhx < 0)
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
             if(pcr::isMV(K2DDEM->data[r][c+1]) && !pcr::isMV(K2DDEM->data[r][c-1]))
             {
                 Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
                 if( Dhx > 0)
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
             if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r][c-1]))
             {
                 Dhx = 0;
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
             if(pcr::isMV(K2DDEM->data[r+1][c]) && pcr::isMV(K2DDEM->data[r-1][c]))
             {
                 Dhy = 0;
+                Outlet->Drc= 1;
+                {
                     Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
         }
 
-        //at boundaries, use one-sided derivative of the DEM
-        if(r == 0)
+        if((r == 0 && c == 0) || (r == 0 && c == 0) ||(r == 0 && c == 0) || (r == 0 && c == 0))
         {
-            Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-
-            if(pcr::isMV(K2DDEM->data[r+1][c]))
-            {
-                Dhy = 0;
-            }
-            if(pcr::isMV(K2DDEM->data[r][c-1]))
-            {
-                Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-                if( Dhx < 0)
-                    Outlet->Drc= 1;
-            }
-            if(pcr::isMV(K2DDEM->data[r][c+1]))
-            {
-                Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-                if( Dhx > 0)
-                    Outlet->Drc= 1;
-            }
-            if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r][c-1]))
-            {
-                Dhx = 0;
-            }
-        }
-
-        if(r == _nrRows-1)
+            Dhx = 0;
+            Dhy = 0;
+        }else
         {
-            Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
 
-            if(pcr::isMV(K2DDEM->data[r -1][c]))
+            //at boundaries, use one-sided derivative of the DEM
+            if(r == 0)
             {
-                Dhy = 0;
+                Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
+
+                if(pcr::isMV(K2DDEM->data[r+1][c]))
+                {
+                    Dhy = 0;
+                }
+                if(pcr::isMV(K2DDEM->data[r][c-1]))
+                {
+                    Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r][c+1]))
+                {
+                    Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
+
+                }
+                if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r][c-1]))
+                {
+                    Dhx = 0;
+                }
+
+                if( Dhy < 0)
+                {
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
 
-            if(pcr::isMV(K2DDEM->data[r][c-1]))
+            if(r == _nrRows-1)
+            {
+                Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
+
+                if(pcr::isMV(K2DDEM->data[r -1][c]))
+                {
+                    Dhy = 0;
+                }
+
+                if(pcr::isMV(K2DDEM->data[r][c-1]))
+                {
+                    Dhx = -(K2DDEM->data[r][c +1]-K2DDEM->data[r][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r][c+1]))
+                {
+                    Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
+                }
+                if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r ][c-1]))
+                {
+                    Dhx = 0;
+                }
+
+                if( Dhy > 0)
+                {
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
+            }
+
+            if(c == 0)
             {
                 Dhx = -(K2DDEM->data[r][c +1]-K2DDEM->data[r][c]);
-                if( Dhx < 0) { Outlet->Drc= 1;}
+                if(pcr::isMV(K2DDEM->data[r -1][c]))
+                {
+                    Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r +1][c]))
+                {
+                    Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r][c+1]))
+                {
+                    Dhx = 0;
+                }
+                if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
+                {
+                    Dhy = 0;
+                }
+                if( Dhx < 0)
+                {
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
-            if(pcr::isMV(K2DDEM->data[r][c+1]))
+
+            if(c == _nrCols-1)
             {
                 Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-                if( Dhx > 0) { Outlet->Drc= 1;}
+                if(pcr::isMV(K2DDEM->data[r -1][c]))
+                {
+                    Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r +1][c]))
+                {
+                    Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
+                }
+                if(pcr::isMV(K2DDEM->data[r][c-1]))
+                {
+                    Dhx = 0;
+                }
+                if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
+                {
+                    Dhy = 0;
+                }
+                if( Dhx > 0)
+                {
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
             }
-            if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r ][c-1]))
-            {
-                Dhx = 0;
-            }
-        }
 
-        if(c == 0)
-        {
-            Dhx = -(K2DDEM->data[r][c +1]-K2DDEM->data[r][c]);
-            if(pcr::isMV(K2DDEM->data[r -1][c]))
-            {
-                Dhy = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-                if( Dhy < 0) { Outlet->Drc= 1;}
-            }
-            if(pcr::isMV(K2DDEM->data[r +1][c]))
-            {
-                Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-                if( Dhy > 0) { Outlet->Drc= 1;}
-            }
-            if(pcr::isMV(K2DDEM->data[r][c+1]))
-            {
-                Dhx = 0;
-            }
-            if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
-            {
-                Dhy = 0;
-            }
         }
-
-        if(c == _nrCols-1)
-        {
-            Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-            if(pcr::isMV(K2DDEM->data[r -1][c]))
-            {
-                Dhy = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-                if( Dhy < 0) { Outlet->Drc= 1;}
-            }
-            if(pcr::isMV(K2DDEM->data[r +1][c]))
-            {
-                Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-                if( Dhy > 0) { Outlet->Drc= 1;}
-            }
-            if(pcr::isMV(K2DDEM->data[r][c-1]))
-            {
-                Dhx = 0;
-            }
-            if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
-            {
-                Dhy = 0;
-            }
-        }
-
-        //   K2DDX->Drc = -sqrt(Dhx*Dhx + _dx*_dx);
-        //   K2DDY->Drc = -sqrt(Dhy*Dhy + _dx*_dx);
 
         K2DSlopeX->Drc = Dhx/_dx;
         K2DSlopeY->Drc = Dhy/_dx;

@@ -142,7 +142,7 @@ void TWorld::Totals(void)
     //=== all discharges ===//
     
     // sum outflow m3 for all timesteps for the outlet
-    if(SwitchKinematic2D)
+    if(SwitchKinematic2D == 1)
     {
         FOR_ROW_COL_MV
         {
