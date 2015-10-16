@@ -44,7 +44,6 @@ SET(APP_SOURCES
     lisSnowmelt
     main
     operation
-    lisSWOF2DSediment
     swatre/swatstep
     swatre/swatinit
     swatre/soillut

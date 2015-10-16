@@ -240,7 +240,7 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchFloodSedimentMethod;
 
     int SwitchFlood1D2DCoupling;
 
@@ -457,10 +457,20 @@ public:
     void MakeWatersheds(void);
 
     //sediment for SWOF flood model
-    void SWOFSedimentFlow(double dt);
+    void SWOFSedimentFlow(cTMap *_h,double dt);
+    void SWOFSedimentFlowInterpolation(double dt);
     void SWOFSedimentDet(double dt);
     void SWOFSedimentFlowWS(int wsnr, double dt);
+    void SWOFSedimentFlowInterpolationWS(double dt);
     void SWOFSedimentDetWS(int wsnr, double dt);
+
+
+    void FS_Flux(cTMap * _s);
+    void FS_MUSCLE(cTMap * _s);
+    void FS_Simple(cTMap * _s);
+    void FS_MainCalc(cTMap * _h, cTMap * _s,cTMap * _ss, double dt);
+    void FS_HLL(double h_L,double s_L,double u_L,double v_L,double h_R, double s_R,double u_R,double v_R);
+
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,

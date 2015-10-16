@@ -193,6 +193,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
         if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
         if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
+        if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
         if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
 
@@ -641,6 +642,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
         if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
+        if (p1.compare("Flood sediment transport method")==0)namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());

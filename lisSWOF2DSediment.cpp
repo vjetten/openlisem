@@ -41,10 +41,245 @@ functions: \n
 #include "operation.h"
 
 #define signf(x)  ((x < 0)? -1.0 : 1.0)
-void TWorld::SWOFSedimentFlow(double dt)
+
+#define he_ca 1e-12
+#define ve_ca 1e-12
+
+#define dt_ca 0.005
+
+#define GRAV 9.8067
+#define EPSILON 1e-6
+
+void TWorld::FS_Flux(cTMap * _s)
+{
+
+
+    FOR_CELL_IN_FLOODAREA
+        if (c > 0 && !pcr::isMV(LDD->data[r][c-1]))
+    {
+      s1d->data[r][c-1] = std::max(0.0, s1r->data[r][c-1] );
+      s1g->Drc          = std::max(0.0, s1l->Drc  );
+
+      h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]));
+      h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]));
+
+      FS_HLL(h2d->data[r][c-1], s1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc,s1g->Drc, u1l->Drc, v1l->Drc);
+
+      sf1->Drc = HLL2_f1;
+
+    }
+    else
+    {
+      h1d->data[r][c] = std::max(0.0, h1r->data[r][c] );
+      h1g->Drc        = std::max(0.0, h1l->Drc);
+
+      h1d->data[r][c] = std::max(0.0, h1r->data[r][c] - std::max(0.0,  delz1->data[r][c]));
+      h1g->Drc        = std::max(0.0, h1l->Drc        - std::max(0.0, -delz1->data[r][c]));
+
+     FS_HLL(h1d->data[r][c],s1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc,s1g->Drc, u1l->Drc, v1l->Drc);
+
+      sf1->Drc = HLL2_f1;
+
+    }}
+
+    FOR_CELL_IN_FLOODAREA
+    if(r > 0 && !pcr::isMV(LDD->data[r-1][c]))
+    {
+
+      s2d->data[r-1][c] = std::max(0.0, s2r->data[r-1][c]);
+      s2g->Drc          = std::max(0.0, s2l->Drc);
+
+      h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]));
+      h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]));
+
+      FS_HLL(h2d->data[r-1][c],s2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,s2g->Drc,v2l->Drc,u2l->Drc);
+
+      sg1->Drc = HLL2_f1;
+
+    }
+    else
+    {
+       s2d->data[r][c] = std::max(0.0, s2r->data[r][c] );
+       s2g->Drc        = std::max(0.0, s2l->Drc);
+
+       h2d->data[r][c] = std::max(0.0, h2r->data[r][c] - std::max(0.0,  delz2->data[r][c]));
+       h2g->Drc        = std::max(0.0, h2l->Drc        - std::max(0.0, -delz2->data[r][c]));
+
+       FS_HLL(h2d->data[r][c],s2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,s2g->Drc,v2l->Drc,u2l->Drc);
+
+       sg1->Drc = HLL2_f1;
+
+    }}
+
+}
+
+void TWorld::FS_MUSCLE(cTMap * _s)
+{
+
+    double delta_s1, delta_u1, delta_v1;
+    double delta_s2, delta_u2, delta_v2;
+    double ds, du, dv;
+
+    // fill EW and NS conditions with cell itself, 1st order approximation used for boundary conditions
+    FOR_CELL_IN_FLOODAREA {
+        s1r->Drc = _s->Drc;
+
+
+        s1l->Drc = _s->Drc;
+
+        s2r->Drc = _s->Drc;
+
+        s2l->Drc = _s->Drc;
+
+    }}
+
+
+    FOR_CELL_IN_FLOODAREA
+      if(c > 0 && c < _nrCols-1 && !MV(r,c-1) &&  !MV(r,c+1))
+    {
+        delta_s1 = _s->Drc - _s->data[r][c-1];
+
+        delta_s2 = _s->data[r][c+1] - _s->Drc;
+
+        ds   = 0.5*limiter(delta_s1, delta_s2);
+
+
+        s1r->Drc = _s->Drc+ds;
+        s1l->Drc = _s->Drc-ds;
+    }}
+
+
+      FOR_CELL_IN_FLOODAREA
+        if(r > 0 && MV(r-1,c) && r < _nrRows-1 && !MV(r+1, c))
+      {
+          delta_s1 = _s->Drc - _s->data[r-1][c];
+
+          delta_s2 = _s->data[r+1][c] - _s->Drc;
+
+          ds   = 0.5*limiter(delta_s1, delta_s2);
+          s2r->Drc = _s->Drc+ds;
+          s2l->Drc = _s->Drc-ds;
+      }}
+
+}
+
+void TWorld::FS_Simple(cTMap * _s)
+{
+    FOR_CELL_IN_FLOODAREA {
+        s1r->Drc = _s->Drc;
+        s1l->Drc = _s->Drc;
+
+        s2r->Drc = _s->Drc;
+        s2l->Drc = _s->Drc;
+    }}
+}
+
+
+void TWorld::FS_MainCalc(cTMap * _h,cTMap * _s, cTMap * _ss, double dt)
+{
+    FOR_CELL_IN_FLOODAREA
+    {
+      double dx = ChannelAdj->Drc;
+      double dy = DX->Drc;
+      long double tx = dt/dx;
+      long double ty = dt/dy;
+      double hestemp = _h->Drc;
+      // Solution of the equation of mass conservation (First equation of Saint venant)
+      // f1 comes from MUSCL calculations
+      if ((r > _nrRows-2 || c > _nrCols-2) || (pcr::isMV(LDD->data[r][c+1]) || pcr::isMV(LDD->data[r+1][c])))
+        _ss->Drc = _s->Drc;
+      else
+        _ss->Drc = _s->Drc - tx*(sf1->data[r][c+1]-sf1->Drc) - ty*(sg1->data[r+1][c]-sg1->Drc);
+    }}
+}
+
+void TWorld::FS_HLL(double h_L,double s_L,double u_L,double v_L,double h_R, double s_R,double u_R,double v_R)
+{
+    double f1, f2, f3, cfl, tmp = 0;
+    if (h_L<=0. && h_R<=0.){
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        double c1 = std::min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
+        double c2 = std::max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
+
+        //cfl is the velocity to calculate the real cfl=std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
+            f1=0.;
+        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have std::max(abs(c1),abs(c2))=c2>0
+            f1=s_L*(q_L);
+        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have std::max(abs(c1),abs(c2))=-c1>0
+            f1=s_R*(q_R);
+        }else{ //subcritical flow
+            tmp = 1./(c2-c1);
+            f1=(c2*s_L*q_L-c1*s_R*q_R)*tmp+c1*c2*(s_L*h_R-s_R*h_L)*tmp;
+        }
+    }
+    HLL2_f1 = f1;
+
+
+}
+
+
+void TWorld::SWOFSedimentFlow(cTMap*_h,double dt)
 {
     if (!SwitchErosion)
-       return;
+        return;
+
+    if(SwitchFloodSedimentMethod)
+    {
+        return SWOFSedimentFlowInterpolation(dt);
+    }
+
+    //calculate concentration for transport
+    FOR_ROW_COL_MV
+    {
+        TCFlood->Drc = 0;
+        SCNFlood->Drc = SCFlood->Drc;
+        SNFlood->Drc = SFlood->Drc;
+
+        //set concentration from present sediment
+        SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
+
+    }
+
+
+    //reconstruction scheme
+
+    //FS_Simple(SNFlood, u, v);
+
+    FS_MUSCLE(SCFlood);
+
+    //flux calculation
+    FS_Flux(SCFlood);
+
+    //Calculate new Sediment
+    FS_MainCalc(_h,SFlood,ss,dt);
+
+    //update variable
+    FOR_CELL_IN_FLOODAREA {
+      SFlood->Drc = ss->Drc;
+    }}
+
+    //recalculate concentration
+    FOR_ROW_COL_MV
+    {
+        //set concentration from present sediment
+        SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
+
+        SCFlood->Drc = SCNFlood->Drc;
+        SFlood->Drc = SNFlood->Drc;
+    }
+}
+
+void TWorld::SWOFSedimentFlowInterpolation(double dt)
+{
 
     FOR_ROW_COL_MV
     {
@@ -53,9 +288,10 @@ void TWorld::SWOFSedimentFlow(double dt)
         SNFlood->Drc = SFlood->Drc;
 
         //set concentration from present sediment
-        SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+        SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
 
     }
+
 
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
@@ -68,16 +304,18 @@ void TWorld::SWOFSedimentFlow(double dt)
         }
 
         //cell sizes
-        double cdx = _dx;
-        double cdy = DX->Drc;
+        double cdx = DX->Drc;
+        double cdy = _dx;
 
         //the sign of the x and y direction of flow
         double yn = signf(Vflood->Drc);
         double xn = signf(Uflood->Drc);
 
+        double vel = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+
         //should not travel more distance than cell size
-        double dsx = xn*std::min(fabs(Uflood->Drc)* dt,cdx);
-        double dsy = yn*std::min(fabs(Vflood->Drc)* dt,cdy);
+        double dsx = xn*std::min(fabs(Uflood->Drc)/vel,cdx);
+        double dsy = yn*std::min(fabs(Vflood->Drc)/vel,cdy);
 
         //cell directions
         int dx[4] = {0, 1, 1, 0};
@@ -102,7 +340,13 @@ void TWorld::SWOFSedimentFlow(double dt)
             //the distribution is inverly proportional to the squared distance
             double weight = fabs(wdx) *fabs(wdy);
 
-            w[i] = weight;
+            if(INSIDE(r2,c2))
+            {
+                if( !pcr::isMV(LDD->data[r2][c2]) && hmx->data[r2][c2] > 0)
+                {
+                    w[i] = weight;
+                }
+            }
 
 
 
@@ -129,31 +373,32 @@ void TWorld::SWOFSedimentFlow(double dt)
 
             if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
             {
-                double cdx2 = _dx;
-                double cdy2 = DX->data[r2][c2];
 
                 //weight * the flow is distributed to the ith cell that neighbours the advected flow.
-                    SNFlood->data[r2][c2] +=  w[i]* cdx*cdy*hmx->Drc * SCFlood->Drc;
-                    SNFlood->data[r][c] -=  w[i]* cdx*cdy*hmx->Drc * SCFlood->Drc;
+                    SNFlood->data[r2][c2] +=  w[i]* dt *vel*ChannelAdj->Drc *hmx->Drc * SCFlood->Drc;
+                    SNFlood->data[r][c] -=  w[i]* dt*vel*ChannelAdj->Drc *hmx->Drc * SCFlood->Drc;
 
             }
         }
     }
 
+
+
     FOR_ROW_COL_MV
     {
         //set concentration from present sediment
-        SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+        SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
 
         SCFlood->Drc = SCNFlood->Drc;
         SFlood->Drc = SNFlood->Drc;
     }
 
+
 }
 
 void TWorld::SWOFSedimentDet(double dt)
 {
-
+    return;
     if (!SwitchErosion)
        return;
 
@@ -164,7 +409,7 @@ void TWorld::SWOFSedimentDet(double dt)
 
        tm->Drc = 0;
        double velocity = std::sqrt(Uflood->Drc *Uflood->Drc + Vflood->Drc * Vflood->Drc);
-       double discharge = velocity * _dx * hmx->Drc;
+       double discharge = velocity * ChannelAdj->Drc * hmx->Drc;
        //### Calc transport capacity
        double omega = 100*velocity*discharge;
        // V in cm/s in this formula assuming grad is SINE
@@ -202,8 +447,8 @@ void TWorld::SWOFSedimentDet(double dt)
     FOR_CELL_IN_FLOODAREA
 
        double velocity = std::sqrt(Uflood->Drc *Uflood->Drc + Vflood->Drc * Vflood->Drc);
-       double discharge = velocity * _dx * hmx->Drc;
-       double watervol = _dx*DX->Drc*hmx->Drc;
+       double discharge = velocity * ChannelAdj->Drc * hmx->Drc;
+       double watervol = ChannelAdj->Drc *DX->Drc*hmx->Drc;
 
        //### Add sediment to flood water
        SFlood->Drc += 0;
@@ -211,7 +456,7 @@ void TWorld::SWOFSedimentDet(double dt)
        //### calc concentration and net transport capacity
        DEP->Drc = 0;
        // init deposition for this timestep
-       SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+       SCFlood->Drc = MaxConcentration(watervol, SFlood->Drc);
        // limit sed concentration to max
 
        double maxTC = std::max(TCFlood->Drc - SCFlood->Drc,0.0);
@@ -255,7 +500,7 @@ void TWorld::SWOFSedimentDet(double dt)
 
        //### deposition
        if (WH->Drc > MIN_HEIGHT)
-          TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/hmx->Drc)) * _dx*DX->Drc * hmx->Drc;
+          TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/hmx->Drc)) * watervol;
        else
           TransportFactor = WaterVolall->Drc;
        // if settl velo is very small, transportfactor is 0 and depo is 0
@@ -268,7 +513,7 @@ void TWorld::SWOFSedimentDet(double dt)
        // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
        if (SwitchLimitDepTC)
-          deposition = std::max(deposition, minTC * _dx*DX->Drc*hmx->Drc);
+          deposition = std::max(deposition, minTC *watervol);
        // cannot be more than sediment above capacity
        deposition = std::max(deposition, -Sed->Drc);
        // cannot have more depo than sediment present
@@ -288,7 +533,7 @@ void TWorld::SWOFSedimentDet(double dt)
        SFlood->Drc += DETFlow->Drc;
        SFlood->Drc += deposition;
 
-       SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+       SCFlood->Drc = MaxConcentration(watervol, SFlood->Drc);
        // limit concentration to 850 and throw rest in deposition
     }
 
@@ -308,7 +553,7 @@ void TWorld::SWOFSedimentFlowWS(int wsnr, double dt)
        SNFlood->Drc = SFlood->Drc;
 
        //set concentration from present sediment
-       SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+       SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
 
    }
 
@@ -398,7 +643,7 @@ void TWorld::SWOFSedimentFlowWS(int wsnr, double dt)
    FOR_WATERSHED_ROW_COL(wsnr)
 
        //set concentration from present sediment
-       SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+       SCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hmx->Drc, SFlood->Drc);
 
        SCFlood->Drc = SCNFlood->Drc;
        SFlood->Drc = SNFlood->Drc;
@@ -466,7 +711,7 @@ void TWorld::SWOFSedimentDetWS(int wsnr, double dt)
       //### calc concentration and net transport capacity
       DEP->Drc = 0;
       // init deposition for this timestep
-      SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+      SCFlood->Drc = MaxConcentration(watervol, SFlood->Drc);
       // limit sed concentration to max
 
       double maxTC = std::max(TCFlood->Drc - SCFlood->Drc,0.0);
@@ -510,7 +755,7 @@ void TWorld::SWOFSedimentDetWS(int wsnr, double dt)
 
       //### deposition
       if (WH->Drc > MIN_HEIGHT)
-         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/hmx->Drc)) * _dx*DX->Drc * hmx->Drc;
+         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/hmx->Drc)) * watervol;
       else
          TransportFactor = WaterVolall->Drc;
       // if settl velo is very small, transportfactor is 0 and depo is 0
@@ -523,7 +768,7 @@ void TWorld::SWOFSedimentDetWS(int wsnr, double dt)
       // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
       if (SwitchLimitDepTC)
-         deposition = std::max(deposition, minTC * _dx*DX->Drc*hmx->Drc);
+         deposition = std::max(deposition, minTC * watervol);
       // cannot be more than sediment above capacity
       deposition = std::max(deposition, -Sed->Drc);
       // cannot have more depo than sediment present
@@ -543,7 +788,7 @@ void TWorld::SWOFSedimentDetWS(int wsnr, double dt)
       SFlood->Drc += DETFlow->Drc;
       SFlood->Drc += deposition;
 
-      SCFlood->Drc = MaxConcentration(_dx*DX->Drc*hmx->Drc, SFlood->Drc);
+      SCFlood->Drc = MaxConcentration(watervol, SFlood->Drc);
       // limit concentration to 850 and throw rest in deposition
    }
 

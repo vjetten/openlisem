@@ -931,6 +931,9 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
           setZero(hs, us, vs);
 
+          //sediment transport
+          SWOFSedimentFlow(h,dt1);
+
           FOR_CELL_IN_FLOODAREA {
             h->Drc = hs->Drc;
             u->Drc = us->Drc;
@@ -940,8 +943,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           timesum = timesum + dt1;
           n++;
 
-          //sediment transport
-          SWOFSedimentFlow(dt1);
+
 
           if (correct)
               correctMassBalance(sumh, h, 1e-12);
@@ -1040,6 +1042,8 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               //sediment balance
               SWOFSedimentDet(dt1);
 
+              //sediment flow
+              SWOFSedimentFlow(h,dt1);
 
               //Heun method (order 2 in time)
               FOR_ROW_COL_MV
@@ -1061,8 +1065,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
                   }
               }//Heun
 
-              //sediment flow
-              SWOFSedimentFlow(dt1);
+
 
               timesum = timesum + dt1;
               n++;

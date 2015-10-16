@@ -89,12 +89,13 @@ void TWorld::OutputUI(void)
         if (ErosionUnits == 0) // ton/ha
             calcValue(*tmb, 10, MUL);
 
-        copy(*tmc, *Sed);
+        /*copy(*tmc, *Sed);
         if(SwitchChannelFlood)
         {
             calcMap(*tmc, *SFlood, ADD);
         }
-        calcMap(*tmc, *ChannelSed, ADD);
+        calcMap(*tmc, *ChannelSed, ADD);*/
+        copy(*tmc, *SFlood);
         copy(*op.DrawMap8, *tmc);
 
 /*

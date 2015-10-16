@@ -335,7 +335,10 @@ cTMap
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,
+
+//FULLSWOF2D with Sediment
 *SCFlood,*SFlood,*SCNFlood,*SNFlood,*TCFlood,*DepFlood,*DetFlood,
+*s1r,*s1l,*s2r,*s2l,*sf1,*sg1,*ss,*s1d, *s1g, *s2d, *s2g,
 
 
 //*q1flood,*q2flood,

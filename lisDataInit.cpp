@@ -745,6 +745,18 @@ void TWorld::InitChannel(void)
             DepFlood = NewMap(0);
             DetFlood = NewMap(0);
 
+            s1r = NewMap(0);
+            s1l = NewMap(0);
+            s2r = NewMap(0);
+            s2l = NewMap(0);
+            sf1 = NewMap(0);
+            sg1 = NewMap(0);
+            ss = NewMap(0);
+            s1d = NewMap(0);
+            s1g = NewMap(0);
+            s2d = NewMap(0);
+            s2g = NewMap(0);
+
         }
 
     }
