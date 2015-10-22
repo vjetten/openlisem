@@ -125,6 +125,7 @@ cTMap
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
 *AggrStab,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
+*D90,                        //!< 90 % of grainsize distribution is below this value [mu]
 *DETSplash,                  //!< splash detachment [kg/m^2]
 *DETFlow,                    //!< flow detachment [kg/m^2]
 *DEP,                        //!< deposition [kg/m^2]
@@ -337,9 +338,16 @@ cTMap
 *Uflood,*Vflood,
 
 //FULLSWOF2D with Sediment
-*SCFlood,*SFlood,*SCNFlood,*SNFlood,*TCFlood,*DepFlood,*DetFlood,
-*s1r,*s1l,*s2r,*s2l,*sf1,*sg1,*ss,*s1d, *s1g, *s2d, *s2g,
+*BLDepthFlood,
+*SSDepthFlood,
 
+//Bed Load layer
+*BLCFlood,*BLFlood,*BLNFlood,*BLTCFlood,*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,
+*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bl1d, *bl1g, *bl2d, *bl2g,
+
+//Suspended Sediment Layer
+*SSCFlood,*SSFlood,*SSNFlood,*SSTCFlood,
+*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*ss1d, *ss1g, *ss2d, *ss2g,
 
 //*q1flood,*q2flood,
 *som_z1,*som_z2,

@@ -85,7 +85,8 @@ void TWorld::ToFlood(void)
 
         if(SwitchErosion)
         {
-            SFlood->Drc += Sed->Drc * frac;
+            //better distribute this by ratio suspended Tc and
+            BLFlood->Drc += Sed->Drc * frac;
             Sed->Drc = Sed->Drc * (1-frac);
             //DEP->Drc += Sed->Drc * frac;
             //Sed->Drc = Sed->Drc * (1-frac);

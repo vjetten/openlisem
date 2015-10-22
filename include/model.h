@@ -457,19 +457,22 @@ public:
     void MakeWatersheds(void);
 
     //sediment for SWOF flood model
-    void SWOFSedimentFlow(cTMap *_h,double dt);
-    void SWOFSedimentFlowInterpolation(double dt);
-    void SWOFSedimentDet(double dt);
-    void SWOFSedimentFlowWS(int wsnr, double dt);
-    void SWOFSedimentFlowInterpolationWS(double dt);
-    void SWOFSedimentDetWS(int wsnr, double dt);
-
-
     void FS_Flux(cTMap * _s);
     void FS_MUSCLE(cTMap * _s);
     void FS_Simple(cTMap * _s);
     void FS_MainCalc(cTMap * _h, cTMap * _s,cTMap * _ss, double dt);
     void FS_HLL(double h_L,double s_L,double u_L,double v_L,double h_R, double s_R,double u_R,double v_R);
+
+    void SWOFSedimentFlow(double dt);
+    void SWOFSedimentFlowInterpolation(double dt);
+    void SWOFSedimentDet(double dt,int r,int c);
+    void SWOFSedimentFlowWS(int wsnr, double dt);
+    void SWOFSedimentFlowInterpolationWS(double dt);
+    void SWOFSedimentDetWS(int wsnr, double dt);
+    void SWOFSediment(double dt);
+    void SWOFSedimentWS(int l,double dt);
+    double SWOFSedimentTCBL(int r,int c);
+    double SWOFSedimentTCSS(int r,int c);
 
 
     void Pestmobilisation(void);

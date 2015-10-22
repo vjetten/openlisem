@@ -270,11 +270,13 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-            DetFlowTot += mapTotal(*DetFlood);
-            DetTot += mapTotal(*DetFlood);
-            DepTot += mapTotal(*DepFlood);
-            SedTot += mapTotal(*SFlood);
+            DetFlowTot += mapTotal(*BLDetFloodT);
+            DetTot += mapTotal(*BLDetFloodT);
+            DepTot += mapTotal(*BLDepFloodT);
+            SedTot += mapTotal(*BLFlood);
+            SedTot += mapTotal(*SSFlood);
         }
+
 
         //SoilLossTot += Qsoutflow->DrcOutlet;
         FOR_ROW_COL_MV
@@ -322,6 +324,11 @@ void TWorld::Totals(void)
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
+            if (SwitchChannelFlood)
+            {
+                TotalDepMap->Drc += BLDepFloodT->Drc;
+                TotalDetMap->Drc += BLDetFloodT->Drc;
+            }
             if (SwitchIncludeChannel)
             {
                 TotalDetMap->Drc += ChannelDetFlow->Drc;

@@ -89,15 +89,19 @@ void TWorld::OutputUI(void)
         if (ErosionUnits == 0) // ton/ha
             calcValue(*tmb, 10, MUL);
 
-        /*copy(*tmc, *Sed);
-        if(SwitchChannelFlood)
+        fill(*tmc, 0.0);//copy(*tmc, *Sed);
+        /*if(SwitchChannelFlood)
         {
             calcMap(*tmc, *SFlood, ADD);
         }
         calcMap(*tmc, *ChannelSed, ADD);*/
-        copy(*tmc, *SFlood);
-        copy(*op.DrawMap8, *tmc);
+        if(SwitchChannelFlood)
+        {
+            calcMap(*tmc, *BLFlood, ADD);
+            calcMap(*tmc, *SSFlood, ADD);
 
+        }
+        copy(*op.DrawMap8, *tmc);
 /*
         if (ErosionUnits == 1)  // in kg/m2
             tmb->copy(TotalSoillossMap); //kg/cell

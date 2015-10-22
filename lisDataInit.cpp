@@ -737,29 +737,55 @@ void TWorld::InitChannel(void)
             //q1flood = NewMap(0);
             //q2flood = NewMap(0);
 
-            SCFlood = NewMap(0);
-            SFlood = NewMap(0);
-            SCNFlood = NewMap(0);
-            SNFlood = NewMap(0);
-            TCFlood = NewMap(0);
-            DepFlood = NewMap(0);
-            DetFlood = NewMap(0);
 
-            s1r = NewMap(0);
-            s1l = NewMap(0);
-            s2r = NewMap(0);
-            s2l = NewMap(0);
-            sf1 = NewMap(0);
-            sg1 = NewMap(0);
-            ss = NewMap(0);
-            s1d = NewMap(0);
-            s1g = NewMap(0);
-            s2d = NewMap(0);
-            s2g = NewMap(0);
 
         }
 
     }
+
+    BLDepthFlood = NewMap(0);
+    SSDepthFlood = NewMap(0);
+
+    BLCFlood = NewMap(0);
+    BLFlood = NewMap(0);
+    BLNFlood = NewMap(0);
+    BLTCFlood = NewMap(0);
+    BLDepFlood = NewMap(0);
+    BLDetFlood = NewMap(0);
+
+    BLDepFloodT = NewMap(0);
+    BLDetFloodT = NewMap(0);
+
+    bl1r = NewMap(0);
+    bl1l = NewMap(0);
+    bl2r = NewMap(0);
+    bl2l = NewMap(0);
+    blf1 = NewMap(0);
+    blg1 = NewMap(0);
+    bls = NewMap(0);
+    bl1d = NewMap(0);
+    bl1g = NewMap(0);
+    bl2d = NewMap(0);
+    bl2g = NewMap(0);
+
+    SSCFlood = NewMap(0);
+    SSFlood = NewMap(0);
+    SSNFlood = NewMap(0);
+    SSTCFlood = NewMap(0);
+
+    ss1r = NewMap(0);
+    ss1l = NewMap(0);
+    ss2r = NewMap(0);
+    ss2l = NewMap(0);
+    ssf1 = NewMap(0);
+    ssg1 = NewMap(0);
+    sss = NewMap(0);
+    ss1d = NewMap(0);
+    ss1g = NewMap(0);
+    ss2d = NewMap(0);
+    ss2g = NewMap(0);
+
+
 }
 //---------------------------------------------------------------------------
 // NOT USED FOR NOW
@@ -1103,6 +1129,7 @@ void TWorld::GetInputData(void)
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
         D50 = ReadMap(LDD,getvaluename("D50"));
+        D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
     //## read and initialize all channel maps and variables

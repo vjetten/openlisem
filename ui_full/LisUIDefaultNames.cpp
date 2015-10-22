@@ -66,6 +66,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
     DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
+    DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
