@@ -181,7 +181,7 @@ void lisemqt::SetConnections()
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
     connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
-    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_setkinematic_method(int)));
+    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -198,7 +198,7 @@ void lisemqt::SetConnections()
 
 }
 
-void lisemqt::on_setkinematic_method(int v)
+void lisemqt::on_E_Kinematic2D_valueChanged(int v)
 {
     if(v != K1D_METHOD)
     {

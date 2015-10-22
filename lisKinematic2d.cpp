@@ -448,8 +448,6 @@ void TWorld::K2DSolvebyFlux(double dt)
         if(K2DSlopeX->Drc == 0){xw = 0.0;yw = 1.0;};
         if(K2DSlopeY->Drc == 0){yw = 0.0;xw = 1.0;};
 
-
-
         //make sure that total weight = 1
         double wt = xw +yw;
         if(wt != 0)
@@ -554,13 +552,13 @@ void TWorld::K2DSolvebyFlux(double dt)
 
                 if(SwitchErosion)
                 {
-                    K2DSFY->Drc += std::max(K2DQSY->data[r][c-1],0.0);
-                    K2DSFY->data[r][c-1] -= std::max(K2DQSY->data[r][c-1],0.0);
+                    K2DSFX->Drc += std::max(K2DQSX->data[r][c-1],0.0);
+                    K2DSFX->data[r][c-1] -= std::max(K2DQSX->data[r][c-1],0.0);
                 }
                 if(SwitchPesticide)
                 {
-                    K2DPFY->Drc += std::max(K2DQPY->data[r][c-1],0.0);
-                    K2DPFY->data[r][c-1] -= std::max(K2DQPY->data[r][c-1],0.0);
+                    K2DPFX->Drc += std::max(K2DQPX->data[r][c-1],0.0);
+                    K2DPFX->data[r][c-1] -= std::max(K2DQPX->data[r][c-1],0.0);
                 }
             }
 
@@ -578,13 +576,13 @@ void TWorld::K2DSolvebyFlux(double dt)
 
                 if(SwitchErosion)
                 {
-                    K2DSFY->Drc += fabs(std::min(K2DQSY->data[r][c+1],0.0));
-                    K2DSFY->data[r][c+1] -= fabs(std::min(K2DQSY->data[r][c+1],0.0));
+                    K2DSFX->Drc += fabs(std::min(K2DQSX->data[r][c+1],0.0));
+                    K2DSFX->data[r][c+1] -= fabs(std::min(K2DQSX->data[r][c+1],0.0));
                 }
                 if(SwitchPesticide)
                 {
-                    K2DPFY->Drc += fabs(std::min(K2DQPY->data[r][c+1],0.0));
-                    K2DPFY->data[r][c+1] -= fabs(std::min(K2DQPY->data[r][c+1],0.0));
+                    K2DPFX->Drc += fabs(std::min(K2DQPX->data[r][c+1],0.0));
+                    K2DPFX->data[r][c+1] -= fabs(std::min(K2DQPX->data[r][c+1],0.0));
                 }
             }
         }
@@ -626,7 +624,7 @@ void TWorld::K2DSolvebyFlux(double dt)
 
                 if(SwitchErosion)
                 {
-                    K2DSFX->Drc -= fabs(K2DQSY->data[r][c]);
+                    K2DSFY->Drc -= fabs(K2DQSY->data[r][c]);
                     K2DQSOut += dt* fabs(K2DQSY->data[r][c]);
                 }if(SwitchPesticide)
                 {
@@ -652,6 +650,20 @@ void TWorld::K2DSolvebyFlux(double dt)
                     K2DFY->Drc -= K2DQY->Drc;
                     K2DFX->data[r2][c2] += K2DQX->Drc;
                     K2DFY->data[r2][c2] += K2DQY->Drc;
+
+                    if(SwitchErosion)
+                    {
+                        K2DSFX->Drc -= K2DQSX->Drc;
+                        K2DSFY->Drc -= K2DQSY->Drc;
+                        K2DSFX->data[r2][c2] += K2DQSX->Drc;
+                        K2DSFY->data[r2][c2] += K2DQSY->Drc;
+                    }if(SwitchPesticide)
+                    {
+                        K2DPFX->Drc -= K2DQPX->Drc;
+                        K2DPFY->Drc -= K2DQPY->Drc;
+                        K2DPFX->data[r2][c2] += K2DQPX->Drc;
+                        K2DPFY->data[r2][c2] += K2DQPY->Drc;
+                    }
                 }
 
             }

@@ -317,9 +317,7 @@ public slots:
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
-
-
-    void on_setkinematic_method(int v);
+    void on_E_Kinematic2D_valueChanged(int v);
 
     void selectMapType(bool doit);
     void ssetAlpha(int v);

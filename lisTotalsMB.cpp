@@ -277,9 +277,15 @@ void TWorld::Totals(void)
         // all in kg/cell
 
         //SoilLossTot += Qsoutflow->DrcOutlet;
-        FOR_ROW_COL_MV
+        if(SwitchKinematic2D == 1)
+        {
+            FOR_ROW_COL_MV
                 if (LDD->Drc == 5)
                 SoilLossTot += Qsn->Drc * _dt;
+        }else
+        {
+            SoilLossTot +=K2DQSOut;
+        }
         // sum all sed in all pits (in kg), needed for mass balance
 
         SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
