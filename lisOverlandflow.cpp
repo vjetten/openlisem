@@ -86,11 +86,20 @@ void TWorld::ToFlood(void)
         if(SwitchErosion)
         {
             //better distribute this by ratio suspended Tc and
-            BLFlood->Drc += Sed->Drc * frac;
+            SSFlood->Drc += Sed->Drc * frac;
             Sed->Drc = Sed->Drc * (1-frac);
             //DEP->Drc += Sed->Drc * frac;
             //Sed->Drc = Sed->Drc * (1-frac);
+
+            //immediately check for maximum concentration
+            //if not done, too high concentration will show on display, before being deposited
+            SWOFSedimentLayerDepth(r,c);
+
+            SWOFSedimentMaxC(r,c);
         }
+
+
+
     }}
 }
 //---------------------------------------------------------------------------

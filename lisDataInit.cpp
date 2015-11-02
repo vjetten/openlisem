@@ -664,6 +664,7 @@ void TWorld::InitChannel(void)
 
             minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
+            courant_factor = getvaluedouble("Flooding courant factor diffusive");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
 
@@ -671,6 +672,9 @@ void TWorld::InitChannel(void)
             F_reconstruction = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
             F_scheme = getvalueint("Flooding SWOF scheme");                   // MUSCL, ENO, ENOMOD
+            FS_SS_Method = getvalueint("Flooding SS method");
+            FS_BL_Method = getvalueint("Flooding BL method");
+            FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
             F_extremeHeight = getvaluedouble("Flood extreme value height");
@@ -747,6 +751,7 @@ void TWorld::InitChannel(void)
     SSDepthFlood = NewMap(0);
 
     BLCFlood = NewMap(0);
+    BLCNFlood = NewMap(0);
     BLFlood = NewMap(0);
     BLNFlood = NewMap(0);
     BLTCFlood = NewMap(0);
@@ -769,9 +774,12 @@ void TWorld::InitChannel(void)
     bl2g = NewMap(0);
 
     SSCFlood = NewMap(0);
+    SSCNFlood = NewMap(0);
     SSFlood = NewMap(0);
     SSNFlood = NewMap(0);
     SSTCFlood = NewMap(0);
+    SSDetFloodT = NewMap(0);
+    SSDetFlood = NewMap(0);
 
     ss1r = NewMap(0);
     ss1l = NewMap(0);
@@ -780,10 +788,24 @@ void TWorld::InitChannel(void)
     ssf1 = NewMap(0);
     ssg1 = NewMap(0);
     sss = NewMap(0);
+    sss2 = NewMap(0);
     ss1d = NewMap(0);
     ss1g = NewMap(0);
     ss2d = NewMap(0);
     ss2g = NewMap(0);
+
+    temp1 = NewMap(0);
+    temp2 = NewMap(0);
+    temp3 = NewMap(0);
+    temp4 = NewMap(0);
+    temp5 = NewMap(0);
+    temp6 = NewMap(0);
+    temp7 = NewMap(0);
+    temp8 = NewMap(0);
+    temp9 = NewMap(0);
+    temp10 = NewMap(0);
+    temp11= NewMap(0);
+    temp12= NewMap(0);
 
 
 }

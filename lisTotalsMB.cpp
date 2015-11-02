@@ -267,14 +267,20 @@ void TWorld::Totals(void)
         SedTot = mapTotal(*Sed);
         // all in kg/cell
 
+        copy(*TotalSed, *Sed);
+        // for sed conc
 
         if (SwitchChannelFlood)
         {
             DetFlowTot += mapTotal(*BLDetFloodT);
+            DetFlowTot += mapTotal(*SSDetFloodT);
             DetTot += mapTotal(*BLDetFloodT);
+            DetTot += mapTotal(*SSDetFloodT);
             DepTot += mapTotal(*BLDepFloodT);
             SedTot += mapTotal(*BLFlood);
             SedTot += mapTotal(*SSFlood);
+            calcMap(*TotalSed, *BLFlood, ADD);
+            calcMap(*TotalSed, *SSFlood, ADD);
         }
 
 
@@ -286,8 +292,7 @@ void TWorld::Totals(void)
 
         SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
         // for screen output, total main outlet sed loss in kg
-        copy(*TotalSed, *Sed);
-        // for sed conc
+
 
         if (SwitchIncludeChannel)
         {
@@ -305,6 +310,7 @@ void TWorld::Totals(void)
             // add channel outflow (in kg) to total for main outlet
 
             calcMap(*TotalSed, *ChannelSed, ADD);
+
             // needed for sed conc in file output
         }
 
@@ -327,6 +333,7 @@ void TWorld::Totals(void)
             if (SwitchChannelFlood)
             {
                 TotalDepMap->Drc += BLDepFloodT->Drc;
+                TotalDetMap->Drc += SSDetFloodT->Drc;
                 TotalDetMap->Drc += BLDetFloodT->Drc;
             }
             if (SwitchIncludeChannel)
@@ -344,6 +351,13 @@ void TWorld::Totals(void)
             double Q = Qoutput->Drc/1000;
             TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
         }
+    }
+
+    if(SwitchErosion)
+    {
+        fill(*BLDepFloodT,0.0);
+        fill(*SSDetFloodT,0.0);
+        fill(*BLDetFloodT,0.0);
     }
 
     if (SwitchPesticide)

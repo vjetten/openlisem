@@ -340,14 +340,17 @@ cTMap
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
 *SSDepthFlood,
+*temp1,*temp2,*temp3,*temp4,
+*temp5,*temp6,*temp7,*temp8,
+*temp9,*temp10,*temp11,*temp12,
 
 //Bed Load layer
-*BLCFlood,*BLFlood,*BLNFlood,*BLTCFlood,*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,
-*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bl1d, *bl1g, *bl2d, *bl2g,
+*BLCFlood,*BLCNFlood,*BLFlood,*BLNFlood,*BLTCFlood,*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,
+*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
 
 //Suspended Sediment Layer
-*SSCFlood,*SSFlood,*SSNFlood,*SSTCFlood,
-*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*ss1d, *ss1g, *ss2d, *ss2g,
+*SSCFlood,*SSCNFlood,*SSFlood,*SSNFlood,*SSTCFlood,*SSDetFlood,*SSDetFloodT,
+*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
 
 //*q1flood,*q2flood,
 *som_z1,*som_z2,

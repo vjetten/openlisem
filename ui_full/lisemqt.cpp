@@ -1168,7 +1168,9 @@ void lisemqt::resetAll()
     E_FloodReconstruction->setValue(3); //set to HLL3
     E_FloodScheme->setValue(1); //MUSCL
     E_1D2DCoupling->setValue(1);
-
+    E_SSMethod->setValue(1);
+    E_SigmaDiffusion->setValue(1);
+    E_BLMethod->setValue(1);
     E_FloodMaxIter->setValue(200);
     //   E_FloodReplaceV->setValue(1);
     //   E_FloodMaxVelocity->setValue(10.0);

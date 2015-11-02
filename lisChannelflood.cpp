@@ -104,7 +104,7 @@ void TWorld::ChannelOverflow()
                         //transport sediment with water
                         if(SwitchErosion)
                         {
-                            BLFlood->Drc += ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            SSFlood->Drc += ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
                             ChannelSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
 
                         }
@@ -127,8 +127,8 @@ void TWorld::ChannelOverflow()
                         //transport sediment with water
                         if(SwitchErosion)
                         {
-                            BLFlood->Drc -= BLCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
-                            ChannelSed->Drc += BLCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
+                            SSFlood->Drc -= SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
+                            ChannelSed->Drc += SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
                         }
                     }
                 }
@@ -151,12 +151,12 @@ void TWorld::ChannelOverflow()
                         if(dhmx > 0.0)
                         {
 
-                            BLFlood->Drc += ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
+                            SSFlood->Drc += ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
                             ChannelSed->Drc -= ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
                         }else
                         {
-                            BLFlood->Drc += BLCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
-                            ChannelSed->Drc -= BLCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
+                            SSFlood->Drc += SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
+                            ChannelSed->Drc -= SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
 
                         }
 
@@ -169,8 +169,8 @@ void TWorld::ChannelOverflow()
 
                     if(SwitchErosion)
                     {
-                        errs += factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
-                        BLFlood->Drc -= factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
+                        //Serrs += factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
+                        //BLFlood->Drc -= factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
                     }
 
                     err += factor*hmx->Drc*ChannelAdj->Drc*DX->Drc;
@@ -191,11 +191,18 @@ void TWorld::ChannelOverflow()
 
         if(SwitchErosion)
         {
-            BLFlood->Drc += (errs/(nrFloodedCells+1));
-            BLFlood->Drc = std::max(0.0, BLFlood->Drc);
+            //BLFlood->Drc += (errs/(nrFloodedCells+1));
+            //BLFlood->Drc = std::max(0.0, BLFlood->Drc);
         }
 
     }}
+
+    FOR_CELL_IN_FLOODAREA
+
+        SWOFSedimentLayerDepth(r,c);
+
+        SWOFSedimentMaxC(r,c);
+    }
 
 //FOR_CELL_IN_FLOODAREA
 //{
@@ -324,6 +331,7 @@ void TWorld::getFloodParameters(void)
     F_extremeHeight = F_extremeHeight;
     F_extremeDiff = op.F_extremeDiff;
     courant_factor = op.F_courant;
+    courant_factor_diffusive = op.F_courant_diffusive;
     F_MaxIter = op.F_Maxiter;
 }
 //---------------------------------------------------------------------------
@@ -335,11 +343,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-    if(SwitchErosion)
-    {
-        fill(*BLDepFloodT,0.0);
-        fill(*BLDetFloodT,0.0);
-    }
+
     getFloodParameters();
 
     FOR_CELL_IN_FLOODAREA
