@@ -404,7 +404,7 @@ void TWorld::OverlandFlowNew(void)
 
             double err =  -WHrunoff->Drc * ChannelAdj->Drc * DX->Drc - QoutKW->Drc + QinKW->Drc +  WaterVolin->Drc - K2DI->Drc;
             //throw calculation error in infiltration, error should be insignificant
-            InfilVolKinWave->Drc = K2DI->Drc + err;
+            InfilVolKinWave->Drc = K2DI->Drc;
 
         }
     }

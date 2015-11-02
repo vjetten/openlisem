@@ -86,9 +86,10 @@ void TWorld::K2DInit()
 
     FOR_ROW_COL_MV
     {
+
         double dy = FlowWidth->Drc;
 
-        double hrunoff = std::max(WHrunoff->Drc ,0.0);
+        double hrunoff = std::max(WHrunoff->Drc, 0.0);
 
         double Perim = 2.0*hrunoff+dy;
 
@@ -108,8 +109,8 @@ void TWorld::K2DInit()
         Qn->Drc = K2DQ->Drc;
 
         WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
-        K2DHOld->Drc = WHrunoff->Drc;
 
+        K2DHOld->Drc = WHrunoff->Drc;
     }
 
 
@@ -463,13 +464,13 @@ void TWorld::K2DSolvebyFlux(double dt)
         //similar for sediment and pesticide transport
         if(SwitchErosion)
         {
-            K2DQSX->Drc = K2DQS->Drc*xw;
-            K2DQSY->Drc = K2DQS->Drc*yw;
+            K2DQSX->Drc = K2DQS->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
+            K2DQSY->Drc = K2DQS->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
         }
         if(SwitchPesticide)
         {
-            K2DQPX->Drc = K2DQP->Drc*xw;
-            K2DQPY->Drc = K2DQP->Drc*yw;
+            K2DQPX->Drc = K2DQP->Drc*xw* (K2DSlopeX->Drc > 0? 1.0:-1.0);
+            K2DQPY->Drc = K2DQP->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
         }
 
     }
