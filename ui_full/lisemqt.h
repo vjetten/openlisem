@@ -186,7 +186,7 @@ public:
     QwtInterval legend;
     QwtScaleWidget *rightAxis;
     QwtPlotRescaler *mapRescaler;
-    double maxAxis1, maxAxis2, maxAxis3, maxAxis4, maxAxis5, maxAxis6, maxAxis7;
+    double maxAxis1, maxAxis2, maxAxis3, maxAxis4, maxAxis5, maxAxis6, maxAxis7, maxAxis8;
     int pstep;
     QwtPlotMagnifier *magnifier;
     QwtPlotPanner *panner;
@@ -207,6 +207,8 @@ public:
     QwtLinearColorMapVJ *pal6b;
     QwtLinearColorMapVJ *pal7a;
     QwtLinearColorMapVJ *pal7b;
+    QwtLinearColorMapVJ *pal8a;
+    QwtLinearColorMapVJ *pal8b;
     // graph variables
     QwtPlot *HPlot;
     QwtPlot *smallPlot;

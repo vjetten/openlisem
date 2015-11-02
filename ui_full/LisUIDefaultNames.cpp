@@ -66,6 +66,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
     DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
+    DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
@@ -394,6 +395,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood method SWOF2D order 2");
     namelist[i].value = QString("0.4");
     namelist[i++].name = QString("Flooding courant factor");
+    namelist[i].value = QString("0.2");
+    namelist[i++].name = QString("Flooding courant factor diffusive");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
     namelist[i].value = QString("3"); //HLL2
@@ -402,6 +405,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("1"); //MUSCL
     namelist[i++].name = QString("Flooding SWOF scheme");
+    namelist[i].value = QString("1"); //van rijn simplified
+    namelist[i++].name = QString("Flooding SS method");
+    namelist[i].value = QString("1"); //van rijn simplified
+    namelist[i++].name = QString("Flooding BL method");
+    namelist[i].value = QString("1"); //van rijn simplified
+    namelist[i++].name = QString("Sigma diffusion");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood limit max velocity");
     namelist[i].value = QString("20.0");
@@ -412,7 +421,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood extreme value difference");
     namelist[i].value = QString("0");
     namelist[i++].name = QString(" Flood calc as watershed");
-
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood sediment transport method");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

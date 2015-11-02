@@ -75,12 +75,15 @@ cTMap
 
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
+*Vx,                          //!< velocity of overland flow [m/s]
+*Vy,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 //*AlphaF,
 //*QF,
 //*QnF,
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
+
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
 *QoutKW,
@@ -123,6 +126,7 @@ cTMap
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
 *AggrStab,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
+*D90,                        //!< 90 % of grainsize distribution is below this value [mu]
 *DETSplash,                  //!< splash detachment [kg/m^2]
 *DETFlow,                    //!< flow detachment [kg/m^2]
 *DEP,                        //!< deposition [kg/m^2]
@@ -321,6 +325,7 @@ cTMap
 *ChannelDepth,               //!<
 *UVflood,                     //!<
 *Qflood,                    //!<
+
 //sediment in flood
 *QfloodPrev,                    //!<
 *QfloodSed,                    //!<
@@ -336,9 +341,19 @@ cTMap
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
 *hmxInit,                    //!<
-*hmx,                        //!<
+//explicit solution
+*Hx,                         //!<
 *Hmx,                        //!<
-
+*hx,                         //!<
+*hmx,                        //!<
+*Nx,                         //!<
+*dHdLx,                      //!<
+*Qxsum,                      //!<
+*qx0,                        //!<
+*qx1,                        //!<
+*qx2,                        //!<
+*qx3,                        //!<
+//explicit solution
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<
@@ -346,7 +361,6 @@ cTMap
 *FloodWaterVol,                //!<
 *FloodZonePotential,                //!<
 *FloodEdge,                //!<
-*WaterSheds,
 
 
 
@@ -361,11 +375,27 @@ cTMap
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,
 *g1, *g2, *g3, *cfly,
-//*f1o, *f2o, *f3o, *cflxo,
-//*g1o, *g2o, *g3o, *cflyo,
+*f1o, *f2o, *f3o, *cflxo,
+*g1o, *g2o, *g3o, *cflyo,
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,
+
+//FULLSWOF2D with Sediment
+*BLDepthFlood,
+*SSDepthFlood,
+*temp1,*temp2,*temp3,*temp4,
+*temp5,*temp6,*temp7,*temp8,
+*temp9,*temp10,*temp11,*temp12,
+
+//Bed Load layer
+*BLCFlood,*BLCNFlood,*BLFlood,*BLNFlood,*BLTCFlood,*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,
+*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
+
+//Suspended Sediment Layer
+*SSCFlood,*SSCNFlood,*SSFlood,*SSNFlood,*SSTCFlood,*SSDetFlood,*SSDetFloodT,
+*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
+
 //*q1flood,*q2flood,
 *som_z1,*som_z2,
 

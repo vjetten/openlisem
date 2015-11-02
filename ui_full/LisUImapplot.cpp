@@ -88,6 +88,7 @@ void lisemqt::selectMapType(bool /* doit */)
   if (radioButton_FLV->isChecked())   op.drawMapType = 5;
   if (radioButton_P->isChecked())     op.drawMapType = 6;
   if (radioButton_FEW->isChecked())   op.drawMapType = 7;
+  if (radioButton_SS->isChecked())   op.drawMapType = 8;
 
   showMap();
 }
@@ -290,7 +291,7 @@ void lisemqt::showMap()
   if (op.drawMapType == 5) showMap5();
   if (op.drawMapType == 6) showMap6();
   if (op.drawMapType == 7) showMap7();
-
+  if (op.drawMapType == 8) showMap8();
   channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
   roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
   houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
@@ -655,35 +656,36 @@ void lisemqt::showMap7()
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
-// FLOOD LEVEL
+//---------------------------------------------------------------------------
+// Sediment
 void lisemqt::showMap8()
 {
-  MPlot->setTitle("Overland flow level (m)");
+  MPlot->setTitle("Suspended Sediment(kg/cell)");
 
-  pal4a = new colorMapFlood();
-  pal4b = new colorMapFlood();
+  pal8a = new colorMapP();
+  pal8b = new colorMapP();
 
-  double MaxV = fillDrawMapData(op.DrawMap1, RD, 8);
+  double MaxV = fillDrawMapData(op.DrawMap8, RD, 8);
   if (MaxV ==-1e20)
     return;
+  // fill vector and find the new max value
 
-  maxAxis4 = std::max(maxAxis4, MaxV);
-  if (doubleSpinBoxFL->value() > 0)
-    maxAxis4 = doubleSpinBoxFL->value();
-  else
-    maxAxis4 = MaxV;
+  maxAxis8 = std::max(maxAxis8, MaxV);
+  if (doubleSpinBoxSS->value() > 0)
+    maxAxis8 = doubleSpinBoxSS->value();
 
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0.000, maxAxis4));
+  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis8));
 
   drawMap->setData(RD);
 
-  pal4a->setThreshold(0);//std::max(0.000,doubleSpinBoxFLmin->value()));
-  pal4b->setThreshold(0);//doubleSpinBoxFLmin->value());
+  pal8a->setThreshold(0.001);
+  pal8b->setThreshold(0.001);
 
-  drawMap->setColorMap(pal4a);
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal4b);
+  drawMap->setColorMap(pal8a);
+  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal8b);
 
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
+  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis8);
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
+

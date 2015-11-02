@@ -581,9 +581,6 @@ void TWorld::InitChannel(void)
             //            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
-            WaterSheds = ReadMap(LDD, getvaluename("watershed"));
-            MakeWatersheds();
-
             long nrc = 0;
             FOR_ROW_COL_MV
             {
@@ -612,6 +609,21 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
+            // explicit
+            if (SwitchFloodExplicit)
+            {
+                Qxsum = NewMap(0);
+                qx0 = NewMap(0);
+                qx1 = NewMap(0);
+                qx2 = NewMap(0);
+                qx3 = NewMap(0);
+                Hx = NewMap(0);
+                hx = NewMap(0);
+
+                Nx = NewMap(0);
+                dHdLx = NewMap(0);
+            }
+            //explicit
             Hmx = NewMap(0);
             FloodWaterVol = NewMap(0);
 
@@ -652,6 +664,7 @@ void TWorld::InitChannel(void)
 
             minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
+            courant_factor = getvaluedouble("Flooding courant factor diffusive");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
 
@@ -659,6 +672,9 @@ void TWorld::InitChannel(void)
             F_reconstruction = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
             F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
             F_scheme = getvalueint("Flooding SWOF scheme");                   // MUSCL, ENO, ENOMOD
+            FS_SS_Method = getvalueint("Flooding SS method");
+            FS_BL_Method = getvalueint("Flooding BL method");
+            FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
             F_replaceV = getvalueint("Flood limit max velocity");
             F_maxVelocity = getvaluedouble("Flood max velocity threshold");
             F_extremeHeight = getvaluedouble("Flood extreme value height");
@@ -706,6 +722,14 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
+            f1o = NewMap(0);
+            f2o = NewMap(0);
+            f3o = NewMap(0);
+            cflxo = NewMap(0);
+            cflyo = NewMap(0);
+            g1o = NewMap(0);
+            g2o = NewMap(0);
+            g3o = NewMap(0);
             //            f1o = NewMap(0);
             //            f2o = NewMap(0);
             //            f3o = NewMap(0);
@@ -725,9 +749,73 @@ void TWorld::InitChannel(void)
             //q1flood = NewMap(0);
             //q2flood = NewMap(0);
 
+
+
         }
 
     }
+
+    BLDepthFlood = NewMap(0);
+    SSDepthFlood = NewMap(0);
+
+    BLCFlood = NewMap(0);
+    BLCNFlood = NewMap(0);
+    BLFlood = NewMap(0);
+    BLNFlood = NewMap(0);
+    BLTCFlood = NewMap(0);
+    BLDepFlood = NewMap(0);
+    BLDetFlood = NewMap(0);
+
+    BLDepFloodT = NewMap(0);
+    BLDetFloodT = NewMap(0);
+
+    bl1r = NewMap(0);
+    bl1l = NewMap(0);
+    bl2r = NewMap(0);
+    bl2l = NewMap(0);
+    blf1 = NewMap(0);
+    blg1 = NewMap(0);
+    bls = NewMap(0);
+    bl1d = NewMap(0);
+    bl1g = NewMap(0);
+    bl2d = NewMap(0);
+    bl2g = NewMap(0);
+
+    SSCFlood = NewMap(0);
+    SSCNFlood = NewMap(0);
+    SSFlood = NewMap(0);
+    SSNFlood = NewMap(0);
+    SSTCFlood = NewMap(0);
+    SSDetFloodT = NewMap(0);
+    SSDetFlood = NewMap(0);
+
+    ss1r = NewMap(0);
+    ss1l = NewMap(0);
+    ss2r = NewMap(0);
+    ss2l = NewMap(0);
+    ssf1 = NewMap(0);
+    ssg1 = NewMap(0);
+    sss = NewMap(0);
+    sss2 = NewMap(0);
+    ss1d = NewMap(0);
+    ss1g = NewMap(0);
+    ss2d = NewMap(0);
+    ss2g = NewMap(0);
+
+    temp1 = NewMap(0);
+    temp2 = NewMap(0);
+    temp3 = NewMap(0);
+    temp4 = NewMap(0);
+    temp5 = NewMap(0);
+    temp6 = NewMap(0);
+    temp7 = NewMap(0);
+    temp8 = NewMap(0);
+    temp9 = NewMap(0);
+    temp10 = NewMap(0);
+    temp11= NewMap(0);
+    temp12= NewMap(0);
+
+
 }
 //---------------------------------------------------------------------------
 // NOT USED FOR NOW
@@ -802,6 +890,16 @@ void TWorld::GetInputData(void)
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
+
+    //experiment for runoff concentration in local depressions
+
+    /*for(int i =0; i < 15; i++)
+    {
+
+        DEM->data[263][205+i] = 40.0;
+
+
+    }*/
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
@@ -1061,6 +1159,7 @@ void TWorld::GetInputData(void)
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
         D50 = ReadMap(LDD,getvaluename("D50"));
+        D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
     //## read and initialize all channel maps and variables
@@ -1088,20 +1187,22 @@ void TWorld::IntializeData(void)
     //totals for mass balance
     MB = 0;
     MBs = 0;
-    MBeM3 = 0;
-
     nrCells = 0;
     FOR_ROW_COL_MV
     {
         nrCells+=1;
     }
-    nrFloodedCells = 0;
 
     DX = NewMap(0);
     CellArea = NewMap(0);
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
+//        if (SwitchIncludeChannel)
+//            if (ChannelDX->Drc > 0)
+//            {
+//                DX->Drc = ChannelDX->Drc;
+//            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = mapTotal(*CellArea);
@@ -1280,6 +1381,8 @@ void TWorld::IntializeData(void)
     FlowWidth = NewMap(0);
     fpa = NewMap(0);
     V = NewMap(0);
+    Vx = NewMap(0);
+    Vy = NewMap(0);
     Alpha = NewMap(0);
 
     //    AlphaF = NewMap(0);
@@ -1288,6 +1391,7 @@ void TWorld::IntializeData(void)
 
     Q = NewMap(0);
     Qn = NewMap(0);
+
     K2DDEM = NewMap(0);
     K2DWHStore = NewMap(0);
     K2DPits = NewMap(0);
@@ -1598,6 +1702,8 @@ void TWorld::IntializeData(void)
         }
     }
 
+
+    //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
     K2DDEMA();
 

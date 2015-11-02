@@ -54,6 +54,7 @@ SET(APP_SOURCES
     lisChannelflood
     lisSWOF2D
     lisSWOF2Daux
+    lisSWOF2DSediment
     lisInterception
     lisPesticide
     include/version.h

@@ -924,6 +924,9 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           dt1 = maincalcflux(dt1, dt_max);
           dt1 = std::min(dt1, _dt-timesum);
 
+          //sediment
+          SWOFSediment(dt1);
+
           maincalcscheme(dt1, h,u,v, hs,us,vs);
 
           setZero(hs, us, vs);
@@ -936,6 +939,8 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
           timesum = timesum + dt1;
           n++;
+
+
 
           if (correct)
               correctMassBalance(sumh, h, 1e-12);
@@ -1003,6 +1008,28 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           dt1 = maincalcflux(dt1, dt_max);
           dt1 = std::min(dt1, _dt-timesum);
 
+          if(SwitchErosion)
+          {
+              //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
+              //otherwise they will be overwritten by the second reconstruction
+              FOR_ROW_COL_MV
+              {
+                  temp1->Drc = h1d->Drc;
+                  temp2->Drc = h1g->Drc;
+                  temp3->Drc = h2d->Drc;
+                  temp4->Drc = h2g->Drc;
+                  temp5->Drc = u1r->Drc;
+                  temp6->Drc = u1l->Drc;
+                  temp7->Drc = v1r->Drc;
+                  temp8->Drc = v1l->Drc;
+                  temp9->Drc = u2r->Drc;
+                  temp10->Drc = u2l->Drc;
+                  temp11->Drc = v2r->Drc;
+                  temp12->Drc = v2l->Drc;
+
+              }
+          }
+
           //st venant equations, h, u, v go in hs, vs, us come out
           maincalcscheme(dt1, h,u,v, hs,us,vs);
           dt2 = dt1;
@@ -1031,6 +1058,9 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
               setZero(hsa, usa, vsa);
 
+              //sediment
+              SWOFSediment(dt1 );
+
               //Heun method (order 2 in time)
               FOR_ROW_COL_MV
               {
@@ -1051,12 +1081,18 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
                   }
               }//Heun
 
+
+
               timesum = timesum + dt1;
               n++;
 
               if (n > F_MaxIter)
                   break;
           }//end for else dt2<dt1
+
+
+
+
 
           if (correct)
               correctMassBalance(sumh, h, 1e-12);

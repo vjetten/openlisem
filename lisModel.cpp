@@ -281,6 +281,7 @@ void TWorld::setupDisplayMaps()
         delete op.DrawMap5;
         delete op.DrawMap6;
         delete op.DrawMap7;
+        delete op.DrawMap8;
         delete op.baseMap;
         delete op.baseMapDEM;
         delete op.channelMap;
@@ -295,6 +296,7 @@ void TWorld::setupDisplayMaps()
     op.DrawMap5 = new cTMap();
     op.DrawMap6 = new cTMap();
     op.DrawMap7 = new cTMap();
+    op.DrawMap8 = new cTMap();
     op.baseMap = new cTMap();
     op.baseMapDEM = new cTMap();
     op.channelMap = new cTMap();
@@ -308,6 +310,7 @@ void TWorld::setupDisplayMaps()
     op.DrawMap5->MakeMap(LDD, 0);
     op.DrawMap6->MakeMap(LDD, 0);
     op.DrawMap7->MakeMap(LDD, 0);
+    op.DrawMap8->MakeMap(LDD, 0);
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.channelMap->MakeMap(LDD, 0);

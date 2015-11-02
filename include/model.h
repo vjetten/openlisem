@@ -109,6 +109,7 @@
 #define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+#define MAXCONCBL 50000.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 
 
 #define INFIL_NONE 0
@@ -133,9 +134,13 @@
 #define FENO 2
 #define FENOMOD 3
 
+#define FSGOVERS 0
+#define FSRIJN 1
+#define FSRIJNFULL 2
 #define K1D_METHOD       1
 #define K2D_METHOD_FLUX  2
 #define K2D_METHOD_INTER  3
+
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -204,7 +209,7 @@ typedef struct RAIN_LIST {
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
   The class contains hydrological and erosion processes which are run in a time loop.\n
   The main function is <B>void TWorld::DoModel()</B>, which has the time loop calling ll processes\n
-  Every timestep the mass alance is calculated and output is reported to the UI and disk.
+  Every timestep the mass balance is calculated and output is reported to the UI and disk.
  */
 
 //http://blog.exys.org/entries/2010/QThread_affinity.html
@@ -243,7 +248,7 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchFloodSedimentMethod;
 
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
@@ -460,6 +465,47 @@ public:
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
     void MakeWatersheds(void);
 
+    int FS_SS_Method;
+    int FS_BL_Method;
+    double FS_SigmaDiffusion;
+
+    //sediment for SWOF flood model
+    void FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
+    void FS_MUSCLE(cTMap * _sbl,cTMap * _sss);
+    void FS_ENO(cTMap * _sbl,cTMap * _sss);
+    void FS_Simple(cTMap * _sbl,cTMap * _sss);
+    void FS_MainCalc(cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
+
+    void FS_FluxWS(int wsnr, cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
+    void FS_MUSCLEWS(int wsnr, cTMap * _sbl,cTMap * _sss);
+    void FS_ENOWS(int wsnr, cTMap * _sbl,cTMap * _sss);
+    void FS_SimpleWS(int wsnr, cTMap * _sbl,cTMap * _sss);
+    void FS_MainCalcWS(int wsnr, cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
+
+    void FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
+    void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
+    void FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
+
+    void SWOFSedimentDiffusion(double dt);
+    void SWOFSedimentDiffusionWS(int wsnr, double dt);
+    void SWOFSedimentMaxC(int r, int c);
+    void SWOFSedimentCheckZero(int r, int c);
+    void SWOFSedimentSetConcentration(int r, int c);
+
+    double SWOFSedimentTCBL(int r,int c);
+    double SWOFSedimentTCSS(int r,int c);
+
+    void SWOFSedimentFlow(double dt);
+    void SWOFSedimentFlowInterpolation(double dt);
+    void SWOFSedimentDet(double dt,int r,int c);
+    void SWOFSedimentFlowWS(int wsnr, double dt);
+    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt);
+    void SWOFSediment(double dt);
+    void SWOFSedimentWS(int l,double dt);
+    void SWOFSedimentLayerDepth(int r , int c);
+
+
+    void Pestmobilisation(void);
     // pesticide
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
@@ -539,6 +585,7 @@ public:
     void ChannelOverflow();
     void getFloodParameters(void);
     double courant_factor;
+    double courant_factor_diffusive;
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;
     double minReportFloodHeight;

@@ -92,6 +92,24 @@ void TWorld::OutputUI(void)
         if (ErosionUnits == 0) // ton/ha
             calcValue(*tmb, 10, MUL);
 
+        //copy(*tmb, *BLTCFlood);
+
+        fill(*tmc, 0.0);//copy(*tmc, *Sed);
+        /*if(SwitchChannelFlood)
+        {
+            calcMap(*tmc, *SFlood, ADD);
+        }
+        calcMap(*tmc, *ChannelSed, ADD);*/
+        if(SwitchChannelFlood)
+        {
+            //FOR_ROW_COL_MV
+            //        tmc->Drc = (SSTCFlood->Drc * SSDepthFlood->Drc + BLTCFlood->Drc * BLDepthFlood->Drc)* DX->Drc * ChannelAdj->Drc;
+
+            calcMap(*tmc, *BLFlood, ADD);
+            calcMap(*tmc, *SSFlood, ADD);
+
+        }
+        copy(*op.DrawMap8, *tmc);
 /*
         if (ErosionUnits == 1)  // in kg/m2
             tmb->copy(TotalSoillossMap); //kg/cell

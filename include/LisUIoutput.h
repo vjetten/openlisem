@@ -44,6 +44,9 @@ struct output{
     int
     F_solution,
     F_scheme,
+    F_SSMethod,
+    F_BLMethod,
+    F_SigmaDiffusion,
     F_fluxLimiter,
     F_replaceV,
     F_Maxiter;
@@ -51,7 +54,8 @@ struct output{
     F_maxVelocity,
     F_extremeHeight,
     F_extremeDiff,
-    F_courant;
+    F_courant,
+    F_courant_diffusive;
 
     double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
@@ -80,6 +84,7 @@ struct output{
     cTMap *DrawMap5;
     cTMap *DrawMap6;
     cTMap *DrawMap7;
+    cTMap *DrawMap8; //sediment concentration
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;

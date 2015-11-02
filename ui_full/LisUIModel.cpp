@@ -229,6 +229,7 @@ void lisemqt::initOP()
     op.DrawMap5 = NULL;
     op.DrawMap6 = NULL;
     op.DrawMap7 = NULL;
+    op.DrawMap8 = NULL;
     op.baseMap = NULL;
     op.baseMapDEM = NULL;
     op.channelMap = NULL;
@@ -305,7 +306,9 @@ void lisemqt::initOP()
     op.F_extremeHeight = 5.0,
     op.F_extremeDiff = 2.0;
     op.F_courant = 0.2;
+    op.F_courant_diffusive = 0.2;
     op.F_Maxiter = 200;
+    op.F_SigmaDiffusion = 1;
 
 }
 //---------------------------------------------------------------------------
@@ -314,10 +317,14 @@ void lisemqt::setFloodOP(bool)
     op.F_solution = E_floodSolution->text().toInt();
     op.F_fluxLimiter = E_FloodFluxLimiter->text().toInt();
     op.F_scheme = E_FloodScheme->text().toInt();
+    op.F_SSMethod = E_SSMethod->text().toInt();
+    op.F_SigmaDiffusion = E_SigmaDiffusion->text().toDouble();
+    op.F_BLMethod = E_BLMethod->text().toInt();
     op.F_replaceV = (E_FloodReplaceVcheck->isChecked() ? 1:0);
     op.F_maxVelocity = E_FloodMaxVelocity->text().toDouble(),
     op.F_extremeHeight = E_FloodExtremeHeight->text().toDouble(),
     op.F_extremeDiff = E_FloodExtremeDiff->text().toDouble();
     op.F_courant = E_courantFactor->text().toDouble();
+    op.F_courant_diffusive = E_courantFactorDiffusive->text().toDouble();
     op.F_Maxiter = E_FloodMaxIter->text().toInt();
 }

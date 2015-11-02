@@ -639,6 +639,9 @@ double TWorld::fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool corre
                 findDTws(l, false);
                 maincalcschemews(l, h,u,v, hs,us,vs);
 
+                //sediment flow
+                SWOFSedimentWS(l,WS[l].dt);
+
                 setZerows(l, hs, us, vs);
 
                 FOR_WATERSHED_ROW_COL(l){
@@ -763,10 +766,15 @@ double TWorld::fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool corre
                 }
                 else
                 {
+
+
                     verif = 1;
 
                     maincalcschemews(l, hs, us, vs, hsa, usa, vsa);
                     setZerows(l, hsa, usa, vsa);
+
+                    //sediment flow
+                    SWOFSedimentWS(l,WS[l].dt);
 
                     //Heun method (order 2 in time)
                     FOR_WATERSHED_ROW_COL(l) {
@@ -786,6 +794,8 @@ double TWorld::fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool corre
                             h->Drc = 0;
                         }
                     }}
+
+
 
                     done = true;
                     WS[l].dtsum += WS[l].dt;

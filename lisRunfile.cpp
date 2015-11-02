@@ -184,6 +184,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
         if (p1.compare("Flood initial level map")==0)        SwitchFloodInitial     = iii == 1;
         if (p1.compare("Flood calc as watershed")==0)         SwitchWatershed     = iii == 1;
+        if (p1.compare("Flood sediment transport method")==0)         SwitchFloodSedimentMethod     = iii == 1;
 //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;

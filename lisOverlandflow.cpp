@@ -83,6 +83,23 @@ void TWorld::ToFlood(void)
         WHGrass->Drc -= dwh;
         WHroad->Drc -= dwh;
 
+        if(SwitchErosion)
+        {
+            //better distribute this by ratio suspended Tc and
+            SSFlood->Drc += Sed->Drc * frac;
+            Sed->Drc = Sed->Drc * (1-frac);
+            //DEP->Drc += Sed->Drc * frac;
+            //Sed->Drc = Sed->Drc * (1-frac);
+
+            //immediately check for maximum concentration
+            //if not done, too high concentration will show on display, before being deposited
+            SWOFSedimentLayerDepth(r,c);
+
+            SWOFSedimentMaxC(r,c);
+        }
+
+
+
     }}
 }
 //---------------------------------------------------------------------------
