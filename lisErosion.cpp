@@ -177,10 +177,11 @@ void TWorld::FlowDetachment(void)
 
    FOR_ROW_COL_MV
    {
+
       tm->Drc = 0;
 
       //### Calc transport capacity
-      double omega = 100*V->Drc*Grad->Drc;
+      double omega = 100* V->Drc*K2DSlope->Drc;
       // V in cm/s in this formula assuming grad is SINE
       double omegacrit = 0.4;
       // critical unit streampower in cm/s
@@ -215,6 +216,14 @@ void TWorld::FlowDetachment(void)
 
    FOR_ROW_COL_MV
    {
+      double erosionwh = WH->Drc;
+      double erosionwv = WaterVolall->Drc;
+      if(SwitchKinematic2D > 1)
+      {
+          erosionwh = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0);
+          erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
+      }
+
       //### Add splash to sediment
       Sed->Drc += DETSplash->Drc;
       // add splash to sed volume
@@ -222,7 +231,7 @@ void TWorld::FlowDetachment(void)
       //### calc concentration and net transport capacity
       DEP->Drc = 0;
       // init deposition for this timestep
-      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+      Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
       // limit sed concentration to max
 
       double maxTC = std::max(TC->Drc - Conc->Drc,0.0);
@@ -238,7 +247,13 @@ void TWorld::FlowDetachment(void)
 
       DETFlow->Drc = Y->Drc * maxTC * TransportFactor;
       // unit = kg/m3 * m3 = kg
-      DETFlow->Drc = std::min(DETFlow->Drc, maxTC * Q->Drc*_dt);
+      if(SwitchKinematic2D > 1)
+      {
+          DETFlow->Drc = std::min(DETFlow->Drc, maxTC * erosionwv);
+      }else
+      {
+          DETFlow->Drc = std::min(DETFlow->Drc, maxTC * Q->Drc * _dt);
+      }
       // cannot have more detachment than remaining capacity in flow
       // use discharge because standing water has no erosion
 
@@ -266,9 +281,9 @@ void TWorld::FlowDetachment(void)
 
       //### deposition
       if (WH->Drc > MIN_HEIGHT)
-         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/WH->Drc)) * WaterVolall->Drc;
+         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
       else
-         TransportFactor = WaterVolall->Drc;
+         TransportFactor = erosionwv;
       // if settl velo is very small, transportfactor is 0 and depo is 0
       // if settl velo is very large, transportfactor is 1 and depo is max
 
@@ -279,7 +294,7 @@ void TWorld::FlowDetachment(void)
       // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
       if (SwitchLimitDepTC)
-         deposition = std::max(deposition, minTC * WaterVolall->Drc);
+         deposition = std::max(deposition, minTC * erosionwv);
       // cannot be more than sediment above capacity
       deposition = std::max(deposition, -Sed->Drc);
       // cannot have more depo than sediment present
@@ -299,7 +314,7 @@ void TWorld::FlowDetachment(void)
       Sed->Drc += DETFlow->Drc;
       Sed->Drc += deposition;
 
-      Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+      Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
       // limit concentration to 850 and throw rest in deposition
    }
 }

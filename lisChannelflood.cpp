@@ -197,11 +197,14 @@ void TWorld::ChannelOverflow()
 
     }}
 
-    FOR_CELL_IN_FLOODAREA
+    if(SwitchErosion)
+    {
+        FOR_CELL_IN_FLOODAREA
 
-        SWOFSedimentLayerDepth(r,c);
+            SWOFSedimentLayerDepth(r,c);
 
-        SWOFSedimentMaxC(r,c);
+            SWOFSedimentMaxC(r,c);
+        }
     }
 
 //FOR_CELL_IN_FLOODAREA

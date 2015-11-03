@@ -167,7 +167,7 @@ void TWorld::ToChannel(void)
 //---------------------------------------------------------------------------
 void TWorld::CalcVelDisch()
 {
-    if(SwitchKinematic2D > 1)
+    if(SwitchKinematic2D != 1)
     {
         return K2DCalcVelDisch();
     }
@@ -435,10 +435,19 @@ void TWorld::OverlandFlowNew(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
-            V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+        if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+        {
+            if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
+                V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+            else
+                V->Drc = 0;
+        }
         else
+        {
             V->Drc = 0;
+        }
+
+
         // recalc velocity for output to map, is not used in other processes
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;

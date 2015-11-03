@@ -86,31 +86,48 @@ void TWorld::K2DInit()
 
     FOR_ROW_COL_MV
     {
-
-        double dy = FlowWidth->Drc;
-
-        double hrunoff = std::max(WHrunoff->Drc, 0.0);
-
-        double Perim = 2.0*hrunoff+dy;
-
-        if (Perim > 0)
-            R->Drc = dy*hrunoff/Perim;
-        else
-            R->Drc = 0;
-
-        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
-        //WHY aplha k2dlope and not grad?
-
-        if (Alpha->Drc == 0)
+        if(K2DSlope->Drc == 0)
+        {
             K2DQ->Drc = 0;
-        else
-            K2DQ->Drc = pow((dy*hrunoff)/Alpha->Drc, 1.0/0.6);
+            Qn->Drc = 0;
+            if(ChannelAdj->Drc > 0)
+            {
+               K2DHOld->Drc = WHrunoff->Drc*FlowWidth->Drc/ChannelAdj->Drc;
+            }else
+            {
+                K2DHOld->Drc = 0;
+            }
 
-        Qn->Drc = K2DQ->Drc;
 
-        WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
+        }else
+        {
+            double dy = FlowWidth->Drc;
 
-        K2DHOld->Drc = WHrunoff->Drc;
+            double hrunoff = std::max(WHrunoff->Drc, 0.0);
+
+            double Perim = 2.0*hrunoff+dy;
+
+            if (Perim > 0)
+                R->Drc = dy*hrunoff/Perim;
+            else
+                R->Drc = 0;
+
+            Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+            //WHY aplha k2dlope and not grad?
+
+            if (Alpha->Drc == 0)
+                K2DQ->Drc = 0;
+            else
+                K2DQ->Drc = pow((dy*hrunoff)/Alpha->Drc, 1.0/0.6);
+
+            Qn->Drc = K2DQ->Drc;
+
+            WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
+
+            K2DHOld->Drc = WHrunoff->Drc;
+        }
+
+
     }
 
 
@@ -156,19 +173,6 @@ double TWorld::K2DFlux(double dtmax)
         else
             K2DQ->Drc = 0;
 
-
-        //K2DQ->Drc = std::min(K2DQ->Drc,fraction*cdx*cdy*hrunoff/dtr );
-
-        //set sediment and pesticide transport
-        if(SwitchErosion)
-        {
-            K2DQS->Drc =  K2DQ->Drc * K2DSC->Drc;
-        }
-        if(SwitchPesticide)
-        {
-            K2DQP->Drc =  K2DQ->Drc * K2DPC->Drc;
-        }
-
         //within this timestep, only half of the cells available water should flow out
         if(K2DQ->Drc > 0)
         {
@@ -189,6 +193,27 @@ double TWorld::K2DFlux(double dtmax)
         if(fraction * (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc) < K2DQ->Drc*dtr)
         {
             K2DQ->Drc =fraction* (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc)/dtr;
+
+
+        }
+        if(SwitchErosion)
+        {
+            K2DQS->Drc =  K2DQ->Drc * K2DSC->Drc;
+            if(K2DQS->Drc > fraction*Sed->Drc)
+            {
+                K2DQS->Drc = fraction*Sed->Drc;
+
+            }
+
+        }
+        if(SwitchPesticide)
+        {
+            K2DQP->Drc =  K2DQ->Drc * K2DPC->Drc;
+            if(K2DQP->Drc > fraction*Pest->Drc)
+            {
+                K2DQP->Drc = fraction*Pest->Drc;
+
+            }
         }
     }
 
@@ -366,8 +391,12 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                 w[i] = weight;
 
                 //if the cell that flows needs to go to is out of bounds or missing value, skip
+                bool inside = INSIDE(r2,c2);
+                bool ismv = true;
+                if(inside)
+                    ismv = pcr::isMV(LDD->data[r2][c2]);
 
-                if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
+                if(inside && !ismv)
                 {
                     double cdx2 = DX->data[r2][c2];
                     double cdy2 = ChannelAdj->data[r2][c2];
@@ -597,7 +626,12 @@ void TWorld::K2DSolvebyFlux(double dt)
             int r2 = r + (dsy > 0? 1: -1);
             int c2 = c + (dsx > 0? 1: -1);
             //is the cell in this direction either out of bounds, or missing value?
-            if(!INSIDE(r,c2) || pcr::isMV(LDD->data[r][c2]) )
+            bool inside = INSIDE(r2,c2);
+            bool ismv = true;
+            if(inside)
+                ismv = pcr::isMV(LDD->data[r2][c2]);
+
+            if(inside && !ismv)
             {
                 //then add the flow to outflow, and subtract from cell
                 K2DFX->Drc -= fabs(K2DQX->data[r][c]);
@@ -616,7 +650,12 @@ void TWorld::K2DSolvebyFlux(double dt)
 
             }
             //is the cell in this direction either out of bounds, or missing value?
-            if(!INSIDE(r2,c) || pcr::isMV(LDD->data[r2][c]) )
+            inside = INSIDE(r2,c2);
+            ismv = true;
+            if(inside)
+                ismv = pcr::isMV(LDD->data[r2][c2]);
+
+            if(inside && !ismv)
             {
                 //then add the flow to outflow, and subtract from cell
                 K2DFY->Drc -= fabs(K2DQY->data[r][c]);
@@ -762,45 +801,48 @@ void TWorld::K2DCalcVelDisch()
 {
     FOR_ROW_COL_MV
     {
-        if(K2DPits->Drc == 1)
+        if(K2DPits->Drc == 1 || K2DSlope->Drc == 0)
         {
             Q->Drc = 0;
             V->Drc = 0;
-            continue;
+
+        }else
+        {
+            double hrunoff = std::max(WHrunoff->Drc - K2DWHStore->Drc,0.0);
+
+            double Perim;
+            const double beta = 0.6;
+            const double _23 = 2.0/3.0;
+            double beta1 = 1/beta;
+            //double kinvisc = 1.1e-6; // 15 degrees celcius water
+            double NN = N->Drc;
+
+
+            if (SwitchChannelFlood)
+                NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
+            // slow down water in flood zone
+            //    tma->Drc = hmx->Drc * UVflood->Drc/kinvisc;
+            // Reynolds number ==> turbulent
+
+            // avg WH from soil surface and roads, over width FlowWidth
+            Perim = 2.0*hrunoff+FlowWidth->Drc;
+
+            if (Perim > 0)
+                R->Drc = hrunoff*FlowWidth->Drc/Perim;
+            else
+                R->Drc = 0;
+
+            Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, _23),beta);
+
+            if (Alpha->Drc > 0)
+                Q->Drc = pow((FlowWidth->Drc*hrunoff)/Alpha->Drc, beta1);
+            else
+                Q->Drc = 0;
+
+            V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
+
+
         }
-
-        double hrunoff = std::max(WHrunoff->Drc - K2DWHStore->Drc,0.0);
-
-        double Perim;
-        const double beta = 0.6;
-        const double _23 = 2.0/3.0;
-        double beta1 = 1/beta;
-        //double kinvisc = 1.1e-6; // 15 degrees celcius water
-        double NN = N->Drc;
-
-
-        if (SwitchChannelFlood)
-            NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
-        // slow down water in flood zone
-        //    tma->Drc = hmx->Drc * UVflood->Drc/kinvisc;
-        // Reynolds number ==> turbulent
-
-        // avg WH from soil surface and roads, over width FlowWidth
-        Perim = 2.0*hrunoff+FlowWidth->Drc;
-
-        if (Perim > 0)
-            R->Drc = hrunoff*FlowWidth->Drc/Perim;
-        else
-            R->Drc = 0;
-
-        Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, _23),beta);
-
-        if (Alpha->Drc > 0)
-            Q->Drc = pow((FlowWidth->Drc*hrunoff)/Alpha->Drc, beta1);
-        else
-            Q->Drc = 0;
-
-        V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
 
 
         //tm->Drc = V->Drc * R->Drc/kinvisc;
@@ -1174,6 +1216,7 @@ void TWorld::K2DDEMA()
         if(pitxw && pityw && pitdw)
         {
             K2DPits->Drc = 1;
+            K2DSlope->Drc = 0;
             //qDebug() << r << c << "PIT!!!!";
         }
     }

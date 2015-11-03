@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5600,7 +5600,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6532,7 +6532,7 @@
                          <double>0.500000000000000</double>
                         </property>
                         <property name="value">
-                         <double>5.000000000000000</double>
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -6562,7 +6562,7 @@
                          <double>0.050000000000000</double>
                         </property>
                         <property name="value">
-                         <double>0.500000000000000</double>
+                         <double>0.250000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -6601,8 +6601,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>332</width>
-                    <height>304</height>
+                    <width>59</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6618,8 +6618,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>332</width>
-                    <height>304</height>
+                    <width>89</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6647,8 +6647,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>332</width>
-                    <height>304</height>
+                    <width>89</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6672,8 +6672,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>332</width>
-                    <height>304</height>
+                    <width>89</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6765,8 +6765,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>293</width>
-                    <height>206</height>
+                    <width>21</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6782,7 +6782,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -6811,7 +6811,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -6840,7 +6840,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -8845,8 +8845,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>354</width>
-                    <height>268</height>
+                    <width>59</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8862,7 +8862,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -9862,7 +9862,7 @@ p, li { white-space: pre-wrap; }
                      <double>0.010000000000000</double>
                     </property>
                     <property name="value">
-                     <double>1.000000000000000</double>
+                     <double>0.400000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -9898,8 +9898,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>261</width>
-                    <height>293</height>
+                    <width>59</width>
+                    <height>18</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -9916,7 +9916,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -9947,7 +9947,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -9983,7 +9983,7 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -10020,7 +10020,7 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -10073,8 +10073,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>100</width>
+                    <height>30</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -10090,7 +10090,7 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -10118,7 +10118,7 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -10144,8 +10144,8 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>274</width>
-                    <height>237</height>
+                    <width>89</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -10670,9 +10670,6 @@ The third equation is a decreasing power law </string>
                       <property name="checked">
                        <bool>true</bool>
                       </property>
-                      <attribute name="buttonGroup">
-                       <string notr="true">buttonGroup_4</string>
-                      </attribute>
                      </widget>
                     </item>
                     <item>
@@ -11079,9 +11076,6 @@ The third equation is a decreasing power law </string>
                       <property name="text">
                        <string>KE = a + b * log(Intensity):</string>
                       </property>
-                      <attribute name="buttonGroup">
-                       <string notr="true">buttonGroup_4</string>
-                      </attribute>
                      </widget>
                     </item>
                     <item>
@@ -11317,9 +11311,6 @@ The third equation is a decreasing power law </string>
                       <property name="text">
                        <string>KE = a * Intensity^b:</string>
                       </property>
-                      <attribute name="buttonGroup">
-                       <string notr="true">buttonGroup_4</string>
-                      </attribute>
                      </widget>
                     </item>
                     <item>
@@ -12452,8 +12443,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>359</width>
-                    <height>517</height>
+                    <width>21</width>
+                    <height>18</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -12470,7 +12461,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>89</width>
                     <height>89</height>
                    </rect>
                   </property>
@@ -17849,29 +17840,6 @@ Channels:
                <property name="verticalSpacing">
                 <number>2</number>
                </property>
-               <item row="7" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxP">
-                 <property name="toolTip">
-                  <string>Set max rainfall in legend, 0 = map maximum</string>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1000.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_P">
-                 <property name="text">
-                  <string>Precipitation (mm)</string>
-                 </property>
-                </widget>
-               </item>
                <item row="6" column="2">
                 <widget class="QSlider" name="transparency">
                  <property name="sizePolicy">
@@ -17900,20 +17868,44 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="7" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_P">
-                 <property name="text">
-                  <string>Precipitation</string>
+               <item row="7" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxP">
+                 <property name="toolTip">
+                  <string>Set max rainfall in legend, 0 = map maximum</string>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
                  </property>
                 </widget>
                </item>
-               <item row="6" column="0" colspan="2">
-                <widget class="QLabel" name="label_92">
-                 <property name="text">
-                  <string>transparency terrain</string>
+               <item row="2" column="2">
+                <widget class="QSlider" name="transparency3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <property name="toolTip">
+                  <string>Transparency roads</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>255</number>
+                 </property>
+                 <property name="value">
+                  <number>180</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
@@ -17933,10 +17925,27 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="QCheckBox" name="checkMapChannels">
+               <item row="7" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_P">
                  <property name="text">
-                  <string/>
+                  <string>Precipitation</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0" colspan="2">
+                <widget class="QLabel" name="label_92">
+                 <property name="text">
+                  <string>transparency terrain</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_P">
+                 <property name="text">
+                  <string>Precipitation (mm)</string>
                  </property>
                 </widget>
                </item>
@@ -17966,44 +17975,6 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2">
-                <widget class="QSlider" name="transparency3">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Transparency roads</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>255</number>
-                 </property>
-                 <property name="value">
-                  <number>180</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0" colspan="3">
-                <widget class="QLabel" name="label_130">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Overlay information</string>
-                 </property>
-                </widget>
-               </item>
                <item row="8" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxRO">
                  <property name="sizePolicy">
@@ -18026,10 +17997,57 @@ Channels:
                  </property>
                 </widget>
                </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkMapChannels">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="3">
+                <widget class="QLabel" name="label_130">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Overlay information</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_SL">
+                 <property name="text">
+                  <string>Soil loss</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_FL">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Flood Level</string>
+                 </property>
+                </widget>
+               </item>
                <item row="1" column="0">
                 <widget class="QCheckBox" name="checkMapBuildings">
                  <property name="text">
                   <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="label_56">
+                 <property name="text">
+                  <string>Buildings (&gt;10%)</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -18055,50 +18073,6 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QLabel" name="label_56">
-                 <property name="text">
-                  <string>Buildings (&gt;10%)</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_SL">
-                 <property name="text">
-                  <string>Soil loss</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_RO">
-                 <property name="text">
-                  <string>Runoff (m3/s)</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_FL">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Infil (mm)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_INF">
-                 <property name="text">
-                  <string>Soil loss (ton/ha)</string>
-                 </property>
-                </widget>
-               </item>
                <item row="10" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxSL">
                  <property name="sizePolicy">
@@ -18121,17 +18095,96 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="11" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_FL">
+               <item row="16" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_FLV">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>Flood depth (m)</string>
+                  <string>Flood Velocity</string>
                  </property>
                 </widget>
                </item>
-               <item row="11" column="3">
+               <item row="9" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_INF">
+                 <property name="text">
+                  <string>Infiltration</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_RO">
+                 <property name="text">
+                  <string>Runoff (m3/s)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="17" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_FEW">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Early warning time (min)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Set max flood depth in legend, 0 = map maximum</string>
+                 </property>
+                 <property name="text" stdset="0">
+                  <string>0.00</string>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFLV">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="3">
+                <widget class="Line" name="line_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="17" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFEW">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>9999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="3" colspan="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxFLmin">
                  <property name="enabled">
                   <bool>false</bool>
@@ -18156,86 +18209,14 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="17" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxFLV">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="17" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_FLV">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Flood Velocity</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="18" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_FEW">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Early warning time (min)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="18" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxFEW">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>9999.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="4">
+               <item row="7" column="3">
                 <widget class="QCheckBox" name="checkDisplayPcum">
-                 <property name="toolTip">
-                  <string>Show cumulative rainfall</string>
-                 </property>
                  <property name="text">
-                  <string>Flood Velocity (m/s)</string>
+                  <string>Cumulative</string>
                  </property>
                 </widget>
                </item>
-               <item row="17" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxFLVmin">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="4">
-                <widget class="QCheckBox" name="checkDisplayWH">
-                 <property name="text">
-                  <string>Add runoff WH</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="3">
+               <item row="10" column="3" colspan="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxROmin">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -18257,32 +18238,17 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="13" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Set max flood depth in legend, 0 = map maximum</string>
-                 </property>
+               <item row="11" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_SS">
                  <property name="text">
-                  <string>Cumulative P (mm)</string>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
+                  <string>Flood Susp. Sed.</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0" colspan="3">
-                <widget class="Line" name="line_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+               <item row="12" column="3">
+                <widget class="QCheckBox" name="checkDisplayWH">
+                 <property name="text">
+                  <string>Add runoff</string>
                  </property>
                 </widget>
                </item>
@@ -18327,26 +18293,6 @@ Channels:
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0" colspan="3">
-                <widget class="QLabel" name="label_131">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Hydrological information</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="0" colspan="2">
-                <widget class="QRadioButton" name="radioButton_SS">
-                 <property name="text">
-                  <string>Flood Susp. Sed.</string>
-                 </property>
-                </widget>
-               </item>
                <item row="11" column="2">
                 <widget class="QDoubleSpinBox" name="doubleSpinBoxSS">
                  <property name="toolTip">
@@ -18360,6 +18306,38 @@ Channels:
                  </property>
                  <property name="singleStep">
                   <double>0.500000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" colspan="3">
+                <widget class="QLabel" name="label_131">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Hydrological information</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="16" column="3" colspan="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxFLVmin">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>0.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -19369,7 +19347,6 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
  </buttongroups>

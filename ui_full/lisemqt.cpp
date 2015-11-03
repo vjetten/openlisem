@@ -352,7 +352,6 @@ void lisemqt::SetToolBar()
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkDisplayROWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));

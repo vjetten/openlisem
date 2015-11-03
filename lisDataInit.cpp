@@ -581,6 +581,12 @@ void TWorld::InitChannel(void)
             //            FloodEdge->report("edge.map");
 
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
+            if(this->SwitchWatershed)
+            {
+                WaterSheds = ReadMap(LDD, getvaluename("watershed"));
+                MakeWatersheds();
+            }
+
             long nrc = 0;
             FOR_ROW_COL_MV
             {
@@ -637,7 +643,9 @@ void TWorld::InitChannel(void)
 
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
-            ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
+            ChannelLevee = NewMap(0);
+            if (SwitchLevees)
+                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
 
@@ -1159,7 +1167,10 @@ void TWorld::GetInputData(void)
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
         D50 = ReadMap(LDD,getvaluename("D50"));
-        D90 = ReadMap(LDD,getvaluename("D90"));
+        if(SwitchChannelFlood)
+        {
+            D90 = ReadMap(LDD,getvaluename("D90"));
+        }
     }
 
     //## read and initialize all channel maps and variables
@@ -1706,6 +1717,8 @@ void TWorld::IntializeData(void)
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
     K2DDEMA();
+
+   // MakeWatersheds();
 
 }
 //---------------------------------------------------------------------------

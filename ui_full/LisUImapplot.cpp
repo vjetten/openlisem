@@ -79,7 +79,6 @@ void lisemqt::selectMapType(bool /* doit */)
 {
   op.displayPcum = checkDisplayPcum->isChecked();
   op.displayWH = checkDisplayWH->isChecked();
-  op.displayROWH = checkDisplayROWH->isChecked();
 
   if (radioButton_RO->isChecked())    op.drawMapType = 1;
   if (radioButton_INF->isChecked())   op.drawMapType = 2;
@@ -284,7 +283,6 @@ void lisemqt::showMap()
   //drawMap->setAlpha(transparency->value());
   //drawMap->setAlpha(255);
   if (op.drawMapType == 1) showMap1();
-  if (op.drawMapType == 1 && op.displayROWH) showMap8();
   if (op.drawMapType == 2) showMap2();
   if (op.drawMapType == 3) showMap3();
   if (op.drawMapType == 4) showMap4();
@@ -525,10 +523,7 @@ void lisemqt::showMap3()
 // FLOOD LEVEL
 void lisemqt::showMap4()
 {
-    if (op.displayROWH)
-        MPlot->setTitle("Overland flow level (m)");
-    else
-        if (op.displayWH)
+    if (op.displayWH)
         MPlot->setTitle("Overland flow and flood level (m)");
     else
         MPlot->setTitle("Flood level (m)");
