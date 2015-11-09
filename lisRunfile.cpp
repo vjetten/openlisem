@@ -182,9 +182,36 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
-        if (p1.compare("Flood initial level map")==0)        SwitchFloodInitial     = iii == 1;
-        if (p1.compare("Flood calc as watershed")==0)         SwitchWatershed     = iii == 1;
-        if (p1.compare("Flood sediment transport method")==0)         SwitchFloodSedimentMethod     = iii == 1;
+
+
+        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
+        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
+        if (p1.compare("OF method")==0)                       OF_Method     = iii;
+        if (p1.compare("River 2 layer sediment")==0)          SwitchUse2Layer     = iii == 1;
+        if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
+        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
+        if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
+        if (p1.compare("Use grain size distribution")==0)     SwitchUseGrainSizeDistribution     = iii == 1;
+        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution     = iii == 1;
+
+        if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
+
+
+        if(SwitchReadGrainSizeDistribution)
+        {
+                if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii == 1;
+                if (p1.compare("Grain size distribution type")==0)    GrainSizeDistributionType     = iii == 1;
+        }else if(SwitchReadGrainSizeDistribution)
+        {
+                if (p1.compare("Number of grain size classes (maps)")==0)  numgrainclasses     = iii == 1;
+                if (p1.compare("Grain size class maps")==0)    GrainMaps    = p;
+        }
+
+
+
+        if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
+        if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
 //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
@@ -206,7 +233,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include grass strips")==0)           SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
-        if (p1.compare("Include percolation")==0)           SwitchPercolation =      iii == 1;
+        if (p1.compare("Include percolation")==0)            SwitchPercolation =      iii == 1;
         if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    		iii == 1;
         if (p1.compare("Use Water Repellency")==0)           SwitchWaterRepellency  = iii == 1;

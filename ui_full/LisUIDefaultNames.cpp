@@ -399,6 +399,42 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding courant factor diffusive");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
+
+
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("D50 for distribution");
+    namelist[i].value = QString("400");
+    namelist[i++].name = QString("D90 for distribution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Grain size distribution type");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OF method");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("River 2 layer sediment");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("River BL method");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("River SS method");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Estimate d90");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use grain size distribution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Estimate grain size distribution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Number of grain size classes (simulated)");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Read grain distribution maps");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Number of grain size classes (maps)");
+    namelist[i].value = QString("");
+    namelist[i++].name = QString("Grain size class maps");
+
+
+
+
+
+
     namelist[i].value = QString("3"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("3"); //albeda

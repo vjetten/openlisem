@@ -246,7 +246,7 @@ void TWorld::ChannelFlow(void)
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
 
-            //routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQS, ChannelQSn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSubs);
+            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
             /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known

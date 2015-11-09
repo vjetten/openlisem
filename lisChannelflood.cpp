@@ -203,7 +203,7 @@ void TWorld::ChannelOverflow()
 
             SWOFSedimentLayerDepth(r,c);
 
-            SWOFSedimentMaxC(r,c);
+            SWOFSedimentMaxC(r,c,BLFlood,BLCFlood,SSFlood,SSCFlood);
         }
     }
 

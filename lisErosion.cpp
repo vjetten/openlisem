@@ -35,6 +35,7 @@ functions: \n
  */
 
 #include <algorithm>
+#include "operation.h"
 #include "model.h"
 
 
@@ -61,6 +62,11 @@ void TWorld::SplashDetachment(void)
 {
    if (!SwitchErosion)
       return;
+
+   if(SwitchUseGrainSizeDistribution)
+   {
+
+   }
 
    FOR_ROW_COL_MV
    {
@@ -166,6 +172,80 @@ void TWorld::SplashDetachment(void)
    }
 }
 //---------------------------------------------------------------------------
+double TWorld::OFTC(int r, int c, double d)
+{
+
+        CG->Drc = pow((d+5)/0.32, -0.6);
+        DG->Drc = pow((d+5)/300, 0.25);
+        //### Calc transport capacity
+        double omega = 100* V->Drc*K2DSlope->Drc;
+        // V in cm/s in this formula assuming grad is SINE
+        double omegacrit = 0.4;
+        // critical unit streampower in cm/s
+        return std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
+        // not more than 2650*0.32 = 848 kg/m3
+
+
+
+}
+//---------------------------------------------------------------------------
+double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
+{
+    double wtotal = 0;
+    FOR_GRAIN_CLASSES
+    {
+        wtotal += (*M).Drcd;
+    }
+    return wtotal;
+}
+//---------------------------------------------------------------------------
+double TWorld::GetDp(int r, int c,double p)
+{
+    return GetDpMat(r,c,p,&W_D);
+}
+//---------------------------------------------------------------------------
+double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
+{
+    if(numgrainclasses == 1)
+    {
+        graindiameters.at(0);
+    }
+    double wtotal = 0;
+    FOR_GRAIN_CLASSES
+    {
+        wtotal += (*M).Drcd;
+    }
+    wtotal = wtotal*p;
+    double w = (*M).at(0)->Drc;;
+    FOR_GRAIN_CLASSES
+    {
+
+        if( d == numgrainclasses - 1)
+        {
+            return graindiameters.at(numgrainclasses-1);
+        }
+        w += (*M).at(d+1)->Drc;
+        if(w > wtotal)
+        {
+            double wmin = (w - (*M).at(d+1)->Drc);
+            double wmax = w;
+            double dw = wmax-wmin;
+            double f = (wtotal- wmin)/dw;
+            return f* graindiameters.at(d + 1) + (1.0-f) * graindiameters.at(d);
+
+        }
+
+
+    }
+    return graindiameters.at(numgrainclasses-1);
+}
+//---------------------------------------------------------------------------
+double TWorld::GetSV(int r, int c,double d)
+{
+    return 2*(2650-1000)*9.80*pow(d/2000000, 2)/(9*0.001);
+}
+
+//---------------------------------------------------------------------------
 // IN KG/CELL
 void TWorld::FlowDetachment(void)
 {
@@ -175,18 +255,16 @@ void TWorld::FlowDetachment(void)
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
 
+   //transport capacity
    FOR_ROW_COL_MV
    {
-
-      tm->Drc = 0;
-
-      //### Calc transport capacity
-      double omega = 100* V->Drc*K2DSlope->Drc;
-      // V in cm/s in this formula assuming grad is SINE
-      double omegacrit = 0.4;
-      // critical unit streampower in cm/s
-      TC->Drc = std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
-      // not more than 2650*0.32 = 848 kg/m3
+        if(!SwitchUseGrainSizeDistribution)
+        {
+            TC->Drc = OFTC(r,c,D50->Drc);
+        }else
+        {
+            TC->Drc = OFTC(r,c,GetDp(r,c,0.5));
+        }
    }
 
    //VJ 110829 TC cannot be more than surrounding cells, this limits the spikes in deposition and erosion
@@ -204,15 +282,25 @@ void TWorld::FlowDetachment(void)
                if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
                    && !pcr::isMV(TC->data[r+dx[i]][c+dy[i]]))
                {
-                  avgtc = avgtc + TC->data[r+dx[i]][c+dy[i]];
-                  maxtc = std::max(maxtc,TC->data[r+dx[i]][c+dy[i]]);
-                  count++;
+                       avgtc = avgtc + TC->data[r+dx[i]][c+dy[i]];
+                       maxtc = std::max(maxtc,TC->data[r+dx[i]][c+dy[i]]);
+                       count++;
+
                }
             }
-         TC->Drc = std::max(TC->Drc, avgtc/count);
+
+         double tcold = TC->Drc;
+
+         if(count > 0)
+         {
+             TC->Drc = std::max(TC->Drc, avgtc/count);
+         }
          TC->Drc = std::min(TC->Drc, maxtc);
+
+
       }
    }
+
 
    FOR_ROW_COL_MV
    {
@@ -226,6 +314,16 @@ void TWorld::FlowDetachment(void)
 
       //### Add splash to sediment
       Sed->Drc += DETSplash->Drc;
+
+      //Find the distribution of detached splash sediment
+      double wtotal = GetTotalDW(r,c,&W_D);
+      FOR_GRAIN_CLASSES
+      {
+           Sed_D.Drcd += DETSplash->Drc * W_D.Drcd/wtotal;
+           Conc_D.Drcd = MaxConcentration(erosionwv, Sed_D.Drcd);
+
+      }
+
       // add splash to sed volume
 
       //### calc concentration and net transport capacity
@@ -241,7 +339,14 @@ void TWorld::FlowDetachment(void)
       // unit kg/m3
 
       //### detachment
-      double TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+      double TransportFactor = 0;
+      if(!SwitchUseGrainSizeDistribution)
+      {
+            TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+      }else
+      {
+          TransportFactor = _dt*GetSV(r,c,GetDpMat(r,c,0.5,&W_D)) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+      }
       // detachment can only come from soil, not roads (so do not use flowwidth)
       // units s * m/s * m * m = m3
 
@@ -273,24 +378,45 @@ void TWorld::FlowDetachment(void)
          DETFlow->Drc = (1-HouseCover->Drc)*DETFlow->Drc;
       // no flow det from house roofs
 
-      // IN KG/CELL
 
-      //DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
-      /* TODO: CHECK THIS no flow detachment on snow */
-      //is there erosion and sedimentation under the snowdeck?
+      //### sediment balance
+      Sed->Drc += DETFlow->Drc;
+
+
+
+      //Find the distribution of detached sediment
+      wtotal = GetTotalDW(r,c,&W_D);
+      FOR_GRAIN_CLASSES
+      {
+           Sed_D.Drcd += DETFlow->Drc * W_D.Drcd/wtotal;
+           Conc_D.Drcd = MaxConcentration(erosionwv, Sed_D.Drcd);
+
+      }
+
+      double deposition = 0;
 
       //### deposition
       if (WH->Drc > MIN_HEIGHT)
-         TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
-      else
+      {
+          if(!SwitchUseGrainSizeDistribution)
+          {
+               TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
+          }else
+          {
+             TransportFactor = (1-exp(-_dt*GetSV(r,c,GetDpMat(r,c,0.5,&Sed_D))/erosionwh)) * erosionwv;
+          }
+
+      }else
+      {
          TransportFactor = erosionwv;
+      }
       // if settl velo is very small, transportfactor is 0 and depo is 0
       // if settl velo is very large, transportfactor is 1 and depo is max
 
       //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
       // deposition can occur on roads and on soil (so use flowwidth)
 
-      double deposition = minTC * TransportFactor;
+      deposition = minTC * TransportFactor;
       // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
       if (SwitchLimitDepTC)
@@ -307,11 +433,16 @@ void TWorld::FlowDetachment(void)
       // generate 100% deposition on grassstrips
       //? bit tricky, maximizes effect on grassstrips ?
 
+
+      wtotal = GetTotalDW(r,c,&W_D);
+      FOR_GRAIN_CLASSES
+      {
+           Sed_D.Drcd += deposition * W_D.Drcd/wtotal;
+           Conc_D.Drcd = MaxConcentration(erosionwv, Sed_D.Drcd);
+      }
+
       DEP->Drc += deposition;
       // IN KG/CELL
-
-      //### sediment balance
-      Sed->Drc += DETFlow->Drc;
       Sed->Drc += deposition;
 
       Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
@@ -410,3 +541,22 @@ void TWorld::ChannelFlowDetachment(void)
 }
 //---------------------------------------------------------------------------
 
+void TWorld::SumSedimentClasses(void)
+{
+    fill(*Sed,0.0);
+
+    for(int i = 0; i < numgrainclasses; i++)
+    {
+        FOR_ROW_COL_MV
+        {
+            //Sed->Drc += Sed_D.at(i)->Drc;
+        }
+    }
+
+    FOR_ROW_COL_MV
+    {
+        //Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+    }
+
+}
+//---------------------------------------------------------------------------

@@ -198,6 +198,15 @@ cTMap
 *K2DPits,                       //!<
 *K2DPitsD,                       //!<
 *K2DOutlets,                    //!<
+
+*K2DQM,                         //!<
+*K2DQMX,                         //!<
+*K2DQMY,                         //!<
+*K2DFMX,                         //!<
+*K2DFMY,                         //!<
+*K2DMN,                         //!<
+*K2DMC,                         //!<
+
 *K2DQS,                         //!<
 *K2DQSX,                         //!<
 *K2DQSY,                         //!<
@@ -210,6 +219,12 @@ cTMap
 *K2DP,                          //!<
 *K2DPC,                          //!<
 *K2DPCN,                          //!<
+*K2DSFX,
+*K2DSFY,
+*K2DPFX,
+*K2DPFY,
+
+
 *K2DDX,                         //!<
 *K2DDY,                         //!<
 *K2DSlopeX,                     //!<
@@ -224,10 +239,7 @@ cTMap
 *K2DQN,
 *K2DFX,                         //!<
 *K2DFY,                         //!<
-*K2DSFX,
-*K2DSFY,
-*K2DPFX,
-*K2DPFY,
+
 *K2DVX,                         //!<
 *K2DVY,                         //!<
 *K2DV,                          //!<
@@ -388,12 +400,24 @@ cTMap
 *temp5,*temp6,*temp7,*temp8,
 *temp9,*temp10,*temp11,*temp12,
 
+//layer itneraction
+*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,*BLTCFlood,
+*SSTCFlood,*SSDetFlood,*SSDetFloodT,
+
+//sediment maps
+*BLCFlood,
+*BLFlood,
+*SSCFlood,
+*SSFlood,
+
+//transport
 //Bed Load layer
-*BLCFlood,*BLCNFlood,*BLFlood,*BLNFlood,*BLTCFlood,*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,
+*MBLCFlood,*MBLCNFlood,*MBLNFlood,*MBLFlood,
 *bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
 
+//transport
 //Suspended Sediment Layer
-*SSCFlood,*SSCNFlood,*SSFlood,*SSNFlood,*SSTCFlood,*SSDetFlood,*SSDetFloodT,
+*MSSCFlood,*MSSCNFlood,*MSSNFlood,*MSSFlood,
 *ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
 
 //*q1flood,*q2flood,

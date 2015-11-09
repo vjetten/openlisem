@@ -351,7 +351,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             }
 
             // sediment in buffers
-            if(SwitchErosion && (SwitchBuffers || SwitchSedtrap))
+            /*if(SwitchErosion && (SwitchBuffers || SwitchSedtrap))
             {
                 // if there is water storage catch all the sediment
                 if (_StorVol->data[rowNr][colNr] > 0)
@@ -383,7 +383,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                         }
                     }
                 }
-            }
+            }*/
 
             // if cell is not a buffer cell or buffer is filled calc outflow with iteration
             if (!isBufferCellWater)
@@ -399,7 +399,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             }
 
             // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration
-            if (SwitchErosion && !isBufferCellSed)
+            /*if (SwitchErosion && !isBufferCellSed)
             {
                 if (!SwitchSimpleSedKinWave)
                     _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
@@ -413,7 +413,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
 
                 _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
                 // new sed volume based on all fluxes and org sed present
-            }
+            }*/
             /* cell rowN, colNr is now done */
 
             temp=list;
@@ -441,7 +441,7 @@ calculating the fluxes from upstream to downstream.\n
 */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                             cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                            cTMap *_Alpha, cTMap *_DX, cTMap* /* _Vol */, cTMap*_Sed) //,cTMap *_StorVol, cTMap *_StorSed)
+                            cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -531,18 +531,58 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 }
             }
 
-            //            if (!SwitchSimpleSedKinWave)
-            _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
-                                                      Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-            //            else
-            //                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
-            //                                                         _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
+            bool isBufferCellSed = false;
 
-            _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
-            // no more sediment outflow than total sed in cell
+            // sediment in buffers
+            if((SwitchBuffers || SwitchSedtrap) && _StorSed != NULL)
+            {
+                // if there is water storage catch all the sediment
+                if (_StorVol->data[rowNr][colNr] > 0)
+                {
+                    isBufferCellSed = true;
+                    //buffer still active
 
-            _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
-            // new sed volume based on all fluxes and org sed present
+                    _StorSed->data[rowNr][colNr] += Sin*_dt;
+                    Sin = 0;
+
+                    if (!SwitchSedtrap)
+                    {
+                        _StorVol->data[rowNr][colNr] -= Sin/2600;
+                        // decrease storvol with volume loss caused by incoming sediment
+                        // the bulkdensity does not matter, the volume taken up is related
+                        // to the particle desity dens, because the pores are filled with water
+                        // if we use bulk dens here we assume pores are empty!
+
+                        if (_StorVol->data[rowNr][colNr] < 0)
+                        {
+                            Qin = -_StorVol->data[rowNr][colNr]/_dt;
+                            // overflow part becomes flux again
+                            _StorVol->data[rowNr][colNr] = 0;
+
+                            //buffer is full, outflow in kin wave
+                            isBufferCellSed = false;
+                            //buffer is full, sed outflow in kin wave
+                        }
+                    }
+                }
+            }
+
+            if (!isBufferCellSed)
+            {
+
+                            if (!SwitchSimpleSedKinWave)
+                _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+                                                          Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
+                            else
+                                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
+                                                                         _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
+
+                _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
+                // no more sediment outflow than total sed in cell
+
+                _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
+                // new sed volume based on all fluxes and org sed present
+            }
 
             /* cell rowN, colNr is now done */
 

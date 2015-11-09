@@ -62,6 +62,7 @@
 
 /// shortcut to access data
 #define Drc     data[r][c]
+#define Drcd    at(d)->data[r][c]
 #define Drci data[r+dr[i]][c+dc[i]]
 
 /// shortcut to access the outlet point data
@@ -79,6 +80,7 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
+#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
 #define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
 {\
@@ -137,6 +139,16 @@
 #define FSGOVERS 0
 #define FSRIJN 1
 #define FSRIJNFULL 2
+#define FSSEDTRA 3
+
+#define RGOVERS 0
+#define RRIJN 1
+#define RRIJNFULL 2
+#define RSEDTRA 3
+
+#define OFGOVERS 0
+#define OF 1
+
 #define K1D_METHOD       1
 #define K2D_METHOD_FLUX  2
 #define K2D_METHOD_INTER  3
@@ -465,9 +477,60 @@ public:
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
     void MakeWatersheds(void);
 
+
+    //SEDIMENT TRANSPORT
     int FS_SS_Method;
     int FS_BL_Method;
     double FS_SigmaDiffusion;
+
+    int OF_Method;
+
+    int R_SS_Method;
+    int R_BL_Method;
+    double R_SigmaDiffusion;
+
+    int GrainSizeDistributionType;
+
+    bool SwitchUseMaterialDepth,SwithEstimated90,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+
+    int numgrainclasses;
+    QString GrainMaps;
+    QList<int> graindiameters;
+    QList<double> settlingvelocities;
+    double distD50;
+    double distD90;
+
+    QList<cTMap *> W_D;
+
+    QList<cTMap *> BL_D;
+    QList<cTMap *> SS_D;
+    QList<cTMap *> BLC_D;
+    QList<cTMap *> SSC_D;
+    QList<cTMap *> BLTC_D;
+    QList<cTMap *> SSTC_D;
+
+    QList<cTMap *> BL_RD;
+    QList<cTMap *> SS_RD;
+    QList<cTMap *> BLC_RD;
+    QList<cTMap *> SSC_RD;
+    QList<cTMap *> BLTC_RD;
+    QList<cTMap *> SSTC_RD;
+
+    QList<cTMap *> Sed_D;
+    //QList<cTMap *> TC_D;
+    QList<cTMap *> Conc_D;
+
+    //material that is available for detachment
+    QList<cTMap *> Storage2_D;
+    QList<cTMap *> Storage_D;
+
+
+    //keep track of any dissolved substances that need to be advected by the kinematic wave
+
+    QList<cTMap *> OF_Advect;
+    QList<cTMap *> R_Advect;
+    QList<cTMap *> F_Advect;
+
 
     //sediment for SWOF flood model
     void FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
@@ -486,23 +549,56 @@ public:
     void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
     void FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
 
-    void SWOFSedimentDiffusion(double dt);
-    void SWOFSedimentDiffusionWS(int wsnr, double dt);
-    void SWOFSedimentMaxC(int r, int c);
-    void SWOFSedimentCheckZero(int r, int c);
-    void SWOFSedimentSetConcentration(int r, int c);
+    void SWOFSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusionWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentMaxC(int r, int c, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentCheckZero(int r, int c, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentSetConcentration(int r, int c, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
 
     double SWOFSedimentTCBL(int r,int c);
     double SWOFSedimentTCSS(int r,int c);
 
-    void SWOFSedimentFlow(double dt);
-    void SWOFSedimentFlowInterpolation(double dt);
+    void SWOFSedimentFlow(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(double dt,int r,int c);
-    void SWOFSedimentFlowWS(int wsnr, double dt);
-    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt);
+    void SWOFSedimentFlowWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSediment(double dt);
     void SWOFSedimentWS(int l,double dt);
     void SWOFSedimentLayerDepth(int r , int c);
+
+    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
+    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
+                          double Sji1, double alpha, double dt, double dx);
+
+    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
+                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                                cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed,cTMap*_VolStore, cTMap*_SedStore);
+
+
+    double K2DSolvebyFluxSed(double dt, cTMap *M, cTMap *MC);
+    double K2DSolvebyInterpolationSed(double dt, cTMap *M, cTMap *MC);
+
+
+    double OFTC(int r, int c, double d);
+    double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+    double GetDp(int r, int c,double p);
+    double GetTotalDW(int r, int c,QList<cTMap *> *M);
+    double GetSV(int r, int c,double d);
+    void SplashDetachment(void);
+    void FlowDetachment(void);
+    double MaxConcentration(double watvol, double sedvol);
+    void ChannelFlowDetachment(void);
+
+    void SumSedimentClasses();
+
+
+    /*void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void RiverSedimentLayerDepth(int r , int c);
+    double RiverSedimentTCBL(int r,int c);
+    double RiverSedimentTCSS(int r,int c);*/
+
+
 
 
     void Pestmobilisation(void);
@@ -562,10 +658,7 @@ public:
     void TileFlow(void);
     void CalcVelDischTile(void);
     void GridCell(void);
-    void SplashDetachment(void);
-    void FlowDetachment(void);
-    double MaxConcentration(double watvol, double sedvol);
-    void ChannelFlowDetachment(void);
+
     //flood
     //QVector<int> cellRow;
     //QVector<int> cellCol;
@@ -591,15 +684,9 @@ public:
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs,
                    cTMap *_Qsn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *Vol, cTMap*SedVol,
                    cTMap *_StorVol, cTMap*_StorVolSed);
-
-    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
-    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
-                          double Sji1, double alpha, double dt, double dx);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
-    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
-                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                                cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);
+
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
 

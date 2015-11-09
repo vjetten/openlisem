@@ -216,6 +216,8 @@ void TWorld::DoModel()
 
             TileFlow();          // tile drain flow kin wave
 
+            //SumSedimentClasses();  //sum the induvidual sediment class layers
+
             Totals();            // calculate all totals and cumulative values
             MassBalance();       // check water and sed mass balance
 

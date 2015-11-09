@@ -95,7 +95,7 @@ void TWorld::ToFlood(void)
             //if not done, too high concentration will show on display, before being deposited
             SWOFSedimentLayerDepth(r,c);
 
-            SWOFSedimentMaxC(r,c);
+            SWOFSedimentMaxC(r,c, BLFlood,BLCFlood,SSFlood,SSCFlood);
         }
 
 
@@ -262,6 +262,19 @@ void TWorld::OverlandFlowNew(void)
         //      and the current amount Subs (mass) in suspension+solution
         //
 
+        if (SwitchErosion)
+        {
+
+            fill(*Qsn, 0.0);
+            FOR_ROW_COL_MV
+            {
+                if (LDD->Drc == 5) // if outflow point, pit
+                {
+                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+                }
+            }
+        }
+
         if (SwitchPesticide)
         {
             // calc pesticide flux going in kin wave as Qp = Q*C
@@ -276,7 +289,7 @@ void TWorld::OverlandFlowNew(void)
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);
+                    routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest, BufferVol, NULL);
                 }
             }
         }
@@ -312,6 +325,15 @@ void TWorld::OverlandFlowNew(void)
                 K2DSolvebyFlux(dt);
             if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
                 K2DSolvebyInterpolation(dt);
+
+            /*sediment transport functions must be called before K2DSolve() and after K2DSolveBy..() */
+            if(SwitchErosion)
+            {
+                if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
+                    K2DSolvebyFluxSed(dt,Sed,Conc);
+                if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
+                    K2DSolvebyInterpolationSed(dt,Sed, Conc);
+            }
 
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);

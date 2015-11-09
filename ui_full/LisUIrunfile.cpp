@@ -204,6 +204,25 @@ void lisemqt::ParseInputData()
         if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
 
+        if (p1.compare("D90 for distribution")==0)                       E_D90->setValue(val);
+        if (p1.compare("D50 for distribution")==0)          E_D50->setValue(val);
+        if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
+        if (p1.compare("River 2 layer sediment")==0)          checkUse2Layer->setChecked(check);
+        if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(val);
+        if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(val);
+        if (p1.compare("Estimate d90")==0)                    checkEstimated90->setChecked(check);
+        if (p1.compare("Use grain size distribution")==0)     checkUseGrainSizeDistribution->setChecked(check);
+        if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
+
+        if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
+
+                if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(val);
+                if (p1.compare("Grain size distribution type")==0)    E_GrainSizeDistributionType->setValue(val);
+
+                if (p1.compare("Number of grain size classes (maps)")==0)  E_NumberClassesMaps->setValue(val);
+                if (p1.compare("Grain size class maps")==0)   E_GrainSizes->setText(p);
+
+
 
         if (p1.compare("Include Rainfall")==0)               dummyrain = check;//checkRainfall->setChecked(check);
         if (p1.compare("Include Snowmelt")==0)               dummysnow = check;//checkSnowmelt->setChecked(check);
@@ -659,6 +678,25 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Flood sediment transport method")==0)namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
+
+        if (p1.compare("D90 for distribution")==0)                       namelist[j].value = E_D90->text();
+        if (p1.compare("D50 for distribution")==0)          namelist[j].value = E_D50->text();
+        if (p1.compare("OF method")==0)                       namelist[j].value = E_OFMethod->text();
+        if (p1.compare("River 2 layer sediment")==0)          namelist[j].value.setNum((int)checkUse2Layer->isChecked());
+        if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
+        if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("Estimate d90")==0)                    namelist[j].value.setNum((int)checkEstimated90->isChecked());
+        if (p1.compare("Use grain size distribution")==0)     namelist[j].value.setNum((int)checkUseGrainSizeDistribution->isChecked());
+        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
+
+        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
+
+                if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
+                if (p1.compare("Grain size distribution type")==0)    namelist[j].value = E_GrainSizeDistributionType->text();
+
+                if (p1.compare("Number of grain size classes (maps)")==0)  namelist[j].value = E_NumberClassesMaps->text();
+                if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
+
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());

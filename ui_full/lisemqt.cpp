@@ -1112,7 +1112,25 @@ void lisemqt::resetAll()
     checkRainfall->setChecked(true);
     //  checkAltErosion->setChecked(check);
     //  checkSimpleDepression->setChecked(check);
-    checkHardsurface->setChecked(check);
+    checkHardsurface->setChecked(false);
+    E_OFMethod->setValue(0);
+    checkUse2Layer->setChecked(check);
+    E_RBLMethod->setValue(0);
+    E_RSSMethod->setValue(0);
+    E_D90->setValue(400);
+    E_D50->setValue(200);
+    checkEstimated90->setChecked(check);
+    checkUseGrainSizeDistribution->setChecked(check);
+    checkEstimateGrainSizeDistribution->setChecked(check);
+
+    checkReadGrainSizeDistribution->setChecked(false);
+
+    E_NumberClasses->setValue(0);
+    E_GrainSizeDistributionType->setValue(0);
+
+    E_NumberClassesMaps->setValue(0);
+    E_GrainSizes->setText("");
+
     //houses
     checkHouses->setChecked(check);
     checkRaindrum->setChecked(check);

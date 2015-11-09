@@ -467,12 +467,7 @@ void TWorld::InitChannel(void)
     ChannelAlpha = NewMap(0);
     ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
-    ChannelDetFlow = NewMap(0);
-    ChannelDep = NewMap(0);
-    ChannelSed = NewMap(0);
-    ChannelConc = NewMap(0);
-    ChannelTC = NewMap(0);
-    ChannelY = NewMap(0);
+
 
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
@@ -763,65 +758,7 @@ void TWorld::InitChannel(void)
 
     }
 
-    BLDepthFlood = NewMap(0);
-    SSDepthFlood = NewMap(0);
 
-    BLCFlood = NewMap(0);
-    BLCNFlood = NewMap(0);
-    BLFlood = NewMap(0);
-    BLNFlood = NewMap(0);
-    BLTCFlood = NewMap(0);
-    BLDepFlood = NewMap(0);
-    BLDetFlood = NewMap(0);
-
-    BLDepFloodT = NewMap(0);
-    BLDetFloodT = NewMap(0);
-
-    bl1r = NewMap(0);
-    bl1l = NewMap(0);
-    bl2r = NewMap(0);
-    bl2l = NewMap(0);
-    blf1 = NewMap(0);
-    blg1 = NewMap(0);
-    bls = NewMap(0);
-    bl1d = NewMap(0);
-    bl1g = NewMap(0);
-    bl2d = NewMap(0);
-    bl2g = NewMap(0);
-
-    SSCFlood = NewMap(0);
-    SSCNFlood = NewMap(0);
-    SSFlood = NewMap(0);
-    SSNFlood = NewMap(0);
-    SSTCFlood = NewMap(0);
-    SSDetFloodT = NewMap(0);
-    SSDetFlood = NewMap(0);
-
-    ss1r = NewMap(0);
-    ss1l = NewMap(0);
-    ss2r = NewMap(0);
-    ss2l = NewMap(0);
-    ssf1 = NewMap(0);
-    ssg1 = NewMap(0);
-    sss = NewMap(0);
-    sss2 = NewMap(0);
-    ss1d = NewMap(0);
-    ss1g = NewMap(0);
-    ss2d = NewMap(0);
-    ss2g = NewMap(0);
-
-    temp1 = NewMap(0);
-    temp2 = NewMap(0);
-    temp3 = NewMap(0);
-    temp4 = NewMap(0);
-    temp5 = NewMap(0);
-    temp6 = NewMap(0);
-    temp7 = NewMap(0);
-    temp8 = NewMap(0);
-    temp9 = NewMap(0);
-    temp10 = NewMap(0);
-    temp11= NewMap(0);
-    temp12= NewMap(0);
 
 
 }
@@ -829,21 +766,233 @@ void TWorld::InitChannel(void)
 // NOT USED FOR NOW
 void TWorld::InitMulticlass(void)
 {
-    if (!SwitchMulticlass)
-        return;
+    if(SwitchErosion)
+    {
+        //### erosion maps
+        DetSplashTot = 0;
+        DetFlowTot = 0;
+        DepTot = 0;
+        DetTot = 0;
+        DepTot = 0;
+        SoilLossTot = 0;
+        SoilLossTotOutlet = 0;
+        SoilLossTotSub = 0;
+        SedTot = 0;
+        Qs = NewMap(0);
+        Qsn = NewMap(0);
+        //Qsoutflow = NewMap(0);
+        DETFlow = NewMap(0);
+        DETSplash = NewMap(0);
+        DEP = NewMap(0);
+        Sed = NewMap(0);
+        TC = NewMap(0);
+        Conc = NewMap(0);
+        CG = NewMap(0);
+        DG = NewMap(0);
+        SettlingVelocity = NewMap(0);
+        CohesionSoil = NewMap(0);
+        Y = NewMap(0);
 
-    SubsMaps[0].m = ReadMap(LDD, getvaluename("fractionmu0"));
-    SubsMaps[1].m = ReadMap(LDD, getvaluename("fractionmu1"));
-    SubsMaps[2].m = ReadMap(LDD, getvaluename("fractionmu2"));
-    SubsMaps[3].m = ReadMap(LDD, getvaluename("fractionmu3"));
-    SubsMaps[4].m = ReadMap(LDD, getvaluename("fractionmu4"));
-    SubsMaps[5].m = ReadMap(LDD, getvaluename("fractionmu5"));
-    nrSubsMaps = 6;
+
+
+        TotalDetMap = NewMap(0);
+        TotalDepMap = NewMap(0);
+        TotalSoillossMap = NewMap(0);
+        TotalSed = NewMap(0);
+        TotalConc = NewMap(0);
+
+
+        if(SwitchIncludeChannel)
+        {
+            ChannelDetFlow = NewMap(0);
+            ChannelDep = NewMap(0);
+            ChannelSed = NewMap(0);
+            ChannelConc = NewMap(0);
+            ChannelTC = NewMap(0);
+            ChannelY = NewMap(0);
+
+        }
+
+        if(SwitchChannelFlood)
+        {
+            BLDepthFlood = NewMap(0);
+            SSDepthFlood = NewMap(0);
+
+            BLCFlood = NewMap(0);
+            BLFlood = NewMap(0);
+            BLTCFlood = NewMap(0);
+            BLDepFlood = NewMap(0);
+            BLDetFlood = NewMap(0);
+
+            BLDepFloodT = NewMap(0);
+            BLDetFloodT = NewMap(0);
+
+            bl1r = NewMap(0);
+            bl1l = NewMap(0);
+            bl2r = NewMap(0);
+            bl2l = NewMap(0);
+            blf1 = NewMap(0);
+            blg1 = NewMap(0);
+            bls = NewMap(0);
+            bl1d = NewMap(0);
+            bl1g = NewMap(0);
+            bl2d = NewMap(0);
+            bl2g = NewMap(0);
+
+            MSSCFlood = NewMap(0);
+            MSSNFlood = NewMap(0);
+            MSSFlood = NewMap(0);
+            MSSCNFlood = NewMap(0);
+
+            MBLCFlood = NewMap(0);
+            MBLNFlood = NewMap(0);
+            MBLFlood = NewMap(0);
+            MBLCNFlood = NewMap(0);
+
+            SSCFlood = NewMap(0);
+            SSFlood = NewMap(0);
+            SSTCFlood = NewMap(0);
+            SSDetFloodT = NewMap(0);
+            SSDetFlood = NewMap(0);
+
+            ss1r = NewMap(0);
+            ss1l = NewMap(0);
+            ss2r = NewMap(0);
+            ss2l = NewMap(0);
+            ssf1 = NewMap(0);
+            ssg1 = NewMap(0);
+            sss = NewMap(0);
+            sss2 = NewMap(0);
+            ss1d = NewMap(0);
+            ss1g = NewMap(0);
+            ss2d = NewMap(0);
+            ss2g = NewMap(0);
+
+            temp1 = NewMap(0);
+            temp2 = NewMap(0);
+            temp3 = NewMap(0);
+            temp4 = NewMap(0);
+            temp5 = NewMap(0);
+            temp6 = NewMap(0);
+            temp7 = NewMap(0);
+            temp8 = NewMap(0);
+            temp9 = NewMap(0);
+            temp10 = NewMap(0);
+            temp11= NewMap(0);
+            temp12= NewMap(0);
+        }
+
+
+        graindiameters.clear();
+        BL_D.clear();
+        SS_D.clear();
+        BLC_D.clear();
+        SSC_D.clear();
+        BLTC_D.clear();
+        SSTC_D.clear();
+
+        BL_RD.clear();
+        SS_RD.clear();
+        BLC_RD.clear();
+        SSC_RD.clear();
+        BLTC_RD.clear();
+        SSTC_RD.clear();
+
+        Sed_D.clear();
+        Conc_D.clear();
+
+        Storage2_D.clear();
+        Storage_D.clear();
+
+        OF_Advect.clear();
+
+        R_Advect.clear();
+
+
+        F_Advect.clear();
+
+        if(!SwitchUseGrainSizeDistribution)
+        {
+
+            FOR_ROW_COL_MV
+            {
+                CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
+                DG->Drc = pow((D50->Drc+5)/300, 0.25);
+                SettlingVelocity->Drc = GetSV(r,c,D50->Drc);
+                CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+                // soil cohesion everywhere, plantcohesion only where plants
+                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+                //            if (StoneFraction->Drc > 0)
+                //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
+                // GOED IDEE
+
+            }
+
+            OF_Advect.append(Sed);
+
+            R_Advect.append(Sed);
+
+            F_Advect.append(SSFlood);
+            F_Advect.append(BLFlood);
+
+        }else if(SwitchUseGrainSizeDistribution)
+        {
+
+            if(SwitchEstimateGrainSizeDistribution)
+            {
+
+                distD50 = getvaluedouble("D50 for distribution");
+                distD90 = getvaluedouble("D90 for distribution");
+
+                numgrainclasses = 1;
+                graindiameters.append(50);
+
+                for(int i = 0; i < numgrainclasses; i++)
+                {
+
+                    W_D.append(NewMap(1.0));
+                    graindiameters.clear();
+
+
+                    BL_D.append(NewMap(0.0));
+                    SS_D.append(NewMap(0.0));
+                    BLC_D.append(NewMap(0.0));
+                    SSC_D.append(NewMap(0.0));
+                    BLTC_D.append(NewMap(0.0));
+                    SSTC_D.append(NewMap(0.0));
+
+                    BL_RD.append(NewMap(0.0));
+                    SS_RD.append(NewMap(0.0));
+                    BLC_RD.append(NewMap(0.0));
+                    SSC_RD.append(NewMap(0.0));
+                    BLTC_RD.append(NewMap(0.0));
+                    SSTC_RD.append(NewMap(0.0));
+
+                    Sed_D.append(NewMap(0.0));
+                    //TC_D.append(NewMap(0.0));
+                    Conc_D.append(NewMap(0.0));
+
+                    Storage2_D.append(NewMap(0.0));
+                    Storage_D.append(NewMap(0.0));
+                }
+
+
+
+
+            }if(SwitchUseGrainSizeDistribution && SwitchReadGrainSizeDistribution)
+            {
+
+            }
+        }
+
+    }
 
 }
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
+
+
     //## calibration factors
     ksatCalibration = getvaluedouble("Ksat calibration");
     nCalibration = getvaluedouble("N calibration");
@@ -898,17 +1047,6 @@ void TWorld::GetInputData(void)
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
-
-    //experiment for runoff concentration in local depressions
-
-    /*for(int i =0; i < 15; i++)
-    {
-
-        DEM->data[263][205+i] = 40.0;
-
-
-    }*/
-
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
     calcValue(*Grad, 0.001, MAX);
@@ -1160,18 +1298,22 @@ void TWorld::GetInputData(void)
         //         throw res;
     }
 
-    //## erosion maps
-    if (SwitchErosion)
+    if(SwitchErosion)
     {
         Cohesion = ReadMap(LDD,getvaluename("coh"));
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+
+
         D50 = ReadMap(LDD,getvaluename("D50"));
+
         if(SwitchChannelFlood)
         {
             D90 = ReadMap(LDD,getvaluename("D90"));
         }
     }
+
+    InitMulticlass();
 
     //## read and initialize all channel maps and variables
     InitChannel();
@@ -1185,8 +1327,7 @@ void TWorld::GetInputData(void)
     //## read and initialize all tile drain system maps and variables
     InitTiledrains();
 
-    // not used
-    //InitMulticlass();
+
 
 }
 //---------------------------------------------------------------------------
@@ -1194,6 +1335,7 @@ void TWorld::GetInputData(void)
 void TWorld::IntializeData(void)
 {
     //TO DO add units and descriptions --> TMmapVariables.h
+
 
     //totals for mass balance
     MB = 0;
@@ -1416,6 +1558,15 @@ void TWorld::IntializeData(void)
    // K2DAspect = NewMap(0);
 
 
+
+    K2DQM = NewMap(0);
+    K2DQMX = NewMap(0);
+    K2DQMY = NewMap(0);
+    K2DFMX = NewMap(0);
+    K2DFMY = NewMap(0);
+    K2DMN = NewMap(0);
+    K2DMC = NewMap(0);
+
     if(SwitchErosion)
     {
         K2DQS = NewMap(0);
@@ -1502,54 +1653,12 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
-    //### erosion maps
-    DetSplashTot = 0;
-    DetFlowTot = 0;
-    DepTot = 0;
-    DetTot = 0;
-    DepTot = 0;
-    SoilLossTot = 0;
-    SoilLossTotOutlet = 0;
-    SoilLossTotSub = 0;
-    SedTot = 0;
-    Qs = NewMap(0);
-    Qsn = NewMap(0);
-    //Qsoutflow = NewMap(0);
-    DETFlow = NewMap(0);
-    DETSplash = NewMap(0);
-    DEP = NewMap(0);
-    Sed = NewMap(0);
-    TC = NewMap(0);
-    Conc = NewMap(0);
-    CG = NewMap(0);
-    DG = NewMap(0);
-    SettlingVelocity = NewMap(0);
-    CohesionSoil = NewMap(0);
-    Y = NewMap(0);
-
-    TotalDetMap = NewMap(0);
-    TotalDepMap = NewMap(0);
-    TotalSoillossMap = NewMap(0);
-    TotalSed = NewMap(0);
-    TotalConc = NewMap(0);
 
 
-    if (SwitchErosion)
-    {
-        FOR_ROW_COL_MV
-        {
-            CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-            DG->Drc = pow((D50->Drc+5)/300, 0.25);
-            SettlingVelocity->Drc = 2*(2650-1000)*9.80*pow(D50->Drc/2000000, 2)/(9*0.001);
-            CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
-            // soil cohesion everywhere, plantcohesion only where plants
-            Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
-            //            if (StoneFraction->Drc > 0)
-            //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
-            // GOED IDEE
 
-        }
-    }
+
+
+
 
     if (SwitchPesticide)
     {
@@ -1752,6 +1861,7 @@ void TWorld::IntializeOptions(void)
     channelDischargeMapFileName = QString("chandism3.map");
 
     rainFileName.clear();
+    SwitchLimitTC = false;
     rainFileDir.clear();
     snowmeltFileName.clear();
     snowmeltFileDir.clear();
@@ -1759,8 +1869,10 @@ void TWorld::IntializeOptions(void)
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();
 
+    SwitchUse2Layer = false;
+    SwitchUseGrainSizeDistribution = false;
+    SwitchReadGrainSizeDistribution = false;
     SwitchHardsurface = false;
-    SwitchLimitTC = false;
     SwitchLimitDepTC = false;
     SwatreInitialized = false;
     SwitchInfilGA2 = false;
