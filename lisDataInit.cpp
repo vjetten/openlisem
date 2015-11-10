@@ -459,6 +459,7 @@ void TWorld::InitChannel(void)
     ChannelQ = NewMap(0);
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
+    ChannelSed = NewMap(0);
     ChannelQs = NewMap(0);
     ChannelQsn = NewMap(0);
     ChannelV = NewMap(0);
@@ -806,7 +807,13 @@ void TWorld::InitMulticlass(void)
         {
             ChannelDetFlow = NewMap(0);
             ChannelDep = NewMap(0);
-            ChannelSed = NewMap(0);
+            ChannelBLSed = NewMap(0);
+            ChannelSSSed = NewMap(0);
+            ChannelBLDepth = NewMap(0);
+            ChannelQBLs = NewMap(0);
+            ChannelQBLsn = NewMap(0);
+            ChannelQSSs = NewMap(0);
+            ChannelQSSsn = NewMap(0);
             ChannelConc = NewMap(0);
             ChannelTC = NewMap(0);
             ChannelY = NewMap(0);
@@ -1565,6 +1572,7 @@ void TWorld::IntializeData(void)
     K2DFMX = NewMap(0);
     K2DFMY = NewMap(0);
     K2DMN = NewMap(0);
+    K2DM = NewMap(0);
     K2DMC = NewMap(0);
 
     if(SwitchErosion)

@@ -205,6 +205,7 @@ cTMap
 *K2DFMX,                         //!<
 *K2DFMY,                         //!<
 *K2DMN,                         //!<
+*K2DM,                         //!<
 *K2DMC,                         //!<
 
 *K2DQS,                         //!<
@@ -312,6 +313,10 @@ cTMap
 *ChannelQntot,
 *ChannelQs,                  //!<
 *ChannelQsn,                 //!<
+*ChannelQBLs,                  //!<
+*ChannelQBLsn,                 //!<
+*ChannelQSSs,                  //!<
+*ChannelQSSsn,                 //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
 *ChannelN,                   //!<
@@ -328,6 +333,9 @@ cTMap
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 *ChannelSed,                 //!<
+*ChannelBLSed,                 //!<
+*ChannelSSSed,                 //!<
+*ChannelBLDepth,                 //!<
 *ChannelConc,                //!<
 *ChannelTC,                  //!<
 *SedToChannel,               //!<

@@ -593,10 +593,11 @@ public:
     void SumSedimentClasses();
 
 
-    /*void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
-    double RiverSedimentTCBL(int r,int c);
-    double RiverSedimentTCSS(int r,int c);*/
+    double RiverSedimentTCBL(int r,int c,double d);
+    double RiverSedimentTCSS(int r,int c, double d);
+
 
 
 
@@ -691,7 +692,7 @@ public:
     void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
 
     // kinematic 2D
-    double K2DFlux(double dt);
+    double K2DFlux();
     void K2DSolve(double dt);
     void K2DSolvebyFlux(double dt);
     void K2DSolvebyInterpolation(double dt);

@@ -316,7 +316,7 @@ void TWorld::OverlandFlowNew(void)
             //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
 
             //function returns the minimal needed time-step for stable advection (dt > 1.0 for computational speed)
-            dt = K2DFlux(dt);  //why _dt here???
+            dt = K2DFlux();  //why _dt here???
 
             //only move in time that is left of the Lisem-timestep
             dt = std::min(dt, _dt-tof);
@@ -330,13 +330,22 @@ void TWorld::OverlandFlowNew(void)
             if(SwitchErosion)
             {
                 if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
-                    K2DSolvebyFluxSed(dt,Sed,Conc);
+                    K2DQSOut += K2DSolvebyFluxSed(dt,Sed,Conc);
                 if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
-                    K2DSolvebyInterpolationSed(dt,Sed, Conc);
+                    K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
             }
 
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
+
+            if(SwitchErosion)
+            {
+                FOR_ROW_COL_MV
+                {
+                    Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+                }
+            }
+
 
             //total time this lisem-timestep
             tof += dt;

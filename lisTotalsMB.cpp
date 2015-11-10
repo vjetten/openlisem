@@ -314,7 +314,7 @@ void TWorld::Totals(void)
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelSed);
+            ChannelSedTot = mapTotal(*ChannelBLSed);
 
             FOR_ROW_COL_MV_CH
                     if (LDDChannel->Drc == 5)
@@ -324,7 +324,7 @@ void TWorld::Totals(void)
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet
 
-            calcMap(*TotalSed, *ChannelSed, ADD);
+            calcMap(*TotalSed, *ChannelBLSed, ADD);
 
             // needed for sed conc in file output
         }

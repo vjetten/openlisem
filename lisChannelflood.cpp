@@ -105,7 +105,7 @@ void TWorld::ChannelOverflow()
                         if(SwitchErosion)
                         {
                             SSFlood->Drc += ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
-                            ChannelSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            ChannelBLSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
 
                         }
                     }
@@ -128,7 +128,7 @@ void TWorld::ChannelOverflow()
                         if(SwitchErosion)
                         {
                             SSFlood->Drc -= SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
-                            ChannelSed->Drc += SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
+                            ChannelBLSed->Drc += SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
                         }
                     }
                 }
@@ -152,11 +152,11 @@ void TWorld::ChannelOverflow()
                         {
 
                             SSFlood->Drc += ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
-                            ChannelSed->Drc -= ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
+                            ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
                         }else
                         {
                             SSFlood->Drc += SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
-                            ChannelSed->Drc -= SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
+                            ChannelBLSed->Drc -= SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
 
                         }
 

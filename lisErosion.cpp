@@ -499,10 +499,10 @@ void TWorld::ChannelFlowDetachment(void)
       ChannelDep->Drc = 0;
       ChannelDetFlow->Drc = 0;
 
-      ChannelSed->Drc += SedToChannel->Drc;
+      ChannelBLSed->Drc += SedToChannel->Drc;
       // add sed flow into channel from slope
 
-      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
       // set conc to max and add surplus sed to ChannelDep
 
       double maxTC = std::max(ChannelTC->Drc - ChannelConc->Drc,0.0);
@@ -525,22 +525,57 @@ void TWorld::ChannelFlowDetachment(void)
          deposition = std::max(deposition, -minTC * ChannelWaterVol->Drc);
 
 
-      deposition = std::max(deposition, -ChannelSed->Drc);
+      deposition = std::max(deposition, -ChannelBLSed->Drc);
       // cannot be more than sediment above capacity
       //or:?     deposition = std::max(deposition, minTC * ChannelWaterVol->Drc);
 
       ChannelDep->Drc += deposition;
-      ChannelSed->Drc += deposition;
-      ChannelSed->Drc += ChannelDetFlow->Drc;
+      ChannelBLSed->Drc += deposition;
+      ChannelBLSed->Drc += ChannelDetFlow->Drc;
 
-      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+      ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
 
       ChannelQs->Drc = ChannelQ->Drc * ChannelConc->Drc;
 
    }
 }
 //---------------------------------------------------------------------------
+void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
+{
 
+
+
+
+}
+
+//---------------------------------------------------------------------------
+void TWorld::RiverSedimentLayerDepth(int r , int c)
+{
+
+
+
+
+}
+
+//---------------------------------------------------------------------------
+double TWorld::RiverSedimentTCBL(int r,int c,double d)
+{
+
+
+
+
+}
+
+//---------------------------------------------------------------------------
+double TWorld::RiverSedimentTCSS(int r,int c, double d)
+{
+
+
+
+
+}
+
+//---------------------------------------------------------------------------
 void TWorld::SumSedimentClasses(void)
 {
     fill(*Sed,0.0);

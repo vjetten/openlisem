@@ -47,7 +47,7 @@ void TWorld::K2DInit()
     //reset all maps for calculations
     FOR_ROW_COL_MV
     {
-        /*if(SwitchErosion)
+        if(SwitchErosion)
         {
             K2DQS->Drc = 0;
             K2DQSX->Drc = 0;
@@ -69,7 +69,7 @@ void TWorld::K2DInit()
             K2DPCN->Drc = 0;
             K2DPFX->Drc = 0;
             K2DPFY->Drc = 0;
-        }*/
+        }
 
         K2DHNew->Drc = 0;
         K2DQX->Drc = 0;
@@ -140,9 +140,9 @@ void TWorld::K2DInit()
  * @param dtmax : a hint for the calculation of the timestep
  * @return dt : the minimal needed timestep to ensure stability
  */
-double TWorld::K2DFlux(double dtmax)
+double TWorld::K2DFlux()
 {
-    double dtr = dtmax;
+    double dtr = _dt;
     double fraction = CourantKin;
     FOR_ROW_COL_MV
     {
@@ -206,24 +206,7 @@ double TWorld::K2DFlux(double dtmax)
 
             }
 
-        }
-        if(SwitchPesticide)
-        {
-            K2DQP->Drc =  K2DQ->Drc * K2DPC->Drc;
-            if(K2DQP->Drc > fraction*Pest->Drc)
-            {
-                K2DQP->Drc = fraction*Pest->Drc;
-
-            }
         }*/
-
-
-
-
-
-
-
-
 
     }
 
@@ -251,9 +234,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         K2DQN->Drc = 0;
 
         /*if(SwitchErosion)
-            K2DSCN->Drc = K2DSC->Drc;
-        if(SwitchPesticide)
-            K2DPCN->Drc = K2DPC->Drc;*/
+            K2DSCN->Drc = K2DSC->Drc;*/
     }
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
@@ -355,7 +336,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
 
     //similar process as above for sediment and pesticides, sediment is distributed along with discharge using interpolation
     //new water heights are needed for this routine
-    /*if(SwitchErosion || SwitchPesticide)
+    /*if(SwitchErosion)
     {
         FOR_ROW_COL_MV
         {
@@ -417,11 +398,6 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                         K2DS->data[r2][c2]+=w[i]*dt*(K2DQS->Drc);
 
                     }
-                    if(SwitchPesticide)
-                    {
-                        K2DP->data[r][c] -=w[i]*dt*(K2DQP->Drc);
-                        K2DP->data[r2][c2]+=w[i]*dt*(K2DQP->Drc);
-                    }
 
                 }else if(K2DOutlets->Drc == 1)
                 {
@@ -431,15 +407,44 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                         K2DQSOut +=w[i]*dt*(K2DQS->Drc);
 
                     }
-                    if(SwitchPesticide)
-                    {
-                        K2DP->data[r][c] -=w[i]*dt*(K2DQP->Drc);
-                        K2DQPOut +=w[i]*dt*(K2DQS->Drc);
-                    }
                 }
             }
         }
     }*/
+
+    //finish by substracting infiltration, and calculating discharge from new water height
+    FOR_ROW_COL_MV
+    {
+        double cdx = DX->Drc;
+        double cdy = ChannelAdj->Drc;
+
+        //calculate infiltartion in time step
+        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
+        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
+        {
+            infil = -K2DHNew->Drc*(cdx*cdy);
+
+        }
+        //keep track of infiltration
+        K2DI->Drc -= (infil);
+        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
+
+        if(K2DHNew->Drc < 0)  // prob never occurs
+        {
+            K2DHNew->Drc = 0;
+            K2DQ->Drc = 0;
+            Qn->Drc = K2DQ->Drc;
+            WHrunoff->Drc = K2DHNew->Drc;
+            K2DHOld->Drc = K2DHNew->Drc;
+            qDebug() << r << c << K2DHNew->Drc<<  "WH negative?!!!";
+        }
+        else{
+
+            Qn->Drc = K2DQ->Drc;
+            WHrunoff->Drc = K2DHNew->Drc;
+            K2DHOld->Drc = K2DHNew->Drc;
+        }
+    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -455,10 +460,8 @@ void TWorld::K2DSolvebyFlux(double dt)
         K2DHNew->Drc = K2DHOld->Drc;
         K2DQN->Drc = 0;
 
-        if(SwitchErosion)
-            K2DSCN->Drc = K2DSC->Drc;
-        if(SwitchPesticide)
-            K2DPCN->Drc = K2DPC->Drc;
+        /*if(SwitchErosion)
+            K2DSCN->Drc = K2DSC->Drc;*/
     }
 
     fill(*K2DQX, 0.0);
@@ -505,12 +508,8 @@ void TWorld::K2DSolvebyFlux(double dt)
         {
             K2DQSX->Drc = K2DQS->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
             K2DQSY->Drc = K2DQS->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
-        }
-        if(SwitchPesticide)
-        {
-            K2DQPX->Drc = K2DQP->Drc*xw* (K2DSlopeX->Drc > 0? 1.0:-1.0);
-            K2DQPY->Drc = K2DQP->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
         }*/
+
     }
 
     //reset maps for later calculations
@@ -520,11 +519,6 @@ void TWorld::K2DSolvebyFlux(double dt)
     {
         fill(*K2DSFX, 0.0);
         fill(*K2DSFY, 0.0);
-    }
-    if(SwitchPesticide)
-    {
-        fill(*K2DPFX, 0.0);
-        fill(*K2DPFY, 0.0);
     }*/
 
     //now calculate the sum of ingoing and outgoing discharges for each cell, in both the x and y direction
@@ -546,11 +540,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFY->Drc += std::max(K2DQSY->data[r-1][c],0.0);
                     K2DSFY->data[r -1][c] -= std::max(K2DQSY->data[r-1][c],0.0);
-                }
-                if(SwitchPesticide)
-                {
-                    K2DPFY->Drc += std::max(K2DQPY->data[r-1][c],0.0);
-                    K2DPFY->data[r -1][c] -= std::max(K2DQPY->data[r-1][c],0.0);
                 }*/
             }
 
@@ -570,11 +559,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFY->Drc += fabs(std::min(K2DQSY->data[r+1][c],0.0));
                     K2DSFY->data[r+1][c] -= fabs(std::min(K2DQSY->data[r+1][c],0.0));
-                }
-                if(SwitchPesticide)
-                {
-                    K2DPFY->Drc += fabs(std::min(K2DQPY->data[r+1][c],0.0));
-                    K2DPFY->data[r+1][c] -= fabs(std::min(K2DQPY->data[r+1][c],0.0));
                 }*/
             }
 
@@ -593,11 +577,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFX->Drc += std::max(K2DQSX->data[r][c-1],0.0);
                     K2DSFX->data[r][c-1] -= std::max(K2DQSX->data[r][c-1],0.0);
-                }
-                if(SwitchPesticide)
-                {
-                    K2DPFX->Drc += std::max(K2DQPX->data[r][c-1],0.0);
-                    K2DPFX->data[r][c-1] -= std::max(K2DQPX->data[r][c-1],0.0);
                 }*/
             }
 
@@ -617,11 +596,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFX->Drc += fabs(std::min(K2DQSX->data[r][c+1],0.0));
                     K2DSFX->data[r][c+1] -= fabs(std::min(K2DQSX->data[r][c+1],0.0));
-                }
-                if(SwitchPesticide)
-                {
-                    K2DPFX->Drc += fabs(std::min(K2DQPX->data[r][c+1],0.0));
-                    K2DPFX->data[r][c+1] -= fabs(std::min(K2DQPX->data[r][c+1],0.0));
                 }*/
             }
         }
@@ -651,10 +625,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFX->Drc -= fabs(K2DQSX->data[r][c]);
                     K2DQSOut += dt* fabs(K2DQSX->data[r][c]);
-                }if(SwitchPesticide)
-                {
-                    K2DPFX->Drc -= fabs(K2DQPX->data[r][c]);
-                    K2DQPOut += dt* fabs(K2DQPX->data[r][c]);
                 }*/
 
             }
@@ -675,10 +645,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 {
                     K2DSFY->Drc -= fabs(K2DQSY->data[r][c]);
                     K2DQSOut += dt* fabs(K2DQSY->data[r][c]);
-                }if(SwitchPesticide)
-                {
-                    K2DPFY->Drc -= fabs(K2DQPY->data[r][c]);
-                    K2DQPOut += dt* fabs(K2DQPY->data[r][c]);
                 }*/
             }
         }
@@ -706,12 +672,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                         K2DSFY->Drc -= K2DQSY->Drc;
                         K2DSFX->data[r2][c2] += K2DQSX->Drc;
                         K2DSFY->data[r2][c2] += K2DQSY->Drc;
-                    }if(SwitchPesticide)
-                    {
-                        K2DPFX->Drc -= K2DQPX->Drc;
-                        K2DPFY->Drc -= K2DQPY->Drc;
-                        K2DPFX->data[r2][c2] += K2DQPX->Drc;
-                        K2DPFY->data[r2][c2] += K2DQPY->Drc;
                     }*/
                 }
 
@@ -731,11 +691,27 @@ void TWorld::K2DSolvebyFlux(double dt)
         /*if(SwitchErosion)
         {
             K2DS->Drc += dt*(K2DSFX->Drc + K2DSFY->Drc);
-        }
-        if(SwitchPesticide)
-        {
-            K2DP->Drc += dt*(K2DPFX->Drc + K2DPFY->Drc);
         }*/
+    }
+
+    //finish by substracting infiltration, and calculating discharge from new water height
+    FOR_ROW_COL_MV
+    {
+        double cdx = DX->Drc;
+        double cdy = ChannelAdj->Drc;
+
+        //calculate infiltartion in time step
+        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
+        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
+        {
+            infil = -K2DHNew->Drc*(cdx*cdy);
+
+        }
+        //keep track of infiltration
+        K2DI->Drc -= (infil);
+        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
+
+
     }
 }
 
@@ -746,19 +722,21 @@ void TWorld::K2DSolvebyFlux(double dt)
  * @param S : material to be advected
  * @return catchment boundary outflow of material
  */
-double TWorld::K2DSolvebyFluxSed(double dt, cTMap *K2DM ,cTMap *C)
+double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
 {
     double K2DQMOut = 0;
 
     FOR_ROW_COL_MV
     {
+        K2DM->Drc = _S->Drc;
         K2DQM->Drc = 0;
         K2DQMX->Drc = 0;
         K2DQMY->Drc = 0;
         K2DFMX->Drc = 0;
         K2DFMY->Drc = 0;
         K2DMN->Drc = K2DM->Drc;
-        K2DMC->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+        K2DMC->Drc = _C->Drc;
+        //K2DMC->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
 
     }
 
@@ -799,23 +777,53 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *K2DM ,cTMap *C)
 
         double w[4] = {0.0,0.0,0.0,0.0};
 
-        //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
-        for (int i=0; i<3; i++)
+
+
+        int end = 3;
+        int start = 0;
+
+        if(K2DPitsD->Drc == 1)
+        {
+            w[2] = 1.0;
+        }else
+        {
+            //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
+            for (int i=0; i<4; i++)
+            {
+                int r2, c2;
+
+                //must multiply the cell directions by the sign of the slope vector components
+                r2 = r+yn*dy[i];
+                c2 = c+xn*dx[i];
+
+                // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
+                double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
+                double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
+
+                //the distribution is inverly proportional to the squared distance
+                double weight = fabs(wdx) *fabs(wdy);
+                w[i]  = weight;
+            }
+        }
+
+        //normalize: sum of the 4 weights is equal to 1
+        double wt = 0.0;
+        for (int i=start; i<end+1; i++)
+        {
+            wt += w[i];
+        }
+        for (int i=start; i<end+1; i++)
+        {
+            w[i] = w[i]/wt;
+        }
+
+        for (int i=start; i<end+1; i++)
         {
             int r2, c2;
 
             //must multiply the cell directions by the sign of the slope vector components
             r2 = r+yn*dy[i];
             c2 = c+xn*dx[i];
-
-            // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-            double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
-            double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
-
-            //the distribution is inverly proportional to the squared distance
-            double weight = fabs(wdx) *fabs(wdy);
-
-            w[i] = weight;
 
             //if the cell that flows needs to go to is out of bounds or missing value, skip
             bool inside = INSIDE(r2,c2);
@@ -825,13 +833,13 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *K2DM ,cTMap *C)
 
             if(inside && !ismv)
             {
-                K2DM->data[r][c] -=w[i]*dt*(K2DQM->Drc);
-                K2DM->data[r2][c2]+=w[i]*dt*(K2DQM->Drc);
+                K2DMN->data[r][c] -=w[i]*dt*(K2DQM->Drc);
+                K2DMN->data[r2][c2]+=w[i]*dt*(K2DQM->Drc);
 
             }else if(K2DOutlets->Drc == 1)
             {
 
-                K2DM->data[r][c] -=w[i]*dt*(K2DQM->Drc);
+                K2DMN->data[r][c] -=w[i]*dt*(K2DQM->Drc);
                 K2DQMOut +=w[i]*dt*(K2DQM->Drc);
 
 
@@ -846,10 +854,10 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *K2DM ,cTMap *C)
         K2DQMY->Drc = 0;
         K2DFMX->Drc = 0;
         K2DFMY->Drc = 0;
-        K2DM->Drc = K2DMN->Drc;
-        if(C != NULL)
+        _S->Drc = K2DMN->Drc;
+        if(_C != NULL)
         {
-            C->Drc = MaxConcentration(K2DNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+            _C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DMN->Drc);
 
         }
     }
@@ -867,7 +875,7 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *K2DM ,cTMap *C)
  * @param S : material to be advected
  * @return catchment boundary outflow of material
  */
-double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
+double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
 {
     double K2DQMOut = 0;
 
@@ -878,9 +886,10 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         K2DQMY->Drc = 0;
         K2DFMX->Drc = 0;
         K2DFMY->Drc = 0;
-        K2DMN->Drc = K2DM->Drc;
-        K2DMC->Drc = MaxConcentration(K2DNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
-
+        K2DM->Drc = _S->Drc;
+        K2DMN->Drc = _S->Drc;
+        //K2DMC->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+        K2DMC->Drc = _C->Drc;
     }
 
 
@@ -945,11 +954,9 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         {
             if(!pcr::isMV(LDD->data[r-1][c]) && !(K2DPitsD->data[r-1][c] == 1))
             {
-                if(SwitchErosion)
-                {
+
                     K2DFMY->Drc += std::max(K2DQMY->data[r-1][c],0.0);
                     K2DFMY->data[r -1][c] -= std::max(K2DQMY->data[r-1][c],0.0);
-                }
             }
 
         }
@@ -958,11 +965,9 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         {
             if(!pcr::isMV(LDD->data[r+1][c]) && !(K2DPitsD->data[r+1][c] == 1))
             {
-                if(SwitchErosion)
-                {
                     K2DFMY->Drc += fabs(std::min(K2DQMY->data[r+1][c],0.0));
                     K2DFMY->data[r+1][c] -= fabs(std::min(K2DQMY->data[r+1][c],0.0));
-                }
+
             }
 
         }
@@ -970,11 +975,9 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         {
             if(!pcr::isMV(LDD->data[r][c-1]) && !(K2DPitsD->data[r][c-1] == 1))
             {
-                if(SwitchErosion)
-                {
                     K2DFMX->Drc += std::max(K2DQMX->data[r][c-1],0.0);
                     K2DFMX->data[r][c-1] -= std::max(K2DQMX->data[r][c-1],0.0);
-                }
+
             }
 
         }
@@ -983,11 +986,9 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         {
             if(!pcr::isMV(LDD->data[r][c+1]) && !(K2DPitsD->data[r][c+1] == 1))
             {
-                if(SwitchErosion)
-                {
                     K2DFMX->Drc += fabs(std::min(K2DQMX->data[r][c+1],0.0));
                     K2DFMX->data[r][c+1] -= fabs(std::min(K2DQMX->data[r][c+1],0.0));
-                }
+
             }
         }
 
@@ -1063,14 +1064,16 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
         K2DQMY->Drc = 0;
         K2DFMX->Drc = 0;
         K2DFMY->Drc = 0;
-        K2DM->Drc = K2DMN->Drc;
-        if(C != NULL)
+        _S->Drc = K2DMN->Drc;
+        if(_C != NULL)
         {
-            C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+            _C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DMN->Drc);
 
         }
 
     }
+
+
     //return outflow out of the catchment boundary
     return K2DQMOut;
 
@@ -1084,24 +1087,8 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *K2DM ,cTMap *C)
  */
 void TWorld::K2DSolve(double dt)
 {
-
-    //finish by substracting infiltration, and calculating discharge from new water height
     FOR_ROW_COL_MV
     {
-        double cdx = DX->Drc;
-        double cdy = ChannelAdj->Drc;
-
-        //calculate infiltartion in time step
-        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
-        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
-        {
-            infil = -K2DHNew->Drc*(cdx*cdy);
-
-        }
-        //keep track of infiltration
-        K2DI->Drc -= (infil);
-        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
-
         if(K2DHNew->Drc < 0)  // prob never occurs
         {
             K2DHNew->Drc = 0;
@@ -1117,6 +1104,8 @@ void TWorld::K2DSolve(double dt)
             WHrunoff->Drc = K2DHNew->Drc;
             K2DHOld->Drc = K2DHNew->Drc;
         }
+    }
+
         /*if(SwitchErosion)
         {
 
@@ -1125,17 +1114,11 @@ void TWorld::K2DSolve(double dt)
             Qsn->Drc = K2DSCN->Drc * Qn->Drc;
             Qs->Drc = Qsn->Drc;
             Sed->Drc = K2DS->Drc;
-        }
-        if(SwitchPesticide)
-        {
-            K2DPCN->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc *DX->Drc, K2DP->Drc);
-            K2DPC->Drc = K2DPCN->Drc;
-            Qpn->Drc = K2DPCN->Drc * Qn->Drc;
-            Pest->Drc = K2DP->Drc;
-        }
-*/
+        }*/
 
-    }
+
+
+
 
 }
 //---------------------------------------------------------------------------

@@ -244,9 +244,10 @@ void TWorld::ChannelFlow(void)
         if (LDDChannel->Drc == 5)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-                      ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+                      ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
 
-            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSed, ChannelBufferVol, ChannelBufferSed);
+            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
+            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
             /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known
@@ -257,6 +258,16 @@ void TWorld::ChannelFlow(void)
 
         }
     }
+
+    FOR_ROW_COL_MV_CH
+    {
+
+        ChannelQs->Drc = ChannelQBLs->Drc + ChannelQSSs->Drc;
+        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+        ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
+
+    }
+
 
     cover(*ChannelQn, *LDD, 0);
     cover(*ChannelQsn, *LDD, 0);
