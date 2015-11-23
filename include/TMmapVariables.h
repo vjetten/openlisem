@@ -335,8 +335,13 @@ cTMap
 *ChannelSed,                 //!<
 *ChannelBLSed,                 //!<
 *ChannelSSSed,                 //!<
+*ChannelBLTC,                 //!<
+*ChannelSSTC,                 //!<
 *ChannelBLDepth,                 //!<
+*ChannelSSDepth,                 //!<
 *ChannelConc,                //!<
+*ChannelBLConc,                //!<
+*ChannelSSConc,                //!<
 *ChannelTC,                  //!<
 *SedToChannel,               //!<
 *ChannelCohesion,            //!<

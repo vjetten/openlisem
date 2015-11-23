@@ -221,6 +221,9 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
+    \
+    op.DrawMapList1.clear();
+    op.graindiameters.clear();
     op.DrawMap = NULL;
     op.DrawMap1 = NULL;
     op.DrawMap2 = NULL;

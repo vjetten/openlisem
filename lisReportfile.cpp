@@ -67,6 +67,24 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
+    //make sure sediment maps for all grain sizes are present
+    if(SwitchErosion && SwitchUseGrainSizeDistribution)
+    {
+        FOR_GRAIN_CLASSES
+        {
+            if(op.DrawMapList1.length() < numgrainclasses + 1)
+            {
+                op.DrawMapList1.append(NewMap(0.0));
+                op.graindiameters.append(graindiameters.at(d));
+            }else
+            {
+                break;
+            }
+
+        }
+    }
+
+
     // MAP DISPLAY VARIABLES
     fill(*tma, 0.0);
     if (op.displayPcum)
@@ -89,24 +107,47 @@ void TWorld::OutputUI(void)
         if (ErosionUnits == 0) // ton/ha
             calcValue(*tmb, 10, MUL);
 
-        //copy(*tmb, *BLTCFlood);
-
-        fill(*tmc, 0.0);//copy(*tmc, *Sed);
-        /*if(SwitchChannelFlood)
+        fill(*tmc, 0.0);
+        if(SwitchErosion)
         {
-            calcMap(*tmc, *SFlood, ADD);
-        }
-        calcMap(*tmc, *ChannelSed, ADD);*/
-        if(SwitchChannelFlood)
-        {
-            //FOR_ROW_COL_MV
-            //        tmc->Drc = (SSTCFlood->Drc * SSDepthFlood->Drc + BLTCFlood->Drc * BLDepthFlood->Drc)* DX->Drc * ChannelAdj->Drc;
+            if(SwitchChannelFlood)
+            {
+                calcMap(*tmc, *BLFlood, ADD);
+                calcMap(*tmc, *SSFlood, ADD);
+            }
+            if(SwitchIncludeChannel)
+            {
+                calcMap(*tmc, *ChannelBLTC, ADD);
+                calcMap(*tmc, *ChannelSSTC, ADD);
+            }
+            calcMap(*tmc, *Sed, ADD);
 
-            calcMap(*tmc, *BLFlood, ADD);
-            calcMap(*tmc, *SSFlood, ADD);
+            copy(*op.DrawMap8, *tmc);
+
+            if(SwitchUseGrainSizeDistribution)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    fill(*tmc, 0.0);
+                    if(SwitchChannelFlood)
+                    {
+                        calcMap(*tmc, *BL_D.at(d), ADD);
+                        calcMap(*tmc, *SS_D.at(d), ADD);
+                    }
+                    if(SwitchIncludeChannel)
+                    {
+                        calcMap(*tmc, *RBL_D.at(d), ADD);
+                        calcMap(*tmc, *RSS_D.at(d), ADD);
+                    }
+                    calcMap(*tmc, *Sed_D.at(d), ADD);
+                    copy(*(op.DrawMapList1.at(d)), *tmc);
+                }
+
+            }
 
         }
-        copy(*op.DrawMap8, *tmc);
+
+
 /*
         if (ErosionUnits == 1)  // in kg/m2
             tmb->copy(TotalSoillossMap); //kg/cell
@@ -134,7 +175,9 @@ void TWorld::OutputUI(void)
             calc2Maps(*op.DrawMap4, *hmx, *tmb, ADD);  //flood level in m
         }
         else
+        {
             copy(*op.DrawMap4, *hmx);  //flood level in m
+        }
         copy(*op.DrawMap5, *UVflood);  //flood level in m
         copy(*op.DrawMap7, *floodTimeStart);  // flood start since peak rainfall in min
     }
@@ -144,6 +187,7 @@ void TWorld::OutputUI(void)
 
     if (SwitchIncludeChannel)
         copy(*op.channelMap, *ChannelWidth);
+    //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
     if (SwitchRoadsystem)
         copy(*op.roadMap, *RoadWidthDX);
     if (SwitchHouses)

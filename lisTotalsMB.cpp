@@ -46,6 +46,8 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
+
+
     /***** WATER *****/
 
 
@@ -297,8 +299,12 @@ void TWorld::Totals(void)
         if(SwitchKinematic2D == 1)
         {
             FOR_ROW_COL_MV
+            {
                 if (LDD->Drc == 5)
-                SoilLossTot += Qsn->Drc * _dt;
+                {
+                        SoilLossTot += Qsn->Drc * _dt;
+                }
+            }
         }else
         {
             SoilLossTot +=K2DQSOut;
@@ -314,17 +320,21 @@ void TWorld::Totals(void)
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelBLSed);
+            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
 
             FOR_ROW_COL_MV_CH
-                    if (LDDChannel->Drc == 5)
+            {
+                if (LDDChannel->Drc == 5)
+                {
                     SoilLossTot += ChannelQsn->Drc * _dt;
+                }
+            }
             // add sed outflow for all pits to total soil loss
 
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet
 
-            calcMap(*TotalSed, *ChannelBLSed, ADD);
+            calcMap(*TotalSed, *ChannelSed, ADD);
 
             // needed for sed conc in file output
         }
@@ -341,7 +351,13 @@ void TWorld::Totals(void)
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
+            if(!(SwitchKinematic2D > 1))
+            {
+                Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
+            }else
+            {
+                Qsoutput->Drc = Qn->Drc *Conc->Drc + ChannelQsn->Drc;
+            }
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
@@ -368,11 +384,10 @@ void TWorld::Totals(void)
         }
     }
 
-    if(SwitchErosion)
+    if(SwitchErosion && SwitchChannelFlood)
     {
         fill(*BLDepFloodT,0.0);
         fill(*SSDetFloodT,0.0);
-        fill(*BLDetFloodT,0.0);
     }
 
     if (SwitchPesticide)
@@ -449,6 +464,11 @@ void TWorld::Totals(void)
         //            out << MBp << "\n";
         //            fout.close();
 
+    }
+
+    FOR_ROW_COL_MV
+    {
+        SedimentSetMaterialDistribution(r,c);
     }
 
 }

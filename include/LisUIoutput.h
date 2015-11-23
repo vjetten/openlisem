@@ -91,6 +91,9 @@ struct output{
     cTMap *roadMap;
     cTMap *houseMap;
 
+    QList<cTMap *> DrawMapList1;
+    QList<double> graindiameters;
+
     bool displayPcum;
     bool displayWH;
     int drawMapType;

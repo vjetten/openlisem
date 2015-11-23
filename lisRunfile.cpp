@@ -191,19 +191,20 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
         if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
         if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
+        if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("Use grain size distribution")==0)     SwitchUseGrainSizeDistribution     = iii == 1;
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution     = iii == 1;
 
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
 
 
-        if(SwitchReadGrainSizeDistribution)
+        if(SwitchEstimateGrainSizeDistribution)
         {
-                if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii == 1;
-                if (p1.compare("Grain size distribution type")==0)    GrainSizeDistributionType     = iii == 1;
+                if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
+                if (p1.compare("Grain size distribution type")==0)    GrainSizeDistributionType     = iii;
         }else if(SwitchReadGrainSizeDistribution)
         {
-                if (p1.compare("Number of grain size classes (maps)")==0)  numgrainclasses     = iii == 1;
+                if (p1.compare("Number of grain size classes (maps)")==0)  numgrainclasses     = iii;
                 if (p1.compare("Grain size class maps")==0)    GrainMaps    = p;
         }
 
@@ -212,6 +213,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
         if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
+        if (p1.compare("Use material depth")==0)               SwitchMaterialDepth     = iii == 1;
 //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
@@ -413,8 +415,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("WH max level map")==0)
             WHmaxFileName = checkOutputMapName(p, "WH max level map",0);
 
-
-        if (SwitchErosion)
+        if(SwitchErosion)
         {
             if (p1.compare("Erosion map")==0)
                 totalErosionFileName = checkOutputMapName(p, "detachment map",0);
@@ -424,7 +425,7 @@ void TWorld::ParseRunfileData(void)
                 totalSoillossFileName = checkOutputMapName(p, "soil loss map",0);
         }
 
-        if (SwitchChannelFlood)
+        if(SwitchChannelFlood)
         {
             if (p1.compare("Flood level map")==0)
                 floodLevelFileName = checkOutputMapName(p, "flood level map",0);

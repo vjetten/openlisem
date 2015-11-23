@@ -75,6 +75,11 @@ void lisemqt::ssetAlpha4(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
+void lisemqt::selectMapTypeSS(int v)
+{
+    selectMapType(true);
+}
+//---------------------------------------------------------------------------
 void lisemqt::selectMapType(bool /* doit */)
 {
   op.displayPcum = checkDisplayPcum->isChecked();
@@ -655,12 +660,21 @@ void lisemqt::showMap7()
 // Sediment
 void lisemqt::showMap8()
 {
-  MPlot->setTitle("Suspended Sediment(kg/cell)");
+  MPlot->setTitle("Suspended Sediment (kg/cell)");
 
+  cTMap * ssmap = op.DrawMap8;
+  int classval = E_DisplaySedimentClass->value();
+  if(classval > 0)
+  {
+      QString gd = QString::number(op.graindiameters.at(classval - 1));
+      MPlot->setTitle("Suspended Sediment (kg/cell) for grain diameter class - " + gd + " micrometers");
+      classval = std::min(classval - 1, op.DrawMapList1.length() - 1);
+      ssmap = op.DrawMapList1.at(classval);
+  }
   pal8a = new colorMapP();
   pal8b = new colorMapP();
 
-  double MaxV = fillDrawMapData(op.DrawMap8, RD, 8);
+  double MaxV = fillDrawMapData(ssmap, RD, 8);
   if (MaxV ==-1e20)
     return;
   // fill vector and find the new max value

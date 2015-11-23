@@ -67,6 +67,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
     DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
+    DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
+    DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
@@ -101,6 +103,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
+    DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
+    DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
     DEFmaps.append("1;Channel Infil");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
   //  DEFmaps.append("1;Channel Baseflow");
@@ -411,7 +415,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OF method");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("River 2 layer sediment");
-    namelist[i].value = QString("1");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("River BL method");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("River SS method");
@@ -419,7 +423,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Estimate d90");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use grain size distribution");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("Estimate grain size distribution");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Number of grain size classes (simulated)");
@@ -429,7 +433,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Number of grain size classes (maps)");
     namelist[i].value = QString("");
     namelist[i++].name = QString("Grain size class maps");
-
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use material depth");
 
 
 

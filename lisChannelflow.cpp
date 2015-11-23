@@ -213,12 +213,16 @@ double TWorld::ChannelIterateWH(int r, int c)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
+
     if (!SwitchIncludeChannel)
         return;
 
     if (SwitchErosion)
     {
-        ChannelFlowDetachment();
+        FOR_ROW_COL_MV_CH
+        {
+            ChannelFlowDetachment(r,c);
+        }
     }
 
     // initialize some channel stuff
@@ -239,16 +243,76 @@ void TWorld::ChannelFlow(void)
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
+    if (SwitchErosion)
+    {
+        if(!SwitchUseGrainSizeDistribution)
+        {
+            FOR_ROW_COL_MV_CH
+            {
+
+                double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
+                double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
+                ChannelConc->Drc = (concbl + concss);
+                ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+            }
+
+        }else
+        {
+            FOR_GRAIN_CLASSES
+            {
+                FOR_ROW_COL_MV_CH
+                 {
+                    RBLC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd);
+                    RSSC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd);
+
+                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
+
+                    Tempa_D.Drcd = ChannelQ->Drc * RBLC_D.Drcd;
+                    Tempc_D.Drcd = ChannelQ->Drc * RSSC_D.Drcd;
+                 }
+                fill(*Tempb_D.at(d), 0.0);
+                fill(*Tempd_D.at(d), 0.0);
+            }
+            FOR_ROW_COL_MV_CH
+            {
+                ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+            }
+        }
+    }
+
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
         {
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQs, ChannelQsn, Channelq, ChannelAlpha, ChannelDX,
-                      ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX,
+                      ChannelWaterVol, ChannelBufferVol);
 
-            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
-            routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
-            /*
+            if (SwitchErosion)
+            {
+                if(!SwitchUseGrainSizeDistribution)
+                {
+                    ChannelQBLsn->setAllMV();
+                    ChannelQSSsn->setAllMV();
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
+
+                }else
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        Tempb_D.at(d)->setAllMV();
+                        Tempd_D.at(d)->setAllMV();
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
+
+
+                    }
+
+                }
+
+            }
+
+             /*
                    routing of substances add here!
                    do after kin wave so that the new flux ChannelQn out of a cell is known
                    you need to have the ingoing substance flux ChannelQS (mass/s)
@@ -259,18 +323,102 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    FOR_ROW_COL_MV_CH
+    cover(*ChannelQn, *LDD, 0);
+
+    if (SwitchErosion)
+    {
+        cover(*ChannelQBLsn, *LDD, 0);
+        cover(*ChannelQSSsn, *LDD, 0);
+
+
+        if(SwitchUseGrainSizeDistribution)
+        {
+            FOR_GRAIN_CLASSES
+            {
+                cover(*(Tempb_D.at(d)), *LDD, 0);
+                cover(*(Tempd_D.at(d)), *LDD, 0);
+            }
+
+            FOR_GRAIN_CLASSES
+            {
+                RiverSedimentDiffusion(_dt, RBL_D.at(d),RBLC_D.at(d), RSS_D.at(d),RSSC_D.at(d));
+            }
+            FOR_ROW_COL_MV_CH
+            {
+                ChannelSed->Drc = 0;
+                ChannelConc->Drc = 0;
+                ChannelBLConc->Drc = 0;
+                ChannelSSConc->Drc = 0;
+                ChannelBLSed->Drc = 0;
+                ChannelSSSed->Drc = 0;
+             }
+            FOR_GRAIN_CLASSES
+            {
+                FOR_ROW_COL_MV_CH
+                 {
+                    ChannelBLSed->Drc += RBL_D.Drcd;
+                    ChannelSSSed->Drc += RSS_D.Drcd;
+                    ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
+                    RBLC_D.Drcd = (ChannelQn->Drc > 1e-6 ? Tempb_D.Drcd/ChannelQn->Drc : 0);
+                    RSSC_D.Drcd = (ChannelQn->Drc > 1e-6 ? Tempd_D.Drcd/ChannelQn->Drc : 0);
+                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
+                    ChannelBLConc->Drc += RBLC_D.Drcd;
+                    ChannelSSConc->Drc += RSSC_D.Drcd;
+                 }
+            }
+        }else
+        {
+            RiverSedimentDiffusion(_dt, ChannelBLSed,ChannelBLConc, ChannelSSSed,ChannelSSConc);
+        }
+    }
+    if (SwitchErosion)
     {
 
-        ChannelQs->Drc = ChannelQBLs->Drc + ChannelQSSs->Drc;
-        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-        ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
+        if(!SwitchUseGrainSizeDistribution)
+        {
+            FOR_ROW_COL_MV_CH
+            {
+                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
+                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+                ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQsn->Drc/ChannelQn->Drc : 0);
+            }
+        }else
+        {
+            FOR_ROW_COL_MV_CH
+            {
+                ChannelQBLsn->Drc = 0;
+                ChannelQSSsn->Drc= 0;
+                ChannelQs->Drc = 0;
+                ChannelSed->Drc = 0;
+                ChannelConc->Drc = 0;
+                ChannelBLConc->Drc = 0;
+                ChannelSSConc->Drc = 0;
+                ChannelBLSed->Drc = 0;
+                ChannelSSSed->Drc = 0;
+            }
 
+            FOR_GRAIN_CLASSES
+            {
+                FOR_ROW_COL_MV_CH
+                 {
+                    ChannelQBLsn->Drc += Tempb_D.Drcd ;
+                    ChannelQSSsn->Drc += Tempd_D.Drcd;
+                    ChannelQsn->Drc += Tempb_D.Drcd + Tempd_D.Drcd;
+                    ChannelBLSed->Drc += RBL_D.Drcd;
+                    ChannelSSSed->Drc += RSS_D.Drcd;
+                    ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
+                    RBLC_D.Drcd = (ChannelQn->Drc > 1e-6 ? Tempb_D.Drcd/ChannelQn->Drc : 0);
+                    RSSC_D.Drcd = (ChannelQn->Drc > 1e-6 ? Tempd_D.Drcd/ChannelQn->Drc : 0);
+                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
+                    ChannelBLConc->Drc += RBLC_D.Drcd;
+                    ChannelSSConc->Drc += RSSC_D.Drcd;
+                 }
+            }
+        }
     }
 
 
-    cover(*ChannelQn, *LDD, 0);
-    cover(*ChannelQsn, *LDD, 0);
+
     // avoid missing values around channel for adding to Qn for output
 
     bool do_mbcorr = false;

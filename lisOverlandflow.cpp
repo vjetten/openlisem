@@ -88,14 +88,23 @@ void TWorld::ToFlood(void)
             //better distribute this by ratio suspended Tc and
             SSFlood->Drc += Sed->Drc * frac;
             Sed->Drc = Sed->Drc * (1-frac);
-            //DEP->Drc += Sed->Drc * frac;
-            //Sed->Drc = Sed->Drc * (1-frac);
+
+            if(SwitchUseGrainSizeDistribution)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    SS_D.Drcd +=  Sed_D.Drcd * frac;
+                    Sed_D.Drcd = Sed_D.Drcd * (1-frac);
+
+                }
+            }
+
 
             //immediately check for maximum concentration
             //if not done, too high concentration will show on display, before being deposited
             SWOFSedimentLayerDepth(r,c);
 
-            SWOFSedimentMaxC(r,c, BLFlood,BLCFlood,SSFlood,SSCFlood);
+            SWOFSedimentMaxC(r,c);
         }
 
 
@@ -113,6 +122,7 @@ void TWorld::ToChannel(void)
     {
         double fractiontochannel;
         double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
 
         if (Volume == 0)
         {
@@ -136,10 +146,14 @@ void TWorld::ToChannel(void)
         if (SwitchChannelFlood)
         {
             if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
+            {
                 fractiontochannel = 0;
+            }
             // no inflow when flooded
             if (ChannelMaxQ->Drc > 0)
+            {
                 fractiontochannel = 0;
+            }
             // no surface inflow when culverts and bridges
         }
         if (SwitchAllinChannel)
@@ -157,10 +171,42 @@ void TWorld::ToChannel(void)
 
         if (SwitchErosion)
         {
-            SedToChannel->Drc = fractiontochannel*Sed->Drc;
+            if(SwitchUse2Layer)
+            {
+                ChannelBLSed->Drc += fractiontochannel*Sed->Drc;
+            }else
+            {
+                ChannelSSSed->Drc += fractiontochannel*Sed->Drc;
+            }
             //sediment diverted to the channel
-            Sed->Drc -= SedToChannel->Drc;
+            Sed->Drc = Sed->Drc * (1 - fractiontochannel);
+
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed->Drc);
             // adjust sediment in suspension
+
+            if(SwitchUseGrainSizeDistribution)
+            {
+                Conc->Drc = 0;
+                FOR_GRAIN_CLASSES
+                {
+                    if(SwitchUse2Layer)
+                    {
+                        RSS_D.Drcd += fractiontochannel * Sed_D.Drcd;
+                    }else
+                    {
+                        RBL_D.Drcd += fractiontochannel * Sed_D.Drcd;
+                    }
+                    Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
+                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed_D.Drcd);
+                    Conc->Drc +=Conc_D.Drcd;
+                }
+            }
+
+           RiverSedimentLayerDepth(r,c);
+
+
+
+
         }
     }
 }
@@ -225,8 +271,6 @@ void TWorld::OverlandFlowNew(void)
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
     }
-    
-    fill(*Qsn, 0.0);
     fill(*QinKW, 0.0);
     fill(*QoutKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
@@ -236,9 +280,12 @@ void TWorld::OverlandFlowNew(void)
 
         if (SwitchErosion)
         {
+            fill(*Qs, 0.0);
+            fill(*Qsn, 0.0);
             // calc seediment flux going in kin wave as Qs = Q*C
             FOR_ROW_COL_MV
             {
+                Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
                 Qs->Drc =  Q->Drc * Conc->Drc;
                 // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
             }
@@ -250,7 +297,7 @@ void TWorld::OverlandFlowNew(void)
             if (LDD->Drc == 5) // if outflow point, pit
             {
 
-                Kinematic(r,c, LDD, Q, Qn, Qs, Qsn, q, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+                Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, WaterVolin, BufferVol);
                 //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
             }
         }
@@ -264,15 +311,58 @@ void TWorld::OverlandFlowNew(void)
 
         if (SwitchErosion)
         {
-
-            fill(*Qsn, 0.0);
-            FOR_ROW_COL_MV
+            if(!SwitchUseGrainSizeDistribution)
             {
-                if (LDD->Drc == 5) // if outflow point, pit
+
+                Qsn->setAllMV();
+                FOR_ROW_COL_MV
                 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+                    if (LDD->Drc == 5) // if outflow point, pit
+                    {
+                        routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed, BufferVol, BufferSed);
+                    }
                 }
+            }else
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    // calc seediment flux going in kin wave as Qs = Q*C
+                    FOR_ROW_COL_MV
+                    {
+                        Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                        Tempa_D.Drcd =  Q->Drc * Conc_D.Drcd;
+                        Qs->Drc +=  Q->Drc * Conc_D.Drcd;
+                        // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
+                    }
+                    Tempb_D.at(d)->setAllMV();
+                    FOR_ROW_COL_MV
+                    {
+                        if (LDD->Drc == 5) // if outflow point, pit
+                        {
+                            routeSubstance(r,c, LDD, Q, Qn, Tempa_D.at(d), Tempb_D.at(d), Alpha, DX, WaterVolin, Sed_D.at(d), BufferVol, BufferSed);
+                        }
+                    }
+
+                    FOR_ROW_COL_MV
+                    {
+                        Qsn->Drc += Tempb_D.Drcd;
+                        // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
+                    }
+
+
+                }
+
+                fill(*Sed, 0.0);
+                FOR_GRAIN_CLASSES
+                {
+                    FOR_ROW_COL_MV
+                    {
+                        Sed->Drc += Sed_D.Drcd;
+                    }
+                }
+
             }
+
         }
 
         if (SwitchPesticide)
@@ -329,10 +419,22 @@ void TWorld::OverlandFlowNew(void)
             /*sediment transport functions must be called before K2DSolve() and after K2DSolveBy..() */
             if(SwitchErosion)
             {
-                if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
-                    K2DQSOut += K2DSolvebyFluxSed(dt,Sed,Conc);
-                if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
-                    K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
+                if(!SwitchUseGrainSizeDistribution)
+                {
+                    if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
+                        K2DQSOut += K2DSolvebyFluxSed(dt,Sed,Conc);
+                    if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
+                        K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
+                }else
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
+                            K2DQSOut += K2DSolvebyFluxSed(dt,Sed_D.at(d),Conc_D.at(d));
+                        if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
+                            K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed_D.at(d), Conc_D.at(d));
+                    }
+                }
             }
 
             //solve fluxes and go back from water height to new discharge
@@ -340,9 +442,32 @@ void TWorld::OverlandFlowNew(void)
 
             if(SwitchErosion)
             {
-                FOR_ROW_COL_MV
+
+                if(!SwitchUseGrainSizeDistribution)
                 {
-                    Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+                    FOR_ROW_COL_MV
+                    {
+                        Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+                        Qs->Drc = Conc->Drc * Qn->Drc;
+                        Qsn->Drc = Qs->Drc;
+                    }
+                }else
+                {
+                    FOR_ROW_COL_MV
+                    {
+                        Sed->Drc = 0;
+                        Conc->Drc = 0;
+
+                    }
+                    FOR_ROW_COL_MV
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            Sed->Drc += Sed_D.Drcd;
+                            Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                            Conc->Drc += Conc_D.Drcd;
+                        }
+                    }
                 }
             }
 
@@ -394,8 +519,6 @@ void TWorld::OverlandFlowNew(void)
           */
 
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
-
-
             //new WH based on A/dx = alpha Q^beta / dx
 
             double WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
@@ -477,13 +600,10 @@ void TWorld::OverlandFlowNew(void)
         {
             V->Drc = 0;
         }
-
-
         // recalc velocity for output to map, is not used in other processes
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-
 
     }
 
@@ -499,6 +619,14 @@ void TWorld::OverlandFlowNew(void)
                 // CHANGED, MORE STABLE CONC 19/9/13
                 // correct for very high concentrations, 850 after Govers et al
                 // recalc sediment volume
+
+                if(SwitchUseGrainSizeDistribution)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        Conc_D.Drcd = (Qn->Drc > 1e-6 ? Tempb_D.Drcd/Qn->Drc : 0);
+                    }
+                }
 
                 if (SwitchPesticide)
                 {

@@ -484,7 +484,6 @@ void TWorld::InitChannel(void)
         //## channel maps
         LDDChannel = InitMaskChannel(getvaluename("lddchan"));
         // must be first" LDDChannel is the mask for channels
-
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
@@ -527,7 +526,6 @@ void TWorld::InitChannel(void)
             ChannelAdj->Drc = std::max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
             ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
         }
-
 
         FOR_ROW_COL_MV_CH
         {
@@ -761,64 +759,110 @@ void TWorld::InitChannel(void)
 
 
 
+}
+
+
+double TWorld::LogNormalDist(double d50,double s, double d)
+{
+
+    double dev = log(1.0 + s/d50);
+    double dev2 = (log(d)  - log(d50));
+    return (1.0/(d *sqrt(2.0*3.14159) * log(1.0 + s/d50)))*exp(-dev2*dev2)/(4*dev*dev);
 
 }
 //---------------------------------------------------------------------------
 // NOT USED FOR NOW
 void TWorld::InitMulticlass(void)
 {
+
+    unity = NewMap(1.0);
+
+    Qs = NewMap(0);
+    Qsn = NewMap(0);
+
+    //### erosion maps
+    DetSplashTot = 0;
+    DetFlowTot = 0;
+    DepTot = 0;
+    DetTot = 0;
+    DepTot = 0;
+    SoilLossTot = 0;
+    SoilLossTotOutlet = 0;
+    SoilLossTotSub = 0;
+    SedTot = 0;
+
+    //Qsoutflow = NewMap(0);
+    DETFlow = NewMap(0);
+    DETSplash = NewMap(0);
+    DEP = NewMap(0);
+    Sed = NewMap(0);
+    TC = NewMap(0);
+    Conc = NewMap(0);
+    CG = NewMap(0);
+    DG = NewMap(0);
+    SettlingVelocity = NewMap(0);
+    CohesionSoil = NewMap(0);
+    Y = NewMap(0);
+
+
+    TotalDetMap = NewMap(0);
+    TotalDepMap = NewMap(0);
+    TotalSoillossMap = NewMap(0);
+    TotalSed = NewMap(0);
+    TotalConc = NewMap(0);
+
+
     if(SwitchErosion)
     {
-        //### erosion maps
-        DetSplashTot = 0;
-        DetFlowTot = 0;
-        DepTot = 0;
-        DetTot = 0;
-        DepTot = 0;
-        SoilLossTot = 0;
-        SoilLossTotOutlet = 0;
-        SoilLossTotSub = 0;
-        SedTot = 0;
-        Qs = NewMap(0);
-        Qsn = NewMap(0);
-        //Qsoutflow = NewMap(0);
-        DETFlow = NewMap(0);
-        DETSplash = NewMap(0);
-        DEP = NewMap(0);
-        Sed = NewMap(0);
-        TC = NewMap(0);
-        Conc = NewMap(0);
-        CG = NewMap(0);
-        DG = NewMap(0);
-        SettlingVelocity = NewMap(0);
-        CohesionSoil = NewMap(0);
-        Y = NewMap(0);
-
-
-
-        TotalDetMap = NewMap(0);
-        TotalDepMap = NewMap(0);
-        TotalSoillossMap = NewMap(0);
-        TotalSed = NewMap(0);
-        TotalConc = NewMap(0);
-
-
-        if(SwitchIncludeChannel)
+        FOR_ROW_COL_MV
         {
-            ChannelDetFlow = NewMap(0);
-            ChannelDep = NewMap(0);
-            ChannelBLSed = NewMap(0);
-            ChannelSSSed = NewMap(0);
-            ChannelBLDepth = NewMap(0);
-            ChannelQBLs = NewMap(0);
-            ChannelQBLsn = NewMap(0);
-            ChannelQSSs = NewMap(0);
-            ChannelQSSsn = NewMap(0);
-            ChannelConc = NewMap(0);
-            ChannelTC = NewMap(0);
-            ChannelY = NewMap(0);
 
+            CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+            // soil cohesion everywhere, plantcohesion only where plants
+
+            Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            //            if (StoneFraction->Drc > 0)
+            //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
+            // GOED IDEE
         }
+
+    }
+
+    if(SwitchIncludeChannel)
+    {
+        ChannelDetFlow = NewMap(0);
+        ChannelDep = NewMap(0);
+        ChannelBLSed = NewMap(0);
+        ChannelSSSed = NewMap(0);
+        ChannelBLConc = NewMap(0);
+        ChannelSSConc = NewMap(0);
+        ChannelBLTC = NewMap(0);
+        ChannelSSTC = NewMap(0);
+        ChannelBLDepth = NewMap(0);
+        ChannelSSDepth = NewMap(0);
+        ChannelQBLs = NewMap(0);
+        ChannelQBLsn = NewMap(0);
+        ChannelQSSs = NewMap(0);
+        ChannelQSSsn = NewMap(0);
+        ChannelConc = NewMap(0);
+        ChannelTC = NewMap(0);
+        ChannelY = NewMap(0);
+
+    }
+
+    if(SwitchErosion)
+    {
+        MSSCFlood = NewMap(0);
+        MSSNFlood = NewMap(0);
+        MSSFlood = NewMap(0);
+        MSSCNFlood = NewMap(0);
+
+        MBLCFlood = NewMap(0);
+        MBLNFlood = NewMap(0);
+        MBLFlood = NewMap(0);
+        MBLCNFlood = NewMap(0);
+
+
 
         if(SwitchChannelFlood)
         {
@@ -846,15 +890,7 @@ void TWorld::InitMulticlass(void)
             bl2d = NewMap(0);
             bl2g = NewMap(0);
 
-            MSSCFlood = NewMap(0);
-            MSSNFlood = NewMap(0);
-            MSSFlood = NewMap(0);
-            MSSCNFlood = NewMap(0);
 
-            MBLCFlood = NewMap(0);
-            MBLNFlood = NewMap(0);
-            MBLFlood = NewMap(0);
-            MBLCNFlood = NewMap(0);
 
             SSCFlood = NewMap(0);
             SSFlood = NewMap(0);
@@ -891,75 +927,124 @@ void TWorld::InitMulticlass(void)
 
 
         graindiameters.clear();
+        settlingvelocities.clear();
+        Tempa_D.clear();
+        Tempb_D.clear();
+        Tempc_D.clear();
+        Tempd_D.clear();
+
         BL_D.clear();
         SS_D.clear();
         BLC_D.clear();
         SSC_D.clear();
         BLTC_D.clear();
         SSTC_D.clear();
+        BLD_D.clear();
+        SSD_D.clear();
 
-        BL_RD.clear();
-        SS_RD.clear();
-        BLC_RD.clear();
-        SSC_RD.clear();
-        BLTC_RD.clear();
-        SSTC_RD.clear();
+        RBL_D.clear();
+        RSS_D.clear();
+        RBLC_D.clear();
+        RSSC_D.clear();
+        RBLTC_D.clear();
+        RSSTC_D.clear();
+        RBLD_D.clear();
+        RSSD_D.clear();
 
         Sed_D.clear();
+        TC_D.clear();
         Conc_D.clear();
 
-        Storage2_D.clear();
+        StorageDep_D.clear();
         Storage_D.clear();
+        RStorageDep_D.clear();
+        RStorage_D.clear();
 
         OF_Advect.clear();
 
         R_Advect.clear();
-
-
         F_Advect.clear();
 
         if(!SwitchUseGrainSizeDistribution)
         {
-
             FOR_ROW_COL_MV
             {
                 CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
                 DG->Drc = pow((D50->Drc+5)/300, 0.25);
-                SettlingVelocity->Drc = GetSV(r,c,D50->Drc);
-                CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
-                // soil cohesion everywhere, plantcohesion only where plants
-                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
-                //            if (StoneFraction->Drc > 0)
-                //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
-                // GOED IDEE
-
+                SettlingVelocity->Drc = GetSV(D50->Drc);
             }
-
-            OF_Advect.append(Sed);
-
-            R_Advect.append(Sed);
-
-            F_Advect.append(SSFlood);
-            F_Advect.append(BLFlood);
-
         }else if(SwitchUseGrainSizeDistribution)
         {
 
             if(SwitchEstimateGrainSizeDistribution)
             {
+                if(numgrainclasses == 0)
+                {
+                    ErrorString = "Could not simulate 0 grain classes" +QString("\n")
+                            + "Please provide a positive number";
+                            throw 1;
 
-                distD50 = getvaluedouble("D50 for distribution");
-                distD90 = getvaluedouble("D90 for distribution");
+                }
 
-                numgrainclasses = 1;
-                graindiameters.append(50);
 
-                for(int i = 0; i < numgrainclasses; i++)
+                distD50 = 0;
+                distD90 = 0;
+                int count = 0;
+                FOR_ROW_COL_MV
+                {
+                    distD50 += D50->Drc;
+                    distD90 += D90->Drc;
+                    count++;
+                }
+                distD50 = distD50/count;
+                distD90 = distD90/count;
+
+                qDebug() << "grainclasses" << numgrainclasses <<" d50 " <<distD50 << " d90 " <<distD90;
+
+                double s = distD90- distD50;
+                double s2l = std::max(distD50 - 2*s,distD50);
+                double s2r = 2 * s;
+
+                int classesleft = numgrainclasses;
+                int mod2 = classesleft % 2;
+                if(mod2 == 1)
+                {
+                    classesleft -= 1;
+                }
+
+                qDebug() << classesleft/2 << s2l << s2r;
+                for(int i = 1; i < classesleft/2 + 1 ; i++)
+                {
+                    double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
+                    graindiameters.append(d);
+                    W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
+                }
+                if(mod2 == 1)
+                {
+                    graindiameters.append(distD50);
+                    W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
+                }
+
+                for(int i = 1; i < classesleft/2 + 1; i++)
+                {
+                    double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
+                    graindiameters.append(d);
+                    W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
+                }
+
+                FOR_GRAIN_CLASSES
                 {
 
-                    W_D.append(NewMap(1.0));
-                    graindiameters.clear();
+                    settlingvelocities.append(GetSV(graindiameters.at(d)));
 
+                    FOR_ROW_COL_MV
+                    {
+                        W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
+                    }
+                    Tempa_D.append(NewMap(0.0));
+                    Tempb_D.append(NewMap(0.0));
+                    Tempc_D.append(NewMap(0.0));
+                    Tempd_D.append(NewMap(0.0));
 
                     BL_D.append(NewMap(0.0));
                     SS_D.append(NewMap(0.0));
@@ -967,32 +1052,116 @@ void TWorld::InitMulticlass(void)
                     SSC_D.append(NewMap(0.0));
                     BLTC_D.append(NewMap(0.0));
                     SSTC_D.append(NewMap(0.0));
+                    BLD_D.append(NewMap(0.0));
+                    SSD_D.append(NewMap(0.0));
 
-                    BL_RD.append(NewMap(0.0));
-                    SS_RD.append(NewMap(0.0));
-                    BLC_RD.append(NewMap(0.0));
-                    SSC_RD.append(NewMap(0.0));
-                    BLTC_RD.append(NewMap(0.0));
-                    SSTC_RD.append(NewMap(0.0));
+                    RBL_D.append(NewMap(0.0));
+                    RSS_D.append(NewMap(0.0));
+                    RBLC_D.append(NewMap(0.0));
+                    RSSC_D.append(NewMap(0.0));
+                    RBLTC_D.append(NewMap(0.0));
+                    RSSTC_D.append(NewMap(0.0));
+                    RBLD_D.append(NewMap(0.0));
+                    RSSD_D.append(NewMap(0.0));
 
                     Sed_D.append(NewMap(0.0));
-                    //TC_D.append(NewMap(0.0));
+                    TC_D.append(NewMap(0.0));
                     Conc_D.append(NewMap(0.0));
 
-                    Storage2_D.append(NewMap(0.0));
+                    StorageDep_D.append(NewMap(0.0));
                     Storage_D.append(NewMap(0.0));
+                    RStorageDep_D.append(NewMap(0.0));
+                    RStorage_D.append(NewMap(0.0));
                 }
 
+                FOR_ROW_COL_MV
+                {
+                    double wtotal = 0;
+                    FOR_GRAIN_CLASSES
+                    {
+                        wtotal += (W_D).Drcd;
+                    }
 
+                    if(wtotal != 0)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            (W_D).Drcd = (W_D).Drcd/wtotal;
+                        }
+                    }
+                }
 
+                FOR_GRAIN_CLASSES
+                {
+                    qDebug() << "Grainsize " <<  graindiameters.at(d) << "with lognormal distribution at center" << LogNormalDist(distD50,distD90 - distD50,graindiameters.at(d)) << "with settlingvelocity" << settlingvelocities.at(d);
+                }
 
             }if(SwitchUseGrainSizeDistribution && SwitchReadGrainSizeDistribution)
             {
 
+                numgrainclasses = 0;
+                QStringList diamlist = getvaluename("Grain size class maps").split(",", QString::SkipEmptyParts);
+                for(int i = 0; i < diamlist.length(); i++)
+                {
+                    double diam = diamlist.at(i).toDouble();
+                    if( diam > 0.0)
+                    {
+                        numgrainclasses++;
+                        graindiameters.append(diam);
+
+                        settlingvelocities.append(GetSV(diam));
+
+                        W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
+
+                        graindiameters.clear();
+
+                        Tempa_D.append(NewMap(0.0));
+                        Tempb_D.append(NewMap(0.0));
+                        Tempc_D.append(NewMap(0.0));
+                        Tempd_D.append(NewMap(0.0));
+
+                        BL_D.append(NewMap(0.0));
+                        SS_D.append(NewMap(0.0));
+                        BLC_D.append(NewMap(0.0));
+                        SSC_D.append(NewMap(0.0));
+                        BLTC_D.append(NewMap(0.0));
+                        SSTC_D.append(NewMap(0.0));
+                        BLD_D.append(NewMap(0.0));
+                        SSD_D.append(NewMap(0.0));
+
+                        RBL_D.append(NewMap(0.0));
+                        RSS_D.append(NewMap(0.0));
+                        RBLC_D.append(NewMap(0.0));
+                        RSSC_D.append(NewMap(0.0));
+                        RBLTC_D.append(NewMap(0.0));
+                        RSSTC_D.append(NewMap(0.0));
+                        RBLD_D.append(NewMap(0.0));
+                        RSSD_D.append(NewMap(0.0));
+
+                        Sed_D.append(NewMap(0.0));
+                        TC_D.append(NewMap(0.0));
+                        Conc_D.append(NewMap(0.0));
+
+                        StorageDep_D.append(NewMap(0.0));
+                        Storage_D.append(NewMap(0.0));
+                        RStorageDep_D.append(NewMap(0.0));
+                        RStorage_D.append(NewMap(0.0));
+                    }
+                }
+
+                if(numgrainclasses == 0)
+                {
+                    ErrorString = "Could not interpret grain classes from the string: \n"
+                                  +  getvaluename("Grain size class maps") + "\n"
+                            + "Please provide positive values seperated by commas.";
+                            throw 1;
+                }
             }
         }
 
+
     }
+
 
 }
 //---------------------------------------------------------------------------
@@ -1313,8 +1482,7 @@ void TWorld::GetInputData(void)
 
 
         D50 = ReadMap(LDD,getvaluename("D50"));
-
-        if(SwitchChannelFlood)
+        if(SwitchChannelFlood || !(SwitchUse2Layer && R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution) )
         {
             D90 = ReadMap(LDD,getvaluename("D90"));
         }
@@ -1831,8 +1999,96 @@ void TWorld::IntializeData(void)
     }
 
 
+
+    if(SwitchUseMaterialDepth)
+    {
+        Storage = ReadMap(LDD, getvaluename("detmat"));
+        FOR_ROW_COL_MV
+        {
+            if(Storage->Drc != -1)
+            {
+                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
+            }else
+            {
+                Storage->Drc = -999999;
+            }
+        }
+        StorageDep = NewMap(0.0);
+        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
+
+    }
+
+
+    if(SwitchIncludeChannel)
+    {
+        if(SwitchUseMaterialDepth)
+        {
+            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
+            FOR_ROW_COL_MV
+            {
+                if(RStorage->Drc != -1)
+                {
+                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
+                }else
+                {
+                    Storage->Drc = -999999;
+                }
+            }
+            RStorageDep = NewMap(0.0);
+            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
+        }
+
+    }
+    if(SwitchUseGrainSizeDistribution)
+    {
+        IW_D.clear();
+        RW_D.clear();
+
+        FOR_GRAIN_CLASSES
+        {
+            if(SwitchIncludeChannel)
+            {
+                RW_D.append(NewMap(0.0));
+            }
+            IW_D.append(NewMap(0.0));
+
+            FOR_ROW_COL_MV
+            {
+                IW_D.Drcd = W_D.Drcd;
+                if(SwitchUseMaterialDepth)
+                {
+                    if(Storage->Drc > 0)
+                    {
+                            Storage_D.Drcd = W_D.Drcd * Storage->Drc;
+                    }else
+                    {
+                        Storage_D.Drcd = -999999;
+                    }
+                }
+                if(SwitchIncludeChannel)
+                {
+                    RW_D.Drcd = W_D.Drcd;
+                    if(SwitchUseMaterialDepth)
+                    {
+                        if(RStorage->Drc > 0)
+                        {
+                                RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
+                        }else
+                        {
+                            RStorage_D.Drcd = -999999;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
+    //K2Dslope also used for transport capacity of overland flow!
     K2DDEMA();
 
    // MakeWatersheds();

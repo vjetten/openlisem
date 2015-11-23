@@ -694,25 +694,7 @@ void TWorld::K2DSolvebyFlux(double dt)
         }*/
     }
 
-    //finish by substracting infiltration, and calculating discharge from new water height
-    FOR_ROW_COL_MV
-    {
-        double cdx = DX->Drc;
-        double cdy = ChannelAdj->Drc;
 
-        //calculate infiltartion in time step
-        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
-        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
-        {
-            infil = -K2DHNew->Drc*(cdx*cdy);
-
-        }
-        //keep track of infiltration
-        K2DI->Drc -= (infil);
-        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
-
-
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -736,7 +718,7 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         K2DFMY->Drc = 0;
         K2DMN->Drc = K2DM->Drc;
         K2DMC->Drc = _C->Drc;
-        //K2DMC->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+        K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
 
     }
 
@@ -888,7 +870,7 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
         K2DFMY->Drc = 0;
         K2DM->Drc = _S->Drc;
         K2DMN->Drc = _S->Drc;
-        //K2DMC->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+        K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
         K2DMC->Drc = _C->Drc;
     }
 
@@ -1087,6 +1069,26 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
  */
 void TWorld::K2DSolve(double dt)
 {
+    //finish by substracting infiltration, and calculating discharge from new water height
+    FOR_ROW_COL_MV
+    {
+        double cdx = DX->Drc;
+        double cdy = ChannelAdj->Drc;
+
+        //calculate infiltartion in time step
+        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
+        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
+        {
+            infil = -K2DHNew->Drc*(cdx*cdy);
+
+        }
+        //keep track of infiltration
+        K2DI->Drc -= (infil);
+        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
+
+
+    }
+
     FOR_ROW_COL_MV
     {
         if(K2DHNew->Drc < 0)  // prob never occurs
@@ -1499,9 +1501,9 @@ void TWorld::K2DDEMA()
             {
                 if(!pcr::isMV(LDD->data[r2][c2]))
                 {
-                    if(DEM->data[r2][c2] <  lowestneighbor)
+                    if(K2DDEM->data[r2][c2] <  lowestneighbor)
                     {
-                        lowestneighbor = DEM->data[r2][c2];
+                        lowestneighbor = K2DDEM->data[r2][c2];
                     }
 
                     //if at least 1 neighboring cell is lower, it is not a pit

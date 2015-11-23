@@ -182,6 +182,7 @@ void lisemqt::SetConnections()
     connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
     connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
+    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -196,7 +197,118 @@ void lisemqt::SetConnections()
 
     //connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
 
+    connect(checkUseGrainSizeDistribution,SIGNAL(toggled(bool)), this, SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
+    on_checkUseGrainSizeDistribution_toggled(checkUseGrainSizeDistribution->isChecked());
+
+    connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
+    connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
+
+        checkUseGrainSizeDistribution->setChecked(false);
+    connect(checkUseGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
+
+    connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
+    connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
 }
+
+
+
+void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
+{
+   checkReadGrainSizeDistribution->setChecked(!v);
+}
+
+void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
+{
+   checkEstimateGrainSizeDistribution->setChecked(!v);
+}
+void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
+{
+    if(v)
+    {
+        on_E_NumberClasses_valueChanged(0);
+    }else
+    {
+        E_DisplaySedimentClass->setMaximum(0);
+    }
+
+    if(v)
+    {
+        E_OFMethod->setValue(1);
+        E_RBLMethod->setValue(3);
+        E_RSSMethod->setValue(3);
+        E_BLMethod->setValue(3);
+        E_SSMethod->setValue(3);
+
+        E_OFMethod->setMaximum(1);
+        E_OFMethod->setMinimum(0);
+        E_RBLMethod->setMaximum(3);
+        E_RBLMethod->setMinimum(3);
+        E_RSSMethod->setMaximum(3);
+        E_RSSMethod->setMinimum(3);
+        E_BLMethod->setMaximum(3);
+        E_BLMethod->setMinimum(3);
+        E_SSMethod->setMaximum(3);
+        E_SSMethod->setMinimum(3);
+
+        if(checkNoErosion->isChecked() == false)
+        {
+            E_DisplaySedimentClass->setEnabled(true);
+        }else
+        {
+            E_DisplaySedimentClass->setEnabled(false);
+        }
+    }else
+    {
+        E_DisplaySedimentClass->setEnabled(false);
+
+        E_OFMethod->setValue(0);
+        E_RBLMethod->setValue(1);
+        E_RSSMethod->setValue(1);
+        E_BLMethod->setValue(1);
+        E_SSMethod->setValue(1);
+
+        E_OFMethod->setMaximum(0);
+        E_OFMethod->setMinimum(0);
+        E_RBLMethod->setMaximum(2);
+        E_RBLMethod->setMinimum(0);
+        E_RSSMethod->setMaximum(2);
+        E_RSSMethod->setMinimum(1);
+        E_BLMethod->setMaximum(2);
+        E_BLMethod->setMinimum(0);
+        E_SSMethod->setMaximum(2);
+        E_SSMethod->setMinimum(1);
+    }
+
+}
+
+
+void lisemqt::on_E_NumberClasses_valueChanged(int v)
+{
+    if(checkEstimateGrainSizeDistribution->isChecked())
+    {
+        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
+    }else
+    {
+        if(checkReadGrainSizeDistribution->isChecked())
+        {
+            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
+        }
+    }
+}
+void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
+{
+    if(checkEstimateGrainSizeDistribution->isChecked())
+    {
+        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
+    }else
+    {
+        if(checkReadGrainSizeDistribution->isChecked())
+        {
+            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
+        }
+    }
+}
+
 
 void lisemqt::on_E_Kinematic2D_valueChanged(int v)
 {
@@ -341,6 +453,8 @@ void lisemqt::SetToolBar()
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
+
+    connect(E_DisplaySedimentClass, SIGNAL(valueChanged(int)), this, SLOT(selectMapTypeSS(int)));
 
     connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
@@ -1116,14 +1230,15 @@ void lisemqt::resetAll()
     E_OFMethod->setValue(0);
     checkUse2Layer->setChecked(check);
     E_RBLMethod->setValue(0);
-    E_RSSMethod->setValue(0);
-    E_D90->setValue(400);
-    E_D50->setValue(200);
-    checkEstimated90->setChecked(check);
-    checkUseGrainSizeDistribution->setChecked(check);
-    checkEstimateGrainSizeDistribution->setChecked(check);
+    E_RSSMethod->setValue(1);
 
+    checkUseGrainSizeDistribution->setChecked(false);
+    checkEstimateGrainSizeDistribution->setChecked(false);
     checkReadGrainSizeDistribution->setChecked(false);
+    checkUse2Layer->setChecked(false);
+
+    E_BLMethod->setValue(1);
+    E_SSMethod->setValue(1);
 
     E_NumberClasses->setValue(0);
     E_GrainSizeDistributionType->setValue(0);

@@ -206,10 +206,10 @@ calculating the fluxes from upstream to downstream.\n
 \param  	_StorSed            sediment volume in bufers (kg)
 */
 void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
-                       cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                       cTMap *_Q, cTMap *_Qn,
                        cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                       cTMap *_Vol, cTMap*_Sed,
-                       cTMap *_StorVol, cTMap *_StorSed)
+                       cTMap *_Vol,
+                       cTMap *_StorVol)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -301,8 +301,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                     Qin += _Qn->Drc;
                     QinKW->data[rowNr][colNr] = Qin;
 
-                    if (SwitchErosion)
-                        Sin += _Qsn->Drc;
+                    /*if (SwitchErosion)
+                        Sin += _Qsn->Drc;*/
 
                     // ADD MC and NUTs HERE
                 }
@@ -485,7 +485,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-            if (pcr::isMV(_Qn->Drc) &&
+            if (pcr::isMV(_Qsn->Drc) &&
                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                     INSIDE(r, c))
             {
@@ -570,13 +570,13 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             if (!isBufferCellSed)
             {
 
-                            if (!SwitchSimpleSedKinWave)
+                            //if (!SwitchSimpleSedKinWave)
                 _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
                                                           Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-                            else
+                            /*else
                                 _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
                                                                          _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
-
+                            */
                 _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
                 // no more sediment outflow than total sed in cell
 

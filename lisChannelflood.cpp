@@ -105,7 +105,23 @@ void TWorld::ChannelOverflow()
                         if(SwitchErosion)
                         {
                             SSFlood->Drc += ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
-                            ChannelBLSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+
+                            if(this->SwitchUse2Layer)
+                            {
+                                ChannelSSSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            }else
+                            {
+                                ChannelBLSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            }
+
+                            if(SwitchUseGrainSizeDistribution)
+                            {
+                                FOR_GRAIN_CLASSES
+                                {
+                                    SS_D.Drcd +=RSSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                    RSS_D.Drcd -= RSSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                }
+                            }
 
                         }
                     }
@@ -127,8 +143,24 @@ void TWorld::ChannelOverflow()
                         //transport sediment with water
                         if(SwitchErosion)
                         {
-                            SSFlood->Drc -= SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
-                            ChannelBLSed->Drc += SSCFlood->Drc * dwh * DX->Drc * ChannelAdj->Drc;
+                            SSFlood->Drc -= SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+
+                            if(this->SwitchUse2Layer)
+                            {
+                                ChannelSSSed->Drc += SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            }else
+                            {
+                                ChannelBLSed->Drc += SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            }
+
+                            if(SwitchUseGrainSizeDistribution)
+                            {
+                                FOR_GRAIN_CLASSES
+                                {
+                                    SS_D.Drcd -=SSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                    RSS_D.Drcd += SSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                }
+                            }
                         }
                     }
                 }
@@ -150,28 +182,45 @@ void TWorld::ChannelOverflow()
                         double dhmx = hmx->Drc -hmxold;
                         if(dhmx > 0.0)
                         {
-
-                            SSFlood->Drc += ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
-                            ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * DX->Drc * ChannelWidthUpDX->Drc;
+                            SSFlood->Drc += ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            if(this->SwitchUse2Layer)
+                            {
+                                ChannelSSSed->Drc -= ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            }else
+                            {
+                                ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            }
+                            if(SwitchUseGrainSizeDistribution)
+                            {
+                                FOR_GRAIN_CLASSES
+                                {
+                                    SS_D.Drcd +=RSSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                    RSS_D.Drcd -= RSSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                }
+                            }
                         }else
                         {
-                            SSFlood->Drc += SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
-                            ChannelBLSed->Drc -= SSCFlood->Drc * dhmx * DX->Drc * ChannelAdj->Drc;
-
+                            SSFlood->Drc -= SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            if(this->SwitchUse2Layer)
+                            {
+                                ChannelSSSed->Drc += SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            }else
+                            {
+                                ChannelBLSed->Drc += SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            }
+                            if(SwitchUseGrainSizeDistribution)
+                            {
+                                FOR_GRAIN_CLASSES
+                                {
+                                    SS_D.Drcd -=SSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                    RSS_D.Drcd += SSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                }
+                            }
                         }
-
-
                     }
-
                 }
                 else
                 {
-
-                    if(SwitchErosion)
-                    {
-                        //Serrs += factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
-                        //BLFlood->Drc -= factor * BLCFlood->Drc * hmx->Drc *DX->Drc * ChannelAdj->Drc;
-                    }
 
                     err += factor*hmx->Drc*ChannelAdj->Drc*DX->Drc;
                     hmx->Drc *= (1-factor);
@@ -189,23 +238,8 @@ void TWorld::ChannelOverflow()
         hmx->Drc += (err/(nrFloodedCells+1))/(ChannelAdj->Drc*DX->Drc);
         hmx->Drc = std::max(0.0, hmx->Drc);
 
-        if(SwitchErosion)
-        {
-            //BLFlood->Drc += (errs/(nrFloodedCells+1));
-            //BLFlood->Drc = std::max(0.0, BLFlood->Drc);
-        }
-
     }}
 
-    if(SwitchErosion)
-    {
-        FOR_CELL_IN_FLOODAREA
-
-            SWOFSedimentLayerDepth(r,c);
-
-            SWOFSedimentMaxC(r,c,BLFlood,BLCFlood,SSFlood,SSCFlood);
-        }
-    }
 
 //FOR_CELL_IN_FLOODAREA
 //{
