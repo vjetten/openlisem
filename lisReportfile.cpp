@@ -187,8 +187,6 @@ void TWorld::OutputUI(void)
             tmb->Drc = WH->Drc*FlowWidth->Drc/_dx;
         }
         copy(*op.DrawMap4, *tmb);
-        copy(*op.DrawMap5, *K2DOutlets);  //flood level in m
-        copy(*op.DrawMap7, *K2DPits);  // flood start since peak rainfall in min
     }
 
     copy(*op.baseMap, *Shade);
