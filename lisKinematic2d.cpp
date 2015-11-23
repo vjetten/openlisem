@@ -197,6 +197,10 @@ double TWorld::K2DFlux()
 
 
         }
+        if(K2DOutlets->Drc == 1)
+        {
+            K2DQ->Drc =0.1 *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc)/dtr;
+        }
         /*if(SwitchErosion)
         {
             K2DQS->Drc =  K2DQ->Drc * K2DSC->Drc;
@@ -1222,16 +1226,40 @@ void TWorld::K2DDEMA()
 
         if(r != 0 && c != 0 && c != _nrCols-1 && r != _nrRows-1)
         {
-
-            //if(!pcr::isMV(K2DDEM->data[r+1][c]) && !pcr::isMV(K2DDEM->data[r-1][c]) && !pcr::isMV(K2DDEM->data[r][c+1]) && !pcr::isMV(K2DDEM->data[r][c-1]))
             {
                 double dem = K2DDEM->data[r][c];
 
                 double demx1 = K2DDEM->data[r][c+1];
                 double demx2 = K2DDEM->data[r][c-1];
 
+                if(pcr::isMV(LDD->data[r][c+1]))
+                {
+                    demx1 = DEM->data[r][c];
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
+                if(pcr::isMV(LDD->data[r][c-1]))
+                {
+                    demx1 = DEM->data[r][c];
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
+
                 double demy1 = K2DDEM->data[r+1][c];
                 double demy2 = K2DDEM->data[r-1][c];
+
+                if(pcr::isMV(LDD->data[r+1][c]))
+                {
+                    demy1 = DEM->data[r][c];
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
+                if(pcr::isMV(LDD->data[r-1][c]))
+                {
+                    demy1 = DEM->data[r][c];
+                    Outlet->Drc= 1;
+                    K2DOutlets->Drc = 1;
+                }
 
                 if(demx1 < demx2)
                 {
@@ -1249,8 +1277,6 @@ void TWorld::K2DDEMA()
                     Dhy = (demy2-dem);
                 }
 
-
-
             }
 
             //one sided slope
@@ -1264,43 +1290,34 @@ void TWorld::K2DDEMA()
             else
                 Dhx = 0;*/
 
-            if(pcr::isMV(K2DDEM->data[r-1][c]) && !pcr::isMV(K2DDEM->data[r+1][c]))
+            if(pcr::isMV(LDD->data[r-1][c]) && !pcr::isMV(LDD->data[r+1][c]))
             {
-                Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-                if( Dhy < 0)
-                {
-                    Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
-                }
+                Dhy = (K2DDEM->data[r][c]-DEM->data[r][c]);
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
             }
-            if(pcr::isMV(K2DDEM->data[r+1][c]) && !pcr::isMV(K2DDEM->data[r-1][c]))
+            if(pcr::isMV(LDD->data[r+1][c]) && !pcr::isMV(LDD->data[r-1][c]))
             {
-                Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-                if( Dhy > 0)
-                {
-                    Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
-                }
+                Dhy = -(K2DDEM->data[r][c]-DEM->data[r][c]);
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
             }
-            if(pcr::isMV(K2DDEM->data[r][c-1]) && !pcr::isMV(K2DDEM->data[r][c+1]))
+            if(pcr::isMV(LDD->data[r][c-1]) && !pcr::isMV(LDD->data[r][c+1]))
             {
-                Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-                if( Dhx < 0)
-                {
-                    Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
-                }
+                Dhx = (K2DDEM->data[r][c]-DEM->data[r][c]);
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
+
             }
-            if(pcr::isMV(K2DDEM->data[r][c+1]) && !pcr::isMV(K2DDEM->data[r][c-1]))
+            if(pcr::isMV(LDD->data[r][c+1]) && !pcr::isMV(LDD->data[r][c-1]))
             {
-                Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-                if( Dhx > 0)
-                {
-                    Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
-                }
+                Dhx = -(K2DDEM->data[r][c]-DEM->data[r][c]);
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
             }
-            if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r][c-1]))
+
+
+            if(pcr::isMV(LDD->data[r][c+1]) && pcr::isMV(LDD->data[r][c-1]))
             {
                 Dhx = 0;
                 {
@@ -1308,7 +1325,7 @@ void TWorld::K2DDEMA()
                     K2DOutlets->Drc = 1;
                 }
             }
-            if(pcr::isMV(K2DDEM->data[r+1][c]) && pcr::isMV(K2DDEM->data[r-1][c]))
+            if(pcr::isMV(LDD->data[r+1][c]) && pcr::isMV(LDD->data[r-1][c]))
             {
                 Dhy = 0;
                 Outlet->Drc= 1;
@@ -1525,6 +1542,29 @@ void TWorld::K2DDEMA()
                     }
                 }else
                 {
+                    double tdem = dem;
+                    if(tdem <  lowestneighbor)
+                    {
+                        lowestneighbor = tdem;
+                    }
+
+                    //if at least 1 neighboring cell is lower, it is not a pit
+                    if(tdem < demw)
+                    {
+                        if( i < 2){
+                            pitxw = false;
+                        }else if( i < 4){
+                            pityw = false;
+                        }else
+                        {
+                            pitdw = false;
+                            direction = i;
+                        }
+                    }
+                    if(tdem <  lowestneighborw)
+                    {
+                        lowestneighborw = tdem;
+                    }
                     mv++;
                 }
             }
@@ -1549,7 +1589,6 @@ void TWorld::K2DDEMA()
         {
             K2DPits->Drc = 1;
             K2DSlope->Drc = 0;
-            //qDebug() << r << c << "PIT!!!!";
         }
     }
 

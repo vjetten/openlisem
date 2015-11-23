@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5600,7 +5600,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>5</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6535,7 +6535,7 @@
                          <double>0.500000000000000</double>
                         </property>
                         <property name="value">
-                         <double>1.000000000000000</double>
+                         <double>0.990000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -6559,7 +6559,7 @@
                          <double>0.010000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>1.000000000000000</double>
+                         <double>0.990000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.050000000000000</double>
@@ -6604,8 +6604,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>345</width>
+                    <height>304</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -6621,8 +6621,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>345</width>
+                    <height>304</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6650,8 +6650,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>345</width>
+                    <height>304</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6675,8 +6675,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>345</width>
+                    <height>304</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6768,8 +6768,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>306</width>
+                    <height>206</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8848,8 +8848,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>367</width>
+                    <height>268</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8934,8 +8934,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>274</width>
+                    <height>293</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -11587,8 +11587,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>281</width>
+                    <height>331</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -12273,8 +12273,8 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>345</width>
+                    <height>442</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -13157,8 +13157,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>89</height>
+                    <width>372</width>
+                    <height>611</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -18539,10 +18539,13 @@ Channels:
                <item row="12" column="0">
                 <widget class="QRadioButton" name="radioButton_FL">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="text">
                   <string>Flood Level</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -19011,7 +19014,7 @@ Channels:
                  <item>
                   <widget class="QDoubleSpinBox" name="doubleSpinBoxFLmin">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -19036,7 +19039,7 @@ Channels:
                  <item>
                   <widget class="QDoubleSpinBox" name="doubleSpinBoxFL">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -19891,22 +19894,6 @@ Channels:
   <connection>
    <sender>checkChannelFlood</sender>
    <signal>toggled(bool)</signal>
-   <receiver>doubleSpinBoxFL</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>486</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>265</x>
-     <y>1023</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkChannelFlood</sender>
-   <signal>toggled(bool)</signal>
    <receiver>doubleSpinBoxFLV</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
@@ -20017,38 +20004,6 @@ Channels:
    </hints>
   </connection>
   <connection>
-   <sender>checkChannelFlood</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>radioButton_FL</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>486</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>172</x>
-     <y>1022</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkChannelFlood</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>doubleSpinBoxFLmin</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>220</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>330</x>
-     <y>1023</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkNoErosion</sender>
    <signal>toggled(bool)</signal>
    <receiver>radioButton_SS</receiver>
@@ -20066,7 +20021,7 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
