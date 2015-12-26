@@ -28,10 +28,23 @@
   \brief Flow and splash detachment functions for slopes and channels
 
 functions: \n
-- double TWorld::MaxConcentration(double watvol, double sedvol, double dep) \n
-- void TWorld::SplashDetachment(void) \n
-- void TWorld::FlowDetachment(void) \n
-- void TWorld::ChannelFlowDetachment(void) \n
+- double TWorld::MaxConcentration(double watvol, double sedvol)\n
+- void TWorld::SplashDetachment(void)\n
+- double TWorld::OFTC(int r, int c, int d)\n
+- double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)\n
+- double TWorld::GetDp(int r, int c,double p)\n
+- double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)\n
+- double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)\n
+- double TWorld::GetSV(double d)\n
+- void TWorld::SedimentSetMaterialDistribution(int r,int c)\n
+- double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)\n
+- void TWorld::FlowDetachment(void)\n
+- void TWorld::ChannelFlowDetachment(int r, int c)\n
+- void TWorld::RiverSedimentMaxC(int r, int c)\n
+- void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)\n
+- void TWorld::RiverSedimentLayerDepth(int r , int c)\n
+- double TWorld::RiverSedimentTCBL(int r,int c,int _d)\n
+- double TWorld::RiverSedimentTCSS(int r,int c, int _d)\n
  */
 
 #include <algorithm>
@@ -45,6 +58,16 @@ functions: \n
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
+ * @brief Calculates concentration with a maximum of MAXCONC
+ *
+ * @param watvol : the watervolume
+ * @param sedvol : the sediment mass
+ * @return sediment concentration (kg/m3)
+ * @see MAXCONC
+ *
+ */
 double TWorld::MaxConcentration(double watvol, double sedvol)
 {
    double conc = MAXCONC;
@@ -63,6 +86,20 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
    return conc;
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
+ * @brief Calculates splash detachment for each cell
+ *
+ * This function calculates splash detachment for each cell,
+ * based on kinetic energy of direct rainfall and troughfall.
+ * Detachment is taken from the top soil layer if possible.
+ * The detached sediment is not directly added to sediment in flow,
+ * this happens during flow detachment.
+ *
+ *
+ * @see KEequationType
+ *
+ */
 void TWorld::SplashDetachment(void)
 {
    if (!SwitchErosion)
@@ -239,17 +276,40 @@ void TWorld::SplashDetachment(void)
    }
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::OFTC(int r, int c, int d)
+ * @brief Overland Flow Sediment Transport Capacity
+ *
+ * The overland flow transport capacity for a specified cell
+ * and a specified grain class.
+ * Automatically chooses the used equation based on OF_Method
+ *
+ * @param r : row nr of the cell
+ * @param c : column nr of the cell
+ * @param d : grain size class(only used with UseGrainSizeDistribution)
+ * @return The transport capacity
+ * @see OF_Method
+ */
 double TWorld::OFTC(int r, int c, int d)
 {
+    /*
+     * If some variables are insignificant,
+     * the transport capacity equations
+     * predict strange values.
+     * The following checks return zero when this is the case.
+     * Furthermore decreases computation time before runoff starts
+     */
 
     if(WHrunoff->Drc < MIN_HEIGHT)
     {
         return 0;
     }
+
     if(V->Drc < MIN_FLUX)
     {
         return 0;
     }
+
     if(ChannelAdj->Drc < MIN_HEIGHT)
     {
         return 0;
@@ -260,6 +320,7 @@ double TWorld::OFTC(int r, int c, int d)
         return 0;
     }
 
+    //use Govers transport capacity equation
     if(OF_Method == OFGOVERS)
     {
         CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
@@ -275,7 +336,7 @@ double TWorld::OFTC(int r, int c, int d)
         return std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
         // not more than 2650*0.32 = 848 kg/m3
 
-
+    //use the Hairsine and Rose transport capacity equation
     }else if(OF_Method == OFHAIRSINEROSE)
     {
         double om =  100* V->Drc*Grad->Drc;
@@ -283,25 +344,41 @@ double TWorld::OFTC(int r, int c, int d)
         double tc =  (1.0/settlingvelocities.at(d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/WHrunoff->Drc) ;
         return std::min(MAXCONC,tc);
 
-        //govers with some assumpions about distribution of stream power
-        //use-able??
-        /*CG->Drc = pow((graindiameters.at(d)+5)/0.32, -0.6);
-        DG->Drc = pow((graindiameters.at(d)+5)/300, 0.25);
-        //### Calc transport capacity
-        double omega = 0;
-
-            omega = 100* V->Drc*K2DSlope->Drc;
-
-        // V in cm/s in this formula assuming grad is SINE
-        double omegacrit = 0.4;
-        // critical unit streampower in cm/s
-        return std::min(MAXCONC, W_D.Drcd * 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));*/
 
     }
+
+    //govers with some assumpions about distribution of stream power
+    //use-able??
+    /*CG->Drc = pow((graindiameters.at(d)+5)/0.32, -0.6);
+    DG->Drc = pow((graindiameters.at(d)+5)/300, 0.25);
+    //### Calc transport capacity
+    double omega = 0;
+
+        omega = 100* V->Drc*K2DSlope->Drc;
+
+    // V in cm/s in this formula assuming grad is SINE
+    double omegacrit = 0.4;
+    // critical unit streampower in cm/s
+    return std::min(MAXCONC, W_D.Drcd * 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));*/
+
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::GetTotalDW(int r, int c, QList<cTMap *> *M)
+ * @brief Returns the total value of a map list on a cell
+ *
+ * Sums up the value of a map list
+ * for a certain cell
+ *
+ * @param r : row nr of the cell
+ * @param c : column nr of the cell
+ * @param M : Material map list
+ * @return The total value
+ */
 double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
 {
+    //simple iteration over maps
     double wtotal = 0;
     FOR_GRAIN_CLASSES
     {
@@ -310,23 +387,59 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
     return wtotal;
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::GetDp(int r, int c,double p)
+ * @brief get p percent grain size
+ *
+ * Uses a linear approximation to find the
+ * grain size for which a certain percentage
+ * of sediment mass has a lower grain size.
+ *
+ * @param r : row nr of the cell
+ * @param c : column nr of the cell
+ * @param p : the mass factor that should have a lower grain size class
+ * @return The p percent grain size
+ * @see TWorld::GetDpMat
+ */
 double TWorld::GetDp(int r, int c,double p)
 {
+    //use more generic function
     return GetDpMat(r,c,p,&W_D);
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
+ * @brief get p percent grain size based on material distribution
+ *
+ * Uses a linear approximation to find the
+ * grain size for which a certain percentage
+ * of sediment mass has a lower grain size.
+ * Uses a material distribution for each cell
+ *
+ * @param r : row nr of the cell
+ * @param c : column nr of the cell
+ * @param p : the mass factor that should have a lower grain size class
+ * @param M : Material distribution map list
+ * @return The p percent grain size
+ */
 double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
 {
+    //check if there is a single grain class
+    //then we can return the single value
     if(numgrainclasses == 1)
     {
         graindiameters.at(0);
     }
+    //find total material
     double wtotal = 0;
     FOR_GRAIN_CLASSES
     {
         wtotal += (*M).Drcd;
     }
+    //find factor of material we should reach
     wtotal = wtotal*p;
+
+    //iterate trough grain classes untill enough material is summed
     double w = (*M).at(0)->Drc;;
     FOR_GRAIN_CLASSES
     {
@@ -338,6 +451,7 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
         w += (*M).at(d+1)->Drc;
         if(w > wtotal)
         {
+            //return linearly interpolated value
             double wmin = (w - (*M).at(d+1)->Drc);
             double wmax = w;
             double dw = wmax-wmin;
@@ -348,19 +462,114 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
 
 
     }
+    //return latest value, either because p is near 1
+    //or because the vast majority of material is in this class.
+    //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return graindiameters.at(numgrainclasses-1);
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M)
+ * @brief get p percent grain size based on material distribution
+ *
+ * Uses a linear approximation to find the
+ * value of a parameter,
+ * for the p percent grain size class.
+ * Uses a material distribution.
+ *
+ * @param r : row nr of the cell
+ * @param c : column nr of the cell
+ * @param p : the mass factor that should have a lower grain size class
+ * @param M : Material distribution map list
+ * @param V : Parameter value map list
+ * @return The value of parameter V for the p percent grain size.
+ */
+double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
+{
+    //check if there is a single grain class
+    //then we can return the single value
+    if(numgrainclasses == 1)
+    {
+        graindiameters.at(0);
+    }
+
+    //find total material
+    double wtotal = 0;
+    FOR_GRAIN_CLASSES
+    {
+        wtotal += (*M).Drcd;
+    }
+
+    //find factor of material we should reach
+    wtotal = wtotal*p;
+    //iterate trough grain classes untill enough material is summed
+    double w = (*M).at(0)->Drc;;
+    FOR_GRAIN_CLASSES
+    {
+
+        if( d == numgrainclasses - 1)
+        {
+            return (*V).at(numgrainclasses-1);
+        }
+        w += (*M).at(d+1)->Drc;
+        if(w > wtotal)
+        {
+            //return linearly interpolated value
+            double wmin = (w - (*M).at(d+1)->Drc);
+            double wmax = w;
+            double dw = wmax-wmin;
+            double f = (wtotal- wmin)/dw;
+            return f* (*V).at(d + 1) + (1.0-f) * (*V).at(d);
+
+        }
+
+
+    }
+    //return latest value, either because p is near 1
+    //or because the vast majority of material is in this class.
+    //more specificly done if: 100 * p > (100 - percentage in last grain class)
+    return (*V).at(numgrainclasses-1);
+}
+/**
+ * @fn double TWorld::GetSV(double d)
+ * @brief get settling velocity of sediment with grain size d
+ *
+ * @param d : the grain size (in micrometer)
+ * @return The settling velocity
+ */
 double TWorld::GetSV(double d)
 {
-        return 2*(2650-1000)*9.80*pow(d/2000000, 2)/(9*0.001);
+    //Stokes range settling velocity
+    if(d < 100)
+    {
+        return 2*(2650-1000)*9.80*pow(d/2000000.0, 2)/(9*0.001);
+
+    //Settling velocity by Zanke (1977)
+    }else
+    {
+        double dm = d/1000.0;
+        return 10.0 *(sqrt(1.0 + 0.01 *((2650.0-1000.0)/1000.0)* GRAV *dm*dm*dm )-1.0)/(dm);
+    }
 
 }
-//---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::SedimentSetMaterialDistribution(int r,int c)
+ * @brief Update grain size distribution of soil layers
+ *
+ * Update grain size distribution of both
+ * original soil layer and deposited layer.
+ * Step is skipped if the storage is negative,
+ * which indicated infinite storage.
+ *
+ * @param r : row nr of the cell
+ * @param c : coumn nr of the cell
+ * @return void
+ */
 void TWorld::SedimentSetMaterialDistribution(int r,int c)
 {
     if(SwitchUseMaterialDepth)
     {
+        //set total mass from grain size distributed mass
         if(SwitchUseGrainSizeDistribution)
         {
             StorageDep->Drc = GetTotalDW(r,c,&StorageDep_D);
@@ -371,39 +580,15 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
 
         }
 
-        /*if(StorageDep->Drc < 0)
-        {
-            StorageDep->Drc = 0;
-            if(SwitchUseGrainSizeDistribution)
-            {
-                FOR_GRAIN_CLASSES
-                {
-                    StorageDep_D.Drcd = 0;
-                }
-            }
-        }
-        if(SwitchIncludeChannel)
-        {
-            if(RStorageDep->Drc < 0)
-            {
-                RStorageDep->Drc = 0;
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        RStorageDep_D.Drcd = 0;
-                    }
-                }
-            }
-        }*/
-
+        //update grain size distributed weights
         if(SwitchUseGrainSizeDistribution)
         {
 
             if(!(Storage->Drc < -1))
             {
-
+                //calculated layer depth based on a bulk density of 1600 kg/m3
                 double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+                //linear soil layers mixing factor for effective soil properties
                 double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
                 double fac2 = 1.0 - fac1;
                 if(SedimentMixingDepth->Drc < MIN_HEIGHT)
@@ -411,6 +596,8 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
                     fac1 = 1.0;
                     fac2 = 0.0;
                 }
+
+                //use soil layer mixing factor to calculate effective soil properties
                 FOR_GRAIN_CLASSES
                 {
                     if(StorageDep->Drc > MIN_HEIGHT && Storage->Drc > MIN_HEIGHT)
@@ -430,6 +617,7 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
 
                 }
 
+                //normalize (total weight should be 1)
                 double wtotal = 0;
                 FOR_GRAIN_CLASSES
                 {
@@ -444,6 +632,7 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
                 }
             }
 
+            //identical process for channel soil layers
             if(SwitchIncludeChannel)
             {
                 RStorageDep->Drc = GetTotalDW(r,c,&RStorageDep_D);
@@ -451,8 +640,9 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
                 {
                     RStorage->Drc = GetTotalDW(r,c,&RStorage_D);
 
-
+                    //calculated layer depth based on a bulk density of 1600 kg/m3
                     double depdepth = std::max((RStorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+                    //linear soil layers mixing factor for effective soil properties
                     double fac1 = std::max(0.0,1.0 - depdepth/RSedimentMixingDepth->Drc);
                     double fac2 = 1 - fac1;
                     if(RSedimentMixingDepth->Drc < MIN_HEIGHT)
@@ -460,6 +650,7 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
                         fac1 = 1;
                         fac2 = 0;
                     }
+                    //use soil layer mixing factor to calculate effective soil properties
                     FOR_GRAIN_CLASSES
                     {
                         if(RStorageDep->Drc > MIN_HEIGHT && RStorage->Drc > MIN_HEIGHT)
@@ -480,6 +671,7 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
 
                     }
 
+                    //normalize (total weight should be 1)
                     double wtotal = 0;
                     FOR_GRAIN_CLASSES
                     {
@@ -493,16 +685,46 @@ void TWorld::SedimentSetMaterialDistribution(int r,int c)
                         }
                     }
                 }
-
             }
         }
     }
-
-
-
 }
+
+/**
+ * @fn double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
+ * @brief Calculates real detachment from potential detachment.
+ *
+ * This cell uses the real time calculated effective erosion coefficient
+ * to calculate actual erosion. When the soil layer has less sediment left then
+ * the potential erosion, an analytical solution is used to converge
+ * both sediment in the soil layer and sediment in tranport to a
+ * stable value. When both the channel and flood parameter are false,
+ * overland flow detachment is assumed.
+ *
+ * @param r : Row nr of the cell
+ * @param c : Column nr of the cell
+ * @param d : Grain diameter class
+ * @param Channel : Channel detachment?
+ * @param flood : Flood detachment?
+ * @param bl : Bed Load detachment?
+ * @param detachment : Potential detachment
+ * @return Actual detachment
+ */
+
 double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
 {
+    /*
+     * NOTE: the actual detachment is immediately taken
+     * from the soil layers. It is therefore assumed that when using
+     * this function, the actual detachment is added to the
+     * sediment in flow. THIS IS REQUIRED! to maintain mass
+     * balance
+     */
+
+    // when there is no usage of material depth,
+    // there is no deposited layer
+    // actual erosion can then be calculated using
+    // the original erosion efficiency coefficient
     if(!SwitchUseMaterialDepth)
     {
         if(channel)
@@ -513,8 +735,11 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             return detachment * Y->Drc;
         }
     }
+
+    //first check if it is channel detachment
     if(channel)
-    {
+    {\
+        //calculate depth of deposited layer
         double depdepth = std::max((RStorageDep->Drc / (1600.0))/(ChannelWidth->Drc * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
@@ -526,12 +751,21 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             fac1 = 1;
             fac2 = 0;
         }
+        //new erosion coefficient bases on soil layer mixinfactors
         double newY = ChannelY->Drc * fac1 + fac2 * 1.0;
+
+        //multiply potential detachment by erosion coefficient
         detachment = detachment *newY;
 
+        //when a grain size distribution is used,
+        //transport capacity if dependend on the
+        //grain size distribution
+        //this is therefore needed to converge to stable values
         if( SwitchUseGrainSizeDistribution)
         {
-
+            //if there is not an indicator for infinite sediment
+            //and there is less sediment in the combined layers
+            //than will be detached, use analytical solution
             if(!((RStorage->Drc) < -1) &&  detachment > RStorage_D.Drcd + RStorageDep_D.Drcd)
             {
                 double masstotal = GetTotalDW(r,c,&RStorage_D)+ GetTotalDW(r,c,&RStorageDep_D);
@@ -551,25 +785,35 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             }
 
         }
+        //to remove small rounding errors that lead to negative values
         detachment = std::max(detachment,0.0);
+
         //check wat we can detache from the top and bottom layer of present material
         double dleft = detachment;
         double deptake = 0;
         double mattake = 0;
         detachment = 0;
+
+        //when a grain size distribution is used
         if(SwitchUseGrainSizeDistribution)
         {
+            //take from soil layer mass within that grain class
             deptake = std::min(dleft,RStorageDep_D.Drcd);
             dleft -= deptake;
+            //and take the same from the total
             RStorageDep_D.Drcd -= deptake;
             RStorageDep->Drc -= deptake;
         }else
         {
+            //take from the total storage
             deptake = std::min(dleft,RStorageDep->Drc);
             RStorageDep->Drc -= deptake;
         }
+        //add to the detachment what we have taken from the first soil layer
         detachment += deptake;
 
+        //if the deposited layer is empty
+        //use erosion efficiency of bottom layer again
         if(newY > 0)
         {
             dleft *= ChannelY->Drc/newY;
@@ -578,27 +822,34 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             dleft = 0;
         }
 
+        //bottom soil layer can be infinite
         if(!((RStorage->Drc) < -1))
         {
+            //take sediment from the soil layer storage
             if(SwitchUseGrainSizeDistribution)
             {
+                //take from soil layer mass within that grain class
                 mattake = std::min(dleft,RStorage_D.Drcd);
                 dleft -= mattake;
+                //take from the total storage
                 RStorage_D.Drcd -= mattake;
                 RStorage->Drc -= mattake;
 
             }else
             {
+                //take from the total storage
                 mattake = std::min(dleft,RStorage->Drc);
                 RStorage->Drc -= mattake;
             }
+            //add to the detachment what we have taken from the second soil layer
             detachment += mattake;
         }else
         {
+            //all left potential detachment is added to detachment (infinite soil layer)
             detachment += dleft;
         }
 
-
+    //finally, return the total detachment
     return std::max(0.0,detachment);
 
     }else if(flood)
@@ -614,12 +865,20 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             fac1 = 1;
             fac2 = 0;
         }
-
+        //new erosion coefficient bases on soil layer mixinfactors
         double newY = Y->Drc * fac1 + fac2 * 1.0;
+        //multiply potential detachment by erosion coefficient
         detachment = detachment *newY;
 
+        //when a grain size distribution is used,
+        //transport capacity if dependend on the
+        //grain size distribution
+        //this is therefore needed to converge to stable values
         if( SwitchUseGrainSizeDistribution)
         {
+            //if there is not an indicator for infinite sediment
+            //and there is less sediment in the combined layers
+            //than will be detached, use analytical solution
             if(!((Storage->Drc) < -1) &&  detachment > Storage_D.Drcd + StorageDep_D.Drcd)
             {
                 double masstotal = GetTotalDW(r,c,&Storage_D)+ GetTotalDW(r,c,&StorageDep_D);
@@ -640,24 +899,35 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             }
 
         }
+        //to remove small rounding errors that lead to negative values
         detachment = std::max(detachment,0.0);
+
         //check wat we can detache from the top and bottom layer of present material
         double dleft = detachment;
         double deptake = 0;
         double mattake = 0;
         detachment = 0;
+
+        //when a grain size distribution is used
         if(SwitchUseGrainSizeDistribution)
         {
+            //take from soil layer mass within that grain class
             deptake = std::min(dleft,StorageDep_D.Drcd);
             dleft -= deptake;
+            //and take the same from the total
             StorageDep_D.Drcd -= deptake;
             StorageDep->Drc -= deptake;
         }else
         {
+            //take from the total storage
             deptake = std::min(dleft,StorageDep->Drc);
             StorageDep->Drc -= deptake;
         }
+        //add to the detachment what we have taken from the first soil layer
         detachment += deptake;
+
+        //if the deposited layer is empty
+        //use erosion efficiency of bottom layer again
         if(newY > 0)
         {
             dleft *= Y->Drc/newY;
@@ -670,24 +940,33 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         {
             if(SwitchUseGrainSizeDistribution)
             {
+                //take from soil layer mass within that grain class
                 mattake = std::min(dleft,Storage_D.Drcd);
                 dleft -= mattake;
+                //take from the total storage
                 Storage_D.Drcd -= mattake;
                 Storage->Drc -= mattake;
             }else
             {
+                //take from the total storage
                 mattake = std::min(dleft,Storage->Drc);
                 Storage->Drc -= mattake;
             }
+            //add to the detachment what we have taken from the second soil layer
             detachment += mattake;
         }else
         {
+            //all left potential detachment is added to detachment (infinite soil layer)
             detachment += dleft;
         }
 
+        //finally, return the total detachment
         return std::max(0.0,detachment);
+
+    //if it is neither flood nor channel detachment, overland flow is assumed
     }else
     {
+        //calculate depth of deposited layer
         double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
@@ -699,13 +978,22 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             fac1 = 1;
             fac2 = 0;
         }
-
+        //new erosion coefficient bases on soil layer mixinfactors
         double newY = Y->Drc * fac1 + fac2 * 1.0;
+        //multiply potential detachment by erosion coefficient
         detachment = detachment *newY;
+
+        //when a grain size distribution is used,
+        //transport capacity if dependend on the
+        //grain size distribution
+        //this is therefore needed to converge to stable values
         if( SwitchUseGrainSizeDistribution)
         {
             if(!((Storage->Drc) < -1) && detachment > (Storage_D.Drcd + StorageDep_D.Drcd))
             {
+                //if there is not an indicator for infinite sediment
+                //and there is less sediment in the combined layers
+                //than will be detached, use analytical solution
                 double masstotal = GetTotalDW(r,c,&Storage_D)+ GetTotalDW(r,c,&StorageDep_D);
                 double a = Storage_D.Drcd + StorageDep_D.Drcd;
                 double c2 = masstotal;
@@ -724,24 +1012,32 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             }
 
         }
+        //to remove small rounding errors that lead to negative values
         detachment = std::max(detachment,0.0);
         //check wat we can detache from the top and bottom layer of present material
         double dleft = detachment;
         double deptake = 0;
         double mattake = 0;
         detachment = 0;
+        //when a grain size distribution is used
         if(SwitchUseGrainSizeDistribution)
         {
+            //take from soil layer mass within that grain class
             deptake = std::min(dleft,StorageDep_D.Drcd);
             dleft -= deptake;
+            //and take the same from the total
             StorageDep_D.Drcd -= deptake;
             StorageDep->Drc -= deptake;
         }else
         {
+            //take from the total storage
             deptake = std::min(dleft,StorageDep->Drc);
             StorageDep->Drc -= deptake;
         }
+        //add to the detachment what we have taken from the first soil layer
         detachment += deptake;
+        //if the deposited layer is empty
+        //use erosion efficiency of bottom layer again
         if(newY > 0)
         {
             dleft *= Y->Drc/newY;
@@ -749,26 +1045,33 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         {
             dleft = 0;
         }
-
+        //bottom soil layer can be infinite
         if(!((Storage->Drc) < -1))
         {
+            //take sediment from the soil layer storage
             if(SwitchUseGrainSizeDistribution)
             {
+                //take from soil layer mass within that grain class
                 mattake = std::min(dleft,Storage_D.Drcd);
                 dleft -= mattake;
+                //take from the total storage
                 Storage_D.Drcd -= mattake;
                 Storage->Drc -= mattake;
             }else
             {
+                //take from the total storage
                 mattake = std::min(dleft,Storage->Drc);
                 Storage->Drc -= mattake;
             }
+            //add to the detachment what we have taken from the second soil layer
             detachment += mattake;
         }else
         {
+            //all left potential detachment is added to detachment (infinite soil layer)
             detachment += dleft;
         }
 
+        //finally, return the total detachment
         return std::max(0.0,detachment);
     }
 
@@ -776,24 +1079,42 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
 }
 
 //---------------------------------------------------------------------------
-// IN KG/CELL
+/**
+ * @fn void TWorld::FlowDetachment(void)
+ * @brief Calculates flow detachment for overland flow in entire catchment
+ *
+ * This function uses the function for overland flow transport capacity to
+ * calculate the potential detachment/deposition based on the settling velocity of the sediment.
+ * When potential detachment is found, the fuction for taking soil
+ * from the soil layer is used to find actual detachment.
+ * When deposition is found, this sediment is added to the deposited soil layer.
+ *
+ * @see TWorld:OFTC
+ * @see TWorld:GetSV
+ * @see TWorld:DetachMaterial
+ *
+ */
 void TWorld::FlowDetachment(void)
 {
    if (!SwitchErosion)
       return;
 
+   //ldd directions, all adjecent cells and the cell itself at index 5
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
 
    //transport capacity
    FOR_ROW_COL_MV
    {
+
         if(!SwitchUseGrainSizeDistribution)
         {
+            //get the transport capacity for a single grain size
             TC->Drc = OFTC(r,c,-1);
 
         }else
         {
+            //get the transport capacity for all induvidual grain sizes
             TC->Drc = 0;
             FOR_GRAIN_CLASSES
             {
@@ -801,8 +1122,10 @@ void TWorld::FlowDetachment(void)
                 TC->Drc += TC_D.Drcd;
             }
 
+            //if the total transport capacity is too high, limit it to the maximum value (MAXCONC)
             if(TC->Drc > MAXCONC)
             {
+                //rescale all induvidual tc's to conform to MAXCONC
                 FOR_GRAIN_CLASSES
                 {
                     TC_D.Drcd *= MAXCONC/TC->Drc;
@@ -830,6 +1153,7 @@ void TWorld::FlowDetachment(void)
          double avgtc = 0;
          int count = 0;
 
+         //check all surrounding cells for MV or present sediment
          for (int i = 1; i <= 9; i++)
             if(i != 5)
             {
@@ -843,6 +1167,7 @@ void TWorld::FlowDetachment(void)
                }
             }
 
+         //limit sediment current cell
          double tcold = TC->Drc;
 
          if(count > 0)
@@ -851,7 +1176,7 @@ void TWorld::FlowDetachment(void)
          }
          TC->Drc = std::min(TC->Drc, maxtc);
 
-
+         //when a grain size distribution is used, scale ale induvidual transport capacity's
          if(SwitchUseGrainSizeDistribution)
          {
              double fact = TC->Drc/tcold;
@@ -866,7 +1191,7 @@ void TWorld::FlowDetachment(void)
       }
    }
 
-
+   //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
    int iterator = numgrainclasses;
    if(!SwitchUseGrainSizeDistribution)
    {
@@ -879,6 +1204,7 @@ void TWorld::FlowDetachment(void)
        DETFlow->Drc = 0;
        DEP->Drc = 0;
    }
+   //for each grain class, calculate flow detachment seperately
    for(int d  = 0 ; d < iterator;d++)
    {
 
@@ -1018,7 +1344,7 @@ void TWorld::FlowDetachment(void)
           {
               deposition = std::max(deposition, -Sed_D.Drcd);
           }
-
+          //force deposition on grass strips
           if (GrassFraction->Drc > 0)
           {
               if(!SwitchUseGrainSizeDistribution)
@@ -1029,7 +1355,7 @@ void TWorld::FlowDetachment(void)
                   deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
               }
           }
-
+          //add deposition to soil layer
           if(SwitchUseMaterialDepth)
           {
               StorageDep->Drc += -deposition;
@@ -1039,44 +1365,70 @@ void TWorld::FlowDetachment(void)
               }
           }
 
+          //keep track of deposition
           DEP->Drc += deposition;
-          // IN KG/CELL
+
+          // add to sediment in flow (IN KG/CELL)
           Sed->Drc += deposition;
+          //if needed, add to sediment in flow for a certain grain class
           if(SwitchUseGrainSizeDistribution)
           {
             Sed_D.Drcd += deposition;
           }
-
-
-
+          //calculate concentration
           if(SwitchUseGrainSizeDistribution)
           {
               Conc_D.Drcd = MaxConcentration(erosionwv, Sed_D.Drcd);
           }
 
           Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
-
-
        }
-
-
    }
-
-
 }
 //---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::ChannelFlowDetachment(int r, int c)
+ * @brief Calculates flow detachment for channel flow in a specific cell
+ *
+ * This function uses the function for channel flow transport capacity to
+ * calculate the potential detachment/deposition based on the settling velocity of the sediment.
+ * This process is done for one or two transport layer (bed/suspended sediment load)
+ * When potential detachment is found, the fuction for taking soil
+ * from the soil layer is used to find actual detachment.
+ * When deposition is found, this sediment is added to the deposited soil layer.
+ *
+ * @param r : the row nr of the cell
+ * @param c : the column nr of the cell
+ * @see TWorld:RiverSedimentTCBL
+ * @see TWorld:RiverSedimentTCSS
+ * @see TWorld:SwitchUse2Layer
+ * @see TWorld:DetachMaterial
+ *
+ */
 void TWorld::ChannelFlowDetachment(int r, int c)
 {
    if (!SwitchErosion)
       return;
 
+   //ldd directions, all adjecent cells and the cell itself at index 5
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
+
+   //calculate layer depth for this cell
+
+   /* Dependent on SwitchUse2Layer,
+    * a 2 layer system is modelled for Channels.
+    * This is implemented through the RiverSedimentLayerDepth() function.
+    * When SwitchUse2Layer is false, the bed load layer depth
+    * is equal to the full water depth!
+    * No suspended transport is then modelled.
+    */
 
    RiverSedimentLayerDepth(r,c);
 
 
 
+   //iterator is number of grain classes
    int iterator = numgrainclasses;
    if(!SwitchUseGrainSizeDistribution)
    {
@@ -1087,6 +1439,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    ChannelDetFlow->Drc = 0;
    ChannelDep->Drc = 0;
 
+   //find transport capacity for bed and suspended layer
    for(int d  = 0 ; d < iterator;d++)
    {
 
@@ -1129,14 +1482,15 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            TSettlingVelocity = settlingvelocities.at(d);
        }
 
+       //get transport capacit for bed/suspended load for a specific cell and grain size class
        TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d);
        TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d);
 
     }
 
+   //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
    if(SwitchUseGrainSizeDistribution)
    {
-
         ChannelBLTC->Drc = 0;
         ChannelSSTC->Drc = 0;
         FOR_GRAIN_CLASSES
@@ -1176,6 +1530,8 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
    for(int d  = 0 ; d < iterator;d++)
    {
+       //set all maps for this grain class
+
        cTMap * TBLDepthFlood;
        cTMap * TSSDepthFlood;
        cTMap * TBLTCFlood;
@@ -1187,7 +1543,6 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        cTMap * TW;
 
        double TSettlingVelocity;
-
 
        if(!SwitchUseGrainSizeDistribution)
        {
@@ -1231,13 +1586,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        double bltc = 0;
        double sstc = 0;
 
-
-
-
-
        bltc = TBLTCFlood->Drc;
        sstc = TSSTCFlood->Drc;
 
+       //when waterheight is insignificant, deposite all remaining sediment
        double deposition;
        if(bldepth < he_ca)
        {
@@ -1443,16 +1795,33 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        }
    }
 
+   //total transport capacity (bed load + suspended load)
    ChannelTC->Drc = ChannelBLTC->Drc + ChannelSSTC->Drc;
 
+   //calculate concentrations
    ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
    ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
 
+   //total concentration
    ChannelConc->Drc = ChannelBLConc->Drc + ChannelSSConc->Drc;
 
+   //check for concentration surpassing MAXCONC
    RiverSedimentMaxC(r,c);
-
 }
+//---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::RiverSedimentMaxC(int r, int c)
+ * @brief Limits sediment concentration to a maximum possible concentration
+ *
+ * Limits sediment concentration to a maximum possible concentration.
+ * When a grain size distribution is used, seperate concentrations are scaled.
+ * All surpassing sediment is deposited.
+ *
+ * @param r : the row nr of the cell
+ * @param c : the column nr of the cell
+ * @see MAXCONC
+ *
+ */
 void TWorld::RiverSedimentMaxC(int r, int c)
 {
 
@@ -1563,6 +1932,25 @@ void TWorld::RiverSedimentMaxC(int r, int c)
 }
 
 //---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
+ * @brief Diffusion throughout the channels
+ *
+ * This function diffuses a material map based on a concentration map
+ * for a timestep dt.
+ * The diffusion is scaled according to the turbulent Prandtl-Smidth number.
+ * Note that the _BL and _BLC are not used since there is no diffusion in
+ * a bed load layer.
+ *
+ * @param dt : the timestep taken with this diffusion
+ * @param _BL : Bed load material to be diffused
+ * @param _BLC : Bed load material concentration
+ * @param _SS : Suspended material to be diffused
+ * @param _SSC : Suspended material concentration
+ *
+ * @see FS_SigmaDiffusion
+ *
+ */
 void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
 {
 
@@ -1661,9 +2049,10 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
 
         //diffusion coefficient according to J.Smagorinski (1964)
         double eddyvs = cdx * dux;
+        //and devide by turbulent prandtl-smidth number
         double eta = eddyvs/FS_SigmaDiffusion;
 
-
+        //add diffusive fluxes to previous cell in channel.
         if(foundp)
         {
             double coeff1 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]),courant_factor_diffusive/2.0) * MSSFlood->Drc;
@@ -1672,6 +2061,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
             MSSNFlood->data[r][c] -= coeff1;
         }
 
+        //add diffusive fluxes to next cell in channel.
         if(foundn)
         {
             double coeff2 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]),courant_factor_diffusive/2.0) * MSSFlood->Drc;
@@ -1679,13 +2069,11 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
             MSSNFlood->data[rn][cn] += coeff2;
             MSSNFlood->data[r][c] -= coeff2;
         }
-
-
     }
 
+    //recalculate concentrations
     FOR_ROW_COL_MV
     {
-
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1694,13 +2082,17 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
 
         //set concentration from present sediment
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
-
     }
-
-
 }
-
 //---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::RiverSedimentLayerDepth(int r , int c)
+ * @brief Calculates River bed load layer depth
+ *
+ *
+ * @param r : the timestep taken with this diffusion
+ * @param c : Bed load material to be diffused
+ */
 void TWorld::RiverSedimentLayerDepth(int r , int c)
 {
     if(SwitchErosion)
@@ -1712,6 +2104,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
 
     if(!SwitchUseGrainSizeDistribution)
     {
+        //if a two layer system is modelled, calculate thickness of layer
         if(SwitchUse2Layer)
         {
 
@@ -1728,8 +2121,11 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
             //rough bed bed load layer depth by Hu en Hui
             ChannelBLDepth->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), ChannelWH->Drc), 0.1);
             ChannelSSDepth->Drc = std::max(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
+
+        //if no two layer system is used
         }else
-        {
+        {   //full water height to bed layer depth
+            //note: this is autimatically combined with Govers transport Capacity for this layer.
             ChannelBLDepth->Drc = ChannelWH->Drc;
             ChannelSSDepth->Drc = 0;
         }
@@ -1740,7 +2136,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
 
         FOR_GRAIN_CLASSES
         {
-
+            //for each grain size, use the grain class property
             double d50m = graindiameters.at(d)/1000000.0;
             double d90m = 1.5 * graindiameters.at(d)/1000000.0;
 
@@ -1759,23 +2155,30 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
             ChannelSSDepth->Drc += RSSD_D.Drcd * RW_D.Drcd;
 
         }
-
-
-
-
     }
-
-
-
 }
-
 //---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::RiverSedimentLayerDepth(int r , int c)
+ * @brief Calculates River bed load transport capacity
+ *
+ * Calculates river bed load sediment transport capacity.
+ * Based on either Govers (for single layer transport),
+ * Van Rijn (simplifie or full) or Wu wang & Jia (for multiclass sediment).
+ *
+ * @param r : The row nr of the cell
+ * @param c : The column nr of the cell
+ * @param _d : The grain class (only needed when grain size distribution is used)
+ * @see R_BL_Method
+ */
 double TWorld::RiverSedimentTCBL(int r,int c,int _d)
 {
+    //when water height is insignificant, transport capacity is zero
+    //this is necessary since some of the used equations have strange behaviour
+    //for these water heights or velocities. (h and v outside of valid range)
     if(ChannelWH->Drc < MIN_HEIGHT || ChannelBLDepth->Drc < MIN_HEIGHT)
     {
         return 0;
-
     }
     double v = ChannelV->Drc;
     if(v < MIN_FLUX)
@@ -1897,11 +2300,25 @@ double TWorld::RiverSedimentTCBL(int r,int c,int _d)
 
 
 }
-
 //---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::RiverSedimentTCSS(int r,int c, int _d)
+ * @brief Calculates River suspended layer transport capacity
+ *
+ * Calculates suspended load sediment transport capacity.
+ * Based on either, Van Rijn (simplified or full)
+ * or Wu wang & Jia (for multiclass sediment).
+ *
+ * @param r : The row nr
+ * @param c : The column nr of the cell
+ * @param _d : The grain class (only needed when grain size distribution is used)
+ * @see R_BL_Method
+ */
 double TWorld::RiverSedimentTCSS(int r,int c, int _d)
 {
-
+    //when water height is insignificant, transport capacity is zero
+    //this is necessary since some of the used equations have strange behaviour
+    //for these water heights or velocities. (h and v outside of valid range)
     if(ChannelWH->Drc < MIN_HEIGHT || ChannelSSDepth->Drc < MIN_HEIGHT)
     {
         return 0;
@@ -2038,7 +2455,11 @@ double TWorld::RiverSedimentTCSS(int r,int c, int _d)
 
 }
 
-//---------------------------------------------------------------------------
+
+
+
+//--------------------------------------------------------------------------
+//NOT USED!!!!!!
 void TWorld::SumSedimentClasses(void)
 {
    //not needed!

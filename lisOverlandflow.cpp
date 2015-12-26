@@ -25,12 +25,14 @@
 
 /*!
   \file lisOverlandflow.cpp
-  \brief calculate fraction flowing in the channel, Q, V and call kin wave
+  \brief calculate interactions between channel flow, overland flow and flooding, calculate Q, V and call the kin wave
 
 functions: \n
-- void TWorld::ToChannel(void) \n
-- void TWorld::CalcVelDisch(void) \n
-- void TWorld::OverlandFlow(void) \n
+- void TWorld::RainfallToFlood(void)\n
+- void TWorld::ToFlood(void)\n
+- void TWorld::ToChannel(void)\n
+- void TWorld::CalcVelDisch(void)\n
+- void TWorld::OverlandFlowNew(void)\n
  */
 
 #include <algorithm>
@@ -38,7 +40,18 @@ functions: \n
 #include "operation.h"
 #define tiny 1e-8
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/**
+ * @fn void TWorld::RainfallToFlood(void)
+ * @brief Calculates overland flow that becomes flooding
+ *
+ * Based on the overland flow energy gradient and the water height
+ * overland flow can initiate flooding when TWorld::SwitchRainfallFlood is true.
+ *
+ * @return void
+ * @see SwitchRainfallFlood
+ * @see rainFloodingGradient
+ */
 void TWorld::RainfallToFlood(void)
 {
     if (SwitchRainfallFlood)
@@ -62,8 +75,19 @@ void TWorld::RainfallToFlood(void)
 }
 
 }
-//---------------------------------------------------------------------------
-//fraction of water and sediment flowing into the channel
+//--------------------------------------------------------------------------------------------
+/**
+ * @fn void TWorld::ToFlood(void)
+ * @brief Calculates overland flow that flows into flooding water
+ *
+ * Calculates overland flow of water and sediment that flows into flooding water
+ * based on the runoff partitioning factor. Depending on the parameter, water
+ * is either transformed quickly or slowly. This imitates the effect that overland
+ * flow would have on the velocity of the flood water.
+ *
+ * @return void
+ * @see runoff_partitioning
+ */
 void TWorld::ToFlood(void)
 {
     if (!SwitchChannelFlood)
@@ -111,8 +135,16 @@ void TWorld::ToFlood(void)
 
     }}
 }
-//---------------------------------------------------------------------------
-//fraction of water and sediment flowing into the channel
+//--------------------------------------------------------------------------------------------
+/**
+ * @fn void TWorld::ToChannel(void)
+ * @brief Calculates fraction of overland flow that flows into channel
+ *
+ * Calculates fraction of overland flow that flows into channel.
+ * This fraction is based on channel width and flow velocity
+ *
+ * @return void
+ */
 void TWorld::ToChannel(void)
 {
     if (!SwitchIncludeChannel)
@@ -210,7 +242,19 @@ void TWorld::ToChannel(void)
         }
     }
 }
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/**
+ * @fn void TWorld::CalcVelDisch()
+ * @brief Calculates velocity and discharge based on water height for overland flow
+ *
+ * Calculates velocity and discharge based on water height for overland flow
+ * Using the water height and energy gradient, mannings equation for flow velocity is used.
+ * The manning's N is altered when flooding is present,
+ * this slows down water while it is converted into flood water.
+ *
+ * @return void
+ * @see mixing_coefficient
+ */
 void TWorld::CalcVelDisch()
 {
     if(SwitchKinematic2D != 1)
@@ -257,7 +301,22 @@ void TWorld::CalcVelDisch()
 
 
 }
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/**
+ * @fn void TWorld::OverlandFlowNew(void)
+ * @brief Calls the kinematic wave functions and calculates new discharge, water height and sediment presence
+ *
+ * Calls the kinematic wave functions and calculates new discharge, water height and sediment presence
+ * During this process, surpluss potential infilration is subtracted from the water content.
+ * Based on the options in the run file, either the 1D or 2D kinematic wave is used.
+ * Sediment transport in overland flow is automatically taken into accaunt.
+ *
+ * @return void
+ * @see SwitchKinematic2D
+ * @see K1D_METHOD
+ * @see K2D_METHOD_FLUX
+ * @see K2D_METHOD_INTER
+ */
 void TWorld::OverlandFlowNew(void)
 {
     // recalculate water vars after subtractions in "to channel"
@@ -395,6 +454,7 @@ void TWorld::OverlandFlowNew(void)
         K2DInit();
 
         //calculate slopes based on dem, and resets variables
+        //K2DDEMA()
         // if WH is not added to the DEM, this has to be done only once.
         double dt = _dt/2;  //1.0;
         double tof = 0.0;
@@ -406,7 +466,7 @@ void TWorld::OverlandFlowNew(void)
             //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
 
             //function returns the minimal needed time-step for stable advection (dt > 1.0 for computational speed)
-            dt = K2DFlux();  //why _dt here???
+            dt = K2DFlux();
 
             //only move in time that is left of the Lisem-timestep
             dt = std::min(dt, _dt-tof);
@@ -419,6 +479,9 @@ void TWorld::OverlandFlowNew(void)
             /*sediment transport functions must be called before K2DSolve() and after K2DSolveBy..() */
             if(SwitchErosion)
             {
+                //K2DQSOut is the boundary outflow that is returned by he K2DSolveBy....Sed() function.
+
+                //advect total sediment
                 if(!SwitchUseGrainSizeDistribution)
                 {
                     if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
@@ -427,6 +490,7 @@ void TWorld::OverlandFlowNew(void)
                         K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
                 }else
                 {
+                    //advect each induvidual grain class
                     FOR_GRAIN_CLASSES
                     {
                         if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
@@ -442,7 +506,7 @@ void TWorld::OverlandFlowNew(void)
 
             if(SwitchErosion)
             {
-
+                //calculate concentration and new sediment discharge
                 if(!SwitchUseGrainSizeDistribution)
                 {
                     FOR_ROW_COL_MV
@@ -453,6 +517,8 @@ void TWorld::OverlandFlowNew(void)
                     }
                 }else
                 {
+                    //calculate total sediment from induvidual grain classes,
+                    //and calculate concentration and new sediment discharge
                     FOR_ROW_COL_MV
                     {
                         Sed->Drc = 0;

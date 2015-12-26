@@ -579,6 +579,8 @@ public:
     void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
     void FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
 
+    void SWOFSedimentBalance();
+    void SWOFSedimentBalanceWS(int l);
 
     void SWOFSedimentMaxC(int r, int c);
     void SWOFSedimentCheckZero(int r, int c);
@@ -615,6 +617,7 @@ public:
 
     double OFTC(int r, int c, int d);
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+    double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
     double GetDp(int r, int c,double p);
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);

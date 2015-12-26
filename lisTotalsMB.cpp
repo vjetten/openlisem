@@ -283,8 +283,8 @@ void TWorld::Totals(void)
 
         if (SwitchChannelFlood)
         {
-            DetFlowTot += mapTotal(*BLDetFloodT);
-            DetFlowTot += mapTotal(*SSDetFloodT);
+            //DetFlowTot += mapTotal(*BLDetFloodT);
+            //DetFlowTot += mapTotal(*SSDetFloodT);
             DetTot += mapTotal(*BLDetFloodT);
             DetTot += mapTotal(*SSDetFloodT);
             DepTot += mapTotal(*BLDepFloodT);
@@ -386,6 +386,7 @@ void TWorld::Totals(void)
 
     if(SwitchErosion && SwitchChannelFlood)
     {
+        fill(*BLDetFloodT,0.0);
         fill(*BLDepFloodT,0.0);
         fill(*SSDetFloodT,0.0);
     }

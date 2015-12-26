@@ -26,11 +26,30 @@
 
 /*!
   \file lisKinematic2D.cpp
-  \brief kinematic wave routing functions and calculation of discharge and sed flux per cell.
+  \brief 2D kinematic wave routing functions and calculation of discharge and sed flux per cell.
 
   The routing functions use local variables to allow for possible re-usage
+  Order of usage should be:
 
+  K2DInit()
+    (start loop)
+    K2DDEMA()
+    dt = K2DFlux()
+    K2DSolveBy...(dt)
+        K2DSolveBy....Sed(dt,S,C)
+    K2DSolve(dt)
+    (end loop)
 
+@functions: \n
+void TWorld::K2DInit()\n
+double TWorld::K2DFlux()\n
+void TWorld::K2DSolvebyInterpolation(double dt)\n
+void TWorld::K2DSolvebyFlux(double dt)\n
+double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)\n
+double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)\n
+void TWorld::K2DSolve(double dt)\n
+void TWorld::K2DCalcVelDisch()\n
+void TWorld::K2DDEMA()\n
  */
 
 #include "model.h"
@@ -39,7 +58,12 @@
 
 //--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DInit: initializes all necessary variables for the 2d kinematic wave solution
+ * @fn void TWorld::K2DInit()
+ * @brief Initializes the 2d kinematic wave solution
+ *
+ * Initializes all necessary variables for the 2d kinematic wave solution
+ * Needs to be called every timestep.
+ *
  * @return void
  */
 void TWorld::K2DInit()
@@ -85,6 +109,9 @@ void TWorld::K2DInit()
     K2DQSOut = 0;
     K2DQPOut = 0;
 
+    //Recalculate water height to cover the full non-channel width of the cell!
+    //this is a necessary step, since at the start of each LISEM timestep,
+    //water is devided over the FlowWidth
     FOR_ROW_COL_MV
     {
         if(K2DSlope->Drc == 0)
@@ -114,13 +141,13 @@ void TWorld::K2DInit()
                 R->Drc = 0;
 
             Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
-            //WHY aplha k2dlope and not grad?
 
             if (Alpha->Drc == 0)
                 K2DQ->Drc = 0;
             else
                 K2DQ->Drc = pow((dy*hrunoff)/Alpha->Drc, 1.0/0.6);
 
+            //temporarily store in Qn (new)
             Qn->Drc = K2DQ->Drc;
 
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
@@ -136,8 +163,17 @@ void TWorld::K2DInit()
 }
 //--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DFlux: Calculates discharges for each cell
- * @param dtmax : a hint for the calculation of the timestep
+ * @fn double TWorld::K2DFlux()
+ * @brief Calculates discharges for each cell
+ *
+ * Calculates the discharges in the current timestep
+ * for each cell.
+ * Must be preceded by K2DInit().
+ * Afterwards K2DSolve....() must be called
+ * (K2DSolveByInterpolation() or K2DSolveByFlux() )
+ * to distrtibute flow, and finally K2DSolve() to calculate
+ * new discharges.
+ *
  * @return dt : the minimal needed timestep to ensure stability
  */
 double TWorld::K2DFlux()
@@ -221,7 +257,14 @@ double TWorld::K2DFlux()
 }
 //--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolvebyInterpolation: Solves kinematic wave in 2d using bilinear interpolation of advected flow
+ * @fn void TWorld::K2DSolvebyInterpolation(double dt)
+ * @brief Distributes flow trough interpolation
+ *
+ * Distributes flow trough bilinear interpolation.
+ * Furthermore adds boundary outflow to K2DQout.
+ * Must be preceded by K2DInit() and K2DFlux().
+ * Afterwards K2DSolve must be called
+ *
  * @param dt : timestep
  * @return void
  */
@@ -452,7 +495,15 @@ void TWorld::K2DSolvebyInterpolation(double dt)
 }
 //--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolvebyFlux: Solves kinematic wave in 2d using a cell boundary flux method
+ * @fn void TWorld::K2DSolvebyFlux(double dt)
+ * @brief Distributes flow trough cell boundary fluxes
+ *
+ * Distributes flow trough bilinear interpolation.
+ * Furthermore adds boundary outflow to K2DQout.
+ * Must be preceded by K2DInit() and K2DFlux().
+ * Afterwards K2DSolve must be called to calculate new discharges.
+ *
+ *
  * @param dt : timestep
  * @return void
  */
@@ -700,13 +751,19 @@ void TWorld::K2DSolvebyFlux(double dt)
 
 
 }
-
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolvebyFluxSed: Distributes fluxes for a material
+ * @fn double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
+ * @brief Distributes sediment flow trough bilinear interpolation.
+ *
+ * Distributes sediment trough bilinear interpolation.
+ * The concentration map is used to determine sediment discharges.
+ * Must be called after K2DSolveBy...(), so that new cell water contents are known.
+ *
  * @param dt : timestep
- * @param S : material to be advected
- * @return catchment boundary outflow of material
+ * @param _S : Sediment map
+ * @param _C : Concentration map
+ * @return Total boundary outflow in this timestep
  */
 double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
 {
@@ -853,13 +910,19 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
     return K2DQMOut;
 
 }
-
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolvebyInterpolationSed: Distributes fluxes for a material
+ * @fn double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
+ * @brief Distributes sediment flow trough cell boundary fluxes
+ *
+ * Distributes sediment trough cell boundary fluxes.
+ * The concentration map is used to determine sediment discharges.
+ * Must be called after K2DSolveBy...(), so that new cell water contents are known.
+ *
  * @param dt : timestep
- * @param S : material to be advected
- * @return catchment boundary outflow of material
+ * @param _S : Sediment map
+ * @param _C : Concentration map
+ * @return Total boundary outflow in this timestep
  */
 double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
 {
@@ -1067,7 +1130,14 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
 
 //---------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolve: Finalizes the solution for the kinematic wave, sets variables for lisem and recalculates discharge
+ * @fn void TWorld::K2DSolve(double dt)
+ * @brief Finalizes the solution for the kinematic wave
+ *
+ * Finalizes the solution for the kinematic wave,
+ * sets variables for other LISEM code,
+ * recalculates water height by substracting potential infiltration
+ * and calculates new discharge.
+ *
  * @param dt : timestep
  * @return void
  */
@@ -1129,9 +1199,17 @@ void TWorld::K2DSolve(double dt)
 }
 //---------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DCalcVelDisch: Calculation of velocity and discharge of overland flow, for use with the 2d solution
+ * @fn void TWorld::K2DCalcVelDisch()
+ * @brief calculates velocity and discharge for slopes
+ *
+ * calculates velocity and discharge for slopes
+ * automatically called instead of CalcVelDisch()
+ * when 2-D kinematic wave is used.
+ * This function takes pits into account!
+ *
  * @param dt : timestep
  * @return void
+ * @see K2DWHStore
  */
 void TWorld::K2DCalcVelDisch()
 {
@@ -1188,13 +1266,18 @@ void TWorld::K2DCalcVelDisch()
 }
 //---------------------------------------------------------------------------
 /**
- * @brief TWorld::K2DSolve: calculate slope based on Dem height + runoff height
- * average between left and right slope is used
- * for the domain boundary's and the map boundary's, the one-sided slope is used.
- * When both the sides of a cell along an axis are missing values, the slope in that direction is set to 0
- * when a cell is located next to a missing value, but would flow into that cell, it is set as an outlet
- * @param dt : timestep
+ * @fn void TWorld::K2DDEMA()
+ * @brief Dem Analysis for 2-D kinematic wave
+ *
+ * Dem Analysis for 2-D kinematic wave.
+ * Calculates slopes based on averages from both sides.
+ * Calculates possible pit presence and depth.
+ * Marks cells where only diagonal flow can take place.
+ *
  * @return void
+ * @see K2DWHStore
+ * @see K2DPits
+ * @see K2DPitsD
  */
 void TWorld::K2DDEMA()
 {

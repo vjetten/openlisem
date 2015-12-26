@@ -30,13 +30,12 @@
   The routing functions use local variables because they are used for overland flow, channel flow, gully and tiledrain flow.
 
 functions: \n
-   - void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs,
-                  cTMap *_Qsn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *Vol, cTMap *SedVol,
-                  cTMap *_StorVol, cTMap *_StorVolSed);\n
-   - double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);\n
-   - double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
-                         double Sji1, double alpha, double dt, double dx);\n
-   - double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);\n
+- double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)\n
+- double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)\n
+- double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX)\n
+- void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol, cTMap *_StorVol)\n
+- void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
+- void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)\n
  */
 
 #include "model.h"
@@ -57,17 +56,20 @@ functions: \n
      / | \
     1  2  3
  */
-
 //---------------------------------------------------------------------------
 /**
-  Simple calculation of sediment outflux from a cell based on the sediment concentration multiplied by the new water flux,
-  j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
-   \param  Qj1i1 Qj+1,i+1 : result kin wave for this cell ;j = time, i = place
-   \param  Qj1i  Qj+1,i   : sum of all upstreamwater from kin wave
-   \param  Sj1i  Sj+1,i : sum of all upstream sediment
-   \param  dt    timestep
-   \param  vol   current volume of water in cell
-   \param  sed    current mass of sediment in cell
+ * @fn double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
+ * @brief Simple calculation of sediment outflux from a cell
+ * Simple calculation of sediment outflux from a cell based on the sediment concentration multiplied by the new water flux,
+ * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
+ * @param Qj1i1 : result kin wave for this cell ;j = time, i = place
+ * @param Qj1i : sum of all upstreamwater from kin wave
+ * @param  Sj1i : sum of all upstream sediment
+ * @param  dt : timestep
+ * @param  vol : current volume of water in cell
+ * @param  sed : current mass of sediment in cell
+ * @return sediment outflow in next timestep
+ *
  */
 double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
 {
@@ -82,16 +84,22 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
 }
 //---------------------------------------------------------------------------
 /**
-  Complex calculation of sediment outflux from a cell based on a explicit solution of the time/space matrix,
-  j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
-   \param Qj1i1   Qj+1,i+1 : result kin wave for this cell ;j = time, i = place
-   \param Qj1i    Qj+1,i   : sum of all upstreamwater from kin wave
-   \param Qji1    Qj,i+1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM
-   \param Sj1i    Sj+1,i : sum of all upstream sediment
-   \param Sji1    Si,j+1 : incoming Sed for kinematic wave (t=j) in this cell, map Qsin in LISEM
-   \param alpha   alpha calculated in LISEM from before kinematic wave
-   \param dt      timestep
-   \param dx      dx: length of the cell, corrected for slope (DX map in LISEM)
+ * @fn double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
+ * @brief Complex calculation of sediment outflux from a cell
+ *
+ * Complex calculation of sediment outflux from a cell based on a explicit solution of the time/space matrix,
+ * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
+ *
+ * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )  ;j = time, i = place )
+ * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i )
+ * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM (Qj,i+1)
+ * @param Sj1i : sum of all upstream sediment (Sj+1,i)
+ * @param Sji1 : incoming Sed for kinematic wave (t=j) in this cell, map Qsin in LISEM (Si,j+1)
+ * @param alpha : alpha calculated in LISEM from before kinematic wave
+ * @param dt : timestep
+ * @param dx : length of the cell, corrected for slope (DX map in LISEM)
+ * @return sediment outflow in next timestep
+ *
  */
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
 {
@@ -121,14 +129,21 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     return std::max(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
-/** Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
-\param Qin      summed Q new from upstream
-\param Qold     current discharge in the cell  Qin in LISEM
-\param q        infiltration surplus flux (in m2/s), has value <= 0
-\param alpha    alpha calculated in LISEM from before kinematic wave
-\param deltaT   timestep
-\param deltaX   dx: length of the cell  corrected for slope (DX map in LISEM)
-*/
+/**
+ * @fn double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
+ * @brief Calculation of new discharge in a cell
+ *
+ * Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
+ *
+ * @param Qin : summed Q new from upstream
+ * @param Qold : current discharge in the cell  Qin in LISEM
+ * @param q : infiltration surplus flux (in m2/s), has value <= 0
+ * @param alpha : alpha calculated in LISEM from before kinematic wave
+ * @param deltaT : dt, timestep
+ * @param deltaX : dx, length of the cell  corrected for slope (DX map in LISEM)
+ * @return new water discharge
+ *
+ */
 double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX)
 {
     /* Using Newton-Raphson Method */
@@ -189,22 +204,29 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
 }
 //---------------------------------------------------------------------------
 /**
-Kinematic wave spatial part, used for slope, channel and tiledrain system: \n
-Kinematic is called for each pit (i.e. a cell with value 5 in the LDD):\n
-A linked list of all cells connected to the pit is made, after that it 'walks' through the list\n
-calculating the fluxes from upstream to downstream.\n
-\param   pitRowNr, pitColNr  row and col nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
-\param  	_LDD                LDD map, can be slope, channel or tiledrain system
-\param  	_Q, _Qn             incoming at the start of the timestep and outgoing new discharge (m3/s)
-\param  	_Qs, _Qsn	    incoming and outgoing sediment flux (kg/s)
-\param  	_q                  infiltration surplus from infiltration functions, 0 or negative value
-\param  	_Alpha              a in A=aQ^b
-\param  	_DX                 dx corrected for slope
-\param  	_Vol                water volume in cell (m3)
-\param  	_Sed                sediment load in cell (kg)
-\param  	_StorVol            water volume in buffers (m3)
-\param  	_StorSed            sediment volume in bufers (kg)
-*/
+ * @fn void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX,cTMap *_Vol,cTMap *_StorVol)
+ * @brief Spatial implementation of the kinematic wave
+ *
+ * Kinematic wave spatial part, used for slope, channel and tiledrain system:
+ * Kinematic is called for each pit (i.e. a cell with value 5 in the LDD):
+ * A linked list of all cells connected to the pit is made, after that it 'walks' through the list
+ * calculating the water fluxes from upstream to downstream.
+ *
+ * @param pitRowNr : row nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
+ * @param pitColNr : col nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
+ * @param _LDD : LDD map, can be slope, channel or tiledrain system
+ * @param _Q : incoming discharge at the start of the timestep (m3/s)
+ * @param _Qn : Outgoing new discharge at the end of the timestep (m3/s)
+ * @param _q : infiltration surplus from infiltration functions, 0 or negative value
+ * @param _Alpha : a in A=aQ^b
+ * @param _DX : dx corrected for slope
+ * @param _Vol : water volume in cell (m3)
+ * @param _StorVol : water volume in buffers (m3)
+ * @return new water discharge
+ *
+ * @see TWorld::IterateToQnew
+ * @see TWorld::LDD
+ */
 void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                        cTMap *_Q, cTMap *_Qn,
                        cTMap *_q, cTMap *_Alpha, cTMap *_DX,
@@ -426,19 +448,32 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
 }
 //---------------------------------------------------------------------------
 /**
-Kinematic wave spatial part, used for slope, channel and tiledrain system: \n
-Kinematic is called for each pit (i.e. a cell with value 5 in the LDD):\n
-A linked list of all cells connected to the pit is made, after that it 'walks' through the list\n
-calculating the fluxes from upstream to downstream.\n
-\param   pitRowNr, pitColNr  row and col nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
-\param  	_LDD                LDD map, can be slope, channel or tiledrain system
-\param  	_Q, _Qn             incoming at the start of the timestep and outgoing new discharge (m3/s)
-\param  	_Qs, _Qsn	    incoming and outgoing sediment flux (kg/s)
-\param  	_Alpha              a in A=aQ^b
-\param  	_DX                 dx corrected for slope
-\param  	_Vol                water volume in cell (m3)
-\param  	_Sed                sediment load in cell (kg)
-*/
+ * @fn void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
+ * @brief Spatial implementation of the kinematic wave for sediment
+ *
+ * Kinematic wave spatial sediment part, used for slope, channel and tiledrain system:
+ * using the known old incoming and new outgoing discharges
+ * And the old incoming sediment discharge values
+ *
+ * @param pitRowNr : row nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
+ * @param pitColNr : col nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
+ * @param _LDD : LDD map, can be slope, channel or tiledrain system
+ * @param _Q : incoming discharge at the start of the timestep (m3/s)
+ * @param _Qn : Outgoing new discharge at the end of the timestep (m3/s)
+ * @param _Qs : incoming sediment discharge at the start of the timestep (kg/s)
+ * @param _Qsn : Outgoing new sediment discharge at the end of the timestep (kg/s)
+ * @param _q : infiltration surplus from infiltration functions, 0 or negative value
+ * @param _Alpha : a in A=aQ^b
+ * @param _DX : dx corrected for slope
+ * @param _Vol : water volume in cell (m3)
+ * @param _Sed : sediment volume in cell (m3)
+ * @param _StorVol : water volume in buffers (m3)
+ * @param _StorSed : sediment volume in buffers (m3)
+ * @return new water discharge
+ *
+ * @see TWorld::complexSedCalc
+ * @see TWorld::LDD
+ */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                             cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                             cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
@@ -595,7 +630,19 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
     } /* eowhile list != NULL */
 }
 //---------------------------------------------------------------------------
-/// return the sum of all values upstream
+/**
+ * @fn void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
+ * @brief Returns the sum of all values upstream
+ *
+ * Returns the sum of all values upstream using
+ * the local drainage direction map (LDD)
+ *
+ * @param _LDD : Local Drainage Direction map
+ * @param _M : Material map, can be any substance
+ * @param out : Output map, sum of all upstream material
+ *
+ * @see LDD
+ */
 void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -632,6 +679,10 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
         out->Drc = tot;
     }
 }
+/*
+ *******************************
+ * OLD FUNCTIONS, NOT USED!!!
+ *******************************
 //---------------------------------------------------------------------------
 /// return the sum of all values upstream
 void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX)
@@ -677,7 +728,9 @@ void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha,
         // q is now in m3/s
     }
 }
-/*
+
+
+
 long TWorld::SortNetwork(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Ksort)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
