@@ -456,6 +456,7 @@ void lisemqt::SetToolBar()
 
     connect(E_DisplaySedimentClass, SIGNAL(valueChanged(int)), this, SLOT(selectMapTypeSS(int)));
 
+    connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
@@ -466,7 +467,7 @@ void lisemqt::SetToolBar()
     //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkDisplayWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
     connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));

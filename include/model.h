@@ -582,25 +582,25 @@ public:
     void SWOFSedimentBalance();
     void SWOFSedimentBalanceWS(int l);
 
-    void SWOFSedimentMaxC(int r, int c);
-    void SWOFSedimentCheckZero(int r, int c);
-    void SWOFSedimentSetConcentration(int r, int c);
+    void SWOFSedimentMaxC(int r, int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentCheckZero(int r, int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentSetConcentration(int r, int c, cTMap * h,cTMap * u,cTMap * v);
 
-    void SWOFSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDiffusionWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusionWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
 
 
-    double SWOFSedimentTCBL(int r,int c, int d);
-    double SWOFSedimentTCSS(int r,int c, int d);
+    double SWOFSedimentTCBL(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
+    double SWOFSedimentTCSS(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
 
-    void SWOFSedimentFlow(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDet(double dt,int r,int c);
-    void SWOFSedimentFlowWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSediment(double dt);
-    void SWOFSedimentWS(int l,double dt);
-    void SWOFSedimentLayerDepth(int r , int c);
+    void SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDet(double dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentFlowWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentWS(int l,double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentLayerDepth(int r , int c, cTMap * h,cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,

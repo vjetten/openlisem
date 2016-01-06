@@ -1319,13 +1319,14 @@ void TWorld::K2DDEMA()
                 {
                     demx1 = DEM->data[r][c];
                     Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
+                    if(demx1 <demx2){K2DOutlets->Drc = 1;};
                 }
                 if(pcr::isMV(LDD->data[r][c-1]))
                 {
-                    demx1 = DEM->data[r][c];
+                    demx2 = DEM->data[r][c];
                     Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
+                    if(demx2 <demx1){K2DOutlets->Drc = 1;};
                 }
 
                 double demy1 = K2DDEM->data[r+1][c];
@@ -1335,13 +1336,13 @@ void TWorld::K2DDEMA()
                 {
                     demy1 = DEM->data[r][c];
                     Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
+                    if(demy1 <demy2){K2DOutlets->Drc = 1;};
                 }
                 if(pcr::isMV(LDD->data[r-1][c]))
                 {
                     demy1 = DEM->data[r][c];
                     Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
+                    if(demy2 <demy1){K2DOutlets->Drc = 1;};
                 }
 
                 if(demx1 < demx2)

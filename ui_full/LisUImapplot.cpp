@@ -285,6 +285,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
 // not how they are done here!
 void lisemqt::showMap()
 {
+
   //drawMap->setAlpha(transparency->value());
   //drawMap->setAlpha(255);
   if (op.drawMapType == 1) showMap1();

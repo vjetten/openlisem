@@ -925,7 +925,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           dt1 = std::min(dt1, _dt-timesum);
 
           //sediment
-          SWOFSediment(dt1);
+          SWOFSediment(dt1,h,u,v);
 
           maincalcscheme(dt1, h,u,v, hs,us,vs);
 
@@ -1059,7 +1059,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
               setZero(hsa, usa, vsa);
 
               //sediment
-              SWOFSediment(dt1 );
+              SWOFSediment(dt1,h,u,v );
 
               //Heun method (order 2 in time)
               FOR_ROW_COL_MV

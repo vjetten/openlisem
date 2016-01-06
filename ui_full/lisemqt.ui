@@ -5600,7 +5600,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tabWidgetPage2">
               <attribute name="title">
@@ -6535,7 +6535,7 @@
                          <double>0.500000000000000</double>
                         </property>
                         <property name="value">
-                         <double>0.990000000000000</double>
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -6621,8 +6621,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
-                    <height>304</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6650,8 +6650,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
-                    <height>304</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6675,8 +6675,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>345</width>
-                    <height>304</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -6768,8 +6768,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>306</width>
-                    <height>206</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8848,8 +8848,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>367</width>
-                    <height>268</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8934,8 +8934,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>274</width>
-                    <height>293</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -11587,8 +11587,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>281</width>
-                    <height>331</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -11945,6 +11945,15 @@ The third equation is a decreasing power law </string>
                         <bold>false</bold>
                        </font>
                       </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.250000000000000</double>
+                      </property>
                      </widget>
                     </item>
                     <item row="3" column="1">
@@ -12110,6 +12119,15 @@ The third equation is a decreasing power law </string>
                         <bold>false</bold>
                        </font>
                       </property>
+                      <property name="minimum">
+                       <double>0.050000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -12239,6 +12257,15 @@ The third equation is a decreasing power law </string>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
+                      </property>
+                      <property name="minimum">
+                       <double>0.050000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -13157,8 +13184,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>372</width>
-                    <height>611</height>
+                    <width>98</width>
+                    <height>89</height>
                    </rect>
                   </property>
                   <attribute name="label">
