@@ -254,16 +254,20 @@ void TWorld::ChannelFlow(void)
                 double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
                 ChannelConc->Drc = (concbl + concss);
                 ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+                ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
 
         }else
         {
+            double concbl = 0;
+            double concss = 0;
             FOR_GRAIN_CLASSES
             {
                 FOR_ROW_COL_MV_CH
                  {
-                    RBLC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd);
-                    RSSC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd);
+                    concbl += RBLC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd);
+                    concss += RSSC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd);
 
                     ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
 
@@ -276,6 +280,8 @@ void TWorld::ChannelFlow(void)
             FOR_ROW_COL_MV_CH
             {
                 ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+                ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
         }
     }
@@ -389,6 +395,7 @@ void TWorld::ChannelFlow(void)
                 ChannelQBLsn->Drc = 0;
                 ChannelQSSsn->Drc= 0;
                 ChannelQs->Drc = 0;
+                ChannelQsn->Drc = 0;
                 ChannelSed->Drc = 0;
                 ChannelConc->Drc = 0;
                 ChannelBLConc->Drc = 0;

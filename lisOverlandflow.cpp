@@ -203,7 +203,7 @@ void TWorld::ToChannel(void)
 
         if (SwitchErosion)
         {
-            if(SwitchUse2Layer)
+            if(!SwitchUse2Layer)
             {
                 ChannelBLSed->Drc += fractiontochannel*Sed->Drc;
             }else

@@ -117,8 +117,8 @@ void TWorld::OutputUI(void)
             }
             if(SwitchIncludeChannel)
             {
-                calcMap(*tmc, *ChannelBLTC, ADD);
-                calcMap(*tmc, *ChannelSSTC, ADD);
+                calcMap(*tmc, *ChannelBLSed, ADD);
+                calcMap(*tmc, *ChannelSSSed, ADD);
             }
             calcMap(*tmc, *Sed, ADD);
 

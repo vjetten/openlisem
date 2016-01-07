@@ -666,7 +666,7 @@ void TWorld::InitChannel(void)
 
             minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
             courant_factor = getvaluedouble("Flooding courant factor");
-            courant_factor = getvaluedouble("Flooding courant factor diffusive");
+            courant_factor_diffusive = getvaluedouble("Flooding courant factor diffusive");
             mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
             runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
 
