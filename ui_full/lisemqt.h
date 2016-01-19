@@ -294,7 +294,7 @@ public slots:
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodSolution_valueChanged(int nr);
 
-    void doCheckSnowmelt(bool check);
+    void doCheckSnowmelt(bool);// check);
     void doCheckRainfall(bool check);
     void doCheckPesticides(bool check);
 
@@ -333,11 +333,14 @@ public slots:
     void ssetAlpha3(int v);
     void ssetAlpha4(int v);
 
-    void setWriteOutputSOBEK(bool doit);
-    void setWriteOutputCSV(bool doit);
-    void setWriteOutputPCR(bool doit);
+    void setWriteOutputSOBEK(bool);
+    void setWriteOutputCSV(bool);
+    void setWriteOutputPCR(bool);
 
-    void setFloodErosion();
+    //void setFloodErosion();
+    void setFloodTab(bool);
+    void setErosionTab(bool);
+    void setRunoffTab(bool);
 
     void fontSelect();
     void fontDecrease();

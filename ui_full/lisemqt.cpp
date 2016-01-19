@@ -195,7 +195,10 @@ void lisemqt::SetConnections()
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
-    //connect(checkChannelFlood,SIGNAL(toggled(bool)), this, SLOT(setFloodErosion()));
+    connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+    connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
     connect(checkUseGrainSizeDistribution,SIGNAL(toggled(bool)), this, SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
     on_checkUseGrainSizeDistribution_toggled(checkUseGrainSizeDistribution->isChecked());
@@ -323,13 +326,26 @@ void lisemqt::on_E_Kinematic2D_valueChanged(int v)
 
     }
 }
-
 //--------------------------------------------------------------------
-void lisemqt::setFloodErosion()
+void lisemqt::setFloodTab(bool yes)
 {
-    //if (checkChannelFlood->isChecked())
-    //    checkNoErosion->setChecked(true);
+    if (checkIncludeChannel->isChecked() && checkChannelFlood->isChecked())
+        tabWidgetOptions->setTabEnabled(4, true);
+    else
+        tabWidgetOptions->setTabEnabled(4, false);
 }
+//--------------------------------------------------------------------
+void lisemqt::setErosionTab(bool yes)
+{
+    tabWidgetOptions->setTabEnabled(5, yes);
+    tabWidgetOptions->setTabEnabled(6, yes);
+}
+//--------------------------------------------------------------------
+void lisemqt::setRunoffTab(bool yes)
+{
+    tabWidgetOptions->setTabEnabled(3, yes);
+}
+
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
 {
