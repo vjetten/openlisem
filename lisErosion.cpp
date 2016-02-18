@@ -343,8 +343,6 @@ double TWorld::OFTC(int r, int c, int d)
         double omcr = 0.4;
         double tc =  (1.0/settlingvelocities.at(d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/WHrunoff->Drc) ;
         return std::min(MAXCONC,tc);
-
-
     }
 
     //govers with some assumpions about distribution of stream power

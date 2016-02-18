@@ -151,7 +151,7 @@
 
 #define K1D_METHOD       1
 #define K2D_METHOD_FLUX  2
-#define K2D_METHOD_INTER  3
+#define K2D_METHOD_INTER 3
 
 
 //---------------------------------------------------------------------------
@@ -259,9 +259,8 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchFloodSedimentMethod,
-    SwitchMaterialDepth;
+    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod,
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchFloodSedimentMetho;
 
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
@@ -490,10 +489,10 @@ public:
     int R_BL_Method;
     double R_SigmaDiffusion;
 
-    int GrainSizeDistributionType;
+    //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwithEstimated90,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
-
+    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+//SwithEstimated90,
     int numgrainclasses;
     QString GrainMaps;
     QList<double> graindiameters;

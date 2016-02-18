@@ -52,6 +52,17 @@ NUTRIENTSMAPS
 GULLIESMAPS
 */
 
+
+
+//--------------------------------------------------------------------
+void lisemqt::on_checkDoErosion_clicked()
+{
+    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+    sedgroup->setEnabled(checkDoErosion->isChecked());
+
+    label_31->setEnabled(checkDoErosion->isChecked());
+    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
+}
 //--------------------------------------------------------------------
 void lisemqt::on_checkNoErosion_clicked()
 {
@@ -72,30 +83,8 @@ void lisemqt::on_checkIncludeChannel_clicked()
         checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
         checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
         checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
-
-        if (checkChannelFlood->isChecked())
-        {
-            //checkNoErosion->setChecked(true);
-
-            E_FloodlevelMap->setEnabled(true);
-            E_FloodTimeMap->setEnabled(true);
-            E_FloodStats->setEnabled(true);
-            E_ChannelMaxQ->setEnabled(true);
-            E_ChannelMaxWH->setEnabled(true);
-            E_FloodFEW->setEnabled(true);
-            E_FloodmaxVMap->setEnabled(true);
-        }
     }
-    else
-    {
-        E_FloodlevelMap->setEnabled(false);
-        E_FloodTimeMap->setEnabled(false);
-        E_FloodStats->setEnabled(false);
-        E_ChannelMaxQ->setEnabled(false);
-        E_ChannelMaxWH->setEnabled(false);
-        E_FloodFEW->setEnabled(false);
-        E_FloodmaxVMap->setEnabled(false);
-    }
+
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------

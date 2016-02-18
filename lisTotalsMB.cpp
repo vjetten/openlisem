@@ -132,7 +132,7 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
             if(ChannelWidthUpDX->Drc == 0)
     {
-        runoffTotalCell->Drc += Qn->Drc * _dt;
+        runoffTotalCell->Drc += Qn->Drc * _dt; // in M3 !!!!
     }
     upstream(LDD, runoffTotalCell, tm);
 

@@ -325,12 +325,14 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("No Erosion simulation");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Erosion simulation");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
-    namelist[i].value = QString("1");
+    namelist[i].value = QString("3");
     namelist[i++].name = QString("Routing Kin Wave 2D");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Timestep Kin Wave 2D");
@@ -374,6 +376,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Flooding]");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString(" Flood calc as watershed");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include rainfall flooding");
@@ -403,49 +407,35 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding courant factor diffusive");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
-
-
-    namelist[i].value = QString("200");
-    namelist[i++].name = QString("D50 for distribution");
-    namelist[i].value = QString("400");
-    namelist[i++].name = QString("D90 for distribution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Grain size distribution type");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("OF method");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("River 2 layer sediment");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("River BL method");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("River SS method");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Estimate d90");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use grain size distribution");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Estimate grain size distribution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Number of grain size classes (simulated)");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Read grain distribution maps");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Number of grain size classes (maps)");
-    namelist[i].value = QString("");
-    namelist[i++].name = QString("Grain size class maps");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use material depth");
-
-
-
-
-
     namelist[i].value = QString("3"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("3"); //albeda
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("1"); //MUSCL
     namelist[i++].name = QString("Flooding SWOF scheme");
+
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Sediment]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Advanced sediment");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("River 2 layer sediment");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("River BL method");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("River SS method");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Estimate grain size distribution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use grain size distribution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Number of grain size classes (simulated)");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Read grain distribution maps");
+    namelist[i].value = QString("2,20,50,125,250,500");
+    namelist[i++].name = QString("Grain size class maps");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use material depth");
     namelist[i].value = QString("1"); //van rijn simplified
     namelist[i++].name = QString("Flooding SS method");
     namelist[i].value = QString("1"); //van rijn simplified
@@ -461,9 +451,20 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flood extreme value difference");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString(" Flood calc as watershed");
-    namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood sediment transport method");
+
+    //    namelist[i].value = QString("200");
+    //    namelist[i++].name = QString("D50 for distribution");
+    //    namelist[i].value = QString("400");
+    //    namelist[i++].name = QString("D90 for distribution");
+    //    namelist[i].value = QString("0");
+    //    namelist[i++].name = QString("Grain size distribution type");
+    //    namelist[i].value = QString("0");
+    //    namelist[i++].name = QString("OF method");
+        //    namelist[i].value = QString("0");
+        //    namelist[i++].name = QString("Estimate d90");
+        //    namelist[i].value = QString("0");
+        //    namelist[i++].name = QString("Number of grain size classes (maps)");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

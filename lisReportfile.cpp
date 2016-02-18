@@ -170,7 +170,7 @@ void TWorld::OutputUI(void)
         {
             FOR_ROW_COL_MV
             {
-                tmb->Drc = WH->Drc*FlowWidth->Drc/_dx;
+                tmb->Drc = WH->Drc*FlowWidth->Drc/_dx; // average WH in m spread out over cell
             }
             calc2Maps(*op.DrawMap4, *hmx, *tmb, ADD);  //flood level in m
         }
@@ -184,7 +184,7 @@ void TWorld::OutputUI(void)
     {
         FOR_ROW_COL_MV
         {
-            tmb->Drc = WH->Drc*FlowWidth->Drc/_dx;
+            tmb->Drc = WH->Drc*FlowWidth->Drc/_dx; // average WH in m spread out over cell
         }
         copy(*op.DrawMap4, *tmb);
     }
@@ -637,7 +637,8 @@ void TWorld::ReportMaps(void)
     report(*tma, interceptionMapFileName);
 
     report(*InfilmmCum, infiltrationMapFileName);
-    report(*runoffTotalCell, runoffMapFileName);
+
+    report(*runoffTotalCell, runoffMapFileName); // in m3, total runoff from cell (but there is also runon!)
     report(*runoffFractionCell, runoffFractionMapFileName);
 
 

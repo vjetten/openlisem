@@ -202,16 +202,20 @@ void lisemqt::initPlot()
     // VJ 110630 show hydrograph for selected output point
     //    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
     subcatchgroup->setEnabled(op.outputpointnr > 1);
-    frameSL1->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
-    label_soillosssub->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
-    label_94->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+//    frameSL1->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+//    label_soillosssub->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+//    label_94->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
+    frameSL1->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
+    label_soillosssub->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
+    label_94->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
 
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
     else
         QtileGraph->detach();
 
-    if(!checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+    if(checkDoErosion->isChecked())
     {
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
@@ -225,7 +229,8 @@ void lisemqt::initPlot()
         sQsGraph->detach();
     }
 
-    if(!checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+    if(checkDoErosion->isChecked())
     {
         PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
         QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
@@ -284,7 +289,8 @@ void lisemqt::showPlot()
     yas = std::max(yas, op.QPlot);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
-    if(!checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+            if(checkDoErosion->isChecked())
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
@@ -312,15 +318,15 @@ void lisemqt::showSmallPlot()
 {
     sQGraph->setSamples(TData,QData);
     sPGraph->setSamples(TData,PData);
-    if(!checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+    if(checkDoErosion->isChecked())
         sQsGraph->setSamples(TData,QsData);
 
     smallPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
 
     smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
 
-    //if(!checkNoErosion->isChecked())
-        smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
+    smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
 
     smallPlot->replot();
 
@@ -406,7 +412,8 @@ void lisemqt::showOutputData()
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
         label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));
-        if (!checkNoErosion->isChecked())
+        //    if(!checkNoErosion->isChecked())
+        if(checkDoErosion->isChecked())
             label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
         {
             label_31->setEnabled(false);
@@ -429,7 +436,8 @@ void lisemqt::showOutputData()
     if (checkBuffers->isChecked())
         label_buffervol->setText(QString::number(op.BufferVolTot,'f',3));
 
-    if (!checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+    if(checkDoErosion->isChecked())
     {
         int dig = 2;
         label_MBs->setText(QString::number(op.MBs,'e',dig));
@@ -455,7 +463,8 @@ void lisemqt::showOutputData()
 
 
     // max 6 line text output below hydrographs
-    if (checkNoErosion->isChecked())
+    //    if(!checkNoErosion->isChecked())
+    if(checkDoErosion->isChecked())
     {
         if(!checkIncludeTiledrains->isChecked())
             textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")

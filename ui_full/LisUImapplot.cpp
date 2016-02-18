@@ -92,7 +92,7 @@ void lisemqt::selectMapType(bool /* doit */)
   if (radioButton_FLV->isChecked())   op.drawMapType = 5;
   if (radioButton_P->isChecked())     op.drawMapType = 6;
   if (radioButton_FEW->isChecked())   op.drawMapType = 7;
-  if (radioButton_SS->isChecked())   op.drawMapType = 8;
+  if (radioButton_SS->isChecked())    op.drawMapType = 8;
 
   showMap();
 }
@@ -110,7 +110,8 @@ void lisemqt::initMapPlot()
   op.drawMapType = 1;
   radioButton_RO->setChecked(true);
   radioButton_INF->setChecked(false);
-  radioButton_SL->setEnabled(!checkNoErosion->isChecked());
+  //radioButton_SL->setEnabled(!checkNoErosion->isChecked());
+  radioButton_SL->setEnabled(checkDoErosion->isChecked());
   radioButton_FL->setEnabled(checkChannelFlood->isChecked());
   radioButton_P->setChecked(false);
 
@@ -582,8 +583,8 @@ void lisemqt::showMap5()
 
   drawMap->setData(RD);
 
-  pal5a->setThreshold(std::max(doubleSpinBoxFLVmin->value(),0.001));
-  pal5b->setThreshold(std::max(doubleSpinBoxFLVmin->value(),0.001));
+  pal5a->setThreshold(0.001);//std::max(doubleSpinBoxFLVmin->value(),0.001));
+  pal5b->setThreshold(0.001);//std::max(doubleSpinBoxFLVmin->value(),0.001));
 
   drawMap->setColorMap(pal5a);
   rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal5b);
@@ -657,7 +658,6 @@ void lisemqt::showMap7()
   MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
 }
 //---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
 // Sediment
 void lisemqt::showMap8()
 {
@@ -665,6 +665,7 @@ void lisemqt::showMap8()
 
   cTMap * ssmap = op.DrawMap8;
   int classval = E_DisplaySedimentClass->value();
+
   if(classval > 0)
   {
       QString gd = QString::number(op.graindiameters.at(classval - 1));
@@ -672,8 +673,12 @@ void lisemqt::showMap8()
       classval = std::min(classval - 1, op.DrawMapList1.length() - 1);
       ssmap = op.DrawMapList1.at(classval);
   }
-  pal8a = new colorMapP();
-  pal8b = new colorMapP();
+
+  pal8a = new colorMapSS();
+  pal8b = new colorMapSS();
+
+  pal8a->setThreshold(doubleSpinBoxSSmin->value());
+  pal8b->setThreshold(doubleSpinBoxSSmin->value());
 
   double MaxV = fillDrawMapData(ssmap, RD, 8);
   if (MaxV ==-1e20)

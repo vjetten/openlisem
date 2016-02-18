@@ -182,6 +182,8 @@ public:
     double MapDisplayRunoffMax, MapDisplayInfiltrationMax, MapDisplaySoillossMax, MapDisplayFlooddepthMax;
     int MapDisplayIncludeRunoff, MapDisplayMinimumDepth, MapDisplayScreenDumps;
 
+    QString E_WorkDir;
+
     QVector<double> mapData;
     QwtInterval legend;
     QwtScaleWidget *rightAxis;
@@ -295,7 +297,7 @@ public slots:
     void on_E_floodSolution_valueChanged(int nr);
 
     void doCheckSnowmelt(bool);// check);
-    void doCheckRainfall(bool check);
+    void doCheckRainfall(bool);// check);
     void doCheckPesticides(bool check);
 
     void on_E_InfiltrationMethod_currentIndexChanged(int inr);
@@ -305,6 +307,9 @@ public slots:
     void on_checkChannelBaseflow_clicked();
     void on_checkChannelFlood_clicked();
     void on_checkNoErosion_clicked();
+    void on_checkDoErosion_clicked();
+    void on_checkOverlandFlow1D_clicked();
+    void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     //houses
@@ -319,9 +324,9 @@ public slots:
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
-    void on_E_Kinematic2D_valueChanged(int v);
-    void on_E_NumberClasses_valueChanged(int v);
-    void on_E_NumberClassesMaps_valueChanged(int v);
+   // void on_E_Kinematic2D_valueChanged(int v);
+    //void on_E_NumberClasses_valueChanged(int v);
+    //void on_E_NumberClassesMaps_valueChanged(int v);
     void on_checkUseGrainSizeDistribution_toggled(bool v);
     void on_checkEstimateGrainSizeDistribution_toggled(bool v);
     void on_checkReadGrainSizeDistribution_toggled(bool v);

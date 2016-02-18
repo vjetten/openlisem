@@ -1101,7 +1101,8 @@ void TWorld::InitMulticlass(void)
 
                 numgrainclasses = 0;
                 QStringList diamlist = getvaluename("Grain size class maps").split(",", QString::SkipEmptyParts);
-                for(int i = 0; i < diamlist.length(); i++)
+
+                for(int i = 0; i < diamlist.count(); i++)
                 {
                     double diam = diamlist.at(i).toDouble();
                     if( diam > 0.0)

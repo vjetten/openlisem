@@ -125,13 +125,14 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     //floodCutoffLevel->setVisible(false);
     //label_133->setVisible(false);
     //E_FloodReplaceV->setVisible(false);
-    checkChannelBaseflow->setVisible(false);
+//    checkChannelBaseflow->setVisible(false);
     label_103->setVisible(false);
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
     E_floodMinHeight->setVisible(false);
     label_99->setVisible(false);
+    checkNoErosion->setVisible(false);
     // interface elements that are not visible for now
 
 
@@ -179,10 +180,9 @@ void lisemqt::SetConnections()
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
-    connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
+    //connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
-    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
-    connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
+  //  connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -197,14 +197,16 @@ void lisemqt::SetConnections()
 
     connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+//    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+    connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
     connect(checkUseGrainSizeDistribution,SIGNAL(toggled(bool)), this, SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
     on_checkUseGrainSizeDistribution_toggled(checkUseGrainSizeDistribution->isChecked());
 
-    connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
-    connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
+    //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
+    //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
 
         checkUseGrainSizeDistribution->setChecked(false);
     connect(checkUseGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
@@ -212,9 +214,21 @@ void lisemqt::SetConnections()
     connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
     connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
 }
-
-
-
+//--------------------------------------------------------------------
+// bad programming, checkboxes as radiobuttons, but needed to be square buttons!
+void lisemqt::on_checkOverlandFlow1D_clicked()
+{
+    checkOverlandFlow1D->setChecked(true);
+    checkOverlandFlow2D->setChecked(false);
+    tabWidgetOptions->setTabEnabled(3, false);
+}
+void lisemqt::on_checkOverlandFlow2D_clicked()
+{
+    checkOverlandFlow1D->setChecked(false);
+    checkOverlandFlow2D->setChecked(true);
+    tabWidgetOptions->setTabEnabled(3, true);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
 {
    checkReadGrainSizeDistribution->setChecked(!v);
@@ -228,7 +242,7 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 {
     if(v)
     {
-        on_E_NumberClasses_valueChanged(0);
+  //      on_E_NumberClasses_valueChanged(0);
     }else
     {
         E_DisplaySedimentClass->setMaximum(0);
@@ -236,14 +250,14 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 
     if(v)
     {
-        E_OFMethod->setValue(1);
+        //E_OFMethod->setValue(1);
         E_RBLMethod->setValue(3);
         E_RSSMethod->setValue(3);
         E_BLMethod->setValue(3);
         E_SSMethod->setValue(3);
 
-        E_OFMethod->setMaximum(1);
-        E_OFMethod->setMinimum(0);
+//        E_OFMethod->setMaximum(1);
+//        E_OFMethod->setMinimum(0);
         E_RBLMethod->setMaximum(3);
         E_RBLMethod->setMinimum(3);
         E_RSSMethod->setMaximum(3);
@@ -260,18 +274,28 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
         {
             E_DisplaySedimentClass->setEnabled(false);
         }
+
+        if(checkDoErosion->isChecked() == true)
+        {
+            E_DisplaySedimentClass->setEnabled(true);
+        }
+        else
+        {
+            E_DisplaySedimentClass->setEnabled(false);
+        }
+
     }else
     {
         E_DisplaySedimentClass->setEnabled(false);
 
-        E_OFMethod->setValue(0);
+//        E_OFMethod->setValue(0);
         E_RBLMethod->setValue(1);
         E_RSSMethod->setValue(1);
         E_BLMethod->setValue(1);
         E_SSMethod->setValue(1);
 
-        E_OFMethod->setMaximum(0);
-        E_OFMethod->setMinimum(0);
+//        E_OFMethod->setMaximum(0);
+//        E_OFMethod->setMinimum(0);
         E_RBLMethod->setMaximum(2);
         E_RBLMethod->setMinimum(0);
         E_RSSMethod->setMaximum(2);
@@ -285,65 +309,68 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 }
 
 
-void lisemqt::on_E_NumberClasses_valueChanged(int v)
-{
-    if(checkEstimateGrainSizeDistribution->isChecked())
-    {
-        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-    }else
-    {
-        if(checkReadGrainSizeDistribution->isChecked())
-        {
-            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-        }
-    }
-}
-void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
-{
-    if(checkEstimateGrainSizeDistribution->isChecked())
-    {
-        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-    }else
-    {
-        if(checkReadGrainSizeDistribution->isChecked())
-        {
-            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-        }
-    }
-}
+//void lisemqt::on_E_NumberClasses_valueChanged(int v)
+//{
+//    if(checkEstimateGrainSizeDistribution->isChecked())
+//    {
+//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
+//    }else
+//    {
+//        if(checkReadGrainSizeDistribution->isChecked())
+//        {
+//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
+//        }
+//    }
+//}
+//void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
+//{
+//    if(checkEstimateGrainSizeDistribution->isChecked())
+//    {
+//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
+//    }else
+//    {
+//        if(checkReadGrainSizeDistribution->isChecked())
+//        {
+//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
+//        }
+//    }
+//}
 
 
-void lisemqt::on_E_Kinematic2D_valueChanged(int v)
-{
-    if(v != K1D_METHOD)
-    {
-        E_TimestepMin->setEnabled(true);
-        E_CourantFactorKin->setEnabled(true);
-    }else
-    {
-        E_TimestepMin->setEnabled(false);
-        E_CourantFactorKin->setEnabled(false);
+//void lisemqt::on_E_Kinematic2D_valueChanged(int v)
+//{
+//    if(v != K1D_METHOD)
+//    {
+//        E_TimestepMin->setEnabled(true);
+//        E_CourantFactorKin->setEnabled(true);
+//    }else
+//    {
+//        E_TimestepMin->setEnabled(false);
+//        E_CourantFactorKin->setEnabled(false);
 
-    }
-}
+//    }
+//}
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
-    if (checkIncludeChannel->isChecked() && checkChannelFlood->isChecked())
-        tabWidgetOptions->setTabEnabled(4, true);
-    else
-        tabWidgetOptions->setTabEnabled(4, false);
+//    if (checkIncludeChannel->isChecked() && checkChannelFlood->isChecked())
+//        tabWidgetOptions->setTabEnabled(4, true);
+//    else
+//        tabWidgetOptions->setTabEnabled(4, false);
+    tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
-    tabWidgetOptions->setTabEnabled(5, yes);
-    tabWidgetOptions->setTabEnabled(6, yes);
+    tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
+    tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(3, yes);
+    if (yes && E_Kinematic2D->value() == 1)
+        E_Kinematic2D->setValue(3);
 }
 
 //--------------------------------------------------------------------
@@ -597,18 +624,19 @@ void lisemqt::setMapDir()
 //--------------------------------------------------------------------
 void lisemqt::setWorkDir()
 {
-    QString path;
-    QString pathin;
+//    QString path;
+//    QString pathin;
 
-    pathin = findValidDir(E_WorkDir->text(), false);
+//    pathin = E_WorkDir;//findValidDir(E_WorkDir->text(), false);
 
-    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
-                                             pathin,
-                                             QFileDialog::ShowDirsOnly
-                                             | QFileDialog::DontResolveSymlinks);
-    if(!path.isEmpty())
-        E_WorkDir->setText( path );
-}//--------------------------------------------------------------------
+//    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
+//                                             pathin,
+//                                             QFileDialog::ShowDirsOnly
+//                                             | QFileDialog::DontResolveSymlinks);
+//    if(!path.isEmpty())
+//        E_WorkDir = path;//->setText( path );
+}
+//--------------------------------------------------------------------
 void lisemqt::setResultDir()
 {
     QString path;
@@ -616,7 +644,7 @@ void lisemqt::setResultDir()
 
     pathin = findValidDir(E_ResultDir->text(), true);
     if (pathin.isEmpty())
-        pathin =findValidDir( E_WorkDir->text(), false);
+        pathin = E_WorkDir;//findValidDir( E_WorkDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select a directory to write results"),
                                              pathin,
@@ -1236,7 +1264,7 @@ void lisemqt::resetAll()
     checkNoErosion->setChecked(check);
     checkIncludeChannel->setChecked(check);
     checkChannelInfil->setChecked(check);
-    checkChannelBaseflow->setChecked(check);
+    //checkChannelBaseflow->setChecked(check);
     checkRoadsystem->setChecked(check);
     //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
@@ -1244,24 +1272,23 @@ void lisemqt::resetAll()
     //  checkAltErosion->setChecked(check);
     //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(false);
-    E_OFMethod->setValue(0);
+    //E_OFMethod->setValue(0);
     checkUse2Layer->setChecked(check);
     E_RBLMethod->setValue(0);
     E_RSSMethod->setValue(1);
 
-    checkUseGrainSizeDistribution->setChecked(false);
-    checkEstimateGrainSizeDistribution->setChecked(false);
-    checkReadGrainSizeDistribution->setChecked(false);
+    checkUseGrainSizeDistribution->setChecked(false);    // do multiclass
+    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
+    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
+
     checkUse2Layer->setChecked(false);
 
     E_BLMethod->setValue(1);
     E_SSMethod->setValue(1);
 
-    E_NumberClasses->setValue(0);
-    E_GrainSizeDistributionType->setValue(0);
-
-    E_NumberClassesMaps->setValue(0);
-    E_GrainSizes->setText("");
+    E_NumberClasses->setValue(6);
+    //E_NumberClassesMaps->setValue(0);
+    E_GrainSizes->setText("2,20,50,125,150,500");
 
     //houses
     checkHouses->setChecked(check);
@@ -1307,6 +1334,10 @@ void lisemqt::resetAll()
     label_31->setEnabled(!checkNoErosion->isChecked());
     label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
 
+    sedgroup->setEnabled(checkDoErosion->isChecked());
+    label_31->setEnabled(checkDoErosion->isChecked());
+    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
+
     radioButton_1->setChecked(true); //<= grass interception
     E_CanopyOpeness->setValue(0.45);
     E_StemflowFraction->setValue(0.054);
@@ -1348,8 +1379,8 @@ QString lisemqt::findValidDir(QString path, bool up)
 {
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = E_MapDir->text();
-    if (!QFileInfo(path).exists() || path.isEmpty())
-        path = E_WorkDir->text();
+//    if (!QFileInfo(path).exists() || path.isEmpty())
+//        path = E_WorkDir->text();
     if (!QFileInfo(path).exists() || path.isEmpty())
     {
         //    path = QFileInfo(op.runfilename).absolutePath();

@@ -171,6 +171,7 @@ void TWorld::ParseRunfileData(void)
 
         //options in the main code, order is not important
         if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
+        if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
       //  if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
@@ -184,16 +185,16 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
 
 
-        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
-        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
-        if (p1.compare("OF method")==0)                       OF_Method     = iii;
+//        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
+//        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
+    //    if (p1.compare("OF method")==0)                       OF_Method     = iii;
         if (p1.compare("River 2 layer sediment")==0)          SwitchUse2Layer     = iii == 1;
         if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
         if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
-        if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
+      //  if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("Use grain size distribution")==0)     SwitchUseGrainSizeDistribution     = iii == 1;
-        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution     = iii == 1;
+        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
 
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
 
@@ -201,10 +202,11 @@ void TWorld::ParseRunfileData(void)
         if(SwitchEstimateGrainSizeDistribution)
         {
                 if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
-                if (p1.compare("Grain size distribution type")==0)    GrainSizeDistributionType     = iii;
-        }else if(SwitchReadGrainSizeDistribution)
+                //if (p1.compare("Grain size distribution type")==0)    GrainSizeDistributionType     = iii;
+        }else
+            if(SwitchReadGrainSizeDistribution)
         {
-                if (p1.compare("Number of grain size classes (maps)")==0)  numgrainclasses     = iii;
+               // if (p1.compare("Number of grain size classes (maps)")==0)  numgrainclasses     = iii;
                 if (p1.compare("Grain size class maps")==0)    GrainMaps    = p;
         }
 
@@ -213,8 +215,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
         if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
-        if (p1.compare("Use material depth")==0)               SwitchMaterialDepth     = iii == 1;
-//        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
+
+        //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
@@ -317,6 +319,7 @@ void TWorld::ParseRunfileData(void)
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
     CourantKin = getvaluedouble("Courant Kin Wave 2D");
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
+    OF_Method = (SwitchUseGrainSizeDistribution? 1 : 0);
 
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;

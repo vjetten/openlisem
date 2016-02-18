@@ -399,7 +399,27 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+class colorMapSS: public QwtLinearColorMapVJ
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
 
+        if ( value < thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapSS():
+        QwtLinearColorMapVJ( QColor(BGc),Qt::darkYellow)
+    {
+        addColorStop(0.0,  QColor("#FAFAD2"));
+        addColorStop( 0.5, QColor("#FFFF66"));
+    }
+};
+//---------------------------------------------------------------------------
 
 
 #endif // LISUIMAPCOLOR_H
