@@ -298,15 +298,22 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Soilloss map");
     namelist[i].value = QString("totlandunit.txt");
     namelist[i++].name = QString("Filename landunit output");
-    namelist[i].value = QString("WHmax.map");     namelist[i++].name = QString("WH max level map");
-
-    namelist[i].value = QString("floodmax.map");     namelist[i++].name = QString("Flood level map");
-    namelist[i].value = QString("floodtime.map");    namelist[i++].name = QString("Flood time map");
-    namelist[i].value = QString("floodstart.map");   namelist[i++].name = QString("Flood start time");
-    namelist[i].value = QString("floodmaxv.map");    namelist[i++].value = QString("Flood Max V");
-    namelist[i].value = QString("channelmaxq.map");  namelist[i++].name = QString("Channel Max Q");
-    namelist[i].value = QString("channelmaxhw.map"); namelist[i++].name = QString("Channel Max WH");
-    namelist[i].value = QString("floodstats.csv");   namelist[i++].name = QString("Flood stats");
+    namelist[i].value = QString("WHmax.map");
+    namelist[i++].name = QString("WH max level map");
+    namelist[i].value = QString("floodmax.map");
+    namelist[i++].name = QString("Flood level map");
+    namelist[i].value = QString("floodtime.map");
+    namelist[i++].name = QString("Flood time map");
+    namelist[i].value = QString("floodstart.map");
+    namelist[i++].name = QString("Flood start time");
+    namelist[i].value = QString("floodmaxv.map");
+    namelist[i++].value = QString("Flood Max V");
+    namelist[i].value = QString("channelmaxq.map");
+    namelist[i++].name = QString("Channel Max Q");
+    namelist[i].value = QString("channelmaxhw.map");
+    namelist[i++].name = QString("Channel Max WH");
+    namelist[i].value = QString("floodstats.csv");
+    namelist[i++].name = QString("Flood stats");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");

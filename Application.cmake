@@ -61,6 +61,7 @@ SET(APP_SOURCES
     include/model.h
     include/TMmapVariables.h
     include/LisUIoutput.h
+    resources/lisem.rc
 )
 QT4_WRAP_CPP(MOC_SOURCES
     include/model.h

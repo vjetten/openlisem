@@ -372,9 +372,10 @@ public:
     QString floodTimeFileName;
     QString floodStatsFileName;
     QString floodMaxQFileName;
-    QString floodMaxWHFileName;
+    QString floodMaxChanWHFileName;
     QString floodFEWFileName;
     QString floodMaxVFileName;
+    QString floodWHmaxFileName;
     QString timestamp;
 
     QString rainFileName;
@@ -388,7 +389,7 @@ public:
     QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
     OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSL;
     QString errorFileName;
-    QString WHmaxFileName;
+
 
     // list with class values of land unit map
     UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!

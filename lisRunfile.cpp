@@ -416,7 +416,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Channel discharge map")==0)
             channelDischargeMapFileName = checkOutputMapName(p, "Channel discharge map", 0);
         if (p1.compare("WH max level map")==0)
-            WHmaxFileName = checkOutputMapName(p, "WH max level map",0);
+            floodWHmaxFileName = checkOutputMapName(p, "WH max level map",0);
 
         if(SwitchErosion)
         {
@@ -439,7 +439,7 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Channel Max Q")==0)
                 floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0); ;
             if (p1.compare("Channel Max WH")==0)
-                floodMaxWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
+                floodMaxChanWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
             if (p1.compare("Flood start time")==0)
                 floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
             if (p1.compare("Flood Max V")==0)

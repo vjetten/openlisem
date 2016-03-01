@@ -125,6 +125,7 @@ void lisemqt::ParseInputData()
     bool dummyFloodSWOF1 = false;
     bool dummyFloodSWOF2 = false;
     int dummykinwave = 1;
+    bool dummy2layerinfil = false;
 
     // get all the options/checks
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
@@ -137,37 +138,13 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
-        // OBSOLETE main lisem types
-        /*
-          if (p1.compare("LISEM Type")==0)
-          {
-              SwitchWheelAsChannel = iii == LISEMWHEELTRACKS;
-              SwitchMulticlass = iii == LISEMMULTICLASS;
-              SwitchNutrients = iii == LISEMNUTRIENTS;
-              SwitchGullies = iii == LISEMGULLIES;
-          }
-        */
-
-        // variables controling map display
-        //        if (p1.compare("Map selection")==0)     MapDisplayMapSelection = iii;
-        //        if (p1.compare("Building alpha")==0)  MapDisplayBuilding = iii;
-        //        if (p1.compare("Roads alpha")==0)     MapDisplayRoads = iii;
-        //        if (p1.compare("Channels alpha")==0)  MapDisplayChannels = iii;
-        //        if (p1.compare("Hydrology alpha")==0) MapDisplayHydrology = iii;
-        //        if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
-        //        if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
-        //        if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
-        //        if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
-        //        if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
-        //        if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
-        //        if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
-
         //options in the main code, order is not important
         if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-   //     if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+        if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+
         if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
@@ -242,29 +219,33 @@ void lisemqt::ParseInputData()
         if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
-        //		if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
 
-        //   if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
+        //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
+
+
         if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
         if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
-        // if (p1.compare("Regular runoff output")==0)          checkOutputTimeStep->setChecked(check);
-        // if (p1.compare("User defined output")==0)            checkOutputTimeUser->setChecked(check);
-        //if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
+
+        //OBSOLETE
+        //    if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
+        //    if (p1.compare("Regular runoff output")==0)          checkOutputTimeStep->setChecked(check);
+        //    if (p1.compare("User defined output")==0)            checkOutputTimeUser->setChecked(check);
+        //    if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
         //    if (p1.compare("Subsoil drainage")==0)               checkDrainage->setChecked(check);
         //    if (p1.compare("Gully infiltration")==0)             checkGullyInfil->setChecked(check);
         //    if (p1.compare("Use initial gully dimensions")==0)   checkGullyInit->setChecked(check);
+
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
         if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
         if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
         if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
-        //checkInterceptionLAI->setChecked(!check);
+
         if (p1.compare("Canopy storage equation")==0)
         {
-            //InterceptionEqNr = iii;
             switch (iii) {
             case 0 : radioButton_1->setChecked(true); break;
             case 1 : radioButton_2->setChecked(true); break;
@@ -285,12 +266,13 @@ void lisemqt::ParseInputData()
             switch(iii) {
             case INFIL_SWATRE : uiInfilMethod = 1; break;
             case INFIL_GREENAMPT : uiInfilMethod = 2; break;
-            case INFIL_GREENAMPT2 : uiInfilMethod = 2; checkInfil2layer->setChecked(true); break;
+            case INFIL_GREENAMPT2 : uiInfilMethod = 2; dummy2layerinfil = true; break;
             case INFIL_SMITH : uiInfilMethod = 3; break;
-            case INFIL_SMITH2 : uiInfilMethod = 3; checkInfil2layer->setChecked(true); break;
+            case INFIL_SMITH2 : uiInfilMethod = 3;  dummy2layerinfil = true; break;
             case INFIL_KSAT : uiInfilMethod = 4; break;
             }
             E_InfiltrationMethod->setCurrentIndex(uiInfilMethod);
+            checkInfil2layer->setChecked(dummy2layerinfil);
         }
 
         //VJ 110705 KE equations
@@ -664,7 +646,7 @@ void lisemqt::updateModelData()
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-        //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+        if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
 
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());

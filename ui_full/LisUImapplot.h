@@ -304,8 +304,8 @@ public:
     colorMapSed():
         QwtLinearColorMapVJ( Qt::darkCyan,Qt::red)
     {
-        addColorStop( 0.0, Qt::darkCyan );
-        addColorStop( 0.3, Qt::cyan );
+        addColorStop( 0.0, QColor("#457A60"));//darkCyan );
+        addColorStop( 0.3, QColor("#96B547"));//cyan );
         addColorStop( 0.5, Qt::white );
         addColorStop( 0.7, Qt::yellow);
     }

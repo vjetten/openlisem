@@ -641,6 +641,7 @@ void TWorld::ReportMaps(void)
     report(*runoffTotalCell, runoffMapFileName); // in m3, total runoff from cell (but there is also runon!)
     report(*runoffFractionCell, runoffFractionMapFileName);
 
+    report(*WHmax, floodWHmaxFileName);
 
     if (SwitchIncludeChannel)
     {
@@ -697,7 +698,7 @@ void TWorld::ReportMaps(void)
         report(*floodTime, floodTimeFileName);
         report(*floodTimeStart, floodFEWFileName);
         report(*maxChannelflow, floodMaxQFileName);
-        report(*maxChannelWH, floodMaxWHFileName);
+        report(*maxChannelWH, floodMaxChanWHFileName);
         report(*floodVMax, floodMaxVFileName);
     }
 
