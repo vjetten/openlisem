@@ -388,7 +388,7 @@ void lisemqt::showOutputData()
         subcatchgroup->setTitle(op.outputpointdata);
 
     label_dx->setText(QString::number(op.dx,'f',3));
-    label_area->setText(QString::number(op.CatchmentArea/10000,'f',3));
+    label_area->setText(QString::number(op.CatchmentArea/1000000,'f',3));
     label_time->setText(QString::number(op.time,'f',3));
     label_endtime->setText(QString::number(op.EndTime,'f',3));
     label_runtime->setText(QString::number(op.t,'f',3));

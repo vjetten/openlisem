@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -1884,7 +1884,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -1912,8 +1912,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>257</width>
-                    <height>274</height>
+                    <width>50</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -3251,8 +3251,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>186</width>
-                    <height>230</height>
+                    <width>16</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -5406,8 +5406,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>217</width>
-                    <height>274</height>
+                    <width>50</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -8298,8 +8298,8 @@ dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amo
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>124</width>
-                    <height>254</height>
+                    <width>16</width>
+                    <height>16</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -9039,8 +9039,8 @@ The third equation is a decreasing power law </string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>172</width>
-                    <height>317</height>
+                    <width>22</width>
+                    <height>22</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -9907,8 +9907,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>210</width>
-                    <height>543</height>
+                    <width>22</width>
+                    <height>22</height>
                    </rect>
                   </property>
                   <attribute name="icon">
@@ -14297,7 +14297,7 @@ Channels:
                    </font>
                   </property>
                   <property name="text">
-                   <string>Catchment (ha)</string>
+                   <string>Area (km2)</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -20515,7 +20515,7 @@ Channels:
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

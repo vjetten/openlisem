@@ -75,7 +75,7 @@ void lisemqt::ssetAlpha4(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::selectMapTypeSS(int v)
+void lisemqt::selectMapTypeSS(int /* v */)
 {
     selectMapType(true);
 }
@@ -119,31 +119,6 @@ void lisemqt::initMapPlot()
   //    transparency2->setValue(160); //channels
   //    transparency3->setValue(160); //roads
   //    transparency4->setValue(100); //houses
-
-  // link with runfile
-  //    op.drawMapType = MapDisplayMapSelection;
-  //    transparency->setValue(std::min(MapDisplayHydrology, 200));  //main data
-  //    transparency2->setValue(std::min(MapDisplayChannels, 200)); //channels
-  //    transparency3->setValue(std::min(MapDisplayRoads, 200)); //roads
-  //    transparency4->setValue(std::min(MapDisplayBuilding, 200)); //houses
-
-  //    doubleSpinBoxRO->setValue(MapDisplayRunoffMax);
-  //    doubleSpinBoxINF->setValue(MapDisplayInfiltrationMax);
-  //    doubleSpinBoxSL->setValue(MapDisplaySoillossMax);
-  //    doubleSpinBoxFL->setValue(MapDisplayFlooddepthMax);
-  //    floodCutoffLevel->setValue(std::max(std::min(MapDisplayMinimumDepth,2),0));
-
-  //    if (p1.compare("Building display")==0)  MapDisplayBuilding = iii;
-  //    if (p1.compare("Roads display")==0)     MapDisplayRoads = iii;
-  //    if (p1.compare("Channels display")==0)  MapDisplayChannels = iii;
-  //    if (p1.compare("Hydrology display")==0) MapDisplayHydrology = iii;
-  //    if (p1.compare("Runoff max")==0)        MapDisplayRunoffMax = val;
-  //    if (p1.compare("Infiltration max")==0)  MapDisplayInfiltrationMax = val;
-  //    if (p1.compare("Soilloss max")==0)      MapDisplaySoillossMax = val;
-  //    if (p1.compare("Flooddepth max")==0)    MapDisplayFlooddepthMax = val;
-  //    if (p1.compare("Include runoff")==0)    MapDisplayIncludeRunoff = iii;
-  //    if (p1.compare("Minimum depth")==0)     MapDisplayMinimumDepth = iii;
-  //    if (p1.compare("Screendumps")==0)       MapDisplayScreenDumps = iii;
 }
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
