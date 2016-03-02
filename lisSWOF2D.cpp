@@ -242,7 +242,7 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
 
 void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-    double f1, f2, f3, cfl, tmp = 0;
+    double f1, f2, f3, cfl;
     double c;
     if (h_L<=0. && h_R<=0.){
         c = 0.;

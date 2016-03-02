@@ -48,7 +48,7 @@ functions: \n
 void TWorld::ChannelOverflow()
 {
     double err = 0;
-    double errs = 0;
+   // double errs = 0;
     double factor = 0.5;
     FOR_ROW_COL_MV_CH
     {

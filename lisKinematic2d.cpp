@@ -366,8 +366,8 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                 //weight * the flow is distributed to the ith cell that neighbours the advected flow.
                 K2DHNew->data[r2][c2] +=  w[i]*dt*(K2DQ->Drc/(cdx2*cdy2));
                 K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
-                QinKW->data[r2][c2] += w[i] *dt*K2DQ->Drc;
-                QoutKW->data[r2][c2] += w[i] *dt*K2DQ->Drc;
+                QinKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
+                QoutKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
 
             }
             else
@@ -465,7 +465,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         double cdx = DX->Drc;
         double cdy = ChannelAdj->Drc;
 
-        //calculate infiltartion in time step
+        //calculate infiltration in time step
         double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
         if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
         {
