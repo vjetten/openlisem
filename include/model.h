@@ -302,7 +302,7 @@ public:
     double waterRep_d;
 
     ///rainfall to flood max gradient
-    double rainFloodingGradient;
+ //   double rainFloodingGradient;
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)

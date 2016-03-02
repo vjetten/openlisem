@@ -189,7 +189,8 @@ void TWorld::DoModel()
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-            RainfallToFlood();       // converts rainfall on flat areas to flood instead of runoff
+          //  RainfallToFlood();       // converts rainfall on flat areas to flood instead of runoff
+            // OBSOLETE with runoff in 2D
 
             CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 

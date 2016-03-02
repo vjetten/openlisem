@@ -118,26 +118,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     E_runFileList->clear();
 
 
-    //E_FloodScheme->setVisible(false);
-    //label_98->setVisible(false);
-    //checkAddWHtohmx->setVisible(false);
-    //label_125->setVisible(false);
-    //floodCutoffLevel->setVisible(false);
-    //label_133->setVisible(false);
-    //E_FloodReplaceV->setVisible(false);
-//    checkChannelBaseflow->setVisible(false);
-    label_103->setVisible(false);
-    E_CalibratePsi->setVisible(false);
-    label_77->setVisible(false);
-    label_79->setVisible(false);
-    E_floodMinHeight->setVisible(false);
-    label_99->setVisible(false);
-    checkNoErosion->setVisible(false);
-    // interface elements that are not visible for now
-
-
     doBatchmode = doBatch;
     batchRunname = runname;
+
     if(doBatchmode)
     {
         runfilelist.clear();
@@ -182,7 +165,7 @@ void lisemqt::SetConnections()
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
     //connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
-  //  connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
+    //  connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapnake opens fileopen
@@ -197,7 +180,7 @@ void lisemqt::SetConnections()
 
     connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-//    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+    //    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
@@ -208,7 +191,7 @@ void lisemqt::SetConnections()
     //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
     //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
 
-        checkUseGrainSizeDistribution->setChecked(false);
+    checkUseGrainSizeDistribution->setChecked(false);
     connect(checkUseGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
 
     connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
@@ -231,18 +214,18 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
 {
-   checkReadGrainSizeDistribution->setChecked(!v);
+    checkReadGrainSizeDistribution->setChecked(!v);
 }
 
 void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 {
-   checkEstimateGrainSizeDistribution->setChecked(!v);
+    checkEstimateGrainSizeDistribution->setChecked(!v);
 }
 void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 {
     if(v)
     {
-  //      on_E_NumberClasses_valueChanged(0);
+        //      on_E_NumberClasses_valueChanged(0);
     }else
     {
         E_DisplaySedimentClass->setMaximum(0);
@@ -256,8 +239,8 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
         E_BLMethod->setValue(3);
         E_SSMethod->setValue(3);
 
-//        E_OFMethod->setMaximum(1);
-//        E_OFMethod->setMinimum(0);
+        //        E_OFMethod->setMaximum(1);
+        //        E_OFMethod->setMinimum(0);
         E_RBLMethod->setMaximum(3);
         E_RBLMethod->setMinimum(3);
         E_RSSMethod->setMaximum(3);
@@ -288,14 +271,14 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
     {
         E_DisplaySedimentClass->setEnabled(false);
 
-//        E_OFMethod->setValue(0);
+        //        E_OFMethod->setValue(0);
         E_RBLMethod->setValue(1);
         E_RSSMethod->setValue(1);
         E_BLMethod->setValue(1);
         E_SSMethod->setValue(1);
 
-//        E_OFMethod->setMaximum(0);
-//        E_OFMethod->setMinimum(0);
+        //        E_OFMethod->setMaximum(0);
+        //        E_OFMethod->setMinimum(0);
         E_RBLMethod->setMaximum(2);
         E_RBLMethod->setMinimum(0);
         E_RSSMethod->setMaximum(2);
@@ -353,17 +336,44 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
-//    if (checkIncludeChannel->isChecked() && checkChannelFlood->isChecked())
-//        tabWidgetOptions->setTabEnabled(4, true);
-//    else
-//        tabWidgetOptions->setTabEnabled(4, false);
     tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
+
+    radioButton_FEW->setEnabled(yes);
+    radioButton_FLV->setEnabled(yes);
+    radioButton_FL->setEnabled(yes);
+    doubleSpinBoxFEW->setEnabled(yes);
+    doubleSpinBoxFL->setEnabled(yes);
+    doubleSpinBoxFLV->setEnabled(yes);
+    doubleSpinBoxFLmin->setEnabled(yes);
+    checkDisplayWH->setEnabled(yes);
+    outputMapsFlood->setEnabled(yes);
+    label_107->setEnabled(yes);
+    label_floodVolmm->setEnabled(yes);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
     tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+
+    radioButton_SS->setEnabled(yes);
+    radioButton_SL->setEnabled(yes);
+    doubleSpinBoxSS->setEnabled(yes);
+    doubleSpinBoxSSmin->setEnabled(yes);
+    doubleSpinBoxSL->setEnabled(yes);
+    outputMapsSediment->setEnabled(yes);
+    checkBox_OutConc->setEnabled(yes);
+    checkBox_OutDet->setEnabled(yes);
+    checkBox_OutDep->setEnabled(yes);
+    checkBox_OutSL->setEnabled(yes);
+    checkBox_OutTC->setEnabled(yes);
+    groupKineticEnergy->setEnabled(yes);
+
+    E_DisplaySedimentClass->setEnabled(yes && checkAdvancedSediment->isChecked());
+    label_56->setEnabled(yes && checkAdvancedSediment->isChecked());
+
+
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)
@@ -420,13 +430,13 @@ void lisemqt::SetToolBar()
     toolBar->addAction(restartAct);
     toolBar->addSeparator();
 
-    openAct = new QAction(QIcon(":/fileopen.png"), "&Open...", this);
+    openAct = new QAction(QIcon(":/fileopen.png"), "&Open a run file...", this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip("Open a run file");
     connect(openAct, SIGNAL(triggered()), this, SLOT(openRunFile()));
     toolBar->addAction(openAct);
 
-    saveAct = new QAction(QIcon(":/filesave.png"), "&Save...", this);
+    saveAct = new QAction(QIcon(":/filesave.png"), "&Save the run file...", this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip("Save a run file");
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveRunFile()));
@@ -528,6 +538,21 @@ void lisemqt::SetToolBar()
 void lisemqt::SetStyleUI()
 {
 
+    label_103->setVisible(false);
+    E_CalibratePsi->setVisible(false);
+    label_77->setVisible(false);
+    label_79->setVisible(false);
+    E_floodMinHeight->setVisible(false);
+    label_99->setVisible(false);
+    checkNoErosion->setVisible(false);
+    checkRainfallFlood->setVisible(false);
+    E_RainFloodGradient->setVisible(false);
+    checkFloodInitial->setVisible(false);
+    // interface elements that are not visible for now
+
+    groupBoxTime->setMaximumWidth(128);
+
+
     int w = 80, h = 15;//2*genfontsize;
     label_dx->setMinimumSize(w,h);
     label_area->setMinimumSize(w,h);
@@ -624,17 +649,17 @@ void lisemqt::setMapDir()
 //--------------------------------------------------------------------
 void lisemqt::setWorkDir()
 {
-//    QString path;
-//    QString pathin;
+    //    QString path;
+    //    QString pathin;
 
-//    pathin = E_WorkDir;//findValidDir(E_WorkDir->text(), false);
+    //    pathin = E_WorkDir;//findValidDir(E_WorkDir->text(), false);
 
-//    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
-//                                             pathin,
-//                                             QFileDialog::ShowDirsOnly
-//                                             | QFileDialog::DontResolveSymlinks);
-//    if(!path.isEmpty())
-//        E_WorkDir = path;//->setText( path );
+    //    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
+    //                                             pathin,
+    //                                             QFileDialog::ShowDirsOnly
+    //                                             | QFileDialog::DontResolveSymlinks);
+    //    if(!path.isEmpty())
+    //        E_WorkDir = path;//->setText( path );
 }
 //--------------------------------------------------------------------
 void lisemqt::setResultDir()
@@ -1254,7 +1279,7 @@ void lisemqt::resetAll()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
- //   E_InfiltrationMethod->addItem("Subtract Ksat");
+    //   E_InfiltrationMethod->addItem("Subtract Ksat");
     E_InfiltrationMethod->setCurrentIndex(0);
 
     initOP();
@@ -1295,7 +1320,7 @@ void lisemqt::resetAll()
     checkRaindrum->setChecked(check);
     // flooded areas
     checkChannelFlood->setChecked(check);
-    checkFloodInitial->setChecked(check);
+    //  checkFloodInitial->setChecked(check);
     checkWatershed->setChecked(check);
 
     checkLimitTC->setChecked(check);
@@ -1379,8 +1404,8 @@ QString lisemqt::findValidDir(QString path, bool up)
 {
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = E_MapDir->text();
-//    if (!QFileInfo(path).exists() || path.isEmpty())
-//        path = E_WorkDir->text();
+    //    if (!QFileInfo(path).exists() || path.isEmpty())
+    //        path = E_WorkDir->text();
     if (!QFileInfo(path).exists() || path.isEmpty())
     {
         //    path = QFileInfo(op.runfilename).absolutePath();

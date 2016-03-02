@@ -107,9 +107,10 @@ void TWorld::OutputUI(void)
         if (ErosionUnits == 0) // ton/ha
             calcValue(*tmb, 10, MUL);
 
-        fill(*tmc, 0.0);
+
         if(SwitchErosion)
         {
+            fill(*tmc, 0.0);
             if(SwitchChannelFlood)
             {
                 calcMap(*tmc, *BLFlood, ADD);

@@ -29,5 +29,6 @@
         <file>fontsmaller.png</file>
         <file>help1.png</file>
         <file>bullet.png</file>
+        <file>information_4.png</file>
     </qresource>
 </RCC>

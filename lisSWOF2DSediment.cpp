@@ -669,7 +669,7 @@ void TWorld::FS_MainCalc(cTMap * _h,cTMap * _sbl, cTMap * _sbln,cTMap * _sss,cTM
 void TWorld::FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R)
 {
 
-    double f1, f2, f3, cfl, tmp = 0;
+    double f1, f2, f3, cfl;
     double c;
     if (h_L<=0. && h_R<=0.){
         f1 = 0.;
@@ -728,12 +728,12 @@ void TWorld::FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,do
 
 void TWorld::FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R)
 {
-    double f1, f2, f3, cfl, tmp = 0;
+    double f1, f2, f3; //, cfl;
     if (h_L<=0. && h_R<=0.){
         f1 = 0.;
         f2 = 0.;
         f3 = 0.;
-        cfl = 0.;
+        //cfl = 0.;
     }else{
         double grav_h_L = GRAV*h_L;
         double grav_h_R = GRAV*h_R;
@@ -753,7 +753,7 @@ void TWorld::FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,dou
             f1=bl_R*(q_R);
             f2=ss_R*(q_R);
         }else{ //subcritical flow
-            tmp = 1./(c2-c1);
+            double tmp = 1./(c2-c1);
             f1=(c2*bl_L*q_L-c1*bl_R*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
 
             f2=(c2*ss_L*q_L-c1*ss_R*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;

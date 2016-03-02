@@ -212,7 +212,7 @@ void TWorld::ParseRunfileData(void)
 
 
 
-        if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
+    //    if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
         if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
 
@@ -302,7 +302,7 @@ void TWorld::ParseRunfileData(void)
 
     }// first loop of runnamelist
 
-    rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
+ //   rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
 
     if (SwitchFloodSWOForder2)
     {

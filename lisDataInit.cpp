@@ -643,11 +643,11 @@ void TWorld::InitChannel(void)
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
 
-            if (SwitchFloodInitial)
-            {
-                hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
-                copy(*hmx, *hmxInit);
-            }
+//            if (SwitchFloodInitial)
+//            {
+//                hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+//                copy(*hmx, *hmxInit);
+//            }
 
             floodactive = NewMap(1);
 
@@ -655,7 +655,8 @@ void TWorld::InitChannel(void)
             FOR_ROW_COL_MV
             {
                 // added rainFloodingGradient to ensure rainfall flood if needed
-                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0 || Grad->Drc <= rainFloodingGradient)
+                // rainfall gradient obsolete with runoff 2D
+                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0)// || Grad->Drc <= rainFloodingGradient)
                 {
                     floodRow[_i] = r;
                     floodCol[_i] = c;

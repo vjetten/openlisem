@@ -52,8 +52,10 @@ functions: \n
  * @see SwitchRainfallFlood
  * @see rainFloodingGradient
  */
+// OBSOLETE with runoff 2D!
 void TWorld::RainfallToFlood(void)
 {
+    /*
     if (SwitchRainfallFlood)
     {
         FOR_CELL_IN_FLOODAREA
@@ -73,6 +75,7 @@ void TWorld::RainfallToFlood(void)
             }
         }}
 }
+*/
 
 }
 //--------------------------------------------------------------------------------------------

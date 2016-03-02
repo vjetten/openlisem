@@ -365,7 +365,7 @@ cTMap
 *floodVMax,                    //!<
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
-*hmxInit,                    //!<
+//*hmxInit,                    //!<
 //explicit solution
 *Hx,                         //!<
 *Hmx,                        //!<

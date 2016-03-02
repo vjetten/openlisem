@@ -413,10 +413,12 @@ class colorMapSS: public QwtLinearColorMapVJ
     }
 public:
     colorMapSS():
-        QwtLinearColorMapVJ( QColor(BGc),Qt::darkYellow)
+        QwtLinearColorMapVJ( QColor(BGc),QColor("#804000"))
     {
         addColorStop(0.0,  QColor("#FAFAD2"));
         addColorStop( 0.5, QColor("#FFFF66"));
+        addColorStop( 0.9, QColor("#808000"));
+
     }
 };
 //---------------------------------------------------------------------------
