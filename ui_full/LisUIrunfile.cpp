@@ -126,6 +126,7 @@ void lisemqt::ParseInputData()
     bool dummyFloodSWOF2 = false;
     int dummykinwave = 1;
     bool dummy2layerinfil = false;
+    bool dummyErosion = false;
 
     // get all the options/checks
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
@@ -139,8 +140,8 @@ void lisemqt::ParseInputData()
             continue;
 
         //options in the main code, order is not important
-        if (p1.compare("No Erosion simulation")==0)          checkNoErosion->setChecked(check);
-        if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
+        if (p1.compare("No Erosion simulation")==0)          if (check) dummyErosion = false;//checkNoErosion->setChecked(check); // OLD runfiles
+        if (p1.compare("Include Erosion simulation")==0)     if (check) dummyErosion = true;//checkDoErosion->setChecked(check);
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
@@ -387,14 +388,16 @@ void lisemqt::ParseInputData()
         }
     }
 
+    checkDoErosion->setChecked(dummyErosion);
+    setErosionTab(dummyErosion);
+
+    setFloodTab(checkChannelFlood->isChecked());
+
     if (!dummyrain && !dummysnow)
         QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
 
     checkRainfall->setChecked(dummyrain);
     checkSnowmelt->setChecked(dummysnow);
-
-    setErosionTab(true);
-    setFloodTab(true);
 
     checkOverlandFlow1D->setChecked(true);
 
