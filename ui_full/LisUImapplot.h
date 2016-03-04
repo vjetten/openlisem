@@ -14,6 +14,10 @@
 class MyPicker: public QwtPlotPicker
 {
 public:
+
+    QList<QString> NameList;
+    QList<QString> UnitList;
+
     MyPicker( QwtPlotCanvas *canvas ):
         QwtPlotPicker( canvas )
     {
@@ -25,7 +29,6 @@ public:
         QColor bg( Qt::white );
         bg.setAlpha( 100 );
         QString txt = "";
-        QString unit = "";
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
@@ -40,15 +43,11 @@ public:
 
         if (z2 > -1e10)
         {
-            if (sp2->data()->value(0,0) == 1) txt = QString("%1 l/s [%2m]").arg(z2,0,'f',1).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 2) txt = QString("%1 mm [%2m]").arg(z2,0,'f',1).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 3) txt = QString("%1 %2[%3m]").arg(z2,0,'f',1).arg(unit).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 4) txt = QString("%1 m [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 5) txt = QString("%1 m/s [%2m]").arg(z2,0,'f',2).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 6) txt = QString("%1 mm [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 7) txt = QString("%1 min [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 8) txt = QString("%1 m [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',2);
-            if (sp2->data()->value(0,0) == 8) txt = QString("%1 kg [%2m]").arg(z2,0,'f',3).arg(z0,0,'f',1);
+            int index = sp2->data()->value(0,0);
+            QString name = NameList.at(index);
+            QString unit = UnitList.at(index);
+
+            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',1).arg(z0,0,'f',2);
         }
 
         QwtText text = QwtText(txt);
@@ -72,6 +71,56 @@ public:
 
     void setThreshold(double v);
 
+};
+
+//---------------------------------------------------------------------------
+// class derived from QwtLinearColorMap to enable transparency thresholds
+class QwtComboColorMap: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+        if(thresholduse)
+        {
+            if ( value <= thresholdmin )
+            {
+                return qRgba( 0, 0, 0, 0 );
+            }
+        }else
+        {
+            if ( value <= interval.minValue() )
+            {
+                return qRgba( 0, 0, 0, 0 );
+            }
+        }
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+
+public:
+
+    QwtComboColorMap( const QColor &from, const QColor &to,QList<double> map,QList<QString> colors,
+        QwtLinearColorMap::Format = QwtColorMap::RGB ):QwtLinearColorMap( from, to)
+    {
+            thresholdmin = 0;
+            thresholduse = false;
+
+            setColorInterval(from,to);
+
+            for(int j = 1; j < colors.length()-1; j++)
+            {
+                addColorStop(map.at(j),QColor(colors.at(j)));
+            }
+    }
+
+    virtual ~QwtComboColorMap()
+    {
+
+    }
+
+    double thresholdmin;
+    bool thresholduse;
 };
 
 //---------------------------------------------------------------------------
@@ -398,31 +447,6 @@ public:
         addColorStop( 0.75, Qt::green);
     }
 };
-//---------------------------------------------------------------------------
-class colorMapSS: public QwtLinearColorMapVJ
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
-        if ( value < thresholdLCM )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-public:
-    colorMapSS():
-        QwtLinearColorMapVJ( QColor(BGc),QColor("#804000"))
-    {
-        addColorStop(0.0,  QColor("#FAFAD2"));
-        addColorStop( 0.5, QColor("#FFFF66"));
-        addColorStop( 0.9, QColor("#808000"));
-
-    }
-};
-//---------------------------------------------------------------------------
-
 
 #endif // LISUIMAPCOLOR_H
 

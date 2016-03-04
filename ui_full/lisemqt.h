@@ -145,15 +145,10 @@ public:
     // Map drawing variable
     void setupMapPlot();
     void initMapPlot();
+
     void showMap();
-    void showMap1();
-    void showMap2();
-    void showMap3();
-    void showMap4();
-    void showMap5();
-    void showMap6();
-    void showMap7();
-    void showMap8();
+
+    void showComboMap(int i);
 
     void showBaseMap();
     void showChannelMap();
@@ -195,22 +190,12 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
-    QwtLinearColorMapVJ *pal1a;
-    QwtLinearColorMapVJ *pal1b;
-    QwtLinearColorMapVJ *pal2a;
-    QwtLinearColorMapVJ *pal2b;
-    QwtLinearColorMapVJ *pal3a;
-    QwtLinearColorMapVJ *pal3b;
-    QwtLinearColorMapVJ *pal4a;
-    QwtLinearColorMapVJ *pal4b;
-    QwtLinearColorMapVJ *pal5a;
-    QwtLinearColorMapVJ *pal5b;
-    QwtLinearColorMapVJ *pal6a;
-    QwtLinearColorMapVJ *pal6b;
-    QwtLinearColorMapVJ *pal7a;
-    QwtLinearColorMapVJ *pal7b;
-    QwtLinearColorMapVJ *pal8a;
-    QwtLinearColorMapVJ *pal8b;
+
+
+    QList<QwtComboColorMap *> ColorMapList;
+    QList<QString> NameList;
+    QList<QString> UnitList;
+
     // graph variables
     QwtPlot *HPlot;
     QwtPlot *smallPlot;
@@ -261,6 +246,7 @@ public:
     int mapstartnr;
     bool doShootScreens;
 
+
 public slots:
     // functions linked to actions
     void saveRunFile();
@@ -296,6 +282,8 @@ public slots:
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodSolution_valueChanged(int nr);
 
+    void on_DisplayComboBox_currentIndexChanged(int);
+
     void doCheckSnowmelt(bool);// check);
     void doCheckRainfall(bool);// check);
     void doCheckPesticides(bool check);
@@ -306,7 +294,6 @@ public slots:
     void on_checkChannelInfil_clicked();
     void on_checkChannelBaseflow_clicked();
     void on_checkChannelFlood_clicked();
-    void on_checkNoErosion_clicked();
     void on_checkDoErosion_clicked();
     void on_checkOverlandFlow1D_clicked();
     void on_checkOverlandFlow2D_clicked();
@@ -331,8 +318,6 @@ public slots:
     void on_checkEstimateGrainSizeDistribution_toggled(bool v);
     void on_checkReadGrainSizeDistribution_toggled(bool v);
 
-    void selectMapTypeSS(int v);
-    void selectMapType(bool doit);
     void ssetAlpha(int v);
     void ssetAlpha2(int v);
     void ssetAlpha3(int v);
@@ -354,7 +339,13 @@ public slots:
     void setFloodOP(bool);
     //  void on_checkBoxOverlay_stateChanged(int yes);
 
+
 private slots:
+
+    void showMapb(bool);
+    void showMapd(double);
+
+
     // functions that interact with the world thread signals
     void worldShow();
     void worldDone(const QString &results);

@@ -76,27 +76,27 @@ struct output{
     // screen output
     QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
 
-    cTMap *DrawMap;
-    cTMap *DrawMap1;
-    cTMap *DrawMap2;
-    cTMap *DrawMap3;
-    cTMap *DrawMap4;
-    cTMap *DrawMap5;
-    cTMap *DrawMap6;
-    cTMap *DrawMap7;
-    cTMap *DrawMap8; //sediment concentration
+
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;
     cTMap *roadMap;
     cTMap *houseMap;
 
-    QList<cTMap *> DrawMapList1;
     QList<double> graindiameters;
 
-    bool displayPcum;
-    bool displayWH;
-    int drawMapType;
+    //combox selection of drawn map
+    QList<cTMap *> ComboMaps;
+    QList<cTMap *> ComboMapsSafe;
+    QList<QList<double>> ComboColorMap;
+    QList<QList<QString>> ComboColors;
+    QList<bool> ComboLogoritmic;
+    QList<bool> ComboSymColor;
+    QStringList ComboMapNames;
+    QStringList ComboUnits;
+    QList<double> ComboScaling;
+
+    bool comboboxset;
 
     QString runfilename;
     QString LisemDir;

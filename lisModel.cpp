@@ -84,6 +84,9 @@ void TWorld::DoModel()
         DEBUG("IntializeData()");
         IntializeData();
 
+        DEBUG("GetComboMaps()");
+        GetComboMaps();
+
         DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
@@ -275,16 +278,8 @@ void TWorld::DoModel()
 // must be done after Initialize Data because then we know how large the map is
 void TWorld::setupDisplayMaps()
 {
-    if (op.DrawMap1)
+    if (op.baseMap != 0)
     {
-        delete op.DrawMap1;
-        delete op.DrawMap2;
-        delete op.DrawMap3;
-        delete op.DrawMap4;
-        delete op.DrawMap5;
-        delete op.DrawMap6;
-        delete op.DrawMap7;
-        delete op.DrawMap8;
         delete op.baseMap;
         delete op.baseMapDEM;
         delete op.channelMap;
@@ -292,35 +287,273 @@ void TWorld::setupDisplayMaps()
         delete op.houseMap;
     }
 
-    op.DrawMap1 = new cTMap();
-    op.DrawMap2 = new cTMap();
-    op.DrawMap3 = new cTMap();
-    op.DrawMap4 = new cTMap();
-    op.DrawMap5 = new cTMap();
-    op.DrawMap6 = new cTMap();
-    op.DrawMap7 = new cTMap();
-    op.DrawMap8 = new cTMap();
     op.baseMap = new cTMap();
     op.baseMapDEM = new cTMap();
     op.channelMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
 
-    op.DrawMap1->MakeMap(LDD, 0);
-    op.DrawMap2->MakeMap(LDD, 0);
-    op.DrawMap3->MakeMap(LDD, 0);
-    op.DrawMap4->MakeMap(LDD, 0);
-    op.DrawMap5->MakeMap(LDD, 0);
-    op.DrawMap6->MakeMap(LDD, 0);
-    op.DrawMap7->MakeMap(LDD, 0);
-    op.DrawMap8->MakeMap(LDD, 0);
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.channelMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
-}
 
+
+}
+//---------------------------------------------------------------------------
+void TWorld::GetComboMaps()
+{
+    //combo box maps
+    ClearComboMaps();
+
+    QList<double> Colormap;
+    QList<QString> Colors;
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.0005);
+    Colormap.append(0.01);
+    Colormap.append(0.05);
+    Colormap.append(0.1);
+    Colormap.append(0.9);
+    Colormap.append(1.0);
+
+    Colors.clear();
+    Colors.append("#8C8CFF");
+    Colors.append("#8080FF");
+    Colors.append("#4040ff");
+    Colors.append("#0000FF");
+    Colors.append("#00006F");
+    Colors.append("#FF0000");
+    Colors.append("#FF3300");
+    AddComboMap("Overland Discharge","l/s",Q,Colormap,Colors,true,false,1000.0);
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap("Channel Discharge","l/s",ChannelQ,Colormap,Colors,true,false,1000.0);
+        AddComboMap("Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0);
+    }
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#00FF00");
+    Colors.append("#FFFF00");
+    Colors.append("#FF0000");
+    Colors.append("#A60000");
+    AddComboMap("Overland Flow Velocity","m/s",V,Colormap,Colors,false,false,1.0);
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap("Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0);
+    }
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#5477ff");
+    Colors.append("#0023b1");
+    Colors.append("#001462");
+
+    AddComboMap("Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0);
+
+    if(InfilMethod != INFIL_NONE)
+    {
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.1);
+        Colormap.append(0.4);
+        Colormap.append(1.0);
+
+        Colors.clear();
+        Colors.append("#f6f666");
+        Colors.append("#FFFF55");
+        Colors.append("#8080FF");
+        Colors.append("#0000AA");
+        AddComboMap("Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0);
+    }
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+
+    Colors.clear();
+    Colors.append("#8888FF");
+    Colors.append("#0000FF");
+    Colors.append("#FF0000");
+
+    AddComboMap("Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0);
+    AddComboMap("Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0);
+
+    if(SwitchChannelFlood)
+    {
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.5);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#5477ff");
+        Colors.append("#0023b1");
+        Colors.append("#001462");
+        AddComboMap("Flood Height","m",hmx,Colormap,Colors,false,false,1.0);
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.25);
+        Colormap.append(0.75);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#00FF00");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+        Colors.append("#A60000");
+        AddComboMap("Flood Velocity","m/s",UVflood,Colormap,Colors,false,false,1.0);
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.25);
+        Colormap.append(0.5);
+        Colormap.append(0.75);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#A60000");
+        Colors.append("#FF0000");
+        Colors.append("#FFFF00");
+        Colors.append("#00FF00");
+        Colors.append("#007300");
+
+        AddComboMap("Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0);
+
+    }
+    if(SwitchErosion)
+    {
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.3);
+        Colormap.append(0.5);
+        Colormap.append(0.70);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#457A60");
+        Colors.append("#96B547");
+        Colors.append("#FFFFFF");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+
+        AddComboMap("Total Soil Loss","t/ha",TotalSoillossMap,Colormap,Colors,false,true,1.0);
+
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.5);
+        Colormap.append(0.9);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#FAFAD2");
+        Colors.append("#FFFF66");
+        Colors.append("#808000");
+        Colors.append("#804000");
+
+        AddComboMap("Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx));
+
+        if(SwitchUseGrainSizeDistribution)
+        {
+            Colormap.clear();
+            Colormap.append(0.0);
+            Colormap.append(0.5);
+            Colormap.append(0.9);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#FAFAD2");
+            Colors.append("#FFFF66");
+            Colors.append("#808000");
+            Colors.append("#804000");
+
+            FOR_GRAIN_CLASSES
+            {
+                AddComboMap("Overland S.L. Grain Class " + QString::number(d),"kg/m2",Sed_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+            }
+            if(SwitchIncludeChannel)
+            {
+                if(SwitchUse2Layer)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        AddComboMap("Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                    }
+                    FOR_GRAIN_CLASSES
+                    {
+                        AddComboMap("Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",RSS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                    }
+                }else
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        AddComboMap("Channel S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                    }
+                }
+            }
+            if(SwitchChannelFlood)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    AddComboMap("Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",BL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                }
+                FOR_GRAIN_CLASSES
+                {
+                    AddComboMap("Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",SS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                }
+            }
+
+        }
+
+
+
+    }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::ClearComboMaps()
+{
+
+    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
+    {
+        delete op.ComboMapsSafe.at(i);
+    }
+    op.ComboMapsSafe.clear();
+
+    op.ComboMaps.clear();
+    op.ComboMapsSafe.clear();
+    op.ComboColorMap.clear();
+    op.ComboColors.clear();
+    op.ComboLogoritmic.clear();
+    op.ComboSymColor.clear();
+    op.ComboMapNames.clear();
+    op.ComboUnits.clear();
+    op.ComboScaling.clear();
+
+    op.comboboxset = false;
+}
+//---------------------------------------------------------------------------
+void TWorld::AddComboMap(QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors, bool log,bool symcol, double scale)
+{
+    op.ComboMaps.append(map);
+    op.ComboMapsSafe.append(NewMap(0.0));
+    op.ComboColorMap.append(ColorMap);
+    op.ComboColors.append(Colors);
+    op.ComboLogoritmic.append(log);
+    op.ComboSymColor.append(symcol);
+    op.ComboMapNames.append(name);
+    op.ComboUnits.append(unit);
+    op.ComboScaling.append(scale);
+
+    op.comboboxset = false;
+}
 //---------------------------------------------------------------------------
 void TWorld::run()
 {

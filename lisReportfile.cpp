@@ -67,14 +67,50 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
+    fill(*COMBO_QOFCH, 0.0);
+    calcMap(*COMBO_QOFCH, *Q, ADD);
+    calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
+
+    FOR_ROW_COL_MV
+    {
+        if(K2DOutlets->Drc ==1)
+        {
+            V->Drc = 0;
+        }
+    }
+
+    if(SwitchErosion)
+    {
+        fill(*COMBO_SS, 0.0);
+        if(SwitchChannelFlood)
+        {
+            calcMap(*COMBO_SS, *BLFlood, ADD);
+            calcMap(*COMBO_SS, *SSFlood, ADD);
+        }
+        if(SwitchIncludeChannel)
+        {
+            calcMap(*COMBO_SS, *ChannelBLSed, ADD);
+            calcMap(*COMBO_SS, *ChannelSSSed, ADD);
+        }
+        calcMap(*COMBO_SS, *Sed, ADD);
+    }
+
+    //output maps for combo box
+    for(int i = 0; i < op.ComboMaps.length(); i++)
+    {
+        fill(*tma, 0.0);
+        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
+        copy(*op.ComboMapsSafe.at(i), *tma);
+    }
+
+
     //make sure sediment maps for all grain sizes are present
     if(SwitchErosion && SwitchUseGrainSizeDistribution)
     {
         FOR_GRAIN_CLASSES
         {
-            if(op.DrawMapList1.length() < numgrainclasses + 1)
+            if(op.graindiameters.length() < numgrainclasses + 1)
             {
-                op.DrawMapList1.append(NewMap(0.0));
                 op.graindiameters.append(graindiameters.at(d));
             }else
             {
@@ -82,112 +118,6 @@ void TWorld::OutputUI(void)
             }
 
         }
-    }
-
-
-    // MAP DISPLAY VARIABLES
-    fill(*tma, 0.0);
-    if (op.displayPcum)
-        calcMapValue(*tma, *RainCumFlat,1000, MUL);
-    else
-        calcMapValue(*tma, *Rain,1000, MUL);
-    copy(*op.DrawMap6, *tma);
-
-    copy(*op.DrawMap1, *Qoutput);  //output in l/s
-    //Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
-
-    FOR_ROW_COL_MV
-            tmb->Drc = InfilmmCum->Drc < 0.001 ? 0 : InfilmmCum->Drc;
-    copy(*op.DrawMap2, *tmb);  //infil in mm
-    if (SwitchErosion)
-    {
-        copy(*tmb, *TotalSoillossMap); //kg/cell
-        if (ErosionUnits == 2 || ErosionUnits == 0)  // in kg/m2
-            calcMap(*tmb, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-            calcValue(*tmb, 10, MUL);
-
-
-        if(SwitchErosion)
-        {
-            fill(*tmc, 0.0);
-            if(SwitchChannelFlood)
-            {
-                calcMap(*tmc, *BLFlood, ADD);
-                calcMap(*tmc, *SSFlood, ADD);
-            }
-            if(SwitchIncludeChannel)
-            {
-                calcMap(*tmc, *ChannelBLSed, ADD);
-                calcMap(*tmc, *ChannelSSSed, ADD);
-            }
-            calcMap(*tmc, *Sed, ADD);
-
-            copy(*op.DrawMap8, *tmc);
-
-            if(SwitchUseGrainSizeDistribution)
-            {
-                FOR_GRAIN_CLASSES
-                {
-                    fill(*tmc, 0.0);
-                    if(SwitchChannelFlood)
-                    {
-                        calcMap(*tmc, *BL_D.at(d), ADD);
-                        calcMap(*tmc, *SS_D.at(d), ADD);
-                    }
-                    if(SwitchIncludeChannel)
-                    {
-                        calcMap(*tmc, *RBL_D.at(d), ADD);
-                        calcMap(*tmc, *RSS_D.at(d), ADD);
-                    }
-                    calcMap(*tmc, *Sed_D.at(d), ADD);
-                    copy(*(op.DrawMapList1.at(d)), *tmc);
-                }
-
-            }
-
-        }
-
-
-/*
-        if (ErosionUnits == 1)  // in kg/m2
-            tmb->copy(TotalSoillossMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-        {
-            FOR_ROW_COL_MV
-                    tmb->Drc = TotalSoillossMap->Drc/CellArea->Drc;
-            if (ErosionUnits == 0) // ton/ha
-            {
-                FOR_ROW_COL_MV
-                        tmb->Drc = TotalSoillossMap->Drc*10/CellArea->Drc;
-            }
-            // in kg/cell so div by area for kg/m2 and x10 for ton/ha
-  */
-            copy(*op.DrawMap3, *tmb);  //soilloss
-    }
-    if (SwitchChannelFlood)
-    {
-        if (op.displayWH)
-        {
-            FOR_ROW_COL_MV
-            {
-                tmb->Drc = WH->Drc*FlowWidth->Drc/_dx; // average WH in m spread out over cell
-            }
-            calc2Maps(*op.DrawMap4, *hmx, *tmb, ADD);  //flood level in m
-        }
-        else
-        {
-            copy(*op.DrawMap4, *hmx);  //flood level in m
-        }
-        copy(*op.DrawMap5, *UVflood);  //flood level in m
-        copy(*op.DrawMap7, *floodTimeStart);  // flood start since peak rainfall in min
-    }else if(op.displayWH)
-    {
-        FOR_ROW_COL_MV
-        {
-            tmb->Drc = WH->Drc*FlowWidth->Drc/_dx; // average WH in m spread out over cell
-        }
-        copy(*op.DrawMap4, *tmb);
     }
 
     copy(*op.baseMap, *Shade);

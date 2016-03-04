@@ -221,26 +221,25 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
-    \
-    op.DrawMapList1.clear();
+
+    op.ComboMaps.clear();
+    op.ComboMapsSafe.clear();
+    op.ComboColorMap.clear();
+    op.ComboColors.clear();
+    op.ComboLogoritmic.clear();
+    op.ComboSymColor.clear();
+    op.ComboMapNames.clear();
+    op.ComboUnits.clear();
+    op.ComboScaling.clear();
+
+    op.comboboxset = false;
+
     op.graindiameters.clear();
-    op.DrawMap = NULL;
-    op.DrawMap1 = NULL;
-    op.DrawMap2 = NULL;
-    op.DrawMap3 = NULL;
-    op.DrawMap4 = NULL;
-    op.DrawMap5 = NULL;
-    op.DrawMap6 = NULL;
-    op.DrawMap7 = NULL;
-    op.DrawMap8 = NULL;
     op.baseMap = NULL;
     op.baseMapDEM = NULL;
     op.channelMap = NULL;
     op.roadMap = NULL;
     op.houseMap = NULL;
-
-    op.displayWH = false;
-    op.displayPcum = false;
 
     op.runstep = 0;
     op.printstep = 0;

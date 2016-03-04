@@ -64,18 +64,6 @@ void lisemqt::on_checkDoErosion_clicked()
     label_soillosskgha->setEnabled(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkNoErosion_clicked()
-{
-    checkMapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
-    sedgroup->setEnabled(!checkNoErosion->isChecked());
-
-    label_31->setEnabled(!checkNoErosion->isChecked());
-    label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
-
-    //if (!checkNoErosion->isChecked())
-    //    checkChannelFlood->setChecked(false);
-}
-//--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
 {
     if (checkIncludeChannel->isChecked())
@@ -329,7 +317,7 @@ void lisemqt::RunAllChecks()
             else
                 checkMapNameModel(INFILTRATIONMAPS, 12, false);
     }
-    checkMapNameModel(EROSIONMAPS, 0, !checkNoErosion->isChecked());
+    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
     checkMapNameModel(SURFACEMAPS, 0, true);
     checkMapNameModel(LANDUSEMAPS, 0, true);
     checkMapNameModel(CATCHMENTMAPS, 0, true);
@@ -346,8 +334,8 @@ void lisemqt::RunAllChecks()
 
     buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked());
     buffergroup->setVisible(checkBuffers->isChecked() || checkSedtrap->isChecked());
-    sedgroup->setEnabled(!checkNoErosion->isChecked());
-    frameSL1->setEnabled(!checkNoErosion->isChecked());
+    sedgroup->setEnabled(checkDoErosion->isChecked());
+    frameSL1->setEnabled(checkDoErosion->isChecked());
 
 
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());

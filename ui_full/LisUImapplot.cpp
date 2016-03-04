@@ -74,28 +74,7 @@ void lisemqt::ssetAlpha4(int v)
   if (v > 0)
     MPlot->replot();
 }
-//---------------------------------------------------------------------------
-void lisemqt::selectMapTypeSS(int /* v */)
-{
-    selectMapType(true);
-}
-//---------------------------------------------------------------------------
-void lisemqt::selectMapType(bool /* doit */)
-{
-  op.displayPcum = checkDisplayPcum->isChecked();
-  op.displayWH = checkDisplayWH->isChecked();
 
-  if (radioButton_RO->isChecked())    op.drawMapType = 1;
-  if (radioButton_INF->isChecked())   op.drawMapType = 2;
-  if (radioButton_SL->isChecked())    op.drawMapType = 3;
-  if (radioButton_FL->isChecked())    op.drawMapType = 4;
-  if (radioButton_FLV->isChecked())   op.drawMapType = 5;
-  if (radioButton_P->isChecked())     op.drawMapType = 6;
-  if (radioButton_FEW->isChecked())   op.drawMapType = 7;
-  if (radioButton_SS->isChecked())    op.drawMapType = 8;
-
-  showMap();
-}
 //---------------------------------------------------------------------------
 // called when a model run is started
 void lisemqt::initMapPlot()
@@ -107,14 +86,6 @@ void lisemqt::initMapPlot()
   maxAxis5 = -1e20;
   pstep = 0;
 
-  op.drawMapType = 1;
-  radioButton_RO->setChecked(true);
-  radioButton_INF->setChecked(false);
-  //radioButton_SL->setEnabled(!checkNoErosion->isChecked());
-  radioButton_SL->setEnabled(checkDoErosion->isChecked());
-  radioButton_FL->setEnabled(checkChannelFlood->isChecked());
-  radioButton_P->setChecked(false);
-
   //    transparency->setValue(128);  //main data
   //    transparency2->setValue(160); //channels
   //    transparency3->setValue(160); //roads
@@ -124,8 +95,6 @@ void lisemqt::initMapPlot()
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
-  op.drawMapType = 1;
-  //   double alpha = 1;
 
   title.setText("Runoff (l/s)");
   title.setFont(QFont("MS Shell Dlg 2",12));
@@ -255,6 +224,15 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
   // set x/y axis intervals
   return maxV;
 }
+void lisemqt::showMapb(bool)
+{
+    showMap();
+}
+void lisemqt::showMapd(double)
+{
+    showMap();
+}
+
 //---------------------------------------------------------------------------
 // show the maps on screen
 // the order of showing layers is determined by the order in how they are added to MPlot,
@@ -262,22 +240,144 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
 void lisemqt::showMap()
 {
 
-  //drawMap->setAlpha(transparency->value());
-  //drawMap->setAlpha(255);
-  if (op.drawMapType == 1) showMap1();
-  if (op.drawMapType == 2) showMap2();
-  if (op.drawMapType == 3) showMap3();
-  if (op.drawMapType == 4) showMap4();
-  if (op.drawMapType == 5) showMap5();
-  if (op.drawMapType == 6) showMap6();
-  if (op.drawMapType == 7) showMap7();
-  if (op.drawMapType == 8) showMap8();
+  if(op.comboboxset == false)
+  {
+      qDebug() << "set";
+      op.comboboxset = true;
+
+      for(int i = ColorMapList.length() - 1; i >-1 ; i--)
+      {
+          delete ColorMapList.at(i);
+      }
+      ColorMapList.clear();
+      DisplayComboBox->clear();
+      NameList.clear();
+      UnitList.clear();
+      picker->NameList.clear();
+      picker->UnitList.clear();
+
+      for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+      {
+          QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+
+          ColorMapList.append(cm);
+          NameList.append(op.ComboMapNames.at(i));
+          UnitList.append(op.ComboUnits.at(i));
+          picker->NameList.append(op.ComboMapNames.at(i));
+          picker->UnitList.append(op.ComboUnits.at(i));
+          DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+
+      }
+      DisplayComboBox->setCurrentIndex(0);
+  }
+
+  drawMap->setAlpha(transparency->value());
+  drawMap->setAlpha(255);
+
+  showComboMap(DisplayComboBox->currentIndex());
+
   channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
   roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
   houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
 
+
   MPlot->replot();
+
 }
+void lisemqt::showComboMap(int i)
+{
+    if( i < 0 || i >= op.ComboMapsSafe.length())
+    {
+        return;
+    }
+
+    MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+
+
+    // fill vector RD with matrix data and find the new max value
+    double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD, i);
+    if (MaxV ==-1e20)
+      return;
+    double ma =0;
+    double mi = 0;
+    bool apply = true;
+    double max_spin = ComboMaxSpinBox->value();
+    double min_spin = ComboMinSpinBox->value();
+
+    if(max_spin == min_spin || max_spin < min_spin)
+    {
+        apply = false;
+    }
+
+    if (max_spin > 0 && apply)
+      ma = max_spin;
+    else
+      ma = MaxV;
+
+    if(apply)
+    {
+        mi = min_spin;
+    }
+
+    if(!op.ComboSymColor.at(i))
+    {
+            RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
+    }else
+    {
+        RD->setInterval( Qt::ZAxis,QwtInterval( -ma, ma));
+    }
+
+    QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+    QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+
+    if(apply)
+    {
+        ColorMapList.at(i)->thresholduse = true;
+        ColorMapList.at(i)->thresholdmin = min_spin;
+    }else
+    {
+        ColorMapList.at(i)->thresholduse = false;
+    }
+
+    drawMap->setData(RD);
+    drawMap->setColorMap(cm);
+
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cm2);
+
+    if(!op.ComboSymColor.at(i))
+    {
+        MPlot->setAxisScale( MPlot->yRight, mi, ma);
+    }else
+    {
+        MPlot->setAxisScale( MPlot->yRight, -ma, ma);
+    }
+
+    if(op.ComboLogoritmic.at(i))
+    {
+        if (ma < 10)
+          MPlot->setAxisScale( MPlot->yRight, 0.001, std::max(1.0,ma));
+        else
+          if (ma < 100)
+            {
+            MPlot->setAxisScale( MPlot->yRight, 0.01, std::max(10.0,ma));
+            }
+          else
+            if (ma < 1000)
+              {
+                MPlot->setAxisScale( MPlot->yRight, 0.1, std::max(100.0,ma));
+              }
+            else
+              {
+                MPlot->setAxisScale( MPlot->yRight, 1, std::max(1000.0,ma));
+              }
+
+        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
+    }else
+    {
+        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+    }
+}
+
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()
 {
@@ -387,295 +487,3 @@ void lisemqt::showHouseMap()
 
   houseMap->setColorMap(new colorMapHouse());
 }
-//---------------------------------------------------------------------------
-// RUNOFF
-void lisemqt::showMap1()
-{
-  MPlot->setTitle("Runoff and channel flow (l/s)");
-
-  QwtLinearColorMapVJ *pal1a = new colorMapWaterLog();
-  QwtLinearColorMapVJ *pal1b = new colorMapWaterLog();
-
-  double MaxV = fillDrawMapData(op.DrawMap1, RD, 1);
-  if (MaxV ==-1e20)
-    return;
-
-  maxAxis1 = std::max(maxAxis1, MaxV);
-  if (doubleSpinBoxRO->value() > 0)
-    maxAxis1 = doubleSpinBoxRO->value();
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, std::max(0.01, maxAxis1)));
-  // classify data from 0 to,ax
-
-  drawMap->setData(RD);
-
-  pal1a->setThreshold(doubleSpinBoxROmin->value());
-  pal1b->setThreshold(doubleSpinBoxROmin->value());
-
-  drawMap->setColorMap(pal1a);
-  // link data to map with a color palette
-
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal1b);
-  // set the legend with the same palette
-
-  if (maxAxis1 < 10)
-    MPlot->setAxisScale( MPlot->yRight, 0.001, std::max(1.0,maxAxis1));
-  else
-    if (maxAxis1 < 100)
-      {
-      MPlot->setAxisScale( MPlot->yRight, 0.01, std::max(10.0,maxAxis1));
-      doubleSpinBoxROmin->setValue(std::max(0.01,doubleSpinBoxROmin->value() ));
-      }
-    else
-      if (maxAxis1 < 1000)
-        {
-          MPlot->setAxisScale( MPlot->yRight, 0.1, std::max(100.0,maxAxis1));
-          doubleSpinBoxROmin->setValue(std::max(0.1,doubleSpinBoxROmin->value() ));
-        }
-      else
-        {
-          MPlot->setAxisScale( MPlot->yRight, 1, std::max(1000.0,maxAxis1));
-          doubleSpinBoxROmin->setValue(std::max(1.0,doubleSpinBoxROmin->value() ));
-        }
-
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
-}
-//---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-// INFILTRATION
-void lisemqt::showMap2()
-{
-  MPlot->setTitle("Infiltration (mm)");
-
-  pal2a = new colorMapWater();
-  pal2b = new colorMapWater();
-
-  // fill vector RD with matrix data and find the new max value
-  double MaxV = fillDrawMapData(op.DrawMap2, RD, 2);
-  if (MaxV ==-1e20)
-    return;
-
-  maxAxis2 = std::max(maxAxis2, MaxV);
-  if (doubleSpinBoxINF->value() > 0)
-    maxAxis2 = doubleSpinBoxINF->value();
-  else
-    maxAxis2 = MaxV;
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis2));
-
-  drawMap->setData(RD);
-  drawMap->setColorMap(pal2a);
-
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal2b);
-
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis2);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-// draw a map, RD (QVector) and mapData (QwtPlotSpectrogram) are reused
-// SOILLOSS
-void lisemqt::showMap3()
-{
-  MPlot->setTitle("Soil loss (ton/ha)");
-
-  pal3a = new colorMapSed();
-  pal3b = new colorMapSed();
-
-  double MaxV = fillDrawMapData(op.DrawMap3, RD, 3);
-  if (MaxV ==-1e20)
-    return;
-
-  maxAxis3 = std::max(maxAxis3, MaxV);
-  if (doubleSpinBoxSL->value() > 0)
-    maxAxis3 = doubleSpinBoxSL->value();
-  else
-    maxAxis3 = MaxV;
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( -maxAxis3, maxAxis3));
-
-  drawMap->setData(RD);
-  drawMap->setColorMap(pal3a);
-
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal3b);
-
-  MPlot->setAxisScale( MPlot->yRight, -maxAxis3, maxAxis3);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-// FLOOD LEVEL
-void lisemqt::showMap4()
-{
-    if (op.displayWH)
-        MPlot->setTitle("Overland flow and flood level (m)");
-    else
-        MPlot->setTitle("Flood level (m)");
-
-  pal4a = new colorMapFlood();
-  pal4b = new colorMapFlood();
-
-  double MaxV = fillDrawMapData(op.DrawMap4, RD, 4);
-  if (MaxV ==-1e20)
-    return;
-
-  maxAxis4 = std::max(maxAxis4, MaxV);
-  if (doubleSpinBoxFL->value() > 0)
-    maxAxis4 = doubleSpinBoxFL->value();
-  else
-    maxAxis4 = MaxV;
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0.000, maxAxis4));
-
-  drawMap->setData(RD);
-
-  pal4a->setThreshold(std::max(0.001,doubleSpinBoxFLmin->value()));
-  pal4b->setThreshold(doubleSpinBoxFLmin->value());
-
-  drawMap->setColorMap(pal4a);
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal4b);
-
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis4);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-void lisemqt::showMap5()
-{
-  MPlot->setTitle("Flood Velocity (m/s)");
-
-  pal5a = new colorMapFloodV();
-  pal5b = new colorMapFloodV();
-
-  double MaxV = fillDrawMapData(op.DrawMap5, RD, 5);
-  if (MaxV ==-1e20)
-    return;
-
-  maxAxis5 = std::max(maxAxis5, MaxV);
-  if (doubleSpinBoxFLV->value() > 0)
-    maxAxis5 = doubleSpinBoxFLV->value();
-  else
-    maxAxis5 = MaxV;
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis5));
-
-  drawMap->setData(RD);
-
-  pal5a->setThreshold(0.001);//std::max(doubleSpinBoxFLVmin->value(),0.001));
-  pal5b->setThreshold(0.001);//std::max(doubleSpinBoxFLVmin->value(),0.001));
-
-  drawMap->setColorMap(pal5a);
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal5b);
-
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis5);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-// PRECIPITATION
-void lisemqt::showMap6()
-{
-
-  if (op.displayPcum)
-    MPlot->setTitle("Cumulative Precipitation (mm)");
-  else
-    MPlot->setTitle("Precipitation (mm)");
-
-  pal6a = new colorMapP();
-  pal6b = new colorMapP();
-
-  double MaxV = fillDrawMapData(op.DrawMap6, RD, 6);
-  if (MaxV ==-1e20)
-    return;
-  // fill vector and find the new max value
-
-  maxAxis6 = std::max(maxAxis6, MaxV);
-  if (doubleSpinBoxP->value() > 0)
-    maxAxis6 = doubleSpinBoxP->value();
-  else
-    maxAxis6 = MaxV;
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis6));
-
-  drawMap->setData(RD);
-  drawMap->setColorMap(pal6a);
-
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal6b);
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis6);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-
-}
-//---------------------------------------------------------------------------
-// EARLY WARNING
-void lisemqt::showMap7()
-{
-  MPlot->setTitle("Moment of inundation after start of rainfall (min)");
-
-  pal7a = new colorMapFEW();
-  pal7b = new colorMapFEW();
-
-  double MaxV = fillDrawMapData(op.DrawMap7, RD, 7);
-  if (MaxV ==-1e20)
-    return;
-  // fill vector and find the new max value
-
-  maxAxis7 = std::max(maxAxis7, MaxV);
-  if (doubleSpinBoxFEW->value() > 0)
-    maxAxis7 = doubleSpinBoxFEW->value();
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis7));
-
-  drawMap->setData(RD);
-
-  pal7a->setThreshold(0.001);
-  pal7b->setThreshold(0.001);
-
-  drawMap->setColorMap(pal7a);
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal7b);
-
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis7);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-// Sediment
-void lisemqt::showMap8()
-{
-  MPlot->setTitle("Suspended Sediment (kg/cell)");
-
-  cTMap * ssmap = op.DrawMap8;
-  int classval = E_DisplaySedimentClass->value();
-
-  if(classval > 0)
-  {
-      QString gd = QString::number(op.graindiameters.at(classval - 1));
-      MPlot->setTitle("Suspended Sediment (kg/cell) for grain diameter class - " + gd + " micrometers");
-      classval = std::min(classval - 1, op.DrawMapList1.length() - 1);
-      ssmap = op.DrawMapList1.at(classval);
-  }
-
-  pal8a = new colorMapSS();
-  pal8b = new colorMapSS();
-
-  pal8a->setThreshold(doubleSpinBoxSSmin->value());
-  pal8b->setThreshold(doubleSpinBoxSSmin->value());
-
-  double MaxV = fillDrawMapData(ssmap, RD, 8);
-  if (MaxV ==-1e20)
-    return;
-  // fill vector and find the new max value
-
-  maxAxis8 = std::max(maxAxis8, MaxV);
-  if (doubleSpinBoxSS->value() > 0)
-    maxAxis8 = doubleSpinBoxSS->value();
-
-  RD->setInterval( Qt::ZAxis, QwtInterval( 0, maxAxis8));
-
-  drawMap->setData(RD);
-
-  pal8a->setThreshold(0.001);
-  pal8b->setThreshold(0.001);
-
-  drawMap->setColorMap(pal8a);
-  rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), pal8b);
-
-  MPlot->setAxisScale( MPlot->yRight, 0, maxAxis8);
-  MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
-}
-//---------------------------------------------------------------------------
-

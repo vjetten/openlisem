@@ -156,6 +156,7 @@ lisemqt::~lisemqt()
 //--------------------------------------------------------------------
 void lisemqt::SetConnections()
 {
+    connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
@@ -211,6 +212,12 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
     checkOverlandFlow2D->setChecked(true);
     tabWidgetOptions->setTabEnabled(3, true);
 }
+void lisemqt::on_DisplayComboBox_currentIndexChanged(int)
+{
+    ComboMinSpinBox->setValue(0.0);
+    ComboMaxSpinBox->setValue(0.0);
+    this->showMap();
+}
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
 {
@@ -223,13 +230,6 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 }
 void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 {
-    if(v)
-    {
-        //      on_E_NumberClasses_valueChanged(0);
-    }else
-    {
-        E_DisplaySedimentClass->setMaximum(0);
-    }
 
     if(v)
     {
@@ -249,28 +249,8 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
         E_BLMethod->setMinimum(3);
         E_SSMethod->setMaximum(3);
         E_SSMethod->setMinimum(3);
-
-        if(checkNoErosion->isChecked() == false)
-        {
-            E_DisplaySedimentClass->setEnabled(true);
-        }else
-        {
-            E_DisplaySedimentClass->setEnabled(false);
-        }
-
-        if(checkDoErosion->isChecked() == true)
-        {
-            E_DisplaySedimentClass->setEnabled(true);
-        }
-        else
-        {
-            E_DisplaySedimentClass->setEnabled(false);
-        }
-
     }else
     {
-        E_DisplaySedimentClass->setEnabled(false);
-
         //        E_OFMethod->setValue(0);
         E_RBLMethod->setValue(1);
         E_RSSMethod->setValue(1);
@@ -337,15 +317,6 @@ void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
 void lisemqt::setFloodTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
-
-    radioButton_FEW->setEnabled(yes);
-    radioButton_FLV->setEnabled(yes);
-    radioButton_FL->setEnabled(yes);
-    doubleSpinBoxFEW->setEnabled(yes);
-    doubleSpinBoxFL->setEnabled(yes);
-    doubleSpinBoxFLV->setEnabled(yes);
-    doubleSpinBoxFLmin->setEnabled(yes);
-    checkDisplayWH->setEnabled(yes);
     outputMapsFlood->setEnabled(yes);
     label_107->setEnabled(yes);
     label_floodVolmm->setEnabled(yes);
@@ -356,12 +327,6 @@ void lisemqt::setErosionTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
     tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
-
-    radioButton_SS->setEnabled(yes);
-    radioButton_SL->setEnabled(yes);
-    doubleSpinBoxSS->setEnabled(yes);
-    doubleSpinBoxSSmin->setEnabled(yes);
-    doubleSpinBoxSL->setEnabled(yes);
     outputMapsSediment->setEnabled(yes);
     checkBox_OutConc->setEnabled(yes);
     checkBox_OutDet->setEnabled(yes);
@@ -369,9 +334,6 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
     groupKineticEnergy->setEnabled(yes);
-
-    E_DisplaySedimentClass->setEnabled(yes && checkAdvancedSediment->isChecked());
-    label_56->setEnabled(yes && checkAdvancedSediment->isChecked());
 
 
 }
@@ -507,23 +469,12 @@ void lisemqt::SetToolBar()
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
 
-    connect(E_DisplaySedimentClass, SIGNAL(valueChanged(int)), this, SLOT(selectMapTypeSS(int)));
+    connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
-    connect(radioButton_P, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_RO, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_INF, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_SL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_FL, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_FLV, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_FEW, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(radioButton_SS, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    //connect(checkAddWHtohmx, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkDisplayPcum, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkDisplayWH, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-
-    connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
-    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(selectMapType(bool)));
+    connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
+    connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
@@ -544,7 +495,6 @@ void lisemqt::SetStyleUI()
     label_79->setVisible(false);
     E_floodMinHeight->setVisible(false);
     label_99->setVisible(false);
-    checkNoErosion->setVisible(false);
     checkRainfallFlood->setVisible(false);
     E_RainFloodGradient->setVisible(false);
     checkFloodInitial->setVisible(false);
@@ -1117,29 +1067,14 @@ void lisemqt::shootScreen()
 
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(3));
         QString type;
-        if (op.drawMapType == 1)
-            type = QString("_r%1.png").arg(op.runstep,5,'d',0,'0');
-        else
-            if (op.drawMapType == 2)
-                type = QString("_i%1.png").arg(op.runstep,5,'d',0,'0');
-            else
-                if (op.drawMapType == 3)
-                    type = QString("_e%1.png").arg(op.runstep,5,'d',0,'0');
-                else
-                    if (op.drawMapType == 4)
-                        type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
-                    else
-                        if (op.drawMapType == 5)
-                            type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
-                        else
-                            if (op.drawMapType == 6)
-                                type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
-                            else
-                                if (op.drawMapType == 7)
-                                    type = QString("_EW%1.png").arg(op.runstep,5,'d',0,'0');
-                                else
-                                    if (op.drawMapType == 8)
-                                        type = QString("_SS%1.png").arg(op.runstep,5,'d',0,'0');
+
+        int index = DisplayComboBox->currentIndex();
+        if( index > -1 && index < NameList.length())
+        {
+            QString name = NameList.at(index);
+            type = (name + QString("%1.png")).arg(op.runstep,5,'d',0,'0');
+        }
+
 
         fileName = outdir + fi.baseName() + type;
 
@@ -1153,36 +1088,13 @@ void lisemqt::shootScreen()
         QString type = ".png";
         QString DT = QDateTime().currentDateTime().toString("yyMMdd-hhmm");//"hh.mm-yy.MM.dd");
 
-        if (tabWidget->currentIndex() == 2)
-            type = QString("%1_q.png").arg(DT);
-        else
-            if (tabWidget->currentIndex() == 3)
-            {
-                if (op.drawMapType == 1)
-                    type = QString("_r%1.png").arg(op.runstep,5,'d',0,'0');
-                else
-                    if (op.drawMapType == 2)
-                        type = QString("_i%1.png").arg(op.runstep,5,'d',0,'0');
-                    else
-                        if (op.drawMapType == 3)
-                            type = QString("_e%1.png").arg(op.runstep,5,'d',0,'0');
-                        else
-                            if (op.drawMapType == 4)
-                                type = QString("_f%1.png").arg(op.runstep,5,'d',0,'0');
-                            else
-                                if (op.drawMapType == 5)
-                                    type = QString("_fV%1.png").arg(op.runstep,5,'d',0,'0');
-                                else
-                                    if (op.drawMapType == 6)
-                                        type = QString("_P%1.png").arg(op.runstep,5,'d',0,'0');
-                                    else
-                                        if (op.drawMapType == 7)
-                                            type = QString("_EW%1.png").arg(op.runstep,5,'d',0,'0');
-                                        else
-                                            if (op.drawMapType == 8)
-                                                type = QString("_SS%1.png").arg(op.runstep,5,'d',0,'0');
+        int index = DisplayComboBox->currentIndex();
+        if( index > -1 && index < NameList.length())
+        {
+            QString name = NameList.at(index);
+            type = (name + QString("%1.png")).arg(op.runstep,5,'d',0,'0');
+        }
 
-            }
         fileName = outdir + fi.baseName() + type;
         originalPixmap.save(fileName, format.toAscii());
 
@@ -1286,7 +1198,7 @@ void lisemqt::resetAll()
     progressBar->setValue(0);
 
     bool check = false;
-    checkNoErosion->setChecked(check);
+    checkDoErosion->setChecked(check);
     checkIncludeChannel->setChecked(check);
     checkChannelInfil->setChecked(check);
     //checkChannelBaseflow->setChecked(check);
@@ -1355,9 +1267,6 @@ void lisemqt::resetAll()
     tabWidget->setCurrentIndex(0);
 
     buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    sedgroup->setEnabled(!checkNoErosion->isChecked());
-    label_31->setEnabled(!checkNoErosion->isChecked());
-    label_soillosskgha->setEnabled(!checkNoErosion->isChecked());
 
     sedgroup->setEnabled(checkDoErosion->isChecked());
     label_31->setEnabled(checkDoErosion->isChecked());

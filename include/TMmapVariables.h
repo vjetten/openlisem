@@ -481,7 +481,10 @@ cTMap
 *tm,                         //!< Auxilary map
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
-*tmc                        //!< Auxilary map
+*tmc,                        //!< Auxilary map
 
+//display combinations
+*COMBO_QOFCH,
+*COMBO_SS
 ;
 

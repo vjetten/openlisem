@@ -235,18 +235,8 @@ double TWorld::K2DFlux()
         }
         if(K2DOutlets->Drc == 1)
         {
-            K2DQ->Drc =0.1 *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc)/dtr;
+            K2DQ->Drc =std::min(1.0,0.5*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
-        /*if(SwitchErosion)
-        {
-            K2DQS->Drc =  K2DQ->Drc * K2DSC->Drc;
-            if(K2DQS->Drc > fraction*Sed->Drc)
-            {
-                K2DQS->Drc = fraction*Sed->Drc;
-
-            }
-
-        }*/
 
     }
 
@@ -279,18 +269,11 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         K2DHNew->Drc = K2DHOld->Drc;
 
         K2DQN->Drc = 0;
-
-        /*if(SwitchErosion)
-            K2DSCN->Drc = K2DSC->Drc;*/
     }
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
     FOR_ROW_COL_MV
     {
-        if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
-        {
-            continue;
-        }
 
         double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc*K2DSlopeY->Drc);
         double dsx = K2DSlopeX->Drc/DHL;
@@ -349,69 +332,15 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         }
 
 
-        //use the calculated weights to distribute flow
-        for (int i=start; i<end+1; i++)
+        if(K2DOutlets->Drc == 1)
         {
-            int r2, c2;
-
-            //must multiply the cell directions by the sign of the slope vector components
-            r2 = r+yn*dy[i];
-            c2 = c+xn*dx[i];
-
-            if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
-            {
-                double cdx2 = DX->data[r2][c2];
-                double cdy2 = ChannelAdj->data[r2][c2];
-
-                //weight * the flow is distributed to the ith cell that neighbours the advected flow.
-                K2DHNew->data[r2][c2] +=  w[i]*dt*(K2DQ->Drc/(cdx2*cdy2));
-                K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
-                QinKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
-                QoutKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
-
-            }
-            else
-                if(K2DOutlets->Drc == 1)
-                {
-                    K2DQOut +=  w[i]*dt*(K2DQ->Drc);
-                    QoutKW->data[r][c] += w[i] *dt*K2DQ->Drc;
-                    K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
-                }
-
-        }
-    }
-
-    //similar process as above for sediment and pesticides, sediment is distributed along with discharge using interpolation
-    //new water heights are needed for this routine
-    /*if(SwitchErosion)
-    {
-        FOR_ROW_COL_MV
+           K2DQOut +=  dt*(K2DQ->Drc);
+           QoutKW->data[r][c] += dt*K2DQ->Drc;
+           K2DHNew->data[r][c] -=  dt*(K2DQ->Drc/(cdx*cdy));
+        }else
         {
-            if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
-            {
-                continue;
-            }
-
-            double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
-            double dsx = K2DSlopeX->Drc/DHL;
-            double dsy = K2DSlopeY->Drc/DHL;
-            double yn = dsy/fabs(dsy);
-            double xn = dsx/fabs(dsx);
-
-            if(dsx == 0){xn = 1.0;};
-            if(dsy == 0){yn = 1.0;};
-
-            double cdx = DX->Drc;
-            double cdy = ChannelAdj->Drc;
-
-            //cell directions
-            int dx[4] = {0, 1, 1, 0};
-            int dy[4] = {1, 0, 1, 0};
-
-            double w[4] = {0.0,0.0,0.0,0.0};
-
-            //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
-            for (int i=0; i<3; i++)
+            //use the calculated weights to distribute flow
+            for (int i=start; i<end+1; i++)
             {
                 int r2, c2;
 
@@ -419,45 +348,21 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                 r2 = r+yn*dy[i];
                 c2 = c+xn*dx[i];
 
-                // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-                double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
-                double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
-
-                //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) *fabs(wdy);
-
-                w[i] = weight;
-
-                //if the cell that flows needs to go to is out of bounds or missing value, skip
-                bool inside = INSIDE(r2,c2);
-                bool ismv = true;
-                if(inside)
-                    ismv = pcr::isMV(LDD->data[r2][c2]);
-
-                if(inside && !ismv)
+                if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
                 {
                     double cdx2 = DX->data[r2][c2];
                     double cdy2 = ChannelAdj->data[r2][c2];
 
-                    if(SwitchErosion)
-                    {
-                        K2DS->data[r][c] -=w[i]*dt*(K2DQS->Drc);
-                        K2DS->data[r2][c2]+=w[i]*dt*(K2DQS->Drc);
-
-                    }
-
-                }else if(K2DOutlets->Drc == 1)
-                {
-                    if(SwitchErosion)
-                    {
-                        K2DS->data[r][c] -=w[i]*dt*(K2DQS->Drc);
-                        K2DQSOut +=w[i]*dt*(K2DQS->Drc);
-
-                    }
+                    //weight * the flow is distributed to the ith cell that neighbours the advected flow.
+                    K2DHNew->data[r2][c2] +=  w[i]*dt*(K2DQ->Drc/(cdx2*cdy2));
+                    K2DHNew->data[r][c] -=  w[i]*dt*(K2DQ->Drc/(cdx*cdy));
+                    QinKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
+                    QoutKW->data[r2][c2] += w[i]*dt*K2DQ->Drc;
                 }
             }
         }
-    }*/
+    }
+
 
     //finish by substracting infiltration, and calculating discharge from new water height
     FOR_ROW_COL_MV
@@ -523,7 +428,7 @@ void TWorld::K2DSolvebyFlux(double dt)
     fill(*K2DQY, 0.0);
     FOR_ROW_COL_MV
     {
-        if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
+        if(K2DPits->Drc == 1 )
         {
             K2DQX->Drc = 0;
             K2DQY->Drc = 0;
@@ -558,23 +463,11 @@ void TWorld::K2DSolvebyFlux(double dt)
         K2DQX->Drc = K2DQ->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
         K2DQY->Drc = K2DQ->Drc*yw * (K2DSlopeY->Drc > 0? 1.0:-1.0);
 
-        //similar for sediment and pesticide transport
-        /*if(SwitchErosion)
-        {
-            K2DQSX->Drc = K2DQS->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
-            K2DQSY->Drc = K2DQS->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
-        }*/
-
     }
 
     //reset maps for later calculations
     fill(*K2DFX, 0.0);
     fill(*K2DFY, 0.0);
-    /*if(SwitchErosion)
-    {
-        fill(*K2DSFX, 0.0);
-        fill(*K2DSFY, 0.0);
-    }*/
 
     //now calculate the sum of ingoing and outgoing discharges for each cell, in both the x and y direction
     FOR_ROW_COL_MV
@@ -591,11 +484,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 K2DFY->data[r-1][c] -= fin;
                 QinKW->Drc += fin;
                 QoutKW->data[r-1][c] += fin;
-                /*if(SwitchErosion)
-                {
-                    K2DSFY->Drc += std::max(K2DQSY->data[r-1][c],0.0);
-                    K2DSFY->data[r -1][c] -= std::max(K2DQSY->data[r-1][c],0.0);
-                }*/
             }
 
         }
@@ -610,11 +498,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 QinKW->Drc += fin;
                 QoutKW->data[r+1][c] += fin;
 
-                /*if(SwitchErosion)
-                {
-                    K2DSFY->Drc += fabs(std::min(K2DQSY->data[r+1][c],0.0));
-                    K2DSFY->data[r+1][c] -= fabs(std::min(K2DQSY->data[r+1][c],0.0));
-                }*/
             }
 
         }
@@ -628,11 +511,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 QinKW->Drc += fin;
                 QoutKW->data[r][c-1] += fin;
 
-                /*if(SwitchErosion)
-                {
-                    K2DSFX->Drc += std::max(K2DQSX->data[r][c-1],0.0);
-                    K2DSFX->data[r][c-1] -= std::max(K2DQSX->data[r][c-1],0.0);
-                }*/
             }
 
         }
@@ -646,12 +524,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 K2DFX->data[r][c+1] -= fin;
                 QinKW->Drc += fin;
                 QoutKW->data[r][c+1] += fin;
-
-                /*if(SwitchErosion)
-                {
-                    K2DSFX->Drc += fabs(std::min(K2DQSX->data[r][c+1],0.0));
-                    K2DSFX->data[r][c+1] -= fabs(std::min(K2DQSX->data[r][c+1],0.0));
-                }*/
             }
         }
 
@@ -676,12 +548,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 K2DQOut += dt* fabs(K2DQX->data[r][c]);
                 QoutKW->Drc += dt* fabs(K2DQX->data[r][c]);
 
-                /*if(SwitchErosion)
-                {
-                    K2DSFX->Drc -= fabs(K2DQSX->data[r][c]);
-                    K2DQSOut += dt* fabs(K2DQSX->data[r][c]);
-                }*/
-
             }
             //is the cell in this direction either out of bounds, or missing value?
             inside = INSIDE(r2,c2);
@@ -695,12 +561,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                 K2DFY->Drc -= fabs(K2DQY->data[r][c]);
                 K2DQOut += dt* fabs(K2DQY->data[r][c]);
                 QoutKW->Drc += dt* fabs(K2DQY->data[r][c]);
-
-                /*if(SwitchErosion)
-                {
-                    K2DSFY->Drc -= fabs(K2DQSY->data[r][c]);
-                    K2DQSOut += dt* fabs(K2DQSY->data[r][c]);
-                }*/
             }
         }
 
@@ -720,14 +580,6 @@ void TWorld::K2DSolvebyFlux(double dt)
                     K2DFY->Drc -= K2DQY->Drc;
                     K2DFX->data[r2][c2] += K2DQX->Drc;
                     K2DFY->data[r2][c2] += K2DQY->Drc;
-
-                    /*if(SwitchErosion)
-                    {
-                        K2DSFX->Drc -= K2DQSX->Drc;
-                        K2DSFY->Drc -= K2DQSY->Drc;
-                        K2DSFX->data[r2][c2] += K2DQSX->Drc;
-                        K2DSFY->data[r2][c2] += K2DQSY->Drc;
-                    }*/
                 }
 
             }
@@ -742,11 +594,6 @@ void TWorld::K2DSolvebyFlux(double dt)
         double cdy = ChannelAdj->Drc;
         //new cell height, using total flux at boundaries
         K2DHNew->Drc = K2DHOld->Drc +  dt*(K2DFX->Drc + K2DFY->Drc)/(cdy*cdx);
-
-        /*if(SwitchErosion)
-        {
-            K2DS->Drc += dt*(K2DSFX->Drc + K2DSFY->Drc);
-        }*/
     }
 
 
@@ -800,10 +647,6 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
 
     FOR_ROW_COL_MV
     {
-        if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
-        {
-            continue;
-        }
 
         double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
         double dsx = K2DSlopeX->Drc/DHL;
@@ -860,32 +703,33 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
             w[i] = w[i]/wt;
         }
 
-        for (int i=start; i<end+1; i++)
+        if(K2DOutlets->Drc == 1)
         {
-            int r2, c2;
 
-            //must multiply the cell directions by the sign of the slope vector components
-            r2 = r+yn*dy[i];
-            c2 = c+xn*dx[i];
-
-            //if the cell that flows needs to go to is out of bounds or missing value, skip
-            bool inside = INSIDE(r2,c2);
-            bool ismv = true;
-            if(inside)
-                ismv = pcr::isMV(LDD->data[r2][c2]);
-
-            if(inside && !ismv)
+            K2DMN->data[r][c] -=dt*(K2DQM->Drc);
+            K2DQMOut +=dt*(K2DQM->Drc);
+        }else
+        {
+            for (int i=start; i<end+1; i++)
             {
-                K2DMN->data[r][c] -=w[i]*dt*(K2DQM->Drc);
-                K2DMN->data[r2][c2]+=w[i]*dt*(K2DQM->Drc);
+                int r2, c2;
 
-            }else if(K2DOutlets->Drc == 1)
-            {
+                //must multiply the cell directions by the sign of the slope vector components
+                r2 = r+yn*dy[i];
+                c2 = c+xn*dx[i];
 
-                K2DMN->data[r][c] -=w[i]*dt*(K2DQM->Drc);
-                K2DQMOut +=w[i]*dt*(K2DQM->Drc);
+                //if the cell that flows needs to go to is out of bounds or missing value, skip
+                bool inside = INSIDE(r2,c2);
+                bool ismv = true;
+                if(inside)
+                    ismv = pcr::isMV(LDD->data[r2][c2]);
 
+                if(inside && !ismv)
+                {
+                    K2DMN->data[r][c] -=w[i]*dt*(K2DQM->Drc);
+                    K2DMN->data[r2][c2]+=w[i]*dt*(K2DQM->Drc);
 
+                }
             }
         }
     }
@@ -1254,7 +1098,10 @@ void TWorld::K2DCalcVelDisch()
                 Q->Drc = 0;
 
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
-
+            if(K2DOutlets->Drc ==1)
+            {
+                V->Drc = 0;
+            }
 
         }
 
@@ -1318,14 +1165,11 @@ void TWorld::K2DDEMA()
                 if(pcr::isMV(LDD->data[r][c+1]))
                 {
                     demx1 = DEM->data[r][c];
-                    Outlet->Drc= 1;
                     if(demx1 <demx2){K2DOutlets->Drc = 1;};
                 }
                 if(pcr::isMV(LDD->data[r][c-1]))
                 {
                     demx2 = DEM->data[r][c];
-                    Outlet->Drc= 1;
-                    K2DOutlets->Drc = 1;
                     if(demx2 <demx1){K2DOutlets->Drc = 1;};
                 }
 
@@ -1335,13 +1179,11 @@ void TWorld::K2DDEMA()
                 if(pcr::isMV(LDD->data[r+1][c]))
                 {
                     demy1 = DEM->data[r][c];
-                    Outlet->Drc= 1;
                     if(demy1 <demy2){K2DOutlets->Drc = 1;};
                 }
                 if(pcr::isMV(LDD->data[r-1][c]))
                 {
-                    demy1 = DEM->data[r][c];
-                    Outlet->Drc= 1;
+                    demy2 = DEM->data[r][c];
                     if(demy2 <demy1){K2DOutlets->Drc = 1;};
                 }
 
@@ -1373,33 +1215,6 @@ void TWorld::K2DDEMA()
                 Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
             else
                 Dhx = 0;*/
-
-            if(pcr::isMV(LDD->data[r-1][c]) && !pcr::isMV(LDD->data[r+1][c]))
-            {
-                Dhy = (K2DDEM->data[r][c]-DEM->data[r][c]);
-                Outlet->Drc= 1;
-                K2DOutlets->Drc = 1;
-            }
-            if(pcr::isMV(LDD->data[r+1][c]) && !pcr::isMV(LDD->data[r-1][c]))
-            {
-                Dhy = -(K2DDEM->data[r][c]-DEM->data[r][c]);
-                Outlet->Drc= 1;
-                K2DOutlets->Drc = 1;
-            }
-            if(pcr::isMV(LDD->data[r][c-1]) && !pcr::isMV(LDD->data[r][c+1]))
-            {
-                Dhx = (K2DDEM->data[r][c]-DEM->data[r][c]);
-                Outlet->Drc= 1;
-                K2DOutlets->Drc = 1;
-
-            }
-            if(pcr::isMV(LDD->data[r][c+1]) && !pcr::isMV(LDD->data[r][c-1]))
-            {
-                Dhx = -(K2DDEM->data[r][c]-DEM->data[r][c]);
-                Outlet->Drc= 1;
-                K2DOutlets->Drc = 1;
-            }
-
 
             if(pcr::isMV(LDD->data[r][c+1]) && pcr::isMV(LDD->data[r][c-1]))
             {
@@ -1651,28 +1466,43 @@ void TWorld::K2DDEMA()
                     }
                     mv++;
                 }
+            }else
+            {
+                mv++;
             }
         }
 
-        if(lowestneighborw > DEM->Drc)
+        if(mv == 0)
         {
-            double pitheight = lowestneighborw - DEM->Drc;
-            K2DWHStore->Drc = pitheight;
-        }
+            if(lowestneighborw > DEM->Drc)
+            {
+                double pitheight = lowestneighborw - DEM->Drc;
+                K2DWHStore->Drc = pitheight;
+            }
 
-        if(pitxw &&pityw && !pitdw)
+            if(pitxw &&pityw && !pitdw)
+            {
+                K2DPitsD->Drc = 1;
+                K2DSlope->Drc = std::max((demw - lowestneighborw)/(sqrt(2)*_dx),0.01);
+                K2DSlopeX->Drc = double(dx[(int)direction]) * K2DSlope->Drc/2.0;
+                K2DSlopeY->Drc = double(dy[(int)direction]) * K2DSlope->Drc/2.0;
+
+            }
+
+            if(pitxw && pityw && pitdw)
+            {
+                K2DPits->Drc = 1;
+                K2DSlope->Drc = 0;
+                K2DSlopeX->Drc = 0;
+                K2DSlopeY->Drc = 0;
+            }
+        }else
         {
-            K2DPitsD->Drc = 1;
-            K2DSlope->Drc = std::max((demw - lowestneighborw)/(sqrt(2)*_dx),0.01);
-            K2DSlopeX->Drc = double(dx[(int)direction]) * K2DSlope->Drc/2.0;
-            K2DSlopeY->Drc = double(dy[(int)direction]) * K2DSlope->Drc/2.0;
-
-        }
-
-        if(pitxw && pityw && pitdw)
-        {
-            K2DPits->Drc = 1;
-            K2DSlope->Drc = 0;
+            if(pitxw && pityw && pitdw)
+            {
+                K2DSlopeX->Drc = 0;
+                K2DSlopeY->Drc = 0;
+            }
         }
     }
 

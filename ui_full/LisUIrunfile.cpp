@@ -128,6 +128,7 @@ void lisemqt::ParseInputData()
     bool dummy2layerinfil = false;
     bool dummyErosion = false;
 
+    bool seterosionold = false;
     // get all the options/checks
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
@@ -140,8 +141,20 @@ void lisemqt::ParseInputData()
             continue;
 
         //options in the main code, order is not important
-        if (p1.compare("No Erosion simulation")==0)          if (check) dummyErosion = false;//checkNoErosion->setChecked(check); // OLD runfiles
-        if (p1.compare("Include Erosion simulation")==0)     if (check) dummyErosion = true;//checkDoErosion->setChecked(check);
+        if (p1.compare("No Erosion simulation")==0){
+
+            checkDoErosion->setChecked(!check);
+            dummyErosion = !check;
+            seterosionold = true;
+
+        }
+        if (p1.compare("Include Erosion simulation")==0){
+            if(!seterosionold)
+            {
+                dummyErosion = check;
+                checkDoErosion->setChecked(check);
+            }
+        }
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
@@ -642,7 +655,7 @@ void lisemqt::updateModelData()
         QString p1 = namelist[j].name;
         QString p;
         // erosion
-        // if (p1.compare("No Erosion simulation")==0)           namelist[j].value.setNum((int)checkNoErosion->isChecked());
+         if (p1.compare("No Erosion simulation")==0)           namelist[j].value.setNum((int)(!checkDoErosion->isChecked()));
         // obsolete
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
 

@@ -1514,6 +1514,8 @@ void TWorld::IntializeData(void)
     //TO DO add units and descriptions --> TMmapVariables.h
 
 
+
+
     //totals for mass balance
     MB = 0;
     MBs = 0;
@@ -1551,6 +1553,10 @@ void TWorld::IntializeData(void)
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
+
+    //combination display
+    COMBO_QOFCH = NewMap(0);
+    COMBO_SS = NewMap(0);
 
     //### rainfall and interception maps
     RainTot = 0;
