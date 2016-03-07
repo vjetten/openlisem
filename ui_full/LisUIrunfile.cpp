@@ -145,14 +145,18 @@ void lisemqt::ParseInputData()
 
             checkDoErosion->setChecked(!check);
             dummyErosion = !check;
-            seterosionold = true;
+            if(!check)
+            {
+                seterosionold = true;
+            }
 
         }
         if (p1.compare("Include Erosion simulation")==0){
+
             if(!seterosionold)
             {
-                dummyErosion = check;
-                checkDoErosion->setChecked(check);
+                dummyErosion = check || seterosionold;
+                checkDoErosion->setChecked(check || seterosionold);
             }
         }
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);

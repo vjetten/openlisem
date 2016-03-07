@@ -212,8 +212,41 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
     checkOverlandFlow2D->setChecked(true);
     tabWidgetOptions->setTabEnabled(3, true);
 }
-void lisemqt::on_DisplayComboBox_currentIndexChanged(int)
+void lisemqt::on_DisplayComboBox_currentIndexChanged(int i)
 {
+    if( i > -1 && i < this->SymList.length())
+    {
+        if(this->SymList.at(i))
+        {
+            label_162->setText("-");
+            label_163->setText("Min/Max");
+            ComboMinSpinBox->setEnabled(false);
+
+        }else
+        {
+            label_162->setText("Min");
+            label_163->setText("Max");
+            ComboMinSpinBox->setEnabled(true);
+        }
+
+        if(this->LogList.at(i))
+        {
+            ComboMinSpinBox->setMinimum(0.0);
+            ComboMaxSpinBox->setMinimum(0.0);
+        }else
+        {
+            ComboMinSpinBox->setMinimum(-999999.0);
+            ComboMaxSpinBox->setMinimum(-999999.0);
+        }
+    }else
+    {
+        label_162->setText("Min");
+        label_163->setText("Max");
+        ComboMinSpinBox->setEnabled(true);
+        ComboMinSpinBox->setMinimum(-999999.0);
+        ComboMaxSpinBox->setMinimum(-999999.0);
+    }
+
     ComboMinSpinBox->setValue(0.0);
     ComboMaxSpinBox->setValue(0.0);
     this->showMap();

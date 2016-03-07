@@ -742,7 +742,7 @@ public:
     double K2DQPOut;
     double CourantKin;
     double TimestepKinMin;
-
+    double KinematicBoundaryFraction = 0.1;
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;

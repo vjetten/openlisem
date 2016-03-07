@@ -242,7 +242,6 @@ void lisemqt::showMap()
 
   if(op.comboboxset == false)
   {
-      qDebug() << "set";
       op.comboboxset = true;
 
       for(int i = ColorMapList.length() - 1; i >-1 ; i--)
@@ -253,6 +252,8 @@ void lisemqt::showMap()
       DisplayComboBox->clear();
       NameList.clear();
       UnitList.clear();
+      SymList.clear();
+      LogList.clear();
       picker->NameList.clear();
       picker->UnitList.clear();
 
@@ -263,6 +264,8 @@ void lisemqt::showMap()
           ColorMapList.append(cm);
           NameList.append(op.ComboMapNames.at(i));
           UnitList.append(op.ComboUnits.at(i));
+          SymList.append(op.ComboSymColor.at(i));
+          LogList.append(op.ComboLogoritmic.at(i));
           picker->NameList.append(op.ComboMapNames.at(i));
           picker->UnitList.append(op.ComboUnits.at(i));
           DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
@@ -302,6 +305,10 @@ void lisemqt::showComboMap(int i)
     double mi = 0;
     bool apply = true;
     double max_spin = ComboMaxSpinBox->value();
+    if(op.ComboSymColor.at(i))
+    {
+        max_spin = fabs(max_spin);
+    }
     double min_spin = ComboMinSpinBox->value();
 
     if(max_spin == min_spin || max_spin < min_spin)
@@ -309,7 +316,7 @@ void lisemqt::showComboMap(int i)
         apply = false;
     }
 
-    if (max_spin > 0 && apply)
+    if (apply)
       ma = max_spin;
     else
       ma = MaxV;
@@ -355,20 +362,20 @@ void lisemqt::showComboMap(int i)
     if(op.ComboLogoritmic.at(i))
     {
         if (ma < 10)
-          MPlot->setAxisScale( MPlot->yRight, 0.001, std::max(1.0,ma));
+          MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.001), std::max(1.0,ma));
         else
           if (ma < 100)
             {
-            MPlot->setAxisScale( MPlot->yRight, 0.01, std::max(10.0,ma));
+            MPlot->setAxisScale( MPlot->yRight,std::max(mi,0.01), std::max(10.0,ma));
             }
           else
             if (ma < 1000)
               {
-                MPlot->setAxisScale( MPlot->yRight, 0.1, std::max(100.0,ma));
+                MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.1), std::max(100.0,ma));
               }
             else
               {
-                MPlot->setAxisScale( MPlot->yRight, 1, std::max(1000.0,ma));
+                MPlot->setAxisScale( MPlot->yRight, std::max(mi,1.0), std::max(1000.0,ma));
               }
 
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );

@@ -329,7 +329,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include Rainfall");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include snowmelt");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("No Erosion simulation");  // replaced below
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Erosion simulation");

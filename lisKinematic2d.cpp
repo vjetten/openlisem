@@ -235,7 +235,7 @@ double TWorld::K2DFlux()
         }
         if(K2DOutlets->Drc == 1)
         {
-            K2DQ->Drc =std::min(1.0,0.5*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
+            K2DQ->Drc =std::min(1.0,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
 
     }
@@ -634,10 +634,11 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
     double dtr = dt;
     double fraction = CourantKin;
 
+
     FOR_ROW_COL_MV
     {
        K2DQM->Drc =  K2DQ->Drc * K2DMC->Drc;
-       if(K2DQM->Drc > fraction*K2DM->Drc)
+       if((!K2DOutlets->Drc ==1) && K2DQM->Drc > fraction*K2DM->Drc)
        {
             K2DQM->Drc = fraction*K2DM->Drc;
        }

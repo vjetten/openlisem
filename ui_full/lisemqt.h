@@ -191,10 +191,12 @@ public:
     MyPicker *picker;
 
 
-
+    //Map display options
     QList<QwtComboColorMap *> ColorMapList;
     QList<QString> NameList;
     QList<QString> UnitList;
+    QList<bool> SymList;
+    QList<bool> LogList;
 
     // graph variables
     QwtPlot *HPlot;

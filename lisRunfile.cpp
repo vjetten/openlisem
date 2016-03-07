@@ -170,7 +170,6 @@ void TWorld::ParseRunfileData(void)
         QString p = runnamelist[j].value;
 
         //options in the main code, order is not important
-        if (p1.compare("No Erosion simulation")==0)          SwitchErosion =          iii == 0;
         if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;

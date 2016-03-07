@@ -2008,7 +2008,7 @@ void TWorld::IntializeData(void)
 
 
 
-    if(SwitchUseMaterialDepth)
+    if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
         FOR_ROW_COL_MV

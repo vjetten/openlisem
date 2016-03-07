@@ -445,7 +445,15 @@ void TWorld::GetComboMaps()
         Colors.append("#FFFF00");
         Colors.append("#FF0000");
 
-        AddComboMap("Total Soil Loss","t/ha",TotalSoillossMap,Colormap,Colors,false,true,1.0);
+        double factor = 1.0;
+        if(ErosionUnits == 2)
+        {
+            factor = 1.0/(_dx*_dx);
+        }else if (ErosionUnits == 0)
+        {
+            factor = 10.0/(_dx*_dx);
+        }
+        AddComboMap("Total Soil Loss","t/ha",TotalSoillossMap,Colormap,Colors,false,true,factor);
 
 
         Colormap.clear();
