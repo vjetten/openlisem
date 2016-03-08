@@ -445,15 +445,18 @@ void TWorld::GetComboMaps()
         Colors.append("#FFFF00");
         Colors.append("#FF0000");
 
+        QString unit = "kg/cell";
         double factor = 1.0;
         if(ErosionUnits == 2)
         {
             factor = 1.0/(_dx*_dx);
+            unit = "kg/m2";
         }else if (ErosionUnits == 0)
         {
             factor = 10.0/(_dx*_dx);
+            unit = "t/ha";
         }
-        AddComboMap("Total Soil Loss","t/ha",TotalSoillossMap,Colormap,Colors,false,true,factor);
+        AddComboMap("Total Soil Loss",unit,TotalSoillossMap,Colormap,Colors,false,true,factor);
 
 
         Colormap.clear();
