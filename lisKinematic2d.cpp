@@ -235,7 +235,7 @@ double TWorld::K2DFlux()
         }
         if(K2DOutlets->Drc == 1)
         {
-            K2DQ->Drc =std::min(1.0,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
+            K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
 
     }
