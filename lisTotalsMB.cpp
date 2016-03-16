@@ -166,6 +166,7 @@ void TWorld::Totals(void)
     // for screen output, total main outlet in m3
 
     QtotPlot += Qn->DrcPlot * _dt;
+
     //QPlot = Qn->DrcPlot;
     //VJ 110701 for screen output, total in hydrograph point n in m3
 
