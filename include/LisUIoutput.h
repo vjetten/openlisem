@@ -86,6 +86,7 @@ struct output{
     QList<double> graindiameters;
 
     //combox selection of drawn map
+    QList<int> ComboLists;
     QList<cTMap *> ComboMaps;
     QList<cTMap *> ComboMapsSafe;
     QList<QList<double>> ComboColorMap;

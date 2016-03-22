@@ -173,7 +173,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
-      //  if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
+        if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
         if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
@@ -187,16 +187,34 @@ void TWorld::ParseRunfileData(void)
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
     //    if (p1.compare("OF method")==0)                       OF_Method     = iii;
-        if (p1.compare("River 2 layer sediment")==0)          SwitchUse2Layer     = iii == 1;
+
         if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
         if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
       //  if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
-        if (p1.compare("Use grain size distribution")==0)     SwitchUseGrainSizeDistribution     = iii == 1;
+
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
 
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
 
+        if (p1.compare("Advanced sediment configuration")==0)
+        {
+            if(iii == 2)
+            {
+                SwitchUse2Layer = true;
+                SwitchUseGrainSizeDistribution = true;
+
+            }else if(iii == 1)
+            {
+                SwitchUse2Layer = true;
+                SwitchUseGrainSizeDistribution = false;
+            }else
+            {
+                SwitchUse2Layer = false;
+                SwitchUseGrainSizeDistribution = false;
+            }
+
+        }
 
         if(SwitchEstimateGrainSizeDistribution)
         {

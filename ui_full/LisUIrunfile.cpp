@@ -206,10 +206,25 @@ void lisemqt::ParseInputData()
 
     //    if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
         if (p1.compare("Advanced sediment")==0)               checkAdvancedSediment->setChecked(check);
-        if (p1.compare("River 2 layer sediment")==0)          checkUse2Layer->setChecked(check);
+        if (p1.compare("Advanced sediment configuration")==0)
+        {
+            checkBox_SedSingleSingle->setChecked(false);
+            checkBox_SedMultiSingle->setChecked(false);
+            checkBox_SedMultiMulti->setChecked(false);
+
+            if(val == 2)
+            {
+                checkBox_SedMultiMulti->setChecked(true);
+            }else if(val == 1)
+            {
+                checkBox_SedMultiSingle->setChecked(true);
+            }else
+            {
+                checkBox_SedSingleSingle->setChecked(true);
+            }
+        }
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(val);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(val);
-        if (p1.compare("Use grain size distribution")==0)     checkUseGrainSizeDistribution->setChecked(check);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
 
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
@@ -728,10 +743,22 @@ void lisemqt::updateModelData()
         //        if (p1.compare("OF method")==0)                       namelist[j].value = E_OFMethod->text();
 
         if (p1.compare("Advanced sediment")==0)               namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
-        if (p1.compare("River 2 layer sediment")==0)          namelist[j].value.setNum((int)checkUse2Layer->isChecked());
+        if (p1.compare("Advanced sediment configuration")==0)
+        {
+            if(checkBox_SedMultiMulti->isChecked())
+            {
+                namelist[j].value.setNum((int)2);
+            }else if(checkBox_SedMultiSingle->isChecked())
+            {
+                namelist[j].value.setNum((int)1);
+            }else
+            {
+                namelist[j].value.setNum((int)0);
+            }
+        }
+
         if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
         if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
-        if (p1.compare("Use grain size distribution")==0)     namelist[j].value.setNum((int)checkUseGrainSizeDistribution->isChecked());
         if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
 
         if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());

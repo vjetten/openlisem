@@ -1424,8 +1424,6 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
    RiverSedimentLayerDepth(r,c);
 
-
-
    //iterator is number of grain classes
    int iterator = numgrainclasses;
    if(!SwitchUseGrainSizeDistribution)
@@ -1486,6 +1484,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
     }
 
+
    //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
    if(SwitchUseGrainSizeDistribution)
    {
@@ -1524,7 +1523,6 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        }
 
    }
-
 
    for(int d  = 0 ; d < iterator;d++)
    {
@@ -2287,6 +2285,7 @@ double TWorld::RiverSedimentTCBL(int r,int c,int _d)
             qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(graindiameters.at(_d)/1000000.0,3.0));
 
             double tc = ps * ChannelWidth->Drc * qs/ (v * ChannelBLDepth->Drc*ChannelWidth->Drc);
+
             return std::max(std::min(tc,MAXCONCBL ),0.0);
 
         }else
@@ -2409,6 +2408,7 @@ double TWorld::RiverSedimentTCSS(int r,int c, int _d)
             return std::max(std::min(tc,MAXCONC ),0.0);
         }else if(R_SS_Method == FSWUWANGJIA)
         {
+
             if(RSSD_D.at(_d)->Drc <0.04  )
             {
                 return 0;
@@ -2440,6 +2440,7 @@ double TWorld::RiverSedimentTCSS(int r,int c, int _d)
             qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
 
             double tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
+
             return std::max(std::min(tc,MAXCONC ),0.0);
 
         }else

@@ -260,7 +260,7 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchFloodSedimentMetho;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
 
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
@@ -306,7 +306,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot;
+    double MB, MBeM3, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
     double difkinTot, floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
@@ -636,7 +636,8 @@ public:
     void RiverSedimentMaxC(int r, int c);
 
 
-
+    void FindBaseFlow(); //search for channel inflow from groundwater
+    bool addedbaseflow = false;
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
@@ -687,6 +688,7 @@ public:
     void ChannelFlow(void);
     double ChannelIterateWH(int r, int c);
     void ChannelWaterHeight(void);
+    void ChannelWaterHeightFromVolume();
     void ToChannel(void);
     void ToFlood(void);
     void CalcVelDisch();
@@ -824,8 +826,7 @@ protected:
     //combobox map selection
     void GetComboMaps();
     void ClearComboMaps();
-    void AddComboMap(QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0);
-
+    void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0);
 
 signals:
     void done(const QString &results);

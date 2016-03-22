@@ -88,8 +88,7 @@ void lisemqt::on_checkHouses_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
 {
-    if (checkChannelBaseflow->isChecked())
-        checkChannelBaseflow->setChecked(false);
+
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
@@ -97,13 +96,8 @@ void lisemqt::on_checkChannelInfil_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
 {
-    if (checkChannelInfil->isChecked())
-        checkChannelInfil->setChecked(false);
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
-
-    QMessageBox::warning(this,"openLISEM",QString("NOT IMPLEMENTED YET"));
-    checkChannelBaseflow->setChecked(false);
 
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 }

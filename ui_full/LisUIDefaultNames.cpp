@@ -107,6 +107,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
     DEFmaps.append("1;Channel Infil");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
+    DEFmaps.append("1;Channel BaseFLow");
+    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
   //  DEFmaps.append("1;Channel Baseflow");
   //  DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
   //  DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
@@ -425,16 +427,18 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced sediment");
-    namelist[i].value = QString("0");
+    /*namelist[i].value = QString("0");
     namelist[i++].name = QString("River 2 layer sediment");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use grain size distribution");*/
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Advanced sediment configuration");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("River BL method");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("River SS method");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Estimate grain size distribution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use grain size distribution");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Number of grain size classes (simulated)");
     namelist[i].value = QString("0");

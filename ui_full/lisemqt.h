@@ -197,6 +197,10 @@ public:
     QList<QString> UnitList;
     QList<bool> SymList;
     QList<bool> LogList;
+    QList<int> ListList;
+    QList<int> IndexList;
+    QList<int> IndexList1;
+    int ActiveList = 0;
 
     // graph variables
     QwtPlot *HPlot;
@@ -284,7 +288,12 @@ public slots:
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodSolution_valueChanged(int nr);
 
+    void on_checkBox_SedSingleSingle_toggled(bool v);
+    void on_checkBox_SedMultiSingle_toggled(bool v);
+    void on_checkBox_SedMultiMulti_toggled(bool v);
+
     void on_DisplayComboBox_currentIndexChanged(int);
+    void on_DisplayComboBox2_currentIndexChanged(int);
 
     void doCheckSnowmelt(bool);// check);
     void doCheckRainfall(bool);// check);
@@ -313,10 +322,7 @@ public slots:
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
-   // void on_E_Kinematic2D_valueChanged(int v);
-    //void on_E_NumberClasses_valueChanged(int v);
-    //void on_E_NumberClassesMaps_valueChanged(int v);
-    void on_checkUseGrainSizeDistribution_toggled(bool v);
+
     void on_checkEstimateGrainSizeDistribution_toggled(bool v);
     void on_checkReadGrainSizeDistribution_toggled(bool v);
 

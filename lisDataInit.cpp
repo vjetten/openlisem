@@ -48,6 +48,11 @@
 #include "operation.h"
 
 
+#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
+
+
+
 //---------------------------------------------------------------------------
 /** \n void TWorld::InitMapList(void)
 *  blabla
@@ -1218,6 +1223,7 @@ void TWorld::GetInputData(void)
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
+    tmd = NewMap(0); // temp map for aux calculations
     difkin =  NewMap(0); // temp map for aux calculations
 
     for (int i = 0; i < 32; i++)
@@ -1494,6 +1500,7 @@ void TWorld::GetInputData(void)
 
     //## read and initialize all channel maps and variables
     InitChannel();
+
 
     //## make shaded relief map for display.
     InitShade();
@@ -2006,8 +2013,6 @@ void TWorld::IntializeData(void)
         }
     }
 
-
-
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
@@ -2025,7 +2030,6 @@ void TWorld::IntializeData(void)
         SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
 
     }
-
 
     if(SwitchIncludeChannel)
     {
@@ -2092,15 +2096,13 @@ void TWorld::IntializeData(void)
     }
 
 
-
-
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
     //K2Dslope also used for transport capacity of overland flow!
     K2DDEMA();
 
    // MakeWatersheds();
-
+    FindBaseFlow();
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -2265,3 +2267,292 @@ void TWorld::MakeWatersheds(void)
     qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------
+void TWorld::FindBaseFlow()
+{
+
+    if(SwitchChannelBaseflow)
+    {
+        BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow"));
+        BaseFlowInflow = NewMap(0.0);
+        BaseFlowInitialVolume = NewMap(0.0);
+        FOR_ROW_COL_MV_CH
+        {
+            pcr::setMV(tma->Drc);
+        }
+        FOR_ROW_COL_MV_CH
+        {
+            pcr::setMV(tmb->Drc);
+        }
+        FOR_ROW_COL_MV_CH
+        {
+            pcr::setMV(tma->Drc);
+            pcr::setMV(tmb->Drc);
+            tmc->Drc = 0;
+            tmd->Drc = 0;
+        }
+
+        for (int  ro = 0; ro < _nrRows; ro++){
+        for (int  co = 0; co < _nrCols; co++){
+        if(!pcr::isMV(LDDChannel->data[ro][co]))
+        {
+            if(LDDChannel->data[ro][co] == 5)
+            {
+
+                int ncells = 0;
+                double infiltration = 0;
+                double inflow = 0;
+                double baseflow = BaseFlowDischarges->data[ro][co];
+
+                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+                /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+                LDD_LINKEDLIST *list = NULL, *temp = NULL;
+                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                list->prev = NULL;
+                /// start gridcell: outflow point of area
+                list->rowNr = ro;
+                list->colNr = co;
+
+                while (list != NULL)
+                {
+                    int i = 0;
+                    bool  subCachDone = true; // are sub-catchment cells done ?
+                    int rowNr = list->rowNr;
+                    int colNr = list->colNr;
+
+                    /** put all points that have to be calculated to calculate the current point in the list,
+                     before the current point */
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        // this is the current cell
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+                        else
+                            continue;
+
+                        // check if there are more cells upstream, if not subCatchDone remains true
+                        if (pcr::isMV(tma->Drc) &&
+                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                INSIDE(r, c))
+                        {
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = list;
+                            list = temp;
+                            list->rowNr = r;
+                            list->colNr = c;
+                            subCachDone = false;
+                        }
+                    }
+
+                    // all cells above a cell are linked in a "sub-catchment or branch
+                    // continue with water and sed calculations
+                    // rowNr and colNr are the last upstreM cell linked
+                    if (subCachDone)
+                    {
+                        int r = rowNr;
+                        int c = colNr;
+                        tma->Drc = 0;
+                        ncells ++;
+
+                        if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
+                        {
+                            double ksat = 0;//Ksat1->Drc;
+
+                            if(SwitchChannelInfil)
+                            {
+                                ksat = ChannelKsat->Drc;
+                            }
+
+                            infiltration += (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
+                            tmd->Drc = (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
+                        }
+
+                        temp=list;
+                        list=list->prev;
+                        free(temp);
+                        // go to the previous cell in the list
+
+                    }/* eof subcatchment done */
+                } /* eowhile list != NULL */
+
+
+                inflow = (baseflow + infiltration)/ ncells;
+
+                list = NULL;
+                temp = NULL;
+                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                list->prev = NULL;
+                /// start gridcell: outflow point of area
+                list->rowNr = ro;
+                list->colNr = co;
+
+                while (list != NULL)
+                {
+                    int i = 0;
+                    bool  subCachDone = true; // are sub-catchment cells done ?
+                    int rowNr = list->rowNr;
+                    int colNr = list->colNr;
+
+                    /** put all points that have to be calculated to calculate the current point in the list,
+                     before the current point */
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        // this is the current cell
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+                        else
+                            continue;
+
+                        // check if there are more cells upstream, if not subCatchDone remains true
+                        if (pcr::isMV(tmb->Drc) &&
+                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                INSIDE(r, c))
+                        {
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = list;
+                            list = temp;
+                            list->rowNr = r;
+                            list->colNr = c;
+                            subCachDone = false;
+                        }
+                    }
+
+                    // all cells above a cell are linked in a "sub-catchment or branch
+                    // continue with water and sed calculations
+                    // rowNr and colNr are the last upstreM cell linked
+                    if (subCachDone)
+                    {
+                        int r = list->rowNr;
+                        int c = list->colNr;
+                        tmb->Drc = 0;
+                        BaseFlowInflow->Drc = inflow;
+
+                        tmc->Drc += 1;
+
+                        for (i=1;i<=9;i++)
+                        {
+
+                            int r, c, ldd = 0;
+
+                            if (i==5)  // Skip current cell
+                                continue;
+
+                            r = rowNr+dy[i];
+                            c = colNr+dx[i];
+
+                            if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                                ldd = (int) LDDChannel->Drc;
+                            else
+                                continue;
+
+                            if (INSIDE(r, c) &&
+                                    FLOWS_TO(ldd, r,c,rowNr, colNr) &&
+                                    !pcr::isMV(LDDChannel->Drc) )
+                            {
+                                tmc->data[list->rowNr][list->colNr] += tmc->Drc;
+                                tmd->data[list->rowNr][list->colNr] += tmd->Drc;
+                            }
+                        }
+
+                        r = list->rowNr;
+                        c = list->colNr;
+
+                        double q = (tmc->Drc * inflow - tmd->Drc);
+
+                        double h, h1;
+                        double w = ChannelWidth->Drc;
+                        h = 1;
+                        // first guess new h with old alpha
+                        h1 = h;
+                        double A;
+
+                        if (q > 0)
+                        {
+                            double _23 = 2.0/3.0;
+                            double F, dF;
+                            int count = 0;
+
+                            do{
+                                h = h1;
+                                if (h < 1e-10)
+                                    break;
+                                //double P = w+2*h;
+                                //double A = h*w;
+
+                                double P,R;
+                                const double beta = 0.6;
+                                const double _23 = 2.0/3.0;
+                                double wh = h;
+                                double FW = ChannelWidth->Drc;
+                                double dw = /*0.5* */(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
+
+                                if (dw > 0)
+                                {
+                                    //Perim = FW + 2*sqrt(wh*wh + dw*dw);
+                                    P = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
+                                    A = FW*wh + wh*dw;
+                                }
+                                else
+                                {
+                                    P = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
+                                    A = FW*wh;
+                                }
+
+                                R = A/P;
+                                F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(R,_23)));
+                                dF = (5.0*w+6.0*h)/(3.0*h*P);
+                                h1 = h - F/dF;
+                                // function divided by derivative
+                                count++;
+                            }while(fabs(h1-h) > 1e-10 && count < 20);
+                        }
+
+                        BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*DX->Drc;
+
+                        temp=list;
+                        list=list->prev;
+                        free(temp);
+                        // go to the previous cell in the list
+
+                    }/* eof subcatchment done */
+                } /* eowhile list != NULL */
+
+            }
+        }
+
+        }}
+
+        FOR_ROW_COL_MV_CH
+        {
+            tmc->Drc = 0;
+        }
+        FOR_ROW_COL_MV_CH
+        {
+            tmd->Drc = 0;
+        }
+    }
+
+
+
+}

@@ -235,7 +235,7 @@ double TWorld::K2DFlux()
         }
         if(K2DOutlets->Drc == 1)
         {
-            K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
+            //K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
 
     }
@@ -482,8 +482,8 @@ void TWorld::K2DSolvebyFlux(double dt)
                 double fin = std::max(K2DQY->data[r-1][c],0.0);
                 K2DFY->Drc += fin;
                 K2DFY->data[r-1][c] -= fin;
-                QinKW->Drc += fin;
-                QoutKW->data[r-1][c] += fin;
+                QinKW->Drc += dt * fin;
+                QoutKW->data[r-1][c] += dt * fin;
             }
 
         }
@@ -495,8 +495,8 @@ void TWorld::K2DSolvebyFlux(double dt)
                 double fin = fabs(std::min(K2DQY->data[r+1][c],0.0));
                 K2DFY->Drc += fin;
                 K2DFY->data[r+1][c] -= fin;
-                QinKW->Drc += fin;
-                QoutKW->data[r+1][c] += fin;
+                QinKW->Drc += dt * fin;
+                QoutKW->data[r+1][c] += dt * fin;
 
             }
 
@@ -508,8 +508,8 @@ void TWorld::K2DSolvebyFlux(double dt)
                 double fin = std::max(K2DQX->data[r][c-1],0.0);
                 K2DFX->Drc +=  fin;
                 K2DFX->data[r][c-1] -= fin;
-                QinKW->Drc += fin;
-                QoutKW->data[r][c-1] += fin;
+                QinKW->Drc += dt * fin;
+                QoutKW->data[r][c-1] += dt * fin;
 
             }
 
@@ -522,50 +522,21 @@ void TWorld::K2DSolvebyFlux(double dt)
                 double fin = fabs(std::min(K2DQX->data[r][c+1],0.0));
                 K2DFX->Drc +=  fin;
                 K2DFX->data[r][c+1] -= fin;
-                QinKW->Drc += fin;
-                QoutKW->data[r][c+1] += fin;
+                QinKW->Drc += dt * fin;
+                QoutKW->data[r][c+1] += dt * fin;
             }
         }
 
         //add outflow from outlets to total outflow
         if(K2DOutlets->Drc == 1)
         {
-            //calculate normalized direction of flow
-            double dsx = K2DSlopeX->Drc;
-            double dsy = K2DSlopeY->Drc;
-            int r2 = r + (dsy > 0? 1: -1);
-            int c2 = c + (dsx > 0? 1: -1);
-            //is the cell in this direction either out of bounds, or missing value?
-            bool inside = INSIDE(r2,c2);
-            bool ismv = true;
-            if(inside)
-                ismv = pcr::isMV(LDD->data[r2][c2]);
-
-            if(inside && !ismv)
-            {
-                //then add the flow to outflow, and subtract from cell
-                K2DFX->Drc -= fabs(K2DQX->data[r][c]);
-                K2DQOut += dt* fabs(K2DQX->data[r][c]);
-                QoutKW->Drc += dt* fabs(K2DQX->data[r][c]);
-
-            }
-            //is the cell in this direction either out of bounds, or missing value?
-            inside = INSIDE(r2,c2);
-            ismv = true;
-            if(inside)
-                ismv = pcr::isMV(LDD->data[r2][c2]);
-
-            if(inside && !ismv)
-            {
-                //then add the flow to outflow, and subtract from cell
-                K2DFY->Drc -= fabs(K2DQY->data[r][c]);
-                K2DQOut += dt* fabs(K2DQY->data[r][c]);
-                QoutKW->Drc += dt* fabs(K2DQY->data[r][c]);
-            }
+            K2DQOut +=  dt*(K2DQ->Drc);
+            QoutKW->data[r][c] += dt*K2DQ->Drc;
+            K2DFX->data[r][c] -=  (K2DQ->Drc);
         }
 
         //handle special cases were only diagonal flow is presen (Flow distance longer??discharge smaller?)
-        if(K2DPitsD->Drc == 1)
+        if(K2DPitsD->Drc == 1 && !K2DPits->Drc)
         {
             double dsx = K2DSlopeX->Drc;
             double dsy = K2DSlopeY->Drc;
@@ -1205,32 +1176,17 @@ void TWorld::K2DDEMA()
                 }
 
             }
-
-            //one sided slope
-            /*if(!pcr::isMV(K2DDEM->data[r+1][c]))
-                Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-            else
-                Dhy = 0;
-
-            if(!pcr::isMV(K2DDEM->data[r][c+1]))
-                Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-            else
-                Dhx = 0;*/
-
             if(pcr::isMV(LDD->data[r][c+1]) && pcr::isMV(LDD->data[r][c-1]))
             {
                 Dhx = 0;
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
             if(pcr::isMV(LDD->data[r+1][c]) && pcr::isMV(LDD->data[r-1][c]))
             {
                 Dhy = 0;
-                Outlet->Drc= 1;
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
@@ -1268,7 +1224,6 @@ void TWorld::K2DDEMA()
 
                 if( Dhy < 0)
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
@@ -1297,7 +1252,6 @@ void TWorld::K2DDEMA()
 
                 if( Dhy > 0)
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
@@ -1323,7 +1277,6 @@ void TWorld::K2DDEMA()
                 }
                 if( Dhx < 0)
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
@@ -1349,12 +1302,12 @@ void TWorld::K2DDEMA()
                 }
                 if( Dhx > 0)
                 {
-                    Outlet->Drc= 1;
                     K2DOutlets->Drc = 1;
                 }
             }
 
         }
+
 
         K2DSlopeX->Drc = Dhx/_dx;
         K2DSlopeY->Drc = Dhy/_dx;
@@ -1366,20 +1319,17 @@ void TWorld::K2DDEMA()
         int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
         int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-        //if slope is really flat, follow ldd direction
-        /*if(DHL < 0.0001 || K2DOutlets->Drc == 1)
-        {
-            K2DSlopeX->Drc = double(dxldd[(int)LDD->Drc]);
-            K2DSlopeY->Drc = double(dyldd[(int)LDD->Drc]);
-            DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
-        }*/
-
         //Angle of direction of steepest slope, compared to positive x-axis !not used!
         //K2DAspect->Drc = atan2(Dhy,Dhx);
 
         //calculate actual combined slope, with a minimum value of 0.01
         double Dh = fabs(Dhx) + fabs(Dhy);
         K2DSlope->Drc = Dh / sqrt(2*_dx*_dx);
+
+        if(WHrunoff->Drc > Dhx + Dhy)
+        {
+            K2DSlope->Drc = WHrunoff->Drc / _dx;
+        }
 
         if(std::isnan(K2DSlope->Drc))
         {

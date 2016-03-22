@@ -157,6 +157,7 @@ lisemqt::~lisemqt()
 void lisemqt::SetConnections()
 {
     connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
+    connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
@@ -186,18 +187,17 @@ void lisemqt::SetConnections()
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
-    connect(checkUseGrainSizeDistribution,SIGNAL(toggled(bool)), this, SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
-    on_checkUseGrainSizeDistribution_toggled(checkUseGrainSizeDistribution->isChecked());
-
     //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
     //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
 
-    checkUseGrainSizeDistribution->setChecked(false);
-    connect(checkUseGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkUseGrainSizeDistribution_toggled(bool)));
-
     connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
     connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
-}
+
+   //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
+   //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
+   //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
+
+  }
 //--------------------------------------------------------------------
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
 void lisemqt::on_checkOverlandFlow1D_clicked()
@@ -214,6 +214,7 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
 }
 void lisemqt::on_DisplayComboBox_currentIndexChanged(int i)
 {
+    i = IndexList.at(i);
     if( i > -1 && i < this->SymList.length())
     {
         if(this->SymList.at(i))
@@ -249,7 +250,138 @@ void lisemqt::on_DisplayComboBox_currentIndexChanged(int i)
 
     ComboMinSpinBox->setValue(0.0);
     ComboMaxSpinBox->setValue(0.0);
+    ActiveList = 0;
     this->showMap();
+}
+void lisemqt::on_DisplayComboBox2_currentIndexChanged(int i)
+{
+    i = IndexList1.at(i);
+    if( i > -1 && i < this->SymList.length())
+    {
+        if(this->SymList.at(i))
+        {
+            label_1622->setText("-");
+            label_163->setText("Min/Max");
+            ComboMinSpinBox2->setEnabled(false);
+
+        }else
+        {
+            label_1622->setText("Min");
+            label_1632->setText("Max");
+            ComboMinSpinBox2->setEnabled(true);
+        }
+
+        if(this->LogList.at(i))
+        {
+            ComboMinSpinBox2->setMinimum(0.0);
+            ComboMaxSpinBox2->setMinimum(0.0);
+        }else
+        {
+            ComboMinSpinBox2->setMinimum(-999999.0);
+            ComboMaxSpinBox2->setMinimum(-999999.0);
+        }
+    }else
+    {
+        label_1622->setText("Min");
+        label_1632->setText("Max");
+        ComboMinSpinBox2->setEnabled(true);
+        ComboMinSpinBox2->setMinimum(-999999.0);
+        ComboMaxSpinBox2->setMinimum(-999999.0);
+    }
+
+    ComboMinSpinBox2->setValue(0.0);
+    ComboMaxSpinBox2->setValue(0.0);
+    ActiveList = 1;
+    this->showMap();
+}
+void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
+{
+    if(v)
+    {
+        checkBox_SedMultiSingle->setChecked(false);
+        checkBox_SedMultiMulti->setChecked(false);
+        sedbox1->setEnabled(false);
+        sedbox2->setEnabled(false);
+        sedbox3->setEnabled(false);
+        E_RBLMethod->setValue(0);
+        E_RSSMethod->setValue(1);
+        E_BLMethod->setValue(0);
+        E_SSMethod->setValue(1);
+        E_RBLMethod->setMaximum(0);
+        E_RBLMethod->setMinimum(0);
+        E_RSSMethod->setMaximum(1);
+        E_RSSMethod->setMinimum(1);
+        E_BLMethod->setMaximum(0);
+        E_BLMethod->setMinimum(0);
+        E_SSMethod->setMaximum(1);
+        E_SSMethod->setMinimum(1);
+
+    }else
+    {
+        if(!checkBox_SedMultiSingle->isChecked() && !checkBox_SedMultiMulti->isChecked())
+        {
+            checkBox_SedSingleSingle->setChecked(true);
+        }
+    }
+}
+void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
+{
+    if(v)
+    {
+        checkBox_SedMultiMulti->setChecked(false);
+        checkBox_SedSingleSingle->setChecked(false);
+        sedbox1->setEnabled(false);
+        sedbox2->setEnabled(true);
+        sedbox3->setEnabled(true);
+        E_RBLMethod->setValue(1);
+        E_RSSMethod->setValue(1);
+        E_BLMethod->setValue(1);
+        E_SSMethod->setValue(1);
+        E_RBLMethod->setMaximum(2);
+        E_RBLMethod->setMinimum(0);
+        E_RSSMethod->setMaximum(2);
+        E_RSSMethod->setMinimum(1);
+        E_BLMethod->setMaximum(2);
+        E_BLMethod->setMinimum(0);
+        E_SSMethod->setMaximum(2);
+        E_SSMethod->setMinimum(1);
+
+    }else
+    {
+        if(!checkBox_SedMultiMulti->isChecked() && !checkBox_SedSingleSingle->isChecked())
+        {
+            checkBox_SedMultiSingle->setChecked(true);
+        }
+    }
+}
+void lisemqt::on_checkBox_SedMultiMulti_toggled(bool v)
+{
+    if(v)
+    {
+        checkBox_SedMultiSingle->setChecked(false);
+        checkBox_SedSingleSingle->setChecked(false);
+        sedbox1->setEnabled(true);
+        sedbox2->setEnabled(true);
+        sedbox3->setEnabled(true);
+        E_RBLMethod->setValue(3);
+        E_RSSMethod->setValue(3);
+        E_BLMethod->setValue(3);
+        E_SSMethod->setValue(3);
+        E_RBLMethod->setMaximum(3);
+        E_RBLMethod->setMinimum(3);
+        E_RSSMethod->setMaximum(3);
+        E_RSSMethod->setMinimum(3);
+        E_BLMethod->setMaximum(3);
+        E_BLMethod->setMinimum(3);
+        E_SSMethod->setMaximum(3);
+        E_SSMethod->setMinimum(3);
+    }else
+    {
+        if(!checkBox_SedMultiSingle->isChecked() && !checkBox_SedSingleSingle->isChecked())
+        {
+            checkBox_SedMultiMulti->setChecked(true);
+        }
+    }
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
@@ -261,50 +393,6 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 {
     checkEstimateGrainSizeDistribution->setChecked(!v);
 }
-void lisemqt::on_checkUseGrainSizeDistribution_toggled(bool v)
-{
-
-    if(v)
-    {
-        //E_OFMethod->setValue(1);
-        E_RBLMethod->setValue(3);
-        E_RSSMethod->setValue(3);
-        E_BLMethod->setValue(3);
-        E_SSMethod->setValue(3);
-
-        //        E_OFMethod->setMaximum(1);
-        //        E_OFMethod->setMinimum(0);
-        E_RBLMethod->setMaximum(3);
-        E_RBLMethod->setMinimum(3);
-        E_RSSMethod->setMaximum(3);
-        E_RSSMethod->setMinimum(3);
-        E_BLMethod->setMaximum(3);
-        E_BLMethod->setMinimum(3);
-        E_SSMethod->setMaximum(3);
-        E_SSMethod->setMinimum(3);
-    }else
-    {
-        //        E_OFMethod->setValue(0);
-        E_RBLMethod->setValue(1);
-        E_RSSMethod->setValue(1);
-        E_BLMethod->setValue(1);
-        E_SSMethod->setValue(1);
-
-        //        E_OFMethod->setMaximum(0);
-        //        E_OFMethod->setMinimum(0);
-        E_RBLMethod->setMaximum(2);
-        E_RBLMethod->setMinimum(0);
-        E_RSSMethod->setMaximum(2);
-        E_RSSMethod->setMinimum(1);
-        E_BLMethod->setMaximum(2);
-        E_BLMethod->setMinimum(0);
-        E_SSMethod->setMaximum(2);
-        E_SSMethod->setMinimum(1);
-    }
-
-}
-
-
 //void lisemqt::on_E_NumberClasses_valueChanged(int v)
 //{
 //    if(checkEstimateGrainSizeDistribution->isChecked())
@@ -1234,7 +1322,7 @@ void lisemqt::resetAll()
     checkDoErosion->setChecked(check);
     checkIncludeChannel->setChecked(check);
     checkChannelInfil->setChecked(check);
-    //checkChannelBaseflow->setChecked(check);
+    checkChannelBaseflow->setChecked(check);
     checkRoadsystem->setChecked(check);
     //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
@@ -1243,15 +1331,28 @@ void lisemqt::resetAll()
     //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(false);
     //E_OFMethod->setValue(0);
-    checkUse2Layer->setChecked(check);
     E_RBLMethod->setValue(0);
     E_RSSMethod->setValue(1);
 
-    checkUseGrainSizeDistribution->setChecked(false);    // do multiclass
+    checkBox_SedMultiSingle->setChecked(false);
+    checkBox_SedMultiMulti->setChecked(false);
+    checkBox_SedSingleSingle->setChecked(true);
+
+    E_RBLMethod->setValue(0);
+    E_RSSMethod->setValue(1);
+    E_BLMethod->setValue(0);
+    E_SSMethod->setValue(1);
+    E_RBLMethod->setMaximum(0);
+    E_RBLMethod->setMinimum(0);
+    E_RSSMethod->setMaximum(1);
+    E_RSSMethod->setMinimum(1);
+    E_BLMethod->setMaximum(0);
+    E_BLMethod->setMinimum(0);
+    E_SSMethod->setMaximum(1);
+    E_SSMethod->setMinimum(1);
+
     checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
     checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
-
-    checkUse2Layer->setChecked(false);
 
     E_BLMethod->setValue(1);
     E_SSMethod->setValue(1);

@@ -346,6 +346,13 @@ cTMap
 *SedToChannel,               //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
+
+//baseflow
+*BaseFlowDischarges,
+*BaseFlowInitialVolume,
+*BaseFlowInflow,
+
+
 // flood maps
 *ChannelDepth,               //!<
 *UVflood,                     //!<
@@ -482,7 +489,7 @@ cTMap
 *tma,                        //!< Auxilary map
 *tmb,                        //!< Auxilary map
 *tmc,                        //!< Auxilary map
-
+*tmd,                        //!< Auxilary map
 //display combinations
 *COMBO_QOFCH,
 *COMBO_SS

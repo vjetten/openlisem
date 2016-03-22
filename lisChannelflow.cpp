@@ -58,17 +58,16 @@ void TWorld::CalcVelDischChannel(void)
         double wh = ChannelWH->Drc;
         double FW = ChannelWidth->Drc;
         double grad = sqrt(ChannelGrad->Drc);
-        double dw = /*0.5* */(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
 
-        if (dw > 0)
+        if (ChannelSide > 0)
         {
-            //			Perim = FW + 2*sqrt(wh*wh + dw*dw);
-            Perim = FW + 2*wh/cos(atan(ChannelSide->Drc));
+            double dw = ChannelSide->Drc * wh;
+            Perim = FW + 2.0*sqrt(wh*wh + dw*dw);//*cos(atan(ChannelSide->Drc));
             Area = FW*wh + wh*dw;
         }
         else
         {
-            Perim = FW + 2*wh;
+            Perim = FW + 2.0*wh;
             Area = FW*wh;
         }
 
@@ -120,13 +119,43 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
+        //add baseflow
+        if(SwitchChannelBaseflow)
+        {
+            if(!addedbaseflow)
+            {
+                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+                BaseFlow += BaseFlowInitialVolume->Drc;
+
+            }
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+            BaseFlow += BaseFlowInflow->Drc * _dt;
+        }
+
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
         {
             ChannelBufferVol->Drc -= ChannelWaterVol->Drc;
             ChannelWaterVol->Drc = 0;
             // add inflow from slopes and rainfall to buffer
         }
+    }
 
+
+    if(!addedbaseflow)
+    {
+        addedbaseflow = true;
+    }
+
+    ChannelWaterHeightFromVolume();
+
+}
+//---------------------------------------------------------------------------
+//! add runofftochannel and rainfall and calc channel WH from volume
+void TWorld::ChannelWaterHeightFromVolume(void)
+{
+
+    FOR_ROW_COL_MV_CH
+    {
         // calculate ChannelWH
         if (ChannelSide->Drc == 0) // rectangular channel
         {
@@ -153,13 +182,14 @@ void TWorld::ChannelWaterHeight(void)
             double bb = ChannelWidth->Drc; //=w
             double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=area
 
-            ChannelWH->Drc = (-bb + sqrt(bb*bb - 4*aa*cc))/(2*aa);
+            ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
+
             if (ChannelWH->Drc < 0)
             {
                 ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
                 throw 1;
             }
-            ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2*ChannelSide->Drc*ChannelWH->Drc;
+            ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc;
 
             if (ChannelWidthUpDX->Drc > _dx)
             {
@@ -182,6 +212,7 @@ void TWorld::ChannelWaterHeight(void)
         }
     }
 }
+
 //---------------------------------------------------------------------------
 double TWorld::ChannelIterateWH(int r, int c)
 {
@@ -451,8 +482,18 @@ void TWorld::ChannelFlow(void)
         if (do_mbcorr)
             tm->Drc = ChannelArea;
 
-        ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         // water height is not used except for output! i.e. watervolume is cycled
+        if(ChannelSide->Drc > 0)
+        {
+            double aa = ChannelSide->Drc;  //=tan(a)
+            double bb = ChannelWidth->Drc; //=w
+            double cc = -ChannelArea; //=area
+
+            ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
+        }else
+        {
+            ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
+        }
 
         if (!do_mbcorr)
             ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;

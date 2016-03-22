@@ -254,8 +254,13 @@ void lisemqt::showMap()
       UnitList.clear();
       SymList.clear();
       LogList.clear();
+      ListList.clear();
       picker->NameList.clear();
       picker->UnitList.clear();
+      IndexList.clear();
+      IndexList1.clear();
+      int list = 0;
+      int list2 = 0;
 
       for(int i = 0; i < op.ComboMapsSafe.length(); i++)
       {
@@ -266,18 +271,51 @@ void lisemqt::showMap()
           UnitList.append(op.ComboUnits.at(i));
           SymList.append(op.ComboSymColor.at(i));
           LogList.append(op.ComboLogoritmic.at(i));
+          ListList.append(op.ComboLists.at(i));
           picker->NameList.append(op.ComboMapNames.at(i));
           picker->UnitList.append(op.ComboUnits.at(i));
-          DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
 
+
+          if(op.ComboLists.at(i) == 0)
+          {
+              DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+              IndexList.append(i);
+              list2++;
+          }else
+          {
+              DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+              IndexList1.append(i);
+              list++;
+          }
       }
       DisplayComboBox->setCurrentIndex(0);
+      DisplayComboBox2->setCurrentIndex(0);
+      if(list == 0)
+      {
+          DisplayComboBox->setDisabled(true);
+      }else
+      {
+          DisplayComboBox->setEnabled(true);
+      }
+      if(list2 == 0)
+      {
+          DisplayComboBox2->setDisabled(true);
+      }else
+      {
+          DisplayComboBox2->setEnabled(true);
+      }
   }
 
   drawMap->setAlpha(transparency->value());
   drawMap->setAlpha(255);
 
-  showComboMap(DisplayComboBox->currentIndex());
+  if(ActiveList == 0)
+  {
+        showComboMap(IndexList.at(DisplayComboBox->currentIndex()));
+  }else
+  {
+       showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
+  }
 
   channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
   roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
@@ -301,9 +339,23 @@ void lisemqt::showComboMap(int i)
     double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD, i);
     if (MaxV ==-1e20)
       return;
+
+    if(ActiveList == 0)
+    {
+        ComboMinSpinBox->setSingleStep(MaxV / 25.0);
+        ComboMaxSpinBox->setSingleStep(MaxV / 25.0);
+    }else
+    {
+        ComboMinSpinBox2->setSingleStep(MaxV / 25.0);
+        ComboMaxSpinBox2->setSingleStep(MaxV / 25.0);
+    }
+
+
+
     double ma =0;
     double mi = 0;
-    bool apply = true;
+    bool apply_max = true;
+    bool apply_min = true;
     double max_spin = ComboMaxSpinBox->value();
     if(op.ComboSymColor.at(i))
     {
@@ -313,15 +365,19 @@ void lisemqt::showComboMap(int i)
 
     if(max_spin == min_spin || max_spin < min_spin)
     {
-        apply = false;
+        apply_max = false;
+    }
+    if(max_spin == min_spin)
+    {
+        apply_min = false;
     }
 
-    if (apply)
+    if (apply_max)
       ma = max_spin;
     else
       ma = MaxV;
 
-    if(apply)
+    if(apply_min)
     {
         mi = min_spin;
     }
@@ -337,7 +393,7 @@ void lisemqt::showComboMap(int i)
     QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
     QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    if(apply)
+    if(apply_min)
     {
         ColorMapList.at(i)->thresholduse = true;
         ColorMapList.at(i)->thresholdmin = min_spin;
