@@ -288,6 +288,7 @@ void lisemqt::showMap()
               list++;
           }
       }
+      ActiveList = 0;
       DisplayComboBox->setCurrentIndex(0);
       DisplayComboBox2->setCurrentIndex(0);
       if(list == 0)
@@ -356,12 +357,12 @@ void lisemqt::showComboMap(int i)
     double mi = 0;
     bool apply_max = true;
     bool apply_min = true;
-    double max_spin = ComboMaxSpinBox->value();
+    double max_spin = ActiveList == 0? ComboMaxSpinBox->value() : ComboMaxSpinBox2->value();
     if(op.ComboSymColor.at(i))
     {
         max_spin = fabs(max_spin);
     }
-    double min_spin = ComboMinSpinBox->value();
+    double min_spin = ActiveList == 0? ComboMinSpinBox->value() : ComboMinSpinBox2->value();
 
     if(max_spin == min_spin || max_spin < min_spin)
     {
@@ -393,13 +394,16 @@ void lisemqt::showComboMap(int i)
     QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
     QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    if(apply_min)
+    if(apply_min && !op.ComboSymColor.at(i))
     {
-        ColorMapList.at(i)->thresholduse = true;
-        ColorMapList.at(i)->thresholdmin = min_spin;
+        cm->thresholduse = true;
+        cm->thresholdmin = min_spin;
+        cm2->thresholduse = true;
+        cm2->thresholdmin = min_spin;
     }else
     {
-        ColorMapList.at(i)->thresholduse = false;
+        cm->thresholduse = false;
+        cm2->thresholduse = false;
     }
 
     drawMap->setData(RD);

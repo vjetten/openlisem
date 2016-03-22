@@ -860,36 +860,10 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
         //add outflow from outlets to total outflow
         if(K2DOutlets->Drc == 1)
         {
-            //calculate normalized direction of flow
-            double dsx = K2DSlopeX->Drc;
-            double dsy = K2DSlopeY->Drc;
-            int r2 = r + (dsy > 0? 1: -1);
-            int c2 = c + (dsx > 0? 1: -1);
-            //is the cell in this direction either out of bounds, or missing value?
-            bool inside = INSIDE(r2,c2);
-            bool ismv = true;
-            if(inside)
-                ismv = pcr::isMV(LDD->data[r2][c2]);
 
-            if(inside && !ismv)
-            {
-                    K2DFMX->Drc -= fabs(K2DQMX->data[r][c]);
-                    K2DQMOut += dt* fabs(K2DQMX->data[r][c]);
+             K2DFMY->Drc -= K2DQM->data[r][c];
+             K2DQMOut += dt* K2DQM->data[r][c];
 
-
-            }
-            //is the cell in this direction either out of bounds, or missing value?
-            inside = INSIDE(r2,c2);
-            ismv = true;
-            if(inside)
-                ismv = pcr::isMV(LDD->data[r2][c2]);
-
-            if(inside && !ismv)
-            {
-                 K2DFMY->Drc -= fabs(K2DQMY->data[r][c]);
-                 K2DQMOut += dt* fabs(K2DQMY->data[r][c]);
-
-            }
         }
 
         //handle special cases were only diagonal flow is presen (Flow distance longer??discharge smaller?)

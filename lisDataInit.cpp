@@ -1490,7 +1490,7 @@ void TWorld::GetInputData(void)
 
 
         D50 = ReadMap(LDD,getvaluename("D50"));
-        if(SwitchErosion &&(SwitchChannelFlood || !(SwitchUse2Layer && R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
+        if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
         {
             D90 = ReadMap(LDD,getvaluename("D90"));
         }
