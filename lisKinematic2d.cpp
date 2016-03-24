@@ -883,11 +883,8 @@ double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
                         K2DFMY->Drc -= K2DQMY->Drc;
                         K2DFMX->data[r2][c2] += K2DQMX->Drc;
                         K2DFMY->data[r2][c2] += K2DQMY->Drc;
-
                 }
-
             }
-
         }
     }
 

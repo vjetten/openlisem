@@ -250,6 +250,7 @@ void lisemqt::showMap()
       }
       ColorMapList.clear();
       DisplayComboBox->clear();
+      DisplayComboBox2->clear();
       NameList.clear();
       UnitList.clear();
       SymList.clear();
@@ -280,12 +281,12 @@ void lisemqt::showMap()
           {
               DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
               IndexList.append(i);
-              list2++;
+              list++;
           }else
           {
               DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
               IndexList1.append(i);
-              list++;
+              list2++;
           }
       }
       ActiveList = 0;

@@ -1566,6 +1566,7 @@ void TWorld::IntializeData(void)
     COMBO_SS = NewMap(0);
 
     //### rainfall and interception maps
+    BaseFlow = 0;
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
@@ -1974,7 +1975,6 @@ void TWorld::IntializeData(void)
             // no sorption
             // CS_N->Drc=0.0;
             // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
-
 
             PDisMixing->Drc = CM_N->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
             PSorMixing->Drc = CS_N->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
