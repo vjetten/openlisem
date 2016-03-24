@@ -249,6 +249,7 @@ void lisemqt::showMap()
           delete ColorMapList.at(i);
       }
       ColorMapList.clear();
+
       DisplayComboBox->clear();
       DisplayComboBox2->clear();
       NameList.clear();
@@ -351,8 +352,6 @@ void lisemqt::showComboMap(int i)
         ComboMinSpinBox2->setSingleStep(MaxV / 25.0);
         ComboMaxSpinBox2->setSingleStep(MaxV / 25.0);
     }
-
-
 
     double ma =0;
     double mi = 0;

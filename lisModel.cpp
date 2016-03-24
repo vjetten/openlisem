@@ -557,7 +557,8 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
 {
     op.ComboLists.append(listn);
     op.ComboMaps.append(map);
-    op.ComboMapsSafe.append(NewMap(0.0));
+    op.ComboMapsSafe.append(new cTMap());
+    op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);
     op.ComboLogoritmic.append(log);

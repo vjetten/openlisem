@@ -2006,7 +2006,6 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
                 cp = ct;
                 foundp = true;
                 break;
-
             }
         }
 

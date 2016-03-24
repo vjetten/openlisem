@@ -243,6 +243,8 @@ public:
     int uiInfilMethod;
     double swatreDT;
 
+    QList<cTMap *> ComboMapsSafe;
+
     MAP_LIST mapList[NUMMAPS]; /// structure for current map names, can be edited by user
     int nrmaplist;
     NAME_LIST namelist[NUMNAMES]; /// structure to read all runfile variables and names
