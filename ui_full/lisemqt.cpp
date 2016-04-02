@@ -1291,7 +1291,10 @@ void lisemqt::resetAll()
     checkBox_OutRunoff->setChecked(false);
     checkBox_OutConc->setChecked(false);
     checkBox_OutWH->setChecked(false);
+
     checkBox_OutWHC->setChecked(false);
+    checkBox_OutWHC->setVisible(false); // <== obsolete
+
     checkBox_OutTC->setChecked(false);
     checkBox_OutDet->setChecked(false);
     checkBox_OutDep->setChecked(false);

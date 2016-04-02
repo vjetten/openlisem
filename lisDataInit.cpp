@@ -2180,6 +2180,7 @@ void TWorld::IntializeOptions(void)
     SwitchGullyInit = false;
     SwitchOutputTimeStep = false;
     SwitchOutputTimeUser = false;
+    /*
     SwitchMapoutRunoff = false;
     SwitchMapoutConc = false;
     SwitchMapoutWH = false;
@@ -2191,6 +2192,7 @@ void TWorld::IntializeOptions(void)
     SwitchMapoutInf = false;
     SwitchMapoutSs = false;
     SwitchMapoutChvol = false;
+    */
     SwitchWritePCRnames = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;

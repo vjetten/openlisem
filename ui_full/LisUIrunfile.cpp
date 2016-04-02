@@ -383,19 +383,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("CheckOutputMaps")==0)
         {
             outputcheck = p.split(",");
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
+
+            if (outputcheck.count() < 20)
+               for (int k = outputcheck.count();k < 20; k++)
+                   outputcheck << "0";
 
             checkBox_OutRunoff->setChecked(bool(outputcheck.at(0).toInt() == 1));
             checkBox_OutWH->setChecked(bool(outputcheck.at(2).toInt() == 1));
-            checkBox_OutWHC->setChecked(bool(outputcheck.at(3).toInt() == 1));
+            //OBSOLETE checkBox_OutWHC->setChecked(bool(outputcheck.at(3).toInt() == 1));
             checkBox_OutInf->setChecked(bool(outputcheck.at(8).toInt() == 1));
             checkBox_OutV->setChecked(bool(outputcheck.at(7).toInt() == 1));
             checkBox_OutDet->setChecked(bool(outputcheck.at(5).toInt() == 1));
@@ -404,15 +399,15 @@ void lisemqt::ParseInputData()
             checkBox_OutTC->setChecked(bool(outputcheck.at(4).toInt() == 1));
             checkBox_OutSurfStor->setChecked(bool(outputcheck.at(9).toInt() == 1));
             checkBox_OutChanVol->setChecked(bool(outputcheck.at(10).toInt() == 1));
-            if (outputcheck.count() > 11)
-                checkBox_OutTiledrain->setChecked(bool(outputcheck.at(11).toInt() == 1));
-            if (outputcheck.count() > 12)
-            {
-                checkBox_OutHmx->setChecked(bool(outputcheck.at(12).toInt() == 1));
-                checkBox_OutQf->setChecked(bool(outputcheck.at(13).toInt() == 1));
-                checkBox_OutVf->setChecked(bool(outputcheck.at(14).toInt() == 1));
-                checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
-            }
+            checkBox_OutTiledrain->setChecked(bool(outputcheck.at(11).toInt() == 1));
+            checkBox_OutHmx->setChecked(bool(outputcheck.at(12).toInt() == 1));
+            checkBox_OutQf->setChecked(bool(outputcheck.at(13).toInt() == 1));
+            checkBox_OutVf->setChecked(bool(outputcheck.at(14).toInt() == 1));
+            checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
+            checkBox_OutSL->setChecked(bool(outputcheck.at(16).toInt() == 1));
+
+            // TODO replace these numbers with defines for clarity in model.h and lisemqt.h
+
             // checkboxes normal output map series, numbering according to original LISEM
 
             if (p1.compare("WH max level map")==0) E_WHmaxMap->setText(p);
@@ -944,7 +939,7 @@ void lisemqt::updateModelData()
             if ( 	checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if ( 	  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if ( 	    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else outputcheck << "0";
+            /* OBSOLETE if ( 	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else */ outputcheck << "0";
             if (       checkBox_OutTC->isChecked())  outputcheck << "1"; else outputcheck << "0";
             if ( 	   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
             if ( 	   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";

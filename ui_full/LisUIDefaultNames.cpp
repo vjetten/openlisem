@@ -593,6 +593,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTEROS");
     namelist[i].value = QString("dep");
     namelist[i++].name = QString("OUTDEPO");
+    namelist[i].value = QString("sloss");
+    namelist[i++].name = QString("OUTSOILLOSS");
     namelist[i].value = QString("velo");
     namelist[i++].name = QString("OUTVELO");
     namelist[i].value = QString("inf");
@@ -611,8 +613,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTVF");
     namelist[i].value = QString("hmxwh");
     namelist[i++].name = QString("OUTHMXWH");
-    namelist[i].value = QString("sl");
-    namelist[i++].name = QString("OUTSOILLOSS");
 
 //    namelist[i++].name = QString("");
 //    namelist[i++].name = QString("[OutputMC]");

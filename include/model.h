@@ -386,8 +386,9 @@ public:
     QString temprunname;
     QStringList outputcheck;
     /// standard names of output map series
-    QString Outrunoff, Outconc, Outwh, Outrwh, Outtc, Outeros, Outdepo, Outvelo, Outinf, Outss, Outchvol,
-    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSL;
+    QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
+    Outtc, Outeros, Outdepo, OutSL,
+    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
     QString errorFileName;
 
 

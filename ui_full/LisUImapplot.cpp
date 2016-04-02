@@ -277,7 +277,6 @@ void lisemqt::showMap()
           picker->NameList.append(op.ComboMapNames.at(i));
           picker->UnitList.append(op.ComboUnits.at(i));
 
-
           if(op.ComboLists.at(i) == 0)
           {
               DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
@@ -345,15 +344,19 @@ void lisemqt::showComboMap(int i)
 
     if(ActiveList == 0)
     {
+//        ComboMinSpinBox->setSingleStep(std::max(MaxV / 25.0, 0.01));
+//        ComboMaxSpinBox->setSingleStep(std::max(MaxV / 25.0, 0.01));
         ComboMinSpinBox->setSingleStep(MaxV / 25.0);
         ComboMaxSpinBox->setSingleStep(MaxV / 25.0);
     }else
     {
+//        ComboMinSpinBox2->setSingleStep(std::max(MaxV / 25.0, 0.01));
+//        ComboMaxSpinBox2->setSingleStep(std::max(MaxV / 25.0, 0.01));
         ComboMinSpinBox2->setSingleStep(MaxV / 25.0);
         ComboMaxSpinBox2->setSingleStep(MaxV / 25.0);
     }
 
-    double ma =0;
+    double ma = 0;
     double mi = 0;
     bool apply_max = true;
     bool apply_min = true;

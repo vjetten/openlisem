@@ -618,9 +618,11 @@ void TWorld::ReportMaps(void)
             calcValue(*tm, 10, MUL);
         }
         report(*tm, totalSoillossFileName);
+        if (outputcheck[16].toInt() == 1) report(*tm, OutSL);      // in user units
 
         if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
         if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
+
     }
 
     if (SwitchChannelFlood)

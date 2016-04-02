@@ -83,7 +83,7 @@ class QwtComboColorMap: public QwtLinearColorMap
             return qRgba( 228, 228, 228, 255 );
         if(thresholduse)
         {
-            if ( value <= thresholdmin )
+            if ( value == 0) //<= thresholdmin )
             {
                 return qRgba( 0, 0, 0, 0 );
             }

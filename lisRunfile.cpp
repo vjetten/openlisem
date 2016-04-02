@@ -356,8 +356,13 @@ void TWorld::ParseRunfileData(void)
         // profile map name
     }
 
-    if (!SwitchIncludeTile && outputcheck.count() > 11)
-        outputcheck[11] = "0";  //????????????
+    // fill up outputcheck for older runfiles
+    if (outputcheck.count() < 20)
+        for (int k = outputcheck.count(); k < 20; k++)
+            outputcheck << "0";
+
+//    if (!SwitchIncludeTile && outputcheck.count() > 11)
+//        outputcheck[11] = "0";  //????????????
 
     if (!SwitchIncludeChannel)
     {
