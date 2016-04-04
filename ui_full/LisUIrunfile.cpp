@@ -936,23 +936,29 @@ void lisemqt::updateModelData()
         if (p1.compare("CheckOutputMaps")==0)
         {
             outputcheck.clear();
-            if ( 	checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            /* OBSOLETE if ( 	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else */ outputcheck << "0";
-            if (       checkBox_OutTC->isChecked())  outputcheck << "1"; else outputcheck << "0";
-            if ( 	   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if ( 	   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutSurfStor->isChecked())   outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutTiledrain->isChecked())  outputcheck << "1"; else outputcheck << "0";
+            if ( 	checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0"; //0
+            if ( 	  checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0"; //1
+            if ( 	    checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0"; //2
+            /* OBSOLETE if ( 	   checkBox_OutWHC->isChecked()) outputcheck << "1"; else */      //3
+            outputcheck << "0";
+            if (       checkBox_OutTC->isChecked())  outputcheck << "1"; else outputcheck << "0"; //4
+            if ( 	   checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0"; //5
+            if ( 	   checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0"; //6
+            if ( 	     checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0"; //7
+            if ( 	   checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0"; //8
+            if (checkBox_OutSurfStor->isChecked())   outputcheck << "1"; else outputcheck << "0"; //9
+            if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0"; //10
+            if (checkBox_OutTiledrain->isChecked())  outputcheck << "1"; else outputcheck << "0"; //11
 
-            if (checkBox_OutHmx->isChecked())        outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutQf->isChecked())         outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0";
-            if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0";
+            if (checkBox_OutHmx->isChecked())        outputcheck << "1"; else outputcheck << "0"; //12
+            if (checkBox_OutQf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //13
+            if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //14
+            if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0"; //15
+            if (checkBox_OutSL->isChecked())         outputcheck << "1"; else outputcheck << "0"; //16
+            outputcheck << "0";
+            outputcheck << "0";
+            outputcheck << "0";
+            // twenty places for now
             namelist[j].value = outputcheck.join(",");
         }
     }

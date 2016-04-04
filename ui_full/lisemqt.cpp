@@ -455,8 +455,6 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
     groupKineticEnergy->setEnabled(yes);
-
-
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)
