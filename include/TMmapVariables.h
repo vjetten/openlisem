@@ -49,9 +49,12 @@ cTMap
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
+*LCStor,                     //!< actual Litter storage [m]
+*LInterc,                    //!< actual Litter storage volume, corrected for surfaces without vegetation (like roads) [m^3]
+*LRainCum,
 //houses
-*HStor,                      //!< actual roof storage of rainwater [m]
 *DStor,                      //!< actual drum storage of rainwater [m^3]
+*HStor,                      //!< actual roof storage of rainwater [m]
 *IntercHouse,                //!< actual roof storage volume [m^3]
 *HouseCover,                 //!< fraction cover of house in pixel [-]
 *HouseWidthDX,
@@ -112,7 +115,8 @@ cTMap
 *runoffTotalCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
-*Cover,                      //!< vegetation canopy cover fraction [m]
+*Cover,                      //!< vegetation canopy cover fraction [-]
+*Litter,                     //!< vegetation litter cover fraction [-]
 *CanopyStorage,              //!< canopy storage [m]
 *LAI,                        //!< leaf area index [m^2/m^2]
 *LandUnit,                   //!< land unit class (> 0) [-]

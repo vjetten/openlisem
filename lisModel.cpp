@@ -182,6 +182,7 @@ void TWorld::DoModel()
             SnowmeltMap();         // get snowmelt
 
             Interception();        // vegetation interception
+            InterceptionLitter();  // litter interception
             InterceptionHouses();  // urban interception
 
             addRainfallWH();       // adds rainfall to runoff water height or flood water height

@@ -62,7 +62,9 @@ void TWorld::Interception(void)
         if (SwitchInterceptionLAI)
             LAIv = LAI->Drc;
         else
-            LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.9,Cover->Drc);
+            LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
+            //            LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.9,Cover->Drc);
+        //?????????????????? max 0.9 ?????????????? WTF
         //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
         // a low cover means a low LAI means little interception
         // avoid division by 0
@@ -119,6 +121,55 @@ void TWorld::Interception(void)
 
         RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
         // net rainfall is direct rainfall + drainage
+        // rainfall that falls on the soil, used in infiltration
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::InterceptionLitter(void)
+{
+    // all variables are in m
+    if (!SwitchRainfall)
+        return;
+
+    FOR_ROW_COL_MV
+            if (Litter->Drc > 0)
+    {
+        double LAI = (log(1-std::min(0.95,Litter->Drc))/-0.4);
+        // Bracken equation, avoid log 0
+        double Smax = 0.1713 * LAI;
+
+        double LCS = LCStor->Drc;
+        //actual canopy storage in m
+
+        if (SwitchHardsurface)
+            Smax *= (1-HardSurface->Drc);
+        //VJ 110111 no interception on hard surfaces
+
+        if (PlantHeight->Drc < WH->Drc)
+        {
+            Smax = 0;
+            LCS = 0;
+        }
+        //VJ no interception when water level is heigher than plants
+
+        LRainCum->Drc += LeafDrain->Drc;
+        // cumulative leaf drainage falling on litter
+
+        LCS = std::min(LRainCum->Drc, Smax);
+        //assume direct simple filling of litter
+
+        double drain = std::max(0.0, Litter->Drc*(RainNet->Drc - (LCS - LCStor->Drc)));
+        // diff between new and old strage is subtracted from rainfall
+        // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+
+        LCStor->Drc = LCS;
+        // put new storage back in map
+        LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
+        // only on soil surface, not channels or roads, in m3
+
+        RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc + (1-Cover->Drc)*Rainc->Drc;
+        // recalc: net rainfall is direct rainfall + drainage from canopy + dranage litter
         // rainfall that falls on the soil, used in infiltration
     }
 }

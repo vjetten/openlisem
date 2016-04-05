@@ -665,6 +665,8 @@ public:
     void Interception(void);
     /// infiltration function calling all infiltration methods
     /// add rainnet to WH and calculating new WH
+    void InterceptionLitter(void);
+    /// subtract water retained in Litter under forest e.g.
     void InterceptionHouses(void);
     /// subtract water retained on houses, for urban projects    
     void addRainfallWH(void);

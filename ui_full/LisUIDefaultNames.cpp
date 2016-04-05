@@ -48,7 +48,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Watersheds;ws.map;watersheds (1,2,3,...);watershed");
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
-    DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue;cover");
+    DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue (-);cover");
+    DEFmaps.append("2;Litter;litter.map;Fraction of surface cover by litter/herbs under trees (-);litter");
     DEFmaps.append("2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai");
     DEFmaps.append("2;Height;ch.map;Plant height (m);ch");
     DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road");
