@@ -91,11 +91,14 @@ struct output{
     QList<cTMap *> ComboMapsSafe;
     QList<QList<double>> ComboColorMap;
     QList<QList<QString>> ComboColors;
-    QList<bool> ComboLogoritmic;
+    QList<bool> ComboLogaritmic;
     QList<bool> ComboSymColor;
     QStringList ComboMapNames;
     QStringList ComboUnits;
     QList<double> ComboScaling;
+    QList<double> userMinV;
+    QList<double> userMaxV;
+    QList<double> comboStep;
 
     bool comboboxset;
 

@@ -312,6 +312,13 @@ public slots:
     void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
+    void on_ComboMinSpinBox_valueChanged(double);
+    void on_ComboMaxSpinBox_valueChanged(double);
+    void on_ComboMinSpinBox2_valueChanged(double);
+    void on_ComboMaxSpinBox2_valueChanged(double);
+    void setDisplayComboBox(int);
+    void setDisplayComboBox2(int);
+
     //houses
     void on_checkHouses_clicked();
     void on_checkInfilCompact_clicked();

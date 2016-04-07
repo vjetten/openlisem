@@ -156,11 +156,16 @@ lisemqt::~lisemqt()
 //--------------------------------------------------------------------
 void lisemqt::SetConnections()
 {
-    connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
-    connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
+
+    connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
+    connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
+    connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
+    connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
+    connect(checkBoxComboMaps, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox(int)));
+    connect(checkBoxComboMaps2, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox2(int)));
 
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
@@ -206,94 +211,132 @@ void lisemqt::on_checkOverlandFlow1D_clicked()
     checkOverlandFlow2D->setChecked(false);
     tabWidgetOptions->setTabEnabled(3, false);
 }
+
 void lisemqt::on_checkOverlandFlow2D_clicked()
 {
     checkOverlandFlow1D->setChecked(false);
     checkOverlandFlow2D->setChecked(true);
     tabWidgetOptions->setTabEnabled(3, true);
 }
-void lisemqt::on_DisplayComboBox_currentIndexChanged(int i)
+//--------------------------------------------------------------------
+void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
-    i = IndexList.at(i);
+    int i = DisplayComboBox->currentIndex();
+
     if( i > -1 && i < this->SymList.length())
     {
-        if(this->SymList.at(i))
-        {
-            label_162->setText("-");
-            label_163->setText("Min/Max");
-            ComboMinSpinBox->setEnabled(false);
+        if (op.userMaxV.at(i) == 0)
+            op.userMinV.replace(i, d);
 
-        }else
-        {
-            label_162->setText("Min");
-            label_163->setText("Max");
-            ComboMinSpinBox->setEnabled(true);
-        }
+        if (op.userMaxV.at(i) > 0 && d < op.userMaxV.at(i))
+            op.userMinV.replace(i, d);
 
-        if(this->LogList.at(i))
-        {
-            ComboMinSpinBox->setMinimum(0.0);
-            ComboMaxSpinBox->setMinimum(0.0);
-        }else
-        {
-            ComboMinSpinBox->setMinimum(-999999.0);
-            ComboMaxSpinBox->setMinimum(-999999.0);
-        }
-    }else
-    {
-        label_162->setText("Min");
-        label_163->setText("Max");
-        ComboMinSpinBox->setEnabled(true);
-        ComboMinSpinBox->setMinimum(-999999.0);
-        ComboMaxSpinBox->setMinimum(-999999.0);
+        if(op.userMaxV.at(i) > 0 && d >= op.userMaxV.at(i))
+            ComboMinSpinBox->setValue(op.userMinV.at(i));
     }
-
-    ComboMinSpinBox->setValue(0.0);
-    ComboMaxSpinBox->setValue(0.0);
-    ActiveList = 0;
-    this->showMap();
 }
-void lisemqt::on_DisplayComboBox2_currentIndexChanged(int i)
+//--------------------------------------------------------------------
+void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
-    i = IndexList1.at(i);
+    int i = DisplayComboBox->currentIndex();
     if( i > -1 && i < this->SymList.length())
     {
-        if(this->SymList.at(i))
-        {
-            label_1622->setText("-");
-            label_163->setText("Min/Max");
-            ComboMinSpinBox2->setEnabled(false);
+        op.userMaxV.replace(i, d);
 
-        }else
-        {
-            label_1622->setText("Min");
-            label_1632->setText("Max");
-            ComboMinSpinBox2->setEnabled(true);
-        }
-
-        if(this->LogList.at(i))
-        {
-            ComboMinSpinBox2->setMinimum(0.0);
-            ComboMaxSpinBox2->setMinimum(0.0);
-        }else
-        {
-            ComboMinSpinBox2->setMinimum(-999999.0);
-            ComboMaxSpinBox2->setMinimum(-999999.0);
-        }
-    }else
-    {
-        label_1622->setText("Min");
-        label_1632->setText("Max");
-        ComboMinSpinBox2->setEnabled(true);
-        ComboMinSpinBox2->setMinimum(-999999.0);
-        ComboMaxSpinBox2->setMinimum(-999999.0);
+        if (op.userMaxV.at(i) > 0)
+            if(op.userMinV.at(i) > op.userMaxV.at(i))
+            {
+                op.userMinV.replace(i, 0);
+                ComboMinSpinBox->setValue(0);
+            }
     }
-
-    ComboMinSpinBox2->setValue(0.0);
-    ComboMaxSpinBox2->setValue(0.0);
-    ActiveList = 1;
-    this->showMap();
 }
+//--------------------------------------------------------------------
+void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
+{
+    int i = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
+    if (!DisplayComboBox2->isEnabled())
+        return;
+
+    if( i > -1 && i < this->SymList.length())
+    {
+        if (!op.ComboSymColor.at(i))
+        {
+            if (op.userMaxV.at(i) == 0)
+                op.userMinV.replace(i, d);
+            if (op.userMaxV.at(i) > 0 && d < op.userMaxV.at(i))
+                op.userMinV.replace(i, d);
+            if(op.userMaxV.at(i) > 0 && d >= op.userMaxV.at(i))
+                ComboMinSpinBox2->setValue(op.userMinV.at(i));
+        }
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
+{
+    int i = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
+
+    if (!DisplayComboBox2->isEnabled())
+        return;
+
+    if( i > -1 && i < this->SymList.length())   //needed?
+    {
+        op.userMaxV.replace(i, d);
+        if (op.ComboSymColor.at(i))
+            op.userMinV.replace(i, -d);
+
+        if (op.userMaxV.at(i) > 0)
+            if(op.userMinV.at(i) > op.userMaxV.at(i))
+            {
+                op.userMinV.replace(i, 0);
+                ComboMinSpinBox->setValue(0);
+            }
+
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::setDisplayComboBox(int i)
+{
+    if (i == 2)
+    {
+        checkBoxComboMaps2->setChecked(false);
+        ActiveList = 0;
+        this->showMap();
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::setDisplayComboBox2(int i)
+{
+    if (i == 2)
+    {
+        checkBoxComboMaps->setChecked(false);
+        ActiveList = 1;
+        this->showMap();
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)
+{
+    int i = IndexList.at(j);
+
+    ComboMaxSpinBox->setValue(op.userMaxV.at(i));
+    ComboMinSpinBox->setValue(op.userMinV.at(i));
+    this->showMap();
+    checkBoxComboMaps2->setChecked(false);
+    checkBoxComboMaps->setChecked(true);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
+{
+    int i = IndexList1.at(j);
+
+    ComboMaxSpinBox2->setValue(op.userMaxV.at(i));
+    ComboMinSpinBox2->setValue(op.userMinV.at(i));
+    this->showMap();
+    checkBoxComboMaps->setChecked(false);
+    checkBoxComboMaps2->setChecked(true);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
 {
     if(v)
@@ -324,6 +367,8 @@ void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
         }
     }
 }
+//--------------------------------------------------------------------
+
 void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
 {
     if(v)
@@ -354,6 +399,8 @@ void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
         }
     }
 }
+//--------------------------------------------------------------------
+
 void lisemqt::on_checkBox_SedMultiMulti_toggled(bool v)
 {
     if(v)
@@ -388,7 +435,7 @@ void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
 {
     checkReadGrainSizeDistribution->setChecked(!v);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 {
     checkEstimateGrainSizeDistribution->setChecked(!v);
@@ -455,6 +502,11 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
     groupKineticEnergy->setEnabled(yes);
+
+    checkBoxComboMaps2->setEnabled(yes);
+    ComboMinSpinBox2->setEnabled(yes);
+    ComboMaxSpinBox2->setEnabled(yes);
+    DisplayComboBox2->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)

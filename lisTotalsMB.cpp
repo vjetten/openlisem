@@ -90,7 +90,7 @@ void TWorld::Totals(void)
     }
     
     //=== interception ===//
-    IntercTot = mapTotal(*Interc);
+    IntercTot = mapTotal(*Interc) + mapTotal(*LInterc) ;
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
 

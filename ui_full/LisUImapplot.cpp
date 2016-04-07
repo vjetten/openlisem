@@ -29,16 +29,16 @@
 #include "LisUImapplot.h"
 
 //---------------------------------------------------------------------------
-  QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):
-      QwtLinearColorMap( format )
+QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):
+    QwtLinearColorMap( format )
 {
     thresholdLCM = 0;
     QwtLinearColorMap::setColorInterval( color1, color2 );
 }
 
-  QwtLinearColorMapVJ::~QwtLinearColorMapVJ()
-  {
-  }
+QwtLinearColorMapVJ::~QwtLinearColorMapVJ()
+{
+}
 
 void QwtLinearColorMapVJ::setThreshold( double value)
 {
@@ -48,182 +48,183 @@ void QwtLinearColorMapVJ::setThreshold( double value)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
-  //drawMap->setAlpha(v);
-  baseMap->setAlpha(v);
+    //drawMap->setAlpha(v);
+    baseMap->setAlpha(v);
 
-  MPlot->replot();
+    MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha2(int v)
 {
-  channelMap->setAlpha(v);
-  if (v > 0)
-    MPlot->replot();
+    channelMap->setAlpha(v);
+    if (v > 0)
+        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha3(int v)
 {
-  roadMap->setAlpha(v);
-  if (v > 0)
-    MPlot->replot();
+    roadMap->setAlpha(v);
+    if (v > 0)
+        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha4(int v)
 {
-  houseMap->setAlpha(v);
-  if (v > 0)
-    MPlot->replot();
+    houseMap->setAlpha(v);
+    if (v > 0)
+        MPlot->replot();
 }
 
 //---------------------------------------------------------------------------
 // called when a model run is started
 void lisemqt::initMapPlot()
 {
-  maxAxis1 = -1e20;
-  maxAxis2 = -1e20;
-  maxAxis3 = -1e20;
-  maxAxis4 = -1e20;
-  maxAxis5 = -1e20;
-  pstep = 0;
+    maxAxis1 = -1e20;
+    maxAxis2 = -1e20;
+    maxAxis3 = -1e20;
+    maxAxis4 = -1e20;
+    maxAxis5 = -1e20;
+    pstep = 0;
 
-  //    transparency->setValue(128);  //main data
-  //    transparency2->setValue(160); //channels
-  //    transparency3->setValue(160); //roads
-  //    transparency4->setValue(100); //houses
+    //    transparency->setValue(128);  //main data
+    //    transparency2->setValue(160); //channels
+    //    transparency3->setValue(160); //roads
+    //    transparency4->setValue(100); //houses
 }
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
 
-  title.setText("Runoff (l/s)");
-  title.setFont(QFont("MS Shell Dlg 2",12));
-  MPlot = new QwtPlot(title, this);
-  // make the plot window
-  Layout_Map_2->insertWidget(0, MPlot, 1);
-  // put it on screen
-  MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
-  MPlot->enableAxis( MPlot->yRight );
-  MPlot->setAxisTitle(HPlot->xBottom, "m");
-  MPlot->setAxisTitle(HPlot->yLeft, "m");
+    title.setText("Runoff (l/s)");
+    title.setFont(QFont("MS Shell Dlg 2",12));
+    MPlot = new QwtPlot(title, this);
+    // make the plot window
+    Layout_Map_2->insertWidget(0, MPlot, 1);
+    // put it on screen
+    MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
+    MPlot->enableAxis( MPlot->yRight );
+    MPlot->setAxisTitle(HPlot->xBottom, "m");
+    MPlot->setAxisTitle(HPlot->yLeft, "m");
 
-  // attach plot to widget in UI
+    // attach plot to widget in UI
 
-  QwtPlotGrid *grid = new QwtPlotGrid();
-  grid->setPen( QPen( Qt::DotLine ) );
-  grid->attach( MPlot );
+    QwtPlotGrid *grid = new QwtPlotGrid();
+    grid->setPen( QPen( Qt::DotLine ) );
+    grid->attach( MPlot );
 
-  // NOTE the order in which these are attached is the order displayed.
-  baseMapDEM = new QwtPlotSpectrogram();
-  baseMapDEM->setRenderThreadCount( 0 );
-  baseMapDEM->attach( MPlot );
-  // dem
+    // NOTE the order in which these are attached is the order displayed.
+    baseMapDEM = new QwtPlotSpectrogram();
+    baseMapDEM->setRenderThreadCount( 0 );
+    baseMapDEM->attach( MPlot );
+    // dem
 
-  drawMap = new QwtPlotSpectrogram();
-  drawMap->setRenderThreadCount( 0 );
-  drawMap->attach( MPlot );
-  //map for runoff, infil, flood etc
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
 
-  baseMap = new QwtPlotSpectrogram();
-  baseMap->setRenderThreadCount( 0 );
-  baseMap->attach( MPlot );
-  // shaded relief
+    baseMap = new QwtPlotSpectrogram();
+    baseMap->setRenderThreadCount( 0 );
+    baseMap->attach( MPlot );
+    // shaded relief
 
-  houseMap = new QwtPlotSpectrogram();
-  houseMap->setRenderThreadCount( 0 );
-  houseMap->attach( MPlot );
-  // building structure map
+    houseMap = new QwtPlotSpectrogram();
+    houseMap->setRenderThreadCount( 0 );
+    houseMap->attach( MPlot );
+    // building structure map
 
-  roadMap = new QwtPlotSpectrogram();
-  roadMap->setRenderThreadCount( 0 );
-  roadMap->attach( MPlot );
-  // road map
+    roadMap = new QwtPlotSpectrogram();
+    roadMap->setRenderThreadCount( 0 );
+    roadMap->attach( MPlot );
+    // road map
 
-  channelMap = new QwtPlotSpectrogram();
-  channelMap->setRenderThreadCount( 0 );
-  channelMap->attach( MPlot );
-  // channel map
+    channelMap = new QwtPlotSpectrogram();
+    channelMap->setRenderThreadCount( 0 );
+    channelMap->attach( MPlot );
+    // channel map
 
-  RD = new QwtMatrixRasterData();
-  RDb = new QwtMatrixRasterData();
-  RDbb = new QwtMatrixRasterData();
-  RDc = new QwtMatrixRasterData();
-  RDd = new QwtMatrixRasterData();
-  RDe = new QwtMatrixRasterData();
+    RD = new QwtMatrixRasterData();
+    RDb = new QwtMatrixRasterData();
+    RDbb = new QwtMatrixRasterData();
+    RDc = new QwtMatrixRasterData();
+    RDd = new QwtMatrixRasterData();
+    RDe = new QwtMatrixRasterData();
 
-  // raster data to link to plot
+    // raster data to link to plot
 
-  rightAxis = new QwtScaleWidget();
-  rightAxis = MPlot->axisWidget( MPlot->yRight );
-  rightAxis->setColorBarEnabled( true );
-  rightAxis->setColorBarWidth( 20 );
-  // legend to the right of the plot
+    rightAxis = new QwtScaleWidget();
+    rightAxis = MPlot->axisWidget( MPlot->yRight );
+    rightAxis->setColorBarEnabled( true );
+    rightAxis->setColorBarWidth( 20 );
+    // legend to the right of the plot
 
-  mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
-//  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
-  mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-  mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-  mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-//  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // also resets map to lower boundary
-//  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
-  mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
-  //mapRescaler->setEnabled( true );
-  // rescaling fixed to avoid deformation
+    mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
+    //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
+    mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
+    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
+    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
+    //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // also resets map to lower boundary
+    //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
+    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+    //mapRescaler->setEnabled( true );
+    // rescaling fixed to avoid deformation
 
-  magnifier = new QwtPlotMagnifier( MPlot->canvas() );
-  magnifier->setAxisEnabled( MPlot->yRight, false );
-  magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
-  // exclude right axis legend from rescaling
+    magnifier = new QwtPlotMagnifier( MPlot->canvas() );
+    magnifier->setAxisEnabled( MPlot->yRight, false );
+    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
+    // exclude right axis legend from rescaling
 
-  panner = new QwtPlotPanner( MPlot->canvas() );
-  panner->setAxisEnabled( MPlot->yRight, false );
-  // exclude right axis legend from panning
+    panner = new QwtPlotPanner( MPlot->canvas() );
+    panner->setAxisEnabled( MPlot->yRight, false );
+    // exclude right axis legend from panning
 
-  picker = new MyPicker( MPlot->canvas() );
+    picker = new MyPicker( MPlot->canvas() );
 
-  maxAxis1 = -1e20;
-  maxAxis2 = -1e20;
-  maxAxis3 = -1e20;
-  maxAxis4 = -1e20;
-  pstep = 0;
+    maxAxis1 = -1e20;
+    maxAxis2 = -1e20;
+    maxAxis3 = -1e20;
+    maxAxis4 = -1e20;
+    pstep = 0;
 
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
 double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type)
 {
-  double maxV = -1e20;
-  mapData.clear();  //QVector double
+    double maxV = -1e20;
+    mapData.clear();  //QVector double
 
-  if (_M == NULL)
-    return (maxV);
+    if (_M == NULL)
+        return (maxV);
 
-  // copy map data into vector for the display structure
-  for(int r = _M->nrRows()-1; r >= 0; r--)
-    //      for(int r = 0; r < _M->nrRows(); r++)
-    for(int c=0; c < _M->nrCols(); c++)
-      {
-        if(!pcr::isMV(_M->Drc))
-          {
-            mapData << _M->Drc;
-            maxV = std::max(maxV, _M->Drc);
-          }
-        else
-          mapData << (double)-1e20;
-      }
+    // copy map data into vector for the display structure
+    for(int r = _M->nrRows()-1; r >= 0; r--)
+        //      for(int r = 0; r < _M->nrRows(); r++)
+        for(int c=0; c < _M->nrCols(); c++)
+        {
+            if(!pcr::isMV(_M->Drc))
+            {
+                mapData << _M->Drc;
+                maxV = std::max(maxV, _M->Drc);
+            }
+            else
+                mapData << (double)-1e20;
+        }
 
-  mapData.replace(0, (double)type);
-  // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
+    mapData.replace(0, (double)type);
+    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
 
-  // set intervals for rasterdata, x,y,z min and max
-  _RD->setValueMatrix( mapData, _M->nrCols() );
-  // set column number to divide vector into rows
+    // set intervals for rasterdata, x,y,z min and max
+    _RD->setValueMatrix( mapData, _M->nrCols() );
+    // set column number to divide vector into rows
 
-  _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-  _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-  // set x/y axis intervals
-  return maxV;
+    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    // set x/y axis intervals
+    return maxV;
 }
+//---------------------------------------------------------------------------
 void lisemqt::showMapb(bool)
 {
     showMap();
@@ -232,7 +233,6 @@ void lisemqt::showMapd(double)
 {
     showMap();
 }
-
 //---------------------------------------------------------------------------
 // show the maps on screen
 // the order of showing layers is determined by the order in how they are added to MPlot,
@@ -240,93 +240,84 @@ void lisemqt::showMapd(double)
 void lisemqt::showMap()
 {
 
-  if(op.comboboxset == false)
-  {
-      op.comboboxset = true;
+    if(op.comboboxset == false)
+    {
+        op.comboboxset = true;
 
-      for(int i = ColorMapList.length() - 1; i >-1 ; i--)
-      {
-          delete ColorMapList.at(i);
-      }
-      ColorMapList.clear();
+        for(int i = ColorMapList.length() - 1; i >-1 ; i--)
+        {
+            delete ColorMapList.at(i);
+        }
+        ColorMapList.clear();
 
-      DisplayComboBox->clear();
-      DisplayComboBox2->clear();
-      NameList.clear();
-      UnitList.clear();
-      SymList.clear();
-      LogList.clear();
-      ListList.clear();
-      picker->NameList.clear();
-      picker->UnitList.clear();
-      IndexList.clear();
-      IndexList1.clear();
-      int list = 0;
-      int list2 = 0;
+        DisplayComboBox->clear();
+        DisplayComboBox2->clear();
+        NameList.clear();
+        UnitList.clear();
+        SymList.clear();
+        LogList.clear();
+        ListList.clear();
+        picker->NameList.clear();
+        picker->UnitList.clear();
+        IndexList.clear();
+        IndexList1.clear();
+        int list = 0;
+        int list2 = 0;
 
-      for(int i = 0; i < op.ComboMapsSafe.length(); i++)
-      {
-          QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        {
+            QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-          ColorMapList.append(cm);
-          NameList.append(op.ComboMapNames.at(i));
-          UnitList.append(op.ComboUnits.at(i));
-          SymList.append(op.ComboSymColor.at(i));
-          LogList.append(op.ComboLogoritmic.at(i));
-          ListList.append(op.ComboLists.at(i));
-          picker->NameList.append(op.ComboMapNames.at(i));
-          picker->UnitList.append(op.ComboUnits.at(i));
+            ColorMapList.append(cm);
+            NameList.append(op.ComboMapNames.at(i));
+            UnitList.append(op.ComboUnits.at(i));
+            SymList.append(op.ComboSymColor.at(i)); // symetric colors
+            LogList.append(op.ComboLogaritmic.at(i));  //log display
+            ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
+            picker->NameList.append(op.ComboMapNames.at(i));
+            picker->UnitList.append(op.ComboUnits.at(i));
 
-          if(op.ComboLists.at(i) == 0)
-          {
-              DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-              IndexList.append(i);
-              list++;
-          }else
-          {
-              DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-              IndexList1.append(i);
-              list2++;
-          }
-      }
-      ActiveList = 0;
-      DisplayComboBox->setCurrentIndex(0);
-      DisplayComboBox2->setCurrentIndex(0);
-      if(list == 0)
-      {
-          DisplayComboBox->setDisabled(true);
-      }else
-      {
-          DisplayComboBox->setEnabled(true);
-      }
-      if(list2 == 0)
-      {
-          DisplayComboBox2->setDisabled(true);
-      }else
-      {
-          DisplayComboBox2->setEnabled(true);
-      }
-  }
+            if(op.ComboLists.at(i) == 0)
+            {
+                DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                IndexList.append(i);
+                list++;
+            }else
+            {
+                DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                IndexList1.append(i);
+                list2++;
+            }
+        }
+        ActiveList = 0;
 
-  drawMap->setAlpha(transparency->value());
-  drawMap->setAlpha(255);
+        DisplayComboBox2->setCurrentIndex(0);
+        DisplayComboBox->setCurrentIndex(0);
 
-  if(ActiveList == 0)
-  {
+        checkBoxComboMaps2->setChecked(false);
+        checkBoxComboMaps->setChecked(true);
+    }
+
+    drawMap->setAlpha(transparency->value());
+    drawMap->setAlpha(255);
+
+    if(ActiveList == 0)
+    {
         showComboMap(IndexList.at(DisplayComboBox->currentIndex()));
-  }else
-  {
-       showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
-  }
+    }else
+    {
+        showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
+    }
 
-  channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
-  roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
-  houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
+    channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
+    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
 
 
-  MPlot->replot();
+    MPlot->replot();
 
 }
+//---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
 {
     if( i < 0 || i >= op.ComboMapsSafe.length())
@@ -340,109 +331,62 @@ void lisemqt::showComboMap(int i)
     // fill vector RD with matrix data and find the new max value
     double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD, i);
     if (MaxV ==-1e20)
-      return;
+        return;
 
-    if(ActiveList == 0)
-    {
-//        ComboMinSpinBox->setSingleStep(std::max(MaxV / 25.0, 0.01));
-//        ComboMaxSpinBox->setSingleStep(std::max(MaxV / 25.0, 0.01));
-        ComboMinSpinBox->setSingleStep(MaxV / 25.0);
-        ComboMaxSpinBox->setSingleStep(MaxV / 25.0);
-    }else
-    {
-//        ComboMinSpinBox2->setSingleStep(std::max(MaxV / 25.0, 0.01));
-//        ComboMaxSpinBox2->setSingleStep(std::max(MaxV / 25.0, 0.01));
-        ComboMinSpinBox2->setSingleStep(MaxV / 25.0);
-        ComboMaxSpinBox2->setSingleStep(MaxV / 25.0);
-    }
+    // set stepsize
+    ComboMinSpinBox->setSingleStep(op.comboStep.at(i));
+    ComboMaxSpinBox->setSingleStep(op.comboStep.at(i));
 
-    double ma = 0;
-    double mi = 0;
-    bool apply_max = true;
-    bool apply_min = true;
-    double max_spin = ActiveList == 0? ComboMaxSpinBox->value() : ComboMaxSpinBox2->value();
-    if(op.ComboSymColor.at(i))
-    {
-        max_spin = fabs(max_spin);
-    }
-    double min_spin = ActiveList == 0? ComboMinSpinBox->value() : ComboMinSpinBox2->value();
+    // get spinbox values, can be 0
+    double mi = op.userMinV.at(i);
+    double ma = op.userMaxV.at(i);
 
-    if(max_spin == min_spin || max_spin < min_spin)
-    {
-        apply_max = false;
-    }
-    if(max_spin == min_spin)
-    {
-        apply_min = false;
-    }
+    if (ma == 0)
+        ma = MaxV; // use map max when ma = 0
 
-    if (apply_max)
-      ma = max_spin;
-    else
-      ma = MaxV;
+    if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
+        mi =-ma;
 
-    if(apply_min)
-    {
-        mi = min_spin;
-    }
-
-    if(!op.ComboSymColor.at(i))
-    {
-            RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
-    }else
-    {
-        RD->setInterval( Qt::ZAxis,QwtInterval( -ma, ma));
-    }
+    RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
     QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
     QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    if(apply_min && !op.ComboSymColor.at(i))
-    {
-        cm->thresholduse = true;
-        cm->thresholdmin = min_spin;
-        cm2->thresholduse = true;
-        cm2->thresholdmin = min_spin;
-    }else
-    {
-        cm->thresholduse = false;
-        cm2->thresholduse = false;
-    }
+    cm->thresholduse = true;
+    cm2->thresholduse = !op.ComboSymColor.at(i);
+
+    cm->thresholdmin = mi;
+    cm2->thresholdmin = mi;
 
     drawMap->setData(RD);
     drawMap->setColorMap(cm);
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cm2);
 
-    if(!op.ComboSymColor.at(i))
-    {
-        MPlot->setAxisScale( MPlot->yRight, mi, ma);
-    }else
-    {
-        MPlot->setAxisScale( MPlot->yRight, -ma, ma);
-    }
+    MPlot->setAxisScale( MPlot->yRight, mi, ma);
 
-    if(op.ComboLogoritmic.at(i))
+    if(op.ComboLogaritmic.at(i))
     {
         if (ma < 10)
-          MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.001), std::max(1.0,ma));
+            MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.001), std::max(1.0,ma));
         else
-          if (ma < 100)
+            if (ma < 100)
             {
-            MPlot->setAxisScale( MPlot->yRight,std::max(mi,0.01), std::max(10.0,ma));
+                MPlot->setAxisScale( MPlot->yRight,std::max(mi,0.01), std::max(10.0,ma));
             }
-          else
-            if (ma < 1000)
-              {
-                MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.1), std::max(100.0,ma));
-              }
             else
-              {
-                MPlot->setAxisScale( MPlot->yRight, std::max(mi,1.0), std::max(1000.0,ma));
-              }
+                if (ma < 1000)
+                {
+                    MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.1), std::max(100.0,ma));
+                }
+                else
+                {
+                    MPlot->setAxisScale( MPlot->yRight, std::max(mi,1.0), std::max(1000.0,ma));
+                }
 
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
-    }else
+    }
+    else
     {
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
@@ -451,109 +395,109 @@ void lisemqt::showComboMap(int i)
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()
 {
-  if (!startplot)
-    return;
+    if (!startplot)
+        return;
 
-  double res = fillDrawMapData(op.baseMap, RDb, 0);
-  if (res == -1e20)
-    return;
+    double res = fillDrawMapData(op.baseMap, RDb, 0);
+    if (res == -1e20)
+        return;
 
-  baseMap->setAlpha(75);
-  baseMap->setColorMap(new colorMapGray());
-  RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
-  baseMap->setData(RDb);
-  // setdata sets a pointer to DRb to the private QWT d_data Qvector
+    baseMap->setAlpha(75);
+    baseMap->setColorMap(new colorMapGray());
+    RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
+    baseMap->setData(RDb);
+    // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-  res = fillDrawMapData(op.baseMapDEM, RDbb, 7);
-  if (res == -1e20)
-    return;
-  double mindem = mapMinimum(*op.baseMapDEM);
+    res = fillDrawMapData(op.baseMapDEM, RDbb, 7);
+    if (res == -1e20)
+        return;
+    double mindem = mapMinimum(*op.baseMapDEM);
 
-  baseMapDEM->setAlpha(255);
-  baseMapDEM->setColorMap(new colorMapElevation());//colorMapGray());//
-  RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
-  baseMapDEM->setData(RDbb);
+    baseMapDEM->setAlpha(255);
+    baseMapDEM->setColorMap(new colorMapElevation());//colorMapGray());//
+    RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
+    baseMapDEM->setData(RDbb);
 
-  double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
-  double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
-  double dx = std::max(nrCols,nrRows)/20;
-  // reset the axes to the correct rows/cols,
-  // do only once because resets zooming and panning
+    double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
+    double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
+    double dx = std::max(nrCols,nrRows)/20;
+    // reset the axes to the correct rows/cols,
+    // do only once because resets zooming and panning
 
-//  MPlot->setAxisAutoScale(MPlot->yRight, false);
-//  MPlot->setAxisAutoScale(MPlot->xBottom, true);
-//  MPlot->setAxisAutoScale(MPlot->yLeft, false);
+    //  MPlot->setAxisAutoScale(MPlot->yRight, false);
+    //  MPlot->setAxisAutoScale(MPlot->xBottom, true);
+    //  MPlot->setAxisAutoScale(MPlot->yLeft, false);
 
-  MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
-  MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-  MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
-  MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
+    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
+    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
 
 }
 //---------------------------------------------------------------------------
 void lisemqt::showChannelMap()
 {
-  if (startplot)
+    if (startplot)
     {
-      double res = fillDrawMapData(op.channelMap, RDc,0 );
-      if (res ==-1e20)
-        return;
-      QwtLinearColorMapVJ *pala = new colorMapFlood();
-      pala->thresholdLCM = 0.01;
+        double res = fillDrawMapData(op.channelMap, RDc,0 );
+        if (res ==-1e20)
+            return;
+        QwtLinearColorMapVJ *pala = new colorMapFlood();
+        pala->thresholdLCM = 0.01;
 
-      channelMap->setColorMap(pala);
-      RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
-      channelMap->setData(RDc);
+        channelMap->setColorMap(pala);
+        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
+        channelMap->setData(RDc);
     }
 
-  if (checkMapChannels->isChecked())
-    channelMap->setAlpha(transparency2->value());
-  else
-    channelMap->setAlpha(0);
-  //channelMap->setAlpha(transparency2->value());
+    if (checkMapChannels->isChecked())
+        channelMap->setAlpha(transparency2->value());
+    else
+        channelMap->setAlpha(0);
+    //channelMap->setAlpha(transparency2->value());
 
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
 {
-  if (startplot)
+    if (startplot)
     {
-      double res = fillDrawMapData(op.roadMap, RDd, 0);
-      if (res ==-1e20)
-        return;
-      RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
-      roadMap->setData(RDd);
+        double res = fillDrawMapData(op.roadMap, RDd, 0);
+        if (res ==-1e20)
+            return;
+        RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
+        roadMap->setData(RDd);
     }
 
-  if (checkMapRoads->isChecked())
-    roadMap->setAlpha(transparency3->value());
-  else
-    roadMap->setAlpha(0);
+    if (checkMapRoads->isChecked())
+        roadMap->setAlpha(transparency3->value());
+    else
+        roadMap->setAlpha(0);
 
-  roadMap->setColorMap(new colorMapRoads3());
+    roadMap->setColorMap(new colorMapRoads3());
 
-//  if (op.drawMapType == 2)
-//    roadMap->setColorMap(new colorMapRoads());
-//  else
-//    roadMap->setColorMap(new colorMapRoads2());
+    //  if (op.drawMapType == 2)
+    //    roadMap->setColorMap(new colorMapRoads());
+    //  else
+    //    roadMap->setColorMap(new colorMapRoads2());
 
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
-  if (startplot)
+    if (startplot)
     {
-      // set intervals for rasterdata, x,y,z min and max
-      double res = fillDrawMapData(op.houseMap, RDe, 0);
-      if (res ==-1e20)
-        return;
-      RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
-      houseMap->setData(RDe);
+        // set intervals for rasterdata, x,y,z min and max
+        double res = fillDrawMapData(op.houseMap, RDe, 0);
+        if (res ==-1e20)
+            return;
+        RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
+        houseMap->setData(RDe);
     }
-  if (checkMapBuildings->isChecked())
-    houseMap->setAlpha(transparency4->value());
-  else
-    houseMap->setAlpha(0);
+    if (checkMapBuildings->isChecked())
+        houseMap->setAlpha(transparency4->value());
+    else
+        houseMap->setAlpha(0);
 
-  houseMap->setColorMap(new colorMapHouse());
+    houseMap->setColorMap(new colorMapHouse());
 }

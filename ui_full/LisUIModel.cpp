@@ -226,7 +226,7 @@ void lisemqt::initOP()
     op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
     op.ComboColors.clear();
-    op.ComboLogoritmic.clear();
+    op.ComboLogaritmic.clear();
     op.ComboSymColor.clear();
     op.ComboMapNames.clear();
     op.ComboUnits.clear();

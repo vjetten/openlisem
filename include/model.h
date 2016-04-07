@@ -829,7 +829,8 @@ protected:
     //combobox map selection
     void GetComboMaps();
     void ClearComboMaps();
-    void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0);
+    void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap,
+                     QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0, double step = 1.0);
 
 signals:
     void done(const QString &results);

@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -9025,8 +9025,21 @@ p, li { white-space: pre-wrap; }
               <attribute name="title">
                <string>Runoff</string>
               </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_9">
-               <item>
+              <layout class="QGridLayout" name="gridLayout_20">
+               <item row="1" column="0">
+                <spacer name="verticalSpacer_13">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="0">
                 <widget class="QGroupBox" name="groupBox_4">
                  <property name="font">
                   <font>
@@ -9038,19 +9051,6 @@ p, li { white-space: pre-wrap; }
                   <string>2D Kinematic Wave parameters</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_18">
-                  <item row="3" column="1">
-                   <spacer name="verticalSpacer_13">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                   <item row="2" column="0">
                    <widget class="QDoubleSpinBox" name="E_CourantFactorKin">
                     <property name="enabled">
@@ -9104,7 +9104,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Kinematic wave: 2 = 2D flux based; 3 = 2D distribution based (1 is reserved for 1D LDD based)</string>
+                     <string>Kinematic wave: 2 = 2D flux based; 3 = 2D bilinear interpolation (1 is reserved for 1D LDD based)</string>
                     </property>
                    </widget>
                   </item>
@@ -9159,21 +9159,21 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="2">
-                   <spacer name="horizontalSpacer_9">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </widget>
+               </item>
+               <item row="0" column="1">
+                <spacer name="horizontalSpacer_9">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
@@ -9596,7 +9596,7 @@ p, li { white-space: pre-wrap; }
                      <number>1</number>
                     </property>
                     <property name="maximum">
-                     <number>1</number>
+                     <number>2</number>
                     </property>
                     <property name="value">
                      <number>1</number>
@@ -18692,7 +18692,7 @@ p, li { white-space: pre-wrap; }
         <string>Display</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_41">
-        <item row="0" column="0">
+        <item row="0" column="1">
          <widget class="QSplitter" name="splitter">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -18749,6 +18749,19 @@ p, li { white-space: pre-wrap; }
               <property name="sizeConstraint">
                <enum>QLayout::SetDefaultConstraint</enum>
               </property>
+              <item>
+               <spacer name="verticalSpacer_15">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
             <item>
@@ -18765,64 +18778,34 @@ p, li { white-space: pre-wrap; }
               <property name="title">
                <string/>
               </property>
-              <layout class="QGridLayout" name="gridLayout_38">
-               <property name="horizontalSpacing">
-                <number>6</number>
-               </property>
-               <property name="verticalSpacing">
-                <number>4</number>
-               </property>
-               <item row="13" column="0" colspan="3">
-                <widget class="QComboBox" name="DisplayComboBox2"/>
-               </item>
-               <item row="13" column="3">
-                <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
+              <layout class="QGridLayout" name="gridLayout_27">
+               <item row="10" column="2">
+                <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="minimum">
-                  <double>-9999999.000000000000000</double>
+                  <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>99999999.989999994635582</double>
+                  <double>999999.000000000000000</double>
                  </property>
                 </widget>
                </item>
-               <item row="13" column="4">
-                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
-                 <property name="minimum">
-                  <double>-999999.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.989999999990687</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="label_56">
-                 <property name="text">
-                  <string>Hydrology</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="0" colspan="3">
-                <widget class="QComboBox" name="DisplayComboBox"/>
-               </item>
-               <item row="5" column="0" colspan="5">
-                <widget class="Line" name="line_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="4">
+               <item row="10" column="3">
                 <widget class="QDoubleSpinBox" name="ComboMaxSpinBox">
                  <property name="minimum">
-                  <double>-999999.000000000000000</double>
+                  <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
                   <double>9999999.000000000000000</double>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="6">
+               <item row="0" column="0" colspan="2">
                 <widget class="QLabel" name="label_130">
                  <property name="font">
                   <font>
@@ -18835,21 +18818,166 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="QCheckBox" name="checkMapChannels">
-                 <property name="text">
-                  <string>Channels</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
+               <item row="1" column="0" colspan="2">
                 <widget class="QCheckBox" name="checkMapBuildings">
                  <property name="text">
                   <string>Buildings (&gt;10%)</string>
                  </property>
                 </widget>
                </item>
-               <item row="8" column="0">
+               <item row="2" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkMapRoads">
+                 <property name="text">
+                  <string>Roads</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkMapChannels">
+                 <property name="text">
+                  <string>Channels</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="2">
+                <widget class="QLabel" name="label_92">
+                 <property name="text">
+                  <string>transparency shaded relief</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" colspan="4">
+                <widget class="Line" name="line_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="3">
+                <widget class="QLabel" name="label_163">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QCheckBox" name="checkBoxComboMaps">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QComboBox" name="DisplayComboBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="0" colspan="2">
+                <widget class="QLabel" name="label_63">
+                 <property name="text">
+                  <string>Sediment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="2">
+                <widget class="QLabel" name="label_1622">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Min</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="3">
+                <widget class="QLabel" name="label_1632">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="0">
+                <widget class="QCheckBox" name="checkBoxComboMaps2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="1">
+                <widget class="QComboBox" name="DisplayComboBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="2">
+                <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimum">
+                  <double>-9999999.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>0.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="3">
+                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.989999999990687</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0" colspan="4">
                 <widget class="QLabel" name="label_164">
                  <property name="font">
                   <font>
@@ -18862,77 +18990,14 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0" colspan="3">
-                <widget class="QLabel" name="label_92">
+               <item row="9" column="0" colspan="2">
+                <widget class="QLabel" name="label_56">
                  <property name="text">
-                  <string>transparency shaded relief</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  <string>Hydrology</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="3" colspan="2">
-                <widget class="QSlider" name="transparency">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>transparency of rainfall, runoff, infill etc</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>150</number>
-                 </property>
-                 <property name="value">
-                  <number>75</number>
-                 </property>
-                 <property name="sliderPosition">
-                  <number>75</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkMapRoads">
-                 <property name="text">
-                  <string>Roads</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="3" colspan="2">
-                <widget class="QSlider" name="transparency2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Transparency channels</string>
-                 </property>
-                 <property name="maximum">
-                  <number>255</number>
-                 </property>
-                 <property name="value">
-                  <number>180</number>
-                 </property>
-                 <property name="sliderPosition">
-                  <number>180</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="3" colspan="2">
+               <item row="1" column="2" colspan="2">
                 <widget class="QSlider" name="transparency4">
                  <property name="toolTip">
                   <string>Transparency buildings</string>
@@ -18963,7 +19028,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="2" column="3" colspan="2">
+               <item row="2" column="2" colspan="2">
                 <widget class="QSlider" name="transparency3">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -18988,50 +19053,60 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="8" column="2">
-                <spacer name="horizontalSpacer_12">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+               <item row="3" column="2" colspan="2">
+                <widget class="QSlider" name="transparency2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="11" column="3">
-                <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
-                 <property name="minimum">
-                  <double>-999999.000000000000000</double>
+                 <property name="toolTip">
+                  <string>Transparency channels</string>
                  </property>
                  <property name="maximum">
-                  <double>999999.000000000000000</double>
+                  <number>255</number>
                  </property>
-                </widget>
-               </item>
-               <item row="8" column="1">
-                <spacer name="horizontalSpacer_13">
+                 <property name="value">
+                  <number>180</number>
+                 </property>
+                 <property name="sliderPosition">
+                  <number>180</number>
+                 </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
+                </widget>
                </item>
-               <item row="12" column="0">
-                <widget class="QLabel" name="label_63">
-                 <property name="text">
-                  <string>Sediment</string>
+               <item row="4" column="2" colspan="2">
+                <widget class="QSlider" name="transparency">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>transparency of rainfall, runoff, infill etc</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>150</number>
+                 </property>
+                 <property name="value">
+                  <number>75</number>
+                 </property>
+                 <property name="sliderPosition">
+                  <number>75</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="3">
+               <item row="9" column="2">
                 <widget class="QLabel" name="label_162">
                  <property name="font">
                   <font>
@@ -19041,45 +19116,6 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="text">
                   <string>Min</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="4">
-                <widget class="QLabel" name="label_163">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="3">
-                <widget class="QLabel" name="label_1622">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Min</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="4">
-                <widget class="QLabel" name="label_1632">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max</string>
                  </property>
                 </widget>
                </item>
@@ -19260,12 +19296,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>350</y>
+     <x>61</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>358</x>
-     <y>351</y>
+     <x>72</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -19276,12 +19312,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>350</y>
+     <x>61</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>444</x>
-     <y>351</y>
+     <x>82</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -19292,12 +19328,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>350</y>
+     <x>61</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>351</y>
+     <x>93</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -19308,12 +19344,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>495</y>
+     <x>189</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>670</y>
+     <x>831</x>
+     <y>303</y>
     </hint>
    </hints>
   </connection>
@@ -19324,12 +19360,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>495</y>
+     <x>189</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>697</y>
+     <x>831</x>
+     <y>304</y>
     </hint>
    </hints>
   </connection>
@@ -19340,12 +19376,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>718</x>
-     <y>678</y>
+     <x>118</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19356,12 +19392,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>652</x>
-     <y>678</y>
+     <x>103</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19372,12 +19408,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>174</x>
-     <y>678</y>
+     <x>65</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19388,12 +19424,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>471</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>407</x>
-     <y>495</y>
+     <x>189</x>
+     <y>497</y>
     </hint>
    </hints>
   </connection>
@@ -19404,12 +19440,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>678</y>
+     <x>57</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19420,12 +19456,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>280</x>
-     <y>678</y>
+     <x>73</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19436,12 +19472,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>412</y>
+     <x>61</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>383</x>
-     <y>413</y>
+     <x>87</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -19452,12 +19488,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>381</y>
+     <x>62</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>331</x>
-     <y>382</y>
+     <x>77</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -19468,12 +19504,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>471</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>407</x>
-     <y>521</y>
+     <x>189</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -19484,12 +19520,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>412</y>
+     <x>61</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>576</x>
-     <y>412</y>
+     <x>100</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -19500,12 +19536,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>385</x>
-     <y>678</y>
+     <x>80</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19516,12 +19552,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>491</x>
-     <y>678</y>
+     <x>88</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19532,12 +19568,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>654</y>
+     <x>118</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>596</x>
-     <y>678</y>
+     <x>95</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -19548,12 +19584,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>381</y>
+     <x>62</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>382</y>
+     <x>92</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -19564,12 +19600,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
-     <y>633</y>
+     <x>157</x>
+     <y>635</y>
     </hint>
     <hint type="destinationlabel">
-     <x>407</x>
-     <y>657</y>
+     <x>189</x>
+     <y>659</y>
     </hint>
    </hints>
   </connection>
@@ -19580,12 +19616,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>530</y>
+     <x>110</x>
+     <y>332</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>593</y>
+     <x>831</x>
+     <y>301</y>
     </hint>
    </hints>
   </connection>
@@ -19596,12 +19632,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>471</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>566</y>
+     <x>831</x>
+     <y>300</y>
     </hint>
    </hints>
   </connection>
@@ -19612,12 +19648,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>412</y>
+     <x>61</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>297</x>
-     <y>413</y>
+     <x>74</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -19628,12 +19664,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>495</y>
+     <x>189</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>643</y>
+     <x>831</x>
+     <y>303</y>
     </hint>
    </hints>
   </connection>
@@ -19644,12 +19680,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>495</y>
+     <x>189</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1074</x>
-     <y>724</y>
+     <x>831</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -19660,12 +19696,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>405</y>
+     <x>157</x>
+     <y>407</y>
     </hint>
     <hint type="destinationlabel">
-     <x>376</x>
-     <y>429</y>
+     <x>189</x>
+     <y>431</y>
     </hint>
    </hints>
   </connection>
@@ -19676,12 +19712,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>301</x>
-     <y>471</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1470</x>
-     <y>340</y>
+     <x>1391</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -19692,12 +19728,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>273</x>
-     <y>471</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1281</x>
-     <y>340</y>
+     <x>1252</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -19708,12 +19744,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>388</y>
+     <x>83</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>414</y>
+     <x>83</x>
+     <y>304</y>
     </hint>
    </hints>
   </connection>
@@ -19724,12 +19760,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>313</x>
-     <y>388</y>
+     <x>83</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>533</x>
-     <y>413</y>
+     <x>116</x>
+     <y>304</y>
     </hint>
    </hints>
   </connection>
@@ -19740,12 +19776,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>388</y>
+     <x>83</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>414</y>
+     <x>67</x>
+     <y>304</y>
     </hint>
    </hints>
   </connection>
@@ -19756,12 +19792,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>365</y>
+     <x>83</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>485</x>
-     <y>366</y>
+     <x>100</x>
+     <y>307</y>
     </hint>
    </hints>
   </connection>
@@ -19772,12 +19808,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>250</x>
-     <y>365</y>
+     <x>83</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>533</x>
-     <y>366</y>
+     <x>116</x>
+     <y>307</y>
     </hint>
    </hints>
   </connection>
@@ -19788,18 +19824,18 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>215</x>
-     <y>458</y>
+     <x>157</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>211</x>
-     <y>538</y>
+     <x>189</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

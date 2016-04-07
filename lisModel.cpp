@@ -328,11 +328,11 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    AddComboMap(0,"Overland Discharge","l/s",Q,Colormap,Colors,true,false,1000.0);
+    AddComboMap(0,"Overland Discharge","l/s",Q,Colormap,Colors,true,false,1000.0, 1.0);
     if(SwitchIncludeChannel)
     {
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQ,Colormap,Colors,true,false,1000.0);
-        AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0);
+        AddComboMap(0,"Channel Discharge","l/s",ChannelQ,Colormap,Colors,true,false,1000.0, 1.0);
+        AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
     }
 
     Colormap.clear();
@@ -345,10 +345,10 @@ void TWorld::GetComboMaps()
     Colors.append("#FFFF00");
     Colors.append("#FF0000");
     Colors.append("#A60000");
-    AddComboMap(0,"Overland Flow Velocity","m/s",V,Colormap,Colors,false,false,1.0);
+    AddComboMap(0,"Overland Flow Velocity","m/s",V,Colormap,Colors,false,false,1.0, 0.01);
     if(SwitchIncludeChannel)
     {
-        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0);
+        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
     }
 
     Colormap.clear();
@@ -360,7 +360,7 @@ void TWorld::GetComboMaps()
     Colors.append("#0023b1");
     Colors.append("#001462");
 
-    AddComboMap(0,"Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0);
+    AddComboMap(0,"Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
 
     if(InfilMethod != INFIL_NONE)
     {
@@ -375,7 +375,7 @@ void TWorld::GetComboMaps()
         Colors.append("#FFFF55");
         Colors.append("#8080FF");
         Colors.append("#0000AA");
-        AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0);
+        AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
     }
 
     Colormap.clear();
@@ -388,8 +388,8 @@ void TWorld::GetComboMaps()
     Colors.append("#0000FF");
     Colors.append("#FF0000");
 
-    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0);
+    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
 
     if(SwitchChannelFlood)
     {
@@ -401,7 +401,7 @@ void TWorld::GetComboMaps()
         Colors.append("#5477ff");
         Colors.append("#0023b1");
         Colors.append("#001462");
-        AddComboMap(0,"Flood Height","m",hmx,Colormap,Colors,false,false,1.0);
+        AddComboMap(0,"Flood Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
 
         Colormap.clear();
         Colormap.append(0.0);
@@ -413,7 +413,7 @@ void TWorld::GetComboMaps()
         Colors.append("#FFFF00");
         Colors.append("#FF0000");
         Colors.append("#A60000");
-        AddComboMap(0,"Flood Velocity","m/s",UVflood,Colormap,Colors,false,false,1.0);
+        AddComboMap(0,"Flood Velocity","m/s",UVflood,Colormap,Colors,false,false,1.0,0.01);
 
         Colormap.clear();
         Colormap.append(0.0);
@@ -428,11 +428,12 @@ void TWorld::GetComboMaps()
         Colors.append("#00FF00");
         Colors.append("#007300");
 
-        AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0);
+        AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
 
     }
     if(SwitchErosion)
     {
+        double step = 0.01;
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.3);
@@ -457,7 +458,7 @@ void TWorld::GetComboMaps()
             factor = 10.0/(_dx*_dx);
             unit = "t/ha";
         }
-        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,Colormap,Colors,false,true,factor);
+        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,Colormap,Colors,false,true,factor, step);
 
 
         Colormap.clear();
@@ -471,7 +472,7 @@ void TWorld::GetComboMaps()
         Colors.append("#808000");
         Colors.append("#804000");
 
-        AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx));
+        AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)
         {
@@ -488,7 +489,7 @@ void TWorld::GetComboMaps()
 
             FOR_GRAIN_CLASSES
             {
-                AddComboMap(1,"Overland S.L. Grain Class " + QString::number(d),"kg/m2",Sed_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+            AddComboMap(1,"Overland S.L. Grain Class " + QString::number(d),"kg/m2",Sed_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
             }
             if(SwitchIncludeChannel)
             {
@@ -496,17 +497,17 @@ void TWorld::GetComboMaps()
                 {
                     FOR_GRAIN_CLASSES
                     {
-                        AddComboMap(1,"Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                        AddComboMap(1,"Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                     }
                     FOR_GRAIN_CLASSES
                     {
-                        AddComboMap(1,"Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",RSS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                        AddComboMap(1,"Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",RSS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                     }
                 }else
                 {
                     FOR_GRAIN_CLASSES
                     {
-                        AddComboMap(1,"Channel S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                        AddComboMap(1,"Channel S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                     }
                 }
             }
@@ -514,11 +515,11 @@ void TWorld::GetComboMaps()
             {
                 FOR_GRAIN_CLASSES
                 {
-                    AddComboMap(1,"Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",BL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                    AddComboMap(1,"Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",BL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                 }
                 FOR_GRAIN_CLASSES
                 {
-                    AddComboMap(1,"Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",SS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx));
+                    AddComboMap(1,"Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",SS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx),step);
                 }
             }
 
@@ -545,16 +546,20 @@ void TWorld::ClearComboMaps()
     op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
     op.ComboColors.clear();
-    op.ComboLogoritmic.clear();
+    op.ComboLogaritmic.clear();
     op.ComboSymColor.clear();
     op.ComboMapNames.clear();
     op.ComboUnits.clear();
     op.ComboScaling.clear();
+    op.userMinV.clear();
+    op.userMaxV.clear();
+    op.comboStep.clear();
 
     op.comboboxset = false;
 }
 //---------------------------------------------------------------------------
-void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors, bool log,bool symcol, double scale)
+void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors,
+                         bool log,bool symcol, double scale, double step)
 {
     op.ComboLists.append(listn);
     op.ComboMaps.append(map);
@@ -562,11 +567,14 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);
-    op.ComboLogoritmic.append(log);
+    op.ComboLogaritmic.append(log);
     op.ComboSymColor.append(symcol);
     op.ComboMapNames.append(name);
     op.ComboUnits.append(unit);
     op.ComboScaling.append(scale);
+    op.userMinV.append(0);  //initialize to 0, used to save users choice
+    op.userMaxV.append(0);
+    op.comboStep.append(step);
 
     op.comboboxset = false;
 }
