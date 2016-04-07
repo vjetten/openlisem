@@ -296,6 +296,7 @@ void lisemqt::ParseInputData()
         {
             namelist[j].name = QString("Infil Method");
             uiInfilMethod = 0;
+            dummy2layerinfil = false;
             switch(iii) {
             case INFIL_SWATRE : uiInfilMethod = 1; break;
             case INFIL_GREENAMPT : uiInfilMethod = 2; break;
