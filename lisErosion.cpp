@@ -214,31 +214,31 @@ void TWorld::SplashDetachment(void)
               Storage->Drc = GetTotalDW(r,c,&Storage_D);
           }
 
-          //check wat we can detache from the top and bottom layer of present material
+          //check wat we can detach from the top and bottom layer of present material
           double dleft = DETSplash->Drc ;
           double deptake = 0;
           double mattake = 0;
           double detachment = 0;
 
 
-              deptake = std::min(dleft,StorageDep->Drc);
-              StorageDep->Drc -= deptake;
+          deptake = std::min(dleft,StorageDep->Drc);
+          StorageDep->Drc -= deptake;
 
-              if(SwitchUseGrainSizeDistribution)
+          if(SwitchUseGrainSizeDistribution)
+          {
+              double wtotal = 0;
+              FOR_GRAIN_CLASSES
               {
-                  double wtotal = 0;
+                  wtotal += StorageDep_D.Drcd;
+              }
+              if(wtotal != 0)
+              {
                   FOR_GRAIN_CLASSES
                   {
-                        wtotal += StorageDep_D.Drcd;
-                  }
-                  if(wtotal != 0)
-                  {
-                      FOR_GRAIN_CLASSES
-                      {
-                            StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc/wtotal;
-                      }
+                      StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc/wtotal;
                   }
               }
+          }
 
           detachment += deptake;
 

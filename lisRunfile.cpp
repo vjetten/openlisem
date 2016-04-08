@@ -336,7 +336,8 @@ void TWorld::ParseRunfileData(void)
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
     CourantKin = getvaluedouble("Courant Kin Wave 2D");
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
-    OF_Method = (SwitchUseGrainSizeDistribution? 1 : 0);
+
+    OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
 
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
         SwitchFloodSWOForder1 = true;

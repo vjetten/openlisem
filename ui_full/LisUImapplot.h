@@ -47,7 +47,7 @@ public:
             QString name = NameList.at(index);
             QString unit = UnitList.at(index);
 
-            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',1).arg(z0,0,'f',2);
+            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',2).arg(z0,0,'f',2);
         }
 
         QwtText text = QwtText(txt);
@@ -100,7 +100,9 @@ class QwtComboColorMap: public QwtLinearColorMap
 
 public:
 
-    QwtComboColorMap( const QColor &from, const QColor &to,QList<double> map,QList<QString> colors,
+    QwtComboColorMap( const QColor &from, const QColor &to,
+                      QList<double> map,
+                      QList<QString> colors,
         QwtLinearColorMap::Format = QwtColorMap::RGB ):QwtLinearColorMap( from, to)
     {
             thresholdmin = 0;

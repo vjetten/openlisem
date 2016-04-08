@@ -174,7 +174,7 @@ void TWorld::OutputUI(void)
     op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
 
     op.MBs = MBs;
-    op.DetTotSplash=DetSplashTot*0.001; // convert from kg to ton
+    op.DetTotSplash=DetSplashTot*0.001; // convert from kg to ton per cell
     op.DetTotFlow=DetFlowTot*0.001; // convert from kg to ton
     op.DepTot=DepTot*0.001; // convert from kg to ton
     op.SedTot=SedTot*0.001; // convert from kg to ton
@@ -608,6 +608,8 @@ void TWorld::ReportMaps(void)
         report(*tm, totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
             report(*tm, Outdepo); // in units
+
+//report(*DETSplashCum, "splash");
 
         copy(*tm, *TotalSoillossMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2

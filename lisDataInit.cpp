@@ -800,6 +800,8 @@ void TWorld::InitMulticlass(void)
     //Qsoutflow = NewMap(0);
     DETFlow = NewMap(0);
     DETSplash = NewMap(0);
+    DETSplashCum = NewMap(0);
+    DETFlowCum = NewMap(0);
     DEP = NewMap(0);
     Sed = NewMap(0);
     TC = NewMap(0);
@@ -1009,6 +1011,7 @@ void TWorld::InitMulticlass(void)
 
                 double s = distD90- distD50;
                 double s2l = std::max(distD50 - 2*s,distD50);
+//VJ leads always to dist D50 of course
                 double s2r = 2 * s;
 
                 int classesleft = numgrainclasses;
@@ -1102,7 +1105,9 @@ void TWorld::InitMulticlass(void)
                     qDebug() << "Grainsize " <<  graindiameters.at(d) << "with lognormal distribution at center" << LogNormalDist(distD50,distD90 - distD50,graindiameters.at(d)) << "with settlingvelocity" << settlingvelocities.at(d);
                 }
 
-            }if(SwitchUseGrainSizeDistribution && SwitchReadGrainSizeDistribution)
+            }
+
+            if(SwitchUseGrainSizeDistribution && SwitchReadGrainSizeDistribution)
             {
 
                 numgrainclasses = 0;

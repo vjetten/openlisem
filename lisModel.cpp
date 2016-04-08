@@ -473,6 +473,8 @@ void TWorld::GetComboMaps()
         Colors.append("#804000");
 
         AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+  //      AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+  //      AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)
         {

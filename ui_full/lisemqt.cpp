@@ -221,7 +221,8 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
-    int i = DisplayComboBox->currentIndex();
+    int i = IndexList.at(DisplayComboBox->currentIndex());
+    //DisplayComboBox->currentIndex();
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -238,7 +239,8 @@ void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
-    int i = DisplayComboBox->currentIndex();
+    int i = IndexList.at(DisplayComboBox->currentIndex());
+    //DisplayComboBox->currentIndex();
     if( i > -1 && i < this->SymList.length())
     {
         op.userMaxV.replace(i, d);
@@ -254,14 +256,16 @@ void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
 {
-    int i = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
     if (!DisplayComboBox2->isEnabled())
         return;
+
+    int i = IndexList1.at(DisplayComboBox2->currentIndex());
 
     if( i > -1 && i < this->SymList.length())
     {
         if (!op.ComboSymColor.at(i))
         {
+            ComboMinSpinBox2->setMinimum(0);
             if (op.userMaxV.at(i) == 0)
                 op.userMinV.replace(i, d);
             if (op.userMaxV.at(i) > 0 && d < op.userMaxV.at(i))
@@ -269,21 +273,29 @@ void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
             if(op.userMaxV.at(i) > 0 && d >= op.userMaxV.at(i))
                 ComboMinSpinBox2->setValue(op.userMinV.at(i));
         }
+        else
+            ComboMinSpinBox2->setMinimum(-999999);
     }
 }
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 {
-    int i = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
-
     if (!DisplayComboBox2->isEnabled())
         return;
+
+    int i = IndexList1.at(DisplayComboBox2->currentIndex());
 
     if( i > -1 && i < this->SymList.length())   //needed?
     {
         op.userMaxV.replace(i, d);
         if (op.ComboSymColor.at(i))
+        {
+            ComboMinSpinBox2->setMinimum(-999999);
             op.userMinV.replace(i, -d);
+        }
+        else
+            ComboMinSpinBox2->setMinimum(0);
+
 
         if (op.userMaxV.at(i) > 0)
             if(op.userMinV.at(i) > op.userMaxV.at(i))
@@ -310,6 +322,11 @@ void lisemqt::setDisplayComboBox2(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
+
+        int j = IndexList1.at(i);
+
+        ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
+
         ActiveList = 1;
         this->showMap();
     }
@@ -330,6 +347,7 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 {
     int i = IndexList1.at(j);
 
+    ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(i));
     ComboMaxSpinBox2->setValue(op.userMaxV.at(i));
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
     this->showMap();
@@ -507,6 +525,16 @@ void lisemqt::setErosionTab(bool yes)
     ComboMinSpinBox2->setEnabled(yes);
     ComboMaxSpinBox2->setEnabled(yes);
     DisplayComboBox2->setEnabled(yes);
+
+    sedgroup->setEnabled(yes);
+
+    label_31->setEnabled(yes);
+    label_28->setEnabled(yes);
+    label_60->setEnabled(checkDoErosion->isChecked());
+
+    label_soillosskgha->setEnabled(yes);
+    label_soilloss->setEnabled(yes);
+    label_SDR->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)

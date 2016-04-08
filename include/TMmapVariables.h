@@ -131,9 +131,11 @@ cTMap
 *AggrStab,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
 *D90,                        //!< 90 % of grainsize distribution is below this value [mu]
-*DETSplash,                  //!< splash detachment [kg/m^2]
-*DETFlow,                    //!< flow detachment [kg/m^2]
-*DEP,                        //!< deposition [kg/m^2]
+*DETSplash,                  //!< splash detachment [kg/cell]
+*DETSplashCum,
+*DETFlow,                    //!< flow detachment [kg/cell]
+*DETFlowCum,
+*DEP,                        //!< deposition [kg/cell]
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]
 *Sed,                        //!< sediment content of flow [kg]

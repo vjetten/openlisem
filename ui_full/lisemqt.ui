@@ -5575,7 +5575,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>6</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -11757,19 +11757,6 @@ p, li { white-space: pre-wrap; }
                <string>Sediment Transport</string>
               </attribute>
               <layout class="QGridLayout" name="verticalLayout_10">
-               <item row="2" column="0" colspan="3">
-                <spacer name="verticalSpacer_5">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
                <item row="0" column="0" colspan="3">
                 <layout class="QVBoxLayout" name="verticalLayout_12">
                  <property name="spacing">
@@ -11810,8 +11797,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="checkBox_SedSingleSingle">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
                       <property name="text">
-                       <string>Single Layer,  Local Soil Properties</string>
+                       <string>1 layer, Suspended sediment, Single median Grainsize from soil properties</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -11842,7 +11835,7 @@ p, li { white-space: pre-wrap; }
                          </sizepolicy>
                         </property>
                         <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Three advanced configurations for sediment transport are available.&lt;br/&gt;These configurations allow you to change other options below.&lt;/p&gt;&lt;p&gt;Choose between Single layer sediment transport (suspended only)&lt;br/&gt;or Bed + Suspended layer sediment transport.&lt;/p&gt;&lt;p&gt;Choose between assuming local soil properties, &lt;br/&gt;or use a grain size distribution and dynamically model soil characteristics&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Three advanced configurations for sediment transport are available.&lt;br/&gt;These configurations allow you to change other options below.&lt;/p&gt;&lt;p&gt;Choose between Single layer sediment transport (suspended only)&lt;br/&gt;or Bed + Suspended layer sediment transport.&lt;/p&gt;&lt;p&gt;Choose between:&lt;br/&gt;- assume local soil properties: sediment is related to the D50 of the texture of each gridcell. Note that this assumes that the sediment in flow changes according to the D50 of the gridcell underlying the flow. For flood you need alsways an additional map of D90 for sediment.&lt;br/&gt;-Assume a gransize distribution. This can be based on an automatic distribution using a d50 and a D90 map, or a user defined distribution of all sediment grainsize classes.&lt;/p&gt;&lt;p&gt;D50 is the median os the grainsize distribution, D90 is the grainsize below which 90% of the gransizes are characterized.&lt;/p&gt;&lt;p/&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string/>
@@ -11856,15 +11849,27 @@ p, li { white-space: pre-wrap; }
                     </item>
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="checkBox_SedMultiSingle">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
                       <property name="text">
-                       <string>Bed Load and Suspended Load, Local Soil Properties</string>
+                       <string>2 layer, Bed Load and Suspended sediment, Single median Grainsize from soil properties.</string>
                       </property>
                      </widget>
                     </item>
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="checkBox_SedMultiMulti">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
                       <property name="text">
-                       <string>Bed Load and Suspended Load, grain size distribution</string>
+                       <string>2 layer, Bed Load and Suspended sediment, Grain Size Distribution</string>
                       </property>
                      </widget>
                     </item>
@@ -11875,6 +11880,12 @@ p, li { white-space: pre-wrap; }
                   <layout class="QHBoxLayout" name="horizontalLayout_6">
                    <item>
                     <widget class="QLabel" name="label_175">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Channel Sediment Transport</string>
                      </property>
@@ -11889,7 +11900,7 @@ p, li { white-space: pre-wrap; }
                       </sizepolicy>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Options for Channel Sediment transport-&lt;br/&gt;&lt;br/&gt;Transport capacity equation for Bed layer:&lt;br/&gt;0-Govers&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia (can be used with grain size distribution)&lt;/p&gt;&lt;p&gt;Transport capacity equation for Suspended layer:&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia&lt;/p&gt;&lt;p&gt;Turbulent Prandtl-Schmidt Number (p)-&lt;br/&gt;A coefficient influencing the sediment diffusion in flood water. Influence is inversly linear (Diffusion *= 1/p)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Options for Channel Sediment transport&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Transport capacity equation for Bed load:&lt;/span&gt;&lt;br/&gt;0-Govers&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia (wil be used with grain size distribution)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Transport capacity equation for Suspended layer:&lt;/span&gt;&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia (wil be used with grain size distribution)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Turbulent Prandtl-Schmidt Number (p):&lt;/span&gt;&lt;br/&gt;A coefficient influencing the sediment diffusion in flood water. &lt;br/&gt;Influence is inversly linear (Diffusion *= 1/p)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -12073,6 +12084,12 @@ p, li { white-space: pre-wrap; }
                   <layout class="QHBoxLayout" name="horizontalLayout_4">
                    <item>
                     <widget class="QLabel" name="label_171">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Flood Sediment Transport</string>
                      </property>
@@ -12087,7 +12104,7 @@ p, li { white-space: pre-wrap; }
                       </sizepolicy>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Options for flood sediment transport:&lt;br/&gt;&lt;br/&gt;Bilinear Interpolation - a faster and less accurate method of advecting sediment trough the velocity field of flood water&lt;/p&gt;&lt;p&gt;Transport capacity equation for Bed layer:&lt;br/&gt;0-Govers&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia (can be used with grain size distribution)&lt;/p&gt;&lt;p&gt;Transport capacity equation for Suspended layer:&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia&lt;/p&gt;&lt;p&gt;Turbulent Prandtl-Schmidt Number (p)-&lt;br/&gt;A coefficient influencing the sediment diffusion in flood water. Influence is inversly linear (Diffusion *= 1/p)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Options for flood sediment transport&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;Bilinear Interpolation - a faster and less accurate method of advecting sediment trough the velocity field of flood water&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Transport capacity equation for Bed layer:&lt;/span&gt;&lt;br/&gt;0-Govers&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia (can be used with grain size distribution)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Transport capacity equation for Suspended layer:&lt;/span&gt;&lt;br/&gt;1-Van Rijn Simple&lt;br/&gt;2-Van Rijn Full&lt;br/&gt;3-Wu, Wang &amp;amp; Jia&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Turbulent Prandtl-Schmidt Number (p):&lt;/span&gt;&lt;br/&gt;A coefficient influencing the sediment diffusion in flood water. &lt;br/&gt;Influence is inversly linear (Diffusion *= 1/p)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -12319,6 +12336,12 @@ p, li { white-space: pre-wrap; }
                   <layout class="QHBoxLayout" name="horizontalLayout_5">
                    <item>
                     <widget class="QLabel" name="label_173">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Grain Size Distribution</string>
                      </property>
@@ -12333,7 +12356,7 @@ p, li { white-space: pre-wrap; }
                       </sizepolicy>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Options for using a grain size distribution:&lt;br/&gt;- Estimate the distribution using a LogNormal function and the D50 and D90 values.&lt;br/&gt;- Provide a custom distribution trough a list of maps&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Options for using a grain size distribution:&lt;/span&gt;&lt;br/&gt;- Estimate the distribution using a Log-normal function and the D50 and D90 values.&lt;br/&gt;- Provide a custom distribution trough a list of maps&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -12545,20 +12568,33 @@ p, li { white-space: pre-wrap; }
                    </layout>
                   </widget>
                  </item>
-                 <item>
-                  <spacer name="verticalSpacer_6">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
                 </layout>
+               </item>
+               <item row="2" column="0" colspan="3">
+                <spacer name="verticalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="3">
+                <spacer name="horizontalSpacer_12">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
@@ -18770,7 +18806,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -18779,224 +18815,6 @@ p, li { white-space: pre-wrap; }
                <string/>
               </property>
               <layout class="QGridLayout" name="gridLayout_27">
-               <item row="10" column="2">
-                <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimum">
-                  <double>0.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="3">
-                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox">
-                 <property name="minimum">
-                  <double>0.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>9999999.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0" colspan="2">
-                <widget class="QLabel" name="label_130">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Overlay information</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="QCheckBox" name="checkMapBuildings">
-                 <property name="text">
-                  <string>Buildings (&gt;10%)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0" colspan="2">
-                <widget class="QCheckBox" name="checkMapRoads">
-                 <property name="text">
-                  <string>Roads</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0" colspan="2">
-                <widget class="QCheckBox" name="checkMapChannels">
-                 <property name="text">
-                  <string>Channels</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0" colspan="2">
-                <widget class="QLabel" name="label_92">
-                 <property name="text">
-                  <string>transparency shaded relief</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0" colspan="4">
-                <widget class="Line" name="line_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="3">
-                <widget class="QLabel" name="label_163">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="0">
-                <widget class="QCheckBox" name="checkBoxComboMaps">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="1">
-                <widget class="QComboBox" name="DisplayComboBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="0" colspan="2">
-                <widget class="QLabel" name="label_63">
-                 <property name="text">
-                  <string>Sediment</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="2">
-                <widget class="QLabel" name="label_1622">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Min</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="3">
-                <widget class="QLabel" name="label_1632">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="0">
-                <widget class="QCheckBox" name="checkBoxComboMaps2">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="1">
-                <widget class="QComboBox" name="DisplayComboBox2">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="2">
-                <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="minimum">
-                  <double>-9999999.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>0.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="3">
-                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="minimum">
-                  <double>0.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.989999999990687</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0" colspan="4">
-                <widget class="QLabel" name="label_164">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Map to display</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="0" colspan="2">
-                <widget class="QLabel" name="label_56">
-                 <property name="text">
-                  <string>Hydrology</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="2" colspan="2">
                 <widget class="QSlider" name="transparency4">
                  <property name="toolTip">
@@ -19028,6 +18846,20 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
+               <item row="2" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkMapRoads">
+                 <property name="text">
+                  <string>Roads</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkMapBuildings">
+                 <property name="text">
+                  <string>Buildings (&gt;10%)</string>
+                 </property>
+                </widget>
+               </item>
                <item row="2" column="2" colspan="2">
                 <widget class="QSlider" name="transparency3">
                  <property name="sizePolicy">
@@ -19053,26 +18885,219 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="3" column="2" colspan="2">
-                <widget class="QSlider" name="transparency2">
+               <item row="0" column="0" colspan="2">
+                <widget class="QLabel" name="label_130">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Overlay information</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="3">
+                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="toolTip">
-                  <string>Transparency channels</string>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <number>255</number>
+                  <double>999999.989999999990687</double>
                  </property>
-                 <property name="value">
-                  <number>180</number>
+                </widget>
+               </item>
+               <item row="12" column="2">
+                <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
                  </property>
-                 <property name="sliderPosition">
-                  <number>180</number>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
+                 <property name="minimum">
+                  <double>-999999.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="1">
+                <widget class="QComboBox" name="DisplayComboBox2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="0">
+                <widget class="QCheckBox" name="checkBoxComboMaps2">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="3">
+                <widget class="QLabel" name="label_1632">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="2">
+                <widget class="QLabel" name="label_1622">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Min</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="0" colspan="2">
+                <widget class="QLabel" name="label_63">
+                 <property name="text">
+                  <string>Sediment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="3">
+                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>9999999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="2">
+                <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QComboBox" name="DisplayComboBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QCheckBox" name="checkBoxComboMaps">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="3">
+                <widget class="QLabel" name="label_163">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="2">
+                <widget class="QLabel" name="label_162">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Min</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0" colspan="2">
+                <widget class="QLabel" name="label_56">
+                 <property name="text">
+                  <string>Hydrology</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0" colspan="4">
+                <widget class="QLabel" name="label_164">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Map to display</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" colspan="4">
+                <widget class="Line" name="line_3">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -19106,18 +19131,60 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="9" column="2">
-                <widget class="QLabel" name="label_162">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
+               <item row="4" column="0" colspan="2">
+                <widget class="QLabel" name="label_92">
                  <property name="text">
-                  <string>Min</string>
+                  <string>transparency shaded relief</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
+               </item>
+               <item row="3" column="2" colspan="2">
+                <widget class="QSlider" name="transparency2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Transparency channels</string>
+                 </property>
+                 <property name="maximum">
+                  <number>255</number>
+                 </property>
+                 <property name="value">
+                  <number>180</number>
+                 </property>
+                 <property name="sliderPosition">
+                  <number>180</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkMapChannels">
+                 <property name="text">
+                  <string>Channels</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="4">
+                <spacer name="horizontalSpacer_13">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>

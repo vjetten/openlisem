@@ -41,5 +41,4 @@
 #define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)
 
 
-
 #endif /* VERSION_H_ */

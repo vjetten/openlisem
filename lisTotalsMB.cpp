@@ -273,6 +273,7 @@ void TWorld::Totals(void)
     if (SwitchErosion)
     {
         DetSplashTot += mapTotal(*DETSplash);
+
         DetFlowTot += mapTotal(*DETFlow);
         DepTot += mapTotal(*DEP);
         DetTot += mapTotal(*DETSplash) + mapTotal(*DETFlow);
@@ -294,7 +295,11 @@ void TWorld::Totals(void)
             calcMap(*TotalSed, *BLFlood, ADD);
             calcMap(*TotalSed, *SSFlood, ADD);
         }
-
+        FOR_ROW_COL_MV
+        {
+          DETSplashCum->Drc += DETSplash->Drc;
+          DETFlowCum->Drc += DETFlow->Drc;
+        }
 
         //SoilLossTot += Qsoutflow->DrcOutlet;
         if(SwitchKinematic2D == 1)
@@ -303,7 +308,7 @@ void TWorld::Totals(void)
             {
                 if (LDD->Drc == 5)
                 {
-                        SoilLossTot += Qsn->Drc * _dt;
+                    SoilLossTot += Qsn->Drc * _dt;
                 }
             }
         }else

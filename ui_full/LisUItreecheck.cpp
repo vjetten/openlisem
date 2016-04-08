@@ -58,10 +58,6 @@ GULLIESMAPS
 void lisemqt::on_checkDoErosion_clicked()
 {
     checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
-    sedgroup->setEnabled(checkDoErosion->isChecked());
-
-    label_31->setEnabled(checkDoErosion->isChecked());
-    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
