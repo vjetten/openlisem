@@ -370,6 +370,8 @@ private slots:
 
 
 private:
+
+    QSystemTrayIcon *trayIcon;
     //toolbar actions
     QAction *openAct;
     QAction *saveAct;

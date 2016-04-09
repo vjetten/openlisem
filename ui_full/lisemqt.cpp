@@ -67,6 +67,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     resize(1280, 800);
 
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/openLisem.ico"));
+    trayIcon->show();
+
     QList<int> list;
     list << 300 << 600;
     splitter->setSizes(list);

@@ -30,5 +30,6 @@
         <file>help1.png</file>
         <file>bullet.png</file>
         <file>information_4.png</file>
+        <file>openLisem.ico</file>
     </qresource>
 </RCC>

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     Fixture fixture;
 
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon("openlisem.ico"));
+    app.setWindowIcon(QIcon(":/openlisem.ico"));
 
     QFile file(":/openlisem.qss");
     file.open(QFile::ReadOnly);
