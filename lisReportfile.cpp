@@ -1069,6 +1069,7 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
         AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
         AddComboMap(1,"Flow detachment","kg/m2",DETFlowCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+ //       AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)
         {

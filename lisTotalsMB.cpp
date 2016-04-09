@@ -353,7 +353,7 @@ void TWorld::Totals(void)
 
         }
         /** TODO add gully, wheeltracks etc */
-
+report(*BLDepFloodT,"bldep");
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {

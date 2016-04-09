@@ -243,16 +243,17 @@ void lisemqt::showMap()
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
-
+qDebug() << "hier";
         for(int i = ColorMapList.length() - 1; i >-1 ; i--)
         {
             delete ColorMapList.at(i);
 
         }
         ColorMapList.clear();
-
+        qDebug() << "daar" << DisplayComboBox->currentText();
         DisplayComboBox->clear();
         DisplayComboBox2->clear();
+        qDebug() << "daar";
         NameList.clear();
         UnitList.clear();
         SymList.clear();
@@ -262,6 +263,7 @@ void lisemqt::showMap()
         picker->UnitList.clear();
         IndexList.clear();
         IndexList1.clear();
+        qDebug() << "hier";
 
         for(int i = 0; i < op.ComboMapsSafe.length(); i++)
         {
@@ -272,7 +274,7 @@ void lisemqt::showMap()
             UnitList.append(op.ComboUnits.at(i));
             SymList.append(op.ComboSymColor.at(i)); // symetric colors
             LogList.append(op.ComboLogaritmic.at(i));  //log display
-          //  ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
+             //ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
 
@@ -280,13 +282,16 @@ void lisemqt::showMap()
             {
                 DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
+                qDebug()<< i << "1";
             }else
             {
                 DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
+                qDebug()<< i << "2";
             }
         }
         ActiveList = 0;
+        qDebug() << "hier";
 
         checkBoxComboMaps2->setChecked(false);
         checkBoxComboMaps->setChecked(true);
