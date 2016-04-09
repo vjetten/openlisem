@@ -164,17 +164,21 @@ void lisemqt::SetConnections()
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
-    connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
-    connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
-    connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
-    connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
+ // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
+ // works automatically. if included here may be executed twice!!! not sure...
+
+ //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
+ //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
+ //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
+  //  connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
+
     connect(checkBoxComboMaps, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox(int)));
     connect(checkBoxComboMaps2, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox2(int)));
 
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
-    //connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
+    //OBSOLETE connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
     //  connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
 
@@ -196,11 +200,12 @@ void lisemqt::SetConnections()
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
+
     //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
     //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
 
-    connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
-    connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
+ //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
+ //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
 
    //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
    //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
@@ -221,6 +226,15 @@ void lisemqt::on_checkOverlandFlow2D_clicked()
     checkOverlandFlow1D->setChecked(false);
     checkOverlandFlow2D->setChecked(true);
     tabWidgetOptions->setTabEnabled(3, true);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_checkImpermeable_stateChanged(int)
+{
+    checkPercolation->setChecked(!checkImpermeable->isChecked());
+}
+void lisemqt::on_checkPercolation_stateChanged(int)
+{
+    checkImpermeable->setChecked(!checkPercolation->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
@@ -516,6 +530,19 @@ void lisemqt::setErosionTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
     tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+
+    checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+
+
+    if (checkAdvancedSediment->isChecked())
+    {
+        if (checkBox_SedSingleSingle->isChecked())
+        {
+                checkBox_SedSingleSingle->setChecked(false);
+                checkBox_SedMultiSingle->setChecked(true);
+        }
+    }
+    yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(yes);
     checkBox_OutConc->setEnabled(yes);
     checkBox_OutDet->setEnabled(yes);
@@ -533,11 +560,12 @@ void lisemqt::setErosionTab(bool yes)
 
     label_31->setEnabled(yes);
     label_28->setEnabled(yes);
-    label_60->setEnabled(checkDoErosion->isChecked());
+    label_60->setEnabled(yes);
 
     label_soillosskgha->setEnabled(yes);
     label_soilloss->setEnabled(yes);
     label_SDR->setEnabled(yes);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)
@@ -690,7 +718,7 @@ void lisemqt::SetToolBar()
 /// make some labels yellow
 void lisemqt::SetStyleUI()
 {
-
+    checkBox_SedSingleSingle->setVisible(false);
     label_103->setVisible(false);
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);

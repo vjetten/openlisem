@@ -197,7 +197,7 @@ public:
     QList<QString> UnitList;
     QList<bool> SymList;
     QList<bool> LogList;
-    QList<int> ListList;
+    //QList<int> ListList;
     QList<int> IndexList;
     QList<int> IndexList1;
     int ActiveList = 0;
@@ -312,6 +312,8 @@ public slots:
     void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
+    void on_checkImpermeable_stateChanged(int);
+    void on_checkPercolation_stateChanged(int);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);

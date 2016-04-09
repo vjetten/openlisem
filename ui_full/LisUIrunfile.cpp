@@ -179,6 +179,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         // flooding
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
+
+
         if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
         if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
@@ -211,22 +213,24 @@ void lisemqt::ParseInputData()
             checkBox_SedSingleSingle->setChecked(false);
             checkBox_SedMultiSingle->setChecked(false);
             checkBox_SedMultiMulti->setChecked(false);
-
+            tabWidgetOptions->setTabEnabled(6,true);
             if(val == 2)
-            {
                 checkBox_SedMultiMulti->setChecked(true);
-            }else if(val == 1)
-            {
-                checkBox_SedMultiSingle->setChecked(true);
-            }else
-            {
-                checkBox_SedSingleSingle->setChecked(true);
-            }
+            else
+                if(val == 1)
+                    checkBox_SedMultiSingle->setChecked(true);
+                else
+                {
+                    checkBox_SedSingleSingle->setChecked(true);
+                    tabWidgetOptions->setTabEnabled(6,false);
+                }
         }
+        if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(val);
+      //  if (p1.compare("Detachment stoniness")==0)           checkStoninessDET->setChecked(check);
+
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(val);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(val);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
-
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
 
         if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(val);
@@ -248,6 +252,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Buffers impermeable")==0)            checkBuffersImpermeable->setChecked(check);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
         if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
+        if (p1.compare("Include compacted")==0)            checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
         if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
@@ -739,18 +744,23 @@ void lisemqt::updateModelData()
         //        if (p1.compare("OF method")==0)                       namelist[j].value = E_OFMethod->text();
 
         if (p1.compare("Advanced sediment")==0)               namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+
+        if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
+   //     if (p1.compare("Detachment stoniness")==0)          namelist[j].value.setNum((int)checkStoninessDET->isChecked());
+
         if (p1.compare("Advanced sediment configuration")==0)
         {
             if(checkBox_SedMultiMulti->isChecked())
             {
                 namelist[j].value.setNum((int)2);
-            }else if(checkBox_SedMultiSingle->isChecked())
-            {
-                namelist[j].value.setNum((int)1);
             }else
-            {
-                namelist[j].value.setNum((int)0);
-            }
+                if(checkBox_SedMultiSingle->isChecked())
+                {
+                    namelist[j].value.setNum((int)1);
+                }else
+                {
+                    namelist[j].value.setNum((int)0);
+                }
         }
 
         if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
@@ -774,15 +784,13 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
-        //        if (p1.compare("Alternative flow detachment")==0)    namelist[j].value.setNum((int)checkAltErosion->isChecked());
-        //   if (p1.compare("Simple depression storage")==0)      namelist[j].value.setNum((int)checkSimpleDepression->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
         //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
         if (p1.compare("Buffers impermeable")==0)            namelist[j].value.setNum((int)checkBuffersImpermeable->isChecked());
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
-        if (p1.compare("Include wheeltracks")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
+        if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
 

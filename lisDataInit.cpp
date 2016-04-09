@@ -535,7 +535,11 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
-            ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*ChannelCohesion->Drc));
+            if (SwitchEfficiencyDET == 1)
+                ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            else
+                if (SwitchEfficiencyDET == 2)
+                    ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
         }
 
         if (SwitchChannelFlood)
@@ -832,7 +836,12 @@ void TWorld::InitMulticlass(void)
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
 
-            Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            if (SwitchEfficiencyDET == 1)
+                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+            else
+                if (SwitchEfficiencyDET == 2)
+                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
+
             //            if (StoneFraction->Drc > 0)
             //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
             // GOED IDEE
@@ -2196,6 +2205,8 @@ void TWorld::IntializeOptions(void)
     SwitchGullyInit = false;
     SwitchOutputTimeStep = false;
     SwitchOutputTimeUser = false;
+    SwitchEfficiencyDET = 1;
+    SwitchStoninessDET = false;
     /*
     SwitchMapoutRunoff = false;
     SwitchMapoutConc = false;

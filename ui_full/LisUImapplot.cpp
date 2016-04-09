@@ -247,6 +247,7 @@ void lisemqt::showMap()
         for(int i = ColorMapList.length() - 1; i >-1 ; i--)
         {
             delete ColorMapList.at(i);
+
         }
         ColorMapList.clear();
 
@@ -256,7 +257,7 @@ void lisemqt::showMap()
         UnitList.clear();
         SymList.clear();
         LogList.clear();
-        ListList.clear();
+       // ListList.clear();
         picker->NameList.clear();
         picker->UnitList.clear();
         IndexList.clear();
@@ -271,7 +272,7 @@ void lisemqt::showMap()
             UnitList.append(op.ComboUnits.at(i));
             SymList.append(op.ComboSymColor.at(i)); // symetric colors
             LogList.append(op.ComboLogaritmic.at(i));  //log display
-            ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
+          //  ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
 
