@@ -244,7 +244,6 @@ void lisemqt::showMap()
     {
         op.comboboxset = true;
 
-        if (ColorMapList.length() > 0)
         for(int i = ColorMapList.length() - 1; i >-1 ; i--)
         {
             delete ColorMapList.at(i);
@@ -262,15 +261,10 @@ void lisemqt::showMap()
         picker->UnitList.clear();
         IndexList.clear();
         IndexList1.clear();
-        int list = 0;
-        int list2 = 0;
 
         for(int i = 0; i < op.ComboMapsSafe.length(); i++)
         {
-            QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
-                                                        QColor(op.ComboColors.at(i).at(op.ComboColors.at(1).length()-1)),
-                                                        op.ComboColorMap.at(i),
-                                                        op.ComboColors.at(i));
+            QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
             ColorMapList.append(cm);
             NameList.append(op.ComboMapNames.at(i));
@@ -283,28 +277,29 @@ void lisemqt::showMap()
 
             if(op.ComboLists.at(i) == 0)
             {
-                qDebug() << i << op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")";
                 DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
-                list++;
             }else
             {
-                qDebug() <<i <<  op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")";
                 DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
-                list2++;
             }
         }
         ActiveList = 0;
 
-        DisplayComboBox2->setCurrentIndex(0);
-        DisplayComboBox->setCurrentIndex(0);
-        DisplayComboBox->setMaxVisibleItems(DisplayComboBox->count());
-        DisplayComboBox2->setMaxVisibleItems(DisplayComboBox2->count());
-
         checkBoxComboMaps2->setChecked(false);
         checkBoxComboMaps->setChecked(true);
+
+        DisplayComboBox->setFixedWidth(180);
+        DisplayComboBox2->setFixedWidth(180);
+
+        DisplayComboBox2->setCurrentIndex(0);
+        DisplayComboBox->setCurrentIndex(0);
+
+        DisplayComboBox->setMaxVisibleItems(IndexList.count());
+        DisplayComboBox2->setMaxVisibleItems(IndexList1.count());
     }
+
 
     drawMap->setAlpha(transparency->value());
     drawMap->setAlpha(255);
@@ -328,7 +323,6 @@ void lisemqt::showMap()
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
 {
-
     if( i < 0 || i >= op.ComboMapsSafe.length())
     {
         return;
@@ -400,6 +394,7 @@ void lisemqt::showComboMap(int i)
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
 }
+
 
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()

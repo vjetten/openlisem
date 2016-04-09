@@ -378,20 +378,24 @@ cTMap
 *floodVMax,                    //!<
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
-//*hmxInit,                    //!<
-//explicit solution
-*Hx,                         //!<
 *Hmx,                        //!<
-*hx,                         //!<
 *hmx,                        //!<
-*Nx,                         //!<
-*dHdLx,                      //!<
-*Qxsum,                      //!<
-*qx0,                        //!<
-*qx1,                        //!<
-*qx2,                        //!<
-*qx3,                        //!<
+*hmxWH,                        //!<
+// *hmxInit,                    //!<
+
+// OBSOLETE
 //explicit solution
+// *Hx,                         //!<
+// *hx,                         //!<
+// *Nx,                         //!<
+// *dHdLx,                      //!<
+// *Qxsum,                      //!<
+// *qx0,                        //!<
+// *qx1,                        //!<
+// *qx2,                        //!<
+// *qx3,                        //!<
+//explicit solution
+
 *FloodDomain,                //!<
 *Barriers,                    //!<
 *ChannelMaxQ,                //!<

@@ -614,7 +614,8 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
-            // explicit
+            // explicit OBSOLETE
+            /*
             if (SwitchFloodExplicit)
             {
                 Qxsum = NewMap(0);
@@ -628,8 +629,11 @@ void TWorld::InitChannel(void)
                 Nx = NewMap(0);
                 dHdLx = NewMap(0);
             }
+            */
             //explicit
             Hmx = NewMap(0);
+            hmxWH = NewMap(0);
+
             FloodWaterVol = NewMap(0);
 
             floodTimeStart = NewMap(0);

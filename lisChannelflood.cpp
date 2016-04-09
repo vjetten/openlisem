@@ -470,6 +470,9 @@ void TWorld::ChannelFlood(void)
     copy(*Hmx, *hmx);
     // copy flood level for next dt
 
+    calc2Maps(*hmxWH, *hmx, *WH, ADD);
+    // add RO waterheight and hmx for output
+
     FloodMaxandTiming();
     // flood max, start and duration
 
