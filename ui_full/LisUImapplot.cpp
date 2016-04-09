@@ -243,17 +243,14 @@ void lisemqt::showMap()
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
-qDebug() << "hier";
         for(int i = ColorMapList.length() - 1; i >-1 ; i--)
         {
             delete ColorMapList.at(i);
 
         }
         ColorMapList.clear();
-        qDebug() << "daar" << DisplayComboBox->currentText();
         DisplayComboBox->clear();
         DisplayComboBox2->clear();
-        qDebug() << "daar";
         NameList.clear();
         UnitList.clear();
         SymList.clear();
@@ -263,7 +260,6 @@ qDebug() << "hier";
         picker->UnitList.clear();
         IndexList.clear();
         IndexList1.clear();
-        qDebug() << "hier";
 
         for(int i = 0; i < op.ComboMapsSafe.length(); i++)
         {
@@ -282,16 +278,13 @@ qDebug() << "hier";
             {
                 DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
-                qDebug()<< i << "1";
             }else
             {
                 DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
-                qDebug()<< i << "2";
             }
         }
         ActiveList = 0;
-        qDebug() << "hier";
 
         checkBoxComboMaps2->setChecked(false);
         checkBoxComboMaps->setChecked(true);
@@ -325,11 +318,106 @@ qDebug() << "hier";
 
     MPlot->replot();
 
+/*
+    if(op.comboboxset == false)
+    {
+        op.comboboxset = true;
+        for(int i = ColorMapList.length() - 1; i >-1 ; i--)
+        {
+            delete ColorMapList.at(i);
+        }
+        ColorMapList.clear();
+        DisplayComboBox->clear();
+        DisplayComboBox2->clear();
+        NameList.clear();
+        UnitList.clear();
+        SymList.clear();
+        LogList.clear();
+       // ListList.clear();
+        picker->NameList.clear();
+        picker->UnitList.clear();
+        IndexList.clear();
+        IndexList1.clear();
+        int list = 0;
+        int list2 = 0;
+
+        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        {
+            QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+
+            ColorMapList.append(cm);
+            NameList.append(op.ComboMapNames.at(i));
+            UnitList.append(op.ComboUnits.at(i));
+            SymList.append(op.ComboSymColor.at(i)); // symetric colors
+            LogList.append(op.ComboLogaritmic.at(i));  //log display
+             //ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
+            picker->NameList.append(op.ComboMapNames.at(i));
+            picker->UnitList.append(op.ComboUnits.at(i));
+
+            if(op.ComboLists.at(i) == 0)
+            {
+                DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                IndexList.append(i);
+                list++;
+            }else
+            {
+                DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                IndexList1.append(i);
+                list2++;
+            }
+        }
+        ActiveList = 0;
+
+        checkBoxComboMaps2->setChecked(false);
+        checkBoxComboMaps->setChecked(true);
+
+        if(list == 0)
+        {
+            DisplayComboBox->setDisabled(true);
+        }else
+        {
+            DisplayComboBox->setEnabled(true);
+        }
+        if(list2 == 0)
+        {
+            DisplayComboBox2->setDisabled(true);
+        }else
+        {
+            DisplayComboBox2->setEnabled(true);
+        }
+
+        DisplayComboBox->setFixedWidth(180);
+        DisplayComboBox2->setFixedWidth(180);
+
+        DisplayComboBox2->setCurrentIndex(0);
+        DisplayComboBox->setCurrentIndex(0);
+
+        DisplayComboBox->setMaxVisibleItems(IndexList.count());
+        DisplayComboBox2->setMaxVisibleItems(IndexList1.count());
+    }
+
+
+    drawMap->setAlpha(transparency->value());
+    drawMap->setAlpha(255);
+
+    if(ActiveList == 0)
+    {
+        showComboMap(IndexList.at(DisplayComboBox->currentIndex()));
+    }else
+    {
+        showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
+    }
+
+    channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
+    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
+
+    MPlot->replot();
+*/
 }
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
 {
-
     if( i < 0 || i >= op.ComboMapsSafe.length())
     {
         return;
@@ -401,8 +489,6 @@ void lisemqt::showComboMap(int i)
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
 }
-
-
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()
 {

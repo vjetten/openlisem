@@ -351,6 +351,10 @@ void lisemqt::setDisplayComboBox2(int i)
 //--------------------------------------------------------------------
 void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)
 {
+
+    if (j < 0)
+        return;
+
     int i = IndexList.at(j);
 
     ComboMaxSpinBox->setValue(op.userMaxV.at(i));
@@ -362,6 +366,10 @@ void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)
 //--------------------------------------------------------------------
 void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 {
+
+    if (j < 0)
+        return;
+
     int i = IndexList1.at(j);
 
     ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(i));
