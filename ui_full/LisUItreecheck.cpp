@@ -70,6 +70,11 @@ void lisemqt::on_checkIncludeChannel_clicked()
     }
 
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+
+
+    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
+    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
@@ -109,7 +114,7 @@ void lisemqt::on_checkChannelFlood_clicked()
 //
 void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
 {
-    int nr = inr;//E_InfiltrationMethod->currentIndex();
+    int nr = std::max(0, inr);
     checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
     groupBox_SwatreOptions->setEnabled(nr == 1);
 
@@ -143,6 +148,11 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
                 if (nr == 4)
                     checkMapNameModel(INFILTRATIONMAPS, 13, true);
     }
+    groupBox_InfilOptions->setDisabled(bool(nr == 0));
+    checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
+
+    groupBox_SwatreOptions->setEnabled(bool(nr == 1));
+    checkPercolation->setDisabled(bool(nr == 1));
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkInfil2layer_clicked()
@@ -150,23 +160,15 @@ void lisemqt::on_checkInfil2layer_clicked()
     if (E_InfiltrationMethod->currentIndex() == 2 ||
             E_InfiltrationMethod->currentIndex() == 3)
         checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked());
-    //	else
-    //	{
-    //		checkInfil2layer->setChecked(false);
-    //	}
-}//--------------------------------------------------------------------
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkInfilCompact_clicked()
 {
     if (E_InfiltrationMethod->currentIndex() > 0)
         checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                           || checkInfilCompact->isChecked()
                           || checkInfilGrass->isChecked());
-    //	else
-    //	{
-    //		checkInfilCompact->setChecked(false);
-    //	}
 }
-
 //--------------------------------------------------------------------
 void lisemqt::on_checkInfilCrust_clicked()
 {
@@ -278,10 +280,6 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
 
     int nr = E_InfiltrationMethod->currentIndex();
-    checkInfil2layer->setEnabled(bool(nr ==2 || nr == 3));
-
-    groupBox_SwatreOptions->setEnabled(bool(nr == 1));
-
     if (nr == 0)
         checkMapNameModel(INFILTRATIONMAPS, 0, false);
     else
@@ -317,22 +315,18 @@ void lisemqt::RunAllChecks()
     //houses
     checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
-    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
-    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
-    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
-    // VJ 110110
+//    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
+//    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+//    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
+//    // VJ 110110
 
-    buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked());
-    buffergroup->setVisible(checkBuffers->isChecked() || checkSedtrap->isChecked());
-    sedgroup->setEnabled(checkDoErosion->isChecked());
-    frameSL1->setEnabled(checkDoErosion->isChecked());
+//    buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked());
+//    buffergroup->setVisible(checkBuffers->isChecked() || checkSedtrap->isChecked());
+//    sedgroup->setEnabled(checkDoErosion->isChecked());
 
 
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 
-//    checkMapNameModel(WHEELTRACKSMAPS, 0, false);
-//    checkMapNameModel(TEXTUREMAPS, 0, false);
-//    checkMapNameModel(GULLIESMAPS, 0, false);
     checkExpandActive->setChecked(false);
     treeView->collapseAll();
 }

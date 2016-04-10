@@ -320,6 +320,7 @@ public slots:
     void on_ComboMaxSpinBox2_valueChanged(double);
     void setDisplayComboBox(int);
     void setDisplayComboBox2(int);
+    void on_spinBoxPointtoShow_valueChanged(int);
 
     //houses
     void on_checkHouses_clicked();

@@ -211,7 +211,33 @@ void lisemqt::SetConnections()
    //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
    //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
 
-  }
+}
+//--------------------------------------------------------------------
+// disable and enable UI stuff when subcatch selected
+void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
+{
+    bool subcatch = i > 1;
+
+    subcatchgroup->setEnabled(subcatch);
+    label_soillosssub->setEnabled(subcatch && checkDoErosion->isChecked());
+    label_94->setEnabled(subcatch && checkDoErosion->isChecked());
+
+    label_discharge->setEnabled(!subcatch);
+    label_qtotm3->setEnabled(!subcatch);
+    label_54->setEnabled(!subcatch);
+    label_26->setEnabled(!subcatch);
+
+    if(checkDoErosion->isChecked())
+    {
+        label_soillosskgha->setEnabled(!subcatch);
+        label_soilloss->setEnabled(!subcatch);
+        label_SDR->setEnabled(!subcatch);
+        label_31->setEnabled(!subcatch);
+        label_28->setEnabled(!subcatch);
+        label_60->setEnabled(!subcatch);
+    }
+}
+
 //--------------------------------------------------------------------
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
 void lisemqt::on_checkOverlandFlow1D_clicked()
@@ -727,7 +753,7 @@ void lisemqt::SetToolBar()
 void lisemqt::SetStyleUI()
 {
     checkBox_SedSingleSingle->setVisible(false);
-    label_103->setVisible(false);
+    //label_103->setVisible(false);
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
@@ -738,7 +764,7 @@ void lisemqt::SetStyleUI()
     checkFloodInitial->setVisible(false);
     // interface elements that are not visible for now
 
-    groupBoxTime->setMaximumWidth(128);
+    //groupBoxTime->setMaximumWidth(128);
 
 
     int w = 80, h = 15;//2*genfontsize;
@@ -1439,16 +1465,16 @@ void lisemqt::resetAll()
     progressBar->setValue(0);
 
     bool check = false;
+
     checkDoErosion->setChecked(check);
+
     checkIncludeChannel->setChecked(check);
     checkChannelInfil->setChecked(check);
     checkChannelBaseflow->setChecked(check);
+
     checkRoadsystem->setChecked(check);
-    //	checkAllinChannel->setChecked(check);
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
-    //  checkAltErosion->setChecked(check);
-    //  checkSimpleDepression->setChecked(check);
     checkHardsurface->setChecked(false);
     //E_OFMethod->setValue(0);
     E_RBLMethod->setValue(0);
@@ -1510,8 +1536,7 @@ void lisemqt::resetAll()
     //checkOutputTimeUser->setChecked(check);
     //checkNoErosionOutlet->setChecked(check);
     //	checkDrainage->setChecked(check);
-    //	checkGullyInfil->setChecked(check);
-    //	checkGullyInit->setChecked(check);
+
     checkSeparateOutput->setChecked(check);
     checkWriteSOBEK->setChecked(check);
     SOBEKdatestring->setText("10/01/01");
@@ -1522,9 +1547,9 @@ void lisemqt::resetAll()
 
     buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 
-    sedgroup->setEnabled(checkDoErosion->isChecked());
-    label_31->setEnabled(checkDoErosion->isChecked());
-    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
+//    sedgroup->setEnabled(checkDoErosion->isChecked());
+//    label_31->setEnabled(checkDoErosion->isChecked());
+//    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
 
     radioButton_1->setChecked(true); //<= grass interception
     E_CanopyOpeness->setValue(0.45);

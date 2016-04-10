@@ -200,14 +200,12 @@ void lisemqt::initPlot()
     spinBoxPointtoShow->setEnabled(false);
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
-    //    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
-    subcatchgroup->setEnabled(op.outputpointnr > 1);
-//    frameSL1->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
-//    label_soillosssub->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
-//    label_94->setEnabled(op.outputpointnr > 1 && !checkNoErosion->isChecked());
-    frameSL1->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
-    label_soillosssub->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
-    label_94->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
+
+//    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
+//    subcatchgroup->setEnabled(op.outputpointnr > 1);
+//    label_soillosssub->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
+//    label_94->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
+    //moved
 
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
@@ -412,13 +410,9 @@ void lisemqt::showOutputData()
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
         label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));
-        //    if(!checkNoErosion->isChecked())
+
         if(checkDoErosion->isChecked())
             label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
-        {
-            label_31->setEnabled(false);
-            label_soillosskgha->setEnabled(false);
-        }
     }
 
     // outlet
