@@ -1,4 +1,4 @@
-/*************************************************************************
+﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
 **  contact:
@@ -258,7 +258,7 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
+    SwitchPCRoutput, SwitchWriteHeaders,SwitchWriteSewerHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
     SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed, SwitchSewer;
 
@@ -323,6 +323,9 @@ public:
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea, nrFloodedCells;
     double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
+
+    double SewerQTotal;
+    double SewerQsTotal;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -432,6 +435,7 @@ public:
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
+    QString getvaluestring(QString vname);
     int getvalueint(QString vname);
     QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
@@ -545,6 +549,7 @@ public:
     //material that is available for detachment
     QList<cTMap *> StorageDep_D;
     QList<cTMap *> Storage_D;
+
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
@@ -554,6 +559,10 @@ public:
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
+
+
+    QList<cTMap *> SewerQs_D;
+    QList<cTMap *> SewerQts_D;
 
     cTMap *unity;
 
@@ -630,6 +639,7 @@ public:
 
     void SumSedimentClasses();
 
+    void DrainSewer(double dt);
 
     void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
@@ -803,6 +813,7 @@ public:
     void OutputUI(void);
     void reportAll(void);
     void ReportTimeseriesNew(void);
+    void ReportSewerTimeseriesNew(void);
     //void ReportTotals(void);
     void ReportMaps(void);
     void ReportTotalsNew(void);

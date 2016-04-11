@@ -353,6 +353,15 @@ cTMap
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 
+//Sewer
+*SewerID,
+*SewerArea,
+*SewerDrainageTime,
+*SewerQ,
+*SewerQs,
+*SewerQt,
+*SewerQts,
+
 //baseflow
 *BaseFlowDischarges,
 *BaseFlowInitialVolume,

@@ -88,7 +88,7 @@ void TWorld::Totals(void)
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
-    
+
     //=== interception ===//
     IntercTot = mapTotal(*Interc) + mapTotal(*LInterc) ;
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
@@ -486,7 +486,7 @@ void TWorld::MassBalance()
     if (RainTot + SnowTot > 0)
     {
         MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot);
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - SewerQTotal - difkinTot - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
     //watervoltot includes channel and tile
@@ -497,7 +497,7 @@ void TWorld::MassBalance()
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-                  DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTot))*100;
+                  DepTot - SewerQsTotal + ChannelDepTot - BufferSedTot)/(SoilLossTot))*100;
     //VJ 121212 changed to mass balance relative to soil loss
 
     if (SwitchPesticide)

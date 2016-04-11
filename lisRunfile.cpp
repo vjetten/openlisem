@@ -96,6 +96,18 @@ double TWorld::getvaluedouble(QString vname)
     throw 3;
 }
 //---------------------------------------------------------------------------
+QString TWorld::getvaluestring(QString vname)
+{
+    for (int i = 0; i < nrrunnamelist; i++)
+        if(vname.toUpper() == runnamelist[i].name.toUpper())
+        {
+            return runnamelist[i].value;
+        }
+
+    ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
+    throw 3;
+}
+//---------------------------------------------------------------------------
 int TWorld::getvalueint(QString vname)
 {
     for (int i = 0; i < nrrunnamelist; i++)

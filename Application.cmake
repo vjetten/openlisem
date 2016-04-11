@@ -43,6 +43,7 @@ SET(APP_SOURCES
     lisSurfstor
     lisSnowmelt
     liskinematic2d
+    lisSewer
     main
     operation
     swatre/swatstep

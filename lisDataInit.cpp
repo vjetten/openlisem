@@ -805,6 +805,9 @@ void TWorld::InitMulticlass(void)
     SoilLossTotSub = 0;
     SedTot = 0;
 
+    SewerQTotal = 0;
+    SewerQsTotal = 0;
+
     //Qsoutflow = NewMap(0);
     DETFlow = NewMap(0);
     DETSplash = NewMap(0);
@@ -976,6 +979,9 @@ void TWorld::InitMulticlass(void)
         TC_D.clear();
         Conc_D.clear();
 
+        SewerQs_D.clear();
+        SewerQts_D.clear();
+
         StorageDep_D.clear();
         Storage_D.clear();
         RStorageDep_D.clear();
@@ -1090,6 +1096,9 @@ void TWorld::InitMulticlass(void)
                     TC_D.append(NewMap(0.0));
                     Conc_D.append(NewMap(0.0));
 
+                    SewerQs_D.append(NewMap(0.0));
+                    SewerQts_D.append(NewMap(0.0));
+
                     if(!SwitchUseMaterialDepth)
                     {
                         StorageDep_D.append(NewMap(0.0));
@@ -1127,7 +1136,7 @@ void TWorld::InitMulticlass(void)
             {
 
                 numgrainclasses = 0;
-                QStringList diamlist = getvaluename("Grain size class maps").split(",", QString::SkipEmptyParts);
+                QStringList diamlist = getvaluestring("Grain size class maps").split(",", QString::SkipEmptyParts);
 
                 for(int i = 0; i < diamlist.count(); i++)
                 {
@@ -1139,9 +1148,7 @@ void TWorld::InitMulticlass(void)
 
                         settlingvelocities.append(GetSV(diam));
 
-                        W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
-
-                        graindiameters.clear();
+                        W_D.append(ReadMap(LDD,inputDir +"GSD_"+diamlist.at(i)+".map"));
 
                         Tempa_D.append(NewMap(0.0));
                         Tempb_D.append(NewMap(0.0));
@@ -1170,6 +1177,9 @@ void TWorld::InitMulticlass(void)
                         TC_D.append(NewMap(0.0));
                         Conc_D.append(NewMap(0.0));
 
+                        SewerQs_D.append(NewMap(0.0));
+                        SewerQts_D.append(NewMap(0.0));
+
                         if(!SwitchUseMaterialDepth)
                         {
                             StorageDep_D.append(NewMap(0.0));
@@ -1179,6 +1189,24 @@ void TWorld::InitMulticlass(void)
                         RStorage_D.append(NewMap(0.0));
                     }
                 }
+
+                FOR_ROW_COL_MV
+                {
+                    double wtotal = 0;
+                    FOR_GRAIN_CLASSES
+                    {
+                        wtotal += (W_D).Drcd;
+                    }
+
+                    if(wtotal != 0)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            (W_D).Drcd = (W_D).Drcd/wtotal;
+                        }
+                    }
+                }
+
 
                 if(numgrainclasses == 0)
                 {
@@ -1345,6 +1373,17 @@ void TWorld::GetInputData(void)
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
 
+    if(SwitchSewer)
+    {
+        SewerID = ReadMap(LDD,getvaluename("sewindex"));
+        SewerArea = ReadMap(LDD,getvaluename("sewarea"));
+        SewerDrainageTime = ReadMap(LDD,getvaluename("sewdraintime"));
+
+        SewerQ = NewMap(0);
+        SewerQs = NewMap(0);
+        SewerQt = NewMap(0);
+        SewerQts = NewMap(0);
+    }
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
@@ -1517,7 +1556,7 @@ void TWorld::GetInputData(void)
 
 
         D50 = ReadMap(LDD,getvaluename("D50"));
-        if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
+        if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchUseGrainSizeDistribution)) )
         {
             D90 = ReadMap(LDD,getvaluename("D90"));
         }
@@ -2084,6 +2123,7 @@ void TWorld::IntializeData(void)
         }
 
     }
+
     if(SwitchErosion && SwitchUseGrainSizeDistribution)
     {
         IW_D.clear();
@@ -2097,40 +2137,55 @@ void TWorld::IntializeData(void)
             }
             IW_D.append(NewMap(0.0));
 
+            if(SwitchUseMaterialDepth && !SwitchEstimateGrainSizeDistribution)
+            {
+                StorageDep_D.append(ReadMap(LDD,inputDir + "GSD_TOP_"+QString::number(graindiameters.at(d)) + ".map"));
+            }else
+            {
+                StorageDep_D.append(NewMap(0.0));
+            }
             FOR_ROW_COL_MV
             {
                 IW_D.Drcd = W_D.Drcd;
                 if(SwitchUseMaterialDepth)
                 {
-                    StorageDep_D.append(ReadMap(LDD,"GSD_TOP_"+QString::number(graindiameters.at(i))));
                     if(Storage->Drc > 0)
                     {
                             Storage_D.Drcd = W_D.Drcd * Storage->Drc;
-                            StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc;
+                            if(SwitchEstimateGrainSizeDistribution)
+                            {
+                                StorageDep_D.Drcd = W_D.Drcd * StorageDep->Drc;
+                            }else
+                            {
+                                StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc;
+                            }
                     }else
                     {
                         Storage_D.Drcd = -999999;
                     }
 
+
                 }
                 if(SwitchIncludeChannel)
                 {
+
                     RW_D.Drcd = W_D.Drcd;
                     if(SwitchUseMaterialDepth)
                     {
+
                         if(RStorage->Drc > 0)
                         {
-                                RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
+                            RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
                         }else
                         {
                             RStorage_D.Drcd = -999999;
                         }
+
                     }
                 }
             }
         }
     }
-
 
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
@@ -2247,7 +2302,7 @@ void TWorld::IntializeOptions(void)
     SwitchPercolation = true;
 
     SwitchWriteHeaders = true; // write headers in output files in first timestep
-
+    SwitchWriteSewerHeaders = true; // write headers in output files in first timestep
     initSwatreStructure = false;
     // check to flag when swatre 3D structure is created, needed to clean up data
 

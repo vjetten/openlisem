@@ -507,6 +507,8 @@ void TWorld::OverlandFlowNew(void)
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
 
+            DrainSewer(dt);
+
             if(SwitchErosion)
             {
                 //calculate concentration and new sediment discharge
@@ -624,6 +626,7 @@ void TWorld::OverlandFlowNew(void)
             else
                 InfilVolKinWave->Drc = InfilKWact;
 
+
         }
 
 
@@ -678,8 +681,10 @@ void TWorld::OverlandFlowNew(void)
 
     }
 
+
     if(SwitchKinematic2D == K1D_METHOD)
     {
+        DrainSewer(_dt);
 
         FOR_ROW_COL_MV
         {

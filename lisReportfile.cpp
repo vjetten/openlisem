@@ -50,6 +50,9 @@ void TWorld::reportAll(void)
     ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
+    ReportSewerTimeseriesNew();
+    // report hydrographs ande sedigraphs at all points in SewerID.map
+
     ReportTotalsNew();
     // report totals to a text file
 
@@ -215,7 +218,7 @@ void TWorld::ReportTimeseriesNew(void)
     int width = (!SwitchWritePCRtimeplot ? 0 : 9);
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
-    QFileInfo fi(resultDir + outflowFileName);
+    QFileInfo fi(resultDir +  outflowFileName);
 
     if (SwitchSOBEKoutput)
         SwitchSeparateOutput = true;
@@ -508,6 +511,377 @@ void TWorld::ReportTimeseriesNew(void)
                 out << " < \n";
             }
         fout.close();
+    }
+}
+//---------------------------------------------------------------------------
+/** reporting timeseries for every non zero point PointMap
+ - 3 types of output: PCRaster timeplot format; SOBEK input format; flat comma delimited format
+ - all points in one file or each point in a separate file
+ - the types should be mututally exclusive in the interface and run file
+*/
+void TWorld::ReportSewerTimeseriesNew(void)
+{
+    if(!SwitchSewer)
+    {
+        return;
+    }
+    int nr = 0;
+    int hour = 0;
+    int min = 0;
+    int sec = 0;
+    //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
+    QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
+    int width = (!SwitchWritePCRtimeplot ? 0 : 9);
+    // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
+
+    QFileInfo fi(resultDir + "sewer" + outflowFileName);
+
+    if (SwitchSOBEKoutput)
+        SwitchSeparateOutput = true;
+
+    // - TODO: if runs are interrupted the number of lines win the SOBEK output will not be correct!
+    if (SwitchSOBEKoutput && time >= 0)
+    {
+        sec = (int)time; //(time*60);
+        hour = (int)(sec/3600);
+        min = (int)(time/60 - hour*60);
+        sec = (int)(sec - hour * 3600 - min * 60);
+    }
+
+
+    //######  open files and write headers #####//
+
+    //SOBEK, PCRaster and flat format are mutually exclusive
+    if (SwitchWriteSewerHeaders) //  make file at first timestep
+    {
+        SwitchWriteSewerHeaders = false;
+        if (SwitchSeparateOutput) // each point separate file
+        {
+            FOR_ROW_COL_MV
+            {
+                if ( SewerID->Drc > 0 )
+                {
+                    newname1 = fi.path() + "/" + fi.baseName() + "_" +
+                            QString::number((int)SewerID->Drc) + "." +  fi.suffix();
+                    // make filename using point number
+
+                    QFile fout(newname1);
+                    fout.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream out(&fout);
+                    out.setRealNumberPrecision(6);
+                    out.setFieldWidth(width);
+                    out.setRealNumberNotation(QTextStream::FixedNotation);
+
+                    // HEADERS for the 3 types
+                    if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
+                    {
+                        pnr.setNum((int)SewerID->Drc);
+                        out << "#LISEM total flow and sed output file for point " << pnr << "\n";
+
+                        // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
+                        int nrs = 2 + (SwitchErosion ? 1 : 0) + ((SwitchUseGrainSizeDistribution && SwitchErosion) ? graindiameters.length() : 0);
+                        if (SwitchSnowmelt && SwitchRainfall) nrs++;
+                        pnr.setNum(nrs);
+                        out << pnr << "\n";
+
+                        out << "run step\n";
+
+                        out << "Q (m3)\n";
+                        if (SwitchErosion) out << "Qs (kg)\n";
+                        if (SwitchErosion &&SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                out << "Qs (kg) g\n" << graindiameters.at(d);
+                            }
+                        }
+
+                    }
+                    else // SOBEK format
+                        if (SwitchSOBEKoutput)
+                        {
+                            //NO HEADER
+                            //                     pnr.setNum(SOBEKlines);
+                            //                     out << "Q";
+                            //                     if (SwitchErosion) out << " Qs C";
+                            //                     out << "\n";
+                            //                     out << "m3/s";
+                            //                     if (SwitchErosion) out << " kg/s g/l";
+                            //                     out << "\n";
+                            //                     out << pnr << "\n";
+                            out << "* " <<  (int)SewerID->Drc << "\n";
+                        }
+                        else // flat format, comma delimited
+                        {
+                            pnr.setNum((int)SewerID->Drc);
+                            out << "LISEM total flow and sed output file for point " << pnr << "\n";
+                            out << "Time";
+
+                            out << ",Q (m3)";
+                            if (SwitchErosion) out << ",Qs (kg)";
+                            if (SwitchErosion &&SwitchUseGrainSizeDistribution)
+                            {
+                                FOR_GRAIN_CLASSES
+                                {
+                                   out << ",Qs (kg) g " << graindiameters.at(d);
+                                }
+                            }
+                            out << "\n";
+                        }
+                    fout.close();
+                }
+            }
+        }  // separate
+        else   // HEADERS: all points in one file
+        {
+
+            newname1 = resultDir + outflowFileName;
+
+            QFile fout(newname1);
+            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(6);
+            out.setFieldWidth(width);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+
+            if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
+            {
+                // count nr of points
+                FOR_ROW_COL_MV
+                        if ( SewerID->Drc > 0 ) nr++;
+
+                // nr columns is time + rain (+ maybe snow) + nr points*(Q + Qs + C)
+                int nrs = 1+(1+(SwitchErosion ? 1 : 0) + ((SwitchUseGrainSizeDistribution && SwitchErosion) ? graindiameters.length() : 0))*nr;
+                pnr.setNum(nrs);
+
+                out << "#LISEM total flow and sed output file for all reporting points\n";
+                out <<  pnr << "\n";
+                out << "Time (min)\n";
+
+                FOR_ROW_COL_MV
+                        if ( SewerID->Drc > 0 )
+                {
+                    pnr.setNum((int)SewerID->Drc);
+                    out << "Q #" << pnr <<  "(m3)\n";
+                    if (SwitchErosion) out << "Qs #"<< pnr << "(kg)\n";
+                    if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            out << "Qs #" << pnr << " g " << QString::number(graindiameters.at(d)) << "(kg)\n";
+                        }
+                    }
+                }
+                out << "\n";
+            }
+            // combination cannot occur: SOBEK is always separate output
+            else // SOBEK format
+                if (SwitchSOBEKoutput) //note: sobek input does not have rainfall
+                {
+                    FOR_ROW_COL_MV
+                            if ( SewerID->Drc > 0 )
+                    {
+                        pnr.setNum((int)SewerID->Drc);
+                        out << " Q #" << pnr;
+                        if (SwitchErosion) out << "Qs #"<< pnr;
+                        if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                out << "Qs #" << pnr << " g " << QString::number(graindiameters.at(d)) ;
+                            }
+                        }
+
+                    }
+                    out << "\n";
+                    FOR_ROW_COL_MV
+                            if ( SewerID->Drc > 0 )
+                    {
+                        pnr.setNum((int)SewerID->Drc);
+                        out << " m3 #" << pnr;
+                        if (SwitchErosion) out << "gg #"<< pnr;
+                        if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                out << "(kg) #" << pnr;
+                            }
+                        }
+                    }
+                    out << "\n";
+                    out << SOBEKdatestring << "\n";
+                }
+                else // flat CSV format, comma delimited
+                {
+                    out << "#LISEM total flow and sed output file for all reporting points in map\n";
+                    out << "Time";
+                    FOR_ROW_COL_MV
+                            if ( SewerID->Drc > 0 )
+                    {
+                        pnr.setNum((int)SewerID->Drc);
+                        out << ",Q #" << pnr;
+                        if (SwitchErosion) out << ",Qs #" << pnr;
+                        if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                out << ",Qs #" << pnr << " g " << QString::number(graindiameters.at(d));
+                            }
+                        }
+                    }
+                    out << "\n";
+                    out << "min";
+                    FOR_ROW_COL_MV
+                            if ( SewerID->Drc > 0 )
+                    {
+                        pnr.setNum((int)SewerID->Drc);
+                        out << ",m3 #" << pnr;
+                        out << ",kg #" << pnr;
+                        if (SwitchErosion) out << ",kg #" << pnr;
+                        if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                 out << ",kg #" << pnr;
+                            }
+                        }
+                    }
+                    out << "\n";
+                }
+            fout.close();
+        } // all in one
+    }  // opening files and writing header
+
+    //######  open files and append values #####//
+
+    if (SwitchSeparateOutput)
+    {
+        FOR_ROW_COL_MV
+        {
+            if ( SewerID->Drc > 0 ) // all points in separate files
+            {
+           //     qDebug() << PointMap->Drc << r << c;
+                newname1 = fi.path() + "/" + fi.baseName() + "_" +
+                        QString::number((int)SewerID->Drc) + "." +  fi.suffix();
+                QFile fout(newname1);
+                fout.open(QIODevice::Append | QIODevice::Text);
+
+                QTextStream out(&fout);
+                out.setRealNumberPrecision(6);
+                out.setFieldWidth(width);
+                out.setRealNumberNotation(QTextStream::FixedNotation);
+
+                if (!SwitchSOBEKoutput)   //PCRaster timeplot and flat CSV format
+                {
+
+                    if (SwitchWritePCRtimeplot)
+                        out << runstep;
+                    else
+                        out << time/60;
+                    out << sep << SewerQt->Drc;
+                    if (SwitchErosion) out << sep << SewerQts->Drc;
+                    if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            out << sep << SewerQts_D.Drcd;
+                        }
+                    }
+                    out << "\n";
+                }
+                else  //SOBEK format
+                {
+                    QString ss = QString("\"%1;%2:%3:%4\" %5 <\n").
+                            arg(SOBEKdatestring).
+                            arg((uint)hour,2,10,QLatin1Char('0')).
+                            arg((uint)min,2,10,QLatin1Char('0')).
+                            arg((uint)sec,2,10,QLatin1Char('0')).
+                            arg(SewerQt->Drc,0,'f',3);
+                    out << ss;
+                }
+                fout.close();
+            }  // if point
+        }  //rows cols
+    } //switch separate
+    else
+    {
+        // all points in one file
+        newname1 = resultDir + outflowFileName;
+        // use simply resultdir + filename
+        QFile fout(newname1);
+        fout.open(QIODevice::Append | QIODevice::Text);
+        QTextStream out(&fout);
+        out.setRealNumberPrecision(6);
+        out.setFieldWidth(width);
+        out.setRealNumberNotation(QTextStream::FixedNotation);
+
+        if (!SwitchSOBEKoutput)
+        {
+            if (SwitchWritePCRtimeplot)
+                out << runstep;
+            else
+                out << time/60;
+
+            FOR_ROW_COL_MV
+            {
+                if ( SewerID->Drc > 0 )
+                {
+                    out << sep << SewerQt->Drc;
+                    if (SwitchErosion) out << sep << SewerQts->Drc;
+                    if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            out << sep << SewerQts_D.Drcd;
+                        }
+                    }
+                }
+            }
+            out << "\n";
+        }
+        else
+            if (SwitchSOBEKoutput)
+            {
+                out.setFieldWidth(2);
+                out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
+                out.setFieldWidth(8);
+                FOR_ROW_COL_MV
+                {
+                    if ( SewerID->Drc > 0 )
+                    {
+                        out << " " << SewerQt->Drc/1000.0;
+                        if (SwitchErosion) out << " " << SewerQts->Drc;
+                        if (SwitchErosion && SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                out << " " << SewerQts_D.Drcd;
+                            }
+                        }
+                    }
+                }
+                out << " < \n";
+            }
+        fout.close();
+    }
+
+
+    if(SwitchSewer)
+    {
+
+        fill(*SewerQt,0.0);
+
+        if(SwitchErosion)
+        {
+            fill(*SewerQts,0.0);
+            if(SwitchUseGrainSizeDistribution)
+            {
+                 FOR_GRAIN_CLASSES
+                 {
+                     fill(*SewerQts_D.at(d),0.0);
+                 }
+            }
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -1121,6 +1495,12 @@ void TWorld::GetComboMaps()
             }
 
         }
+    }
+
+    if(SwitchErosion && SwitchUseMaterialDepth)
+    {
+        AddComboMap(1,"Top layer ","kg/m2",StorageDep,Colormap,Colors,false,false,1, 0.1);
+        AddComboMap(1,"Bottom Layer ","kg/m2",Storage,Colormap,Colors,false,false,1,0.1);
     }
 }
 //---------------------------------------------------------------------------
