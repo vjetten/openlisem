@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1530</width>
+    <width>1594</width>
     <height>1229</height>
    </rect>
   </property>
@@ -5734,7 +5734,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -11890,7 +11890,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Detachment efficiency: 1=Y = 1.0/(0.89+0.56COH); 2=Y = 0.79 exp(-0.85 COH)</string>
+                     <string>Detachment efficiency: 1 - Y = 1.0/(0.89+0.56COH); 2 - Y = 0.79 exp(-0.85 COH)</string>
                     </property>
                    </widget>
                   </item>
@@ -19980,7 +19980,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

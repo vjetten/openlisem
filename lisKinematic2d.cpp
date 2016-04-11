@@ -648,7 +648,8 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
             //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
             for (int i=0; i<4; i++)
             {
-                int r2, c2;
+                int r2;
+                int c2;
 
                 //must multiply the cell directions by the sign of the slope vector components
                 r2 = r+yn*dy[i];

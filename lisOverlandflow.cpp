@@ -131,7 +131,7 @@ void TWorld::ToFlood(void)
             //if not done, too high concentration will show on display, before being deposited
             SWOFSedimentLayerDepth(r,c,hmx,Uflood,Vflood);
 
-            SWOFSedimentMaxC(r,c,hmx,Uflood,Vflood);
+            SWOFSedimentMaxC(r,c);//,hmx,Uflood,Vflood);
         }
 
 

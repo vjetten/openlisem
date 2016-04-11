@@ -167,10 +167,11 @@ void lisemqt::SetConnections()
  // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
  // works automatically. if included here may be executed twice!!! not sure...
 
+    // not needed, is done automagically
  //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
  //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
  //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
-  //  connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
+ //   connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
 
     connect(checkBoxComboMaps, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox(int)));
     connect(checkBoxComboMaps2, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox2(int)));
@@ -201,6 +202,7 @@ void lisemqt::SetConnections()
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
 
+    // all done automagically
     //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
     //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
 
@@ -565,16 +567,19 @@ void lisemqt::setErosionTab(bool yes)
     tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
     tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
-    checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+    if (checkDoErosion->isChecked())
+        checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
+    // note checkBox_SedSingleSingle is not visible but still needed
 
 
     if (checkAdvancedSediment->isChecked())
     {
-        if (checkBox_SedSingleSingle->isChecked())
+        if (!checkBox_SedMultiSingle->isChecked() && !checkBox_SedMultiMulti->isChecked())
         {
-                checkBox_SedSingleSingle->setChecked(false);
+                checkBox_SedMultiMulti->setChecked(false);
                 checkBox_SedMultiSingle->setChecked(true);
         }
+
     }
     yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(yes);

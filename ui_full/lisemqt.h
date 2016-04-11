@@ -297,8 +297,8 @@ public slots:
     void on_DisplayComboBox_currentIndexChanged(int);
     void on_DisplayComboBox2_currentIndexChanged(int);
 
-    void doCheckSnowmelt(bool);// check);
-    void doCheckRainfall(bool);// check);
+    void doCheckSnowmelt(bool check);
+    void doCheckRainfall(bool check);
     void doCheckPesticides(bool check);
 
     void on_E_InfiltrationMethod_currentIndexChanged(int inr);

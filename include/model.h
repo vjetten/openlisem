@@ -584,7 +584,7 @@ public:
     void SWOFSedimentBalance();
     void SWOFSedimentBalanceWS(int l);
 
-    void SWOFSedimentMaxC(int r, int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h,cTMap * u,cTMap * v);
 

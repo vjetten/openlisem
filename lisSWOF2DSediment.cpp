@@ -1946,7 +1946,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTM
  *
  * @see MAXCONC
  */
-void TWorld::SWOFSedimentMaxC(int r, int c, cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
 {
 
     cTMap * _BL = BLFlood;
@@ -2990,7 +2990,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
     //correct for maximum concentration LISEM
     FOR_CELL_IN_FLOODAREA
-        SWOFSedimentMaxC(r,c,h,u,v);
+        SWOFSedimentMaxC(r,c);//,h,u,v);
     }
 
 
@@ -3084,7 +3084,7 @@ void TWorld::SWOFSedimentWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v)
 
     //correct for maximum concentration LISEM
     FOR_WATERSHED_ROW_COL(l) {
-            SWOFSedimentMaxC(r,c,h,u,v);
+            SWOFSedimentMaxC(r,c);//,h,u,v);
     }}
 
 }

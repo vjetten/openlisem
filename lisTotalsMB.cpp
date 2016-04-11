@@ -295,6 +295,7 @@ void TWorld::Totals(void)
             calcMap(*TotalSed, *BLFlood, ADD);
             calcMap(*TotalSed, *SSFlood, ADD);
         }
+        // totals for screen output
         FOR_ROW_COL_MV
         {
           DETSplashCum->Drc += DETSplash->Drc;
