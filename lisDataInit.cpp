@@ -1090,7 +1090,10 @@ void TWorld::InitMulticlass(void)
                     TC_D.append(NewMap(0.0));
                     Conc_D.append(NewMap(0.0));
 
-                    StorageDep_D.append(NewMap(0.0));
+                    if(!SwitchUseMaterialDepth)
+                    {
+                        StorageDep_D.append(NewMap(0.0));
+                    }
                     Storage_D.append(NewMap(0.0));
                     RStorageDep_D.append(NewMap(0.0));
                     RStorage_D.append(NewMap(0.0));
@@ -1167,7 +1170,10 @@ void TWorld::InitMulticlass(void)
                         TC_D.append(NewMap(0.0));
                         Conc_D.append(NewMap(0.0));
 
-                        StorageDep_D.append(NewMap(0.0));
+                        if(!SwitchUseMaterialDepth)
+                        {
+                            StorageDep_D.append(NewMap(0.0));
+                        }
                         Storage_D.append(NewMap(0.0));
                         RStorageDep_D.append(NewMap(0.0));
                         RStorage_D.append(NewMap(0.0));
@@ -2041,17 +2047,19 @@ void TWorld::IntializeData(void)
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
+        StorageDep = ReadMap(LDD, getvaluename("detmattop"));
         FOR_ROW_COL_MV
         {
             if(Storage->Drc != -1)
             {
                 Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
+                StorageDep->Drc = StorageDep->Drc * ChannelAdj->Drc * DX->Drc;
             }else
             {
                 Storage->Drc = -999999;
             }
         }
-        StorageDep = NewMap(0.0);
+
         SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
 
     }
@@ -2094,13 +2102,16 @@ void TWorld::IntializeData(void)
                 IW_D.Drcd = W_D.Drcd;
                 if(SwitchUseMaterialDepth)
                 {
+                    StorageDep_D.append(ReadMap(LDD,"GSD_TOP_"+QString::number(graindiameters.at(i))));
                     if(Storage->Drc > 0)
                     {
                             Storage_D.Drcd = W_D.Drcd * Storage->Drc;
+                            StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc;
                     }else
                     {
                         Storage_D.Drcd = -999999;
                     }
+
                 }
                 if(SwitchIncludeChannel)
                 {

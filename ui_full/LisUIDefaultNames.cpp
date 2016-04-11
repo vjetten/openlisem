@@ -69,6 +69,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
     DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
+    DEFmaps.append("2;Top Material;detmattop.map; Detacheable material per square meter for loose top layer (kg/m2);detmattop");
     DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -139,7 +140,11 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
     DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
     DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-
+    //sewer system
+    DEFmaps.append("0;Sewer system");
+    DEFmaps.append("2;Inlet index;sewindex.map;Index number for output files (-);sewindex");
+    DEFmaps.append("2;Inlet area;sewarea.map;Fraction of the cell that is covered by sewer inlet (m2);sewarea");
+    DEFmaps.append("2;Inlet drainage time;sewdraintime.map;Time before the fraction of water that is above a sewer inlet is drained (s-1);sewdraintime");
 
 /*    OBSOLETE and gradually replaced with new ideas
     DEFmaps.append("0;Wheeltracks");
@@ -327,6 +332,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include house storage");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include raindrum storage");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include sewer inlets");
+
 
     //###
     namelist[i++].name = QString("");

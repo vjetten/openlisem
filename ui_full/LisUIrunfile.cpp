@@ -166,6 +166,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
        // if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check); // OBSOLETE
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
+        if (p1.compare("Include sewer inlets")==0)           checkBox_Sewer->setChecked(check);
 
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = val;
          //   E_Kinematic2D->setValue(val); //(val == 1? checkOverlandFlow1D->setChecked(true) : E_Kinematic2D->setValue(val));
@@ -689,6 +690,7 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
+        if (p1.compare("Include sewer inlets")==0)           namelist[j].value.setNum((int)checkBox_Sewer->isChecked());
 
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
