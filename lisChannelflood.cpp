@@ -96,6 +96,7 @@ void TWorld::ChannelOverflow()
                     }
                     else
                     {
+
                         //qDebug() << "from" << fracC;
                         // do the flow
                         hmx->Drc += dwh*cwa;

@@ -1504,6 +1504,8 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap 
 
     FOR_CELL_IN_FLOODAREA
 
+        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -2055,7 +2057,8 @@ void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
 
     }
 
-
+    BLFlood->Drc = std::max(0.0,BLFlood->Drc);
+    SSFlood->Drc = std::max(0.0,SSFlood->Drc);
 
 }
 //--------------------------------------------------------------------------------------------
@@ -2507,7 +2510,10 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
         //calculate tranport capacity for bed load and suspended load
         TBLTCFlood->Drc = SWOFSedimentTCBL(r,c,d,h,u,v);
         TSSTCFlood->Drc = SWOFSedimentTCSS(r,c,d,h,u,v);
+
     }
+
+
 
     //check for concentrations above MAXCONC
     if(SwitchUseGrainSizeDistribution)
@@ -2658,7 +2664,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
                 }
             }
 
-            BLDepFloodT->Drc += deposition;
+            BLDepFloodT->Drc += fabs(deposition);
             SSFlood->Drc = 0;
             SSCFlood->Drc = 0;
 
@@ -2697,6 +2703,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
            tobl = std::max(tobl,-TSSFlood->Drc);
            TBLFlood->Drc -= tobl;
            TSSFlood->Drc += tobl;
+
 
            //erosion values based on settling velocity
            TransportFactor = dt*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
@@ -2815,6 +2822,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
 
            TBLFlood->Drc += detachment;
            TBLFlood->Drc += deposition;
+
 
         }
     }
