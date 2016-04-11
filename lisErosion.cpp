@@ -1365,7 +1365,6 @@ void TWorld::FlowDetachment(void)
 
           //keep track of deposition
           DEP->Drc += deposition;
-
           // add to sediment in flow (IN KG/CELL)
           Sed->Drc += deposition;
           //if needed, add to sediment in flow for a certain grain class
@@ -1600,7 +1599,6 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            deposition = -TBLFlood->Drc;
            deposition += -TSSFlood->Drc;
            ChannelDep->Drc += deposition;
-
            if(SwitchUseMaterialDepth)
            {
                RStorageDep->Drc += -deposition;

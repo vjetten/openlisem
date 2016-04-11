@@ -224,6 +224,7 @@ void TWorld::DoModel()
             //SumSedimentClasses();  //sum the induvidual sediment class layers
 
             Totals();            // calculate all totals and cumulative values
+
             MassBalance();       // check water and sed mass balance
 
             QFile efout(resultDir+errorFileName);
