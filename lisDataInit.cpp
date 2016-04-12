@@ -540,6 +540,9 @@ void TWorld::InitChannel(void)
             else
                 if (SwitchEfficiencyDET == 2)
                     ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
+                else
+                    if (SwitchEfficiencyDET == 3)
+                        ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
         }
 
         if (SwitchChannelFlood)

@@ -11877,7 +11877,7 @@ p, li { white-space: pre-wrap; }
                      <number>1</number>
                     </property>
                     <property name="maximum">
-                     <number>2</number>
+                     <number>3</number>
                     </property>
                    </widget>
                   </item>
@@ -11890,7 +11890,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Detachment efficiency: 1 - Y = 1.0/(0.89+0.56COH); 2 - Y = 0.79 exp(-0.85 COH)</string>
+                     <string>Detachment efficiency: 1 - Y = 1.0/(0.89+0.56COH); 2 - Y = 0.79 exp(-0.85 COH); 3 - Y = 1/(2*COH)</string>
                     </property>
                    </widget>
                   </item>
@@ -11903,7 +11903,7 @@ p, li { white-space: pre-wrap; }
                      </sizepolicy>
                     </property>
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion: two equations can be chosen: and inverse linear function with cohesion (in kPa) and an exponential function. The linear function is tested for silty loams, the exponential function is more general. The linear function was default in LISEM.&lt;/p&gt;&lt;p&gt;The exponential function gives much lower values for erosion.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion. 3 equations can be chosen: &lt;/p&gt;&lt;p&gt;1) a non-linear function with cohesion (in kPa) based on Loess soils, original LISEM&lt;br/&gt;2) a negative exponential function based on a wider range of soils EUROSEM model. &lt;br/&gt;3) an inverse non-linear fubnction based on the MMF model.&lt;/p&gt;&lt;p&gt;Equation 1 gives high values for erosion, equation 2 gives very low values and equation 3 is in between.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string/>
@@ -19980,7 +19980,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
