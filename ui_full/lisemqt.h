@@ -76,6 +76,7 @@
 #define SNOWMELTMAPS 9
 #define TILEDRAINMAPS 10   //VJ 110111
 #define HOUSESMAPS 11  //VJ 120314
+#define SEWERMAPS 12  //VJ 120314
 #define NUTRIENTSMAPS 12
 //#define TEXTUREMAPS 13
 //#define WHEELTRACKSMAPS 14
@@ -358,7 +359,7 @@ public slots:
 
     void setFloodOP(bool);
     //  void on_checkBoxOverlay_stateChanged(int yes);
-
+    void SewerToggled(bool v);
 
 private slots:
 

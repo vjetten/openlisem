@@ -278,6 +278,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
+    checkMapNameModel(SEWERMAPS, 0, checkBox_Sewer->isChecked());
 
     int nr = E_InfiltrationMethod->currentIndex();
     if (nr == 0)

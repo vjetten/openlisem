@@ -200,6 +200,7 @@ void lisemqt::SetConnections()
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
+    connect(checkBox_Sewer, SIGNAL(toggled(bool)), this, SLOT(SewerToggled(bool)));
 
     //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
     //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
@@ -212,6 +213,11 @@ void lisemqt::SetConnections()
    //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
 
 }
+void lisemqt::SewerToggled(bool v)
+{
+    checkMapNameModel(SEWERMAPS, 0, v);
+}
+
 //--------------------------------------------------------------------
 // disable and enable UI stuff when subcatch selected
 void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
