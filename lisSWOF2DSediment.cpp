@@ -958,6 +958,8 @@ void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v,
 
     FOR_WATERSHED_ROW_COL(l) {
 
+        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1162,6 +1164,8 @@ void TWorld::SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * 
 
     FOR_CELL_IN_FLOODAREA
 
+    MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+    MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1334,6 +1338,8 @@ void TWorld::SWOFSedimentFlowInterpolationWS(int l, double dt, cTMap * h,cTMap *
 
     FOR_WATERSHED_ROW_COL(l) {
 
+        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1787,6 +1793,8 @@ void TWorld::SWOFSedimentDiffusionWS(int l, double dt, cTMap * h,cTMap * u,cTMap
 
      FOR_WATERSHED_ROW_COL(l) {
 
+         MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+         MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
          _BL->Drc = MBLNFlood->Drc;
          _SS->Drc = MSSNFlood->Drc;
 
@@ -1917,6 +1925,8 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTM
 
     FOR_CELL_IN_FLOODAREA
 
+    MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+    MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
