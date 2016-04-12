@@ -223,7 +223,7 @@ void TWorld::InterceptionHouses(void)
                 double dsm3 = (DS + housedrain)*SoilWidthDX->Drc*DX->Drc;
                 if (dsm3 < Dmax)
                     dsm3 = Dmax;
-                DS = dsm3/(SoilWidthDX->Drc*DX->Drc);
+                DS = (SoilWidthDX->Drc > 0)? dsm3/(SoilWidthDX->Drc*DX->Drc) : 0.0;
                 housedrain = std::max(0.0, housedrain - (DS - DStor->Drc));
             }
             else

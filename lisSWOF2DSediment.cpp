@@ -681,12 +681,13 @@ void TWorld::FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L
         double qss_L = ss_L*u_L*h_L;
         double qbl_R = bl_R*u_R*h_R;
         double qbl_L = bl_L*u_L*h_L;
-        f1 = (qbl_L+qbl_R)*0.5-cd*(h_R-h_L);
-        f2 = (qss_L+qss_R)*0.5-cd*(h_R-h_L);
+        f1 = (qbl_L+qbl_R)*0.5-cd*(bl_R-bl_L);
+        f2 = (qss_L+qss_R)*0.5-cd*(ss_R-ss_L);
 
     }
     HLL2_f1 = f1;
     HLL2_f2 = f2;
+
 }
 
 void TWorld::FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R)
@@ -718,8 +719,8 @@ void TWorld::FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,do
         double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
 
-        f1 = t1*qbl_R + t2*qbl_L - t3*(h_R - h_L);
-        f2 = t1*qss_R + t2*qss_L - t3*(h_R - h_L);
+        f1 = t1*qbl_R + t2*qbl_L - t3*(bl_R - bl_L);
+        f2 = t1*qss_R + t2*qss_L - t3*(ss_R - ss_L);
 
     }
     HLL2_f1 = f1;
@@ -754,9 +755,9 @@ void TWorld::FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,dou
             f2=ss_R*(q_R);
         }else{ //subcritical flow
             double tmp = 1./(c2-c1);
-            f1=(c2*bl_L*q_L-c1*bl_R*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
+            f1=(c2*bl_L*q_L-c1*bl_R*q_R)*tmp+c1*c2*(bl_R-bl_L)*tmp;
 
-            f2=(c2*ss_L*q_L-c1*ss_R*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
+            f2=(c2*ss_L*q_L-c1*ss_R*q_R)*tmp+c1*c2*(ss_R-ss_L)*tmp;
         }
     }
 
@@ -930,6 +931,8 @@ void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v,
     FOR_WATERSHED_ROW_COL(l)
         ssnew += MSSNFlood->Drc;
         blnew += MBLNFlood->Drc;
+        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         if(MBLNFlood->Drc > 0)
         {
             blnewcount += 1;
@@ -958,8 +961,7 @@ void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v,
 
     FOR_WATERSHED_ROW_COL(l) {
 
-        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
-        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
+
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1135,6 +1137,9 @@ void TWorld::SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * 
     FOR_CELL_IN_FLOODAREA
         ssnew += MSSNFlood->Drc;
         blnew += MBLNFlood->Drc;
+
+        MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
+        MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         if(MBLNFlood->Drc > 0)
         {
             blnewcount += 1;
@@ -1164,8 +1169,6 @@ void TWorld::SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * 
 
     FOR_CELL_IN_FLOODAREA
 
-    MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
-    MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
         _BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
 
@@ -1326,8 +1329,6 @@ void TWorld::SWOFSedimentFlowInterpolationWS(int l, double dt, cTMap * h,cTMap *
                     MBLNFlood->data[r][c] -=  w[i]* dt* qbl;
                     MSSNFlood->data[r2][c2] +=  w[i]* dt * qss;
                     MSSNFlood->data[r][c] -=  w[i]* dt* qss;
-
-
 
                 }
 
@@ -2674,7 +2675,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
                 }
             }
 
-            BLDepFloodT->Drc += fabs(deposition);
+            BLDepFloodT->Drc += deposition;
             SSFlood->Drc = 0;
             SSCFlood->Drc = 0;
 

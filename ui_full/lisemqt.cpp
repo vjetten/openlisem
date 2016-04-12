@@ -346,7 +346,7 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
             if(op.userMinV.at(i) > op.userMaxV.at(i))
             {
                 op.userMinV.replace(i, 0);
-                ComboMinSpinBox->setValue(0);
+                ComboMinSpinBox2->setValue(0);
             }
 
     }
@@ -739,6 +739,8 @@ void lisemqt::SetToolBar()
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
+    connect(ComboMaxSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
+    connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 

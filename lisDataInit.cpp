@@ -1669,7 +1669,8 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        HouseWidthDX->Drc = std::min(_dx, HouseCover->Drc *_dx);
+        //HouseCover->Drc = std::min(0.9, HouseCover->Drc);
+        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
         // assume there is always space next to house
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }

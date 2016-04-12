@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -4120,62 +4120,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="E_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="1">
                <widget class="QLineEdit" name="E_ResultDir">
                 <property name="sizePolicy">
@@ -4226,6 +4170,68 @@
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>   Result directory</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -4348,10 +4354,10 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_3">
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="E_MapDir">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -4399,14 +4405,8 @@
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>   Result directory</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <property name="toolTip">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -4429,6 +4429,59 @@
                 </property>
                 <property name="text">
                  <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="E_RainfallName">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -4495,8 +4548,8 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="E_RainfallName">
+              <item row="0" column="1">
+               <widget class="QComboBox" name="E_runFileList">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -4542,9 +4595,79 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="duplicatesEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QToolButton" name="toolButton_RainfallShow">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="toolTip">
+                 <string>Show current rainfall file</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -4614,73 +4737,10 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="3">
-               <widget class="QToolButton" name="toolButton_RainfallShow">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_4">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="toolTip">
-                 <string>Show current rainfall file</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/onewfile.png</normaloff>:/onewfile.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="E_runFileList">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -4724,16 +4784,18 @@
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="editable">
-                 <bool>true</bool>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
                 </property>
-                <property name="duplicatesEnabled">
-                 <bool>false</bool>
+                <property name="text">
+                 <string>Rainfall file</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -4748,69 +4810,6 @@
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
                   <normaloff>:/deletereport4.png</normaloff>:/deletereport4.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QToolButton" name="toolButton_RainfallName">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="toolTip">
-                 <string>Select a rainfall file</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
                 </property>
                 <property name="autoRaise">
                  <bool>false</bool>
@@ -4883,6 +4882,69 @@
                 </property>
                </widget>
               </item>
+              <item row="3" column="2">
+               <widget class="QToolButton" name="toolButton_RainfallName">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="toolTip">
+                 <string>Select a rainfall file</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/fileopen.png</normaloff>:/fileopen.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_5">
                 <property name="enabled">
@@ -4945,66 +5007,6 @@
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QToolButton" name="toolButton_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="toolTip">
-                 <string>Select a map directory, this is appended to all maps</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -5133,8 +5135,8 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_4">
+              <item row="1" column="2">
+               <widget class="QToolButton" name="toolButton_MapDir">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -5178,20 +5180,18 @@
                   </disabled>
                  </palette>
                 </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
+                <property name="toolTip">
+                 <string>Select a map directory, this is appended to all maps</string>
                 </property>
                 <property name="text">
-                 <string>Rainfall file</string>
+                 <string>...</string>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/diropen.png</normaloff>:/diropen.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -5734,7 +5734,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -11881,8 +11881,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="label_91">
+                  <item row="1" column="0" colspan="3">
+                   <widget class="QCheckBox" name="checkMaterialDepth">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -11890,29 +11890,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Detachment efficiency: 1=Y = 1.0/(0.89+0.56COH); 2=Y = 0.79 exp(-0.85 COH)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_131">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion: two equations can be chosen: and inverse linear function with cohesion (in kPa) and an exponential function. The linear function is tested for silty loams, the exponential function is more general. The linear function was default in LISEM.&lt;/p&gt;&lt;p&gt;The exponential function gives much lower values for erosion.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="pixmap">
-                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
                     </property>
                    </widget>
                   </item>
@@ -11972,8 +11950,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0" colspan="3">
-                   <widget class="QCheckBox" name="checkMaterialDepth">
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="label_91">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -11981,7 +11959,42 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
+                     <string>Detachment efficiency: 1=Y = 1.0/(0.89+0.56COH); 2=Y = 0.79 exp(-0.85 COH)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_131">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion: two equations can be chosen: and inverse linear function with cohesion (in kPa) and an exponential function. The linear function is tested for silty loams, the exponential function is more general. The linear function was default in LISEM.&lt;/p&gt;&lt;p&gt;The exponential function gives much lower values for erosion.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkFloodSedimentInterpolation">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Use bilinear interpolation for transport distribution (faster, less accurate)</string>
                     </property>
                    </widget>
                   </item>
@@ -12478,19 +12491,6 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0" colspan="3">
-                     <widget class="QCheckBox" name="checkFloodSedimentInterpolation">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Use bilinear interpolation for transport distribution (faster, less accurate)</string>
                       </property>
                      </widget>
                     </item>
