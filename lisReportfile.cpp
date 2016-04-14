@@ -1035,8 +1035,8 @@ void TWorld::GetComboMaps()
         Colormap.append(0.70);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#457A60");
-        Colors.append("#96B547");
+        Colors.append("#616c92");//#457A60");
+        Colors.append("#50B547");//#96B547");
         Colors.append("#FFFFFF");
         Colors.append("#FFFF00");
         Colors.append("#FF0000");
@@ -1069,7 +1069,20 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
         AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
         AddComboMap(1,"Flow detachment","kg/m2",DETFlowCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
- //       AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.3);
+        Colormap.append(0.5);
+        Colormap.append(0.70);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#616c92");//#457A60");
+        Colors.append("#50B547");//#96B547");
+        Colors.append("#FFFFFF");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+        AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,true,1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)
         {

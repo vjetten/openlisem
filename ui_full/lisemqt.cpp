@@ -167,7 +167,7 @@ void lisemqt::SetConnections()
  // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
  // works automatically. if included here may be executed twice!!! not sure...
 
-    // not needed, is done automagically
+ // not needed here, is done automagically
  //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
  //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
  //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
@@ -181,10 +181,8 @@ void lisemqt::SetConnections()
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
     //OBSOLETE connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
-    //  connect(E_Kinematic2D, SIGNAL(valueChanged(int)), this, SLOT(on_E_Kinematic2D_valueChanged(int)));
-
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
-    // double click on mapnake opens fileopen
+    // double click on mapname opens fileopen
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     // doubleclick on mapname edits mapname
 
@@ -202,13 +200,9 @@ void lisemqt::SetConnections()
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
 
-    // all done automagically
-    //connect(E_NumberClasses, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClasses_valueChanged(int)));
-    //connect(E_NumberClassesMaps, SIGNAL(valueChanged(int)), this, SLOT(on_E_NumberClassesMaps_valueChanged(int)));
-
+    // not needed here, is done automagically
  //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
  //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
-
    //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
    //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
    //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
@@ -538,6 +532,7 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 {
     checkEstimateGrainSizeDistribution->setChecked(!v);
 }
+//--------------------------------------------------------------------
 //void lisemqt::on_E_NumberClasses_valueChanged(int v)
 //{
 //    if(checkEstimateGrainSizeDistribution->isChecked())
@@ -551,6 +546,7 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 //        }
 //    }
 //}
+//--------------------------------------------------------------------
 //void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
 //{
 //    if(checkEstimateGrainSizeDistribution->isChecked())
@@ -562,21 +558,6 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 //        {
 //            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
 //        }
-//    }
-//}
-
-
-//void lisemqt::on_E_Kinematic2D_valueChanged(int v)
-//{
-//    if(v != K1D_METHOD)
-//    {
-//        E_TimestepMin->setEnabled(true);
-//        E_CourantFactorKin->setEnabled(true);
-//    }else
-//    {
-//        E_TimestepMin->setEnabled(false);
-//        E_CourantFactorKin->setEnabled(false);
-
 //    }
 //}
 //--------------------------------------------------------------------

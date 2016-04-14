@@ -214,13 +214,6 @@ void lisemqt::on_checkSnowmelt_clicked()
 //--------------------------------------------------------------------
 void lisemqt::doCheckSnowmelt(bool check)
 {
-    //    if (!check && !checkRainfall->isChecked())
-    //    {
-    //      QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
-    //        checkSnowmelt->setChecked(true);
-    //        check = true;
-    //    }
-
     checkMapNameModel(SNOWMELTMAPS, 0, check);
 
     E_SnowmeltName->setEnabled(check);
@@ -231,13 +224,6 @@ void lisemqt::doCheckSnowmelt(bool check)
 //--------------------------------------------------------------------
 void lisemqt::doCheckRainfall(bool check)
 {
-    //    if (!check && !checkSnowmelt->isChecked())
-    //    {
-    //		QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
-    //        checkRainfall->setChecked(true);
-    //        check = true;
-    //    }
-
     checkMapNameModel(RAINFALLMAPS, 0, check);
 
     E_RainfallName->setEnabled(check);

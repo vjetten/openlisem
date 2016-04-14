@@ -5734,7 +5734,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>6</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -10262,8 +10262,6 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                  </layout>
-                 <zorder>checkFloodSedimentInterpolation</zorder>
-                 <zorder>checkFloodSedimentInterpolation</zorder>
                 </widget>
                </item>
                <item row="3" column="0">
