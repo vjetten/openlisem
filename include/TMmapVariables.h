@@ -487,6 +487,8 @@ cTMap
 
 *TotalDetMap,                //!<
 *TotalDepMap,                //!<
+*TotalChanDetMap,                //!<
+*TotalChanDepMap,                //!<
 *TotalSoillossMap,           //!<
 *TotalSed,                   //!<
 *TotalConc,                  //!<

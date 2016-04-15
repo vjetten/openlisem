@@ -377,6 +377,8 @@ void TWorld::Totals(void)
             {
                 TotalDetMap->Drc += ChannelDetFlow->Drc;
                 TotalDepMap->Drc += ChannelDep->Drc;
+                TotalChanDetMap->Drc += ChannelDetFlow->Drc;
+                TotalChanDepMap->Drc += ChannelDep->Drc;
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }

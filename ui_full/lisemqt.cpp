@@ -349,7 +349,7 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
             if(op.userMinV.at(i) > op.userMaxV.at(i))
             {
                 op.userMinV.replace(i, 0);
-                ComboMinSpinBox->setValue(0);
+                ComboMinSpinBox2->setValue(0);
             }
 
     }
@@ -752,6 +752,8 @@ void lisemqt::SetToolBar()
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
+    connect(ComboMaxSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
+    connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
@@ -1429,6 +1431,8 @@ void lisemqt::resetAll()
     E_DetachmentMap->setText("detachment.map");
     E_DepositionMap->setText("deposition.map");
     E_SoillossMap->setText("soilloss.map");
+    E_ChanDetachmentMap->setText("chandet.map");
+    E_ChanDepositionMap->setText("chandep.map");
     E_WHmaxMap->setText("whmax.map");
     E_FloodlevelMap->setText("floodmax.map");
     E_FloodTimeMap->setText("floodtime.map");

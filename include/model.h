@@ -359,6 +359,8 @@ public:
     QString outflowFileName;
     QString totalErosionFileName;
     QString totalDepositionFileName;
+    QString totalChanErosionFileName;
+    QString totalChanDepositionFileName;
     QString totalSoillossFileName;
     QString totalLandunitFileName;
 

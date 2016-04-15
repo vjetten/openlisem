@@ -826,6 +826,8 @@ void TWorld::InitMulticlass(void)
 
     TotalDetMap = NewMap(0);
     TotalDepMap = NewMap(0);
+    TotalChanDetMap = NewMap(0);
+    TotalChanDepMap = NewMap(0);
     TotalSoillossMap = NewMap(0);
     TotalSed = NewMap(0);
     TotalConc = NewMap(0);
@@ -844,6 +846,9 @@ void TWorld::InitMulticlass(void)
             else
                 if (SwitchEfficiencyDET == 2)
                     Y->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
+                else
+                    if (SwitchEfficiencyDET == 3)
+                        ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
 
             //            if (StoneFraction->Drc > 0)
             //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
@@ -1672,7 +1677,8 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        HouseWidthDX->Drc = std::min(_dx, HouseCover->Drc *_dx);
+        //HouseCover->Drc = std::min(0.9, HouseCover->Drc);
+        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
         // assume there is always space next to house
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }
@@ -2144,6 +2150,8 @@ void TWorld::IntializeOptions(void)
     outflowFileName = QString("totals.txt");//.clear();
     totalErosionFileName = QString("erosion.map");//.clear();
     totalDepositionFileName = QString("deposition.map");//.clear();
+    totalChanErosionFileName = QString("chandet.map");//.clear();
+    totalChanDepositionFileName = QString("chandep.map");//.clear();
     totalSoillossFileName = QString("soilloss.map");//.clear();
     totalLandunitFileName = QString("totlandunit.txt");//.clear();
     outflowFileName = QString("hydrohgraph.csv");//.clear();

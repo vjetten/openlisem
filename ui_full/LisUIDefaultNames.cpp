@@ -265,7 +265,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Runoff fraction map");
     namelist[i].value = QString("chandism3.map");
     namelist[i++].name = QString("Channel discharge map");
-    namelist[i].value = QString("detach.map");
+    namelist[i].value = QString("eros.map");
     namelist[i++].name = QString("Erosion map");
     namelist[i].value = QString("depo.map");
     namelist[i++].name = QString("Deposition map");
@@ -273,6 +273,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Soilloss map");
     namelist[i].value = QString("totlandunit.txt");
     namelist[i++].name = QString("Filename landunit output");
+    namelist[i].value = QString("chandet.map");
+    namelist[i++].name = QString("Channel detachment map");
+    namelist[i].value = QString("chandep.map");
+    namelist[i++].name = QString("Channel deposition map");
     namelist[i].value = QString("WHmax.map");
     namelist[i++].name = QString("WH max level map");
     namelist[i].value = QString("floodmax.map");

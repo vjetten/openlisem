@@ -456,6 +456,10 @@ void TWorld::ParseRunfileData(void)
                 totalDepositionFileName = checkOutputMapName(p, "deposition map",0);
             if (p1.compare("Soilloss map")==0)
                 totalSoillossFileName = checkOutputMapName(p, "soil loss map",0);
+            if (p1.compare("Channel detachment map")==0)
+                totalErosionFileName = checkOutputMapName(p, "Channel detachment map",0);
+            if (p1.compare("Channel deposition map")==0)
+                totalDepositionFileName = checkOutputMapName(p, "deposition map",0);
         }
 
         if(SwitchChannelFlood)

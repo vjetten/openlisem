@@ -592,7 +592,6 @@ void TWorld::ReportMaps(void)
             calcMap(*tm, *CellArea, DIV); //to kg/m2
             calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
         }
-
         report(*tm, totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
             report(*tm, Outeros); // in units
@@ -608,6 +607,26 @@ void TWorld::ReportMaps(void)
         report(*tm, totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
             report(*tm, Outdepo); // in units
+
+        copy(*tm, *TotalChanDepMap); //kg/cell
+        if (ErosionUnits == 2)  // in kg/m2
+            calcMap(*tm, *CellArea, DIV);
+        if (ErosionUnits == 0) // ton/ha
+        {
+            calcMap(*tm, *CellArea, DIV);
+            calcValue(*tm, 10, MUL);
+        }
+        report(*tm, totalChanDepositionFileName);
+
+        copy(*tm, *TotalChanDetMap); //kg/cell
+        if (ErosionUnits == 2)  // in kg/m2
+            calcMap(*tm, *CellArea, DIV);
+        if (ErosionUnits == 0) // ton/ha
+        {
+            calcMap(*tm, *CellArea, DIV); //to kg/m2
+            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
+        }
+        report(*tm, totalChanErosionFileName);
 
         copy(*tm, *TotalSoillossMap); //kg/cell
         if (ErosionUnits == 2)  // in kg/m2
@@ -1135,6 +1154,7 @@ void TWorld::GetComboMaps()
 
         }
     }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()

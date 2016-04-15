@@ -185,6 +185,7 @@ void TWorld::DoModel()
             InterceptionLitter();  // litter interception
             InterceptionHouses();  // urban interception
 
+
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
             Infiltration();        // infil of overland flow water, decrease WH
@@ -213,6 +214,7 @@ void TWorld::DoModel()
 
             ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
 
+
             ChannelFlood();        // st venant channel 2D flooding from channel
 
             CalcVelDischChannel(); // alpha, V and Q from Manning
@@ -233,6 +235,7 @@ void TWorld::DoModel()
             eout << " " << runstep << " " << MB << "\n";
             efout.flush();
             efout.close();
+
 
             reportAll();          // report all maps and timeseries
 

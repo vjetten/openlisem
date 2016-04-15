@@ -543,6 +543,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
         if (p1.compare("Deposition map")==0) E_DepositionMap->setText(p);
         if (p1.compare("Soilloss map")==0) E_SoillossMap->setText(p);
+        if (p1.compare("Channel detachment map")==0) E_ChanDetachmentMap->setText(p);
+        if (p1.compare("Channel deposition map")==0) E_ChanDepositionMap->setText(p);
 
         if (p1.compare("Flood level map")==0) E_FloodlevelMap->setText(p);
         if (p1.compare("Flood time map")==0) E_FloodTimeMap->setText(p);
@@ -879,6 +881,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
         if (p1.compare("Soilloss map")==0) namelist[j].value = E_SoillossMap->text();
+        if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
+        if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();

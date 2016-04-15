@@ -239,6 +239,7 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
 void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
 {
+
     FOR_ROW_COL_MV
     {
         double fact1 = 0;
@@ -270,7 +271,8 @@ void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fa
         case INFIL_KSAT : _fpot->Drc = Ks; break;
         case INFIL_GREENAMPT :
         case INFIL_GREENAMPT2 :
-            _fpot->Drc = Ks*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc+tiny)); break;
+            _fpot->Drc = (Ks + tiny)*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc+tiny));
+            break;
         case INFIL_SMITH :
         case INFIL_SMITH2 :
             double B = (fwh + Psi)*space;
@@ -285,6 +287,8 @@ void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fa
         _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
     }
+
+
 }
 //---------------------------------------------------------------------------
 /*!
@@ -436,6 +440,7 @@ void TWorld::Infiltration(void)
     case INFIL_MOREL :
     case INFIL_HOLTAN : break;
     }
+
     // this function results in an actual infiltration "fact" (in m) and
     // potential infiltration "fpot" (in m), according to G&A, S&P etc.
     // It deals with 1 or 2 layers and increase of water depth

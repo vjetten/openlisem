@@ -97,10 +97,18 @@ void TWorld::addRainfallWH(void)
             // assume no interception and infiltration on roads, gross rainfall
         }
     }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)
 {
+    FOR_ROW_COL_MV
+    {
+        if(std::isnan(WHstore->Drc))
+        {
+            qDebug() << r << c << "nan";
+        }
+    }
     FOR_ROW_COL_MV
     {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
@@ -186,6 +194,7 @@ void TWorld::SurfaceStorage(void)
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
     }
+
 
 }
 //---------------------------------------------------------------------------

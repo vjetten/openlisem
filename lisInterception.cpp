@@ -132,11 +132,11 @@ void TWorld::InterceptionLitter(void)
         return;
 
     FOR_ROW_COL_MV
-            if (Litter->Drc > 0)
+            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0)
     {
-        double LAI = (log(1-std::min(0.95,Litter->Drc))/-0.4);
+        double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
         // Bracken equation, avoid log 0
-        double Smax = 0.1713 * LAI;
+        double Smax = 0.001 * 0.1713 * LAI; // in m
 
         double LCS = LCStor->Drc;
         //actual canopy storage in m
@@ -145,32 +145,22 @@ void TWorld::InterceptionLitter(void)
             Smax *= (1-HardSurface->Drc);
         //VJ 110111 no interception on hard surfaces
 
-        if (PlantHeight->Drc < WH->Drc)
-        {
-            Smax = 0;
-            LCS = 0;
-        }
-        //VJ no interception when water level is heigher than plants
-
         LRainCum->Drc += LeafDrain->Drc;
         // cumulative leaf drainage falling on litter
 
         LCS = std::min(LRainCum->Drc, Smax);
         //assume direct simple filling of litter
 
-        double drain = std::max(0.0, Litter->Drc*(RainNet->Drc - (LCS - LCStor->Drc)));
-        // diff between new and old strage is subtracted from rainfall
-        // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
-        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+        double drain = std::max(0.0, Litter->Drc*(LeafDrain->Drc - (LCS - LCStor->Drc)));
+        // diff between new and old strage is subtracted from leafdrip
 
         LCStor->Drc = LCS;
         // put new storage back in map
         LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
         // only on soil surface, not channels or roads, in m3
 
-        RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc + (1-Cover->Drc)*Rainc->Drc;
-        // recalc: net rainfall is direct rainfall + drainage from canopy + dranage litter
-        // rainfall that falls on the soil, used in infiltration
+        RainNet->Drc = drain + (1-Litter->Drc)*LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
+        //recalc
     }
 }
 //---------------------------------------------------------------------------
@@ -223,7 +213,7 @@ void TWorld::InterceptionHouses(void)
                 double dsm3 = (DS + housedrain)*SoilWidthDX->Drc*DX->Drc;
                 if (dsm3 < Dmax)
                     dsm3 = Dmax;
-                DS = dsm3/(SoilWidthDX->Drc*DX->Drc);
+                DS = (SoilWidthDX->Drc > 0)? dsm3/(SoilWidthDX->Drc*DX->Drc) : 0.0;
                 housedrain = std::max(0.0, housedrain - (DS - DStor->Drc));
             }
             else
