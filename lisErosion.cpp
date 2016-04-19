@@ -1797,7 +1797,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
 
    //total concentration
-   ChannelConc->Drc = ChannelBLConc->Drc + ChannelSSConc->Drc;
+  // ChannelConc->Drc = ChannelBLConc->Drc + ChannelSSConc->Drc;
 
    //check for concentration surpassing MAXCONC
    RiverSedimentMaxC(r,c);

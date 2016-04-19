@@ -339,7 +339,7 @@ void TWorld::Totals(void)
             // add sed outflow for all pits to total soil loss
 
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
-            // add channel outflow (in kg) to total for main outlet
+            // add channel outflow (in kg) to total for main outlet, for screen output
 
             calcMap(*TotalSed, *ChannelSed, ADD);
 
