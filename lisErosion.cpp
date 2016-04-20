@@ -563,9 +563,12 @@ double TWorld::GetSV(double d)
  * @param c : coumn nr of the cell
  * @return void
  */
-void TWorld::SedimentSetMaterialDistribution(int r,int c)
+void TWorld::SedimentSetMaterialDistribution()//(int r,int c)
 {
-    if(SwitchUseMaterialDepth)
+    if(!SwitchUseMaterialDepth)
+        return;
+
+    FOR_ROW_COL_MV
     {
         //set total mass from grain size distributed mass
         if(SwitchUseGrainSizeDistribution)
@@ -1437,7 +1440,6 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    //find transport capacity for bed and suspended layer
    for(int d  = 0 ; d < iterator;d++)
    {
-
        cTMap * TBLDepthFlood;
        cTMap * TSSDepthFlood;
        cTMap * TBLTCFlood;
@@ -1478,7 +1480,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        }
 
        //get transport capacit for bed/suspended load for a specific cell and grain size class
-       TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d);
+       TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d); // d ignored when FSWUWANGJIA not chosen
        TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d);
 
     }
@@ -1612,6 +1614,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                }
            }
 
+           //????/? pointer op 0 gezet ???
            TBLDepthFlood = 0;
            TSSDepthFlood = 0;
            TBLTCFlood = 0;
@@ -1630,7 +1633,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                    RBLC_D.Drcd = 0;
                    RSSC_D.Drcd = 0;
            }
-       }else
+       }else  // ChannelWH->Drc > 0
        {
 
            //first check if sediment goes to suspended sediment layer or to bed layer
@@ -1649,8 +1652,9 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           // positive difference: TC deficit becomes detachment (ppositive)
           double minTC = std::min(sstc - TSSCFlood->Drc,0.0) ;
 
-          tobl = TransportFactor * minTC;
+          tobl = TransportFactor * minTC;  // bedload krijgt suspended erbij als deposition?
 
+          //???? wat gebeurd hier????
           tobl = std::max(tobl,-TSSFlood->Drc);
           TBLFlood->Drc -= tobl;
           TSSFlood->Drc += tobl;
@@ -1658,7 +1662,8 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelWidthUpDX->Drc;
 
 
-          double detachment = TW->Drc * maxTC * TransportFactor;
+          double detachment = TW->Drc * maxTC * TransportFactor; //??? wat is unity
+          //????? waarom zit dit in channel erosion?
           if (GrassFraction->Drc > 0)
              detachment = (1-GrassFraction->Drc) * detachment;
           detachment = (1-StoneFraction->Drc) * detachment ;
@@ -1712,7 +1717,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
              detachment = (1-GrassFraction->Drc) * detachment;
           // no flow detachment on grass strips
 
-          // Detachment edxceptions:
+          // Detachment exceptions:
           detachment = (1-StoneFraction->Drc) * detachment;
           // no flow detachment on stony surfaces
 
@@ -2094,7 +2099,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
         ChannelSSDepth->Drc = 0;
         return;
     }
-
+//????????????  komt hier niet meer, want dit is als no erosion, moet zijn if !SwitchUse2Layer?
     if(!SwitchUseGrainSizeDistribution)
     {
         //if a two layer system is modelled, calculate thickness of layer
@@ -2133,7 +2138,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
             double d50m = graindiameters.at(d)/1000000.0;
             double d90m = 1.5 * graindiameters.at(d)/1000000.0;
 
-            double ps = 2400;
+            double ps = 2400; //???????????????  2650 geldt voor de meeste mineralen?
             double pw = 1000;
             double velocity = ChannelV->Drc;
 
@@ -2180,12 +2185,14 @@ double TWorld::RiverSedimentTCBL(int r,int c,int _d)
     }
     if(ChannelWidth->Drc < MIN_FLUX)
     {
+        ////?????????? channel width < 1e-12 waarom deze conditie
         return 0;
     }
 
+
         if(R_BL_Method == FSGOVERS)
             {
-
+   //?????  govers is hier een suspended transport equation, verwarrend
             //Govers with a maximum bed load layer depth (1980)
             double discharge = ChannelQ->Drc;
             //### Calc transport capacity

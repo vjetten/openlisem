@@ -325,8 +325,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
 
                     /*if (SwitchErosion)
                         Sin += _Qsn->Drc;*/
-
-                    // ADD MC and NUTs HERE
                 }
             }
 
@@ -414,10 +412,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                 _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr],
                                                         _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
                 // Newton Rapson iteration for water of current cell
-
-               // _q->data[rowNr][colNr] = Qin;
-                //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
-                // q is now in m3/s
             }
 
             // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration

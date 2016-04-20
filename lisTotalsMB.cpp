@@ -91,6 +91,7 @@ void TWorld::Totals(void)
     
     //=== interception ===//
     IntercTot = mapTotal(*Interc) + mapTotal(*LInterc) ;
+    // added litter interception
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
@@ -101,7 +102,6 @@ void TWorld::Totals(void)
 
     //=== infiltration ===//
     InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
-    difkinTot =0;//+=  difkin->mapTotal(); obsolete: already done
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
@@ -112,8 +112,7 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
     {
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));//CellArea->Drc);
-        //??? how can total be based on _dx*_dx and Drc not, on cellarea???
+        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
     }
 
     //=== surf store ===//
@@ -152,7 +151,8 @@ void TWorld::Totals(void)
                 Qtot += Qn->Drc*_dt;
             }
         }
-    }else
+    }
+    else
     {
 
         Qtot += K2DQOut;
@@ -166,8 +166,6 @@ void TWorld::Totals(void)
     // for screen output, total main outlet in m3
 
     QtotPlot += Qn->DrcPlot * _dt;
-
-    //QPlot = Qn->DrcPlot;
     //VJ 110701 for screen output, total in hydrograph point n in m3
 
     if (SwitchIncludeChannel)
@@ -179,12 +177,11 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CH
         {
             if (LDDChannel->Drc == 5)
-                Qtot += ChannelQn->Drc*_dt;
+                Qtot += ChannelQn->Drc*_dt; //m3
             ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
 
         }
         // add channel outflow (in m3) to total for all pits
-        //Qtotmm = Qtot*catchmentAreaFlatMM;
         // recalc in mm for screen output
 
         QtotOutlet += ChannelQn->DrcOutlet * _dt;
@@ -270,39 +267,45 @@ void TWorld::Totals(void)
 
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
+
+    // DetSplashTot, DetFlowTot and DepTot are for output in file and screen
+    // DetTot and DepTot are for MB
     if (SwitchErosion)
     {
         DetSplashTot += mapTotal(*DETSplash);
-
         DetFlowTot += mapTotal(*DETFlow);
         DepTot += mapTotal(*DEP);
-        DetTot += mapTotal(*DETSplash) + mapTotal(*DETFlow);
+        DetTot = DetFlowTot + DetSplashTot; //+= mapTotal(*DETSplash) + mapTotal(*DETFlow);
         SedTot = mapTotal(*Sed);
         // all in kg/cell
 
-        copy(*TotalSed, *Sed);
+        // copy(*TotalSed, *Sed);
         // for sed conc
+        // totals for screen output
+
+        calcMap(*DETSplashCum, *DETSplash, ADD);
+        calcMap(*DETFlowCum, *DETFlow, ADD);
+        // for screen map output
 
         if (SwitchChannelFlood)
         {
-            //DetFlowTot += mapTotal(*BLDetFloodT);
-            //DetFlowTot += mapTotal(*SSDetFloodT);
-            DetTot += mapTotal(*BLDetFloodT);
-            DetTot += mapTotal(*SSDetFloodT);
+            DetFlowTot += mapTotal(*BLDetFloodT);  // used for screen output
+            DetFlowTot += mapTotal(*SSDetFloodT);
+            DetTot = DetFlowTot + DetSplashTot; // recalc because of flood
+            //DetTot += mapTotal(*BLDetFloodT);  // used for MB
+            //DetTot += mapTotal(*SSDetFloodT);
+
             DepTot += mapTotal(*BLDepFloodT);
             SedTot += mapTotal(*BLFlood);
             SedTot += mapTotal(*SSFlood);
-            calcMap(*TotalSed, *BLFlood, ADD);
-            calcMap(*TotalSed, *SSFlood, ADD);
-        }
-        // totals for screen output
-        FOR_ROW_COL_MV
-        {
-          DETSplashCum->Drc += DETSplash->Drc;
-          DETFlowCum->Drc += DETFlow->Drc;
+
+          //  calcMap(*TotalSed, *BLFlood, ADD);
+          //  calcMap(*TotalSed, *SSFlood, ADD);
+
+            calcMap(*DETFlowCum, *BLDetFloodT, ADD);
+            calcMap(*DETFlowCum, *SSDetFloodT, ADD);
         }
 
-        //SoilLossTot += Qsoutflow->DrcOutlet;
         if(SwitchKinematic2D == 1)
         {
             FOR_ROW_COL_MV
@@ -341,9 +344,8 @@ void TWorld::Totals(void)
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet, for screen output
 
-            calcMap(*TotalSed, *ChannelSed, ADD);
-
-            // needed for sed conc in file output
+          //  calcMap(*TotalSed, *ChannelSed, ADD);
+            // needed for sed conc in file output ???
         }
 
         if (SwitchBuffers || SwitchSedtrap)
@@ -353,16 +355,16 @@ void TWorld::Totals(void)
                 BufferSedTot += mapTotal(*ChannelBufferSed);
 
         }
-        /** TODO add gully, wheeltracks etc */
+
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            if(!(SwitchKinematic2D > 1))
+            if(SwitchKinematic2D == 1)
             {
                 Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
             }else
             {
-                Qsoutput->Drc = Qn->Drc *Conc->Drc + ChannelQsn->Drc;
+                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
             }
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
@@ -389,6 +391,7 @@ void TWorld::Totals(void)
         {
             double Q = Qoutput->Drc/1000;
             TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
+            //WITHOUT FLOOD????
         }
     }
 
@@ -475,10 +478,12 @@ void TWorld::Totals(void)
 
     }
 
-    FOR_ROW_COL_MV
-    {
-        SedimentSetMaterialDistribution(r,c);
-    }
+    SedimentSetMaterialDistribution();
+
+//    FOR_ROW_COL_MV
+//    {
+//        SedimentSetMaterialDistribution(r,c);
+//    }
 
 }
 //---------------------------------------------------------------------------
@@ -489,7 +494,7 @@ void TWorld::MassBalance()
     if (RainTot + SnowTot > 0)
     {
         MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - difkinTot - floodBoundaryTot);
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
     //watervoltot includes channel and tile

@@ -1271,7 +1271,7 @@ void TWorld::GetInputData(void)
             if (LDD->Drc != 5)
             {
                 ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
-                throw 1;
+              //  throw 1;
             }
             else
             {
@@ -1684,7 +1684,6 @@ void TWorld::IntializeData(void)
     }
 
     //### infiltration maps
-    difkinTot = 0;
     InfilTot = 0;
     InfilTotmm = 0;
     InfilKWTot = 0;
