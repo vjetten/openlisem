@@ -464,7 +464,6 @@ void TWorld::OverlandFlowNew(void)
         //maximum time is the lisem-timestep _dt
         while(tof < _dt-0.001)
         {
-
             K2DDEMA();
             //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
 
@@ -550,7 +549,6 @@ void TWorld::OverlandFlowNew(void)
 
     if(SwitchKinematic2D == K1D_METHOD)
     {
-
         double mb = 0;
         double n = 0;
 
@@ -591,8 +589,6 @@ void TWorld::OverlandFlowNew(void)
 
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
-
-
 
             double WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
             // new volume
@@ -645,13 +641,16 @@ void TWorld::OverlandFlowNew(void)
     {
         FOR_ROW_COL_MV
         {
-
-
             double err =  -WHrunoff->Drc * ChannelAdj->Drc * DX->Drc - QoutKW->Drc + QinKW->Drc +  WaterVolin->Drc - K2DI->Drc;
             //throw calculation error in infiltration, error should be insignificant
             InfilVolKinWave->Drc = K2DI->Drc;
 
         }
+    }
+
+    if(SwitchKinematic2D == K1D_METHOD)
+    {
+        DrainSewer(_dt);
     }
 
     FOR_ROW_COL_MV
@@ -684,7 +683,7 @@ void TWorld::OverlandFlowNew(void)
 
     if(SwitchKinematic2D == K1D_METHOD)
     {
-        DrainSewer(_dt);
+
 
         FOR_ROW_COL_MV
         {

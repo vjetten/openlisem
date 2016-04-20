@@ -36,14 +36,18 @@ void TWorld::DrainSewer(double dt)
         if(SewerID->Drc > 0)
         {
             double surfrac = SewerArea->Drc * _dx * _dx / DX->Drc * _dx;
-            double frac = std::min(1.0,pow(surfrac,dt/SewerDrainageTime->Drc));
+            double frac = std::min(1.0,pow(surfrac,SewerDrainageTime->Drc/dt));
 
-            SewerQ->Drc = std::min((ChannelAdj->Drc * DX->Drc * WHrunoff->Drc), ChannelAdj->Drc * DX->Drc * WHrunoff->Drc * frac);
+            SewerQ->Drc = std::max(0.0,std::min((ChannelAdj->Drc * DX->Drc * WHrunoff->Drc), ChannelAdj->Drc * DX->Drc * WHrunoff->Drc * frac));
             SewerQt->Drc += SewerQ->Drc;
 
             if(ChannelAdj->Drc > 0)
             {
                 WHrunoff->Drc = WHrunoff->Drc - SewerQ->Drc/(ChannelAdj->Drc * DX->Drc);
+                if(SwitchKinematic2D !=  K1D_METHOD)
+                {
+                    K2DHOld->Drc = WHrunoff->Drc;
+                }
             }
 
             if(SwitchErosion)

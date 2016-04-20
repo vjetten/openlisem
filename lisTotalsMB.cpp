@@ -486,7 +486,7 @@ void TWorld::MassBalance()
     if (RainTot + SnowTot > 0)
     {
         MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - SewerQTotal - difkinTot - floodBoundaryTot);
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin  - SewerQTotal - difkinTot - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
     //watervoltot includes channel and tile
