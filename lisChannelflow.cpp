@@ -317,6 +317,16 @@ void TWorld::ChannelFlow(void)
         }
     }
 
+    ChannelQBLsn->setAllMV();
+    ChannelQSSsn->setAllMV();
+    if(SwitchUseGrainSizeDistribution)
+    {
+        FOR_GRAIN_CLASSES
+        {
+            Tempb_D.at(d)->setAllMV();
+            Tempd_D.at(d)->setAllMV();
+        }
+    }
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
@@ -328,8 +338,6 @@ void TWorld::ChannelFlow(void)
             {
                 if(!SwitchUseGrainSizeDistribution)
                 {
-                    ChannelQBLsn->setAllMV();
-                    ChannelQSSsn->setAllMV();
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
 
@@ -337,8 +345,6 @@ void TWorld::ChannelFlow(void)
                 {
                     FOR_GRAIN_CLASSES
                     {
-                        Tempb_D.at(d)->setAllMV();
-                        Tempd_D.at(d)->setAllMV();
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
 
