@@ -139,7 +139,7 @@ void TWorld::DoModel()
                     r_plot = r;
                     c_plot = c;
 
-                    op.outputpointdata = QString("Outlet %1 [row %2; col %3]").arg((int)Outlet->Drc).arg(r).arg(c);
+                    op.outputpointdata = QString("Outlet %1").arg((int)Outlet->Drc);
                     found = true;
                 }
             }

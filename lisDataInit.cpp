@@ -434,16 +434,13 @@ void TWorld::InitShade(void)
         //qDebug() << r << c << aspect;
         Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
     }
-    //    double MaxV = Shade->mapMaximum();
-    //    double MinV = Shade->mapMinimum();
+    double MaxV = mapMaximum(*Shade);
+    double MinV = mapMinimum(*Shade);
 
-    //    FOR_ROW_COL_MV
-    //    {
-    //        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
-    //        if (Shade->Drc == 0 && r > 0 && c > 0)
-    //            Shade->Drc = Shade->data[r-1][c-1];
-    //        Shade->Drc = Shade->Drc+(DEM->Drc-MinDem)/(MaxDem-MinDem)*0.7;
-    //    }
+    FOR_ROW_COL_MV
+    {
+        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+    }
 
 }
 //---------------------------------------------------------------------------

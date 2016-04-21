@@ -416,7 +416,6 @@ void lisemqt::setDisplayComboBox2(int i)
         DisplayComboBox2->setEnabled(true);
 
         int j = IndexList1.at(DisplayComboBox2->currentIndex());
-        qDebug() << j;
 
         ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
         ActiveList = 1;
@@ -1229,7 +1228,6 @@ void lisemqt::GetStorePath()
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             continue;
 
-        // qDebug() << line;
         runfilelist << QString(line);
         //E_runFileList->addItem(QString(line));
     }

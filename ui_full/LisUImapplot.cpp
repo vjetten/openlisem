@@ -103,7 +103,7 @@ void lisemqt::setupMapPlot()
     //Layout_Map_2
 
   // verticalLayout_2->addWidget( MPlot, 0);
-       maplayout->insertWidget(0, MPlot, 1);
+       maplayout->insertWidget(1, MPlot, 0, 0);
     // put it on screen
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
@@ -242,9 +242,6 @@ void lisemqt::showMapd(double)
 // not how they are done here!
 void lisemqt::showMap()
 {
-    if(tabWidget_out->currentIndex() == 0)
-        return;
-
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
