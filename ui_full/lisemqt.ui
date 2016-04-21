@@ -80,7 +80,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5775,7 +5775,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>7</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -6297,6 +6297,19 @@
                    </property>
                   </widget>
                  </item>
+                 <item row="2" column="1">
+                  <spacer name="horizontalSpacer_19">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
                 </layout>
                </item>
                <item row="0" column="0">
@@ -6366,7 +6379,7 @@
                  <item row="0" column="1">
                   <widget class="QLabel" name="label_153">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -6380,6 +6393,9 @@
                    <property name="pixmap">
                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
                    </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -6388,7 +6404,7 @@
                     <string>Overland flow in 1D (using LDD)</string>
                    </property>
                    <property name="checked">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -6447,9 +6463,22 @@
                     <string>Overland flow in 2D (Using DEM)</string>
                    </property>
                    <property name="checked">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <spacer name="horizontalSpacer_20">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -6461,27 +6490,8 @@
                  <property name="verticalSpacing">
                   <number>0</number>
                  </property>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_157">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1" colspan="2">
-                  <widget class="QCheckBox" name="checkRaindrum">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
+                 <item row="0" column="0" colspan="2">
+                  <widget class="QLabel" name="label_141">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -6527,12 +6537,12 @@
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Include rainwater storage by drums</string>
+                    <string>Urban elements</string>
                    </property>
                   </widget>
                  </item>
@@ -6592,59 +6602,19 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QLabel" name="label_141">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_157">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
                    <property name="text">
-                    <string>Urban elements</string>
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -6760,7 +6730,79 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="3">
+                 <item row="2" column="1" colspan="2">
+                  <widget class="QCheckBox" name="checkRaindrum">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Include rainwater storage by drums</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="4">
+                  <spacer name="horizontalSpacer_18">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="0" column="4">
                   <widget class="QLabel" name="label_103">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Urban elements&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Switch on or off the effect of buildings and infrastructure:&lt;/p&gt;&lt;p&gt;- Buildings have interception storage, are impermeable, obstruct flow and are non-erodable. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.&lt;/p&gt;&lt;p&gt;- Roads have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. Roads can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.&lt;/p&gt;&lt;p&gt;- Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. They behave the same as roads but are a separate class because they are often in a different land use class.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -20123,7 +20165,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

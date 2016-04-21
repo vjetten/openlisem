@@ -301,16 +301,6 @@ void lisemqt::RunAllChecks()
     //houses
     checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
-//    checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
-//    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
-//    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
-//    // VJ 110110
-
-//    buffergroup->setEnabled(checkBuffers->isChecked() || checkSedtrap->isChecked());
-//    buffergroup->setVisible(checkBuffers->isChecked() || checkSedtrap->isChecked());
-//    sedgroup->setEnabled(checkDoErosion->isChecked());
-
-
     checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 
     checkExpandActive->setChecked(false);

@@ -184,7 +184,9 @@ void TWorld::OutputUI(void)
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
     op.ChannelWH = ChannelWH->DrcPlot;
 
-    op.SoilLossTot=SoilLossTotOutlet*0.001; // convert from kg to ton
+    op.SoilLossTot=SoilLossTot*0.001; // convert from kg to ton
+    // changed to total soil loss all outlets
+    //TODO revamp output
 
     op.t = time_ms.elapsed()*0.001/60.0;
     op.time = time/60;
