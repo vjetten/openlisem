@@ -223,8 +223,6 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
             groupBox_drawMap->setVisible(true);
             groupBox_info->setVisible(false);
         }
-
-
 }
 
 //--------------------------------------------------------------------
@@ -282,10 +280,9 @@ void lisemqt::on_checkPercolation_stateChanged(int)
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
-    qDebug() << "on_ComboMinSpinBox_valueChanged" << i;
 
-    if (i < 0)
-        return;
+//    if (i < 0)
+//        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -305,10 +302,9 @@ void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
-    qDebug() << "on_ComboMaxSpinBox_valueChanged" << i;
 
-    if (i < 0)
-        return;
+//    if (i < 0)
+//        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -328,8 +324,6 @@ void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
 {
     if (!DisplayComboBox2->isEnabled())
-        return;
-    if(DisplayComboBox2->currentIndex() < 0)
         return;
 
     int i = IndexList1.at(DisplayComboBox2->currentIndex());
@@ -360,8 +354,6 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 {
     if (!DisplayComboBox2->isEnabled())
         return;
-    if(DisplayComboBox2->currentIndex() < 0)
-        return;
 
     int i = IndexList1.at(DisplayComboBox2->currentIndex());
 
@@ -391,10 +383,6 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 //--------------------------------------------------------------------
 void lisemqt::setDisplayComboBox(int i)
 {
-    qDebug() << "setDisplayComboBox" << DisplayComboBox->currentIndex();
-    if (DisplayComboBox->currentIndex() < 0 ||
-        DisplayComboBox2->currentIndex() < 0)
-        return;
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(true);
@@ -408,16 +396,13 @@ void lisemqt::setDisplayComboBox(int i)
         ComboMinSpinBox2->setEnabled(false);
 
         ActiveList = 0;
-        this->showMap();
+
     }
+    this->showMap();
 }
 //--------------------------------------------------------------------
 void lisemqt::setDisplayComboBox2(int i)
 {
-    qDebug() << "setDisplayComboBox2" << DisplayComboBox2->currentIndex();
-    if (DisplayComboBox->currentIndex() < 0 ||
-        DisplayComboBox2->currentIndex() < 0)
-        return;
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
@@ -435,8 +420,9 @@ void lisemqt::setDisplayComboBox2(int i)
 
         ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
         ActiveList = 1;
-        this->showMap();
+
     }
+    this->showMap();
 }
 //--------------------------------------------------------------------
 void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)

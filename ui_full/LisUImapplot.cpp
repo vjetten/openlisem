@@ -101,7 +101,9 @@ void lisemqt::setupMapPlot()
     MPlot = new QwtPlot(title, this);
     // make the plot window
     //Layout_Map_2
-    maplayout->insertWidget(0, MPlot, 1);
+
+  // verticalLayout_2->addWidget( MPlot, 0);
+       maplayout->insertWidget(0, MPlot, 1);
     // put it on screen
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
@@ -242,8 +244,7 @@ void lisemqt::showMap()
 {
     if(tabWidget_out->currentIndex() == 0)
         return;
-    tabWidget_out->setCurrentIndex(1);
-groupBox_drawMap->setVisible(true);
+
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
@@ -278,19 +279,26 @@ groupBox_drawMap->setVisible(true);
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
         }
+        QStringList S;
+        QStringList S1;
+
         for(int i = 0; i < op.ComboMapsSafe.length(); i++)
         {
 
             if(op.ComboLists.at(i) == 0)
             {
-                DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                S << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                DisplayComboBox->insertItem(i, op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
             }else
             {
+                S1 << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
             }
         }
+        //DisplayComboBox->addItems(S);
+       //DisplayComboBox2->addItems(S1);
         ActiveList = 0;
 
         checkBoxComboMaps2->setChecked(false);
@@ -307,8 +315,8 @@ groupBox_drawMap->setVisible(true);
     }
 
 
-    drawMap->setAlpha(transparency->value());
-    drawMap->setAlpha(255);
+   // drawMap->setAlpha(transparency->value());
+   // drawMap->setAlpha(255);
 
     if(ActiveList == 0)
     {
@@ -322,9 +330,7 @@ groupBox_drawMap->setVisible(true);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
 
-
     MPlot->replot();
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
