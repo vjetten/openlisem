@@ -209,6 +209,26 @@ void lisemqt::SetConnections()
 
 }
 //--------------------------------------------------------------------
+void lisemqt::on_tabWidget_out_currentChanged(int index)
+{
+    if (tabWidget_out->currentIndex() == 0)
+    {
+        groupBox_drawMap->setVisible(false);
+        groupBox_info->setVisible(true);
+    }
+
+    else
+        if (tabWidget_out->currentIndex() == 1)
+        {
+            groupBox_drawMap->setVisible(true);
+            groupBox_info->setVisible(false);
+        }
+
+
+}
+
+//--------------------------------------------------------------------
+
 // disable and enable UI stuff when subcatch selected
 void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
 {

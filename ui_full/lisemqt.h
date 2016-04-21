@@ -321,6 +321,7 @@ public slots:
     void setDisplayComboBox(int);
     void setDisplayComboBox2(int);
     void on_spinBoxPointtoShow_valueChanged(int);
+    void on_tabWidget_out_currentChanged(int);
 
     //houses
     void on_checkHouses_clicked();

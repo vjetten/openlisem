@@ -455,6 +455,10 @@ void TWorld::InitChannel(void)
     ChannelSedTot = 0;
     ChannelDepTot = 0;
     ChannelDetTot = 0;
+    FloodSedTot = 0;
+    FloodDepTot = 0;
+    FloodDetTot = 0;
+
     SedToChannel = NewMap(0);
     ChannelWidthUpDX = NewMap(0);
     ChannelWaterVol = NewMap(0);

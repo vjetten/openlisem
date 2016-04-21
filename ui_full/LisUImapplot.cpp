@@ -100,7 +100,8 @@ void lisemqt::setupMapPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    Layout_Map_2->insertWidget(0, MPlot, 1);
+    //Layout_Map_2
+            maplayout->insertWidget(0, MPlot, 1);
     // put it on screen
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );

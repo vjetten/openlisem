@@ -311,7 +311,16 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
-
+    ChannelQBLsn->setAllMV();
+    ChannelQSSsn->setAllMV();
+    if(SwitchUseGrainSizeDistribution)
+    {
+        FOR_GRAIN_CLASSES
+        {
+            Tempb_D.at(d)->setAllMV();
+            Tempd_D.at(d)->setAllMV();
+        }
+    }
 
     ChannelQn->setAllMV();
     fill(*QinKW, 0.0);
@@ -345,16 +354,10 @@ void TWorld::ChannelFlow(void)
                 {
                     FOR_GRAIN_CLASSES
                     {
-//                        Tempb_D.at(d)->setAllMV();
-//                        Tempd_D.at(d)->setAllMV();
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
-
-
                     }
-
                 }
-
             }
         }
     }

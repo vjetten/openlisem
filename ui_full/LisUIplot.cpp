@@ -359,7 +359,7 @@ void lisemqt::startPlots()
     smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
     //legend
 
-    label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
+ //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
     // VJ 110630 show hydrograph for selected output point
 
     HPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
@@ -402,11 +402,10 @@ void lisemqt::showOutputData()
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
-
+    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
     if (op.outputpointnr > 1)
     {
-
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
         label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));
@@ -424,13 +423,11 @@ void lisemqt::showOutputData()
     label_qpeaktime->setText(QString::number(op.QpeakTime,'f',2));
     label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',2));
     label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
-    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
     // buffers
     if (checkBuffers->isChecked())
         label_buffervol->setText(QString::number(op.BufferVolTot,'f',3));
 
-    //    if(!checkNoErosion->isChecked())
     if(checkDoErosion->isChecked())
     {
         int dig = 2;

@@ -67,6 +67,7 @@ void lisemqt::runmodel()
     // in savefile(string) the runfile is updated with all user options and map names
 
     tabWidget->setCurrentIndex(2);
+    tabWidget_out->setCurrentIndex(0);
     //switch to output screen
 
     startplot = true;

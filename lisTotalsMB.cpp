@@ -154,7 +154,6 @@ void TWorld::Totals(void)
     }
     else
     {
-
         Qtot += K2DQOut;
     }
 
@@ -278,33 +277,11 @@ void TWorld::Totals(void)
         DetTot = DetFlowTot + DetSplashTot; //+= mapTotal(*DETSplash) + mapTotal(*DETFlow);
         SedTot = mapTotal(*Sed);
         // all in kg/cell
-
-        // copy(*TotalSed, *Sed);
-        // for sed conc
         // totals for screen output
 
         calcMap(*DETSplashCum, *DETSplash, ADD);
         calcMap(*DETFlowCum, *DETFlow, ADD);
         // for screen map output
-
-        if (SwitchChannelFlood)
-        {
-            DetFlowTot += mapTotal(*BLDetFloodT);  // used for screen output
-            DetFlowTot += mapTotal(*SSDetFloodT);
-            DetTot = DetFlowTot + DetSplashTot; // recalc because of flood
-            //DetTot += mapTotal(*BLDetFloodT);  // used for MB
-            //DetTot += mapTotal(*SSDetFloodT);
-
-            DepTot += mapTotal(*BLDepFloodT);
-            SedTot += mapTotal(*BLFlood);
-            SedTot += mapTotal(*SSFlood);
-
-          //  calcMap(*TotalSed, *BLFlood, ADD);
-          //  calcMap(*TotalSed, *SSFlood, ADD);
-
-            calcMap(*DETFlowCum, *BLDetFloodT, ADD);
-            calcMap(*DETFlowCum, *SSDetFloodT, ADD);
-        }
 
         if(SwitchKinematic2D == 1)
         {
@@ -332,6 +309,8 @@ void TWorld::Totals(void)
             ChannelDepTot += mapTotal(*ChannelDep);
             ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
 
+            calcMap(*DETFlowCum, *ChannelDetFlow, ADD);
+
             FOR_ROW_COL_MV_CH
             {
                 if (LDDChannel->Drc == 5)
@@ -339,13 +318,21 @@ void TWorld::Totals(void)
                     SoilLossTot += ChannelQsn->Drc * _dt;
                 }
             }
-            // add sed outflow for all pits to total soil loss
 
             SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet, for screen output
 
-          //  calcMap(*TotalSed, *ChannelSed, ADD);
-            // needed for sed conc in file output ???
+            if (SwitchChannelFlood)
+            {
+                FloodDetTot += mapTotal(*BLDetFloodT);  // used for screen output
+                FloodDetTot += mapTotal(*SSDetFloodT);
+
+                FloodDepTot += mapTotal(*BLDepFloodT);
+                FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
+
+                calcMap(*DETFlowCum, *BLDetFloodT, ADD);
+                calcMap(*DETFlowCum, *SSDetFloodT, ADD);
+            }
         }
 
         if (SwitchBuffers || SwitchSedtrap)
@@ -353,7 +340,6 @@ void TWorld::Totals(void)
             BufferSedTot = mapTotal(*BufferSed);
             if (SwitchIncludeChannel)
                 BufferSedTot += mapTotal(*ChannelBufferSed);
-
         }
 
         // spatial totals for output all in kg/cell
@@ -369,18 +355,21 @@ void TWorld::Totals(void)
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
-            if (SwitchChannelFlood)
-            {
-                TotalDepMap->Drc += BLDepFloodT->Drc;
-                TotalDetMap->Drc += SSDetFloodT->Drc;
-                TotalDetMap->Drc += BLDetFloodT->Drc;
-            }
+
             if (SwitchIncludeChannel)
             {
                 TotalDetMap->Drc += ChannelDetFlow->Drc;
                 TotalDepMap->Drc += ChannelDep->Drc;
+
                 TotalChanDetMap->Drc += ChannelDetFlow->Drc;
                 TotalChanDepMap->Drc += ChannelDep->Drc;
+
+                if (SwitchChannelFlood)
+                {
+                    TotalDepMap->Drc += BLDepFloodT->Drc;
+                    TotalDetMap->Drc += SSDetFloodT->Drc;
+                    TotalDetMap->Drc += BLDetFloodT->Drc;
+                }
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
@@ -504,8 +493,8 @@ void TWorld::MassBalance()
 
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
-        MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-                  DepTot + ChannelDepTot - BufferSedTot)/(SoilLossTot))*100;
+        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +
+                  DepTot + ChannelDepTot + FloodDepTot - BufferSedTot)/(SoilLossTot))*100;
     //VJ 121212 changed to mass balance relative to soil loss
 
     if (SwitchPesticide)
