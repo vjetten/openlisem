@@ -184,6 +184,10 @@ void TWorld::OutputUI(void)
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
     op.ChannelWH = ChannelWH->DrcPlot;
 
+    op.FloodSed = FloodSedTot*0.001;
+    op.FloodDepTot = FloodDepTot*0.001;
+    op.FloodDetTot = FloodDetTot*0.001;
+
     op.SoilLossTot=SoilLossTot/*Outlet*/ *0.001; // convert from kg to ton
 
     op.t = time_ms.elapsed()*0.001/60.0;

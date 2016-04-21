@@ -127,8 +127,9 @@ void lisemqt::setupPlot()
 //---------------------------------------------------------------------------
 /// set up small discharge plot on mapplot page
 /// this is called at the start of lisem, initsmallplot() is called at the start of a model run
-void lisemqt::setupSmallPlot()
+/*void lisemqt::setupSmallPlot()
 {
+
     QwtText title;
     title.setText("Hydrograph");
     title.setFont(QFont("MS Shell Dlg 2",8));
@@ -191,7 +192,8 @@ void lisemqt::setupSmallPlot()
     grid->attach(smallPlot);
 
     smallPlot->replot();
-}
+
+}*/
 //---------------------------------------------------------------------------
 /// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
@@ -200,12 +202,6 @@ void lisemqt::initPlot()
     spinBoxPointtoShow->setEnabled(false);
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
-
-//    label_qtotm3sub->setEnabled(op.outputpointnr > 1);
-//    subcatchgroup->setEnabled(op.outputpointnr > 1);
-//    label_soillosssub->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
-//    label_94->setEnabled(op.outputpointnr > 1 && checkDoErosion->isChecked());
-    //moved
 
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
@@ -218,13 +214,13 @@ void lisemqt::initPlot()
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
 
-        sQsGraph->attach(smallPlot);
+        //sQsGraph->attach(smallPlot);
     }
     else
     {
         QsGraph->detach();
         CGraph->detach();
-        sQsGraph->detach();
+ //       sQsGraph->detach();
     }
 
     //    if(!checkNoErosion->isChecked())
@@ -234,24 +230,24 @@ void lisemqt::initPlot()
         QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
         CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
 
-        sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-        sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
+   //     sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
+   //     sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
 
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) & P (mm/h)");
         HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) & C (g/l)");
-        smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
-        smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
+    //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
+   //     smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
     }
     else
     {
         PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-        sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
+ //       sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
 
 
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
-        smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s)");
-        smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
+   //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s)");
+   //     smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
     }
 
 }
@@ -287,8 +283,7 @@ void lisemqt::showPlot()
     yas = std::max(yas, op.QPlot);
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
-    //    if(!checkNoErosion->isChecked())
-            if(checkDoErosion->isChecked())
+    if(checkDoErosion->isChecked())
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
@@ -312,8 +307,9 @@ void lisemqt::showPlot()
 
 }
 //---------------------------------------------------------------------------
-void lisemqt::showSmallPlot()
+/*void lisemqt::showSmallPlot()
 {
+
     sQGraph->setSamples(TData,QData);
     sPGraph->setSamples(TData,PData);
     //    if(!checkNoErosion->isChecked())
@@ -328,7 +324,8 @@ void lisemqt::showSmallPlot()
 
     smallPlot->replot();
 
-}
+
+}*/
 //---------------------------------------------------------------------------
 // initializes plot with world data, called in worldshow, done once
 void lisemqt::startPlots()
@@ -348,15 +345,15 @@ void lisemqt::startPlots()
 
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
-    smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
+ //   smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
 
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
     HPlot->insertLegend(legend, QwtPlot::BottomLegend);
     //legend
-    QwtLegend *slegend = new QwtLegend(smallPlot);
-    slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-    smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
+   // QwtLegend *slegend = new QwtLegend(smallPlot);
+   // slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+  //  smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
     //legend
 
  //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
@@ -382,8 +379,6 @@ void lisemqt::showOutputData()
     // "op" is filled in the model run each timestep
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
-    if (op.outputpointnr > 1)
-        subcatchgroup->setTitle(op.outputpointdata);
 
     label_dx->setText(QString::number(op.dx,'f',3));
     label_area->setText(QString::number(op.CatchmentArea/1000000,'f',3));
@@ -404,19 +399,19 @@ void lisemqt::showOutputData()
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
     label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
-    if (op.outputpointnr > 1)
-    {
+ //   if (op.outputpointnr > 1)
+ //   {
         label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
         label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
         label_dischargesub->setText(QString::number(op.QPlot,'f',3));
 
         if(checkDoErosion->isChecked())
             label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
-    }
+ //   }
 
     // outlet
-    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
-    label_discharge->setText(QString::number(op.Q,'f',2));
+//    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
+//    label_discharge->setText(QString::number(op.Q,'f',2));
 
     // peak time
     label_qpeak->setText(QString::number(op.Qpeak,'f',2));
@@ -440,6 +435,10 @@ void lisemqt::showOutputData()
         label_detch->setText(QString::number(op.ChannelDetTot,'f',dig));
         label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
         label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
+
+        label_flooddet->setText(QString::number(op.ChannelDetTot,'f',dig));
+        label_flooddep->setText(QString::number(op.ChannelDepTot,'f',dig));
+        label_floodsed->setText(QString::number(op.ChannelSedTot,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

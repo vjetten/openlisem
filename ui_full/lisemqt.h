@@ -133,12 +133,12 @@ public:
     void initOP();
     // graph functions
     void setupPlot();
-    void setupSmallPlot();
+  //  void setupSmallPlot();
     void startPlots();
     void showPlot();
     void initPlot();
     void killPlot();
-    void showSmallPlot();
+ //   void showSmallPlot();
     void initOutputData();
     void showOutputData();
 
@@ -204,15 +204,15 @@ public:
 
     // graph variables
     QwtPlot *HPlot;
-    QwtPlot *smallPlot;
+   // QwtPlot *smallPlot;
     QwtPlotCurve *QGraph;
     QwtPlotCurve *QsGraph;
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
-    QwtPlotCurve *sPGraph;
-    QwtPlotCurve *sQGraph;
-    QwtPlotCurve *sQsGraph;
+//    QwtPlotCurve *sPGraph;
+//    QwtPlotCurve *sQGraph;
+//    QwtPlotCurve *sQsGraph;
     bool startplot;
     bool stopplot;
     double yas, y2as;

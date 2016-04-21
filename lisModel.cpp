@@ -119,26 +119,39 @@ void TWorld::DoModel()
 
         // VJ 110630 show hydrograph for selected output point
         bool found = false;
-        if (op.outputpointnr > 1)
-        {
+  //      if (op.outputpointnr > 1)
+  //      {
             FOR_ROW_COL_MV
             {
                 if (op.outputpointnr == PointMap->Drc)
                 {
                     r_plot = r;
                     c_plot = c;
+
                     op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+                    found = true;
+                }
+            }
+            FOR_ROW_COL_MV
+            {
+                if (op.outputpointnr == Outlet->Drc)
+                {
+                    r_plot = r;
+                    c_plot = c;
+
+                    op.outputpointdata = QString("Outlet %1 [row %2; col %3]").arg((int)Outlet->Drc).arg(r).arg(c);
                     found = true;
                 }
             }
             if (!found)
             {
-                ErrorString = QString("Point %1 for hydrograph outputpoint 2 not found").arg(op.outputpointnr);
+
+                ErrorString = QString("Point %1 for hydrograph not found, check outpoint.map").arg(op.outputpointnr);
                 throw 1;
             }
-        }
-        else
-            op.outputpointdata = QString("Main Outlet");
+ //       }
+//        else
+//            op.outputpointdata = QString("Main Outlet");
 
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);

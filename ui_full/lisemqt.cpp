@@ -71,9 +71,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     trayIcon->setIcon(QIcon(":/openLisem.ico"));
     trayIcon->show();
 
-    QList<int> list;
-    list << 300 << 600;
-    splitter->setSizes(list);
+//    QList<int> list;
+//    list << 300 << 600;
+//    splitter->setSizes(list);
 
     showMaximized();
 
@@ -84,7 +84,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     MapNameModel = NULL;
     HPlot = NULL;
     MPlot = NULL;
-    smallPlot = NULL;
+   // smallPlot = NULL;
 
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -110,7 +110,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // do some style things
 
     setupPlot();
-    setupSmallPlot();
+   // setupSmallPlot();
     // set up the discharge graphs
 
     setupMapPlot();
@@ -232,26 +232,26 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
 // disable and enable UI stuff when subcatch selected
 void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
 {
-    bool subcatch = i > 1;
+//    bool subcatch = i > 1;
 
-    subcatchgroup->setEnabled(subcatch);
-    label_soillosssub->setEnabled(subcatch && checkDoErosion->isChecked());
-    label_94->setEnabled(subcatch && checkDoErosion->isChecked());
+//   // subcatchgroup->setEnabled(subcatch);
+//    label_soillosssub->setEnabled(/*subcatch &&*/ checkDoErosion->isChecked());
+//    label_94->setEnabled(/*subcatch && */checkDoErosion->isChecked());
 
-    label_discharge->setEnabled(!subcatch);
-    label_qtotm3->setEnabled(!subcatch);
-    label_54->setEnabled(!subcatch);
-    label_26->setEnabled(!subcatch);
+//    label_discharge->setEnabled(!subcatch);
+//    label_qtotm3->setEnabled(!subcatch);
+//    label_54->setEnabled(!subcatch);
+//    label_26->setEnabled(!subcatch);
 
-    if(checkDoErosion->isChecked())
-    {
-        label_soillosskgha->setEnabled(!subcatch);
-        label_soilloss->setEnabled(!subcatch);
-        label_SDR->setEnabled(!subcatch);
-        label_31->setEnabled(!subcatch);
-        label_28->setEnabled(!subcatch);
-        label_60->setEnabled(!subcatch);
-    }
+//    if(checkDoErosion->isChecked())
+//    {
+//        label_soillosskgha->setEnabled(!subcatch);
+//        label_soilloss->setEnabled(!subcatch);
+//        label_SDR->setEnabled(!subcatch);
+//        label_31->setEnabled(!subcatch);
+//        label_28->setEnabled(!subcatch);
+//        label_60->setEnabled(!subcatch);
+//    }
 }
 
 //--------------------------------------------------------------------
@@ -282,6 +282,10 @@ void lisemqt::on_checkPercolation_stateChanged(int)
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
+    qDebug() << "on_ComboMinSpinBox_valueChanged" << i;
+
+    if (i < 0)
+        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -301,6 +305,11 @@ void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
+    qDebug() << "on_ComboMaxSpinBox_valueChanged" << i;
+
+    if (i < 0)
+        return;
+
     if( i > -1 && i < this->SymList.length())
     {
         op.userMaxV.replace(i, d);
@@ -319,6 +328,8 @@ void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
 {
     if (!DisplayComboBox2->isEnabled())
+        return;
+    if(DisplayComboBox2->currentIndex() < 0)
         return;
 
     int i = IndexList1.at(DisplayComboBox2->currentIndex());
@@ -349,7 +360,8 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 {
     if (!DisplayComboBox2->isEnabled())
         return;
-
+    if(DisplayComboBox2->currentIndex() < 0)
+        return;
 
     int i = IndexList1.at(DisplayComboBox2->currentIndex());
 
@@ -379,6 +391,10 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 //--------------------------------------------------------------------
 void lisemqt::setDisplayComboBox(int i)
 {
+    qDebug() << "setDisplayComboBox" << DisplayComboBox->currentIndex();
+    if (DisplayComboBox->currentIndex() < 0 ||
+        DisplayComboBox2->currentIndex() < 0)
+        return;
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(true);
@@ -398,6 +414,10 @@ void lisemqt::setDisplayComboBox(int i)
 //--------------------------------------------------------------------
 void lisemqt::setDisplayComboBox2(int i)
 {
+    qDebug() << "setDisplayComboBox2" << DisplayComboBox2->currentIndex();
+    if (DisplayComboBox->currentIndex() < 0 ||
+        DisplayComboBox2->currentIndex() < 0)
+        return;
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
@@ -411,6 +431,7 @@ void lisemqt::setDisplayComboBox2(int i)
         DisplayComboBox2->setEnabled(true);
 
         int j = IndexList1.at(DisplayComboBox2->currentIndex());
+        qDebug() << j;
 
         ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
         ActiveList = 1;
@@ -813,12 +834,12 @@ void lisemqt::SetStyleUI()
     label_infiltot->setMinimumSize(w,h);
     label_surfstor->setMinimumSize(w,h);
     label_interctot->setMinimumSize(w,h);
-    label_qtotm3->setMinimumSize(w,h);
+    //label_qtotm3->setMinimumSize(w,h);
     label_qpeak->setMinimumSize(w,h);
     label_qpeaktime->setMinimumSize(w,h);
     label_ppeaktime->setMinimumSize(w,h);
     label_QPfrac->setMinimumSize(w,h);
-    label_discharge->setMinimumSize(w,h);
+    //label_discharge->setMinimumSize(w,h);
     label_floodVolmm->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
@@ -833,6 +854,9 @@ void lisemqt::SetStyleUI()
     label_detch->setMinimumSize(w,h);
     label_depch->setMinimumSize(w,h);
     label_sedvolch->setMinimumSize(w,h);
+    label_flooddet->setMinimumSize(w,h);
+    label_flooddep->setMinimumSize(w,h);
+    label_floodsed->setMinimumSize(w,h);
     label_soilloss->setMinimumSize(w,h);
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
@@ -853,12 +877,12 @@ void lisemqt::SetStyleUI()
     label_infiltot->setStyleSheet("* { background-color: #ffff77 }");
     label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
     label_interctot->setStyleSheet("* { background-color: #ffff77 }");
-    label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
+    //label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
     label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
     label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
-    label_discharge->setStyleSheet("* { background-color: #ffff77 }");
+    //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
     label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
@@ -876,7 +900,9 @@ void lisemqt::SetStyleUI()
     label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
     label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
     label_SDR->setStyleSheet("* { background-color: #ffff77 }");
-
+    label_flooddet->setStyleSheet("* { background-color: #ffff77 }");
+    label_flooddep->setStyleSheet("* { background-color: #ffff77 }");
+    label_floodsed->setStyleSheet("* { background-color: #ffff77 }");
     label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
     label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
@@ -1565,7 +1591,6 @@ void lisemqt::resetAll()
     //	checkRunoffPerM->setChecked(check);
     checkPercolation->setChecked(check);
 
-
     checkWritePCRnames->setChecked(true);
     checkWritePCRaster->setChecked(check);
     checkWriteCommaDelimited->setChecked(true);
@@ -1581,8 +1606,11 @@ void lisemqt::resetAll()
     E_BulkDens->setText("1400.00");
 
     tabWidget->setCurrentIndex(0);
+    tabWidget_out->setCurrentIndex(1);
+    tabWidget_out->setCurrentIndex(0);
 
-    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+    buffergroup->setVisible(false);
+ //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 
 //    sedgroup->setEnabled(checkDoErosion->isChecked());
 //    label_31->setEnabled(checkDoErosion->isChecked());

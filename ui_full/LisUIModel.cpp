@@ -158,7 +158,7 @@ void lisemqt::worldShow()
 
     showPlot(); // show main plot for point X
 
-    showSmallPlot(); // show small plot next map for point X
+  //  showSmallPlot(); // show small plot next map for point X
 
     // draw maps
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
@@ -295,7 +295,9 @@ void lisemqt::initOP()
     op.ChannelDepTot = 0;
     op.ChannelDetTot = 0;
     op.ChannelWH = 0;
-
+    op.FloodSed = 0;
+    op.FloodDepTot = 0;
+    op.FloodDetTot = 0;
     op.BufferVolTot = 0;
     op.BufferSedTot = 0;
 

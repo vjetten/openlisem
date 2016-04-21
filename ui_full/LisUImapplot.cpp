@@ -101,7 +101,7 @@ void lisemqt::setupMapPlot()
     MPlot = new QwtPlot(title, this);
     // make the plot window
     //Layout_Map_2
-            maplayout->insertWidget(0, MPlot, 1);
+    maplayout->insertWidget(0, MPlot, 1);
     // put it on screen
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
@@ -240,7 +240,10 @@ void lisemqt::showMapd(double)
 // not how they are done here!
 void lisemqt::showMap()
 {
-
+    if(tabWidget_out->currentIndex() == 0)
+        return;
+    tabWidget_out->setCurrentIndex(1);
+groupBox_drawMap->setVisible(true);
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
@@ -256,7 +259,7 @@ void lisemqt::showMap()
         UnitList.clear();
         SymList.clear();
         LogList.clear();
-       // ListList.clear();
+        // ListList.clear();
         picker->NameList.clear();
         picker->UnitList.clear();
         IndexList.clear();
@@ -274,6 +277,9 @@ void lisemqt::showMap()
             //ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
+        }
+        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        {
 
             if(op.ComboLists.at(i) == 0)
             {

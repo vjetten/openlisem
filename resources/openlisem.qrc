@@ -34,5 +34,6 @@
         <file>aguila2d.png</file>
         <file>timeplot.png</file>
         <file>chart-line-stacked-icon.png</file>
+        <file>map-icon.png</file>
     </qresource>
 </RCC>
