@@ -15868,6 +15868,16 @@ p, li { white-space: pre-wrap; }
                 <property name="verticalSpacing">
                  <number>4</number>
                 </property>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_74">
+                  <property name="text">
+                   <string>Current runfile:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="4">
                  <widget class="QSpinBox" name="spinBoxPointtoShow">
                   <property name="sizePolicy">
@@ -15893,7 +15903,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="3" column="0">
                  <widget class="QLabel" name="label_30">
                   <property name="font">
                    <font>
@@ -15909,7 +15919,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="3" column="1">
                  <widget class="QLabel" name="label_runtime">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -15934,7 +15944,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2" colspan="2">
+                <item row="3" column="2" colspan="2">
                  <widget class="QLabel" name="label_75">
                   <property name="text">
                    <string>end run (min)</string>
@@ -15944,7 +15954,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="3" column="4">
                  <widget class="QLabel" name="label_endruntime">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -15969,17 +15979,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_74">
-                  <property name="text">
-                   <string>Current runfile:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0" colspan="5">
+                <item row="5" column="0" colspan="5">
                  <widget class="QLabel" name="label_debug">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -16004,7 +16004,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0" colspan="4">
+                <item row="0" column="2" colspan="2">
                  <widget class="QLabel" name="label_84">
                   <property name="text">
                    <string>Select display point (1 to n):</string>
@@ -16014,7 +16014,7 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1" colspan="4">
+                <item row="0" column="1">
                  <widget class="QLabel" name="label_runfilename">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -16026,6 +16026,7 @@ p, li { white-space: pre-wrap; }
                    <font>
                     <pointsize>8</pointsize>
                     <weight>50</weight>
+                    <italic>true</italic>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -19669,7 +19670,7 @@ p, li { white-space: pre-wrap; }
             <widget class="QWidget" name="tab_5">
              <attribute name="icon">
               <iconset resource="../resources/openlisem.qrc">
-               <normaloff>:/mapicon.png</normaloff>:/mapicon.png</iconset>
+               <normaloff>:/map.png</normaloff>:/map.png</iconset>
              </attribute>
              <attribute name="title">
               <string/>

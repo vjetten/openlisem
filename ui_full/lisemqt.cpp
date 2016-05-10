@@ -71,9 +71,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     trayIcon->setIcon(QIcon(":/openLisem.ico"));
     trayIcon->show();
 
-//    QList<int> list;
-//    list << 300 << 600;
-//    splitter->setSizes(list);
+    //    QList<int> list;
+    //    list << 300 << 600;
+    //    splitter->setSizes(list);
 
     showMaximized();
 
@@ -84,7 +84,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     MapNameModel = NULL;
     HPlot = NULL;
     MPlot = NULL;
-   // smallPlot = NULL;
+    // smallPlot = NULL;
 
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -110,7 +110,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // do some style things
 
     setupPlot();
-   // setupSmallPlot();
+    // setupSmallPlot();
     // set up the discharge graphs
 
     setupMapPlot();
@@ -164,14 +164,14 @@ void lisemqt::SetConnections()
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
- // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
- // works automatically. if included here may be executed twice!!! not sure...
+    // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
+    // works automatically. if included here may be executed twice!!! not sure...
 
- // not needed here, is done automagically
- //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
- //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
- //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
- //   connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
+    // not needed here, is done automagically
+    //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
+    //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
+    //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
+    //   connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
 
     connect(checkBoxComboMaps, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox(int)));
     connect(checkBoxComboMaps2, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox2(int)));
@@ -201,28 +201,43 @@ void lisemqt::SetConnections()
 
 
     // not needed here, is done automagically
- //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
- //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
-   //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
-   //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
-   //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
+    //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
+    //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
+    //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
+    //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
+    //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
 
+}
+//--------------------------------------------------------------------
+void lisemqt::resizeEvent(QResizeEvent* event)
+{
+   QMainWindow::resizeEvent(event);
+   tabWidget_out->setCurrentIndex(0);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_tabWidget_out_currentChanged(int index)
 {
-    if (tabWidget_out->currentIndex() == 0)
+    if (this->height() >= 850)
     {
-        groupBox_drawMap->setVisible(false);
+        groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
+        groupBox_drawMap->setEnabled(index == 1);//tabWidget_out->currentIndex() == 1);
     }
-
     else
-        if (tabWidget_out->currentIndex() == 1)
+    {
+        if (index == 0)//tabWidget_out->currentIndex() == 0)
         {
-            groupBox_drawMap->setVisible(true);
-            groupBox_info->setVisible(false);
+            groupBox_drawMap->setVisible(false);
+            groupBox_info->setVisible(true);
         }
+
+        else
+            if (index == 1)//tabWidget_out->currentIndex() == 1)
+            {
+                groupBox_drawMap->setVisible(true);
+                groupBox_info->setVisible(false);
+            }
+    }
 }
 
 //--------------------------------------------------------------------
@@ -230,26 +245,26 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
 // disable and enable UI stuff when subcatch selected
 void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
 {
-//    bool subcatch = i > 1;
+    //    bool subcatch = i > 1;
 
-//   // subcatchgroup->setEnabled(subcatch);
-//    label_soillosssub->setEnabled(/*subcatch &&*/ checkDoErosion->isChecked());
-//    label_94->setEnabled(/*subcatch && */checkDoErosion->isChecked());
+    //   // subcatchgroup->setEnabled(subcatch);
+    //    label_soillosssub->setEnabled(/*subcatch &&*/ checkDoErosion->isChecked());
+    //    label_94->setEnabled(/*subcatch && */checkDoErosion->isChecked());
 
-//    label_discharge->setEnabled(!subcatch);
-//    label_qtotm3->setEnabled(!subcatch);
-//    label_54->setEnabled(!subcatch);
-//    label_26->setEnabled(!subcatch);
+    //    label_discharge->setEnabled(!subcatch);
+    //    label_qtotm3->setEnabled(!subcatch);
+    //    label_54->setEnabled(!subcatch);
+    //    label_26->setEnabled(!subcatch);
 
-//    if(checkDoErosion->isChecked())
-//    {
-//        label_soillosskgha->setEnabled(!subcatch);
-//        label_soilloss->setEnabled(!subcatch);
-//        label_SDR->setEnabled(!subcatch);
-//        label_31->setEnabled(!subcatch);
-//        label_28->setEnabled(!subcatch);
-//        label_60->setEnabled(!subcatch);
-//    }
+    //    if(checkDoErosion->isChecked())
+    //    {
+    //        label_soillosskgha->setEnabled(!subcatch);
+    //        label_soilloss->setEnabled(!subcatch);
+    //        label_SDR->setEnabled(!subcatch);
+    //        label_31->setEnabled(!subcatch);
+    //        label_28->setEnabled(!subcatch);
+    //        label_60->setEnabled(!subcatch);
+    //    }
 }
 
 //--------------------------------------------------------------------
@@ -281,8 +296,8 @@ void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
 
-//    if (i < 0)
-//        return;
+    //    if (i < 0)
+    //        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -303,8 +318,8 @@ void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
 
-//    if (i < 0)
-//        return;
+    //    if (i < 0)
+    //        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -386,14 +401,14 @@ void lisemqt::setDisplayComboBox(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(true);
-//        ComboMaxSpinBox->setEnabled(true);
-//        ComboMinSpinBox->setEnabled(true);
-//        DisplayComboBox->setEnabled(true);
+        //        ComboMaxSpinBox->setEnabled(true);
+        //        ComboMinSpinBox->setEnabled(true);
+        //        DisplayComboBox->setEnabled(true);
 
         checkBoxComboMaps2->setChecked(false);
-//        DisplayComboBox2->setEnabled(false);
-//        ComboMaxSpinBox2->setEnabled(false);
-//        ComboMinSpinBox2->setEnabled(false);
+        //        DisplayComboBox2->setEnabled(false);
+        //        ComboMaxSpinBox2->setEnabled(false);
+        //        ComboMinSpinBox2->setEnabled(false);
 
         ActiveList = 0;
 
@@ -406,14 +421,14 @@ void lisemqt::setDisplayComboBox2(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
-//        ComboMaxSpinBox->setEnabled(false);
-//        ComboMinSpinBox->setEnabled(false);
-//        DisplayComboBox->setEnabled(false);
+        //        ComboMaxSpinBox->setEnabled(false);
+        //        ComboMinSpinBox->setEnabled(false);
+        //        DisplayComboBox->setEnabled(false);
 
         checkBoxComboMaps2->setChecked(true);
-//        ComboMaxSpinBox2->setEnabled(true);
-//        ComboMinSpinBox2->setEnabled(true);
-//        DisplayComboBox2->setEnabled(true);
+        //        ComboMaxSpinBox2->setEnabled(true);
+        //        ComboMinSpinBox2->setEnabled(true);
+        //        DisplayComboBox2->setEnabled(true);
 
         int j = IndexList1.at(DisplayComboBox2->currentIndex());
 
@@ -610,8 +625,8 @@ void lisemqt::setErosionTab(bool yes)
     {
         if (!checkBox_SedMultiSingle->isChecked() && !checkBox_SedMultiMulti->isChecked())
         {
-                checkBox_SedMultiMulti->setChecked(false);
-                checkBox_SedMultiSingle->setChecked(true);
+            checkBox_SedMultiMulti->setChecked(false);
+            checkBox_SedMultiSingle->setChecked(true);
         }
 
     }
@@ -1596,11 +1611,11 @@ void lisemqt::resetAll()
     tabWidget_out->setCurrentIndex(0);
 
     buffergroup->setVisible(false);
- //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+    //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 
-//    sedgroup->setEnabled(checkDoErosion->isChecked());
-//    label_31->setEnabled(checkDoErosion->isChecked());
-//    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
+    //    sedgroup->setEnabled(checkDoErosion->isChecked());
+    //    label_31->setEnabled(checkDoErosion->isChecked());
+    //    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
 
     radioButton_1->setChecked(true); //<= grass interception
     E_CanopyOpeness->setValue(0.45);

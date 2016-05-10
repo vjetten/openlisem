@@ -35,5 +35,6 @@
         <file>timeplot.png</file>
         <file>chart-line-stacked-icon.png</file>
         <file>mapicon.png</file>
+        <file>map.png</file>
     </qresource>
 </RCC>

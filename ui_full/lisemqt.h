@@ -105,6 +105,7 @@ public:
     int genfontsize;
 
     QProgressBar *pb;
+    void resizeEvent(QResizeEvent* event);
 
     bool doBatchmode;
     QString batchRunname;
