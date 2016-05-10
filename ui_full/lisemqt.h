@@ -215,7 +215,7 @@ public:
 //    QwtPlotCurve *sQsGraph;
     bool startplot;
     bool stopplot;
-    double yas, y2as;
+    double yas, yasP, y2as;
     QVector <double> QData;
     QVector <double> QData1;
     QVector <double> QData2;
@@ -223,6 +223,7 @@ public:
     QVector <double> QsData;
     QVector <double> CData;
     QVector <double> PData;
+    QVector <double> PData2;
     QVector <double> TData;
     long stepP;
 

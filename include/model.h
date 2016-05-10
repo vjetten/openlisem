@@ -363,6 +363,7 @@ public:
     QString totalChanErosionFileName;
     QString totalChanDepositionFileName;
     QString totalSoillossFileName;
+    QString totalSedFileName;
     QString totalLandunitFileName;
 
     QString rainfallMapFileName;
@@ -391,7 +392,7 @@ public:
     QStringList outputcheck;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
-    Outtc, Outeros, Outdepo, OutSL,
+    Outtc, Outeros, Outdepo, OutSL, OutSed,
     OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
     QString errorFileName;
 

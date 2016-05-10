@@ -498,6 +498,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTVF"    )==0)     OutVf  = GetName(p);
         if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
         if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
+        if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);
     }
 
 

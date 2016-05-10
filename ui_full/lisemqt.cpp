@@ -386,14 +386,14 @@ void lisemqt::setDisplayComboBox(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(true);
-        ComboMaxSpinBox->setEnabled(true);
-        ComboMinSpinBox->setEnabled(true);
-        DisplayComboBox->setEnabled(true);
+//        ComboMaxSpinBox->setEnabled(true);
+//        ComboMinSpinBox->setEnabled(true);
+//        DisplayComboBox->setEnabled(true);
 
         checkBoxComboMaps2->setChecked(false);
-        DisplayComboBox2->setEnabled(false);
-        ComboMaxSpinBox2->setEnabled(false);
-        ComboMinSpinBox2->setEnabled(false);
+//        DisplayComboBox2->setEnabled(false);
+//        ComboMaxSpinBox2->setEnabled(false);
+//        ComboMinSpinBox2->setEnabled(false);
 
         ActiveList = 0;
 
@@ -406,14 +406,14 @@ void lisemqt::setDisplayComboBox2(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
-        ComboMaxSpinBox->setEnabled(false);
-        ComboMinSpinBox->setEnabled(false);
-        DisplayComboBox->setEnabled(false);
+//        ComboMaxSpinBox->setEnabled(false);
+//        ComboMinSpinBox->setEnabled(false);
+//        DisplayComboBox->setEnabled(false);
 
         checkBoxComboMaps2->setChecked(true);
-        ComboMaxSpinBox2->setEnabled(true);
-        ComboMinSpinBox2->setEnabled(true);
-        DisplayComboBox2->setEnabled(true);
+//        ComboMaxSpinBox2->setEnabled(true);
+//        ComboMinSpinBox2->setEnabled(true);
+//        DisplayComboBox2->setEnabled(true);
 
         int j = IndexList1.at(DisplayComboBox2->currentIndex());
 
@@ -621,8 +621,10 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutDet->setEnabled(yes);
     checkBox_OutDep->setEnabled(yes);
     checkBox_OutSL->setEnabled(yes);
+    checkBox_OutSed->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
     groupKineticEnergy->setEnabled(yes);
+
 
     checkBoxComboMaps2->setEnabled(yes);
     ComboMinSpinBox2->setEnabled(yes);

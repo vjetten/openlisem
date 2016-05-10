@@ -130,7 +130,7 @@ void TWorld::SplashDetachment(void)
 
       double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
       // kin energy in J/m2/mm
-      double throughfall = Litter->Drc * Cover->Drc * LeafDrain->Drc * 1000;
+      double throughfall = (1-Litter->Drc) * Cover->Drc * LeafDrain->Drc * 1000;
       // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
       // VJ 110206 stemflow is also accounted for
 

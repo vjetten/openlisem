@@ -285,17 +285,17 @@ void lisemqt::showMap()
             if(op.ComboLists.at(i) == 0)
             {
                 S << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-                DisplayComboBox->insertItem(i, op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+               // DisplayComboBox->insertItem(i, op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
             }else
             {
                 S1 << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-                DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+              //  DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
             }
         }
-        //DisplayComboBox->addItems(S);
-       //DisplayComboBox2->addItems(S1);
+        DisplayComboBox->addItems(S);
+        DisplayComboBox2->addItems(S1);
         ActiveList = 0;
 
         checkBoxComboMaps2->setChecked(false);

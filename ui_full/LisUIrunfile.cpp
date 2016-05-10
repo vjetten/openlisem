@@ -411,6 +411,7 @@ void lisemqt::ParseInputData()
             checkBox_OutVf->setChecked(bool(outputcheck.at(14).toInt() == 1));
             checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
             checkBox_OutSL->setChecked(bool(outputcheck.at(16).toInt() == 1));
+            checkBox_OutSed->setChecked(bool(outputcheck.at(17).toInt() == 1));
 
             // TODO replace these numbers with defines for clarity in model.h and lisemqt.h
 
@@ -968,6 +969,7 @@ void lisemqt::updateModelData()
             if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //14
             if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0"; //15
             if (checkBox_OutSL->isChecked())         outputcheck << "1"; else outputcheck << "0"; //16
+            if (checkBox_OutSed->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
             outputcheck << "0";
             outputcheck << "0";
             outputcheck << "0";

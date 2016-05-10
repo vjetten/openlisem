@@ -233,8 +233,8 @@ void lisemqt::initPlot()
    //     sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
    //     sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
 
-        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) & P (mm/h)");
-        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) & C (g/l)");
+        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
+        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
     //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
    //     smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
     }
@@ -256,6 +256,7 @@ void lisemqt::initPlot()
 void lisemqt::killPlot()
 {
     PData.clear();
+    PData2.clear();
     TData.clear();
     QData.clear();
     QData1.clear();
@@ -276,11 +277,15 @@ void lisemqt::showPlot()
     CData << op.Cplot;
     PData << op.Pmm;
     TData << op.time;
+    PData2.clear();
 
     QGraph->setSamples(TData,QData);
-    PGraph->setSamples(TData,PData);
 
     yas = std::max(yas, op.QPlot);
+    yasP = std::max(yasP, op.Pmm);
+
+    PGraph->setSamples(TData,PData);
+
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
 
     if(checkDoErosion->isChecked())
@@ -334,6 +339,7 @@ void lisemqt::startPlots()
         return;
 
     yas = 0.1;
+    yasP = 0;
     y2as = 0.1;
 
     PData.clear();
@@ -457,22 +463,6 @@ void lisemqt::showOutputData()
     if(checkDoErosion->isChecked())
     {
         if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' '));
-        else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' ')
-                                       .arg(op.Qtile,15,'f',3,' '));
-    }
-    else
-    {
-        if(!checkIncludeTiledrains->isChecked())
             textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
                                        .arg(op.time,15,'f',3,' ')
                                        .arg(op.Pmm,15,'f',3,' ')
@@ -488,6 +478,22 @@ void lisemqt::showOutputData()
                                        .arg(op.ChannelWH,15,'f',3,' ')
                                        .arg(op.Qsplot,12,'f',3)
                                        .arg(op.Cplot,15,'f',3,' ')
+                                       .arg(op.Qtile,15,'f',3,' '));
+    }
+    else
+    {
+        if(!checkIncludeTiledrains->isChecked())
+            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' '));
+        else
+            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
+                                       .arg(op.time,15,'f',3,' ')
+                                       .arg(op.Pmm,15,'f',3,' ')
+                                       .arg(op.QPlot,15,'f',3,' ')
+                                       .arg(op.ChannelWH,15,'f',3,' ')
                                        .arg(op.Qtile,15,'f',3,' '));
     }
 

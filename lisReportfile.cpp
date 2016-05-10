@@ -585,21 +585,21 @@ void TWorld::ReportMaps(void)
 
     if(SwitchErosion)
     {
-        // VJ 110111 erosion units
+        // deal with erosion units, 0 = ton/ha, 1 = kg/m2, 2 = kg/cell
+        if (ErosionUnits == 0)
+            fill(*tma,10.0);
+        else
+            fill(*tma,1.0);
+        if (ErosionUnits == 2 || ErosionUnits == 0)
+            calcMap(*tma, *CellArea, DIV);
+
 
         // all detachment combined
         FOR_ROW_COL_MV
         {
             tm->Drc =std::max(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
-        //copy(*tm, *TotalDetMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV); //to kg/m2
-            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
-        }
+        calcMap(*tm, *tma, MUL);
         report(*tm, totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
             report(*tm, Outeros); // in units
@@ -609,58 +609,38 @@ void TWorld::ReportMaps(void)
         {
             tm->Drc =std::min(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
-       // copy(*tm, *TotalDepMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
-        }
-        report(*tm, totalDepositionFileName);        
+        calcMap(*tm, *tma, MUL);
+        report(*tm, totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
             report(*tm, Outdepo); // in units
 
         // all channel depostion combined
-        FOR_ROW_COL_MV_CH
+        if (SwitchIncludeChannel)
         {
-            tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
-        }
-        //copy(*tm, *TotalChanDepMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
-        }
-        report(*tm, totalChanDepositionFileName);
+            FOR_ROW_COL_MV_CH
+            {
+                tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+            }
+            calcMap(*tm, *tma, MUL);
+            report(*tm, totalChanDepositionFileName);
 
-        // all channel detachment combined
-        FOR_ROW_COL_MV_CH
-        {
-            tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+            // all channel detachment combined
+            FOR_ROW_COL_MV_CH
+            {
+                tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+            }
+            calcMap(*tm, *tma, MUL);
+            report(*tm, totalChanErosionFileName);
         }
-        //copy(*tm, *TotalChanDetMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV); //to kg/m2
-            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
-        }
-        report(*tm, totalChanErosionFileName);
-
         copy(*tm, *TotalSoillossMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
-        }
+        calcMap(*tm, *tma, MUL);
         report(*tm, totalSoillossFileName);
         if (outputcheck[16].toInt() == 1) report(*tm, OutSL);      // in user units
+
+        // total sediment
+        copy(*tm, *COMBO_SS); //kg/cell
+        calcMap(*tm, *tma, MUL);
+        if (outputcheck[17].toInt() == 1) report(*tm, OutSed);      // in user units
 
         if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
         if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
@@ -731,22 +711,11 @@ void TWorld::ReportMaps(void)
         {
             report(*hmxWH, OutHmxWH);
         }
+        if (outputcheck[16].toInt() == 1)
+        {
+            report(*hmxWH, OutHmxWH);
+        }
     }
-
-
-    /* from old LISEM: order in run file OBSOLETE
-   char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutWHC   = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutTC    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutEros  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutDepo  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutV     = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutInf   = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
- */
 
 }
 //---------------------------------------------------------------------------
