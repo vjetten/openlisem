@@ -212,7 +212,27 @@ void lisemqt::SetConnections()
 void lisemqt::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
-   tabWidget_out->setCurrentIndex(0);
+   if (this->height() >= 850)
+   {
+       groupBox_drawMap->setVisible(true);
+       groupBox_info->setVisible(true);
+       groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
+   }
+   else
+   {
+       if (tabWidget_out->currentIndex() == 0)
+       {
+           groupBox_drawMap->setVisible(false);
+           groupBox_info->setVisible(true);
+       }
+
+       else
+       {
+           groupBox_drawMap->setVisible(true);
+           groupBox_info->setVisible(false);
+       }
+   }
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_tabWidget_out_currentChanged(int index)
@@ -232,11 +252,10 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
         }
 
         else
-            if (index == 1)//tabWidget_out->currentIndex() == 1)
-            {
-                groupBox_drawMap->setVisible(true);
-                groupBox_info->setVisible(false);
-            }
+        {
+            groupBox_drawMap->setVisible(true);
+            groupBox_info->setVisible(false);
+        }
     }
 }
 
