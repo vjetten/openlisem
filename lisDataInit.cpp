@@ -2149,19 +2149,20 @@ void TWorld::IntializeData(void)
                 IW_D.Drcd = W_D.Drcd;
                 if(SwitchUseMaterialDepth)
                 {
-                    if(Storage->Drc > 0)
+                    if(!(Storage->Drc > 0))
                     {
                             Storage_D.Drcd = W_D.Drcd * Storage->Drc;
-                            if(SwitchEstimateGrainSizeDistribution)
-                            {
-                                StorageDep_D.Drcd = W_D.Drcd * StorageDep->Drc;
-                            }else
-                            {
-                                StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc;
-                            }
                     }else
                     {
                         Storage_D.Drcd = -999999;
+                    }
+
+                    if(SwitchEstimateGrainSizeDistribution)
+                    {
+                        StorageDep_D.Drcd = W_D.Drcd * StorageDep->Drc;
+                    }else
+                    {
+                        StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc;
                     }
 
 
@@ -2173,7 +2174,7 @@ void TWorld::IntializeData(void)
                     if(SwitchUseMaterialDepth)
                     {
 
-                        if(RStorage->Drc > 0)
+                        if(!(RStorage->Drc > 0))
                         {
                             RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
                         }else
