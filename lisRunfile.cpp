@@ -252,7 +252,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
         if (p1.compare("Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
-        if (p1.compare("Include compacted")==0)            SwitchInfilCompact =     iii == 1;
+        if (p1.compare("Include compacted")==0)              SwitchInfilCompact =     iii == 1;
         if (p1.compare("Include grass strips")==0)           SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
@@ -457,9 +457,9 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Soilloss map")==0)
                 totalSoillossFileName = checkOutputMapName(p, "soil loss map",0);
             if (p1.compare("Channel detachment map")==0)
-                totalErosionFileName = checkOutputMapName(p, "Channel detachment map",0);
+                totalChanErosionFileName = checkOutputMapName(p, "Channel detachment map",0);
             if (p1.compare("Channel deposition map")==0)
-                totalDepositionFileName = checkOutputMapName(p, "deposition map",0);
+                totalChanDepositionFileName = checkOutputMapName(p, "Channel deposition map",0);
         }
 
         if(SwitchChannelFlood)
@@ -498,6 +498,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTVF"    )==0)     OutVf  = GetName(p);
         if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
         if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
+        if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);
     }
 
 

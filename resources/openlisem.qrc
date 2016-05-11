@@ -31,5 +31,10 @@
         <file>bullet.png</file>
         <file>information_4.png</file>
         <file>openLisem.ico</file>
+        <file>aguila2d.png</file>
+        <file>timeplot.png</file>
+        <file>chart-line-stacked-icon.png</file>
+        <file>mapicon.png</file>
+        <file>map.png</file>
     </qresource>
 </RCC>

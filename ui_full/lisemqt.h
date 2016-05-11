@@ -105,6 +105,7 @@ public:
     int genfontsize;
 
     QProgressBar *pb;
+    void resizeEvent(QResizeEvent* event);
 
     bool doBatchmode;
     QString batchRunname;
@@ -133,12 +134,12 @@ public:
     void initOP();
     // graph functions
     void setupPlot();
-    void setupSmallPlot();
+  //  void setupSmallPlot();
     void startPlots();
     void showPlot();
     void initPlot();
     void killPlot();
-    void showSmallPlot();
+ //   void showSmallPlot();
     void initOutputData();
     void showOutputData();
 
@@ -204,18 +205,18 @@ public:
 
     // graph variables
     QwtPlot *HPlot;
-    QwtPlot *smallPlot;
+   // QwtPlot *smallPlot;
     QwtPlotCurve *QGraph;
     QwtPlotCurve *QsGraph;
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
-    QwtPlotCurve *sPGraph;
-    QwtPlotCurve *sQGraph;
-    QwtPlotCurve *sQsGraph;
+//    QwtPlotCurve *sPGraph;
+//    QwtPlotCurve *sQGraph;
+//    QwtPlotCurve *sQsGraph;
     bool startplot;
     bool stopplot;
-    double yas, y2as;
+    double yas, yasP, y2as;
     QVector <double> QData;
     QVector <double> QData1;
     QVector <double> QData2;
@@ -223,6 +224,7 @@ public:
     QVector <double> QsData;
     QVector <double> CData;
     QVector <double> PData;
+    QVector <double> PData2;
     QVector <double> TData;
     long stepP;
 
@@ -321,6 +323,7 @@ public slots:
     void setDisplayComboBox(int);
     void setDisplayComboBox2(int);
     void on_spinBoxPointtoShow_valueChanged(int);
+    void on_tabWidget_out_currentChanged(int);
 
     //houses
     void on_checkHouses_clicked();

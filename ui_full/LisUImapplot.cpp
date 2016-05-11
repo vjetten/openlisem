@@ -100,7 +100,10 @@ void lisemqt::setupMapPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    Layout_Map_2->insertWidget(0, MPlot, 1);
+    //Layout_Map_2
+
+  // verticalLayout_2->addWidget( MPlot, 0);
+       maplayout->insertWidget(1, MPlot, 0, 0);
     // put it on screen
     MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
@@ -239,7 +242,6 @@ void lisemqt::showMapd(double)
 // not how they are done here!
 void lisemqt::showMap()
 {
-
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
@@ -255,7 +257,7 @@ void lisemqt::showMap()
         UnitList.clear();
         SymList.clear();
         LogList.clear();
-       // ListList.clear();
+        // ListList.clear();
         picker->NameList.clear();
         picker->UnitList.clear();
         IndexList.clear();
@@ -273,17 +275,27 @@ void lisemqt::showMap()
             //ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
+        }
+        QStringList S;
+        QStringList S1;
+
+        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        {
 
             if(op.ComboLists.at(i) == 0)
             {
-                DisplayComboBox->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                S << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+               // DisplayComboBox->insertItem(i, op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
             }else
             {
-                DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+                S1 << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
+              //  DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
             }
         }
+        DisplayComboBox->addItems(S);
+        DisplayComboBox2->addItems(S1);
         ActiveList = 0;
 
         checkBoxComboMaps2->setChecked(false);
@@ -300,8 +312,8 @@ void lisemqt::showMap()
     }
 
 
-    drawMap->setAlpha(transparency->value());
-    drawMap->setAlpha(255);
+   // drawMap->setAlpha(transparency->value());
+   // drawMap->setAlpha(255);
 
     if(ActiveList == 0)
     {
@@ -315,9 +327,7 @@ void lisemqt::showMap()
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
 
-
     MPlot->replot();
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)

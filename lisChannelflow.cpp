@@ -206,7 +206,7 @@ void TWorld::ChannelWaterHeightFromVolume(void)
             ChannelWidthUpDX->Drc = std::min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
-
+//RECALC channelWH here!!!!
             ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
             // experimental if channelwidth > dx
         }
@@ -253,6 +253,7 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelFlowDetachment(r,c);
+            //???????? kost tijd om tig keer een functie aan te roepen, beter r,c in de functie
         }
     }
 
@@ -269,18 +270,12 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->setAllMV();
-    //ChannelQsn->fill(0);
-    fill(*QinKW, 0.0);
-    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-
     if (SwitchErosion)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
             FOR_ROW_COL_MV_CH
             {
-
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
                 double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
                 ChannelConc->Drc = (concbl + concss);
@@ -326,12 +321,27 @@ void TWorld::ChannelFlow(void)
             Tempd_D.at(d)->setAllMV();
         }
     }
+
+    ChannelQn->setAllMV();
+    fill(*QinKW, 0.0);
+    // flag all new flux as missing value, needed in kin wave and replaced by new flux
+
+    ChannelQBLsn->setAllMV();
+    ChannelQSSsn->setAllMV();
+    if(SwitchUseGrainSizeDistribution)
+    FOR_GRAIN_CLASSES
+    {
+        Tempb_D.at(d)->setAllMV();
+        Tempd_D.at(d)->setAllMV();
+    }
+
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX,
                       ChannelWaterVol, ChannelBufferVol);
+            // kin wave on water
 
             if (SwitchErosion)
             {
@@ -339,29 +349,16 @@ void TWorld::ChannelFlow(void)
                 {
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
-
+                    //explicit routing of matter using Q and new Qn
                 }else
                 {
                     FOR_GRAIN_CLASSES
                     {
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
-
-
                     }
-
                 }
-
             }
-
-             /*
-                   routing of substances add here!
-                   do after kin wave so that the new flux ChannelQn out of a cell is known
-                   you need to have the ingoing substance flux ChannelQS (mass/s)
-                   and it will give outgoing flux ChannelQSn (mass/s)
-                   and the current amount ChannelSubs (mass) in suspension+solution
-             */
-
         }
     }
 
@@ -371,7 +368,6 @@ void TWorld::ChannelFlow(void)
     {
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
-
 
         if(SwitchUseGrainSizeDistribution)
         {
@@ -423,6 +419,7 @@ void TWorld::ChannelFlow(void)
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                 ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQsn->Drc/ChannelQn->Drc : 0);
+                //??????????/ what if Qn is zero? better to use volume???
             }
         }else
         {
@@ -479,13 +476,18 @@ void TWorld::ChannelFlow(void)
                 ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
         }
         // limit channel Q when culverts > 0
+        //????? NOTE DO THIS ALSO FOR  SEDIMENT BEFORE THE ROUNTING??
 
         // ChannelWH->Drc = ChannelIterateWH(r, c);
-
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
-        double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-        if (do_mbcorr)
-            tm->Drc = ChannelArea;
+
+        //    double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+
+        double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
+        // explicit...!!!
+
+//        if (do_mbcorr)
+//            tm->Drc = ChannelArea;
 
         // water height is not used except for output! i.e. watervolume is cycled
         if(ChannelSide->Drc > 0)
@@ -495,18 +497,16 @@ void TWorld::ChannelFlow(void)
             double cc = -ChannelArea; //=area
 
             ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
+            //??????????????  gaat niet goed als side zodanig is dat width groter is dan gridcell bij nieuwe chanarea
         }else
         {
             ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         }
 
-        if (!do_mbcorr)
+//        if (!do_mbcorr)
             ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
 
-        // new channel water volume
-        //difkin->Drc += 0;
-
-
+/*
         // NECESSARY OR JUST FLUFF ????
         if (do_mbcorr)
         {
@@ -525,16 +525,11 @@ void TWorld::ChannelFlow(void)
             }
             // calc mass balance error and wet cells
         }
-
-        if (SwitchBuffers && ChannelBufferVol->Drc > 0)
-        {
-            //??????????????
-            //qDebug()<< ChannelBufferVol->Drc << Channelq->Drc*_dt << ChannelWaterVol->Drc << (ChannelArea * ChannelDX->Drc) << ChannelQn->Drc*_dt<< diff;
-        }
+        */
     }
 
     // NECESSARY OR JUST FLUFF ????
-
+/*
     if (do_mbcorr)
     {
     // mass balance correction, throw error on cells with WH
@@ -554,17 +549,17 @@ void TWorld::ChannelFlow(void)
             // new Q after correction
         }
     }
-
+*/
     FOR_ROW_COL_MV_CH
     {
 
         if (SwitchErosion)
         {
-            //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+            ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
             // correct for very high concentrations, max 850 g/l
             // NOTE: nothing is done with this concentration, only for display,
             // so the display shows the conc after the kin wave
-            ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
+         //   ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
             // CHANGED, MORE STABLE CONC 19/9/13
         }
     }

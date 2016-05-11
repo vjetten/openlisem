@@ -68,6 +68,7 @@ struct output{
     ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
     // flood
     FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
+    FloodDetTot, FloodDepTot, FloodSed,
     // sediment
     MBs, Qs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
     Cplot, Qsplot,

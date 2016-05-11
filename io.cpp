@@ -134,7 +134,7 @@ void writePCRasterRaster(
     size_t nr_cells_written = RputSomeCells(csfMap.get(), 0,
         raster_data.nr_cells(), buffer.get());
 
-    if(!nr_cells_written == raster_data.nr_cells()) {
+    if(nr_cells_written != raster_data.nr_cells()) {
         Error("rputsomecells write error with " + pathName);
     }
 }

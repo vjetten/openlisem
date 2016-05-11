@@ -184,9 +184,11 @@ void TWorld::OutputUI(void)
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
     op.ChannelWH = ChannelWH->DrcPlot;
 
-    op.SoilLossTot=SoilLossTot*0.001; // convert from kg to ton
-    // changed to total soil loss all outlets
-    //TODO revamp output
+    op.FloodSed = FloodSedTot*0.001;
+    op.FloodDepTot = FloodDepTot*0.001;
+    op.FloodDetTot = FloodDetTot*0.001;
+
+    op.SoilLossTot=SoilLossTot/*Outlet*/ *0.001; // convert from kg to ton
 
     op.t = time_ms.elapsed()*0.001/60.0;
     op.time = time/60;
@@ -583,63 +585,62 @@ void TWorld::ReportMaps(void)
 
     if(SwitchErosion)
     {
-        //SHOULD CELLAREA NOT BE BASED ON CHANNLADJ?
+        // deal with erosion units, 0 = ton/ha, 1 = kg/m2, 2 = kg/cell
+        if (ErosionUnits == 0)
+            fill(*tma,10.0);
+        else
+            fill(*tma,1.0);
+        if (ErosionUnits == 2 || ErosionUnits == 0)
+            calcMap(*tma, *CellArea, DIV);
 
-        // VJ 110111 erosion units
-        copy(*tm, *TotalDetMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
+
+        // all detachment combined
+        FOR_ROW_COL_MV
         {
-            calcMap(*tm, *CellArea, DIV); //to kg/m2
-            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
+            tm->Drc =std::max(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
+        calcMap(*tm, *tma, MUL);
         report(*tm, totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
             report(*tm, Outeros); // in units
 
-        copy(*tm, *TotalDepMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
+        // all deposition combined
+        FOR_ROW_COL_MV
         {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
+            tm->Drc =std::min(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
+        calcMap(*tm, *tma, MUL);
         report(*tm, totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
             report(*tm, Outdepo); // in units
 
-        copy(*tm, *TotalChanDepMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
+        // all channel depostion combined
+        if (SwitchIncludeChannel)
         {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
-        }
-        report(*tm, totalChanDepositionFileName);
+            FOR_ROW_COL_MV_CH
+            {
+                tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+            }
+            calcMap(*tm, *tma, MUL);
+            report(*tm, totalChanDepositionFileName);
 
-        copy(*tm, *TotalChanDetMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV); //to kg/m2
-            calcValue(*tm, 10, MUL); // * 0.001*10000 = ton/ha
+            // all channel detachment combined
+            FOR_ROW_COL_MV_CH
+            {
+                tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+            }
+            calcMap(*tm, *tma, MUL);
+            report(*tm, totalChanErosionFileName);
         }
-        report(*tm, totalChanErosionFileName);
-
         copy(*tm, *TotalSoillossMap); //kg/cell
-        if (ErosionUnits == 2)  // in kg/m2
-            calcMap(*tm, *CellArea, DIV);
-        if (ErosionUnits == 0) // ton/ha
-        {
-            calcMap(*tm, *CellArea, DIV);
-            calcValue(*tm, 10, MUL);
-        }
+        calcMap(*tm, *tma, MUL);
         report(*tm, totalSoillossFileName);
         if (outputcheck[16].toInt() == 1) report(*tm, OutSL);      // in user units
+
+        // total sediment
+        copy(*tm, *COMBO_SS); //kg/cell
+        calcMap(*tm, *tma, MUL);
+        if (outputcheck[17].toInt() == 1) report(*tm, OutSed);      // in user units
 
         if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
         if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
@@ -710,22 +711,11 @@ void TWorld::ReportMaps(void)
         {
             report(*hmxWH, OutHmxWH);
         }
+        if (outputcheck[16].toInt() == 1)
+        {
+            report(*hmxWH, OutHmxWH);
+        }
     }
-
-
-    /* from old LISEM: order in run file OBSOLETE
-   char *q = strtok(p,",");SwitchMapoutRunoff= strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutConc  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutWH    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutWHC   = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutTC    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutEros  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutDepo  = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutV     = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutInf   = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutSs    = strcmp(q,"1") == 0;
-   q = strtok(NULL,",");   SwitchMapoutChvol = strcmp(q,"1") == 0;
- */
 
 }
 //---------------------------------------------------------------------------
@@ -1056,7 +1046,7 @@ void TWorld::GetComboMaps()
         Colormap.append(0.70);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#616c92");//#457A60");
+        Colors.append("#616ca2");//#457A60");
         Colors.append("#50B547");//#96B547");
         Colors.append("#FFFFFF");
         Colors.append("#FFFF00");
@@ -1093,17 +1083,17 @@ void TWorld::GetComboMaps()
 
         Colormap.clear();
         Colormap.append(0.0);
-        Colormap.append(0.3);
+      //  Colormap.append(0.3);
         Colormap.append(0.5);
-        Colormap.append(0.70);
+     //   Colormap.append(0.70);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#616c92");//#457A60");
+        Colors.append("#ffffff");
         Colors.append("#50B547");//#96B547");
-        Colors.append("#FFFFFF");
-        Colors.append("#FFFF00");
-        Colors.append("#FF0000");
-        AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,true,1.0/(_dx*_dx), step);
+        Colors.append("#616ca2");//#457A60");
+//        Colors.append("#FFFF00");
+//        Colors.append("#FF0000");
+        AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)
         {

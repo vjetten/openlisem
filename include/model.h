@@ -308,12 +308,13 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
-    double difkinTot, floodBoundaryTot;
+    double floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub;
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTotOutlet, SedTot, SoilLossTotSub,
+           FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
     double floodTotmm, floodTotmmInit;
@@ -362,6 +363,7 @@ public:
     QString totalChanErosionFileName;
     QString totalChanDepositionFileName;
     QString totalSoillossFileName;
+    QString totalSedFileName;
     QString totalLandunitFileName;
 
     QString rainfallMapFileName;
@@ -390,7 +392,7 @@ public:
     QStringList outputcheck;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
-    Outtc, Outeros, Outdepo, OutSL,
+    Outtc, Outeros, Outdepo, OutSL, OutSed,
     OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
     QString errorFileName;
 
@@ -507,7 +509,7 @@ public:
 
     double LogNormalDist(double d50,double sigma, double d);
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment);
-    void SedimentSetMaterialDistribution(int r,int c);
+    void SedimentSetMaterialDistribution();//(int r,int c);
     QList<cTMap *> IW_D;
 
     QList<cTMap *> W_D;
@@ -735,7 +737,7 @@ public:
 
 
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
+   // void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
 
     // kinematic 2D
     double K2DFlux();

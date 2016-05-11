@@ -590,6 +590,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTVF");
     namelist[i].value = QString("hmxwh");
     namelist[i++].name = QString("OUTHMXWH");
+    namelist[i].value = QString("sed");
+    namelist[i++].name = QString("OUTSED");
 
     // input maps start here !!!
     mapstartnr = i;
