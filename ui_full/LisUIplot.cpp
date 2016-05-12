@@ -367,6 +367,35 @@ void lisemqt::startPlots()
 
     HPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
     // VJ 110630 show hydrograph for selected output point
+
+
+    OutletIndices.append(op.OutletIndices);
+    OutletLocationX.append(op.OutletLocationX);
+    OutletLocationY.append(op.OutletLocationY);;
+
+    for(int i =0; i < OutletIndices.length(); i++)
+    {
+        OutletQ.append(new QList<double>);
+        OutletQs.append(new QList<double>);
+        OutletC.append(new QList<double>);
+    }
+
+}
+//---------------------------------------------------------------------------
+void lisemqt::SetPlotsData()
+{
+
+    for(int i =0; i < OutletIndices.length(); i++)
+    {
+        OutletQ.at(i)->clear();
+        OutletQs.at(i)->clear();
+        OutletC.at(i)->clear();
+
+        OutletQ.at(i)->append(*op.OutletQ.at(i));
+        OutletQs.at(i)->append(*op.OutletQs.at(i));
+        OutletC.at(i)->append(*op.OutletC.at(i));
+    }
+
 }
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs

@@ -141,20 +141,20 @@ void TWorld::Totals(void)
     }
 
     //=== all discharges ===//
-    
+    QtotT = 0;
     // sum outflow m3 for all timesteps for the outlet
     if(SwitchKinematic2D == 1)
     {
         FOR_ROW_COL_MV
         {
             if (LDD->Drc == 5) {
-                Qtot += Qn->Drc*_dt;
+                QtotT += Qn->Drc*_dt;
             }
         }
     }
     else
     {
-        Qtot += K2DQOut;
+        QtotT += K2DQOut;
     }
 
 
@@ -176,7 +176,7 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CH
         {
             if (LDDChannel->Drc == 5)
-                Qtot += ChannelQn->Drc*_dt; //m3
+                QtotT += ChannelQn->Drc*_dt; //m3
             ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
 
         }
@@ -217,7 +217,7 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
-                Qtot += TileQn->Drc * _dt;
+                QtotT += TileQn->Drc * _dt;
         // add tile outflow (in m3) to total for all pits
         //Qtotmm = Qtot*catchmentAreaFlatMM;
         // recalc in mm for screen output
@@ -250,6 +250,7 @@ void TWorld::Totals(void)
     QPlot = 1000*(Qn->DrcPlot + ChannelQn->DrcPlot + TileQn->DrcPlot);
     // plot point output in l/s
 
+    Qtot += QtotT;
     // add flood boundary losses
     Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
@@ -269,6 +270,9 @@ void TWorld::Totals(void)
 
     // DetSplashTot, DetFlowTot and DepTot are for output in file and screen
     // DetTot and DepTot are for MB
+
+    SoilLossTotT = 0;
+
     if (SwitchErosion)
     {
         DetSplashTot += mapTotal(*DETSplash);
@@ -289,12 +293,12 @@ void TWorld::Totals(void)
             {
                 if (LDD->Drc == 5)
                 {
-                    SoilLossTot += Qsn->Drc * _dt;
+                    SoilLossTotT += Qsn->Drc * _dt;
                 }
             }
         }else
         {
-            SoilLossTot +=K2DQSOut;
+            SoilLossTotT +=K2DQSOut;
         }
         // sum all sed in all pits (in kg), needed for mass balance
 
@@ -315,7 +319,7 @@ void TWorld::Totals(void)
             {
                 if (LDDChannel->Drc == 5)
                 {
-                    SoilLossTot += ChannelQsn->Drc * _dt;
+                    SoilLossTotT += ChannelQsn->Drc * _dt;
                 }
             }
 
@@ -383,6 +387,8 @@ void TWorld::Totals(void)
             //WITHOUT FLOOD????
         }
     }
+
+    SoilLossTot += SoilLossTotT;
 
     if(SwitchErosion && SwitchChannelFlood)
     {

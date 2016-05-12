@@ -67,6 +67,29 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
+
+    //hydrographs
+
+    op.OutletQ.at(0)->append(QtotT);
+    op.OutletQs.at(0)->append(SoilLossTotT);
+    op.OutletC.at(0)->append(SoilLossTotT > 0? QtotT/SoilLossTotT : 0);
+
+    for(j = 1; j < op.OutletIndices; j++)
+    {
+        int r = op.OutletLocationX.at(j);
+        int c = op.OutletLocationX.at(j);
+
+        double discharge = 0;
+        double sedimentdischarge = 0;
+        double sedimentconcentration = 0;
+
+
+        op.OutletQ.at(j)->append();
+        op.OutletQs.at(j)->append();
+        op.OutletC.at(j)->append();
+    }
+
+    //display maps
     fill(*COMBO_QOFCH, 0.0);
     calcMap(*COMBO_QOFCH, *Q, ADD);
     calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
@@ -119,6 +142,7 @@ void TWorld::OutputUI(void)
 
         }
     }
+
 
     copy(*op.baseMap, *Shade);
     copy(*op.baseMapDEM, *DEM);
@@ -906,6 +930,122 @@ void TWorld::setupDisplayMaps()
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
 }
+//---------------------------------------------------------------------------
+void TWorld::setupHydrographData()
+{
+    // VJ 110630 show hydrograph for selected output point
+    bool found = false;
+//      if (op.outputpointnr > 1)
+//      {
+        FOR_ROW_COL_MV
+        {
+            if (op.outputpointnr == PointMap->Drc)
+            {
+                r_plot = r;
+                c_plot = c;
+
+                op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
+                found = true;
+            }
+        }
+        FOR_ROW_COL_MV
+        {
+            if (op.outputpointnr == Outlet->Drc)
+            {
+                r_plot = r;
+                c_plot = c;
+
+                op.outputpointdata = QString("Outlet %1").arg((int)Outlet->Drc);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+
+            ErrorString = QString("Point %1 for hydrograph not found, check outpoint.map").arg(op.outputpointnr);
+            throw 1;
+        }
+//       }
+//        else
+//            op.outputpointdata = QString("Main Outlet");
+
+    ClearHydrographData();
+
+    //0 is reserved for total outflow (channel and overland flow)
+    op.OutletIndices.append(0);
+    op.OutletLocationX.append(0);
+    op.OutletLocationY.append(0);
+    op.OutletQ.append(new QList<double>);
+    op.OutletQs.append(new QList<double>);
+    op.OutletC.append(new QList<double>);
+
+    //get the sorted locations and index numbers of the outlet points
+    QList<int> nr;
+    int maxnr = 0;
+
+    FOR_ROW_COL_MV
+    {
+        if(PointMap->Drc > 0)
+        {
+           nr.append(PointMap->Drc);
+           op.OutletIndices.append(PointMap->Drc);
+           op.OutletLocationX.append(r);
+           op.OutletLocationY.append(c);
+           op.OutletQ.append(new QList<double>);
+           op.OutletQs.append(new QList<double>);
+           op.OutletC.append(new QList<double>);
+        }
+    }
+
+    QList<int> tx;
+    QList<int> ty;
+    tx.clear();
+    tx.append(op.OutletLocationX);
+    ty.clear();
+    ty.append(op.OutletLocationX);
+    op.OutletLocationX.clear();
+    op.OutletLocationY.clear();
+
+    qSort(nr);
+    for(int i = 0; i < nr.length(); i++)
+    {
+        int j;
+        for(j = 0; j < nr.length(); j++)
+        {
+            if(op.OutletIndices.at(j) == nr.at(i))
+            {
+                break;
+            }
+        }
+
+        op.OutletLocationX.append(tx.at(j));
+        op.OutletLocationY.append(ty.at(j));
+        op.OutletLocationX.append(tx.at(j));
+        op.OutletLocationY.append(ty.at(j));
+    }
+    op.OutletIndices.clear();
+    op.OutletIndices.append(nr);
+
+}
+void TWorld::ClearHydrographData()
+{
+
+    for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
+    {
+        delete op.OutletQ.at(i);
+        delete op.OutletQs.at(i);
+        delete op.OutletC.at(i);
+    }
+
+    op.OutletIndices.clear();
+    op.OutletLocationX.clear();
+    op.OutletLocationY.clear();
+    op.OutletQ.clear();
+    op.OutletQs.clear();
+    op.OutletC.clear();
+
+}
+
 //---------------------------------------------------------------------------
 void TWorld::GetComboMaps()
 {

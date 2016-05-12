@@ -41,6 +41,13 @@ struct output{
     int outputpointnr;
     QString outputpointdata;
 
+    QList<int> OutletIndices;
+    QList<int> OutletLocationX;
+    QList<int> OutletLocationY;
+    QList<QList<double>*> OutletQ;
+    QList<QList<double>*> OutletQs;
+    QList<QList<double>*> OutletC;
+
     int
     F_solution,
     F_scheme,

@@ -147,6 +147,10 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
+    DEBUG("kill display data");
+    ClearComboMaps();
+    ClearHydrographData();
+
 }
 //---------------------------------------------------------------------------
 cTMap *TWorld::InitMask(QString name)
@@ -805,6 +809,7 @@ void TWorld::InitMulticlass(void)
     DetTot = 0;
     DepTot = 0;
     SoilLossTot = 0;
+    SoilLossTotT= 0;
     SoilLossTotOutlet = 0;
     SoilLossTotSub = 0;
     SedTot = 0;
@@ -849,7 +854,7 @@ void TWorld::InitMulticlass(void)
                     Y->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
                 else
                     if (SwitchEfficiencyDET == 3)
-                        ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
+                        Y->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
 
             //            if (StoneFraction->Drc > 0)
             //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
@@ -1742,6 +1747,7 @@ void TWorld::IntializeData(void)
 
     //### runoff maps
     Qtot = 0;
+    QtotT = 0;
     QtotOutlet = 0;
     QtotPlot = 0;
     QpeakPlot = 0;
@@ -2103,7 +2109,7 @@ void TWorld::IntializeData(void)
                 IW_D.Drcd = W_D.Drcd;
                 if(SwitchUseMaterialDepth)
                 {
-                    if(Storage->Drc > 0)
+                    if(!(Storage->Drc > 0))
                     {
                             Storage_D.Drcd = W_D.Drcd * Storage->Drc;
                     }else
@@ -2116,7 +2122,7 @@ void TWorld::IntializeData(void)
                     RW_D.Drcd = W_D.Drcd;
                     if(SwitchUseMaterialDepth)
                     {
-                        if(RStorage->Drc > 0)
+                        if(!(RStorage->Drc > 0))
                         {
                                 RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
                         }else

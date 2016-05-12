@@ -136,6 +136,7 @@ public:
     void setupPlot();
   //  void setupSmallPlot();
     void startPlots();
+    void SetPlotsData();
     void showPlot();
     void initPlot();
     void killPlot();
@@ -191,6 +192,13 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
+    //hydrograph options
+    QList<int> OutletIndices;
+    QList<int> OutletLocationX;
+    QList<int> OutletLocationY;
+    QList<QList<double>*> OutletQ;
+    QList<QList<double>*> OutletQs;
+    QList<QList<double>*> OutletC;
 
     //Map display options
     QList<QwtComboColorMap *> ColorMapList;

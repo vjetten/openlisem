@@ -117,42 +117,10 @@ void TWorld::DoModel()
         runstep = 0; // NOTE runstep is used to initialize graph!
         printstep = 1; // printstep determines report frquency
 
-        // VJ 110630 show hydrograph for selected output point
-        bool found = false;
-  //      if (op.outputpointnr > 1)
-  //      {
-            FOR_ROW_COL_MV
-            {
-                if (op.outputpointnr == PointMap->Drc)
-                {
-                    r_plot = r;
-                    c_plot = c;
+        DEBUG("setupHydrographData()");
+        setupHydrographData();
 
-                    op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
-                    found = true;
-                }
-            }
-            FOR_ROW_COL_MV
-            {
-                if (op.outputpointnr == Outlet->Drc)
-                {
-                    r_plot = r;
-                    c_plot = c;
-
-                    op.outputpointdata = QString("Outlet %1").arg((int)Outlet->Drc);
-                    found = true;
-                }
-            }
-            if (!found)
-            {
-
-                ErrorString = QString("Point %1 for hydrograph not found, check outpoint.map").arg(op.outputpointnr);
-                throw 1;
-            }
- //       }
-//        else
-//            op.outputpointdata = QString("Main Outlet");
-
+        //create error file
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);

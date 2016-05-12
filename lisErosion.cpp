@@ -149,6 +149,17 @@ void TWorld::SplashDetachment(void)
       }
       // empirical analysis based on Limburg data, dating 1989
 
+      if(SwitchUseMaterialDepth)
+      {
+          double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+          double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
+          double fac2 = 1.0 - fac1;
+
+          strength = strength * fac2 + 0.05 * fac1;
+          b = b * fac2 + 3.58 * fac1;
+      }
+
+
       // Between plants, directrain is already with 1-cover
       DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * directrain;
       //ponded areas, kg/m2/mm * mm = kg/m2
