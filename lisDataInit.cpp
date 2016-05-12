@@ -1248,12 +1248,19 @@ void TWorld::GetInputData(void)
 
     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
-    SplashDelivery = getvaluedouble("Channel N calibration");
     if (SplashDelivery == 0)
     {
         ErrorString = QString("Calibration: the splash delivery factor cannot be zero.");
         throw 1;
     }
+
+    DepositedSplashCohesion = getvaluedouble("Channel N calibration");
+    if (DepositedSplashCohesion == 0)
+    {
+        ErrorString = QString("Deposited Layer Cohesion: the particle cohesion for deposited sediment can not be 0");
+        throw 1;
+    }
+
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");

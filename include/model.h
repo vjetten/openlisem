@@ -293,6 +293,7 @@ public:
     double ChnCalibration;
     double ChKsatCalibration;
     double SplashDelivery;
+    double DepositedSplashCohesion;
     double StripN;
     double StemflowFraction;
 
