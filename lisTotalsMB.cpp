@@ -123,6 +123,12 @@ void TWorld::Totals(void)
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+    WaterVolRunoffmm =0;
+    FOR_ROW_COL_MV
+    {
+        WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
+    }
+    WaterVolRunoffmm = WaterVolRunoffmm*catchmentAreaFlatMM;
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
@@ -164,9 +170,6 @@ void TWorld::Totals(void)
     QtotOutlet += Qn->DrcOutlet*_dt;
     // for screen output, total main outlet in m3
 
-    QtotPlot += Qn->DrcPlot * _dt;
-    //VJ 110701 for screen output, total in hydrograph point n in m3
-
     if (SwitchIncludeChannel)
     {
         WaterVolTot += mapTotal(*ChannelWaterVol); //m3
@@ -184,8 +187,6 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
         QtotOutlet += ChannelQn->DrcOutlet * _dt;
-        // sum: add channel outflow (in m3) to total for main outlet
-        QtotPlot += ChannelQn->DrcPlot * _dt;
         // sum: add channel outflow (in m3) to total for main outlet
 
         if (SwitchChannelFlood)
@@ -224,8 +225,6 @@ void TWorld::Totals(void)
 
         QtotOutlet += TileQn->DrcOutlet * _dt;
         // add channel outflow (in m3) to total for main outlet
-        QtotPlot += TileQn->DrcPlot * _dt;
-        // add channel outflow (in m3) to total for subcatch outlet
 
     }
 
@@ -247,23 +246,11 @@ void TWorld::Totals(void)
             Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
     }
-    QPlot = 1000*(Qn->DrcPlot + ChannelQn->DrcPlot + TileQn->DrcPlot);
-    // plot point output in l/s
 
     Qtot += QtotT;
     // add flood boundary losses
     Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
-
-    oldrainpeak = Qpeak;
-    Qpeak = std::max(Qpeak, Qoutput->DrcOutlet);
-    if (oldrainpeak < Qpeak)
-        QpeakTime = time;
-    // peak flow and peak time calculation, based on sum channel and runoff
-
-    QpeakPlot = std::max(QpeakPlot, Qoutput->DrcPlot);
-
-
 
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
@@ -377,9 +364,6 @@ void TWorld::Totals(void)
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
-
-        SoilLossTotPlot += Qsoutput->DrcPlot * _dt;
-
         FOR_ROW_COL_MV
         {
             double Q = Qoutput->Drc/1000;

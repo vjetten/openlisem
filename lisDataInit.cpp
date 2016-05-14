@@ -1034,8 +1034,6 @@ void TWorld::InitMulticlass(void)
                 distD50 = distD50/count;
                 distD90 = distD90/count;
 
-                qDebug() << "grainclasses" << numgrainclasses <<" d50 " <<distD50 << " d90 " <<distD90;
-
                 double s = distD90- distD50;
                 double s2l = std::max(distD50 - 2*s,distD50);
 //VJ leads always to dist D50 of course
@@ -1048,7 +1046,6 @@ void TWorld::InitMulticlass(void)
                     classesleft -= 1;
                 }
 
-                qDebug() << classesleft/2 << s2l << s2r;
                 for(int i = 1; i < classesleft/2 + 1 ; i++)
                 {
                     double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
@@ -1125,11 +1122,6 @@ void TWorld::InitMulticlass(void)
                             (W_D).Drcd = (W_D).Drcd/wtotal;
                         }
                     }
-                }
-
-                FOR_GRAIN_CLASSES
-                {
-                    qDebug() << "Grainsize " <<  graindiameters.at(d) << "with lognormal distribution at center" << LogNormalDist(distD50,distD90 - distD50,graindiameters.at(d)) << "with settlingvelocity" << settlingvelocities.at(d);
                 }
 
             }
@@ -1228,12 +1220,13 @@ void TWorld::GetInputData(void)
 
     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
     SplashDelivery = getvaluedouble("Splash Delivery Ratio");
-    SplashDelivery = getvaluedouble("Channel N calibration");
     if (SplashDelivery == 0)
     {
         ErrorString = QString("Calibration: the splash delivery factor cannot be zero.");
         throw 1;
     }
+    DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
+
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");
@@ -1701,6 +1694,7 @@ void TWorld::IntializeData(void)
     WaterVolTot = 0;
     WaterVolSoilTot = 0;
     WaterVolTotmm = 0;
+    WaterVolRunoffmm = 0;
 
     floodTotmm= 0;
     floodVolTot = 0;
@@ -1749,9 +1743,6 @@ void TWorld::IntializeData(void)
     Qtot = 0;
     QtotT = 0;
     QtotOutlet = 0;
-    QtotPlot = 0;
-    QpeakPlot = 0;
-    SoilLossTotPlot = 0;
     Qtotmm = 0;
     Qpeak = 0;
     QpeakTime = 0;

@@ -138,12 +138,13 @@ public:
     void startPlots();
     void SetPlotsData();
     void showPlot();
+    void GetPlotData();
     void initPlot();
     void killPlot();
  //   void showSmallPlot();
     void initOutputData();
     void showOutputData();
-
+    void SetTextHydrographs();
     // Map drawing variable
     void setupMapPlot();
     void initMapPlot();
@@ -199,6 +200,19 @@ public:
     QList<QList<double>*> OutletQ;
     QList<QList<double>*> OutletQs;
     QList<QList<double>*> OutletC;
+    QList<QList<double>*> OutletChannelWH;
+    QList<double> OutletQpeak;
+    QList<double> OutletQpeaktime;
+    QList<double> OutletQtot;
+    QList<double> OutletQstot;
+    QList<double> Rainfall;
+    double timestep;
+
+    int outletpoint = 1;
+
+    QList<double> qmax;
+    QList<double> qsmax;
+    QList<double> cmax;
 
     //Map display options
     QList<QwtComboColorMap *> ColorMapList;
@@ -222,7 +236,7 @@ public:
 //    QwtPlotCurve *sPGraph;
 //    QwtPlotCurve *sQGraph;
 //    QwtPlotCurve *sQsGraph;
-    bool startplot;
+    bool startplot = true;
     bool stopplot;
     double yas, yasP, y2as;
     QVector <double> QData;
@@ -232,7 +246,6 @@ public:
     QVector <double> QsData;
     QVector <double> CData;
     QVector <double> PData;
-    QVector <double> PData2;
     QVector <double> TData;
     long stepP;
 
@@ -280,6 +293,7 @@ public slots:
     void aboutInfo();
     void resetAll();
 
+    void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
     void openMapname(QModelIndex topLeft);
 

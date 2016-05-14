@@ -158,6 +158,8 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
+            DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
+
             GridCell();            // set channel widths, flowwidths road widths etc
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
@@ -217,8 +219,11 @@ void TWorld::DoModel()
             efout.flush();
             efout.close();
 
+            DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
+
+            DEBUG("Report to interface");
 
             OutputUI();          // fill the "op" structure for screen output
             // show after report calc is done

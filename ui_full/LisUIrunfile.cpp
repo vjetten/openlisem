@@ -358,6 +358,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(val);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
+        if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(val);
         if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
         if (p1.compare("Canopy Openess")==0)           E_CanopyOpeness->setValue(val);
         // VJ 110209 canopy openess, factor Aston as user input
@@ -892,6 +893,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
+        if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input

@@ -155,7 +155,7 @@ void TWorld::SplashDetachment(void)
           double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
           double fac2 = 1.0 - fac1;
 
-          strength = strength * fac2 + 0.05 * fac1;
+          strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
           b = b * fac2 + 3.58 * fac1;
       }
 

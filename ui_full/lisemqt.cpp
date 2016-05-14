@@ -199,7 +199,7 @@ void lisemqt::SetConnections()
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
-
+    connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
     // not needed here, is done automagically
     //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
     //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
@@ -212,11 +212,12 @@ void lisemqt::SetConnections()
 void lisemqt::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
+   groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
    if (this->height() >= 850)
    {
        groupBox_drawMap->setVisible(true);
        groupBox_info->setVisible(true);
-       groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
+
    }
    else
    {
@@ -237,11 +238,12 @@ void lisemqt::resizeEvent(QResizeEvent* event)
 //--------------------------------------------------------------------
 void lisemqt::on_tabWidget_out_currentChanged(int index)
 {
+    groupBox_drawMap->setEnabled(index == 1);
     if (this->height() >= 850)
     {
         groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
-        groupBox_drawMap->setEnabled(index == 1);//tabWidget_out->currentIndex() == 1);
+        //tabWidget_out->currentIndex() == 1);
     }
     else
     {
@@ -856,12 +858,14 @@ void lisemqt::SetStyleUI()
     label_surfstor->setMinimumSize(w,h);
     label_interctot->setMinimumSize(w,h);
     //label_qtotm3->setMinimumSize(w,h);
-    label_qpeak->setMinimumSize(w,h);
     label_qpeaktime->setMinimumSize(w,h);
     label_ppeaktime->setMinimumSize(w,h);
     label_QPfrac->setMinimumSize(w,h);
     //label_discharge->setMinimumSize(w,h);
     label_floodVolmm->setMinimumSize(w,h);
+    label_watervolchannel->setMinimumSize(w,h);
+    label_litterstore->setMinimumSize(w,h);
+    label_baseflowtot->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
     label_dischargesub->setMinimumSize(w,h);
@@ -899,12 +903,14 @@ void lisemqt::SetStyleUI()
     label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
     label_interctot->setStyleSheet("* { background-color: #ffff77 }");
     //label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
-    label_qpeak->setStyleSheet("* { background-color: #ffff77 }");
     label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
     label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
+    label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
+    label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
+    label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
     label_dischargesub->setStyleSheet("* { background-color: #ffff77 }");

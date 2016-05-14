@@ -156,6 +156,10 @@ void lisemqt::worldShow()
 
     showOutputData(); // show output data for all and point x
 
+    SetTextHydrographs(); // show text hydrograph data
+
+    GetPlotData(); // get the plot data from the output structure
+
     showPlot(); // show main plot for point X
 
   //  showSmallPlot(); // show small plot next map for point X
@@ -194,8 +198,6 @@ void lisemqt::worldDone(const QString &results)
     }
     //free the world instance
 
-    killPlot();
-    // clear() plot data
 
     stopplot = true;
 
@@ -254,14 +256,15 @@ void lisemqt::initOP()
     op.BeginTime = 0;
 
     op.MB = 0;
-    op.Q = 0;
     op.Qtot = 0;
-    op.Qpeak = 0;
     op.RainpeakTime = 0;
-    op.QpeakTime = 0;
     op.RunoffFraction = 0;
     op.FloodTotMax = 0;
     op.FloodAreaMax = 0;
+
+    op.BaseFlowtot = 0;
+    op.LitterStorageTot = 0;
+    op.WaterVolTotchannelmm = 0;
 
     op.Pmm = 0;
     op.Qtotmm = 0;
@@ -275,14 +278,8 @@ void lisemqt::initOP()
 
     op.WHflood = 0;
     op.Qflood = 0;
-    op.QPlot = 0;
-    op.QtotPlot = 0;
-    op.SoilLossTotPlot = 0;
-    op.QpeakPlot = 0;
 
     op.MBs = 0;
-    op.Qs = 0;
-    op.C = 0;
     op.DetTot = 0;
     op.DetTotSplash = 0;
     op.DetTotFlow = 0;
@@ -298,8 +295,6 @@ void lisemqt::initOP()
     op.FloodSed = 0;
     op.FloodDepTot = 0;
     op.FloodDetTot = 0;
-    op.BufferVolTot = 0;
-    op.BufferSedTot = 0;
 
     op.volFloodmm = 0;
 

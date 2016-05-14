@@ -69,24 +69,53 @@ void TWorld::OutputUI(void)
 {
 
     //hydrographs
-
-    op.OutletQ.at(0)->append(QtotT);
+    op.timestep = this->_dt/60.0;
+    op.OutletQ.at(0)->append((QtotT * 1000.0/_dt));
     op.OutletQs.at(0)->append(SoilLossTotT);
-    op.OutletC.at(0)->append(SoilLossTotT > 0? QtotT/SoilLossTotT : 0);
+    op.OutletC.at(0)->append((QtotT/_dt) > 1e-6? SoilLossTotT/(QtotT/_dt) : 0);
+    op.OutletQtot.replace(0,Qtot);
+    op.OutletQstot.replace(0,SoilLossTot/1000.0);
 
-    for(j = 1; j < op.OutletIndices; j++)
+    double channelwh = 0;
+    if(SwitchIncludeChannel)
+    {
+
+        FOR_ROW_COL_MV_CH
+        {
+            if(LDDChannel->Drc == 5)
+            {
+                channelwh += ChannelWH->Drc;
+            }
+        }
+    }
+    op.OutletChannelWH.at(0)->append(channelwh);
+    for(int j = 1; j < op.OutletIndices.length(); j++)
     {
         int r = op.OutletLocationX.at(j);
-        int c = op.OutletLocationX.at(j);
+        int c = op.OutletLocationY.at(j);
 
-        double discharge = 0;
-        double sedimentdischarge = 0;
-        double sedimentconcentration = 0;
+        double discharge = Qoutput->Drc;
+        double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
+        double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
+        double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
 
+        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
+        op.OutletQstot.replace(j,op.OutletQstot.at(j) + _dt * sedimentdischarge/1000.0);
+        op.OutletQ.at(j)->append(discharge);
+        op.OutletQs.at(j)->append(sedimentdischarge);
+        op.OutletC.at(j)->append(sedimentconcentration);
+        op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
+    }
 
-        op.OutletQ.at(j)->append();
-        op.OutletQs.at(j)->append();
-        op.OutletC.at(j)->append();
+    for(int j = 0; j < op.OutletIndices.length(); j++)
+    {
+        bool peak = op.OutletQpeak.at(j) < op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1);
+        if(peak)
+        {
+            op.OutletQpeak.replace(j,op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1));
+            op.OutletQpeaktime.replace(j,time/60);
+
+        }
     }
 
     //display maps
@@ -143,7 +172,6 @@ void TWorld::OutputUI(void)
         }
     }
 
-
     copy(*op.baseMap, *Shade);
     copy(*op.baseMapDEM, *DEM);
 
@@ -166,25 +194,17 @@ void TWorld::OutputUI(void)
 
     op.CatchmentArea = CatchmentArea;
 
+    op.BaseFlowtot = BaseFlow * 1000.0/(_dx*_dx*nrCells);
+    op.LitterStorageTot = mapTotal(*LInterc) *1000.0/(_dx*_dx*nrCells);
+    op.ChannelVolTot = SwitchIncludeChannel? mapTotal(*ChannelWaterVol) * 1000.0/(_dx*_dx*nrCells) : 0.0;
+
     op.RainTotmm = RainTotmm + SnowTotmm;
-    op.WaterVolTotmm = WaterVolTotmm-SurfStoremm;
+    op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;
     op.Qtotmm = Qtotmm;
     op.Qtot = QtotOutlet;
-    op.Q = Qoutput->DrcOutlet;  //=> includes channel and tile
 
-    op.Qs = Qsoutput->DrcOutlet;
-    op.C = TotalConc->DrcOutlet;
     op.Qtile = 1000*TileQn->DrcOutlet;
 
-    op.QPlot = QPlot;  //VJ 110701
-    op.QtotPlot = QtotPlot;  //VJ 110701
-    op.QpeakPlot = QpeakPlot;  //VJ 110701
-    op.SoilLossTotPlot = SoilLossTotPlot*0.001; //VJ 110701
-    op.Cplot = TotalConc->DrcPlot;
-    op.Qsplot = Qsoutput->DrcPlot;
-
-    op.Qpeak = Qpeak;
-    op.QpeakTime = QpeakTime/60;
     op.RainpeakTime = RainpeakTime/60;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
@@ -206,7 +226,6 @@ void TWorld::OutputUI(void)
     op.ChannelDetTot=ChannelDetTot*0.001; // convert from kg to ton
     op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
-    op.ChannelWH = ChannelWH->DrcPlot;
 
     op.FloodSed = FloodSedTot*0.001;
     op.FloodDepTot = FloodDepTot*0.001;
@@ -221,8 +240,6 @@ void TWorld::OutputUI(void)
     op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
     op.volFloodmm = floodTotmm;
 
-    op.BufferVolTot = BufferVolin;//Tot;
-    op.BufferSedTot = -BufferSedTot*0.001; // convert from kg to ton, negative beause is deposition
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -561,9 +578,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
     out << "\"Water in runoff + channel   (mm):\"," << op.WaterVolTotmm<< "\n";
     out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
-    out << "\"Peak discharge             (l/s):\"," << op.Qpeak<< "\n";
     out << "\"Peak time rainfall         (min):\"," << op.RainpeakTime<< "\n";
-    out << "\"Peak time discharge        (min):\"," << op.QpeakTime<< "\n";
     out << "\"Discharge/Rainfall           (%):\"," << op.RunoffFraction*100<< "\n";
     out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";
     out << "\"Flood area (max level)      (m2):\"," << op.FloodAreaMax<< "\n";
@@ -574,10 +589,16 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
     out << "\"Deposition (channels)      (ton):\"," << op.ChannelDepTot<< "\n";
     out << "\"Susp. Sediment (channels)  (ton):\"," << op.ChannelSedTot<< "\n";
-    out << "\"Susp. Sediment (buffers)   (ton):\"," << op.BufferSedTot<< "\n";
     out << "\"Total soil loss            (ton):\"," << op.SoilLossTot<< "\n";
     out << "\"Average soil loss        (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
-
+    for(int i = 0; i< op.OutletQpeak.length();i++)
+    {
+    out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
+    }
+    for(int i = 0; i< op.OutletQpeak.length();i++)
+    {
+    out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
+    }
     fp.flush();
     fp.close();
 }
@@ -935,53 +956,40 @@ void TWorld::setupHydrographData()
 {
     // VJ 110630 show hydrograph for selected output point
     bool found = false;
-//      if (op.outputpointnr > 1)
-//      {
-        FOR_ROW_COL_MV
-        {
-            if (op.outputpointnr == PointMap->Drc)
-            {
-                r_plot = r;
-                c_plot = c;
 
-                op.outputpointdata = QString("point %1 [row %2; col %3]").arg(op.outputpointnr).arg(r).arg(c);
-                found = true;
-            }
-        }
-        FOR_ROW_COL_MV
+    FOR_ROW_COL_MV
+    {
+        if(PointMap->Drc > 0)
         {
-            if (op.outputpointnr == Outlet->Drc)
-            {
-                r_plot = r;
-                c_plot = c;
-
-                op.outputpointdata = QString("Outlet %1").arg((int)Outlet->Drc);
-                found = true;
-            }
+            found = true;
         }
-        if (!found)
-        {
-
-            ErrorString = QString("Point %1 for hydrograph not found, check outpoint.map").arg(op.outputpointnr);
-            throw 1;
-        }
-//       }
-//        else
-//            op.outputpointdata = QString("Main Outlet");
+    }
+    if(!found)
+    {
+        ErrorString = QString("Outpoint.map has no values above 0");
+        throw 1;
+    }
 
     ClearHydrographData();
 
+
+    //get the sorted locations and index numbers of the outlet points
+    QList<int> nr;
+    int maxnr = 0;
+
     //0 is reserved for total outflow (channel and overland flow)
+    nr.append(0);
     op.OutletIndices.append(0);
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QList<double>);
     op.OutletQs.append(new QList<double>);
     op.OutletC.append(new QList<double>);
-
-    //get the sorted locations and index numbers of the outlet points
-    QList<int> nr;
-    int maxnr = 0;
+    op.OutletChannelWH.append(new QList<double>);
+    op.OutletQpeak.append(0);
+    op.OutletQpeaktime.append(0);
+    op.OutletQtot.append(0);
+    op.OutletQstot.append(0);
 
     FOR_ROW_COL_MV
     {
@@ -994,6 +1002,11 @@ void TWorld::setupHydrographData()
            op.OutletQ.append(new QList<double>);
            op.OutletQs.append(new QList<double>);
            op.OutletC.append(new QList<double>);
+           op.OutletChannelWH.append(new QList<double>);
+           op.OutletQpeak.append(0);
+           op.OutletQpeaktime.append(0);
+           op.OutletQtot.append(0);
+           op.OutletQstot.append(0);
         }
     }
 
@@ -1002,7 +1015,7 @@ void TWorld::setupHydrographData()
     tx.clear();
     tx.append(op.OutletLocationX);
     ty.clear();
-    ty.append(op.OutletLocationX);
+    ty.append(op.OutletLocationY);
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
 
@@ -1017,9 +1030,6 @@ void TWorld::setupHydrographData()
                 break;
             }
         }
-
-        op.OutletLocationX.append(tx.at(j));
-        op.OutletLocationY.append(ty.at(j));
         op.OutletLocationX.append(tx.at(j));
         op.OutletLocationY.append(ty.at(j));
     }
@@ -1029,12 +1039,12 @@ void TWorld::setupHydrographData()
 }
 void TWorld::ClearHydrographData()
 {
-
     for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
     {
         delete op.OutletQ.at(i);
         delete op.OutletQs.at(i);
         delete op.OutletC.at(i);
+        delete op.OutletChannelWH.at(i);
     }
 
     op.OutletIndices.clear();
@@ -1043,7 +1053,11 @@ void TWorld::ClearHydrographData()
     op.OutletQ.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
-
+    op.OutletQpeak.clear();
+    op.OutletQpeaktime.clear();
+    op.OutletChannelWH.clear();
+    op.OutletQtot.clear();
+    op.OutletQstot.clear();
 }
 
 //---------------------------------------------------------------------------

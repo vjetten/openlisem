@@ -38,8 +38,6 @@ struct output{
     int printstep;
     int maxstep;
 
-    int outputpointnr;
-    QString outputpointdata;
 
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
@@ -47,6 +45,12 @@ struct output{
     QList<QList<double>*> OutletQ;
     QList<QList<double>*> OutletQs;
     QList<QList<double>*> OutletC;
+    QList<QList<double>*> OutletChannelWH;
+    QList<double> OutletQpeak;
+    QList<double> OutletQpeaktime;
+    QList<double> OutletQtot;
+    QList<double> OutletQstot;
+    double timestep;
 
     int
     F_solution,
@@ -68,21 +72,16 @@ struct output{
 
     double
     // water
-    MB, Qtot, Q, Qtile, Qpeak, RunoffFraction, RainpeakTime, QpeakTime,
-    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm, InfilTotmm,
-    RainTotmm, SurfStormm, InfilKWTotmm, Pmm,
+    MB, Qtot,  Qtile, RunoffFraction, RainpeakTime,
+    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,
+    RainTotmm, SurfStormm, InfilKWTotmm, Pmm,BaseFlowtot,LitterStorageTot,WaterVolTotchannelmm,
     // channel
     ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
     // flood
     FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
     FloodDetTot, FloodDepTot, FloodSed,
     // sediment
-    MBs, Qs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, C,
-    Cplot, Qsplot,
-    // buffer
-    BufferVolTot, BufferSedTot,
-    // screen output
-    QtotPlot, SoilLossTotPlot, QpeakPlot, QPlot;
+    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
 
 
     cTMap *baseMap;

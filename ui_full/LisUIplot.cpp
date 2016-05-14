@@ -195,11 +195,55 @@ void lisemqt::setupPlot()
 
 }*/
 //---------------------------------------------------------------------------
+void lisemqt::onOutletChanged(int point)
+{
+    if(!startplot)
+    {
+        int index= 0;
+        int oldindex = OutletIndices.indexOf(outletpoint);
+        if(outletpoint == point)
+        {
+            return;
+        }
+        if(oldindex == -1)
+        {
+            outletpoint = 0;
+            spinBoxPointtoShow->setValue(0);
+
+            showPlot();
+            SetTextHydrographs();
+
+            HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+            outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+
+        }else
+        {
+            if(point > outletpoint)
+            {
+                index = oldindex + 1;
+            }else
+            {
+                index = oldindex - 1;
+            }
+
+            outletpoint = OutletIndices.at(index);
+            spinBoxPointtoShow->setValue(outletpoint);
+
+            showPlot();
+            SetTextHydrographs();
+
+            HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+            outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+        }
+
+
+    }
+}
+//---------------------------------------------------------------------------
 /// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
 {
-    op.outputpointnr = spinBoxPointtoShow->value();
-    spinBoxPointtoShow->setEnabled(false);
+
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
 
@@ -255,8 +299,38 @@ void lisemqt::initPlot()
 /// free data structures graph
 void lisemqt::killPlot()
 {
+    /*for(int i =OutletQ.length()-1; i >-1 ; i--)
+    {
+        delete OutletQ.at(i);
+    }
+    for(int i =OutletQs.length()-1; i >-1 ; i--)
+    {
+        delete OutletQs.at(i);
+    }
+    for(int i =OutletC.length()-1; i >-1 ; i--)
+    {
+        delete OutletC.at(i);
+    }
+    for(int i =OutletChannelWH.length()-1; i >-1 ; i--)
+    {
+        delete OutletChannelWH.at(i);
+    }*/
+
+    OutletQ.clear();
+    OutletQs.clear();
+    OutletC.clear();
+    OutletChannelWH.clear();
+
+    OutletIndices.clear();
+    OutletLocationX.clear();
+    OutletLocationY.clear();
+    Rainfall.clear();
+    OutletQpeak.clear();
+    OutletQpeaktime.clear();
+    OutletQtot.clear();
+    OutletQstot.clear();
+
     PData.clear();
-    PData2.clear();
     TData.clear();
     QData.clear();
     QData1.clear();
@@ -265,23 +339,65 @@ void lisemqt::killPlot()
     QsData.clear();
     CData.clear();
 
-    spinBoxPointtoShow->setEnabled(true);
 }
+void lisemqt::GetPlotData()
+{
+
+    QtileData << op.Qtile;
+    PData << op.Pmm;
+    TData << op.time;
+
+    for(int i =0; i < OutletIndices.length(); i++)
+    {
+        OutletQ.at(i)->clear();
+        OutletQs.at(i)->clear();
+        OutletC.at(i)->clear();
+        OutletChannelWH.at(i)->clear();
+
+        OutletQ.at(i)->append(*op.OutletQ.at(i));
+        OutletQs.at(i)->append(*op.OutletQs.at(i));
+        OutletC.at(i)->append(*op.OutletC.at(i));
+        OutletChannelWH.at(i)->append(*op.OutletChannelWH.at(i));
+
+    }
+    Rainfall.append(op.Pmm);
+
+    OutletQpeak.clear();
+    OutletQpeaktime.clear();
+    OutletQpeak.append(op.OutletQpeak);
+    OutletQpeaktime.append(op.OutletQpeaktime);
+    OutletQtot.clear();
+    OutletQstot.clear();
+    OutletQtot.append(op.OutletQtot);
+    OutletQstot.append(op.OutletQstot);
+    timestep = op.timestep;
+}
+
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
 
-    QData << op.QPlot;
-    QtileData << op.Qtile;
-    QsData << op.Qsplot;
-    CData << op.Cplot;
-    PData << op.Pmm;
-    TData << op.time;
-    PData2.clear();
+    QData.clear();
+    QsData.clear();
+    CData.clear();
+
+
+    int index = OutletIndices.indexOf(this->outletpoint);
+
+    for(int i = 0; i < OutletQ.at(index)->length();i++)
+    {
+        QData << OutletQ.at(index)->at(i);
+        QsData <<OutletQs.at(index)->at(i);
+        CData << OutletC.at(index)->at(i);
+
+        qmax.replace(index,OutletQ.at(index)->at(i) > qmax.at(index)? OutletQ.at(index)->at(i) : qmax.at(index));
+        qsmax.replace(index,OutletQs.at(index)->at(i) > qsmax.at(index)? OutletQs.at(index)->at(i) : qsmax.at(index));
+        cmax.replace(index,OutletC.at(index)->at(i) > cmax.at(index)? OutletC.at(index)->at(i) : cmax.at(index));
+    }
 
     QGraph->setSamples(TData,QData);
 
-    yas = std::max(yas, op.QPlot);
+    yas = std::max(0.1,qmax.at(index));
     yasP = std::max(yasP, op.Pmm);
 
     PGraph->setSamples(TData,PData);
@@ -292,15 +408,14 @@ void lisemqt::showPlot()
     {
         QsGraph->setSamples(TData,QsData);
         CGraph->setSamples(TData,CData);
-        y2as = std::max(y2as, op.Qsplot);
-        y2as = std::max(y2as, op.Cplot);
+        y2as = std::max(0.1,std::max(qsmax.at(index), cmax.at(index)));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = std::max(yas, op.Pmm);
+        yas = std::max(0.1,std::max(yas, op.Pmm));
     }
     else
     {
-        y2as = std::max(y2as, op.Pmm);
+        y2as = std::max(0.1,std::max(y2as, op.Pmm));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
@@ -342,12 +457,12 @@ void lisemqt::startPlots()
     yasP = 0;
     y2as = 0.1;
 
-    PData.clear();
-    TData.clear();
-    QData.clear();
-    QtileData.clear();
-    QsData.clear();
-    CData.clear();
+    qmax.clear();
+    qsmax.clear();
+    cmax.clear();
+
+    killPlot();
+    // clear() plot data
 
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
@@ -365,49 +480,116 @@ void lisemqt::startPlots()
  //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
     // VJ 110630 show hydrograph for selected output point
 
-    HPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
-    // VJ 110630 show hydrograph for selected output point
-
-
     OutletIndices.append(op.OutletIndices);
     OutletLocationX.append(op.OutletLocationX);
-    OutletLocationY.append(op.OutletLocationY);;
+    OutletLocationY.append(op.OutletLocationY);
+    OutletQtot.append(op.OutletQtot);
+    OutletQstot.append(op.OutletQstot);
 
     for(int i =0; i < OutletIndices.length(); i++)
     {
         OutletQ.append(new QList<double>);
         OutletQs.append(new QList<double>);
         OutletC.append(new QList<double>);
+        OutletChannelWH.append(new QList<double>);
+        qmax.append(0);
+        qsmax.append(0);
+        cmax.append(0);
     }
 
-}
-//---------------------------------------------------------------------------
-void lisemqt::SetPlotsData()
-{
+    outletpoint = 0;
+    spinBoxPointtoShow->setValue(0);
+    spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
 
-    for(int i =0; i < OutletIndices.length(); i++)
-    {
-        OutletQ.at(i)->clear();
-        OutletQs.at(i)->clear();
-        OutletC.at(i)->clear();
 
-        OutletQ.at(i)->append(*op.OutletQ.at(i));
-        OutletQs.at(i)->append(*op.OutletQs.at(i));
-        OutletC.at(i)->append(*op.OutletC.at(i));
-    }
+    outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+    HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+    // VJ 110630 show hydrograph for selected output point
+
 
 }
+
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs
 void lisemqt::initOutputData()
 {
-    textGraph->setMaximumBlockCount(4);
+    //textGraph->setMaximumBlockCount(4);
     textGraph->setWordWrapMode(QTextOption::NoWrap);
     textGraph->setMaximumHeight(80);
     textGraph->clear();
 }
+
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs
+void lisemqt::SetTextHydrographs()
+{
+    //    if(!checkNoErosion->isChecked())
+    textGraph->clear();
+
+    if(OutletQ.length() == 0)
+    {
+        return;
+    }
+    int j = OutletIndices.indexOf(this->outletpoint);
+
+    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',3));
+    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',3));
+    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',3));
+    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',3));
+
+    if(checkDoErosion->isChecked())
+        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',2));
+
+    int steps = OutletQ.at(0)->length();
+    for(int i = 0; i < steps; i++)
+    {
+        double time = timestep* i;
+        double Pmm = Rainfall.at(i);
+        double QPlot = OutletQ.at(j)->at(i);
+        double ChannelWH = OutletChannelWH.at(j)->at(i);
+        double Qsplot = OutletQs.at(j)->at(i);
+        double Cplot = OutletC.at(j)->at(i);
+
+        if(checkDoErosion->isChecked())
+        {
+            if(!checkIncludeTiledrains->isChecked())
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
+                                           .arg(time,15,'f',3,' ')
+                                           .arg(Pmm,15,'f',3,' ')
+                                           .arg(QPlot,15,'f',3,' ')
+                                           .arg(ChannelWH,15,'f',3,' ')
+                                           .arg(Qsplot,12,'f',3)
+                                           .arg(Cplot,15,'f',3,' '));
+            else
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
+                                           .arg(time,15,'f',3,' ')
+                                           .arg(Pmm,15,'f',3,' ')
+                                           .arg(QPlot,15,'f',3,' ')
+                                           .arg(ChannelWH,15,'f',3,' ')
+                                           .arg(Qsplot,12,'f',3)
+                                           .arg(Cplot,15,'f',3,' ')
+                                           .arg(0.0,15,'f',3,' '));
+        }
+        else
+        {
+            if(!checkIncludeTiledrains->isChecked())
+                textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
+                                           .arg(time,15,'f',3,' ')
+                                           .arg(Pmm,15,'f',3,' ')
+                                           .arg(QPlot,15,'f',3,' ')
+                                           .arg(ChannelWH,15,'f',3,' '));
+            else
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
+                                           .arg(time,15,'f',3,' ')
+                                           .arg(Pmm,15,'f',3,' ')
+                                           .arg(QPlot,15,'f',3,' ')
+                                           .arg(ChannelWH,15,'f',3,' ')
+                                           .arg(0.0,15,'f',3,' '));
+        }
+    }
+}
+//---------------------------------------------------------------------------
+
 void lisemqt::showOutputData()
 {
     // copy the run results from the "output structure op" to the ui labels
@@ -434,14 +616,12 @@ void lisemqt::showOutputData()
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
     label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
+    label_watervolchannel->setText(QString::number(op.ChannelVolTot,'f',3));
+    label_baseflowtot->setText(QString::number(op.BaseFlowtot,'f',3));
+    label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
+
  //   if (op.outputpointnr > 1)
  //   {
-        label_qtotm3sub->setText(QString::number(op.QtotPlot,'f',3));
-        label_qpeaksub->setText(QString::number(op.QpeakPlot,'f',3));
-        label_dischargesub->setText(QString::number(op.QPlot,'f',3));
-
-        if(checkDoErosion->isChecked())
-            label_soillosssub->setText(QString::number(op.SoilLossTotPlot,'f',2));
  //   }
 
     // outlet
@@ -449,14 +629,8 @@ void lisemqt::showOutputData()
 //    label_discharge->setText(QString::number(op.Q,'f',2));
 
     // peak time
-    label_qpeak->setText(QString::number(op.Qpeak,'f',2));
-    label_qpeaktime->setText(QString::number(op.QpeakTime,'f',2));
-    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',2));
     label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
-
-    // buffers
-    if (checkBuffers->isChecked())
-        label_buffervol->setText(QString::number(op.BufferVolTot,'f',3));
+    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
 
     if(checkDoErosion->isChecked())
     {
@@ -482,48 +656,9 @@ void lisemqt::showOutputData()
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
         SDR = std::min(SDR ,100.0);
         label_SDR->setText(QString::number(SDR,'f',dig));
-        if (checkBuffers->isChecked() || checkSedtrap->isChecked())
-            label_buffersed->setText(QString::number(op.BufferSedTot,'f',dig));
     }
 
 
-    // max 6 line text output below hydrographs
-    //    if(!checkNoErosion->isChecked())
-    if(checkDoErosion->isChecked())
-    {
-        if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' ')
-                                       .arg(op.Qsplot,12,'f',3)
-                                       .arg(op.Cplot,15,'f',3,' '));
-        else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' ')
-                                       .arg(op.Qsplot,12,'f',3)
-                                       .arg(op.Cplot,15,'f',3,' ')
-                                       .arg(op.Qtile,15,'f',3,' '));
-    }
-    else
-    {
-        if(!checkIncludeTiledrains->isChecked())
-            textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' '));
-        else
-            textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
-                                       .arg(op.time,15,'f',3,' ')
-                                       .arg(op.Pmm,15,'f',3,' ')
-                                       .arg(op.QPlot,15,'f',3,' ')
-                                       .arg(op.ChannelWH,15,'f',3,' ')
-                                       .arg(op.Qtile,15,'f',3,' '));
-    }
+
 
 }

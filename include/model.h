@@ -68,10 +68,6 @@
 /// shortcut to access the outlet point data
 #define DrcOutlet     data[r_outlet][c_outlet]
 
-/// shortcut to access the point data plotted on screen
-#define DrcPlot     data[r_plot][c_plot]
-// VJ 110630 show hydrograph for selected output point
-
 /// shortcut missing value in map
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
 
@@ -293,6 +289,7 @@ public:
     double ChnCalibration;
     double ChKsatCalibration;
     double SplashDelivery;
+    double DepositedCohesion;
     double StripN;
     double StemflowFraction;
 
@@ -316,14 +313,13 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SoilLossTotOutlet, SedTot, SoilLossTotSub,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
+    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
     double floodTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     bool rainStarted;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double QPlot, QtotPlot, QpeakPlot, SoilLossTotPlot;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
