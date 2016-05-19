@@ -2104,13 +2104,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap *
  */
 void TWorld::RiverSedimentLayerDepth(int r , int c)
 {
-    if(SwitchErosion)
-    {
-        ChannelBLDepth->Drc = ChannelWH->Drc;
-        ChannelSSDepth->Drc = 0;
-        return;
-    }
-//????????????  komt hier niet meer, want dit is als no erosion, moet zijn if !SwitchUse2Layer?
+
     if(!SwitchUseGrainSizeDistribution)
     {
         //if a two layer system is modelled, calculate thickness of layer

@@ -645,9 +645,9 @@ void lisemqt::showOutputData()
         label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
         label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
 
-        label_flooddet->setText(QString::number(op.ChannelDetTot,'f',dig));
-        label_flooddep->setText(QString::number(op.ChannelDepTot,'f',dig));
-        label_floodsed->setText(QString::number(op.ChannelSedTot,'f',dig));
+        label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
+        label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
+        label_floodsed->setText(QString::number(op.FloodSed,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

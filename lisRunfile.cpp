@@ -213,7 +213,6 @@ void TWorld::ParseRunfileData(void)
                 SwitchUse2Layer = false;
                 SwitchUseGrainSizeDistribution = false;
             }
-
         }
 
         if(SwitchEstimateGrainSizeDistribution)
