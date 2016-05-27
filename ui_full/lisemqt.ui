@@ -19978,7 +19978,7 @@ p, li { white-space: pre-wrap; }
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="iconSize">
              <size>
@@ -19998,29 +19998,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_16">
-              <item row="2" column="0" colspan="3">
-               <widget class="QLabel" name="label_88">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="mouseTracking">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>  time (min)        P (mm/h)      Q (l/s)         ChanWH (m)    Qsed (kg/s)     Conc (g/l)</string>
-                </property>
-                <property name="margin">
-                 <number>0</number>
-                </property>
-                <property name="indent">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="3">
+              <item row="3" column="0" colspan="4">
                <widget class="QPlainTextEdit" name="textGraph">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -20051,14 +20029,14 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Hydrograph Point (1-n):</string>
+                 <string>Hydrograph Point (0, 1-n):</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" colspan="3">
+              <item row="0" column="0" colspan="4">
                <layout class="QHBoxLayout" name="layout_Plot"/>
               </item>
               <item row="1" column="1">
@@ -20091,7 +20069,42 @@ p, li { white-space: pre-wrap; }
                  <number>999</number>
                 </property>
                 <property name="value">
-                 <number>1</number>
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="4">
+               <widget class="QLabel" name="label_88">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="mouseTracking">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>  time (min)        P (mm/h)      Q (l/s)         ChanWH (m)    Qsed (kg/s)     Conc (g/l)</string>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <property name="indent">
+                 <number>10</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_74">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 = sum of all discharge water and sediment leaving the model domain&lt;/p&gt;&lt;p&gt;1-n = hydrographs and sedigraphs at user defined datapoints in outpoint.map&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -20100,7 +20113,7 @@ p, li { white-space: pre-wrap; }
             <widget class="QWidget" name="tab_5">
              <attribute name="icon">
               <iconset resource="../resources/openlisem.qrc">
-               <normaloff>:/map3.png</normaloff>:/map3.png</iconset>
+               <normaloff>:/map4.png</normaloff>:/map4.png</iconset>
              </attribute>
              <attribute name="title">
               <string/>
