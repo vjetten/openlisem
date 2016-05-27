@@ -179,7 +179,10 @@ void TWorld::OutputUI(void)
         copy(*op.channelMap, *ChannelWidth);
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
     if (SwitchRoadsystem)
+    {
         copy(*op.roadMap, *RoadWidthDX);
+        calcMap(*op.roadMap, *HardSurface, ADD);
+    }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
 
@@ -194,9 +197,9 @@ void TWorld::OutputUI(void)
 
     op.CatchmentArea = CatchmentArea;
 
-    op.BaseFlowtot = BaseFlow * 1000.0/(_dx*_dx*nrCells);
-    op.LitterStorageTot = mapTotal(*LInterc) *1000.0/(_dx*_dx*nrCells);
-    op.ChannelVolTot = SwitchIncludeChannel? mapTotal(*ChannelWaterVol) * 1000.0/(_dx*_dx*nrCells) : 0.0;
+    op.BaseFlowtotmm = BaseFlow * 1000.0/(_dx*_dx*nrCells);
+    op.LitterStorageTotmm = mapTotal(*LInterc) *1000.0/(_dx*_dx*nrCells);
+    op.ChannelVolTotmm = SwitchIncludeChannel? mapTotal(*ChannelWaterVol) * 1000.0/(_dx*_dx*nrCells) : 0.0;
 
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;

@@ -41,7 +41,7 @@
 /* maximum amount of time for which it is not worth doing an iteration */
 #define TIME_EPS             (1.0E-6)
 
-#define NrNodes(profile)        (profile->zone->nrNodes)
+#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
 #define Dz(profile)             (profile->zone->dz)
 #define DistNode(profile)       (profile->zone->disnod)
 #define Horizon(profile, node)  (profile->horizon[node])
@@ -88,6 +88,7 @@ typedef struct PROFILE {
    int            profileId; 	/** number identifying this profile  >= 0 */
    const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
    const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
+   int nrNodes;
 } PROFILE;
 //---------------------------------------------------------------------------
 typedef double NODE_ARRAY[MAX_NODES_P];

@@ -308,13 +308,13 @@ public:
     double floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
-    double ChannelVolTot, ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SoilLossTotOutlet, SedTot, SoilLossTotSub,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
-    double floodTotmm, floodTotmmInit;
+    double ChannelVolTotmm, floodTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     bool rainStarted;

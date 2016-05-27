@@ -127,8 +127,9 @@ void TWorld::ReadSwatreInputNew(void)
 
    //   mark count nr profiles
    for (int i = z->nrNodes+1; i < swatreProfileDef.count(); i++)
-      if(swatreProfileDef[i-1].toInt() && swatreProfileDef[i].toInt())
+      if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
       {
+          // if two values follow each other this is a new profile
          nrProfileList++;
          checkList << swatreProfileDef[i];
       }
@@ -141,7 +142,7 @@ void TWorld::ReadSwatreInputNew(void)
    for (int i = 0; i < checkList.count()-1; i++)
    {
       if (checkList[i] == checkList[i+1])
-         Error(QString("SWATRE: profile id %1 declared more than once").arg(checkList[i+1]));
+         DEBUG(QString("Warning SWATRE: profile id %1 declared more than once").arg(checkList[i+1]));
    }
    // alternative duplicate check but with no info on duplicates
    //   if (checkList.removeDuplicates() > 0)
@@ -159,7 +160,7 @@ void TWorld::ReadSwatreInputNew(void)
    nrProfileList = 0;
    for (i = z->nrNodes+1; i < swatreProfileDef.count(); i++)
    {
-      if(swatreProfileDef[i-1].toInt() && swatreProfileDef[i].toInt())
+      if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
       {
          profileList[nrProfileList] = ReadProfileDefinitionNew(i, z);
          // read the profile tables for each defined prpfile,
@@ -200,7 +201,7 @@ ZONE * TWorld::ReadNodeDefinitionNew(void)
 
    for (i=0; i < zone->nrNodes; i++)
    {
-      zone->endComp[i] = swatreProfileDef[pos+i].toInt(&ok, 10);
+      zone->endComp[i] = swatreProfileDef[pos+i].toDouble(&ok);
       if (!ok)
          Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
       if (zone->endComp[i] <= 0)
@@ -251,6 +252,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
 
    p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *)*z->nrNodes);
    p->zone = z;
+   p->nrNodes = z->nrNodes;
 
    //pos++; // lastline of prev profile
 
@@ -266,7 +268,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
 
       endHorPrev = endHor;
       pos++; // profile depth, endHor
-      endHor = swatreProfileDef[pos].toInt(&ok, 10);
+      endHor = swatreProfileDef[pos].toDouble(&ok);//toInt(&ok, 10);
       if (!ok)
          Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
 

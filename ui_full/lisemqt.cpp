@@ -264,8 +264,8 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
 //--------------------------------------------------------------------
 
 // disable and enable UI stuff when subcatch selected
-void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
-{
+//void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
+//{
     //    bool subcatch = i > 1;
 
     //   // subcatchgroup->setEnabled(subcatch);
@@ -286,7 +286,7 @@ void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
     //        label_28->setEnabled(!subcatch);
     //        label_60->setEnabled(!subcatch);
     //    }
-}
+//}
 
 //--------------------------------------------------------------------
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
@@ -864,7 +864,7 @@ void lisemqt::SetStyleUI()
     //label_discharge->setMinimumSize(w,h);
     label_floodVolmm->setMinimumSize(w,h);
     label_watervolchannel->setMinimumSize(w,h);
-    label_litterstore->setMinimumSize(w,h);
+ //   label_litterstore->setMinimumSize(w,h);
     label_baseflowtot->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
@@ -909,7 +909,7 @@ void lisemqt::SetStyleUI()
     //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
     label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
     label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
-    label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
+ //   label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
     label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");

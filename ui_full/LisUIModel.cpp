@@ -59,7 +59,7 @@ void lisemqt::runmodel()
         return;
     }
 
-    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
+   // label_runfilename->setText(QFileInfo(op.runfilename).fileName());
     /* TODO if run from commandline this name must exist */
 
     savefile(QString(op.LisemDir+"openlisemtmp.run"));
@@ -156,9 +156,10 @@ void lisemqt::worldShow()
 
     showOutputData(); // show output data for all and point x
 
-    SetTextHydrographs(); // show text hydrograph data
 
     GetPlotData(); // get the plot data from the output structure
+
+    SetTextHydrographs(); // show text hydrograph data
 
     showPlot(); // show main plot for point X
 
@@ -262,8 +263,8 @@ void lisemqt::initOP()
     op.FloodTotMax = 0;
     op.FloodAreaMax = 0;
 
-    op.BaseFlowtot = 0;
-    op.LitterStorageTot = 0;
+    op.BaseFlowtotmm = 0;
+    op.LitterStorageTotmm = 0;
     op.WaterVolTotchannelmm = 0;
 
     op.Pmm = 0;
@@ -287,7 +288,7 @@ void lisemqt::initOP()
     op.SoilLossTot = 0;
     op.SedTot = 0;
 
-    op.ChannelVolTot = 0;
+    op.ChannelVolTotmm = 0;
     op.ChannelSedTot = 0;
     op.ChannelDepTot = 0;
     op.ChannelDetTot = 0;

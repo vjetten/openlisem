@@ -113,8 +113,6 @@ void lisemqt::setupPlot()
 
     // set gridlines
     QwtPlotGrid *grid = new QwtPlotGrid();
-//    grid->enableXmin(true);
- //   grid->enableYmin(true);
     col.setRgb( 180,180,180,180 );
     grid->setMajPen(QPen(col, 0, Qt::DashLine));
     col.setRgb( 210,210,210,180 );
@@ -127,6 +125,7 @@ void lisemqt::setupPlot()
 //---------------------------------------------------------------------------
 /// set up small discharge plot on mapplot page
 /// this is called at the start of lisem, initsmallplot() is called at the start of a model run
+//OBSOLETE
 /*void lisemqt::setupSmallPlot()
 {
 
@@ -324,6 +323,7 @@ void lisemqt::killPlot()
     OutletIndices.clear();
     OutletLocationX.clear();
     OutletLocationY.clear();
+
     Rainfall.clear();
     OutletQpeak.clear();
     OutletQpeaktime.clear();
@@ -347,7 +347,7 @@ void lisemqt::GetPlotData()
     PData << op.Pmm;
     TData << op.time;
 
-    for(int i =0; i < OutletIndices.length(); i++)
+    for(int i = 0; i < OutletIndices.length(); i++)
     {
         OutletQ.at(i)->clear();
         OutletQs.at(i)->clear();
@@ -358,8 +358,8 @@ void lisemqt::GetPlotData()
         OutletQs.at(i)->append(*op.OutletQs.at(i));
         OutletC.at(i)->append(*op.OutletC.at(i));
         OutletChannelWH.at(i)->append(*op.OutletChannelWH.at(i));
-
     }
+
     Rainfall.append(op.Pmm);
 
     OutletQpeak.clear();
@@ -500,7 +500,7 @@ void lisemqt::startPlots()
     outletpoint = 0;
     spinBoxPointtoShow->setValue(0);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
-
+    label_hydroCount->setText(QString("Hydrograph Point (0-%1)").arg(OutletIndices.count()-1));
 
     outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
     HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
@@ -572,19 +572,26 @@ void lisemqt::SetTextHydrographs()
         }
         else
         {
+            double dummy = 0.0;
             if(!checkIncludeTiledrains->isChecked())
-                textGraph->appendPlainText(QString("%1 %2 %3 %4    --           --")
-                                           .arg(time,15,'f',3,' ')
-                                           .arg(Pmm,15,'f',3,' ')
-                                           .arg(QPlot,15,'f',3,' ')
-                                           .arg(ChannelWH,15,'f',3,' '));
-            else
-                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5     --           --")
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
                                            .arg(time,15,'f',3,' ')
                                            .arg(Pmm,15,'f',3,' ')
                                            .arg(QPlot,15,'f',3,' ')
                                            .arg(ChannelWH,15,'f',3,' ')
-                                           .arg(0.0,15,'f',3,' '));
+                                           .arg(dummy,15,'f',3,' ')
+                                           .arg(dummy,15,'f',3,' ')
+                                           );
+            else
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
+                                           .arg(time,15,'f',3,' ')
+                                           .arg(Pmm,15,'f',3,' ')
+                                           .arg(QPlot,15,'f',3,' ')
+                                           .arg(ChannelWH,15,'f',3,' ')
+                                           .arg(0.0,15,'f',3,' ')
+                                           .arg(dummy,15,'f',3,' ')
+                                           .arg(dummy,15,'f',3,' ')
+                                           );
         }
     }
 }
@@ -613,16 +620,12 @@ void lisemqt::showOutputData()
     label_qtot->setText(QString::number(op.Qtotmm,'f',3));
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
-    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
+    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.LitterStorageTotmm,'f',3));
     label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
 
-    label_watervolchannel->setText(QString::number(op.ChannelVolTot,'f',3));
-    label_baseflowtot->setText(QString::number(op.BaseFlowtot,'f',3));
-    label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
-
- //   if (op.outputpointnr > 1)
- //   {
- //   }
+    label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',3));
+    label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',3));
+  //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',3));
 
     // outlet
 //    label_qtotm3->setText(QString::number(op.Qtot,'f',2));

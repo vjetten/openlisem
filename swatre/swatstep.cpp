@@ -333,7 +333,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //--- get nodal values of theta, K, dif moist cap ---//
       for (i=0; i < n; i++)
       {
-         k[i] = HcoNode(h[i], Horizon(p, i), ksatCalibration);
+         k[i] = HcoNode(h[i], p->horizon[i] /*Horizon(p, i)*/, ksatCalibration);
          // input tables in cm/day function returns in cm/sec !!
          dimoca[i] = DmcNode(h[i], Horizon(p, i));
          // differential moisture capacity dtheta/dh

@@ -452,7 +452,7 @@ void TWorld::InitShade(void)
 void TWorld::InitChannel(void)
 {
     // channel vars and maps that must be there even if channel is switched off
-    ChannelVolTot = 0;
+    ChannelVolTotmm = 0;
     ChannelSedTot = 0;
     ChannelDepTot = 0;
     ChannelDetTot = 0;
@@ -675,9 +675,7 @@ void TWorld::InitChannel(void)
             long _i = 0;
             FOR_ROW_COL_MV
             {
-                // added rainFloodingGradient to ensure rainfall flood if needed
-                // rainfall gradient obsolete with runoff 2D
-                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0)// || Grad->Drc <= rainFloodingGradient)
+                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0)
                 {
                     floodRow[_i] = r;
                     floodCol[_i] = c;
@@ -1767,64 +1765,57 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    K2DDEM = NewMap(0);
-    K2DWHStore = NewMap(0);
-    K2DPits = NewMap(0);
-    K2DPitsD = NewMap(0);
-    K2DOutlets = NewMap(0);
- //   K2DDX = NewMap(0);
- //   K2DDY = NewMap(0);
-    K2DSlopeX = NewMap(0);
-    K2DSlopeY = NewMap(0);
-    K2DSlope = NewMap(0);
-   // K2DAspect = NewMap(0);
-
-
-
-    K2DQM = NewMap(0);
-    K2DQMX = NewMap(0);
-    K2DQMY = NewMap(0);
-    K2DFMX = NewMap(0);
-    K2DFMY = NewMap(0);
-    K2DMN = NewMap(0);
-    K2DM = NewMap(0);
-    K2DMC = NewMap(0);
-
-    if(SwitchErosion)
+    if(SwitchKinematic2D != K1D_METHOD)
     {
-        K2DQS = NewMap(0);
-        K2DQSX = NewMap(0);
-        K2DQSY = NewMap(0);
-        K2DSFX = NewMap(0);
-        K2DSFY = NewMap(0);
-        K2DS = NewMap(0);
-        K2DSC = NewMap(0);
-        K2DSCN = NewMap(0);
-    }
-    if(SwitchPesticide)
-    {
-        K2DQP = NewMap(0);
-        K2DQPX = NewMap(0);
-        K2DQPY = NewMap(0);
-        K2DPFX = NewMap(0);
-        K2DPFY = NewMap(0);
-        K2DP = NewMap(0);
-        K2DPC = NewMap(0);
-        K2DPCN = NewMap(0);
-    }
+        K2DDEM = NewMap(0);
+        K2DWHStore = NewMap(0);
+        K2DPits = NewMap(0);
+        K2DPitsD = NewMap(0);
+        K2DOutlets = NewMap(0);
+        K2DSlopeX = NewMap(0);
+        K2DSlopeY = NewMap(0);
+        K2DSlope = NewMap(0);
+        K2DQM = NewMap(0);
+        K2DQMX = NewMap(0);
+        K2DQMY = NewMap(0);
+        K2DFMX = NewMap(0);
+        K2DFMY = NewMap(0);
+        K2DMN = NewMap(0);
+        K2DM = NewMap(0);
+        K2DMC = NewMap(0);
+        if(SwitchErosion)
+        {
+            K2DQS = NewMap(0);
+            K2DQSX = NewMap(0);
+            K2DQSY = NewMap(0);
+            K2DSFX = NewMap(0);
+            K2DSFY = NewMap(0);
+            K2DS = NewMap(0);
+            K2DSC = NewMap(0);
+            K2DSCN = NewMap(0);
+        }
+        if(SwitchPesticide)
+        {
+            K2DQP = NewMap(0);
+            K2DQPX = NewMap(0);
+            K2DQPY = NewMap(0);
+            K2DPFX = NewMap(0);
+            K2DPFY = NewMap(0);
+            K2DP = NewMap(0);
+            K2DPC = NewMap(0);
+            K2DPCN = NewMap(0);
+        }
 
-    K2DHOld = NewMap(0);
-    K2DHNew = NewMap(0);
-    K2DQX = NewMap(0);
-    K2DQY = NewMap(0);
-    K2DFX = NewMap(0);
-    K2DFY = NewMap(0);
-    K2DQ = NewMap(0);
-    K2DQN = NewMap(0);
-//    K2DVX = NewMap(0);
-//    K2DVY = NewMap(0);
-//    K2DV = NewMap(0);
-    K2DI = NewMap(0);
+        K2DHOld = NewMap(0);
+        K2DHNew = NewMap(0);
+        K2DQX = NewMap(0);
+        K2DQY = NewMap(0);
+        K2DFX = NewMap(0);
+        K2DFY = NewMap(0);
+        K2DQ = NewMap(0);
+        K2DQN = NewMap(0);
+        K2DI = NewMap(0);
+    }
     QinKW = NewMap(0);
     QoutKW = NewMap(0);
     Qoutput = NewMap(0);
@@ -2129,11 +2120,15 @@ void TWorld::IntializeData(void)
 
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
+
     //K2Dslope also used for transport capacity of overland flow!
-    K2DDEMA();
+    //ALLEEN ALS ER 2D runoff gekozen is!!!
+    if(SwitchKinematic2D != K1D_METHOD)
+        K2DDEMA();
 
    // MakeWatersheds();
-    FindBaseFlow();
+    if (SwitchChannelBaseflow)
+        FindBaseFlow();
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -2301,7 +2296,7 @@ void TWorld::MakeWatersheds(void)
         }
     }
     //    for(int j = 0; j <= i; j++)
-    qDebug() << i << WS[i].ws << WS[i].cr.count();
+   // qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()

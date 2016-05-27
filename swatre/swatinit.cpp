@@ -70,7 +70,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    // give each pixel a profile 
    FOR_ROW_COL_MV
    {
-      s->pixel[r*_nrCols+c].profile = profileList[swatreProfileNr.indexOf((long)profileMap->Drc)];
+      s->pixel[r*_nrCols+c].profile = profileList[swatreProfileNr.indexOf((int)profileMap->Drc)];
             //ProfileNr(profileMap->Drc);
       // profileNr throws an error if profile nr not found
 
