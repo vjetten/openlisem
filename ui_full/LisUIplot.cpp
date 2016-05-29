@@ -212,8 +212,10 @@ void lisemqt::onOutletChanged(int point)
             showPlot();
             SetTextHydrographs();
 
-            HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-            outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+            HPlot->setTitle(QString("Catchment outlet(s)"));
+            outletgroup->setTitle(QString("Catchment outlet(s)"));
+            //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+            //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
 
         }else
         {
@@ -233,6 +235,8 @@ void lisemqt::onOutletChanged(int point)
 
             HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
             outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+
+
         }
 
 
@@ -263,7 +267,7 @@ void lisemqt::initPlot()
     {
         QsGraph->detach();
         CGraph->detach();
- //       sQsGraph->detach();
+        //       sQsGraph->detach();
     }
 
     //    if(!checkNoErosion->isChecked())
@@ -273,24 +277,24 @@ void lisemqt::initPlot()
         QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
         CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
 
-   //     sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-   //     sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
+        //     sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
+        //     sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
 
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
         HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
-    //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
-   //     smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
+        //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
+        //     smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
     }
     else
     {
         PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
- //       sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
+        //       sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
 
 
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
-   //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s)");
-   //     smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
+        //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s)");
+        //     smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
     }
 
 }
@@ -466,18 +470,18 @@ void lisemqt::startPlots()
 
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
- //   smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
+    //   smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
 
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
     HPlot->insertLegend(legend, QwtPlot::BottomLegend);
     //legend
-   // QwtLegend *slegend = new QwtLegend(smallPlot);
-   // slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-  //  smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
+    // QwtLegend *slegend = new QwtLegend(smallPlot);
+    // slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+    //  smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
     //legend
 
- //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
+    //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
     // VJ 110630 show hydrograph for selected output point
 
     OutletIndices.append(op.OutletIndices);
@@ -500,13 +504,39 @@ void lisemqt::startPlots()
     outletpoint = 0;
     spinBoxPointtoShow->setValue(0);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
-    label_hydroCount->setText(QString("Hydrograph Point (0-%1)").arg(OutletIndices.count()-1));
+    label_hydroCount->setText(QString("Hydrograph Point (0, 1-%1)").arg(OutletIndices.count()-1));
 
     outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
     HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
     // VJ 110630 show hydrograph for selected output point
 
+    //    samplep.clear();
+    //    //first 0,0 is never shown
+    //    for (int j = 1; j < OutletIndices.length(); j++)
+    //    {
+    //        samplep += QPoint(op.OutletLocationX.at(j), op.OutletLocationY.at(j) );
+    //    }
 
+    //    qDebug() << samplep;
+
+
+
+    outPoints = new QwtPlotCurve("");
+    outPoints->attach(MPlot);
+    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
+   // outPoints->setStyle(CurveStyle::NoCurve);
+   // outPoints->symbol.setSize(10);
+    outPoints->setPen(QPen("#000000"));
+
+    QVector <double> YY;
+    QVector <double> XX;
+
+    for (int j = 1; j < OutletIndices.length(); j++)
+    {
+        XX << (double)op.OutletLocationX.at(j);
+        YY << (double)op.OutletLocationY.at(j);
+    }
+    outPoints->setSamples(XX,YY);
 }
 
 //---------------------------------------------------------------------------
@@ -625,11 +655,11 @@ void lisemqt::showOutputData()
 
     label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',3));
     label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',3));
-  //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',3));
+    //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',3));
 
     // outlet
-//    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
-//    label_discharge->setText(QString::number(op.Q,'f',2));
+    //    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
+    //    label_discharge->setText(QString::number(op.Q,'f',2));
 
     // peak time
     label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));

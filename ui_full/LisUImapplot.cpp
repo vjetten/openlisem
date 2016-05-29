@@ -130,7 +130,7 @@ void lisemqt::setupMapPlot()
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
-    // shaded relief
+    // shaded relief   
 
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
@@ -326,6 +326,8 @@ void lisemqt::showMap()
     channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
+
+
 
     MPlot->replot();
 }

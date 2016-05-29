@@ -395,15 +395,20 @@ void TWorld::InitShade(void)
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     if (SwitchChannelFlood)
         calcMap(*DEM, *Barriers, ADD);
-    //double MaxDem = DEM->mapMaximum();
-    // double MinDem = DEM->mapMinimum();
+    double maxDem = -1e9;
+    double minDem = 1e9;
 
     FOR_ROW_COL_MV
     {
-        double Incl = 20.0/180.0*PI;
-        double Decl = 300/180.0*PI;
+//        double Incl = 15.0/180.0*PI;
+//        double Decl = 300/180.0*PI;
         double mat[9];
         double dx, dy, aspect;
+        double factor = 1.0;
+
+        minDem = std::min(DEM->Drc, minDem);
+        maxDem = std::max(DEM->Drc, maxDem);
+
         for (int i = 0; i < 9; i++)
             mat[i] = DEM->Drc;
         if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
@@ -426,17 +431,43 @@ void TWorld::InitShade(void)
             if(!pcr::isMV(LDD->data[r+1][c+1]))
                 mat[8] = DEM->data[r+1][c+1];
         }
+        for (int i = 0; i < 9; i++)
+            mat[i] *= factor;
+
         dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
         dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
-        if (dy < 0)
-            aspect = atan(dx/dy)+2*PI;
+
+//        if (dy < 0)
+//            aspect = atan(dx/dy)+2*PI;
+//        else
+//            if (dy > 0)
+//                aspect = atan(dx/dy)+PI;
+//            else
+//                aspect = 0;
+        //Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
+
+
+        //http://edndoc.esri.com/arcobjects/9.2/net/shared/geoprocessing/spatial_analyst_tools/how_hillshade_works.htm
+        //Burrough, P. A. and McDonell, R.A., 1998. Principles of Geographical Information Systems (Oxford University Press, New York), p. 190.
+        double z_factor = 2.0;
+        double Slope_rad = atan( z_factor * sqrt ( dx*dx+dy*dy) );
+        double Aspect_rad = 0;
+        if( dx != 0)
+        {
+            Aspect_rad = atan2(dy, -dx);
+            if (Aspect_rad < 0)
+                Aspect_rad = 2*PI + Aspect_rad;
+        }
         else
-            if (dy > 0)
-                aspect = atan(dx/dy)+PI;
+        {
+            if(dy > 0)
+                Aspect_rad = PI/2.0;
             else
-                aspect = 0;
-        //qDebug() << r << c << aspect;
-        Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
+                Aspect_rad = 2*PI - PI/2.0;
+        }
+        double Zenith_rad = 70.0 * PI / 180.0;
+        double Azimuth_rad = 240 * PI / 180.0;
+        Shade->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
     }
     double MaxV = mapMaximum(*Shade);
     double MinV = mapMinimum(*Shade);
@@ -444,6 +475,8 @@ void TWorld::InitShade(void)
     FOR_ROW_COL_MV
     {
         Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        // VJ add a bit of elevation for enhanced effect
+        Shade->Drc = 0.8*Shade->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
     }
 
 }

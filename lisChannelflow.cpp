@@ -130,6 +130,7 @@ void TWorld::ChannelWaterHeight(void)
             }
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
             BaseFlow += BaseFlowInflow->Drc * _dt;
+
         }
 
         if (SwitchBuffers && ChannelBufferVol->Drc > 0)
@@ -139,7 +140,6 @@ void TWorld::ChannelWaterHeight(void)
             // add inflow from slopes and rainfall to buffer
         }
     }
-
 
     if(!addedbaseflow)
     {

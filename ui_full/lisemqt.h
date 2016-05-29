@@ -197,6 +197,7 @@ public:
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
+    QPolygonF samplep;
     QList<QList<double>*> OutletQ;
     QList<QList<double>*> OutletQs;
     QList<QList<double>*> OutletC;
@@ -233,6 +234,7 @@ public:
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
+    QwtPlotCurve *outPoints;
 //    QwtPlotCurve *sPGraph;
 //    QwtPlotCurve *sQGraph;
 //    QwtPlotCurve *sQsGraph;

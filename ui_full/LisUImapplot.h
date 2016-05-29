@@ -164,8 +164,10 @@ public:
     colorMapElevation():
 //        QwtLinearColorMap( QColor("#B17142"),QColor("#FFDFC7"))
 //              QwtLinearColorMap( QColor("#8d5524"),QColor("#ffdbac").lighter())
-//                          QwtLinearColorMap( QColor("#D7191C"),QColor("#ffffbf"))
-    QwtLinearColorMap( QColor(141,116,94),QColor(255,251,244))
+ //                           QwtLinearColorMap( QColor("#D7191C"),QColor("#ffffbf"))
+  QwtLinearColorMap( QColor(141,116,94),QColor(255,251,244)) //skincolor
+  //     QwtLinearColorMap( QColor(188,170,39),QColor(20,129,2))
+   //     QwtLinearColorMap( QColor("#279400").lighter(),QColor("#F3EEC4").lighter())//kurt arcgis
     {
 //        addColorStop(0.000,QColor("#B17142"));
 //        addColorStop(0.250,QColor("#C48C63"));
@@ -184,7 +186,11 @@ public:
         addColorStop(0.500,QColor(224,201,173));
         addColorStop(0.750,QColor(236,226,214));
 
+//addColorStop(0.250,QColor(119,14,11));
+//addColorStop(0.500,QColor(245,251,91));
+//addColorStop(0.750,QColor(20,129,2));
 
+//        addColorStop(0.5,QColor("#EAD49A"));
 
     }
 };//---------------------------------------------------------------------------

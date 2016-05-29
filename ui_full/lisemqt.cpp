@@ -422,14 +422,8 @@ void lisemqt::setDisplayComboBox(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(true);
-        //        ComboMaxSpinBox->setEnabled(true);
-        //        ComboMinSpinBox->setEnabled(true);
-        //        DisplayComboBox->setEnabled(true);
 
         checkBoxComboMaps2->setChecked(false);
-        //        DisplayComboBox2->setEnabled(false);
-        //        ComboMaxSpinBox2->setEnabled(false);
-        //        ComboMinSpinBox2->setEnabled(false);
 
         ActiveList = 0;
 
@@ -442,14 +436,8 @@ void lisemqt::setDisplayComboBox2(int i)
     if (i == 2)
     {
         checkBoxComboMaps->setChecked(false);
-        //        ComboMaxSpinBox->setEnabled(false);
-        //        ComboMinSpinBox->setEnabled(false);
-        //        DisplayComboBox->setEnabled(false);
 
         checkBoxComboMaps2->setChecked(true);
-        //        ComboMaxSpinBox2->setEnabled(true);
-        //        ComboMinSpinBox2->setEnabled(true);
-        //        DisplayComboBox2->setEnabled(true);
 
         int j = IndexList1.at(DisplayComboBox2->currentIndex());
 
@@ -595,34 +583,6 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
     checkEstimateGrainSizeDistribution->setChecked(!v);
 }
 //--------------------------------------------------------------------
-//void lisemqt::on_E_NumberClasses_valueChanged(int v)
-//{
-//    if(checkEstimateGrainSizeDistribution->isChecked())
-//    {
-//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-//    }else
-//    {
-//        if(checkReadGrainSizeDistribution->isChecked())
-//        {
-//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-//        }
-//    }
-//}
-//--------------------------------------------------------------------
-//void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
-//{
-//    if(checkEstimateGrainSizeDistribution->isChecked())
-//    {
-//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-//    }else
-//    {
-//        if(checkReadGrainSizeDistribution->isChecked())
-//        {
-//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-//        }
-//    }
-//}
-//--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
@@ -762,9 +722,9 @@ void lisemqt::SetToolBar()
     toolBar->addAction(shootMscreenAct);
 
 
-    fontAct = new QAction(QIcon(":/fontselect.png"), "&Select font", this);
-    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
-    toolBar->addAction(fontAct);
+//    fontAct = new QAction(QIcon(":/fontselect.png"), "&Select font", this);
+//    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
+//    toolBar->addAction(fontAct);
 
     fontIncreaseAct = new QAction(QIcon(":/fontbigger.png"), "&Increase font size", this);
     connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
@@ -798,6 +758,10 @@ void lisemqt::SetToolBar()
     runGroup->addAction(pauseAct);
     runGroup->addAction(stopAct);
     stopAct->setChecked(true);
+
+    toolBar->addSeparator();
+    toolBar->addWidget(label_hydroCount);
+    toolBar->addWidget(spinBoxPointtoShow);
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
