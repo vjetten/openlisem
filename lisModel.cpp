@@ -58,8 +58,10 @@ void TWorld::DoModel()
     else
         temprunname = op.runfilename;
 
+    timestampRun = QDateTime().currentDateTime().toString("yy.MM.dd-hh.mm");
+
     //  QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
-    errorFileName = QString(resultDir + "error"+QDateTime().currentDateTime().toString("yy.MM.dd-hh.mm")+".txt");
+    errorFileName = QString(resultDir + "error"+ timestampRun +".txt");
 
     time_ms.start();
     // get time to calc run length

@@ -897,7 +897,7 @@ void TWorld::ChannelFloodStatistics(void)
     }
 
     QString name;
-    name = resultDir + QFileInfo(floodStatsFileName).baseName()+timestamp+".csv";
+    name = resultDir + QFileInfo(floodStatsFileName).baseName()+timestampRun+".csv";
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -912,13 +912,23 @@ void TWorld::ChannelFloodStatistics(void)
     out << "#,m,m2,m3,h,h,m2\n";
     for (int i = 0; i < nr+1; i++)
         out << i << ","
+            << floodList[i].var2 << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
-            << floodList[i].var2 << ","
             << floodList[i].var3 << ","
             << floodList[i].var4 << ","
             << floodList[i].var5
             << "\n";
+
+    double totarea = 0;
+    double totvol = 0;
+    double totbuild = 0;
+    for (int i = 0; i < nr+1; i++)
+    {
+        totarea += floodList[i].var1;
+        totvol += floodList[i].var2;
+        totbuild += floodList[i].var5;
+    }
 
     fp.flush();
     fp.close();

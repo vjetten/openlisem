@@ -74,13 +74,15 @@ QT4_WRAP_UI(UI_SOURCES
 QT4_ADD_RESOURCES(RCC_SOURCES
     resources/openlisem.qrc
 )
-ADD_EXECUTABLE(lisem WIN32
+# change exec name here
+ADD_EXECUTABLE(lisema WIN32
     ${MOC_SOURCES}
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
 )
-TARGET_LINK_LIBRARIES(lisem
+# change exec name here
+TARGET_LINK_LIBRARIES(lisema
     liblisem
     ${LISEM_EXTERNAL_LIBRARIES}
     stdc++

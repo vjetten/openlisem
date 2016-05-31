@@ -46,10 +46,7 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
-
-
     /***** WATER *****/
-
 
     FOR_ROW_COL_MV
     {

@@ -340,6 +340,8 @@ public:
     long runstep, printstep, printinterval;
     int fZone;
 
+    QString timestampRun; // for output filenames
+
     /// timeseries variables and output strings
     int nrRainfallseries;
     int nrSnowmeltseries;
