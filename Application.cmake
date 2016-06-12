@@ -75,14 +75,14 @@ QT4_ADD_RESOURCES(RCC_SOURCES
     resources/openlisem.qrc
 )
 # change exec name here
-ADD_EXECUTABLE(lisema WIN32
+ADD_EXECUTABLE(lisem WIN32
     ${MOC_SOURCES}
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
 )
 # change exec name here
-TARGET_LINK_LIBRARIES(lisema
+TARGET_LINK_LIBRARIES(lisem
     liblisem
     ${LISEM_EXTERNAL_LIBRARIES}
     stdc++

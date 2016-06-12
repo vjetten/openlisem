@@ -181,7 +181,7 @@ void TWorld::OutputUI(void)
     if (SwitchRoadsystem)
     {
         copy(*op.roadMap, *RoadWidthDX);
-        calcMap(*op.roadMap, *HardSurface, ADD);
+       // calcMap(*op.roadMap, *HardSurface, ADD);
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
