@@ -41,21 +41,6 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-// check if cell From flows to To
-#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
-
-
-#define MAX_ITERS 50
-
-/*
-  local drain direction maps have values for directions as follows:
-    7  8  9
-     \ | /
-   4 - 5 - 6
-     / | \
-    1  2  3
- */
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)

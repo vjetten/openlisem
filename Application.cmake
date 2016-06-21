@@ -39,7 +39,12 @@ SET(APP_SOURCES
     lisOverlandflow
     lisRainintc
     lisUnifiedFlow
+    lisUnifiedFlowCommon
     lisUnifiedFlowAdvection
+    lisUnifiedFlowSediment
+    lisUnifiedFlowTimestep
+    lisUnifiedFlowMath
+    lisUnifiedFlowConnection
     lisReportfile
     lisRunfile
     lisSurfstor

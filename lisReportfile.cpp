@@ -1301,6 +1301,20 @@ void TWorld::GetComboMaps()
         }
     }
 
+    AddComboMap(0,"UF_f","kg/m2",UF2D_f,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_s","kg/m2",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_f1","kg/m2",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_s1","kg/m2",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_vel" ,"kg/m2",UF2D_velocity,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_velx" ,"kg/m2",UF2D_fu,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_vely" ,"kg/m2",UF2D_fv,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_velx" ,"kg/m2",UF2D_su,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_vely" ,"kg/m2",UF2D_sv,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_vel1" ,"kg/m2",UF1D_velocity,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_SlopeX" ,"kg/m2",UF2D_SlopeX,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_SlopeY" ,"kg/m2",UF2D_SlopeY,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_T" ,"kg/m2",UF2D_T,Colormap,Colors,false,false,1.0,1.0);
 }
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()

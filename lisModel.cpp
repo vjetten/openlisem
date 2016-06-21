@@ -177,36 +177,14 @@ void TWorld::DoModel()
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-            //  RainfallToFlood();       // converts rainfall on flat areas to flood instead of runoff
-            // OBSOLETE with runoff in 2D
 
             CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
             SplashDetachment();    // splash detachment
             FlowDetachment();      // flow detachment
 
-            //Pestmobilisation();  // experimental
-
-            ToFlood();             // overland flow water added to flood (not in channel cells)
-            ToChannel();           // water and sed flux going into channel in channel cells
-            ToTiledrain();         // fraction going into tiledrain directly from surface
-
-            CalcVelDisch();        // recalc overland flow velocity, discharge and alpha because of extractions
-
-            OverlandFlowNew();     // overland flow kin wave for water and sed
-
-            ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
-
-
-            ChannelFlood();        // st venant channel 2D flooding from channel
-
-            CalcVelDischChannel(); // alpha, V and Q from Manning
-
-            ChannelFlow();         // channel erosion and kin wave
-
-            TileFlow();          // tile drain flow kin wave
-
-            //SumSedimentClasses();  //sum the induvidual sediment class layers
+            DEBUG("Unified Flow");
+            UnifiedFlow();      	//Unified flow method
 
             Totals();            // calculate all totals and cumulative values
 
