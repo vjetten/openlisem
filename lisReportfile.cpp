@@ -610,6 +610,8 @@ void TWorld::ReportTotalsNew(void)
 /// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps(void)
 {
+    qDebug() << outputcheck;
+
     FOR_ROW_COL_MV
     {
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
@@ -759,10 +761,7 @@ void TWorld::ReportMaps(void)
         {
             report(*hmxWH, OutHmxWH);
         }
-        if (outputcheck[16].toInt() == 1)
-        {
-            report(*hmxWH, OutHmxWH);
-        }
+
     }
 
 }

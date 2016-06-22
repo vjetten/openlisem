@@ -237,7 +237,7 @@ void TWorld::ToChannel(void)
                 }
             }
 
-           RiverSedimentLayerDepth(r,c);
+            RiverSedimentLayerDepth(r,c);
 
 
 
@@ -680,11 +680,11 @@ void TWorld::OverlandFlowNew(void)
 
     if(SwitchKinematic2D == K1D_METHOD)
     {
-
-        FOR_ROW_COL_MV
+        if (SwitchErosion)
         {
-            if (SwitchErosion)
+            FOR_ROW_COL_MV
             {
+
                 Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
                 //MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 // CHANGED, MORE STABLE CONC 19/9/13
