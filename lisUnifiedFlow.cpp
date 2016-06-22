@@ -99,8 +99,11 @@ void TWorld::UF_Init()
     UF2D_fv = NewMap(0.0);
     UF2D_ssm = NewMap(0.0);
     UF2D_blm = NewMap(0.0);
+    UF2D_sstc = NewMap(0.0);
+    UF2D_bltc = NewMap(0.0);
     UF2D_fsc = NewMap(0.0);
     UF2D_fsd = NewMap(0.0);
+
     //solid phase
     UF2D_sm = NewMap(0.0);
     UF2D_s = NewMap(0.0);
@@ -146,8 +149,11 @@ void TWorld::UF_Init()
     UF1D_fu = NewMap(0.0);
     UF1D_ssm = NewMap(0.0);
     UF1D_blm = NewMap(0.0);
+    UF1D_bltc = NewMap(0.0);
+    UF1D_sstc = NewMap(0.0);
     UF1D_fsc = NewMap(0.0);
     UF1D_fsd = NewMap(0.0);
+
     //solid phase
     UF1D_sm = NewMap(0.0);
     UF1D_s = NewMap(0.0);
@@ -175,6 +181,33 @@ void TWorld::UF_Init()
     UF2D_blm_D.clear();
     UF1D_blm_D.clear();
 
+    //Multiclass sediment maps
+    UF2D_sstc_D.clear();
+    UF1D_sstc_D.clear();
+    UF2D_bltc_D.clear();
+    UF1D_bltc_D.clear();
+
+    if(SwitchUseGrainSizeDistribution)
+    {
+        FOR_GRAIN_CLASSES
+        {
+            UF2D_ssm_D.append(NewMap(0.0));
+            UF1D_ssm_D.append(NewMap(0.0));
+            UF2D_blm_D.append(NewMap(0.0));
+            UF1D_blm_D.append(NewMap(0.0));
+
+            UF2D_sstc_D.append(NewMap(0.0));
+            UF1D_sstc_D.append(NewMap(0.0));
+            UF2D_bltc_D.append(NewMap(0.0));
+            UF1D_bltc_D.append(NewMap(0.0));
+        }
+    }
+
+    UF1D_Dep = NewMap(0.0);
+    UF1D_Det = NewMap(0.0);
+    UF2D_Dep = NewMap(0.0);
+    UF2D_Det = NewMap(0.0);
+
     //temporary maps for generic advection functions
     UF_t1 = NewMap(0.0);
     UF_t2 = NewMap(0.0);
@@ -201,6 +234,12 @@ void TWorld::UnifiedFlow()
 
     //set input from the rest of the OpenLisem model
     UF_SetInput();
+
+    //soil interactions
+    if(SwitchErosion)
+    {
+        UnifiedFlowSediment();
+    }
 
     ////START ALGORITHM
     ////from now on all input and output is provided as funciton arguments

@@ -147,7 +147,7 @@
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define UF_VERY_SMALL 1e-6 /// \def min timestep/flux/height in unified flow equations
+#define UF_VERY_SMALL 1e-8 /// \def min timestep/flux/height in unified flow equations
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -846,6 +846,8 @@ public:
     cTMap * UF2D_fv;
     cTMap * UF2D_ssm;
     cTMap * UF2D_blm;
+    cTMap * UF2D_sstc;
+    cTMap * UF2D_bltc;
     cTMap * UF2D_fsc;
     cTMap * UF2D_fsd;
     //solid phase
@@ -887,8 +889,11 @@ public:
     cTMap * UF1D_fu;
     cTMap * UF1D_ssm;
     cTMap * UF1D_blm;
+    cTMap * UF1D_sstc;
+    cTMap * UF1D_bltc;
     cTMap * UF1D_fsc;
     cTMap * UF1D_fsd;
+
     //solid phase
     cTMap * UF1D_sm;
     cTMap * UF1D_s;
@@ -915,6 +920,16 @@ public:
     QList<cTMap *> UF1D_ssm_D;
     QList<cTMap *> UF2D_blm_D;
     QList<cTMap *> UF1D_blm_D;
+
+    QList<cTMap *> UF2D_sstc_D;
+    QList<cTMap *> UF1D_sstc_D;
+    QList<cTMap *> UF2D_bltc_D;
+    QList<cTMap *> UF1D_bltc_D;
+
+    cTMap * UF1D_Dep;
+    cTMap * UF1D_Det;
+    cTMap * UF2D_Dep;
+    cTMap * UF2D_Det;
 
     //temporary maps for generic advection functions
     cTMap * UF_t1;
@@ -947,7 +962,7 @@ public:
     void UF2D_FluidMomentumSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_fu, cTMap * out_fv);
     void UF2D_SolidMomentumSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_su, cTMap * out_sv);
 
-    void UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv, cTMap * out_m);
+    void UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f, cTMap * _s, cTMap * _fu, cTMap * _fv, cTMap * _su, cTMap * _sv, cTMap * out_m);
 
     //1D version
     void UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su);
@@ -963,7 +978,7 @@ public:
     void UF1D_SolidMomentumSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_fu);
     void UF1D_FluidMomentumSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_su);
 
-    void UF1D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * out_m);
+    void UF1D_Diffuse_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap * _m, cTMap * _f,cTMap * _fu,cTMap * _s,cTMap * _su, cTMap * out_m);
 
     ////Timestep functions
     double UF_InitTimeStep(cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
@@ -1057,15 +1072,16 @@ public:
     void UnifiedFlowSediment();
     void UF_FlowDetachment(double dt);
     void UF_FlowEntrainment(double dt);
+    void UF_FlowDetachment(double dt, int r, int c,int d, bool channel);
+    void UF_FlowEntrainment(double dt, int r, int c,int d, bool channel);
 
-    double UF_SoilTake(int r, int c, int d, double potential);
-    void UF_SoilAdd(int r, int c, int d, double mass);
+    double UF_SoilTake(int r, int c, int d, double potential,bool channel,bool bedload);
+    void UF_SoilAdd(int r, int c, int d, double mass, bool channel);
 
     //transport capacity
-    double UnifiedFlowTransportcapacity(double _surface, double _f, double _visc, double _s, double _d,double _v);
-
+    double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);
     //active entrainment
-    double UnifiedFlowActiveEntrainment(double _surface, double _f, double _visc, double _s, double _d,double _v);
+    double UnifiedFlowActiveEntrainment(double hf, double vf,double hs, double vs, double visc, int d);
 
     //connection to the digital elevation model
     void UFDEMLDD_Connection(cTMap *  dt,cTMap * RemovedMaterial1D, cTMap * RemovedMaterial2D, cTMap * out_DEM,cTMap * out_LDD);

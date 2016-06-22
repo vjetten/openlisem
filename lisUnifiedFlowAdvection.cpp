@@ -372,12 +372,41 @@ void TWorld::UF2D_SolidMomentumSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap 
 
 }
 
-void TWorld::UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv, cTMap * out_m)
+void TWorld::UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f, cTMap * _s, cTMap * _fu, cTMap * _fv, cTMap * _su, cTMap * _sv, cTMap * out_m)
 {
+    FOR_ROW_COL_UF2D
+    {
+        out_m->Drc = _m->Drc;
+    }
 
+    FOR_ROW_COL_UF2D_DT
+    {
+        /*double hf = ;
+        double hs = ;
+        double mc = _m->Drc/(hf*_dx*_dx);
 
+        double qmx = std::min(std::fabs(dt->Drc * hm * _mu->Drc*_dx), 0.5 * UF_Courant * out_m->Drc);
+        double qmy = std::min(std::fabs(dt->Drc * hm * _mv->Drc*_dx), 0.5 * UF_Courant * out_m->Drc);
 
+        int qmxc = c + ((_mu->Drc > 0)? -1 : 1);
+        int qmyr = r + ((_mv->Drc > 0)? -1 : 1);
 
+        if(!UF_OUTORMV(_dem,r,qmxc)){
+            out_m->data[r][qmxc] += qmx;
+            out_m->data[r][c] -= qmx;
+        }else{
+            outflow += qmx;
+            out_m->data[r][c] -= qmx;
+        }
+        if(!UF_OUTORMV(_dem,qmyr,c)){
+            out_m->data[qmyr][c] += qmy;
+            out_m->data[r][c] -= qmy;
+        }else{
+            outflow += qmy;
+            out_m->data[r][c] -= qmy;
+        }*/
+    }}}
+    return;
 
 }
 
@@ -834,7 +863,7 @@ void TWorld::UF1D_FluidMomentumSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTM
 
 }
 
-void TWorld::UF1D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * out_m)
+void TWorld::UF1D_Diffuse_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap * _m, cTMap * _f,cTMap * _fu,cTMap * _s,cTMap * _su, cTMap * out_m)
 {
 
 
