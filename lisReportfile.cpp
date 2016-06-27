@@ -123,6 +123,7 @@ void TWorld::OutputUI(void)
     calcMap(*COMBO_QOFCH, *Q, ADD);
     calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
 
+    if(SwitchKinematic2D != K1D_METHOD)
     FOR_ROW_COL_MV
     {
         if(K2DOutlets->Drc ==1)

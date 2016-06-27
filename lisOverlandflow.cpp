@@ -358,7 +358,6 @@ void TWorld::OverlandFlowNew(void)
         {
             if (LDD->Drc == 5) // if outflow point, pit
             {
-
                 Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, WaterVolin, BufferVol);
                 //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
             }
@@ -518,7 +517,8 @@ void TWorld::OverlandFlowNew(void)
                         Qs->Drc = Conc->Drc * Qn->Drc;
                         Qsn->Drc = Qs->Drc;
                     }
-                }else
+                }
+                else
                 {
                     //calculate total sediment from induvidual grain classes,
                     //and calculate concentration and new sediment discharge
@@ -638,7 +638,8 @@ void TWorld::OverlandFlowNew(void)
             if (WHrunoff->Drc > 0)
                 WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
         }
-    }else
+    }
+    else
     {
         FOR_ROW_COL_MV
         {
@@ -652,15 +653,13 @@ void TWorld::OverlandFlowNew(void)
     }
 
     FOR_ROW_COL_MV
-            // if (hmx->Drc == 0)
     {
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
-
-        if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+        if(SwitchKinematic2D == K1D_METHOD)
         {
             if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
                 V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
@@ -669,9 +668,18 @@ void TWorld::OverlandFlowNew(void)
         }
         else
         {
-            V->Drc = 0;
+            if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+            {
+                if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
+                    V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+                else
+                    V->Drc = 0;
+            }
+            else
+            {
+                V->Drc = 0;
+            }
         }
-        // recalc velocity for output to map, is not used in other processes
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
