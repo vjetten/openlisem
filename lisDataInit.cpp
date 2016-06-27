@@ -1339,15 +1339,24 @@ void TWorld::GetInputData(void)
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
-    Litter = ReadMap(LDD,getvaluename("litter"));
-    checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
+
+    if (SwitchLitter)
+    {
+        Litter = ReadMap(LDD,getvaluename("litter"));
+
+        checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
+        checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
+        checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+    }
+    else
+        Litter = NewMap(0);
+
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
-    checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
-    checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+
     checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added

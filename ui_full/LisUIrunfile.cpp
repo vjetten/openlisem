@@ -179,6 +179,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         // flooding
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
+        if (p1.compare("Include litter interception")==0)    checkIncludeLitter->setChecked(check);
 
 
         if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
@@ -693,6 +694,7 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
+        if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
 
         if (p1.compare("Routing Kin Wave 2D")==0)
         {

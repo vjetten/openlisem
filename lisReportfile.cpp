@@ -611,11 +611,9 @@ void TWorld::ReportTotalsNew(void)
 /// output filenames are fixed, cannot be changed by the user
 void TWorld::ReportMaps(void)
 {
-    qDebug() << outputcheck;
-
     FOR_ROW_COL_MV
     {
-        tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
+        tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
         tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
 
@@ -988,7 +986,7 @@ void TWorld::setupHydrographData()
 
     //get the sorted locations and index numbers of the outlet points
     QList<int> nr;
-    int maxnr = 0;
+    //int maxnr = 0;
 
     //0 is reserved for total outflow (channel and overland flow)
     nr.append(0);
@@ -1159,8 +1157,12 @@ void TWorld::GetComboMaps()
     Colors.append("#0000FF");
     Colors.append("#FF0000");
 
-    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
+    calc2Maps(*tm,*RainCumFlat, *SnowmeltCum, ADD);
+    calc2Maps(*tma,*Rain, *Snowmelt, ADD);
+    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1.0,1.0);
+//    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
+//    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
 
     if(SwitchChannelFlood)
     {

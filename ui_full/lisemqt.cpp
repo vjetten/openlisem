@@ -1529,6 +1529,9 @@ void lisemqt::resetAll()
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
     checkHardsurface->setChecked(false);
+
+    checkIncludeLitter->setChecked(false);
+
     //E_OFMethod->setValue(0);
     E_RBLMethod->setValue(0);
     E_RSSMethod->setValue(1);

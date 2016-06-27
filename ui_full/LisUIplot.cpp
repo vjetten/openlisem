@@ -521,22 +521,22 @@ void lisemqt::startPlots()
 
 
 
-    outPoints = new QwtPlotCurve("");
-    outPoints->attach(MPlot);
-    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
-   // outPoints->setStyle(CurveStyle::NoCurve);
-   // outPoints->symbol.setSize(10);
-    outPoints->setPen(QPen("#000000"));
+//    outPoints = new QwtPlotCurve("");
+//    outPoints->attach(MPlot);
+//    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
+//   // outPoints->setStyle(CurveStyle::NoCurve);
+//   // outPoints->symbol.setSize(10);
+//    outPoints->setPen(QPen("#000000"));
 
-    QVector <double> YY;
-    QVector <double> XX;
+//    QVector <double> YY;
+//    QVector <double> XX;
 
-    for (int j = 1; j < OutletIndices.length(); j++)
-    {
-        XX << (double)op.OutletLocationX.at(j);
-        YY << (double)op.OutletLocationY.at(j);
-    }
-    outPoints->setSamples(XX,YY);
+//    for (int j = 1; j < OutletIndices.length(); j++)
+//    {
+//        XX << (double)op.OutletLocationX.at(j);
+//        YY << (double)op.OutletLocationY.at(j);
+//    }
+//    outPoints->setSamples(XX,YY);
 }
 
 //---------------------------------------------------------------------------

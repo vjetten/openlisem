@@ -73,7 +73,7 @@ void TWorld::Totals(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm += mapAverage(*Snowmelt)*1000;
+        SnowAvgmm = mapAverage(*Snowmelt)*1000;
         SnowTotmm += SnowAvgmm;
 
         calcMapValue(*tm, *Snowmelt, (_dx*_dx), MUL); //in m3
