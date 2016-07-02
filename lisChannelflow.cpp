@@ -59,7 +59,7 @@ void TWorld::CalcVelDischChannel(void)
         double FW = ChannelWidth->Drc;
         double grad = sqrt(ChannelGrad->Drc);
 
-        if (ChannelSide > 0)
+        if (ChannelSide->Drc > 0)  //BUG, was (ChannelSide > 0) !!!
         {
             double dw = ChannelSide->Drc * wh;
             Perim = FW + 2.0*sqrt(wh*wh + dw*dw);//*cos(atan(ChannelSide->Drc));
