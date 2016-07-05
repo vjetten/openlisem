@@ -199,7 +199,6 @@ void TWorld::DoModel()
 
             ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
 
-
             ChannelFlood();        // st venant channel 2D flooding from channel
 
             CalcVelDischChannel(); // alpha, V and Q from Manning
@@ -220,11 +219,9 @@ void TWorld::DoModel()
             eout << " " << runstep << " " << MB << "\n";
             efout.flush();
             efout.close();
-
             //DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
-
             //DEBUG("Report to interface");
 
             OutputUI();          // fill the "op" structure for screen output

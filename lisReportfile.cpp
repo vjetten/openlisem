@@ -568,8 +568,8 @@ void TWorld::ReportTotalsNew(void)
         return;
 
     QTextStream out(&fp);
-    out.setRealNumberPrecision(5);
-    out.setFieldWidth(12);
+    out.setRealNumberPrecision(8);
+    out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
     out << "\"LISEM run with:," << op.runfilename << "\"\n";
     out << "\"LISEM results at time (min):," << op.time <<"\"\n";

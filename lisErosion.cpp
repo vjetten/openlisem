@@ -732,7 +732,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
      * sediment in flow. THIS IS REQUIRED! to maintain mass
      * balance
      */
-
     // when there is no usage of material depth,
     // there is no deposited layer
     // actual erosion can then be calculated using
@@ -1153,7 +1152,6 @@ void TWorld::FlowDetachment(void)
 
         }
    }
-
 
 
    //VJ 110829 TC cannot be more than surrounding cells, this limits the spikes in deposition and erosion
