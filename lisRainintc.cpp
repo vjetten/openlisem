@@ -116,15 +116,15 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         }
     }
 
-    int nr = 0;
+    int nrmap = 0;
     if (israinfall)
-        nr = countUnits(*RainZone);
+        nrmap = countUnits(*RainZone);
     else
-        nr = countUnits(*SnowmeltZone);
+        nrmap = countUnits(*SnowmeltZone);
 
-    if (nr != nrStations-1)
+    if (nrmap > nrStations-1)
     {
-        ErrorString = QString("Number of stations in rainfall file (%1) does not match number of units in ID map (%2)").arg(nrStations-1).arg(nr);
+        ErrorString = QString("Number of stations in rainfall file (%1) < than of rainfall zones in ID map (%2)").arg(nrStations-1).arg(nrmap);
         throw 1;
     }
 

@@ -556,41 +556,8 @@ void TWorld::OverlandFlowNew(void)
         FOR_ROW_COL_MV
         {
 
-            /*   VJ 140105
-    //                NEWTOWNPAHSON TO iterate h from Q. Because else we use alpha from before iteration
-    //                Does not make a difference NOT NECESSARY but interesting code!
-            double h, h1;
-            double w = ChannelAdj->Drc;
-            h = w > 0 ? (Alpha->Drc*pow(Qn->Drc, 0.6))/w : 0;//ChannelAdj->Drc;
-            // first guess new h with old alpha
-            h1 = h;
-            if (Qn->Drc > 0)
-            {
-                double _23 = 2.0/3.0;
-                double F, dF;
-                int count = 0;
-
-                do{
-                    h = h1;
-                    if (h < 1e-10)
-                        break;
-                    double P = w+2*h;
-                    double A = h*w;
-                    double R = A/P;
-
-                    F = std::max((0.0, 1 - Qn->Drc/(sqrt(Grad->Drc)/N->Drc*A*powl(R,_23)));
-                    dF = (5*w+6*h)/(3*h*P);
-                    h1 = h - F/dF;
-                    // function divided by derivative
-                    count++;
-                }while(fabs(h1-h) > 1e-10 && count < 20);
-            }
-          */
-
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
-
-
 
             double WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
             // new volume

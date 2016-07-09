@@ -257,7 +257,6 @@ void lisemqt::showMap()
         UnitList.clear();
         SymList.clear();
         LogList.clear();
-        // ListList.clear();
         picker->NameList.clear();
         picker->UnitList.clear();
         IndexList.clear();
@@ -272,7 +271,6 @@ void lisemqt::showMap()
             UnitList.append(op.ComboUnits.at(i));
             SymList.append(op.ComboSymColor.at(i)); // symetric colors
             LogList.append(op.ComboLogaritmic.at(i));  //log display
-            //ListList.append(op.ComboLists.at(i));     // use list 0 (water) or list 1 (sediment)
             picker->NameList.append(op.ComboMapNames.at(i));
             picker->UnitList.append(op.ComboUnits.at(i));
         }
@@ -285,21 +283,16 @@ void lisemqt::showMap()
             if(op.ComboLists.at(i) == 0)
             {
                 S << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-               // DisplayComboBox->insertItem(i, op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
             }else
             {
                 S1 << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-              //  DisplayComboBox2->addItem(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
             }
         }
         DisplayComboBox->addItems(S);
         DisplayComboBox2->addItems(S1);
         ActiveList = 0;
-
-        checkBoxComboMaps2->setChecked(false);
-        checkBoxComboMaps->setChecked(true);
 
         DisplayComboBox->setFixedWidth(180);
         DisplayComboBox2->setFixedWidth(180);
@@ -315,10 +308,16 @@ void lisemqt::showMap()
    // drawMap->setAlpha(transparency->value());
    // drawMap->setAlpha(255);
 
-    if(ActiveList == 0)
+    // needed if user clicks while nothing is running:
+    if (IndexList.count() == 0)
+        return;
+
+    if (ActiveList == 0)
     {
         showComboMap(IndexList.at(DisplayComboBox->currentIndex()));
-    }else
+    }
+    else
+        if (ActiveList == 1)
     {
         showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
     }
@@ -326,8 +325,6 @@ void lisemqt::showMap()
     channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
-
-
 
     MPlot->replot();
 }
@@ -345,6 +342,8 @@ void lisemqt::showComboMap(int i)
     double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD, i);
     if (MaxV ==-1e20)
         return;
+
+    double MinV = mapMinimum(*op.ComboMapsSafe.at(i));
 
     // set stepsize
     if(op.ComboLists.at(i) == 0)
@@ -364,51 +363,45 @@ void lisemqt::showComboMap(int i)
 
     if (ma == 0)
         ma = MaxV; // use map max when ma = 0
+    if (mi == 0)
+        mi = MinV;
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
-        mi =-ma;
+        mi = -ma;
 
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
-    QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
-    QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+    QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
+                                                QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
+                                                op.ComboColorMap.at(i),op.ComboColors.at(i));
+    QwtComboColorMap *cmL = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
+                                                 QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
+                                                 op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    cm->thresholduse = true;
-    cm2->thresholduse = !op.ComboSymColor.at(i);
+    cm->thresholduse = false;
+    cmL->thresholduse = false; // !op.ComboSymColor.at(i);
 
     cm->thresholdmin = mi;
-    cm2->thresholdmin = mi;
+    cmL->thresholdmin = mi;
 
     drawMap->setData(RD);
     drawMap->setColorMap(cm);
 
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cm2);
-
-    MPlot->setAxisScale( MPlot->yRight, mi, ma);
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cmL);
 
     if(op.ComboLogaritmic.at(i))
     {
-        if (ma < 10)
-            MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.001), std::max(1.0,ma));
-        else
-            if (ma < 100)
-            {
-                MPlot->setAxisScale( MPlot->yRight,std::max(mi,0.01), std::max(10.0,ma));
-            }
-            else
-                if (ma < 1000)
-                {
-                    MPlot->setAxisScale( MPlot->yRight, std::max(mi,0.1), std::max(100.0,ma));
-                }
-                else
-                {
-                    MPlot->setAxisScale( MPlot->yRight, std::max(mi,1.0), std::max(1000.0,ma));
-                }
+        int coef = int(log10(ma));
+        mi = (mi == 0 ? std::pow(0.1,3-coef) : mi);
+        ma = (ma == 0 ? std::pow(10,coef)    : ma);
 
+        MPlot->setAxisScale( MPlot->yRight, mi, ma );
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
     }
     else
     {
+
+        MPlot->setAxisScale( MPlot->yRight, mi, ma);//std::max(mi,0.001)
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
 }

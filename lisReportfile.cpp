@@ -1157,12 +1157,15 @@ void TWorld::GetComboMaps()
     Colors.append("#0000FF");
     Colors.append("#FF0000");
 
-    calc2Maps(*tm,*RainCumFlat, *SnowmeltCum, ADD);
-    calc2Maps(*tma,*Rain, *Snowmelt, ADD);
-    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1.0,1.0);
-//    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
-//    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
+
+//    copy(*tm, *RainCumFlat );
+//    calcMap(*tm,*SnowmeltCum, ADD);
+//    copy(*tma, *Rain );
+//    calcMap(*tma,*Snowmelt, ADD);
+//    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1.0,1.0);
+//    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
 
     if(SwitchChannelFlood)
     {

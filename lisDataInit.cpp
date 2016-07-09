@@ -147,9 +147,10 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
-    DEBUG("kill display data");
-    ClearComboMaps();
-    ClearHydrographData();
+   // DEBUG("kill display data");
+    //ClearComboMaps();
+   // ClearHydrographData();
+    // leave it so we can still see stuff after run
 
 }
 //---------------------------------------------------------------------------
@@ -1807,8 +1808,8 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    if(SwitchKinematic2D != K1D_METHOD)
-    {
+//    if(SwitchKinematic2D != K1D_METHOD)
+//    {
         K2DDEM = NewMap(0);
         K2DWHStore = NewMap(0);
         K2DPits = NewMap(0);
@@ -1857,7 +1858,7 @@ void TWorld::IntializeData(void)
         K2DQ = NewMap(0);
         K2DQN = NewMap(0);
         K2DI = NewMap(0);
-    }
+ //   }
     QinKW = NewMap(0);
     QoutKW = NewMap(0);
     Qoutput = NewMap(0);

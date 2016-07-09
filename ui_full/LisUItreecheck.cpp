@@ -58,6 +58,8 @@ GULLIESMAPS
 void lisemqt::on_checkDoErosion_clicked()
 {
     checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+
+    setErosionMapOutput(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
@@ -93,6 +95,9 @@ void lisemqt::on_checkChannelInfil_clicked()
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+
+    if (checkChannelBaseflow->isChecked())
+        checkChannelBaseflow->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
@@ -104,6 +109,9 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 
     label_195->setEnabled(checkChannelBaseflow->isChecked());
     label_baseflowtot->setEnabled(checkChannelBaseflow->isChecked());
+
+    if (checkChannelInfil->isChecked())
+        checkChannelInfil->setChecked(false);
 
 }
 //--------------------------------------------------------------------
