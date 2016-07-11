@@ -207,12 +207,12 @@ void lisemqt::on_checkBuffers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
-    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
-    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    if(checkBuffers->isChecked())
-        checkBuffers->setChecked(false);
+//    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    if(checkBuffers->isChecked())
+//        checkBuffers->setChecked(false);
 
 }
 //--------------------------------------------------------------------

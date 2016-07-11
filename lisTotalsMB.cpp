@@ -315,7 +315,7 @@ void TWorld::Totals(void)
                 FloodDetTot += mapTotal(*BLDetFloodT);  // used for screen output
                 FloodDetTot += mapTotal(*SSDetFloodT);
 
-                FloodDepTot += mapTotal(*BLDepFloodT);
+                FloodSedTot += mapTotal(*BLDepFloodT);
                 FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
 
                 calcMap(*DETFlowCum, *BLDetFloodT, ADD);

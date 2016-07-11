@@ -304,10 +304,6 @@ void lisemqt::showMap()
         DisplayComboBox2->setMaxVisibleItems(IndexList1.count());
     }
 
-
-   // drawMap->setAlpha(transparency->value());
-   // drawMap->setAlpha(255);
-
     // needed if user clicks while nothing is running:
     if (IndexList.count() == 0)
         return;
@@ -378,7 +374,7 @@ void lisemqt::showComboMap(int i)
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    cm->thresholduse = false;
+    cm->thresholduse = ActiveList == 0;
     cmL->thresholduse = false; // !op.ComboSymColor.at(i);
 
     cm->thresholdmin = mi;
@@ -467,8 +463,6 @@ void lisemqt::showChannelMap()
         channelMap->setAlpha(transparency2->value());
     else
         channelMap->setAlpha(0);
-    //channelMap->setAlpha(transparency2->value());
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
@@ -488,12 +482,6 @@ void lisemqt::showRoadMap()
         roadMap->setAlpha(0);
 
     roadMap->setColorMap(new colorMapRoads3());
-
-    //  if (op.drawMapType == 2)
-    //    roadMap->setColorMap(new colorMapRoads());
-    //  else
-    //    roadMap->setColorMap(new colorMapRoads2());
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()

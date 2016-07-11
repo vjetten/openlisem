@@ -219,8 +219,9 @@ void TWorld::OutputUI(void)
     //houses
     op.IntercHouseTotmm = IntercHouseTotmm;
     op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
-    op.RunoffFraction = (RainTotmm > 0 ? Qtotmm/RainTotmm : 0);
-
+    op.RunoffFraction = 0;
+    if (op.RainTotmm > 0)
+        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowtotmm)/op.RainTotmm);
     op.MBs = MBs;
     op.DetTotSplash=DetSplashTot*0.001; // convert from kg to ton per cell
     op.DetTotFlow=DetFlowTot*0.001; // convert from kg to ton
@@ -231,9 +232,9 @@ void TWorld::OutputUI(void)
     op.ChannelDepTot=ChannelDepTot*0.001; // convert from kg to ton
     op.ChannelSedTot=ChannelSedTot*0.001; // convert from kg to ton
 
-    op.FloodSed = FloodSedTot*0.001;
     op.FloodDepTot = FloodDepTot*0.001;
     op.FloodDetTot = FloodDetTot*0.001;
+    op.FloodSedTot = FloodSedTot*0.001;
 
     op.SoilLossTot=SoilLossTot/*Outlet*/ *0.001; // convert from kg to ton
 
@@ -574,7 +575,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"LISEM run with:," << op.runfilename << "\"\n";
     out << "\"LISEM results at time (min):," << op.time <<"\"\n";
     out << "\"Catchment area              (ha):\"," << op.CatchmentArea/10000.0<< "\n";
-    out << "\"Total rainfall              (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total Precipitation         (mm):\"," << op.RainTotmm<< "\n";
     out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
     out << "\"Total interception          (mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total House interception    (mm):\"," << op.IntercHouseTotmm<< "\n";
@@ -582,8 +583,8 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
     out << "\"Water in runoff + channel   (mm):\"," << op.WaterVolTotmm<< "\n";
     out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
-    out << "\"Peak time rainfall         (min):\"," << op.RainpeakTime<< "\n";
-    out << "\"Discharge/Rainfall           (%):\"," << op.RunoffFraction*100<< "\n";
+    out << "\"Peak time precipitation    (min):\"," << op.RainpeakTime<< "\n";
+    out << "\"Peak discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
     out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";
     out << "\"Flood area (max level)      (m2):\"," << op.FloodAreaMax<< "\n";
     out << "\"Splash detachment (land)   (ton):\"," << op.DetTotSplash<< "\n";
@@ -593,15 +594,18 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
     out << "\"Deposition (channels)      (ton):\"," << op.ChannelDepTot<< "\n";
     out << "\"Susp. Sediment (channels)  (ton):\"," << op.ChannelSedTot<< "\n";
+    out << "\"Flow detachment (flood)    (ton):\"," << op.FloodDetTot<< "\n";
+    out << "\"Deposition (flood)         (ton):\"," << op.FloodDepTot<< "\n";
+    out << "\"Susp. Sediment (flood   )  (ton):\"," << op.FloodSedTot<< "\n";
     out << "\"Total soil loss            (ton):\"," << op.SoilLossTot<< "\n";
     out << "\"Average soil loss        (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
     for(int i = 0; i< op.OutletQpeak.length();i++)
     {
-    out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
+        out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
     }
     for(int i = 0; i< op.OutletQpeak.length();i++)
     {
-    out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
+        out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
     fp.flush();
     fp.close();
@@ -1255,16 +1259,12 @@ void TWorld::GetComboMaps()
 
         Colormap.clear();
         Colormap.append(0.0);
-      //  Colormap.append(0.3);
         Colormap.append(0.5);
-     //   Colormap.append(0.70);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#ffffff");
+        Colors.append("#ddddbb");
         Colors.append("#50B547");//#96B547");
         Colors.append("#616ca2");//#457A60");
-//        Colors.append("#FFFF00");
-//        Colors.append("#FF0000");
         AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
 
         if(SwitchUseGrainSizeDistribution)

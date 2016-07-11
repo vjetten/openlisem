@@ -686,7 +686,7 @@ void lisemqt::showOutputData()
 
         label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
         label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
-        label_floodsed->setText(QString::number(op.FloodSed,'f',dig));
+        label_floodsed->setText(QString::number(op.FloodSedTot,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

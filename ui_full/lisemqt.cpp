@@ -719,9 +719,9 @@ void lisemqt::SetToolBar()
     runGroup->addAction(stopAct);
     stopAct->setChecked(true);
 
-    toolBar->addSeparator();
-    toolBar->addWidget(label_hydroCount);
-    toolBar->addWidget(spinBoxPointtoShow);
+//    toolBar->addSeparator();
+//    toolBar->addWidget(label_hydroCount);
+//    toolBar->addWidget(spinBoxPointtoShow);
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
@@ -760,11 +760,11 @@ void lisemqt::SetStyleUI()
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
-    E_floodMinHeight->setVisible(false);
-    label_99->setVisible(false);
-    checkRainfallFlood->setVisible(false);
-    E_RainFloodGradient->setVisible(false);
-    checkFloodInitial->setVisible(false);
+    //E_floodMinHeight->setVisible(false);
+    //label_99->setVisible(false);
+    //checkRainfallFlood->setVisible(false);
+    //E_RainFloodGradient->setVisible(false);
+   //checkFloodInitial->setVisible(false);
     // interface elements that are not visible for now
 
     //groupBoxTime->setMaximumWidth(128);
@@ -810,8 +810,8 @@ void lisemqt::SetStyleUI()
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
 
-    label_buffervol->setMinimumSize(w,h);
-    label_buffersed->setMinimumSize(w,h);
+    //label_buffervol->setMinimumSize(w,h);
+    //label_buffersed->setMinimumSize(w,h);
     label_MBs->setMinimumSize(w,h);
     label_MB->setMinimumSize(w,h);
 
@@ -854,8 +854,8 @@ void lisemqt::SetStyleUI()
     label_flooddet->setStyleSheet("* { background-color: #ffff77 }");
     label_flooddep->setStyleSheet("* { background-color: #ffff77 }");
     label_floodsed->setStyleSheet("* { background-color: #ffff77 }");
-    label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
-    label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
+    //label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
+    //label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
 //--------------------------------------------------------------------
 void lisemqt::setMapDir()
@@ -1562,7 +1562,7 @@ void lisemqt::resetAll()
     tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
 
-    buffergroup->setVisible(false);
+    //buffergroup->setVisible(false);
     //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 
     //    sedgroup->setEnabled(checkDoErosion->isChecked());
@@ -1589,7 +1589,7 @@ void lisemqt::resetAll()
 
     E_courantFactor->setValue(0.2);
 
-    E_floodMinHeight->setValue(0.05);
+    //E_floodMinHeight->setValue(0.05);
 
     E_mixingFactor->setValue(2.0);
     E_runoffPartitioning->setValue(0.5);
