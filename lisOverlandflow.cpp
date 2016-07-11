@@ -451,6 +451,8 @@ void TWorld::OverlandFlowNew(void)
         //also includes sediment and pesticides transport
         //Functions are not generic since they are only used here
         //Buffers are neglected in this method!
+        fill(*tmb, 0.0);
+        double iter = 0;
 
         //initial function, set to zero
         K2DInit();
@@ -506,43 +508,91 @@ void TWorld::OverlandFlowNew(void)
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
 
-            if(SwitchErosion)
-            {
-                //calculate concentration and new sediment discharge
-                if(!SwitchUseGrainSizeDistribution)
-                {
-                    FOR_ROW_COL_MV
-                    {
-                        Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
-                        Qs->Drc = Conc->Drc * Qn->Drc;
-                        Qsn->Drc = Qs->Drc;
-                    }
-                }
-                else
-                {
-                    //calculate total sediment from induvidual grain classes,
-                    //and calculate concentration and new sediment discharge
-                    FOR_ROW_COL_MV
-                    {
-                        Sed->Drc = 0;
-                        Conc->Drc = 0;
+            //VJ if you do this here the last flux is used for the timestep flux insterad of average
+//            if(SwitchErosion)
+//            {
+//                //calculate concentration and new sediment discharge
+//                if(!SwitchUseGrainSizeDistribution)
+//                {
+//                    FOR_ROW_COL_MV
+//                    {
+//                        Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+//                        Qs->Drc = Conc->Drc * Qn->Drc;
+//                        Qsn->Drc = Qs->Drc;
+//                    }
+//                }
+//                else
+//                {
+//                    //calculate total sediment from induvidual grain classes,
+//                    //and calculate concentration and new sediment discharge
+//                    FOR_ROW_COL_MV
+//                    {
+//                        Sed->Drc = 0;
+//                        Conc->Drc = 0;
 
-                    }
-                    FOR_ROW_COL_MV
-                    {
-                        FOR_GRAIN_CLASSES
-                        {
-                            Sed->Drc += Sed_D.Drcd;
-                            Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
-                            Conc->Drc += Conc_D.Drcd;
-                        }
-                    }
-                }
-            }
+//                    }
+//                    FOR_ROW_COL_MV
+//                    {
+//                        FOR_GRAIN_CLASSES
+//                        {
+//                            Sed->Drc += Sed_D.Drcd;
+//                            Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+//                            Conc->Drc += Conc_D.Drcd;
+//                        }
+//                    }
+//                }
+//            }
 
 
             //total time this lisem-timestep
             tof += dt;
+
+            iter+=1.0;
+            FOR_ROW_COL_MV
+            {
+                tmb->Drc += K2DQ->Drc * dt;
+            }
+        }
+
+        //VJ new average flux over lisem timestep
+        FOR_ROW_COL_MV
+        {
+            K2DQ->Drc = tmb->Drc/_dt;
+            Qn->Drc = tmb->Drc/_dt;
+        }
+
+        if(SwitchErosion)
+        {
+            //calculate concentration and new sediment discharge
+            if(!SwitchUseGrainSizeDistribution)
+            {
+                FOR_ROW_COL_MV
+                {
+                    Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+                    Qs->Drc = Conc->Drc * Qn->Drc;
+                    Qsn->Drc = Qs->Drc;
+                }
+            }
+            else
+            {
+                //calculate total sediment from induvidual grain classes,
+                //and calculate concentration and new sediment discharge
+                FOR_ROW_COL_MV
+                {
+                    Sed->Drc = 0;
+                    Conc->Drc = 0;
+
+                }
+                FOR_ROW_COL_MV
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        Sed->Drc += Sed_D.Drcd;
+                        Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                        Conc->Drc += Conc_D.Drcd;
+                    }
+                }
+            }
         }
     }
 
@@ -555,6 +605,8 @@ void TWorld::OverlandFlowNew(void)
         // convert calculate Qn back to WH and volume for next loop
         FOR_ROW_COL_MV
         {
+
+//            // explicit... ???
 
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
@@ -569,7 +621,6 @@ void TWorld::OverlandFlowNew(void)
             double diff = InfilKWact;
             InfilKWact = std::min(InfilKWact, -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc);
             // infil volume cannot be more than surplus infil
-
 
             if (FFull->Drc == 1)
                 InfilKWact = 0;
@@ -597,25 +648,22 @@ void TWorld::OverlandFlowNew(void)
         // mass balance correction, throw error on cells with WH
         //qDebug() << mb;
 
-        if (n > 0)
-            mb = mb/n;
+//        if (n > 0)
+//            mb = mb/n;
 
-        FOR_ROW_COL_MV
-        {
-            if (WHrunoff->Drc > 0)
-                WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
-        }
+//        FOR_ROW_COL_MV
+//        {
+//            if (WHrunoff->Drc > 0)
+//                WHrunoff->Drc += mb/(ChannelAdj->Drc*DX->Drc);
+//        }
     }
     else
     {
         FOR_ROW_COL_MV
         {
-
-
-            double err =  -WHrunoff->Drc * ChannelAdj->Drc * DX->Drc - QoutKW->Drc + QinKW->Drc +  WaterVolin->Drc - K2DI->Drc;
+            //double err =  -WHrunoff->Drc * ChannelAdj->Drc * DX->Drc - QoutKW->Drc + QinKW->Drc +  WaterVolin->Drc - K2DI->Drc;
             //throw calculation error in infiltration, error should be insignificant
             InfilVolKinWave->Drc = K2DI->Drc;
-
         }
     }
 
@@ -662,6 +710,7 @@ void TWorld::OverlandFlowNew(void)
 
                 Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
                 //MaxConcentration(WaterVolall->Drc, Sed->Drc);
+
                 // CHANGED, MORE STABLE CONC 19/9/13
                 // correct for very high concentrations, 850 after Govers et al
                 // recalc sediment volume

@@ -461,12 +461,12 @@ void TWorld::ChannelFlow(void)
 
     // avoid missing values around channel for adding to Qn for output
 
-    bool do_mbcorr = false;
-    double mb = 0;
-    double n = 0;
+//    bool do_mbcorr = false;
+//    double mb = 0;
+//    double n = 0;
 
-    if (do_mbcorr)
-        fill(*tm, 0.0);
+//    if (do_mbcorr)
+//        fill(*tm, 0.0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -478,10 +478,9 @@ void TWorld::ChannelFlow(void)
         // limit channel Q when culverts > 0
         //????? NOTE DO THIS ALSO FOR  SEDIMENT BEFORE THE ROUNTING??
 
-        // ChannelWH->Drc = ChannelIterateWH(r, c);
+        //ChannelWH->Drc = ChannelIterateWH(r, c);
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
-
-        //    double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+        //double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
 
         double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
         // explicit...!!!
@@ -498,16 +497,20 @@ void TWorld::ChannelFlow(void)
 
             ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
             //??????????????  gaat niet goed als side zodanig is dat width groter is dan gridcell bij nieuwe chanarea
-        }else
+        }
+        else
         {
             ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         }
 
 //        if (!do_mbcorr)
-            ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+//            ChannelArea = ChannelArea * ChannelDX->Drc;  ?????????????????????
 
+            ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+            // recalc for output screen and maps
+            ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+            // needed for concentration
 /*
-        // NECESSARY OR JUST FLUFF ????
         if (do_mbcorr)
         {
             double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
@@ -525,10 +528,9 @@ void TWorld::ChannelFlow(void)
             }
             // calc mass balance error and wet cells
         }
-        */
+*/
     }
 
-    // NECESSARY OR JUST FLUFF ????
 /*
     if (do_mbcorr)
     {
@@ -571,7 +573,5 @@ void TWorld::ChannelFlow(void)
         maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
     }
-
-
 }
 //---------------------------------------------------------------------------

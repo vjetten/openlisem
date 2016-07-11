@@ -1101,10 +1101,10 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    AddComboMap(0,"Overland Discharge","l/s",Q,Colormap,Colors,true,false,1000.0, 1.0);
+    AddComboMap(0,"Overland Discharge","l/s",Qn,Colormap,Colors,true,false,1000.0, 1.0);
     if(SwitchIncludeChannel)
     {
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQ,Colormap,Colors,true,false,1000.0, 1.0);
+        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0);
         AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
     }
 

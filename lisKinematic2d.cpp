@@ -55,6 +55,7 @@ void TWorld::K2DDEMA()\n
 #include "model.h"
 #include "operation.h"
 
+#define MINGRAD 0.001
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -203,16 +204,20 @@ double TWorld::K2DFlux()
         else
             R->Drc = 0;
 
-        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+        // Q = V*A
+        K2DQ->Drc = sqrt(K2DSlope->Drc)/N->Drc * pow(R->Drc,2.0/3.0) * hrunoff*cdy;
 
-        if(Alpha->Drc > 0)
-            K2DQ->Drc = pow((cdy*hrunoff)/Alpha->Drc, 1.0/0.6);
-        else
-            K2DQ->Drc = 0;
+//        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
 
-        //within this timestep, only half of the cells available water should flow out
+//        if(Alpha->Drc > 0)
+//            K2DQ->Drc = pow((cdy*hrunoff)/Alpha->Drc, 1.0/0.6);
+//        else
+//            K2DQ->Drc = 0;
+
+        //within this timestep, only fraction of the cells available water should flow out
         if(K2DQ->Drc > 0)
         {
+
             double mindtr = fraction * (cdx*hrunoff*cdy)/K2DQ->Drc;
             dtr = std::min(mindtr ,dtr);
             if(!std::isnan(mindtr))
@@ -220,24 +225,23 @@ double TWorld::K2DFlux()
                 dtr = std::min(mindtr ,dtr);
             }
         }
-
     }
 
     dtr = std::max(dtr,TimestepKinMin);
     FOR_ROW_COL_MV
     {
-        //limit discharge to half of the cells water
-        if(fraction * (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc) < K2DQ->Drc*dtr)
+//        double Qlim = fraction * DX->Drc * K2DHOld->Drc * ChannelAdj->Drc;
+        double hrunoff = std::max(K2DHOld->Drc - K2DWHStore->Drc, 0.0);
+        double Vollim = fraction * DX->Drc * hrunoff * ChannelAdj->Drc;
+        //limit discharge to fraction of the cells water
+        if(Vollim < K2DQ->Drc*dtr)
         {
-            K2DQ->Drc =fraction* (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc)/dtr;
-
-
+            K2DQ->Drc = Vollim/dtr;
         }
         if(K2DOutlets->Drc == 1)
         {
             //K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
-
     }
 
 
@@ -304,7 +308,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
             w[2] = 1.0;
         }else
         {
-            //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
+            //for each cell neigbhouring the advected location of the discharge, calculate interpolation weight
             for (int i=0; i<4; i++)
             {
                 // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
@@ -535,7 +539,7 @@ void TWorld::K2DSolvebyFlux(double dt)
             K2DFX->data[r][c] -=  (K2DQ->Drc);
         }
 
-        //handle special cases were only diagonal flow is presen (Flow distance longer??discharge smaller?)
+        //handle special cases were only diagonal flow is present (Flow distance longer??discharge smaller?)
         if(K2DPitsD->Drc == 1 && !K2DPits->Drc)
         {
             double dsx = K2DSlopeX->Drc;
@@ -942,13 +946,10 @@ void TWorld::K2DSolve(double dt)
         if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
         {
             infil = -K2DHNew->Drc*(cdx*cdy);
-
         }
         //keep track of infiltration
         K2DI->Drc -= (infil);
         K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
-
-
     }
 
     FOR_ROW_COL_MV
@@ -969,21 +970,6 @@ void TWorld::K2DSolve(double dt)
             K2DHOld->Drc = K2DHNew->Drc;
         }
     }
-
-        /*if(SwitchErosion)
-        {
-
-            K2DSCN->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc *DX->Drc, K2DS->Drc);
-            K2DSC->Drc = K2DSCN->Drc;
-            Qsn->Drc = K2DSCN->Drc * Qn->Drc;
-            Qs->Drc = Qsn->Drc;
-            Sed->Drc = K2DS->Drc;
-        }*/
-
-
-
-
-
 }
 //---------------------------------------------------------------------------
 /**
@@ -1034,18 +1020,21 @@ void TWorld::K2DCalcVelDisch()
             else
                 R->Drc = 0;
 
+/*
             Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, _23),beta);
 
             if (Alpha->Drc > 0)
                 Q->Drc = pow((FlowWidth->Drc*hrunoff)/Alpha->Drc, beta1);
             else
                 Q->Drc = 0;
-
+*/
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
-            if(K2DOutlets->Drc ==1)
+
+            if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
             {
                 V->Drc = 0;
             }
+            Q->Drc = V->Drc*FlowWidth->Drc*hrunoff;
 
         }
 
@@ -1053,7 +1042,6 @@ void TWorld::K2DCalcVelDisch()
         //tm->Drc = V->Drc * R->Drc/kinvisc;
         //Reynolds number
     }
-
 }
 //---------------------------------------------------------------------------
 /**
@@ -1072,9 +1060,6 @@ void TWorld::K2DCalcVelDisch()
  */
 void TWorld::K2DDEMA()
 {
-
-
-
     FOR_ROW_COL_MV
     {
         //   K2DDEM->Drc = DEM->Drc
@@ -1109,12 +1094,12 @@ void TWorld::K2DDEMA()
                 if(pcr::isMV(LDD->data[r][c+1]))
                 {
                     demx1 = DEM->data[r][c];
-                    if(demx1 <demx2){K2DOutlets->Drc = 1;};
+                    if (demx1 < demx2){K2DOutlets->Drc = 1;};
                 }
                 if(pcr::isMV(LDD->data[r][c-1]))
                 {
                     demx2 = DEM->data[r][c];
-                    if(demx2 <demx1){K2DOutlets->Drc = 1;};
+                    if (demx2 < demx1){K2DOutlets->Drc = 1;};
                 }
 
                 double demy1 = K2DDEM->data[r+1][c];
@@ -1164,6 +1149,7 @@ void TWorld::K2DDEMA()
             }
         }
 
+        //VJ ???????????? this says 4 times the same: for point 0,0 ?
         if((r == 0 && c == 0) || (r == 0 && c == 0) ||(r == 0 && c == 0) || (r == 0 && c == 0))
         {
             Dhx = 0;
@@ -1285,11 +1271,11 @@ void TWorld::K2DDEMA()
         K2DSlopeY->Drc = Dhy/_dx;
 
         //if the slope is extremely flat, the ldd direction could be used for flow calculations (not needed)
-        double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
+//        double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
 
         //ldd directions
-        int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-        int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+//        int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+//        int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
         //Angle of direction of steepest slope, compared to positive x-axis !not used!
         //K2DAspect->Drc = atan2(Dhy,Dhx);
@@ -1305,7 +1291,7 @@ void TWorld::K2DDEMA()
 
         if(std::isnan(K2DSlope->Drc))
         {
-            K2DSlope->Drc = 0.01;
+            K2DSlope->Drc = MINGRAD;
             K2DSlopeX->Drc = 0.00;
             K2DSlopeY->Drc = 0.00;
 
@@ -1315,22 +1301,25 @@ void TWorld::K2DDEMA()
 
     }
 
+    //cell directions
+    int dx[8] = {0, 0,-1, 1, 1, 1,-1,-1};
+    int dy[8] = {1,-1, 0, 0, 1,-1, 1,-1};
+
     //Detection of water available for outflow (because of local depressions)
     FOR_ROW_COL_MV
     {
-        //cell directions
-        int dx[8] = {0, 0, -1, 1,1,1,-1,-1};
-        int dy[8] = {1, -1, 0, 0,1,-1,1,-1};
-        bool pitxw= true;
-        bool pityw= true;
+        bool pitxw = true;
+        bool pityw = true;
         bool pitdw = true;
-        int direction = 0;
+        int direction = 5; //VJ 0
         int mv = 0;
         double dem = DEM->Drc;
-        double demw = K2DDEM->Drc;
+        double demw = K2DDEM->Drc;  // includes water
         double lowestneighbor = 9999999;
         double lowestneighborw = 9999999;
         int r2, c2;
+        double s2 = sqrt(2);
+
         for (int i=0; i<8; i++)
         {
             //set row and column to neighbor
@@ -1350,7 +1339,8 @@ void TWorld::K2DDEMA()
                     {
                         if( i < 2){
                             pitxw = false;
-                        }else if( i < 4){
+                        }else
+                            if( i < 4){
                             pityw = false;
                         }else
                         {
@@ -1406,10 +1396,12 @@ void TWorld::K2DDEMA()
             if(pitxw &&pityw && !pitdw)
             {
                 K2DPitsD->Drc = 1;
-                K2DSlope->Drc = std::max((demw - lowestneighborw)/(sqrt(2)*_dx),0.01);
-                K2DSlopeX->Drc = double(dx[(int)direction]) * K2DSlope->Drc/2.0;
-                K2DSlopeY->Drc = double(dy[(int)direction]) * K2DSlope->Drc/2.0;
-
+                if (direction > 3)
+                    K2DSlope->Drc = std::max((demw - lowestneighborw)/(s2*_dx),MINGRAD);
+                else
+                    K2DSlope->Drc = std::max((demw - lowestneighborw)/(_dx),MINGRAD);
+                K2DSlopeX->Drc = double(dx[direction]) * K2DSlope->Drc/2.0;
+                K2DSlopeY->Drc = double(dy[direction]) * K2DSlope->Drc/2.0;
             }
 
             if(pitxw && pityw && pitdw)

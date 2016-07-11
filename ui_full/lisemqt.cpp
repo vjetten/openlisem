@@ -158,7 +158,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     GroupRunoff.addButton(checkOverlandFlow1D,1);
     GroupRunoff.addButton(checkOverlandFlow2D,2);
 
-
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
