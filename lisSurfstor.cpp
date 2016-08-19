@@ -72,9 +72,6 @@ void TWorld::addRainfallWH(void)
     FOR_ROW_COL_MV
     {
         // if runoff in flat areas rises above a certain level it becomes flood
-        if (FloodDomain->Drc > 0)
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        else
         {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)
@@ -102,13 +99,6 @@ void TWorld::addRainfallWH(void)
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)
 {
-    FOR_ROW_COL_MV
-    {
-        if(std::isnan(WHstore->Drc))
-        {
-            qDebug() << r << c << "nan";
-        }
-    }
     FOR_ROW_COL_MV
     {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m

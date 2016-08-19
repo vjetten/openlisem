@@ -492,70 +492,12 @@ void TWorld::Infiltration(void)
     FOR_ROW_COL_MV
     {
        // InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        InfilVolFlood->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
+        InfilVol->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
         // infil volume is WH before - water after
     }
 
 }
 
-//---------------------------------------------------------------------------
-// do infiltration for flooded area exclusing channel cells
-void TWorld::InfiltrationFloodNew(void)
-{
-    if (!SwitchChannelFlood)
-        return;
-
-    if (InfilMethod == INFIL_NONE)
-        return;
-
-
-//    FOR_ROW_COL_MV
-//    {
-//        if (FloodDomain->Drc > 0)
-//            InfilVolFlood->Drc = hmx->Drc * ChannelAdj->Drc*DX->Drc;
-//        // potential water volume on surface before infil
-//        // is everywhere on cell except channel
-//    }
-
-    switch (InfilMethod)
-    {
-    case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
-    case INFIL_SWATRE : InfilSwatre(hmx); break;   // includes grasstrips, compaction etc
-    case INFIL_KSAT :
-    case INFIL_GREENAMPT :
-    case INFIL_GREENAMPT2 :
-    case INFIL_SMITH :
-    case INFIL_SMITH2 :
-        InfilMethods(Ksateff, hmx, fpot, fact, L1, L2, FFull); break;
-    }
-
-    FOR_ROW_COL_MV
-            if(FloodDomain->Drc > 0)
-    {
-        if (InfilMethod != INFIL_SWATRE)
-        {
-            if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
-            {
-                fact->Drc = hmx->Drc;
-                hmx->Drc = 0;
-            }
-            else
-                hmx->Drc -= fact->Drc;
-            // hmx->Drc = std::max(0.0, hmx->Drc - fact->Drc);
-
-            Fcum->Drc += fact->Drc;
-            // cumulative infil in m used in G&A infil function
-        }
-
-        FSurplus->Drc = 0;
-        // no surplus in floods, no kin wave!
-
-//        InfilVolFlood->Drc -= ChannelAdj->Drc*hmx->Drc*DX->Drc;
-        InfilVolFlood->Drc = fact->Drc*ChannelAdj->Drc*DX->Drc;
-        // infil volume is WH before - water after
-        // used for water balance and screen display
-    }
-}
 //---------------------------------------------------------------------------
 /*!
  \brief Calculates changes in soilwater with percolation from the bottom of the profile.

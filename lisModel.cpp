@@ -168,20 +168,13 @@ void TWorld::DoModel()
             InterceptionLitter();  // litter interception
             InterceptionHouses();  // urban interception
 
-
             addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
             Infiltration();        // infil of overland flow water, decrease WH
-            InfiltrationFloodNew();// infil in flooded area, decrease hmx
-
             SoilWater();           // simple soil water balance, percolation from lower boundary
             SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-
-            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-
             SplashDetachment();    // splash detachment
-            FlowDetachment();      // flow detachment
 
             DEBUG("Unified Flow");
             UnifiedFlow();      	//Unified flow method

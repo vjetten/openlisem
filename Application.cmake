@@ -29,27 +29,26 @@ SET(APP_SOURCES
     ui_full/lisemqt
     ui_full/LisUIplot
     ui_full/LisUImapplot
-    lisChannelflow
-    lisTiledrainflow
     lisDataInit
     lisErosion
     lisInfiltration
-    lisKinematic
     lisModel
-    lisOverlandflow
     lisRainintc
     lisUnifiedFlow
     lisUnifiedFlowCommon
+    lisUnifiedFlowMomentum
     lisUnifiedFlowAdvection
+    lisUnifiedFlowAdvection2
     lisUnifiedFlowSediment
     lisUnifiedFlowTimestep
     lisUnifiedFlowMath
+    lisUnifiedFlowMuscle
     lisUnifiedFlowConnection
+    lisUnifiedFlowBoundary
     lisReportfile
     lisRunfile
     lisSurfstor
     lisSnowmelt
-    liskinematic2d
     main
     operation
     swatre/swatstep
@@ -58,10 +57,6 @@ SET(APP_SOURCES
     swatre/lutio
     swatre/lookup
     swatre/swatinp
-    lisChannelflood
-    lisSWOF2D
-    lisSWOF2Daux
-    lisSWOF2DSediment
     lisInterception
     lisPesticide
     include/version.h

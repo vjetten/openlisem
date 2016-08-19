@@ -198,59 +198,6 @@ cTMap
 *PCinfilt,
 *PCfilmexit,
 
-//for the kinematic wave in 2D
-*K2DDEM,                        //!<
-*K2DWHStore,                    //!<
-*K2DPits,                       //!<
-*K2DPitsD,                       //!<
-*K2DOutlets,                    //!<
-
-*K2DQM,                         //!<
-*K2DQMX,                         //!<
-*K2DQMY,                         //!<
-*K2DFMX,                         //!<
-*K2DFMY,                         //!<
-*K2DMN,                         //!<
-*K2DM,                         //!<
-*K2DMC,                         //!<
-
-*K2DQS,                         //!<
-*K2DQSX,                         //!<
-*K2DQSY,                         //!<
-*K2DS,                          //!<
-*K2DSC,                          //!<
-*K2DSCN,                          //!<
-*K2DQP,                         //!<
-*K2DQPX,                         //!<
-*K2DQPY,                         //!<
-*K2DP,                          //!<
-*K2DPC,                          //!<
-*K2DPCN,                          //!<
-*K2DSFX,
-*K2DSFY,
-*K2DPFX,
-*K2DPFY,
-
-
-*K2DDX,                         //!<
-*K2DDY,                         //!<
-*K2DSlopeX,                     //!<
-*K2DSlopeY,                     //!<
-*K2DSlope,                      //!<
-*K2DAspect,                     //!<
-*K2DHOld,                       //!<
-*K2DHNew,                       //!<
-*K2DQX,                         //!<
-*K2DQY,                         //!<
-*K2DQ,                          //!<
-*K2DQN,
-*K2DFX,                         //!<
-*K2DFY,                         //!<
-
-*K2DVX,                         //!<
-*K2DVY,                         //!<
-*K2DV,                          //!<
-*K2DI,                          //!<
 
 
 // infiltration
@@ -314,45 +261,26 @@ cTMap
 *RunoffVolinToChannel,       //!<
 *ChannelWidth,               //!<
 *ChannelSide,                //!<
-*ChannelQ,                   //!<
-*ChannelQn,                  //!<
-*ChannelQntot,
-*ChannelQs,                  //!<
-*ChannelQsn,                 //!<
-*ChannelQBLs,                  //!<
-*ChannelQBLsn,                 //!<
-*ChannelQSSs,                  //!<
-*ChannelQSSsn,                 //!<
 *ChannelGrad,                //!<
-*ChannelV,                   //!<
 *ChannelN,                   //!<
-*ChannelWH,                  //!<
-*ChannelWaterVol,            //!<
-*Channelq,                   //!<
 *ChannelAlpha,               //!<
 *ChannelWidthUpDX,           //!<
 *ChannelAdj,
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
-*ChannelStore,               //!<
-*ChannelDetFlow,             //!<
-*ChannelDep,                 //!<
-*ChannelSed,                 //!<
-*ChannelBLSed,                 //!<
-*ChannelSSSed,                 //!<
-*ChannelBLTC,                 //!<
-*ChannelSSTC,                 //!<
-*ChannelBLDepth,                 //!<
-*ChannelSSDepth,                 //!<
-*ChannelConc,                //!<
-*ChannelBLConc,                //!<
-*ChannelSSConc,                //!<
-*ChannelTC,                  //!<
 *SedToChannel,               //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 
+*Storage,
+*StorageDep,
+*RStorage,
+*RStorageDep,
+*SedimentMixingDepth,
+*RSedimentMixingDepth,
+
+*ChannelLevee,
 //baseflow
 *BaseFlowDischarges,
 *BaseFlowInitialVolume,
@@ -382,76 +310,6 @@ cTMap
 *hmx,                        //!<
 *hmxWH,                        //!<
 // *hmxInit,                    //!<
-
-// OBSOLETE
-//explicit solution
-// *Hx,                         //!<
-// *hx,                         //!<
-// *Nx,                         //!<
-// *dHdLx,                      //!<
-// *Qxsum,                      //!<
-// *qx0,                        //!<
-// *qx1,                        //!<
-// *qx2,                        //!<
-// *qx3,                        //!<
-//explicit solution
-
-*FloodDomain,                //!<
-*Barriers,                    //!<
-*ChannelMaxQ,                //!<
-*ChannelLevee,                //!<
-*FloodWaterVol,                //!<
-*FloodZonePotential,                //!<
-*FloodEdge,                //!<
-*WaterSheds,
-
-
-// FULLSWOF2D
-*z1r, *z1l, *z2r, *z2l,
-*delta_z1, *delta_z2,
-*h1r, *h1l, *h2r, *h2l,
-*h1d, *h1g, *h2d, *h2g,
-*v1r, *v1l, *v2r, *v2l,
-*u1r, *u1l, *u2r, *u2l,
-*delzc1, *delzc2,
-*delz1, *delz2,
-*f1, *f2, *f3, *cflx,
-*g1, *g2, *g3, *cfly,
-*f1o, *f2o, *f3o, *cflxo,
-*g1o, *g2o, *g3o, *cflyo,
-*hs, *vs, *us,
-*hsa, *vsa, *usa,
-*Uflood,*Vflood,
-
-//FULLSWOF2D with Sediment
-*BLDepthFlood,
-*SSDepthFlood,
-*temp1,*temp2,*temp3,*temp4,
-*temp5,*temp6,*temp7,*temp8,
-*temp9,*temp10,*temp11,*temp12,
-
-//layer itneraction
-*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,*BLTCFlood,
-*SSTCFlood,*SSDetFlood,*SSDetFloodT,
-
-//sediment maps
-*BLCFlood,
-*BLFlood,
-*SSCFlood,
-*SSFlood,
-
-//transport
-//Bed Load layer
-*MBLCFlood,*MBLCNFlood,*MBLNFlood,*MBLFlood,
-*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
-
-//transport
-//Suspended Sediment Layer
-*MSSCFlood,*MSSCNFlood,*MSSNFlood,*MSSFlood,
-*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
-
-//*q1flood,*q2flood,
-*som_z1,*som_z2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer
@@ -505,5 +363,22 @@ cTMap
 //display combinations
 *COMBO_QOFCH,
 *COMBO_SS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ;
 

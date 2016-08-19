@@ -60,17 +60,20 @@ double TWorld::UF_DragCoefficient(double ffraction, double sfraction, double gam
     double F = (gamma/180.0) * pow(ffraction/sfraction,3) * UF_Reynolds(density,viscosity,ffraction,sfraction,rocksize);
     double G = pow(ffraction,3.5 - 1.0);
     double P = UF_P(rocksize,ffraction, viscosity, sfraction, density);
-    return ffraction * sfraction * (1-gamma)/pow((UF_Aspect * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density)*( P * F + (1-P) * G)),UF_j);
+    double den = pow((UF_Aspect * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density)*( P * F + (1-P) * G)),UF_j);
+    double dc = den > 0? ffraction * sfraction * (1-gamma)/den : 0.5;
+    return dc;
+
 }
 
 double TWorld::UF_Reynolds(double density, double viscosity, double ffraction,double sfraction, double rocksize)
 {
-    return density *  rocksize * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density)/viscosity;
+    return  (!(viscosity > 0))? 0.0: (sfraction* density +ffraction * 1000.0) * ( sfraction *rocksize +ffraction * _dx) * (sfraction * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density) + ffraction * 1.0)/viscosity ;
 }
 
 double TWorld::UF_VirtualMassCoeff(double ffraction, double sfraction)
 {
-    return 0.5 * (1.0 + 2.0*sfraction)/ffraction;
+    return ffraction > 0? 0.5 * (1.0 + 2.0*sfraction)/ffraction : 0.0;
 
 }
 
@@ -85,3 +88,23 @@ double TWorld::UF_TerminalVelocity(double rocksize, double ffraction, double vis
     return 1.5;
 }
 
+double TWorld::UF_DynamicViscosity(double sfraction)
+{
+    return std::max(1.0,UF_Alpha_DV * exp(UF_Beta_DV * sfraction));
+}
+
+double TWorld::UF_GetYieldStress(double sfraction)
+{
+    return UF_Alpha_YS * exp(UF_Beta_YS * sfraction);
+}
+
+double TWorld::UF_GetFlowResistence(double n)
+{
+    return 24.0 + n * 100000.0;
+
+}
+double TWorld::UF_GetDispersiveResistence(double n, double sfraction)
+{
+    return n * UF_Alpha_DR * exp(UF_Beta_DR * sfraction);
+
+}

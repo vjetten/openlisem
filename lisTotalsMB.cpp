@@ -101,7 +101,7 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave); //m3
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
@@ -111,7 +111,7 @@ void TWorld::Totals(void)
     // used for reporting only
     FOR_ROW_COL_MV
     {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
     }
 
@@ -129,6 +129,7 @@ void TWorld::Totals(void)
         WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
     }
     WaterVolRunoffmm = WaterVolRunoffmm*catchmentAreaFlatMM;
+
     // water on the surface in runoff in m3 and mm
     //NOTE: surface storage is already in here so does not need to be accounted for in MB
 
@@ -149,108 +150,48 @@ void TWorld::Totals(void)
     //=== all discharges ===//
     QtotT = 0;
     // sum outflow m3 for all timesteps for the outlet
-    if(SwitchKinematic2D == 1)
-    {
-        FOR_ROW_COL_MV
-        {
-            if (LDD->Drc == 5) {
-                QtotT += Qn->Drc*_dt;
-            }
-        }
-    }
-    else
-    {
-        QtotT += K2DQOut;
-    }
 
+    QtotT += UF2D_foutflow;
 
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 
-    QtotOutlet += Qn->DrcOutlet*_dt;
+    QtotOutlet += UF1D_q->DrcOutlet*_dt;
     // for screen output, total main outlet in m3
 
     if (SwitchIncludeChannel)
     {
-        WaterVolTot += mapTotal(*ChannelWaterVol); //m3
+        WaterVolTot += mapTotal(*UF1D_f); //m3
         // add channel vol to total
         WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
-        FOR_ROW_COL_MV_CH
-        {
-            if (LDDChannel->Drc == 5)
-                QtotT += ChannelQn->Drc*_dt; //m3
-            ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
 
-        }
+        QtotT += UF1D_foutflow;
+
+        //FOR_ROW_COL_MV_CH
+        //{
+        //    ChannelQntot->Drc += UF1D_q->Drc*_dt;  //m3 spatial for output
+        //}
         // add channel outflow (in m3) to total for all pits
         // recalc in mm for screen output
 
-        QtotOutlet += ChannelQn->DrcOutlet * _dt;
+        QtotOutlet += UF1D_q->DrcOutlet * _dt;
         // sum: add channel outflow (in m3) to total for main outlet
-
-        if (SwitchChannelFlood)
-        {
-            floodVolTot = mapTotal(*FloodWaterVol);
-            floodTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
-        }
-        if (runstep == 1)
-            floodVolTotInit = floodVolTot;
-        // save initial flood level for mass balance if start with flood
-
-    }
-
-    if (SwitchIncludeTile)
-    {
-        WaterVolSoilTot = mapTotal(*TileWaterVolSoil);
-        // input for mass balance, is the water seeping from the soil, input
-        // this is the water before the kin wave
-        calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-        calcMap(*tm, *TileDX, MUL); //in m3
-        // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-        TileVolTot += mapTotal(*tm); // in m3
-
-        // water after kin wave
-        WaterVolTot += mapTotal(*TileWaterVol); //m3
-        // add tile vol to total
-        WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-        // recalc in mm for screen output
-
-        FOR_ROW_COL_MV_TILE
-                if (LDDTile->Drc == 5)
-                QtotT += TileQn->Drc * _dt;
-        // add tile outflow (in m3) to total for all pits
-        //Qtotmm = Qtot*catchmentAreaFlatMM;
-        // recalc in mm for screen output
-
-        QtotOutlet += TileQn->DrcOutlet * _dt;
-        // add channel outflow (in m3) to total for main outlet
-
-    }
-
-    if (SwitchBuffers)
-    {
-        BufferVolTot = mapTotal(*BufferVol); // in m3
-        if (SwitchIncludeChannel)
-            BufferVolTot += mapTotal(*ChannelBufferVol);
-        //sum up all volume remaining in all buffers (so the non-water!)
-        BufferVolin = BufferVolTotInit - BufferVolTot;
-        //subtract this from the initial volume to get the total water inflow in the buffers
     }
 
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
+        Qoutput->Drc = 1000.0*(UF1D_q->Drc + UF2D_q->Drc); // in l/s
         if (Qoutput->Drc < 0.0001)
             Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
     }
 
     Qtot += QtotT;
-    // add flood boundary losses
-    Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
-    // recalc to mm for screen output
+
+    Qtotmm = (Qtot)*catchmentAreaFlatMM;
+    // recalc to mm for screen output*/
 
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
@@ -263,104 +204,54 @@ void TWorld::Totals(void)
     if (SwitchErosion)
     {
         DetSplashTot += mapTotal(*DETSplash);
-        DetFlowTot += mapTotal(*DETFlow);
-        DepTot += mapTotal(*DEP);
+        DetFlowTot += mapTotal(*UF2D_Det);
+        DepTot += mapTotal(*UF2D_Dep);
         DetTot = DetFlowTot + DetSplashTot; //+= mapTotal(*DETSplash) + mapTotal(*DETFlow);
-        SedTot = mapTotal(*Sed);
+        SedTot = mapTotal(*UF2D_blm)+ mapTotal(*UF2D_ssm);
         // all in kg/cell
         // totals for screen output
 
         calcMap(*DETSplashCum, *DETSplash, ADD);
-        calcMap(*DETFlowCum, *DETFlow, ADD);
+        calcMap(*DETFlowCum, *UF2D_Det, ADD);
         // for screen map output
 
-        if(SwitchKinematic2D == 1)
-        {
-            FOR_ROW_COL_MV
-            {
-                if (LDD->Drc == 5)
-                {
-                    SoilLossTotT += Qsn->Drc * _dt;
-                }
-            }
-        }else
-        {
-            SoilLossTotT +=K2DQSOut;
-        }
+        SoilLossTotT +=UF2D_fsoutflow;
         // sum all sed in all pits (in kg), needed for mass balance
 
-        SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
+        SoilLossTotOutlet += UF2D_qs->DrcOutlet * _dt;
         // for screen output, total main outlet sed loss in kg
-
 
         if (SwitchIncludeChannel)
         {
             // units here in kg, conversion to ton in report functions
-            ChannelDetTot += mapTotal(*ChannelDetFlow);
-            ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
+            ChannelDetTot += mapTotal(*UF1D_Det);
+            ChannelDepTot += mapTotal(*UF1D_Dep);
+            ChannelSedTot = mapTotal(*UF1D_blm) + mapTotal(*UF1D_ssm);
 
-            calcMap(*DETFlowCum, *ChannelDetFlow, ADD);
+            SoilLossTotT += UF1D_fsoutflow;
 
-            FOR_ROW_COL_MV_CH
-            {
-                if (LDDChannel->Drc == 5)
-                {
-                    SoilLossTotT += ChannelQsn->Drc * _dt;
-                }
-            }
-
-            SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
+            SoilLossTotOutlet += UF1D_qs->DrcOutlet * _dt;
             // add channel outflow (in kg) to total for main outlet, for screen output
-
-            if (SwitchChannelFlood)
-            {
-                FloodDetTot += mapTotal(*BLDetFloodT);  // used for screen output
-                FloodDetTot += mapTotal(*SSDetFloodT);
-
-                FloodDepTot += mapTotal(*BLDepFloodT);
-                FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
-
-                calcMap(*DETFlowCum, *BLDetFloodT, ADD);
-                calcMap(*DETFlowCum, *SSDetFloodT, ADD);
-            }
-        }
-
-        if (SwitchBuffers || SwitchSedtrap)
-        {
-            BufferSedTot = mapTotal(*BufferSed);
-            if (SwitchIncludeChannel)
-                BufferSedTot += mapTotal(*ChannelBufferSed);
         }
 
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            if(SwitchKinematic2D == 1)
-            {
-                Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
-            }else
-            {
-                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
-            }
+            Qsoutput->Drc = UF1D_qs->Drc + UF2D_qs->Drc;  // sum channel and OF sed output in kg/s
 
-            TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
-            TotalDepMap->Drc += DEP->Drc;
+            TotalDetMap->Drc += DETSplash->Drc + UF2D_Det->Drc;
+            TotalDepMap->Drc += UF2D_Dep->Drc;
 
             if (SwitchIncludeChannel)
             {
-                TotalDetMap->Drc += ChannelDetFlow->Drc;
-                TotalDepMap->Drc += ChannelDep->Drc;
+                TotalDetMap->Drc += UF2D_Det->Drc;
+                TotalDepMap->Drc += UF2D_Dep->Drc;
 
-                TotalChanDetMap->Drc += ChannelDetFlow->Drc;
-                TotalChanDepMap->Drc += ChannelDep->Drc;
+                TotalChanDetMap->Drc += UF1D_Det->Drc;
+                TotalChanDepMap->Drc += UF1D_Dep->Drc;
 
-                if (SwitchChannelFlood)
-                {
-                    TotalDepMap->Drc += BLDepFloodT->Drc;
-                    TotalDetMap->Drc += SSDetFloodT->Drc;
-                    TotalDetMap->Drc += BLDetFloodT->Drc;
-                }
+                TotalDepMap->Drc += UF1D_Dep->Drc;
+                TotalDetMap->Drc += UF1D_Det->Drc;
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
@@ -374,95 +265,15 @@ void TWorld::Totals(void)
 
     SoilLossTot += SoilLossTotT;
 
-    if(SwitchErosion && SwitchChannelFlood)
+    if(SwitchErosion)
     {
-        fill(*BLDetFloodT,0.0);
-        fill(*BLDepFloodT,0.0);
-        fill(*SSDetFloodT,0.0);
-    }
-
-    if (SwitchPesticide)
-    {
-        FOR_ROW_COL_MV
-        {
-            // = WHoutavg->Drc*_dx*DX->Drc*C->Drc*1000*1000*1000; //µg
-            PDisMixing->Drc = CM->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
-            PSorMixing->Drc = CS->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
-            PInfilt->Drc = pestiinf->Drc*CM->Drc*_dx*_dx*_dt*1000*1000*1000; //µg
-            PStorage->Drc= WHstore->Drc*_dx*_dx*C->Drc*1000*1000*1000; //µg
-            PRunoffSpatial->Drc = Pest->Drc*1000*1000*1000; //µg
-
-            //            PRunoffSpatialex->Drc= WHoutavg->Drc*_dx*DX->Drc*C_Kexplicit->Drc*1000*1000*1000; //µg
-            //            PDisMixingex->Drc = CM_Kexplicit->Drc*epsil->Drc*poro->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-            //            PSorMixingex->Drc = CS_Kexplicit->Drc*epsil->Drc*rhob->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-            //            PInfiltex->Drc = pestiinf->Drc*CM_Kexplicit->Drc*_dx*DX->Drc*_dt*1000*1000*1000; //µg
-
-        }
-
-        Pestdetach += mapTotal(*Pdetach); //KCM
-        PestCinfilt += mapTotal(*PCinfilt); //fc
-        PestCfilmexit += mapTotal(*PCfilmexit); //KC
-        PestLossTotOutlet += Qn->DrcOutlet*C->DrcOutlet*_dt*1000*1000*1000; //µg
-        PestRunoffSpatial = mapTotal(*PRunoffSpatial);
-        PestDisMixing = mapTotal(*PDisMixing);
-        PestSorMixing = mapTotal(*PSorMixing);
-        PestInfilt += mapTotal(*PInfilt);
-        PestStorage = mapTotal(*PStorage);
-
-        // double MBtest=0.0;
-
-        // if (PestLossTotOutlet > 1e-9)
-        // MBtest = (Pestdetach-PestCinfilt-PestRunoffSpatial-PestLossTotOutlet)*100/Pestdetach;
-
-        //if (Pestdetach > 1e-9)
-        // MBtest = Pestdetach-PestCinfilt-PestCfilmexit-PestLossTotOutlet;
-        // qDebug()<< "pestdetach" << Pestdetach << "pestCinfilt"<< PestCinfilt << "pestCfilmexit"<< PestCfilmexit<< "pestlosstotoutlet"<<PestLossTotOutlet;
-        // qDebug()<< "MBtest" << MBtest;
-        double test=0.0;
-        test += mapTotal(*InfilVolKinWave);
-
-        //        PestLossTotOutletex += Qn->DrcOutlet*C_Kexplicit->DrcOutlet*_dt*1000*1000*1000; //µg
-        //        PestRunoffSpatialex = PRunoffSpatialex->mapTotal();
-        //        PestDisMixingex = PDisMixingex->mapTotal();
-        //        PestSorMixingex = PSorMixingex->mapTotal();
-        //        PestInfiltex += PInfiltex->mapTotal();
-
-        // flux en µg
-        //        double flux1=epsil->DrcOutlet*rhob->DrcOutlet*kr->DrcOutlet*KD->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-        //        double flux2=kr->DrcOutlet*CS->DrcOutlet*rhob->DrcOutlet*epsil->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-        //        double flux3=pestiinf->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-        //        double flux4=Kfilm->DrcOutlet*CM->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-        //        double flux5=(Kfilm->DrcOutlet+pestiinf->DrcOutlet)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-        //        double flux6=(Kfilm->DrcOutlet+RainNet->DrcOutlet/_dt)*C->DrcOutlet*_dx*DX->DrcOutlet*_dt*1000*1000*1000;
-
-
-        //            QFile fout("massbalancenew.txt");
-        //            fout.open(QIODevice::Append | QIODevice::Text);
-        //            QTextStream out(&fout);
-        //            out.setRealNumberPrecision(3);
-        //            out.setFieldWidth(0);
-        //            out.setRealNumberNotation(QTextStream::FixedNotation);
-
-        //            out << time/60 << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << PestLossTotOutlet << " " << PestRunoffSpatial
-        //                 << " " << PestInfilt << " " << (PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied << " "
-        //                 << RainTot << " " << WaterVolSoilTot << " " << IntercTot << " " << InfilTot << " " << Qtot*1000*1000 << " "
-        //                 << MBtest << " " << test << " "<< flux3 << " "<< flux4 << " "<< flux5 << " "<< flux6 <<" "<< pestiinf->DrcOutlet*pow(10.0,9)<< " "<<CM->DrcOutlet*pow(10.0,6)<<" "
-        //                 << CS->DrcOutlet*pow(10.0,6)<<" "<< fact->DrcOutlet*1000<< " "<< InfilVol->DrcOutlet*1000*1000<<" "<<Qn->DrcOutlet*pow(10.0,6) << " "<< PDisMixing->DrcOutlet << " "<< poro->DrcOutlet
-        //                 << " "<< epsil->DrcOutlet<< " "<< DX->DrcOutlet << " " << switchrunoff << " "<< K1->DrcOutlet << " "<< Q->DrcOutlet*pow(10.0,6)<< " "<< C->DrcOutlet*pow(10.0,10)
-        //                 << " "<< WHoutavg->DrcOutlet << " "<< WHoutavgold->DrcOutlet<<" "<< (PestMassApplied-PestLossTotOutletex-PestRunoffSpatialex-PestDisMixingex-PestSorMixingex-PestInfiltex)*100/PestMassApplied
-        //                 << " " << InfilVol->DrcOutlet*1000*1000 << " " << InfilVolold->DrcOutlet*1000*1000<< " " << Vup->DrcOutlet << " " << Vup_old->DrcOutlet << " "<< Cold->DrcOutlet*pow(10.0,10);
-        //            out << "\n";
-        //            out << MBp << "\n";
-        //            fout.close();
-
+        fill(*UF1D_Det,0.0);
+        fill(*UF2D_Det,0.0);
+        fill(*UF1D_Dep,0.0);
+        fill(*UF2D_Dep,0.0);
     }
 
     SedimentSetMaterialDistribution();
-
-//    FOR_ROW_COL_MV
-//    {
-//        SedimentSetMaterialDistribution(r,c);
-//    }
 
 }
 //---------------------------------------------------------------------------

@@ -78,7 +78,7 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     {
         if(_s2D->Drc + _f2D->Drc > UF_VERY_SMALL)
         {
-            double v = std::max(std::max(std::max(_fu2D->Drc,_fv2D->Drc),_su2D->Drc),_sv2D->Drc);
+            double v = std::max(std::max(std::max(std::fabs(_fu2D->Drc),std::fabs(_fv2D->Drc)),std::fabs(_su2D->Drc)),std::fabs(_sv2D->Drc));
             out_dt2d->Drc = (UF_Courant *_dx/v);
 
         }else
@@ -87,15 +87,21 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         }
 
         UF_DTMIN = std::max(UF2D_MinimumDT,std::min(out_dt2d->Drc,UF_DTMIN));
-        out_t2d->Drc = 0;
-        out_dtstep2d->Drc = 0;
+        //out_t2d->Drc = 0;
+        //out_dtstep2d->Drc = 0;
 
         if(!UF_OUTORMV(_ldd,r,c))
         {
             if(_s1D->Drc + _f1D->Drc > UF_VERY_SMALL)
             {
-                double v = std::max(_fu1D->Drc,_su1D->Drc);
-                out_dt1d->Drc = (UF_Courant *_dx/v);
+                double v = std::max(std::fabs(_fu1D->Drc),std::fabs(_su1D->Drc));
+                if(_ldd->Drc == 5)
+                {
+                    out_dt1d->Drc = (4.0 * UF_Courant *_dx/v);
+                }else
+                {
+                    out_dt1d->Drc = (UF_Courant *_dx/v);
+                }
 
             }else
             {
@@ -103,8 +109,6 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
             }
 
             UF_DTMIN = std::max(UF1D_MinimumDT,std::min(out_dt1d->Drc,UF_DTMIN));
-            out_t1d->Drc = 0;
-            out_dtstep1d->Drc = 0;
 
 
         }
@@ -162,7 +166,7 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         }else if(out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN < t)
         {
             out_dt2d->Drc = t - out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN;
-            out_dt2d->Drc = std::min(out_dt2d->Drc,_dt - out_t2d->Drc);
+            out_dt2d->Drc = std::max(0.0,std::min(out_dt2d->Drc,_dt - out_t2d->Drc));
         }else
         {
             out_dt2d->Drc = 0;

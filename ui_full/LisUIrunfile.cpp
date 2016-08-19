@@ -167,13 +167,8 @@ void lisemqt::ParseInputData()
        // if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check); // OBSOLETE
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
 
-        if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = val;
-         //   E_Kinematic2D->setValue(val); //(val == 1? checkOverlandFlow1D->setChecked(true) : E_Kinematic2D->setValue(val));
 
-        if (p1.compare("Timestep Kin Wave 2D")==0)            E_TimestepMin->setValue(val);
-        if (p1.compare("Courant Kin Wave 2D")==0)            E_CourantFactorKin->setValue(val);
-        if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
-        //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
+
         //houses
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
@@ -181,30 +176,16 @@ void lisemqt::ParseInputData()
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
 
 
-        if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
-        if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
-        if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(val);
-        if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorDiffusive->setValue(val);
-        if (p1.compare("Flooding SWOF scheme")==0)           E_FloodScheme->setValue(val);
-        if (p1.compare("Flooding BL method")==0)             E_BLMethod->setValue(val);
-        if (p1.compare("Flooding SS method")==0)             E_SSMethod->setValue(val);
-        if (p1.compare("Sigma diffusion")==0)                E_SigmaDiffusion->setValue(val);
-        if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
-        if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
+        if (p1.compare("Enable Levees")==0)                 checkLevees->setChecked(check);
+        if (p1.compare("Surface Flow Minimum Timestep")==0) E_SFMinimumDT->setValue(val);
+        if (p1.compare("Surface Flow Courant Factor")==0)   E_SFCourant->setValue(val);
+        if (p1.compare("Surface Flow Scheme")==0)           E_SFScheme->setValue(val);
+
+        if (p1.compare("BL method")==0)                     E_BLMethod->setValue(val);
+        if (p1.compare("SS method")==0)                     E_SSMethod->setValue(val);
+        if (p1.compare("Sigma diffusion")==0)               E_SigmaDiffusion->setValue(val);
+
         if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
-        if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
-        if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
-        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(val);
-        if (p1.compare("Flooding 1D2D coupling")==0)         E_1D2DCoupling->setValue(val);
-       // if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
-        //if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
-        if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
-        if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
-        if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
-        if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
-        if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
-  //      if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val); // OBSOLETE
-        if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
 
     //    if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
         if (p1.compare("Advanced sediment")==0)               checkAdvancedSediment->setChecked(check);
@@ -228,8 +209,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(val);
       //  if (p1.compare("Detachment stoniness")==0)           checkStoninessDET->setChecked(check);
 
-        if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(val);
-        if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(val);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
 
@@ -426,35 +405,12 @@ void lisemqt::ParseInputData()
     checkDoErosion->setChecked(dummyErosion);
     setErosionTab(dummyErosion);
 
-    setFloodTab(checkChannelFlood->isChecked());
-
     if (!dummyrain && !dummysnow)
         QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
 
     checkRainfall->setChecked(dummyrain);
     checkSnowmelt->setChecked(dummysnow);
 
-    checkOverlandFlow1D->setChecked(true);
-
-    if (dummykinwave == 1)
-    {
-         checkOverlandFlow1D->setChecked(true);
-         checkOverlandFlow2D->setChecked(false);
-         E_Kinematic2D->setValue(3);
-    }
-    else
-    {
-        checkOverlandFlow1D->setChecked(false);
-        checkOverlandFlow2D->setChecked(true);
-        E_Kinematic2D->setValue(dummykinwave);
-    }
-
-    if (dummyFloodExplicit)
-        E_floodSolution->setValue(0);
-    if (dummyFloodSWOF1)
-        E_floodSolution->setValue(1);
-    if (dummyFloodSWOF2)
-        E_floodSolution->setValue(2);
     // qDebug() << dummyFloodExplicit << dummyFloodSWOF1 << dummyFloodSWOF2 << E_floodSolution->value();
     // get directory and file names
 
@@ -694,58 +650,13 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
 
-        if (p1.compare("Routing Kin Wave 2D")==0)
-        {
-            if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2D->isChecked())  namelist[j].value = E_Kinematic2D->text();
-        }
-        if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
-        if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
+        if (p1.compare("Enable Levees")==0)        namelist[j].value = checkLevees->text();
+        if (p1.compare("Surface Flow Minimum Timestep")==0)        namelist[j].value = E_SFMinimumDT->text();
+        if (p1.compare("Surface Flow Courant Factor")==0)           namelist[j].value = E_SFCourant->text();
+        if (p1.compare("Surface Flow Scheme")==0)           namelist[j].value = E_SFScheme->text();
 
-//        if (p1.compare("Flood method explicit")==0)
-//        {
-//            if (E_floodSolution->value() == 0)
-//                namelist[j].value.setNum(1);
-//            else
-//                namelist[j].value.setNum(0);
-//        }
-        if (p1.compare("Flood method SWOF2D order 1")==0)
-        {
-            if (E_floodSolution->value() == 1)
-                namelist[j].value.setNum(1);
-            else
-                namelist[j].value.setNum(0);
-        }
-        if (p1.compare("Flood method SWOF2D order 2")==0)
-        {
-            if (E_floodSolution->value() == 2)
-                namelist[j].value.setNum(1);
-            else
-                namelist[j].value.setNum(0);
-        }
-        if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorDiffusive->text();
-        if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
-        if (p1.compare("Flooding BL method")==0)             namelist[j].value = E_BLMethod->text();
-        if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
-        if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
-        if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
-        if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
-        if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-        if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
-        if (p1.compare("Flooding 1D2D coupling")==0)         namelist[j].value = E_1D2DCoupling->text();
-     //   if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
-        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value.setNum((int)E_FloodReplaceVcheck->isChecked());
-        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
-        if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
-        if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
-        if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
-        if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
-        if (p1.compare("Flood sediment transport method")==0)namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
 
-        //        if (p1.compare("OF method")==0)                       namelist[j].value = E_OFMethod->text();
 
         if (p1.compare("Advanced sediment")==0)               namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
 
@@ -767,8 +678,9 @@ void lisemqt::updateModelData()
                 }
         }
 
-        if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
-        if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("BL method")==0)                 namelist[j].value = E_BLMethod->text();
+        if (p1.compare("SS method")==0)                 namelist[j].value = E_SSMethod->text();
+
         if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
 
         if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());

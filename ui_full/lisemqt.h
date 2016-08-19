@@ -312,7 +312,6 @@ public slots:
     void on_toolButton_SwatreTableDir_clicked();
     void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
-    void on_E_floodSolution_valueChanged(int nr);
 
     void on_checkBox_SedSingleSingle_toggled(bool v);
     void on_checkBox_SedMultiSingle_toggled(bool v);
@@ -372,17 +371,11 @@ public slots:
     void setWriteOutputCSV(bool);
     void setWriteOutputPCR(bool);
 
-    //void setFloodErosion();
-    void setFloodTab(bool);
     void setErosionTab(bool);
-    void setRunoffTab(bool);
 
     void fontSelect();
     void fontDecrease();
     void fontIncrease();
-
-    void setFloodOP(bool);
-    //  void on_checkBoxOverlay_stateChanged(int yes);
 
 
 private slots:

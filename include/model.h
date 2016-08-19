@@ -101,6 +101,7 @@
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 
+
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_UF2D for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
@@ -123,6 +124,7 @@
 #define FOR_ROW_COL_UF1D_DT for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(_ldd->data[r][c]) && !(dt->Drc == 0))
+
 
 
 // check if cell From flows to To
@@ -479,57 +481,13 @@ public:
     void GetRunFile(void);
     //MapListStruct qx[9];
 
-    //FLOOD according to FULLSWOF2D
-    void prepareFloodZ(cTMap *z);
-    double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double limiter(double a, double b);
-    void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-    void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
-    void simpleScheme(cTMap *_h, cTMap *_u, cTMap *_v);
-    double maincalcflux(double dt, double dt_max);
-    void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
-    void Fr_ManningSf(double h, double u, double v, double cf);
-    void setZero(cTMap *_h, cTMap *_u, cTMap *_v);
-    void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter;
-    double F_maxVelocity;
-    double F_extremeHeight;
-    double F_extremeDiff;
-
-    double F_levee;
-    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
-    double q1man, q2man;
-    //double dt_max, dt1;
-    bool prepareFlood, startFlood;
-    int verif, iter_n;
-
-    // floods watershed based
-    double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    void MUSCLws(int wsnr, cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-    void ENOws(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
-    void simpleSchemews(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
-    void maincalcfluxws(int wsnr);
-    void findDTws(int wsnr, bool two);
-    void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
-    void MakeWatersheds(void);
-
 
     //SEDIMENT TRANSPORT
-    int FS_SS_Method;
-    int FS_BL_Method;
-    double FS_SigmaDiffusion;
+    int SS_Method;
+    int BL_Method;
+    double SigmaDiffusion;
 
     int OF_Method;
-
-    int R_SS_Method;
-    int R_BL_Method;
-    double R_SigmaDiffusion;
 
     //int GrainSizeDistributionType;
 
@@ -550,113 +508,15 @@ public:
     QList<cTMap *> W_D;
     QList<cTMap *> RW_D;
 
-    //flood sediment
-    QList<cTMap *> BL_D; //bed load sediment for a certain grain size (see graindiameters)
-    QList<cTMap *> SS_D; //suspended sediment for a certain grain size
-    QList<cTMap *> BLC_D; //concentration
-    QList<cTMap *> SSC_D; //concentration
-    QList<cTMap *> BLTC_D; //transport capacity
-    QList<cTMap *> SSTC_D; //transport capacity
-    QList<cTMap *> BLD_D; //layer depth
-    QList<cTMap *> SSD_D; //layer depth
 
-    //river sediment
-    QList<cTMap *> RBL_D;
-    QList<cTMap *> RSS_D;
-    QList<cTMap *> RBLC_D;
-    QList<cTMap *> RSSC_D;
-    QList<cTMap *> RBLTC_D;
-    QList<cTMap *> RSSTC_D;
-    QList<cTMap *> RBLD_D;
-    QList<cTMap *> RSSD_D;
-
-    //overland flow
-    QList<cTMap *> Sed_D;
-    QList<cTMap *> TC_D;
-    QList<cTMap *> Conc_D;
-
-    //used for advection in the 1d kinematic method
-    QList<cTMap *> Tempa_D;
-    QList<cTMap *> Tempb_D;
-    QList<cTMap *> Tempc_D;
-    QList<cTMap *> Tempd_D;
-
-    //material that is available for detachment
     QList<cTMap *> StorageDep_D;
     QList<cTMap *> Storage_D;
-    cTMap *Storage;
-    cTMap *StorageDep;
-    cTMap *SedimentMixingDepth;
-
     QList<cTMap *> RStorageDep_D;
     QList<cTMap *> RStorage_D;
-    cTMap *RStorage;
-    cTMap *RStorageDep;
-    cTMap *RSedimentMixingDepth;
 
     cTMap *unity;
 
-    //keep track of any dissolved substances that need to be advected by the kinematic wave
-    //not used!!!
-    QList<cTMap *> OF_Advect;
-    QList<cTMap *> R_Advect;
-    QList<cTMap *> F_Advect;
 
-
-    //sediment for SWOF flood model
-    void FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
-    void FS_MUSCLE(cTMap * _sbl,cTMap * _sss);
-    void FS_ENO(cTMap * _sbl,cTMap * _sss);
-    void FS_Simple(cTMap * _sbl,cTMap * _sss);
-    void FS_MainCalc(cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
-
-    void FS_FluxWS(int wsnr, cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
-    void FS_MUSCLEWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_ENOWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_SimpleWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_MainCalcWS(int wsnr, cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
-
-    void FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
-    void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
-    void FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
-
-    void SWOFSedimentBalance();
-    void SWOFSedimentBalanceWS(int l);
-
-    void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentCheckZero(int r, int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentSetConcentration(int r, int c, cTMap * h,cTMap * u,cTMap * v);
-
-    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDiffusionWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-
-
-    double SWOFSedimentTCBL(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
-    double SWOFSedimentTCSS(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
-
-    void SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDet(double dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentFlowWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentWS(int l,double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentLayerDepth(int r , int c, cTMap * h,cTMap * u,cTMap * v);
-
-    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
-    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
-                          double Sji1, double alpha, double dt, double dx);
-
-    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
-                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                                cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed,cTMap*_VolStore, cTMap*_SedStore);
-
-
-    double K2DSolvebyFluxSed(double dt, cTMap *M, cTMap *MC);
-    double K2DSolvebyInterpolationSed(double dt, cTMap *M, cTMap *MC);
-
-
-    double OFTC(int r, int c, int d);
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
     double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
     double GetDp(int r, int c,double p);
@@ -668,14 +528,6 @@ public:
     void ChannelFlowDetachment(int r, int c);
 
     void SumSedimentClasses();
-
-
-    void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void RiverSedimentLayerDepth(int r , int c);
-    double RiverSedimentTCBL(int r,int c, int d);
-    double RiverSedimentTCSS(int r,int c, int d);
-    void RiverSedimentMaxC(int r, int c);
-
 
     void FindBaseFlow(); //search for channel inflow from groundwater
     bool addedbaseflow = false;
@@ -714,8 +566,7 @@ public:
 
     void InfilEffectiveKsat();
     void Infiltration(void);
-    void InfiltrationFlood(void);
-    void InfiltrationFloodNew(void);
+
     void InfilSwatre(cTMap *_WH);
 //    void InfilGreenAmpt1(cTMap *_WH);  //OBSOLETE
 //    void InfilSmithParlange1(cTMap *_WH); //OBSOLETE
@@ -726,16 +577,7 @@ public:
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void RainfallToFlood(void);
     void SurfaceStorage(void);
-    void OverlandFlow(void);
-    void OverlandFlowNew(void);
-    void ChannelFlow(void);
-    double ChannelIterateWH(int r, int c);
-    void ChannelWaterHeight(void);
-    void ChannelWaterHeightFromVolume();
-    void ToChannel(void);
-    void ToFlood(void);
-    void CalcVelDisch();
-    void CalcVelDischChannel(void);
+
     void ToTiledrain(void);
     void TileFlow(void);
     void CalcVelDischTile(void);
@@ -755,39 +597,13 @@ public:
     void FloodBoundary(void);
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow();
-    void getFloodParameters(void);
+
     double courant_factor;
     double courant_factor_diffusive;
     double mixing_coefficient, runoff_partitioning;
    // double cfl_fix;
     double minReportFloodHeight;
     double correctMassBalance(double sum1, cTMap *M, double minV);
-    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
-                   cTMap *_Q, cTMap *_Qn,
-                   cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                   cTMap *_Vol,
-                   cTMap *_StorVol);
-    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
-
-
-    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-   // void KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX);
-
-    // kinematic 2D
-    double K2DFlux();
-    void K2DSolve(double dt);
-    void K2DSolvebyFlux(double dt);
-    void K2DSolvebyInterpolation(double dt);
-    void K2DInit();
-    void K2DCalcVelDisch();
-    void K2DDEMA();
-    double K2DQOut;
-    double K2DQSOut;
-    double K2DQPOut;
-    double CourantKin;
-    double TimestepKinMin;
-    double KinematicBoundaryFraction = 0.05;
 
     //////////////
     //Unified FLow
@@ -802,13 +618,35 @@ public:
     double UF_GravitySqrt;
     double UF2D_MinimumDT;
     double UF1D_MinimumDT;
+    double UF_SigmaDiffusion;
+    double UF_MANNINGCOEFFICIENT;
+
+    double UF_Alpha_DV;
+    double UF_Beta_DV;
+
+    double UF_Alpha_YS;
+    double UF_Beta_YS;
+
+    double UF_Alpha_DR;
+    double UF_Beta_DR;
+
+    double UF_Intersect_K;
+    double UF_Slope_K;
 
     //internal use
     double UF_1DACTIVE;
     double UF_DTMIN;
+    int UF_SCHEME;
+    bool UF_SOLIDPHASE;
+    static const int UF_SCHEME_CENTRALSIMPLE =1;
+    static const int UF_SCHEME_BOUNDARYMUSCLE =2;
+
+    cTMap * UF2D_Test;
 
     //just for display
     cTMap * UF2D_h;
+    cTMap * UF2D_q;
+    cTMap * UF2D_qs;
     cTMap * UF2D_fsConc;
     cTMap * UF2D_sConc;
     cTMap * UF2D_tConc;
@@ -817,6 +655,8 @@ public:
     cTMap * UF2D_v;
 
     cTMap * UF1D_h;
+    cTMap * UF1D_q;
+    cTMap * UF1D_qs;
     cTMap * UF1D_fsConc;
     cTMap * UF1D_sConc;
     cTMap * UF1D_tConc;
@@ -844,6 +684,12 @@ public:
     cTMap * UF2D_visc;
     cTMap * UF2D_fu;
     cTMap * UF2D_fv;
+    cTMap * UF2D_fax;
+    cTMap * UF2D_fay;
+    cTMap * UF2D_fqx1;
+    cTMap * UF2D_fqy1;
+    cTMap * UF2D_fqx2;
+    cTMap * UF2D_fqy2;
     cTMap * UF2D_ssm;
     cTMap * UF2D_blm;
     cTMap * UF2D_sstc;
@@ -851,26 +697,26 @@ public:
     cTMap * UF2D_fsc;
     cTMap * UF2D_fsd;
     //solid phase
-    cTMap * UF2D_sm;
     cTMap * UF2D_s;
     cTMap * UF2D_d;
     cTMap * UF2D_ifa;
     cTMap * UF2D_rocksize;
     cTMap * UF2D_su;
     cTMap * UF2D_sv;
+    cTMap * UF2D_sax;
+    cTMap * UF2D_say;
+    cTMap * UF2D_sqx1;
+    cTMap * UF2D_sqy1;
+    cTMap * UF2D_sqx2;
+    cTMap * UF2D_sqy2;
 
     //for new timestep
     //fluid phase
     cTMap * UF2D_fn;
-    cTMap * UF2D_viscn;
     cTMap * UF2D_fun;
     cTMap * UF2D_fvn;
     //solid phase
-    cTMap * UF2D_smn;
     cTMap * UF2D_sn;
-    cTMap * UF2D_dn;
-    cTMap * UF2D_ifan;
-    cTMap * UF2D_rocksizen;
     cTMap * UF2D_sun;
     cTMap * UF2D_svn;
 
@@ -885,8 +731,12 @@ public:
     cTMap * UF1D_Courant;
     //fluid phase
     cTMap * UF1D_f;
+    cTMap * UF1D_fstore;
     cTMap * UF1D_visc;
     cTMap * UF1D_fu;
+    cTMap * UF1D_fa;
+    cTMap * UF1D_fq1;
+    cTMap * UF1D_fq2;
     cTMap * UF1D_ssm;
     cTMap * UF1D_blm;
     cTMap * UF1D_sstc;
@@ -895,24 +745,22 @@ public:
     cTMap * UF1D_fsd;
 
     //solid phase
-    cTMap * UF1D_sm;
+    cTMap * UF1D_sstore;
     cTMap * UF1D_s;
     cTMap * UF1D_d;
     cTMap * UF1D_ifa;
     cTMap * UF1D_rocksize;
     cTMap * UF1D_su;
+    cTMap * UF1D_sa;
+    cTMap * UF1D_sq1;
+    cTMap * UF1D_sq2;
 
     //for new timestep
     //fluid phase
     cTMap * UF1D_fn;
-    cTMap * UF1D_viscn;
     cTMap * UF1D_fun;
     //solid phase
-    cTMap * UF1D_smn;
     cTMap * UF1D_sn;
-    cTMap * UF1D_dn;
-    cTMap * UF1D_ifan;
-    cTMap * UF1D_rocksizen;
     cTMap * UF1D_sun;
 
     //Multiclass sediment functions
@@ -931,14 +779,21 @@ public:
     cTMap * UF2D_Dep;
     cTMap * UF2D_Det;
 
+    cTMap * UF2D_Infiltration;
+    cTMap * UF1D_Infiltration;
+
     //temporary maps for generic advection functions
     cTMap * UF_t1;
     cTMap * UF_t2;
     cTMap * UF_t3;
+    cTMap * UF_t4;
+    cTMap * UF_t5;
 
     double UF2D_foutflow = 0;
+    double UF2D_fsoutflow = 0;
     double UF2D_soutflow = 0;
     double UF1D_foutflow = 0;
+    double UF1D_fsoutflow = 0;
     double UF1D_soutflow = 0;
 
 
@@ -948,37 +803,61 @@ public:
     void UF_SetInput();
     void UF_SetOutput();
 
+    bool UF_Input_first = true;
+
     //2D version
+    double UF2D_Source(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv);
+
     double UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv);
 
     void UF2D_Advect_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv );
-
     double UF2D_Advect_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv, cTMap * out_m);
     void UF2D_Advect_prop(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv,cTMap *_prop, cTMap * out_prop = 0);
 
-    void UF2D_FluidSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f, cTMap * out_visc);
-    void UF2D_SolidSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_s,cTMap * out_d,cTMap *  out_ifa,cTMap *  out_rocksize);
+    void UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv,cTMap * out_qfx1,cTMap *out_qfx2,cTMap * out_qfy1,cTMap *out_qfy2,cTMap * out_qsx1,cTMap *out_qsx2,cTMap * out_qsy1,cTMap *out_qsy2);
+    double UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m);
+    void UF2D_Advect2_prop(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2,cTMap *_prop, cTMap * out_prop = 0);
+
+    void UF2D_FluidSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f);
+    void UF2D_SolidSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_s);
 
     void UF2D_FluidMomentumSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_fu, cTMap * out_fv);
     void UF2D_SolidMomentumSource(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_su, cTMap * out_sv);
 
+    void UF2D_FluidApplyMomentum(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_fu, cTMap * out_fv);
+    void UF2D_SolidApplyMomentum(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_su, cTMap * out_sv);
+
     void UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f, cTMap * _s, cTMap * _fu, cTMap * _fv, cTMap * _su, cTMap * _sv, cTMap * out_m);
 
+    void UF2D_Stored_mass(cTMap * dt, cTMap* dem, cTMap *_f,cTMap * _s, cTMap * out_f, cTMap * out_s);
     //1D version
+    void UF1D_Source(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su);
+
     void UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su);
 
     void UF1D_Advect_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_fu,  cTMap * out_su );
-
     double UF1D_Advect_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _mu, cTMap * out_m);
     void UF1D_Advect_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _mu,cTMap *_prop, cTMap * out_prop = 0);
 
-    void UF1D_FluidSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_f,cTMap * out_visc);
-    void UF1D_SolidSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_s,cTMap * out_d,cTMap *  out_ifa,cTMap *  out_rocksize);
+    void UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_fu,  cTMap * out_su , cTMap * out_fq1, cTMap * out_fq2,cTMap * out_sq1, cTMap * out_sq2);
+    double UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m);
+    void UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2,cTMap *_prop, cTMap * out_prop = 0);
+
+    void UF1D_FluidSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_f);
+    void UF1D_SolidSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_s);
 
     void UF1D_SolidMomentumSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_fu);
     void UF1D_FluidMomentumSource(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_su);
 
+    void UF1D_SolidApplyMomentum(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_su);
+    void UF1D_FluidApplyMomentum(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_fu);
     void UF1D_Diffuse_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap * _m, cTMap * _f,cTMap * _fu,cTMap * _s,cTMap * _su, cTMap * out_m);
+
+    void UF1D_Stored_mass(cTMap * dt, cTMap * _ldd,cTMap * _lddw, cTMap *_f,cTMap * _s, cTMap * out_f, cTMap * out_s);
+
+    ////boundary conditions
+    double UF_BoundaryFlux2D(double dt, double cellx, double celly, double f, double s, double fu, double fv, double su, double sv, double slopeX, double slopeY,double NN, int dr, int dc );
+    double UF_BoundaryFlux1D(double dt, double width, double f, double s, double fu, double su, double slope, double NN, bool front );
 
     ////Timestep functions
     double UF_InitTimeStep(cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
@@ -1005,7 +884,25 @@ public:
                            cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
                            cTMap * _su2D,cTMap * _sv2D);
 
+    void UF2D1D_ChannelWater(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                                     cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                                     cTMap * _fu1D,cTMap * _s1D,
+                                     cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                                     cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                                     cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                                     cTMap * _su2D,cTMap * _sv2D);
+
+    void UF2D1D_Infiltration(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                             cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                             cTMap * _fu1D,cTMap * _s1D,
+                             cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                             cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                             cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                             cTMap * _su2D,cTMap * _sv2D);
+
     ////common functions
+    double UF_Friction(double dt,double velx,double vely, double NN, double h);
+
     //dependent -> makes calls to independent common functions
     double UF_DragDistribution(double ffraction, double sfraction, double fvel, double svel);
     double UF_DragPower(double ffraction, double sfraction, double fvel, double svel);
@@ -1018,21 +915,43 @@ public:
     double UF_QuasiReynolds(double density, double viscosity, double fraction);
     double UF_Reynolds(double density, double viscosity, double ffraction,double sfraction, double rocksize);
     double UF_P(double rocksize, double ffraction, double viscosity,double sfraction, double density);
+    double UF_DynamicViscosity(double sfraction);
+    double UF_GetYieldStress(double sfraction);
+    double UF_GetFlowResistence(double n);
+    double UF_GetDispersiveResistence(double n, double sfraction);
 
     ////common math functions
     //temporary maps for MUSCL scheme
-    cTMap * UF_MUSCLE_1_N;
-    cTMap * UF_MUSCLE_1_E;
-    cTMap * UF_MUSCLE_1_S;
-    cTMap * UF_MUSCLE_1_W;
-    cTMap * UF_MUSCLE_2_N;
-    cTMap * UF_MUSCLE_2_E;
-    cTMap * UF_MUSCLE_2_S;
-    cTMap * UF_MUSCLE_2_W;
-    cTMap * UF_MUSCLE_OUT_N;
-    cTMap * UF_MUSCLE_OUT_E;
-    cTMap * UF_MUSCLE_OUT_S;
-    cTMap * UF_MUSCLE_OUT_W;
+    cTMap * UF2D_MUSCLE_1_x1;
+    cTMap * UF2D_MUSCLE_1_x2;
+    cTMap * UF2D_MUSCLE_1_y1;
+    cTMap * UF2D_MUSCLE_1_y2;
+    cTMap * UF2D_MUSCLE_2_x1;
+    cTMap * UF2D_MUSCLE_2_x2;
+    cTMap * UF2D_MUSCLE_2_y1;
+    cTMap * UF2D_MUSCLE_2_y2;
+    cTMap * UF2D_MUSCLE_3_x1;
+    cTMap * UF2D_MUSCLE_3_x2;
+    cTMap * UF2D_MUSCLE_3_y1;
+    cTMap * UF2D_MUSCLE_3_y2;
+    cTMap * UF2D_MUSCLE_OUT_x1;
+    cTMap * UF2D_MUSCLE_OUT_x2;
+    cTMap * UF2D_MUSCLE_OUT_y1;
+    cTMap * UF2D_MUSCLE_OUT_y2;
+
+    cTMap * UF1D_MUSCLE_1_x1;
+    cTMap * UF1D_MUSCLE_1_x2;
+    cTMap * UF1D_MUSCLE_2_x1;
+    cTMap * UF1D_MUSCLE_2_x2;
+    cTMap * UF1D_MUSCLE_3_x1;
+    cTMap * UF1D_MUSCLE_3_x2;
+    cTMap * UF1D_MUSCLE_OUT_x1;
+    cTMap * UF1D_MUSCLE_OUT_x2;
+
+    static const int UF_MUSCLE_TARGET_IN1 = 1;
+    static const int UF_MUSCLE_TARGET_IN2 = 2;
+    static const int UF_MUSCLE_TARGET_IN3 = 3;
+    static const int UF_MUSCLE_TARGET_OUT = 0;
 
     static const int UF_MUSCLE_mult = 1;
     static const int UF_MUSCLE_div = 2;
@@ -1044,28 +963,34 @@ public:
     static const int UF_DIRECTION_Y = 2;
     static const int UF_DIRECTION_XY = 3;
 
-    void UF_MUSCLE_1(cTMap * in);
-    void UF_MUSCLE_2(cTMap * in);
-    void UF_MUSCLE_operate(cTMap * in_1, cTMap * in_2,int operation);
-    void UF_MUSCLE_operate(double in_1, cTMap * in_2,int operation);
+    void UF2D_MUSCLE(cTMap * _mask,cTMap *dt, cTMap * in, int target, int dir = UF_DIRECTION_XY);
+    void UF2D_MUSCLE_operate(cTMap * _mask,cTMap *dt,int in_map1, int in_map2,int operation, int target);
+    void UF2D_MUSCLE_operate(cTMap * _dem,cTMap * dt,int in_map1, int in_map2x,int in_map2y,int operation, int target);
+    void UF2D_MUSCLE_operate(cTMap * _mask,cTMap *dt, int in_map,double in_double,int operation, int target);
+    void UF2D_MUSCLE_operate(cTMap * _mask,cTMap * dt,int in_map,double in_double, int operation, cTMap * outx1,cTMap * outx2,cTMap * outy1,cTMap * outy2);
+    void UF2D_MUSCLE_operate(cTMap * _mask,cTMap * dt,int in_map, int in_map2, int operation, cTMap * outx1,cTMap * outx2,cTMap * outy1,cTMap * outy2);
+    void UF2D_MUSCLE_operate(cTMap * _mask,cTMap * dt,int in_map, int in_map2x,int in_map2y, int operation, cTMap * outx1,cTMap * outx2,cTMap * outy1,cTMap * outy2);
+
+    void UF1D_MUSCLE(cTMap * _ldd,cTMap * _lddw,cTMap *dt,cTMap * in, int target);
+    void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map1, int in_map2,int operation, int target);
+    void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map,double in_1, int operation, int target);
+    void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map,double in_1, int operation,cTMap * outx1,cTMap * outx2);
+    void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map, int in_map2, int operation, cTMap * outx1,cTMap * outx2);
 
     //slope analysis and map derivative functions
     void UF_DEMLDDAnalysis(cTMap * _dem, cTMap * _ldd,cTMap * _lddw,cTMap * _lddh,cTMap * _f1D,cTMap * _s1D,cTMap * _f2D,cTMap * _s2D);
 
-    void UF2D_Derivative(cTMap * _dem, cTMap * _in, cTMap * _out, int direction);
-    void UF1D_Derivative(cTMap * _ldd, cTMap * _in, cTMap * _out);
-    void UF2D_Derivative2(cTMap * _dem, cTMap * _in, cTMap * _out, int direction);
-    void UF1D_Derivative2(cTMap * _ldd, cTMap * _in, cTMap * _out);
-
     double UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction);
-    double UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c);
+    double UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, bool minmod = false);
     double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c);
 
     double UF_MinMod(double a, double b);
-    //void UF_SWAP(cTMap ** from, cTMap ** to);
 
     bool UF_OUTORMV(cTMap * mask, int r, int c);
+    bool UF_NOTIME(cTMap * mask,cTMap * dt, int r, int c);
+
+    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
 
     ////Unified Flow Soil Interactions
     //General Function
@@ -1077,6 +1002,8 @@ public:
 
     double UF_SoilTake(int r, int c, int d, double potential,bool channel,bool bedload);
     void UF_SoilAdd(int r, int c, int d, double mass, bool channel);
+
+    void UF_SumGrainClasses();
 
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);

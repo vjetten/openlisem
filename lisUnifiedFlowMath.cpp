@@ -1,3 +1,4 @@
+
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
@@ -46,17 +47,6 @@ void TWorld::UF_DEMLDDAnalysis(cTMap * _dem, cTMap * _ldd,cTMap * _lddw,
 
 
 }
-
-void TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, cTMap * _out , int direction)
-{
-
-}
-
-void TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, cTMap * _out , int direction)
-{
-
-}
-
 double TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction)
 {
     if(UF_OUTORMV(_dem,r,c))
@@ -117,18 +107,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
 
 }
 
-void TWorld::UF1D_Derivative(cTMap * _ldd, cTMap * _in, cTMap * _out)
-{
-
-
-}
-
-void TWorld::UF1D_Derivative2(cTMap * _ldd, cTMap * _in, cTMap * _out)
-{
-
-}
-
-double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c)
+double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, bool minmod)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -190,7 +169,7 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
         }
     }
 
-    return (x1 - x2)/(2.0*_dx);
+    return (minmod? (0.5 * UF_MinMod(x1,x2)) : ((x1 - x2)/(2.0*_dx)));
 
 }
 
@@ -260,30 +239,7 @@ double TWorld::UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, 
 
 }
 
-void TWorld::UF_MUSCLE_1(cTMap * in)
-{
 
-}
-
-void TWorld::UF_MUSCLE_2(cTMap * in)
-{
-
-}
-void TWorld::UF_MUSCLE_operate(cTMap * in_1, cTMap * in_2,int operation)
-{
-
-}
-void TWorld::UF_MUSCLE_operate(double in_1, cTMap * in_2,int operation)
-{
-
-}
-
-/*void TWorld::UF_SWAP(cTMap *(* from), cTMap *(* to))
-{
-    cTMap ** temp = to;
-    *to = *from;
-    *from = *temp;
-}*/
 
 bool TWorld::UF_OUTORMV(cTMap * mask, int r, int c)
 {
@@ -297,16 +253,148 @@ bool TWorld::UF_OUTORMV(cTMap * mask, int r, int c)
     return true;
 
 }
-
-double TWorld::UF_MinMod(double a, double b)
+bool TWorld::UF_NOTIME(cTMap * mask,cTMap * dt, int r, int c)
 {
-    if( b > 0)
+    if(r>=0 && r<_nrRows && c>=0 && c<_nrCols)
     {
-        return std::min(a,b);
-    }else
-    {
-        return std::max(a,b);
+        if(pcr::isMV(mask->data[r][c]))
+        {
+            return false;
+        }else
+        {
+            if(dt->data[r][c] == 0)
+            {
+                return true;
+            }
+        }
     }
+    return false;
 
 }
 
+double TWorld::UF_MinMod(double a, double b)
+{
+    double rec = 0;
+    if (a >= 0 && b >= 0)
+      rec = std::min(a, b);
+    else
+      if (a <= 0 && b <= 0)
+        rec = std::max(a, b);
+    return rec;
+
+}
+
+
+//to calculate stored mass
+void TWorld::UF2D_Stored_mass(cTMap * dt, cTMap* _dem, cTMap *_f,cTMap * _s, cTMap * out_f, cTMap * out_s)
+{
+    cTMap * hf = UF_t1;
+    cTMap * hs = UF_t2;
+    cTMap * h = UF_t3;
+
+    FOR_ROW_COL_UF2D
+    {
+        out_f->Drc = 0;//_f->Drc;
+        out_s->Drc = 0;//_s->Drc;
+        double area = DX->Drc * _dx;
+        UF_t1->Drc = _f->Drc/area;
+        UF_t2->Drc =_s->Drc/area;
+        UF_t3->Drc = UF_t1->Drc + UF_t2->Drc;
+    }
+
+    FOR_ROW_COL_UF2D_DT
+    {
+        double hself = h->Drc + _dem->Drc;
+        double hdem = _dem->Drc;
+        double hdemw = h->Drc + _dem->Drc;
+
+        for(int i = 0; i < 4; i++)
+        {
+            int dx[4] = {0, 1, -1, 0};
+            int dy[4] = {1, 0, 0, -1};
+
+            int r2 = r + dy[i];
+            int c2 = c + dx[i];
+
+            if(UF_OUTORMV(_dem,r2,c2))
+            {
+                continue;
+            }
+            if((_dem->data[r2][c2] + h->data[r2][c2]) < hdemw)
+            {
+                hdemw = _dem->Drc +h->data[r2][c2];
+            }
+            if(_dem->data[r2][c2] < hdem)
+            {
+                hdem = _dem->data[r2][c2];
+            }
+        }
+
+        double hstore = std::min(hself,std::max(0.0,(_dem->Drc -hdem)));
+        if(h->Drc > 0)
+        {
+            double fraction = hstore/h->Drc;
+            out_f->Drc = _f->Drc * fraction;
+            out_s->Drc = _s->Drc * fraction;
+        }
+    }}}
+
+}
+
+//to calculate stored mass
+void TWorld::UF1D_Stored_mass(cTMap * dt, cTMap * _ldd,cTMap * _lddw, cTMap *_f,cTMap * _s, cTMap * out_f, cTMap * out_s)
+{
+
+
+}
+
+//---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
+ * @brief Returns the sum of all values upstream
+ *
+ * Returns the sum of all values upstream using
+ * the local drainage direction map (LDD)
+ *
+ * @param _LDD : Local Drainage Direction map
+ * @param _M : Material map, can be any substance
+ * @param out : Output map, sum of all upstream material
+ *
+ * @see LDD
+ */
+void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    FOR_ROW_COL_MV
+    {
+        double tot = 0;
+        for (int i=1; i<=9; i++)
+        {
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
+
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
+                ldd = (int) _LDD->Drc;
+            else
+                continue;
+
+            // if no MVs and row,col flows to central cell r,c
+            if (  //INSIDE(row, col) &&
+                  // !pcr::isMV(_LDD->data[row][col]) &&
+                  FLOWS_TO(ldd, row, col, r, c)
+                  )
+            {
+                tot += _M->data[row][col];
+            }
+        }
+        out->Drc = tot;
+    }
+}

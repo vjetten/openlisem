@@ -393,8 +393,6 @@ void TWorld::InitShade(void)
 {
     Shade = NewMap(0);
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
-    if (SwitchChannelFlood)
-        calcMap(*DEM, *Barriers, ADD);
     //double MaxDem = DEM->mapMaximum();
     // double MinDem = DEM->mapMinimum();
 
@@ -462,26 +460,15 @@ void TWorld::InitChannel(void)
 
     SedToChannel = NewMap(0);
     ChannelWidthUpDX = NewMap(0);
-    ChannelWaterVol = NewMap(0);
     //ChannelQoutflow = NewMap(0);
     RunoffVolinToChannel = NewMap(0);
     //ChannelQsoutflow = NewMap(0);
-    ChannelQ = NewMap(0);
-    ChannelQn = NewMap(0);
-    ChannelQntot = NewMap(0);
-    ChannelSed = NewMap(0);
-    ChannelQs = NewMap(0);
-    ChannelQsn = NewMap(0);
-    ChannelV = NewMap(0);
-    ChannelWH = NewMap(0);
-    Channelq = NewMap(0);
     ChannelAlpha = NewMap(0);
     ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
 
 
     hmx = NewMap(0);
-    FloodDomain = NewMap(0);
     floodHmxMax = NewMap(0);
     floodVMax = NewMap(0);
     floodTime = NewMap(0);
@@ -524,7 +511,6 @@ void TWorld::InitChannel(void)
             ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
             cover(*ChannelKsat, *LDD, 0);
             calcValue(*ChannelKsat, ChKsatCalibration, MUL);
-            ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
             // store not used?
         }
         copy(*ChannelWidthUpDX, *ChannelWidth);
@@ -550,232 +536,20 @@ void TWorld::InitChannel(void)
                         ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
         }
 
-        if (SwitchChannelFlood)
-        {
-            FloodEdge = NewMap(0);
-            for (int r = 1; r < _nrRows-1; r++)
-                for (int c = 1; c < _nrCols-1; c++)
-                    if(!pcr::isMV(LDD->data[r][c]))
-                    {
-                        if (FloodEdge->Drc == 0 &&
-                                (pcr::isMV(LDD->data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->data[r-1][c+1]) ||
-                                 pcr::isMV(LDD->data[r  ][c-1]) ||
-                                 pcr::isMV(LDD->data[r  ][c+1]) ||
-                                 pcr::isMV(LDD->data[r+1][c-1]) ||
-                                 pcr::isMV(LDD->data[r+1][c  ]) ||
-                                 pcr::isMV(LDD->data[r+1][c+1]) )
-                                )
-                            if (ChannelWidthUpDX->Drc == 0)
-                                FloodEdge->Drc = 1;
-                        // channel cells do not shed water to the outside
-                    }
-            //            tma->fill(0);
-            //            for (int r = 1; r < _nrRows-1; r++)
-            //                for (int c = 1; c < _nrCols-1; c++)
-            //                    if(!pcr::isMV(LDD->data[r][c]))
-            //            {
-            //                if (FloodEdge->Drc == 0 && (
-            //                            FloodEdge->data[r-1][c-1] == 1 ||
-            //                            FloodEdge->data[r-1][c  ] == 1 ||
-            //                            FloodEdge->data[r-1][c+1] == 1 ||
-            //                            FloodEdge->data[r][c-1] == 1 ||
-            //                            FloodEdge->data[r][c+1] == 1 ||
-            //                            FloodEdge->data[r+1][c-1] == 1 ||
-            //                            FloodEdge->data[r+1][c  ] == 1 ||
-            //                            FloodEdge->data[r+1][c+1] == 1
-            //                            ))
-            //                    tma->Drc = 2;
-            //            }
-            //            FloodEdge->calcMap(tma, ADD);
-            //            FloodEdge->report("edge.map");
 
-            FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
-            if(this->SwitchWatershed)
-            {
-                WaterSheds = ReadMap(LDD, getvaluename("watershed"));
-                MakeWatersheds();
-            }
-
-            long nrc = 0;
-            FOR_ROW_COL_MV
-            {
-                nrc++;
-            }
-
-            // create max structure for flood domain, all cells
-            floodRow = new int[nrc];
-            floodCol = new int[nrc];
-            for (long i = 0; i < nrc; i++)
-            {
-                floodRow[i] = 0;
-                floodCol[i] = 0;
-            }
-            nrFloodcells = 0;
-
-            prepareFlood = true;
-            iter_n = 0;
-
-            // FloodVoltoChannel = NewMap(0);
-            UVflood = NewMap(0);
-            Qflood = NewMap(0);
-            QfloodPrev = NewMap(0);
-            QfloodSed = NewMap(0);
-            QfloodSedPrev = NewMap(0);
-            AlphaFlood = NewMap(0);
-            Sedflood = NewMap(0);
-
-            // explicit OBSOLETE
-            /*
-            if (SwitchFloodExplicit)
-            {
-                Qxsum = NewMap(0);
-                qx0 = NewMap(0);
-                qx1 = NewMap(0);
-                qx2 = NewMap(0);
-                qx3 = NewMap(0);
-                Hx = NewMap(0);
-                hx = NewMap(0);
-
-                Nx = NewMap(0);
-                dHdLx = NewMap(0);
-            }
-            */
-            //explicit
-            Hmx = NewMap(0);
-            hmxWH = NewMap(0);
-
-            FloodWaterVol = NewMap(0);
-
-            floodTimeStart = NewMap(0);
 
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
 
-            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
-            cover(*Barriers, *LDD,0);
 
-            ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
-            cover(*ChannelMaxQ, *LDD,0);
             ChannelLevee = NewMap(0);
-            if (SwitchLevees)
-                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
+            /*if (SwitchLevees)
+                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));*/
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
 
-//            if (SwitchFloodInitial)
-//            {
-//                hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
-//                copy(*hmx, *hmxInit);
-//            }
-
-            floodactive = NewMap(1);
-
-            long _i = 0;
-            FOR_ROW_COL_MV
-            {
-                // added rainFloodingGradient to ensure rainfall flood if needed
-                // rainfall gradient obsolete with runoff 2D
-                if (FloodZonePotential->Drc == 1 || ChannelDepth->Drc > 0)// || Grad->Drc <= rainFloodingGradient)
-                {
-                    floodRow[_i] = r;
-                    floodCol[_i] = c;
-                    _i++;
-                }
-            }
-            nrFloodcells = _i;
-
-            minReportFloodHeight = 0;//getvaluedouble("Minimum reported flood height");
-            courant_factor = getvaluedouble("Flooding courant factor");
-            courant_factor_diffusive = getvaluedouble("Flooding courant factor diffusive");
-            mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
-            runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
-
-            //cfl_fix = getvaluedouble("Flooding SWOF csf factor");
-            F_reconstruction = getvalueint("Flooding SWOF Reconstruction");   //Rusanov,HLL,HLL2
-            F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-            F_scheme = getvalueint("Flooding SWOF scheme");                   // MUSCL, ENO, ENOMOD
-            FS_SS_Method = getvalueint("Flooding SS method");
-            FS_BL_Method = getvalueint("Flooding BL method");
-            FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-            F_replaceV = getvalueint("Flood limit max velocity");
-            F_maxVelocity = getvaluedouble("Flood max velocity threshold");
-            F_extremeHeight = getvaluedouble("Flood extreme value height");
-            F_extremeDiff = getvaluedouble("Flood extreme value Difference");
-            F_MaxIter = getvalueint("Flood max Iterations");
-
-            hs = NewMap(0);
-            vs = NewMap(0);
-            us = NewMap(0);
-            hsa = NewMap(0);
-            vsa = NewMap(0);
-            usa = NewMap(0);
-            z1r = NewMap(0);
-            z1l = NewMap(0);
-            z2r = NewMap(0);
-            z2l = NewMap(0);
-            h1r = NewMap(0);
-            h1l = NewMap(0);
-            h2r = NewMap(0);
-            h2l = NewMap(0);
-            v1r = NewMap(0);
-            v1l = NewMap(0);
-            v2r = NewMap(0);
-            v2l = NewMap(0);
-            u1r = NewMap(0);
-            u1l = NewMap(0);
-            u2r = NewMap(0);
-            u2l = NewMap(0);
-
-            delta_z1 = NewMap(0);
-            delta_z2 = NewMap(0);
-            delzc1 = NewMap(0);
-            delzc2 = NewMap(0);
-            delz1 = NewMap(0);
-            delz2 = NewMap(0);
-            som_z1 = NewMap(0);
-            som_z2 = NewMap(0);
-
-            f1 = NewMap(0);
-            f2 = NewMap(0);
-            f3 = NewMap(0);
-            cflx = NewMap(0);
-            cfly = NewMap(0);
-            g1 = NewMap(0);
-            g2 = NewMap(0);
-            g3 = NewMap(0);
-
-            f1o = NewMap(0);
-            f2o = NewMap(0);
-            f3o = NewMap(0);
-            cflxo = NewMap(0);
-            cflyo = NewMap(0);
-            g1o = NewMap(0);
-            g2o = NewMap(0);
-            g3o = NewMap(0);
-            //            f1o = NewMap(0);
-            //            f2o = NewMap(0);
-            //            f3o = NewMap(0);
-            //            cflxo = NewMap(0);
-            //            cflyo = NewMap(0);
-            //            g1o = NewMap(0);
-            //            g2o = NewMap(0);
-            //            g3o = NewMap(0);
-
-            h1d = NewMap(0);
-            h1g = NewMap(0);
-            h2d = NewMap(0);
-            h2g = NewMap(0);
-
-            Uflood = NewMap(0);
-            Vflood = NewMap(0);
-            //q1flood = NewMap(0);
-            //q2flood = NewMap(0);
 
 
-
-        }
 
     }
 
@@ -865,140 +639,14 @@ void TWorld::InitMulticlass(void)
 
     if(SwitchIncludeChannel)
     {
-        ChannelDetFlow = NewMap(0);
-        ChannelDep = NewMap(0);
-        ChannelBLSed = NewMap(0);
-        ChannelSSSed = NewMap(0);
-        ChannelBLConc = NewMap(0);
-        ChannelSSConc = NewMap(0);
-        ChannelBLTC = NewMap(0);
-        ChannelSSTC = NewMap(0);
-        ChannelBLDepth = NewMap(0);
-        ChannelSSDepth = NewMap(0);
-        ChannelQBLs = NewMap(0);
-        ChannelQBLsn = NewMap(0);
-        ChannelQSSs = NewMap(0);
-        ChannelQSSsn = NewMap(0);
-        ChannelConc = NewMap(0);
-        ChannelTC = NewMap(0);
         ChannelY = NewMap(0);
 
     }
 
     if(SwitchErosion)
     {
-        MSSCFlood = NewMap(0);
-        MSSNFlood = NewMap(0);
-        MSSFlood = NewMap(0);
-        MSSCNFlood = NewMap(0);
-
-        MBLCFlood = NewMap(0);
-        MBLNFlood = NewMap(0);
-        MBLFlood = NewMap(0);
-        MBLCNFlood = NewMap(0);
-
-
-
-        if(SwitchChannelFlood)
-        {
-            BLDepthFlood = NewMap(0);
-            SSDepthFlood = NewMap(0);
-
-            BLCFlood = NewMap(0);
-            BLFlood = NewMap(0);
-            BLTCFlood = NewMap(0);
-            BLDepFlood = NewMap(0);
-            BLDetFlood = NewMap(0);
-
-            BLDepFloodT = NewMap(0);
-            BLDetFloodT = NewMap(0);
-
-            bl1r = NewMap(0);
-            bl1l = NewMap(0);
-            bl2r = NewMap(0);
-            bl2l = NewMap(0);
-            blf1 = NewMap(0);
-            blg1 = NewMap(0);
-            bls = NewMap(0);
-            bl1d = NewMap(0);
-            bl1g = NewMap(0);
-            bl2d = NewMap(0);
-            bl2g = NewMap(0);
-
-
-
-            SSCFlood = NewMap(0);
-            SSFlood = NewMap(0);
-            SSTCFlood = NewMap(0);
-            SSDetFloodT = NewMap(0);
-            SSDetFlood = NewMap(0);
-
-            ss1r = NewMap(0);
-            ss1l = NewMap(0);
-            ss2r = NewMap(0);
-            ss2l = NewMap(0);
-            ssf1 = NewMap(0);
-            ssg1 = NewMap(0);
-            sss = NewMap(0);
-            sss2 = NewMap(0);
-            ss1d = NewMap(0);
-            ss1g = NewMap(0);
-            ss2d = NewMap(0);
-            ss2g = NewMap(0);
-
-            temp1 = NewMap(0);
-            temp2 = NewMap(0);
-            temp3 = NewMap(0);
-            temp4 = NewMap(0);
-            temp5 = NewMap(0);
-            temp6 = NewMap(0);
-            temp7 = NewMap(0);
-            temp8 = NewMap(0);
-            temp9 = NewMap(0);
-            temp10 = NewMap(0);
-            temp11= NewMap(0);
-            temp12= NewMap(0);
-        }
-
-
         graindiameters.clear();
         settlingvelocities.clear();
-        Tempa_D.clear();
-        Tempb_D.clear();
-        Tempc_D.clear();
-        Tempd_D.clear();
-
-        BL_D.clear();
-        SS_D.clear();
-        BLC_D.clear();
-        SSC_D.clear();
-        BLTC_D.clear();
-        SSTC_D.clear();
-        BLD_D.clear();
-        SSD_D.clear();
-
-        RBL_D.clear();
-        RSS_D.clear();
-        RBLC_D.clear();
-        RSSC_D.clear();
-        RBLTC_D.clear();
-        RSSTC_D.clear();
-        RBLD_D.clear();
-        RSSD_D.clear();
-
-        Sed_D.clear();
-        TC_D.clear();
-        Conc_D.clear();
-
-        StorageDep_D.clear();
-        Storage_D.clear();
-        RStorageDep_D.clear();
-        RStorage_D.clear();
-
-        OF_Advect.clear();
-
-        R_Advect.clear();
-        F_Advect.clear();
 
         if(!SwitchUseGrainSizeDistribution)
         {
@@ -1074,32 +722,6 @@ void TWorld::InitMulticlass(void)
                     {
                         W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
                     }
-                    Tempa_D.append(NewMap(0.0));
-                    Tempb_D.append(NewMap(0.0));
-                    Tempc_D.append(NewMap(0.0));
-                    Tempd_D.append(NewMap(0.0));
-
-                    BL_D.append(NewMap(0.0));
-                    SS_D.append(NewMap(0.0));
-                    BLC_D.append(NewMap(0.0));
-                    SSC_D.append(NewMap(0.0));
-                    BLTC_D.append(NewMap(0.0));
-                    SSTC_D.append(NewMap(0.0));
-                    BLD_D.append(NewMap(0.0));
-                    SSD_D.append(NewMap(0.0));
-
-                    RBL_D.append(NewMap(0.0));
-                    RSS_D.append(NewMap(0.0));
-                    RBLC_D.append(NewMap(0.0));
-                    RSSC_D.append(NewMap(0.0));
-                    RBLTC_D.append(NewMap(0.0));
-                    RSSTC_D.append(NewMap(0.0));
-                    RBLD_D.append(NewMap(0.0));
-                    RSSD_D.append(NewMap(0.0));
-
-                    Sed_D.append(NewMap(0.0));
-                    TC_D.append(NewMap(0.0));
-                    Conc_D.append(NewMap(0.0));
 
                     StorageDep_D.append(NewMap(0.0));
                     Storage_D.append(NewMap(0.0));
@@ -1145,33 +767,6 @@ void TWorld::InitMulticlass(void)
                         W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
 
                         graindiameters.clear();
-
-                        Tempa_D.append(NewMap(0.0));
-                        Tempb_D.append(NewMap(0.0));
-                        Tempc_D.append(NewMap(0.0));
-                        Tempd_D.append(NewMap(0.0));
-
-                        BL_D.append(NewMap(0.0));
-                        SS_D.append(NewMap(0.0));
-                        BLC_D.append(NewMap(0.0));
-                        SSC_D.append(NewMap(0.0));
-                        BLTC_D.append(NewMap(0.0));
-                        SSTC_D.append(NewMap(0.0));
-                        BLD_D.append(NewMap(0.0));
-                        SSD_D.append(NewMap(0.0));
-
-                        RBL_D.append(NewMap(0.0));
-                        RSS_D.append(NewMap(0.0));
-                        RBLC_D.append(NewMap(0.0));
-                        RSSC_D.append(NewMap(0.0));
-                        RBLTC_D.append(NewMap(0.0));
-                        RSSTC_D.append(NewMap(0.0));
-                        RBLD_D.append(NewMap(0.0));
-                        RSSD_D.append(NewMap(0.0));
-
-                        Sed_D.append(NewMap(0.0));
-                        TC_D.append(NewMap(0.0));
-                        Conc_D.append(NewMap(0.0));
 
                         StorageDep_D.append(NewMap(0.0));
                         Storage_D.append(NewMap(0.0));
@@ -1518,10 +1113,7 @@ void TWorld::GetInputData(void)
 
 
         D50 = ReadMap(LDD,getvaluename("D50"));
-        if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
-        {
-            D90 = ReadMap(LDD,getvaluename("D90"));
-        }
+        D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
     InitMulticlass();
@@ -1767,64 +1359,6 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    K2DDEM = NewMap(0);
-    K2DWHStore = NewMap(0);
-    K2DPits = NewMap(0);
-    K2DPitsD = NewMap(0);
-    K2DOutlets = NewMap(0);
- //   K2DDX = NewMap(0);
- //   K2DDY = NewMap(0);
-    K2DSlopeX = NewMap(0);
-    K2DSlopeY = NewMap(0);
-    K2DSlope = NewMap(0);
-   // K2DAspect = NewMap(0);
-
-
-
-    K2DQM = NewMap(0);
-    K2DQMX = NewMap(0);
-    K2DQMY = NewMap(0);
-    K2DFMX = NewMap(0);
-    K2DFMY = NewMap(0);
-    K2DMN = NewMap(0);
-    K2DM = NewMap(0);
-    K2DMC = NewMap(0);
-
-    if(SwitchErosion)
-    {
-        K2DQS = NewMap(0);
-        K2DQSX = NewMap(0);
-        K2DQSY = NewMap(0);
-        K2DSFX = NewMap(0);
-        K2DSFY = NewMap(0);
-        K2DS = NewMap(0);
-        K2DSC = NewMap(0);
-        K2DSCN = NewMap(0);
-    }
-    if(SwitchPesticide)
-    {
-        K2DQP = NewMap(0);
-        K2DQPX = NewMap(0);
-        K2DQPY = NewMap(0);
-        K2DPFX = NewMap(0);
-        K2DPFY = NewMap(0);
-        K2DP = NewMap(0);
-        K2DPC = NewMap(0);
-        K2DPCN = NewMap(0);
-    }
-
-    K2DHOld = NewMap(0);
-    K2DHNew = NewMap(0);
-    K2DQX = NewMap(0);
-    K2DQY = NewMap(0);
-    K2DFX = NewMap(0);
-    K2DFY = NewMap(0);
-    K2DQ = NewMap(0);
-    K2DQN = NewMap(0);
-//    K2DVX = NewMap(0);
-//    K2DVY = NewMap(0);
-//    K2DV = NewMap(0);
-    K2DI = NewMap(0);
     QinKW = NewMap(0);
     QoutKW = NewMap(0);
     Qoutput = NewMap(0);
@@ -2130,7 +1664,6 @@ void TWorld::IntializeData(void)
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
     //K2Dslope also used for transport capacity of overland flow!
-    K2DDEMA();
 
    // MakeWatersheds();
     FindBaseFlow();
@@ -2252,59 +1785,6 @@ void TWorld::IntializeOptions(void)
     // check to flag when swatre 3D structure is created, needed to clean up data
 
     SwitchPesticide = false;
-}
-//---------------------------------------------------------------------------
-void TWorld::MakeWatersheds(void)
-{
-    int i = 0;
-    WS_LIST one;
-    COORD cr;
-
-    WS.clear(); // empty structure
-
-    cr._c = 0;
-    cr._r = 0;
-
-    one.ws = -1;
-    one.cr << cr;
-    one.dt = _dx/2;
-    one.dt2 = _dx/2;
-    one.dtsum = 0;
-    one.flood = false;
-
-    WS << one;
-
-
-    FOR_ROW_COL_MV
-            if (FloodZonePotential->Drc == 1)
-    {
-        bool found = false;
-
-        for(int j = 0; j <= i; j++)
-            if ((int)WaterSheds->Drc == WS[j].ws)
-            {
-                found = true;
-                cr._c = c;
-                cr._r = r;
-                WS[j].cr << cr;
-            }
-
-        if(!found)// && i < 512)
-        {
-            one.ws = (int)WaterSheds->Drc;
-            i++;
-            cr._c = c;
-            cr._r = r;
-            one.cr << cr;
-            one.dt = _dx/2;
-            one.dt2 = _dx/2;
-            one.dtsum = 0;
-            one.flood = false;
-            WS << one;
-        }
-    }
-    //    for(int j = 0; j <= i; j++)
-    qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()

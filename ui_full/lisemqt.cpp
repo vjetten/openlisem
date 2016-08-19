@@ -192,12 +192,9 @@ void lisemqt::SetConnections()
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
-    connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     //    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
-    connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
     // not needed here, is done automagically
@@ -499,15 +496,10 @@ void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
         checkBox_SedMultiMulti->setChecked(false);
         sedbox1->setEnabled(false);
         sedbox2->setEnabled(false);
-        sedbox3->setEnabled(false);
-        E_RBLMethod->setValue(0);
-        E_RSSMethod->setValue(1);
+
         E_BLMethod->setValue(0);
         E_SSMethod->setValue(1);
-        E_RBLMethod->setMaximum(0);
-        E_RBLMethod->setMinimum(0);
-        E_RSSMethod->setMaximum(1);
-        E_RSSMethod->setMinimum(1);
+
         E_BLMethod->setMaximum(0);
         E_BLMethod->setMinimum(0);
         E_SSMethod->setMaximum(1);
@@ -531,15 +523,10 @@ void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
         checkBox_SedSingleSingle->setChecked(false);
         sedbox1->setEnabled(false);
         sedbox2->setEnabled(true);
-        sedbox3->setEnabled(true);
-        E_RBLMethod->setValue(1);
-        E_RSSMethod->setValue(1);
+
         E_BLMethod->setValue(1);
         E_SSMethod->setValue(1);
-        E_RBLMethod->setMaximum(2);
-        E_RBLMethod->setMinimum(0);
-        E_RSSMethod->setMaximum(2);
-        E_RSSMethod->setMinimum(1);
+
         E_BLMethod->setMaximum(2);
         E_BLMethod->setMinimum(0);
         E_SSMethod->setMaximum(2);
@@ -563,15 +550,10 @@ void lisemqt::on_checkBox_SedMultiMulti_toggled(bool v)
         checkBox_SedSingleSingle->setChecked(false);
         sedbox1->setEnabled(true);
         sedbox2->setEnabled(true);
-        sedbox3->setEnabled(true);
-        E_RBLMethod->setValue(3);
-        E_RSSMethod->setValue(3);
+
         E_BLMethod->setValue(3);
         E_SSMethod->setValue(3);
-        E_RBLMethod->setMaximum(3);
-        E_RBLMethod->setMinimum(3);
-        E_RSSMethod->setMaximum(3);
-        E_RSSMethod->setMinimum(3);
+
         E_BLMethod->setMaximum(3);
         E_BLMethod->setMinimum(3);
         E_SSMethod->setMaximum(3);
@@ -623,15 +605,6 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 //    }
 //}
 //--------------------------------------------------------------------
-void lisemqt::setFloodTab(bool yes)
-{
-    tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
-    outputMapsFlood->setEnabled(yes);
-    label_107->setEnabled(yes);
-    label_floodVolmm->setEnabled(yes);
-
-}
-//--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
@@ -677,13 +650,6 @@ void lisemqt::setErosionTab(bool yes)
     label_soilloss->setEnabled(yes);
     label_SDR->setEnabled(yes);
 
-}
-//--------------------------------------------------------------------
-void lisemqt::setRunoffTab(bool yes)
-{
-    tabWidgetOptions->setTabEnabled(3, yes);
-    if (yes && E_Kinematic2D->value() == 1)
-        E_Kinematic2D->setValue(3);
 }
 
 //--------------------------------------------------------------------
@@ -824,8 +790,6 @@ void lisemqt::SetToolBar()
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
     connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
-
-    //connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -861,8 +825,6 @@ void lisemqt::SetStyleUI()
     label_qpeaktime->setMinimumSize(w,h);
     label_ppeaktime->setMinimumSize(w,h);
     label_QPfrac->setMinimumSize(w,h);
-    //label_discharge->setMinimumSize(w,h);
-    label_floodVolmm->setMinimumSize(w,h);
     label_watervolchannel->setMinimumSize(w,h);
     label_litterstore->setMinimumSize(w,h);
     label_baseflowtot->setMinimumSize(w,h);
@@ -879,9 +841,6 @@ void lisemqt::SetStyleUI()
     label_detch->setMinimumSize(w,h);
     label_depch->setMinimumSize(w,h);
     label_sedvolch->setMinimumSize(w,h);
-    label_flooddet->setMinimumSize(w,h);
-    label_flooddep->setMinimumSize(w,h);
-    label_floodsed->setMinimumSize(w,h);
     label_soilloss->setMinimumSize(w,h);
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
@@ -907,7 +866,6 @@ void lisemqt::SetStyleUI()
     label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
-    label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
     label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
     label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
     label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
@@ -927,9 +885,6 @@ void lisemqt::SetStyleUI()
     label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
     label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
     label_SDR->setStyleSheet("* { background-color: #ffff77 }");
-    label_flooddet->setStyleSheet("* { background-color: #ffff77 }");
-    label_flooddep->setStyleSheet("* { background-color: #ffff77 }");
-    label_floodsed->setStyleSheet("* { background-color: #ffff77 }");
     label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
     label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
@@ -980,14 +935,7 @@ void lisemqt::setResultDir()
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
-//--------------------------------------------------------------------
-void lisemqt::on_E_floodSolution_valueChanged(int nr)
-{
-    E_FloodScheme->setEnabled(nr == 2);
-    label_98->setEnabled(nr == 2);
-    E_FloodFluxLimiter->setEnabled(nr == 2);
-    label_100->setEnabled(nr == 2);
-}
+
 //--------------------------------------------------------------------
 // this is for the directory with the table files
 void lisemqt::on_toolButton_SwatreTableDir_clicked()
@@ -1565,22 +1513,14 @@ void lisemqt::resetAll()
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
     checkHardsurface->setChecked(false);
-    //E_OFMethod->setValue(0);
-    E_RBLMethod->setValue(0);
-    E_RSSMethod->setValue(1);
 
     checkBox_SedMultiSingle->setChecked(false);
     checkBox_SedMultiMulti->setChecked(false);
     checkBox_SedSingleSingle->setChecked(true);
 
-    E_RBLMethod->setValue(0);
-    E_RSSMethod->setValue(1);
     E_BLMethod->setValue(0);
     E_SSMethod->setValue(1);
-    E_RBLMethod->setMaximum(0);
-    E_RBLMethod->setMinimum(0);
-    E_RSSMethod->setMaximum(1);
-    E_RSSMethod->setMinimum(1);
+
     E_BLMethod->setMaximum(0);
     E_BLMethod->setMinimum(0);
     E_SSMethod->setMaximum(1);
@@ -1601,8 +1541,7 @@ void lisemqt::resetAll()
     checkRaindrum->setChecked(check);
     // flooded areas
     checkChannelFlood->setChecked(check);
-    //  checkFloodInitial->setChecked(check);
-    checkWatershed->setChecked(check);
+
 
     checkLimitTC->setChecked(check);
     //   checkLimitDepTC->setChecked(check);
@@ -1660,22 +1599,12 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    E_courantFactor->setValue(0.2);
-
     E_floodMinHeight->setValue(0.05);
 
-    E_mixingFactor->setValue(2.0);
-    E_runoffPartitioning->setValue(0.5);
-    E_FloodFluxLimiter->setValue(1); //min
-    E_FloodReconstruction->setValue(3); //set to HLL3
-    E_FloodScheme->setValue(1); //MUSCL
-    E_1D2DCoupling->setValue(1);
     E_SSMethod->setValue(1);
     E_SigmaDiffusion->setValue(1);
     E_BLMethod->setValue(1);
-    E_FloodMaxIter->setValue(200);
-    //   E_FloodReplaceV->setValue(1);
-    //   E_FloodMaxVelocity->setValue(10.0);
+
 
 }
 //--------------------------------------------------------------------

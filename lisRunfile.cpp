@@ -178,9 +178,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
-     //   if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
-        if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
-        if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
+
+
         if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
 
 
@@ -188,8 +187,11 @@ void TWorld::ParseRunfileData(void)
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
     //    if (p1.compare("OF method")==0)                       OF_Method     = iii;
 
-        if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
-        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
+
+
+        if (p1.compare("BL method")==0)                 BL_Method     = iii;
+        if (p1.compare("SS method")==0)                 SS_Method     = iii;
+
       //  if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
 
@@ -227,11 +229,6 @@ void TWorld::ParseRunfileData(void)
         }
 
         if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
-    //    if (p1.compare("Detachment stoniness")==0)           SwitchStoninessDET   = iii == 1;
-
-    //    if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
-        if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
-        if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
 
         //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
@@ -322,21 +319,6 @@ void TWorld::ParseRunfileData(void)
 
  //   rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
 
-    if (SwitchFloodSWOForder2)
-    {
-        SwitchFloodSWOForder1 = false;
-        SwitchFloodExplicit = false;
-    }
-    if (SwitchFloodSWOForder1)
-    {
-        SwitchFloodSWOForder2 = false;
-        SwitchFloodExplicit = false;
-    }
-
-    SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
-    SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
-    CourantKin = getvaluedouble("Courant Kin Wave 2D");
-    TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
 

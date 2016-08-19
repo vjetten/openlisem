@@ -614,8 +614,6 @@ void lisemqt::showOutputData()
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
-    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
-
     label_watervolchannel->setText(QString::number(op.ChannelVolTot,'f',3));
     label_baseflowtot->setText(QString::number(op.BaseFlowtot,'f',3));
     label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
@@ -644,10 +642,6 @@ void lisemqt::showOutputData()
         label_detch->setText(QString::number(op.ChannelDetTot,'f',dig));
         label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
         label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
-
-        label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
-        label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
-        label_floodsed->setText(QString::number(op.FloodSed,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

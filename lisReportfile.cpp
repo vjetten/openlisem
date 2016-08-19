@@ -84,7 +84,7 @@ void TWorld::OutputUI(void)
         {
             if(LDDChannel->Drc == 5)
             {
-                channelwh += ChannelWH->Drc;
+                channelwh += UF1D_h->Drc;
             }
         }
     }
@@ -96,8 +96,8 @@ void TWorld::OutputUI(void)
 
         double discharge = Qoutput->Drc;
         double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
-        double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
-        double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
+        double sedimentconcentration = SwitchErosion? UF1D_fsc->Drc : 0.0;
+        double channelwh = SwitchIncludeChannel? UF1D_h->Drc : 0.0;
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
         op.OutletQstot.replace(j,op.OutletQstot.at(j) + _dt * sedimentdischarge/1000.0);
@@ -120,32 +120,8 @@ void TWorld::OutputUI(void)
 
     //display maps
     fill(*COMBO_QOFCH, 0.0);
-    calcMap(*COMBO_QOFCH, *Q, ADD);
-    calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
-
-    FOR_ROW_COL_MV
-    {
-        if(K2DOutlets->Drc ==1)
-        {
-            V->Drc = 0;
-        }
-    }
-
-    if(SwitchErosion)
-    {
-        fill(*COMBO_SS, 0.0);
-        if(SwitchChannelFlood)
-        {
-            calcMap(*COMBO_SS, *BLFlood, ADD);
-            calcMap(*COMBO_SS, *SSFlood, ADD);
-        }
-        if(SwitchIncludeChannel)
-        {
-            calcMap(*COMBO_SS, *ChannelBLSed, ADD);
-            calcMap(*COMBO_SS, *ChannelSSSed, ADD);
-        }
-        calcMap(*COMBO_SS, *Sed, ADD);
-    }
+    calcMap(*COMBO_QOFCH, *UF2D_q, ADD);
+    calcMap(*COMBO_QOFCH, *UF1D_q, ADD);
 
     //output maps for combo box
     for(int i = 0; i < op.ComboMaps.length(); i++)
@@ -196,7 +172,7 @@ void TWorld::OutputUI(void)
 
     op.BaseFlowtot = BaseFlow * 1000.0/(_dx*_dx*nrCells);
     op.LitterStorageTot = mapTotal(*LInterc) *1000.0/(_dx*_dx*nrCells);
-    op.ChannelVolTot = SwitchIncludeChannel? mapTotal(*ChannelWaterVol) * 1000.0/(_dx*_dx*nrCells) : 0.0;
+    op.ChannelVolTot = SwitchIncludeChannel? mapTotal(*UF1D_f) * 1000.0/(_dx*_dx*nrCells) : 0.0;
 
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;
@@ -481,7 +457,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << time/60;
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
-                    out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
+                    out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
                     if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
@@ -527,7 +503,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if ( PointMap->Drc > 0 )
                 {
 
-                    out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
+                    out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
                     if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
@@ -623,10 +599,6 @@ void TWorld::ReportMaps(void)
 
     report(*WHmax, floodWHmaxFileName);
 
-    if (SwitchIncludeChannel)
-    {
-        report(*ChannelQntot, channelDischargeMapFileName);
-    }
 
     if(SwitchErosion)
     {
@@ -727,7 +699,7 @@ void TWorld::ReportMaps(void)
         /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
     }
 
-    if (outputcheck[10].toInt() == 1) report(*ChannelWaterVol, Outchvol);
+    if (outputcheck[10].toInt() == 1) report(*UF1D_f, Outchvol);
 
 
     if (SwitchIncludeTile && outputcheck.count() > 11)
@@ -1086,10 +1058,10 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    AddComboMap(0,"Overland Discharge","l/s",Q,Colormap,Colors,true,false,1000.0, 1.0);
+    AddComboMap(0,"Overland Discharge","l/s",UF2D_q,Colormap,Colors,true,false,1000.0, 1.0);
     if(SwitchIncludeChannel)
     {
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQ,Colormap,Colors,true,false,1000.0, 1.0);
+        AddComboMap(0,"Channel Discharge","l/s",UF1D_q,Colormap,Colors,true,false,1000.0, 1.0);
         AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
     }
 
@@ -1103,10 +1075,10 @@ void TWorld::GetComboMaps()
     Colors.append("#FFFF00");
     Colors.append("#FF0000");
     Colors.append("#A60000");
-    AddComboMap(0,"Overland Flow Velocity","m/s",V,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Overland Flow Velocity","m/s",UF2D_velocity,Colormap,Colors,false,false,1.0, 0.01);
     if(SwitchIncludeChannel)
     {
-        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
+        AddComboMap(0,"Channel Velocity","m/s",UF1D_velocity,Colormap,Colors,false,false,1.0,0.01);
     }
 
     Colormap.clear();
@@ -1160,7 +1132,6 @@ void TWorld::GetComboMaps()
         Colors.append("#0023b1");
         Colors.append("#001462");
         AddComboMap(0,"Flood Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
-        AddComboMap(0,"Flood+OF Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
 
         Colormap.clear();
         Colormap.append(0.0);
@@ -1190,6 +1161,43 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
 
     }
+
+    Colormap.clear();
+    Colormap.append(0.0);
+  //  Colormap.append(0.3);
+    Colormap.append(0.5);
+ //   Colormap.append(0.70);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#ffffff");
+    Colors.append("#50B547");//#96B547");
+    Colors.append("#616ca2");//#457A60");
+
+    AddComboMap(0,"Fluid Phase Volume","m3",UF2D_f,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Channel Fluid Phase Volume","m3",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_d" ,"kg/m2",UF2D_d,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_d1" ,"kg/m2",UF1D_d,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_visc" ,"kg/m2",UF2D_visc,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_visc1" ,"kg/m2",UF1D_visc,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_rocksize" ,"kg/m2",UF2D_rocksize,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_rocksize1" ,"kg/m2",UF1D_rocksize,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_ifa" ,"kg/m2",UF2D_ifa,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_ifa1" ,"kg/m2",UF1D_ifa,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_fax" ,"kg/m2",UF2D_fax,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_fay" ,"kg/m2",UF2D_fay,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_fa" ,"kg/m2",UF1D_fa,Colormap,Colors,false,false,1.0,1.0);
+    //AddComboMap(0,"UF2D_qfx1" ,"kg/m2",UF2D_fqx1,Colormap,Colors,false,false,1.0,1.0);
+    //AddComboMap(0,"UF2D_qfx2" ,"kg/m2",UF2D_fqx2,Colormap,Colors,false,false,1.0,1.0);
+    //AddComboMap(0,"UF2D_qfy1" ,"kg/m2",UF2D_fqy1,Colormap,Colors,false,false,1.0,1.0);
+    //AddComboMap(0,"UF2D_qfy2" ,"kg/m2",UF2D_fqy2,Colormap,Colors,false,false,1.0,1.0);
+
+    AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_T" ,"kg/m2",UF2D_T,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_Test" ,"kg/m2",UF2D_Test,Colormap,Colors,false,false,1.0,1.0);
+
+
     if(SwitchErosion)
     {
         double step = 0.01;
@@ -1264,57 +1272,31 @@ void TWorld::GetComboMaps()
 
             FOR_GRAIN_CLASSES
             {
-                AddComboMap(1,"Overland S.L. Grain Class " + QString::number(d),"kg/m2",Sed_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+                AddComboMap(1,"Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",UF2D_blm_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
             }
+            FOR_GRAIN_CLASSES
+            {
+                AddComboMap(1,"Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",UF2D_ssm_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx),step);
+            }
+
             if(SwitchIncludeChannel)
             {
-                if(SwitchUse2Layer)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",RSS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                }else
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                }
-            }
-            if(SwitchChannelFlood)
-            {
+
                 FOR_GRAIN_CLASSES
                 {
-                    AddComboMap(1,"Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",BL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+                    AddComboMap(1,"Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",UF1D_blm_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                 }
                 FOR_GRAIN_CLASSES
                 {
-                    AddComboMap(1,"Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",SS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx),step);
+                    AddComboMap(1,"Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",UF1D_ssm_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
                 }
             }
+
+
 
         }
     }
 
-    AddComboMap(0,"UF_f","kg/m2",UF2D_f,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_s","kg/m2",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_f1","kg/m2",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_s1","kg/m2",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_vel" ,"kg/m2",UF2D_velocity,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_velx" ,"kg/m2",UF2D_fu,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_vely" ,"kg/m2",UF2D_fv,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_velx" ,"kg/m2",UF2D_su,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_vely" ,"kg/m2",UF2D_sv,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_vel1" ,"kg/m2",UF1D_velocity,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_SlopeX" ,"kg/m2",UF2D_SlopeX,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_SlopeY" ,"kg/m2",UF2D_SlopeY,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_T" ,"kg/m2",UF2D_T,Colormap,Colors,false,false,1.0,1.0);
 }
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()

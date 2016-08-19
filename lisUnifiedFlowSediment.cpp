@@ -34,44 +34,36 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-void TWorld::UF2D_FluidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f,cTMap *out_visc)
+void TWorld::UF2D_FluidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f)
 {
     FOR_ROW_COL_UF2D
     {
         out_f->Drc = _f->Drc;
-        out_visc->Drc = _f->Drc;
     }
 
 }
 
-void TWorld::UF2D_SolidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_s,cTMap * out_d,cTMap *  out_ifa,cTMap *  out_rocksize)
+void TWorld::UF2D_SolidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_s)
 {
     FOR_ROW_COL_UF2D
     {
         out_s->Drc = _s->Drc;
-        out_d->Drc = _d->Drc;
-        out_ifa->Drc = _ifa->Drc;
-        out_rocksize->Drc = _rocksize->Drc;
     }
 }
 
 
-void TWorld::UF1D_FluidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_f,cTMap * out_visc)
+void TWorld::UF1D_FluidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_f)
 {
     FOR_ROW_COL_UF1D
     {
         out_f->Drc = _f->Drc;
-        out_visc->Drc = _f->Drc;
     }
 }
-void TWorld::UF1D_SolidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_s,cTMap * out_d,cTMap *  out_ifa,cTMap *  out_rocksize)
+void TWorld::UF1D_SolidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_s)
 {
     FOR_ROW_COL_UF1D
     {
         out_s->Drc = _s->Drc;
-        out_d->Drc = _d->Drc;
-        out_ifa->Drc = _ifa->Drc;
-        out_rocksize->Drc = _rocksize->Drc;
     }
 }
 
@@ -107,7 +99,7 @@ void TWorld::UF_FlowDetachment(double dt)
         }
     }
 
-
+    UF_SumGrainClasses();
 }
 
 void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
@@ -160,8 +152,8 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
     if(!(hf > UF_VERY_SMALL) || surface < UF_VERY_SMALL)
     {
         //dump everything since there is hardly any water volume
-        UF_SoilAdd(r,c,d,TBL->Drc,true);
-        UF_SoilAdd(r,c,d,TSS->Drc,false);
+        UF_SoilAdd(r,c,d,-TBL->Drc,true);
+        UF_SoilAdd(r,c,d,-TSS->Drc,false);
         TBL->Drc=0;
         TSS->Drc=0;
         TBLTC->Drc=0;
@@ -176,7 +168,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        double TransportFactor;
 
        //deposition based on settling velocity
-       TransportFactor = (1.0-exp(-dt*TSettlingVelocity/hf)) * watervol;
+       TransportFactor = (1-exp(-dt*TSettlingVelocity/hf)) * watervol;
 
        double maxTC = std::max(TSSTC->Drc - ssconc,0.0) ;
        // positive difference: TC deficit becomes detachment (ppositive)
@@ -190,24 +182,19 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        ////Suspended sediment detachment
        //erosion values based on settling velocity
-       TransportFactor = dt*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
+       TransportFactor = dt*TSettlingVelocity * DX->Drc * (channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
 
        //correct detachment for grass strips, hard surfaces and houses
        double detachment = TW->Drc * maxTC * TransportFactor;
-       if (GrassFraction->Drc > 0)
-          detachment = (1-GrassFraction->Drc) * detachment;
-       detachment = (1-StoneFraction->Drc) * detachment ;
-       if (SwitchHardsurface)
-          detachment = (1-HardSurface->Drc) * detachment;
-       if (SwitchHouses)
-          detachment = (1-HouseCover->Drc)* detachment;
+
+       detachment = std::min(detachment,discharge * maxTC);
 
        //check how much of the potential detachment can be detached from soil layer
        detachment = UF_SoilTake(r,c,d,detachment,channel,false);
 
        //### sediment balance
        TSS->Drc += detachment;
-       double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*hf;
+       double sssmax = MAXCONC * watervol;
        if(sssmax < TSS->Drc)
        {
            TBL->Drc +=(TSS->Drc - sssmax);
@@ -231,7 +218,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        ////Bed load sediment detachment
        //### detachment
-       TransportFactor = dt*TSettlingVelocity * DX->Drc *SoilWidthDX->Drc;
+       TransportFactor = dt*TSettlingVelocity * DX->Drc *(channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
        // detachment can only come from soil, not roads (so do not use flowwidth)
        // units s * m/s * m * m = m3
 
@@ -243,14 +230,8 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        detachment = UF_SoilTake(r,c,d,detachment,channel,true);
 
-       // IN KG/CELL
-
-       //DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
-       // TODO: CHECK THIS no flow detachment on snow
-       //is there erosion and sedimentation under the snowdeck?
-
-       //### deposition
-       if (BLDepthFlood->Drc > MIN_HEIGHT)
+       ////bed load sediment deposition
+       if (blhf > MIN_HEIGHT)
           TransportFactor = (1-exp(-dt*TSettlingVelocity/hf)) * watervol;
        else
           TransportFactor = 1*watervol;
@@ -264,12 +245,13 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
        if (SwitchLimitDepTC)
-          deposition = std::max(deposition, minTC *blwatervol);
+          deposition = std::max(deposition, minTC *watervol);
        // cannot be more than sediment above capacity
        deposition = std::max(deposition, -TBL->Drc);
        // cannot have more depo than sediment presen
 
        UF_SoilAdd(r,c,d,deposition,channel);
+
 
        // IN KG/CELL
        TBL->Drc += detachment;
@@ -303,7 +285,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
             //use Govers transport capacity equation
             if(_d == -1)
             {
-                double slope = channel? UF1D_LDDs->Drc : std::max(UF2D_SlopeX->Drc,UF2D_SlopeY->Drc);
+                double slope = channel? UF1D_LDDs->Drc : sqrt(UF2D_SlopeX->Drc*UF2D_SlopeX->Drc + UF2D_SlopeY->Drc*UF2D_SlopeY->Drc);
                 CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
                 DG->Drc = pow((D50->Drc+5)/300, 0.25);
                 //### Calc transport capacity
@@ -320,10 +302,10 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
             //use the Hairsine and Rose transport capacity equation
             }else
             {
-                double slope = channel? UF1D_LDDs->Drc : std::max(UF2D_SlopeX->Drc,UF2D_SlopeY->Drc);
-                double om =  100.0* v*slope;
+                double slope = channel? UF1D_LDDs->Drc : sqrt(UF2D_SlopeX->Drc*UF2D_SlopeX->Drc + UF2D_SlopeY->Drc*UF2D_SlopeY->Drc);
+                double om = 100.0* v*slope;
                 double omcr = 0.4;
-                double tc =  W_D.at(_d)->Drc * (1.0/settlingvelocities.at(_d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/WHrunoff->Drc) ;
+                double tc =  W_D.at(_d)->Drc * (1.0/settlingvelocities.at(_d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/hf) ;
                 return std::min(MAXCONC,tc);
             }
 
@@ -415,11 +397,6 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
 
         }else
         {
-            //wu wang & Jia suspended load
-            if(SSD_D.at(_d)->Drc < 0.004)
-            {
-                return 0;
-            }
             double slope = channel? UF1D_LDDs->Drc : std::max(UF2D_SlopeX->Drc,UF2D_SlopeY->Drc);
             double ps = 2400.0;
             double pw = 1000.0;
@@ -516,7 +493,7 @@ void TWorld::UF_SoilAdd(int r, int c, int d, double deposition, bool channel)
 {
     if(SwitchUseMaterialDepth)
     {
-        StorageDep->Drc += deposition;
+        StorageDep->Drc += -deposition;
         if(SwitchUseGrainSizeDistribution)
         {
               StorageDep_D.Drcd += -deposition;
@@ -529,6 +506,46 @@ void TWorld::UF_SoilAdd(int r, int c, int d, double deposition, bool channel)
     }else
     {
         UF2D_Dep->Drc += deposition;
+    }
+}
+
+void TWorld::UF_SumGrainClasses()
+{
+    if(SwitchUseGrainSizeDistribution)
+    {
+        cTMap * _dem = UF2D_DEM;
+        FOR_ROW_COL_UF2D
+        {
+            UF2D_blm->Drc = 0;
+            UF2D_ssm->Drc = 0;
+            UF2D_bltc->Drc = 0;
+            UF2D_sstc->Drc = 0;
+            FOR_GRAIN_CLASSES
+            {
+                UF2D_blm->Drc += UF2D_blm_D.Drcd;
+                UF2D_ssm->Drc += UF2D_ssm_D.Drcd;
+                UF2D_bltc->Drc += UF2D_bltc_D.Drcd;
+                UF2D_sstc->Drc += UF2D_sstc_D.Drcd;
+            }
+        }
+        if(UF_1DACTIVE)
+        {
+            cTMap *_ldd = UF1D_LDD;
+            FOR_ROW_COL_UF1D
+            {
+                UF1D_blm->Drc = 0;
+                UF1D_ssm->Drc = 0;
+                UF1D_bltc->Drc = 0;
+                UF1D_sstc->Drc = 0;
+                FOR_GRAIN_CLASSES
+                {
+                    UF1D_blm->Drc += UF1D_blm_D.Drcd;
+                    UF1D_ssm->Drc += UF1D_ssm_D.Drcd;
+                    UF1D_bltc->Drc += UF1D_bltc_D.Drcd;
+                    UF1D_sstc->Drc += UF1D_sstc_D.Drcd;
+                }
+            }
+        }
     }
 
 }
