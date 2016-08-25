@@ -44,54 +44,16 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
         out_fv->Drc = _fv->Drc;
         out_su->Drc = _su->Drc;
         out_sv->Drc = _sv->Drc;
-        UF_t1->Drc = -_f->Drc/(_dx*_dx);
-        UF_t2->Drc = -_s->Drc/(_dx*_dx);
         UF_t3->Drc = _f->Drc;
         UF_t4->Drc = _s->Drc;
-
-        out_qfx1->Drc = 0;
-        out_qfx2->Drc = 0;
-        out_qfy1->Drc = 0;
-        out_qfy2->Drc = 0;
-        out_qsx1->Drc = 0;
-        out_qsx2->Drc = 0;
-        out_qsy1->Drc = 0;
-        out_qsy2->Drc = 0;
     }
-
-    //determine boundary fluxes using a muscle scheme
-    UF2D_MUSCLE(_dem,dt,UF_t1,UF_MUSCLE_TARGET_IN1);
-    UF2D_MUSCLE(_dem,dt,_fu,UF_MUSCLE_TARGET_IN2, UF_DIRECTION_X);
-    UF2D_MUSCLE(_dem,dt,_fv,UF_MUSCLE_TARGET_IN3, UF_DIRECTION_Y);
-    UF2D_MUSCLE_operate(_dem,dt,UF_MUSCLE_TARGET_IN1,UF_MUSCLE_TARGET_IN2,UF_MUSCLE_TARGET_IN3,UF_MUSCLE_mult,UF_MUSCLE_TARGET_OUT);
 
     FOR_ROW_COL_UF2D_DT
     {
-        double cq = 0.25 * UF_Courant * _f->Drc;
-        double cqN = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : _f->data[r-1][c]);
-        double cqS = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : _f->data[r+1][c]);
-        double cqE = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : _f->data[r][c+1]);
-        double cqW = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : _f->data[r][c-1]);
-
-        double dtx1 = dt->Drc;//(UF2D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-        double dtx2 = dt->Drc;//(UF2D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c-1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c-1)? 0.0: dt->data[r][c-1]));
-        double dty1 = dt->Drc;//(UF2D_MUSCLE_OUT_y1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r+1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r+1,c)? 0.0: dt->data[r+1][c]));
-        double dty2 = dt->Drc;//(UF2D_MUSCLE_OUT_y2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r-1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r-1,c)? 0.0: dt->data[r-1][c]));
-
-        double qx1 = 0.5 * ((UF2D_MUSCLE_OUT_x1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx1 * UF2D_MUSCLE_OUT_x1->Drc *_dx),(UF2D_MUSCLE_OUT_x1->Drc > 0)? cq : cqE);
-        double qx2 = 0.5 * ((UF2D_MUSCLE_OUT_x2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx2 * UF2D_MUSCLE_OUT_x2->Drc *_dx),(UF2D_MUSCLE_OUT_x2->Drc > 0)? cqW : cq);
-        double qy1 = 0.5 * ((UF2D_MUSCLE_OUT_y1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dty1 * UF2D_MUSCLE_OUT_y1->Drc *_dx),(UF2D_MUSCLE_OUT_y1->Drc > 0)? cq : cqS);
-        double qy2 = 0.5 * ((UF2D_MUSCLE_OUT_y2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dty2 * UF2D_MUSCLE_OUT_y2->Drc *_dx),(UF2D_MUSCLE_OUT_y2->Drc > 0)? cqN : cq);
-
-        qx1 = UF_OUTORMV(_dem,r,c+1)? UF_BoundaryFlux2D(dtx1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,1) : qx1;
-        qx2 = UF_OUTORMV(_dem,r,c-1)? -UF_BoundaryFlux2D(dtx2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,-1) : qx2;
-        qy1 = UF_OUTORMV(_dem,r+1,c)? UF_BoundaryFlux2D(dty1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 1,0) : qy1;
-        qy2 = UF_OUTORMV(_dem,r-1,c)? -UF_BoundaryFlux2D(dty2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, -1,0) : qy2;
-
-        out_qfx1->Drc = qx1;
-        out_qfx2->Drc = qx2;
-        out_qfy1->Drc = qy1;
-        out_qfy2->Drc = qy2;
+        double qx1 = out_qfx1->Drc;
+        double qx2 = out_qfx2->Drc;
+        double qy1 = out_qfy1->Drc;
+        double qy2 = out_qfy2->Drc;
 
         if(!UF_OUTORMV(_dem,r,c+1))
         {
@@ -131,6 +93,7 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
         if(!UF_OUTORMV(_dem,r+1,c)){
             if(qy1 > 0)
             {
+
                 out_fu->data[r+1][c] = ((UF_t3->data[r+1][c] + qy1) > UF_VERY_SMALL)? (UF_t3->data[r+1][c] * out_fu->data[r+1][c] + qy1 * _fu->Drc)/(UF_t3->data[r+1][c] + qy1) : 0.0;
                 out_fv->data[r+1][c] = ((UF_t3->data[r+1][c] + qy1) > UF_VERY_SMALL)? (UF_t3->data[r+1][c] * out_fv->data[r+1][c] + qy1 * _fv->Drc)/(UF_t3->data[r+1][c] + qy1) : 0.0;
                 UF_t3->data[r+1][c] += qy1;
@@ -163,41 +126,15 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
         }
 
     }}}
+
     if(UF_SOLIDPHASE)
     {
-        //determine boundary fluxes using a muscle scheme
-        UF2D_MUSCLE(_dem,dt,UF_t2,UF_MUSCLE_TARGET_IN1);
-        UF2D_MUSCLE(_dem,dt,_su,UF_MUSCLE_TARGET_IN2, UF_DIRECTION_X);
-        UF2D_MUSCLE(_dem,dt,_sv,UF_MUSCLE_TARGET_IN3, UF_DIRECTION_Y);
-        UF2D_MUSCLE_operate(_dem,dt,UF_MUSCLE_TARGET_IN1,UF_MUSCLE_TARGET_IN2,UF_MUSCLE_TARGET_IN3,UF_MUSCLE_mult,UF_MUSCLE_TARGET_OUT);
-
         FOR_ROW_COL_UF2D_DT
         {
-            double cq = 0.25 * UF_Courant * _s->Drc;
-            double cqN = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : _s->data[r-1][c]);
-            double cqS = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : _s->data[r+1][c]);
-            double cqE = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : _s->data[r][c+1]);
-            double cqW = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : _s->data[r][c-1]);
-
-            double dtx1 = dt->Drc;//(UF2D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-            double dtx2 = dt->Drc;//(UF2D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c-1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c-1)? 0.0: dt->data[r][c-1]));
-            double dty1 = dt->Drc;//(UF2D_MUSCLE_OUT_y1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r+1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r+1,c)? 0.0: dt->data[r+1][c]));
-            double dty2 = dt->Drc;//(UF2D_MUSCLE_OUT_y2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r-1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r-1,c)? 0.0: dt->data[r-1][c]));
-
-            double qx1 = 0.5 * ((UF2D_MUSCLE_OUT_x1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx1 * UF2D_MUSCLE_OUT_x1->Drc *_dx),(UF2D_MUSCLE_OUT_x1->Drc > 0)? cq : cqE);
-            double qx2 = 0.5 * ((UF2D_MUSCLE_OUT_x2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx2 * UF2D_MUSCLE_OUT_x2->Drc *_dx),(UF2D_MUSCLE_OUT_x2->Drc > 0)? cqW : cq);
-            double qy1 = 0.5 * ((UF2D_MUSCLE_OUT_y1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dty1 * UF2D_MUSCLE_OUT_y1->Drc *_dx),(UF2D_MUSCLE_OUT_y1->Drc > 0)? cq : cqS);
-            double qy2 = 0.5 * ((UF2D_MUSCLE_OUT_y2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dty2 * UF2D_MUSCLE_OUT_y2->Drc *_dx),(UF2D_MUSCLE_OUT_y2->Drc > 0)? cqN : cq);
-
-            qx1 = UF_OUTORMV(_dem,r,c+1)? UF_BoundaryFlux2D(dtx1,_dx,_dx,0,_s->Drc,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,1) : qx1;
-            qx2 = UF_OUTORMV(_dem,r,c-1)? -UF_BoundaryFlux2D(dtx2,_dx,_dx,0,_s->Drc,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,-1) : qx2;
-            qy1 = UF_OUTORMV(_dem,r+1,c)? UF_BoundaryFlux2D(dty1,_dx,_dx,0,_s->Drc,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 1,0) : qy1;
-            qy2 = UF_OUTORMV(_dem,r-1,c)? -UF_BoundaryFlux2D(dty2,_dx,_dx,0,_s->Drc,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, -1,0) : qy2;
-
-            out_qsx1->Drc = qx1;
-            out_qsx2->Drc = qx2;
-            out_qsy1->Drc = qy1;
-            out_qsy2->Drc = qy2;
+            double qx1 = out_qsx1->Drc;
+            double qx2 = out_qsx2->Drc;
+            double qy1 = out_qsy1->Drc;
+            double qy2 = out_qsy2->Drc;
 
             if(!UF_OUTORMV(_dem,r,c+1))
             {
@@ -209,11 +146,11 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qx1;
                 }else if(qx1 != 0)
                 {
-                    qx1 = std::fabs(qx1);
+                    /*qx1 = std::fabs(qx1);
                     out_su->Drc = ((UF_t4->Drc + qx1) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + qx1 * _su->data[r][c+1])/(UF_t4->Drc + qx1) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + qx1) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + qx1 * _sv->data[r][c+1])/(UF_t4->Drc + qx1) : 0.0;
                     UF_t4->data[r][c+1] -= qx1;
-                    UF_t4->Drc += qx1;
+                    UF_t4->Drc += qx1;*/
                 }
             }
             if(!UF_OUTORMV(_dem,r,c-1)){
@@ -227,10 +164,10 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qx2;
                 }else if(qx2 != 0)
                 {
-                    out_su->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
+                    /*out_su->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + std::fabs(qx2) * _sv->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
                     UF_t4->data[r][c-1] -= qx2;
-                    UF_t4->Drc += qx2;
+                    UF_t4->Drc += qx2;*/
                 }
             }
             if(!UF_OUTORMV(_dem,r+1,c)){
@@ -242,11 +179,11 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qy1;
                 }else  if(qy1 != 0)
                 {
-                    qy1 = std::fabs(qy1);
+                    /*qy1 = std::fabs(qy1);
                     out_su->Drc = ((UF_t4->Drc + qy1) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + qy1 * _su->data[r+1][c])/(UF_t4->Drc + qy1) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + qy1) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + qy1 * _sv->data[r+1][c])/(UF_t4->Drc + qy1) : 0.0;
                     UF_t4->data[r+1][c] -= qy1;
-                    UF_t4->Drc += qy1;
+                    UF_t4->Drc += qy1;*/
                 }
             }
             if(!UF_OUTORMV(_dem,r-1,c)){
@@ -259,10 +196,10 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qy2;
                 }else  if(qy2 != 0)
                 {
-                    out_su->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
+                    /*out_su->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + std::fabs(qy2) * _sv->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
                     UF_t4->data[r-1][c] -= qy2;
-                    UF_t4->Drc += qy2;
+                    UF_t4->Drc += qy2;*/
                 }
             }
 
@@ -307,10 +244,10 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 out_m->Drc -= conc *qx1;
             }else
             {
-                qx1 = std::fabs(qx1);
+                /*qx1 = std::fabs(qx1);
                 double c2 = (f->data[r][c+1] > UF_VERY_SMALL)? _m->data[r][c+1]/f->data[r][c+1] : 0.0;
                 out_m->data[r][c+1] -= c2 * qx1;
-                out_m->Drc += c2 * qx1;
+                out_m->Drc += c2 * qx1;*/
             }
         }else
         {
@@ -329,9 +266,9 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 out_m->Drc -= conc * qx2;
             }else
             {
-                double c2 = (f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 0.0;
+                /*double c2 = (f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 0.0;
                 out_m->data[r][c-1] -= c2 * qx2;
-                out_m->Drc += c2 * qx2;
+                out_m->Drc += c2 * qx2;*/
             }
         }else
         {
@@ -349,10 +286,10 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 out_m->Drc -= conc * qy1;
             }else
             {
-                qy1 = std::fabs(qy1);
+                /*qy1 = std::fabs(qy1);
                 double c2 = (f->data[r+1][c] > UF_VERY_SMALL)? _m->data[r+1][c]/f->data[r+1][c] : 0.0;
                 out_m->data[r+1][c] -= c2 * qy1;
-                out_m->Drc += c2 * qy1;
+                out_m->Drc += c2 * qy1;*/
             }
         }else
         {
@@ -370,9 +307,9 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 out_m->Drc -= conc * qy2;
             }else
             {
-                double c2 = (f->data[r-1][c] > UF_VERY_SMALL)?_m->data[r-1][c]/f->data[r-1][c] : 0.0;
+                /*double c2 = (f->data[r-1][c] > UF_VERY_SMALL)?_m->data[r-1][c]/f->data[r-1][c] : 0.0;
                 out_m->data[r-1][c] -= c2 * qy2;
-                out_m->Drc += c2 * qy2;
+                out_m->Drc += c2 * qy2;*/
             }
         }else
         {

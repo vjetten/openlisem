@@ -79,12 +79,12 @@ void TWorld::UF2D_MUSCLE(cTMap * _dem,cTMap * dt, cTMap * _in, int target, int d
          {
              FOR_ROW_COL_UF2D_DT
              {
-                 delta_x1 = (UF_OUTORMV(_dem,r,c-1)? 0.0: _in->Drc - _in->data[r][c-1])/_dx ;
-                 delta_x2 = (UF_OUTORMV(_dem,r,c+1)? 0.0: _in->data[r][c+1] - _in->Drc)/_dx;
+                 delta_x2 = (UF_OUTORMV(_dem,r,c-1)? 0.0: (_in->Drc - _in->data[r][c-1]))/_dx ;
+                 delta_x1 = (UF_OUTORMV(_dem,r,c+1)? 0.0: (_in->data[r][c+1] - _in->Drc))/_dx;
                  dx   = 0.5*UF_MinMod(delta_x1, delta_x2);
 
-                 outx1->Drc = _in->Drc-0.5 * dx;
-                 outx2->Drc = _in->Drc+0.5 * dx;
+                 outx1->Drc = _in->Drc+ ((dx < 0)? 0.5 * _dx * dx : 0.5 * _dx * dx);
+                 outx2->Drc = _in->Drc- ((dx > 0)? 0.5 * _dx * dx : 0.5 * _dx * dx);
 
              }}}
          }
@@ -92,12 +92,12 @@ void TWorld::UF2D_MUSCLE(cTMap * _dem,cTMap * dt, cTMap * _in, int target, int d
          {
              FOR_ROW_COL_UF2D_DT
              {
-                 delta_y1 = (UF_OUTORMV(_dem,r-1,c)? 0.0: _in->Drc - _in->data[r-1][c])/_dx;
-                 delta_y2 = (UF_OUTORMV(_dem,r+1,c)? 0.0: _in->data[r+1][c] - _in->Drc)/_dx;
+                 delta_y2 = (UF_OUTORMV(_dem,r-1,c)? 0.0: (_in->Drc - _in->data[r-1][c]))/_dx;
+                 delta_y1 = (UF_OUTORMV(_dem,r+1,c)? 0.0: (_in->data[r+1][c] - _in->Drc))/_dx;
                  dy   = 0.5*UF_MinMod(delta_y1, delta_y2);
 
-                 outy1->Drc = _in->Drc-0.5 * dy;
-                 outy2->Drc = _in->Drc+0.5 * dy;
+                 outy1->Drc = _in->Drc+ ((dy < 0)? 0.5 * _dx * dy : 0.5 * _dx * dy );
+                 outy2->Drc = _in->Drc- ((dy > 0)? 0.5 * _dx * dy : 0.5 * _dx * dy );
             }}}
          }
     }else
@@ -106,24 +106,24 @@ void TWorld::UF2D_MUSCLE(cTMap * _dem,cTMap * dt, cTMap * _in, int target, int d
         {
             FOR_ROW_COL_UF2D
             {
-                delta_x1 = (UF_OUTORMV(_dem,r,c-1)? 0.0: _in->Drc - _in->data[r][c-1])/_dx ;
-                delta_x2 = (UF_OUTORMV(_dem,r,c+1)? 0.0: _in->data[r][c+1] - _in->Drc)/_dx;
+                delta_x2 = (UF_OUTORMV(_dem,r,c-1)? 0.0: (_in->Drc - _in->data[r][c-1]))/_dx ;
+                delta_x1 = (UF_OUTORMV(_dem,r,c+1)? 0.0: (_in->data[r][c+1] - _in->Drc))/_dx;
                 dx   = 0.5*UF_MinMod(delta_x1, delta_x2);
 
-                outx1->Drc = _in->Drc-0.5 * dx;
-                outx2->Drc = _in->Drc+0.5 * dx;
+                outx1->Drc = _in->Drc+ ((dx < 0)? 0.5 * _dx * dx : 0.5 * _dx * dx);
+                outx2->Drc = _in->Drc- ((dx > 0)? 0.5 * _dx * dx : 0.5 * _dx * dx);
             }
         }
         if(dir == UF_DIRECTION_Y || dir == UF_DIRECTION_XY)
         {
             FOR_ROW_COL_UF2D
             {
-                delta_y1 = (UF_OUTORMV(_dem,r-1,c)? 0.0: _in->Drc - _in->data[r-1][c])/_dx;
-                delta_y2 = (UF_OUTORMV(_dem,r+1,c)? 0.0: _in->data[r+1][c] - _in->Drc)/_dx;
+                delta_y2 = (UF_OUTORMV(_dem,r-1,c)? 0.0: (_in->Drc - _in->data[r-1][c]))/_dx;
+                delta_y1 = (UF_OUTORMV(_dem,r+1,c)? 0.0: (_in->data[r+1][c] - _in->Drc))/_dx;
                 dy   = 0.5*UF_MinMod(delta_y1, delta_y2);
 
-                outy1->Drc = _in->Drc-0.5 * dy;
-                outy2->Drc = _in->Drc+0.5 * dy;
+                outy1->Drc = _in->Drc+ ((dy < 0)? 0.5 * _dx * dy : 0.5 * _dx * dy );
+                outy2->Drc = _in->Drc- ((dy > 0)? 0.5 * _dx * dy : 0.5 * _dx * dy );
            }
         }
     }

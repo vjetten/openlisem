@@ -56,8 +56,8 @@ void TWorld::UF2D_Advect_Momentum(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _v
         double qfx = std::min(std::fabs(dt->Drc * hf * _fu->Drc*_dx),0.5 * UF_Courant * _f->Drc);
         double qfy = std::min(std::fabs(dt->Drc * hf * _fv->Drc*_dx),0.5 * UF_Courant * _f->Drc);
 
-        int qfxc = c + ((_fu->Drc > 0)? -1 : 1);
-        int qfyr = r + ((_fv->Drc > 0)? -1 : 1);
+        int qfxc = c + ((_fu->Drc > 0)? 1 : -1);
+        int qfyr = r + ((_fv->Drc > 0)? 1 : -1);
 
 
         if(!UF_OUTORMV(_dem,r,qfxc)){
@@ -78,8 +78,8 @@ void TWorld::UF2D_Advect_Momentum(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _v
             double qsx = std::min(std::fabs(dt->Drc * hs * _su->Drc*_dx),0.5 * UF_Courant * _s->Drc);
             double qsy = std::min(std::fabs(dt->Drc * hs * _sv->Drc*_dx),0.5 * UF_Courant * _s->Drc);
 
-            int qsxc = c + ((_su->Drc > 0)? -1 : 1);
-            int qsyr = r + ((_sv->Drc > 0)? -1 : 1);
+            int qsxc = c + ((_su->Drc > 0)? 1 : -1);
+            int qsyr = r + ((_sv->Drc > 0)? 1 : -1);
 
             if(!UF_OUTORMV(_dem,r,qsxc)){
                 out_su->data[r][qsxc] = ((UF_t2->data[r][qsxc] + qsx) > 0)? (UF_t2->data[r][qsxc] * out_su->data[r][qsxc] + qsx * _su->Drc)/(UF_t2->data[r][qsxc] + qsx) : 0.0;
@@ -122,8 +122,8 @@ double TWorld::UF2D_Advect_mass(cTMap * dt, cTMap * _dem,cTMap * _m, cTMap * _mu
         double qmx = std::min(std::fabs(dt->Drc * hm * _mu->Drc*_dx), 0.5 * UF_Courant * out_m->Drc);
         double qmy = std::min(std::fabs(dt->Drc * hm * _mv->Drc*_dx), 0.5 * UF_Courant * out_m->Drc);
 
-        int qmxc = c + ((_mu->Drc > 0)? -1 : 1);
-        int qmyr = r + ((_mv->Drc > 0)? -1 : 1);
+        int qmxc = c + ((_mu->Drc > 0)? 1 : -1);
+        int qmyr = r + ((_mv->Drc > 0)? 1 : -1);
 
         if(!UF_OUTORMV(_dem,r,qmxc)){
             out_m->data[r][qmxc] += qmx;
@@ -176,8 +176,8 @@ void TWorld::UF2D_Advect_prop(cTMap * dt, cTMap * _dem,cTMap * _m, cTMap * _mu, 
         double qmx = std::min(std::fabs(dt->Drc * hm * _mu->Drc*_dx), 0.5 * UF_Courant * UF_t1->Drc);
         double qmy = std::min(std::fabs(dt->Drc * hm * _mv->Drc*_dx), 0.5 * UF_Courant * UF_t1->Drc);
 
-        int qmxc = c + ((_mu->Drc > 0)? -1 : 1);
-        int qmyr = r + ((_mv->Drc > 0)? -1 : 1);
+        int qmxc = c + ((_mu->Drc > 0)? 1 : -1);
+        int qmyr = r + ((_mv->Drc > 0)? 1 : -1);
 
 
         if(!UF_OUTORMV(_dem,r,qmxc)){
@@ -209,7 +209,7 @@ void TWorld::UF2D_Advect_prop(cTMap * dt, cTMap * _dem,cTMap * _m, cTMap * _mu, 
 }
 
 
-void TWorld::UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f, cTMap * _s, cTMap * _fu, cTMap * _fv, cTMap * _su, cTMap * _sv, cTMap * out_m)
+void TWorld::UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f, cTMap * _fu, cTMap * _fv, cTMap * out_m)
 {
     bool write_to_input = false;
     if(out_m ==0)
@@ -650,7 +650,7 @@ void TWorld::UF1D_Advect_prop(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
 
 
 
-void TWorld::UF1D_Diffuse_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap * _m, cTMap * _f,cTMap * _fu,cTMap * _s,cTMap * _su, cTMap * out_m)
+void TWorld::UF1D_Diffuse_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap * _m, cTMap * _f,cTMap * _fu, cTMap * out_m)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

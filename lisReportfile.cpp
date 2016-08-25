@@ -1188,10 +1188,10 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"UF2D_fax" ,"kg/m2",UF2D_fax,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF2D_fay" ,"kg/m2",UF2D_fay,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF2D_fa" ,"kg/m2",UF1D_fa,Colormap,Colors,false,false,1.0,1.0);
-    //AddComboMap(0,"UF2D_qfx1" ,"kg/m2",UF2D_fqx1,Colormap,Colors,false,false,1.0,1.0);
-    //AddComboMap(0,"UF2D_qfx2" ,"kg/m2",UF2D_fqx2,Colormap,Colors,false,false,1.0,1.0);
-    //AddComboMap(0,"UF2D_qfy1" ,"kg/m2",UF2D_fqy1,Colormap,Colors,false,false,1.0,1.0);
-    //AddComboMap(0,"UF2D_qfy2" ,"kg/m2",UF2D_fqy2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qfx1" ,"kg/m2",UF2D_fqx1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qfx2" ,"kg/m2",UF2D_fqx2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qfy1" ,"kg/m2",UF2D_fqy1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qfy2" ,"kg/m2",UF2D_fqy2,Colormap,Colors,false,false,1.0,1.0);
 
     AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF2D_T" ,"kg/m2",UF2D_T,Colormap,Colors,false,false,1.0,1.0);

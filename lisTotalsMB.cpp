@@ -259,7 +259,6 @@ void TWorld::Totals(void)
         {
             double Q = Qoutput->Drc/1000;
             TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
-            //WITHOUT FLOOD????
         }
     }
 

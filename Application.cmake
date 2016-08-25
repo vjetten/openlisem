@@ -37,6 +37,8 @@ SET(APP_SOURCES
     lisUnifiedFlow
     lisUnifiedFlowCommon
     lisUnifiedFlowMomentum
+    lisUnifiedFlowMomentum2
+    lisUnifiedFlowMomentumBalance
     lisUnifiedFlowAdvection
     lisUnifiedFlowAdvection2
     lisUnifiedFlowSediment
@@ -61,6 +63,7 @@ SET(APP_SOURCES
     lisPesticide
     include/version.h
     include/model.h
+    include/UFmodel.h
     include/TMmapVariables.h
     include/LisUIoutput.h
     openlisemico.rc

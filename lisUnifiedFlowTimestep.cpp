@@ -74,12 +74,29 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     UF_DTMIN = _dt;
     fill(*UF2D_CellR,-1);
     fill(*UF2D_CellC,-1);
+    bool first = true;
     FOR_ROW_COL_UF2D
     {
+        double a = (_dx*_dx);
         if(_s2D->Drc + _f2D->Drc > UF_VERY_SMALL)
         {
+            //empirical estimation
+            double vest = ((_s2D->Drc/(a) + _f2D->Drc/(a)) * (_s2D->Drc/(a) + _f2D->Drc/(a)));
+
+            //actual max velocity
             double v = std::max(std::max(std::max(std::fabs(_fu2D->Drc),std::fabs(_fv2D->Drc)),std::fabs(_su2D->Drc)),std::fabs(_sv2D->Drc));
-            out_dt2d->Drc = (UF_Courant *_dx/v);
+
+            //actual accaleration
+            double dvf = std::max(std::fabs(UF2D_fay1->Drc),std::max(std::fabs(UF2D_fay2->Drc),std::max(std::fabs(UF2D_fax2->Drc),std::max(std::fabs(UF2D_fax1->Drc),std::max(std::fabs(UF2D_fax->Drc),std::fabs(UF2D_fay->Drc))))));
+            double dvs = std::max(std::fabs(UF2D_say1->Drc),std::max(std::fabs(UF2D_say2->Drc),std::max(std::fabs(UF2D_sax2->Drc),std::max(std::fabs(UF2D_sax1->Drc),std::max(std::fabs(UF2D_sax->Drc),std::fabs(UF2D_say->Drc))))));
+
+            //based on velocity and accaleration provide needed timestep
+            out_dt2d->Drc = ((v + dvf + vest)>0? std::min(_dt,std::max(UF2D_MinimumDT,(UF_Courant *_dx/(v + dvf + vest))) ): _dt);
+            /*if(first)
+            {
+                    out_dt2d->Drc = 0;
+                    first = false;
+            }*/
 
         }else
         {
@@ -131,7 +148,18 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         double dt3 = !UF_OUTORMV(_dem,r,c+1)? UF_t1->data[r][c+1]:dt;
         double dt4 = !UF_OUTORMV(_dem,r,c-1)? UF_t1->data[r][c-1]:dt;
 
+        double dt5 = !UF_OUTORMV(_dem,r+2,c)? UF_t1->data[r+2][c]:dt;
+        double dt6 = !UF_OUTORMV(_dem,r-2,c)? UF_t1->data[r-2][c]:dt;
+        double dt7 = !UF_OUTORMV(_dem,r,c+2)? UF_t1->data[r][c+2]:dt;
+        double dt8 = !UF_OUTORMV(_dem,r,c-2)? UF_t1->data[r][c-2]:dt;
+        double dt9 = !UF_OUTORMV(_dem,r+1,c+1)? UF_t1->data[r+1][c+1]:dt;
+        double dt10 = !UF_OUTORMV(_dem,r-1,c+1)? UF_t1->data[r-1][c+1]:dt;
+        double dt11 = !UF_OUTORMV(_dem,r+1,c-1)? UF_t1->data[r+1][c-1]:dt;
+        double dt12 = !UF_OUTORMV(_dem,r-1,c-1)? UF_t1->data[r-1][c-1]:dt;
+
         out_dtstep2d->Drc = std::min(dt,std::min(dt1,std::min(dt2,std::min(dt3,dt4))));
+        out_dtstep2d->Drc = std::min(out_dtstep2d->Drc,std::min(2.0 * dt9,std::min(2.0 * dt10,std::min(2.0 *dt11,2.0*dt12))));
+        out_dtstep2d->Drc = std::min(out_dtstep2d->Drc,std::min(4.0 * dt5,std::min(4.0 * dt6,std::min(4.0 *dt7,2.0*dt8))));
 
         if(!UF_OUTORMV(_ldd,r,c))
         {
@@ -163,9 +191,9 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         if(!(t + UF_DTMIN < _dt ))
         {
             out_dt2d->Drc = _dt - out_t2d->Drc;
-        }else if(out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN < t)
+        }else if(!(out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN > t))
         {
-            out_dt2d->Drc = t - out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN;
+            out_dt2d->Drc = out_dtstep2d->Drc* UF_DTMIN;// + out_dtstep2d->Drc* UF_DTMIN;
             out_dt2d->Drc = std::max(0.0,std::min(out_dt2d->Drc,_dt - out_t2d->Drc));
         }else
         {

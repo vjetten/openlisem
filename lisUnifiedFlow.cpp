@@ -38,17 +38,18 @@ void TWorld::UF_Init()
 {
 
     //constants
-    UF_Courant = getvaluedouble("Surface Flow Courant Factor");
-    UF_Aspect = 0.1;
-    UF_Chi = 3;
-    UF_Ksi = 3;
-    UF_j = 2;
+    UF_Courant = 0.10; getvaluedouble("Surface Flow Courant Factor");
+    UF_Aspect = 1.0;
+    UF_Chi = 3.0;
+    UF_Ksi = 3.0;
+    UF_j = 2.0;
     UF_Gravity = 9.81;
     UF_GravitySqrt = std::sqrt(9.81);
-    UF2D_MinimumDT = getvaluedouble("Surface Flow Minimum Timestep");
-    UF1D_MinimumDT = getvaluedouble("Channel Flow Minimum Timestep");
+    UF2D_MinimumDT = 1.0;//getvaluedouble("Surface Flow Minimum Timestep");
+    UF1D_MinimumDT = 1.0;//getvaluedouble("Channel Flow Minimum Timestep");
     UF_SigmaDiffusion = 1.0;
-    UF_MANNINGCOEFFICIENT = 0.05;
+    UF_MANNINGCOEFFICIENT = 0.2;
+    UF_FrictionIterations = 1;
 
     UF_Alpha_DV  =0.1;
     UF_Beta_DV = 20.0;
@@ -113,6 +114,10 @@ void TWorld::UF_Init()
     UF2D_fv = NewMap(0.0);
     UF2D_fax = NewMap(0.0);
     UF2D_fay = NewMap(0.0);
+    UF2D_fax1 = NewMap(0.0);
+    UF2D_fay1 = NewMap(0.0);
+    UF2D_fax2 = NewMap(0.0);
+    UF2D_fay2 = NewMap(0.0);
     UF2D_fqx1 = NewMap(0.0);
     UF2D_fqy1 = NewMap(0.0);
     UF2D_fqx2 = NewMap(0.0);
@@ -131,8 +136,10 @@ void TWorld::UF_Init()
     UF2D_rocksize = NewMap(0.1);
     UF2D_su = NewMap(0.0);
     UF2D_sv = NewMap(0.0);
-    UF2D_sax = NewMap(0.0);
-    UF2D_say = NewMap(0.0);
+    UF2D_sax1 = NewMap(0.0);
+    UF2D_say1 = NewMap(0.0);
+    UF2D_sax2 = NewMap(0.0);
+    UF2D_say2 = NewMap(0.0);
     UF2D_sqx1 = NewMap(0.0);
     UF2D_sqy1 = NewMap(0.0);
     UF2D_sqx2 = NewMap(0.0);
@@ -245,6 +252,12 @@ void TWorld::UF_Init()
     UF_t3 = NewMap(0.0);
     UF_t4 = NewMap(0.0);
     UF_t5 = NewMap(0.0);
+    UF_t6 = NewMap(0.0);
+    UF_t7 = NewMap(0.0);
+    UF_t8 = NewMap(0.0);
+    UF_t9 = NewMap(0.0);
+    UF_t10 = NewMap(0.0);
+    UF_t11 = NewMap(0.0);
 
     UF2D_MUSCLE_1_x1 = NewMap(0.0);
     UF2D_MUSCLE_1_x2 = NewMap(0.0);
@@ -382,14 +395,27 @@ double TWorld::UF2D_Source(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
         UF_SWAP(_s,UF2D_sn,cTMap*);
     }
 
-    //first recalculate for the momentum source terms
-    UF2D_FluidMomentumSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
-
-    if(UF_SOLIDPHASE)
+    if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
     {
-        UF2D_SolidMomentumSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
-    }
+        //first recalculate for the momentum source terms
+        UF2D_FluidMomentumSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
 
+        if(UF_SOLIDPHASE)
+        {
+            UF2D_SolidMomentumSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
+        }
+
+    }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
+    {
+
+        //first recalculate for the momentum source terms
+        UF2D_FluidMomentum2Source(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF2D_SolidMomentum2Source(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
+        }
+    }
 }
 
 //2D version
@@ -400,18 +426,6 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
     {
         UF2D_Test->Drc += 1;
     }}}
-
-    //first recalculate for the momentum source terms
-    UF2D_FluidApplyMomentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
-    UF_SWAP(_fu,UF2D_fun,cTMap*);
-    UF_SWAP(_fv,UF2D_fvn,cTMap*);
-
-    if(UF_SOLIDPHASE)
-    {
-        UF2D_SolidApplyMomentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
-        UF_SWAP(_su,UF2D_sun,cTMap*);
-        UF_SWAP(_sv,UF2D_svn,cTMap*);
-    }
 
 
     if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
@@ -460,8 +474,24 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
             UF_SWAP(_su,UF2D_sun,cTMap*);
             UF_SWAP(_sv,UF2D_svn,cTMap*);
         }
+
+
+        //first recalculate for the momentum source terms
+        UF2D_FluidApplyMomentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
+        UF_SWAP(_fu,UF2D_fun,cTMap*);
+        UF_SWAP(_fv,UF2D_fvn,cTMap*);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF2D_SolidApplyMomentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
+            UF_SWAP(_su,UF2D_sun,cTMap*);
+            UF_SWAP(_sv,UF2D_svn,cTMap*);
+        }
+
+
     }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
     {
+
         //advect momentum
         UF2D_Advect2_Momentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn,UF2D_sun,UF2D_svn,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2);
 
@@ -506,7 +536,21 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
             UF_SWAP(_su,UF2D_sun,cTMap*);
             UF_SWAP(_sv,UF2D_svn,cTMap*);
         }
+
+        //first recalculate for the momentum source terms
+        UF2D_FluidApplyMomentum2(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
+        UF_SWAP(_fu,UF2D_fun,cTMap*);
+        UF_SWAP(_fv,UF2D_fvn,cTMap*);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF2D_SolidApplyMomentum2(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
+            UF_SWAP(_su,UF2D_sun,cTMap*);
+            UF_SWAP(_sv,UF2D_svn,cTMap*);
+        }
+
     }
+
 
 
 }
@@ -534,16 +578,6 @@ void TWorld::UF1D_Source(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
 }
 void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su)
 {
-
-    //first recalculate for the momentum source terms
-    UF1D_FluidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
-    UF_SWAP(_fu,UF1D_fun,cTMap*);
-
-    if(UF_SOLIDPHASE)
-    {
-        UF1D_SolidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
-        UF_SWAP(_su,UF1D_sun,cTMap*);
-    }
 
 
     if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
@@ -645,6 +679,16 @@ void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
     }
 
 
+    //first recalculate for the momentum source terms
+    UF1D_FluidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
+    UF_SWAP(_fu,UF1D_fun,cTMap*);
+
+    if(UF_SOLIDPHASE)
+    {
+        UF1D_SolidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+        UF_SWAP(_su,UF1D_sun,cTMap*);
+    }
+
 }
 
 
@@ -682,7 +726,7 @@ void TWorld::UF_SetInput()
         {
 
 
-            if(r != 250 && c!= 250)
+            //if(r != 250 && c!= 250)
             {
                 //UF2D_f->Drc += 10;
                 //UF2D_s->Drc += 5;
