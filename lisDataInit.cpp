@@ -151,6 +151,9 @@ void TWorld::DestroyData(void)
     ClearComboMaps();
     ClearHydrographData();
 
+    DEBUG("kill Unified Flow data");
+    UF_Close();
+
 }
 //---------------------------------------------------------------------------
 cTMap *TWorld::InitMask(QString name)
@@ -179,211 +182,6 @@ cTMap *TWorld::InitMaskChannel(QString name)
     maplistnr++;
 
     return(_M);
-
-}
-//---------------------------------------------------------------------------
-cTMap *TWorld::InitMaskTiledrain(QString name)
-{
-
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
-// read and Intiialize all Tile drain variables and maps
-void TWorld::InitTiledrains(void)
-{
-    // channel vars and maps that must be there even if channel is switched off
-    TileVolTot = 0;
-    TileWaterVol = NewMap(0);
-    TileWaterVolSoil = NewMap(0);
-    //TileQoutflow = NewMap(0);
-    RunoffVolinToTile = NewMap(0);
-    TileQ = NewMap(0);
-    TileQn = NewMap(0);
-    TileQs = NewMap(0);
-    TileQsn = NewMap(0);
-    TileWH = NewMap(0);
-    Tileq = NewMap(0);
-    TileAlpha = NewMap(0);
-    TileDrainSoil = NewMap(0);
-    TileV = NewMap(0);
-    TileDX = NewMap(0);
-
-    if (!SwitchIncludeTile)
-        TileDepth = NewMap(-1);
-    // must exist for swatre
-
-    // maybe needed later for erosion in tiledrain
-    //TileSedTot = 0;
-    //TileDepTot = 0;
-    //TileDetTot = 0;
-    //TileQsoutflow = NewMap(0);
-    //TileDetFlow = NewMap(0);
-    //TileDep = NewMap(0);
-    //TileSed = NewMap(0);
-    //TileConc = NewMap(0);
-    //TileTC = NewMap(0);
-    //TileY = NewMap(0);
-    //SedToTile = NewMap(0);
-
-    if (SwitchIncludeTile)
-    {
-        //## Tile maps
-        LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
-        // must be first" LDDTile is the mask for tile drains
-
-
-        TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
-        TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-        TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
-        TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-        TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-        checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
-        calcValue(*TileGrad, 0.001, MAX);
-        TileN = ReadMap(LDDTile, getvaluename("tileman"));
-        //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
-
-        cover(*TileGrad, *LDD, 0);
-        cover(*TileWidth, *LDD, 0);
-        cover(*TileHeight, *LDD, 0);
-        cover(*TileDepth, *LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
-        cover(*TileN, *LDD, 0);
-        cover(*TileSinkhole, *LDD, 0);
-
-        /* TODO ? */
-
-        FOR_ROW_COL_MV_TILE
-        {
-            TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-            TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx); //? why?
-            //TileY->Drc = std::min(1.0, 1.0/(0.89+0.56*TileCohesion->Drc));
-        }
-
-    }
-
-}
-//---------------------------------------------------------------------------
-void TWorld::InitBuffers(void)
-{
-
-    BufferVolin = 0;
-    BufferVolTot = 0;
-    BufferVolTotInit = 0;
-    BufferSedTot = 0;
-
-    //## buffers read maps
-    if (SwitchBuffers || SwitchSedtrap)
-    {
-        BufferID = ReadMap(LDD,getvaluename("bufferID"));
-        BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
-        BulkDens = getvaluedouble("Sediment bulk density");
-        // also sed trap use bufffervol to calculate the max sed store
-
-        FOR_ROW_COL_MV
-        {
-            if (SwitchBuffers && BufferID->Drc > 0)
-            {
-                Grad->Drc = 0.001;
-                //                RR->Drc = 0.01;
-                //                N->Drc = 0.25;
-                // note ksateff in filtration is also set to 0
-
-                // very arbitrary!!!
-                /* TODO link tis to interface */
-                Cover->Drc = 0;
-                if (SwitchIncludeChannel && ChannelGrad->Drc > 0)
-                {
-                    ChannelGrad->Drc = 0.001;
-                    ChannelN->Drc = 0.25;
-                    if (SwitchChannelInfil)
-                        ChannelKsat->Drc = 0;
-                    //no infil in buffer
-                }
-            }
-            // adjust soil and surface properties for buffercells, not sed traps
-        }
-    }
-    else
-    {
-        BufferID = NewMap(0);
-        BufferVol = NewMap(0);
-    }
-
-    //VJ 100514 buffer and sedtrap maps
-    /* TODO how calculate max sed store with only sed traps? */
-    // use slope of cell:        | /
-    //                           |/
-    // then max store is _dx/cos = DX*height fence * bulk dens?
-    if (SwitchBuffers)
-    {
-        BufferVolInit = NewMap(0);
-        ChannelBufferVolInit = NewMap(0);
-
-        if (SwitchIncludeChannel)
-        {
-            ChannelBufferVol = NewMap(0);
-            FOR_ROW_COL_MV_CH
-                    if (BufferID->Drc > 0)
-            {
-                ChannelBufferVol->Drc = BufferVol->Drc;
-                BufferVol->Drc = 0;
-            }
-            //split buffers in channel buffers and slope buffers
-            // in "ToCHannel" all flow in a buffer is dumped in the channel
-            copy(*ChannelBufferVolInit, *ChannelBufferVol);
-            // copy initial max volume of buffers in channels
-        }
-        copy(*BufferVolInit, *BufferVol);
-        // copy initial max volume of remaining buffers on slopes
-        BufferVolTotInit = mapTotal(*BufferVolInit) + mapTotal(*ChannelBufferVolInit);
-        // sum up total initial volume available in buffers
-        //BufferVol->fill(0);
-        //ChannelBufferVol->fill(0);
-        // rset to zero to fill up
-
-    }
-
-    BufferSed = NewMap(0);
-    ChannelBufferSed = NewMap(0);
-
-    // no initial sediment assumed, volume must reflect empty status
-
-    //   if (SwitchBuffers || SwitchSedtrap)
-    //   {
-    //      BufferSedInit = NewMap(0);
-    //      ChannelBufferSedInit = NewMap(0);
-
-    //      BufferSed->calc2V(BufferVol, BulkDens, MUL);
-    //      //NOTE: buffer sed vol is maximum store in kg and will decrease while it
-    //      // fills up. It is assumed that the sedimented part contains a pore volume
-    //      // that can contain water, like  loose soil. Thsi is determined by the bulkdensity
-    //      if (SwitchIncludeChannel)
-    //      {
-    //         ChannelBufferSed = NewMap(0);
-    //         FOR_ROW_COL_MV_CH
-    //               if (BufferID->Drc > 0)
-    //         {
-    //            ChannelBufferSed->Drc = BufferSed->Drc;
-    //            BufferSed->Drc = 0;
-    //         }
-    //         //split buffers in channel buffers and slope buffers
-    //         // in "ToCHannel" all flow in a buffer is dumped in the channel
-    //         ChannelBufferSedInit->copy(ChannelBufferSed);
-    //         // copy initial max volume of buffers in channels
-    //      }
-    //      BufferSedInit->copy(BufferSed);
-    //      // copy initial max volume of remaining buffers on slopes
-    //      BufferSedTotInit = BufferSedInit->mapTotal() + ChannelBufferSedInit->mapTotal();
-    //      // sum up total initial volume available in buffers
-    //BufferSed->fill(0);
-    //ChannelBufferSed->fill(0);
-    // rset to zero to fill up
-    //   }
 
 }
 //---------------------------------------------------------------------------
@@ -469,9 +267,19 @@ void TWorld::InitChannel(void)
 
 
     hmx = NewMap(0);
+    UVflood = NewMap(0);
+    floodTimeStart = NewMap(0);
     floodHmxMax = NewMap(0);
     floodVMax = NewMap(0);
     floodTime = NewMap(0);
+
+    dfhmx = NewMap(0);
+    dfUV = NewMap(0);
+    dfTimeStart = NewMap(0);
+    dfHmxMax = NewMap(0);
+    dfVMax = NewMap(0);
+    dfTime = NewMap(0);
+
     maxChannelflow = NewMap(0);
     maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
@@ -642,6 +450,7 @@ void TWorld::InitMulticlass(void)
         ChannelY = NewMap(0);
 
     }
+
 
     if(SwitchErosion)
     {
@@ -1116,20 +925,94 @@ void TWorld::GetInputData(void)
         D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
+    if(SwitchSolidPhase)
+    {
+        if(SwitchEntrainment)
+        {
+
+
+            EntrainmentDet = NewMap(0.0);
+            EntrainmentDep = NewMap(0.0);
+            TotalEntrainmentDet = NewMap(0.0);
+            TotalEntrainmentDep = NewMap(0.0);
+
+            SoilRockMaterial = ReadMap(LDD,getvaluename("debrismaterial"));
+            SoilRockSize = ReadMap(LDD,getvaluename("rocksize"));
+            SoilRockDensity = ReadMap(LDD,getvaluename("rockdensity"));
+            SoilRockIFA = ReadMap(LDD,getvaluename("rockifa"));
+
+            FOR_ROW_COL_MV
+            {
+                SoilRockMaterial->Drc *= _dx*_dx;
+            }
+            if(SwitchIncludeChannel)
+            {
+                ChannelEntrainmentDet = NewMap(0.0);
+                ChannelEntrainmentDep = NewMap(0.0);
+                ChannelTotalEntrainmentDet = NewMap(0.0);
+                ChannelTotalEntrainmentDep = NewMap(0.0);
+
+                RSoilRockMaterial = NewMap(0.0);//ReadMap(LDD,getvaluename("channeldebrismaterial"));
+                RSoilRockSize = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrocksize"));
+                RSoilRockDensity = NewMap(2500.0);//ReadMap(LDD,getvaluename("channelrockdensity"));
+                RSoilRockIFA = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrockifa"));
+                /*FOR_ROW_COL_MV_CH
+                {
+                    RSoilRockMaterial->Drc *= _dx*ChannelWidth->Drc;
+                }*/
+            }
+        }
+    }
+
+    DEMChange = NewMap(0.0);
+    DFTotalInitiationHeight = NewMap(0.0);
+
+    if(SwitchSlopeStability)
+    {
+        DFSafetyFactor = NewMap(0.0);
+        DEMOriginal = NewMap(0.0);
+        DFUnstable = NewMap(0.0);
+        DFInitiationHeight = NewMap(0.0);
+        DFSFIterations = NewMap(0.0);
+        DEMIterate = NewMap(0.0);
+        DFSoilDepth = NewMap(0.0);
+        DFSurfaceWaterHeight = NewMap(0.0);
+        DFSoilCohesion = NewMap(0.0);
+        DFWaterHeight = NewMap(0.0);
+        DFWaterSuction = NewMap(0.0);
+        DFPlantCohesion = NewMap(0.0);
+        DFPlantPressure = NewMap(0.0);
+        DFThreshold = NewMap(0.0);
+        DFThreshold1 = NewMap(0.0);
+        DFSlope = NewMap(0.0);
+
+
+        FOR_ROW_COL_MV
+        {
+            DEMOriginal->Drc = DEM->Drc;
+        }
+        DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
+        DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));
+        DFSoilRockFraction = ReadMap(LDD,getvaluename("soilrockfraction"));
+        DFSoilRockSize = ReadMap(LDD,getvaluename("soilrocksize"));
+    }
+
+    if(SwitchSlopeFailure || SwitchSlopeStability )
+    {
+        SFMIN = getvaluedouble("Minimum Safety Factor");
+        SFMAX = getvaluedouble("Maximum Safety Factor");
+        SFDISPLAYMAX = getvaluedouble("Maximum safety factor for display");
+        SFFAILMIN = getvaluedouble("Minimum Failure Height");
+
+    }
+
     InitMulticlass();
 
     //## read and initialize all channel maps and variables
     InitChannel();
 
-
     //## make shaded relief map for display.
     InitShade();
-
-    //## read and initialize all buffer maps and variables
-    InitBuffers();
-
-    //## read and initialize all tile drain system maps and variables
-    InitTiledrains();
 
 
 
@@ -1311,11 +1194,13 @@ void TWorld::IntializeData(void)
     runoffFractionCell = NewMap(0);
     runoffTotalCell = NewMap(0);
 
+    L1 = NewMap(0);
+    L2 = NewMap(0);
+
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
         Fcum = NewMap(0);
-        L1 = NewMap(0);
-        L2 = NewMap(0);
+
         Fcumgr = NewMap(1e-10);
         L1gr = NewMap(1e-10);
         L2gr = NewMap(1e-10);
@@ -1410,177 +1295,10 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
-
-
-
-
-
-
-
-    if (SwitchPesticide)
-    {
-        //### pesticides maps
-        PestMassApplied = 0.0;
-        PestLossTotOutlet = 0.0;
-        PestFluxTotOutlet = 0.0;
-        PestRunoffSpatial = 0.0;
-        PestDisMixing = 0.0;
-        PestSorMixing = 0.0;
-        PestInfilt = 0.0;
-        PestStorage = 0.0;
-        MaxVup = 0.0;
-        PestRunoffSpatialex = 0.0;
-        PestDisMixingex = 0.0;
-        PestSorMixingex = 0.0;
-        PestInfiltex = 0.0;
-        PestLossTotOutletex = 0.0;
-        Maxsolubility=530e-3; // max solubility kg/m3 metolachlor
-        Pestdetach = 0.0;
-        PestCinfilt=0.0;
-        PestCfilmexit=0.0;
-
-        KD=NewMap(0);
-        kr=NewMap(0);
-        rhob=NewMap(0);
-        pestiinf=NewMap(0);
-        pestiinfold=NewMap(0);
-        poro=NewMap(0);
-        Vup=NewMap(0);
-        Vup_old=NewMap(0);
-        PCA=NewMap(0);
-        epsil=NewMap(0);
-        Kfilm=NewMap(0);
-        K1=NewMap(0);
-        AX=NewMap(0);
-
-        C=NewMap(0);
-        Cold=NewMap(0);
-        C_Kn=NewMap(0);
-        CS=NewMap(0);
-        CM=NewMap(0);
-        C_Kexplicit=NewMap(0);
-        CM_Kexplicit=NewMap(0);
-        CS_Kexplicit=NewMap(0);
-        CM_Kexplicitold=NewMap(0);
-        CS_Kexplicitold=NewMap(0);
-        Qp=NewMap(0);
-        Qpn=NewMap(0);
-        Pest=NewMap(0);
-        PCinfilt=NewMap(0);
-        PCfilmexit=NewMap(0);
-
-        C_N=NewMap(0);
-        CM_N=NewMap(0);
-        CS_N=NewMap(0);
-
-        C_K=NewMap(0);
-        C_Kold=NewMap(0);
-        CM_K=NewMap(0);
-        CS_K=NewMap(0);
-
-        Fkold=NewMap(0);
-        Fk=NewMap(0);
-        Fmk=NewMap(0);
-        flagpest=NewMap(0);
-
-        PMassApplied=NewMap(0);
-        PRunoffSpatial=NewMap(0);
-        PDisMixing=NewMap(0);
-        PSorMixing=NewMap(0);
-        PInfilt=NewMap(0);
-        PStorage=NewMap(0);
-
-        PRunoffSpatialex=NewMap(0);
-        PDisMixingex=NewMap(0);
-        PSorMixingex=NewMap(0);
-        PInfiltex=NewMap(0);
-
-        //   Qin=NewMap(0);
-        //   Sin=NewMap(0);
-        //   Fin=NewMap(0);
-
-        Pdetach=NewMap(0);
-    }
-    if (SwitchPesticide)
-    {
-        N_SPK=1;
-
-        //test Joyce papier
-        //PCA=NewMap(0.000180); //kg/m²
-        //epsil=NewMap(0.25E-2); //m
-        //KD=NewMap(0.00941);//m3/kg
-        //kr=NewMap(0.000833333); // /s
-        //poro=NewMap(0.47);
-        //Kfilm=NewMap(1.16667E-5); // m/s
-
-        // test 5-22
-        PCA=NewMap(0.0000174); //kg/m²
-        epsil=NewMap(0.001); //m
-        KD=NewMap(0.00617);//m3/kg
-        //KD=NewMap(0.0);//m3/kg
-        kr=NewMap(0.0012); // /s
-        poro=NewMap(0.37);
-        Kfilm=NewMap(1.16667E-5); // m/s
-
-        // qDebug()<< "initial " ;
-
-        FOR_ROW_COL_MV
-        {
-            PMassApplied->Drc = PCA->Drc*_dx*_dx*1000*1000*1000; //*SnowmeltZone->Drc; //µg for partial appli //DX
-            rhob->Drc=2.65E3*(1.0-poro->Drc);// soil bulk density g/m3 rhob=NewMap(1404.5); // kg/m3
-            C_N->Drc= 0.0; // initialisation for t=0 kg/m3
-            // partial application
-            //            CM_N->Drc= (PCA->Drc*SnowmeltZone->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
-
-            //VJ             CM_N->Drc= PCA->Drc*poro->Drc/epsil->Drc + (1-poro->Drc)*PCA->Drc/epsil->Drc*KD->Drc*rhob->Drc; // initialisation for t=0 kg/kg
-            CM_N->Drc= (PCA->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
-            CS_N->Drc = CM_N->Drc*KD->Drc; // ! initialisation for t=0 kg/m3
-            //     qDebug()<< "initial C:"<< C->Drc << "cm"<< CM->Drc << "CS"<< CS->Drc;
-
-            // no sorption
-            // CS_N->Drc=0.0;
-            // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
-
-            PDisMixing->Drc = CM_N->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
-            PSorMixing->Drc = CS_N->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
-        }
-
-        PestMassApplied = mapTotal(*PMassApplied);
-        PestDisMixing = mapTotal(*PDisMixing);
-        PestSorMixing = mapTotal(*PSorMixing);
-
-        if(Switchheaderpest)
-        {
-            Switchheaderpest=false;
-            QFile fout("massbalancenew.txt");
-            fout.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream out(&fout);
-            out.setRealNumberPrecision(3);
-            out.setFieldWidth(0);
-            out.setRealNumberNotation(QTextStream::FixedNotation);
-            out << "time" << " " << "PestMassApplied" << " " << "PestDisMixing" << " " << "PestSorMixing" << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                << " " << "PestInfilt" << " " << "MBp" << " "
-                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
-                << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
-                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
-                << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
-            out << "\n";
-
-            out << "EI" << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
-                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
-                << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
-                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
-                << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
-            out << "\n";
-        }
-    }
-
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
+
         FOR_ROW_COL_MV
         {
             if(Storage->Drc != -1)
@@ -1594,28 +1312,29 @@ void TWorld::IntializeData(void)
         StorageDep = NewMap(0.0);
         SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
 
-    }
-
-    if(SwitchIncludeChannel)
-    {
-        if(SwitchErosion && SwitchUseMaterialDepth)
+        if(SwitchIncludeChannel)
         {
-            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-            FOR_ROW_COL_MV
+            if(SwitchErosion && SwitchUseMaterialDepth)
             {
-                if(RStorage->Drc != -1)
+                RStorage = ReadMap(LDD, getvaluename("chandetmat"));
+
+                FOR_ROW_COL_MV
                 {
-                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-                }else
-                {
-                    Storage->Drc = -999999;
+                    if(RStorage->Drc != -1)
+                    {
+                        RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
+                    }else
+                    {
+                        Storage->Drc = -999999;
+                    }
                 }
+                RStorageDep = NewMap(0.0);
+                RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
             }
-            RStorageDep = NewMap(0.0);
-            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
         }
 
     }
+
     if(SwitchErosion && SwitchUseGrainSizeDistribution)
     {
         IW_D.clear();
@@ -1668,8 +1387,11 @@ void TWorld::IntializeData(void)
    // MakeWatersheds();
     FindBaseFlow();
 
-
+    //Initialize all variables related to surface flow
     UF_Init();
+
+    //read and initialize the flow barrier table and map
+    InitFlowBarriers();
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -1751,19 +1473,6 @@ void TWorld::IntializeOptions(void)
     SwitchOutputTimeUser = false;
     SwitchEfficiencyDET = 1;
     SwitchStoninessDET = false;
-    /*
-    SwitchMapoutRunoff = false;
-    SwitchMapoutConc = false;
-    SwitchMapoutWH = false;
-    SwitchMapoutWHC = false;
-    SwitchMapoutTC = false;
-    SwitchMapoutEros = false;
-    SwitchMapoutDepo = false;
-    SwitchMapoutV = false;
-    SwitchMapoutInf = false;
-    SwitchMapoutSs = false;
-    SwitchMapoutChvol = false;
-    */
     SwitchWritePCRnames = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;
@@ -1783,8 +1492,14 @@ void TWorld::IntializeOptions(void)
 
     initSwatreStructure = false;
     // check to flag when swatre 3D structure is created, needed to clean up data
+    SwitchFlowBarriers = true;
+    SwitchBarriers = true;
+    SwitchMaxVolume = true;
+    SwitchChannelMaxVolume = true;
+    SwitchUFInitial = true;
+    SwitchUFForced = true;
 
-    SwitchPesticide = false;
+
 }
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()

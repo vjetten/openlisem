@@ -204,22 +204,27 @@ void TWorld::UF2D_FluidMomentumSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap 
 
         UF_t6->Drc = _fu->Drc;
         UF_t7->Drc = _fv->Drc;
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
-        {
-            UF_t6->Drc += dttemp* UF2D_fax->Drc;
-            UF_t7->Drc += dttemp* UF2D_fay->Drc;
 
-            double tempu = UF_t6->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
-            UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
-        }
+        UF_t6->Drc += (2.0/3.0)*dt->Drc * UF2D_fax->Drc;
+        UF_t7->Drc += (2.0/3.0)*dt->Drc * UF2D_fay->Drc;
+        double tempu = UF_t6->Drc;
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
+        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF2D_fax->Drc;
+        double vtemp = UF_t7->Drc + (2.0/3.0)*dt->Drc * UF2D_fay->Drc;
+        tempu = utemp;
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc);
+        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+
+        UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
+        UF_t7->Drc = (UF_t7->Drc + utemp)/2.0;
+
 
         if(sf > UF_VERY_SMALL)
         {
             double vpow = pow((UF_t6->Drc-_su->Drc)*(UF_t6->Drc-_su->Drc)+(UF_t7->Drc-_sv->Drc)*(UF_t7->Drc-_sv->Drc),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *vpow)));
-            double facv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t7->Drc - _sv->Drc) *vpow)));
+            double facu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *vpow)));
+            double facv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t7->Drc - _sv->Drc) *vpow)));
             UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _su->Drc;
             UF_t7->Drc = (1.0-facv) * UF_t7->Drc + (facv) * _sv->Drc;
         }
@@ -299,22 +304,25 @@ void TWorld::UF2D_SolidMomentumSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap 
         UF_t6->Drc = _su->Drc;
         UF_t7->Drc = _sv->Drc;
 
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
-        {
-            UF_t6->Drc += dttemp * UF2D_sax->Drc;
-            UF_t7->Drc += dttemp * UF2D_say->Drc;
+        UF_t6->Drc += (2.0/3.0)*dt->Drc * UF2D_sax->Drc;
+        UF_t7->Drc += (2.0/3.0)*dt->Drc * UF2D_say->Drc;
+        double tempu = UF_t6->Drc;
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
+        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF2D_sax->Drc;
+        double vtemp = UF_t7->Drc + (2.0/3.0)*dt->Drc * UF2D_say->Drc;
+        tempu = utemp;
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc);
+        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc);
 
-            double tempu = UF_t6->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
-            UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
-        }
+        UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
+        UF_t7->Drc = (UF_t7->Drc + utemp)/2.0;
 
         if(ff > UF_VERY_SMALL)
         {
             double vpow = pow((_fu->Drc-UF_t6->Drc)*(_fu->Drc-UF_t6->Drc)+(_fv->Drc-UF_t7->Drc)*(_fv->Drc-UF_t7->Drc),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *vpow)));
-            double facv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t7->Drc - _fv->Drc) *vpow)));
+            double facu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *vpow)));
+            double facv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t7->Drc - _fv->Drc) *vpow)));
             UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _fu->Drc;
             UF_t7->Drc = (1.0-facv) * UF_t7->Drc + (facv) * _fv->Drc;
         }
@@ -384,18 +392,17 @@ void TWorld::UF1D_FluidMomentumSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTM
 
         UF_t6->Drc = _fu->Drc;
 
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
-        {
+        UF_t6->Drc += (2.0/3.0)*dt->Drc * UF1D_fa->Drc;
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
+        double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF1D_fa->Drc;
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc);
 
-            UF_t6->Drc += dttemp * UF1D_fa->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
-        }
+        UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
 
         if(sf > UF_VERY_SMALL)
         {
             double vpow = pow(std::fabs(UF_t6->Drc-_su->Drc),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *vpow)));
+            double facu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *vpow)));
             UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _su->Drc;
         }
 
@@ -461,17 +468,17 @@ void TWorld::UF1D_SolidMomentumSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTM
 
         UF_t6->Drc = _su->Drc;
 
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
-        {
-            UF_t6->Drc += dttemp * UF1D_sa->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
-        }
+        UF_t6->Drc += (2.0/3.0)*dt->Drc * UF1D_sa->Drc;
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
+        double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF1D_sa->Drc;
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc);
+
+        UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
 
         if(ff > UF_VERY_SMALL)
         {
             double vpow = pow(std::fabs((_fu->Drc-UF_t6->Drc)),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *vpow)));
+            double facu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *vpow)));
             UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _fu->Drc;
         }
 

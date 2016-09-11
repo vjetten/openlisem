@@ -79,10 +79,6 @@ void TWorld::InfilEffectiveKsat(void)
 
             Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
-
-            if (SwitchBuffers && !SwitchSedtrap && SwitchBuffersImpermeable)
-                if(BufferID->Drc > 0)
-                    Ksateff->Drc = 0;
         }
     }
 }

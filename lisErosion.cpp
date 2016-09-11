@@ -200,11 +200,6 @@ void TWorld::SplashDetachment(void)
          DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
       // no splash on grass strips
 
-      if (SwitchBuffers && !SwitchSedtrap)
-         if(BufferID->Drc > 0)
-            DETSplash->Drc = 0;
-      // no splash in buffers, but sedtrap can have splash
-
       if (SwitchHardsurface)
          DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
       // no splash on hard surfaces
@@ -214,9 +209,10 @@ void TWorld::SplashDetachment(void)
       //is already contained in soilwidth
       // no splash from house roofs
 
-      DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
+      DETSplash->Drc = ((1-Snowcover->Drc)*DETSplash->Drc);
       // no splash on snow deck
 
+      DETSplash->Drc = std::max(0.0,DETSplash->Drc);
       if(SwitchUseMaterialDepth)
       {
           if(SwitchUseGrainSizeDistribution)
@@ -230,7 +226,6 @@ void TWorld::SplashDetachment(void)
           double deptake = 0;
           double mattake = 0;
           double detachment = 0;
-
 
           deptake = std::min(dleft,StorageDep->Drc);
           StorageDep->Drc -= deptake;
@@ -898,7 +893,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         //finally, return the total detachment
         return std::max(0.0,detachment);
 
-    //if it is neither flood nor channel detachment, overland flow is assumed
     }
 }
 

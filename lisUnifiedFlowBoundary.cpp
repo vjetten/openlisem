@@ -101,3 +101,46 @@ double TWorld::UF_BoundaryFlux1D(double dt, double width, double f, double s, do
 
 
 }
+
+void TWorld::UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                       cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                       cTMap * _fu1D,cTMap * _s1D,
+                       cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                       cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                       cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                       cTMap * _su2D,cTMap * _sv2D)
+{
+    if(SwitchUFForced)
+    {
+        FOR_ROW_COL_UF2D
+        {
+            if(!(UF2D_ForcedFVolume->Drc < 0))
+            {
+                double vdif = (UF2D_ForcedFVolume->Drc - _f2D->Drc);
+                UF_InitializedF += std::fabs(std::max(0.0,vdif));
+                UF2D_foutflow += std::fabs(std::min(0.0,vdif));
+                _f2D->Drc = UF2D_ForcedFVolume->Drc;
+
+            }
+            if(UF_SOLIDPHASE)
+            {
+                if(!(UF2D_ForcedSVolume->Drc < 0))
+                {
+                    double vdif = (UF2D_ForcedSVolume->Drc - _s2D->Drc);
+                    UF_InitializedS += std::fabs(std::max(0.0,vdif));
+                    UF2D_soutflow += std::fabs(std::min(0.0,vdif));
+                    _s2D->Drc = UF2D_ForcedSVolume->Drc;
+
+                    if(_s2D->Drc > UF_VERY_SMALL)
+                    {
+                        _d2D->Drc = UF2D_ForcedSDensity->Drc;
+                        _ifa2D->Drc = UF2D_ForcedSIFA->Drc;
+                        _rocksize2D->Drc = UF2D_ForcedSRocksize->Drc;
+                    }
+                }
+            }
+        }
+    }
+}
+
+

@@ -47,6 +47,14 @@ SET(APP_SOURCES
     lisUnifiedFlowMuscle
     lisUnifiedFlowConnection
     lisUnifiedFlowBoundary
+    lisUnifiedFlowBarriers
+    lisUnifiedFlowInitialize
+    lisUnifiedFlowInitialize
+    include/lisUnifiedFlowThreadPool.h
+    include/lisUnifiedFlowThread.h
+    lisUnifiedFlowThreadPool.cpp
+    lisUnifiedFlowThread.cpp
+    lisSlopeStability
     lisReportfile
     lisRunfile
     lisSurfstor
@@ -60,7 +68,6 @@ SET(APP_SOURCES
     swatre/lookup
     swatre/swatinp
     lisInterception
-    lisPesticide
     include/version.h
     include/model.h
     include/UFmodel.h
@@ -69,6 +76,8 @@ SET(APP_SOURCES
     openlisemico.rc
 )
 QT4_WRAP_CPP(MOC_SOURCES
+    include/lisUnifiedFlowThreadPool.h
+    include/lisUnifiedFlowThread.h
     include/model.h
     ui_full/lisemqt.h
     ui_full/LisUItreemodel.h

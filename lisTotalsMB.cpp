@@ -46,8 +46,6 @@ void TWorld::Totals(void)
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
-
-
     /***** WATER *****/
 
 
@@ -244,8 +242,8 @@ void TWorld::Totals(void)
 
             if (SwitchIncludeChannel)
             {
-                TotalDetMap->Drc += UF2D_Det->Drc;
-                TotalDepMap->Drc += UF2D_Dep->Drc;
+                TotalDetMap->Drc += UF1D_Det->Drc;
+                TotalDepMap->Drc += UF1D_Dep->Drc;
 
                 TotalChanDetMap->Drc += UF1D_Det->Drc;
                 TotalChanDepMap->Drc += UF1D_Dep->Drc;
@@ -271,6 +269,26 @@ void TWorld::Totals(void)
         fill(*UF1D_Dep,0.0);
         fill(*UF2D_Dep,0.0);
     }
+    if(SwitchEntrainment)
+    {
+        FOR_ROW_COL_MV
+        {
+            TotalEntrainmentDep->Drc += EntrainmentDep->Drc;
+            TotalEntrainmentDet->Drc += EntrainmentDet->Drc;
+            EntrainmentDep->Drc = 0;
+            EntrainmentDet->Drc = 0;
+        }
+        if(SwitchIncludeChannel)
+        {
+            FOR_ROW_COL_MV_CH
+            {
+                ChannelTotalEntrainmentDep->Drc += ChannelEntrainmentDep->Drc;
+                ChannelTotalEntrainmentDet->Drc += ChannelEntrainmentDet->Drc;
+                ChannelEntrainmentDep->Drc = 0;
+                ChannelEntrainmentDet->Drc = 0;
+            }
+        }
+    }
 
     SedimentSetMaterialDistribution();
 
@@ -282,27 +300,17 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
-        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
+        MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + floodVolTotInit + BaseFlow +
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
-    //watervoltot includes channel and tile
-//    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
 
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
-        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +
-                  DepTot + ChannelDepTot + FloodDepTot - BufferSedTot)/(SoilLossTot))*100;
+        MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
+                  DepTot + ChannelDepTot)/(SoilLossTot))*100;
     //VJ 121212 changed to mass balance relative to soil loss
-
-    if (SwitchPesticide)
-    {
-        MBp = (PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied;
-        //MBpex = (PestMassApplied-PestLossTotOutletex-PestRunoffSpatialex-PestDisMixingex-PestSorMixingex-PestInfiltex)*100/PestMassApplied;
-        //(PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied
-        debug(QString("mbp: %1").arg(MBp));
-    }
 }
 //---------------------------------------------------------------------------

@@ -69,11 +69,6 @@ void TWorld::Interception(void)
         // a low cover means a low LAI means little interception
         // avoid division by 0
 
-        if (SwitchBuffers && !SwitchSedtrap)
-            if(BufferID->Drc > 0)
-                Smax = 0;
-        // no interception with buffers, but sedtrap can have interception
-
         if (SwitchHardsurface)
             Smax *= (1-HardSurface->Drc);
         //VJ 110111 no interception on hard surfaces

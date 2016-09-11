@@ -170,17 +170,23 @@ void TWorld::ParseRunfileData(void)
         QString p = runnamelist[j].value;
 
         //options in the main code, order is not important
-        if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
-        if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
+        if (p1.compare("Include Erosion simulation")==0)     SwitchErosion          = iii == 1;
+        if (p1.compare("Include main channels")==0)          SwitchIncludeChannel   = iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
-        if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
-        if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
+        if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood    = iii == 1;
+        if (p1.compare("Include road system")==0)            SwitchRoadsystem       = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
 
-
-        if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
+        //Surface Flow
+        if (p1.compare("Enable Levees")==0)                             SwitchLevees           = iii == 1;
+        if (p1.compare("Enable Barriers")==0)                           SwitchBarriers         = iii == 1;
+        if (p1.compare("Enable Flow Barriers")==0)                      SwitchFlowBarriers     = iii == 1;
+        if (p1.compare("Include Initial FluidSolid Mixture")==0)        SwitchUFInitial        = iii == 1;
+        if (p1.compare("Include Forced FluidSolid Mixture")==0)         SwitchUFForced         = iii == 1;
+        if (p1.compare("Incldue Maximum ChannelVolume")==0)             SwitchChannelMaxVolume = iii == 1;
+        if (p1.compare("Incldue Maximum Volume")==0)                    SwitchMaxVolume        = iii == 1;
 
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
@@ -198,6 +204,12 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
 
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
+
+        if (p1.compare("Enable Solid Phase") == 0)    SwitchSolidPhase = iii == 1;
+        if (p1.compare("Enable Entrainment") == 0)    SwitchEntrainment = iii == 1;
+        if (p1.compare("Enable Slope Stability") == 0)SwitchSlopeStability = iii == 1;
+
+        if (p1.compare("Enable Slope Failure")==0)    SwitchSlopeFailure = iii == 1;
 
         if (p1.compare("Advanced sediment configuration")==0)
         {
@@ -321,9 +333,6 @@ void TWorld::ParseRunfileData(void)
 
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
-
-    if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)
-        SwitchFloodSWOForder1 = true;
 
     // check a few things
     if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)

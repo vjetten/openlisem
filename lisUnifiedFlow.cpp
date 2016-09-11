@@ -34,270 +34,16 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-void TWorld::UF_Init()
-{
-
-    //constants
-    UF_Courant = 0.10; getvaluedouble("Surface Flow Courant Factor");
-    UF_Aspect = 1.0;
-    UF_Chi = 3.0;
-    UF_Ksi = 3.0;
-    UF_j = 2.0;
-    UF_Gravity = 9.81;
-    UF_GravitySqrt = std::sqrt(9.81);
-    UF2D_MinimumDT = 1.0;//getvaluedouble("Surface Flow Minimum Timestep");
-    UF1D_MinimumDT = 1.0;//getvaluedouble("Channel Flow Minimum Timestep");
-    UF_SigmaDiffusion = 1.0;
-    UF_MANNINGCOEFFICIENT = 0.2;
-    UF_FrictionIterations = 1;
-
-    UF_Alpha_DV  =0.1;
-    UF_Beta_DV = 20.0;
-
-    UF_Alpha_YS = 0.1;
-    UF_Beta_YS = 20.0;
-
-    UF_Alpha_DR = 0.0538;
-    UF_Beta_DR = 6.0896;
-
-    UF_Intersect_K = 30;
-    UF_Slope_K = 100000.0;
-
-    //internal use
-    UF_1DACTIVE = SwitchIncludeChannel;
-    UF_SCHEME = UF_SCHEME_BOUNDARYMUSCLE;
-    UF_DTMIN = 0;
-    UF_SOLIDPHASE = false;
-
-    UF2D_Test = NewMap(0.0);
-
-    //just for display
-    UF2D_h = NewMap(0.0);
-    UF2D_fsConc = NewMap(0.0);
-    UF2D_sConc = NewMap(0.0);
-    UF2D_tConc = NewMap(0.0);
-    UF2D_velocity = NewMap(0.0);
-    UF2D_u = NewMap(0.0);
-    UF2D_v = NewMap(0.0);
-    UF2D_q = NewMap(0.0);
-    UF2D_qs = NewMap(0.0);
-
-    UF1D_h = NewMap(0.0);
-    UF1D_fsConc = NewMap(0.0);
-    UF1D_sConc = NewMap(0.0);
-    UF1D_tConc = NewMap(0.0);
-    UF1D_velocity = NewMap(0.0);
-    UF1D_q = NewMap(0.0);
-    UF1D_qs = NewMap(0.0);
-
-    //internal slope functions
-    UF2D_Slope = NewMap(0.0);
-    UF2D_SlopeX = NewMap(0.0);
-    UF2D_SlopeY = NewMap(0.0);
-    UF1D_LDDs = NewMap(0.0);
-
-    //actual calculation variables
-    ////2D
-    UF2D_DEM = NewMap(0.0);
-    copy(*UF2D_DEM,*DEM);
-    UF2D_T = NewMap(0.0);
-    UF2D_DT = NewMap(0.0);
-    UF2D_DTStep = NewMap(0.0);
-    UF2D_CellR = NewMap(0.0);
-    UF2D_CellC = NewMap(0.0);
-    UF2D_Courant = NewMap(0.0);
-
-    //fluid phase
-    UF2D_f = NewMap(0.0);
-    UF2D_visc = NewMap(1.0);
-    UF2D_fu = NewMap(0.0);
-    UF2D_fv = NewMap(0.0);
-    UF2D_fax = NewMap(0.0);
-    UF2D_fay = NewMap(0.0);
-    UF2D_fax1 = NewMap(0.0);
-    UF2D_fay1 = NewMap(0.0);
-    UF2D_fax2 = NewMap(0.0);
-    UF2D_fay2 = NewMap(0.0);
-    UF2D_fqx1 = NewMap(0.0);
-    UF2D_fqy1 = NewMap(0.0);
-    UF2D_fqx2 = NewMap(0.0);
-    UF2D_fqy2 = NewMap(0.0);
-    UF2D_ssm = NewMap(0.0);
-    UF2D_blm = NewMap(0.0);
-    UF2D_sstc = NewMap(0.0);
-    UF2D_bltc = NewMap(0.0);
-    UF2D_fsc = NewMap(0.0);
-    UF2D_fsd = NewMap(0.0);
-
-    //solid phase
-    UF2D_s = NewMap(0.0);
-    UF2D_d = NewMap(2000.0);
-    UF2D_ifa = NewMap(0.3);
-    UF2D_rocksize = NewMap(0.1);
-    UF2D_su = NewMap(0.0);
-    UF2D_sv = NewMap(0.0);
-    UF2D_sax1 = NewMap(0.0);
-    UF2D_say1 = NewMap(0.0);
-    UF2D_sax2 = NewMap(0.0);
-    UF2D_say2 = NewMap(0.0);
-    UF2D_sqx1 = NewMap(0.0);
-    UF2D_sqy1 = NewMap(0.0);
-    UF2D_sqx2 = NewMap(0.0);
-    UF2D_sqy2 = NewMap(0.0);
-
-
-    //for new timestep
-    //fluid phase
-    UF2D_fn = NewMap(0.0);
-    UF2D_fun = NewMap(0.0);
-    UF2D_fvn = NewMap(0.0);
-    //solid phase
-    UF2D_sn = NewMap(0.0);
-    UF2D_sun = NewMap(0.0);
-    UF2D_svn = NewMap(0.0);
-
-    ////1D
-    UF1D_LDD = NewMap(0.0);
-    UF1D_LDDw = NewMap(0.0);
-    UF1D_LDDh = NewMap(0.0);
-    UF1D_Slope = NewMap(0.0);
-    UF1D_LDD->setAllMV();
-    if(SwitchIncludeChannel)
-    {
-        FOR_ROW_COL_MV_CH
-        {
-            UF1D_LDD->Drc = LDDChannel->Drc;
-            UF1D_LDDw->Drc = ChannelWidth->Drc;
-            UF1D_Slope->Drc = ChannelGrad->Drc;
-        }
-    }
-    UF1D_T = NewMap(0.0);
-    UF1D_DT = NewMap(0.0);
-
-    UF1D_DTStep = NewMap(0.0);
-    UF1D_Courant = NewMap(0.0);
-    //fluid phase
-    UF1D_f = NewMap(0.0);
-    UF1D_fstore = NewMap(0.0);
-    UF1D_visc = NewMap(1.0);
-    UF1D_fu = NewMap(0.0);
-    UF1D_fa = NewMap(0.0);
-    UF1D_fq1 = NewMap(0.0);
-    UF1D_fq2 = NewMap(0.0);
-    UF1D_ssm = NewMap(0.0);
-    UF1D_blm = NewMap(0.0);
-    UF1D_bltc = NewMap(0.0);
-    UF1D_sstc = NewMap(0.0);
-    UF1D_fsc = NewMap(0.0);
-    UF1D_fsd = NewMap(0.0);
-
-    //solid phase
-    UF1D_sstore = NewMap(0.0);
-    UF1D_s = NewMap(0.0);
-    UF1D_d = NewMap(2000.0);
-    UF1D_ifa = NewMap(0.3);
-    UF1D_rocksize = NewMap(0.1);
-    UF1D_su = NewMap(0.0);
-    UF1D_sa = NewMap(0.0);
-    UF1D_sq1 = NewMap(0.0);
-    UF1D_sq2 = NewMap(0.0);
-
-    //for new timestep
-    //fluid phase
-    UF1D_fn = NewMap(0.0);
-    UF1D_fun = NewMap(0.0);
-    //solid phase
-    UF1D_sn = NewMap(0.0);
-    UF1D_sun = NewMap(0.0);
-
-    //Multiclass sediment maps
-    UF2D_ssm_D.clear();
-    UF1D_ssm_D.clear();
-    UF2D_blm_D.clear();
-    UF1D_blm_D.clear();
-
-    //Multiclass sediment maps
-    UF2D_sstc_D.clear();
-    UF1D_sstc_D.clear();
-    UF2D_bltc_D.clear();
-    UF1D_bltc_D.clear();
-
-    if(SwitchUseGrainSizeDistribution)
-    {
-        FOR_GRAIN_CLASSES
-        {
-            UF2D_ssm_D.append(NewMap(0.0));
-            UF1D_ssm_D.append(NewMap(0.0));
-            UF2D_blm_D.append(NewMap(0.0));
-            UF1D_blm_D.append(NewMap(0.0));
-
-            UF2D_sstc_D.append(NewMap(0.0));
-            UF1D_sstc_D.append(NewMap(0.0));
-            UF2D_bltc_D.append(NewMap(0.0));
-            UF1D_bltc_D.append(NewMap(0.0));
-        }
-    }
-
-    UF1D_Dep = NewMap(0.0);
-    UF1D_Det = NewMap(0.0);
-    UF2D_Dep = NewMap(0.0);
-    UF2D_Det = NewMap(0.0);
-
-    UF2D_Infiltration = NewMap(0.0);
-    UF1D_Infiltration = NewMap(0.0);
-
-    //temporary maps for generic advection functions
-    UF_t1 = NewMap(0.0);
-    UF_t2 = NewMap(0.0);
-    UF_t3 = NewMap(0.0);
-    UF_t4 = NewMap(0.0);
-    UF_t5 = NewMap(0.0);
-    UF_t6 = NewMap(0.0);
-    UF_t7 = NewMap(0.0);
-    UF_t8 = NewMap(0.0);
-    UF_t9 = NewMap(0.0);
-    UF_t10 = NewMap(0.0);
-    UF_t11 = NewMap(0.0);
-
-    UF2D_MUSCLE_1_x1 = NewMap(0.0);
-    UF2D_MUSCLE_1_x2 = NewMap(0.0);
-    UF2D_MUSCLE_1_y1 = NewMap(0.0);
-    UF2D_MUSCLE_1_y2 = NewMap(0.0);
-    UF2D_MUSCLE_2_x1 = NewMap(0.0);
-    UF2D_MUSCLE_2_x2 = NewMap(0.0);
-    UF2D_MUSCLE_2_y1 = NewMap(0.0);
-    UF2D_MUSCLE_2_y2 = NewMap(0.0);
-    UF2D_MUSCLE_3_x1 = NewMap(0.0);
-    UF2D_MUSCLE_3_x2 = NewMap(0.0);
-    UF2D_MUSCLE_3_y1 = NewMap(0.0);
-    UF2D_MUSCLE_3_y2 = NewMap(0.0);
-    UF2D_MUSCLE_OUT_x1 = NewMap(0.0);
-    UF2D_MUSCLE_OUT_x2 = NewMap(0.0);
-    UF2D_MUSCLE_OUT_y1 = NewMap(0.0);
-    UF2D_MUSCLE_OUT_y2 = NewMap(0.0);
-
-    UF1D_MUSCLE_1_x1 = NewMap(0.0);
-    UF1D_MUSCLE_1_x2 = NewMap(0.0);
-    UF1D_MUSCLE_2_x1 = NewMap(0.0);
-    UF1D_MUSCLE_2_x2 = NewMap(0.0);
-    UF1D_MUSCLE_3_x1 = NewMap(0.0);
-    UF1D_MUSCLE_3_x2 = NewMap(0.0);
-    UF1D_MUSCLE_OUT_x1 = NewMap(0.0);
-    UF1D_MUSCLE_OUT_x2 = NewMap(0.0);
-
-}
 
 //General Function
 void TWorld::UnifiedFlow()
 {
 
-    //set input from the rest of the OpenLisem model
-    UF_SetInput();
 
     ////START ALGORITHM
     ////from now on all input and output is provided as funciton arguments
     ////This increases re-usablitiy of the code (use another DEM, Velocity map.. etc.. and everything will remain functional)
-
+    qDebug() << "inittimestep";
     //sets up the variables for the spatially dynamic timestep
     UF_DTMIN = UF_InitTimeStep( UF2D_DEM,                                                   //dem info
                                 UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                               //channel info
@@ -307,6 +53,7 @@ void TWorld::UnifiedFlow()
                                 UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv,       //2d solid phase
                                 UF2D_T,UF2D_DT,UF2D_DTStep,UF1D_T,UF1D_DT,UF1D_DTStep);     //output timesteps
 
+
     double t = 0;
     double dt = UF_DTMIN;
 
@@ -314,13 +61,28 @@ void TWorld::UnifiedFlow()
     ////from now on all input and output is provided as function arguments
     ////This increases re-usablitiy of the code
 
+    qDebug() << "start loop";
     //continue while we have not made a timestep of _dt
     while(t + UF_VERY_SMALL < _dt)
     {
+
+
         ////TOPOGRAPHY ANALYSIS
         UF_DEMLDDAnalysis(UF2D_DEM,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_s,UF2D_f,UF2D_s);
 
+        if(UF_NeedsInitial)
+        {
+            UF_NeedsInitial = false;
+            ////initial conditions
+            UF_Initial(    UF2D_DEM,                                        //dem info
+                                UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
+                                UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
+                                UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
+                                UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
+                                UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+        }
 
+        qDebug() << "timestep";
         ////TIMESTEP ANALYSIS
         //analyzes spatially dynamic timstep that should be made
         dt = UF_TimeStep(t,     UF2D_DEM,                                                    //dem info
@@ -331,22 +93,37 @@ void TWorld::UnifiedFlow()
                                 UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv,        //2d solid phase
                                 UF2D_T,UF2D_DT,UF2D_DTStep,UF1D_T,UF1D_DT,UF1D_DTStep);      //output timesteps
 
+
+        //qDebug() << "set threadpool masks";
+        //ThreadPool->SetMask(UF2D_DEM, UF2D_DT, UF2D_CellR, UF2D_CellC, true);
+
+        qDebug() << "2d source";
+        ////SOURCE TERMS
+        //both material and momentum source terms are called here
         UF2D_Source(UF2D_DT,UF2D_DEM,UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);
 
         if(UF_1DACTIVE)
         {
+            qDebug() << "1d source";
             UF1D_Source(UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
         }
 
+        qDebug() << "2d scheme";
         ////2D SCHEME
+        //the actual momentum and mass advection/iteration equations are solved here
         UF2D_Scheme(UF2D_DT,UF2D_DEM,UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);
 
         if(UF_1DACTIVE)
         {
+
+            qDebug() << "1D scheme";
             ////1D SCHEME
             UF1D_Scheme(UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
 
+            qDebug() << "Connections";
             ////CONNECTIONS
+            //the connection between 2d and 1d flow is solved in this function.
+            //fraction of inflow determined by flow velocity and channel width
             UF2D1D_Connection(UF2D_DT,     UF2D_DEM,                                        //dem info
                                UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
                                UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
@@ -356,7 +133,18 @@ void TWorld::UnifiedFlow()
         }
 
         /////INFILTRATION
+        //substract any possible infiltration from the flow water volume
         UF2D1D_Infiltration(UF2D_DT,     UF2D_DEM,                                        //dem info
+                            UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
+                            UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
+                            UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
+                            UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
+                            UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+
+        ////FORCED CONDITIONS
+        //apply the forced conditions to where this has been set by the user
+        //this involves solid and fluid mass, and their respective properties
+        UF_ForcedConditions(UF2D_DT,     UF2D_DEM,                                        //dem info
                             UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
                             UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
                             UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
@@ -369,16 +157,23 @@ void TWorld::UnifiedFlow()
         DEBUG(QString("UF Step t: %1  dt: %2").arg(t).arg(dt));
     }
 
-    //again uses non-functionparameter variables
+    ////STOP MAIN LOOP
+    ////again uses non-functionparameter variables
 
-    //soil interactions
+    ////SOIL INTERACTIONS
     //(sediment transport and solid phase transport is done together with the fluid equations since these are completely integrated)
     if(SwitchErosion)
     {
+        qDebug() << "sediment";
         UnifiedFlowSediment();
+    }if(SwitchEntrainment && UF_SOLIDPHASE)
+    {
+        qDebug() << "entrainment";
+        UnifiedFlowEntrainment();
     }
 
-    //set output maps for display etc..
+    ////STOP ALGORITHM
+    ////set output maps for display etc..
     UF_SetOutput();
 }
 
@@ -386,12 +181,31 @@ void TWorld::UnifiedFlow()
 
 double TWorld::UF2D_Source(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv)
 {
+
+    //fluid and solid mass sources (slope stability, splash detechment, etc..)
+
+    //Tried using a custom-made threadpool, to do parrallel computing of induvidual functions
+    //Can only be done when function parameters are unrelated of course
+
+    /*RUN_ON_THREAD(UF2D_FluidSource,TWorld,this,dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fn);
+
+    if(UF_SOLIDPHASE)
+    {
+        RUN_ON_THREAD(UF2D_SolidSource,TWorld,this,dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sn);
+    }
+
+    ThreadPool->WaitForAll();*/
+
     UF2D_FluidSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fn);
-    UF_SWAP(_f,UF2D_fn,cTMap*);
 
     if(UF_SOLIDPHASE)
     {
         UF2D_SolidSource(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sn);
+    }
+
+    UF_SWAP(_f,UF2D_fn,cTMap*);
+    if(UF_SOLIDPHASE)
+    {
         UF_SWAP(_s,UF2D_sn,cTMap*);
     }
 
@@ -407,7 +221,6 @@ double TWorld::UF2D_Source(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
 
     }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
     {
-
         //first recalculate for the momentum source terms
         UF2D_FluidMomentum2Source(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn);
 
@@ -416,18 +229,14 @@ double TWorld::UF2D_Source(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
             UF2D_SolidMomentum2Source(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sun,UF2D_svn);
         }
     }
+
 }
 
 //2D version
 double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv)
 {
 
-    FOR_ROW_COL_UF2D_DT
-    {
-        UF2D_Test->Drc += 1;
-    }}}
-
-
+    //If the less accurate but slightly faster simple central scheme is set by the user, perform this
     if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
     {
         //advect momentum
@@ -489,11 +298,14 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
         }
 
 
+    //if the more accurate but slightly slower boundary muscle scheme is set by the user, use this scheme
     }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
     {
-
         //advect momentum
         UF2D_Advect2_Momentum(dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fun,UF2D_fvn,UF2D_sun,UF2D_svn,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2);
+
+        //ThreadPool->WaitForAll();
+
 
         //advect mass
         UF2D_foutflow += UF2D_Advect2_mass(dt,_dem,_f,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_fn);
@@ -557,6 +369,7 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
 
 void TWorld::UF1D_Source(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su)
 {
+    //fluid and solid mass sources are added here (currently none)
     UF1D_FluidSource(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fn);
 
     if(UF_SOLIDPHASE)
@@ -567,19 +380,32 @@ void TWorld::UF1D_Source(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
 
     UF_SWAP(_f,UF1D_fn,cTMap*);
 
-    //first recalculate for the momentum source terms
-    UF1D_FluidMomentumSource(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
-
-    if(UF_SOLIDPHASE)
+    if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
     {
-        UF1D_SolidMomentumSource(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+        //first recalculate for the momentum source terms
+        UF1D_FluidMomentumSource(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF1D_SolidMomentumSource(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+        }
+
+    }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
+    {
+        //first recalculate for the momentum source terms
+        UF1D_FluidMomentum2Source(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF1D_SolidMomentum2Source(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+        }
     }
 
 }
 void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su)
 {
 
-
+    //if the less accurate but slightly faster central simple scheme is set by the user, use this
     if(UF_SCHEME == UF_SCHEME_CENTRALSIMPLE)
     {
         //advect momentum
@@ -630,6 +456,17 @@ void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
             UF_SWAP(_su,UF1D_sun,cTMap*);
         }
 
+        //first recalculate for the momentum source terms
+        UF1D_FluidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
+        UF_SWAP(_fu,UF1D_fun,cTMap*);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF1D_SolidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+            UF_SWAP(_su,UF1D_sun,cTMap*);
+        }
+
+    //if the slightly less fast but more accurate and stable boundary muscle solution is set by the user, use this
     }else if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
     {
 
@@ -676,18 +513,19 @@ void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
             UF_SWAP(_s,UF1D_sn,cTMap*);
             UF_SWAP(_su,UF1D_sun,cTMap*);
         }
+
+        //first recalculate for the momentum source terms
+        UF1D_FluidApplyMomentum2(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
+        UF_SWAP(_fu,UF1D_fun,cTMap*);
+
+        if(UF_SOLIDPHASE)
+        {
+            UF1D_SolidApplyMomentum2(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
+            UF_SWAP(_su,UF1D_sun,cTMap*);
+        }
     }
 
 
-    //first recalculate for the momentum source terms
-    UF1D_FluidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
-    UF_SWAP(_fu,UF1D_fun,cTMap*);
-
-    if(UF_SOLIDPHASE)
-    {
-        UF1D_SolidApplyMomentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
-        UF_SWAP(_su,UF1D_sun,cTMap*);
-    }
 
 }
 
@@ -695,10 +533,17 @@ void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
 //General Function
 void TWorld::UnifiedFlowSediment()
 {
+    //add any initial sources of sediment to the flow
+    UF_SedimentSource(_dt);
+
+    //solve flow detachment and add to flow
     UF_FlowDetachment(_dt);
 
+    //solve flow entrainment (by solid phase) and add to flow
     UF_FlowEntrainment(_dt);
 
+    //NOTE: transport is not performed here, but during the normal scheme were fluid and solid transport is also performed.
+    //if any new substance needs transport, use the generic functions that are called there!!
 }
 //set output
 void TWorld::UF_SetInput()
@@ -708,7 +553,7 @@ void TWorld::UF_SetInput()
     FOR_ROW_COL_UF2D
     {
         UF2D_Test->Drc = 0;
-        UF2D_f->Drc = WHrunoff->Drc * FlowWidth->Drc * _dx;
+        UF2D_f->Drc = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
     }
     UF2D_foutflow = 0;
     UF2D_fsoutflow = 0;
@@ -726,7 +571,7 @@ void TWorld::UF_SetInput()
         {
 
 
-            //if(r != 250 && c!= 250)
+            if(r != 250 && c!= 250)
             {
                 //UF2D_f->Drc += 10;
                 //UF2D_s->Drc += 5;
@@ -734,8 +579,8 @@ void TWorld::UF_SetInput()
         }
         FOR_ROW_COL_UF1D
         {
-            //UF1D_f->Drc += 1;
-            //UF1D_s->Drc += 0.5;
+            //UF1D_f->Drc += 100;
+            //UF1D_s->Drc += 50;
         }
     }
 
@@ -769,7 +614,7 @@ void TWorld::UF_SetOutput()
         //return water height to the rest of OpenLisem
         if(ChannelAdj->Drc > 0)
         {
-            WHrunoff->Drc = UF2D_f->Drc/(_dx*ChannelAdj->Drc);
+            WHrunoff->Drc = UF2D_f->Drc/(DX->Drc*ChannelAdj->Drc);
         }else
         {
             WHrunoff->Drc = 0;
@@ -785,7 +630,7 @@ void TWorld::UF_SetOutput()
         // add new average waterlevel (A/dx) to stored water
 
         InfilVolKinWave->Drc = UF2D_Infiltration->Drc;
-        UF2D_Test->Drc = UF2D_Infiltration->Drc;
+
         UF2D_Infiltration->Drc = 0;
 
         V->Drc = UF2D_velocity->Drc;
@@ -793,9 +638,85 @@ void TWorld::UF_SetOutput()
         // recalc velocity for output to map, is not used in other processes
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
+        if(UF2D_h->Drc > UF_DISPLAYFLOODMINIMUM)
+        {
+            hmx->Drc = UF2D_h->Drc;
+            UVflood->Drc = UF2D_velocity->Drc;
+            if(floodTime->Drc == 0)
+            {
+                floodTimeStart->Drc = std::max((_dt/10.0)/60.0,(this->time/60.0));
+            }
+            floodTime->Drc += _dt/60.0;
+
+            floodHmxMax->Drc = std::max(floodHmxMax->Drc,hmx->Drc);
+            floodVMax->Drc = std::max(floodVMax->Drc,UVflood->Drc);
+        }else
+        {
+            hmx->Drc = 0;
+            UVflood->Drc = 0;
+        }
+
+
+        if(UF2D_sConc->Drc > UF_DISPLAYDEBRISFLOWMINIMUM)
+        {
+            dfhmx->Drc = UF2D_h->Drc;
+            dfUV->Drc = UF2D_velocity->Drc;
+            if(dfTime->Drc == 0)
+            {
+                dfTimeStart->Drc = std::max((_dt/10.0)/60.0,(this->time/60.0));
+            }
+            dfTime->Drc += _dt/60.0;
+
+            dfHmxMax->Drc = std::max(dfHmxMax->Drc,dfhmx->Drc);
+            dfVMax->Drc = std::max(dfVMax->Drc,dfUV->Drc);
+        }else
+        {
+            dfhmx->Drc = 0;
+            dfUV->Drc = 0;
+        }
+
     }
 
 
 }
 
 
+void TWorld::UF_Initial( cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                       cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                       cTMap * _fu1D,cTMap * _s1D,
+                       cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                       cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                       cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                       cTMap * _su2D,cTMap * _sv2D)
+{
+    //add initial volume of fluid and solid to the dynamic field
+    //this also sets the respective properties
+    if(!SwitchUFInitial)
+    {
+        return;
+    }
+    FOR_ROW_COL_UF2D
+    {
+        if(!(UF2D_InitialFVolume->Drc < 0))
+        {
+            _f2D->Drc = UF2D_InitialFVolume->Drc;
+            UF_InitializedF += UF2D_InitialFVolume->Drc;
+        }
+        if(UF_SOLIDPHASE)
+        {
+            if(!(UF2D_InitialSVolume->Drc < 0))
+            {
+                _s2D->Drc = UF2D_InitialSVolume->Drc;
+                UF_InitializedS += UF2D_InitialSVolume->Drc;
+                if(_s2D->Drc > UF_VERY_SMALL)
+                {
+                    _d2D->Drc = UF2D_InitialSDensity->Drc;
+                    _ifa2D->Drc = UF2D_InitialSIFA->Drc;
+                    _rocksize2D->Drc = UF2D_InitialSRocksize->Drc;
+                }
+            }
+        }
+
+    }
+}

@@ -121,10 +121,6 @@ void lisemqt::ParseInputData()
     int j=0;
     bool dummyrain = false;
     bool dummysnow = false;
-    bool dummyFloodExplicit = false;
-    bool dummyFloodSWOF1 = false;
-    bool dummyFloodSWOF2 = false;
-    int dummykinwave = 1;
     bool dummy2layerinfil = false;
     bool dummyErosion = false;
 
@@ -176,10 +172,36 @@ void lisemqt::ParseInputData()
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
 
 
-        if (p1.compare("Enable Levees")==0)                 checkLevees->setChecked(check);
-        if (p1.compare("Surface Flow Minimum Timestep")==0) E_SFMinimumDT->setValue(val);
-        if (p1.compare("Surface Flow Courant Factor")==0)   E_SFCourant->setValue(val);
-        if (p1.compare("Surface Flow Scheme")==0)           E_SFScheme->setValue(val);
+        //Surface Flow
+        if (p1.compare("Enable Solid Phase")==0)                                    checkSolidPhase->setChecked(check);
+        if (p1.compare("Enable Entrainment")==0)                                    checkEntrainment->setChecked(check);
+        if (p1.compare("Enable Slope Stability")==0)                                checkSlopeStability->setChecked(check);
+        if (p1.compare("Enable Slope Failure")==0)                                  checkSlopeFailure->setChecked(check);
+        if (p1.compare("Minimum Safety Factor")==0)                                 E_PRESF->setValue(val);
+        if (p1.compare("Maximum Safety Factor")==0)                                 E_POSTSF->setValue(val);
+        if (p1.compare("Maximum safety factor for display")==0)                     E_SFMaxDisplay->setValue(val);
+        if (p1.compare("Entrainment Coefficient")==0)                               E_EntrainmentCoefficient->setValue(val);
+        if (p1.compare("Minimum Entrainment Height")==0)                            E_EntrainmentMinimumWaterHeight->setValue(val);
+        if (p1.compare("Minimum Failure Height")==0)                                E_MinimumFailureHeight->setValue(val);
+        if (p1.compare("Enable Levees")==0)                                         checkLevees->setChecked(check);
+        if (p1.compare("Enable Barriers")==0)                                       checkBox_Barriers->setChecked(check);
+        if (p1.compare("Enable Flow Barriers")==0)                                  checkBox_FlowBarriers->setChecked(check);
+        if (p1.compare("Flow barrier table filename")==0)                           lineEdit_FlowBarriers->setText(p);
+        if (p1.compare("Include Initial FluidSolid Mixture")==0)                    checkBox_UFInitial->setChecked(check);
+        if (p1.compare("Include Forced FluidSolid Mixture")==0)                     checkBox_UFForced->setChecked(check);
+        if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
+        if (p1.compare("Incldue Maximum Volume")==0)                                checkBox_MaxVolume->setChecked(check);
+
+        if (p1.compare("Surface Flow Minimum Timestep")==0)                         E_SFMinimumDT->setValue(val);
+        if (p1.compare("Surface Flow Courant Factor")==0)                           E_SFCourant->setValue(val);
+        if (p1.compare("Surface Flow Scheme")==0)                                   E_SFScheme->setValue(val);
+
+        if (p1.compare("Drag Power Law Coefficient")==0)                            E_UFDragPower->setValue(val);
+        if (p1.compare("Viscosity Alpha")==0)                                       E_UFViscosityAlpha->setValue(val);
+        if (p1.compare("Viscosity Beta")==0)                                        E_UFViscosityBeta->setValue(val);
+
+        if (p1.compare("Minimal Flood Water Depth")==0)                             E_FloodMinDepth->setValue(val);
+        if (p1.compare("Minimum Debris Flow Volumetric Sediment Fraction")==0)      E_DebrisFlowMinSedConcentration->setValue(val);
 
         if (p1.compare("BL method")==0)                     E_BLMethod->setValue(val);
         if (p1.compare("SS method")==0)                     E_SSMethod->setValue(val);
@@ -225,11 +247,7 @@ void lisemqt::ParseInputData()
         // if (p1.compare("Alternative flow detachment")==0)    checkAltErosion->setChecked(check);
         // if (p1.compare("Simple depression storage")==0)      checkSimpleDepression->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
-        if (p1.compare("Limit TC")==0)                       checkLimitTC->setChecked(check);
         // if (p1.compare("Limit Deposition TC")==0)            checkLimitDepTC->setChecked(check);
-        if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
-        if (p1.compare("Buffers impermeable")==0)            checkBuffersImpermeable->setChecked(check);
-        if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
         if (p1.compare("Include wheeltracks")==0)            checkInfilCompact->setChecked(check);
         if (p1.compare("Include compacted")==0)            checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
@@ -258,7 +276,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
         if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
         if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
-        if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
         if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
 
         if (p1.compare("Canopy storage equation")==0)
@@ -650,10 +667,38 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
 
-        if (p1.compare("Enable Levees")==0)        namelist[j].value = checkLevees->text();
-        if (p1.compare("Surface Flow Minimum Timestep")==0)        namelist[j].value = E_SFMinimumDT->text();
-        if (p1.compare("Surface Flow Courant Factor")==0)           namelist[j].value = E_SFCourant->text();
-        if (p1.compare("Surface Flow Scheme")==0)           namelist[j].value = E_SFScheme->text();
+        //Surface Flow
+        if (p1.compare("Enable Solid Phase")==0)                                    namelist[j].value.setNum((int)checkSolidPhase->isChecked());
+        if (p1.compare("Enable Entrainment")==0)                                    namelist[j].value.setNum((int)checkEntrainment->isChecked());
+        if (p1.compare("Enable Slope Stability")==0)                                namelist[j].value.setNum((int)checkSlopeStability->isChecked());
+        if (p1.compare("Enable Slope Failure")==0)                                  namelist[j].value.setNum((int)checkSlopeFailure->isChecked());
+        if (p1.compare("Minimum Safety Factor")==0)                                 namelist[j].value = E_PRESF->text();
+        if (p1.compare("Maximum Safety Factor")==0)                                 namelist[j].value = E_POSTSF->text();
+        if (p1.compare("Maximum safety factor for display")==0)                     namelist[j].value = E_SFMaxDisplay->text();
+        if (p1.compare("Entrainment Coefficient")==0)                               namelist[j].value = E_EntrainmentCoefficient->text();
+        if (p1.compare("Minimum Entrainment Height")==0)                            namelist[j].value = E_EntrainmentMinimumWaterHeight->text();
+        if (p1.compare("Minimum Failure Height")==0)                                namelist[j].value = E_MinimumFailureHeight->text();
+        if (p1.compare("Enable Levees")==0)                                         namelist[j].value.setNum((int)checkLevees->isChecked());
+        if (p1.compare("Enable Barriers")==0)                                       namelist[j].value.setNum((int)checkBox_Barriers->isChecked());
+        if (p1.compare("Enable Flow Barriers")==0)                                  namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
+        if (p1.compare("Flow barrier table filename")==0)                           namelist[j].value = lineEdit_FlowBarriers->text();
+        if (p1.compare("Include Initial FluidSolid Mixture")==0)                    namelist[j].value.setNum((int)checkBox_UFInitial->isChecked());
+        if (p1.compare("Include Forced FluidSolid Mixture")==0)                     namelist[j].value.setNum((int)checkBox_UFForced->isChecked());
+        if (p1.compare("Incldue Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());
+        if (p1.compare("Incldue Maximum Volume")==0)                                namelist[j].value.setNum((int)checkBox_MaxVolume->isChecked());
+
+        if (p1.compare("Surface Flow Minimum Timestep")==0)                         namelist[j].value = E_SFMinimumDT->text();
+        if (p1.compare("Surface Flow Courant Factor")==0)                           namelist[j].value = E_SFCourant->text();
+        if (p1.compare("Surface Flow Scheme")==0)                                   namelist[j].value = E_SFScheme->text();
+
+        if (p1.compare("Drag Power Law Coefficient")==0)                            namelist[j].value = E_UFDragPower->text();
+        if (p1.compare("Viscosity Alpha")==0)                                       namelist[j].value = E_UFViscosityAlpha->text();
+        if (p1.compare("Viscosity Beta")==0)                                        namelist[j].value = E_UFViscosityBeta->text();
+
+        if (p1.compare("Minimal Flood Water Depth")==0)                             namelist[j].value = E_FloodMinDepth->text();
+        if (p1.compare("Minimum Debris Flow Volumetric Sediment Fraction")==0)      namelist[j].value = E_DebrisFlowMinSedConcentration->text();
+
+
 
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
 
@@ -701,11 +746,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
-        if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
-        //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
-        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int)checkBuffers->isChecked());
-        if (p1.compare("Buffers impermeable")==0)            namelist[j].value.setNum((int)checkBuffersImpermeable->isChecked());
-        if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
@@ -724,7 +764,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
         if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
-        if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
         if (p1.compare("Canopy storage equation")==0)
         {

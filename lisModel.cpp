@@ -176,6 +176,12 @@ void TWorld::DoModel()
 
             SplashDetachment();    // splash detachment
 
+            //set input for unified flow model
+            UF_SetInput();
+
+            SlopeStability();      // slope stability calculations
+            SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
+
             DEBUG("Unified Flow");
             UnifiedFlow();      	//Unified flow method
 

@@ -70,6 +70,22 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
     DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
+
+    DEFmaps.append("0;Debris Flow");
+    DEFmaps.append("1;Slope Stability");
+    DEFmaps.append("2;SoilDensity;soildensity.map;Soil density (m);soildensity");
+    DEFmaps.append("2;SoilIFA;soilifa.map;Soil internal friction angle;soilifa");
+    DEFmaps.append("2;SoilRockFraction;soilrockfraction.map;Soil rock fraction;soilrockfraction");
+    DEFmaps.append("2;SoilRockSize;soilrocksize.map;Soil rock fraction;soilrocksize");
+
+    DEFmaps.append("1;Loose Material");
+    DEFmaps.append("2;DebrisMaterial;debrismaterial.map;Soil debris material;debrismaterial");
+    DEFmaps.append("2;RockSize;rocksize.map;debris material rock size (m);rocksize");
+    DEFmaps.append("2;RockDensity;rockdensity.map;debris material density (m);rockdensity");
+    DEFmaps.append("2;RockIFA;rockifa.map;debris material internal friction angle;rockifa");
+
+
+
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
@@ -106,98 +122,48 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
+
+    DEFmaps.append("0;Surface Flow");
+    DEFmaps.append("1;Flow barriers");
+    DEFmaps.append("2;DemBarriers;barriers.map;Barrier depth (is added to dem) (m);barriers");
+    DEFmaps.append("2;FlowbarrierIndex;flowbarrierindex.map;Flow barrier index (reads properties from table);flowbarrierindex");
+    DEFmaps.append("2;MaxVolume;maxvolume.map; Maximum flow volume;maxvol");
+    DEFmaps.append("1;Flow Limiting");
+    DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
+    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
+    DEFmaps.append("2;ChannelMaxVolume;channelmaxvolume.map; Maximum flow volume for Channel;channelmaxvol");
+    DEFmaps.append("2;ChannelConnected;channelconnected.map; Is the channel connected to overland flow;channelconnected");
     DEFmaps.append("1;Channel Infil");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("1;Channel BaseFLow");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
-  //  DEFmaps.append("1;Channel Baseflow");
-  //  DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
-  //  DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
-  //  DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini");
-    DEFmaps.append("0;Channel Flood");
-    DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
-    DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
-    DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
-    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-  //  DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
-    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
-    DEFmaps.append("0;Buffers");
-    DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
-    DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
+
+
+    DEFmaps.append("1;Initial Volume");
+    DEFmaps.append("2;InitialFVolume;initialfvolume.map;initial fluid volume (m3);initialfvolume");
+    DEFmaps.append("2;InitialSVolume;initialsvolume.map;initial solid volume (m3);initialsvolume");
+    DEFmaps.append("2;InitialSDensity;initialsdensity.map;initial solid density (m3);initialsdensity");
+    DEFmaps.append("2;InitialSRocksize;initialsrocksize.map;initial solid rocksize (m3);initialsrocksize");
+    DEFmaps.append("2;InitialSIFA;initialsifa.map;initial internal friction angle;initialsifa");
+
+    DEFmaps.append("1;Forced Volume condition");
+    DEFmaps.append("2;forcedfvolume;forcedfvolume.map;forced fluid volume (m3);forcedfvolume");
+    DEFmaps.append("2;ForcedSVolume;forcedsvolume.map;forced solid volume (m3);forcedsvolume");
+    DEFmaps.append("2;ForcedSDensity;forcedsdensity.map;forced solid density (m3);forcedsdensity");
+    DEFmaps.append("2;ForcedSRocksize;forcedsrocksize.map;forced solid rocksize (m3);forcedsrocksize");
+    DEFmaps.append("2;ForcedSIFA;forcedsifa.map;forced internal friction angle;forcedsifa");
+
+    DEFmaps.append("0;FlowBarriers");
+    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+
     DEFmaps.append("0;Snowmelt");
     DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
-    DEFmaps.append("0;Tile drains");
-    DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
-    DEFmaps.append("2;Sink;tilesink.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
-    DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width, total in cell if more than one drain (m);tilewidth");
-    DEFmaps.append("2;Height;tileheight.map;Tile drain pipe height (m);tileheight");
-    DEFmaps.append("2;Depth;tiledepth.map;Tile drain pipe depth below surface (m);tiledepth");
-    DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of the tile drains (-);tilegrad");
-    DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
+
     //houses
     DEFmaps.append("0;Houses");
     DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
     DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
     DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-
-
-/*    OBSOLETE and gradually replaced with new ideas
-    DEFmaps.append("0;Wheeltracks");
-    DEFmaps.append("2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel");
-    DEFmaps.append("2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr");
-    DEFmaps.append("2;Width;wheelwid.map;Sum of widths of wheeltracks in a gridcell (m);wheelwidth");
-    DEFmaps.append("2;Depth;wheeldep.map;Wheel track overflow depth (cm);wheeldepth");
-    DEFmaps.append("2;Gradient;wheelgrd.map;DEFmapsope gradient of wheel tracks (-);wheelgradient");
-    DEFmaps.append("2;N;wheelman.map;Mannings n of Wheel tracks (-);wheelman");
-    DEFmaps.append("2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion");
-    DEFmaps.append("2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt");
-
-    DEFmaps.append("0;Nutrients");
-    DEFmaps.append("1;Pesticdes");
-    DEFmaps.append("2;something;something.map;bla bla;something");
-    DEFmaps.append("2;something;something.map;bla bla;something2");
-    DEFmaps.append("1;Phosphorus");
-    DEFmaps.append("2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk");
-    DEFmaps.append("2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont");
-    DEFmaps.append("2;P Solute;psolut.map;Initial solute store P in surface layer (kg/m2);psolute");
-    DEFmaps.append("2;P Efficiency;peff.map;Extraction efficiency (s-1);pefficiency");
-    DEFmaps.append("2;P Sorption;Psorp.map;Sorption isotherm kd (m3/kg);psorp");
-    DEFmaps.append("2;P Conversion;Pconv.map;Conversion P from soil content to clay content(-);pconv");
-    DEFmaps.append("1;NH4");
-    DEFmaps.append("2;NH4 Content;nh4cont.map;Ammonium (NH4+) content of the soil (kg/kg);nh4cont");
-    DEFmaps.append("2;NH4 Solute;nh4solut.map;Initial solute store NH4 in surface layer (kg/m2);nh4solute");
-    DEFmaps.append("2;NH4 Efficiency;nh4eff.map;Extraction efficiency (s-1);nh4efficiency");
-    DEFmaps.append("2;NH4 Sorption;NH4sorp.map;Sorption isotherm kd (m3/kg);nh4sorp");
-    DEFmaps.append("2;NH4 Conversion;NH4conv.map;Conversion NH4 from soil content to clay content(-);nh4conv");
-    DEFmaps.append("1;NO3");
-    DEFmaps.append("2;NO3 Content;NO3cont.map;Nitrate (NO3-) content of the soil (kg/kg);no3cont");
-    DEFmaps.append("2;NO3 Solute;NO3solut.map;Initial solute store NO3 in surface layer (kg/m2);no3solute");
-    DEFmaps.append("2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency");
-    DEFmaps.append("2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp");
-    DEFmaps.append("2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv");
-
-    DEFmaps.append("0;Gullies");
-    DEFmaps.append("1;General");
-    //   DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
-    DEFmaps.append("2;mannings N;gullyman.map;manning's n gully bottom (-);gullyn");
-    DEFmaps.append("2;Excluded areas;noncrit.map;areas to be excluded (1) and rest (0);nonfcrit");
-    DEFmaps.append("2;Gully initial Width;gulwinit.map; initial gully width (m);gulwinit");
-    DEFmaps.append("2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit");
-    DEFmaps.append("1;Soil Layer 1");
-    DEFmaps.append("2;Depth layer 1;soildep1.map;Depth to topsoil (cm);gullydep1");
-    DEFmaps.append("2;Cohesion layer 1;coh.map;Cohesion of topsoil (kPa);gullycoh1");
-    DEFmaps.append("2;BulkDensity;bulkdens.map;Bulkdensity of topsoil (kg/m3);bulkdens1");
-    DEFmaps.append("2;Ksat;ksat1.map;Ksat of topsoil for gully infil (mm/h);gulksat1");
-    DEFmaps.append("1;Soil Layer 2");
-    DEFmaps.append("2;Depth layer 2;soildep2.map;Depth to subsoil (cm);gullydep2");
-    DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh2");
-    DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
-    DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
-OBSOLETE   */
-
-    // example
-    //   DEFmaps.append("0;Pesticides");
-    //   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
 
 }
 //---------------------------------------------------------------------------
@@ -218,11 +184,6 @@ void lisemqt::defaultRunFile()
     i = 0;
     namelist[i++].name = QString("[openLISEM runfile version 4]");
     namelist[i++].name = QString("");
-
-    // work directories are obsolete
-    //	namelist[i++].name = QString("[Work Directory]");
-    //	namelist[i++].name = QString("WorkDir");
-    //	namelist[i++].name = QString("");
 
     //###
     namelist[i++].name = QString("[Input]");
@@ -387,16 +348,59 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Surface Flow]");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Solid Phase");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Entrainment");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Slope Stability");
+
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Slope Failure");
+    namelist[i].value = QString("0.9");
+    namelist[i++].name = QString("Minimum Safety Factor");
+    namelist[i].value = QString("1.3");
+    namelist[i++].name = QString("Maximum Safety Factor");
+    namelist[i].value = QString("3.5");
+    namelist[i++].name = QString("Maximum safety factor for display");
+    namelist[i].value = QString("0.000122");
+    namelist[i++].name = QString("Entrainment Coefficient");
+    namelist[i].value = QString("0.05");
+    namelist[i++].name = QString("Minimum Entrainment Height");
+    namelist[i].value = QString("0.1");
+    namelist[i++].name = QString("Minimum Failure Height");
+
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Levees");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Barriers");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Flow Barriers");
+    namelist[i].value = QString("flowbarriers.txt");
+    namelist[i++].name = QString("Flow barrier table filename");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Initial FluidSolid Mixture");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Forced FluidSolid Mixture");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Incldue Maximum ChannelVolume");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Incldue Maximum Volume");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Surface Flow Minimum Timestep");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Channel Flow Minimum Timestep");
+    namelist[i++].name = QString("Flow Minimum Timestep");
     namelist[i].value = QString("0.25");
     namelist[i++].name = QString("Surface Flow Courant Factor");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("2");
     namelist[i++].name = QString("Surface Flow Scheme");
-
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Drag Power Law Coefficient");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Viscosity Alpha");
+    namelist[i].value = QString("20");
+    namelist[i++].name = QString("Viscosity Beta");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Minimal Flood Water Depth");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Minimum Debris Flow Volumetric Sediment Fraction");
 
     //###
     namelist[i++].name = QString("");

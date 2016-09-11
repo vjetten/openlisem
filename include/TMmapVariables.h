@@ -143,63 +143,6 @@ cTMap
 *DG,                         //!< parameter Govers in TC equation
 *SettlingVelocity,           //!< settling velocity according to Stokes [m/s]
 
-
-*Vup,                        //!< updated runoff velocity for pesticides transport
-*Vup_old,
-*PCA,                        //!< applied dose [kg/m2]
-*epsil,                      //!< mixing layer depth (m]
-*KD,                         //!< soil water partition coefficient [m3/kg]
-*kr,                         //!< rate at which solute desorb [min-1]
-*rhob,                       //!< soil bulk density [kg/m3]
-*C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
-*Cold,
-*CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
-*CS,                         //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
-*C_N,
-*CM_N,
-*CS_N,
-*C_K,
-*C_Kold,
-*CM_K,
-*CS_K,
-*C_Kexplicit,
-*CS_Kexplicit,
-*CM_Kexplicit,
-*CM_Kexplicitold,
-*CS_Kexplicitold,
-*Qp,
-*Qpn,
-*C_Kn,
-*K1,
-*Kfilm,
-*pestiinf,
-*pestiinfold,
-*poro,
-*AX,
-*Fkold,
-*Fk,
-*Fmk,
-*flagpest,
-*PMassApplied,
-*PRunoffSpatial,
-*PDisMixing,
-*PSorMixing,
-*PInfilt,
-*PStorage,
-*PRunoffSpatialex,
-*PDisMixingex,
-*PSorMixingex,
-*PInfiltex,
-*Qin,
-*Sin,
-*Pest,
-*Fin,
-*Pdetach,
-*PCinfilt,
-*PCfilmexit,
-
-
-
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
@@ -218,7 +161,7 @@ cTMap
 //*ffact,                       //!< actual infiltration rate [m/s]
 //*ffpot,                       //!< potential infiltration rate [m/s]
 //*FfFull,                      //!< map flagging when the soil is full
-
+*TileDrainSoil,
 *Lf1,
 *Lf2,
 
@@ -311,37 +254,12 @@ cTMap
 *hmxWH,                        //!<
 // *hmxInit,                    //!<
 
-*LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
-*TileDrainSoil,              //!< drain volume from layer
-*TileWidth,                  //!< total width of drains in cell (m)
-*TileHeight,                 //!< height of drain (m)
-*TileDepth,                  //!< depth of tiles in soil below surface (m)
-*TileSinkhole,               //!< sinkhole on surface connecting to tiledrains (m2)
-*TileQ,                      //!< water flux in drains m3/s
-*TileQn,                     //!< new water flux in drains m3/s
-*TileQs,                     //!< sediment flux in drains kg/s
-*TileQsn,                    //!< new sediment flux in drains kg/s
-//*TileQoutflow,               //!< water outflow in outlet
-*TileGrad,                   //!< gradient of the tiledrain system
-*TileN,                      //!< mannings inside the tiledrains
-*TileWH,                     //!< water height in the tile drains (m)
-*TileWaterVol,               //!< water volume in the tiledrains (m3)
-*TileWaterVolSoil,           //!< water volume in the tiledrains from the soil only, used for mass bal corection (m3)
-*Tileq,                      //!< possible drainage inside tiles, not used
-*RunoffVolinToTile,          //!< can be used for shortcut of surface pits to tile system
-*TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
-*TileDX,                     //!< cell length in tile drain, dx/cos angle
-*TileV,                      //!< velocity in tile drain m/s
-
-*BufferID,                   //!<
-*BufferVol,                  //!<
-*BufferSed,                  //!<
-*ChannelBufferSed,           //!<
-*ChannelBufferVol,           //!<
-*BufferVolInit,              //!<
-*BufferSedInit,              //!<
-*ChannelBufferSedInit,       //!<
-*ChannelBufferVolInit,       //!<
+*dfhmx,
+*dfUV,
+*dfTimeStart,
+*dfHmxMax,
+*dfVMax,
+*dfTime,
 
 *TotalDetMap,                //!<
 *TotalDepMap,                //!<
@@ -350,6 +268,16 @@ cTMap
 *TotalSoillossMap,           //!<
 *TotalSed,                   //!<
 *TotalConc,                  //!<
+
+*EntrainmentDet,
+*EntrainmentDep,
+*TotalEntrainmentDet,
+*TotalEntrainmentDep,
+
+*ChannelEntrainmentDet,
+*ChannelEntrainmentDep,
+*ChannelTotalEntrainmentDet,
+*ChannelTotalEntrainmentDep,
 
 //Mu[6],                       //!< multiclass fraction of the grainsize in the 6 classes, 6 maps sum to 1.0
 //CGm[6],                      //!< multiclass TC coefficient for this texture class

@@ -1541,12 +1541,6 @@ void lisemqt::resetAll()
     checkRaindrum->setChecked(check);
     // flooded areas
     checkChannelFlood->setChecked(check);
-
-
-    checkLimitTC->setChecked(check);
-    //   checkLimitDepTC->setChecked(check);
-    checkBuffers->setChecked(check);
-    checkSedtrap->setChecked(check);
     checkInfilCompact->setChecked(check);
     checkInfilGrass->setChecked(check);
     checkInfilCrust->setChecked(check);
@@ -1568,8 +1562,6 @@ void lisemqt::resetAll()
     checkWriteSOBEK->setChecked(check);
     SOBEKdatestring->setText("10/01/01");
     //checkInterceptionLAI->setChecked(true);
-    E_BulkDens->setText("1400.00");
-
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);

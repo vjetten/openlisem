@@ -50,10 +50,6 @@ void TWorld::GridCell(void)
 
         ChannelAdj->Drc = dxa;
 
-        if (BufferID->Drc > 0)
-            RoadWidthDX->Drc = 0;
-        //VJ 100609 cannot have a road with a buffer, to complicated
-
         RoadWidthDX->Drc = std::min(dxa, RoadWidthDX->Drc);
         dxa = std::max(0.0, dxa - RoadWidthDX->Drc);
 
@@ -75,15 +71,6 @@ void TWorld::addRainfallWH(void)
         {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)
-
-            if (SwitchBuffers && !SwitchSedtrap)
-                if(BufferID->Drc > 0 && BufferVol->Drc > 0)
-                {
-                    WH->Drc = 0;
-                    BufferVol->Drc  += (Rainc->Drc + Snowmeltc->Drc) * DX->Drc * _dx;
-                }
-            // buffers and not full yet (buffervol > 0) then add rainflal to buffers and set WH to zero
-            // not for sed traps, behave normally
 
             if (GrassFraction->Drc > 0)
                 WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;

@@ -61,14 +61,14 @@ double TWorld::UF_DragCoefficient(double ffraction, double sfraction, double gam
     double G = pow(ffraction,3.5 - 1.0);
     double P = UF_P(rocksize,ffraction, viscosity, sfraction, density);
     double den = pow((UF_Aspect * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density)*( P * F + (1-P) * G)),UF_j);
-    double dc = den > 0? ffraction * sfraction * (1-gamma)/den : 0.5;
+    double dc = den > 0? ffraction * sfraction * (1-gamma)/den : 0.0;
     return dc;
 
 }
 
 double TWorld::UF_Reynolds(double density, double viscosity, double ffraction,double sfraction, double rocksize)
 {
-    return  (!(viscosity > 0))? 0.0: (sfraction* density +ffraction * 1000.0) * ( sfraction *rocksize +ffraction * _dx) * (sfraction * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density) + ffraction * 1.0)/viscosity ;
+    return  std::max(500.0,(!(viscosity > 0))? 0.0: (sfraction* density +ffraction * 1000.0) * ( sfraction *((_dx + rocksize)/2.0) +ffraction * _dx) * (sfraction * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density) + ffraction * 1.0)/viscosity );
 }
 
 double TWorld::UF_VirtualMassCoeff(double ffraction, double sfraction)

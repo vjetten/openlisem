@@ -179,8 +179,6 @@ void TWorld::OutputUI(void)
     op.Qtotmm = Qtotmm;
     op.Qtot = QtotOutlet;
 
-    op.Qtile = 1000*TileQn->DrcOutlet;
-
     op.RainpeakTime = RainpeakTime/60;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
@@ -458,7 +456,6 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
                     out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
-                    if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
                     out << "\n";
@@ -504,7 +501,6 @@ void TWorld::ReportTimeseriesNew(void)
                 {
 
                     out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
-                    if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
                 }
@@ -702,14 +698,6 @@ void TWorld::ReportMaps(void)
     if (outputcheck[10].toInt() == 1) report(*UF1D_f, Outchvol);
 
 
-    if (SwitchIncludeTile && outputcheck.count() > 11)
-    {
-        if (outputcheck[11].toInt() == 1)
-        {
-            calcMapValue(*tm, *TileQn, 1000, MUL);// in mm
-            report(*tm, OutTiledrain);
-        }
-    }
     if (SwitchChannelFlood)
     {
         if (outputcheck[12].toInt() == 1)
@@ -1058,12 +1046,8 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    AddComboMap(0,"Overland Discharge","l/s",UF2D_q,Colormap,Colors,true,false,1000.0, 1.0);
-    if(SwitchIncludeChannel)
-    {
-        AddComboMap(0,"Channel Discharge","l/s",UF1D_q,Colormap,Colors,true,false,1000.0, 1.0);
-        AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
-    }
+    AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Channel Flow Height","m",UF1D_h,Colormap,Colors,false,false,1.0, 0.01);
 
     Colormap.clear();
     Colormap.append(0.0);
@@ -1083,6 +1067,32 @@ void TWorld::GetComboMaps()
 
     Colormap.clear();
     Colormap.append(0.0);
+    Colormap.append(0.0005);
+    Colormap.append(0.01);
+    Colormap.append(0.05);
+    Colormap.append(0.1);
+    Colormap.append(0.9);
+    Colormap.append(1.0);
+
+    Colors.clear();
+    Colors.append("#8C8CFF");
+    Colors.append("#8080FF");
+    Colors.append("#4040ff");
+    Colors.append("#0000FF");
+    Colors.append("#00006F");
+    Colors.append("#FF0000");
+    Colors.append("#FF3300");
+    AddComboMap(0,"Overland Discharge","l/s",UF2D_q,Colormap,Colors,true,false,1000.0, 1.0);
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap(0,"Channel Discharge","l/s",UF1D_q,Colormap,Colors,true,false,1000.0, 1.0);
+        AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+    }
+
+
+
+    Colormap.clear();
+    Colormap.append(0.0);
     Colormap.append(0.5);
     Colormap.append(1.0);
     Colors.clear();
@@ -1090,7 +1100,39 @@ void TWorld::GetComboMaps()
     Colors.append("#0023b1");
     Colors.append("#001462");
 
-    AddComboMap(0,"Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Fluid Phase Volume","m3",UF2D_f,Colormap,Colors,false,false,1.0,1.0);
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#ffffff");
+    Colors.append("#50B547");//#96B547");
+    Colors.append("#616ca2");//#457A60");
+
+    AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#5477ff");
+    Colors.append("#0023b1");
+    Colors.append("#001462");
+    AddComboMap(0,"Channel Fluid Phase Volume","m3",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#ffffff");
+    Colors.append("#50B547");//#96B547");
+    Colors.append("#616ca2");//#457A60");
+    AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
 
     if(InfilMethod != INFIL_NONE)
     {
@@ -1121,7 +1163,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
 
-    if(SwitchChannelFlood)
+    if(UF_DISPLAYFLOODMINIMUM > 0)
     {
         Colormap.clear();
         Colormap.append(0.0);
@@ -1159,10 +1201,52 @@ void TWorld::GetComboMaps()
         Colors.append("#007300");
 
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
+    }
+
+    if(UF_DISPLAYDEBRISFLOWMINIMUM > 0)
+    {
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.5);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#5477ff");
+        Colors.append("#0023b1");
+        Colors.append("#001462");
+        AddComboMap(0,"Debris Flow Height","m",dfhmx,Colormap,Colors,false,false,1.0,0.01);
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.25);
+        Colormap.append(0.75);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#00FF00");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+        Colors.append("#A60000");
+        AddComboMap(0,"Debris Flow Velocity","m/s",dfUV,Colormap,Colors,false,false,1.0,0.01);
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.25);
+        Colormap.append(0.5);
+        Colormap.append(0.75);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#A60000");
+        Colors.append("#FF0000");
+        Colors.append("#FFFF00");
+        Colors.append("#00FF00");
+        Colors.append("#007300");
+
+        AddComboMap(0,"Debris Flow Start Time","min",dfTimeStart,Colormap,Colors,false,false,1.0,1.0);
+
 
     }
 
-    Colormap.clear();
+
+    /*Colormap.clear();
     Colormap.append(0.0);
   //  Colormap.append(0.3);
     Colormap.append(0.5);
@@ -1185,17 +1269,25 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"UF_rocksize1" ,"kg/m2",UF1D_rocksize,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF_ifa" ,"kg/m2",UF2D_ifa,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF_ifa1" ,"kg/m2",UF1D_ifa,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_fax" ,"kg/m2",UF2D_fax,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_fay" ,"kg/m2",UF2D_fay,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_fa" ,"kg/m2",UF1D_fa,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qfx1" ,"kg/m2",UF2D_fqx1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qfx2" ,"kg/m2",UF2D_fqx2,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qfy1" ,"kg/m2",UF2D_fqy1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qfy2" ,"kg/m2",UF2D_fqy2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_Nr2" ,"kg/m2",UF2D_Nr,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF_Nr1" ,"kg/m2",UF1D_Nr,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_su" ,"kg/m2",UF1D_fu,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_fu" ,"kg/m2",UF1D_su,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_fa1" ,"kg/m2",UF1D_fa1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_fa2" ,"kg/m2",UF1D_fa2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_slope" ,"kg/m2",UF1D_Slope,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_sax1" ,"kg/m2",UF2D_sax1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_say1" ,"kg/m2",UF2D_say1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_sax2" ,"kg/m2",UF2D_sax2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_say2" ,"kg/m2",UF2D_say2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_sa" ,"kg/m2",UF1D_sa,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qsx1" ,"kg/m2",UF2D_sqx1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qsx2" ,"kg/m2",UF2D_sqx2,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qsy1" ,"kg/m2",UF2D_sqy1,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF2D_qsy2" ,"kg/m2",UF2D_sqy2,Colormap,Colors,false,false,1.0,1.0);*/
 
     AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_T" ,"kg/m2",UF2D_T,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_Test" ,"kg/m2",UF2D_Test,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"UF1D_DTStep" ,"kg/m2",UF1D_DTStep,Colormap,Colors,false,false,1.0,1.0);
 
 
     if(SwitchErosion)
@@ -1257,6 +1349,56 @@ void TWorld::GetComboMaps()
 //        Colors.append("#FF0000");
         AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
 
+        if(SwitchEntrainment)
+        {
+            Colormap.clear();
+            Colormap.append(0.0);
+            Colormap.append(0.5);
+            Colormap.append(0.9);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#FAFAD2");
+            Colors.append("#FFFF66");
+            Colors.append("#d47e17");//808000
+            Colors.append("#804000");
+
+            AddComboMap(1,"Entrainment","kg/m2",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
+        }
+        if(SwitchSlopeStability)
+        {
+            Colormap.clear();
+            Colormap.append(0.0);
+            Colormap.append(0.25);
+            Colormap.append(0.5);
+            Colormap.append(0.75);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#A60000");
+            Colors.append("#FF0000");
+            Colors.append("#FFFF00");
+            Colors.append("#00FF00");
+            Colors.append("#007300");
+
+            AddComboMap(1,"Safety Factor","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
+        }
+        if(SwitchSlopeFailure)
+        {
+            Colormap.clear();
+            Colormap.append(0.0);
+            Colormap.append(0.25);
+            Colormap.append(0.5);
+            Colormap.append(0.75);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#A60000");
+            Colors.append("#FF0000");
+            Colors.append("#FFFF00");
+            Colors.append("#00FF00");
+            Colors.append("#007300");
+
+            AddComboMap(1,"Failure Height","m",DFTotalInitiationHeight,Colormap,Colors,false,false,1.0,0.2);
+        }
         if(SwitchUseGrainSizeDistribution)
         {
             Colormap.clear();

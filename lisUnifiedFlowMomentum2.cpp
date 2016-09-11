@@ -134,7 +134,7 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
     FOR_ROW_COL_UF2D
     {
-        double h = (_f->Drc + _s->Drc)/(_dx * _dx);
+        double h = (_f->Drc)/(_dx * _dx);
         UF_t1->Drc = h*h*(UF_Gravity*h)/2.0;
 
         if(_f->Drc + _s->Drc > UF_VERY_SMALL)
@@ -155,6 +155,23 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
     FOR_ROW_COL_UF2D_DT
     {
+
+        if(!(_f->Drc > UF_VERY_SMALL) ||!(_s->Drc + _f->Drc > UF_VERY_SMALL) )
+        {
+
+            UF2D_fax->Drc = 0;
+            UF2D_fay->Drc = 0;
+            UF2D_fqx1->Drc = 0;
+            UF2D_fqx2->Drc = 0;
+            UF2D_fqy1->Drc = 0;
+            UF2D_fqy2->Drc = 0;
+            UF2D_fax1->Drc = 0;
+            UF2D_fax2->Drc = 0;
+            UF2D_fay1->Drc = 0;
+            UF2D_fay2->Drc = 0;
+            continue;
+        }
+
         ////////////input parameters
 
         double lfu = UF2D_MUSCLE_2_x2->Drc;
@@ -173,11 +190,12 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
         double ff = UF_t2->Drc;
         double sf = UF_t3->Drc;
-        double visc = UF_DynamicViscosity(sf);
+        double visc = 1.0;//UF_DynamicViscosity(sf);
         double Nr = std::max(0.5,UF_Reynolds(_d->Drc,visc,ff,sf, _rocksize->Drc));
-        double Nra = 150000;
+        UF2D_Nr->Drc = Nr;
+        double Nra = UF_NRA;
         double gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
-        double dc = UF_DragCoefficient(ff, sf, gamma,visc, _rocksize->Drc, _d->Drc);
+        double dc = UF_DragCoefficient(ff,sf,gamma,_visc->Drc, _rocksize->Drc, _d->Drc);
 
         double lxpbf = UF_Gravity*lxh;
         double rxpbf = UF_Gravity*rxh;
@@ -190,6 +208,13 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double ldhfdy = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_L);
         double rdhfdx = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_X,UF_DERIVATIVE_R);
         double rdhfdy = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_R);
+
+        /*double dhfdx = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_X, UF_DERIVATIVE_LR, true);
+        double dhfdy = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_Y, UF_DERIVATIVE_LR,true);
+        double ldhfdx = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_X,UF_DERIVATIVE_L, true);
+        double ldhfdy = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_L, true);
+        double rdhfdx = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_X,UF_DERIVATIVE_R, true);
+        double rdhfdy = UF2D_Derivative(_dem,UF_t4,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_R, true);*/
 
         double dh2pbdx = UF2D_Derivative(_dem,UF_t1,r,c,UF_DIRECTION_X);
         double dh2pbdy = UF2D_Derivative(_dem,UF_t1,r,c,UF_DIRECTION_Y);
@@ -220,16 +245,7 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double dsvdx = UF2D_Derivative(_dem,_sv,r,c,UF_DIRECTION_X);
         double dsvdy = UF2D_Derivative(_dem,_sv,r,c,UF_DIRECTION_Y);
 
-        if(!(_f->Drc > UF_VERY_SMALL))
-        {
-
-            UF2D_fax->Drc = 0;
-            UF2D_fay->Drc = 0;
-            continue;
-        }
-
         ////////////momentum balance
-
         double lfax = UF2D_MomentumBalanceFluid(true,lxh*_dx*_dx,_s->Drc,lfu, _fv->Drc, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, visc, lxpbf, lxslope, 0,
                                                  ldhfdx,  dhfdy,   ldh2pbdx,   dh2pbdy,   dsfdx,   dsfdy,   ddsfdxx,   ddsfdyy,   ddsfdxy,
                                                  dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
@@ -250,26 +266,20 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
                                                    dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
                                                    dsudx,   dsudy,   dsvdx,  dsvdy);
 
+        UF2D_fax1->Drc = rfax;
+        UF2D_fax2->Drc = lfax;
+        UF2D_fay1->Drc = rfay;
+        UF2D_fay2->Drc = lfay;
+
         ////////////friction and actual accaleration
 
             UF_t6->Drc = lfu;
             UF_t7->Drc = rfu;
 
-            /*double dtn = 0;
-            while(dtn < dt->Drc)
-            {
-                double dttemp = std::min(dt->Drc/UF2D_DTStep->Drc,dt->Drc - dtn);
-                UF_t6->Drc += dttemp* lfax;
-                UF_t7->Drc += dttemp* rfax;
-                UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,lxh,lxslope);
-                UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,0,N->Drc,rxh,lyslope);
-                dtn += dttemp;
-            }*/
-
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lfax;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rfax;
             UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope);
-            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,ryslope);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope);
             double ut1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfax;
             double ut2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfax;
             UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope))/2.0;
@@ -279,27 +289,17 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
             {
                 double lvpow = pow((UF_t6->Drc-_su->Drc)*(UF_t6->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((UF_t7->Drc-_su->Drc)*(UF_t7->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double lfacu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *lvpow)));
-                double rfacu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t7->Drc - _su->Drc) *rvpow)));
+                double lfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf*lvpow)));
+                double rfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
                 UF_t6->Drc = (1.0-lfacu) * UF_t6->Drc + (lfacu) * _su->Drc;
-                UF_t7->Drc = (1.0-rfacu) * UF_t7->Drc + (rfacu) * _sv->Drc;
+                UF_t7->Drc = (1.0-rfacu) * UF_t7->Drc + (rfacu) * _su->Drc;
             }
+
             lfax = (UF_t6->Drc - lfu)/dt->Drc;
             rfax = (UF_t7->Drc - rfu)/dt->Drc;
 
             UF_t6->Drc = lfv;
             UF_t7->Drc = rfv;
-
-            /*dtn = 0;
-            while(dtn < dt->Drc)
-            {
-                double dttemp = std::min(dt->Drc/UF2D_DTStep->Drc,dt->Drc - dtn);
-                UF_t6->Drc += dttemp* lfay;
-                UF_t7->Drc += dttemp* rfay;
-                UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,lyh,lyslope);
-                UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,0,N->Drc,ryh,ryslope);
-                dtn += dttemp;
-            }*/
 
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lfay;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rfay;
@@ -307,47 +307,58 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
             UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope);
             double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfay;
             double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfay;
-            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lxh,lyslope))/2.0;
-            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rxh,ryslope))/2.0;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope))/2.0;
 
             if(sf > UF_VERY_SMALL)
             {
                 double lvpow = pow((UF_t6->Drc-_sv->Drc)*(UF_t6->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((UF_t7->Drc-_sv->Drc)*(UF_t7->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double lfacv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _sv->Drc) *lvpow)));
-                double rfacv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t7->Drc - _sv->Drc) *rvpow)));
-                UF_t6->Drc = (1.0-lfacv) * UF_t6->Drc + (lfacv) * _su->Drc;
+                double lfacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *lvpow)));
+                double rfacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
+                UF_t6->Drc = (1.0-lfacv) * UF_t6->Drc + (lfacv) * _sv->Drc;
                 UF_t7->Drc = (1.0-rfacv) * UF_t7->Drc + (rfacv) * _sv->Drc;
             }
+
             lfay = (UF_t6->Drc - lfv)/dt->Drc;
             rfay = (UF_t7->Drc - rfv)/dt->Drc;
-
-        UF2D_fax1->Drc = rfax;
-        UF2D_fax2->Drc = lfax;
-        UF2D_fay1->Drc = rfay;
-        UF2D_fay2->Drc = lfay;
 
         ////////////average accalerations for cell centers
         UF2D_fax->Drc = (lfax + rfax)/2.0;
         UF2D_fay->Drc = (lfay + rfay)/2.0;
 
         ////////////fluxes
-
-        double cq = 0.25 * UF_Courant * _f->Drc;
-        double cqx1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : _f->data[r][c+1]);
-        double cqx2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : _f->data[r][c-1]);
-        double cqy1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : _f->data[r+1][c]);
-        double cqy2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : _f->data[r-1][c]);
+        double hdem = (_f->Drc/(_dx*_dx) + _dem->Drc);
+        double volx1 = UF_OUTORMV(_dem,r,c+1)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1))));
+        double volx2 = UF_OUTORMV(_dem,r,c-1)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_f->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1))));
+        double voly1 = UF_OUTORMV(_dem,r+1,c)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_f->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0))));
+        double voly2 = UF_OUTORMV(_dem,r-1,c)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_f->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0))));
 
         double dtx1 = dt->Drc;//(UF2D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
         double dtx2 = dt->Drc;//(UF2D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c-1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c-1)? 0.0: dt->data[r][c-1]));
         double dty1 = dt->Drc;//(UF2D_MUSCLE_OUT_y1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r+1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r+1,c)? 0.0: dt->data[r+1][c]));
         double dty2 = dt->Drc;//(UF2D_MUSCLE_OUT_y2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r-1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r-1,c)? 0.0: dt->data[r-1][c]));
 
-        double qx1 = 0.5 *dtx1 * (rfu + dtx1 * rfax) * rxh *_dx;
-        double qx2 = 0.5 *dtx2 * (lfu + dtx2 * lfax) * lxh *_dx;
-        double qy1 = 0.5 *dty1 * (rfv + dty1 * rfay) * ryh *_dx;
-        double qy2 = 0.5 *dty2 * (lfv + dty2 * lfay) * lyh *_dx;
+        double vx1 = rfu + dtx1 * rfax;
+        double vx2 = lfu + dtx2 * lfax;
+        double vy1 = rfv + dty1 * rfay;
+        double vy2 = lfv + dty2 * lfay;
+
+        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:0.0)*((_dem->Drc + rxh) - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 0.0:1.0)*((_dem->Drc + lxh) - (_f->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:0.0)*((_dem->Drc + ryh) - (_f->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
+        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 0.0:1.0)*((_dem->Drc + lyh) - (_f->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+
+        double cq = 0.25 * UF_Courant * _f->Drc;
+        double cqx1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : volx1);
+        double cqx2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : volx2);
+        double cqy1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : voly1);
+        double cqy2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : voly2);
+
+        double qx1 = 0.5 *dtx1 * (vx1) * rxh *_dx;
+        double qx2 = 0.5 *dtx2 * (vx2) * lxh *_dx;
+        double qy1 = 0.5 *dty1 * (vy1) * ryh *_dx;
+        double qy2 = 0.5 *dty2 * (vy2) * lyh *_dx;
 
         qx1 = ((qx1 > 0)? 1.0 : -1.0) * std::min(std::fabs(qx1),(qx1 > 0)? cq : cqx1);
         qx2 = ((qx2 > 0)? 1.0 : -1.0) * std::min(std::fabs(qx2),(qx2 > 0)? cqx2 : cq);
@@ -365,29 +376,6 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         UF2D_fqy2->Drc = qy2;
 
     }}}
-
-    /*FOR_ROW_COL_UF2D_DT
-    {
-        if(r != _nrRows && c != _nrCols)
-        {
-            if(UF_OUTORMV(_dem,r,c+1))
-            {
-                double q = UF2D_fqx1->Drc + UF2D_fqx2->data[r][c+1];
-
-                UF2D_fqx1->Drc = q > 0? q:0.0;
-                UF2D_fqx2->data[r][c+1] = q > 0? 0.0:q;
-
-
-            }
-            if(UF_OUTORMV(_dem,r+1,c))
-            {
-                double q = UF2D_fqy1->Drc + UF2D_fqy2->data[r+1][c];
-                UF2D_fqy1->Drc = q > 0? q:0.0;
-                UF2D_fqy2->data[r+1][c] = q > 0? 0.0:q;
-            }
-
-        }
-    }}}*/
 
 }
 
@@ -422,8 +410,8 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double k_x = (dudxx) > 0? k_act: k_pass;
         double k_y = (dudyy) > 0? k_act: k_pass;
 
-        UF_t2->Drc = UF_Gravity * k_x *hs * hs * UF_Aspect/2.0;
-        UF_t3->Drc = UF_Gravity * k_y *hs * hs * UF_Aspect/2.0;
+        UF_t2->Drc = UF_Gravity * 1 *hs * hs * UF_Aspect/2.0;
+        UF_t3->Drc = UF_Gravity * 1 *hs * hs * UF_Aspect/2.0;
 
         UF_t4->Drc = _f->Drc/(_dx * _dx);
         UF_t5->Drc = _s->Drc/(_dx * _dx);
@@ -433,10 +421,18 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
     FOR_ROW_COL_UF2D_DT
     {
-        if(!(_s->Drc > UF_VERY_SMALL))
+        if(!(_s->Drc > UF_VERY_SMALL) ||!(_s->Drc + _f->Drc > UF_VERY_SMALL) )
         {
             UF2D_sax->Drc = 0;
             UF2D_say->Drc = 0;
+            UF2D_sqx1->Drc = 0;
+            UF2D_sqx2->Drc = 0;
+            UF2D_sqy1->Drc = 0;
+            UF2D_sqy2->Drc = 0;
+            UF2D_sax1->Drc = 0;
+            UF2D_sax2->Drc = 0;
+            UF2D_say1->Drc = 0;
+            UF2D_say2->Drc = 0;
             continue;
         }
 
@@ -450,12 +446,17 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double lyh = std::max(0.0,UF2D_MUSCLE_1_y2->Drc);
         double ryh = std::max(0.0,UF2D_MUSCLE_1_y1->Drc);
 
-        double h = (_f->Drc + _s->Drc)/(_dx * _dx);
+        double h = (_s->Drc)/(_dx * _dx);
         double ff = _f->Drc / (_f->Drc + _s->Drc);
         double sf = _s->Drc / (_f->Drc + _s->Drc);
         double gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
         double dc = UF_DragCoefficient(ff,sf,gamma,_visc->Drc, _rocksize->Drc, _d->Drc);
         double pbf = -UF_Gravity*h;
+        double lxpbf = -UF_Gravity*lxh;
+        double rxpbf = -UF_Gravity*rxh;
+        double lypbf = -UF_Gravity*lyh;
+        double rypbf = -UF_Gravity*ryh;
+
         double pbs = (1-gamma)*pbf;
         double ifa = 0.3;
 
@@ -484,94 +485,117 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double rdbdx = UF2D_Derivative(_dem,UF_t2,r,c,UF_DIRECTION_X,UF_DERIVATIVE_R);
         double rdbdy = UF2D_Derivative(_dem,UF_t3,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_R);
 
-        double lsax = UF2D_MomentumBalanceSolid(true,_f->Drc,lxh/(_dx*_dx),_fu->Drc, _fv->Drc, lsu, _sv->Drc, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,pbf, lxslope, UF2D_SlopeY->Drc,
+        double lsax = UF2D_MomentumBalanceSolid(true,_f->Drc,lxh*(_dx*_dx),_fu->Drc, _fv->Drc, lsu, _sv->Drc, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,lxpbf, lxslope, UF2D_SlopeY->Drc,
                                                   ldhsdx, dhsdy, ldhdx, dhdy, ldbdx, dbdy);
 
-        double rsax = UF2D_MomentumBalanceSolid(true,_f->Drc,rxh/(_dx*_dx),_fu->Drc, _fv->Drc, rsu, _sv->Drc, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,pbf, lyslope, UF2D_SlopeY->Drc,
+        double rsax = UF2D_MomentumBalanceSolid(true,_f->Drc,rxh*(_dx*_dx),_fu->Drc, _fv->Drc, rsu, _sv->Drc, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,rxpbf, rxslope, UF2D_SlopeY->Drc,
                                                  rdhsdx, dhsdy, rdhdx, dhdy, rdbdx, dbdy);
 
-        double lsay = UF2D_MomentumBalanceSolid(false,_f->Drc,lyh/(_dx*_dx),_fu->Drc, _fv->Drc, _su->Drc, lsv, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,pbf, UF2D_SlopeX->Drc, rxslope,
+        double lsay = UF2D_MomentumBalanceSolid(false,_f->Drc,lyh*(_dx*_dx),_fu->Drc, _fv->Drc, _su->Drc, lsv, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,lypbf, UF2D_SlopeX->Drc, lyslope,
                                                   dhsdx, ldhsdy, dhdx, ldhdy, dbdx, ldbdy);
 
-        double rsay = UF2D_MomentumBalanceSolid(false,_f->Drc,ryh/(_dx*_dx),_fu->Drc, _fv->Drc, _su->Drc, rsv, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,pbf, UF2D_SlopeX->Drc, ryslope,
+        double rsay = UF2D_MomentumBalanceSolid(false,_f->Drc,ryh*(_dx*_dx),_fu->Drc, _fv->Drc, _su->Drc, rsv, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs,rypbf, UF2D_SlopeX->Drc, ryslope,
                                                  dhsdx, rdhsdy, dhdx, rdhdy, dbdx, rdbdy);
-
-        ////////////friction and actual accaleration
-
-            UF_t6->Drc = lsu;
-            UF_t7->Drc = rsu;
-            double dtn = 0;
-            while(dtn < dt->Drc)
-            {
-                double dttemp = std::min(UF_DTMIN,dt->Drc - dtn);
-                UF_t6->Drc += dttemp* lsax;
-                UF_t7->Drc += dttemp* rsax;
-                UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,_sv->Drc,N->Drc,lxh,lxslope);
-                UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,_sv->Drc,N->Drc,rxh,rxslope);
-                dtn += dttemp;
-            }
-            if(ff > UF_VERY_SMALL)
-            {
-                double lvpow = pow((UF_t6->Drc-_fu->Drc)*(UF_t6->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double rvpow = pow((UF_t7->Drc-_fu->Drc)*(UF_t7->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double lsacu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *lvpow)));
-                double rsacu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t7->Drc - _fu->Drc) *rvpow)));
-                UF_t6->Drc = (1.0-lsacu) * UF_t6->Drc + (lsacu) * _su->Drc;
-                UF_t7->Drc = (1.0-rsacu) * UF_t7->Drc + (rsacu) * _sv->Drc;
-            }
-            lsax = (UF_t6->Drc - lsu)/dt->Drc;
-            rsax = (UF_t7->Drc - rsu)/dt->Drc;
-
-            UF_t6->Drc = lsv;
-            UF_t7->Drc = rsv;
-            dtn = 0;
-            while(dtn < dt->Drc)
-            {
-                double dttemp = std::min(UF_DTMIN,dt->Drc - dtn);
-                UF_t6->Drc += dttemp* lsay;
-                UF_t7->Drc += dttemp* rsay;
-                UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,_su->Drc,N->Drc,lyh,lyslope);
-                UF_t7->Drc = UF_Friction(dttemp,UF_t7->Drc,_su->Drc,N->Drc,ryh,ryslope);
-                dtn += dttemp;
-            }
-            if(ff > UF_VERY_SMALL)
-            {
-                double lvpow = pow((UF_t6->Drc-_fv->Drc)*(UF_t6->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double rvpow = pow((UF_t7->Drc-_fv->Drc)*(UF_t7->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double lsacv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fv->Drc) *lvpow)));
-                double rsacv = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t7->Drc - _fv->Drc) *rvpow)));
-                UF_t6->Drc = (1.0-lsacv) * UF_t6->Drc + (lsacv) * _su->Drc;
-                UF_t7->Drc = (1.0-rsacv) * UF_t7->Drc + (rsacv) * _sv->Drc;
-            }
-            lsay = (UF_t6->Drc - lsv)/dt->Drc;
-            rsay = (UF_t7->Drc - rsv)/dt->Drc;
 
         UF2D_sax1->Drc = rsax;
         UF2D_sax2->Drc = lsax;
         UF2D_say1->Drc = rsay;
         UF2D_say2->Drc = lsay;
 
+        ////////////friction and actual accaleration
+
+            UF_t6->Drc = lsu;
+            UF_t7->Drc = rsu;
+
+            UF_t6->Drc += dt->Drc*(2.0/3.0)* lsax;
+            UF_t7->Drc += dt->Drc*(2.0/3.0)* rsax;
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope);
+            double ut1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsax;
+            double ut2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsax;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut2,0,N->Drc,rxh,rxslope))/2.0;
+
+            if(ff > UF_VERY_SMALL)
+            {
+                double lvpow = pow((UF_t6->Drc-_fu->Drc)*(UF_t6->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
+                double rvpow = pow((UF_t7->Drc-_fu->Drc)*(UF_t7->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
+                double lsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
+                double rsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
+                UF_t6->Drc = (1.0-lsacu) * UF_t6->Drc + (lsacu) * _fu->Drc;
+                UF_t7->Drc = (1.0-rsacu) * UF_t7->Drc + (rsacu) * _fu->Drc;
+            }
+            lsax = (UF_t6->Drc - lsu)/dt->Drc;
+            rsax = (UF_t7->Drc - rsu)/dt->Drc;
+
+            UF_t6->Drc = lsv;
+            UF_t7->Drc = rsv;
+
+            UF_t6->Drc += dt->Drc*(2.0/3.0)* lsay;
+            UF_t7->Drc += dt->Drc*(2.0/3.0)* rsay;
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lyh,lyslope);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope);
+            double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsay;
+            double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsay;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope))/2.0;
+
+            if(ff > UF_VERY_SMALL)
+            {
+
+                double lvpow = pow((UF_t6->Drc-_fv->Drc)*(UF_t6->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
+                double rvpow = pow((UF_t7->Drc-_fv->Drc)*(UF_t7->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
+                double lsacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
+                double rsacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
+
+                UF_t6->Drc = (1.0-lsacv) * UF_t6->Drc + (lsacv) * _fv->Drc;
+                UF_t7->Drc = (1.0-rsacv) * UF_t7->Drc + (rsacv) * _fv->Drc;
+            }
+            lsay = (UF_t6->Drc - lsv)/dt->Drc;
+            rsay = (UF_t7->Drc - rsv)/dt->Drc;
+
+        /*UF2D_sax1->Drc = rsax;
+        UF2D_sax2->Drc = lsax;
+        UF2D_say1->Drc = rsay;
+        UF2D_say2->Drc = lsay;*/
+
         ////////////average accalerations for cell centers
         UF2D_sax->Drc = (lsax + rsax)/2.0;
         UF2D_say->Drc = (lsay + rsay)/2.0;
 
-        ////////////fluxes
 
-        double cq = 0.25 * UF_Courant * _s->Drc;
-        double cqx1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : _s->data[r][c+1]);
-        double cqx2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : _s->data[r][c-1]);
-        double cqy1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : _s->data[r+1][c]);
-        double cqy2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : _s->data[r-1][c]);
+        ////////////fluxes
+        double hdem = (_s->Drc/(_dx*_dx) + _dem->Drc);
+        double volx1 = UF_OUTORMV(_dem,r,c+1)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_s->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1))));
+        double volx2 = UF_OUTORMV(_dem,r,c-1)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_s->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1))));
+        double voly1 = UF_OUTORMV(_dem,r+1,c)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_s->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0))));
+        double voly2 = UF_OUTORMV(_dem,r-1,c)?0.0:std::max(0.0,(_dx*_dx) * (hdem - (_s->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0))));
 
         double dtx1 = dt->Drc;//(UF2D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
         double dtx2 = dt->Drc;//(UF2D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c-1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c-1)? 0.0: dt->data[r][c-1]));
         double dty1 = dt->Drc;//(UF2D_MUSCLE_OUT_y1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r+1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r+1,c)? 0.0: dt->data[r+1][c]));
         double dty2 = dt->Drc;//(UF2D_MUSCLE_OUT_y2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r-1,c)? dt->Drc : (UF_NOTIME(_dem,dt,r-1,c)? 0.0: dt->data[r-1][c]));
 
-        double qx1 = 0.5 *dtx1 * (rsu + dtx1 * rsax) * rxh *_dx;
-        double qx2 = 0.5 *dtx2 * (lsu + dtx2 * lsax) * lxh *_dx;
-        double qy1 = 0.5 *dty1 * (rsv + dty1 * rsay) * ryh *_dx;
-        double qy2 = 0.5 *dty2 * (lsv + dty2 * lsay) * lyh *_dx;
+        double vx1 = rsu + dtx1 * rsax;
+        double vx2 = lsu + dtx2 * lsax;
+        double vy1 = rsv + dty1 * rsay;
+        double vy2 = lsv + dty2 * lsay;
+
+        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:0.0)*((_dem->Drc + rxh) - (_s->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 0.0:1.0)*((_dem->Drc + lxh) - (_s->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:0.0)*((_dem->Drc + ryh) - (_s->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 0.0:1.0)*((_dem->Drc + lyh) - (_s->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+
+        double cq = 0.25 * UF_Courant * _s->Drc;
+        double cqx1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : volx1);
+        double cqx2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r,c-1)? 0.0 : volx2);
+        double cqy1 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r+1,c)? 0.0 : voly1);
+        double cqy2 = 0.25 * UF_Courant * (UF_OUTORMV(_dem,r-1,c)? 0.0 : voly2);
+
+        double qx1 = 0.5 *dtx1 * (vx1) * rxh *_dx;
+        double qx2 = 0.5 *dtx2 * (vx2) * lxh *_dx;
+        double qy1 = 0.5 *dty1 * (vy1) * ryh *_dx;
+        double qy2 = 0.5 *dty2 * (vy2) * lyh *_dx;
 
         qx1 = ((qx1 > 0)? 1.0 : -1.0) * std::min(std::fabs(qx1),(qx1 > 0)? cq : cqx1);
         qx2 = ((qx2 > 0)? 1.0 : -1.0) * std::min(std::fabs(qx2),(qx2 > 0)? cqx2 : cq);
@@ -587,38 +611,17 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         UF2D_sqx2->Drc = qx2;
         UF2D_sqy1->Drc = qy1;
         UF2D_sqy2->Drc = qy2;
-
     }}}
-
-    FOR_ROW_COL_UF2D_DT
-    {
-        if(r != _nrRows && c != _nrCols)
-        {
-            if(UF_OUTORMV(_dem,r,c+1))
-            {
-                double q = UF2D_sqx1->Drc + UF2D_sqx2->data[r][c+1];
-
-                UF2D_sqx1->Drc = q > 0? q:0.0;
-                UF2D_sqx2->data[r][c+1] = q > 0? 0.0:q;
-
-
-            }
-            if(UF_OUTORMV(_dem,r+1,c))
-            {
-                double q = UF2D_sqy1->Drc + UF2D_sqy2->data[r+1][c];
-                UF2D_sqy1->Drc = q > 0? q:0.0;
-                UF2D_sqy2->data[r+1][c] = q > 0? 0.0:q;
-            }
-
-        }
-    }}}
-
 
 }
 
 
 void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_fu)
 {
+
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
     FOR_ROW_COL_UF1D
     {
         double h = (_f->Drc + _s->Drc)/(_dx * _lddw->Drc);
@@ -633,10 +636,17 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
             UF_t3->Drc = 0;
         }
 
-        UF_t4->Drc = _f->Drc/(_dx * _dx);
-        UF_t5->Drc = _s->Drc/(_dx * _dx);
+        UF_t4->Drc = _f->Drc/(_dx * _lddw->Drc);
+        UF_t5->Drc = _s->Drc/(_dx * _lddw->Drc);
+        UF1D_fq1->Drc = 0;
+        UF1D_fq2->Drc = 0;
         UF1D_fa->Drc = 0;
+        UF1D_fa1->Drc = 0;
+        UF1D_fa2->Drc = 0;
     }
+
+    UF1D_MUSCLE(_ldd,_lddw,dt,UF_t4,UF_MUSCLE_TARGET_IN1);
+    UF1D_MUSCLE(_ldd,_lddw,dt,_fu,UF_MUSCLE_TARGET_IN2);
 
     FOR_ROW_COL_UF1D_DT
     {
@@ -646,52 +656,176 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
             continue;
         }
         double h = (_f->Drc + _s->Drc)/(_dx *_lddw->Drc);
+        double rhf = std::max(0.0,(UF1D_MUSCLE_1_x1->Drc));
+        double lhf = std::max(0.0,(UF1D_MUSCLE_1_x2->Drc));
+
+        double rfu = (UF1D_MUSCLE_2_x1->Drc);
+        double lfu = (UF1D_MUSCLE_2_x2->Drc);
         double ff = UF_t2->Drc;
         double sf = UF_t3->Drc;
         _visc->Drc = UF_DynamicViscosity(sf);
-        if(_d->Drc == 0)
-        {
-            qDebug() << r << c << 0;
-        }
-        _d->Drc = 2000;
+        _d->Drc = 2000.0;
         double Nr = UF_Reynolds(_d->Drc,_visc->Drc,ff,sf, _rocksize->Drc);
-        double Nra = 15000;
+        UF1D_Nr->Drc = Nr;
+        double Nra = 15000.0;
         double gamma =(!(_d->Drc > UF_VERY_SMALL))? 0.5 : 1000.0/_d->Drc;
         double dc = UF_DragCoefficient(ff, sf, gamma,_visc->Drc, _rocksize->Drc, _d->Drc);
-        double pbf = -UF_Gravity*h;
+        double pbf = UF_Gravity*h;
+        double lpbf = UF_Gravity*lhf;
+        double rpbf = UF_Gravity*rhf;
 
         double dhfdx = UF1D_Derivative(_ldd,_lddw,UF_t4,r,c);
+        double ldhfdx = UF1D_Derivative(_ldd,_lddw,UF_t4,r,c,false,UF_DERIVATIVE_L);
+        double rdhfdx = UF1D_Derivative(_ldd,_lddw,UF_t4,r,c,false,UF_DERIVATIVE_R);
 
         double dh2pbdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c);
+        double ldh2pbdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c,false,UF_DERIVATIVE_L);
+        double rdh2pbdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c,false,UF_DERIVATIVE_R);
+
         double dsfdx = UF1D_Derivative(_ldd,_lddw,UF_t3,r,c);
         double ddsfdxx = UF1D_Derivative2(_ldd,_lddw,UF_t3,r,c);
         double dfudx = UF1D_Derivative(_ldd,_lddw,_fu,r,c);
         double ddfudxx = UF1D_Derivative2(_ldd,_lddw,_fu,r,c);
         double dsudx = UF1D_Derivative(_ldd,_lddw,_su,r,c);
 
-        UF1D_fa->Drc = UF1D_MomentumBalanceFluid( _f->Drc,_s->Drc,_fu->Drc, _su->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, pbf, UF1D_Slope->Drc,
-                                                 dhfdx, dh2pbdx, dsfdx, ddsfdxx, dfudx, ddfudxx, dsudx);
+        double lfa = UF1D_MomentumBalanceFluid( lhf*(_dx*_lddw->Drc),_s->Drc,lfu, _su->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, lpbf, UF1D_Slope->Drc,
+                                                 ldhfdx, ldh2pbdx, dsfdx, ddsfdxx, dfudx, ddfudxx, dsudx);
+        double rfa = UF1D_MomentumBalanceFluid(  rhf*(_dx*_lddw->Drc),_s->Drc,rfu, _su->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, rpbf, UF1D_Slope->Drc,
+                                                 rdhfdx, rdh2pbdx, dsfdx, ddsfdxx, dfudx, ddfudxx, dsudx);
 
-        UF_t6->Drc = _fu->Drc;
+        UF1D_fa2->Drc = lfa;
+        UF1D_fa1->Drc = rfa;
 
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
-        {
+        UF_t6->Drc = lfu;
+        UF_t7->Drc = rfu;
 
-            UF_t6->Drc += dttemp * UF1D_fa->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
-        }
+        UF_t6->Drc += dt->Drc*(2.0/3.0)* lfa;
+        UF_t7->Drc += dt->Drc*(2.0/3.0)* rfa;
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhf,UF1D_Slope->Drc);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhf,UF1D_Slope->Drc);
+        double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfa;
+        double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfa;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhf,UF1D_Slope->Drc))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhf,UF1D_Slope->Drc))/2.0;
 
         if(sf > UF_VERY_SMALL)
         {
-            double vpow = pow(std::fabs(UF_t6->Drc-_su->Drc),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * sf *(UF_t6->Drc - _su->Drc) *vpow)));
-            UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _su->Drc;
+            double lupow = pow((UF_t6->Drc-_su->Drc)*(UF_t6->Drc-_su->Drc),0.5*(UF_j-1.0));
+            double rupow = pow((UF_t7->Drc-_su->Drc)*(UF_t7->Drc-_su->Drc),0.5*(UF_j-1.0));
+            double lfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *lupow)));
+            double rfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rupow)));
+            UF_t6->Drc = (1.0-lfacu) * UF_t6->Drc + (lfacu) * _su->Drc;
+            UF_t7->Drc = (1.0-rfacu) * UF_t7->Drc + (rfacu) * _su->Drc;
         }
 
-        UF1D_fa->Drc = (UF_t6->Drc - _fu->Drc)/dt->Drc;
-    }
+        lfa = (UF_t6->Drc - lfu)/dt->Drc;
+        rfa = (UF_t7->Drc - rfu)/dt->Drc;
 
+        UF1D_fa->Drc = (lfa + rfa) / 2.0;
+
+        double cq = 0.25 * UF_Courant * _f->Drc;
+        double hself = _f->Drc/(_dx*_lddw->Drc);
+
+        //front cell
+        int lddself = (int) _ldd->data[r][c];
+        if(!(lddself == 5))
+        {
+            int r2 = r+dy[lddself];
+            int c2 = c+dx[lddself];
+
+            if(!UF_OUTORMV(_ldd,r2,c2)){
+
+                ////////////fluxes
+                double volxr = UF_OUTORMV(_ldd,r,c+1)?0.0:std::max(0.0,(_dx*_lddw->Drc) * (hself - (_f->data[r2][c2]/(_dx*_lddw->data[r2][c2]) + UF1D_Slope->Drc * _dx)));
+                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                double vxr = rfu + dtx1 * rfa;
+                rhf = std::min(rhf,std::max(0.0,(vxr > 0? 1.0:-1.0)*((rhf) - (_f->data[r2][c2]/(_dx*_dx) + UF1D_Slope->Drc * _dx))));
+
+                double cqt = 0.25 * UF_Courant * (volxr);
+
+                double q1 = 0.5 *dtx1 * (vxr) * rhf *_lddw->Drc;
+                q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
+
+                UF1D_fq1->Drc = q1;
+            }else if(rfu > 0)
+            {
+                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_f->Drc/(_dx*_lddw->Drc),0,rfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
+                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+
+                UF1D_fq1->Drc = q1;
+            }
+        }else if (rfu > 0)
+        {
+            double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+            double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_f->Drc,0,rfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
+            q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+
+            UF1D_fq1->Drc = q1;
+        }
+
+        //backward flux
+        //back cells
+        double totalwidth = 0;
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                totalwidth += _lddw->data[r2][c2];
+            }
+        }
+        if(totalwidth > 0)
+        {
+            UF1D_fq2->Drc = 0;
+            for (int i=1;i<=9;i++)
+            {
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+
+                        ////////////fluxes
+                        double volxl = UF_OUTORMV(_ldd,r,c+1)?0.0:std::max(0.0,(_dx*_lddw->Drc) * (hself - (_f->data[r2][c2]/(_dx*_lddw->data[r2][c2]) - UF1D_Slope->Drc * _dx)));
+                        double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                        double vxl = lfu + dtx1 * lfa;
+                        lhf = std::min(lhf,std::max(0.0,(vxl > 0? 1.0:-1.0)*((lhf) - (_f->data[r2][c2]/(_dx*_dx) - UF1D_Slope->Drc * _dx))));
+                        double cqt = 0.25 * UF_Courant * (volxl);
+                        double q2 = 0.5 *dtx1 * (vxl) * lhf *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
+
+                        q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
+
+                        UF1D_fq2->Drc += q2;
+                    }
+                }
+            }
+        }else if(lfu < 0)
+        {
+            double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+            double q2 = UF_BoundaryFlux1D(dtx2,_lddw->Drc,_f->Drc,0,lfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
+            q2 = ((q2 < 0)? -1.0 : 0.0) * std::min(std::fabs(q2),(q2 > 0)? cq : 0.0);
+
+            UF1D_fq2->Drc = q2;
+        }
+    }
 }
 
 void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * out_su)
@@ -719,10 +853,17 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
 
         UF_t2->Drc = UF_Gravity * k_x *hs * hs * UF_Aspect/2.0;
 
-        UF_t4->Drc = _f->Drc/(_dx * _dx);
-        UF_t5->Drc = _s->Drc/(_dx * _dx);
+        UF_t4->Drc = _f->Drc/(_dx * _lddw->Drc);
+        UF_t5->Drc = _s->Drc/(_dx * _lddw->Drc);
+        UF1D_sq1->Drc = 0;
+        UF1D_sq2->Drc = 0;
         UF1D_sa->Drc = 0;
+        UF1D_sa1->Drc = 0;
+        UF1D_sa2->Drc = 0;
     }
+
+    UF1D_MUSCLE(_ldd,_lddw,dt,UF_t5,UF_MUSCLE_TARGET_IN1);
+    UF1D_MUSCLE(_ldd,_lddw,dt,_su,UF_MUSCLE_TARGET_IN2);
 
     FOR_ROW_COL_UF1D_DT
     {
@@ -733,40 +874,172 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
         }
 
         double h = (_f->Drc + _s->Drc)/(_dx * _lddw->Drc);
-        double ff = UF_t2->Drc;
-        double sf = UF_t3->Drc;
+        double ff = _f->Drc/(_f->Drc + _s->Drc);
+        double sf = _s->Drc/(_f->Drc + _s->Drc);
         double gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
         double dc = UF_DragCoefficient(ff,sf,gamma,_visc->Drc, _rocksize->Drc, _d->Drc);
-        double pbf = -UF_Gravity*h;
-        double pbs = 1-gamma*pbf;
+
+        double pbf = -UF_Gravity*h * ff;
+        double pbs = (1.0-gamma)*pbf;
         double ifa = _ifa->Drc;
 
         double dhsdx = UF1D_Derivative(_ldd,_lddw,UF_t5,r,c);
+        double ldhsdx = UF1D_Derivative(_ldd,_lddw,UF_t5,r,c, false,UF_DERIVATIVE_L);
+        double rdhsdx = UF1D_Derivative(_ldd,_lddw,UF_t5,r,c, false, UF_DERIVATIVE_R);
+
+        double rsu = (UF1D_MUSCLE_2_x1->Drc);
+        double lsu = (UF1D_MUSCLE_2_x2->Drc);
+        double rhs = std::max(0.0,(UF1D_MUSCLE_1_x1->Drc));
+        double lhs = std::max(0.0,(UF1D_MUSCLE_1_x2->Drc));
 
         double dhdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c);
         double dbdx = UF1D_Derivative(_ldd,_lddw,UF_t2,r,c);
+        double ldhdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c, false,UF_DERIVATIVE_L);
+        double ldbdx = UF1D_Derivative(_ldd,_lddw,UF_t2,r,c, false,UF_DERIVATIVE_L);
+        double rdhdx = UF1D_Derivative(_ldd,_lddw,UF_t1,r,c, false,UF_DERIVATIVE_R);
+        double rdbdx = UF1D_Derivative(_ldd,_lddw,UF_t2,r,c, false,UF_DERIVATIVE_R);
 
-        UF1D_sa->Drc = UF1D_MomentumBalanceSolid(_f->Drc,_s->Drc,_fu->Drc, _su->Drc, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs, pbf, UF1D_Slope->Drc,
-                                                 dhsdx, dhdx, dbdx);
+        double lsa = UF1D_MomentumBalanceSolid(_f->Drc,lhs*(_dx*_lddw->Drc),_fu->Drc, lsu, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs, pbf, UF1D_Slope->Drc,
+                                                 ldhsdx, ldhdx, ldbdx);
+        double rsa = UF1D_MomentumBalanceSolid(_f->Drc,rhs*(_dx*_lddw->Drc),_fu->Drc, rsu, ff, sf, 0, 0, ifa, gamma, _visc->Drc, pbs, pbf, UF1D_Slope->Drc,
+                                                 rdhsdx, rdhdx, rdbdx);
 
-        UF_t6->Drc = _su->Drc;
+        UF1D_sa2->Drc = lsa;
+        UF1D_sa1->Drc = rsa;
 
-        double dttemp = dt->Drc/((double)UF_FrictionIterations);
-        for(int i = 0; i < UF_FrictionIterations; i++)
+        UF_t6->Drc = lsu;
+        UF_t7->Drc = rsu;
+
+        UF_t6->Drc += dt->Drc*(2.0/3.0)* lsa;
+        UF_t7->Drc += dt->Drc*(2.0/3.0)* rsa;
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhs,UF1D_Slope->Drc);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhs,UF1D_Slope->Drc);
+        double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsa;
+        double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsa;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhs,UF1D_Slope->Drc))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhs,UF1D_Slope->Drc))/2.0;
+
+        if(sf > UF_VERY_SMALL)
         {
-            UF_t6->Drc += dttemp * UF1D_sa->Drc;
-            UF_t6->Drc = UF_Friction(dttemp,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
+            double lupow = pow((UF_t6->Drc-_fu->Drc)*(UF_t6->Drc-_fu->Drc),0.5*(UF_j-1.0));
+            double rupow = pow((UF_t7->Drc-_fu->Drc)*(UF_t7->Drc-_fu->Drc),0.5*(UF_j-1.0));
+            double lsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lupow)));
+            double rsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rupow)));
+            UF_t6->Drc = (1.0-lsacu) * UF_t6->Drc + (lsacu) * _fu->Drc;
+            UF_t7->Drc = (1.0-rsacu) * UF_t7->Drc + (rsacu) * _fu->Drc;
         }
 
-        if(ff > UF_VERY_SMALL)
+        lsa = (UF_t6->Drc - lsu)/dt->Drc;
+        rsa = (UF_t7->Drc - rsu)/dt->Drc;
+
+        UF1D_sa->Drc = (lsa + rsa) / 2.0;
+
+        double cq = 0.25 * UF_Courant * _s->Drc;
+
+        double hself = _s->Drc/(_dx * _lddw->Drc);
+        //front cell
+        int lddself = (int) _ldd->data[r][c];
+        if(!(lddself == 5))
         {
-            double vpow = pow(std::fabs((_fu->Drc-UF_t6->Drc)),0.5*(UF_j-1.0));
-            double facu = std::min(1.0,std::max(0.0,std::fabs(dt->Drc * dc * ff *(UF_t6->Drc - _fu->Drc) *vpow)));
-            UF_t6->Drc = (1.0-facu) * UF_t6->Drc + (facu) * _fu->Drc;
+            int r2 = r+dy[lddself];
+            int c2 = c+dx[lddself];
+
+            if(!UF_OUTORMV(_ldd,r2,c2)){
+
+                ////////////fluxes
+                double volxr = UF_OUTORMV(_ldd,r,c+1)?0.0:std::max(0.0,(_dx*_lddw->Drc) * (hself - (_s->data[r2][c2]/(_dx*_lddw->data[r2][c2]) + UF1D_Slope->Drc * _dx)));
+                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                double vxr = rsu + dtx1 * rsa;
+                rhs = std::min(rhs,std::max(0.0,(vxr > 0? 1.0:-1.0)*((rhs) - (_s->data[r2][c2]/(_dx*_dx) + UF1D_Slope->Drc * _dx))));
+
+                double cqt = 0.25 * UF_Courant * (volxr);
+
+                double q1 = 0.5 *dtx1 * (vxr) * rhs *_lddw->Drc;
+                q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
+
+                UF1D_sq1->Drc = q1;
+            }else if(_su->Drc > 0)
+            {
+                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_s->Drc,0,rsu,_fu->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
+                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+
+                UF1D_sq1->Drc = q1;
+            }
+        }else
+        {
+            if(_su->Drc > 0)
+            {
+                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_s->Drc,0,rsu,_fu->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
+                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+
+
+                UF1D_sq1->Drc = q1;
+            }
         }
 
-        UF1D_sa->Drc = (UF_t6->Drc - _su->Drc)/dt->Drc;
 
+        //backward flux
+        //back cells
+        double totalwidth = 0;
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                totalwidth += _lddw->data[r2][c2];
+            }
+        }
+        if(totalwidth > 0)
+        {
+            for (int i=1;i<=9;i++)
+            {
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+
+                        ////////////fluxes
+                        double volxl = UF_OUTORMV(_ldd,r,c+1)?0.0:std::max(0.0,(_dx*_lddw->Drc) * (hself - (_s->data[r2][c2]/(_dx*_lddw->data[r2][c2]) - UF1D_Slope->Drc * _dx)));
+                        double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+                        double vxl = lsu + dtx1 * lsa;
+                        lhs = std::min(lhs,std::max(0.0,(vxl > 0? 1.0:-1.0)*((lhs) - (_s->data[r2][c2]/(_dx*_dx) - UF1D_Slope->Drc * _dx))));
+                        double cqt = 0.25 * UF_Courant * (volxl);
+                        double q2 = 0.5 *dtx1 * (vxl) * lhs *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
+
+                        q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
+
+                        UF1D_sq2->Drc += q2;
+                    }
+                }
+            }
+        }else if(_su->Drc < 0 )
+        {
+            double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
+            double q2 = UF_BoundaryFlux1D(dtx2,_lddw->Drc,_s->Drc,0,lsu,_su->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
+            q2 = ((q2 < 0)? -1.0 : 0.0) * std::min(std::fabs(q2),(q2 < 0)? cq : 0.0);
+
+            UF1D_sq2->Drc = q2;
+        }
     }
 
 }

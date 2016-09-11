@@ -42,7 +42,17 @@
     double UF1D_MinimumDT;
     double UF_SigmaDiffusion;
     double UF_MANNINGCOEFFICIENT;
+
+    double UF_ENTRAINMENTCONSTANT;
+    double UF_MAXSOLIDCONCENTRATION;
+    double UF_MINIMUMENTRAINMENTHEIGHT;
+
     int UF_FrictionIterations;
+
+    double UF_DISPLAYFLOODMINIMUM = 0;
+    double UF_DISPLAYDEBRISFLOWMINIMUM = 0;
+
+    double UF_NRA;
 
     double UF_Alpha_DV;
     double UF_Beta_DV;
@@ -61,6 +71,7 @@
     double UF_DTMIN;
     int UF_SCHEME;
     bool UF_SOLIDPHASE;
+    bool UF_CHANNELFLOOD;
     static const int UF_SCHEME_CENTRALSIMPLE =1;
     static const int UF_SCHEME_BOUNDARYMUSCLE =2;
 
@@ -74,6 +85,7 @@
     cTMap * UF2D_sConc;
     cTMap * UF2D_tConc;
     cTMap * UF2D_velocity;
+    cTMap * UF2D_Nr;
     cTMap * UF2D_u;
     cTMap * UF2D_v;
 
@@ -83,6 +95,7 @@
     cTMap * UF1D_fsConc;
     cTMap * UF1D_sConc;
     cTMap * UF1D_tConc;
+    cTMap * UF1D_Nr;
     cTMap * UF1D_velocity;
 
 
@@ -166,6 +179,8 @@
     cTMap * UF1D_visc;
     cTMap * UF1D_fu;
     cTMap * UF1D_fa;
+    cTMap * UF1D_fa1;
+    cTMap * UF1D_fa2;
     cTMap * UF1D_fq1;
     cTMap * UF1D_fq2;
     cTMap * UF1D_ssm;
@@ -183,6 +198,8 @@
     cTMap * UF1D_rocksize;
     cTMap * UF1D_su;
     cTMap * UF1D_sa;
+    cTMap * UF1D_sa1;
+    cTMap * UF1D_sa2;
     cTMap * UF1D_sq1;
     cTMap * UF1D_sq2;
 
@@ -238,6 +255,7 @@
     //General Function
     void UnifiedFlow();
     void UF_Init();
+    void UF_Close();
     void UF_SetInput();
     void UF_SetOutput();
 
@@ -454,7 +472,7 @@
     static const int UF_DERIVATIVE_L = 1;
     static const int UF_DERIVATIVE_R = 2;
 
-    double UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside = UF_DERIVATIVE_LR);
+    double UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside = UF_DERIVATIVE_LR, bool useflowbarriers = false);
     double UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, bool minmod = false, int calculationside = UF_DERIVATIVE_LR);
     double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, int calculationside = UF_DERIVATIVE_LR);
@@ -468,21 +486,78 @@
 
     ////Unified Flow Soil Interactions
     //General Function
+    void UnifiedFlowEntrainment();
     void UnifiedFlowSediment();
+    void UF_SedimentSource(double dt);
     void UF_FlowDetachment(double dt);
     void UF_FlowEntrainment(double dt);
     void UF_FlowDetachment(double dt, int r, int c,int d, bool channel);
-    void UF_FlowEntrainment(double dt, int r, int c,int d, bool channel);
+    void UF_FlowEntrainment(double dt, int r, int c, bool channel);
 
     double UF_SoilTake(int r, int c, int d, double potential,bool channel,bool bedload);
     void UF_SoilAdd(int r, int c, int d, double mass, bool channel);
+
+    double UF_RockTake(int r, int c, double entrainment, bool channel);
+    double UF_RockAdd(int r, int c, double entrainment, bool channel);
 
     void UF_SumGrainClasses();
 
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);
     //active entrainment
-    double UnifiedFlowActiveEntrainment(double hf, double vf,double hs, double vs, double visc, int d);
+    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed);
 
     //connection to the digital elevation model
     void UFDEMLDD_Connection(cTMap *  dt,cTMap * RemovedMaterial1D, cTMap * RemovedMaterial2D, cTMap * out_DEM,cTMap * out_LDD);
+
+    ////Initial and Forcing stuff
+    cTMap * UF2D_ForcedFVolume;
+    cTMap * UF2D_ForcedSVolume;
+    cTMap * UF2D_ForcedSDensity;
+    cTMap * UF2D_ForcedSIFA;
+    cTMap * UF2D_ForcedSRocksize;
+
+    cTMap * UF2D_InitialFVolume;
+    cTMap * UF2D_InitialSVolume;
+    cTMap * UF2D_InitialSDensity;
+    cTMap * UF2D_InitialSIFA;
+    cTMap * UF2D_InitialSRocksize;
+
+    bool UF_NeedsInitial = false;
+    void UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                           cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                           cTMap * _fu1D,cTMap * _s1D,
+                           cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                           cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                           cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                           cTMap * _su2D,cTMap * _sv2D);
+
+    void UF_Initial( cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                           cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                           cTMap * _fu1D,cTMap * _s1D,
+                           cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                           cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                           cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                           cTMap * _su2D,cTMap * _sv2D);
+
+    double UF_InitializedF;
+    double UF_InitializedS;
+
+    cTMap * SourceSolid;
+    cTMap * SourceSolidDensity;
+    cTMap * SourceSolidRocksize;
+    cTMap * SourceSolidIFA;
+    cTMap * SourceFluid;
+
+    cTMap * ChannelSourceSolid;
+    cTMap * ChannelSourceSolidDensity;
+    cTMap * ChannelSourceSolidRocksize;
+    cTMap * ChannelSourceSolidIFA;
+    cTMap * ChannelSourceFluid;
+
+    void AddSource(int r, int c, double f, double s, double d, double rocksize, double ifa, bool channel);
+
+
+    //xLisemThread *ltr = 0;
+
+////END FILE

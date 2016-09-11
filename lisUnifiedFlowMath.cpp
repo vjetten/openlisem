@@ -47,7 +47,7 @@ void TWorld::UF_DEMLDDAnalysis(cTMap * _dem, cTMap * _ldd,cTMap * _lddw,
 
 
 }
-double TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside)
+double TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside, bool useflowbarriers)
 {
     if(UF_OUTORMV(_dem,r,c))
     {
@@ -57,30 +57,71 @@ double TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int dire
     {
         if(calculationside == UF_DERIVATIVE_LR)
         {
-            double dx1 = !(UF_OUTORMV(_dem,r,c+1))? _in->data[r][c+1] -_in->Drc :0.0;
-            double dx2 = !(UF_OUTORMV(_dem,r,c-1))? _in->Drc - _in->data[r][c-1] :0.0;
-            return (dx1 + dx2)/(2.0*_dx);
+
+            if(useflowbarriers)
+            {
+                double dx1 = !(UF_OUTORMV(_dem,r,c+1))? std::max(_in->data[r][c+1],GetFlowBarrierHeight(r,c,0,1)) -_in->Drc :0.0;
+                double dx2 = !(UF_OUTORMV(_dem,r,c-1))? _in->Drc - std::max(_in->data[r][c-1],GetFlowBarrierHeight(r,c,0,-1)) :0.0;
+                return (dx1 + dx2)/(2.0*_dx);
+            }else
+            {
+                double dx1 = !(UF_OUTORMV(_dem,r,c+1))? _in->data[r][c+1] -_in->Drc :0.0;
+                double dx2 = !(UF_OUTORMV(_dem,r,c-1))? _in->Drc - _in->data[r][c-1] :0.0;
+                return (dx1 + dx2)/(2.0*_dx);
+            }
         }else if(calculationside == UF_DERIVATIVE_L)
         {
-            return (!UF_OUTORMV(_dem,r,c-1))? (_in->Drc -_in->data[r][c-1])/_dx :0.0;
+            if(useflowbarriers)
+            {
+                return (!UF_OUTORMV(_dem,r,c-1))? (_in->Drc - std::max(_in->data[r][c-1],GetFlowBarrierHeight(r,c,0,-1)))/_dx :0.0;
+            }else
+            {
+                return (!UF_OUTORMV(_dem,r,c-1))? (_in->Drc -_in->data[r][c-1])/_dx :0.0;
+            }
         }else if(calculationside == UF_DERIVATIVE_R)
         {
-            return (!UF_OUTORMV(_dem,r,c+1))? (_in->data[r][c+1] -_in->Drc)/_dx :0.0;
+            if(useflowbarriers)
+            {
+                return (!UF_OUTORMV(_dem,r,c+1))? (std::max(_in->data[r][c+1],GetFlowBarrierHeight(r,c,0,1)) -_in->Drc)/_dx :0.0;
+            }else
+            {
+                return (!UF_OUTORMV(_dem,r,c+1))? (_in->data[r][c+1] -_in->Drc)/_dx :0.0;
+            }
         }
     }
     if(direction == UF_DIRECTION_Y)
     {
         if(calculationside == UF_DERIVATIVE_LR)
         {
-            double dy1 = (!UF_OUTORMV(_dem,r+1,c))? _in->data[r+1][c] -_in->Drc :0.0;
-            double dy2 = (!UF_OUTORMV(_dem,r-1,c))? _in->Drc - _in->data[r-1][c] :0.0;
-            return (dy1 + dy2)/(2.0*_dx);
+            if(useflowbarriers)
+            {
+                double dy1 = (!UF_OUTORMV(_dem,r+1,c))? std::max(GetFlowBarrierHeight(r,c,1,0),_in->data[r+1][c]) -_in->Drc :0.0;
+                double dy2 = (!UF_OUTORMV(_dem,r-1,c))? _in->Drc - std::max(GetFlowBarrierHeight(r,c,-1,0),_in->data[r-1][c]) :0.0;
+                return (dy1 + dy2)/(2.0*_dx);
+            }else
+            {
+                double dy1 = (!UF_OUTORMV(_dem,r+1,c))? _in->data[r+1][c] -_in->Drc :0.0;
+                double dy2 = (!UF_OUTORMV(_dem,r-1,c))? _in->Drc - _in->data[r-1][c] :0.0;
+                return (dy1 + dy2)/(2.0*_dx);
+            }
         }else if(calculationside == UF_DERIVATIVE_L)
         {
-            return (!UF_OUTORMV(_dem,r-1,c))? (_in->Drc - _in->data[r-1][c])/_dx :0.0;
+            if(useflowbarriers)
+            {
+                return (!UF_OUTORMV(_dem,r-1,c))? (_in->Drc - std::max(GetFlowBarrierHeight(r,c,-1,0),_in->data[r-1][c]))/_dx :0.0;
+            }else
+            {
+                return (!UF_OUTORMV(_dem,r-1,c))? (_in->Drc - _in->data[r-1][c])/_dx :0.0;
+            }
         }else if(calculationside == UF_DERIVATIVE_R)
         {
-            return (!UF_OUTORMV(_dem,r+1,c))? (_in->data[r+1][c] -_in->Drc)/_dx :0.0;
+            if(useflowbarriers)
+            {
+                return (!UF_OUTORMV(_dem,r+1,c))? (std::max(GetFlowBarrierHeight(r,c,1,0),_in->data[r+1][c] -_in->Drc))/_dx :0.0;
+            }else
+            {
+                return (!UF_OUTORMV(_dem,r+1,c))? (_in->data[r+1][c] -_in->Drc)/_dx :0.0;
+            }
         }
     }
     return 0;
@@ -99,7 +140,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
         double x1 = !UF_OUTORMV(_dem,r,c+1)? _in->data[r][c+1] : x;
         double x2 = !UF_OUTORMV(_dem,r,c-1)? _in->data[r][c-1] : x;
 
-        return (x1 - 2.0 * x + x1)/(_dx*_dx);
+        return (x1 - 2.0 * x + x2)/(_dx*_dx);
     }
     if(direction == UF_DIRECTION_Y)
     {
@@ -107,7 +148,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
         double y1 = !UF_OUTORMV(_dem,r+1,c)? _in->data[r+1][c] : y;
         double y2 = !UF_OUTORMV(_dem,r-1,c)? _in->data[r-1][c] : y;
 
-        return (y1 - 2.0 * y + y1)/(_dx*_dx);
+        return (y1 - 2.0 * y + y2)/(_dx*_dx);
     }
     if(direction == UF_DIRECTION_XY)
     {
@@ -127,17 +168,18 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
     if(UF_OUTORMV(_ldd,r,c))
     {
         return 0;
     }
     double x = _in->Drc;
-    double x1 = x;
-    double x2 = x;
+    double x1 = 0;
+    double x2 = 0;
 
     //front cell
     int lddself = (int) _ldd->data[r][c];
-    if(!lddself == 5)
+    if(!(lddself == 5))
     {
         int r2 = r+dy[lddself];
         int c2 = c+dx[lddself];
@@ -165,27 +207,45 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
             totalwidth += _lddw->data[r2][c2];
         }
     }
-    for (int i=1;i<=9;i++)
+    if(totalwidth > 0)
     {
-        int r2, c2, ldd = 0;
-        if (i==5)  // Skip current cell
-            continue;
-        r2 = r+dy[i];
-        c2 = c+dx[i];
-        if (!UF_OUTORMV(_ldd,r2,c2))
-            ldd = (int) _ldd->data[r2][c2];
-        else
-            continue;
-        if (!UF_OUTORMV(_ldd,r2,c2) &&
-                FLOWS_TO(ldd, r2,c2,r,c))
+        x2 = 0;
+        for (int i=1;i<=9;i++)
         {
-            if(!UF_OUTORMV(_ldd,r2,c2)){
-                x2 += _in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                if(!UF_OUTORMV(_ldd,r2,c2)){
+                    x2 += _in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
+                }
             }
         }
+    }else
+    {
+        x2 = x;
     }
 
-    return (minmod? (0.5 * UF_MinMod(x1,x2)) : ((x1 - x2)/(2.0*_dx)));
+    double dx1 = (x1 - x)/_dx;
+    double dx2 = (x - x2)/_dx;
+    if(calculationside == UF_DERIVATIVE_R)
+    {
+        return dx1;
+    }else if(calculationside == UF_DERIVATIVE_L)
+    {
+        return dx2;
+    }else
+    {
+        return (minmod? (0.5 * UF_MinMod(dx1,dx2)) : ((dx1 + dx2)/(2.0)));
+    }
 
 }
 
@@ -203,7 +263,7 @@ double TWorld::UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, 
 
     //front cell
     int lddself = (int) _ldd->data[r][c];
-    if(!lddself == 5)
+    if(!(lddself == 5))
     {
         int r2 = r+dy[lddself];
         int c2 = c+dx[lddself];
@@ -251,7 +311,7 @@ double TWorld::UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, 
         }
     }
 
-    return (x1 - 2.0 * x + x1)/(_dx*_dx);
+    return (x1 - 2.0 * x + x2)/(_dx*_dx);
 
 }
 

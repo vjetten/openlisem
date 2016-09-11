@@ -93,14 +93,14 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       {
          s->pixel[r*_nrCols+c].h[n] = inith->data[r][c];
 
-         // find depth of tilenode
+         /*// find depth of tilenode
          if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
          {
             // NOTE depth is in m while node info is in cm, so *100
             // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
             if (s->pixel[r*_nrCols+c].profile->zone->endComp[n] > TileDepth->Drc*100)
                s->pixel[r*_nrCols+c].tilenode = n-1;
-         }
+         }*/
       }
    }
    return(s);

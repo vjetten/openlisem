@@ -37,7 +37,6 @@ functions: \n
 
 void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv,cTMap * out_qfx1,cTMap *out_qfx2,cTMap * out_qfy1,cTMap *out_qfy2,cTMap * out_qsx1,cTMap *out_qsx2,cTMap * out_qsy1,cTMap *out_qsy2)
 {
-
     FOR_ROW_COL_UF2D
     {
         out_fu->Drc = _fu->Drc;
@@ -146,11 +145,11 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qx1;
                 }else if(qx1 != 0)
                 {
-                    /*qx1 = std::fabs(qx1);
+                    qx1 = std::fabs(qx1);
                     out_su->Drc = ((UF_t4->Drc + qx1) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + qx1 * _su->data[r][c+1])/(UF_t4->Drc + qx1) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + qx1) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + qx1 * _sv->data[r][c+1])/(UF_t4->Drc + qx1) : 0.0;
                     UF_t4->data[r][c+1] -= qx1;
-                    UF_t4->Drc += qx1;*/
+                    UF_t4->Drc += qx1;
                 }
             }
             if(!UF_OUTORMV(_dem,r,c-1)){
@@ -164,10 +163,10 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qx2;
                 }else if(qx2 != 0)
                 {
-                    /*out_su->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
+                    out_su->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + std::fabs(qx2) * _sv->data[r][c-1])/(UF_t4->Drc + std::fabs(qx2)) : 0.0;
                     UF_t4->data[r][c-1] -= qx2;
-                    UF_t4->Drc += qx2;*/
+                    UF_t4->Drc += qx2;
                 }
             }
             if(!UF_OUTORMV(_dem,r+1,c)){
@@ -179,11 +178,11 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qy1;
                 }else  if(qy1 != 0)
                 {
-                    /*qy1 = std::fabs(qy1);
+                    qy1 = std::fabs(qy1);
                     out_su->Drc = ((UF_t4->Drc + qy1) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + qy1 * _su->data[r+1][c])/(UF_t4->Drc + qy1) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + qy1) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + qy1 * _sv->data[r+1][c])/(UF_t4->Drc + qy1) : 0.0;
                     UF_t4->data[r+1][c] -= qy1;
-                    UF_t4->Drc += qy1;*/
+                    UF_t4->Drc += qy1;
                 }
             }
             if(!UF_OUTORMV(_dem,r-1,c)){
@@ -196,10 +195,10 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
                     UF_t4->Drc -= qy2;
                 }else  if(qy2 != 0)
                 {
-                    /*out_su->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
+                    out_su->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
                     out_sv->Drc = ((UF_t4->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (UF_t4->Drc * out_sv->Drc + std::fabs(qy2) * _sv->data[r-1][c])/(UF_t4->Drc + std::fabs(qy2)) : 0.0;
                     UF_t4->data[r-1][c] -= qy2;
-                    UF_t4->Drc += qy2;*/
+                    UF_t4->Drc += qy2;
                 }
             }
 
@@ -229,97 +228,105 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
         {
             continue;
         }
-        double qx1 = _qx1->Drc;
-        double qx2 = _qx2->Drc;
-        double qy1 = _qy1->Drc;
-        double qy2 = _qy2->Drc;
+
 
         double conc =(f->Drc > UF_VERY_SMALL)? (_m->Drc/f->Drc) :0.0;
 
-        if(!UF_OUTORMV(_dem,r,c+1))
+        if(conc > 0)
         {
-            if(qx1 > 0)
-            {
-                out_m->data[r][c+1] += conc * qx1;
-                out_m->Drc -= conc *qx1;
-            }else
-            {
-                /*qx1 = std::fabs(qx1);
-                double c2 = (f->data[r][c+1] > UF_VERY_SMALL)? _m->data[r][c+1]/f->data[r][c+1] : 0.0;
-                out_m->data[r][c+1] -= c2 * qx1;
-                out_m->Drc += c2 * qx1;*/
-            }
-        }else
-        {
-            if(qx1 > 0)
-            {
-                outflow += conc*qx1;
-                out_m->Drc -= conc*qx1;
-            }
-        }
-        if(!UF_OUTORMV(_dem,r,c-1)){
+            double qx1 = std::min(_qx1->Drc,0.25 * _m->Drc/conc);
+            double qx2 = std::min(_qx2->Drc,0.25 * _m->Drc/conc);
+            double qy1 = std::min(_qy1->Drc,0.25 * _m->Drc/conc);
+            double qy2 = std::min(_qy2->Drc,0.25 * _m->Drc/conc);
 
-            if(qx2 < 0)
+            if(!UF_OUTORMV(_dem,r,c+1))
             {
-                qx2 = std::fabs(qx2);
-                out_m->data[r][c-1] += conc * qx2;
-                out_m->Drc -= conc * qx2;
+                if(qx1 > 0)
+                {
+                    out_m->data[r][c+1] += conc * qx1;
+                    out_m->Drc -= conc *qx1;
+                }else
+                {
+                    /*qx1 = std::fabs(qx1);
+                    double c2 = (f->data[r][c+1] > UF_VERY_SMALL)? _m->data[r][c+1]/f->data[r][c+1] : 0.0;
+                    out_m->data[r][c+1] -= c2 * qx1;
+                    out_m->Drc += c2 * qx1;*/
+                }
             }else
             {
-                /*double c2 = (f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 0.0;
-                out_m->data[r][c-1] -= c2 * qx2;
-                out_m->Drc += c2 * qx2;*/
+                if(qx1 > 0)
+                {
+                    outflow += conc*qx1;
+                    out_m->Drc -= conc*qx1;
+                }
             }
-        }else
-        {
-            if(qx2 < 0)
-            {
-                qx2 = std::fabs(qx2);
-                outflow += conc*qx2;
-                out_m->Drc -= conc*qx2;
-            }
-        }
-        if(!UF_OUTORMV(_dem,r+1,c)){
-            if(qy1 > 0)
-            {
-                out_m->data[r+1][c] += conc * qy1;
-                out_m->Drc -= conc * qy1;
+            if(!UF_OUTORMV(_dem,r,c-1)){
+
+                if(qx2 < 0)
+                {
+                    qx2 = std::fabs(qx2);
+                    out_m->data[r][c-1] += conc * qx2;
+                    out_m->Drc -= conc * qx2;
+                }else
+                {
+                    /*double c2 = (f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 0.0;
+                    out_m->data[r][c-1] -= c2 * qx2;
+                    out_m->Drc += c2 * qx2;*/
+                }
             }else
             {
-                /*qy1 = std::fabs(qy1);
-                double c2 = (f->data[r+1][c] > UF_VERY_SMALL)? _m->data[r+1][c]/f->data[r+1][c] : 0.0;
-                out_m->data[r+1][c] -= c2 * qy1;
-                out_m->Drc += c2 * qy1;*/
+                if(qx2 < 0)
+                {
+                    qx2 = std::fabs(qx2);
+                    outflow += conc*qx2;
+                    out_m->Drc -= conc*qx2;
+                }
             }
-        }else
-        {
-            if(qy1 > 0)
-            {
-                outflow += conc*qy1;
-                out_m->Drc -= conc*qy1;
-            }
-        }
-        if(!UF_OUTORMV(_dem,r-1,c)){
-            if(qy2 < 0)
-            {
-                qy2 = std::fabs(qy2);
-                out_m->data[r-1][c] += conc * qy2;
-                out_m->Drc -= conc * qy2;
+            if(!UF_OUTORMV(_dem,r+1,c)){
+                if(qy1 > 0)
+                {
+                    out_m->data[r+1][c] += conc * qy1;
+                    out_m->Drc -= conc * qy1;
+                }else
+                {
+                    /*qy1 = std::fabs(qy1);
+                    double c2 = (f->data[r+1][c] > UF_VERY_SMALL)? _m->data[r+1][c]/f->data[r+1][c] : 0.0;
+                    out_m->data[r+1][c] -= c2 * qy1;
+                    out_m->Drc += c2 * qy1;*/
+                }
             }else
             {
-                /*double c2 = (f->data[r-1][c] > UF_VERY_SMALL)?_m->data[r-1][c]/f->data[r-1][c] : 0.0;
-                out_m->data[r-1][c] -= c2 * qy2;
-                out_m->Drc += c2 * qy2;*/
+                if(qy1 > 0)
+                {
+                    outflow += conc*qy1;
+                    out_m->Drc -= conc*qy1;
+                }
             }
-        }else
-        {
-            if(qy2 < 0)
+            if(!UF_OUTORMV(_dem,r-1,c)){
+                if(qy2 < 0)
+                {
+                    qy2 = std::fabs(qy2);
+                    out_m->data[r-1][c] += conc * qy2;
+                    out_m->Drc -= conc * qy2;
+                }else
+                {
+                    /*double c2 = (f->data[r-1][c] > UF_VERY_SMALL)?_m->data[r-1][c]/f->data[r-1][c] : 0.0;
+                    out_m->data[r-1][c] -= c2 * qy2;
+                    out_m->Drc += c2 * qy2;*/
+                }
+            }else
             {
-                qy2 = std::fabs(qy2);
-                outflow += conc*qy2;
-                out_m->Drc -= conc*qy2;
+                if(qy2 < 0)
+                {
+                    qy2 = std::fabs(qy2);
+                    outflow += conc*qy2;
+                    out_m->Drc -= conc*qy2;
+                }
             }
+
         }
+
+
 
     }}}
 
@@ -446,25 +453,18 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
     {
         out_fu->Drc = _fu->Drc;
         out_su->Drc = _su->Drc;
-        UF_t1->Drc = -_f->Drc/(_dx*_dx);
-        UF_t2->Drc = -_s->Drc/(_dx*_dx);
         UF_t3->Drc = _f->Drc;
-        UF_t4->Drc = _s->Drc;
-
-        out_qf1->Drc = 0;
-        out_qf2->Drc = 0;
-        out_qs1->Drc = 0;
-        out_qs2->Drc = 0;
+        UF_t4->Drc = _f->Drc;
+        UF1D_fq1->Drc = UF1D_fq1->Drc;
+        UF1D_fq2->Drc = UF1D_fq2->Drc;
+        UF1D_sq1->Drc = UF1D_sq1->Drc;
+        UF1D_sq2->Drc = UF1D_sq2->Drc;
     }
-
-    //determine boundary fluxes using a muscle scheme
-    UF1D_MUSCLE(_ldd,_lddw,dt,UF_t1,UF_MUSCLE_TARGET_IN1);
-    UF1D_MUSCLE(_ldd,_lddw,dt,_fu,UF_MUSCLE_TARGET_IN2);
-    UF1D_MUSCLE_operate(_ldd,_lddw,dt,UF_MUSCLE_TARGET_IN1,UF_MUSCLE_TARGET_IN2,UF_MUSCLE_mult,UF_MUSCLE_TARGET_OUT);
 
     FOR_ROW_COL_UF1D_DT
     {
-        double cq = 0.25 * UF_Courant * _f->Drc;
+        double q1 = UF1D_fq1->Drc;
+        double q2 = UF1D_fq2->Drc;
 
         //front cell
         int lddself = (int) _ldd->data[r][c];
@@ -474,12 +474,6 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
             int c2 = c+dx[lddself];
 
             if(!UF_OUTORMV(_ldd,r2,c2)){
-
-                double cqt = 0.5 * UF_Courant * (_f->data[r2][c2]);
-                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-                double q1 = 0.5 * ((UF1D_MUSCLE_OUT_x1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx1 * UF1D_MUSCLE_OUT_x1->Drc *_dx),(UF1D_MUSCLE_OUT_x1->Drc > 0)? cq : cqt);
-
-                out_qf1->Drc = q1;
 
                 if( q1 >0)
                 {
@@ -491,12 +485,13 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                 UF_t3->Drc -= q1;
                 UF_t3->data[r2][c2] += q1;
+            }else if(q1 > 0)
+            {
+                UF_t3->Drc -= std::fabs(q1);
             }
-        }else
+        }else if(q1 > 0)
         {
-            double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-            double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_f->Drc,0,_fu->Drc,_su->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
-            out_qf1->Drc = q1;
+            UF_t3->Drc -= std::fabs(q1);
         }
 
         //backward flux
@@ -519,51 +514,50 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
                 totalwidth += _lddw->data[r2][c2];
             }
         }
-        for (int i=1;i<=9;i++)
+        if(totalwidth > 0)
         {
-            int r2, c2, ldd = 0;
-            if (i==5)  // Skip current cell
-                continue;
-            r2 = r+dy[i];
-            c2 = c+dx[i];
-            if (!UF_OUTORMV(_ldd,r2,c2))
-                ldd = (int) _ldd->data[r2][c2];
-            else
-                continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
+            for (int i=1;i<=9;i++)
             {
-                if(!UF_OUTORMV(_ldd,r2,c2)){
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
 
-                    double cqt = 0.5 * UF_Courant * (_f->data[r2][c2]);
-                    double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r2,c2)? dt->Drc : (UF_NOTIME(_dem,dt,r2,c2)? 0.0: dt->data[r2][c2]));
-                    double q2 = (_lddw->data[r2][c2]/totalwidth)*0.5 * ((UF1D_MUSCLE_OUT_x2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx2 * UF1D_MUSCLE_OUT_x2->Drc *_dx),(UF1D_MUSCLE_OUT_x2->Drc > 0)? cqt : cq);
+                        if( q2 < 0)
+                        {
+                            out_fu->data[r2][c2] = ((UF_t3->data[r2][c2] + std::fabs(q2)) > 0)? (UF_t3->data[r2][c2] * out_fu->data[r2][c2] + std::fabs(q2) * _fu->Drc)/(UF_t3->data[r2][c2] + std::fabs(q2)) : 0.0;
+                        }else
+                        {
+                            out_fu->Drc = ((UF_t3->Drc + q2) > 0)? (UF_t3->Drc * out_fu->Drc + q2 * _fu->data[r2][c2])/(UF_t3->Drc + q2) : 0.0;
+                        }
 
-                    out_qf2->Drc = q2;
-
-                    if( q2 < 0)
+                        UF_t3->Drc += q2;
+                        UF_t3->data[r2][c2] -= q2;
+                    }else if(q2 < 0)
                     {
-                        out_fu->data[r2][c2] = ((UF_t3->data[r2][c2] + std::fabs(q2)) > 0)? (UF_t3->data[r2][c2] * out_fu->data[r2][c2] + std::fabs(q2) * _fu->Drc)/(UF_t3->data[r2][c2] + std::fabs(q2)) : 0.0;
-                    }else
-                    {
-                        out_fu->Drc = ((UF_t3->Drc + q2) > 0)? (UF_t3->Drc * out_fu->Drc + q2 * _fu->data[r2][c2])/(UF_t3->Drc + q2) : 0.0;
+                        UF_t3->Drc -= std::fabs(q2);
                     }
-
-                    UF_t3->Drc += q2;
-                    UF_t3->data[r2][c2] -= q2;
                 }
             }
+        }else if(q2 < 0)
+        {
+            UF_t3->Drc -= std::fabs(q2);
         }
     }
 
-    //determine boundary fluxes using a muscle scheme
-    UF1D_MUSCLE(_ldd,_lddw,dt,UF_t2,UF_MUSCLE_TARGET_IN1);
-    UF1D_MUSCLE(_ldd,_lddw,dt,_su,UF_MUSCLE_TARGET_IN2);
-    UF1D_MUSCLE_operate(_ldd,_lddw,dt,UF_MUSCLE_TARGET_IN1,UF_MUSCLE_TARGET_IN2,UF_MUSCLE_mult,UF_MUSCLE_TARGET_OUT);
-
     FOR_ROW_COL_UF1D_DT
     {
-        double cq = 0.25 * UF_Courant * _s->Drc;
+        double q1 = UF1D_sq1->Drc;
+        double q2 = UF1D_sq2->Drc;
 
         //front cell
         int lddself = (int) _ldd->data[r][c];
@@ -573,12 +567,6 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
             int c2 = c+dx[lddself];
 
             if(!UF_OUTORMV(_ldd,r2,c2)){
-                double cqt = 0.25 * UF_Courant * (_s->data[r2][c2]);
-                double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-                double q1 = 0.5 * ((UF1D_MUSCLE_OUT_x1->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx1 * UF1D_MUSCLE_OUT_x1->Drc *_dx),(UF1D_MUSCLE_OUT_x1->Drc > 0)? cq : cqt);
-
-                out_qs1->Drc = q1;
-
                 if( q1 >0)
                 {
                     out_su->data[r2][c2] = ((UF_t4->data[r2][c2] + q1) > 0)? (UF_t4->data[r2][c2] * out_su->data[r2][c2] + q1 * _su->Drc)/(UF_t4->data[r2][c2] + q1) : 0.0;
@@ -589,12 +577,13 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                 UF_t4->Drc -= q1;
                 UF_t4->data[r2][c2] += q1;
+            }else if(q1 > 0)
+            {
+                UF_t4->Drc -= std::fabs(q1);
             }
-        }else
+        }else if(q1 > 0)
         {
-            double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
-            double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,0,_s->Drc,_fu->Drc,_su->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
-            out_qs1->Drc = q1;
+            UF_t4->Drc -= std::fabs(q1);
         }
         //backward flux
 
@@ -617,42 +606,44 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
                 totalwidth += _lddw->data[r2][c2];
             }
         }
-        for (int i=1;i<=9;i++)
+        if(totalwidth > 0)
         {
-            int r2, c2, ldd = 0;
-            if (i==5)  // Skip current cell
-                continue;
-            r2 = r+dy[i];
-            c2 = c+dx[i];
-            if (!UF_OUTORMV(_ldd,r2,c2))
-                ldd = (int) _ldd->data[r2][c2];
-            else
-                continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
+            for (int i=1;i<=9;i++)
             {
-                if(!UF_OUTORMV(_ldd,r2,c2)){
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
 
-                    double cqt = 0.25 * UF_Courant * (_s->data[r2][c2]);
-                    double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x2->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r2,c2)? dt->Drc : (UF_NOTIME(_dem,dt,r2,c2)? 0.0: dt->data[r2][c2]));
-                    double q2 = (_lddw->data[r2][c2]/totalwidth)*0.5 * ((UF1D_MUSCLE_OUT_x2->Drc > 0)? 1.0 : -1.0) * std::min(std::fabs(dtx2 * UF1D_MUSCLE_OUT_x2->Drc *_dx),(UF1D_MUSCLE_OUT_x2->Drc > 0)? cqt : cq);
+                        if( q2 < 0)
+                        {
+                            out_su->data[r2][c2] = ((UF_t4->data[r2][c2] + std::fabs(q2)) > 0)? (UF_t4->data[r2][c2] * out_su->data[r2][c2] + std::fabs(q2) * _su->Drc)/(UF_t4->data[r2][c2] + std::fabs(q2)) : 0.0;
+                        }else
+                        {
+                            out_su->Drc = ((UF_t4->Drc + q2) > 0)? (UF_t4->Drc * out_su->Drc + q2 * _su->data[r2][c2])/(UF_t4->Drc + q2) : 0.0;
+                        }
 
-                    out_qs2->Drc = q2;
-
-                    if( q2 < 0)
+                        UF_t4->Drc += q2;
+                        UF_t4->data[r2][c2] -= q2;
+                    }else if(q2 < 0)
                     {
-                        out_su->data[r2][c2] = ((UF_t4->data[r2][c2] + std::fabs(q2)) > 0)? (UF_t4->data[r2][c2] * out_su->data[r2][c2] + std::fabs(q2) * _su->Drc)/(UF_t4->data[r2][c2] + std::fabs(q2)) : 0.0;
-                    }else
-                    {
-                        out_su->Drc = ((UF_t4->Drc + q2) > 0)? (UF_t4->Drc * out_su->Drc + q2 * _su->data[r2][c2])/(UF_t4->Drc + q2) : 0.0;
+                        UF_t4->Drc -= std::fabs(q2);
                     }
-
-                    UF_t4->Drc += q2;
-                    UF_t4->data[r2][c2] -= q2;
                 }
             }
+        }else if(q2 < 0)
+        {
+            UF_t4->Drc -= std::fabs(q2);
         }
-
     }
 }
 
@@ -676,7 +667,7 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
 
     FOR_ROW_COL_UF1D_DT
     {
-        double cq = 0.25 * UF_Courant * _f->Drc;
+        double conc = (_f->Drc > 0)? _m->Drc/_f->Drc: 0.0;
 
         //front cell
         int lddself = (int) _ldd->data[r][c];
@@ -687,21 +678,19 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
 
             if(!UF_OUTORMV(_ldd,r2,c2)){
 
-                out_m->Drc -= _q1->Drc;
-                out_m->data[r2][c2] += _q1->Drc;
+                double con2 = _q1->Drc > 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0);
+                out_m->Drc -= conc *_q1->Drc;
+                out_m->data[r2][c2] += conc *_q1->Drc;
 
             }else if(_q1->Drc > 0)
             {
-                outflow += _q1->Drc;
-                out_m->Drc -= _q1->Drc;
+                outflow += conc *_q1->Drc;
+                out_m->Drc -= conc *_q1->Drc;
             }
-        }else
+        }else if(_q1->Drc > 0)
         {
-            if(_q1->Drc > 0)
-            {
-                outflow += _q1->Drc;
-                out_m->Drc -= _q1->Drc;
-            }
+                outflow += conc *_q1->Drc;
+                out_m->Drc -= conc *_q1->Drc;
         }
 
         //backward flux
@@ -724,34 +713,40 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
                 totalwidth += _lddw->data[r2][c2];
             }
         }
-        for (int i=1;i<=9;i++)
+        if(totalwidth)
         {
-            int r2, c2, ldd = 0;
-            if (i==5)  // Skip current cell
-                continue;
-            r2 = r+dy[i];
-            c2 = c+dx[i];
-            if (!UF_OUTORMV(_ldd,r2,c2))
-                ldd = (int) _ldd->data[r2][c2];
-            else
-                continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
+            for (int i=1;i<=9;i++)
             {
-                if(!UF_OUTORMV(_ldd,r2,c2)){
-                    double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
-
-                    out_m->Drc += q2;
-                    out_m->data[r2][c2] -= q2;
-
-                }else if(_q2->Drc < 0)
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
                 {
-                    double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+                        double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
 
-                    out_m->Drc += q2;
-                    outflow -= q2;
+                        double con2 = q2 < 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0);
+                        out_m->Drc += con2 *q2;
+                        out_m->data[r2][c2] -= con2 *q2;
+
+                    }else if(_q2->Drc < 0)
+                    {
+                        outflow += conc * std::fabs(_q2->Drc);
+                        out_m->Drc -= conc *std::fabs(_q2->Drc);
+                    }
                 }
             }
+        }else if(_q2->Drc < 0)
+        {
+            outflow += conc * std::fabs(_q2->Drc);
+            out_m->Drc -= conc * std::fabs(_q2->Drc);
         }
     }
 
@@ -808,6 +803,9 @@ void TWorld::UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
                 UF_t1->data[r2][c2] += _q1->Drc;
 
             }
+        }else if( _q1->Drc > 0)
+        {
+            UF_t1->Drc -= _q1->Drc;
         }
 
         //backward flux
@@ -830,37 +828,43 @@ void TWorld::UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
                 totalwidth += _lddw->data[r2][c2];
             }
         }
-        for (int i=1;i<=9;i++)
+        if(totalwidth > 0)
         {
-            int r2, c2, ldd = 0;
-            if (i==5)  // Skip current cell
-                continue;
-            r2 = r+dy[i];
-            c2 = c+dx[i];
-            if (!UF_OUTORMV(_ldd,r2,c2))
-                ldd = (int) _ldd->data[r2][c2];
-            else
-                continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
+            for (int i=1;i<=9;i++)
             {
-                if(!UF_OUTORMV(_ldd,r2,c2)){
-                    double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+                        double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
 
-                    if(_q1->Drc > 0)
-                    {
-                        double flux = std::fabs(_q1->Drc);
-                        out_prop->Drc = (UF_t1->Drc +  flux) > 0? (out_prop->Drc  * UF_t1->Drc + _prop->data[r2][c2] * flux)/(UF_t1->Drc +  flux) : 0.0;
-                    }else
-                    {
-                        double flux = _q1->Drc;
-                        out_prop->data[r2][c2] = (UF_t1->data[r2][c2] +  flux) > 0? (out_prop->data[r2][c2]  * UF_t1->data[r2][c2] + _prop->Drc * flux)/(UF_t1->data[r2][c2] +  flux) :0.0;
+                        if(_q1->Drc > 0)
+                        {
+                            double flux = std::fabs(_q1->Drc);
+                            out_prop->Drc = (UF_t1->Drc +  flux) > 0? (out_prop->Drc  * UF_t1->Drc + _prop->data[r2][c2] * flux)/(UF_t1->Drc +  flux) : 0.0;
+                        }else
+                        {
+                            double flux = _q1->Drc;
+                            out_prop->data[r2][c2] = (UF_t1->data[r2][c2] +  flux) > 0? (out_prop->data[r2][c2]  * UF_t1->data[r2][c2] + _prop->Drc * flux)/(UF_t1->data[r2][c2] +  flux) :0.0;
+                        }
+
+                        UF_t1->Drc += q2;
+                        UF_t1->data[r2][c2] -= q2;
                     }
-
-                    UF_t1->Drc += q2;
-                    UF_t1->data[r2][c2] -= q2;
                 }
             }
+        }else if( _q2->Drc < 0)
+        {
+            UF_t1->Drc -= std::fabs(_q2->Drc);
         }
     }
 

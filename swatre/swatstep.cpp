@@ -513,7 +513,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    // save stuff for output in maps
    *waterHeightIO = pond; // waterlayer on surface
    *infil = influx; // total max influx in lisem timestep, fpot
-   *drain = drainout; // tiledrain, is 0 when not activated
+   //*drain = drainout; // tiledrain, is 0 when not activated
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
@@ -544,8 +544,6 @@ void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, 
       infil = 0;
       drain = 0;
 
-      if (SwitchIncludeTile)
-         drainfraction = TileWidth->Drc/_dx;
 
       ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,
                       &repellency, &Theta, s);
@@ -557,10 +555,6 @@ void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, 
       _fpot->Drc = std::max(0.0, -infil*0.01);
       // infil is negative (downward flux * dt, in cm)
       //fpot is positive like in other infil  methods (in m)
-
-      if (SwitchIncludeTile)
-         _drain->Drc = drain*0.01;  // in m
-      // drained water from the soil, already accounts for drainwidth versus cell width
 
       _theta->Drc = Theta;
       // save the average moisture content of the top two layers

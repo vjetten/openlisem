@@ -674,9 +674,8 @@ void TWorld::UF1D_MUSCLE(cTMap * _ldd,cTMap * _lddw,cTMap * dt,cTMap * _in, int 
         FOR_ROW_COL_UF1D_DT
         {
             dx = UF1D_Derivative(_ldd,_lddw,_in,r,c,true);
-
-            outx1->Drc = _in->Drc+dx;
-            outx2->Drc = _in->Drc-dx;
+            outx1->Drc = _in->Drc+dx * 0.5 * _dx;
+            outx2->Drc = _in->Drc-dx * 0.5 * _dx;
         }
    }else
    {
@@ -684,8 +683,8 @@ void TWorld::UF1D_MUSCLE(cTMap * _ldd,cTMap * _lddw,cTMap * dt,cTMap * _in, int 
         {
             dx = UF1D_Derivative(_ldd,_lddw,_in,r,c,true);
 
-            outx1->Drc = _in->Drc+dx;
-            outx2->Drc = _in->Drc-dx;
+            outx1->Drc = _in->Drc+dx * 0.5 * _dx;
+            outx2->Drc = _in->Drc-dx * 0.5 * _dx;
         }
    }
 

@@ -49,7 +49,7 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
     {
         if(!UF_OUTORMV(_ldd,r,c))
         {
-            if(SwitchChannelFlood)
+            if(UF_CHANNELFLOOD)
             {
                 double h = (_f1D->Drc + _s1D->Drc)/(_dx*_lddw->Drc);
 
@@ -89,6 +89,33 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                     _f2D->Drc = _f2D->Drc - volf;
                     _s2D->Drc = _s2D->Drc - vols;
 
+                    if(SwitchErosion)
+                    {
+                        double blconc =  _f2D->Drc > 0? UF2D_blm->Drc/ _f2D->Drc :0.0;
+                        double ssconc =  _f2D->Drc > 0? UF2D_ssm->Drc/ _f2D->Drc :0.0;
+
+                        UF2D_blm->Drc -= blconc * volf;
+                        UF1D_blm->Drc += blconc * volf;
+                        UF2D_ssm->Drc -= ssconc * volf;
+                        UF1D_ssm->Drc += ssconc * volf;
+
+                        if(SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                double blconc =  _f2D->Drc > 0? UF2D_blm_D.Drcd/ _f2D->Drc :0.0;
+                                double ssconc =  _f2D->Drc > 0? UF2D_ssm_D.Drcd/ _f2D->Drc :0.0;
+
+                                UF2D_blm_D.Drcd -= blconc * volf;
+                                UF1D_blm_D.Drcd += blconc * volf;
+                                UF2D_ssm_D.Drcd -= ssconc * volf;
+                                UF1D_ssm_D.Drcd += ssconc * volf;
+
+                            }
+
+                        }
+                    }
+
                 //outflow
                 }else
                 {
@@ -107,8 +134,31 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                     _ifa2D->Drc = vsn > UF_VERY_SMALL? (_ifa2D->Drc *_s2D->Drc + _ifa1D->Drc * vols)/vsn: 0.0;
                     _rocksize2D->Drc = vsn > UF_VERY_SMALL? (_rocksize2D->Drc *_s2D->Drc + _rocksize1D->Drc * vols)/vsn: 0.0;
 
-                }
+                    if(SwitchErosion)
+                    {
+                        double blconc = _f1D > 0? UF1D_blm->Drc/ _f1D->Drc : 0.0;
+                        double ssconc = _f1D > 0? UF1D_ssm->Drc/ _f1D->Drc : 0.0;
 
+                        UF1D_blm->Drc -= blconc * volf;
+                        UF2D_blm->Drc += blconc * volf;
+                        UF1D_ssm->Drc -= ssconc * volf;
+                        UF2D_ssm->Drc += ssconc * volf;
+
+                        if(SwitchUseGrainSizeDistribution)
+                        {
+                            FOR_GRAIN_CLASSES
+                            {
+                                double blconc = _f1D > 0? UF1D_blm_D.Drcd / _f1D->Drc :0.0;
+                                double ssconc = _f1D > 0? UF1D_ssm_D.Drcd / _f1D->Drc : 0.0;
+
+                                UF1D_blm_D.Drcd -= blconc * volf;
+                                UF2D_blm_D.Drcd += blconc * volf;
+                                UF1D_ssm_D.Drcd -= ssconc * volf;
+                                UF2D_ssm_D.Drcd += ssconc * volf;
+                            }
+                        }
+                    }
+                }
             }else
             {
                 double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
@@ -135,6 +185,32 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                 _f2D->Drc = _f2D->Drc - volf;
                 _s2D->Drc = _s2D->Drc - vols;
 
+                if(SwitchErosion)
+                {
+                    double blconc =  _f2D->Drc > 0? UF2D_blm->Drc/ _f2D->Drc : 0.0;
+                    double ssconc =  _f2D->Drc > 0? UF2D_ssm->Drc/ _f2D->Drc :0.0;
+
+                    UF2D_blm->Drc -= blconc * volf;
+                    UF1D_blm->Drc += blconc * volf;
+                    UF2D_ssm->Drc -= ssconc * volf;
+                    UF1D_ssm->Drc += ssconc * volf;
+
+                    if(SwitchUseGrainSizeDistribution)
+                    {
+                        FOR_GRAIN_CLASSES
+                        {
+                            double blconc =  _f2D->Drc > 0? UF2D_blm_D.Drcd/ _f2D->Drc:0.0;
+                            double ssconc =  _f2D->Drc > 0? UF2D_ssm_D.Drcd/ _f2D->Drc:0.0;
+
+                            UF2D_blm_D.Drcd -= blconc * volf;
+                            UF1D_blm_D.Drcd += blconc * volf;
+                            UF2D_ssm_D.Drcd -= ssconc * volf;
+                            UF1D_ssm_D.Drcd += ssconc * volf;
+
+                        }
+
+                    }
+                }
 
 
             }
@@ -222,6 +298,11 @@ void TWorld::UF2D1D_ChannelWater(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
 
 void TWorld::UFDEMLDD_Connection(cTMap * dt,cTMap * RemovedMaterial1D, cTMap * RemovedMaterial2D, cTMap * out_DEM,cTMap * out_LDD)
 {
-
+    cTMap * _dem = UF2D_DEM;
+    FOR_ROW_COL_UF2D
+    {
+        UF2D_DEM->Drc += DEMChange->Drc;
+        DEMChange->Drc = 0;
+    }
 
 }

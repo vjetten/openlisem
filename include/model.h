@@ -46,6 +46,8 @@
 #include "error.h"
 #include "swatre_p.h"
 #include "swatre_g.h"
+#include "lisUnifiedFlowThread.h"
+#include "lisUnifiedFlowThreadPool.h"
 
 
 #define OLDSWATRE 1
@@ -116,6 +118,18 @@
     if(!pcr::isMV(_dem->data[r][c]) && !(dt->Drc == 0))
 
 /// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF2DMT for(int r = 0; r < _nrRows; r++)\
+    for (int c = 0; c < _nrCols; c++)\
+    if(!pcr::isMV(thread->mask->data[r][c]) )
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF2DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (thread->cellR->data[rc][cc]);\
+    int c = (int) (thread->cellC->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+/// shortcut for LDD row and col loop
 #define FOR_ROW_COL_UF1D for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(_ldd->data[r][c]) )
@@ -149,7 +163,7 @@
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define UF_VERY_SMALL 1e-8 /// \def min timestep/flux/height in unified flow equations
+#define UF_VERY_SMALL 1e-12 /// \def min timestep/flux/height in unified flow equations
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -299,11 +313,8 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
-    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
+    SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET, SwitchLevees, SwitchFlowBarriers, SwitchBarriers, SwitchMaxVolume, SwitchChannelMaxVolume, SwitchUFInitial,SwitchUFForced;
 
-    int SwitchFlood1D2DCoupling;
-    int SwitchKinematic2D;
     int SwitchEfficiencyDET;
 
     // multiple options that are set in interface or runfile, see defines above
@@ -362,15 +373,8 @@ public:
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     bool rainStarted;
-    double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea, nrFloodedCells;
 
-    ///pesticides
-    double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
-    double MBpex,PestRunoffSpatialex,PestDisMixingex,PestSorMixingex,PestInfiltex,PestLossTotOutletex;
-    int N_SPK;
-    double Maxsolubility;
-    double MaxVup;
 
     int c_outlet;  /// copy of outlet col number
     int r_outlet;  /// copy of outlet row number
@@ -464,8 +468,6 @@ public:
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
     cTMap *InitMaskTiledrain(QString name);
-    void InitTiledrains(void); //VJ 110112
-    void InitBuffers(void); //VJ 110112
     void InitChannel(void); //VJ 110112
     void InitShade(void); //VJ 130301
     void InitMulticlass(void); //VJ 110511
@@ -494,7 +496,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment, SwitchSlopeStability, SwitchSlopeFailure;
 //SwithEstimated90,
     int numgrainclasses;
     QString GrainMaps;
@@ -519,6 +521,56 @@ public:
 
     cTMap *unity;
 
+    cTMap * SoilRockMaterial;
+    cTMap * SoilRockSize;
+    cTMap * SoilRockDensity;
+    cTMap * SoilRockIFA;
+    cTMap * RSoilRockMaterial;
+    cTMap * RSoilRockSize;
+    cTMap * RSoilRockDensity;
+    cTMap * RSoilRockIFA;
+
+    double SFMIN;
+    double SFMAX;
+    double SFDISPLAYMAX;
+    double SFFAILMIN;
+
+    cTMap * DFUnstable;
+    cTMap * DFInitiationHeight;
+    cTMap * DFSFIterations;
+    cTMap * DEMOriginal;
+    cTMap * DEMIterate;
+    cTMap * DFSoilDepth;
+    cTMap * DFSurfaceWaterHeight;
+    cTMap * DFSoilCohesion;
+    cTMap * DFWaterHeight;
+    cTMap * DFWaterSuction;
+    cTMap * DFPlantCohesion;
+    cTMap * DFPlantPressure;
+    cTMap * DFThreshold;
+    cTMap * DFThreshold1;
+    cTMap * DFSafetyFactor;
+    cTMap * DFSlope;
+    cTMap * DFTotalInitiationHeight;
+
+    cTMap * DFSoilInternalFrictionAngle;
+    cTMap * DFSoilDensity;
+    cTMap * DFSoilRockFraction;
+    cTMap * DFSoilRockSize;
+
+    cTMap * DEMChange;
+
+    bool OUTORMV(int r, int c);
+    void SlopeStability();
+    void SlopeFailure();
+    void SafetyFactor();
+    void CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
+                                       cTMap * _OverlandWater, cTMap * _SoilCohesion,
+                                       cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
+                                       cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
+                                       cTMap * _PlantCohesion,cTMap * _PlantPressure,
+                                       cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated);
+    void InitiateDebrisFlow();
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
     double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
@@ -609,6 +661,37 @@ public:
     double correctMassBalance(double sum1, cTMap *M, double minV);
 
 
+    ////FlowBarriers
+    QList<int> FBid;
+
+    QList<double> FBHeightN;
+    QList<double> FBHeightS;
+    QList<double> FBHeightE;
+    QList<double> FBHeightW;
+
+    QList<double> FBTimeN;
+    QList<double> FBTimeS;
+    QList<double> FBTimeE;
+    QList<double> FBTimeW;
+
+    cTMap * FlowBarrier;
+
+    cTMap * FlowBarrierN;
+    cTMap * FlowBarrierW;
+    cTMap * FlowBarrierS;
+    cTMap * FlowBarrierE;
+
+    cTMap * FlowBarrierNT;
+    cTMap * FlowBarrierWT;
+    cTMap * FlowBarrierST;
+    cTMap * FlowBarrierET;
+
+    void InitFlowBarriers(void);
+    void SetFlowBarriers();
+    void GetFlowBarrierData(QString name);
+    double GetFlowBarrierHeight(int r, int c, int dr, int dc);
+    //DEM based barriers
+    cTMap * Barriers;
 
     //////////////
     //SWATRE
@@ -682,6 +765,13 @@ public:
     QMutex mutex;
     QWaitCondition condition;
     void stop();
+
+
+
+
+    ////MULTITHREADING STUFF
+    //LisemThreadPool *ThreadPool;
+
 
 protected:
     void run();

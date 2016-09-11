@@ -34,11 +34,45 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+
+
+void TWorld::AddSource(int r, int c, double f, double s, double d, double rocksize, double ifa, bool channel)
+{
+
+    if(!channel)
+    {
+        if(s > 0)
+        {
+            SourceSolidDensity->Drc = (SourceSolid->Drc + s) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidDensity->Drc + s* d)/(SourceSolid->Drc + s) : SourceSolidDensity->Drc;
+            SourceSolidRocksize->Drc = (SourceSolid->Drc + s) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidRocksize->Drc + s* rocksize)/(SourceSolid->Drc + s) : SourceSolidRocksize->Drc;
+            SourceSolidIFA->Drc = (SourceSolid->Drc + s) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidIFA->Drc + s* ifa)/(SourceSolid->Drc + s) : SourceSolidIFA->Drc;
+        }
+
+        SourceSolid->Drc += s;
+        SourceFluid->Drc += f;
+    }else
+    {
+        if(s > 0)
+        {
+            ChannelSourceSolidDensity->Drc = (ChannelSourceSolid->Drc + s) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidDensity->Drc + s* d)/(ChannelSourceSolid->Drc + s) : ChannelSourceSolidDensity->Drc;
+            ChannelSourceSolidRocksize->Drc = (ChannelSourceSolid->Drc + s) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidRocksize->Drc + s* rocksize)/(ChannelSourceSolid->Drc + s) : ChannelSourceSolidRocksize->Drc;
+            ChannelSourceSolidIFA->Drc = (ChannelSourceSolid->Drc + s) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidIFA->Drc + s* ifa)/(ChannelSourceSolid->Drc + s) : ChannelSourceSolidIFA->Drc;
+        }
+
+        ChannelSourceSolid->Drc += s;
+        ChannelSourceFluid->Drc += f;
+
+    }
+
+}
+
+
 void TWorld::UF2D_FluidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f)
 {
     FOR_ROW_COL_UF2D
     {
-        out_f->Drc = _f->Drc;
+        out_f->Drc = _f->Drc + SourceFluid->Drc;
+        SourceFluid->Drc = 0;
     }
 
 }
@@ -47,7 +81,12 @@ void TWorld::UF2D_SolidSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,
 {
     FOR_ROW_COL_UF2D
     {
-        out_s->Drc = _s->Drc;
+        _d->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidDensity->Drc + _s->Drc* _d->Drc)/(SourceSolid->Drc + _s->Drc) : _d->Drc;
+        _rocksize->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidRocksize->Drc + _s->Drc* _rocksize->Drc)/(SourceSolid->Drc + _s->Drc) :_rocksize->Drc;
+        _ifa->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidIFA->Drc + _s->Drc* _ifa->Drc)/(SourceSolid->Drc + _s->Drc) : _ifa->Drc;
+
+        out_s->Drc = _s->Drc + SourceSolid->Drc;
+        SourceSolid->Drc = 0;
     }
 }
 
@@ -56,14 +95,37 @@ void TWorld::UF1D_FluidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
 {
     FOR_ROW_COL_UF1D
     {
-        out_f->Drc = _f->Drc;
+        out_f->Drc = _f->Drc + ChannelSourceFluid->Drc;
+        ChannelSourceFluid->Drc = 0;
     }
 }
 void TWorld::UF1D_SolidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_s)
 {
     FOR_ROW_COL_UF1D
     {
-        out_s->Drc = _s->Drc;
+        _d->Drc = (ChannelSourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidDensity->Drc + _s->Drc* _d->Drc)/(ChannelSourceSolid->Drc + _s->Drc) : _d->Drc;
+        _rocksize->Drc = (ChannelSourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidRocksize->Drc + _s->Drc* _rocksize->Drc)/(ChannelSourceSolid->Drc + _s->Drc) :_rocksize->Drc;
+        _ifa->Drc = (ChannelSourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidIFA->Drc + _s->Drc* _ifa->Drc)/(ChannelSourceSolid->Drc + _s->Drc) : _ifa->Drc;
+
+        out_s->Drc = _s->Drc + SourceSolid->Drc;
+        SourceSolid->Drc = 0;
+    }
+}
+
+void TWorld::UF_SedimentSource(double dt)
+{
+
+    cTMap * _dem= UF2D_DEM;
+    FOR_ROW_COL_UF2D
+    {
+        UF2D_ssm->Drc += DETSplash->Drc;
+        if(SwitchUseGrainSizeDistribution)
+        {
+            FOR_GRAIN_CLASSES
+            {
+                UF2D_ssm_D.Drcd += W_D.Drcd * DETSplash->Drc;
+            }
+        }
     }
 }
 
@@ -138,7 +200,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
     double blconc = watervol > UF_VERY_SMALL? blm/watervol : 0.0;
     double hf = (channel? UF1D_f->Drc: UF2D_f->Drc)/surface;
     double hs = (channel? UF1D_s->Drc: UF2D_s->Drc)/surface;
-    double velocity = channel? (UF1D_fu->Drc):(sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc));
+    double velocity = channel? (std::fabs(UF1D_fu->Drc)):(sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc));
     double discharge = hf * _dx * velocity;
     double blhf = std::min(0.05,hf);
     double blwatervol = blhf*surface;
@@ -158,7 +220,6 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
         TSS->Drc=0;
         TBLTC->Drc=0;
         TSSTC->Drc=0;
-
     }else
     {
        ////Suspended sediment deposition
@@ -176,9 +237,9 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        tobl = TransportFactor * minTC;
 
-       tobl = std::max(tobl,-TSS->Drc);
-       TBL->Drc -= tobl;
-       TSS->Drc += tobl;
+       //tobl = std::min(std::fabs(tobl),std::fabs(TSS->Drc));
+       TBL->Drc += std::fabs(tobl);
+       TSS->Drc -= std::fabs(tobl);
 
        ////Suspended sediment detachment
        //erosion values based on settling velocity
@@ -217,8 +278,16 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // unit kg/m3
 
        ////Bed load sediment detachment
+
+       //### sediment balance
+       double blsmax = MAXCONC * blwatervol;
+       if(blsmax < TBL->Drc)
+       {
+           UF_SoilAdd(r,c,d,-std::fabs(TBL->Drc - blsmax),channel);
+           TBL->Drc = blsmax;
+       }
        //### detachment
-       TransportFactor = dt*TSettlingVelocity * DX->Drc *(channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
+       /*TransportFactor = dt*TSettlingVelocity * DX->Drc *(channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
        // detachment can only come from soil, not roads (so do not use flowwidth)
        // units s * m/s * m * m = m3
 
@@ -228,7 +297,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // cannot have more detachment than remaining capacity in flow
        // use discharge because standing water has no erosion
 
-       detachment = UF_SoilTake(r,c,d,detachment,channel,true);
+       detachment = UF_SoilTake(r,c,d,detachment,channel,false);*/
 
        ////bed load sediment deposition
        if (blhf > MIN_HEIGHT)
@@ -238,8 +307,6 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // if settl velo is very small, transportfactor is 0 and depo is 0
        // if settl velo is very large, transportfactor is 1 and depo is max
 
-       //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
-       // deposition can occur on roads and on soil (so use flowwidth)
 
        double deposition = minTC * TransportFactor;
        // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
@@ -250,12 +317,11 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        deposition = std::max(deposition, -TBL->Drc);
        // cannot have more depo than sediment presen
 
-       UF_SoilAdd(r,c,d,deposition,channel);
-
+       UF_SoilAdd(r,c,d,-std::fabs(deposition),channel);
 
        // IN KG/CELL
-       TBL->Drc += detachment;
-       TBL->Drc += deposition;
+       //TBL->Drc += detachment;
+       TBL->Drc -= std::fabs(deposition);
 
     }
 
@@ -275,7 +341,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
     }
 
     //use overland flow equations
-    if(hf < 0.25)
+    if(hf < 5)
     {
         if(bedload)
         {
@@ -296,7 +362,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
                 // V in cm/s in this formula assuming grad is SINE
                 double omegacrit = 0.4;
                 // critical unit streampower in cm/s
-                return std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
+                return std::max(0.0,std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc)));
                 // not more than 2650*0.32 = 848 kg/m3
 
             //use the Hairsine and Rose transport capacity equation
@@ -306,7 +372,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
                 double om = 100.0* v*slope;
                 double omcr = 0.4;
                 double tc =  W_D.at(_d)->Drc * (1.0/settlingvelocities.at(_d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/hf) ;
-                return std::min(MAXCONC,tc);
+                return std::max(0.0,std::min(MAXCONC,tc));
             }
 
         }
@@ -434,28 +500,6 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
     }
 }
 
-
-//active entrainment
-double TWorld::UnifiedFlowActiveEntrainment(double hf, double vf,double hs, double vs, double visc, int d)
-{
-
-
-}
-
-void TWorld::UF_FlowEntrainment(double dt)
-{
-
-
-
-
-
-}
-void TWorld::UF_FlowEntrainment(double dt, int r, int c,int d, bool channel)
-{
-
-
-}
-
 double TWorld::UF_SoilTake(int r, int c, int d, double potential, bool channel,bool bedload)
 {
 
@@ -547,5 +591,184 @@ void TWorld::UF_SumGrainClasses()
             }
         }
     }
+
+}
+
+
+
+
+//active entrainment
+void TWorld::UnifiedFlowEntrainment()
+{
+    UF_FlowEntrainment(_dt);
+
+}
+
+void TWorld::UF_FlowEntrainment(double dt)
+{
+
+    if(UF_SOLIDPHASE && SwitchEntrainment)
+    {
+        cTMap*_dem = UF2D_DEM;
+        cTMap*_ldd = UF1D_LDD;
+
+        FOR_ROW_COL_UF2D
+        {
+            UF_FlowEntrainment(dt,r,c,false);
+        }
+        if(UF_1DACTIVE)
+        {
+            FOR_ROW_COL_UF1D
+            {
+                UF_FlowEntrainment(dt,r,c,true);
+            }
+        }
+    }
+
+
+
+}
+void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
+{
+
+    //get all parameters for entrainment either from 1D or 2D maps (channel or not)
+    double f = channel? UF1D_f->Drc : UF2D_f->Drc;
+    double s = channel? UF1D_s->Drc : UF2D_s->Drc;
+    double sf = channel? (UF1D_ssm->Drc + UF1D_blm->Drc) : (UF2D_ssm->Drc + UF2D_blm->Drc);
+    double sconc = f> 0? (s + sf)/(f) : 0.0;
+    double width = channel? UF1D_LDDw->Drc : _dx;
+    double area = width * DX->Drc;
+    double velocity = channel? std::fabs(UF1D_fu->Drc) : sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc);
+    double velocitys = channel? std::fabs(UF1D_su->Drc) : sqrt(UF2D_su->Drc*UF2D_su->Drc + UF2D_sv->Drc*UF2D_sv->Drc);
+    velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
+    double visc = channel? UF1D_visc->Drc : UF2D_visc->Drc;
+    double density = channel? UF1D_d->Drc : UF2D_d->Drc;
+    double rocksize = channel? UF1D_rocksize->Drc : UF2D_rocksize->Drc;
+    double ifa = channel? UF1D_ifa->Drc : UF2D_ifa->Drc;
+    double bed_density = SoilRockDensity->Drc;
+    double bed_ifa= SoilRockIFA->Drc;
+    double slope = channel? std::fabs(UF1D_Slope->Drc) : std::max(std::fabs(UF2D_SlopeX->Drc),std::fabs(UF2D_SlopeY->Drc));
+
+
+    double entrainment = UnifiedFlowActiveEntrainment(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa);
+
+    if(entrainment > 0)
+    {
+        UF_RockTake(r,c,entrainment,channel);
+    }else
+    {
+        //UF_RockAdd(r,c,entrainment,channel);
+    }
+
+
+
+}
+
+double TWorld::UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed)
+{
+
+    double entrainment = 0;
+    double h = (_f + _s)/(area);
+
+    if(!(h > UF_MINIMUMENTRAINMENTHEIGHT))
+    {
+        return 0;
+    }
+
+    double UF_SOILROCKPOROSITY = 0.65;
+
+    //Hungr
+    double dgamma = d/d_bed;
+    double sf = _f > 0? (_s/_f) :1.0;
+
+    entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: dt * area * ( UF_ENTRAINMENTCONSTANT * _fv);
+    //Egashira
+
+    /*double densdiff = (d - 1000.0);
+    double tanifa = tan(ifa_bed);
+    double tanalpha = tan(slope);
+    double tanalphae = tan( atan(densdiff/(densdiff + 1000.0))*tanifa);
+    entrainment = UF_ENTRAINMENTCONSTANT * area  * _sv * UF_SOILROCKPOROSITY * (tanalphae - tanalpha);*/
+
+    //Egashira can be negative, usefull to include?
+    //returns volume of entrainment
+    return std::max(0.0,entrainment);
+}
+
+double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
+{
+
+
+    if(channel)
+    {
+        //convert to kg, and limimt to present material
+
+        entrainment = std::min(RSoilRockMaterial->Drc, entrainment * RSoilRockDensity->Drc);
+        ChannelEntrainmentDet->Drc = entrainment;
+
+        RSoilRockMaterial->Drc -= entrainment;
+
+        //back to volume
+        entrainment = entrainment/RSoilRockDensity->Drc;
+        UF1D_d->Drc = (UF1D_s->Drc + entrainment) > UF_VERY_SMALL? (UF1D_s->Drc * UF1D_d->Drc + entrainment * RSoilRockDensity->Drc)/(UF1D_s->Drc + entrainment) : UF1D_d->Drc;
+        UF1D_rocksize->Drc = (UF1D_s->Drc + entrainment) > UF_VERY_SMALL? (UF1D_s->Drc * UF1D_rocksize->Drc + entrainment * RSoilRockSize->Drc)/(UF1D_s->Drc + entrainment) : UF1D_rocksize->Drc;
+        UF1D_ifa->Drc = (UF1D_s->Drc + entrainment) > UF_VERY_SMALL? (UF1D_s->Drc * UF1D_ifa->Drc + entrainment * RSoilRockIFA->Drc)/(UF1D_s->Drc + entrainment) : UF1D_ifa->Drc;
+        UF1D_s->Drc += entrainment;
+
+        return entrainment;
+    }else
+    {
+        if( SoilRockMaterial->Drc == 0)
+        {
+            return 0;
+        }
+        //convert to kg, and limimt to present material
+        entrainment = SoilRockDensity->Drc * entrainment;
+        entrainment = std::min(SoilRockMaterial->Drc, entrainment);
+        EntrainmentDet->Drc = entrainment;
+
+        SoilRockMaterial->Drc -= entrainment;
+
+        //back to volume
+        entrainment = entrainment/SoilRockDensity->Drc;
+        UF2D_d->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_d->Drc + entrainment * SoilRockDensity->Drc)/(UF2D_s->Drc + entrainment) : UF2D_d->Drc;
+        UF2D_rocksize->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_rocksize->Drc + entrainment * SoilRockSize->Drc)/(UF2D_s->Drc + entrainment) : UF2D_rocksize->Drc;
+        UF2D_ifa->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_ifa->Drc + entrainment * SoilRockIFA->Drc)/(UF2D_s->Drc + entrainment) : UF2D_ifa->Drc;
+        UF2D_s->Drc += entrainment;
+
+        return entrainment;
+    }
+
+
+}
+
+double TWorld::UF_RockAdd(int r, int c, double entrainment, bool channel)
+{
+    entrainment = std::fabs(entrainment);
+    if(channel)
+    {
+        //convert to kg, and limimt to present material
+        double entrainment = std::min(UF1D_s->Drc, entrainment * UF1D_d->Drc);
+        EntrainmentDep->Drc = entrainment;
+        UF1D_s->Drc -= entrainment;
+
+        RSoilRockDensity->Drc = (RSoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF1D_d->Drc + RSoilRockMaterial->Drc * RSoilRockDensity->Drc)/(RSoilRockMaterial->Drc + entrainment) : RSoilRockDensity->Drc;
+        RSoilRockSize->Drc = (RSoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF1D_rocksize->Drc + RSoilRockMaterial->Drc * RSoilRockSize->Drc)/(RSoilRockMaterial->Drc + entrainment) : RSoilRockSize->Drc;
+        RSoilRockIFA->Drc = (RSoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF1D_ifa->Drc + RSoilRockMaterial->Drc * RSoilRockIFA->Drc)/(RSoilRockMaterial->Drc + entrainment) : RSoilRockIFA->Drc;
+        RSoilRockMaterial->Drc += entrainment;
+    }else
+    {
+        //convert to kg, and limimt to present material
+        double entrainment = std::min(UF2D_s->Drc, entrainment * UF1D_d->Drc);
+        EntrainmentDep->Drc = entrainment;
+        UF2D_s->Drc -= entrainment;
+
+        SoilRockDensity->Drc = (SoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF2D_d->Drc + SoilRockMaterial->Drc * SoilRockDensity->Drc)/(SoilRockMaterial->Drc + entrainment) : SoilRockDensity->Drc;
+        SoilRockSize->Drc = (SoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF2D_rocksize->Drc + SoilRockMaterial->Drc * SoilRockSize->Drc)/(SoilRockMaterial->Drc + entrainment) : SoilRockSize->Drc;
+        SoilRockIFA->Drc = (SoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF2D_ifa->Drc + SoilRockMaterial->Drc * SoilRockIFA->Drc)/(SoilRockMaterial->Drc + entrainment) : SoilRockIFA->Drc;
+        SoilRockMaterial->Drc += entrainment;
+    }
+
+
 
 }

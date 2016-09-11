@@ -195,12 +195,6 @@ void lisemqt::on_checkBuffers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
-    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
-    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    if(checkBuffers->isChecked())
-        checkBuffers->setChecked(false);
 
 }
 //--------------------------------------------------------------------
@@ -264,8 +258,6 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
     checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
-    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
-    checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
 
     int nr = E_InfiltrationMethod->currentIndex();
     if (nr == 0)
