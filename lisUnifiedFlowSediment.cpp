@@ -123,7 +123,7 @@ void TWorld::UF_SedimentSource(double dt)
         {
             FOR_GRAIN_CLASSES
             {
-                UF2D_ssm_D.Drcd += W_D.Drcd * DETSplash->Drc;
+                UF2D_ssm_D.Drcd += std::fabs(W_D.Drcd * DETSplash->Drc);
             }
         }
     }
@@ -237,7 +237,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        tobl = TransportFactor * minTC;
 
-       //tobl = std::min(std::fabs(tobl),std::fabs(TSS->Drc));
+       tobl = std::min(std::fabs(tobl),std::fabs(TSS->Drc));
        TBL->Drc += std::fabs(tobl);
        TSS->Drc -= std::fabs(tobl);
 
@@ -254,7 +254,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        detachment = UF_SoilTake(r,c,d,detachment,channel,false);
 
        //### sediment balance
-       TSS->Drc += detachment;
+       TSS->Drc += std::fabs(detachment);
        double sssmax = MAXCONC * watervol;
        if(sssmax < TSS->Drc)
        {
@@ -287,7 +287,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
            TBL->Drc = blsmax;
        }
        //### detachment
-       /*TransportFactor = dt*TSettlingVelocity * DX->Drc *(channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
+       TransportFactor = dt*TSettlingVelocity * DX->Drc *(channel? UF1D_LDDw->Drc : SoilWidthDX->Drc);
        // detachment can only come from soil, not roads (so do not use flowwidth)
        // units s * m/s * m * m = m3
 
@@ -297,7 +297,9 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // cannot have more detachment than remaining capacity in flow
        // use discharge because standing water has no erosion
 
-       detachment = UF_SoilTake(r,c,d,detachment,channel,false);*/
+       //detachment = UF_SoilTake(r,c,d,detachment,channel,false);
+       // IN KG/CELL
+       //TBL->Drc += detachment;
 
        ////bed load sediment deposition
        if (blhf > MIN_HEIGHT)
@@ -318,9 +320,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // cannot have more depo than sediment presen
 
        UF_SoilAdd(r,c,d,-std::fabs(deposition),channel);
-
        // IN KG/CELL
-       //TBL->Drc += detachment;
        TBL->Drc -= std::fabs(deposition);
 
     }
@@ -341,7 +341,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
     }
 
     //use overland flow equations
-    if(hf < 5)
+    if(hf < 0.15)
     {
         if(bedload)
         {

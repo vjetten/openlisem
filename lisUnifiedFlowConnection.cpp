@@ -91,28 +91,28 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
 
                     if(SwitchErosion)
                     {
-                        double blconc =  _f2D->Drc > 0? UF2D_blm->Drc/ _f2D->Drc :0.0;
-                        double ssconc =  _f2D->Drc > 0? UF2D_ssm->Drc/ _f2D->Drc :0.0;
-
-                        UF2D_blm->Drc -= blconc * volf;
-                        UF1D_blm->Drc += blconc * volf;
-                        UF2D_ssm->Drc -= ssconc * volf;
-                        UF1D_ssm->Drc += ssconc * volf;
+                        double blconc = _f2D > 0? UF2D_blm->Drc/ _f2D->Drc : 0.0;
+                        double ssconc = _f2D > 0? UF2D_ssm->Drc/ _f2D->Drc : 0.0;
+                        double qbls = std::min(UF2D_blm->Drc,blconc * volf);
+                        double qsss = std::min(UF2D_ssm->Drc,ssconc * volf);
+                        UF1D_blm->Drc += qbls;
+                        UF2D_blm->Drc -= qbls;
+                        UF1D_ssm->Drc += qsss;
+                        UF2D_ssm->Drc -= qsss;
 
                         if(SwitchUseGrainSizeDistribution)
                         {
                             FOR_GRAIN_CLASSES
                             {
-                                double blconc =  _f2D->Drc > 0? UF2D_blm_D.Drcd/ _f2D->Drc :0.0;
-                                double ssconc =  _f2D->Drc > 0? UF2D_ssm_D.Drcd/ _f2D->Drc :0.0;
-
-                                UF2D_blm_D.Drcd -= blconc * volf;
-                                UF1D_blm_D.Drcd += blconc * volf;
-                                UF2D_ssm_D.Drcd -= ssconc * volf;
-                                UF1D_ssm_D.Drcd += ssconc * volf;
-
+                                double blconc2 = _f2D > 0? UF2D_blm_D.Drcd / _f2D->Drc :0.0;
+                                double ssconc2 = _f2D > 0? UF2D_ssm_D.Drcd / _f2D->Drc : 0.0;
+                                double qbls2 = std::min(UF2D_blm_D.Drcd,blconc2 * volf);
+                                double qsss2 = std::min(UF2D_ssm_D.Drcd,ssconc2 * volf);
+                                UF1D_blm_D.Drcd += qbls2;
+                                UF2D_blm_D.Drcd -= qbls2;
+                                UF1D_ssm_D.Drcd += qsss2;
+                                UF2D_ssm_D.Drcd -= qsss2;
                             }
-
                         }
                     }
 
@@ -138,23 +138,25 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                     {
                         double blconc = _f1D > 0? UF1D_blm->Drc/ _f1D->Drc : 0.0;
                         double ssconc = _f1D > 0? UF1D_ssm->Drc/ _f1D->Drc : 0.0;
-
-                        UF1D_blm->Drc -= blconc * volf;
-                        UF2D_blm->Drc += blconc * volf;
-                        UF1D_ssm->Drc -= ssconc * volf;
-                        UF2D_ssm->Drc += ssconc * volf;
+                        double qbls = std::min(UF1D_blm->Drc,blconc * volf);
+                        double qsss = std::min(UF1D_ssm->Drc,ssconc * volf);
+                        UF1D_blm->Drc -= qbls;
+                        UF2D_blm->Drc += qbls;
+                        UF1D_ssm->Drc -= qsss;
+                        UF2D_ssm->Drc += qsss;
 
                         if(SwitchUseGrainSizeDistribution)
                         {
                             FOR_GRAIN_CLASSES
                             {
-                                double blconc = _f1D > 0? UF1D_blm_D.Drcd / _f1D->Drc :0.0;
-                                double ssconc = _f1D > 0? UF1D_ssm_D.Drcd / _f1D->Drc : 0.0;
-
-                                UF1D_blm_D.Drcd -= blconc * volf;
-                                UF2D_blm_D.Drcd += blconc * volf;
-                                UF1D_ssm_D.Drcd -= ssconc * volf;
-                                UF2D_ssm_D.Drcd += ssconc * volf;
+                                double blconc2 = _f1D > 0? UF1D_blm_D.Drcd / _f1D->Drc :0.0;
+                                double ssconc2 = _f1D > 0? UF1D_ssm_D.Drcd / _f1D->Drc : 0.0;
+                                double qbls2 = std::min(UF1D_blm_D.Drcd,blconc2 * volf);
+                                double qsss2 = std::min(UF1D_ssm_D.Drcd,ssconc2 * volf);
+                                UF1D_blm_D.Drcd -= qbls2;
+                                UF2D_blm_D.Drcd += qbls2;
+                                UF1D_ssm_D.Drcd -= qsss2;
+                                UF2D_ssm_D.Drcd += qsss2;
                             }
                         }
                     }
@@ -187,28 +189,39 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
 
                 if(SwitchErosion)
                 {
-                    double blconc =  _f2D->Drc > 0? UF2D_blm->Drc/ _f2D->Drc : 0.0;
-                    double ssconc =  _f2D->Drc > 0? UF2D_ssm->Drc/ _f2D->Drc :0.0;
+                    if(UF1D_blm->Drc < 0 || UF1D_ssm->Drc < 0)
+                    {
+                        qDebug() << "neg 1" << r << c << UF1D_blm->Drc << UF1D_ssm->Drc << UF2D_blm->Drc << UF2D_ssm->Drc;
+                    }
+                    double blconc = _f2D > 0? UF2D_blm->Drc/ _f2D->Drc : 0.0;
+                    double ssconc = _f2D > 0? UF2D_ssm->Drc/ _f2D->Drc : 0.0;
+                    double qbls = std::min(UF2D_blm->Drc,blconc * volf);
+                    double qsss = std::min(UF2D_ssm->Drc,ssconc * volf);
+                    UF1D_blm->Drc += qbls;
+                    UF2D_blm->Drc -= qbls;
+                    UF1D_ssm->Drc += qsss;
+                    UF2D_ssm->Drc -= qsss;
 
-                    UF2D_blm->Drc -= blconc * volf;
-                    UF1D_blm->Drc += blconc * volf;
-                    UF2D_ssm->Drc -= ssconc * volf;
-                    UF1D_ssm->Drc += ssconc * volf;
+                    if(UF1D_blm->Drc < 0 || UF1D_ssm->Drc < 0)
+                    {
+                        //UF1D_ssm->Drc = 0;
+                        //UF1D_ssm->Drc = 0;
+                        qDebug() << "neg 2" << r << c << UF1D_blm->Drc << UF1D_ssm->Drc << UF2D_blm->Drc << UF2D_ssm->Drc;
+                    }
 
                     if(SwitchUseGrainSizeDistribution)
                     {
                         FOR_GRAIN_CLASSES
                         {
-                            double blconc =  _f2D->Drc > 0? UF2D_blm_D.Drcd/ _f2D->Drc:0.0;
-                            double ssconc =  _f2D->Drc > 0? UF2D_ssm_D.Drcd/ _f2D->Drc:0.0;
-
-                            UF2D_blm_D.Drcd -= blconc * volf;
-                            UF1D_blm_D.Drcd += blconc * volf;
-                            UF2D_ssm_D.Drcd -= ssconc * volf;
-                            UF1D_ssm_D.Drcd += ssconc * volf;
-
+                            double blconc2 = _f2D > 0? UF2D_blm_D.Drcd / _f2D->Drc :0.0;
+                            double ssconc2 = _f2D > 0? UF2D_ssm_D.Drcd / _f2D->Drc : 0.0;
+                            double qbls2 = std::min(UF2D_blm_D.Drcd,blconc2 * volf);
+                            double qsss2 = std::min(UF2D_ssm_D.Drcd,ssconc2 * volf);
+                            UF1D_blm_D.Drcd += qbls2;
+                            UF2D_blm_D.Drcd -= qbls2;
+                            UF1D_ssm_D.Drcd += qsss2;
+                            UF2D_ssm_D.Drcd -= qsss2;
                         }
-
                     }
                 }
 

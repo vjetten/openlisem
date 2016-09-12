@@ -72,7 +72,7 @@ void TWorld::UF_Init()
 
     //internal use
     UF_1DACTIVE = SwitchIncludeChannel;
-    UF_SCHEME = getvaluedouble("Surface Flow Scheme") == 1? UF_SCHEME_CENTRALSIMPLE : UF_SCHEME_BOUNDARYMUSCLE;
+    UF_SCHEME =/* getvaluedouble("Surface Flow Scheme") == 1? UF_SCHEME_CENTRALSIMPLE :*/ UF_SCHEME_BOUNDARYMUSCLE;
     UF_DTMIN = 0;
     UF_SOLIDPHASE = SwitchSolidPhase;
     UF_CHANNELFLOOD = SwitchChannelFlood;

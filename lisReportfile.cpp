@@ -1285,6 +1285,18 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"UF2D_qsx2" ,"kg/m2",UF2D_sqx2,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF2D_qsy1" ,"kg/m2",UF2D_sqy1,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF2D_qsy2" ,"kg/m2",UF2D_sqy2,Colormap,Colors,false,false,1.0,1.0);*/
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#A60000");
+    Colors.append("#FF0000");
+    Colors.append("#FFFF00");
+    Colors.append("#00FF00");
+    Colors.append("#007300");
 
     AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
     AddComboMap(0,"UF1D_DTStep" ,"kg/m2",UF1D_DTStep,Colormap,Colors,false,false,1.0,1.0);
@@ -1335,18 +1347,25 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
         AddComboMap(1,"Flow detachment","kg/m2",DETFlowCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
+        AddComboMap(1,"UF1D_blm","kg/m2",UF1D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF1D_ssm","kg/m2",UF1D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF2D_blm","kg/m2",UF2D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF2D_ssm","kg/m2",UF2D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
+        AddComboMap(1,"UF1D_bltc","kg/m2",UF1D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF1D_sstc","kg/m2",UF1D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF2D_bltc","kg/m2",UF2D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"UF2D_sstc","kg/m2",UF2D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
+
         Colormap.clear();
         Colormap.append(0.0);
-      //  Colormap.append(0.3);
         Colormap.append(0.5);
-     //   Colormap.append(0.70);
         Colormap.append(1.0);
         Colors.clear();
         Colors.append("#ffffff");
-        Colors.append("#50B547");//#96B547");
-        Colors.append("#616ca2");//#457A60");
-//        Colors.append("#FFFF00");
-//        Colors.append("#FF0000");
+        Colors.append("#50B547");
+        Colors.append("#616ca2");
         AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
 
         if(SwitchEntrainment)

@@ -741,7 +741,7 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                 double vxr = rfu + dtx1 * rfa;
                 rhf = std::min(rhf,std::max(0.0,(vxr > 0? 1.0:-1.0)*((rhf) - (_f->data[r2][c2]/(_dx*_dx) + UF1D_Slope->Drc * _dx))));
 
-                double cqt = 0.25 * UF_Courant * (volxr);
+                double cqt = 0.5 * UF_Courant * (volxr);
 
                 double q1 = 0.5 *dtx1 * (vxr) * rhf *_lddw->Drc;
                 q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
@@ -808,7 +808,7 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                         double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
                         double vxl = lfu + dtx1 * lfa;
                         lhf = std::min(lhf,std::max(0.0,(vxl > 0? 1.0:-1.0)*((lhf) - (_f->data[r2][c2]/(_dx*_dx) - UF1D_Slope->Drc * _dx))));
-                        double cqt = 0.25 * UF_Courant * (volxl);
+                        double cqt = 0.5 * UF_Courant * (volxl);
                         double q2 = 0.5 *dtx1 * (vxl) * lhf *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
 
                         q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
@@ -952,7 +952,7 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                 double vxr = rsu + dtx1 * rsa;
                 rhs = std::min(rhs,std::max(0.0,(vxr > 0? 1.0:-1.0)*((rhs) - (_s->data[r2][c2]/(_dx*_dx) + UF1D_Slope->Drc * _dx))));
 
-                double cqt = 0.25 * UF_Courant * (volxr);
+                double cqt = 0.5 * UF_Courant * (volxr);
 
                 double q1 = 0.5 *dtx1 * (vxr) * rhs *_lddw->Drc;
                 q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
@@ -1023,7 +1023,7 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                         double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
                         double vxl = lsu + dtx1 * lsa;
                         lhs = std::min(lhs,std::max(0.0,(vxl > 0? 1.0:-1.0)*((lhs) - (_s->data[r2][c2]/(_dx*_dx) - UF1D_Slope->Drc * _dx))));
-                        double cqt = 0.25 * UF_Courant * (volxl);
+                        double cqt = 0.5 * UF_Courant * (volxl);
                         double q2 = 0.5 *dtx1 * (vxl) * lhs *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
 
                         q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
