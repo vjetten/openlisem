@@ -1281,7 +1281,7 @@ void TWorld::GetInputData(void)
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
-    difkin =  NewMap(0); // temp map for aux calculations
+    //difkin =  NewMap(0); // temp map for aux calculations
 
     for (int i = 0; i < 32; i++)
         SubsMaps[i].m = NULL;  // initialize substance structures

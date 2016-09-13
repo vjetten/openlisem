@@ -148,6 +148,8 @@ void TWorld::K2DInit()
             else
                 K2DQ->Drc = pow((dy*hrunoff)/Alpha->Drc, 1.0/0.6);
 
+            K2DQ->Drc = pow(R->Drc, 2.0/3.0)*sqrt(K2DSlope->Drc)/N->Drc *dy*hrunoff;
+
             //temporarily store in Qn (new)
             Qn->Drc = K2DQ->Drc;
 
@@ -1297,8 +1299,7 @@ void TWorld::K2DDEMA()
 
         }
         //minimum value for the slope
-        K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
-
+        K2DSlope->Drc = std::max(K2DSlope->Drc,MINGRAD);
     }
 
     //cell directions

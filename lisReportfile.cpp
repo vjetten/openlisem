@@ -120,8 +120,9 @@ void TWorld::OutputUI(void)
 
     //display maps
     fill(*COMBO_QOFCH, 0.0);
-    calcMap(*COMBO_QOFCH, *Q, ADD);
-    calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
+    calcMap(*COMBO_QOFCH, *Qn, ADD);
+    calcMap(*COMBO_QOFCH, *ChannelQn, ADD);
+    //VJ changed this to Qn and channel Qn
 
     if(SwitchKinematic2D != K1D_METHOD)
     FOR_ROW_COL_MV
@@ -1101,12 +1102,11 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    AddComboMap(0,"Overland Discharge","l/s",Qn,Colormap,Colors,true,false,1000.0, 1.0);
     if(SwitchIncludeChannel)
-    {
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0);
         AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
-    }
+    AddComboMap(0,"Overland Discharge","l/s",Qn,Colormap,Colors,true,false,1000.0, 1.0); //VJ changed to Qn instead of Q
+    if(SwitchIncludeChannel)
+        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0); //Chnaged thhis to ChannelQn
 
     Colormap.clear();
     Colormap.append(0.0);
@@ -1133,7 +1133,7 @@ void TWorld::GetComboMaps()
     Colors.append("#0023b1");
     Colors.append("#001462");
 
-    AddComboMap(0,"Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Overland Flow Height","m",  K2DWHStore/*WHrunoff*/,Colormap,Colors,false,false,1.0, 0.01);
 
     if(InfilMethod != INFIL_NONE)
     {
@@ -1262,7 +1262,7 @@ void TWorld::GetComboMaps()
         Colormap.append(0.5);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#ddddbb");
+        Colors.append("#EEEfcd");
         Colors.append("#50B547");//#96B547");
         Colors.append("#616ca2");//#457A60");
         AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
@@ -1277,7 +1277,7 @@ void TWorld::GetComboMaps()
             Colors.clear();
             Colors.append("#FAFAD2");
             Colors.append("#FFFF66");
-            Colors.append("#808000");
+            Colors.append("#d47e17");
             Colors.append("#804000");
 
             FOR_GRAIN_CLASSES

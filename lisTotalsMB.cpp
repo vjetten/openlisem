@@ -333,13 +333,14 @@ void TWorld::Totals(void)
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            if(SwitchKinematic2D == 1)
-            {
+// also kin2d results in Qsn
+//            if(SwitchKinematic2D == 1)
+//            {
                 Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
-            }else
-            {
+//            }else
+//            {
                 Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
-            }
+//            }
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
