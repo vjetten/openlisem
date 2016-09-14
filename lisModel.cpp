@@ -185,6 +185,7 @@ void TWorld::DoModel()
             CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
             SplashDetachment();    // splash detachment
+
             FlowDetachment();      // flow detachment
 
             //Pestmobilisation();  // experimental
@@ -208,8 +209,6 @@ void TWorld::DoModel()
 
             TileFlow();          // tile drain flow kin wave
 
-            //SumSedimentClasses();  //sum the induvidual sediment class layers
-
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
@@ -221,11 +220,9 @@ void TWorld::DoModel()
             efout.flush();
             efout.close();
 
-            //DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
 
-            //DEBUG("Report to interface");
 
             OutputUI();          // fill the "op" structure for screen output
             // show after report calc is done

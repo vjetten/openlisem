@@ -123,11 +123,14 @@ void TWorld::OutputUI(void)
     calcMap(*COMBO_QOFCH, *Q, ADD);
     calcMap(*COMBO_QOFCH, *ChannelQ, ADD);
 
-    FOR_ROW_COL_MV
+    if(SwitchKinematic2D != K1D_METHOD)
     {
-        if(K2DOutlets->Drc ==1)
+        FOR_ROW_COL_MV
         {
-            V->Drc = 0;
+            if(K2DOutlets->Drc ==1)
+            {
+                V->Drc = 0;
+            }
         }
     }
 
@@ -1133,6 +1136,10 @@ void TWorld::GetComboMaps()
 
     AddComboMap(0,"Overland Flow Height","m",WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
 
+    if(SwitchKinematic2D > 1)
+    {
+        AddComboMap(0,"whstore","m",K2DWHStore,Colormap,Colors,false,false,1.0, 0.01);
+    }
     if(InfilMethod != INFIL_NONE)
     {
         Colormap.clear();

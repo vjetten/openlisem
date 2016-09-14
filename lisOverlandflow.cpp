@@ -157,7 +157,36 @@ void TWorld::ToChannel(void)
     {
         double fractiontochannel;
         double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+        double v = V->Drc;
 
+        //K2D... maps are not initialized when 1D runoff is chosen
+        //every 2D runoff specific code section must be performed within an if statement
+        if(SwitchKinematic2D != K1D_METHOD)
+        {
+            //in case of a local depression, velocity was set to 0, leading to 0 channel inflow.
+            //Once the depression filled above capacity, all water would in one timestep flow into the channel
+            //this gave oscillating discharge.
+
+            //now set the velocity temporarily according to manning's equation with the hydraulic slope as slope.
+            if(K2DWHStore->Drc >0)
+            {
+                double hrunoff = std::max(WHrunoff->Drc,0.0);
+
+                double Perim;
+                const double beta = 0.6;
+                const double _23 = 2.0/3.0;
+                double beta1 = 1/beta;
+                double NN = N->Drc;
+                double R = 0;
+                Perim = 2.0*hrunoff+FlowWidth->Drc;
+                if (Perim > 0)
+                    R = hrunoff*FlowWidth->Drc/Perim;
+                else
+                    R = 0;
+                double Slope = hrunoff/_dx;
+                v = pow(R, _23)*sqrt(Slope)/NN;
+            }
+        }
 
         if (Volume == 0)
         {
@@ -169,7 +198,7 @@ void TWorld::ToChannel(void)
         if (ChannelAdj->Drc == 0)
             fractiontochannel = 1.0;
         else
-            fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
+            fractiontochannel = std::min(1.0, _dt*v/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
         // fraction to channel calc from half the adjacent area width and flow velocity
 
         if (SwitchBuffers)
@@ -660,16 +689,33 @@ void TWorld::OverlandFlowNew(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+        if(SwitchKinematic2D != K1D_METHOD)
         {
-            if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
-                V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+            if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+            {
+                if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
+                    V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+                else
+                    V->Drc = 0;
+            }
             else
+            {
                 V->Drc = 0;
-        }
-        else
+            }
+        }else
         {
-            V->Drc = 0;
+            if(Grad->Drc != 0)
+            {
+                if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
+                    V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+                else
+                    V->Drc = 0;
+            }
+            else
+            {
+                V->Drc = 0;
+            }
+
         }
         // recalc velocity for output to map, is not used in other processes
 
@@ -711,7 +757,6 @@ void TWorld::OverlandFlowNew(void)
             }
         }
     }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)

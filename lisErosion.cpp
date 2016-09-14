@@ -326,9 +326,18 @@ double TWorld::OFTC(int r, int c, int d)
         return 0;
     }
 
-    if(K2DSlope->Drc < MIN_HEIGHT)
+    if(SwitchKinematic2D != K1D_METHOD)
     {
-        return 0;
+        if(K2DSlope->Drc < MIN_HEIGHT)
+        {
+            return 0;
+        }
+    }else
+    {
+        if(Grad->Drc < MIN_HEIGHT)
+        {
+            return 0;
+        }
     }
 
     //use Govers transport capacity equation
@@ -1154,8 +1163,6 @@ void TWorld::FlowDetachment(void)
         }
    }
 
-
-
    //VJ 110829 TC cannot be more than surrounding cells, this limits the spikes in deposition and erosion
    if (SwitchLimitTC)
    {
@@ -1224,7 +1231,7 @@ void TWorld::FlowDetachment(void)
        {
           double erosionwh = WHrunoff->Drc;
           double erosionwv = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
-          if(SwitchKinematic2D > 1)
+          if(SwitchKinematic2D != K1D_METHOD)
           {
               erosionwh = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0);
               erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
