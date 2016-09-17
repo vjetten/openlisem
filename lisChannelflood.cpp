@@ -484,6 +484,7 @@ void TWorld::ChannelFlood(void)
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;
+    if (area > 0)
     debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));
     // some screen error reporting
 
