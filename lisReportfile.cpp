@@ -1133,7 +1133,7 @@ void TWorld::GetComboMaps()
     Colors.append("#0023b1");
     Colors.append("#001462");
 
-    AddComboMap(0,"Overland Flow Height","m",  K2DWHStore/*WHrunoff*/,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Overland Flow Height","m",  /*K2DWHStore*/WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
 
     if(InfilMethod != INFIL_NONE)
     {
@@ -1166,10 +1166,10 @@ void TWorld::GetComboMaps()
 //    calcMap(*tm,*SnowmeltCum, ADD);
 //    copy(*tma, *Rain );
 //    calcMap(*tma,*Snowmelt, ADD);
-//    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1.0,1.0);
-//    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1.0,1.0);
+//    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1000.0,1.0);
+//    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1000.0,1.0);
+    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1000.0,0.1);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1000.0,0.1);
 
     if(SwitchChannelFlood)
     {
@@ -1360,7 +1360,7 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.ComboSymColor.append(symcol);
     op.ComboMapNames.append(name);
     op.ComboUnits.append(unit);
-    op.ComboScaling.append(scale);
+    op.ComboScaling.append(scale);  // multiplier for display
     op.userMinV.append(0);  //initialize to 0, used to save users choice
     op.userMaxV.append(0);
     op.comboStep.append(step);
