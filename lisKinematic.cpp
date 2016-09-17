@@ -156,7 +156,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     const double beta = 0.6;
 
     /* common terms */
-    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+     // ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
     // derivative of diagonal average (space-time)
 
     deltaTX = deltaT/deltaX;
@@ -329,7 +329,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             }
 
             bool isBufferCellWater = false; // check if buffer is full, true means not full
-            bool isBufferCellSed = false;
+            //bool isBufferCellSed = false;
 
             //if buffers, add the incoming water Qin to the buffer
             if(SwitchBuffers)

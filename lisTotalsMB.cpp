@@ -73,7 +73,7 @@ void TWorld::Totals(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm += mapAverage(*Snowmelt)*1000;
+        SnowAvgmm = mapAverage(*Snowmelt)*1000;
         SnowTotmm += SnowAvgmm;
 
         calcMapValue(*tm, *Snowmelt, (_dx*_dx), MUL); //in m3
@@ -315,7 +315,7 @@ void TWorld::Totals(void)
                 FloodDetTot += mapTotal(*BLDetFloodT);  // used for screen output
                 FloodDetTot += mapTotal(*SSDetFloodT);
 
-                FloodDepTot += mapTotal(*BLDepFloodT);
+                FloodSedTot += mapTotal(*BLDepFloodT);
                 FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
 
                 calcMap(*DETFlowCum, *BLDetFloodT, ADD);
@@ -333,13 +333,14 @@ void TWorld::Totals(void)
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            if(SwitchKinematic2D == 1)
-            {
+// also kin2d results in Qsn
+//            if(SwitchKinematic2D == 1)
+//            {
                 Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
-            }else
-            {
+//            }else
+//            {
                 Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
-            }
+//            }
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;

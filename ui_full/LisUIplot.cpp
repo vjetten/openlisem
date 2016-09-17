@@ -36,6 +36,8 @@
 #include "lisemqt.h"
 #include "global.h"
 
+#define DIGITS 3
+
 //---------------------------------------------------------------------------
 /// set up discharge plot, graphics part (not data)
 /// this is called at the start of lisem, initplot() is called at the start of a model run
@@ -521,22 +523,22 @@ void lisemqt::startPlots()
 
 
 
-    outPoints = new QwtPlotCurve("");
-    outPoints->attach(MPlot);
-    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
-   // outPoints->setStyle(CurveStyle::NoCurve);
-   // outPoints->symbol.setSize(10);
-    outPoints->setPen(QPen("#000000"));
+//    outPoints = new QwtPlotCurve("");
+//    outPoints->attach(MPlot);
+//    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
+//   // outPoints->setStyle(CurveStyle::NoCurve);
+//   // outPoints->symbol.setSize(10);
+//    outPoints->setPen(QPen("#000000"));
 
-    QVector <double> YY;
-    QVector <double> XX;
+//    QVector <double> YY;
+//    QVector <double> XX;
 
-    for (int j = 1; j < OutletIndices.length(); j++)
-    {
-        XX << (double)op.OutletLocationX.at(j);
-        YY << (double)op.OutletLocationY.at(j);
-    }
-    outPoints->setSamples(XX,YY);
+//    for (int j = 1; j < OutletIndices.length(); j++)
+//    {
+//        XX << (double)op.OutletLocationX.at(j);
+//        YY << (double)op.OutletLocationY.at(j);
+//    }
+//    outPoints->setSamples(XX,YY);
 }
 
 //---------------------------------------------------------------------------
@@ -562,13 +564,15 @@ void lisemqt::SetTextHydrographs()
     }
     int j = OutletIndices.indexOf(this->outletpoint);
 
-    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',3));
-    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',3));
-    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',3));
-    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',3));
+    double dig = spinBoxDigits->value(); //DIGITS;
+
+    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',dig));
+    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',dig));
+    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',dig));
+    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',dig));
 
     if(checkDoErosion->isChecked())
-        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',2));
+        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',dig));
 
     int steps = OutletQ.at(0)->length();
     for(int i = 0; i < steps; i++)
@@ -634,40 +638,42 @@ void lisemqt::showOutputData()
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
 
-    label_dx->setText(QString::number(op.dx,'f',3));
-    label_area->setText(QString::number(op.CatchmentArea/1000000,'f',3));
-    label_time->setText(QString::number(op.time,'f',3));
-    label_endtime->setText(QString::number(op.EndTime,'f',3));
-    label_runtime->setText(QString::number(op.t,'f',3));
-    label_endruntime->setText(QString::number(op.maxtime,'f',3));
+    double dig = spinBoxDigits->value();//DIGITS;
+
+    label_dx->setText(QString::number(op.dx,'f',dig));
+    label_area->setText(QString::number(op.CatchmentArea/1000000,'f',dig));
+    label_time->setText(QString::number(op.time,'f',dig));
+    label_endtime->setText(QString::number(op.EndTime,'f',dig));
+    label_runtime->setText(QString::number(op.t,'f',dig));
+    label_endruntime->setText(QString::number(op.maxtime,'f',dig));
 
     // mass balance
-    label_MB->setText(QString::number(op.MB,'e',3));
+    label_MB->setText(QString::number(op.MB,'e',dig));
 
     // mm output
-    label_raintot->setText(QString::number(op.RainTotmm,'f',3));
-    label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',3));
-    label_qtot->setText(QString::number(op.Qtotmm,'f',3));
-    label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
-    label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
-    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.LitterStorageTotmm,'f',3));
-    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
+    label_raintot->setText(QString::number(op.RainTotmm,'f',dig));
+    label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',dig));
+    label_qtot->setText(QString::number(op.Qtotmm,'f',dig));
+    label_infiltot->setText(QString::number(op.InfilTotmm,'f',dig));
+    label_surfstor->setText(QString::number(op.SurfStormm,'f',dig));
+    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.LitterStorageTotmm,'f',dig));
+    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',dig));
 
-    label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',3));
-    label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',3));
-    //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',3));
+    label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',dig));
+    label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',dig));
+    //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
 
     // outlet
     //    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
     //    label_discharge->setText(QString::number(op.Q,'f',2));
 
     // peak time
-    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',3));
-    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',3));
+    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',dig));
+    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',dig));
 
     if(checkDoErosion->isChecked())
     {
-        int dig = 2;
+        int dig = spinBoxDigits->value();//DIGITS;
         label_MBs->setText(QString::number(op.MBs,'e',dig));
         label_splashdet->setText(QString::number(op.DetTotSplash,'f',dig));
         label_flowdet->setText(QString::number(op.DetTotFlow,'f',dig));
@@ -680,7 +686,7 @@ void lisemqt::showOutputData()
 
         label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
         label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
-        label_floodsed->setText(QString::number(op.FloodSed,'f',dig));
+        label_floodsed->setText(QString::number(op.FloodSedTot,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

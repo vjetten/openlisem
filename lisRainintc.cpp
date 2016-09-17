@@ -116,10 +116,15 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         }
     }
 
-    int nr = countUnits(*RainZone);
-    if (nr != nrStations-1)
+    int nrmap = 0;
+    if (israinfall)
+        nrmap = countUnits(*RainZone);
+    else
+        nrmap = countUnits(*SnowmeltZone);
+
+    if (nrmap > nrStations-1)
     {
-        ErrorString = QString("Number of stations in rainfall file (%1) does not match number of units in ID map (%2)").arg(nrStations-1).arg(nr);
+        ErrorString = QString("Number of stations in rainfall file (%1) < than of rainfall zones in ID map (%2)").arg(nrStations-1).arg(nrmap);
         throw 1;
     }
 
@@ -212,9 +217,11 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     else
         nrSnowmeltseries = nrSeries;
 
-    //  for (int i = 0; i < RainfallSeriesM.count(); i++)
-    //     qDebug() << RainfallSeriesM[i].time <<RainfallSeriesM[i].intensity << RainfallSeriesM[i].name;
+//      for (int i = 0; i < RainfallSeriesM.count(); i++)
+//         qDebug() << "rain" << RainfallSeriesM[i].time <<RainfallSeriesM[i].intensity << RainfallSeriesM[i].name;
 
+//      for (int i = 0; i < SnowmeltSeriesM.count(); i++)
+//         qDebug() << " snow" << SnowmeltSeriesM[i].time <<SnowmeltSeriesM[i].intensity << SnowmeltSeriesM[i].name;
 }
 //---------------------------------------------------------------------------
 /**
@@ -225,7 +232,6 @@ rainfall intensity read is that reported with the current line: example\n
 etc. */
 void TWorld::RainfallMap(void)
 {
-    //double timemin = time / 60;  //time in minutes
     double timeminprev = (time-_dt) / 60; //prev time in minutes
     int  rainplace;
     double tt = 3600000.0;
@@ -288,113 +294,5 @@ void TWorld::RainfallMap(void)
 
     }
 }
-//---------------------------------------------------------------------------
-
-/// read rainfall files of different types and put data in RainfallSeries
-/// reads also old RUU lisem rain files
-/// reads rainfall maps
-//OBSOLETE
-/*
-void TWorld::GetRainfallData(void)
-{
-   QFile fff(rainFileName);
-   QFileInfo fi(rainFileName);
-   QString S;
-   bool ok;
-   int j = 0;
-
-   if (!fi.exists())
-   {
-      ErrorString = "Rainfall file not found: " + rainFileName;
-      throw 1;
-   }
-
-   nrstations = 0;
-   nrrainfallseries = 0;
-
-   fff.open(QIODevice::ReadOnly | QIODevice::Text);
-   S = fff.readLine();
-   // read the header
-   while (S.isEmpty())
-      S = fff.readLine();
-   // skip empty lines
-
-   QStringList SL = S.split(QRegExp("\\s+")); //<== white space character as split
-   nrstations = SL[SL.size()-2].toInt(&ok, 10);
-   if (!ok)
-   {
-      ErrorString = "Cannot read nr rainfall stations in header rainfall file";
-      throw 1;
-   }
-
-   for(int r=0; r < nrstations+1; r++)
-      S = fff.readLine();
-   // read column headers
-
-   while (!fff.atEnd())
-   {
-      S = fff.readLine();
-      qDebug() << S << nrrainfallseries;
-      if (!S.trimmed().isEmpty())
-         nrrainfallseries++;
-      qDebug() << S << nrrainfallseries;
-   }
-   // count rainfall records, skip empty lines
-
-
-   if (nrrainfallseries <= 1)
-   {
-      ErrorString = "rainfall records <= 1, must at least have one interval with a begin and end time.";
-      throw 1;
-   }
-
-
-   nrrainfallseries++;
-   RainfallSeries = new double*[nrrainfallseries];
-   for(int r=0; r < nrrainfallseries; r++)
-      RainfallSeries[r] = new double[nrstations+1];
-   // make structure to contain rainfall
-   //RainfallSeries is matrix with rows is data and 1st column is time, other columns are stations
-
-   fff.close();
-   // close file and start again
-
-
-   fff.open(QIODevice::ReadOnly | QIODevice::Text);
-   S = fff.readLine();
-   for (int i = 0; i < nrstations; i++)
-      S = fff.readLine();
-   // read header data
-   while (!fff.atEnd())
-   {
-      S = fff.readLine();
-      if (S.trimmed().isEmpty()) continue;
-
-      QStringList SL = S.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-      if (SL.size()-1 < nrstations)
-      {
-         QString ss;
-         ErrorString = "Rainfall: Nr stations specified in header = " + ss.setNum(nrstations);
-         ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
-         throw 1;
-      }
-
-
-      RainfallSeries[j][0] = SL[0].toDouble();
-      // time in min
-      for (int i = 1; i < nrstations+1; i++)
-         RainfallSeries[j][i] = SL[i].toDouble();
-      // rainfall intensities
-      j++;
-   }
-
-
-   RainfallSeries[nrrainfallseries-1][0] = 1e20;
-   for (int i = 1; i < nrstations+1; i++)
-      RainfallSeries[nrrainfallseries-1][i] = 0;
-   // end series with 0 value and extreme time
-   fff.close();
-}
-*/
 //---------------------------------------------------------------------------
 

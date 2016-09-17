@@ -97,7 +97,6 @@ void TWorld::addRainfallWH(void)
             // assume no interception and infiltration on roads, gross rainfall
         }
     }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(void)

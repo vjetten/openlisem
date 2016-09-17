@@ -81,6 +81,14 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
+        BeginTime = getvaluedouble("Begin time") * 60;
+        EndTime = getvaluedouble("End time") * 60;
+        _dt = getvaluedouble("Timestep");
+        op.BeginTime = BeginTime/60; // for graph drawing
+        op.EndTime = EndTime/60;// for graph drawing
+        //VJ get time here else combomaps goes wrong for rainfall intensity
+
+        //time vraiables in sec
         DEBUG("GetInputData()");
         GetInputData();
         DEBUG("IntializeData()");
@@ -109,12 +117,6 @@ void TWorld::DoModel()
         CountLandunits();
         //VJ 110110 for output totals per landunit
 
-        BeginTime = getvaluedouble("Begin time") * 60;
-        EndTime = getvaluedouble("End time") * 60;
-        _dt = getvaluedouble("Timestep");
-        op.BeginTime = BeginTime/60; // for graph drawing
-        op.EndTime = EndTime/60;// for graph drawing
-        //time vraiables in sec
 
         runstep = 0; // NOTE runstep is used to initialize graph!
         printstep = 1; // printstep determines report frquency
@@ -200,7 +202,6 @@ void TWorld::DoModel()
 
             ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
 
-
             ChannelFlood();        // st venant channel 2D flooding from channel
 
             CalcVelDischChannel(); // alpha, V and Q from Manning
@@ -220,9 +221,11 @@ void TWorld::DoModel()
             efout.flush();
             efout.close();
 
+            //DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
 
+            //DEBUG("Report to interface");
 
             OutputUI();          // fill the "op" structure for screen output
             // show after report calc is done

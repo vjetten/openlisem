@@ -60,8 +60,6 @@ output op;
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
 {
-
-
     setupUi(this);
     // set up interface
     setMinimumSize(1280,800);
@@ -70,10 +68,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/openLisem.ico"));
     trayIcon->show();
-
-    //    QList<int> list;
-    //    list << 300 << 600;
-    //    splitter->setSizes(list);
 
     showMaximized();
 
@@ -121,7 +115,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     E_runFileList->clear();
 
-
     doBatchmode = doBatch;
     batchRunname = runname;
 
@@ -150,6 +143,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
         // triggers also loading the interface with all variable values
         // if ini is empty nothing happens
     }
+
+
+    //Grouped Buttons become mututally exclusive
+    GroupMapDisplay.addButton(checkBoxComboMaps, 1);
+    GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
+
+    GroupImpermeable.addButton(checkImpermeable,1);
+    GroupImpermeable.addButton(checkPercolation,2);
+
+//    GroupBaseflow.addButton(checkChannelBaseflow,1);
+//    GroupBaseflow.addButton(checkChannelInfil,2);
+
+    GroupRunoff.addButton(checkOverlandFlow1D,1);
+    GroupRunoff.addButton(checkOverlandFlow2D,2);
+
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
@@ -158,28 +166,17 @@ lisemqt::~lisemqt()
         StorePath();
 }
 //--------------------------------------------------------------------
+// NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
+// works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
     connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
-    // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
-    // works automatically. if included here may be executed twice!!! not sure...
-
-    // not needed here, is done automagically
-    //   connect(DisplayComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox_currentIndexChanged(int)));
-    //   connect(DisplayComboBox2,SIGNAL(currentIndexChanged(int)),this,SLOT(on_DisplayComboBox2_currentIndexChanged(int)));
-    //   connect(ComboMinSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMinSpinBox_valueChanged(double)));
-    //   connect(ComboMaxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_ComboMaxSpinBox_valueChanged(double)));
-
-    connect(checkBoxComboMaps, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox(int)));
-    connect(checkBoxComboMaps2, SIGNAL(stateChanged(int)), this, SLOT(setDisplayComboBox2(int)));
-
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
-    //OBSOLETE connect(toolButton_WorkDir, SIGNAL(clicked()), this, SLOT(setWorkDir()));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     // double click on mapname opens fileopen
@@ -194,18 +191,12 @@ void lisemqt::SetConnections()
 
     connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    //    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
-    // not needed here, is done automagically
-    //   connect(checkEstimateGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkEstimateGrainSizeDistribution_toggled(bool)));
-    //   connect(checkReadGrainSizeDistribution, SIGNAL(toggled(bool)),this,SLOT(on_checkReadGrainSizeDistribution_toggled(bool)));
-    //connect(checkBox_SedSingleSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedSingleSingle_toggled(bool)));
-    //connect(checkBox_SedMultiSingle,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiSingle_toggled(bool)));
-    //connect(checkBox_SedMultiMulti,SIGNAL(toggled(bool)),this,SLOT(on_checkBox_SedMultiMulti_toggled(bool)));
 
 }
 //--------------------------------------------------------------------
@@ -262,63 +253,29 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
 }
 
 //--------------------------------------------------------------------
-
-// disable and enable UI stuff when subcatch selected
-//void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
-//{
-    //    bool subcatch = i > 1;
-
-    //   // subcatchgroup->setEnabled(subcatch);
-    //    label_soillosssub->setEnabled(/*subcatch &&*/ checkDoErosion->isChecked());
-    //    label_94->setEnabled(/*subcatch && */checkDoErosion->isChecked());
-
-    //    label_discharge->setEnabled(!subcatch);
-    //    label_qtotm3->setEnabled(!subcatch);
-    //    label_54->setEnabled(!subcatch);
-    //    label_26->setEnabled(!subcatch);
-
-    //    if(checkDoErosion->isChecked())
-    //    {
-    //        label_soillosskgha->setEnabled(!subcatch);
-    //        label_soilloss->setEnabled(!subcatch);
-    //        label_SDR->setEnabled(!subcatch);
-    //        label_31->setEnabled(!subcatch);
-    //        label_28->setEnabled(!subcatch);
-    //        label_60->setEnabled(!subcatch);
-    //    }
-//}
-
-//--------------------------------------------------------------------
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
 void lisemqt::on_checkOverlandFlow1D_clicked()
 {
-    checkOverlandFlow1D->setChecked(true);
-    checkOverlandFlow2D->setChecked(false);
     tabWidgetOptions->setTabEnabled(3, false);
 }
 
 void lisemqt::on_checkOverlandFlow2D_clicked()
 {
-    checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow2D->setChecked(true);
     tabWidgetOptions->setTabEnabled(3, true);
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkImpermeable_stateChanged(int)
+void lisemqt::setErosionMapOutput(bool doit)
 {
-    checkPercolation->setChecked(!checkImpermeable->isChecked());
+    ComboMinSpinBox2->setEnabled(doit);
+    ComboMaxSpinBox2->setEnabled(doit);
+    DisplayComboBox2->setEnabled(doit);
+    checkBoxComboMaps2->setEnabled(doit);
 }
-void lisemqt::on_checkPercolation_stateChanged(int)
-{
-    checkImpermeable->setChecked(!checkPercolation->isChecked());
-}
+
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
-
-    //    if (i < 0)
-    //        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -338,9 +295,6 @@ void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 void lisemqt::on_ComboMaxSpinBox_valueChanged(double d)
 {
     int i = DisplayComboBox->currentIndex();
-
-    //    if (i < 0)
-    //        return;
 
     if( i > -1 && i < this->SymList.length())
     {
@@ -417,35 +371,44 @@ void lisemqt::on_ComboMaxSpinBox2_valueChanged(double d)
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setDisplayComboBox(int i)
+void lisemqt::on_checkBoxComboMaps_stateChanged(int)
 {
-    if (i == 2)
+    ActiveList = -1;
+    if (checkBoxComboMaps->isChecked())
     {
-        checkBoxComboMaps->setChecked(true);
-
-        checkBoxComboMaps2->setChecked(false);
-
-        ActiveList = 0;
-
+        if (IndexList.count() > 0)
+            ActiveList = 0;
+        setDisplayComboBoxes();
     }
-    this->showMap();
 }
 //--------------------------------------------------------------------
-void lisemqt::setDisplayComboBox2(int i)
+void lisemqt::on_checkBoxComboMaps2_stateChanged(int)
 {
-    if (i == 2)
+    ActiveList = -1;
+    if (checkBoxComboMaps2->isChecked())
     {
-        checkBoxComboMaps->setChecked(false);
-
-        checkBoxComboMaps2->setChecked(true);
-
-        int j = IndexList1.at(DisplayComboBox2->currentIndex());
-
-        ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
-        ActiveList = 1;
-
+        if (IndexList1.count() > 0)
+            ActiveList = 1;
+        setDisplayComboBoxes();
     }
-    this->showMap();
+}
+//--------------------------------------------------------------------
+void lisemqt::setDisplayComboBoxes()
+{
+    if (ActiveList == 0)
+    {
+    }
+    if (ActiveList == 1)
+    {
+        if (IndexList1.count() > 0)
+        {
+            int j = IndexList1.at(DisplayComboBox2->currentIndex());
+            ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(j));
+        }
+    }
+
+    if (ActiveList > -1)
+        this->showMap();
 }
 //--------------------------------------------------------------------
 void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)
@@ -458,8 +421,6 @@ void lisemqt::on_DisplayComboBox_currentIndexChanged(int j)
 
     ComboMaxSpinBox->setValue(op.userMaxV.at(i));
     ComboMinSpinBox->setValue(op.userMinV.at(i));
-    checkBoxComboMaps2->setChecked(false);
-    checkBoxComboMaps->setChecked(true);
     this->showMap();
 }
 //--------------------------------------------------------------------
@@ -474,8 +435,6 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
     ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(i));
     ComboMaxSpinBox2->setValue(op.userMaxV.at(i));
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
-    checkBoxComboMaps->setChecked(false);
-    checkBoxComboMaps2->setChecked(true);
     this->showMap();
 }
 //--------------------------------------------------------------------
@@ -759,9 +718,9 @@ void lisemqt::SetToolBar()
     runGroup->addAction(stopAct);
     stopAct->setChecked(true);
 
-    toolBar->addSeparator();
-    toolBar->addWidget(label_hydroCount);
-    toolBar->addWidget(spinBoxPointtoShow);
+//    toolBar->addSeparator();
+//    toolBar->addWidget(label_hydroCount);
+//    toolBar->addWidget(spinBoxPointtoShow);
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
@@ -800,11 +759,11 @@ void lisemqt::SetStyleUI()
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
-    E_floodMinHeight->setVisible(false);
-    label_99->setVisible(false);
-    checkRainfallFlood->setVisible(false);
-    E_RainFloodGradient->setVisible(false);
-    checkFloodInitial->setVisible(false);
+    //E_floodMinHeight->setVisible(false);
+    //label_99->setVisible(false);
+    //checkRainfallFlood->setVisible(false);
+    //E_RainFloodGradient->setVisible(false);
+   //checkFloodInitial->setVisible(false);
     // interface elements that are not visible for now
 
     //groupBoxTime->setMaximumWidth(128);
@@ -850,8 +809,8 @@ void lisemqt::SetStyleUI()
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
 
-    label_buffervol->setMinimumSize(w,h);
-    label_buffersed->setMinimumSize(w,h);
+    //label_buffervol->setMinimumSize(w,h);
+    //label_buffersed->setMinimumSize(w,h);
     label_MBs->setMinimumSize(w,h);
     label_MB->setMinimumSize(w,h);
 
@@ -894,8 +853,8 @@ void lisemqt::SetStyleUI()
     label_flooddet->setStyleSheet("* { background-color: #ffff77 }");
     label_flooddep->setStyleSheet("* { background-color: #ffff77 }");
     label_floodsed->setStyleSheet("* { background-color: #ffff77 }");
-    label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
-    label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
+    //label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
+    //label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
 }
 //--------------------------------------------------------------------
 void lisemqt::setMapDir()
@@ -1529,6 +1488,9 @@ void lisemqt::resetAll()
     checkSnowmelt->setChecked(check);
     checkRainfall->setChecked(true);
     checkHardsurface->setChecked(false);
+
+    checkIncludeLitter->setChecked(false);
+
     //E_OFMethod->setValue(0);
     E_RBLMethod->setValue(0);
     E_RSSMethod->setValue(1);
@@ -1599,7 +1561,7 @@ void lisemqt::resetAll()
     tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
 
-    buffergroup->setVisible(false);
+    //buffergroup->setVisible(false);
     //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
 
     //    sedgroup->setEnabled(checkDoErosion->isChecked());
@@ -1626,7 +1588,7 @@ void lisemqt::resetAll()
 
     E_courantFactor->setValue(0.2);
 
-    E_floodMinHeight->setValue(0.05);
+    //E_floodMinHeight->setValue(0.05);
 
     E_mixingFactor->setValue(2.0);
     E_runoffPartitioning->setValue(0.5);

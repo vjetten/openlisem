@@ -147,9 +147,10 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
-    DEBUG("kill display data");
-    ClearComboMaps();
-    ClearHydrographData();
+   // DEBUG("kill display data");
+    //ClearComboMaps();
+   // ClearHydrographData();
+    // leave it so we can still see stuff after run
 
 }
 //---------------------------------------------------------------------------
@@ -1280,7 +1281,7 @@ void TWorld::GetInputData(void)
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
-    difkin =  NewMap(0); // temp map for aux calculations
+    //difkin =  NewMap(0); // temp map for aux calculations
 
     for (int i = 0; i < 32; i++)
         SubsMaps[i].m = NULL;  // initialize substance structures
@@ -1339,15 +1340,24 @@ void TWorld::GetInputData(void)
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
-    Litter = ReadMap(LDD,getvaluename("litter"));
-    checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
+
+    if (SwitchLitter)
+    {
+        Litter = ReadMap(LDD,getvaluename("litter"));
+
+        checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
+        checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
+        checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+    }
+    else
+        Litter = NewMap(0);
+
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
-    checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
-    checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+
     checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
@@ -1798,8 +1808,8 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    if(SwitchKinematic2D != K1D_METHOD)
-    {
+//    if(SwitchKinematic2D != K1D_METHOD)
+//    {
         K2DDEM = NewMap(0);
         K2DWHStore = NewMap(0);
         K2DPits = NewMap(0);
@@ -1848,7 +1858,7 @@ void TWorld::IntializeData(void)
         K2DQ = NewMap(0);
         K2DQN = NewMap(0);
         K2DI = NewMap(0);
-    }
+ //   }
     QinKW = NewMap(0);
     QoutKW = NewMap(0);
     Qoutput = NewMap(0);

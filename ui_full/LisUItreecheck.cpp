@@ -58,6 +58,8 @@ GULLIESMAPS
 void lisemqt::on_checkDoErosion_clicked()
 {
     checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+
+    setErosionMapOutput(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
@@ -93,6 +95,9 @@ void lisemqt::on_checkChannelInfil_clicked()
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+
+    if (checkChannelBaseflow->isChecked())
+        checkChannelBaseflow->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
@@ -104,6 +109,9 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 
     label_195->setEnabled(checkChannelBaseflow->isChecked());
     label_baseflowtot->setEnabled(checkChannelBaseflow->isChecked());
+
+    if (checkChannelInfil->isChecked())
+        checkChannelInfil->setChecked(false);
 
 }
 //--------------------------------------------------------------------
@@ -199,12 +207,12 @@ void lisemqt::on_checkBuffers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
-    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
-    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
-    if(checkBuffers->isChecked())
-        checkBuffers->setChecked(false);
+//    checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    label_33->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    E_BulkDens->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
+//    if(checkBuffers->isChecked())
+//        checkBuffers->setChecked(false);
 
 }
 //--------------------------------------------------------------------

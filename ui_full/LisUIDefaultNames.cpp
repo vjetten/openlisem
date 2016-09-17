@@ -343,7 +343,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Stemflow fraction");
     namelist[i].value = QString("0.45");
     namelist[i++].name = QString("Canopy Openess");
-
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include litter interception");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");

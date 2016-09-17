@@ -28,7 +28,6 @@
   \brief Get snowmelt adta and make a map. Snowmelt is like rainfall, melt intensities
 
 functions: \n
-- void TWorld::GetSnowmeltData(void) \n
 - void TWorld::SnowmeltMap(void) \n
  */
 
@@ -36,100 +35,7 @@ functions: \n
 #include "io.h"
 #include "model.h"
 
-//---------------------------------------------------------------------------
-/// read snowmelt file and put the dta in SnowmeltSeries
-/*
-void TWorld::GetSnowmeltData(void)
-{
-	QFile fff(snowmeltFileName);
-	QFileInfo fi(snowmeltFileName);
-	QString S;
-	bool ok;
-	int j = 0;
 
-	if (!fi.exists())
-	{
-		ErrorString = "Snowmelt file not found: " + snowmeltFileName;
-		throw 1;
-	}
-
-	nrSnowmeltstations = 0;
-	nrSnowmeltseries = 0;
-
-	fff.open(QIODevice::ReadOnly | QIODevice::Text);
-	S = fff.readLine();
-	// read the header
-	while (S.isEmpty())
-		S = fff.readLine();
-	QStringList SL = S.split(QRegExp("\\s+")); //<== white spave character as split
-	nrSnowmeltstations = SL[SL.size()-2].toInt(&ok, 10);
-
-
-	if (!ok)
-	{
-		ErrorString = "Cannot read nr rainfall stations in header rainfall file";
-		throw 1;
-	}
-
-	for(int r=0; r < nrSnowmeltstations+1; r++)
-		S = fff.readLine();
-	// read column headers
-
-	while (!fff.atEnd())
-	{
-		S = fff.readLine();
-		if (!S.trimmed().isEmpty())
-			nrSnowmeltseries++;
-	}
-	// count rainfall records, skip empty lines
-	if (nrSnowmeltseries <= 1)
-	{
-		ErrorString = "Snowmelt records <= 1!";
-		throw 1;
-	}
-
-	nrSnowmeltseries++;
-	SnowmeltSeries = new double*[nrSnowmeltseries];
-	for(int r=0; r < nrSnowmeltseries; r++)
-		SnowmeltSeries[r] = new double[nrSnowmeltstations+1];
-	// make structure to contain Snowmelt
-	//SnowmeltSeries is matrix with rows is data and 1st column is time, other columns are stations
-
-	fff.close();
-	// close file and start again
-
-	fff.open(QIODevice::ReadOnly | QIODevice::Text);
-	S = fff.readLine();
-	for (int i = 0; i < nrSnowmeltstations; i++)
-		S = fff.readLine();
-	// read header data
-	while (!fff.atEnd())
-	{
-		S = fff.readLine();
-		if (S.trimmed().isEmpty()) continue;
-
-		QStringList SL = S.split(QRegExp("\\s+"));
-		if (SL.size()-1 < nrSnowmeltstations)
-		{
-			QString ss;
-			ErrorString = "Snowmelt: Nr stations specified in header = " + ss.setNum(nrSnowmeltstations);
-			ErrorString += ", nr columns available = "+ ss.setNum(SL.size()-1);
-			throw 1;
-		}
-		SnowmeltSeries[j][0] = SL[0].toDouble();
-		// time in min
-		for (int i = 1; i < nrSnowmeltstations+1; i++)
-			SnowmeltSeries[j][i] = SL[i].toDouble();
-      // snowmelt intensities
-		j++;
-	}
-	SnowmeltSeries[nrSnowmeltseries-1][0] = 1e20;
-	for (int i = 1; i < nrSnowmeltstations+1; i++)
-		SnowmeltSeries[nrSnowmeltseries-1][i] = 0;
-	// end series with 0 value and extreme time
-	fff.close();
-}
-*/
 //---------------------------------------------------------------------------
 /**
  snowmelt intensity read is that reported with the next line: example
@@ -155,20 +61,17 @@ void TWorld::SnowmeltMap(void)
       auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
           SnowmeltSeriesM[place].name)));
 
-      for (int r = 0; r < _nrRows; r++)
-         for (int c = 0; c < _nrCols; c++)
-            if (!pcr::isMV(LDD->Drc) && pcr::isMV(_M->Drc))
-            {
-               QString sr, sc;
-               sr.setNum(r); sc.setNum(c);
-               ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
-               throw 1;
-            }
+      FOR_ROW_COL_MV
+              if (pcr::isMV(_M->Drc))
+      {
+          QString sr, sc;
+          sr.setNum(r); sc.setNum(c);
+          ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
+          throw 1;
+      }
       FOR_ROW_COL_MV
       {
-         Snowmelt->Drc = _M->Drc *_dt/tt;
-         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
-         SnowmeltCum->Drc += Snowmeltc->Drc;
+          Snowmelt->Drc = _M->Drc *_dt/tt;
       }
    }
    else
@@ -177,49 +80,18 @@ void TWorld::SnowmeltMap(void)
       {
          Snowmelt->Drc = SnowmeltSeriesM[place].intensity[(int) SnowmeltZone->Drc-1]*_dt/tt;
          // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
-         Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
-         // correction for slope dx/DX, water spreads out over larger area
-
-         //TODO: weighted average if dt larger than table dt
-
-         SnowmeltCum->Drc += Snowmeltc->Drc;
       }
    }
 
+   FOR_ROW_COL_MV
+   {
+       Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
+       // correction for slope dx/DX, water spreads out over larger area
+       SnowmeltCum->Drc += Snowmeltc->Drc;
+       // cumulative rainfall corrected for slope, used in interception
+       //RainNet->Drc = Rainc->Drc;
+       // net rainfall in case of interception
+
+   }
 }
-/*
-void TWorld::SnowmeltMap(void)
-{
-	double timemin = time / 60;  //time in minutes
-	double timeminp = (time-_dt) / 60; //prev time in minutes
-	int place;
-   double tt = 3600000.0;
-
-	if (!SwitchSnowmelt)
-		return;
-
-//	for (placep = 0; placep < nrSnowmeltseries; placep++)
-//		if (timeminp < SnowmeltSeries[placep][0])
-//			break;
-	for (place = 0; place < nrSnowmeltseries; place++)
-		if (timemin < SnowmeltSeries[place][0])
-			break;
-
-
-	FOR_ROW_COL_MV
-	{
-      int col = (int) SnowmeltZone->Drc;
-
-      Snowmelt->Drc = SnowmeltSeries[place][col]/3600000 * _dt;
-      // Snowmelt in m per timestep
-      Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
-      // DO NOT correct for slope dx/DX, snow is already on the surface
-      // TODO: CORRECT OR NOT
-
-      // TODO: weighted average if dt larger than table dt
-
-      SnowmeltCum->Drc += Snowmeltc->Drc;
-	}
-}
-*/
 //---------------------------------------------------------------------------

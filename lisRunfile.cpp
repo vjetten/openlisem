@@ -248,6 +248,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
         if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
         //if (p1.compare("Limit Deposition TC")==0)            SwitchLimitDepTC =       iii == 1;
+        if (p1.compare("Include litter interception")==0)    SwitchLitter =          iii == 1;
+
+
         if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
         if (p1.compare("Include wheeltracks")==0)            SwitchInfilCompact =     iii == 1;
@@ -495,7 +498,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTHMX"   )==0)    OutHmx  = GetName(p);
         if (p1.compare("OUTQF"    )==0)     OutQf  = GetName(p);
         if (p1.compare("OUTVF"    )==0)     OutVf  = GetName(p);
-        if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
+        if (p1.compare(""
+                       ""
+                       "OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
         if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
         if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);
     }

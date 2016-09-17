@@ -128,6 +128,10 @@ void TWorld::Interception(void)
 void TWorld::InterceptionLitter(void)
 {
     // all variables are in m
+
+    if (!SwitchLitter)
+        return;
+
     if (!SwitchRainfall)
         return;
 
@@ -168,6 +172,9 @@ void TWorld::InterceptionHouses(void)
 {
     // all variables are in m
     if (!SwitchHouses)
+        return;
+
+    if (!SwitchRainfall)
         return;
 
     FOR_ROW_COL_MV

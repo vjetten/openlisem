@@ -59,7 +59,7 @@ void TWorld::CalcVelDischChannel(void)
         double FW = ChannelWidth->Drc;
         double grad = sqrt(ChannelGrad->Drc);
 
-        if (ChannelSide > 0)
+        if (ChannelSide->Drc > 0)  //BUG, was (ChannelSide > 0) !!!
         {
             double dw = ChannelSide->Drc * wh;
             Perim = FW + 2.0*sqrt(wh*wh + dw*dw);//*cos(atan(ChannelSide->Drc));
@@ -79,6 +79,8 @@ void TWorld::CalcVelDischChannel(void)
             ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
         else
             ChannelQ->Drc = 0;
+
+        //ChannelQ->Drc = pow(Area/Perim, 2.0/3.0)*sqrt(grad)/ChannelN->Drc * Area;
 
         if (SwitchChannelFlood)
         {
@@ -147,6 +149,7 @@ void TWorld::ChannelWaterHeight(void)
     }
 
     ChannelWaterHeightFromVolume();
+
 
 }
 //---------------------------------------------------------------------------
@@ -253,7 +256,6 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelFlowDetachment(r,c);
-            //???????? kost tijd om tig keer een functie aan te roepen, beter r,c in de functie
         }
     }
 
@@ -269,7 +271,11 @@ void TWorld::ChannelFlow(void)
             //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
         }
     }
+    ChannelQn->setAllMV();
+    fill(*QinKW, 0.0);
+    // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
+    //VJ calc concentrations and ingoing Qs
     if (SwitchErosion)
     {
         if(!SwitchUseGrainSizeDistribution)
@@ -322,12 +328,9 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->setAllMV();
-    fill(*QinKW, 0.0);
-    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-
     ChannelQBLsn->setAllMV();
     ChannelQSSsn->setAllMV();
+
     if(SwitchUseGrainSizeDistribution)
     FOR_GRAIN_CLASSES
     {
@@ -335,6 +338,7 @@ void TWorld::ChannelFlow(void)
         Tempd_D.at(d)->setAllMV();
     }
 
+    // route water 1D and sediment
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
@@ -347,15 +351,19 @@ void TWorld::ChannelFlow(void)
             {
                 if(!SwitchUseGrainSizeDistribution)
                 {
-                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
-                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
+                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed, ChannelBufferVol, ChannelBufferSed);
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed, ChannelBufferVol, ChannelBufferSed);
                     //explicit routing of matter using Q and new Qn
                 }else
                 {
                     FOR_GRAIN_CLASSES
                     {
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d), ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d), ChannelBufferVol, ChannelBufferSed);
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d),
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d), ChannelBufferVol, ChannelBufferSed);
                     }
                 }
             }
@@ -363,6 +371,17 @@ void TWorld::ChannelFlow(void)
     }
 
     cover(*ChannelQn, *LDD, 0);
+    // avoid missing values around channel for adding to Qn for output
+    if (SwitchChannelFlood)
+    {
+        FOR_ROW_COL_MV_CH
+        {
+        if (ChannelMaxQ->Drc > 0)
+            ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
+        }
+    }
+    // limit channel Q when culverts > 0
+
 
     if (SwitchErosion)
     {
@@ -404,13 +423,11 @@ void TWorld::ChannelFlow(void)
                     ChannelSSConc->Drc += RSSC_D.Drcd;
                  }
             }
-        }else
+        }
+        else
         {
             RiverSedimentDiffusion(_dt, ChannelBLSed,ChannelBLConc, ChannelSSSed,ChannelSSConc);
         }
-    }
-    if (SwitchErosion)
-    {
 
         if(!SwitchUseGrainSizeDistribution)
         {
@@ -418,10 +435,14 @@ void TWorld::ChannelFlow(void)
             {
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-                ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQsn->Drc/ChannelQn->Drc : 0);
-                //??????????/ what if Qn is zero? better to use volume???
+                //ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQsn->Drc/ChannelQn->Drc : 0);
+                // everywhere vol is used
+                ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+                //VJ standing water has also a concentration
+
             }
-        }else
+        }
+        else
         {
             FOR_ROW_COL_MV_CH
             {
@@ -457,37 +478,15 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-
-
-    // avoid missing values around channel for adding to Qn for output
-
-    bool do_mbcorr = false;
-    double mb = 0;
-    double n = 0;
-
-    if (do_mbcorr)
-        fill(*tm, 0.0);
-
+    // recalc WH from flux
     FOR_ROW_COL_MV_CH
     {
-        if (SwitchChannelFlood)
-        {
-            if (ChannelMaxQ->Drc > 0)
-                ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
-        }
-        // limit channel Q when culverts > 0
-        //????? NOTE DO THIS ALSO FOR  SEDIMENT BEFORE THE ROUNTING??
-
-        // ChannelWH->Drc = ChannelIterateWH(r, c);
+        //ChannelWH->Drc = ChannelIterateWH(r, c);
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
+        double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
 
-        //    double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-
-        double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
+       // double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
         // explicit...!!!
-
-//        if (do_mbcorr)
-//            tm->Drc = ChannelArea;
 
         // water height is not used except for output! i.e. watervolume is cycled
         if(ChannelSide->Drc > 0)
@@ -497,62 +496,25 @@ void TWorld::ChannelFlow(void)
             double cc = -ChannelArea; //=area
 
             ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
-            //??????????????  gaat niet goed als side zodanig is dat width groter is dan gridcell bij nieuwe chanarea
-        }else
+            //VJ gaat niet goed als side zodanig is dat width groter wordt dan gridcell bij nieuwe chanarea
+
+        }
+        else
         {
             ChannelWH->Drc = ChannelArea/((ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0);
         }
 
-//        if (!do_mbcorr)
-            ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
-
-/*
-        // NECESSARY OR JUST FLUFF ????
-        if (do_mbcorr)
-        {
-            double diff = QinKW->Drc*_dt + ChannelWaterVol->Drc - (ChannelArea * ChannelDX->Drc) - ChannelQn->Drc*_dt;
-            //difference between fluxes and store in and out of channel cell in m3,
-            // ChannelWaterVol is still before, ChnnaelArea*DX is volumme after
-
-            if (!SwitchChannelInfil)
-            {
-                difkin->Drc += 0;//diff;
-                mb += diff;
-                // add all m3 error
-                if (ChannelArea > 0)
-                    n+=1;
-                // count wet cells
-            }
-            // calc mass balance error and wet cells
-        }
-        */
+        ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+        // recalc for output screen and maps
+        ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
+        // needed for concentration
     }
 
-    // NECESSARY OR JUST FLUFF ????
-/*
-    if (do_mbcorr)
-    {
-    // mass balance correction, throw error on cells with WH
-        if (n > 0)
-            mb = mb/n;
+    cover(*ChannelWH, *LDD, 0);
+    //VJ ?? necessary for display ??
 
-        FOR_ROW_COL_MV_CH
-        {
-            ChannelWaterVol->Drc = tm->Drc * ChannelDX->Drc;
-
-            if (ChannelWaterVol->Drc > 0)
-                ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc + mb);
-            // NEW VOLUME divide mb over volume
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*0.5*(ChannelWidthUpDX->Drc+ChannelWidth->Drc));
-            // new WH after mb correction
-            ChannelQn->Drc = std::pow((ChannelWaterVol->Drc/ChannelDX->Drc)/ChannelAlpha->Drc, 1.66666667);//(1/0.6));
-            // new Q after correction
-        }
-    }
-*/
     FOR_ROW_COL_MV_CH
     {
-
         if (SwitchErosion)
         {
             ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
@@ -560,18 +522,13 @@ void TWorld::ChannelFlow(void)
             // NOTE: nothing is done with this concentration, only for display,
             // so the display shows the conc after the kin wave
          //   ChannelConc->Drc = (ChannelQn->Drc > 1e-6 ? ChannelQs->Drc/ChannelQn->Drc : 0);
-            // CHANGED, MORE STABLE CONC 19/9/13
         }
     }
-
-    cover(*ChannelWH, *LDD, 0);
 
     FOR_ROW_COL_MV_CH
     {
         maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
     }
-
-
 }
 //---------------------------------------------------------------------------

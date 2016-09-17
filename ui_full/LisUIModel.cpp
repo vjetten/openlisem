@@ -293,7 +293,7 @@ void lisemqt::initOP()
     op.ChannelDepTot = 0;
     op.ChannelDetTot = 0;
     op.ChannelWH = 0;
-    op.FloodSed = 0;
+    op.FloodSedTot = 0;
     op.FloodDepTot = 0;
     op.FloodDetTot = 0;
 
