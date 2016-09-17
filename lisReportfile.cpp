@@ -1138,10 +1138,10 @@ void TWorld::GetComboMaps()
 
     AddComboMap(0,"Overland Flow Height","m",  /*K2DWHStore*/WHrunoff,Colormap,Colors,false,false,1.0, 0.01);
 
-    if(SwitchKinematic2D > 1)
-    {
-        AddComboMap(0,"whstore","m",K2DWHStore,Colormap,Colors,false,false,1.0, 0.01);
-    }
+//    if(SwitchKinematic2D > 1)
+//    {
+//        AddComboMap(0,"whstore","m",K2DWHStore,Colormap,Colors,false,false,1.0, 0.01);
+//    }
     if(InfilMethod != INFIL_NONE)
     {
         Colormap.clear();
