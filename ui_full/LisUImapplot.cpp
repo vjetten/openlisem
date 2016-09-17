@@ -361,6 +361,9 @@ void lisemqt::showComboMap(int i)
         ma = MaxV; // use map max when ma = 0
     if (mi == 0)
         mi = MinV;
+    if(mi == ma) // because of they are equal nothing is displayed (raincum)
+        mi = 0;
+//qDebug() << mi << ma << MinV << MaxV;
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
         mi = -ma;

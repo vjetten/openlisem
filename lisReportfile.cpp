@@ -150,12 +150,13 @@ void TWorld::OutputUI(void)
     }
 
     //output maps for combo box
-    for(int i = 0; i < op.ComboMaps.length(); i++)
+    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
     {
         fill(*tma, 0.0);
         calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
         copy(*op.ComboMapsSafe.at(i), *tma);
     }
+
 
 
     //make sure sediment maps for all grain sizes are present
@@ -1159,17 +1160,18 @@ void TWorld::GetComboMaps()
     Colors.clear();
     Colors.append("#8888FF");
     Colors.append("#0000FF");
-    Colors.append("#FF0000");
+    Colors.append("#008800");
 
+    double factor = 3600000.0/_dt; //from m to mm/h
 
 //    copy(*tm, *RainCumFlat );
 //    calcMap(*tm,*SnowmeltCum, ADD);
 //    copy(*tma, *Rain );
 //    calcMap(*tma,*Snowmelt, ADD);
-//    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1000.0,1.0);
-//    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,1000.0,1.0);
+//    AddComboMap(0,"Precip. Cumulative","mm",tm,Colormap,Colors,false,false,1000.0,0.1);
+//    AddComboMap(0,"Precip. Intensity","mm/h",tma,Colormap,Colors,false,false,factor,0.1);
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1000.0,0.1);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,1000.0,0.1);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,factor,0.1);
 
     if(SwitchChannelFlood)
     {
