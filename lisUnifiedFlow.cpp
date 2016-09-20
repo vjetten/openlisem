@@ -72,7 +72,7 @@ void TWorld::UnifiedFlow()
 
         if(UF_NeedsInitial)
         {
-            UF_NeedsInitial = false;
+            //UF_NeedsInitial = false;
             ////initial conditions
             UF_Initial(    UF2D_DEM,                                        //dem info
                                 UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
@@ -131,6 +131,13 @@ void TWorld::UnifiedFlow()
                                UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                                UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
         }
+
+        UF2D1D_LaxNumericalCorrection(UF2D_DT,     UF2D_DEM,                                        //dem info
+                            UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
+                            UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
+                            UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
+                            UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
+                            UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
 
         /////INFILTRATION
         //substract any possible infiltration from the flow water volume
@@ -682,41 +689,114 @@ void TWorld::UF_SetOutput()
 }
 
 
-void TWorld::UF_Initial( cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
-                       cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
-                       cTMap * _fu1D,cTMap * _s1D,
-                       cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
-                       cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
-                       cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
-                       cTMap * _su2D,cTMap * _sv2D)
+void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                                 cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                                 cTMap * _fu1D,cTMap * _s1D,
+                                 cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                                 cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                                 cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                                 cTMap * _su2D,cTMap * _sv2D)
 {
-    //add initial volume of fluid and solid to the dynamic field
-    //this also sets the respective properties
-    if(!SwitchUFInitial)
+
+    FOR_ROW_COL_UF2D_DT
     {
-        return;
-    }
-    FOR_ROW_COL_UF2D
-    {
-        if(!(UF2D_InitialFVolume->Drc < 0))
+        double w = std::min(1.0,std::max(0.0,((std::max(_fu2D->Drc,std::max(_fv2D->Drc,std::max(_su2D->Drc,_sv2D->Drc))))/(UF_Courant * _dx) - 0.5)*1.5));
+
+        if(w > 0.5)
         {
-            _f2D->Drc = UF2D_InitialFVolume->Drc;
-            UF_InitializedF += UF2D_InitialFVolume->Drc;
-        }
-        if(UF_SOLIDPHASE)
-        {
-            if(!(UF2D_InitialSVolume->Drc < 0))
+            double h = _f2D->data[r][c]; double u = _fu2D->data[r-1][c]; double v = _fv2D->data[r-1][c];
+            double h1 = h,h2 = h,h3 = h,h4 = h,u1 = u,u2 = u,u3 = u,u4 = u,v1 = v,v2 = v,v3 = v,v4 = v;
+
+            if(!UF_OUTORMV(_dem,r-1,c))
             {
-                _s2D->Drc = UF2D_InitialSVolume->Drc;
-                UF_InitializedS += UF2D_InitialSVolume->Drc;
-                if(_s2D->Drc > UF_VERY_SMALL)
-                {
-                    _d2D->Drc = UF2D_InitialSDensity->Drc;
-                    _ifa2D->Drc = UF2D_InitialSIFA->Drc;
-                    _rocksize2D->Drc = UF2D_InitialSRocksize->Drc;
-                }
+                h1 = _f2D->data[r-1][c];
+                u1 = _fu2D->data[r-1][c];
+                v1 = _fv2D->data[r-1][c];
             }
+            if(!UF_OUTORMV(_dem,r+1,c))
+            {
+                h2 = _f2D->data[r+1][c];
+                u2 = _fu2D->data[r+1][c];
+                v2 = _fv2D->data[r+1][c];
+            }
+            if(!UF_OUTORMV(_dem,r,c-1))
+            {
+                h3 = _f2D->data[r][c-1];
+                u3 = _fu2D->data[r][c-1];
+                v3 = _fv2D->data[r][c-1];
+            }
+            if(!UF_OUTORMV(_dem,r,c+1))
+            {
+                h4 = _f2D->data[r][c+1];
+                u4 = _fu2D->data[r][c+1];
+                v4 = _fv2D->data[r][c+1];
+            }
+
+            //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
+            _fu2D->Drc = (4.0*(1.0 + w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/8.0;
+            _fv2D->Drc = (4.0*(1.0 + w) * _fv2D->Drc + w *(v1 + v2 + v3 + v4))/8.0;
+
         }
 
-    }
+        _fu2D->Drc = (_fu2D->Drc > 0? 1.0:-1.0) * std::min(std::fabs(_fu2D->Drc),UF_MAX_NUM_VEL);
+        _fv2D->Drc = (_fv2D->Drc > 0? 1.0:-1.0) * std::min(std::fabs(_fv2D->Drc),UF_MAX_NUM_VEL);
+
+        if(std::isnan(_fu2D->Drc) || std::isnan(_fv2D->Drc))
+        {
+            _fu2D->Drc = 0;
+            _fv2D->Drc = 0;
+        }
+
+        if(UF_SOLIDPHASE)
+        {
+            if(w > 0.5)
+            {
+                double sh = _s2D->data[r][c]; double su = _su2D->data[r-1][c]; double sv = _sv2D->data[r-1][c];
+                double sh1 = sh, sh2 = sh, sh3 = sh, sh4 = sh,su1 =su,su2 = su,su3 = su,su4 = su,sv1 = sv,sv2 = sv,sv3 = sv,sv4 = sv;
+
+                if(!UF_OUTORMV(_dem,r-1,c))
+                {
+                    sh1 = _s2D->data[r-1][c];
+                    su1 = _su2D->data[r-1][c];
+                    sv1 = _sv2D->data[r-1][c];
+                }
+                if(!UF_OUTORMV(_dem,r+1,c))
+                {
+                    sh2 = _s2D->data[r+1][c];
+                    su2 = _su2D->data[r+1][c];
+                    sv2 = _sv2D->data[r+1][c];
+                }
+                if(!UF_OUTORMV(_dem,r,c-1))
+                {
+                    sh3 = _s2D->data[r][c-1];
+                    su3 = _su2D->data[r][c-1];
+                    sv3 = _sv2D->data[r][c-1];
+                }
+                if(!UF_OUTORMV(_dem,r,c+1))
+                {
+                    sh4 = _s2D->data[r][c+1];
+                    su4 = _su2D->data[r][c+1];
+                    sv4 = _sv2D->data[r][c+1];
+                }
+
+                //_s2D->Drc = (4.0*(1.0 + w) * _s2D->Drc + w *(sh1 + sh2 + sh3 + sh4))/8.0;
+                _su2D->Drc = (4.0*(1.0 + w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/8.0;
+                _sv2D->Drc = (4.0*(1.0 + w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/8.0;
+
+            }
+
+            _su2D->Drc = (_su2D->Drc > 0? 1.0:-1.0) * std::min(std::fabs(_su2D->Drc),UF_MAX_NUM_VEL);
+            _sv2D->Drc = (_sv2D->Drc > 0? 1.0:-1.0) * std::min(std::fabs(_sv2D->Drc),UF_MAX_NUM_VEL);
+
+            if(std::isnan(_su2D->Drc) || std::isnan(_sv2D->Drc))
+            {
+                _su2D->Drc = 0;
+                _sv2D->Drc = 0;
+            }
+
+
+
+        }
+    }}}
+
 }

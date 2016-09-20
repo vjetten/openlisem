@@ -53,13 +53,16 @@ void TWorld::UF_Init()
     UF_ENTRAINMENTCONSTANT = getvaluedouble("Entrainment Coefficient");
     UF_MAXSOLIDCONCENTRATION = 0.6;
     UF_MINIMUMENTRAINMENTHEIGHT = getvaluedouble("Minimum Entrainment Height");
-    UF_MANNINGCOEFFICIENT = 0.2;
+    UF_MANNINGCOEFFICIENT_FLUID = 0.2;
+    UF_MANNINGCOEFFICIENT_SOLID = 0.05;
     UF_FrictionIterations = 1;
+
+    UF_MAX_NUM_VEL = 50;
 
     UF_NRA = 150000;
 
-    UF_Alpha_DV  =0.1;
-    UF_Beta_DV = 20.0;
+    UF_Alpha_DV  =1.0;
+    UF_Beta_DV = 5.0;
 
     UF_Alpha_YS = 0.1;
     UF_Beta_YS = 20.0;
@@ -337,6 +340,9 @@ void TWorld::UF_Init()
     UF_NeedsInitial = true;
     if(SwitchUFInitial)
     {
+        qDebug() << "initial f + s";
+        UF2D_Initialized = NewMap(0.0);
+        UF2D_InitialTime = ReadMap(DEM,getvaluename("initiationtime"));
         UF2D_InitialFVolume = ReadMap(DEM,getvaluename("initialfvolume"));
         UF2D_InitialSVolume = ReadMap(DEM,getvaluename("initialsvolume"));
         UF2D_InitialSDensity = ReadMap(DEM,getvaluename("initialsdensity"));

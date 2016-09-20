@@ -144,3 +144,54 @@ void TWorld::UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
 }
 
 
+
+void TWorld::UF_Initial( cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                       cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                       cTMap * _fu1D,cTMap * _s1D,
+                       cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                       cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                       cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                       cTMap * _su2D,cTMap * _sv2D)
+{
+    //add initial volume of fluid and solid to the dynamic field
+    //this also sets the respective properties
+    if(!SwitchUFInitial)
+    {
+        return;
+    }
+
+    FOR_ROW_COL_UF2D
+    {
+        if(UF2D_Initialized->Drc == 0 && !(UF2D_InitialTime->Drc < 0))
+        {
+
+            if(!(UF2D_InitialTime->Drc > (time/ 60.0)))
+            {
+                UF2D_Initialized->Drc = 1;
+
+                if(!(UF2D_InitialFVolume->Drc < 0))
+                {
+                    _f2D->Drc = UF2D_InitialFVolume->Drc;
+                    UF_InitializedF += UF2D_InitialFVolume->Drc;
+                }
+                if(UF_SOLIDPHASE)
+                {
+                    if(!(UF2D_InitialSVolume->Drc < 0))
+                    {
+                        _s2D->Drc = UF2D_InitialSVolume->Drc;
+                        UF_InitializedS += UF2D_InitialSVolume->Drc;
+                        if(_s2D->Drc > UF_VERY_SMALL)
+                        {
+                            _d2D->Drc = UF2D_InitialSDensity->Drc;
+                            _ifa2D->Drc = UF2D_InitialSIFA->Drc;
+                            _rocksize2D->Drc = UF2D_InitialSRocksize->Drc;
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+    }
+}

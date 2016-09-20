@@ -208,13 +208,13 @@ void TWorld::UF2D_FluidMomentumSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap 
         UF_t6->Drc += (2.0/3.0)*dt->Drc * UF2D_fax->Drc;
         UF_t7->Drc += (2.0/3.0)*dt->Drc * UF2D_fay->Drc;
         double tempu = UF_t6->Drc;
-        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
-        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc, false);
+        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc, false);
         double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF2D_fax->Drc;
         double vtemp = UF_t7->Drc + (2.0/3.0)*dt->Drc * UF2D_fay->Drc;
         tempu = utemp;
-        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc);
-        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc, false);
+        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc, false);
 
         UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
         UF_t7->Drc = (UF_t7->Drc + utemp)/2.0;
@@ -307,13 +307,13 @@ void TWorld::UF2D_SolidMomentumSource(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap 
         UF_t6->Drc += (2.0/3.0)*dt->Drc * UF2D_sax->Drc;
         UF_t7->Drc += (2.0/3.0)*dt->Drc * UF2D_say->Drc;
         double tempu = UF_t6->Drc;
-        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc);
-        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,UF_t7->Drc,N->Drc,h,UF2D_SlopeX->Drc, true);
+        UF_t7->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t7->Drc,tempu,N->Drc,h,UF2D_SlopeY->Drc, true);
         double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF2D_sax->Drc;
         double vtemp = UF_t7->Drc + (2.0/3.0)*dt->Drc * UF2D_say->Drc;
         tempu = utemp;
-        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc);
-        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc);
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,vtemp,N->Drc,h,UF2D_SlopeX->Drc, true);
+        vtemp = UF_Friction((2.0/3.0)*dt->Drc,vtemp,tempu,N->Drc,h,UF2D_SlopeY->Drc, true);
 
         UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
         UF_t7->Drc = (UF_t7->Drc + utemp)/2.0;
@@ -393,9 +393,9 @@ void TWorld::UF1D_FluidMomentumSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTM
         UF_t6->Drc = _fu->Drc;
 
         UF_t6->Drc += (2.0/3.0)*dt->Drc * UF1D_fa->Drc;
-        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc, false);
         double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF1D_fa->Drc;
-        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc);
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc, false);
 
         UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
 
@@ -469,9 +469,9 @@ void TWorld::UF1D_SolidMomentumSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTM
         UF_t6->Drc = _su->Drc;
 
         UF_t6->Drc += (2.0/3.0)*dt->Drc * UF1D_sa->Drc;
-        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc);
+        UF_t6->Drc = UF_Friction((2.0/3.0)*dt->Drc,UF_t6->Drc,0,N->Drc,h,UF1D_Slope->Drc, true);
         double utemp = UF_t6->Drc + (2.0/3.0)*dt->Drc * UF1D_sa->Drc;
-        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc);
+        utemp = UF_Friction((2.0/3.0)*dt->Drc,utemp,0,N->Drc,h,UF1D_Slope->Drc, true);
 
         UF_t6->Drc = (UF_t6->Drc + utemp)/2.0;
 

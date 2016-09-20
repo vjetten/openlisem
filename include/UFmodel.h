@@ -41,7 +41,8 @@
     double UF2D_MinimumDT;
     double UF1D_MinimumDT;
     double UF_SigmaDiffusion;
-    double UF_MANNINGCOEFFICIENT;
+    double UF_MANNINGCOEFFICIENT_FLUID;
+    double UF_MANNINGCOEFFICIENT_SOLID;
 
     double UF_ENTRAINMENTCONSTANT;
     double UF_MAXSOLIDCONCENTRATION;
@@ -51,6 +52,8 @@
 
     double UF_DISPLAYFLOODMINIMUM = 0;
     double UF_DISPLAYDEBRISFLOWMINIMUM = 0;
+
+    double UF_MAX_NUM_VEL;
 
     double UF_NRA;
 
@@ -334,6 +337,14 @@
     double UF_BoundaryFlux2D(double dt, double cellx, double celly, double f, double s, double fu, double fv, double su, double sv, double slopeX, double slopeY,double NN, int dr, int dc );
     double UF_BoundaryFlux1D(double dt, double width, double f, double s, double fu, double su, double slope, double NN, bool front );
 
+    void UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                                    cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                                    cTMap * _fu1D,cTMap * _s1D,
+                                    cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                                    cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                                    cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                                    cTMap * _su2D,cTMap * _sv2D);
+
     ////Timestep functions
     double UF_InitTimeStep(cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                            cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
@@ -376,8 +387,7 @@
                              cTMap * _su2D,cTMap * _sv2D);
 
     ////Momentum balance functions
-    double UF_Friction(double dt,double velx,double vely, double NN, double h, double slope);
-    //double UF_Friction2(double dt,double a, double velx,double vely, double NN, double h, double slope);
+    double UF_Friction(double dt,double velx,double vely, double NN, double h, double slope,bool solid);
 
     double UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double SlopeX, double SlopeY,
                                      double dhfdx,double dhfdy, double dh2pbdx, double dh2pbdy, double dsfdx, double dsfdy, double ddsfdxx, double ddsfdyy, double ddsfdxy,
@@ -517,6 +527,8 @@
     cTMap * UF2D_ForcedSIFA;
     cTMap * UF2D_ForcedSRocksize;
 
+    cTMap * UF2D_Initialized;
+    cTMap * UF2D_InitialTime;
     cTMap * UF2D_InitialFVolume;
     cTMap * UF2D_InitialSVolume;
     cTMap * UF2D_InitialSDensity;
@@ -557,7 +569,6 @@
 
     void AddSource(int r, int c, double f, double s, double d, double rocksize, double ifa, bool channel);
 
-
-    //xLisemThread *ltr = 0;
+    //LisemThread *ltr = 0;
 
 ////END FILE

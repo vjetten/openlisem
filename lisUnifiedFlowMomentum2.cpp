@@ -134,7 +134,7 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
     FOR_ROW_COL_UF2D
     {
-        double h = (_f->Drc)/(_dx * _dx);
+        double h = (_s->Drc + _f->Drc)/(_dx * _dx);
         UF_t1->Drc = h*h*(UF_Gravity*h)/2.0;
 
         if(_f->Drc + _s->Drc > UF_VERY_SMALL)
@@ -190,8 +190,8 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
         double ff = UF_t2->Drc;
         double sf = UF_t3->Drc;
-        double visc = 1.0;//UF_DynamicViscosity(sf);
-        double Nr = std::max(0.5,UF_Reynolds(_d->Drc,visc,ff,sf, _rocksize->Drc));
+        _visc->Drc = UF_DynamicViscosity(sf + (SwitchErosion? (((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0)/((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff):0.0):0.0));
+        double Nr = std::max(0.5,UF_Reynolds(_d->Drc,_visc->Drc,ff,sf, _rocksize->Drc));
         UF2D_Nr->Drc = Nr;
         double Nra = UF_NRA;
         double gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
@@ -246,22 +246,22 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
         double dsvdy = UF2D_Derivative(_dem,_sv,r,c,UF_DIRECTION_Y);
 
         ////////////momentum balance
-        double lfax = UF2D_MomentumBalanceFluid(true,lxh*_dx*_dx,_s->Drc,lfu, _fv->Drc, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, visc, lxpbf, lxslope, 0,
+        double lfax = UF2D_MomentumBalanceFluid(true,lxh*_dx*_dx,_s->Drc,lfu, _fv->Drc, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, lxpbf, lxslope, 0,
                                                  ldhfdx,  dhfdy,   ldh2pbdx,   dh2pbdy,   dsfdx,   dsfdy,   ddsfdxx,   ddsfdyy,   ddsfdxy,
                                                  dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
                                                    dsudx,   dsudy,   dsvdx,  dsvdy);
 
-        double rfax = UF2D_MomentumBalanceFluid(true, rxh*_dx*_dx,_s->Drc,rfu, _fv->Drc, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, visc, rxpbf, rxslope, 0,
+        double rfax = UF2D_MomentumBalanceFluid(true, rxh*_dx*_dx,_s->Drc,rfu, _fv->Drc, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, rxpbf, rxslope, 0,
                                                    rdhfdx,  dhfdy,   rdh2pbdx,   dh2pbdy,   dsfdx,   dsfdy,   ddsfdxx,   ddsfdyy,   ddsfdxy,
                                                    dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
                                                    dsudx,   dsudy,   dsvdx,  dsvdy);
 
-        double lfay = UF2D_MomentumBalanceFluid(false,lyh*_dx*_dx,_s->Drc,_fu->Drc, lfv, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, visc, lypbf, 0, lyslope,
+        double lfay = UF2D_MomentumBalanceFluid(false,lyh*_dx*_dx,_s->Drc,_fu->Drc, lfv, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, lypbf, 0, lyslope,
                                                  dhfdx,  ldhfdy,   dh2pbdx,   ldh2pbdy,   dsfdx,   dsfdy,   ddsfdxx,   ddsfdyy,   ddsfdxy,
                                                  dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
                                                    dsudx,   dsudy,   dsvdx,  dsvdy);
 
-        double rfay = UF2D_MomentumBalanceFluid(false,ryh*_dx*_dx,_s->Drc,_fu->Drc, rfv, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, visc, rypbf, 0, ryslope,
+        double rfay = UF2D_MomentumBalanceFluid(false,ryh*_dx*_dx,_s->Drc,_fu->Drc, rfv, _su->Drc, _sv->Drc, ff, sf, Nr, Nra, _ifa->Drc, gamma, _visc->Drc, rypbf, 0, ryslope,
                                                    dhfdx,  rdhfdy,   dh2pbdx,   rdh2pbdy,   dsfdx,   dsfdy,   ddsfdxx,   ddsfdyy,   ddsfdxy,
                                                    dfudx,   dfudy,   dfvdx,   dfvdy,   ddfudxx,   ddfudyy,   ddfvdxy,   ddfvdxx,   ddfvdyy,   ddfudxy,
                                                    dsudx,   dsudy,   dsvdx,  dsvdy);
@@ -278,12 +278,12 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lfax;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rfax;
-            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope);
-            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope);
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope,false);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope,false);
             double ut1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfax;
             double ut2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfax;
-            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope))/2.0;
-            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut2,0,N->Drc,rxh,rxslope))/2.0;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope,false))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut2,0,N->Drc,rxh,rxslope,false))/2.0;
 
             if(sf > UF_VERY_SMALL)
             {
@@ -303,12 +303,12 @@ void TWorld::UF2D_FluidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lfay;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rfay;
-            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lyh,lyslope);
-            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope);
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lyh,lyslope,false);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope,false);
             double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfay;
             double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfay;
-            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope))/2.0;
-            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope))/2.0;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope,false))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope,false))/2.0;
 
             if(sf > UF_VERY_SMALL)
             {
@@ -509,12 +509,12 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lsax;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rsax;
-            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope);
-            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope);
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lxh,lxslope,true);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rxh,rxslope,true);
             double ut1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsax;
             double ut2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsax;
-            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope))/2.0;
-            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut2,0,N->Drc,rxh,rxslope))/2.0;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut1,0,N->Drc,lxh,lxslope,true))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),ut2,0,N->Drc,rxh,rxslope,true))/2.0;
 
             if(ff > UF_VERY_SMALL)
             {
@@ -533,12 +533,12 @@ void TWorld::UF2D_SolidMomentum2Source(cTMap * dt, cTMap * _dem,cTMap * _f,cTMap
 
             UF_t6->Drc += dt->Drc*(2.0/3.0)* lsay;
             UF_t7->Drc += dt->Drc*(2.0/3.0)* rsay;
-            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lyh,lyslope);
-            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope);
+            UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lyh,lyslope,true);
+            UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,ryh,ryslope,true);
             double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsay;
             double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsay;
-            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope))/2.0;
-            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope))/2.0;
+            UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lyh,lyslope,true))/2.0;
+            UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,ryh,ryslope,true))/2.0;
 
             if(ff > UF_VERY_SMALL)
             {
@@ -663,7 +663,7 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
         double lfu = (UF1D_MUSCLE_2_x2->Drc);
         double ff = UF_t2->Drc;
         double sf = UF_t3->Drc;
-        _visc->Drc = UF_DynamicViscosity(sf);
+        _visc->Drc = UF_DynamicViscosity(sf + (SwitchErosion? (((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0)/((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) :0.0):0.0));
         _d->Drc = 2000.0;
         double Nr = UF_Reynolds(_d->Drc,_visc->Drc,ff,sf, _rocksize->Drc);
         UF1D_Nr->Drc = Nr;
@@ -701,12 +701,12 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
 
         UF_t6->Drc += dt->Drc*(2.0/3.0)* lfa;
         UF_t7->Drc += dt->Drc*(2.0/3.0)* rfa;
-        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhf,UF1D_Slope->Drc);
-        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhf,UF1D_Slope->Drc);
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhf,UF1D_Slope->Drc, false);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhf,UF1D_Slope->Drc, false);
         double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfa;
         double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfa;
-        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhf,UF1D_Slope->Drc))/2.0;
-        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhf,UF1D_Slope->Drc))/2.0;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhf,UF1D_Slope->Drc, false))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhf,UF1D_Slope->Drc, false))/2.0;
 
         if(sf > UF_VERY_SMALL)
         {
@@ -912,12 +912,12 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
 
         UF_t6->Drc += dt->Drc*(2.0/3.0)* lsa;
         UF_t7->Drc += dt->Drc*(2.0/3.0)* rsa;
-        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhs,UF1D_Slope->Drc);
-        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhs,UF1D_Slope->Drc);
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhs,UF1D_Slope->Drc, true);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhs,UF1D_Slope->Drc, true);
         double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsa;
         double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsa;
-        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhs,UF1D_Slope->Drc))/2.0;
-        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhs,UF1D_Slope->Drc))/2.0;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhs,UF1D_Slope->Drc, true))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhs,UF1D_Slope->Drc, true))/2.0;
 
         if(sf > UF_VERY_SMALL)
         {

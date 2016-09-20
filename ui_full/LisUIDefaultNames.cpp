@@ -140,6 +140,7 @@ void lisemqt::DefaultMapnames()
 
 
     DEFmaps.append("1;Initial Volume");
+    DEFmaps.append("2;InitiationTime;initiationtime.map;initial time (min);initiationtime");
     DEFmaps.append("2;InitialFVolume;initialfvolume.map;initial fluid volume (m3);initialfvolume");
     DEFmaps.append("2;InitialSVolume;initialsvolume.map;initial solid volume (m3);initialsvolume");
     DEFmaps.append("2;InitialSDensity;initialsdensity.map;initial solid density (m3);initialsdensity");

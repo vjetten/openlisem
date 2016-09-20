@@ -1245,6 +1245,18 @@ void TWorld::GetComboMaps()
 
     }
 
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(0.9);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#FAFAD2");
+    Colors.append("#FFFF66");
+    Colors.append("#d47e17");//808000
+    Colors.append("#804000");
+
+    AddComboMap(0,"Viscosity"," ",UF2D_visc,Colormap,Colors,false,false,1.0, 0.05);
 
     /*Colormap.clear();
     Colormap.append(0.0);

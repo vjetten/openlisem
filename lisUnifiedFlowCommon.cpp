@@ -90,7 +90,7 @@ double TWorld::UF_TerminalVelocity(double rocksize, double ffraction, double vis
 
 double TWorld::UF_DynamicViscosity(double sfraction)
 {
-    return std::max(1.0,UF_Alpha_DV * exp(UF_Beta_DV * sfraction));
+    return std::min(100000.0,std::max(1.0,UF_Alpha_DV * exp(UF_Beta_DV * std::max(0.0,std::min(1.0,sfraction)))));
 }
 
 double TWorld::UF_GetYieldStress(double sfraction)
