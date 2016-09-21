@@ -653,6 +653,7 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
     double outflow = 0;
 
+    bool conc1 = (_f == _m);
     bool write_to_input = false;
     if(out_m ==0)
     {
@@ -667,7 +668,7 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
 
     FOR_ROW_COL_UF1D_DT
     {
-        double conc = (_f->Drc > 0)? _m->Drc/_f->Drc: 0.0;
+        double conc = conc1? 1.0: ((_f->Drc > 0)? _m->Drc/_f->Drc: 0.0);
 
         //front cell
         int lddself = (int) _ldd->data[r][c];
@@ -678,9 +679,10 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
 
             if(!UF_OUTORMV(_ldd,r2,c2)){
 
-                double con2 = _q1->Drc > 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0);
-                out_m->Drc -= conc *_q1->Drc;
-                out_m->data[r2][c2] += conc *_q1->Drc;
+                double con2 = conc1? 1.0: (_q1->Drc > 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0));
+                double q = _q1->Drc > 0? std::min(con2 *_q1->Drc,out_m->Drc) : std::max(con2 *_q1->Drc,-out_m->data[r2][c2]);
+                out_m->Drc -= q;
+                out_m->data[r2][c2] += q;
 
             }else if(_q1->Drc > 0)
             {
@@ -732,9 +734,10 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
                     if(!UF_OUTORMV(_ldd,r2,c2)){
                         double q2 = (_lddw->data[r2][c2]/totalwidth)*_q2->Drc;
 
-                        double con2 = q2 < 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0);
-                        out_m->Drc += con2 *q2;
-                        out_m->data[r2][c2] -= con2 *q2;
+                        double con2 = conc1? 1.0: (q2 < 0? conc : (_f->data[r2][c2]>0?(_m->data[r2][c2]/_f->data[r2][c2]):0.0));
+                        double q = _q2->Drc > 0? std::min(con2 *_q2->Drc,out_m->data[r2][c2]) : std::max(con2 *_q2->Drc,-out_m->Drc);
+                        out_m->Drc += q;
+                        out_m->data[r2][c2] -= q;
 
                     }else if(_q2->Drc < 0)
                     {

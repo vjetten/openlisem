@@ -346,9 +346,10 @@ void TWorld::InitChannel(void)
 
 
 
+        if(SwitchChannelFlood)
+        {
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
-
 
             ChannelLevee = NewMap(0);
             /*if (SwitchLevees)
@@ -356,8 +357,7 @@ void TWorld::InitChannel(void)
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
 
-
-
+        }
 
     }
 

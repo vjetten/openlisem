@@ -161,7 +161,10 @@ void TWorld::UF_FlowDetachment(double dt)
         }
     }
 
-    UF_SumGrainClasses();
+    if(SwitchUseGrainSizeDistribution)
+    {
+        UF_SumGrainClasses();
+    }
 }
 
 void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
@@ -255,6 +258,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        //### sediment balance
        TSS->Drc += std::fabs(detachment);
+
        double sssmax = MAXCONC * watervol;
        if(sssmax < TSS->Drc)
        {

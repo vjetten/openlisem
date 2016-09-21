@@ -186,7 +186,8 @@ void TWorld::UF_Init()
     ////1D
     UF1D_LDD = NewMap(0.0);
     UF1D_LDDw = NewMap(0.0);
-    UF1D_LDDh = NewMap(5.0);
+    UF1D_LDDh = NewMap(0.0);
+
     UF1D_Slope = NewMap(0.0);
     UF1D_LDD->setAllMV();
     if(SwitchIncludeChannel)
@@ -196,6 +197,11 @@ void TWorld::UF_Init()
             UF1D_LDD->Drc = LDDChannel->Drc;
             UF1D_LDDw->Drc = ChannelWidth->Drc;
             UF1D_Slope->Drc = -ChannelGrad->Drc;
+
+            if(UF_CHANNELFLOOD)
+            {
+                UF1D_LDDh->Drc = ChannelDepth->Drc;
+            }
         }
     }
     UF1D_T = NewMap(0.0);

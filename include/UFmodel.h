@@ -475,6 +475,8 @@
     void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map,double in_1, int operation,cTMap * outx1,cTMap * outx2);
     void UF1D_MUSCLE_operate(cTMap * _ldd,cTMap * _lddw,cTMap *dt,int in_map, int in_map2, int operation, cTMap * outx1,cTMap * outx2);
 
+    double UF2D_MaxFlux(cTMap * _dem,cTMap * _f, int r, int c, int dr, int dc);
+
     //slope analysis and map derivative functions
     void UF_DEMLDDAnalysis(cTMap * _dem, cTMap * _ldd,cTMap * _lddw,cTMap * _lddh,cTMap * _f1D,cTMap * _s1D,cTMap * _f2D,cTMap * _s2D);
 

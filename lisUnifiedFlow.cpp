@@ -698,9 +698,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                                  cTMap * _su2D,cTMap * _sv2D)
 {
 
+    //The Lax numerical correction is usefull to correct for artifacts of the courant factor limitation.
+    //when velocity exceeds the courant limit, blocking appears. Using the Lax-scheme, values are averaged with surrounding cells while maintaining mass balance
+    //in this implementation, flow barriers and the dem are taken into accaunt
+
     FOR_ROW_COL_UF2D_DT
     {
-        double w = std::min(1.0,std::max(0.0,((std::max(_fu2D->Drc,std::max(_fv2D->Drc,std::max(_su2D->Drc,_sv2D->Drc))))/(UF_Courant * _dx) - 0.5)*1.5));
+        double w = std::min(1.0,std::max(0.0,((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.65)*0.1));
+        UF2D_Test->Drc = w;
 
         if(w > 0.5)
         {
@@ -712,24 +717,44 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 h1 = _f2D->data[r-1][c];
                 u1 = _fu2D->data[r-1][c];
                 v1 = _fv2D->data[r-1][c];
+                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h1))/5.0;
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,1),std::fabs(fn - _f2D->Drc));
+                _f2D->data[r-1][c] = std::max(0.0,_f2D->data[r-1][c] - dif);
+                double dif2 = h1 - _f2D->data[r-1][c];
+                _f2D->Drc += dif2;
             }
             if(!UF_OUTORMV(_dem,r+1,c))
             {
                 h2 = _f2D->data[r+1][c];
                 u2 = _fu2D->data[r+1][c];
                 v2 = _fv2D->data[r+1][c];
+                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h2))/5.0;
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc));
+                _f2D->data[r+1][c] = std::max(0.0,_f2D->data[r+1][c] - dif);
+                double dif2 = h2 - _f2D->data[r+1][c];
+                _f2D->Drc += dif2;
             }
             if(!UF_OUTORMV(_dem,r,c-1))
             {
                 h3 = _f2D->data[r][c-1];
                 u3 = _fu2D->data[r][c-1];
                 v3 = _fv2D->data[r][c-1];
+                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h3))/5.0;
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc));
+                _f2D->data[r][c-1] = std::max(0.0,_f2D->data[r][c-1] - dif);
+                double dif2 = h3 - _f2D->data[r][c-1];
+                _f2D->Drc += dif2;
             }
             if(!UF_OUTORMV(_dem,r,c+1))
             {
                 h4 = _f2D->data[r][c+1];
                 u4 = _fu2D->data[r][c+1];
                 v4 = _fv2D->data[r][c+1];
+                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h4))/5.0;
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc));
+                _f2D->data[r][c+1] = std::max(0.0,_f2D->data[r][c+1] - dif);
+                double dif2 = h4 - _f2D->data[r][c+1];
+                _f2D->Drc += dif2;
             }
 
             //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
@@ -756,30 +781,52 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
 
                 if(!UF_OUTORMV(_dem,r-1,c))
                 {
+
                     sh1 = _s2D->data[r-1][c];
                     su1 = _su2D->data[r-1][c];
                     sv1 = _sv2D->data[r-1][c];
+                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh1))/5.0;
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc));
+                    _s2D->data[r-1][c] = std::max(0.0,_s2D->data[r-1][c] - dif);
+                    double dif2 = sh1 - _s2D->data[r-1][c];
+                    _s2D->Drc += dif2;
+
                 }
                 if(!UF_OUTORMV(_dem,r+1,c))
                 {
                     sh2 = _s2D->data[r+1][c];
                     su2 = _su2D->data[r+1][c];
                     sv2 = _sv2D->data[r+1][c];
+                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh2))/5.0;
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc));
+                    _s2D->data[r+1][c] = std::max(0.0,_s2D->data[r+1][c] - dif);
+                    double dif2 = sh2 - _s2D->data[r+1][c];
+                    _s2D->Drc += dif2;
                 }
                 if(!UF_OUTORMV(_dem,r,c-1))
                 {
                     sh3 = _s2D->data[r][c-1];
                     su3 = _su2D->data[r][c-1];
                     sv3 = _sv2D->data[r][c-1];
+                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc));
+                    _s2D->data[r][c-1] = std::max(0.0,_s2D->data[r][c-1] - dif);
+                    double dif2 = sh3 - _s2D->data[r][c-1];
+                    _s2D->Drc += dif2;
                 }
                 if(!UF_OUTORMV(_dem,r,c+1))
                 {
                     sh4 = _s2D->data[r][c+1];
                     su4 = _su2D->data[r][c+1];
                     sv4 = _sv2D->data[r][c+1];
+                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc));
+                    _s2D->data[r][c+1] = std::max(0.0,_s2D->data[r][c+1] - dif);
+                    double dif2 = sh4 - _s2D->data[r][c+1];
+                    _s2D->Drc += dif2;
                 }
 
-                //_s2D->Drc = (4.0*(1.0 + w) * _s2D->Drc + w *(sh1 + sh2 + sh3 + sh4))/8.0;
+
                 _su2D->Drc = (4.0*(1.0 + w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/8.0;
                 _sv2D->Drc = (4.0*(1.0 + w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/8.0;
 
