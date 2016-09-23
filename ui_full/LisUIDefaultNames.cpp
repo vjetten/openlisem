@@ -256,6 +256,19 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("floodstats.csv");
     namelist[i++].name = QString("Flood stats");
 
+    namelist[i].value = QString("maxdebrisflowheight.map");
+    namelist[i++].name = QString("Maximum Debris Flow Height Map");
+    namelist[i].value = QString("maxdebrisflowvelocity.map");
+    namelist[i++].name = QString("Maximum Debris Flow Velocity Map");
+    namelist[i].value = QString("debrisflowstart.map");
+    namelist[i++].name = QString("Debris Flow Start Map");
+    namelist[i].value = QString("entrainment.map");
+    namelist[i++].name = QString("Entrainment Map");
+    namelist[i].value = QString("slopefailure.map");
+    namelist[i++].name = QString("Slope Failure Map");
+    namelist[i].value = QString("minimumsafetyfactor.map");
+    namelist[i++].name = QString("Minimum Safety Factor Map");
+
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
@@ -369,6 +382,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Minimum Entrainment Height");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Minimum Failure Height");
+
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Spatially Dynamic Timestep");
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Levees");
@@ -555,6 +571,24 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTHMXWH");
     namelist[i].value = QString("sed");
     namelist[i++].name = QString("OUTSED");
+
+    namelist[i].value = QString("safetyfactor");
+    namelist[i++].name = QString("OUTSAFETYFACTOR");
+    namelist[i].value = QString("slopefailure");
+    namelist[i++].name = QString("OUTSLOPEFAILURE");
+    namelist[i].value = QString("dfheight");
+    namelist[i++].name = QString("OUTDFHEIGHT");
+    namelist[i].value = QString("dfvelocity");
+    namelist[i++].name = QString("OUTDFV");
+    namelist[i].value = QString("fluiphaseh");
+    namelist[i++].name = QString("OUTFPH");
+    namelist[i].value = QString("solidphaseh");
+    namelist[i++].name = QString("OUTSPH");
+    namelist[i].value = QString("entrainment");
+    namelist[i++].name = QString("OUTENTRAINMENT");
+    namelist[i].value = QString("timestep");
+    namelist[i++].name = QString("OUTTIMESTEP");
+
 
     // input maps start here !!!
     mapstartnr = i;

@@ -57,6 +57,7 @@ void TWorld::UF_Init()
     UF_MANNINGCOEFFICIENT_SOLID = 0.05;
     UF_FrictionIterations = 1;
 
+
     UF_MAX_NUM_VEL = 50;
 
     UF_NRA = 150000;
@@ -102,6 +103,10 @@ void TWorld::UF_Init()
     UF1D_Nr = NewMap(0.0);
     UF1D_q = NewMap(0.0);
     UF1D_qs = NewMap(0.0);
+
+    UF2D_TimeStep = NewMap(0.0);
+    UF2D_SPH = NewMap(0.0);
+    UF2D_FPH = NewMap(0.0);
 
     //internal slope functions
     UF2D_Slope = NewMap(0.0);

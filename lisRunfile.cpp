@@ -188,6 +188,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Incldue Maximum ChannelVolume")==0)             SwitchChannelMaxVolume = iii == 1;
         if (p1.compare("Incldue Maximum Volume")==0)                    SwitchMaxVolume        = iii == 1;
 
+        if (p1.compare("Spatially Dynamic Timestep")==0)                SpatiallyDynamicTimestep       = iii == 1;
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
@@ -438,6 +439,20 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("WH max level map")==0)
             floodWHmaxFileName = checkOutputMapName(p, "WH max level map",0);
 
+        if (p1.compare("Maximum Debris Flow Height Map")==0)
+            FileName_MaxDebrisFlowHeight = checkOutputMapName(p, "Maximum Debris Flow Height Map",0);
+        if (p1.compare("Maximum Debris Flow Velocity Map")==0)
+            FileName_MaxDebrisFlowVelocity = checkOutputMapName(p, "Maximum Debris Flow Velocity Map",0);
+        if (p1.compare("Debris Flow Start Map")==0)
+            FileName_DebrisFlowStart = checkOutputMapName(p, "Debris Flow Start Map",0);
+        if (p1.compare("Entrainment Map")==0)
+            FileName_Entrainment = checkOutputMapName(p, "Entrainment Map",0);
+        if (p1.compare("Slope Failure Map")==0)
+            FileName_SlopeFailure = checkOutputMapName(p, "Slope Failure Map",0);
+        if (p1.compare("Minimum Safety Factor Map")==0)
+            FileName_MinimumSafetyFactor = checkOutputMapName(p, "Minimum Safety Factor Map",0);
+
+
         if(SwitchErosion)
         {
             if (p1.compare("Erosion map")==0)
@@ -489,6 +504,15 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
         if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
         if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);
+
+        if (p1.compare("OUTSAFETYFACTOR" )==0)  OutSafetyFactor  = GetName(p);
+        if (p1.compare("OUTSLOPEFAILURE" )==0)  OutSlopeFailure  = GetName(p);
+        if (p1.compare("OUTDFHEIGHT"   )==0)    OutDFH  = GetName(p);
+        if (p1.compare("OUTDFV"    )==0)     OutDFV  = GetName(p);
+        if (p1.compare("OUTFPH"    )==0)     OutFPH  = GetName(p);
+        if (p1.compare("OUTSPH" )==0)  OutSPH  = GetName(p);
+        if (p1.compare("OUTENTRAINMENT" )==0)  OutEntrainment  = GetName(p);
+        if (p1.compare("OUTTIMESTEP" )==0)    OutTimestep  = GetName(p);
     }
 
 

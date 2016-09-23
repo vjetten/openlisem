@@ -290,12 +290,15 @@ cTMap
 *tmd,                        //!< Auxilary map
 //display combinations
 *COMBO_QOFCH,
-*COMBO_SS
+*COMBO_SS,
 
 
 
 
-
+*MaximumDebrisFlowHeight,
+*MaximumDebrisFlowVelocity,
+*TotalSlopeFailure,
+*MinimumSafetyFactor
 
 
 

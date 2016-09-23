@@ -50,6 +50,8 @@
 
     int UF_FrictionIterations;
 
+    bool SpatiallyDynamicTimestep = true;
+
     double UF_DISPLAYFLOODMINIMUM = 0;
     double UF_DISPLAYDEBRISFLOWMINIMUM = 0;
 
@@ -91,6 +93,9 @@
     cTMap * UF2D_Nr;
     cTMap * UF2D_u;
     cTMap * UF2D_v;
+    cTMap * UF2D_TimeStep;
+    cTMap * UF2D_SPH;
+    cTMap * UF2D_FPH;
 
     cTMap * UF1D_h;
     cTMap * UF1D_q;

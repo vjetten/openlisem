@@ -286,21 +286,6 @@ void lisemqt::on_spinBoxPointtoShow_valueChanged(int i)
 }
 
 //--------------------------------------------------------------------
-// bad programming, checkboxes as radiobuttons, but needed to be square buttons!
-void lisemqt::on_checkOverlandFlow1D_clicked()
-{
-    checkOverlandFlow1D->setChecked(true);
-    checkOverlandFlow2D->setChecked(false);
-    tabWidgetOptions->setTabEnabled(3, false);
-}
-
-void lisemqt::on_checkOverlandFlow2D_clicked()
-{
-    checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow2D->setChecked(true);
-    tabWidgetOptions->setTabEnabled(3, true);
-}
-//--------------------------------------------------------------------
 void lisemqt::on_checkImpermeable_stateChanged(int)
 {
     checkPercolation->setChecked(!checkImpermeable->isChecked());

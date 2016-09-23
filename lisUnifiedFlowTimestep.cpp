@@ -109,6 +109,8 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         //out_dtstep2d->Drc = 0;
     }
 
+
+
     FOR_ROW_COL_UF1D
     {
         if(!UF_OUTORMV(_ldd,r,c))
@@ -142,6 +144,23 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
 
         }
     }
+
+    if(!SpatiallyDynamicTimestep)
+    {
+        FOR_ROW_COL_UF2D
+        {
+            out_dt2d->Drc = UF_DTMIN;
+        }
+
+        FOR_ROW_COL_UF1D
+        {
+            if(!UF_OUTORMV(_ldd,r,c))
+            {
+                out_dt1d->Drc = UF_DTMIN;
+            }
+        }
+    }
+
 
     FOR_ROW_COL_UF2D
     {

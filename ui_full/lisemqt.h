@@ -331,8 +331,6 @@ public slots:
     void on_checkChannelBaseflow_clicked();
     void on_checkChannelFlood_clicked();
     void on_checkDoErosion_clicked();
-    void on_checkOverlandFlow1D_clicked();
-    void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     void on_checkImpermeable_stateChanged(int);

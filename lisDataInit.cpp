@@ -1379,6 +1379,10 @@ void TWorld::IntializeData(void)
         }
     }
 
+    MaximumDebrisFlowHeight = NewMap(0.0);
+    MaximumDebrisFlowVelocity = NewMap(0.0);
+    TotalSlopeFailure = NewMap(0.0);
+    MinimumSafetyFactor = NewMap(0.0);
 
     //VJ 110113 all channel and buffer initialization moved to separate functions
     //calculate slope, outlets and pitches for kinematic 2D
@@ -1424,6 +1428,13 @@ void TWorld::IntializeOptions(void)
     runoffMapFileName = QString("runoff.map");
     runoffFractionMapFileName = QString("rofraction.map");
     channelDischargeMapFileName = QString("chandism3.map");
+
+    FileName_MaxDebrisFlowHeight = QString("maximumdebrisflowheight.map");
+    FileName_MaxDebrisFlowVelocity = QString("maximumdebrisflowvelocity.map");
+    FileName_DebrisFlowStart = QString("debrisflowstart.map");
+    FileName_Entrainment = QString("entrainment.map");
+    FileName_SlopeFailure = QString("slopefailure.map");
+    FileName_MinimumSafetyFactor = QString("minimumsafetyfactor.map");
 
     rainFileName.clear();
     SwitchLimitTC = false;

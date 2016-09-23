@@ -204,8 +204,6 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
 
                     if(UF1D_blm->Drc < 0 || UF1D_ssm->Drc < 0)
                     {
-                        //UF1D_ssm->Drc = 0;
-                        //UF1D_ssm->Drc = 0;
                         qDebug() << "neg 2" << r << c << UF1D_blm->Drc << UF1D_ssm->Drc << UF2D_blm->Drc << UF2D_ssm->Drc;
                     }
 

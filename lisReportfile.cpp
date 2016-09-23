@@ -670,6 +670,27 @@ void TWorld::ReportMaps(void)
         report(*floodVMax, floodMaxVFileName);
     }
 
+    if(SwitchSolidPhase)
+    {
+        report(*MaximumDebrisFlowHeight,FileName_MaxDebrisFlowHeight);
+        report(*MaximumDebrisFlowVelocity,FileName_MaxDebrisFlowVelocity);
+        report(*dfTimeStart,FileName_DebrisFlowStart);
+    }
+
+    if(SwitchSlopeFailure)
+    {
+        report(*TotalSlopeFailure,FileName_SlopeFailure);
+    }
+    if(SwitchSlopeStability)
+    {
+        report(*MinimumSafetyFactor,FileName_MinimumSafetyFactor);
+    }
+    if(SwitchEntrainment)
+    {
+        report(*MinimumSafetyFactor,FileName_Entrainment);
+    }
+
+
     if (outputcheck[0].toInt() == 1)
         report(*Qoutput, Outrunoff); // in l/s
     if (outputcheck[2].toInt() == 1)
@@ -720,6 +741,58 @@ void TWorld::ReportMaps(void)
         {
             report(*hmxWH, OutHmxWH);
         }
+    }
+
+    if(SwitchSlopeStability)
+    {
+
+        if (outputcheck[18].toInt() == 1)
+        {
+            report(*DFSafetyFactor, OutSafetyFactor);
+        }
+    }
+
+    if(SwitchSlopeFailure)
+    {
+        if (outputcheck[19].toInt() == 1)
+        {
+            report(*DFInitiationHeight, OutSlopeFailure);
+        }
+    }
+
+    if(SwitchSolidPhase)
+    {
+        if (outputcheck[20].toInt() == 1)
+        {
+            report(*dfhmx, OutDFH);
+        }
+        if (outputcheck[21].toInt() == 1)
+        {
+            report(*dfUV, OutDFV);
+        }
+        if (outputcheck[22].toInt() == 1)
+        {
+            report(*UF2D_FPH, OutFPH);
+        }
+        if (outputcheck[23].toInt() == 1)
+        {
+            report(*UF2D_SPH, OutSPH);
+        }
+
+    }
+
+    if(SwitchEntrainment)
+    {
+        if (outputcheck[24].toInt() == 1)
+        {
+            report(*EntrainmentDet, OutEntrainment);
+        }
+
+    }
+
+    if (outputcheck[25].toInt() == 1)
+    {
+        report(*UF2D_TimeStep, OutTimestep);
     }
 
 }

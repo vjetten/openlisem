@@ -618,6 +618,9 @@ void TWorld::UF_SetOutput()
         UF1D_q->Drc = UF1D_velocity->Drc * (UF1D_h->Drc) * _dx;
         UF1D_qs->Drc = UF1D_q->Drc * UF1D_fsConc->Drc;
 
+        UF2D_TimeStep->Drc = UF_DTMIN * UF2D_DTStep->Drc;
+        UF2D_FPH->Drc = UF2D_f->Drc/(_dx*_dx);
+        UF2D_SPH->Drc = UF2D_s->Drc/(_dx*_dx);
         //return water height to the rest of OpenLisem
         if(ChannelAdj->Drc > 0)
         {
@@ -718,7 +721,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 u1 = _fu2D->data[r-1][c];
                 v1 = _fv2D->data[r-1][c];
                 double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h1))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,1),std::fabs(fn - _f2D->Drc));
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r-1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc))));
                 _f2D->data[r-1][c] = std::max(0.0,_f2D->data[r-1][c] - dif);
                 double dif2 = h1 - _f2D->data[r-1][c];
                 _f2D->Drc += dif2;
@@ -729,7 +732,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 u2 = _fu2D->data[r+1][c];
                 v2 = _fv2D->data[r+1][c];
                 double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h2))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc));
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r+1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc))));
                 _f2D->data[r+1][c] = std::max(0.0,_f2D->data[r+1][c] - dif);
                 double dif2 = h2 - _f2D->data[r+1][c];
                 _f2D->Drc += dif2;
@@ -740,7 +743,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 u3 = _fu2D->data[r][c-1];
                 v3 = _fv2D->data[r][c-1];
                 double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h3))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc));
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c-1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,-1),std::fabs(fn - _f2D->Drc))));
                 _f2D->data[r][c-1] = std::max(0.0,_f2D->data[r][c-1] - dif);
                 double dif2 = h3 - _f2D->data[r][c-1];
                 _f2D->Drc += dif2;
@@ -751,7 +754,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 u4 = _fu2D->data[r][c+1];
                 v4 = _fv2D->data[r][c+1];
                 double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h4))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc));
+                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c+1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc))));
                 _f2D->data[r][c+1] = std::max(0.0,_f2D->data[r][c+1] - dif);
                 double dif2 = h4 - _f2D->data[r][c+1];
                 _f2D->Drc += dif2;
@@ -786,7 +789,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                     su1 = _su2D->data[r-1][c];
                     sv1 = _sv2D->data[r-1][c];
                     double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh1))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc));
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r-1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc))));
                     _s2D->data[r-1][c] = std::max(0.0,_s2D->data[r-1][c] - dif);
                     double dif2 = sh1 - _s2D->data[r-1][c];
                     _s2D->Drc += dif2;
@@ -798,7 +801,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                     su2 = _su2D->data[r+1][c];
                     sv2 = _sv2D->data[r+1][c];
                     double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh2))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc));
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r+1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc))));
                     _s2D->data[r+1][c] = std::max(0.0,_s2D->data[r+1][c] - dif);
                     double dif2 = sh2 - _s2D->data[r+1][c];
                     _s2D->Drc += dif2;
@@ -809,7 +812,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                     su3 = _su2D->data[r][c-1];
                     sv3 = _sv2D->data[r][c-1];
                     double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc));
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c-1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc))));
                     _s2D->data[r][c-1] = std::max(0.0,_s2D->data[r][c-1] - dif);
                     double dif2 = sh3 - _s2D->data[r][c-1];
                     _s2D->Drc += dif2;
@@ -820,7 +823,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                     su4 = _su2D->data[r][c+1];
                     sv4 = _sv2D->data[r][c+1];
                     double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc));
+                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c+1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc))));
                     _s2D->data[r][c+1] = std::max(0.0,_s2D->data[r][c+1] - dif);
                     double dif2 = sh4 - _s2D->data[r][c+1];
                     _s2D->Drc += dif2;

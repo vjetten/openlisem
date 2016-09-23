@@ -290,6 +290,26 @@ void TWorld::Totals(void)
         }
     }
 
+
+    FOR_ROW_COL_MV
+    {
+        if(SwitchSolidPhase)
+        {
+            MaximumDebrisFlowHeight->Drc = std::max(MaximumDebrisFlowHeight->Drc,dfhmx->Drc);
+            MaximumDebrisFlowVelocity->Drc = std::max(MaximumDebrisFlowVelocity->Drc,dfUV->Drc);
+        }
+
+        if(SwitchSlopeFailure)
+        {
+            TotalSlopeFailure->Drc += DFInitiationHeight->Drc;
+        }
+        if(SwitchSlopeStability)
+        {
+            MinimumSafetyFactor->Drc = std::min(MinimumSafetyFactor->Drc,DFSafetyFactor->Drc);
+        }
+
+    }
+
     SedimentSetMaterialDistribution();
 
 }

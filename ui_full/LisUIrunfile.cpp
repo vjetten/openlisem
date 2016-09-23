@@ -192,7 +192,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
         if (p1.compare("Incldue Maximum Volume")==0)                                checkBox_MaxVolume->setChecked(check);
 
-        if (p1.compare("Surface Flow Minimum Timestep")==0)                         E_SFMinimumDT->setValue(val);
+        if (p1.compare("Spatially Dynamic Timestep")==0)                            checkBox_SpatiallyDynamicTimestep->setChecked(check);
+        if (p1.compare("Flow Minimum Timestep")==0)                                 E_SFMinimumDT->setValue(val);
         if (p1.compare("Surface Flow Courant Factor")==0)                           E_SFCourant->setValue(val);
         if (p1.compare("Surface Flow Scheme")==0)                                   E_SFScheme->setValue(val);
 
@@ -261,7 +262,7 @@ void lisemqt::ParseInputData()
 
 
         if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
-        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
+        if (p1.compare("plot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
         if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
 
         //OBSOLETE
@@ -387,8 +388,8 @@ void lisemqt::ParseInputData()
         {
             outputcheck = p.split(",");
 
-            if (outputcheck.count() < 20)
-               for (int k = outputcheck.count();k < 20; k++)
+            if (outputcheck.count() < 26)
+               for (int k = outputcheck.count();k < 26; k++)
                    outputcheck << "0";
 
             checkBox_OutRunoff->setChecked(bool(outputcheck.at(0).toInt() == 1));
@@ -409,6 +410,23 @@ void lisemqt::ParseInputData()
             checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
             checkBox_OutSL->setChecked(bool(outputcheck.at(16).toInt() == 1));
             checkBox_OutSed->setChecked(bool(outputcheck.at(17).toInt() == 1));
+
+            checkBox_OutSafetyFactor->setChecked(bool(outputcheck.at(18).toInt() == 1));
+            checkBox_OutSlopeFailure->setChecked(bool(outputcheck.at(19).toInt() == 1));
+            checkBox_OutDebrisFlowHeight->setChecked(bool(outputcheck.at(20).toInt() == 1));
+            checkBox_OutDebrisFlowVelocity->setChecked(bool(outputcheck.at(21).toInt() == 1));
+            checkBox_OutFluidPhaseHeight->setChecked(bool(outputcheck.at(22).toInt() == 1));
+            checkBox_OutSolidPhaseHeight->setChecked(bool(outputcheck.at(23).toInt() == 1));
+            checkBox_OutEntrainment->setChecked(bool(outputcheck.at(24).toInt() == 1));
+            checkBox_OutTimestep->setChecked(bool(outputcheck.at(25).toInt() == 1));
+
+
+
+
+
+
+
+
 
             // TODO replace these numbers with defines for clarity in model.h and lisemqt.h
 
@@ -520,6 +538,13 @@ void lisemqt::ParseInputData()
         if (p1.compare("Soilloss map")==0) E_SoillossMap->setText(p);
         if (p1.compare("Channel detachment map")==0) E_ChanDetachmentMap->setText(p);
         if (p1.compare("Channel deposition map")==0) E_ChanDepositionMap->setText(p);
+
+        if (p1.compare("Maximum Debris Flow Height Map")==0) E_MaxDebrisFlowHeight->setText(p);
+        if (p1.compare("Maximum Debris Flow Velocity Map")==0) E_MaxDebrisFlowVelocity->setText(p);
+        if (p1.compare("Debris Flow Start Map")==0) E_DebrisFlowStart->setText(p);
+        if (p1.compare("Entrainment Map")==0) E_Entrainment->setText(p);
+        if (p1.compare("Slope Failure Map")==0) E_SlopeFailure->setText(p);
+        if (p1.compare("Minimum Safety Factor Map")==0) E_MinimumSafetyFactor->setText(p);
 
         if (p1.compare("Flood level map")==0) E_FloodlevelMap->setText(p);
         if (p1.compare("Flood time map")==0) E_FloodTimeMap->setText(p);
@@ -687,7 +712,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());
         if (p1.compare("Incldue Maximum Volume")==0)                                namelist[j].value.setNum((int)checkBox_MaxVolume->isChecked());
 
-        if (p1.compare("Surface Flow Minimum Timestep")==0)                         namelist[j].value = E_SFMinimumDT->text();
+        if (p1.compare("Spatially Dynamic Timestep")==0)                            namelist[j].value.setNum((int)checkBox_SpatiallyDynamicTimestep->isChecked());
+        if (p1.compare("Flow Minimum Timestep")==0)                                 namelist[j].value = E_SFMinimumDT->text();
         if (p1.compare("Surface Flow Courant Factor")==0)                           namelist[j].value = E_SFCourant->text();
         if (p1.compare("Surface Flow Scheme")==0)                                   namelist[j].value = E_SFScheme->text();
 
@@ -837,6 +863,13 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
+        if (p1.compare("Maximum Debris Flow Height Map")==0) namelist[j].value = E_MaxDebrisFlowHeight->text();
+        if (p1.compare("Maximum Debris Flow Velocity Map")==0) namelist[j].value = E_MaxDebrisFlowVelocity->text();
+        if (p1.compare("Debris Flow Start Map")==0) namelist[j].value = E_DebrisFlowStart->text();
+        if (p1.compare("Entrainment Map")==0) namelist[j].value = E_Entrainment->text();
+        if (p1.compare("Slope Failure Map")==0) namelist[j].value = E_SlopeFailure->text();
+        if (p1.compare("Minimum Safety Factor Map")==0) namelist[j].value = E_MinimumSafetyFactor->text();
+
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
@@ -923,10 +956,20 @@ void lisemqt::updateModelData()
             if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0"; //15
             if (checkBox_OutSL->isChecked())         outputcheck << "1"; else outputcheck << "0"; //16
             if (checkBox_OutSed->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+
+            if (checkBox_OutSafetyFactor->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutSlopeFailure->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutDebrisFlowHeight->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutDebrisFlowVelocity->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutFluidPhaseHeight->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutSolidPhaseHeight->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutEntrainment->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutTimestep->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+
+
             outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            // twenty places for now
+
+            // twenty-six places for now
             namelist[j].value = outputcheck.join(",");
         }
     }

@@ -417,6 +417,13 @@ public:
     QString runoffFractionMapFileName;
     QString channelDischargeMapFileName;
 
+    QString FileName_MaxDebrisFlowHeight;
+    QString FileName_MaxDebrisFlowVelocity;
+    QString FileName_DebrisFlowStart;
+    QString FileName_Entrainment;
+    QString FileName_SlopeFailure;
+    QString FileName_MinimumSafetyFactor;
+
     QString floodLevelFileName;
     QString floodTimeFileName;
     QString floodStatsFileName;
@@ -437,7 +444,7 @@ public:
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
     Outtc, Outeros, Outdepo, OutSL, OutSed,
-    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
+    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH, OutSafetyFactor,OutSlopeFailure,OutDFH,OutDFV,OutFPH, OutSPH,OutEntrainment, OutTimestep;
     QString errorFileName;
 
 
