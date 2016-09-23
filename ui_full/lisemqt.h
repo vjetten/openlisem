@@ -134,14 +134,12 @@ public:
     void initOP();
     // graph functions
     void setupPlot();
-  //  void setupSmallPlot();
     void startPlots();
     void SetPlotsData();
     void showPlot();
     void GetPlotData();
     void initPlot();
     void killPlot();
- //   void showSmallPlot();
     void initOutputData();
     void showOutputData();
     void SetTextHydrographs();
@@ -227,16 +225,12 @@ public:
 
     // graph variables
     QwtPlot *HPlot;
-   // QwtPlot *smallPlot;
     QwtPlotCurve *QGraph;
     QwtPlotCurve *QsGraph;
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
     QwtPlotCurve *outPoints;
-//    QwtPlotCurve *sPGraph;
-//    QwtPlotCurve *sQGraph;
-//    QwtPlotCurve *sQsGraph;
     bool startplot = true;
     bool stopplot;
     double yas, yasP, y2as;
@@ -394,7 +388,7 @@ public slots:
     void setFloodOP(bool);
     //  void on_checkBoxOverlay_stateChanged(int yes);
 
-
+void on_toolButtonH1_clicked();
 private slots:
 
     void showMapb(bool);

@@ -63,6 +63,7 @@ void lisemqt::GetRunfile()
     // namelist now contains the actual runfile data
     oldRunfile = false;
     int i = 0;
+
     while (!fin.atEnd())
     {
         QString S = fin.readLine().trimmed();
@@ -92,8 +93,6 @@ void lisemqt::GetRunfile()
     {
         for (i=0; i< optionList.count(); i++)
         {
-
-
             if (optionList[i].contains("="))
             {
                 QString S = optionList[i];
@@ -111,7 +110,6 @@ void lisemqt::GetRunfile()
                 }
             }
         }
-
     }
 }
 //---------------------------------------------------------------------------
@@ -130,6 +128,9 @@ void lisemqt::ParseInputData()
 
     bool seterosionold = false;
     // get all the options/checks
+
+    resetAll();
+
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
         int iii = namelist[j].value.toInt();
@@ -634,6 +635,7 @@ void lisemqt::ParseInputData()
 
     //RunAllChecks();
     //obsolete: is done in void lisemqt::on_E_runFileList_currentIndexChanged(int)
+
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p, bool makeit)
@@ -680,7 +682,7 @@ void lisemqt::updateModelData()
         QString p1 = namelist[j].name;
         QString p;
         // erosion
-         if (p1.compare("No Erosion simulation")==0)           namelist[j].value.setNum((int)(!checkDoErosion->isChecked()));
+        // if (p1.compare("No Erosion simulation")==0)           namelist[j].value.setNum((int)(!checkDoErosion->isChecked()));
         // obsolete
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
 
@@ -987,4 +989,5 @@ void lisemqt::updateModelData()
 
     currentDir = E_WorkDir;//->text();
     QDir::setCurrent(currentDir);
+
 }

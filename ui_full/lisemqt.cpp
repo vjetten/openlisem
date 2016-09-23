@@ -78,7 +78,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     MapNameModel = NULL;
     HPlot = NULL;
     MPlot = NULL;
-    // smallPlot = NULL;
+
+    RunFileNames.clear();
+    op.runfilename.clear();
+
 
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -104,7 +107,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // do some style things
 
     setupPlot();
-    // setupSmallPlot();
     // set up the discharge graphs
 
     setupMapPlot();
@@ -1409,8 +1411,8 @@ void lisemqt::resetAll()
     // make mapList structure according to
     // DEFmaps stringlist that is used to build the map tree interface
 
-    RunFileNames.clear();
-    op.runfilename.clear();
+//    RunFileNames.clear();
+//    op.runfilename.clear();
 
     E_MapDir->setText("");
     E_RainfallName->setText("");
@@ -1478,15 +1480,21 @@ void lisemqt::resetAll()
 
     bool check = false;
 
-    checkDoErosion->setChecked(check);
-
-    checkIncludeChannel->setChecked(check);
-    checkChannelInfil->setChecked(check);
-    checkChannelBaseflow->setChecked(check);
-
-    checkRoadsystem->setChecked(check);
-    checkSnowmelt->setChecked(check);
+    checkSnowmelt->setChecked(false);
     checkRainfall->setChecked(true);
+
+    checkOverlandFlow1D->setChecked(false);
+    checkOverlandFlow1D->setChecked(true);
+    checkDoErosion->setChecked(false);
+    checkAdvancedSediment->setChecked(false);
+
+    checkIncludeChannel->setChecked(false);
+    checkChannelFlood->setChecked(false);
+    checkChannelInfil->setChecked(false);
+    checkChannelBaseflow->setChecked(false);
+
+    checkRoadsystem->setChecked(false);
+    checkHouses->setChecked(false);
     checkHardsurface->setChecked(false);
 
     checkIncludeLitter->setChecked(false);
@@ -1603,6 +1611,10 @@ void lisemqt::resetAll()
     //   E_FloodReplaceV->setValue(1);
     //   E_FloodMaxVelocity->setValue(10.0);
 
+//2D kin wave
+    E_Kinematic2D->setValue(3);
+    E_TimestepMin->setValue(1.0);
+    E_CourantFactorKin->setValue(0.25);
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)
@@ -1700,3 +1712,9 @@ void lisemqt::fontIncrease()
                                 QPlainTextEdit {font: %1pt;} \
                                 ").arg(genfontsize));
 }
+
+void lisemqt::on_toolButtonH1_clicked()
+{
+
+}
+

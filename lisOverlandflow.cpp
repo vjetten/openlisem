@@ -180,7 +180,7 @@ void TWorld::ToChannel(void)
                 double R = 0;
                 Perim = 2.0*hrunoff+FlowWidth->Drc;
                 if (Perim > 0)
-                    R = hrunoff*FlowWidth->Drc/Perim;
+                    R = hrunoff;//*FlowWidth->Drc/Perim;
                 else
                     R = 0;
                 double Slope = hrunoff/_dx;
@@ -311,10 +311,10 @@ void TWorld::CalcVelDisch()
         // Reynolds number ==> turbulent
 
         // avg WH from soil surface and roads, over width FlowWidth
-        Perim = 2*WHrunoff->Drc+FlowWidth->Drc;
+        Perim = /*2*WHrunoff->Drc+*/ FlowWidth->Drc;
 
         if (Perim > 0)
-            R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
+            R->Drc = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
         else
             R->Drc = 0;
 

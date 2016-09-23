@@ -125,77 +125,6 @@ void lisemqt::setupPlot()
     // draw empty plot
 }
 //---------------------------------------------------------------------------
-/// set up small discharge plot on mapplot page
-/// this is called at the start of lisem, initsmallplot() is called at the start of a model run
-//OBSOLETE
-/*void lisemqt::setupSmallPlot()
-{
-
-    QwtText title;
-    title.setText("Hydrograph");
-    title.setFont(QFont("MS Shell Dlg 2",8));
-    smallPlot = new QwtPlot(title, this);
-    smallPlot->setMinimumSize(300,300);
-    smallPlot->resize(500,500);
-    verticalLayout_6->insertWidget(0, smallPlot, 1);
-    smallPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
-
-    sPGraph = new QwtPlotCurve("Rainfall");
-    sQGraph = new QwtPlotCurve("Discharge");
-
-    sPGraph->attach(smallPlot);
-    sQGraph->attach(smallPlot);
-    // order determines order of display in Legend
-    //VJ 101223 changed for qwt 6.0.0
-
-    sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
-    sQGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-
-    sQsGraph = new QwtPlotCurve("Sediment discharge");
-    sQsGraph->setPen(QPen(Qt::red));
-    sQsGraph->setStyle(QwtPlotCurve::Lines);
-    sQsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-    QColor col;
-    col.setRgb( 60,60,200,255 );
-    sQGraph->setPen(QPen(col));
-    sPGraph->setPen(QPen("#000000"));
-
-    sPGraph->setStyle(QwtPlotCurve::Steps);
-    sQGraph->setStyle(QwtPlotCurve::Lines);
-
-    sPGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    sQGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-    smallPlot->setCanvasBackground(QBrush(Qt::white));
-
-    // set axes
-    smallPlot->enableAxis(smallPlot->yLeft,true);
-    smallPlot->enableAxis(smallPlot->xBottom,true);
-    smallPlot->enableAxis(smallPlot->yRight,true);
-
-    title.setText("time (min)");
-    title.setFont(QFont("MS Shell Dlg 2",8));
-    smallPlot->setAxisTitle(smallPlot->xBottom, title);
-    title.setText("Q (l/s)");
-    smallPlot->setAxisTitle(smallPlot->yLeft, title);
-    smallPlot->setAxisScale(smallPlot->yLeft, 0, 1);
-    smallPlot->setAxisScale(smallPlot->xBottom, 0, 100);
-    title.setText("P (mm/h)");
-    smallPlot->setAxisTitle(smallPlot->yRight, title);
-    smallPlot->setAxisScale(smallPlot->yRight, 0, 1);
-
-    // set gridlines
-
-    QwtPlotGrid *grid = new QwtPlotGrid();
-    col.setRgb( 180,180,180,180 );
-    grid->setMajPen(QPen(col, 0, Qt::DotLine));
-    grid->attach(smallPlot);
-
-    smallPlot->replot();
-
-}*/
-//---------------------------------------------------------------------------
 void lisemqt::onOutletChanged(int point)
 {
     if(!startplot)
@@ -257,13 +186,10 @@ void lisemqt::initPlot()
     else
         QtileGraph->detach();
 
-    //    if(!checkNoErosion->isChecked())
     if(checkDoErosion->isChecked())
     {
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
-
-        //sQsGraph->attach(smallPlot);
     }
     else
     {
@@ -272,31 +198,21 @@ void lisemqt::initPlot()
         //       sQsGraph->detach();
     }
 
-    //    if(!checkNoErosion->isChecked())
     if(checkDoErosion->isChecked())
     {
         PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
         QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
         CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
 
-        //     sPGraph->setAxes(smallPlot->xBottom, smallPlot->yLeft);
-        //     sQsGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
-
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
         HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
-        //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s) & P (mm/h)");
-        //     smallPlot->setAxisTitle(smallPlot->yRight, "Qs (kg/s)");
     }
     else
     {
         PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-        //       sPGraph->setAxes(smallPlot->xBottom, smallPlot->yRight);
-
 
         HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
-        //    smallPlot->setAxisTitle(smallPlot->yLeft, "Q (l/s)");
-        //     smallPlot->setAxisTitle(smallPlot->yRight, "P (mm/h)");
     }
 
 }
@@ -304,23 +220,6 @@ void lisemqt::initPlot()
 /// free data structures graph
 void lisemqt::killPlot()
 {
-    /*for(int i =OutletQ.length()-1; i >-1 ; i--)
-    {
-        delete OutletQ.at(i);
-    }
-    for(int i =OutletQs.length()-1; i >-1 ; i--)
-    {
-        delete OutletQs.at(i);
-    }
-    for(int i =OutletC.length()-1; i >-1 ; i--)
-    {
-        delete OutletC.at(i);
-    }
-    for(int i =OutletChannelWH.length()-1; i >-1 ; i--)
-    {
-        delete OutletChannelWH.at(i);
-    }*/
-
     OutletQ.clear();
     OutletQs.clear();
     OutletC.clear();
@@ -433,26 +332,6 @@ void lisemqt::showPlot()
 
 }
 //---------------------------------------------------------------------------
-/*void lisemqt::showSmallPlot()
-{
-
-    sQGraph->setSamples(TData,QData);
-    sPGraph->setSamples(TData,PData);
-    //    if(!checkNoErosion->isChecked())
-    if(checkDoErosion->isChecked())
-        sQsGraph->setSamples(TData,QsData);
-
-    smallPlot->setTitle(QString("Hydrograph %1").arg(op.outputpointdata));
-
-    smallPlot->setAxisScale(smallPlot->yLeft, 0, yas*1.05);
-
-    smallPlot->setAxisScale(smallPlot->yRight, 0, y2as*1.05);
-
-    smallPlot->replot();
-
-
-}*/
-//---------------------------------------------------------------------------
 // initializes plot with world data, called in worldshow, done once
 void lisemqt::startPlots()
 {
@@ -472,19 +351,10 @@ void lisemqt::startPlots()
 
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
-    //   smallPlot->setAxisScale(smallPlot->xBottom, op.BeginTime, op.EndTime);
-
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
     HPlot->insertLegend(legend, QwtPlot::BottomLegend);
     //legend
-    // QwtLegend *slegend = new QwtLegend(smallPlot);
-    // slegend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-    //  smallPlot->insertLegend(slegend, QwtPlot::BottomLegend);
-    //legend
-
-    //   label_pointOutput->setText(QString("Hydrograph %1").arg(op.outputpointdata));
-    // VJ 110630 show hydrograph for selected output point
 
     OutletIndices.append(op.OutletIndices);
     OutletLocationX.append(op.OutletLocationX);
@@ -512,33 +382,6 @@ void lisemqt::startPlots()
     HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
     // VJ 110630 show hydrograph for selected output point
 
-    //    samplep.clear();
-    //    //first 0,0 is never shown
-    //    for (int j = 1; j < OutletIndices.length(); j++)
-    //    {
-    //        samplep += QPoint(op.OutletLocationX.at(j), op.OutletLocationY.at(j) );
-    //    }
-
-    //    qDebug() << samplep;
-
-
-
-//    outPoints = new QwtPlotCurve("");
-//    outPoints->attach(MPlot);
-//    outPoints->setAxes(MPlot->xBottom, MPlot->yLeft);
-//   // outPoints->setStyle(CurveStyle::NoCurve);
-//   // outPoints->symbol.setSize(10);
-//    outPoints->setPen(QPen("#000000"));
-
-//    QVector <double> YY;
-//    QVector <double> XX;
-
-//    for (int j = 1; j < OutletIndices.length(); j++)
-//    {
-//        XX << (double)op.OutletLocationX.at(j);
-//        YY << (double)op.OutletLocationY.at(j);
-//    }
-//    outPoints->setSamples(XX,YY);
 }
 
 //---------------------------------------------------------------------------

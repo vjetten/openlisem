@@ -134,10 +134,10 @@ void TWorld::K2DInit()
 
             double hrunoff = std::max(WHrunoff->Drc, 0.0);
 
-            double Perim = 2.0*hrunoff+dy;
+            double Perim = /*2.0*hrunoff+*/ dy;
 
             if (Perim > 0)
-                R->Drc = dy*hrunoff/Perim;
+                R->Drc = hrunoff;// *dy/Perim;
             else
                 R->Drc = 0;
 
@@ -200,22 +200,21 @@ double TWorld::K2DFlux()
         double hrunoff = std::max(K2DHOld->Drc - K2DWHStore->Drc, 0.0);
 
         //calculate discharge from water height, mannings N and slope
-        double Perim = 2.0*hrunoff+cdy;
+        double Perim =/* 2.0*hrunoff+*/  cdy;
         if (Perim > 0)
-            R->Drc = hrunoff*cdy/Perim;
+            R->Drc = hrunoff;//*cdy/Perim;
         else
             R->Drc = 0;
 
         // Q = V*A
-        K2DQ->Drc = sqrt(K2DSlope->Drc)/N->Drc * pow(R->Drc,2.0/3.0) * hrunoff*cdy;
+       // K2DQ->Drc = sqrt(K2DSlope->Drc)/N->Drc * pow(R->Drc,2.0/3.0) * hrunoff*cdy;
 
-//        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
 
-//        if(Alpha->Drc > 0)
-//            K2DQ->Drc = pow((cdy*hrunoff)/Alpha->Drc, 1.0/0.6);
-//        else
-//            K2DQ->Drc = 0;
-
+        if(Alpha->Drc > 0)
+            K2DQ->Drc = pow((cdy*hrunoff)/Alpha->Drc, 1.0/0.6);
+        else
+            K2DQ->Drc = 0;
         //within this timestep, only fraction of the cells available water should flow out
         if(K2DQ->Drc > 0)
         {
@@ -234,7 +233,7 @@ double TWorld::K2DFlux()
     {
 //        double Qlim = fraction * DX->Drc * K2DHOld->Drc * ChannelAdj->Drc;
         double hrunoff = std::max(K2DHOld->Drc - K2DWHStore->Drc, 0.0);
-        double Vollim = fraction * DX->Drc * hrunoff * ChannelAdj->Drc;
+        double Vollim = fraction * DX->Drc * hrunoff * ChannelAdj->Drc;   ///why channeladj and not flowwidth
         //limit discharge to fraction of the cells water
         if(Vollim < K2DQ->Drc*dtr)
         {
@@ -246,6 +245,8 @@ double TWorld::K2DFlux()
         }
     }
 
+    report(*tm,"kdqa");
+    report(*K2DQ,"kdqb");
 
     //return the lowest needed timestep, with a minimum of 1.0 seconds
     return dtr;
@@ -1004,7 +1005,6 @@ void TWorld::K2DCalcVelDisch()
             const double beta = 0.6;
             const double _23 = 2.0/3.0;
             double beta1 = 1/beta;
-            //double kinvisc = 1.1e-6; // 15 degrees celcius water
             double NN = N->Drc;
 
 
@@ -1015,21 +1015,21 @@ void TWorld::K2DCalcVelDisch()
             // Reynolds number ==> turbulent
 
             // avg WH from soil surface and roads, over width FlowWidth
-            Perim = 2.0*hrunoff+FlowWidth->Drc;
+            Perim = /* 2.0*hrunoff+ */ FlowWidth->Drc;
 
             if (Perim > 0)
-                R->Drc = hrunoff*FlowWidth->Drc/Perim;
+                R->Drc = hrunoff;//*FlowWidth->Drc/Perim;
             else
                 R->Drc = 0;
 
-/*
+
             Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, _23),beta);
 
             if (Alpha->Drc > 0)
                 Q->Drc = pow((FlowWidth->Drc*hrunoff)/Alpha->Drc, beta1);
             else
                 Q->Drc = 0;
-*/
+/*
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
 
             if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
@@ -1037,7 +1037,7 @@ void TWorld::K2DCalcVelDisch()
                 V->Drc = 0;
             }
             Q->Drc = V->Drc*FlowWidth->Drc*hrunoff;
-
+*/
         }
 
 
@@ -1282,7 +1282,7 @@ void TWorld::K2DDEMA()
         //Angle of direction of steepest slope, compared to positive x-axis !not used!
         //K2DAspect->Drc = atan2(Dhy,Dhx);
 
-        //calculate actual combined slope, with a minimum value of 0.01
+        //calculate actual combined slope, with a minimum value of 0.001
         double Dh = fabs(Dhx) + fabs(Dhy);
         K2DSlope->Drc = Dh / sqrt(2*_dx*_dx);
 
