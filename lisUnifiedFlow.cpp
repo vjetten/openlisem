@@ -712,58 +712,77 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
 
         if(w > 0.5)
         {
+            int count = 0;
             double h = _f2D->data[r][c]; double u = _fu2D->data[r-1][c]; double v = _fv2D->data[r-1][c];
             double h1 = h,h2 = h,h3 = h,h4 = h,u1 = u,u2 = u,u3 = u,u4 = u,v1 = v,v2 = v,v3 = v,v4 = v;
 
             if(!UF_OUTORMV(_dem,r-1,c))
             {
-                h1 = _f2D->data[r-1][c];
-                u1 = _fu2D->data[r-1][c];
-                v1 = _fv2D->data[r-1][c];
-                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h1))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r-1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc))));
-                _f2D->data[r-1][c] = std::max(0.0,_f2D->data[r-1][c] - dif);
-                double dif2 = h1 - _f2D->data[r-1][c];
-                _f2D->Drc += dif2;
+                if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
+                {
+                    count ++;
+                    h1 = _f2D->data[r-1][c];
+                    u1 = _fu2D->data[r-1][c];
+                    v1 = _fv2D->data[r-1][c];
+                    double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h1))/5.0;
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r-1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc))));
+                    _f2D->data[r-1][c] = std::max(0.0,_f2D->data[r-1][c] - dif);
+                    double dif2 = h1 - _f2D->data[r-1][c];
+                    _f2D->Drc += dif2;
+                }
             }
             if(!UF_OUTORMV(_dem,r+1,c))
             {
-                h2 = _f2D->data[r+1][c];
-                u2 = _fu2D->data[r+1][c];
-                v2 = _fv2D->data[r+1][c];
-                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h2))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r+1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc))));
-                _f2D->data[r+1][c] = std::max(0.0,_f2D->data[r+1][c] - dif);
-                double dif2 = h2 - _f2D->data[r+1][c];
-                _f2D->Drc += dif2;
+                if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
+                {
+                    count ++;
+                    h2 = _f2D->data[r+1][c];
+                    u2 = _fu2D->data[r+1][c];
+                    v2 = _fv2D->data[r+1][c];
+                    double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h2))/5.0;
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r+1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc))));
+                    _f2D->data[r+1][c] = std::max(0.0,_f2D->data[r+1][c] - dif);
+                    double dif2 = h2 - _f2D->data[r+1][c];
+                    _f2D->Drc += dif2;
+                }
             }
             if(!UF_OUTORMV(_dem,r,c-1))
             {
-                h3 = _f2D->data[r][c-1];
-                u3 = _fu2D->data[r][c-1];
-                v3 = _fv2D->data[r][c-1];
-                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h3))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c-1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,-1),std::fabs(fn - _f2D->Drc))));
-                _f2D->data[r][c-1] = std::max(0.0,_f2D->data[r][c-1] - dif);
-                double dif2 = h3 - _f2D->data[r][c-1];
-                _f2D->Drc += dif2;
+                if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
+                {
+                    count ++;
+                    h3 = _f2D->data[r][c-1];
+                    u3 = _fu2D->data[r][c-1];
+                    v3 = _fv2D->data[r][c-1];
+                    double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h3))/5.0;
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c-1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,-1),std::fabs(fn - _f2D->Drc))));
+                    _f2D->data[r][c-1] = std::max(0.0,_f2D->data[r][c-1] - dif);
+                    double dif2 = h3 - _f2D->data[r][c-1];
+                    _f2D->Drc += dif2;
+                }
             }
             if(!UF_OUTORMV(_dem,r,c+1))
             {
-                h4 = _f2D->data[r][c+1];
-                u4 = _fu2D->data[r][c+1];
-                v4 = _fv2D->data[r][c+1];
-                double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h4))/5.0;
-                double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c+1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc))));
-                _f2D->data[r][c+1] = std::max(0.0,_f2D->data[r][c+1] - dif);
-                double dif2 = h4 - _f2D->data[r][c+1];
-                _f2D->Drc += dif2;
+                if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
+                {
+                    count ++;
+                    h4 = _f2D->data[r][c+1];
+                    u4 = _fu2D->data[r][c+1];
+                    v4 = _fv2D->data[r][c+1];
+                    double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h4))/5.0;
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c+1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc))));
+                    _f2D->data[r][c+1] = std::max(0.0,_f2D->data[r][c+1] - dif);
+                    double dif2 = h4 - _f2D->data[r][c+1];
+                    _f2D->Drc += dif2;
+                }
             }
 
-            //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
-            _fu2D->Drc = (4.0*(1.0 + w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/8.0;
-            _fv2D->Drc = (4.0*(1.0 + w) * _fv2D->Drc + w *(v1 + v2 + v3 + v4))/8.0;
-
+            if(count == 4)
+            {
+                //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
+                _fu2D->Drc = (4.0*(1.0 - w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/(4.0 + count);
+                _fv2D->Drc = (4.0*(1.0 - w) * _fv2D->Drc + w *(v1 + v2 + v3 + v4))/(4.0 + count);
+            }
         }
 
         _fu2D->Drc = (_fu2D->Drc > 0? 1.0:-1.0) * std::min(std::fabs(_fu2D->Drc),UF_MAX_NUM_VEL);
@@ -779,59 +798,78 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
         {
             if(w > 0.5)
             {
+                int count = 0;
                 double sh = _s2D->data[r][c]; double su = _su2D->data[r-1][c]; double sv = _sv2D->data[r-1][c];
                 double sh1 = sh, sh2 = sh, sh3 = sh, sh4 = sh,su1 =su,su2 = su,su3 = su,su4 = su,sv1 = sv,sv2 = sv,sv3 = sv,sv4 = sv;
 
                 if(!UF_OUTORMV(_dem,r-1,c))
                 {
-
-                    sh1 = _s2D->data[r-1][c];
-                    su1 = _su2D->data[r-1][c];
-                    sv1 = _sv2D->data[r-1][c];
-                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh1))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r-1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc))));
-                    _s2D->data[r-1][c] = std::max(0.0,_s2D->data[r-1][c] - dif);
-                    double dif2 = sh1 - _s2D->data[r-1][c];
-                    _s2D->Drc += dif2;
+                    if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
+                    {
+                        count ++;
+                        sh1 = _s2D->data[r-1][c];
+                        su1 = _su2D->data[r-1][c];
+                        sv1 = _sv2D->data[r-1][c];
+                        double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh1))/5.0;
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r-1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc))));
+                        _s2D->data[r-1][c] = std::max(0.0,_s2D->data[r-1][c] - dif);
+                        double dif2 = sh1 - _s2D->data[r-1][c];
+                        _s2D->Drc += dif2;
+                    }
 
                 }
                 if(!UF_OUTORMV(_dem,r+1,c))
                 {
-                    sh2 = _s2D->data[r+1][c];
-                    su2 = _su2D->data[r+1][c];
-                    sv2 = _sv2D->data[r+1][c];
-                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh2))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r+1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc))));
-                    _s2D->data[r+1][c] = std::max(0.0,_s2D->data[r+1][c] - dif);
-                    double dif2 = sh2 - _s2D->data[r+1][c];
-                    _s2D->Drc += dif2;
+                    if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
+                    {
+                        count ++;
+                        sh2 = _s2D->data[r+1][c];
+                        su2 = _su2D->data[r+1][c];
+                        sv2 = _sv2D->data[r+1][c];
+                        double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh2))/5.0;
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r+1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc))));
+                        _s2D->data[r+1][c] = std::max(0.0,_s2D->data[r+1][c] - dif);
+                        double dif2 = sh2 - _s2D->data[r+1][c];
+                        _s2D->Drc += dif2;
+                    }
                 }
                 if(!UF_OUTORMV(_dem,r,c-1))
                 {
-                    sh3 = _s2D->data[r][c-1];
-                    su3 = _su2D->data[r][c-1];
-                    sv3 = _sv2D->data[r][c-1];
-                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c-1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc))));
-                    _s2D->data[r][c-1] = std::max(0.0,_s2D->data[r][c-1] - dif);
-                    double dif2 = sh3 - _s2D->data[r][c-1];
-                    _s2D->Drc += dif2;
+                    if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
+                    {
+                        count ++;
+                        sh3 = _s2D->data[r][c-1];
+                        su3 = _su2D->data[r][c-1];
+                        sv3 = _sv2D->data[r][c-1];
+                        double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c-1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc))));
+                        _s2D->data[r][c-1] = std::max(0.0,_s2D->data[r][c-1] - dif);
+                        double dif2 = sh3 - _s2D->data[r][c-1];
+                        _s2D->Drc += dif2;
+                    }
                 }
                 if(!UF_OUTORMV(_dem,r,c+1))
                 {
-                    sh4 = _s2D->data[r][c+1];
-                    su4 = _su2D->data[r][c+1];
-                    sv4 = _sv2D->data[r][c+1];
-                    double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                    double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c+1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc))));
-                    _s2D->data[r][c+1] = std::max(0.0,_s2D->data[r][c+1] - dif);
-                    double dif2 = sh4 - _s2D->data[r][c+1];
-                    _s2D->Drc += dif2;
+                    if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
+                    {
+                        count ++;
+                        sh4 = _s2D->data[r][c+1];
+                        su4 = _su2D->data[r][c+1];
+                        sv4 = _sv2D->data[r][c+1];
+                        double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c+1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc))));
+                        _s2D->data[r][c+1] = std::max(0.0,_s2D->data[r][c+1] - dif);
+                        double dif2 = sh4 - _s2D->data[r][c+1];
+                        _s2D->Drc += dif2;
+                    }
                 }
 
 
-                _su2D->Drc = (4.0*(1.0 + w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/8.0;
-                _sv2D->Drc = (4.0*(1.0 + w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/8.0;
+                if(count == 4)
+                {
+                    _su2D->Drc = (4.0*(1.0 - w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/(4.0 + count);
+                    _sv2D->Drc = (4.0*(1.0 - w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/(4.0 + count);
+                }
 
             }
 

@@ -477,7 +477,7 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
 
 double TWorld::UF2D_MaxFlux(cTMap * _dem,cTMap * _f, int r, int c, int dr, int dc)
 {
-    double mf = std::max(0.0,(_f->Drc/(_dx*_dx) + _dem->Drc) - ((_f->data[r + dr][c+dc]/(_dx*_dx) + _dem->data[r + dr][c+dc] + GetFlowBarrierHeight(r,c,dr,dc)) ));
+    double mf = std::max(0.0,(_f->Drc/(_dx*_dx) + _dem->Drc) - (std::max(_f->data[r + dr][c+dc]/(_dx*_dx),GetFlowBarrierHeight(r,c,dr,dc)) + _dem->data[r + dr][c+dc]));
     if(std::isnan(mf))
     {
         return 0;
