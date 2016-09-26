@@ -71,7 +71,7 @@ void TWorld::OutputUI(void)
     //hydrographs
     op.timestep = this->_dt/60.0;
     op.OutletQ.at(0)->append((QtotT * 1000.0/_dt));
-    op.OutletQs.at(0)->append(SoilLossTotT);
+    op.OutletQs.at(0)->append(SoilLossTotT/_dt);
     op.OutletC.at(0)->append((QtotT) > 1e-6? SoilLossTotT/(QtotT) : 0);
     op.OutletQtot.replace(0,Qtot);
     op.OutletQstot.replace(0,SoilLossTot/1000.0);

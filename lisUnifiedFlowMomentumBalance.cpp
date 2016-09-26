@@ -34,11 +34,23 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-double TWorld::UF_Friction(double dt,double velx,double vely, double NN, double h, double slope, bool solid)
+double TWorld::UF_Friction(double dt,double velx,double vely, double NN, double h, double slope, bool solid, bool channel, double flowwidth)
 {
 
     double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
     double nsq = manning * (0.1+NN)*(0.1+NN)*UF_Gravity*sqrt(velx*velx + vely*vely)*pow(dt/UF2D_MinimumDT,1.0/3.0)/pow(std::max(0.0,h),4.0/3.0);
+
+    if(channel)
+    {
+        if(flowwidth > 0)
+        {
+            nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
+            if(h > 1)
+            {
+                 nsq = nsq * h;
+            }
+        }
+    }
     double kinfac = 0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0);
     //double vkin = (slope  > 0? -1.0: 1.0) *sqrt(std::fabs(slope)) * pow(h,3.0/2.0)/NN;
     return velx/(1.0+  kinfac * nsq); //vkin * kinfac + (1-kinfac) *velx/(1.0+nsq);

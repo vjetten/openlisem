@@ -701,12 +701,12 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
 
         UF_t6->Drc += dt->Drc*(2.0/3.0)* lfa;
         UF_t7->Drc += dt->Drc*(2.0/3.0)* rfa;
-        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhf,UF1D_Slope->Drc, false);
-        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhf,UF1D_Slope->Drc, false);
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhf,UF1D_Slope->Drc, false,true,_lddw->Drc);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhf,UF1D_Slope->Drc, false,true,_lddw->Drc);
         double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lfa;
         double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rfa;
-        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhf,UF1D_Slope->Drc, false))/2.0;
-        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhf,UF1D_Slope->Drc, false))/2.0;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhf,UF1D_Slope->Drc, false,true,_lddw->Drc))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhf,UF1D_Slope->Drc, false,true,_lddw->Drc))/2.0;
 
         if(sf > UF_VERY_SMALL)
         {
@@ -912,12 +912,12 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
 
         UF_t6->Drc += dt->Drc*(2.0/3.0)* lsa;
         UF_t7->Drc += dt->Drc*(2.0/3.0)* rsa;
-        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhs,UF1D_Slope->Drc, true);
-        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhs,UF1D_Slope->Drc, true);
+        UF_t6->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t6->Drc,0,N->Drc,lhs,UF1D_Slope->Drc, true,true,_lddw->Drc);
+        UF_t7->Drc = UF_Friction(dt->Drc*(2.0/3.0),UF_t7->Drc,0,N->Drc,rhs,UF1D_Slope->Drc, true,true,_lddw->Drc);
         double vt1 = UF_t6->Drc + dt->Drc*(2.0/3.0)* lsa;
         double vt2 = UF_t7->Drc + dt->Drc*(2.0/3.0)* rsa;
-        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhs,UF1D_Slope->Drc, true))/2.0;
-        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhs,UF1D_Slope->Drc, true))/2.0;
+        UF_t6->Drc = (UF_t6->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt1,0,N->Drc,lhs,UF1D_Slope->Drc, true,true,_lddw->Drc))/2.0;
+        UF_t7->Drc = (UF_t7->Drc + UF_Friction(dt->Drc*(2.0/3.0),vt2,0,N->Drc,rhs,UF1D_Slope->Drc, true,true,_lddw->Drc))/2.0;
 
         if(sf > UF_VERY_SMALL)
         {
