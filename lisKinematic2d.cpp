@@ -233,7 +233,7 @@ double TWorld::K2DFlux()
     {
 //        double Qlim = fraction * DX->Drc * K2DHOld->Drc * ChannelAdj->Drc;
         double hrunoff = std::max(K2DHOld->Drc - K2DWHStore->Drc, 0.0);
-        double Vollim = fraction * DX->Drc * hrunoff * ChannelAdj->Drc;   ///why channeladj and not flowwidth
+        double Vollim = fraction * DX->Drc * hrunoff * ChannelAdj->Drc;   //why channeladj and not flowwidth
         //limit discharge to fraction of the cells water
         if(Vollim < K2DQ->Drc*dtr)
         {
@@ -244,10 +244,6 @@ double TWorld::K2DFlux()
             //K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
     }
-
-    report(*tm,"kdqa");
-    report(*K2DQ,"kdqb");
-
     //return the lowest needed timestep, with a minimum of 1.0 seconds
     return dtr;
 

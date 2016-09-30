@@ -918,9 +918,9 @@ void TWorld::ChannelFloodStatistics(void)
     out << "#,m,m2,m3,h,h,m2\n";
     for (int i = 0; i < nr+1; i++)
         out << i << ","
-            << floodList[i].var2 << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
+            << floodList[i].var2 << ","
             << floodList[i].var3 << ","
             << floodList[i].var4 << ","
             << floodList[i].var5
