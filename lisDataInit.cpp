@@ -2560,7 +2560,7 @@ void TWorld::FindBaseFlow()
                         h = 1;
                         // first guess new h with old alpha
                         h1 = h;
-                        double A;
+                        double A = 0;
 
                         if (q > 0)
                         {
@@ -2576,8 +2576,6 @@ void TWorld::FindBaseFlow()
                                 //double A = h*w;
 
                                 double P,R;
-                                const double beta = 0.6;
-                                const double _23 = 2.0/3.0;
                                 double wh = h;
                                 double FW = ChannelWidth->Drc;
                                 double dw = /*0.5* */(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular

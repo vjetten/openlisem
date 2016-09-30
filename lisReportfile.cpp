@@ -1218,6 +1218,7 @@ void TWorld::GetComboMaps()
         Colors.append("#007300");
 
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
+        AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
 
     }
     if(SwitchErosion)
