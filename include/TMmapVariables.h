@@ -31,6 +31,7 @@
 
 cTMap
 
+*_MASK,
 *DEM,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
@@ -504,6 +505,7 @@ cTMap
 *tmd,                        //!< Auxilary map
 //display combinations
 *COMBO_QOFCH,
+*COMBO_VOFCH,
 *COMBO_SS
 ;
 

@@ -768,6 +768,11 @@ void lisemqt::SetStyleUI()
    //checkFloodInitial->setVisible(false);
     // interface elements that are not visible for now
 
+    //always MUSCL
+    E_FloodScheme->setVisible(false);
+    label_98->setVisible(false);
+
+
     //groupBoxTime->setMaximumWidth(128);
 
 

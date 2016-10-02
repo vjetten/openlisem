@@ -23,7 +23,6 @@
 *************************************************************************/
 
 
-
 #include <algorithm>
 #include "lisemqt.h"
 #include "model.h"

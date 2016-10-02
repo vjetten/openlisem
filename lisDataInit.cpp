@@ -1272,9 +1272,11 @@ void TWorld::GetInputData(void)
 
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
+  //  _MASK = InitMask(getvaluename("mask"));
     // THIS SHOULD BE THE FIRST MAP
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
+
 
     tm = NewMap(0); // temp map for aux calculations
     tma = NewMap(0); // temp map for aux calculations
@@ -1632,6 +1634,7 @@ void TWorld::IntializeData(void)
 
     //combination display
     COMBO_QOFCH = NewMap(0);
+    COMBO_VOFCH = NewMap(0);
     COMBO_SS = NewMap(0);
 
     //### rainfall and interception maps

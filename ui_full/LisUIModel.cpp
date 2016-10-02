@@ -317,7 +317,7 @@ void lisemqt::setFloodOP(bool)
 {
     op.F_solution = E_floodSolution->text().toInt();
     op.F_fluxLimiter = E_FloodFluxLimiter->text().toInt();
-    op.F_scheme = E_FloodScheme->text().toInt();
+    op.F_scheme = 1;//E_FloodScheme->text().toInt();
     op.F_SSMethod = E_SSMethod->text().toInt();
     op.F_SigmaDiffusion = E_SigmaDiffusion->text().toDouble();
     op.F_BLMethod = E_BLMethod->text().toInt();
