@@ -107,8 +107,8 @@ void TWorld::UF1D_SolidSource(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
         _rocksize->Drc = (ChannelSourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidRocksize->Drc + _s->Drc* _rocksize->Drc)/(ChannelSourceSolid->Drc + _s->Drc) :_rocksize->Drc;
         _ifa->Drc = (ChannelSourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (ChannelSourceSolid->Drc * ChannelSourceSolidIFA->Drc + _s->Drc* _ifa->Drc)/(ChannelSourceSolid->Drc + _s->Drc) : _ifa->Drc;
 
-        out_s->Drc = _s->Drc + SourceSolid->Drc;
-        SourceSolid->Drc = 0;
+        out_s->Drc = _s->Drc + ChannelSourceSolid->Drc;
+        ChannelSourceSolid->Drc = 0;
     }
 }
 
@@ -345,7 +345,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
     }
 
     //use overland flow equations
-    if(hf < 0.15)
+    if(hf < 0.1)
     {
         if(bedload)
         {
@@ -766,6 +766,7 @@ double TWorld::UF_RockAdd(int r, int c, double entrainment, bool channel)
         double entrainment = std::min(UF2D_s->Drc, entrainment * UF1D_d->Drc);
         EntrainmentDep->Drc = entrainment;
         UF2D_s->Drc -= entrainment;
+
 
         SoilRockDensity->Drc = (SoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF2D_d->Drc + SoilRockMaterial->Drc * SoilRockDensity->Drc)/(SoilRockMaterial->Drc + entrainment) : SoilRockDensity->Drc;
         SoilRockSize->Drc = (SoilRockMaterial->Drc + entrainment) > UF_VERY_SMALL? (entrainment * UF2D_rocksize->Drc + SoilRockMaterial->Drc * SoilRockSize->Drc)/(SoilRockMaterial->Drc + entrainment) : SoilRockSize->Drc;

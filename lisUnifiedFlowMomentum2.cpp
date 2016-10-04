@@ -747,19 +747,20 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                 q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
 
                 UF1D_fq1->Drc = q1;
-            }else if(rfu > 0)
+            }else// if(rfu > 0)
             {
                 double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
                 double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_f->Drc/(_dx*_lddw->Drc),0,rfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
-                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+                q1 = ((q1 > 0)? 1.0 : 1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cq);
 
                 UF1D_fq1->Drc = q1;
             }
-        }else if (rfu > 0)
+        }else// if (rfu > 0)
         {
             double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
             double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_f->Drc,0,rfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
-            q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+
+            q1 = ((q1 > 0)? 1.0 : 1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cq);
 
             UF1D_fq1->Drc = q1;
         }
@@ -817,11 +818,11 @@ void TWorld::UF1D_FluidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                     }
                 }
             }
-        }else if(lfu < 0)
+        }else// if(lfu < 0)
         {
             double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
             double q2 = UF_BoundaryFlux1D(dtx2,_lddw->Drc,_f->Drc,0,lfu,_su->Drc,UF1D_Slope->Drc,ChannelN->Drc, true);
-            q2 = ((q2 < 0)? -1.0 : 0.0) * std::min(std::fabs(q2),(q2 > 0)? cq : 0.0);
+            q2 = ((q2 < 0)? 1.0 : 1.0) * std::min(std::fabs(q2),(q2 > 0)? cq : cq);
 
             UF1D_fq2->Drc = q2;
         }
@@ -958,21 +959,21 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                 q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cqt);
 
                 UF1D_sq1->Drc = q1;
-            }else if(_su->Drc > 0)
+            }//else if(_su->Drc > 0)
             {
                 double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
                 double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_s->Drc,0,rsu,_fu->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
-                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+                q1 = ((q1 > 0)? 1.0 : 1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cq);
 
                 UF1D_sq1->Drc = q1;
             }
         }else
         {
-            if(_su->Drc > 0)
+            //if(_su->Drc > 0)
             {
                 double dtx1 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
                 double q1 = UF_BoundaryFlux1D(dtx1,_lddw->Drc,_s->Drc,0,rsu,_fu->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
-                q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cq : 0.0);
+                q1 = ((q1 > 0)? 1.0 : 1.0) * std::min(std::fabs(q1),(q1 > 0)? cq : cq);
 
 
                 UF1D_sq1->Drc = q1;
@@ -1026,17 +1027,17 @@ void TWorld::UF1D_SolidMomentum2Source(cTMap * dt, cTMap * _ldd,cTMap * _lddw,cT
                         double cqt = 0.5 * UF_Courant * (volxl);
                         double q2 = 0.5 *dtx1 * (vxl) * lhs *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
 
-                        q2 = ((q2 > 0)? 0.0 :-1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
+                        q2 = ((q2 > 0)? 1.0 :1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cq);
 
                         UF1D_sq2->Drc += q2;
                     }
                 }
             }
-        }else if(_su->Drc < 0 )
+        }else// if(_su->Drc < 0 )
         {
             double dtx2 = dt->Drc;//(UF1D_MUSCLE_OUT_x1->Drc > 0)? dt->Drc : (UF_OUTORMV(_dem,r,c+1)? dt->Drc : (UF_NOTIME(_dem,dt,r,c+1)? 0.0: dt->data[r][c+1]));
             double q2 = UF_BoundaryFlux1D(dtx2,_lddw->Drc,_s->Drc,0,lsu,_su->Drc,UF1D_Slope->Drc,0.1 + N->Drc, true);
-            q2 = ((q2 < 0)? -1.0 : 0.0) * std::min(std::fabs(q2),(q2 < 0)? cq : 0.0);
+            q2 = ((q2 < 0)? 1.0 : 1.0) * std::min(std::fabs(q2),(q2 < 0)? cq : cq);
 
             UF1D_sq2->Drc = q2;
         }

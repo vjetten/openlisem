@@ -43,7 +43,6 @@ void TWorld::UnifiedFlow()
     ////START ALGORITHM
     ////from now on all input and output is provided as funciton arguments
     ////This increases re-usablitiy of the code (use another DEM, Velocity map.. etc.. and everything will remain functional)
-    qDebug() << "inittimestep";
     //sets up the variables for the spatially dynamic timestep
     UF_DTMIN = UF_InitTimeStep( UF2D_DEM,                                                   //dem info
                                 UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                               //channel info
@@ -61,7 +60,6 @@ void TWorld::UnifiedFlow()
     ////from now on all input and output is provided as function arguments
     ////This increases re-usablitiy of the code
 
-    qDebug() << "start loop";
     //continue while we have not made a timestep of _dt
     while(t + UF_VERY_SMALL < _dt)
     {
@@ -82,7 +80,6 @@ void TWorld::UnifiedFlow()
                                 UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
         }
 
-        qDebug() << "timestep";
         ////TIMESTEP ANALYSIS
         //analyzes spatially dynamic timstep that should be made
         dt = UF_TimeStep(t,     UF2D_DEM,                                                    //dem info
@@ -94,21 +91,18 @@ void TWorld::UnifiedFlow()
                                 UF2D_T,UF2D_DT,UF2D_DTStep,UF1D_T,UF1D_DT,UF1D_DTStep);      //output timesteps
 
 
-        //qDebug() << "set threadpool masks";
+        //set threadpool masks;
         //ThreadPool->SetMask(UF2D_DEM, UF2D_DT, UF2D_CellR, UF2D_CellC, true);
 
-        qDebug() << "2d source";
         ////SOURCE TERMS
         //both material and momentum source terms are called here
         UF2D_Source(UF2D_DT,UF2D_DEM,UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);
 
         if(UF_1DACTIVE)
         {
-            qDebug() << "1d source";
             UF1D_Source(UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
         }
 
-        qDebug() << "2d scheme";
         ////2D SCHEME
         //the actual momentum and mass advection/iteration equations are solved here
         UF2D_Scheme(UF2D_DT,UF2D_DEM,UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);
@@ -116,11 +110,9 @@ void TWorld::UnifiedFlow()
         if(UF_1DACTIVE)
         {
 
-            qDebug() << "1D scheme";
             ////1D SCHEME
             UF1D_Scheme(UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
 
-            qDebug() << "Connections";
             ////CONNECTIONS
             //the connection between 2d and 1d flow is solved in this function.
             //fraction of inflow determined by flow velocity and channel width
@@ -158,6 +150,14 @@ void TWorld::UnifiedFlow()
                             UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                             UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
 
+        ////update the discharge maps
+        UF_UpdateDisplayMaps(UF2D_DT,     UF2D_DEM,                                        //dem info
+                             UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
+                             UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
+                             UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
+                             UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
+                             UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+
         //increase timer by the current timstep!
         t = t + dt;
 
@@ -171,11 +171,9 @@ void TWorld::UnifiedFlow()
     //(sediment transport and solid phase transport is done together with the fluid equations since these are completely integrated)
     if(SwitchErosion)
     {
-        qDebug() << "sediment";
         UnifiedFlowSediment();
     }if(SwitchEntrainment && UF_SOLIDPHASE)
     {
-        qDebug() << "entrainment";
         UnifiedFlowEntrainment();
     }
 
@@ -315,16 +313,16 @@ double TWorld::UF2D_Scheme(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMa
 
 
         //advect mass
-        UF2D_foutflow += UF2D_Advect2_mass(dt,_dem,_f,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_fn);
+        UF2D_foutflow += UF2D_Advect2_mass(dt,_dem,_f,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_fn,UF2D_qout);
         if(UF_SOLIDPHASE)
         {
-            UF2D_soutflow += UF2D_Advect2_mass(dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_sn);
+            UF2D_soutflow += UF2D_Advect2_mass(dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_sn,UF2D_qout);
         }
 
         if(SwitchErosion)
         {
-            UF2D_fsoutflow += UF2D_Advect2_mass(dt,_dem,UF2D_blm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
-            UF2D_fsoutflow += UF2D_Advect2_mass(dt,_dem,UF2D_ssm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
+            UF2D_fsoutflow += UF2D_Advect2_mass(dt,_dem,UF2D_blm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF1D_qblout);
+            UF2D_fsoutflow += UF2D_Advect2_mass(dt,_dem,UF2D_ssm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF1D_qssout);
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
@@ -481,16 +479,16 @@ void TWorld::UF1D_Scheme(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMa
         UF1D_Advect2_Momentum(dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun,UF1D_sun,UF1D_fq1,UF1D_fq2,UF1D_sq1,UF1D_sq2);
 
         //advect mass
-        UF1D_foutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_f,UF1D_f,UF1D_fq1,UF1D_fq2,UF1D_fn);
+        UF1D_foutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_f,UF1D_f,UF1D_fq1,UF1D_fq2,UF1D_fn, UF1D_qout);
         if(UF_SOLIDPHASE)
         {
-            UF1D_soutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_s,UF1D_s,UF1D_sq1,UF1D_sq2,UF1D_sn);
+            UF1D_soutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_s,UF1D_s,UF1D_sq1,UF1D_sq2,UF1D_sn, UF1D_qsout);
         }
 
         if(SwitchErosion)
         {
-            UF1D_fsoutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_blm,UF1D_f,UF1D_fq1,UF1D_fq2,0);
-            UF1D_fsoutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_ssm,UF1D_f,UF1D_fq1,UF1D_fq2,0);
+            UF1D_fsoutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_blm,UF1D_f,UF1D_fq1,UF1D_fq2,0, UF1D_qblout);
+            UF1D_fsoutflow += UF1D_Advect2_mass(dt,_ldd,_lddw,_lddh,UF1D_ssm,UF1D_f,UF1D_fq1,UF1D_fq2,0, UF1D_qssout);
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
@@ -561,7 +559,26 @@ void TWorld::UF_SetInput()
     {
         UF2D_Test->Drc = 0;
         UF2D_f->Drc = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+        UF2D_q->Drc = 0;
+        UF2D_qs->Drc = 0;
+
+        UF2D_qout->Drc = 0;
+        UF2D_qsout->Drc = 0;
+        UF2D_qblout->Drc = 0;
+        UF2D_qssout->Drc = 0;
+        UF1D_qout->Drc = 0;
+        UF1D_qsout->Drc = 0;
+        UF1D_qblout->Drc = 0;
+        UF1D_qssout->Drc = 0;
     }
+    FOR_ROW_COL_UF1D
+    {
+
+        UF1D_q->Drc = 0;
+        UF1D_qs->Drc = 0;
+    }
+
     UF2D_foutflow = 0;
     UF2D_fsoutflow = 0;
     UF2D_soutflow = 0;
@@ -574,10 +591,9 @@ void TWorld::UF_SetInput()
     {
         UF_Input_first = false;
 
+        //here is the place to add water or solid volumes for testing extreme scenarios
         FOR_ROW_COL_UF2D
         {
-
-
             if(r != 250 && c!= 250)
             {
                 //UF2D_f->Drc += 10;
@@ -607,16 +623,25 @@ void TWorld::UF_SetOutput()
         UF2D_u->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fu->Drc + UF2D_s->Drc * UF2D_su->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0;
         UF2D_v->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fv->Drc + UF2D_s->Drc * UF2D_sv->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0;
         UF2D_velocity->Drc = std::sqrt(UF2D_u->Drc * UF2D_u->Drc + UF2D_v->Drc * UF2D_v->Drc);
-        UF2D_q->Drc = UF2D_velocity->Drc * (UF2D_h->Drc) * _dx ;
-        UF2D_qs->Drc = UF2D_q->Drc * UF2D_fsConc->Drc;
+        UF2D_q->Drc = std::fabs(UF2D_q->Drc/_dt);
+        UF2D_qs->Drc = std::fabs(UF2D_qs->Drc/_dt);
 
         UF1D_h->Drc = (UF1D_f->Drc + UF1D_s->Drc)/(_dx * UF1D_LDDw->Drc);
         UF1D_fsConc->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc + UF1D_s->Drc) : 0.0;
         UF1D_sConc->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL?(UF1D_s->Drc * UF1D_d->Drc)/(UF1D_f->Drc + UF1D_s->Drc) : 0.0;
         UF1D_tConc->Drc = UF1D_fsConc->Drc + UF1D_sConc->Drc;
         UF1D_velocity->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL? std::fabs((UF1D_f->Drc * UF1D_fu->Drc + UF1D_s->Drc * UF1D_su->Drc)/(UF1D_f->Drc + UF1D_s->Drc)) : 0.0;
-        UF1D_q->Drc = UF1D_velocity->Drc * (UF1D_h->Drc) * _dx;
-        UF1D_qs->Drc = UF1D_q->Drc * UF1D_fsConc->Drc;
+        UF1D_q->Drc = std::fabs(UF1D_q->Drc/_dt);
+        UF1D_qs->Drc = std::fabs(UF1D_qs->Drc/_dt);
+
+        UF2D_qout->Drc = UF2D_qout->Drc/_dt;
+        UF2D_qsout->Drc = UF2D_qsout->Drc/_dt;
+        UF2D_qblout->Drc = UF2D_qblout->Drc/_dt;
+        UF2D_qssout->Drc = UF2D_qssout->Drc/_dt;
+        UF1D_qout->Drc = UF1D_qout->Drc/_dt;
+        UF1D_qsout->Drc = UF1D_qsout->Drc/_dt;
+        UF1D_qblout->Drc = UF1D_qblout->Drc/_dt;
+        UF1D_qssout->Drc = UF1D_qssout->Drc/_dt;
 
         UF2D_TimeStep->Drc = UF_DTMIN * UF2D_DTStep->Drc;
         UF2D_FPH->Drc = UF2D_f->Drc/(_dx*_dx);
@@ -629,7 +654,7 @@ void TWorld::UF_SetOutput()
         {
             WHrunoff->Drc = 0;
         }
-        Qn->Drc = UF2D_f->Drc * UF2D_velocity->Drc * _dx;
+        Qn->Drc = UF2D_q->Drc + UF1D_q->Drc;
         Q->Drc = Qn->Drc;
 
         WHroad->Drc = WHrunoff->Drc;
@@ -691,7 +716,31 @@ void TWorld::UF_SetOutput()
 
 }
 
+void TWorld::UF_UpdateDisplayMaps(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                                 cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                                 cTMap * _fu1D,cTMap * _s1D,
+                                 cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                                 cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                                 cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                                 cTMap * _su2D,cTMap * _sv2D)
+{
 
+    FOR_ROW_COL_UF2D_DT
+    {
+        double q = (UF2D_fqx1->Drc - UF2D_fqx2->Drc) + (UF2D_fqy1->Drc - UF2D_fqy2->Drc);
+        double fsc = (UF2D_f->Drc) > UF_VERY_SMALL? (UF2D_ssm->Drc + UF2D_blm->Drc)/(UF2D_f->Drc) : 0.0;
+        UF2D_q->Drc += q;
+        UF2D_qs->Drc += (UF2D_sqx1->Drc - UF2D_sqx2->Drc) + (UF2D_sqy1->Drc - UF2D_sqy2->Drc) + q * fsc;
+    }}}
+
+    FOR_ROW_COL_UF1D_DT
+    {
+        double q = (UF1D_fq1->Drc - UF1D_fq2->Drc);
+        double fsc = (UF1D_f->Drc) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc) : 0.0;
+        UF1D_q->Drc += q;
+        UF1D_qs->Drc += (UF1D_sq1->Drc - UF1D_sq2->Drc) + q * fsc;
+    }
+}
 void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                                  cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
                                  cTMap * _fu1D,cTMap * _s1D,
@@ -718,14 +767,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
 
             if(!UF_OUTORMV(_dem,r-1,c))
             {
-                if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
+                //if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
                 {
                     count ++;
                     h1 = _f2D->data[r-1][c];
                     u1 = _fu2D->data[r-1][c];
                     v1 = _fv2D->data[r-1][c];
                     double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h1))/5.0;
-                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r-1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,-1,0):UF2D_MaxFlux(_dem,_f2D,r-1,c,1,0),std::fabs(fn - _f2D->Drc))));
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,h1/(_dx*_dx)-GetFlowBarrierHeight(r,c,-1,0)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,-1,0) -_dem->data[r-1][c] - GetFlowBarrierHeight(r-1,c,1,0)))*_dx*_dx),std::fabs(fn - _f2D->Drc));
                     _f2D->data[r-1][c] = std::max(0.0,_f2D->data[r-1][c] - dif);
                     double dif2 = h1 - _f2D->data[r-1][c];
                     _f2D->Drc += dif2;
@@ -733,14 +782,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
             }
             if(!UF_OUTORMV(_dem,r+1,c))
             {
-                if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
+                //if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
                 {
                     count ++;
                     h2 = _f2D->data[r+1][c];
                     u2 = _fu2D->data[r+1][c];
                     v2 = _fv2D->data[r+1][c];
                     double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h2))/5.0;
-                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r+1][c],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,1,0):UF2D_MaxFlux(_dem,_f2D,r+1,c,-1,0),std::fabs(fn - _f2D->Drc))));
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,h2/(_dx*_dx)-GetFlowBarrierHeight(r,c,1,0)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,1,0) -_dem->data[r+1][c] - GetFlowBarrierHeight(r+1,c,-1,0)))*_dx*_dx),std::fabs(fn - _f2D->Drc));
                     _f2D->data[r+1][c] = std::max(0.0,_f2D->data[r+1][c] - dif);
                     double dif2 = h2 - _f2D->data[r+1][c];
                     _f2D->Drc += dif2;
@@ -748,14 +797,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
             }
             if(!UF_OUTORMV(_dem,r,c-1))
             {
-                if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
+                //if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
                 {
                     count ++;
                     h3 = _f2D->data[r][c-1];
                     u3 = _fu2D->data[r][c-1];
                     v3 = _fv2D->data[r][c-1];
                     double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h3))/5.0;
-                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c-1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,-1):UF2D_MaxFlux(_dem,_f2D,r,c-1,0,-1),std::fabs(fn - _f2D->Drc))));
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,h3/(_dx*_dx)-GetFlowBarrierHeight(r,c,0,-1)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,0,-1) -_dem->data[r][c-1] - GetFlowBarrierHeight(r,c-1,0,1)))*_dx*_dx),std::fabs(fn - _f2D->Drc));
                     _f2D->data[r][c-1] = std::max(0.0,_f2D->data[r][c-1] - dif);
                     double dif2 = h3 - _f2D->data[r][c-1];
                     _f2D->Drc += dif2;
@@ -763,21 +812,21 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
             }
             if(!UF_OUTORMV(_dem,r,c+1))
             {
-                if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
+                //if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
                 {
                     count ++;
                     h4 = _f2D->data[r][c+1];
                     u4 = _fu2D->data[r][c+1];
                     v4 = _fv2D->data[r][c+1];
                     double fn = (1.0*(5.0 - w) * _f2D->Drc + w *(h4))/5.0;
-                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_f2D->data[r][c+1],std::min(0.5*_f2D->Drc,std::max((fn - _f2D->Drc) <0? UF2D_MaxFlux(_dem,_f2D,r,c,0,1):UF2D_MaxFlux(_dem,_f2D,r,c+1,0,-1),std::fabs(fn - _f2D->Drc))));
+                    double dif = ((fn - _f2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,h4/(_dx*_dx)-GetFlowBarrierHeight(r,c,0,1)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,0,1) -_dem->data[r][c+1] - GetFlowBarrierHeight(r,c+1,0,-1)))*_dx*_dx),std::fabs(fn - _f2D->Drc));
                     _f2D->data[r][c+1] = std::max(0.0,_f2D->data[r][c+1] - dif);
                     double dif2 = h4 - _f2D->data[r][c+1];
                     _f2D->Drc += dif2;
                 }
             }
 
-            if(count == 4)
+            //if(count == 4)
             {
                 //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
                 _fu2D->Drc = (4.0*(1.0 - w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/(4.0 + count);
@@ -804,14 +853,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
 
                 if(!UF_OUTORMV(_dem,r-1,c))
                 {
-                    if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
+                    //if(GetFlowBarrierHeight(r,c,-1,0) == 0 && GetFlowBarrierHeight(r-1,c,1,0) == 0)
                     {
                         count ++;
                         sh1 = _s2D->data[r-1][c];
                         su1 = _su2D->data[r-1][c];
                         sv1 = _sv2D->data[r-1][c];
                         double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh1))/5.0;
-                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r-1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,-1,0):UF2D_MaxFlux(_dem,_s2D,r-1,c,1,0),std::fabs(sn - _s2D->Drc))));
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,sh1/(_dx*_dx)-GetFlowBarrierHeight(r,c,-1,0)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,-1,0) -_dem->data[r-1][c] - GetFlowBarrierHeight(r-1,c,1,0)))*_dx*_dx),std::fabs(sn - _s2D->Drc));
                         _s2D->data[r-1][c] = std::max(0.0,_s2D->data[r-1][c] - dif);
                         double dif2 = sh1 - _s2D->data[r-1][c];
                         _s2D->Drc += dif2;
@@ -820,14 +869,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 }
                 if(!UF_OUTORMV(_dem,r+1,c))
                 {
-                    if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
+                    //if(GetFlowBarrierHeight(r,c,+1,0) == 0 && GetFlowBarrierHeight(r+1,c,-1,0) == 0)
                     {
                         count ++;
                         sh2 = _s2D->data[r+1][c];
                         su2 = _su2D->data[r+1][c];
                         sv2 = _sv2D->data[r+1][c];
                         double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh2))/5.0;
-                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r+1][c],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,1,0):UF2D_MaxFlux(_dem,_s2D,r+1,c,-1,0),std::fabs(sn - _s2D->Drc))));
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,sh2/(_dx*_dx)-GetFlowBarrierHeight(r,c,1,0)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,1,0) -_dem->data[r+1][c] - GetFlowBarrierHeight(r+1,c,-1,0)))*_dx*_dx),std::fabs(sn - _s2D->Drc));
                         _s2D->data[r+1][c] = std::max(0.0,_s2D->data[r+1][c] - dif);
                         double dif2 = sh2 - _s2D->data[r+1][c];
                         _s2D->Drc += dif2;
@@ -835,14 +884,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 }
                 if(!UF_OUTORMV(_dem,r,c-1))
                 {
-                    if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
+                    //if(GetFlowBarrierHeight(r,c,0,-1) == 0 && GetFlowBarrierHeight(r,c-1,0,1) == 0)
                     {
                         count ++;
                         sh3 = _s2D->data[r][c-1];
                         su3 = _su2D->data[r][c-1];
                         sv3 = _sv2D->data[r][c-1];
                         double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c-1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,-1):UF2D_MaxFlux(_dem,_s2D,r,c-1,0,1),std::fabs(sn - _s2D->Drc))));
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,sh3/(_dx*_dx)-GetFlowBarrierHeight(r,c,0,-1)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,0,-1) -_dem->data[r][c-1] - GetFlowBarrierHeight(r,c-1,0,1)))*_dx*_dx),std::fabs(sn - _s2D->Drc));
                         _s2D->data[r][c-1] = std::max(0.0,_s2D->data[r][c-1] - dif);
                         double dif2 = sh3 - _s2D->data[r][c-1];
                         _s2D->Drc += dif2;
@@ -850,14 +899,14 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
                 }
                 if(!UF_OUTORMV(_dem,r,c+1))
                 {
-                    if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
+                    //if(GetFlowBarrierHeight(r,c,0,1) == 0 && GetFlowBarrierHeight(r,c+1,0,-1) == 0)
                     {
                         count ++;
                         sh4 = _s2D->data[r][c+1];
                         su4 = _su2D->data[r][c+1];
                         sv4 = _sv2D->data[r][c+1];
                         double sn = (1.0*(5.0 - w) * _s2D->Drc + w *(sh3))/5.0;
-                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(0.5*_s2D->data[r][c+1],std::min(0.5*_s2D->Drc,std::max((sn - _s2D->Drc) <0? UF2D_MaxFlux(_dem,_s2D,r,c,0,1):UF2D_MaxFlux(_dem,_s2D,r,c+1,0,-1),std::fabs(sn - _s2D->Drc))));
+                        double dif = ((sn - _s2D->Drc) >0? 1.0:-1.0 )*std::min(std::max(0.0,0.5 * (std::max(0.0,sh4/(_dx*_dx)-GetFlowBarrierHeight(r,c,0,1)) + std::min(0.0,_dem->Drc + GetFlowBarrierHeight(r,c,0,1) -_dem->data[r][c+1] - GetFlowBarrierHeight(r,c+1,0,-1)))*_dx*_dx),std::fabs(sn - _s2D->Drc));
                         _s2D->data[r][c+1] = std::max(0.0,_s2D->data[r][c+1] - dif);
                         double dif2 = sh4 - _s2D->data[r][c+1];
                         _s2D->Drc += dif2;
@@ -886,5 +935,4 @@ void TWorld::UF2D1D_LaxNumericalCorrection(cTMap * dt, cTMap * _dem,cTMap * _ldd
 
         }
     }}}
-
 }

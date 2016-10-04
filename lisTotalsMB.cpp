@@ -180,7 +180,7 @@ void TWorld::Totals(void)
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000.0*(UF1D_q->Drc + UF2D_q->Drc); // in l/s
+        Qoutput->Drc = 1000.0*(UF1D_qout->Drc + UF2D_qout->Drc); // in l/s
         if (Qoutput->Drc < 0.0001)
             Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
@@ -235,7 +235,7 @@ void TWorld::Totals(void)
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = UF1D_qs->Drc + UF2D_qs->Drc;  // sum channel and OF sed output in kg/s
+            Qsoutput->Drc = UF1D_qsout->Drc + UF2D_qsout->Drc;  // sum channel and OF sed output in kg/s
 
             TotalDetMap->Drc += DETSplash->Drc + UF2D_Det->Drc;
             TotalDepMap->Drc += UF2D_Dep->Drc;

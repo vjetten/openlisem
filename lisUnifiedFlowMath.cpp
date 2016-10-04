@@ -329,6 +329,53 @@ bool TWorld::UF_OUTORMV(cTMap * mask, int r, int c)
     return true;
 
 }
+
+bool TWorld::UF_LDDOUT(cTMap * _ldd, int r, int c, bool front)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+    if(front)
+    {
+        //front cell
+        int lddself = (int) _ldd->data[r][c];
+        if(!(lddself == 5))
+        {
+            int r2 = r+dy[lddself];
+            int c2 = c+dx[lddself];
+
+            if(!UF_OUTORMV(_ldd,r2,c2)){
+                return false;
+            }
+        }
+    }
+    else
+    {
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                return false;
+            }
+        }
+
+
+    }
+    return true;
+
+
+
+}
+
 bool TWorld::UF_NOTIME(cTMap * mask,cTMap * dt, int r, int c)
 {
     if(r>=0 && r<_nrRows && c>=0 && c<_nrCols)

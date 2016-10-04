@@ -85,7 +85,11 @@
     //just for display
     cTMap * UF2D_h;
     cTMap * UF2D_q;
+    cTMap * UF2D_qout;
     cTMap * UF2D_qs;
+    cTMap * UF2D_qsout;
+    cTMap * UF2D_qblout;
+    cTMap * UF2D_qssout;
     cTMap * UF2D_fsConc;
     cTMap * UF2D_sConc;
     cTMap * UF2D_tConc;
@@ -99,7 +103,11 @@
 
     cTMap * UF1D_h;
     cTMap * UF1D_q;
+    cTMap * UF1D_qout;
     cTMap * UF1D_qs;
+    cTMap * UF1D_qsout;
+    cTMap * UF1D_qblout;
+    cTMap * UF1D_qssout;
     cTMap * UF1D_fsConc;
     cTMap * UF1D_sConc;
     cTMap * UF1D_tConc;
@@ -172,7 +180,10 @@
     cTMap * UF2D_sun;
     cTMap * UF2D_svn;
 
+
     ////1D
+    cTMap * UF1D_OutletDistance;
+
     cTMap * UF1D_LDD;
     cTMap * UF1D_LDDw;
     cTMap * UF1D_LDDh;
@@ -267,6 +278,15 @@
     void UF_SetInput();
     void UF_SetOutput();
 
+    //set display maps
+    void UF_UpdateDisplayMaps(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+                                     cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
+                                     cTMap * _fu1D,cTMap * _s1D,
+                                     cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
+                                     cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
+                                     cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
+                                     cTMap * _su2D,cTMap * _sv2D);
+
     bool UF_Input_first = true;
 
     ////2D version
@@ -281,13 +301,13 @@
 
     //advection functions for simple scheme
     void UF2D_Advect_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv );
-    double UF2D_Advect_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv, cTMap * out_m);
+    double UF2D_Advect_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv, cTMap * out_m );
     void UF2D_Advect_prop(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * _mu, cTMap * _mv,cTMap *_prop, cTMap * out_prop = 0);
     void UF2D_Diffuse_mass(cTMap* dt, cTMap * _dem,cTMap * _m,cTMap * _f,cTMap * _fu, cTMap * _fv, cTMap * out_m);
 
     //advection with MUSCLE scheme
     void UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv,cTMap * out_qfx1,cTMap *out_qfx2,cTMap * out_qfy1,cTMap *out_qfy2,cTMap * out_qsx1,cTMap *out_qsx2,cTMap * out_qsy1,cTMap *out_qsy2);
-    double UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m);
+    double UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m,cTMap *outflow = 0);
     void UF2D_Advect2_prop(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2,cTMap *_prop, cTMap * out_prop = 0);
 
     //momentum functions
@@ -321,7 +341,7 @@
 
     //advection functions for MUSCLE scheme
     void UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_fu,  cTMap * out_su , cTMap * out_fq1, cTMap * out_fq2,cTMap * out_sq1, cTMap * out_sq2);
-    double UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m);
+    double UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m, cTMap *outflow = 0);
     void UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2,cTMap *_prop, cTMap * out_prop = 0);
 
     //momentum functions
@@ -497,6 +517,7 @@
     double UF_MinMod(double a, double b);
 
     bool UF_OUTORMV(cTMap * mask, int r, int c);
+    bool UF_LDDOUT(cTMap * mask, int r, int c, bool front);
     bool UF_NOTIME(cTMap * mask,cTMap * dt, int r, int c);
 
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);

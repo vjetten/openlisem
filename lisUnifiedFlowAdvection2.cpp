@@ -207,7 +207,7 @@ void TWorld::UF2D_Advect2_Momentum(cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _v
 
 }
 
-double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qx2,cTMap * _qy1, cTMap * _qy2, cTMap * out_m)
+double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qx2,cTMap * _qy1, cTMap * _qy2, cTMap * out_m,cTMap *outflowm)
 {
     double outflow = 0;
     bool write_to_input = false;
@@ -257,6 +257,7 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 if(qx1 > 0)
                 {
                     outflow += conc*qx1;
+                    outflowm->Drc +=std::fabs(conc*qx1);
                     out_m->Drc -= conc*qx1;
                 }
             }
@@ -279,6 +280,7 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 {
                     qx2 = std::fabs(qx2);
                     outflow += conc*qx2;
+                    outflowm->Drc +=std::fabs(conc*qx2);
                     out_m->Drc -= conc*qx2;
                 }
             }
@@ -299,6 +301,7 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 if(qy1 > 0)
                 {
                     outflow += conc*qy1;
+                    outflowm->Drc +=std::fabs(conc*qy1);
                     out_m->Drc -= conc*qy1;
                 }
             }
@@ -320,6 +323,7 @@ double TWorld::UF2D_Advect2_mass(cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,c
                 {
                     qy2 = std::fabs(qy2);
                     outflow += conc*qy2;
+                    outflowm->Drc +=std::fabs(conc*qy2);
                     out_m->Drc -= conc*qy2;
                 }
             }
@@ -485,11 +489,11 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                 UF_t3->Drc -= q1;
                 UF_t3->data[r2][c2] += q1;
-            }else if(q1 > 0)
+            }else// if(q1 > 0)
             {
                 UF_t3->Drc -= std::fabs(q1);
             }
-        }else if(q1 > 0)
+        }else// if(q1 > 0)
         {
             UF_t3->Drc -= std::fabs(q1);
         }
@@ -542,13 +546,13 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                         UF_t3->Drc += q2;
                         UF_t3->data[r2][c2] -= q2;
-                    }else if(q2 < 0)
+                    }else// if(q2 < 0)
                     {
                         UF_t3->Drc -= std::fabs(q2);
                     }
                 }
             }
-        }else if(q2 < 0)
+        }else// if(q2 < 0)
         {
             UF_t3->Drc -= std::fabs(q2);
         }
@@ -577,11 +581,11 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                 UF_t4->Drc -= q1;
                 UF_t4->data[r2][c2] += q1;
-            }else if(q1 > 0)
+            }else// if(q1 > 0)
             {
                 UF_t4->Drc -= std::fabs(q1);
             }
-        }else if(q1 > 0)
+        }else// if(q1 > 0)
         {
             UF_t4->Drc -= std::fabs(q1);
         }
@@ -634,20 +638,20 @@ void TWorld::UF1D_Advect2_Momentum(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *
 
                         UF_t4->Drc += q2;
                         UF_t4->data[r2][c2] -= q2;
-                    }else if(q2 < 0)
+                    }else// if(q2 < 0)
                     {
                         UF_t4->Drc -= std::fabs(q2);
                     }
                 }
             }
-        }else if(q2 < 0)
+        }else// if(q2 < 0)
         {
             UF_t4->Drc -= std::fabs(q2);
         }
     }
 }
 
-double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m)
+double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m,cTMap *outflowm)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -684,15 +688,23 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
                 out_m->Drc -= q;
                 out_m->data[r2][c2] += q;
 
-            }else if(_q1->Drc > 0)
+            }else// if(_q1->Drc > 0)
             {
-                outflow += conc *_q1->Drc;
-                out_m->Drc -= conc *_q1->Drc;
+                outflow += std::fabs(conc *_q1->Drc);
+                if(!outflowm == 0)
+                {
+                    outflowm->Drc +=std::fabs(conc *_q1->Drc);
+                }
+                out_m->Drc -= conc *std::fabs(_q1->Drc);
             }
-        }else if(_q1->Drc > 0)
+        }else// if(_q1->Drc > 0)
         {
-                outflow += conc *_q1->Drc;
-                out_m->Drc -= conc *_q1->Drc;
+                outflow += conc *std::fabs(_q1->Drc);
+                if(!outflowm == 0)
+                {
+                    outflowm->Drc +=std::fabs(conc *_q1->Drc);
+                }
+                out_m->Drc -= conc *std::fabs(_q1->Drc);
         }
 
         //backward flux
@@ -739,17 +751,25 @@ double TWorld::UF1D_Advect2_mass(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_l
                         out_m->Drc += q;
                         out_m->data[r2][c2] -= q;
 
-                    }else if(_q2->Drc < 0)
+                    }else// if(_q2->Drc < 0)
                     {
-                        outflow += conc * std::fabs(_q2->Drc);
-                        out_m->Drc -= conc *std::fabs(_q2->Drc);
+                        outflow += std::fabs(conc * _q2->Drc);
+                        if(!outflowm == 0)
+                        {
+                            outflowm->Drc +=std::fabs(conc * _q2->Drc);
+                        }
+                        out_m->Drc -= std::fabs(conc *_q2->Drc);
                     }
                 }
             }
-        }else if(_q2->Drc < 0)
+        }else//if(_q2->Drc < 0)
         {
-            outflow += conc * std::fabs(_q2->Drc);
-            out_m->Drc -= conc * std::fabs(_q2->Drc);
+            outflow += std::fabs(conc * _q2->Drc);
+            if(!outflowm == 0)
+            {
+                outflowm->Drc +=std::fabs(conc * _q2->Drc);
+            }
+            out_m->Drc -= std::fabs(conc *_q2->Drc);
         }
     }
 
@@ -806,9 +826,9 @@ void TWorld::UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
                 UF_t1->data[r2][c2] += _q1->Drc;
 
             }
-        }else if( _q1->Drc > 0)
+        }else// if( _q1->Drc > 0)
         {
-            UF_t1->Drc -= _q1->Drc;
+            UF_t1->Drc -=std::fabs(_q1->Drc);
         }
 
         //backward flux
@@ -865,7 +885,7 @@ void TWorld::UF1D_Advect2_prop(cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_ldd
                     }
                 }
             }
-        }else if( _q2->Drc < 0)
+        }else// if( _q2->Drc < 0)
         {
             UF_t1->Drc -= std::fabs(_q2->Drc);
         }

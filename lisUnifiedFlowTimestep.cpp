@@ -121,9 +121,11 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                 double vest = ((_s1D->Drc/(a) + _f1D->Drc/(a)) * (_s1D->Drc/(a) + _f1D->Drc/(a)));
 
                 double v = std::max(std::fabs(_fu1D->Drc),std::fabs(_su1D->Drc));
+
+                double kinterm = std::min(1.0,std::pow((_s1D->Drc/(a) + _f1D->Drc/(a)),2.0));
                 //actual accaleration
-                double dvf = std::max(std::fabs(UF1D_fa1->Drc),std::max(std::fabs(UF1D_fa2->Drc),std::fabs(UF1D_fa->Drc)));
-                double dvs = std::max(std::fabs(UF1D_sa1->Drc),std::max(std::fabs(UF1D_sa2->Drc),std::fabs(UF1D_sa->Drc)));
+                double dvf = kinterm *std::max(std::fabs(UF1D_fa1->Drc),std::max(std::fabs(UF1D_fa2->Drc),std::fabs(UF1D_fa->Drc)));
+                double dvs = kinterm *std::max(std::fabs(UF1D_sa1->Drc),std::max(std::fabs(UF1D_sa2->Drc),std::fabs(UF1D_sa->Drc)));
 
 
                 if(_ldd->Drc == 5)
@@ -144,6 +146,21 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
 
         }
     }
+
+    FOR_ROW_COL_UF1D
+    {
+        if(!UF_OUTORMV(_ldd,r,c))
+        {
+            if(_ldd->Drc == 5)
+            {
+                out_dt1d->Drc = UF_DTMIN;
+            }else
+            {
+                out_dt1d->Drc = std::min(UF_DTMIN* UF1D_OutletDistance->Drc,out_dt1d->Drc);
+            }
+        }
+    }
+
 
     if(!SpatiallyDynamicTimestep)
     {
