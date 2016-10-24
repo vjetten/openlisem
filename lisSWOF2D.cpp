@@ -188,6 +188,9 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
         cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
+    if (cfl > 100)
+        qDebug() << f1 << f2 << f3 << cfl;
+
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
     HLL2_f2 = f2;
@@ -234,6 +237,9 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
             cfl=std::max(fabs(c1),fabs(c2));
         }
     }
+    if (cfl > 100)
+        qDebug() << f1 << f2 << f3 << cfl;
+
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
     HLL2_f2 = f2;
@@ -260,6 +266,8 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
         cfl = c;//*tx;
     }
+    if (cfl > 100)
+        qDebug() << f1 << f2 << f3 << cfl;
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
     HLL2_f2 = f2;

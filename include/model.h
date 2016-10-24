@@ -183,6 +183,8 @@ typedef struct UNIT_LIST {
     double var3;
     double var4;
     double var5;
+    double var6;
+    double var7;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
