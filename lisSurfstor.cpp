@@ -41,10 +41,10 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-void TWorld::GridCell(void)
+void TWorld::GridCell(int thread)
 {
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         double dxa = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
 
@@ -59,13 +59,13 @@ void TWorld::GridCell(void)
             Cover->Drc = 1.0-HouseCover->Drc;
 
         SoilWidthDX->Drc = dxa;
-    }
+    }}}
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
-void TWorld::addRainfallWH(void)
+void TWorld::addRainfallWH(int thread)
 {
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         // if runoff in flat areas rises above a certain level it becomes flood
         {
@@ -80,13 +80,13 @@ void TWorld::addRainfallWH(void)
                 WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
             // assume no interception and infiltration on roads, gross rainfall
         }
-    }
+    }}}
 
 }
 //---------------------------------------------------------------------------
-void TWorld::SurfaceStorage(void)
+void TWorld::SurfaceStorage(int thread)
 {
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
         double wh = WH->Drc, whflow = 0;
@@ -170,7 +170,7 @@ void TWorld::SurfaceStorage(void)
             WHrunoff->Drc = 0;
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
-    }
+    }}}
 
 
 }

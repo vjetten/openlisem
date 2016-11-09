@@ -143,6 +143,10 @@ void lisemqt::stopmodel()
 {
     if(W)
         W->stopRequested = true;
+    if(W->waitRequested)
+    {
+        W->condition.wakeAll();
+    }
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()

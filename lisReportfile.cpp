@@ -47,21 +47,92 @@ functions: \n
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
 {
-    ReportTimeseriesNew();
+    FillTimeSeriesData();
+
+    std::function<void(int)> freport = std::bind((&TWorld::reportWrapper),this,std::placeholders::_1);
+    ThreadPool->RunReportFunction(freport);
+}
+
+
+void TWorld::reportWrapper(int not_used)
+{
+
+    ReportTimeseriesNew(not_used);
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
-    ReportTotalsNew();
+    ReportTotalsNew(not_used);
     // report totals to a text file
 
-    ReportMaps();
+    ReportMaps(not_used);
     // report all maps and mapseries
 
-    ReportLandunits();
+    ReportLandunits(not_used);
     // reportc stats per landunit class
 
-    ChannelFloodStatistics();
+    ChannelFloodStatistics(not_used);
     // report buildings submerged in flood level classes
+
 }
+
+void TWorld::FillTimeSeriesData()
+{
+
+    //save the timeseries data temporarily for multithreading!
+    //only pointmap is threadsafe since it is not safe!
+
+    TSList_point.clear();
+    TSList_rainav.clear();
+    TSList_snowav.clear();
+    TSList_q.clear();
+    TSList_h.clear();
+    TSList_qs.clear();
+    TSList_c.clear();
+
+    double RainIntavg = RainAvgmm * 3600/_dt;
+    double SnowIntavg = SnowAvgmm * 3600/_dt;
+
+
+
+    FOR_ROW_COL_MV
+    {
+        if ( PointMap->Drc > 0 )
+        {
+            TSList_point.append(PointMap->Drc);
+            TSList_rainav.append(RainIntavg);
+            TSList_snowav.append(SnowIntavg);
+
+            if(SwitchIncludeChannel)
+            {
+                TSList_q.append(Qoutput->Drc);
+                TSList_h.append(UF1D_h->Drc);
+                if(SwitchErosion)
+                {
+                    TSList_qs.append(Qsoutput->Drc);
+                    TSList_c.append(TotalConc->Drc);
+                }else
+                {
+                    TSList_qs.append(0.0);
+                    TSList_c.append(0.0);
+                }
+
+            }else
+            {
+                TSList_q.append(0.0);
+                TSList_h.append(0.0);
+                if(SwitchErosion)
+                {
+                    TSList_qs.append(0.0);
+                    TSList_c.append(0.0);
+                }
+            }
+
+
+        }
+    }
+
+
+}
+
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
     report to screen, hydrographs and maps */
@@ -126,9 +197,9 @@ void TWorld::OutputUI(void)
     //output maps for combo box
     for(int i = 0; i < op.ComboMaps.length(); i++)
     {
-        fill(*tma, 0.0);
-        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
-        copy(*op.ComboMapsSafe.at(i), *tma);
+        fill(*ThreadPool->tma, 0.0);
+        calcMapValue(*ThreadPool->tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
+        copy(*op.ComboMapsSafe.at(i), *ThreadPool->tma);
     }
 
 
@@ -221,7 +292,7 @@ void TWorld::OutputUI(void)
  - all points in one file or each point in a separate file
  - the types should be mututally exclusive in the interface and run file
 */
-void TWorld::ReportTimeseriesNew(void)
+void TWorld::ReportTimeseriesNew(int not_used)
 {
     int nr = 0;
     int hour = 0;
@@ -431,10 +502,13 @@ void TWorld::ReportTimeseriesNew(void)
 
     if (SwitchSeparateOutput)
     {
+        int point = 0;
         FOR_ROW_COL_MV
         {
             if ( PointMap->Drc > 0 ) // all points in separate files
             {
+                point ++;
+
            //     qDebug() << PointMap->Drc << r << c;
                 newname1 = fi.path() + "/" + fi.baseName() + "_" +
                         QString::number((int)PointMap->Drc) + "." +  fi.suffix();
@@ -453,11 +527,11 @@ void TWorld::ReportTimeseriesNew(void)
                         out << runstep;
                     else
                         out << time/60;
-                    if (SwitchRainfall) out << sep << RainIntavg;
-                    if (SwitchSnowmelt) out << sep << SnowIntavg;
-                    out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
-                    if (SwitchErosion) out << sep << Qsoutput->Drc;
-                    if (SwitchErosion) out << sep << TotalConc->Drc;
+                    if (SwitchRainfall) out << sep << TSList_rainav.at(point);
+                    if (SwitchSnowmelt) out << sep << TSList_snowav.at(point);
+                    out << sep << TSList_q.at(point) << sep << TSList_h.at(point);
+                    if (SwitchErosion) out << sep << TSList_qs.at(point);
+                    if (SwitchErosion) out << sep << TSList_c.at(point);
                     out << "\n";
                 }
                 else  //SOBEK format
@@ -493,16 +567,26 @@ void TWorld::ReportTimeseriesNew(void)
             else
                 out << time/60;
 
-            if (SwitchRainfall) out << sep << RainIntavg;
-            if (SwitchSnowmelt) out << sep << SnowIntavg;
+            if(TSList_rainav.length() > 0)
+            {
+                if (SwitchRainfall) out << sep << TSList_rainav.at(0);
+
+            }
+            if(TSList_snowav.length() > 0)
+            {
+                if (SwitchSnowmelt) out << sep << TSList_snowav.at(0);
+            }
+
+            int point = 0;
             FOR_ROW_COL_MV
             {
                 if ( PointMap->Drc > 0 )
                 {
+                    point ++;
 
-                    out << sep << Qoutput->Drc << sep << UF1D_h->Drc;
-                    if (SwitchErosion) out << sep << Qsoutput->Drc;
-                    if (SwitchErosion) out << sep << TotalConc->Drc;
+                    out << sep << TSList_q.at(point) << sep <<TSList_h.at(point);
+                    if (SwitchErosion) out << sep << TSList_qs.at(point);
+                    if (SwitchErosion) out << sep << TSList_c.at(point);
                 }
             }
             out << "\n";
@@ -513,13 +597,15 @@ void TWorld::ReportTimeseriesNew(void)
                 out.setFieldWidth(2);
                 out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
                 out.setFieldWidth(8);
+                int point = 0;
                 FOR_ROW_COL_MV
                 {
                     if ( PointMap->Drc > 0 )
                     {
-                        out << " " << Qoutput->Drc/1000.0;
-                        if (SwitchErosion) out << " " << Qsoutput->Drc;
-                        if (SwitchErosion) out << " " << TotalConc->Drc;
+                        point ++;
+                        out << " " << TSList_q.at(point)/1000.0;
+                        if (SwitchErosion) out << " " << TSList_qs.at(point);
+                        if (SwitchErosion) out << " " << TSList_c.at(point);
                     }
                 }
                 out << " < \n";
@@ -529,7 +615,7 @@ void TWorld::ReportTimeseriesNew(void)
 }
 //---------------------------------------------------------------------------
 /// Report totals of the main outlet nd general values for the catchment to a comma delimited text file
-void TWorld::ReportTotalsNew(void)
+void TWorld::ReportTotalsNew(int not_used)
 {
     QFile fp(resultDir + resultFileName);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -574,19 +660,20 @@ void TWorld::ReportTotalsNew(void)
     fp.flush();
     fp.close();
 }
+
 //---------------------------------------------------------------------------
 /// Report maps for totals and mapseries (like report in PCRaster)
 /// output filenames are fixed, cannot be changed by the user
-void TWorld::ReportMaps(void)
+void TWorld::ReportMaps(int not_used)
 {
     FOR_ROW_COL_MV
     {
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
-        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
+        ThreadPool->tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
 
-    report(*tm, rainfallMapFileName);
-    report(*tma, interceptionMapFileName);
+    report(*ThreadPool->tm, rainfallMapFileName);
+    report(*ThreadPool->tma, interceptionMapFileName);
 
     report(*InfilmmCum, infiltrationMapFileName);
 
@@ -600,60 +687,60 @@ void TWorld::ReportMaps(void)
     {
         // deal with erosion units, 0 = ton/ha, 1 = kg/m2, 2 = kg/cell
         if (ErosionUnits == 0)
-            fill(*tma,10.0);
+            fill(*ThreadPool->tma,10.0);
         else
-            fill(*tma,1.0);
+            fill(*ThreadPool->tma,1.0);
         if (ErosionUnits == 2 || ErosionUnits == 0)
-            calcMap(*tma, *CellArea, DIV);
+            calcMap(*ThreadPool->tma, *CellArea, DIV);
 
 
         // all detachment combined
         FOR_ROW_COL_MV
         {
-            tm->Drc =std::max(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
+            ThreadPool->tm->Drc =std::max(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
-        calcMap(*tm, *tma, MUL);
-        report(*tm, totalErosionFileName);
+        calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
+        report(*(ThreadPool->tm), totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
-            report(*tm, Outeros); // in units
+            report(*(ThreadPool->tm), Outeros); // in units
 
         // all deposition combined
         FOR_ROW_COL_MV
         {
             tm->Drc =std::min(0.0,TotalDetMap->Drc + TotalDepMap->Drc);
         }
-        calcMap(*tm, *tma, MUL);
-        report(*tm, totalDepositionFileName);
+        calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
+        report(*(ThreadPool->tm), totalDepositionFileName);
         if (outputcheck[6].toInt() == 1)
-            report(*tm, Outdepo); // in units
+            report(*(ThreadPool->tm), Outdepo); // in units
 
         // all channel depostion combined
         if (SwitchIncludeChannel)
         {
             FOR_ROW_COL_MV_CH
             {
-                tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+                ThreadPool->tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
             }
-            calcMap(*tm, *tma, MUL);
-            report(*tm, totalChanDepositionFileName);
+            calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
+            report(*(ThreadPool->tm), totalChanDepositionFileName);
 
             // all channel detachment combined
             FOR_ROW_COL_MV_CH
             {
-                tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
+                ThreadPool->tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc);
             }
-            calcMap(*tm, *tma, MUL);
-            report(*tm, totalChanErosionFileName);
+            calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
+            report(*(ThreadPool->tm), totalChanErosionFileName);
         }
-        copy(*tm, *TotalSoillossMap); //kg/cell
-        calcMap(*tm, *tma, MUL);
-        report(*tm, totalSoillossFileName);
+        copy(*(ThreadPool->tm), *TotalSoillossMap); //kg/cell
+        calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
+        report(*(ThreadPool->tm), totalSoillossFileName);
         if (outputcheck[16].toInt() == 1) report(*tm, OutSL);      // in user units
 
         // total sediment
-        copy(*tm, *COMBO_SS); //kg/cell
-        calcMap(*tm, *tma, MUL);
-        if (outputcheck[17].toInt() == 1) report(*tm, OutSed);      // in user units
+        copy(*(ThreadPool->tm), *COMBO_SS); //kg/cell
+        //calcMap(*(ThreadPool->tm), 1/(_dx*_dx), MUL);
+        if (outputcheck[17].toInt() == 1) report(*(ThreadPool->tm), OutSed);      // in user units
 
         if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
         if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
@@ -695,8 +782,8 @@ void TWorld::ReportMaps(void)
         report(*Qoutput, Outrunoff); // in l/s
     if (outputcheck[2].toInt() == 1)
     {
-        calcMapValue(*tm, *WH, 1000, MUL);// WH in mm
-        report(*tm, Outwh);
+        calcMapValue(*(ThreadPool->tm), *WH, 1000, MUL);// WH in mm
+        report(*(ThreadPool->tm), Outwh);
     }
 
     if (outputcheck[3].toInt() == 1)
@@ -711,8 +798,8 @@ void TWorld::ReportMaps(void)
 
     if (outputcheck[9].toInt() == 1)
     {
-        calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
-        report(*tm, Outss);
+        calcMapValue(*(ThreadPool->tm), *WHstore, 1000, MUL);// in mm
+        report(*(ThreadPool->tm), Outss);
         /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
     }
 
@@ -833,7 +920,7 @@ void TWorld::CountLandunits(void)
 //---------------------------------------------------------------------------
 //VJ 110110
 /// Report the erosion totals per land unit
-void TWorld::ReportLandunits(void)
+void TWorld::ReportLandunits(int not_used)
 {
     QString newname1;
 
@@ -887,7 +974,7 @@ void TWorld::ReportLandunits(void)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::ChannelFloodStatistics(void)
+void TWorld::ChannelFloodStatistics(int not_used)
 {
     if (!SwitchIncludeChannel)
         return;
@@ -1330,47 +1417,15 @@ void TWorld::GetComboMaps()
     Colors.append("#804000");
 
     AddComboMap(0,"Viscosity"," ",UF2D_visc,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"Lax coefficient"," ",UF1D_OutletDistance,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"outlet distance"," ",UF1D_OutletDistance,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"lax factor"," ",UF2D_Test,Colormap,Colors,false,false,1.0, 0.05);
 
-    /*Colormap.clear();
-    Colormap.append(0.0);
-  //  Colormap.append(0.3);
-    Colormap.append(0.5);
- //   Colormap.append(0.70);
-    Colormap.append(1.0);
-    Colors.clear();
-    Colors.append("#ffffff");
-    Colors.append("#50B547");//#96B547");
-    Colors.append("#616ca2");//#457A60");
+    AddComboMap(0,"UF1D_fa1"," ",UF1D_fa1,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"UF1D_fa2"," ",UF1D_fa2,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"UF1D_fa"," ",UF1D_fa,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"UF1D_fq1"," ",UF1D_fq1,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"UF1D_fq2"," ",UF1D_fq2,Colormap,Colors,false,false,1.0, 0.05);
 
-    AddComboMap(0,"Fluid Phase Volume","m3",UF2D_f,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Channel Fluid Phase Volume","m3",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_d" ,"kg/m2",UF2D_d,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_d1" ,"kg/m2",UF1D_d,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_visc" ,"kg/m2",UF2D_visc,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_visc1" ,"kg/m2",UF1D_visc,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_rocksize" ,"kg/m2",UF2D_rocksize,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_rocksize1" ,"kg/m2",UF1D_rocksize,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_ifa" ,"kg/m2",UF2D_ifa,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_ifa1" ,"kg/m2",UF1D_ifa,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_Nr2" ,"kg/m2",UF2D_Nr,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF_Nr1" ,"kg/m2",UF1D_Nr,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_su" ,"kg/m2",UF1D_fu,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_fu" ,"kg/m2",UF1D_su,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_fa1" ,"kg/m2",UF1D_fa1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_fa2" ,"kg/m2",UF1D_fa2,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_slope" ,"kg/m2",UF1D_Slope,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_sax1" ,"kg/m2",UF2D_sax1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_say1" ,"kg/m2",UF2D_say1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_sax2" ,"kg/m2",UF2D_sax2,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_say2" ,"kg/m2",UF2D_say2,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_sa" ,"kg/m2",UF1D_sa,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qsx1" ,"kg/m2",UF2D_sqx1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qsx2" ,"kg/m2",UF2D_sqx2,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qsy1" ,"kg/m2",UF2D_sqy1,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF2D_qsy2" ,"kg/m2",UF2D_sqy2,Colormap,Colors,false,false,1.0,1.0);*/
     Colormap.clear();
     Colormap.append(0.0);
     Colormap.append(0.25);
@@ -1385,8 +1440,15 @@ void TWorld::GetComboMaps()
     Colors.append("#007300");
 
     AddComboMap(0,"UF2D_DTStep" ,"kg/m2",UF2D_DTStep,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"UF1D_DTStep" ,"kg/m2",UF1D_DTStep,Colormap,Colors,false,false,1.0,1.0);
-
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap(0,"UF1D_DTStep" ,"kg/m2",UF1D_DTStep,Colormap,Colors,false,false,1.0,1.0);
+    }
+    AddComboMap(0,"UF2D_CoreMask" ,"kg/m2",ThreadPool->CoreMask2d,Colormap,Colors,false,false,1.0,1.0);
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap(0,"UF1D_CoreMask" ,"kg/m2",ThreadPool->CoreMask1d,Colormap,Colors,false,false,1.0,1.0);
+    }
 
     if(SwitchErosion)
     {

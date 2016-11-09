@@ -592,8 +592,8 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
-    tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
-    tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+    //tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
+    //tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
     if (checkDoErosion->isChecked())
         checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());

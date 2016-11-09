@@ -235,7 +235,7 @@ void TWorld::Totals(void)
         // spatial totals for output all in kg/cell
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = UF1D_qsout->Drc + UF2D_qsout->Drc;  // sum channel and OF sed output in kg/s
+            Qsoutput->Drc = UF1D_qsout->Drc + UF2D_qsout->Drc+UF1D_qblout->Drc + UF2D_qblout->Drc + UF1D_qssout->Drc + UF2D_qssout->Drc;  // sum channel and OF sed output in kg/s
 
             TotalDetMap->Drc += DETSplash->Drc + UF2D_Det->Drc;
             TotalDepMap->Drc += UF2D_Dep->Drc;
@@ -258,6 +258,9 @@ void TWorld::Totals(void)
             double Q = Qoutput->Drc/1000;
             TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
         }
+
+
+
     }
 
     SoilLossTot += SoilLossTotT;
@@ -311,6 +314,52 @@ void TWorld::Totals(void)
     }
 
     SedimentSetMaterialDistribution();
+
+
+    FOR_ROW_COL_MV
+    {
+        if(UF2D_h->Drc > UF_DISPLAYFLOODMINIMUM)
+        {
+            hmx->Drc = UF2D_h->Drc;
+            UVflood->Drc = UF2D_velocity->Drc;
+            if(floodTime->Drc == 0)
+            {
+                floodTimeStart->Drc = std::max((_dt/10.0)/60.0,(this->time/60.0));
+            }
+            floodTime->Drc += _dt/60.0;
+
+            floodHmxMax->Drc = std::max(floodHmxMax->Drc,hmx->Drc);
+            floodVMax->Drc = std::max(floodVMax->Drc,UVflood->Drc);
+        }else
+        {
+            hmx->Drc = 0;
+            UVflood->Drc = 0;
+        }
+
+
+        if(SwitchSolidPhase)
+        {
+            if(UF2D_sConc->Drc > UF_DISPLAYDEBRISFLOWMINIMUM)
+            {
+                dfhmx->Drc = UF2D_h->Drc;
+                dfUV->Drc = UF2D_velocity->Drc;
+                if(dfTime->Drc == 0)
+                {
+                    dfTimeStart->Drc = std::max((_dt/10.0)/60.0,(this->time/60.0));
+                }
+                dfTime->Drc += _dt/60.0;
+
+                dfHmxMax->Drc = std::max(dfHmxMax->Drc,dfhmx->Drc);
+                dfVMax->Drc = std::max(dfVMax->Drc,dfUV->Drc);
+            }else
+            {
+                dfhmx->Drc = 0;
+                dfUV->Drc = 0;
+            }
+        }
+    }
+
+
 
 }
 //---------------------------------------------------------------------------

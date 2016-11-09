@@ -57,6 +57,15 @@ void TWorld::UF_Init()
     UF_MANNINGCOEFFICIENT_SOLID = 0.05;
     UF_FrictionIterations = 1;
 
+    UF_AVERAGEFACTOR = 0.5;
+    UF2D_COURANTSCHEMEFACTOR = 0.5;
+    UF1D_COURANTSCHEMEFACTOR = 1.0;
+
+    UF_AddedSplash = NewMap(0.0);
+
+    UF_DEMFEEDBACK = true;
+
+    UF_DTAverage = 0;
 
     UF_MAX_NUM_VEL = 50;
 
@@ -74,8 +83,15 @@ void TWorld::UF_Init()
     UF_Intersect_K = 30;
     UF_Slope_K = 100000.0;
 
+    UF_t1 = NewMap(0.0);
+    UF_t2 = NewMap(0.0);
+    UF_t3 = NewMap(0.0);
+    UF_t4 = NewMap(0.0);
+
     //internal use
     UF_1DACTIVE = SwitchIncludeChannel;
+
+    //old scheme not supported anymore
     UF_SCHEME =/* getvaluedouble("Surface Flow Scheme") == 1? UF_SCHEME_CENTRALSIMPLE :*/ UF_SCHEME_BOUNDARYMUSCLE;
     UF_DTMIN = 0;
     UF_SOLIDPHASE = SwitchSolidPhase;
@@ -201,10 +217,12 @@ void TWorld::UF_Init()
     UF1D_LDD = NewMap(0.0);
     UF1D_LDDw = NewMap(0.0);
     UF1D_LDDh = NewMap(0.0);
-
+    UF1D_CellR = NewMap(0.0);
+    UF1D_CellC = NewMap(0.0);
     UF1D_Slope = NewMap(0.0);
     UF1D_LDD->setAllMV();
-    if(SwitchIncludeChannel)
+
+    if(UF_1DACTIVE)
     {
         FOR_ROW_COL_MV_CH
         {
@@ -297,19 +315,6 @@ void TWorld::UF_Init()
     UF2D_Infiltration = NewMap(0.0);
     UF1D_Infiltration = NewMap(0.0);
 
-    //temporary maps for generic advection functions
-    UF_t1 = NewMap(0.0);
-    UF_t2 = NewMap(0.0);
-    UF_t3 = NewMap(0.0);
-    UF_t4 = NewMap(0.0);
-    UF_t5 = NewMap(0.0);
-    UF_t6 = NewMap(0.0);
-    UF_t7 = NewMap(0.0);
-    UF_t8 = NewMap(0.0);
-    UF_t9 = NewMap(0.0);
-    UF_t10 = NewMap(0.0);
-    UF_t11 = NewMap(0.0);
-
     UF2D_MUSCLE_1_x1 = NewMap(0.0);
     UF2D_MUSCLE_1_x2 = NewMap(0.0);
     UF2D_MUSCLE_1_y1 = NewMap(0.0);
@@ -360,7 +365,6 @@ void TWorld::UF_Init()
     UF_NeedsInitial = true;
     if(SwitchUFInitial)
     {
-        qDebug() << "initial f + s";
         UF2D_Initialized = NewMap(0.0);
         UF2D_InitialTime = ReadMap(DEM,getvaluename("initiationtime"));
         UF2D_InitialFVolume = ReadMap(DEM,getvaluename("initialfvolume"));
@@ -386,108 +390,108 @@ void TWorld::UF_Init()
     ChannelSourceFluid = NewMap(0.0);
 
     //multithreading library
-    //ltr = new LisemThread();
-    //ThreadPool = new LisemThreadPool();
-    //ThreadPool->InitThreads(this);
-    //ThreadPool->SetMaskInitial(UF2D_DEM);
+    ThreadPool = new LisemThreadPool();
+
+    ThreadPool->InitThreads(this);
+
+    ThreadPool->SetMaskInitial(UF2D_DEM,UF1D_LDD);
 
     UF1D_OutletDistance = NewMap(0.0);
 
-    FOR_ROW_COL_MV_CH
+    if(UF_1DACTIVE)
     {
-        pcr::setMV(tma->Drc);
+
+        FOR_ROW_COL_MV_CH
+        {
+            pcr::setMV(tmb->Drc);
+        }
+
+
+        for (int  ro = 0; ro < _nrRows; ro++){
+        for (int  co = 0; co < _nrCols; co++){
+        if(!pcr::isMV(LDDChannel->data[ro][co]))
+        {
+            if(LDDChannel->data[ro][co] == 5)
+            {
+
+                int ncells = 0;
+
+                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+                /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+                LDD_LINKEDLIST *list = NULL, *temp = NULL;
+                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                list->prev = NULL;
+                /// start gridcell: outflow point of area
+                list->rowNr = ro;
+                list->colNr = co;
+
+                while (list != NULL)
+                {
+                    int i = 0;
+                    bool  subCachDone = true; // are sub-catchment cells done ?
+                    int rowNr = list->rowNr;
+                    int colNr = list->colNr;
+
+                    /** put all points that have to be calculated to calculate the current point in the list,
+                     before the current point */
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        // this is the current cell
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+                        else
+                            continue;
+
+                        // check if there are more cells upstream, if not subCatchDone remains true
+                        if (pcr::isMV(tmb->Drc) &&
+                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                INSIDE(r, c))
+                        {
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = list;
+                            UF1D_OutletDistance->Drc = ncells++;
+                            list->rowNr = r;
+                            list->colNr = c;
+                            subCachDone = false;
+                        }
+                    }
+
+                    // all cells above a cell are linked in a "sub-catchment or branch
+                    // continue with water and sed calculations
+                    // rowNr and colNr are the last upstreM cell linked
+                    if (subCachDone)
+                    {
+                        int r = rowNr;
+                        int c = colNr;
+                        tmb->Drc = 0;
+
+                        temp=list;
+                        list=list->prev;
+                        if(list != NULL)
+                        {
+                            ncells =UF1D_OutletDistance->data[list->rowNr][list->colNr];
+                        }
+
+                        free(temp);
+                        // go to the previous cell in the list
+
+                    }/* eof subcatchment done */
+                } /* eowhile list != NULL */
+            }
+        }}}
     }
 
-    for (int  ro = 0; ro < _nrRows; ro++){
-    for (int  co = 0; co < _nrCols; co++){
-    if(!pcr::isMV(LDDChannel->data[ro][co]))
-    {
-        if(LDDChannel->data[ro][co] == 5)
-        {
-
-            int ncells = 0;
-
-            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-            int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-            /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-            LDD_LINKEDLIST *list = NULL, *temp = NULL;
-            list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-            list->prev = NULL;
-            /// start gridcell: outflow point of area
-            list->rowNr = ro;
-            list->colNr = co;
-
-            while (list != NULL)
-            {
-                int i = 0;
-                bool  subCachDone = true; // are sub-catchment cells done ?
-                int rowNr = list->rowNr;
-                int colNr = list->colNr;
-
-                /** put all points that have to be calculated to calculate the current point in the list,
-                 before the current point */
-                for (i=1; i<=9; i++)
-                {
-                    int r, c;
-                    int ldd = 0;
-
-                    // this is the current cell
-                    if (i==5)
-                        continue;
-
-                    r = rowNr+dy[i];
-                    c = colNr+dx[i];
-
-                    if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                        ldd = (int) LDDChannel->Drc;
-                    else
-                        continue;
-
-                    // check if there are more cells upstream, if not subCatchDone remains true
-                    if (pcr::isMV(tma->Drc) &&
-                            FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                            INSIDE(r, c))
-                    {
-                        temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                        temp->prev = list;
-                        UF1D_OutletDistance->Drc = ncells++;
-                        list->rowNr = r;
-                        list->colNr = c;
-                        subCachDone = false;
-                    }
-                }
-
-                // all cells above a cell are linked in a "sub-catchment or branch
-                // continue with water and sed calculations
-                // rowNr and colNr are the last upstreM cell linked
-                if (subCachDone)
-                {
-                    int r = rowNr;
-                    int c = colNr;
-                    tma->Drc = 0;
-
-                    temp=list;
-                    list=list->prev;
-                    if(list != NULL)
-                    {
-                        ncells =UF1D_OutletDistance->data[list->rowNr][list->colNr];
-                    }
-
-                    free(temp);
-                    // go to the previous cell in the list
-
-                }/* eof subcatchment done */
-            } /* eowhile list != NULL */
-        }
-    }}}
 }
 
-void TWorld::UF_Close()
-{
-
-    //ThreadPool->clear();
-    //delete ThreadPool;
-
-}

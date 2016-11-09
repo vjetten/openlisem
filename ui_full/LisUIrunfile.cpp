@@ -217,7 +217,7 @@ void lisemqt::ParseInputData()
             checkBox_SedSingleSingle->setChecked(false);
             checkBox_SedMultiSingle->setChecked(false);
             checkBox_SedMultiMulti->setChecked(false);
-            tabWidgetOptions->setTabEnabled(6,true);
+            tabWidgetOptions->setTabEnabled(5,true);
             if(val == 2)
                 checkBox_SedMultiMulti->setChecked(true);
             else
@@ -226,7 +226,7 @@ void lisemqt::ParseInputData()
                 else
                 {
                     checkBox_SedSingleSingle->setChecked(true);
-                    tabWidgetOptions->setTabEnabled(6,false);
+                    tabWidgetOptions->setTabEnabled(5,false);
                 }
         }
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(val);

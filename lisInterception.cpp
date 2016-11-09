@@ -44,14 +44,14 @@ functions: \n
 /// - so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2\n
 /// - therefore the same goes for LAI: the LAI of the plants inside the gridcell\n
 /// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
-void TWorld::Interception(void)
+void TWorld::Interception(int thread)
 {
     // all variables are in m
     if (!SwitchRainfall)
         return;
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
             if (Cover->Drc > 0)
     {
         double CS = CStor->Drc;
@@ -117,16 +117,16 @@ void TWorld::Interception(void)
         RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
         // net rainfall is direct rainfall + drainage
         // rainfall that falls on the soil, used in infiltration
-    }
+    }}}
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionLitter(void)
+void TWorld::InterceptionLitter(int thread)
 {
     // all variables are in m
     if (!SwitchRainfall)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
             if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0)
     {
         double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
@@ -156,16 +156,16 @@ void TWorld::InterceptionLitter(void)
 
         RainNet->Drc = drain + (1-Litter->Drc)*LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
         //recalc
-    }
+    }}}
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionHouses(void)
+void TWorld::InterceptionHouses(int thread)
 {
     // all variables are in m
     if (!SwitchHouses)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         if (HouseCover->Drc > 0)
         {
@@ -224,6 +224,6 @@ void TWorld::InterceptionHouses(void)
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
         }
-    }
+    }}}
 }
 //---------------------------------------------------------------------------

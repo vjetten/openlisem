@@ -102,7 +102,7 @@ double TWorld::UF_BoundaryFlux1D(double dt, double width, double f, double s, do
 
 }
 
-void TWorld::UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+void TWorld::UF_ForcedConditions(int thread, cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                        cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
                        cTMap * _fu1D,cTMap * _s1D,
                        cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
@@ -112,7 +112,7 @@ void TWorld::UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
 {
     if(SwitchUFForced)
     {
-        FOR_ROW_COL_UF2D
+        FOR_ROW_COL_UF2DMT
         {
             if(!(UF2D_ForcedFVolume->Drc < 0))
             {
@@ -139,7 +139,7 @@ void TWorld::UF_ForcedConditions(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
                     }
                 }
             }
-        }
+        }}}
     }
 }
 

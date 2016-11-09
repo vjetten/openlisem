@@ -36,10 +36,8 @@ SET(APP_SOURCES
     lisRainintc
     lisUnifiedFlow
     lisUnifiedFlowCommon
-    lisUnifiedFlowMomentum
     lisUnifiedFlowMomentum2
     lisUnifiedFlowMomentumBalance
-    lisUnifiedFlowAdvection
     lisUnifiedFlowAdvection2
     lisUnifiedFlowSediment
     lisUnifiedFlowTimestep

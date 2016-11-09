@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1596</width>
-    <height>1267</height>
+    <height>1275</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -5978,7 +5978,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -10232,14 +10232,20 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.000010000000000</double>
+                    </property>
                     <property name="maximum">
-                     <double>999.000000000000000</double>
+                     <double>9999.000000000000000</double>
                     </property>
                     <property name="singleStep">
-                     <double>0.000500000000000</double>
+                     <double>0.005000000000000</double>
                     </property>
                     <property name="value">
-                     <double>0.000000000000000</double>
+                     <double>0.010000000000000</double>
                     </property>
                    </widget>
                   </item>

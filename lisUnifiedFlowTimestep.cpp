@@ -72,8 +72,18 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
     UF_DTMIN = _dt;
-    fill(*UF2D_CellR,-1);
-    fill(*UF2D_CellC,-1);
+
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            UF2D_CellR->Drc = -1;
+            UF2D_CellC->Drc = -1;
+            UF1D_CellR->Drc = -1;
+            UF1D_CellC->Drc = -1;
+        }
+    }
+
     bool first = true;
     FOR_ROW_COL_UF2D
     {
@@ -110,7 +120,6 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     }
 
 
-
     FOR_ROW_COL_UF1D
     {
         if(!UF_OUTORMV(_ldd,r,c))
@@ -130,10 +139,10 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
 
                 if(_ldd->Drc == 5)
                 {
-                    out_dt1d->Drc = (4.0 * UF_Courant *_dx/(std::max(v,std::max(dvf,std::max(dvs,vest)))));
+                    out_dt1d->Drc = (0.25 * UF_Courant *_dx/(std::max(v,std::max(dvf,std::max(dvs,vest)))));
                 }else
                 {
-                    out_dt1d->Drc = (UF_Courant *_dx/(std::max(v,std::max(dvf,std::max(dvs,vest)))));
+                    out_dt1d->Drc = 0.25 *(UF_Courant *_dx/(std::max(v,std::max(dvf,std::max(dvs,vest)))));
                 }
 
             }else
@@ -209,6 +218,8 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         double dt11 = !UF_OUTORMV(_dem,r+1,c-1)? UF_t1->data[r+1][c-1]:dt;
         double dt12 = !UF_OUTORMV(_dem,r-1,c-1)? UF_t1->data[r-1][c-1]:dt;
 
+        out_dtstep2d->Drc = dt;
+
         out_dtstep2d->Drc = std::min(dt,std::min(dt1,std::min(dt2,std::min(dt3,dt4))));
         out_dtstep2d->Drc = std::min(out_dtstep2d->Drc,std::min(2.0 * dt9,std::min(2.0 * dt10,std::min(2.0 *dt11,2.0*dt12))));
         out_dtstep2d->Drc = std::min(out_dtstep2d->Drc,std::min(4.0 * dt5,std::min(4.0 * dt6,std::min(4.0 *dt7,2.0*dt8))));
@@ -247,34 +258,66 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     }
     int rc = 0;
     int cc = 0;
+
+    int count = 0;
     FOR_ROW_COL_UF2D
     {
         if(!(t + UF_DTMIN < _dt ))
         {
             out_dt2d->Drc = _dt - out_t2d->Drc;
-        }else if(!(out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN > t))
+
+
+        }else if(true)//long timesteps first
         {
-            out_dt2d->Drc = out_dtstep2d->Drc* UF_DTMIN;// + out_dtstep2d->Drc* UF_DTMIN;
-            out_dt2d->Drc = std::max(0.0,std::min(out_dt2d->Drc,_dt - out_t2d->Drc));
-        }else
+            if(!(out_t2d->Drc > t ))
+            {
+                out_dt2d->Drc = out_dtstep2d->Drc* UF_DTMIN;
+                out_dt2d->Drc = std::max(0.0,std::min(out_dt2d->Drc,_dt - out_t2d->Drc));
+            }else
+            {
+                out_dt2d->Drc = 0;
+            }
+
+        }else if(false)//short timesteps first
         {
-            out_dt2d->Drc = 0;
+           //this creates weird atrifacts
+           //it does handle movements above courant criteria better though!, but just set courant factor lower
+           if(!(out_t2d->Drc + out_dtstep2d->Drc* UF_DTMIN > t))
+           {
+               out_dt2d->Drc = out_dtstep2d->Drc* UF_DTMIN + out_dtstep2d->Drc* UF_DTMIN;
+               out_dt2d->Drc = std::max(0.0,std::min(out_dt2d->Drc,_dt - out_t2d->Drc));
+           }else
+            {
+                out_dt2d->Drc = 0;
+            }
         }
 
         out_t2d->Drc += out_dt2d->Drc;
 
-        if(out_dt2d->Drc > 0)
+        if(out_dt2d->Drc > UF_VERY_SMALL)
         {
             UF2D_CellR->data[rc][cc] = r;
             UF2D_CellC->data[rc][cc] = c;
+
+            count ++;
+
             cc ++;
             if(cc == _nrCols)
             {
                 rc ++;
                 cc = 0;
             }
+
+            if(INSIDE(rc,cc))
+            {
+                UF2D_CellR->data[rc][cc] = -1;
+                UF2D_CellC->data[rc][cc] = -1;
+            }
         }
     }
+
+    rc = 0;
+    cc = 0;
     FOR_ROW_COL_UF1D
     {
         if(!UF_OUTORMV(_ldd,r,c))
@@ -283,9 +326,9 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
             if(!(t + UF_DTMIN < _dt ))
             {
                 out_dt1d->Drc = _dt - out_t1d->Drc;
-            }else if(out_t1d->Drc + out_dtstep1d->Drc* UF_DTMIN < t)
+            }else if(!(out_t1d->Drc > t))
             {
-                out_dt1d->Drc = t - out_t1d->Drc + out_dtstep1d->Drc* UF_DTMIN;
+                out_dt1d->Drc = out_dtstep1d->Drc* UF_DTMIN;
                 out_dt1d->Drc = std::min(out_dt1d->Drc,_dt - out_t1d->Drc);
             }else
             {
@@ -293,8 +336,28 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
             }
 
             out_t1d->Drc += out_dt1d->Drc;
+            if(out_dt1d->Drc > UF_VERY_SMALL)
+            {
+
+                UF1D_CellR->data[rc][cc] = r;
+                UF1D_CellC->data[rc][cc] = c;
+
+                cc ++;
+                if(cc == _nrCols)
+                {
+                    rc ++;
+                    cc = 0;
+                }
+                if(INSIDE(rc,cc))
+                {
+                    UF1D_CellR->data[rc][cc] = -1;
+                    UF1D_CellC->data[rc][cc] = -1;
+                }
+
+            }
+
+
         }
     }
-
     return std::min(_dt- t,UF_DTMIN);
 }

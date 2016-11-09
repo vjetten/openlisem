@@ -298,18 +298,66 @@ cTMap
 *MaximumDebrisFlowHeight,
 *MaximumDebrisFlowVelocity,
 *TotalSlopeFailure,
-*MinimumSafetyFactor
+*MinimumSafetyFactor,
+
+*unity,
 
 
+*SoilRockMaterial,
+*SoilRockSize,
+*SoilRockDensity,
+*SoilRockIFA,
+*RSoilRockMaterial,
+*RSoilRockSize,
+*RSoilRockDensity,
+*RSoilRockIFA,
 
 
+*DFUnstable,
+*DFInitiationHeight,
+*DFSFIterations,
+*DEMOriginal,
+*DEMIterate,
+*DFSoilDepth,
+*DFSurfaceWaterHeight,
+*DFSoilCohesion,
+*DFWaterHeight,
+*DFWaterSuction,
+*DFPlantCohesion,
+*DFPlantPressure,
+*DFThreshold,
+*DFThreshold1,
+*DFSafetyFactor,
+*DFSlope,
+*DFTotalInitiationHeight,
+*DFSoilInternalFrictionAngle,
+*DFSoilDensity,
+*DFSoilRockFraction,
+*DFSoilRockSize,
+
+*DEMChange,
+*LDDChange;
 
 
+QList<cTMap *> IW_D;
+
+QList<cTMap *> W_D;
+QList<cTMap *> RW_D;
 
 
+QList<cTMap *> StorageDep_D;
+QList<cTMap *> Storage_D;
+QList<cTMap *> RStorageDep_D;
+QList<cTMap *> RStorage_D;
 
+cTMap * FlowBarrier;
 
+cTMap * FlowBarrierN;
+cTMap * FlowBarrierW;
+cTMap * FlowBarrierS;
+cTMap * FlowBarrierE;
 
-
-;
-
+cTMap * FlowBarrierNT;
+cTMap * FlowBarrierWT;
+cTMap * FlowBarrierST;
+cTMap * FlowBarrierET;

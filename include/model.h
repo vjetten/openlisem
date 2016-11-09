@@ -118,18 +118,6 @@
     if(!pcr::isMV(_dem->data[r][c]) && !(dt->Drc == 0))
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2DMT for(int r = 0; r < _nrRows; r++)\
-    for (int c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(thread->mask->data[r][c]) )
-
-/// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
-    {int r = (int) (thread->cellR->data[rc][cc]);\
-    int c = (int) (thread->cellC->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
-
-/// shortcut for LDD row and col loop
 #define FOR_ROW_COL_UF1D for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(_ldd->data[r][c]) )
@@ -139,7 +127,56 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(_ldd->data[r][c]) && !(dt->Drc == 0))
 
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_2DMT for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRDerListOrdered2d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCDerListOrdered2d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
 
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF2DMT for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRMaskListOrdered2d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCMaskListOrdered2d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF2DMTDER for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRDerListOrdered2d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCDerListOrdered2d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF2DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRListOrdered2d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCListOrdered2d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF1DMT  for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRMaskListOrdered1d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCMaskListOrdered1d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF1DMTDER  for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRDerListOrdered1d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCDerListOrdered1d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
+
+/// shortcut for LDD row and col loop
+#define FOR_ROW_COL_UF1DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
+    {for (int cc = 0; cc < _nrCols; cc++)\
+    {int r = (int) (ThreadPool->CellRListOrdered1d.at(thread)->data[rc][cc]);\
+    int c = (int) (ThreadPool->CellCListOrdered1d.at(thread)->data[rc][cc]);\
+    if(!INSIDE(r,c)){break;}\
 
 // check if cell From flows to To
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -515,57 +552,11 @@ public:
     double LogNormalDist(double d50,double sigma, double d);
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment);
     void SedimentSetMaterialDistribution();//(int r,int c);
-    QList<cTMap *> IW_D;
-
-    QList<cTMap *> W_D;
-    QList<cTMap *> RW_D;
-
-
-    QList<cTMap *> StorageDep_D;
-    QList<cTMap *> Storage_D;
-    QList<cTMap *> RStorageDep_D;
-    QList<cTMap *> RStorage_D;
-
-    cTMap *unity;
-
-    cTMap * SoilRockMaterial;
-    cTMap * SoilRockSize;
-    cTMap * SoilRockDensity;
-    cTMap * SoilRockIFA;
-    cTMap * RSoilRockMaterial;
-    cTMap * RSoilRockSize;
-    cTMap * RSoilRockDensity;
-    cTMap * RSoilRockIFA;
 
     double SFMIN;
     double SFMAX;
     double SFDISPLAYMAX;
     double SFFAILMIN;
-
-    cTMap * DFUnstable;
-    cTMap * DFInitiationHeight;
-    cTMap * DFSFIterations;
-    cTMap * DEMOriginal;
-    cTMap * DEMIterate;
-    cTMap * DFSoilDepth;
-    cTMap * DFSurfaceWaterHeight;
-    cTMap * DFSoilCohesion;
-    cTMap * DFWaterHeight;
-    cTMap * DFWaterSuction;
-    cTMap * DFPlantCohesion;
-    cTMap * DFPlantPressure;
-    cTMap * DFThreshold;
-    cTMap * DFThreshold1;
-    cTMap * DFSafetyFactor;
-    cTMap * DFSlope;
-    cTMap * DFTotalInitiationHeight;
-
-    cTMap * DFSoilInternalFrictionAngle;
-    cTMap * DFSoilDensity;
-    cTMap * DFSoilRockFraction;
-    cTMap * DFSoilRockSize;
-
-    cTMap * DEMChange;
 
     bool OUTORMV(int r, int c);
     void SlopeStability();
@@ -584,10 +575,9 @@ public:
     double GetDp(int r, int c,double p);
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
-    void SplashDetachment(void);
-    void FlowDetachment(void);
+    void SplashDetachment(int thread);
+
     double MaxConcentration(double watvol, double sedvol);
-    void ChannelFlowDetachment(int r, int c);
 
     void SumSedimentClasses();
 
@@ -616,34 +606,35 @@ public:
     /// convert snowmelt of a timestep into a map
     void SnowmeltMap(void);
     /// interception of vegetation canopy resulting in rainnet
-    void Interception(void);
+    void Interception(int thread);
     /// infiltration function calling all infiltration methods
     /// add rainnet to WH and calculating new WH
-    void InterceptionLitter(void);
+    void InterceptionLitter(int thread);
     /// subtract water retained in Litter under forest e.g.
-    void InterceptionHouses(void);
+    void InterceptionHouses(int thread);
     /// subtract water retained on houses, for urban projects    
-    void addRainfallWH(void);
+    void addRainfallWH(int thread);
     /// add net rainfall to WH, WHroads and WHgrass
 
     void InfilEffectiveKsat();
-    void Infiltration(void);
+    void Infiltration(int thread);
 
-    void InfilSwatre(cTMap *_WH);
+    void InfilSwatre(int thread, cTMap *_WH);
 //    void InfilGreenAmpt1(cTMap *_WH);  //OBSOLETE
 //    void InfilSmithParlange1(cTMap *_WH); //OBSOLETE
     void InfilMorelSeytoux1(cTMap *_WH);
 //    void InfilKsat(cTMap *_WH); //OBSOLETE
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
-    void SoilWater(void);
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void RainfallToFlood(void);
-    void SurfaceStorage(void);
+    void SoilWater(int thread);
+    void InfilMethods(int thread,cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
 
-    void ToTiledrain(void);
-    void TileFlow(void);
-    void CalcVelDischTile(void);
-    void GridCell(void);
+    void SurfaceStorage(int thread);
+
+    void GridCell(int thread);
+
+    void CellProcessWrapper();
+    void CellProcesses(int thread);
+    void DynamicProcessWrapper();
 
     //flood
     //QVector<int> cellRow;
@@ -658,7 +649,7 @@ public:
     void FloodMaxandTiming(void);
     void FloodBoundary(void);
     void FloodSpuriousValues(void);
-    void ChannelFloodStatistics(void);
+    void ChannelFloodStatistics(int not_used);
 
     double courant_factor;
     double courant_factor_diffusive;
@@ -681,17 +672,6 @@ public:
     QList<double> FBTimeE;
     QList<double> FBTimeW;
 
-    cTMap * FlowBarrier;
-
-    cTMap * FlowBarrierN;
-    cTMap * FlowBarrierW;
-    cTMap * FlowBarrierS;
-    cTMap * FlowBarrierE;
-
-    cTMap * FlowBarrierNT;
-    cTMap * FlowBarrierWT;
-    cTMap * FlowBarrierST;
-    cTMap * FlowBarrierET;
 
     void InitFlowBarriers(void);
     void SetFlowBarriers();
@@ -723,7 +703,7 @@ public:
     int tnode; //VJ 110122 node nr in profile with tile drains
 
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
-    void SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where);
+    void SwatreStep(int thread,SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
     //VJ 111104 old stuff, no longer used but kept for now
@@ -751,15 +731,27 @@ public:
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
+    QList<double> TSList_point;
+    QList<double> TSList_rainav;
+    QList<double> TSList_snowav;
+    QList<double> TSList_q;
+    QList<double> TSList_h;
+    QList<double> TSList_qs;
+    QList<double> TSList_c;
+
+    void FillTimeSeriesData();
+
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);
-    void ReportTimeseriesNew(void);
+    void reportWrapper(int not_used);
+
+    void ReportTimeseriesNew(int not_used);
     //void ReportTotals(void);
-    void ReportMaps(void);
-    void ReportTotalsNew(void);
-    void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
+    void ReportMaps(int not_used);
+    void ReportTotalsNew(int not_used);
+    void ReportLandunits(int not_used); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
 
     double itercount;
@@ -778,7 +770,8 @@ public:
 
     ////MULTITHREADING STUFF
     //LisemThreadPool *ThreadPool;
-
+ std::function<void(int)> fcompute;
+ std::function<void(int)> flowcompute;
 
 protected:
     void run();

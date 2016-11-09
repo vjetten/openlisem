@@ -527,13 +527,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where)
+void TWorld::SwatreStep(int thread, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
    // for normal soil surface where is always 1.
    // this prevents doing swatrestep for crusting for cells that are 0 for instance
-   FOR_ROW_COL_MV
+   FOR_ROW_COL_2DMT
          if(where->Drc > 0) // flag to indicate if this pixel has to be done
          // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
    {
@@ -561,7 +561,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, 
 
       if (SwitchWaterRepellency)
          RepellencyFraction->Drc = repellency;
-   }
+   }}}
 }
 //--------------------------------------------------------------------------------
 

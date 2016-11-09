@@ -134,6 +134,8 @@ void TWorld::DoModel()
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
 
+        ThreadPool->StartReportThread(this);
+
         DEBUG("Running...");
 
         for (time = BeginTime; time < EndTime; time += _dt)
@@ -148,6 +150,24 @@ void TWorld::DoModel()
                 qDebug() << runstep << maxstep << time/60 ;
             }
 
+
+
+            DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
+
+
+            ////START CALCULATIONS
+            ///Function wrappers for multithreading calls
+
+                //CELL PROCESSES
+                CellProcessWrapper();
+
+                //DYNAMIC PROCESSES
+                DynamicProcessWrapper();
+
+            ////END CALCULATIONS
+
+            ThreadPool->WaitForReportThread();
+
             mutex.lock();
             if(stopRequested) DEBUG("User interrupt...");
             if(stopRequested) break;
@@ -158,32 +178,6 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
-            DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
-
-            GridCell();            // set channel widths, flowwidths road widths etc
-            RainfallMap();         // get rainfall from table or mpas
-            SnowmeltMap();         // get snowmelt
-
-            Interception();        // vegetation interception
-            InterceptionLitter();  // litter interception
-            InterceptionHouses();  // urban interception
-
-            addRainfallWH();       // adds rainfall to runoff water height or flood water height
-
-            Infiltration();        // infil of overland flow water, decrease WH
-            SoilWater();           // simple soil water balance, percolation from lower boundary
-            SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
-
-            SplashDetachment();    // splash detachment
-
-            //set input for unified flow model
-            UF_SetInput();
-
-            SlopeStability();      // slope stability calculations
-            SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
-
-            DEBUG("Unified Flow");
-            UnifiedFlow();      	//Unified flow method
 
             Totals();            // calculate all totals and cumulative values
 
@@ -192,7 +186,7 @@ void TWorld::DoModel()
             QFile efout(resultDir+errorFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
-            eout << " " << runstep << " " << MB << "\n";
+            eout << "timestep " << runstep << " mass balance : " << MB << " average DT : " << UF_DTAverage << "\n";
             efout.flush();
             efout.close();
 
@@ -210,8 +204,12 @@ void TWorld::DoModel()
             // send the op structure with data to function worldShow in LisUIModel.cpp
         }
 
+        ThreadPool->Close();
+
         DestroyData();  // destroy all maps automatically
         DEBUG("Data destroyed");
+
+
 
         if (!noInterface)
             emit done("finished");
@@ -236,4 +234,61 @@ void TWorld::DoModel()
             QApplication::quit();
         }
     }
+}
+
+void TWorld::CellProcessWrapper()
+{
+    //these proceses can not be done multithreaded yet
+
+    RainfallMap();         // get rainfall from table or mpas
+    SnowmeltMap();         // get snowmelt
+
+    //run the created function on seperate threads
+    ThreadPool->RunCellCompute(fcompute);
+    //now wait till all threads are done!
+    ThreadPool->WaitForAll();
+}
+
+void TWorld::CellProcesses(int thread)
+{
+
+    //based on the value of thread, a part of the map is used!
+
+    GridCell(thread);            // set channel widths, flowwidths road widths etc
+
+    Interception(thread);        // vegetation interception
+    InterceptionLitter(thread);  // litter interception
+    InterceptionHouses(thread);  // urban interception
+
+    addRainfallWH(thread);       // adds rainfall to runoff water height or flood water height
+
+    Infiltration(thread);        // infil of overland flow water, decrease WH
+
+    SoilWater(thread);           // simple soil water balance, percolation from lower boundary
+    SurfaceStorage(thread);      // surface storage and flow width, split WH in WHrunoff and WHstore
+
+    SplashDetachment(thread);    // splash detachment
+
+
+}
+
+void TWorld::DynamicProcessWrapper()
+{
+
+
+    //set input for unified flow model
+    //put in the multithreaded cell processes?
+    UF_SetInput();
+
+    ////Functions below are not yet multithreaded
+    //does multithreading itself
+    SlopeStability();      // slope stability calculations
+    SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
+
+    //does multithreading itself
+    UnifiedFlow();      	//Unified flow method
+
+    //set output of unified flow equations for lisem
+    UF_SetOutput();
+
 }

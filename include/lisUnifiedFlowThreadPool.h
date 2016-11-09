@@ -69,35 +69,80 @@ public:
     std::mutex ThreadListMutex;
     QList<LisemThread*> ThreadList;
     QList<ThreadFunction*> ThreadCalls;
-    QList<cTMap *> MaskList;
-    QList<cTMap *> CellRList;
-    QList<cTMap *> CellCList;
-    QList<cTMap *> MaskListOrdered;
-    QList<cTMap *> CellRListOrdered;
-    QList<cTMap *> CellCListOrdered;
-    cTMap * CoreMask;
-    cTMap * InverseDTMask;
-    cTMap * Mask;
-    cTMap * DTMask;
-    cTMap * cellR;
-    cTMap * cellC;
+
+
+    QList<cTMap *> CellRDerListOrdered2d;
+    QList<cTMap *> CellCDerListOrdered2d;
+    QList<cTMap *> CellRMaskListOrdered2d;
+    QList<cTMap *> CellCMaskListOrdered2d;
+    QList<cTMap *> CellRListOrdered2d;
+    QList<cTMap *> CellCListOrdered2d;
+
+    QList<cTMap *> CellRDerListOrdered1d;
+    QList<cTMap *> CellCDerListOrdered1d;
+    QList<cTMap *> CellRListOrdered1d;
+    QList<cTMap *> CellCListOrdered1d;
+    QList<cTMap *> CellRMaskListOrdered1d;
+    QList<cTMap *> CellCMaskListOrdered1d;
+
+    QList<cTMap *>  UF_t1;
+    QList<cTMap *>  UF_t2;
+    QList<cTMap *>  UF_t3;
+    QList<cTMap *>  UF_t4;
+    QList<cTMap *>  UF_t5;
+    QList<cTMap *>  UF_t6;
+    QList<cTMap *>  UF_t7;
+    QList<cTMap *>  UF_t8;
+    QList<cTMap *>  UF_t9;
+    QList<cTMap *>  UF_t10;
+    QList<cTMap *>  UF_t11;
+
+    cTMap * CoreMask1d;
+    cTMap * InverseDTMask1d;
+    cTMap * Mask1d;
+    cTMap * DTMask1d;
+    cTMap * cellR1d;
+    cTMap * cellC1d;
+
+    cTMap * CoreMask2d;
+    cTMap * InverseDTMask2d;
+    cTMap * Mask2d;
+    cTMap * DTMask2d;
+    cTMap * cellR2d;
+    cTMap * cellC2d;
+
     cTMap * minusone;
     cTMap * emptymask;
+
     int Priv_Iterator = 0;
 
     int _nrRows;
     int _nrCols;
 
+    cTMap * tm;
+    cTMap * tma;
+    cTMap * tmb;
+    cTMap * tmc;
+
+    LisemThread * reportthread;
+
+    std::chrono::high_resolution_clock::time_point time_since_call;
+
+    void StartReportThread(TWorld * world);
+    void RunReportFunction(std::function<void (int)> f);
+    void WaitForReportThread();
+    void Close();
+
     void InitThreads(TWorld * world);
-    void SetMaskInitial(cTMap * _demmask);
-    void SetMask(cTMap * _demmask, cTMap * _dtmask, cTMap * _cellR, cTMap * _cellC, bool create_subdivides = true);
+    void SetMaskInitial(cTMap * _demmask, cTMap * _ldd);
+    void SetMask(cTMap * _demmask, cTMap * _dtmask2d, cTMap * _cellR2d, cTMap * _cellC2d,cTMap * _ldd,cTMap * _dtmask1d, cTMap * _cellR1d, cTMap * _cellC1d);
     bool StartThread();
+    std::unique_lock<std::mutex> WaitForThreadSafe(LisemThread *thread);
     void ThreadDone(LisemThread *thread);
     bool Allow_Work(int id);
     bool Allow_Final(int id);
-    void RunFuctionOnThread(std::function<void (LisemThread*)> f);
-    void RunFunctionThreaded(std::function<void (LisemThread*)> f);
-    void RunFunctionThreadedOrdered(std::function<void (LisemThread*)> f);
+    void RunDynamicCompute(std::function<void (int)> f);
+    void RunCellCompute(std::function<void (int)> f);
     void WaitForAll();
     void clear();
 
@@ -143,14 +188,6 @@ int getNumCores() {
 #endif
 }
 */
-
-/*LisemThread * tr = 0;
-std::function<void(LisemThread*)> f = std::bind(&(TWorld::UF2D_FluidSource),this,std::placeholders::_1 ,dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_fn);
-std::thread thread1 = std::thread(f,tr);
-std::function<void(LisemThread*)> f2 = std::bind(&(TWorld::UF2D_SolidSource),this,std::placeholders::_1 ,dt,_dem,_f,_visc,_fu,_fv,_s,_d,_ifa,_rocksize,_su,_sv,UF2D_sn);
-std::thread thread2 = std::thread(f2,tr);
-thread1.join();
-thread2.join();*/
 
 
 #endif

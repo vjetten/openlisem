@@ -100,13 +100,13 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
  * @see KEequationType
  *
  */
-void TWorld::SplashDetachment(void)
+void TWorld::SplashDetachment(int thread)
 {
    if (!SwitchErosion)
       return;
 
 
-   FOR_ROW_COL_MV
+   FOR_ROW_COL_2DMT
    {
       double b, strength, DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
       double g_to_kg = 0.001;
@@ -276,10 +276,11 @@ void TWorld::SplashDetachment(void)
           }
 
           DETSplash->Drc = detachment;
+          UF_AddedSplash->Drc = detachment;
       }
 
       // IN KG/CELL
-   }
+   }}}
 }
 
 //---------------------------------------------------------------------------

@@ -84,7 +84,7 @@ void TWorld::InfilEffectiveKsat(void)
 }
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
-void TWorld::InfilSwatre(cTMap *_WH)
+void TWorld::InfilSwatre(int thread,cTMap *_WH)
 {
     copy(*WHbef, *_WH); // copy water height before infil
 
@@ -94,14 +94,16 @@ void TWorld::InfilSwatre(cTMap *_WH)
     // formula = f = 1/(1+1.2^(theta-30)), theta in %
 
     // for normal surface swatre should be done in all cells
-    SwatreStep(SwatreSoilModel, _WH, fpot, TileDrainSoil, thetaTop, tma);
+    SwatreStep(thread, SwatreSoilModel, _WH, fpot, TileDrainSoil, thetaTop, tma);
     // NOTE WH changes in SWATRE
     // tiledrainsoil is in m per timestep, if not switchtiles then contains 0
     // TileDrainSoil->report("drain");
 
     // WH and fpot done in swatrestep
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
+    {
             fact->Drc = (WHbef->Drc - _WH->Drc);
+    }}}
     // actual; infil is dif between WH before and after
 
     if (SwitchInfilCrust)
@@ -111,19 +113,19 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
+        SwatreStep(thread, SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
         // calculate crust SWATRE and get the soil moisture of the top node
         // CrustFraction is cells > 0
 
         // calculate average cell values
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_2DMT
         {
             //tm = WH on crust and tma = fpot crust
             WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
             fact->Drc = (WHbef->Drc - WH->Drc);
             //fact->Drc = (WHbef->Drc - tm->Drc)*CrustFraction->Drc + fact->Drc*(1-CrustFraction->Drc);
             fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-        }
+        }}}
     }
 
     if (SwitchInfilCompact)
@@ -133,9 +135,9 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
+        SwatreStep(thread, SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
 
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_2DMT
         {
             WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
             // tm is WH on compacted area
@@ -144,7 +146,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
             fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
 
             thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }
+        }}}
     }
 
     if (SwitchGrassStrip)
@@ -153,13 +155,13 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
+        SwatreStep(thread, SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
 
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_2DMT
         {
             factgr->Drc = (tm->Drc - WHGrass->Drc);
             thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
-        }
+        }}}
     }
 
     if (SwitchWaterRepellency)
@@ -233,10 +235,10 @@ Green and Mapt, Smith and Parlange or Ksat subtraction.
 This function calculates the potential infiltration according to Ksat, G&A or S&P \n
 then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
-void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
+void TWorld::InfilMethods(int thread,cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
 {
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         double fact1 = 0;
         double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
@@ -282,7 +284,7 @@ void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fa
 
         _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-    }
+    }}}
 
 
 }
@@ -406,7 +408,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
   - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
   - decrease of surface water layer WH and calculate infiltration volume\n
   */
-void TWorld::Infiltration(void)
+void TWorld::Infiltration(int thread)
 {
 
     if (InfilMethod == INFIL_NONE)
@@ -425,13 +427,13 @@ void TWorld::Infiltration(void)
     switch (InfilMethod)
     {
     case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
-    case INFIL_SWATRE : InfilSwatre(WH); break;   // includes grasstrips, compaction etc
+    case INFIL_SWATRE : InfilSwatre(thread, WH); break;   // includes grasstrips, compaction etc
     case INFIL_KSAT :
     case INFIL_GREENAMPT :
     case INFIL_GREENAMPT2 :
     case INFIL_SMITH :
     case INFIL_SMITH2 :
-        InfilMethods(Ksateff, WH, fpot, fact, L1, L2, FFull);
+        InfilMethods(thread, Ksateff, WH, fpot, fact, L1, L2, FFull);
         break;
     case INFIL_MOREL :
     case INFIL_HOLTAN : break;
@@ -444,7 +446,7 @@ void TWorld::Infiltration(void)
     // calc surplus for kin wave, swatre does this internally
     if (InfilMethod != INFIL_SWATRE)
     {
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
                 //     if (FloodDomain->Drc == 0) // NOT !!!
     {
             if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
@@ -483,14 +485,14 @@ void TWorld::Infiltration(void)
         // negative surplus of infiltration in m for kinematic wave in m
         //VJ 101216 if soil full and impermeable: no surplus and no extra infil in kin wave
         //VJ 131222 limit so that smaller than available room!
-    }
+    }}}
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
        // InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
         InfilVol->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
         // infil volume is WH before - water after
-    }
+    }}}
 
 }
 
@@ -504,7 +506,7 @@ void TWorld::Infiltration(void)
   This is completely undocumented. Effects in ksateff do not influence percolation \n
   so ksat1 or ksat2 are used.
   */
-void TWorld::SoilWater()
+void TWorld::SoilWater(int thread)
 {
     if (!SwitchPercolation
             || InfilMethod == INFIL_SWATRE
@@ -512,7 +514,7 @@ void TWorld::SoilWater()
             || InfilMethod == INFIL_NONE)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         double Percolation, bca;
 
@@ -572,7 +574,7 @@ void TWorld::SoilWater()
 
         }
 
-    }
+    }}}
 }
 //---------------------------------------------------------------------------
 /* OBSOLETE

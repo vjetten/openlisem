@@ -39,7 +39,8 @@ functions: \n
 #include <thread>
 #include <functional>
 #include "lisUnifiedFlowThreadPool.h"
-
+#include <mutex>
+#include <condition_variable>
 
 class LisemThreadPool;
 class LisemThread;
@@ -56,7 +57,8 @@ public:
         THREAD_SPATIAL_ORDERED
     };
     ThreadType type;
-    std::function<void (LisemThread*)> f;
+    int core;
+    std::function<void (int)> f;
     int waitid;
     bool initial;
     bool final;
@@ -74,31 +76,21 @@ public:
     bool active = false;
     LisemThreadPool *ThreadPool;
 
+    int is_active();
+
     std::thread threadobject;
 
-    cTMap * mask;
-    cTMap * cellR;
-    cTMap * cellC;
-
-    cTMap * UF_t1;
-    cTMap * UF_t2;
-    cTMap * UF_t3;
-    cTMap * UF_t4;
-    cTMap * UF_t5;
-    cTMap * UF_t6;
-    cTMap * UF_t7;
-    cTMap * UF_t8;
-    cTMap * UF_t9;
-    cTMap * UF_t10;
-    cTMap * UF_t11;
-
     ThreadFunction *functionreference;
+    std::mutex mutex_fr;
+    std::condition_variable cv;
+    bool quit = false;
 
-    void CreateResources(TWorld * world, LisemThreadPool * Pool, int id);
+
+    std::chrono::high_resolution_clock::time_point time_used_in_last_function;
+
     void Start();
     void Start_intern();
     void Quit();
-    void CloseResources();
 
 };
 

@@ -226,6 +226,7 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
             {
                 if(!UF_OUTORMV(_ldd,r2,c2)){
                     x2 += _in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
+
                 }
             }
         }
@@ -234,8 +235,12 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
         x2 = x;
     }
 
+
     double dx1 = (x1 - x)/_dx;
     double dx2 = (x - x2)/_dx;
+
+
+
     if(calculationside == UF_DERIVATIVE_R)
     {
         return dx1;
@@ -332,6 +337,11 @@ bool TWorld::UF_OUTORMV(cTMap * mask, int r, int c)
 
 bool TWorld::UF_LDDOUT(cTMap * _ldd, int r, int c, bool front)
 {
+    if(!INSIDE(r,c))
+    {
+        return true;
+    }
+
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
     if(front)
@@ -340,6 +350,10 @@ bool TWorld::UF_LDDOUT(cTMap * _ldd, int r, int c, bool front)
         int lddself = (int) _ldd->data[r][c];
         if(!(lddself == 5))
         {
+            if(lddself > 9 || lddself < 0)
+            {
+                qDebug() << "error ldd" << lddself;
+            }
             int r2 = r+dy[lddself];
             int c2 = c+dx[lddself];
 
@@ -361,10 +375,12 @@ bool TWorld::UF_LDDOUT(cTMap * _ldd, int r, int c, bool front)
                 ldd = (int) _ldd->data[r2][c2];
             else
                 continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
+            if (!UF_OUTORMV(_ldd,r2,c2))
             {
-                return false;
+                if(FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    return false;
+                }
             }
         }
 
@@ -530,4 +546,172 @@ double TWorld::UF2D_MaxFlux(cTMap * _dem,cTMap * _f, int r, int c, int dr, int d
         return 0;
     }
     return mf;
+}
+
+double TWorld::UF1D_Value(cTMap * _ldd,cTMap * _lddw,int r, int c,bool front, cTMap * _in)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    if(UF_OUTORMV(_ldd,r,c))
+    {
+        return 0;
+    }
+    double x = _in->Drc;
+    double x1 = 0;
+    double x2 = 0;
+
+    if(front)
+    {
+
+        //front cell
+        int lddself = (int) _ldd->data[r][c];
+        if(!(lddself == 5))
+        {
+            int r2 = r+dy[lddself];
+            int c2 = c+dx[lddself];
+
+            if(!UF_OUTORMV(_ldd,r2,c2)){
+                x1 =  _in->data[r2][c2];
+            }
+        }
+
+        return x1;
+    }else
+    {
+
+        //back cells
+        double totalwidth = 0;
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                totalwidth += _lddw->data[r2][c2];
+            }
+        }
+        if(totalwidth > 0)
+        {
+            x2 = 0;
+            for (int i=1;i<=9;i++)
+            {
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+                        x2 += _in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
+                    }
+                }
+            }
+        }else
+        {
+            x2 = x;
+        }
+
+        return x2;
+    }
+
+
+}
+
+void TWorld::UF1D_AddValue(cTMap * _ldd,cTMap * _lddw,int r, int c, bool front, cTMap * _in, double add, bool zeromin)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    if(UF_OUTORMV(_ldd,r,c))
+    {
+        return;
+    }
+
+    if(front)
+    {
+
+        //front cell
+        int lddself = (int) _ldd->data[r][c];
+        if(!(lddself == 5))
+        {
+            int r2 = r+dy[lddself];
+            int c2 = c+dx[lddself];
+
+            if(!UF_OUTORMV(_ldd,r2,c2)){
+                _in->data[r2][c2] += add;
+                if(zeromin)
+                {
+                    _in->data[r2][c2] = std::max(_in->data[r2][c2],0.0);
+                }
+            }
+        }
+
+    }else
+    {
+
+        //back cells
+        double totalwidth = 0;
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                totalwidth += _lddw->data[r2][c2];
+            }
+        }
+        if(totalwidth > 0)
+        {
+            for (int i=1;i<=9;i++)
+            {
+                int r2, c2, ldd = 0;
+                if (i==5)  // Skip current cell
+                    continue;
+                r2 = r+dy[i];
+                c2 = c+dx[i];
+                if (!UF_OUTORMV(_ldd,r2,c2))
+                    ldd = (int) _ldd->data[r2][c2];
+                else
+                    continue;
+                if (!UF_OUTORMV(_ldd,r2,c2) &&
+                        FLOWS_TO(ldd, r2,c2,r,c))
+                {
+                    if(!UF_OUTORMV(_ldd,r2,c2)){
+                        _in->data[r2][c2] += add* _lddw->data[r2][c2]/totalwidth;;
+                        if(zeromin)
+                        {
+                            _in->data[r2][c2] = std::max(_in->data[r2][c2],0.0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
 }

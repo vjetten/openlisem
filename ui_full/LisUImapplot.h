@@ -79,6 +79,7 @@ class QwtComboColorMap: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
+
         if ( value < -1e19 )
             return qRgba( 228, 228, 228, 255 );
         if(thresholduse)

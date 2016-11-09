@@ -151,8 +151,6 @@ void TWorld::DestroyData(void)
     ClearComboMaps();
     ClearHydrographData();
 
-    DEBUG("kill Unified Flow data");
-    UF_Close();
 
 }
 //---------------------------------------------------------------------------
@@ -963,10 +961,10 @@ void TWorld::GetInputData(void)
             }
         }
     }
-
+    LDDChange = NewMap(0.0);
     DEMChange = NewMap(0.0);
     DFTotalInitiationHeight = NewMap(0.0);
-
+    DFSoilDensity = NewMap(2000.0);
     if(SwitchSlopeStability)
     {
         DFSafetyFactor = NewMap(0.0);
@@ -1024,7 +1022,13 @@ void TWorld::IntializeData(void)
     //TO DO add units and descriptions --> TMmapVariables.h
 
 
-
+    TSList_point.clear();
+    TSList_rainav.clear();
+    TSList_snowav.clear();
+    TSList_q.clear();
+    TSList_h.clear();
+    TSList_qs.clear();
+    TSList_c.clear();
 
     //totals for mass balance
     MB = 0;
@@ -1396,6 +1400,14 @@ void TWorld::IntializeData(void)
 
     //read and initialize the flow barrier table and map
     InitFlowBarriers();
+
+
+    //create a function object referring to the cellprocesses wrapper
+    fcompute = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
+
+    //creation callable function object by binding TWorld oject to member function
+    //this leaves only the thread id as a parameter for the compute function
+    flowcompute = std::bind((&TWorld::UF_Compute),this,std::placeholders::_1);
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)

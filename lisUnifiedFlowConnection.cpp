@@ -36,7 +36,7 @@ functions: \n
 #include "operation.h"
 
 //connection
-void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                                cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
                                cTMap * _fu1D,cTMap * _s1D,
                                cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
@@ -44,23 +44,47 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                                cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
                                cTMap * _su2D,cTMap * _sv2D)
 {
-
-    FOR_ROW_COL_UF2D
+    FOR_ROW_COL_UF2DMT
     {
         if(!UF_OUTORMV(_ldd,r,c))
         {
+            double h = (_f1D->Drc + _s1D->Drc)/(_dx*_lddw->Drc);
+
+            /*double NN = N->Drc;
+            double hf = (_f2D->Drc)/(_dx*_lddw->Drc);
+            double hs = (_s2D->Drc)/(_dx*_lddw->Drc);
+
+            double Perim = 2*hf+_dx;
+            double R = 0;
+            if (Perim > 0)
+                R = hf*_dx/Perim;
+            else
+                R = 0;
+
+            double fVkin = pow(R,3.0/2.0) * sqrt(hf/_dx)/NN;
+
+            Perim = 2*hs+_dx;
+            R = 0;
+            if (Perim > 0)
+                R = hs*_dx/Perim;
+            else
+                R = 0;
+            double sVkin = pow(R,3.0/2.0) * sqrt(hs/_dx)/NN;*/
+
+            double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
+            double sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
+
             if(UF_CHANNELFLOOD)
             {
-                double h = (_f1D->Drc + _s1D->Drc)/(_dx*_lddw->Drc);
-
                 //inflow
                 if(h < _lddh->Drc)
                 {
+
                     double maxvol= _lddw->Drc * _dx * (_lddh->Drc - h);
 
-                    double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
+
                     double fractionf = std::max(0.0,std::min(0.95, dt->Drc*fV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
-                    double sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
+
                     double fractions = std::max(0.0,std::min(0.95, dt->Drc*sV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
 
                     double volf = _f2D->Drc * (fractionf);
@@ -119,10 +143,11 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                 //outflow
                 }else
                 {
+
                     double vol = h * _lddw->Drc * _dx;
                     double extravol = _lddw->Drc * _dx * (h-_lddh->Drc);
-                    double fractionf = (extravol/vol) * _f1D->Drc;
-                    double fractions = (extravol/vol) * _s1D->Drc;
+                    double fractionf = (extravol/vol) ;
+                    double fractions = (extravol/vol) ;
 
                     double volf = fractionf * _f1D->Drc;
                     double vols = fractions * _s1D->Drc;
@@ -133,6 +158,12 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                     _d2D->Drc = vsn > UF_VERY_SMALL? (_d2D->Drc *_s2D->Drc + _d1D->Drc * vols)/vsn: 0.0;
                     _ifa2D->Drc = vsn > UF_VERY_SMALL? (_ifa2D->Drc *_s2D->Drc + _ifa1D->Drc * vols)/vsn: 0.0;
                     _rocksize2D->Drc = vsn > UF_VERY_SMALL? (_rocksize2D->Drc *_s2D->Drc + _rocksize1D->Drc * vols)/vsn: 0.0;
+
+                    _f1D->Drc = _f1D->Drc - volf;
+                    _s1D->Drc = _s1D->Drc - vols;
+
+                    _f2D->Drc = vfn;
+                    _s2D->Drc = vsn;
 
                     if(SwitchErosion)
                     {
@@ -163,9 +194,7 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
                 }
             }else
             {
-                double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
                 double fractionf = std::max(0.0,std::min(0.95, dt->Drc*fV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
-                double sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
                 double fractions = std::max(0.0,std::min(0.95, dt->Drc*sV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
 
                 double volf = _f2D->Drc * (fractionf);
@@ -227,11 +256,11 @@ void TWorld::UF2D1D_Connection(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _ld
             }
 
         }
-    }
+    }}}
 
 }
 
-void TWorld::UF2D1D_Infiltration(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+void TWorld::UF2D1D_Infiltration(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                                  cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
                                  cTMap * _fu1D,cTMap * _s1D,
                                  cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
@@ -240,7 +269,7 @@ void TWorld::UF2D1D_Infiltration(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
                                  cTMap * _su2D,cTMap * _sv2D)
 {
 
-    FOR_ROW_COL_UF2D_DT
+    FOR_ROW_COL_UF2DMT_DT
     {
         double cdx = DX->Drc;
         double cdy = ChannelAdj->Drc;
@@ -257,7 +286,7 @@ void TWorld::UF2D1D_Infiltration(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
         _f2D->Drc = std::max(_f2D->Drc + infil,0.0);
 
     }}}
-    FOR_ROW_COL_UF1D_DT
+    FOR_ROW_COL_UF1DMT_DT
     {
         //channel infiltration
         if(SwitchChannelInfil)
@@ -266,12 +295,12 @@ void TWorld::UF2D1D_Infiltration(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
             UF1D_Infiltration->Drc += infilvol;
             _f1D->Drc -= infilvol;
         }
-    }
+    }}}
 
 
 }
 
-void TWorld::UF2D1D_ChannelWater(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
+void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                                  cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
                                  cTMap * _fu1D,cTMap * _s1D,
                                  cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
@@ -280,7 +309,7 @@ void TWorld::UF2D1D_ChannelWater(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
                                  cTMap * _su2D,cTMap * _sv2D)
 {
 
-    FOR_ROW_COL_UF1D_DT
+    FOR_ROW_COL_UF1DMT_DT
     {
 
         // add rainfall in m3, no interception
@@ -301,19 +330,19 @@ void TWorld::UF2D1D_ChannelWater(cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _
             BaseFlow += BaseFlowInflow->Drc * _dt;
 
         }
-    }
+    }}}
 
 
 }
 
 
-void TWorld::UFDEMLDD_Connection(cTMap * dt,cTMap * RemovedMaterial1D, cTMap * RemovedMaterial2D, cTMap * out_DEM,cTMap * out_LDD)
+void TWorld::UFDEMLDD_Connection(int thread)
 {
-    cTMap * _dem = UF2D_DEM;
-    FOR_ROW_COL_UF2D
+    /*cTMap * _dem = UF2D_DEM;
+    FOR_ROW_COL_UF2DMT
     {
         UF2D_DEM->Drc += DEMChange->Drc;
         DEMChange->Drc = 0;
-    }
+    }}}*/
 
 }
