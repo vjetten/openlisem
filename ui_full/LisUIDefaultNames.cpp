@@ -140,6 +140,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
     DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
 
+    DEFmaps.append("0;FlowBarriers");
+    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+
 
 /*    OBSOLETE and gradually replaced with new ideas
     DEFmaps.append("0;Wheeltracks");
@@ -439,6 +442,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood extreme value height");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flood extreme value difference");
+
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include flow barriers");
+    namelist[i].value = QString("flowbarriers.txt");
+    namelist[i++].name = QString("Flow barrier table filename");
 
     //###
     namelist[i++].name = QString("");

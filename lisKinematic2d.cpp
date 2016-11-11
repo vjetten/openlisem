@@ -318,8 +318,13 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                 double weight = fabs(wdx) *fabs(wdy);
 
                 w[i] = weight;
+                if(SwitchFlowBarriers)
+                {
+                    w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn*dy[i],xn*dx[i]);
+                }
 
             }
+
             //normalize: sum of the 4 weights is equal to 1
             double wt = 0.0;
             for (int i=start; i<end+1; i++)
@@ -328,7 +333,10 @@ void TWorld::K2DSolvebyInterpolation(double dt)
             }
             for (int i=start; i<end+1; i++)
             {
-                w[i] = w[i]/wt;
+                if(wt > 0)
+                {
+                    w[i] = w[i]/wt;
+                }
             }
 
 
@@ -401,177 +409,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         }
     }
 }
-//--------------------------------------------------------------------------------------------
-/**
- * @fn void TWorld::K2DSolvebyFlux(double dt)
- * @brief Distributes flow trough cell boundary fluxes
- *
- * Distributes flow trough bilinear interpolation.
- * Furthermore adds boundary outflow to K2DQout.
- * Must be preceded by K2DInit() and K2DFlux().
- * Afterwards K2DSolve must be called to calculate new discharges.
- *
- *
- * @param dt : timestep
- * @return void
- */
-void TWorld::K2DSolvebyFlux(double dt)
-{
-    FOR_ROW_COL_MV
-    {
-        //start with old height and concentration
-        K2DHNew->Drc = K2DHOld->Drc;
-        K2DQN->Drc = 0;
 
-        /*if(SwitchErosion)
-            K2DSCN->Drc = K2DSC->Drc;*/
-    }
-
-    fill(*K2DQX, 0.0);
-    fill(*K2DQY, 0.0);
-    FOR_ROW_COL_MV
-    {
-        if(K2DPits->Drc == 1 )
-        {
-            K2DQX->Drc = 0;
-            K2DQY->Drc = 0;
-            continue;
-        }
-
-        double slopexy = K2DSlopeX->Drc != 0 ? K2DSlopeY->Drc/K2DSlopeX->Drc : 0;
-        double slopeyx = K2DSlopeY->Drc != 0 ? K2DSlopeX->Drc/K2DSlopeY->Drc : 0;
-        double powslopexy_025 = sqrt(sqrt(1.0 + slopexy*slopexy));
-        double powslopeyx_025 = sqrt(sqrt(1.0 + slopeyx*slopeyx));
-
-        //the weights for the x, any y component of the flow
-        //The sqrt(x^2 + y^2) can not be used for components of discharge, since then Qx + Qy = Qtotal would not hold!
-        //this distribution of flow between the x and y components is based on G Tayfur (2001)
-        double xw = sqrt(fabs(K2DSlopeX->Drc))/powslopexy_025;
-        double yw = sqrt(fabs(K2DSlopeY->Drc))/powslopeyx_025;
-
-        //if the slope in a direction is 0, then set the weight to 0, to correct for devisions by 0
-        //Lim_{Sx ->0, Sy ->1} Wx(Sx,Sy) = 0 || Lim_{Sx ->0, Sy ->1} Wy(Sx,Sy) = 1|| Lim_{Sy ->0, Sx ->1} Wx(Sx,Sy) = 1 || Lim_{Sy ->0, Sx ->1} Wy(Sx,Sy) = 0
-        if(K2DSlopeX->Drc == 0){xw = 0.0;yw = 1.0;};
-        if(K2DSlopeY->Drc == 0){yw = 0.0;xw = 1.0;};
-
-        //make sure that total weight = 1
-        double wt = xw +yw;
-        if(wt != 0)
-        {
-            xw = xw/wt;
-            yw = yw/wt;
-        }
-
-        //apply weights to components in x and y direction
-        K2DQX->Drc = K2DQ->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
-        K2DQY->Drc = K2DQ->Drc*yw * (K2DSlopeY->Drc > 0? 1.0:-1.0);
-
-    }
-
-    //reset maps for later calculations
-    fill(*K2DFX, 0.0);
-    fill(*K2DFY, 0.0);
-
-    //now calculate the sum of ingoing and outgoing discharges for each cell, in both the x and y direction
-    FOR_ROW_COL_MV
-    {
-
-
-        if(r != 0)
-        {
-            if(!pcr::isMV(LDD->data[r-1][c]) && !(K2DPitsD->data[r-1][c] == 1))
-            {
-                //add discharge trough cell border to cell, subtract it from the source
-                double fin = std::max(K2DQY->data[r-1][c],0.0);
-                K2DFY->Drc += fin;
-                K2DFY->data[r-1][c] -= fin;
-                QinKW->Drc += dt * fin;
-                QoutKW->data[r-1][c] += dt * fin;
-            }
-
-        }
-
-        if(r != _nrRows-1)
-        {
-            if(!pcr::isMV(LDD->data[r+1][c]) && !(K2DPitsD->data[r+1][c] == 1))
-            {
-                double fin = fabs(std::min(K2DQY->data[r+1][c],0.0));
-                K2DFY->Drc += fin;
-                K2DFY->data[r+1][c] -= fin;
-                QinKW->Drc += dt * fin;
-                QoutKW->data[r+1][c] += dt * fin;
-
-            }
-
-        }
-        if(c != 0 )
-        {
-            if(!pcr::isMV(LDD->data[r][c-1]) && !(K2DPitsD->data[r][c-1] == 1))
-            {
-                double fin = std::max(K2DQX->data[r][c-1],0.0);
-                K2DFX->Drc +=  fin;
-                K2DFX->data[r][c-1] -= fin;
-                QinKW->Drc += dt * fin;
-                QoutKW->data[r][c-1] += dt * fin;
-
-            }
-
-        }
-
-        if(c != _nrCols-1 )
-        {
-            if(!pcr::isMV(LDD->data[r][c+1]) && !(K2DPitsD->data[r][c+1] == 1))
-            {
-                double fin = fabs(std::min(K2DQX->data[r][c+1],0.0));
-                K2DFX->Drc +=  fin;
-                K2DFX->data[r][c+1] -= fin;
-                QinKW->Drc += dt * fin;
-                QoutKW->data[r][c+1] += dt * fin;
-            }
-        }
-
-        //add outflow from outlets to total outflow
-        if(K2DOutlets->Drc == 1)
-        {
-            K2DQOut +=  dt*(K2DQ->Drc);
-            QoutKW->data[r][c] += dt*K2DQ->Drc;
-            K2DFX->data[r][c] -=  (K2DQ->Drc);
-        }
-
-        //handle special cases were only diagonal flow is present (Flow distance longer??discharge smaller?)
-        if(K2DPitsD->Drc == 1 && !K2DPits->Drc)
-        {
-            double dsx = K2DSlopeX->Drc;
-            double dsy = K2DSlopeY->Drc;
-            int r2 = r + (dsx > 0? 1: -1);
-            int c2 = c + (dsy > 0? 1: -1);
-
-            if(INSIDE(r2,c2))
-            {
-                if(!pcr::isMV(LDD->data[r2][c2]))
-                {
-                    K2DFX->Drc -= K2DQX->Drc;
-                    K2DFY->Drc -= K2DQY->Drc;
-                    K2DFX->data[r2][c2] += K2DQX->Drc;
-                    K2DFY->data[r2][c2] += K2DQY->Drc;
-                }
-
-            }
-
-        }
-    }
-
-    FOR_ROW_COL_MV
-    {
-        //length of cell borders
-        double cdx = DX->Drc;
-        double cdy = ChannelAdj->Drc;
-        //new cell height, using total flux at boundaries
-        K2DHNew->Drc = K2DHOld->Drc +  dt*(K2DFX->Drc + K2DFY->Drc)/(cdy*cdx);
-    }
-
-
-}
 //--------------------------------------------------------------------------------------------
 /**
  * @fn double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
@@ -665,6 +503,11 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
                 //the distribution is inverly proportional to the squared distance
                 double weight = fabs(wdx) *fabs(wdy);
                 w[i]  = weight;
+
+                if(SwitchFlowBarriers)
+                {
+                    w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn * dy[i],xn * dx[i]);
+                }
             }
         }
 
@@ -676,7 +519,10 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         }
         for (int i=start; i<end+1; i++)
         {
-            w[i] = w[i]/wt;
+            if(wt > 0)
+            {
+                w[i] = w[i]/wt;
+            }
         }
 
         if(K2DOutlets->Drc == 1)
@@ -730,195 +576,6 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
     return K2DQMOut;
 
 }
-//--------------------------------------------------------------------------------------------
-/**
- * @fn double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
- * @brief Distributes sediment flow trough cell boundary fluxes
- *
- * Distributes sediment trough cell boundary fluxes.
- * The concentration map is used to determine sediment discharges.
- * Must be called after K2DSolveBy...(), so that new cell water contents are known.
- *
- * @param dt : timestep
- * @param _S : Sediment map
- * @param _C : Concentration map
- * @return Total boundary outflow in this timestep
- */
-double TWorld::K2DSolvebyFluxSed(double dt, cTMap *_S ,cTMap *_C)
-{
-    double K2DQMOut = 0;
-
-    FOR_ROW_COL_MV
-    {
-        K2DQM->Drc = 0;
-        K2DQMX->Drc = 0;
-        K2DQMY->Drc = 0;
-        K2DFMX->Drc = 0;
-        K2DFMY->Drc = 0;
-        K2DM->Drc = _S->Drc;
-        K2DMN->Drc = _S->Drc;
-        K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
-        K2DMC->Drc = _C->Drc;
-    }
-
-
-
-    double dtr = dt;
-    double fraction = CourantKin;
-
-    FOR_ROW_COL_MV
-    {
-       K2DQM->Drc =  K2DQ->Drc * K2DMC->Drc;
-       if(K2DQM->Drc > fraction*K2DM->Drc)
-       {
-            K2DQM->Drc = fraction*K2DM->Drc;
-       }
-
-    }
-
-
-    FOR_ROW_COL_MV
-    {
-        if(K2DPits->Drc == 1 || (K2DSlopeX->Drc == 0 && K2DSlopeY->Drc == 0))
-        {
-            K2DQMX->Drc = 0;
-            K2DQMY->Drc = 0;
-            continue;
-        }
-
-        double slopexy = K2DSlopeX->Drc != 0 ? K2DSlopeY->Drc/K2DSlopeX->Drc : 0;
-        double slopeyx = K2DSlopeY->Drc != 0 ? K2DSlopeX->Drc/K2DSlopeY->Drc : 0;
-        double powslopexy_025 = sqrt(sqrt(1.0 + slopexy*slopexy));
-        double powslopeyx_025 = sqrt(sqrt(1.0 + slopeyx*slopeyx));
-
-        //the weights for the x, any y component of the flow
-        //The sqrt(x^2 + y^2) can not be used for components of discharge, since then Qx + Qy = Qtotal would not hold!
-        //this distribution of flow between the x and y components is based on G Tayfur (2001)
-        double xw = sqrt(fabs(K2DSlopeX->Drc))/powslopexy_025;
-        double yw = sqrt(fabs(K2DSlopeY->Drc))/powslopeyx_025;
-
-        //if the slope in a direction is 0, then set the weight to 0, to correct for devisions by 0
-        //Lim_{Sx ->0, Sy ->1} Wx(Sx,Sy) = 0 || Lim_{Sx ->0, Sy ->1} Wy(Sx,Sy) = 1|| Lim_{Sy ->0, Sx ->1} Wx(Sx,Sy) = 1 || Lim_{Sy ->0, Sx ->1} Wy(Sx,Sy) = 0
-        if(K2DSlopeX->Drc == 0){xw = 0.0;yw = 1.0;};
-        if(K2DSlopeY->Drc == 0){yw = 0.0;xw = 1.0;};
-
-        //make sure that total weight = 1
-        double wt = xw +yw;
-        if(wt != 0)
-        {
-            xw = xw/wt;
-            yw = yw/wt;
-        }
-
-        K2DQMX->Drc = K2DQM->Drc*xw * (K2DSlopeX->Drc > 0? 1.0:-1.0);
-        K2DQMY->Drc = K2DQM->Drc*yw* (K2DSlopeY->Drc > 0? 1.0:-1.0);
-
-    }
-    //now calculate the sum of ingoing and outgoing discharges for each cell, in both the x and y direction
-    FOR_ROW_COL_MV
-    {
-
-
-        if(r != 0)
-        {
-            if(!pcr::isMV(LDD->data[r-1][c]) && !(K2DPitsD->data[r-1][c] == 1))
-            {
-
-                    K2DFMY->Drc += std::max(K2DQMY->data[r-1][c],0.0);
-                    K2DFMY->data[r -1][c] -= std::max(K2DQMY->data[r-1][c],0.0);
-            }
-
-        }
-
-        if(r != _nrRows-1)
-        {
-            if(!pcr::isMV(LDD->data[r+1][c]) && !(K2DPitsD->data[r+1][c] == 1))
-            {
-                    K2DFMY->Drc += fabs(std::min(K2DQMY->data[r+1][c],0.0));
-                    K2DFMY->data[r+1][c] -= fabs(std::min(K2DQMY->data[r+1][c],0.0));
-
-            }
-
-        }
-        if(c != 0 )
-        {
-            if(!pcr::isMV(LDD->data[r][c-1]) && !(K2DPitsD->data[r][c-1] == 1))
-            {
-                    K2DFMX->Drc += std::max(K2DQMX->data[r][c-1],0.0);
-                    K2DFMX->data[r][c-1] -= std::max(K2DQMX->data[r][c-1],0.0);
-
-            }
-
-        }
-
-        if(c != _nrCols-1 )
-        {
-            if(!pcr::isMV(LDD->data[r][c+1]) && !(K2DPitsD->data[r][c+1] == 1))
-            {
-                    K2DFMX->Drc += fabs(std::min(K2DQMX->data[r][c+1],0.0));
-                    K2DFMX->data[r][c+1] -= fabs(std::min(K2DQMX->data[r][c+1],0.0));
-
-            }
-        }
-
-        //add outflow from outlets to total outflow
-        if(K2DOutlets->Drc == 1)
-        {
-
-             K2DFMY->Drc -= K2DQM->data[r][c];
-             K2DQMOut += dt* K2DQM->data[r][c];
-
-        }
-
-        //handle special cases were only diagonal flow is presen (Flow distance longer??discharge smaller?)
-        if(K2DPitsD->Drc == 1)
-        {
-            double dsx = K2DSlopeX->Drc;
-            double dsy = K2DSlopeY->Drc;
-            int r2 = r + (dsx > 0? 1: -1);
-            int c2 = c + (dsy > 0? 1: -1);
-
-            if(INSIDE(r2,c2))
-            {
-                if(!pcr::isMV(LDD->data[r2][c2]))
-                {
-
-                        K2DFMX->Drc -= K2DQMX->Drc;
-                        K2DFMY->Drc -= K2DQMY->Drc;
-                        K2DFMX->data[r2][c2] += K2DQMX->Drc;
-                        K2DFMY->data[r2][c2] += K2DQMY->Drc;
-                }
-            }
-        }
-    }
-
-    FOR_ROW_COL_MV
-    {
-         K2DMN->Drc += dt*(K2DFMX->Drc + K2DFMY->Drc);
-    }
-
-    FOR_ROW_COL_MV
-    {
-        K2DQM->Drc = 0;
-        K2DQMX->Drc = 0;
-        K2DQMY->Drc = 0;
-        K2DFMX->Drc = 0;
-        K2DFMY->Drc = 0;
-        _S->Drc = K2DMN->Drc;
-        if(_C != NULL)
-        {
-            _C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DMN->Drc);
-
-        }
-
-    }
-
-
-    //return outflow out of the catchment boundary
-    return K2DQMOut;
-
-}
-
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::K2DSolve(double dt)
@@ -1041,6 +698,28 @@ void TWorld::K2DCalcVelDisch()
         //Reynolds number
     }
 }
+
+//---------------------------------------------------------------------------
+/**
+ * @fn void TWorld::OUTORMV()
+ * @brief Returns wether the location is mv or outside the domain
+ *
+ * @param r : row number
+ * @param c : column number
+ * @see K2DDEMA
+ */
+bool TWorld::OUTORMV(int r, int c)
+{
+    if(INSIDE(r,c))
+    {
+        if(!pcr::isMV(LDD->data[r][c]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::K2DDEMA()
@@ -1056,6 +735,7 @@ void TWorld::K2DCalcVelDisch()
  * @see K2DPits
  * @see K2DPitsD
  */
+
 void TWorld::K2DDEMA()
 {
     FOR_ROW_COL_MV
@@ -1080,205 +760,119 @@ void TWorld::K2DDEMA()
         double Dhy = 0;
 
         //DEM
+        double dem = DEMFB(r,c,0,0,true);
 
-        if(r != 0 && c != 0 && c != _nrCols-1 && r != _nrRows-1)
+        double demx1 = DEMFB(r,c,0,1,true);
+        double demx2 = DEMFB(r,c,0,-1,true);
+
+        if(OUTORMV(r,c+1))
         {
-            {
-                double dem = K2DDEM->data[r][c];
-
-                double demx1 = K2DDEM->data[r][c+1];
-                double demx2 = K2DDEM->data[r][c-1];
-
-                if(pcr::isMV(LDD->data[r][c+1]))
-                {
-                    demx1 = DEM->data[r][c];
-                    if (demx1 < demx2){K2DOutlets->Drc = 1;};
-                }
-                if(pcr::isMV(LDD->data[r][c-1]))
-                {
-                    demx2 = DEM->data[r][c];
-                    if (demx2 < demx1){K2DOutlets->Drc = 1;};
-                }
-
-                double demy1 = K2DDEM->data[r+1][c];
-                double demy2 = K2DDEM->data[r-1][c];
-
-                if(pcr::isMV(LDD->data[r+1][c]))
-                {
-                    demy1 = DEM->data[r][c];
-                    if(demy1 <demy2){K2DOutlets->Drc = 1;};
-                }
-                if(pcr::isMV(LDD->data[r-1][c]))
-                {
-                    demy2 = DEM->data[r][c];
-                    if(demy2 <demy1){K2DOutlets->Drc = 1;};
-                }
-
-                if(demx1 < demx2)
-                {
-                    Dhx = -(demx1-dem);
-                }else
-                {
-                    Dhx = (demx2-dem);
-                }
-
-                if(demy1 < demy2)
-                {
-                    Dhy = -(demy1-dem);
-                }else
-                {
-                    Dhy = (demy2-dem);
-                }
-
-            }
-            if(pcr::isMV(LDD->data[r][c+1]) && pcr::isMV(LDD->data[r][c-1]))
-            {
-                Dhx = 0;
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
-            if(pcr::isMV(LDD->data[r+1][c]) && pcr::isMV(LDD->data[r-1][c]))
-            {
-                Dhy = 0;
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
+            Outlet->Drc= 1;
+            if(demx1 <demx2){K2DOutlets->Drc = 1;};
+        }
+        if(OUTORMV(r,c-1))
+        {
+            Outlet->Drc= 1;
+            K2DOutlets->Drc = 1;
+            if(demx2 <demx1){K2DOutlets->Drc = 1;};
         }
 
-        //VJ ???????????? this says 4 times the same: for point 0,0 ?
-        if((r == 0 && c == 0) || (r == 0 && c == 0) ||(r == 0 && c == 0) || (r == 0 && c == 0))
+        double demy1 = DEMFB(r,c,1,0,true);
+        double demy2 = DEMFB(r,c,-1,0,true);
+
+        if(OUTORMV(r+1,c))
         {
-            Dhx = 0;
-            Dhy = 0;
+            Outlet->Drc= 1;
+            if(demy1 <demy2){K2DOutlets->Drc = 1;};
+        }
+        if(OUTORMV(r-1,c))
+        {
+            Outlet->Drc= 1;
+            if(demy2 <demy1){K2DOutlets->Drc = 1;};
+        }
+
+        if(demx1 < demx2)
+        {
+            Dhx = -(demx1-dem);
         }else
         {
-
-            //at boundaries, use one-sided derivative of the DEM
-            if(r == 0)
-            {
-                Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-
-                if(pcr::isMV(K2DDEM->data[r+1][c]))
-                {
-                    Dhy = 0;
-                }
-                if(pcr::isMV(K2DDEM->data[r][c-1]))
-                {
-                    Dhx = -(K2DDEM->data[r][c+1]-K2DDEM->data[r][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r][c+1]))
-                {
-                    Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-
-                }
-                if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r][c-1]))
-                {
-                    Dhx = 0;
-                }
-
-                if( Dhy < 0)
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
-
-            if(r == _nrRows-1)
-            {
-                Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-
-                if(pcr::isMV(K2DDEM->data[r -1][c]))
-                {
-                    Dhy = 0;
-                }
-
-                if(pcr::isMV(K2DDEM->data[r][c-1]))
-                {
-                    Dhx = -(K2DDEM->data[r][c +1]-K2DDEM->data[r][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r][c+1]))
-                {
-                    Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-                }
-                if(pcr::isMV(K2DDEM->data[r][c+1]) && pcr::isMV(K2DDEM->data[r ][c-1]))
-                {
-                    Dhx = 0;
-                }
-
-                if( Dhy > 0)
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
-
-            if(c == 0)
-            {
-                Dhx = -(K2DDEM->data[r][c +1]-K2DDEM->data[r][c]);
-                if(pcr::isMV(K2DDEM->data[r -1][c]))
-                {
-                    Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r +1][c]))
-                {
-                    Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r][c+1]))
-                {
-                    Dhx = 0;
-                }
-                if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
-                {
-                    Dhy = 0;
-                }
-                if( Dhx < 0)
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
-
-            if(c == _nrCols-1)
-            {
-                Dhx = -(K2DDEM->data[r][c]-K2DDEM->data[r][c-1]);
-                if(pcr::isMV(K2DDEM->data[r -1][c]))
-                {
-                    Dhy = -(K2DDEM->data[r+1][c]-K2DDEM->data[r][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r +1][c]))
-                {
-                    Dhy = -(K2DDEM->data[r][c]-K2DDEM->data[r-1][c]);
-                }
-                if(pcr::isMV(K2DDEM->data[r][c-1]))
-                {
-                    Dhx = 0;
-                }
-                if(pcr::isMV(K2DDEM->data[r +1][c]) && pcr::isMV(K2DDEM->data[r -1][c]))
-                {
-                    Dhy = 0;
-                }
-                if( Dhx > 0)
-                {
-                    K2DOutlets->Drc = 1;
-                }
-            }
-
+            Dhx = (demx2-dem);
         }
 
+        if(demy1 < demy2)
+        {
+            Dhy = -(demy1-dem);
+        }else
+        {
+            Dhy = (demy2-dem);
+        }
+
+        if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
+        {
+            Dhx = 0;
+
+            Outlet->Drc= 1;
+            K2DOutlets->Drc = 1;
+        }
+        if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
+        {
+            Dhy = 0;
+
+            Outlet->Drc= 1;
+            K2DOutlets->Drc = 1;
+        }
+
+        //at boundaries, set cell as outflow cell when slope is in the direction of the boundary
+        if(r == 0)
+        {
+            if( Dhy < 0)
+            {
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
+            }
+        }
+
+        if(r == _nrRows-1)
+        {
+            if( Dhy > 0)
+            {
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
+            }
+        }
+
+        if(c == 0)
+        {
+            if( Dhx < 0)
+            {
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
+            }
+        }
+
+        if(c == _nrCols-1)
+        {
+            if( Dhx > 0)
+            {
+                Outlet->Drc= 1;
+                K2DOutlets->Drc = 1;
+            }
+        }
 
         K2DSlopeX->Drc = Dhx/_dx;
         K2DSlopeY->Drc = Dhy/_dx;
 
         //if the slope is extremely flat, the ldd direction could be used for flow calculations (not needed)
-//        double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
+        double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
 
         //ldd directions
-//        int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-//        int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+        int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+        int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
         //Angle of direction of steepest slope, compared to positive x-axis !not used!
         //K2DAspect->Drc = atan2(Dhy,Dhx);
 
-        //calculate actual combined slope, with a minimum value of 0.001
+        //calculate actual combined slope, with a minimum value of 0.01
         double Dh = fabs(Dhx) + fabs(Dhy);
         K2DSlope->Drc = Dh / sqrt(2*_dx*_dx);
 
@@ -1289,34 +883,32 @@ void TWorld::K2DDEMA()
 
         if(std::isnan(K2DSlope->Drc))
         {
-            K2DSlope->Drc = MINGRAD;
+            K2DSlope->Drc = 0.01;
             K2DSlopeX->Drc = 0.00;
             K2DSlopeY->Drc = 0.00;
 
         }
         //minimum value for the slope
-        K2DSlope->Drc = std::max(K2DSlope->Drc,MINGRAD);
-    }
+        K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
 
-    //cell directions
-    int dx[8] = {0, 0,-1, 1, 1, 1,-1,-1};
-    int dy[8] = {1,-1, 0, 0, 1,-1, 1,-1};
+    }
 
     //Detection of water available for outflow (because of local depressions)
     FOR_ROW_COL_MV
     {
-        bool pitxw = true;
-        bool pityw = true;
+        //cell directions
+        int dx[8] = {0, 0, -1, 1,1,1,-1,-1};
+        int dy[8] = {1, -1, 0, 0,1,-1,1,-1};
+        bool pitxw= true;
+        bool pityw= true;
         bool pitdw = true;
-        int direction = 5; //VJ 0
+        int direction = 0;
         int mv = 0;
-        double dem = DEM->Drc;
-        double demw = K2DDEM->Drc;  // includes water
+        double dem = DEMFB(r,c,0,0,false);
+        double demw = DEMFB(r,c,0,0,true);
         double lowestneighbor = 9999999;
         double lowestneighborw = 9999999;
         int r2, c2;
-        double s2 = sqrt(2);
-
         for (int i=0; i<8; i++)
         {
             //set row and column to neighbor
@@ -1326,18 +918,19 @@ void TWorld::K2DDEMA()
             {
                 if(!pcr::isMV(LDD->data[r2][c2]))
                 {
-                    if(K2DDEM->data[r2][c2] <  lowestneighbor)
+                    double demtnw = DEMFB(r,c,dy[i],dx[i],false);
+                    if(demtnw <  lowestneighbor)
                     {
-                        lowestneighbor = K2DDEM->data[r2][c2];
+                        lowestneighbor = demtnw;
                     }
 
                     //if at least 1 neighboring cell is lower, it is not a pit
-                    if(K2DDEM->data[r2][c2] < demw)
+                    double demtw = DEMFB(r,c,dy[i],dx[i],true);
+                    if(demtw < demw)
                     {
                         if( i < 2){
                             pitxw = false;
-                        }else
-                            if( i < 4){
+                        }else if( i < 4){
                             pityw = false;
                         }else
                         {
@@ -1345,9 +938,10 @@ void TWorld::K2DDEMA()
                             direction = i;
                         }
                     }
-                    if(K2DDEM->data[r2][c2] <  lowestneighborw)
+
+                    if(demtw <  lowestneighborw)
                     {
-                        lowestneighborw = K2DDEM->data[r2][c2];
+                        lowestneighborw = demtw;
                     }
                 }else
                 {
@@ -1376,12 +970,10 @@ void TWorld::K2DDEMA()
                     }
                     mv++;
                 }
-            }else
-            {
-                mv++;
             }
         }
 
+        //only allow non-boundary cells, to be pits!
         if(mv == 0)
         {
             if(lowestneighborw > DEM->Drc)
@@ -1393,12 +985,10 @@ void TWorld::K2DDEMA()
             if(pitxw &&pityw && !pitdw)
             {
                 K2DPitsD->Drc = 1;
-                if (direction > 3)
-                    K2DSlope->Drc = std::max((demw - lowestneighborw)/(s2*_dx),MINGRAD);
-                else
-                    K2DSlope->Drc = std::max((demw - lowestneighborw)/(_dx),MINGRAD);
-                K2DSlopeX->Drc = double(dx[direction]) * K2DSlope->Drc/2.0;
-                K2DSlopeY->Drc = double(dy[direction]) * K2DSlope->Drc/2.0;
+                K2DSlope->Drc = std::max((demw - lowestneighborw)/(sqrt(2)*_dx),0.01);
+                K2DSlopeX->Drc = double(dx[(int)direction]) * K2DSlope->Drc/2.0;
+                K2DSlopeY->Drc = double(dy[(int)direction]) * K2DSlope->Drc/2.0;
+
             }
 
             if(pitxw && pityw && pitdw)

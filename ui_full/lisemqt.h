@@ -155,6 +155,7 @@ public:
     void showChannelMap();
     void showRoadMap();
     void showHouseMap();
+    void showFlowBarriersMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type);
 
     QwtText title;
@@ -164,6 +165,7 @@ public:
     QwtPlotSpectrogram *channelMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
+    QwtPlotSpectrogram *flowbarriersMap;
     QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtMatrixRasterData *RD;
     QwtMatrixRasterData *RDb;
@@ -171,6 +173,7 @@ public:
     QwtMatrixRasterData *RDc;
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
+    QwtMatrixRasterData *RDf;
     //   double drawNrCols;
     //   double drawNrRows;
     // vars for store map display in runfile
@@ -371,6 +374,7 @@ public slots:
     void ssetAlpha2(int v);
     void ssetAlpha3(int v);
     void ssetAlpha4(int v);
+    void ssetAlpha5(int v);
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);

@@ -108,7 +108,9 @@ void TWorld::ChannelWaterHeight(void)
 {
 
     if (!SwitchIncludeChannel)
+    {
         return;
+    }
 
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
@@ -157,6 +159,11 @@ void TWorld::ChannelWaterHeight(void)
 void TWorld::ChannelWaterHeightFromVolume(void)
 {
 
+    if(!SwitchIncludeChannel)
+    {
+        return;
+    }
+
     FOR_ROW_COL_MV_CH
     {
         // calculate ChannelWH
@@ -194,11 +201,7 @@ void TWorld::ChannelWaterHeightFromVolume(void)
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc;
 
-            if (ChannelWidthUpDX->Drc > _dx)
-            {
-                ErrorString = QString("channel width > dx at row %1, col %2").arg(r).arg(c);
-                throw 1;
-            }
+
 
             if (ChannelWidthUpDX->Drc < 0)
             {
@@ -206,11 +209,11 @@ void TWorld::ChannelWaterHeightFromVolume(void)
                 throw 1;
             }
 
-            ChannelWidthUpDX->Drc = std::min(0.9*_dx, ChannelWidthUpDX->Drc);
+            //ChannelWidthUpDX->Drc = std::min(0.9*_dx, ChannelWidthUpDX->Drc);
             // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
             // cannot be more than 0.9*_dx
 //RECALC channelWH here!!!!
-            ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
+            //ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
             // experimental if channelwidth > dx
         }
     }
@@ -247,7 +250,6 @@ double TWorld::ChannelIterateWH(int r, int c)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
-
     if (!SwitchIncludeChannel)
         return;
 

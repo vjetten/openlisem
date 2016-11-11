@@ -46,7 +46,11 @@ void TWorld::GridCell(void)
 
     FOR_ROW_COL_MV
     {
-        double dxa = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
+        double dxa = _dx;
+        if(SwitchIncludeChannel)
+        {
+            dxa = std::max(0.1, _dx - ChannelWidthExtended->Drc);
+        }
 
         ChannelAdj->Drc = dxa;
 

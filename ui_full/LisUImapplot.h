@@ -149,6 +149,29 @@ public:
     }
 };
 //---------------------------------------------------------------------------
+/// House color legend
+class colorMapFlowBarrier: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
+
+        if ( value < 0.05 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapFlowBarrier():
+        QwtLinearColorMap( QColor("#000000"), QColor("#FFFF00"))
+    {
+
+    }
+};
+
+
+//---------------------------------------------------------------------------
 ///  relief map display
 ///http://www.colorschemer.com/schemes/viewscheme.php?id=81
 class colorMapElevation: public QwtLinearColorMap

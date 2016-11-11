@@ -74,6 +74,13 @@ void lisemqt::ssetAlpha4(int v)
     if (v > 0)
         MPlot->replot();
 }
+//---------------------------------------------------------------------------
+void lisemqt::ssetAlpha5(int v)
+{
+  flowbarriersMap->setAlpha(v);
+  if (v > 0)
+    MPlot->replot();
+}
 
 //---------------------------------------------------------------------------
 // called when a model run is started
@@ -142,6 +149,10 @@ void lisemqt::setupMapPlot()
     roadMap->attach( MPlot );
     // road map
 
+    flowbarriersMap = new QwtPlotSpectrogram();
+    flowbarriersMap->setRenderThreadCount( 0 );
+    flowbarriersMap->attach( MPlot );
+
     channelMap = new QwtPlotSpectrogram();
     channelMap->setRenderThreadCount( 0 );
     channelMap->attach( MPlot );
@@ -153,6 +164,7 @@ void lisemqt::setupMapPlot()
     RDc = new QwtMatrixRasterData();
     RDd = new QwtMatrixRasterData();
     RDe = new QwtMatrixRasterData();
+    RDf = new QwtMatrixRasterData();
 
     // raster data to link to plot
 
@@ -321,6 +333,7 @@ void lisemqt::showMap()
     channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
+    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparency5->value() : 0);
 
     MPlot->replot();
 }
@@ -505,3 +518,25 @@ void lisemqt::showHouseMap()
 
     houseMap->setColorMap(new colorMapHouse());
 }
+//---------------------------------------------------------------------------
+void lisemqt::showFlowBarriersMap()
+{
+  if (startplot)
+    {
+
+      // set intervals for rasterdata, x,y,z min and max
+      double res = fillDrawMapData(op.flowbarriersMap, RDf, 0);
+      if (res ==-1e20)
+        return;
+      RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));
+      flowbarriersMap->setData(RDf);
+    }
+
+  if (checkMapFlowBarriers->isChecked())
+    flowbarriersMap->setAlpha(transparency5->value());
+  else
+    flowbarriersMap->setAlpha(0);
+
+  flowbarriersMap->setColorMap(new colorMapFlowBarrier());
+}
+

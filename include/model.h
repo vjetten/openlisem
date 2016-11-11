@@ -62,7 +62,9 @@
 
 /// shortcut to access data
 #define Drc     data[r][c]
+#define Drcr    data[rr][cr]
 #define Drcd    at(d)->data[r][c]
+#define Drcdr    at(d)->data[rr][cr]
 #define Drci data[r+dr[i]][c+dc[i]]
 
 /// shortcut to access the outlet point data
@@ -258,11 +260,24 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed;
+    SwitchFloodExplicit, SwitchFloodSWOForder1, SwitchFloodSWOForder2, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers;
 
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET;
+
+    QList<int> FBid;
+
+    QList<double> FBHeightN;
+    QList<double> FBHeightS;
+    QList<double> FBHeightE;
+    QList<double> FBHeightW;
+
+    QList<double> FBTimeN;
+    QList<double> FBTimeS;
+    QList<double> FBTimeE;
+    QList<double> FBTimeW;
+
 
     // multiple options that are set in interface or runfile, see defines above
 
@@ -353,6 +368,9 @@ public:
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
     int SOBEKnrlines;
+
+    //flow barriers table filename
+    QString FlowBarriersFileName;
 
     // file and directory names
     QString resultDir;
@@ -706,6 +724,17 @@ public:
     void TileFlow(void);
     void CalcVelDischTile(void);
     void GridCell(void);
+
+    void ExtendChannel();
+    bool IsExtendedChannel(int r, int c, int dr, int dc);
+    void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_not_div = false, bool proportional = true);
+    bool OUTORMV(int r, int c);
+    void InitFlowBarriers(void);
+    double DEMFB(int r, int c, int rd, int cd, bool addwh);
+    double FB(int r, int c, int rd, int cd);
+    void SetFlowBarriers();
+    void GetFlowBarrierData(QString name);
+    double FBW(double h, int r, int c, int dr, int dc);
 
     //flood
     //QVector<int> cellRow;

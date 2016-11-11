@@ -261,6 +261,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
+        if (p1.compare("Include flow barriers")==0)          checkBox_FlowBarriers->setChecked(check);
+        if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
 
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
 
@@ -442,13 +444,11 @@ void lisemqt::ParseInputData()
     {
          checkOverlandFlow1D->setChecked(true);
          checkOverlandFlow2D->setChecked(false);
-         E_Kinematic2D->setValue(3);
     }
     else
     {
         checkOverlandFlow1D->setChecked(false);
         checkOverlandFlow2D->setChecked(true);
-        E_Kinematic2D->setValue(dummykinwave);
     }
 
     if (dummyFloodExplicit)
@@ -691,6 +691,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
 
+        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
+        if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
+
         //flooding
         if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
    //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
@@ -701,7 +704,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2D->isChecked())  namelist[j].value = E_Kinematic2D->text();
+            if (checkOverlandFlow2D->isChecked())  namelist[j].value = "3";
         }
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();

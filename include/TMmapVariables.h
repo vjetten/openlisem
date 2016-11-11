@@ -506,6 +506,26 @@ cTMap
 //display combinations
 *COMBO_QOFCH,
 *COMBO_VOFCH,
-*COMBO_SS
+*COMBO_SS,
+*ChannelDepthExtended,
+*ChannelWidthExtended,
+*ChannelNeighborsExtended,
+*ChannelSourceXExtended,
+*ChannelSourceYExtended,
+*ChannelMaskExtended,
+*ChannelBoundaryExtended,
+*ChannelBoundaryLExtended,
+*ChannelBoundaryRExtended,
+
+*FlowBarrier,                //!< Flow barriers type
+*FlowBarrierN,               //!< Flow barriers height North of cell
+*FlowBarrierW,               //!< Flow barriers height West of cell
+*FlowBarrierS,               //!< Flow barriers height South of cell
+*FlowBarrierE,               //!< Flow barriers height East of cell
+*FlowBarrierNT,              //!< Flow barriers end timing North of cell
+*FlowBarrierWT,              //!< Flow barriers end timing West of cell
+*FlowBarrierST,              //!< Flow barriers end timing South of cell
+*FlowBarrierET               //!< Flow barriers end timing East of cell
+
 ;
 

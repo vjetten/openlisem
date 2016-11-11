@@ -603,8 +603,6 @@ void lisemqt::setErosionTab(bool yes)
 void lisemqt::setRunoffTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(3, yes);
-    if (yes && E_Kinematic2D->value() == 1)
-        E_Kinematic2D->setValue(3);
 }
 
 //--------------------------------------------------------------------
@@ -738,6 +736,7 @@ void lisemqt::SetToolBar()
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapFlowBarriers, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
@@ -749,7 +748,7 @@ void lisemqt::SetToolBar()
     connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
     connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
     connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
-
+    connect(transparency5, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha5(int)));
     //connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
 }
 //---------------------------------------------------------------------------
@@ -1617,7 +1616,6 @@ void lisemqt::resetAll()
     //   E_FloodMaxVelocity->setValue(10.0);
 
 //2D kin wave
-    E_Kinematic2D->setValue(3);
     E_TimestepMin->setValue(1.0);
     E_CourantFactorKin->setValue(0.25);
 }

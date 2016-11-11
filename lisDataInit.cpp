@@ -335,7 +335,8 @@ void TWorld::InitBuffers(void)
                 BufferVol->Drc = 0;
             }
             //split buffers in channel buffers and slope buffers
-            // in "ToCHannel" all flow in a buffer is dumped in the channel
+            // in "ToCHannel" all flow in a buffer is dumped in the
+
             copy(*ChannelBufferVolInit, *ChannelBufferVol);
             // copy initial max volume of buffers in channels
         }
@@ -812,6 +813,7 @@ void TWorld::InitChannel(void)
     }
 
 
+    ExtendChannel();
 
 }
 
@@ -1296,9 +1298,21 @@ void TWorld::GetInputData(void)
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     cover(*Outlet, *LDD, 0);
+
+    bool outset = false;
     // fill outlet with zero, some users have MV where no outlet
     FOR_ROW_COL_MV
     {
+        //in case there is no outlet with code 1
+        if(!outset && Outlet->Drc > 0)
+        {
+            outset = true;
+            c_outlet = c;
+            r_outlet = r;
+            r_plot = r_outlet;
+            c_plot = c_outlet;
+
+        }
         if (Outlet->Drc == 1)
         {
             if (LDD->Drc != 5)
@@ -1582,7 +1596,8 @@ void TWorld::GetInputData(void)
     //## read and initialize all tile drain system maps and variables
     InitTiledrains();
 
-
+    //## get flow barriers;
+    InitFlowBarriers();
 
 }
 //---------------------------------------------------------------------------
@@ -2175,6 +2190,11 @@ void TWorld::IntializeData(void)
    // MakeWatersheds();
     if (SwitchChannelBaseflow)
         FindBaseFlow();
+
+    if(SwitchFlowBarriers)
+    {
+
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)

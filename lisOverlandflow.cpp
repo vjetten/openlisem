@@ -153,6 +153,108 @@ void TWorld::ToChannel(void)
     if (!SwitchIncludeChannel)
         return;
 
+    for (int  r = 0; r < _nrRows; r++)
+    {
+        for (int  c = 0; c < _nrCols; c++)
+        {
+            if(ChannelMaskExtended->data[r][c] == 1)
+            {
+                int rr = (int)ChannelSourceYExtended->Drc;
+                int cr = (int)ChannelSourceXExtended->Drc;
+
+                double fractiontochannel;
+                double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+
+                if (Volume == 0)
+                {
+                    SedToChannel->Drcr = 0;
+                    RunoffVolinToChannel->Drcr  = 0;
+                    continue;
+                }
+
+                if (ChannelAdj->Drc == 0)
+                    fractiontochannel = 1.0;
+                else
+                    fractiontochannel = std::min(1.0, _dt*V->Drc/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
+                // fraction to channel calc from half the adjacent area width and flow velocity
+
+                if (SwitchBuffers)
+                    if (BufferID->Drcr  > 0)
+                        fractiontochannel = 1.0;
+                // where there is a buffer in the channel, all goes in the channel
+
+                // cannot flow into channel is water level in channel is higher than depth
+                if (SwitchChannelFlood)
+                {
+                    if (WHrunoff->Drc <= std::max(ChannelLevee->Drcr, ChannelWH->Drcr -ChannelDepthExtended->Drc))
+                    {
+                        fractiontochannel = 0;
+                    }
+                    // no inflow when flooded
+                    if (ChannelMaxQ->Drcr  > 0)
+                    {
+                        fractiontochannel = 0;
+                    }
+                    // no surface inflow when culverts and bridges
+                }
+                if (SwitchAllinChannel)
+                    if (LDD->Drcr  == 5)
+                        fractiontochannel = 1.0;
+                // in catchment outlet cell, throw everything in channel
+
+                RunoffVolinToChannel->Drcr  = fractiontochannel*Volume;
+                // water diverted to the channel
+                WHrunoff->Drc *= (1-fractiontochannel);
+
+                WH->Drc = WHrunoff->Drc + WHstore->Drc;
+                //VJ 130425
+
+                if (SwitchErosion)
+                {
+                    if(!SwitchUse2Layer)
+                    {
+                        ChannelBLSed->Drcr  += fractiontochannel*Sed->Drc;
+                    }else
+                    {
+                        ChannelSSSed->Drcr  += fractiontochannel*Sed->Drc;
+                    }
+                    //sediment diverted to the channel
+                    Sed->Drc = Sed->Drc * (1 - fractiontochannel);
+
+                    Conc->Drc = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed->Drc);
+                    // adjust sediment in suspension
+
+                    if(SwitchUseGrainSizeDistribution)
+                    {
+                        Conc->Drc = 0;
+                        FOR_GRAIN_CLASSES
+                        {
+                            if(SwitchUse2Layer)
+                            {
+                                RSS_D.Drcdr += fractiontochannel * Sed_D.Drcdr;
+                            }else
+                            {
+                                RBL_D.Drcdr += fractiontochannel * Sed_D.Drcdr;
+                            }
+                            Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
+                            Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed_D.Drcd);
+                            Conc->Drc +=Conc_D.Drcd;
+                        }
+                    }
+
+                   RiverSedimentLayerDepth(rr,cr);
+
+
+
+
+                }
+            }
+        }
+    }
+
+    /*if (!SwitchIncludeChannel)
+        return;
+
     FOR_ROW_COL_MV_CH
     {
         double fractiontochannel;
@@ -272,7 +374,7 @@ void TWorld::ToChannel(void)
 
 
         }
-    }
+    }*/
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -346,7 +448,6 @@ void TWorld::CalcVelDisch()
  * @return void
  * @see SwitchKinematic2D
  * @see K1D_METHOD
- * @see K2D_METHOD_FLUX
  * @see K2D_METHOD_INTER
  */
 void TWorld::OverlandFlowNew(void)
@@ -505,10 +606,7 @@ void TWorld::OverlandFlowNew(void)
             //only move in time that is left of the Lisem-timestep
             dt = std::min(dt, _dt-tof);
 
-            if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
-                K2DSolvebyFlux(dt);
-            if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
-                K2DSolvebyInterpolation(dt);
+            K2DSolvebyInterpolation(dt);
 
             /*sediment transport functions must be called before K2DSolve() and after K2DSolveBy..() */
             if(SwitchErosion)
@@ -518,63 +616,19 @@ void TWorld::OverlandFlowNew(void)
                 //advect total sediment
                 if(!SwitchUseGrainSizeDistribution)
                 {
-                    if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
-                        K2DQSOut += K2DSolvebyFluxSed(dt,Sed,Conc);  //VJ NB this is NOT a flux but Qs*dt
-                    if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
-                        K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
+                    K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed, Conc);
                 }else
                 {
                     //advect each induvidual grain class
                     FOR_GRAIN_CLASSES
                     {
-                        if(SwitchKinematic2D == (int)K2D_METHOD_FLUX)
-                            K2DQSOut += K2DSolvebyFluxSed(dt,Sed_D.at(d),Conc_D.at(d));
-                        if(SwitchKinematic2D == (int)K2D_METHOD_INTER)
-                            K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed_D.at(d), Conc_D.at(d));
+                        K2DQSOut += K2DSolvebyInterpolationSed(dt,Sed_D.at(d), Conc_D.at(d));
                     }
                 }
             }
 
             //solve fluxes and go back from water height to new discharge
             K2DSolve(dt);
-
-            //VJ if you do this here the last flux is used for the timestep flux insterad of average
-            //moved to outsxide time loop
-
-            //            if(SwitchErosion)
-            //            {
-            //                //calculate concentration and new sediment discharge
-            //                if(!SwitchUseGrainSizeDistribution)
-            //                {
-            //                    FOR_ROW_COL_MV
-            //                    {
-            //                        Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
-            //                        Qs->Drc = Conc->Drc * Qn->Drc;
-            //                        Qsn->Drc = Qs->Drc;
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                    //calculate total sediment from induvidual grain classes,
-            //                    //and calculate concentration and new sediment discharge
-            //                    FOR_ROW_COL_MV
-            //                    {
-            //                        Sed->Drc = 0;
-            //                        Conc->Drc = 0;
-
-            //                    }
-            //                    FOR_ROW_COL_MV
-            //                    {
-            //                        FOR_GRAIN_CLASSES
-            //                        {
-            //                            Sed->Drc += Sed_D.Drcd;
-            //                            Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
-            //                            Conc->Drc += Conc_D.Drcd;
-            //                        }
-            //                    }
-            //                }
-            //            }
-
 
             //total time this lisem-timestep
             tof += dt;

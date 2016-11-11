@@ -425,8 +425,8 @@ void TWorld::maincalcfluxws(int wsnr)
     FOR_WATERSHED_ROW_COL(wsnr) {
         if (c > 0 && !pcr::isMV(LDD->data[r][c-1]))
         {
-            h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]));
-            h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]));
+            h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
+            h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
             if (F_scheme == 1)
                 F_Rusanov(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
             else
@@ -443,7 +443,7 @@ void TWorld::maincalcfluxws(int wsnr)
         else
         {
             h1d->Drc = std::max(0.0, h1r->Drc - std::max(0.0,  delz1->Drc));
-            h1g->Drc        = std::max(0.0, h1l->Drc        - std::max(0.0, -delz1->Drc));
+            h1g->Drc = std::max(0.0, h1l->Drc - std::max(0.0, -delz1->Drc));
             if (F_scheme == 1)
                 F_Rusanov(h1d->Drc, u1r->Drc, v1r->Drc,h1g->Drc, u1l->Drc, v1l->Drc);
             else
@@ -463,8 +463,8 @@ void TWorld::maincalcfluxws(int wsnr)
         if(r > 0 && !pcr::isMV(LDD->data[r-1][c]))
         {
 
-            h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]));
-            h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]));
+            h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
+            h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
 
             if (F_scheme == 1)
                 F_Rusanov(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
@@ -482,7 +482,7 @@ void TWorld::maincalcfluxws(int wsnr)
         else
         {
             h2d->Drc = std::max(0.0, h2r->Drc - std::max(0.0,  delz2->Drc));
-            h2g->Drc        = std::max(0.0, h2l->Drc        - std::max(0.0, -delz2->Drc));
+            h2g->Drc = std::max(0.0, h2l->Drc - std::max(0.0, -delz2->Drc));
 
             if (F_scheme == 1)
                 F_Rusanov(h2d->Drc,v2r->Drc,u2r->Drc,h2g->Drc,v2l->Drc,u2l->Drc);

@@ -137,14 +137,20 @@ void TWorld::OutputUI(void)
 //    if(SwitchChannelFlood)
 //        calcMap(*COMBO_QOFCH, *Qflood, ADD);
 
+    if (SwitchIncludeChannel)
+    {
+        fill(*tma,0.0);
+        DistributeOverExtendedChannel(ChannelQ,tma);
+    }
+
     FOR_ROW_COL_MV
     {
         COMBO_QOFCH->Drc = Qn->Drc;
         if(SwitchChannelFlood)
             COMBO_QOFCH->Drc += Qflood->Drc;
         if (SwitchIncludeChannel)
-            if (ChannelWidthUpDX->Drc > 0)
-                COMBO_QOFCH->Drc = ChannelQn->Drc;
+            if (ChannelWidthExtended->Drc > 0)
+                COMBO_QOFCH->Drc = tma->Drc;
     }
     //VJ changed this to Qn and channel Qn
 
@@ -206,7 +212,7 @@ void TWorld::OutputUI(void)
     copy(*op.baseMapDEM, *DEM);
 
     if (SwitchIncludeChannel)
-        copy(*op.channelMap, *ChannelWidth);
+        copy(*op.channelMap, *ChannelWidthExtended);
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
     if (SwitchRoadsystem)
     {
@@ -215,6 +221,16 @@ void TWorld::OutputUI(void)
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
+
+    if(SwitchFlowBarriers)
+    {
+        fill(*tma,0.0);
+        FOR_ROW_COL_MV
+        {
+            tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
+        }
+        copy(*op.flowbarriersMap,*tma);
+    }
 
     // MAP DISPLAY VARIABLES
 
@@ -981,6 +997,7 @@ void TWorld::setupDisplayMaps()
         delete op.channelMap;
         delete op.roadMap;
         delete op.houseMap;
+        delete op.flowbarriersMap;
     }
 
     op.baseMap = new cTMap();
@@ -988,12 +1005,14 @@ void TWorld::setupDisplayMaps()
     op.channelMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
+    op.flowbarriersMap = new cTMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.channelMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
+    op.flowbarriersMap->MakeMap(LDD, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::setupHydrographData()
@@ -1130,8 +1149,7 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
-    if(SwitchIncludeChannel)
-        AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
   //  AddComboMap(0,"Overland Discharge","l/s",Qn,Colormap,Colors,true,false,1000.0, 1.0); //VJ changed to Qn instead of Q
     if(SwitchIncludeChannel)
         AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0); //Chnaged thhis to ChannelQn

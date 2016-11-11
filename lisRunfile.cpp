@@ -249,7 +249,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
         //if (p1.compare("Limit Deposition TC")==0)            SwitchLimitDepTC =       iii == 1;
         if (p1.compare("Include litter interception")==0)    SwitchLitter =          iii == 1;
-
+        if (p1.compare("Include flow barriers")==0)          SwitchFlowBarriers = iii == 1;
+        if (p1.compare("Flow barrier table filename")==0)    FlowBarriersFileName = p;
 
         if (p1.compare("Include buffers")==0)                SwitchBuffers =          iii == 1;
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;

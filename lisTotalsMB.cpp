@@ -42,6 +42,7 @@ functions: \n
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
 {
+
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
@@ -50,7 +51,6 @@ void TWorld::Totals(void)
 
     FOR_ROW_COL_MV
     {
-
        WHmax->Drc = std::max(WHmax->Drc, WH->Drc);
     }
 
@@ -132,7 +132,7 @@ void TWorld::Totals(void)
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
     FOR_ROW_COL_MV
-            if(ChannelWidthUpDX->Drc == 0)
+        if(ChannelWidthUpDX->Drc == 0)
     {
         runoffTotalCell->Drc += Qn->Drc * _dt; // in M3 !!!!
     }
@@ -289,7 +289,6 @@ void TWorld::Totals(void)
         SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
         // for screen output, total main outlet sed loss in kg
 
-
         if (SwitchIncludeChannel)
         {
             // units here in kg, conversion to ton in report functions
@@ -297,7 +296,9 @@ void TWorld::Totals(void)
             ChannelDepTot += mapTotal(*ChannelDep);
             ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
 
-            calcMap(*DETFlowCum, *ChannelDetFlow, ADD);
+            fill(*tma,0.0);
+            DistributeOverExtendedChannel(ChannelDetFlow,tma);
+            calcMap(*DETFlowCum, *tma, ADD);
 
             FOR_ROW_COL_MV_CH
             {
@@ -314,6 +315,9 @@ void TWorld::Totals(void)
             {
                 FloodDetTot += mapTotal(*BLDetFloodT);  // used for screen output
                 FloodDetTot += mapTotal(*SSDetFloodT);
+
+                FloodDepTot += mapTotal(*BLDepFloodT);
+                //FloodDepTot += mapTotal(*SSDepFloodT);
 
                 FloodSedTot += mapTotal(*BLDepFloodT);
                 FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
@@ -344,11 +348,21 @@ void TWorld::Totals(void)
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
+            TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
+        }
 
-            if (SwitchIncludeChannel)
+        if (SwitchIncludeChannel)
+        {
+            fill(*tma,0.0);
+            DistributeOverExtendedChannel(ChannelDetFlow,tma);
+            fill(*tmb,0.0);
+            DistributeOverExtendedChannel(ChannelDep,tma);
+            FOR_ROW_COL_MV
             {
-                TotalDetMap->Drc += ChannelDetFlow->Drc;
-                TotalDepMap->Drc += ChannelDep->Drc;
+
+                TotalDetMap->Drc += tma->Drc;
+
+                TotalDepMap->Drc += tmb->Drc;
 
                 TotalChanDetMap->Drc += ChannelDetFlow->Drc;
                 TotalChanDepMap->Drc += ChannelDep->Drc;
@@ -360,7 +374,6 @@ void TWorld::Totals(void)
                     TotalDetMap->Drc += BLDetFloodT->Drc;
                 }
             }
-            TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
         FOR_ROW_COL_MV
         {

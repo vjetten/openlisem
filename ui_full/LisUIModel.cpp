@@ -174,6 +174,8 @@ void lisemqt::worldShow()
 
     showHouseMap(); // show building structures map
 
+    showFlowBarriersMap();
+
     startplot = false;
 
     showMap(); // show map
@@ -244,6 +246,7 @@ void lisemqt::initOP()
     op.channelMap = NULL;
     op.roadMap = NULL;
     op.houseMap = NULL;
+    op.flowbarriersMap = NULL;
 
     op.runstep = 0;
     op.printstep = 0;
