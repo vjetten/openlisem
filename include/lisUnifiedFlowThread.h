@@ -41,6 +41,7 @@ functions: \n
 #include "lisUnifiedFlowThreadPool.h"
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 
 class LisemThreadPool;
 class LisemThread;
@@ -73,7 +74,12 @@ class LisemThread : public QObject
 public:
 
     int threadindex;
-    bool active = false;
+
+    std::atomic<bool> active;
+
+    std::unique_lock<std::mutex> tpl;
+
+
     LisemThreadPool *ThreadPool;
 
     int is_active();
@@ -83,7 +89,8 @@ public:
     ThreadFunction *functionreference;
     std::mutex mutex_fr;
     std::condition_variable cv;
-    bool quit = false;
+    std::atomic<bool> quit;
+
 
 
     std::chrono::high_resolution_clock::time_point time_used_in_last_function;

@@ -137,7 +137,7 @@ public:
     void SetMaskInitial(cTMap * _demmask, cTMap * _ldd);
     void SetMask(cTMap * _demmask, cTMap * _dtmask2d, cTMap * _cellR2d, cTMap * _cellC2d,cTMap * _ldd,cTMap * _dtmask1d, cTMap * _cellR1d, cTMap * _cellC1d);
     bool StartThread();
-    std::unique_lock<std::mutex> WaitForThreadSafe(LisemThread *thread);
+    void WaitForThreadSafe(LisemThread *thread);
     void ThreadDone(LisemThread *thread);
     bool Allow_Work(int id);
     bool Allow_Final(int id);

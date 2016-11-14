@@ -276,9 +276,9 @@ void TWorld::SplashDetachment(int thread)
           }
 
           DETSplash->Drc = detachment;
-          UF_AddedSplash->Drc = detachment;
-      }
 
+      }
+       UF_AddedSplash->Drc =DETSplash->Drc;
       // IN KG/CELL
    }}}
 }

@@ -256,7 +256,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        double TransportFactor;
 
        //deposition based on settling velocity
-       TransportFactor = (1-exp(-dt*TSettlingVelocity/hf)) * watervol;
+       TransportFactor = (1.0-exp(-dt*TSettlingVelocity/hf)) * watervol;
 
        double maxTC = std::max(TSSTC->Drc - ssconc,0.0) ;
        // positive difference: TC deficit becomes detachment (ppositive)
@@ -276,14 +276,13 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        //correct detachment for grass strips, hard surfaces and houses
        double detachment = TW->Drc * maxTC * TransportFactor;
 
-       detachment = std::min(detachment,discharge * maxTC);
+       detachment = std::max(0.0,std::min(detachment,discharge * maxTC));
 
        //check how much of the potential detachment can be detached from soil layer
        detachment = UF_SoilTake(r,c,d,detachment,channel,false);
 
-
        //### sediment balance
-       TSS->Drc += std::fabs(detachment);
+       TSS->Drc += (detachment);
 
        double sssmax = MAXCONC * watervol;
        if(sssmax < TSS->Drc)
@@ -327,9 +326,9 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        // cannot have more detachment than remaining capacity in flow
        // use discharge because standing water has no erosion
 
-       //detachment = UF_SoilTake(r,c,d,detachment,channel,false);
+       detachment = UF_SoilTake(r,c,d,detachment,channel,false);
        // IN KG/CELL
-       //TBL->Drc += detachment;
+       TBL->Drc += detachment;
 
        ////bed load sediment deposition
        if (blhf > MIN_HEIGHT)
@@ -352,8 +351,6 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        UF_SoilAdd(r,c,d,-std::fabs(deposition),channel);
        // IN KG/CELL
        TBL->Drc -= std::fabs(deposition);
-
-
     }
 
 }
@@ -563,6 +560,8 @@ double TWorld::UF_SoilTake(int r, int c, int d, double potential, bool channel,b
         UF2D_Det->Drc += detachment;
         DEMChange->Drc -= (detachment/DFSoilDensity->Drc)/(_dx*_dx);
     }
+
+    return detachment;
 
 }
 

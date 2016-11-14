@@ -629,6 +629,12 @@ void TWorld::GetInputData(void)
     }
     DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
 
+    st_scCalibration = getvaluedouble("Soil Cohesion Calibration");
+    st_sifaCalibration = getvaluedouble("Soil Internal Friction Angle Calibration");
+    st_sdCalibration = getvaluedouble("Soil Depth Calibration");
+    st_csdCalibration = getvaluedouble("Create Stable Initial Safety Factor");
+    st_csdsfCalibration = getvaluedouble("Minimum Safety Factor Calibration");
+
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");
@@ -664,9 +670,19 @@ void TWorld::GetInputData(void)
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     cover(*Outlet, *LDD, 0);
+
+    bool needset =true;
     // fill outlet with zero, some users have MV where no outlet
     FOR_ROW_COL_MV
     {
+        if(needset && Outlet->Drc > 0)
+        {
+            needset == false;
+            c_outlet = c;
+            r_outlet = r;
+            r_plot = r_outlet;
+            c_plot = c_outlet;
+        }
         if (Outlet->Drc == 1)
         {
             if (LDD->Drc != 5)
@@ -985,14 +1001,17 @@ void TWorld::GetInputData(void)
         DFSlope = NewMap(0.0);
 
 
-        FOR_ROW_COL_MV
-        {
-            DEMOriginal->Drc = DEM->Drc;
-        }
+
         DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));
         DFSoilRockFraction = ReadMap(LDD,getvaluename("soilrockfraction"));
         DFSoilRockSize = ReadMap(LDD,getvaluename("soilrocksize"));
+        FOR_ROW_COL_MV
+        {
+            DEMOriginal->Drc = DEM->Drc;
+            DFSoilInternalFrictionAngle->Drc *= st_sifaCalibration;
+        }
+
     }
 
     if(SwitchSlopeFailure || SwitchSlopeStability )

@@ -504,6 +504,19 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Ksat calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel N calibration");
+
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Soil Cohesion Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Soil Internal Friction Angle Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Soil Depth Calibration");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Create Stable Initial Safety Factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Minimum Safety Factor Calibration");
+
+
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Splash Delivery Ratio");
     namelist[i].value = QString("0.5");

@@ -385,6 +385,12 @@ public:
     double StripN;
     double StemflowFraction;
 
+    double st_scCalibration;
+    double st_sifaCalibration;
+    double st_sdCalibration;
+    bool st_csdCalibration;
+    double st_csdsfCalibration;
+
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
     double waterRep_a;
     double waterRep_b;

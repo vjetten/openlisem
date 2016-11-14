@@ -80,6 +80,11 @@ void TWorld::SafetyFactor()
         DFUnstable->Drc = 0;
         DFInitiationHeight->Drc = 0;
     }
+    st_scCalibration = getvaluedouble("Soil Cohesion Calibration");
+    st_sifaCalibration = getvaluedouble("Soil Internal Friction Angle Calibration");
+    st_sdCalibration = getvaluedouble("Soil Depth Calibration");
+    st_csdCalibration = getvaluedouble("Create Stable Initial Safety Factor");
+    st_csdsfCalibration = getvaluedouble("Minimum Safety Factor Calibration");
 
     FOR_ROW_COL_MV
     {
@@ -90,8 +95,10 @@ void TWorld::SafetyFactor()
         {
               DFSoilDepth->Drc += SoilDepth2->Drc;
         }
+        DFSoilDepth->Drc *= st_sdCalibration;
+
         DFSurfaceWaterHeight->Drc = UF2D_f->Drc/(_dx*_dx);
-        DFSoilCohesion->Drc = Cohesion->Drc;
+        DFSoilCohesion->Drc = Cohesion->Drc * st_scCalibration;
         if(this->InfilMethod != INFIL_NONE)
         {
             DFWaterHeight->Drc = L1->Drc;//ThetaI1->Drc * SoilDepth1->Drc;
@@ -100,7 +107,7 @@ void TWorld::SafetyFactor()
                  DFWaterHeight->Drc += L2->Drc;//ThetaI2->Drc * SoilDepth2->Drc;
             }
         }
-        DFWaterSuction->Drc = 0;
+        DFWaterSuction->Drc = 0.0;
         DFPlantCohesion->Drc = RootCohesion->Drc;
         DFPlantPressure->Drc = 0.0;
         DFUnstable->Drc = 0;

@@ -6,31 +6,30 @@
 void LisemThread::Start()
 {
 
-
+    this->active.store(false);
+    this->quit.store(false);
     this->threadobject = std::thread(&(LisemThread::Start_intern),this);
 }
 
 void LisemThread::Start_intern()
 {
-    while(!quit)
+
+    std::unique_lock<std::mutex> lock(mutex_fr);
+    while(true)
     {
+        cv.notify_all();
+        this->cv.wait(lock, [this]{return (quit.load() || active.load());});
 
-        this->active = false;
 
-
-
-        std::unique_lock<std::mutex> lock(mutex_fr);
-        this->cv.wait(lock, [this]{return (quit || active);});
-
-        if(quit == true)
+        if(quit.load() == true)
         {
-            active = false;
+            active.store(false);
             lock.unlock();
             cv.notify_all();
             break;
 
         }
-        if(this->active && functionreference != 0)
+        if(this->active.load() && functionreference != 0)
         {
             if(functionreference->type == ThreadFunction::THREAD_SIMPLE)
             {
@@ -42,20 +41,15 @@ void LisemThread::Start_intern()
 
                 //qDebug() << "time used in thread" << functionreference->core << "  " << timespan.count();
             }
-            this->active = false;
-
-
         }
-        lock.unlock();
-        cv.notify_all();
 
+        this->active.store(false);
     }
-
     return;
 }
 
 
 int LisemThread::is_active()
 {
-    return active;
+    return active.load();
 }

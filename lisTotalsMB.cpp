@@ -86,7 +86,7 @@ void TWorld::Totals(void)
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
-    
+
     //=== interception ===//
     IntercTot = mapTotal(*Interc) + mapTotal(*LInterc) ;
     // added litter interception
@@ -248,8 +248,6 @@ void TWorld::Totals(void)
                 TotalChanDetMap->Drc += UF1D_Det->Drc;
                 TotalChanDepMap->Drc += UF1D_Dep->Drc;
 
-                TotalDepMap->Drc += UF1D_Dep->Drc;
-                TotalDetMap->Drc += UF1D_Det->Drc;
             }
             TotalSoillossMap->Drc = TotalDetMap->Drc + TotalDepMap->Drc;
         }
@@ -267,10 +265,13 @@ void TWorld::Totals(void)
 
     if(SwitchErosion)
     {
-        fill(*UF1D_Det,0.0);
-        fill(*UF2D_Det,0.0);
-        fill(*UF1D_Dep,0.0);
-        fill(*UF2D_Dep,0.0);
+        FOR_ROW_COL_MV
+        {
+            UF1D_Det->Drc=0.0;
+            UF2D_Det->Drc=0.0;
+            UF1D_Dep->Drc=0.0;
+            UF2D_Dep->Drc=0.0;
+        }
     }
     if(SwitchEntrainment)
     {

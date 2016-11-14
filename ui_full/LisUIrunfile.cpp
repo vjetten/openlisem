@@ -354,6 +354,15 @@ void lisemqt::ParseInputData()
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(val);
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(val);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
+
+        if (p1.compare("Soil Cohesion Calibration")==0)                 E_CalibrateSoilCohesion->setValue(val);
+        if (p1.compare("Soil Internal Friction Angle Calibration")==0)  E_CalibrateInternalFrictionAngle->setValue(val);
+        if (p1.compare("Soil Depth Calibration")==0)                    E_CalibrateSoilDepth->setValue(val);
+        if (p1.compare("Create Stable Initial Safety Factor")==0)       E_IncreaseSlopeStabilityCohesion->setChecked(check);
+        if (p1.compare("Minimum Safety Factor Calibration")==0)         E_CalibrateMinimumSafetyFactor->setValue(val);
+
+
+
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(val);
         if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(val);
@@ -876,6 +885,14 @@ void lisemqt::updateModelData()
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
+
+        if (p1.compare("Soil Cohesion Calibration")==0)                 namelist[j].value = E_CalibrateSoilCohesion->text();
+        if (p1.compare("Soil Internal Friction Angle Calibration")==0)  namelist[j].value = E_CalibrateInternalFrictionAngle->text();
+        if (p1.compare("Soil Depth Calibration")==0)                    namelist[j].value = E_CalibrateSoilDepth->text();
+        if (p1.compare("Create Stable Initial Safety Factor")==0)       namelist[j].value.setNum((int)E_IncreaseSlopeStabilityCohesion->isChecked());
+        if (p1.compare("Minimum Safety Factor Calibration")==0)         namelist[j].value = E_CalibrateMinimumSafetyFactor->text();
+
+
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
