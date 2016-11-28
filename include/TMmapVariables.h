@@ -525,7 +525,10 @@ cTMap
 *FlowBarrierNT,              //!< Flow barriers end timing North of cell
 *FlowBarrierWT,              //!< Flow barriers end timing West of cell
 *FlowBarrierST,              //!< Flow barriers end timing South of cell
-*FlowBarrierET               //!< Flow barriers end timing East of cell
+*FlowBarrierET,               //!< Flow barriers end timing East of cell
 
+*SubInletID,
+*SubInletQtransfer,
+*SubInletVchange
 ;
 

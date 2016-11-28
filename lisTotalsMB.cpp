@@ -249,6 +249,18 @@ void TWorld::Totals(void)
     Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
 
+    //subinlet data
+
+    if((SwitchIncludeChannel) && (SwitchChannelSubInlets))
+    {
+        double change = mapTotal(*SubInletVchange);
+        FOR_ROW_COL_MV_CH
+        {
+            SubInletVchange->Drc = 0;
+        }
+    }
+
+
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
 

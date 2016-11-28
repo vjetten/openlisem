@@ -174,6 +174,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
+        if (p1.compare("Include channel sub inlets")==0)     SwitchChannelSubInlets  = iii == 1;
         if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
         if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;

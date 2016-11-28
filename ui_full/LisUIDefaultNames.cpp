@@ -110,6 +110,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("1;Channel BaseFLow");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
+    DEFmaps.append("1;SubInlets");
+    DEFmaps.append("2;SubInlets;subinlets.map;An index value, indicating where to read the subinlet discharge (-);subinlets");
+
   //  DEFmaps.append("1;Channel Baseflow");
   //  DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
   //  DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
@@ -326,6 +329,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel sub inlets");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Hard Surfaces");
     namelist[i].value = QString("1");

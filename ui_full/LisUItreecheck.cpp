@@ -77,6 +77,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
     checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
     checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
+    checkChannelSubInlets->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()

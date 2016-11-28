@@ -214,6 +214,21 @@ typedef struct RAIN_LIST {
     bool isMap;
     QString name;
 } RAIN_LIST;
+
+
+typedef struct InletData {
+    QList<double> times;
+    QList<QList<double>*> values;
+    int id;
+    bool is_linked;
+    int r;
+    int c;
+    int r2;
+    int c2;
+
+} InletData;
+
+
 //---------------------------------------------------------------------------
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
@@ -248,7 +263,7 @@ public:
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
     bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
-    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelSubInlets,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
@@ -762,7 +777,7 @@ public:
                    cTMap *_Q, cTMap *_Qn,
                    cTMap *_q, cTMap *_Alpha, cTMap *_DX,
                    cTMap *_Vol,
-                   cTMap *_StorVol);
+                   cTMap *_StorVol, bool subinlets = false);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX);
 
 
@@ -831,6 +846,18 @@ public:
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
+
+
+    QList<InletData*> DichargeInlets;
+
+    void InitSubInlets();
+    void DestroySubInlets();
+    void ReadChannelInletFiles();
+    void ReadDischargeFile(int pointid);
+    void ReadInletTimeSeriesFile(QString Name,InletData * data);
+    double GetDischargeAtTime(int id, double time,double novalue = 0);
+    double GetDischargeInlet(double q_old, int r, int c);
+    double GetVolumeInlet(double v_old, int r, int c);
 
     void Totals(void);
     void MassBalance(void);

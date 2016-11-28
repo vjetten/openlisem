@@ -147,6 +147,9 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
+
+    DestroySubInlets();
+
    // DEBUG("kill display data");
     //ClearComboMaps();
    // ClearHydrographData();
@@ -1599,6 +1602,9 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
+    //## Get sub inlet data for channel
+    InitSubInlets();
+
 }
 //---------------------------------------------------------------------------
 /// called after get input data, initializes non-input maps and variables
@@ -2249,6 +2255,7 @@ void TWorld::IntializeOptions(void)
     SwitchIncludeChannel = false;
     SwitchChannelFlood = false;
     SwitchChannelBaseflow = false;
+    SwitchChannelSubInlets = false;
     startbaseflowincrease = false;
     SwitchChannelInfil = false;
     SwitchAllinChannel = false;

@@ -120,6 +120,8 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
+        ChannelWaterVol->Drc = GetVolumeInlet(ChannelWaterVol->Drc, r,c);
+
         ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
@@ -346,7 +348,7 @@ void TWorld::ChannelFlow(void)
         if (LDDChannel->Drc == 5)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX,
-                      ChannelWaterVol, ChannelBufferVol);
+                      ChannelWaterVol, ChannelBufferVol,true);
             // kin wave on water
 
             if (SwitchErosion)
@@ -480,6 +482,7 @@ void TWorld::ChannelFlow(void)
         }
     }
 
+
     // recalc WH from flux
     FOR_ROW_COL_MV_CH
     {
@@ -511,6 +514,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // needed for concentration
     }
+
 
     cover(*ChannelWH, *LDD, 0);
     //VJ ?? necessary for display ??

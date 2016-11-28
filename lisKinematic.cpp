@@ -231,7 +231,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                        cTMap *_Q, cTMap *_Qn,
                        cTMap *_q, cTMap *_Alpha, cTMap *_DX,
                        cTMap *_Vol,
-                       cTMap *_StorVol)
+                       cTMap *_StorVol, bool subinlets)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -412,6 +412,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                 _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr],
                                                         _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
                 // Newton Rapson iteration for water of current cell
+
+                _Qn->data[rowNr][colNr] = GetDischargeInlet(_Qn->data[rowNr][colNr], rowNr, colNr);
+                //we have to substract any discharge here, since the resulting value is taken to downstream cells
             }
 
             // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration

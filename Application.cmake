@@ -57,6 +57,7 @@ SET(APP_SOURCES
     lisSWOF2DSediment
     lisInterception
     lisPesticide
+    lisChannelInlet
     lisFlowBarriers
     include/version.h
     include/model.h
