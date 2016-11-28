@@ -334,6 +334,7 @@ cTMap
 *DFSoilDensity,
 *DFSoilRockFraction,
 *DFSoilRockSize,
+*DFSFCalibration,
 
 *DEMChange,
 *LDDChange;

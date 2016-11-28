@@ -789,6 +789,9 @@ void TWorld::GetInputData(void)
     else
         HardSurface = NewMap(0);
 
+    firstssreport = true;
+    sfset = false;
+
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
@@ -986,6 +989,7 @@ void TWorld::GetInputData(void)
         DFSafetyFactor = NewMap(0.0);
         DEMOriginal = NewMap(0.0);
         DFUnstable = NewMap(0.0);
+        DFSFCalibration = NewMap(0.0);
         DFInitiationHeight = NewMap(0.0);
         DFSFIterations = NewMap(0.0);
         DEMIterate = NewMap(0.0);
@@ -1000,7 +1004,9 @@ void TWorld::GetInputData(void)
         DFThreshold1 = NewMap(0.0);
         DFSlope = NewMap(0.0);
 
-
+        SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
+        SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
+        SF_Calibrate_First = true;
 
         DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));

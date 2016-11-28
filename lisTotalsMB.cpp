@@ -120,7 +120,7 @@ void TWorld::Totals(void)
     // does not go to MB, is already in tot water vol
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
-    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+
     WaterVolRunoffmm =0;
     FOR_ROW_COL_MV
     {
@@ -161,8 +161,6 @@ void TWorld::Totals(void)
     {
         WaterVolTot += mapTotal(*UF1D_f); //m3
         // add channel vol to total
-        WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-        // recalc in mm for screen output
 
         QtotT += UF1D_foutflow;
 
@@ -176,6 +174,8 @@ void TWorld::Totals(void)
         QtotOutlet += UF1D_q->DrcOutlet * _dt;
         // sum: add channel outflow (in m3) to total for main outlet
     }
+
+    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
 
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
@@ -309,7 +309,14 @@ void TWorld::Totals(void)
         }
         if(SwitchSlopeStability)
         {
-            MinimumSafetyFactor->Drc = std::min(MinimumSafetyFactor->Drc,DFSafetyFactor->Drc);
+            if(firstssreport && sfset)
+            {
+                firstssreport = false;
+                MinimumSafetyFactor->Drc = DFSafetyFactor->Drc;
+            }else
+            {
+                MinimumSafetyFactor->Drc = std::min(MinimumSafetyFactor->Drc,DFSafetyFactor->Drc);
+            }
         }
 
     }
@@ -374,6 +381,7 @@ void TWorld::MassBalance()
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }
+    //qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
 
     // Mass Balance sediment, all in kg
 

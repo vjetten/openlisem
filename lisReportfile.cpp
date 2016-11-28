@@ -774,7 +774,7 @@ void TWorld::ReportMaps(int not_used)
     }
     if(SwitchEntrainment)
     {
-        report(*MinimumSafetyFactor,FileName_Entrainment);
+        //report(*,FileName_Entrainment);
     }
 
 
@@ -1548,6 +1548,7 @@ void TWorld::GetComboMaps()
             Colors.append("#007300");
 
             AddComboMap(1,"Safety Factor","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Water Depth","-",DFWaterHeight,Colormap,Colors,false,false,1.0,0.2);
         }
         if(SwitchSlopeFailure)
         {

@@ -397,8 +397,13 @@ public:
     double waterRep_c;
     double waterRep_d;
 
+    bool SF_Calibrate_Initial;
+    double SF_Calibrate_Margin;
+    bool SF_Calibrate_First;
+
     ///rainfall to flood max gradient
  //   double rainFloodingGradient;
+    bool firstssreport,sfset;
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
@@ -573,7 +578,7 @@ public:
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
                                        cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
                                        cTMap * _PlantCohesion,cTMap * _PlantPressure,
-                                       cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated);
+                                       cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated,cTMap * _SFCalibration);
     void InitiateDebrisFlow();
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);

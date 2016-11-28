@@ -212,6 +212,13 @@ void TWorld::UF_Compute(int thread)
                            UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
                            UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                            UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+
+        UF2D1D_ChannelWater(thread,UF2D_DT,     UF2D_DEM,                                        //dem info
+                           UF1D_LDD,UF1D_LDDw,UF1D_LDDh,                                //channel info
+                           UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
+                           UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
+                           UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
+                           UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
     }
 
     ////update the discharge maps
@@ -560,7 +567,13 @@ void TWorld::UF_SetOutput()
 
         InfilVolKinWave->Drc = UF2D_Infiltration->Drc;
 
+        if(SwitchIncludeChannel && SwitchChannelInfil)
+        {
+            InfilVolKinWave->Drc += UF1D_Infiltration->Drc;
+        }
+
         UF2D_Infiltration->Drc = 0;
+        UF1D_Infiltration->Drc = 0;
 
         V->Drc = UF2D_velocity->Drc;
 

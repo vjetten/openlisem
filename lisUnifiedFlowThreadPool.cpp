@@ -57,15 +57,12 @@ void LisemThreadPool::WaitForReportThread()
 
 void LisemThreadPool::Close()
 {
-qDebug() << "wait for report thread";
 
     LisemThread*tr =reportthread;
     reportthread->quit.store(true);
     reportthread->functionreference = 0;
     reportthread->cv.notify_all();
 
-
-qDebug() << "wait for threadlist";
     for(int i = 0; i < ThreadList.length(); i++)
     {
         LisemThread *thread = ThreadList.at(i);
@@ -858,10 +855,10 @@ void LisemThreadPool::RunCellCompute(std::function<void (int)> f)
         tf->f = f;
         tf->final = false;
         ThreadCalls.append(tf);
-
+    StartThread();
 
     }
-    StartThread();
+
 }
 
 void LisemThreadPool::RunDynamicCompute(std::function<void (int)> f)
@@ -879,7 +876,7 @@ void LisemThreadPool::RunDynamicCompute(std::function<void (int)> f)
         tf->f = f;
         tf->final = false;
         ThreadCalls.append(tf);
-
+    StartThread();
 
     }
 
@@ -895,8 +892,8 @@ void LisemThreadPool::RunDynamicCompute(std::function<void (int)> f)
 
 
     }
-
     StartThread();
+
 }
 void LisemThreadPool::WaitForAll()
 {

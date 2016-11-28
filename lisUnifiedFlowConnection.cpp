@@ -50,27 +50,6 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
         {
             double h = (_f1D->Drc + _s1D->Drc)/(_dx*_lddw->Drc);
 
-            /*double NN = N->Drc;
-            double hf = (_f2D->Drc)/(_dx*_lddw->Drc);
-            double hs = (_s2D->Drc)/(_dx*_lddw->Drc);
-
-            double Perim = 2*hf+_dx;
-            double R = 0;
-            if (Perim > 0)
-                R = hf*_dx/Perim;
-            else
-                R = 0;
-
-            double fVkin = pow(R,3.0/2.0) * sqrt(hf/_dx)/NN;
-
-            Perim = 2*hs+_dx;
-            R = 0;
-            if (Perim > 0)
-                R = hs*_dx/Perim;
-            else
-                R = 0;
-            double sVkin = pow(R,3.0/2.0) * sqrt(hs/_dx)/NN;*/
-
             double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
             double sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
 
@@ -258,6 +237,29 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
         }
     }}}
 
+    //could be done with manning type velocity based on channel/overland flow height difference.
+    //This simulates sub-gridcell flow velocity into the channel
+    /*double NN = N->Drc;
+    double hf = (_f2D->Drc)/(_dx*_lddw->Drc);
+    double hs = (_s2D->Drc)/(_dx*_lddw->Drc);
+
+    double Perim = 2*hf+_dx;
+    double R = 0;
+    if (Perim > 0)
+        R = hf*_dx/Perim;
+    else
+        R = 0;
+
+    double fVkin = pow(R,3.0/2.0) * sqrt(hf/_dx)/NN;
+
+    Perim = 2*hs+_dx;
+    R = 0;
+    if (Perim > 0)
+        R = hs*_dx/Perim;
+    else
+        R = 0;
+    double sVkin = pow(R,3.0/2.0) * sqrt(hs/_dx)/NN;*/
+
 }
 
 void TWorld::UF2D1D_Infiltration(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
@@ -311,9 +313,9 @@ void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
 
     FOR_ROW_COL_UF1DMT_DT
     {
-
         // add rainfall in m3, no interception
-        _f1D->Drc += Rainc->Drc*_dx*_lddw->Drc;
+        _f1D->Drc += (dt->Drc/_dt) * Rainc->Drc*ChannelWidthUpDX->Drc *ChannelDX->Drc;
+
 
 
         //add baseflow

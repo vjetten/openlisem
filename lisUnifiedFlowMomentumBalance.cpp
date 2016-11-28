@@ -59,7 +59,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     double signa = a>0?1.0:-1.0;
     a = std::min(std::fabs(a)/dt,5.0 * h);
 
-    double nsq = (0.1+NN)*(0.1+NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
+    double nsq = (NN)*(0.1+NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
 
     if(channel)
     {
