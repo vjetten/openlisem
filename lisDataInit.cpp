@@ -1809,6 +1809,7 @@ void TWorld::IntializeData(void)
     QtotT = 0;
     QtotOutlet = 0;
     Qtotmm = 0;
+    Qchangetot = 0;
     Qpeak = 0;
     QpeakTime = 0;
     WH = NewMap(0);

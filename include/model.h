@@ -218,7 +218,7 @@ typedef struct RAIN_LIST {
 
 typedef struct InletData {
     QList<double> times;
-    QList<QList<double>*> values;
+    QList< QList<double>* > values;
     int id;
     bool is_linked;
     int r;
@@ -345,7 +345,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SoilLossTotOutlet, SedTot, SoilLossTotSub,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
+    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, Qchangetot;
     double ChannelVolTotmm, floodTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -857,6 +857,7 @@ public:
     void ReadInletTimeSeriesFile(QString Name,InletData * data);
     double GetDischargeAtTime(int id, double time,double novalue = 0);
     double GetDischargeInlet(double q_old, int r, int c);
+    double GetDischargeOutlet(double q_old, int r, int c);
     double GetVolumeInlet(double v_old, int r, int c);
 
     void Totals(void);

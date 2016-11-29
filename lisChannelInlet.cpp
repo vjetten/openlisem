@@ -44,6 +44,8 @@ void TWorld::InitSubInlets()
         return;
     }
 
+    qDebug() << "read sub inlets";
+
     //read map with id values
     SubInletID = ReadMap(LDDChannel,getvaluename("subinlets"));
     SubInletQtransfer = NewMap(0.0);
@@ -125,6 +127,7 @@ void TWorld::ReadChannelInletFiles()
 
         if(!found)
         {
+            qDebug() << " found inlet id " << SubInletID->Drc;
             //so we found a new id, add to list
             found_id.append(SubInletID->Drc);
 
@@ -202,14 +205,15 @@ void TWorld::ReadInletTimeSeriesFile(QString name,InletData * data)
         ErrorString = "Cannot read/interpret file " + name;
         throw 1;
     }
-
+    qDebug () << "file id subinlet" << data->id << "nrcols " << nrcols;
     for(int i = 1; i < nrcols; i++)
     {
-        data->values.append(new QList<double>());
+        QList<double> * l  = new QList<double>();
+        data->values.append(l);
     }
 
     int nrskip = 2 + nrcols;
-    for(int r = nrskip; r < (qRecs.length() - 5); r++)
+    for(int r = nrskip; r < (qRecs.length()); r++)
     {
         QStringList SL = qRecs[r].split(QRegExp("\\s+"));
         if(SL.length() != nrcols)
@@ -225,7 +229,9 @@ void TWorld::ReadInletTimeSeriesFile(QString name,InletData * data)
         }
         for(int i = 1; i < nrcols; i++)
         {
-            data->values.at(i)->append(SL.at(i).toDouble(&ok));
+            qDebug() << "point " << data->id << "time " << SL.at(0) << "value" << SL.at(1);
+
+            data->values.at(i-1)->append(SL.at(i).toDouble(&ok));
             if(!ok)
             {
                 ErrorString = "Cannot read/interpret number in file " + name;
@@ -234,61 +240,60 @@ void TWorld::ReadInletTimeSeriesFile(QString name,InletData * data)
     }
 }
 
-double TWorld::GetDischargeAtTime(int id, double _time, double novalue)
+double TWorld::GetDischargeAtTime(int index, double _time, double novalue)
 {
     _time = _time/60;
-    if(DichargeInlets.length() < id || id < 0)
+    if(!(index < DichargeInlets.length()))
     {
         return novalue;
     }
 
-    if(DichargeInlets.at(id)->values.at(0)->length() > 0)
+
+    if(DichargeInlets.at(index)->values.at(0)->length() > 0)
     {
         double rval = novalue;
 
-        for(int i = 0; i < DichargeInlets.at(id)->times.length(); i++)
+        for(int i = 0; i < DichargeInlets.at(index)->times.length(); i++)
         {
-            if(DichargeInlets.at(id)->times.at(i) < _time)
+            if(DichargeInlets.at(index)->times.at(i) <= _time)
             {
-                if(i != DichargeInlets.at(id)->times.length())
+                if(i != DichargeInlets.at(index)->times.length())
                 {
-                    if(DichargeInlets.at(id)->times.at(i+1) > _time)
+                    if(DichargeInlets.at(index)->times.at(i+1) > _time)
                     {
-                        rval = DichargeInlets.at(id)->values.at(0)->at(i);
+                        rval = DichargeInlets.at(index)->values.at(0)->at(i);
                     }
+                }else
+                {
+                    rval = DichargeInlets.at(index)->values.at(0)->at(DichargeInlets.at(index)->values.at(0)->length()-1);
                 }
             }
-
         }
 
-        return DichargeInlets.at(id)->values.at(0)->at(DichargeInlets.at(id)->values.at(0)->length()-1);
+        return rval;
     }
 
     return novalue;
 
 }
 
-double TWorld::GetDischargeInlet(double q_old, int r, int c)
+double TWorld::GetDischargeOutlet(double q_old, int r, int c)
 {
     if((!SwitchIncludeChannel) || (!SwitchChannelSubInlets))
     {
         return q_old;
     }
-    //*SubInletID,
-    //*SubInletQtransfer,
-    //*SubInletQchanged
 
     if(SubInletID->Drc  == 0)
     {
         return q_old;
     }
 
-
     for(int i = 0; i < DichargeInlets.length() ; i++)
     {
-        if(SubInletID->Drc = DichargeInlets.at(i)->id)
+        if(std::fabs(SubInletID->Drc) == DichargeInlets.at(i)->id)
         {
-            double qval = GetDischargeAtTime(DichargeInlets.at(i)->id,time,0);
+            double qval = GetDischargeAtTime((i),time,0);
 
             if(DichargeInlets.at(i)->is_linked)
             {
@@ -297,9 +302,10 @@ double TWorld::GetDischargeInlet(double q_old, int r, int c)
                     if(r == DichargeInlets.at(i)->r && c == DichargeInlets.at(i)->c)
                     {
 
-                         SubInletQtransfer->data[DichargeInlets.at(i)->r2][DichargeInlets.at(i)->c2] += std::min(q_old,std::fabs(qval));
-                         SubInletVchange->data[r][c] -= _dt *std::min(q_old,std::fabs(qval));
+                         double temp = q_old;
                          q_old = std::max(0.0,q_old - std::fabs(qval));
+                         //SubInletVchange->data[r][c] -= _dt * (temp - q_old);
+                         SubInletQtransfer->data[DichargeInlets.at(i)->r2][DichargeInlets.at(i)->c2] += (temp - q_old);
 
                     }else if(r == DichargeInlets.at(i)->r2 && c == DichargeInlets.at(i)->c2)
                     {
@@ -311,9 +317,11 @@ double TWorld::GetDischargeInlet(double q_old, int r, int c)
                 {
                     if(r == DichargeInlets.at(i)->r2 && c == DichargeInlets.at(i)->c2)
                     {
-                        SubInletQtransfer->data[DichargeInlets.at(i)->r][DichargeInlets.at(i)->c] += std::min(q_old,std::fabs(qval));
-                        SubInletVchange->data[r][c] -= _dt * std::min(q_old,std::fabs(qval));
+                        double temp = q_old;
                         q_old = std::max(0.0,q_old - std::fabs(qval));
+                        //SubInletVchange->data[r][c] -= _dt * (temp-q_old);
+                        SubInletQtransfer->data[DichargeInlets.at(i)->r][DichargeInlets.at(i)->c] += (temp-q_old);
+
 
                     }else if(r == DichargeInlets.at(i)->r && c == DichargeInlets.at(i)->c)
                     {
@@ -326,12 +334,84 @@ double TWorld::GetDischargeInlet(double q_old, int r, int c)
             {
                 if(qval > 0)
                 {
-                    SubInletVchange->data[r][c] += _dt * (qval-q_old);
+
+                }else
+                {
+                    //SubInletVchange->data[r][c] -= _dt *std::min(q_old,std::fabs(qval));
+                    q_old = std::max(0.0,q_old - std::fabs(qval));
+
+                }
+            }
+
+        }
+
+    }
+
+    return std::max(0.0,q_old);
+}
+
+double TWorld::GetDischargeInlet(double q_old, int r, int c)
+{
+    if((!SwitchIncludeChannel) || (!SwitchChannelSubInlets))
+    {
+        return q_old;
+    }
+    if(SubInletID->Drc  == 0)
+    {
+        return q_old;
+    }
+
+    for(int i = 0; i < DichargeInlets.length() ; i++)
+    {
+        if(std::fabs(SubInletID->Drc) == DichargeInlets.at(i)->id)
+        {
+            double qval = GetDischargeAtTime((i),time,0);
+
+            if(DichargeInlets.at(i)->is_linked)
+            {
+                if(qval > 0)
+                {
+                    if(r == DichargeInlets.at(i)->r && c == DichargeInlets.at(i)->c)
+                    {
+
+                    }else if(r == DichargeInlets.at(i)->r2 && c == DichargeInlets.at(i)->c2)
+                    {
+                        if(SubInletQtransfer->Drc > 0)
+                        {
+                            q_old = q_old + SubInletQtransfer->Drc;
+                            //SubInletVchange->data[r][c] += _dt * SubInletQtransfer->Drc;
+                        }
+
+                        SubInletQtransfer->Drc = 0;
+
+
+                    }
+                }else
+                {
+                    if(r == DichargeInlets.at(i)->r2 && c == DichargeInlets.at(i)->c2)
+                    {
+
+                    }else if(r == DichargeInlets.at(i)->r && c == DichargeInlets.at(i)->c)
+                    {
+                        if(SubInletQtransfer->Drc > 0)
+                        {
+                            q_old = q_old + SubInletQtransfer->Drc;
+                            //SubInletVchange->data[r][c] += _dt * SubInletQtransfer->Drc;
+                        }
+
+                        SubInletQtransfer->Drc = 0;
+
+                    }
+                }
+
+            }else
+            {
+                if(qval > 0)
+                {
+                    //SubInletVchange->data[r][c] += _dt * (qval-q_old);
                     q_old = qval;
                 }else
                 {
-                    SubInletVchange->data[r][c] -= _dt *std::min(q_old,std::fabs(qval));
-                    q_old = std::max(0.0,q_old - std::fabs(qval));
 
                 }
             }
@@ -347,17 +427,24 @@ double TWorld::GetDischargeInlet(double q_old, int r, int c)
 double TWorld::GetVolumeInlet(double v_old, int r, int c)
 {
 
+    //does not do anything anymore!!!
+    //used to add subinlet water through volume change
+
+
+
     if((!SwitchIncludeChannel) || (!SwitchChannelSubInlets))
     {
         return v_old;
     }
 
-    if(SubInletQtransfer->Drc > 0)
+    /*if(SubInletQtransfer->Drc > 0)
     {
-        v_old = v_old + _dt * SubInletQtransfer->Drc;
+        v_old = v_old + SubInletQtransfer->Drc;
         SubInletVchange->data[r][c] += _dt * SubInletQtransfer->Drc;
 
     }
 
-    SubInletQtransfer->Drc = 0;
+    SubInletQtransfer->Drc = 0;*/
+
+    return v_old;
 }

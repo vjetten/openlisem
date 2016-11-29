@@ -253,7 +253,7 @@ void TWorld::Totals(void)
 
     if((SwitchIncludeChannel) && (SwitchChannelSubInlets))
     {
-        double change = mapTotal(*SubInletVchange);
+        Qchangetot += mapTotal(*SubInletVchange);
         FOR_ROW_COL_MV_CH
         {
             SubInletVchange->Drc = 0;
@@ -495,7 +495,7 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
-        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
+        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow + Qchangetot
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
     }

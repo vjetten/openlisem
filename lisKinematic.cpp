@@ -320,7 +320,15 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
                         !pcr::isMV(_LDD->Drc) )
                 {
-                    Qin += _Qn->Drc;
+                    double qt = _Qn->Drc;
+                    if(subinlets)
+                    {
+                        double qold = qt;
+                        qt = GetDischargeOutlet(_Qn->data[r][c], r,c);
+                        SubInletVchange->data[rowNr][colNr] -= (qold-qt )*_dt;
+                    }
+
+                    Qin += qt;
                     QinKW->data[rowNr][colNr] = Qin;
 
                     /*if (SwitchErosion)
@@ -409,12 +417,25 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             if (!isBufferCellWater)
             {
                 itercount = 0;
+
+                if(subinlets)
+                {
+                    double qold = Qin;
+                    Qin = GetDischargeInlet(Qin, rowNr, colNr);
+                    SubInletVchange->data[rowNr][colNr] -= (qold-Qin)*_dt;
+                }
+
                 _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr],
                                                         _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
                 // Newton Rapson iteration for water of current cell
 
-                _Qn->data[rowNr][colNr] = GetDischargeInlet(_Qn->data[rowNr][colNr], rowNr, colNr);
-                //we have to substract any discharge here, since the resulting value is taken to downstream cells
+                /*if(subinlets)
+                {
+                    double qold = _Qn->data[rowNr][colNr];
+                    _Qn->data[rowNr][colNr] = GetDischargeOutlet(_Qn->data[rowNr][colNr], rowNr, colNr);
+                    SubInletVchange->data[rowNr][colNr] -= (qold-_Qn->data[rowNr][colNr])*_dt;
+                }*/
+                //we have to substract any discharge from qin, so that mass balance is maintainted
             }
 
             // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration

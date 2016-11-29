@@ -348,7 +348,7 @@ void TWorld::ChannelFlow(void)
         if (LDDChannel->Drc == 5)
         {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX,
-                      ChannelWaterVol, ChannelBufferVol,true);
+                      ChannelWaterVol, ChannelBufferVol,SwitchChannelSubInlets? true:false);
             // kin wave on water
 
             if (SwitchErosion)
