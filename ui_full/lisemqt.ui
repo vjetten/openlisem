@@ -12274,45 +12274,52 @@ p, li { white-space: pre-wrap; }
                   <property name="verticalSpacing">
                    <number>2</number>
                   </property>
-                  <item row="8" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateSoilCohesion">
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="12" column="0">
-                   <widget class="QCheckBox" name="E_IncreaseSlopeStabilityCohesion">
-                    <property name="text">
-                     <string>Assume initial stability</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="9" column="0">
+                  <item row="19" column="0">
                    <widget class="QLabel" name="label_161">
                     <property name="text">
                      <string>Multiplication factor Internal Friction Angle</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="0">
+                  <item row="18" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateSoilCohesion">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="22" column="0">
+                   <widget class="QCheckBox" name="E_IncreaseSlopeStabilityCohesion">
+                    <property name="text">
+                     <string>Assume initial stability</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="17" column="0">
+                   <widget class="QLabel" name="label_185">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Slope Stability</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="18" column="0">
                    <widget class="QLabel" name="label_153">
                     <property name="text">
                      <string>Multiplication factor Soil cohesion</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="1">
+                  <item row="20" column="1">
                    <widget class="QDoubleSpinBox" name="E_CalibrateSoilDepth">
                     <property name="value">
                      <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="0">
-                   <widget class="QLabel" name="label_176">
-                    <property name="text">
-                     <string>Multiplication factor Soil Depth</string>
                     </property>
                    </widget>
                   </item>
@@ -12330,22 +12337,30 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="0">
-                   <widget class="QLabel" name="label_185">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
+                  <item row="20" column="0">
+                   <widget class="QLabel" name="label_176">
                     <property name="text">
-                     <string>Slope Stability</string>
+                     <string>Multiplication factor Soil Depth</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateInternalFrictionAngle">
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateN">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -12429,23 +12444,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateN">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
+                  <item row="19" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateInternalFrictionAngle">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -12531,19 +12531,16 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateKsat">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
+                  <item row="5" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
                     <property name="font">
                      <font>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
+                    </property>
+                    <property name="decimals">
+                     <number>2</number>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -12639,82 +12636,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="2" colspan="2">
-                   <widget class="QLabel" name="label_79">
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <italic>true</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>not used with SWATRE</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>2</number>
-                    </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="3" column="2" colspan="2">
                    <widget class="QLabel" name="label_78">
                     <property name="palette">
@@ -12766,30 +12687,59 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateChN">
+                  <item row="4" column="2" colspan="2">
+                   <widget class="QLabel" name="label_79">
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
                     <property name="font">
                      <font>
                       <weight>50</weight>
+                      <italic>true</italic>
                       <bold>false</bold>
                      </font>
                     </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
+                    <property name="text">
+                     <string>not used with SWATRE</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateTheta">
+                  <item row="4" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibratePsi">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -12813,8 +12763,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibratePsi">
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateTheta">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -12888,6 +12838,28 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateChN">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -13024,7 +12996,26 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="0">
+                  <item row="23" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateMinimumSafetyFactor">
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>999.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.001000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.010000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="25" column="0">
                    <spacer name="verticalSpacer_4">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -13036,6 +13027,137 @@ p, li { white-space: pre-wrap; }
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item row="23" column="0">
+                   <widget class="QLabel" name="label_183">
+                    <property name="text">
+                     <string>Additional FoS margin for initial stability</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="15" column="0">
+                   <widget class="QLabel" name="label_197">
+                    <property name="text">
+                     <string>Multiplication solid phase friction</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="16" column="0">
+                   <widget class="QLabel" name="label_199">
+                    <property name="text">
+                     <string>Multiplication deposition criteria</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="3">
+                   <widget class="QLabel" name="label_201">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="17" column="3">
+                   <widget class="QLabel" name="label_200">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="24" column="0">
+                   <widget class="QCheckBox" name="E_LimitFailure">
+                    <property name="text">
+                     <string>Limit possible failure (needs slopefail.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="16" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_6">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="label_198">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Sediment</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="12" column="0">
+                   <widget class="QLabel" name="label_189">
+                    <property name="text">
+                     <string>Multiplication yield stress</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="14" column="0">
+                   <widget class="QLabel" name="label_196">
+                    <property name="text">
+                     <string>Multipliation drag force</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="13" column="0">
+                   <widget class="QLabel" name="label_191">
+                    <property name="text">
+                     <string>Multiplication viscosity</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="12" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="2">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateKsat">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
                   </item>
                   <item row="1" column="3">
                    <widget class="QLabel" name="label_181">
@@ -13053,29 +13175,93 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="0">
-                   <widget class="QLabel" name="label_183">
+                  <item row="11" column="0">
+                   <widget class="QLabel" name="label_186">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
                     <property name="text">
-                     <string>Initial safety factor margin</string>
+                     <string>Solid Phase Flow Properties</string>
                     </property>
                    </widget>
                   </item>
                   <item row="13" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateMinimumSafetyFactor">
-                    <property name="decimals">
-                     <number>5</number>
-                    </property>
-                    <property name="minimum">
-                     <double>0.000000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>999.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.001000000000000</double>
-                    </property>
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
                     <property name="value">
-                     <double>0.010000000000000</double>
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="15" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="14" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="3">
+                   <widget class="QLabel" name="label_202">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="0">
+                   <widget class="QLabel" name="label_203">
+                    <property name="text">
+                     <string>Multiplication erosive power</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="0">
+                   <widget class="QLabel" name="label_204">
+                    <property name="text">
+                     <string>Multiplication transport capacity</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="0">
+                   <widget class="QLabel" name="label_205">
+                    <property name="text">
+                     <string>Multiplication settling velocity</string>
                     </property>
                    </widget>
                   </item>
@@ -19992,7 +20178,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

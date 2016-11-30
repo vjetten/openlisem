@@ -41,22 +41,31 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     {
         double veln = velx + a;
         double manning = 1.0;//solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = manning * (0.1+NN)*(0.1+NN)*UF_Gravity*sqrt(veln * veln)*pow(dt/UF2D_MinimumDT,1.0/3.0)/pow(std::max(0.01,h),4.0/3.0);
+        double nsq = manning * (0.1+NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
 
         if(channel)
         {
             if(flowwidth > 0)
             {
-                nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
-                if(h > 1)
-                {
-                     nsq = nsq * h;
-                }
+                nsq = nsq * (flowwidth + 0.5 * h)/(flowwidth);
+
             }
         }
         double kinfac = 0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0);
-
         return veln/(1.0+  kinfac * nsq);
+
+        //activate this section to limit velocity change to balance velocity
+        /*double signa = a>0?1.0:-1.0;
+        a = std::min(std::fabs(a)/dt,5.0 * h);
+
+        double bvel = signa * sqrt(a)/sqrt(kinfac *nsq);
+        double newvel = veln/(1.0+  kinfac * nsq);
+        if((velx < bvel && newvel > bvel) || (velx > bvel && newvel < bvel))
+        {
+            newvel = bvel;
+        }
+
+        return newvel;*/
 
     //another version of the earlier functionality, provides much better accuary, timesteps, and smoothness
     }else
@@ -71,7 +80,8 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         {
             if(flowwidth > 0)
             {
-                //nsq = nsq * (flowwidth + h/4.0)/(flowwidth);
+                nsq = nsq * (flowwidth + 0.5 * h)/(flowwidth);
+
             }
         }
         double kinfac = std::max(0.05,(0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0)));

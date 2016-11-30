@@ -1003,10 +1003,14 @@ void TWorld::GetInputData(void)
         DFThreshold = NewMap(0.0);
         DFThreshold1 = NewMap(0.0);
         DFSlope = NewMap(0.0);
+        DFFailureMask = NewMap(1.0);
 
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
         SF_Calibrate_First = true;
+
+        //SF_Calibrate_Mask = true;
+
 
         DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));
