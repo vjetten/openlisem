@@ -1150,6 +1150,8 @@ void TWorld::GetComboMaps()
     Colors.append("#FF0000");
     Colors.append("#FF3300");
     AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+    AddComboMap(0,"slope","l/s",K2DSlopeX,Colormap,Colors,false,false,1.0, 1.0);
+    AddComboMap(0,"slope","l/s",K2DSlopeY,Colormap,Colors,false,false,1.0, 1.0);
   //  AddComboMap(0,"Overland Discharge","l/s",Qn,Colormap,Colors,true,false,1000.0, 1.0); //VJ changed to Qn instead of Q
     if(SwitchIncludeChannel)
         AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0); //Chnaged thhis to ChannelQn

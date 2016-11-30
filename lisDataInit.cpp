@@ -1874,6 +1874,9 @@ void TWorld::IntializeData(void)
         K2DFX = NewMap(0);
         K2DFY = NewMap(0);
         K2DQ = NewMap(0);
+        K2DEffQ = NewMap(0);
+        K2DEffV = NewMap(0);
+
         K2DQN = NewMap(0);
         K2DI = NewMap(0);
  //   }

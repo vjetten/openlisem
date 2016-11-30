@@ -335,34 +335,34 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
 
     if(rd == 1 && cd == 0)
     {
-        return dem + (FlowBarrierS->Drc);
+        return dem + std::max(wh,(FlowBarrierS->Drc));
     }
     else if(rd == 1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
     }
     else if(rd == 0 && cd == 1)
     {
-        return dem + (FlowBarrierE->Drc);
+        return dem + std::max(wh,(FlowBarrierE->Drc));
     }
     else if(rd == -1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
     }
     else if(rd == -1 && cd == 0)
     {
-        return dem + (FlowBarrierN->Drc);
+        return dem + std::max(wh,(FlowBarrierN->Drc));
     }
     else if(rd == -1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
     }
     else if(rd == 0 && cd == -1)
     {
-        return dem + (FlowBarrierW->Drc);
+        return dem + std::max(wh,(FlowBarrierW->Drc));
     }else if(rd == 1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
     }
 }
 

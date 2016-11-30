@@ -627,7 +627,7 @@ void TWorld::OverlandFlowNew(void)
                 }
             }
 
-            //solve fluxes and go back from water height to new discharge
+            //no longer needed
             K2DSolve(dt);
 
             //total time this lisem-timestep
@@ -645,6 +645,7 @@ void TWorld::OverlandFlowNew(void)
         {
             K2DQ->Drc = tmb->Drc/_dt;
             Qn->Drc = tmb->Drc/_dt;
+            Q->Drc = tmb->Drc/_dt;
         }
 
         if(SwitchErosion)

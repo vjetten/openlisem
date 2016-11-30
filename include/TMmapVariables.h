@@ -253,6 +253,8 @@ cTMap
 *K2DV,                          //!<
 *K2DI,                          //!<
 
+*K2DEffQ,                          //!<
+*K2DEffV,                          //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]

@@ -403,7 +403,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         }
         else{
 
-            Qn->Drc = K2DQ->Drc;
+            //Qn->Drc = K2DQ->Drc;
             WHrunoff->Drc = K2DHNew->Drc;
             K2DHOld->Drc = K2DHNew->Drc;
         }
@@ -621,7 +621,7 @@ void TWorld::K2DSolve(double dt)
         }
         else{
 
-            Qn->Drc = K2DQ->Drc;
+            //Qn->Drc = K2DQ->Drc;
             WHrunoff->Drc = K2DHNew->Drc;
             K2DHOld->Drc = K2DHNew->Drc;
         }
@@ -755,7 +755,6 @@ void TWorld::K2DDEMA()
 
     FOR_ROW_COL_MV
     {
-
         double Dhx = 0;
         double Dhy = 0;
 
@@ -862,35 +861,19 @@ void TWorld::K2DDEMA()
         K2DSlopeX->Drc = Dhx/_dx;
         K2DSlopeY->Drc = Dhy/_dx;
 
-        //if the slope is extremely flat, the ldd direction could be used for flow calculations (not needed)
-        double DHL = sqrt(K2DSlopeX->Drc*K2DSlopeX->Drc + K2DSlopeY->Drc* K2DSlopeY->Drc);
-
-        //ldd directions
-        int dxldd[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-        int dyldd[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-        //Angle of direction of steepest slope, compared to positive x-axis !not used!
-        //K2DAspect->Drc = atan2(Dhy,Dhx);
-
         //calculate actual combined slope, with a minimum value of 0.01
         double Dh = fabs(Dhx) + fabs(Dhy);
         K2DSlope->Drc = Dh / sqrt(2*_dx*_dx);
 
-        if(WHrunoff->Drc > Dhx + Dhy)
-        {
-            K2DSlope->Drc = WHrunoff->Drc / _dx;
-        }
-
         if(std::isnan(K2DSlope->Drc))
         {
-            K2DSlope->Drc = 0.01;
+            K2DSlope->Drc = 0.00;
             K2DSlopeX->Drc = 0.00;
             K2DSlopeY->Drc = 0.00;
 
         }
         //minimum value for the slope
-        K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
-
+        //K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
     }
 
     //Detection of water available for outflow (because of local depressions)
@@ -1009,4 +992,3 @@ void TWorld::K2DDEMA()
     }
 
 }
-
