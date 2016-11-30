@@ -487,7 +487,7 @@ void TWorld::ChannelFlow(void)
         //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
 
-       // double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
+        //double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
         // explicit...!!!
 
         // water height is not used except for output! i.e. watervolume is cycled
@@ -511,6 +511,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // needed for concentration
     }
+
 
     cover(*ChannelWH, *LDD, 0);
     //VJ ?? necessary for display ??
