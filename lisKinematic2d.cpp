@@ -876,11 +876,6 @@ void TWorld::K2DDEMA()
         double Dh = fabs(Dhx) + fabs(Dhy);
         K2DSlope->Drc = Dh / sqrt(2*_dx*_dx);
 
-        if(WHrunoff->Drc > Dhx + Dhy)
-        {
-            K2DSlope->Drc = WHrunoff->Drc / _dx;
-        }
-
         if(std::isnan(K2DSlope->Drc))
         {
             K2DSlope->Drc = 0.01;
