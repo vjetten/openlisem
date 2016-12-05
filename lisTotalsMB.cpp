@@ -483,9 +483,14 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
+        double waterin = RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow;
+        double waterstore = IntercTot + IntercHouseTot + InfilTot + BufferVolin;
+        double waterflow = WaterVolTot + floodVolTot + Qtot + floodBoundaryTot;
         MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+
+        MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
@@ -493,9 +498,18 @@ void TWorld::MassBalance()
     // Mass Balance sediment, all in kg
 
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
-    if (SwitchErosion && SoilLossTot > 1e-9)
-        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +
-                  DepTot + ChannelDepTot + FloodDepTot - BufferSedTot)/(SoilLossTot))*100;
+    if (SwitchErosion)// && SoilLossTot > 1e-9)
+    {
+        double detachment = DetTot + ChannelDetTot + FloodDetTot;
+        double deposition = DepTot + ChannelDepTot + FloodDepTot;
+        double sediment = SedTot + ChannelSedTot + FloodSedTot +BufferSedTot + SoilLossTot;
+
+        MBs = detachment > 0 ? 1-(detachment + deposition  - sediment)/detachment*100 : 0;
+
+
+//        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +
+//                  DepTot + ChannelDepTot + FloodDepTot - BufferSedTot)/(SoilLossTot))*100;
+    }
     //VJ 121212 changed to mass balance relative to soil loss
 
     if (SwitchPesticide)

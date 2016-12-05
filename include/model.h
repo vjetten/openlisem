@@ -781,6 +781,7 @@ public:
     double K2DQSOut;
     double K2DQPOut;
     double CourantKin;
+    int ConcentrateKin;
     double TimestepKinMin;
     double KinematicBoundaryFraction = 0.05;
     //SWATRE

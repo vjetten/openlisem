@@ -221,9 +221,9 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
             f3=0.;
             cfl=0.; //std::max(fabs(c1),fabs(c2))=0
         }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have std::max(abs(c1),abs(c2))=c2>0
-            f1=q_L;
-            f2=q_L*u_L+GRAV*h_L*h_L*0.5;
-            f3=q_L*v_L;
+            f1=q_L;   //flux
+            f2=q_L*u_L+GRAV*h_L*h_L*0.5;  //flux*velocity + 0.5*(wave velocity squared)
+            f3=q_L*v_L; //flux *velocity
             cfl=c2; //std::max(fabs(c1),fabs(c2))=c2>0
         }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have std::max(abs(c1),abs(c2))=-c1>0
             f1=q_R;

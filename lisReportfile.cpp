@@ -303,11 +303,12 @@ void TWorld::ReportTimeseriesNew(void)
     int hour = 0;
     int min = 0;
     int sec = 0;
+    int DIG = 9;
     //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
     double RainIntavg = RainAvgmm * 3600/_dt;
     double SnowIntavg = SnowAvgmm * 3600/_dt;
     QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
-    int width = (!SwitchWritePCRtimeplot ? 0 : 9);
+    int width = (!SwitchWritePCRtimeplot ? 0 : 9+DIG-3);
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
     QFileInfo fi(resultDir + outflowFileName);
@@ -344,7 +345,7 @@ void TWorld::ReportTimeseriesNew(void)
                     QFile fout(newname1);
                     fout.open(QIODevice::WriteOnly | QIODevice::Text);
                     QTextStream out(&fout);
-                    out.setRealNumberPrecision(3);
+                    out.setRealNumberPrecision(DIG);
                     out.setFieldWidth(width);
                     out.setRealNumberNotation(QTextStream::FixedNotation);
 
@@ -411,7 +412,7 @@ void TWorld::ReportTimeseriesNew(void)
             QFile fout(newname1);
             fout.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream out(&fout);
-            out.setRealNumberPrecision(3);
+            out.setRealNumberPrecision(DIG);
             out.setFieldWidth(width);
             out.setRealNumberNotation(QTextStream::FixedNotation);
 
@@ -518,7 +519,7 @@ void TWorld::ReportTimeseriesNew(void)
                 fout.open(QIODevice::Append | QIODevice::Text);
 
                 QTextStream out(&fout);
-                out.setRealNumberPrecision(3);
+                out.setRealNumberPrecision(DIG);
                 out.setFieldWidth(width);
                 out.setRealNumberNotation(QTextStream::FixedNotation);
 
@@ -559,7 +560,7 @@ void TWorld::ReportTimeseriesNew(void)
         QFile fout(newname1);
         fout.open(QIODevice::Append | QIODevice::Text);
         QTextStream out(&fout);
-        out.setRealNumberPrecision(3);
+        out.setRealNumberPrecision(DIG);
         out.setFieldWidth(width);
         out.setRealNumberNotation(QTextStream::FixedNotation);
 
@@ -614,7 +615,7 @@ void TWorld::ReportTotalsNew(void)
         return;
 
     QTextStream out(&fp);
-    out.setRealNumberPrecision(8);
+    out.setRealNumberPrecision(9);
     out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
     out << "\"LISEM run with:," << op.runfilename << "\"\n";

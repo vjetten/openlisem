@@ -340,6 +340,9 @@ void TWorld::ParseRunfileData(void)
     SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
     CourantKin = getvaluedouble("Courant Kin Wave 2D");
+    ConcentrateKin = getvalueint("Concentrate Kin Wave 2D");
+    if (ConcentrateKin < 1 || ConcentrateKin > 10)
+        ConcentrateKin = 1;
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);

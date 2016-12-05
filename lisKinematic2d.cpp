@@ -244,7 +244,6 @@ double TWorld::K2DFlux()
             //K2DQ->Drc =std::min(0.5,KinematicBoundaryFraction*dtr) *  (DX->Drc*K2DHOld->Drc*ChannelAdj->Drc);
         }
     }
-    //return the lowest needed timestep, with a minimum of 1.0 seconds
     return dtr;
 
 }
@@ -308,6 +307,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         }else
         {
             //for each cell neigbhouring the advected location of the discharge, calculate interpolation weight
+            int big = 0;
             for (int i=0; i<4; i++)
             {
                 // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
@@ -315,18 +315,23 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                 double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
 
                 //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) *fabs(wdy);
+                double weight = fabs(wdx*wdy);
+                if (i > 0 && weight > w[i-1])
+                    big = i;
+                // find largest weight direction
 
                 w[i] = weight;
                 if(SwitchFlowBarriers)
                 {
                     w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn*dy[i],xn*dx[i]);
                 }
-
             }
+            w[big] = w[big] * ConcentrateKin;
+            // multiply with user weight
 
             //normalize: sum of the 4 weights is equal to 1
             double wt = 0.0;
+
             for (int i=start; i<end+1; i++)
             {
                 wt += w[i];
@@ -443,14 +448,14 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
     }
 
 
-    double dtr = dt;
+    //double dtr = dt;
     double fraction = CourantKin;
 
 
     FOR_ROW_COL_MV
     {
        K2DQM->Drc =  K2DQ->Drc * K2DMC->Drc;
-       if((!K2DOutlets->Drc ==1) && K2DQM->Drc > fraction*K2DM->Drc)
+       if(K2DOutlets->Drc != 1 && K2DQM->Drc > fraction*K2DM->Drc)
        {
             K2DQM->Drc = fraction*K2DM->Drc;
        }
@@ -487,28 +492,32 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         }else
         {
             //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
+            int big = 0;
             for (int i=0; i<4; i++)
             {
-                int r2;
-                int c2;
+//                int r2;
+//                int c2;
 
-                //must multiply the cell directions by the sign of the slope vector components
-                r2 = r+yn*dy[i];
-                c2 = c+xn*dx[i];
+//                //must multiply the cell directions by the sign of the slope vector components
+//                r2 = r+yn*dy[i];
+//                c2 = c+xn*dx[i];
+                // not used?
 
                 // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
                 double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
                 double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
 
                 //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) *fabs(wdy);
+                double weight = fabs(wdx*wdy);
                 w[i]  = weight;
-
+                if (i > 0 && weight > w[i-1])
+                    big = i;
                 if(SwitchFlowBarriers)
                 {
                     w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn * dy[i],xn * dx[i]);
                 }
             }
+            w[big] = w[big]*ConcentrateKin;
         }
 
         //normalize: sum of the 4 weights is equal to 1
