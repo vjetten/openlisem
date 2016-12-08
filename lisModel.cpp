@@ -164,6 +164,7 @@ void TWorld::DoModel()
 
             //DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
 
+            SetFlowBarriers();     // update the presence of flow barriers
             GridCell();            // set channel widths, flowwidths road widths etc
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
