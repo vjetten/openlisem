@@ -47,7 +47,7 @@ functions: \n
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
-
+/*
 void TWorld::FS_FluxWS(int l, cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l)
 {
 
@@ -352,7 +352,7 @@ void TWorld::FS_MainCalcWS(int l, cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap *
       }
     }}
 }
-
+*/
 void TWorld::FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l)
 {
 
@@ -795,6 +795,8 @@ void TWorld::FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,dou
  * @see F_scheme
  * @see SwitchFloodSWOForder2
  */
+
+/*
 void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
 {
 
@@ -902,14 +904,6 @@ void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v,
 
         FS_SimpleWS(l,BLCFlood,SSCFlood);
 
-       /* if (F_scheme == (int)FMUSCL)
-        {
-            FS_MUSCLEWS(l,BLCFlood,SSCFlood);
-        }else
-        {
-            FS_ENOWS(l,BLCFlood,SSCFlood);
-        }*/
-
         //flux calculation
         FS_FluxWS(l,MBLCFlood,MSSCFlood,h1d,h1g,h2d,h2g,u1r,u1l,v1r,v1l,u2r,u2l,v2r,v2l);
 
@@ -975,7 +969,7 @@ void TWorld::SWOFSedimentFlowWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v,
 
 
 }
-
+*/
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentFlow(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
@@ -1150,8 +1144,8 @@ void TWorld::SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * 
         }
 
     }
-    double blerr = blold/blnew;
-    double sserr = ssold/ssnew;
+   // double blerr = blold/blnew;
+   // double sserr = ssold/ssnew;
     if(blnew > 0 && ssnew > 0)
     {
         FOR_CELL_IN_FLOODAREA
@@ -1202,6 +1196,8 @@ void TWorld::SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * 
  *
  * @return void
  */
+
+        /*
 void TWorld::SWOFSedimentFlowInterpolationWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
 {
 
@@ -1352,6 +1348,7 @@ void TWorld::SWOFSedimentFlowInterpolationWS(int l, double dt, cTMap * h,cTMap *
 
     }}
 }
+*/
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
@@ -1372,6 +1369,7 @@ void TWorld::SWOFSedimentFlowInterpolationWS(int l, double dt, cTMap * h,cTMap *
  *
  * @return void
  */
+
 void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
 {
 
@@ -1697,6 +1695,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h,cTMap * u,cTMa
  *
  * @see FS_SigmaDiffusion
  */
+/*
 void TWorld::SWOFSedimentDiffusionWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
 {
     FOR_WATERSHED_ROW_COL(l) {
@@ -1808,6 +1807,7 @@ void TWorld::SWOFSedimentDiffusionWS(int l, double dt, cTMap * h,cTMap * u,cTMap
 
 
 }
+*/
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
@@ -2356,7 +2356,7 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,cTMap * um,cTMa
                 return 0;
             }
 
-            double dh = (ChannelAdj->Drc *h)/(ChannelAdj->Drc + 2.0* h);
+            //double dh = (ChannelAdj->Drc *h)/(ChannelAdj->Drc + 2.0* h);
 
             double css = 0.03* (ps - pw) * (gd) * ppk;
 
@@ -2620,7 +2620,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
         double bldischarge = velocity * ChannelAdj->Drc * bldepth;
         double blwatervol = ChannelAdj->Drc *DX->Drc*bldepth;
 
-        double ssdischarge = velocity * ChannelAdj->Drc * ssdepth;
+        //double ssdischarge = velocity * ChannelAdj->Drc * ssdepth;
         double sswatervol = ChannelAdj->Drc *DX->Drc * ssdepth;
 
         double bltc = 0;
@@ -2692,7 +2692,7 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
         {
             //first check if sediment goes to suspended sediment layer or to bed layer
            double tobl = 0;
-           double toss = 0;
+           //double toss = 0;
            double TransportFactor;
 
            //deposition based on settling velocity
@@ -2896,6 +2896,7 @@ void TWorld::SWOFSedimentBalance()
  *
  * @return void
  */
+/*
 void TWorld::SWOFSedimentBalanceWS(int l)
 {
     if(SwitchUseGrainSizeDistribution)
@@ -2921,6 +2922,7 @@ void TWorld::SWOFSedimentBalanceWS(int l)
     }
     return;
 }
+*/
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSediment(double dt)
@@ -3040,6 +3042,8 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
  * @see SWOFSedimentDiffusionWS
  * @see SWOFSedimentBalanceWS
  */
+
+    /*
 void TWorld::SWOFSedimentWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v)
 {
     //only when sediment is modelled
@@ -3107,4 +3111,4 @@ void TWorld::SWOFSedimentWS(int l, double dt, cTMap * h,cTMap * u,cTMap * v)
     }}
 
 }
-
+*/

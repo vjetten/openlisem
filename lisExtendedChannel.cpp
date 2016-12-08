@@ -68,7 +68,7 @@ void TWorld::ExtendChannel()
     int maxdistance = ((int) ((std::max(0.0,MaxWidth-_dx)/2.0)/_dx)) + 1;
 
     //for checking wheter channel lies within cell
-    double maxd = (std::max(0.0,MaxWidth-_dx)/2.0);
+    //double maxd = (std::max(0.0,MaxWidth-_dx)/2.0);
 
     FOR_ROW_COL_MV
     {
@@ -98,9 +98,9 @@ void TWorld::ExtendChannel()
 
                         if( rd > 0)
                         {
-                            double dsx = std::max(0.0,dx-0.5*(dx/rd));
-                            double dsy = std::max(0.0,dy-0.5*(dy/rd));
-                            double d = sqrt(dsx * dsx + dsy*dsy);
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
 
                             double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
                             if(width > 0)
@@ -146,9 +146,9 @@ void TWorld::ExtendChannel()
 
                         if( rd > 0)
                         {
-                            double dsx = std::max(0.0,dx-0.5*(dx/rd));
-                            double dsy = std::max(0.0,dy-0.5*(dy/rd));
-                            double d = sqrt(dsx * dsx + dsy*dsy);
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
                             double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
                             if(width > 0)
                             {
@@ -192,9 +192,9 @@ void TWorld::ExtendChannel()
 
                         if( rd > 0)
                         {
-                            double dsx = std::max(0.0,dx-0.5*(dx/rd));
-                            double dsy = std::max(0.0,dy-0.5*(dy/rd));
-                            double d = sqrt(dsx * dsx + dsy*dsy);
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //`double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
 
                             double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
                             if(width > 0)
@@ -239,9 +239,9 @@ void TWorld::ExtendChannel()
 
                         if( rd > 0)
                         {
-                            double dsx = std::max(0.0,dx-0.5*(dx/rd));
-                            double dsy = std::max(0.0,dy-0.5*(dy/rd));
-                            double d = sqrt(dsx * dsx + dsy*dsy);
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
 
                             double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
                             if(width > 0)
@@ -279,7 +279,7 @@ void TWorld::ExtendChannel()
 
         if(found)
         {
-            if(ChannelWidthExtended > 0 && ChannelNeighborsExtended->Drc > 0)
+            if(ChannelWidthExtended->Drc > 0 && ChannelNeighborsExtended->Drc > 0) //VJ!!!! ChannelWidthExtended without Drc
             {
                 if(SwitchChannelFlood)
                 {
@@ -313,7 +313,8 @@ void TWorld::ExtendChannel()
                 ChannelBoundaryRExtended->Drc = 0;
                 ChannelBoundaryLExtended->Drc = 0;
             }
-            if(!ChannelBoundaryExtended->Drc == 1 && nn < 4)
+//            if(!ChannelBoundaryExtended->Drc == 1 && nn < 4)
+                if(ChannelBoundaryExtended->Drc != 1 && nn < 4)
             {
                 ChannelBoundaryExtended->Drc = 1;
                 ChannelBoundaryRExtended->Drc = 1;
@@ -347,8 +348,8 @@ bool TWorld::IsExtendedChannel(int r, int c, int dr, int dc)
 
 void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_not_divide,bool proportional)
 {
-    double totala;
-    double totalb;
+    double totala=0;
+    double totalb=0;
     FOR_ROW_COL_MV
     {
         if(!pcr::isMV(LDDChannel->Drc))

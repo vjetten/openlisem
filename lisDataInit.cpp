@@ -405,7 +405,7 @@ void TWorld::InitShade(void)
 //        double Incl = 15.0/180.0*PI;
 //        double Decl = 300/180.0*PI;
         double mat[9];
-        double dx, dy, aspect;
+        double dx, dy;//, aspect;
         double factor = 1.0;
 
         minDem = std::min(DEM->Drc, minDem);
@@ -585,53 +585,34 @@ void TWorld::InitChannel(void)
                         ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
         }
 
+        DomainEdge = NewMap(0);
+        for (int r = 1; r < _nrRows-1; r++)
+            for (int c = 1; c < _nrCols-1; c++)
+                if(!pcr::isMV(LDD->data[r][c]))
+                {
+                    if (DomainEdge->Drc == 0 &&
+                            (pcr::isMV(LDD->data[r-1][c  ]) ||
+                             pcr::isMV(LDD->data[r-1][c  ]) ||
+                             pcr::isMV(LDD->data[r-1][c+1]) ||
+                             pcr::isMV(LDD->data[r  ][c-1]) ||
+                             pcr::isMV(LDD->data[r  ][c+1]) ||
+                             pcr::isMV(LDD->data[r+1][c-1]) ||
+                             pcr::isMV(LDD->data[r+1][c  ]) ||
+                             pcr::isMV(LDD->data[r+1][c+1]) )
+                            )
+                        if (ChannelWidthUpDX->Drc == 0)
+                            DomainEdge->Drc = 1;
+                    // channel cells do not shed water to the outside
+                }
         if (SwitchChannelFlood)
         {
-            FloodEdge = NewMap(0);
-            for (int r = 1; r < _nrRows-1; r++)
-                for (int c = 1; c < _nrCols-1; c++)
-                    if(!pcr::isMV(LDD->data[r][c]))
-                    {
-                        if (FloodEdge->Drc == 0 &&
-                                (pcr::isMV(LDD->data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->data[r-1][c  ]) ||
-                                 pcr::isMV(LDD->data[r-1][c+1]) ||
-                                 pcr::isMV(LDD->data[r  ][c-1]) ||
-                                 pcr::isMV(LDD->data[r  ][c+1]) ||
-                                 pcr::isMV(LDD->data[r+1][c-1]) ||
-                                 pcr::isMV(LDD->data[r+1][c  ]) ||
-                                 pcr::isMV(LDD->data[r+1][c+1]) )
-                                )
-                            if (ChannelWidthUpDX->Drc == 0)
-                                FloodEdge->Drc = 1;
-                        // channel cells do not shed water to the outside
-                    }
-            //            tma->fill(0);
-            //            for (int r = 1; r < _nrRows-1; r++)
-            //                for (int c = 1; c < _nrCols-1; c++)
-            //                    if(!pcr::isMV(LDD->data[r][c]))
-            //            {
-            //                if (FloodEdge->Drc == 0 && (
-            //                            FloodEdge->data[r-1][c-1] == 1 ||
-            //                            FloodEdge->data[r-1][c  ] == 1 ||
-            //                            FloodEdge->data[r-1][c+1] == 1 ||
-            //                            FloodEdge->data[r][c-1] == 1 ||
-            //                            FloodEdge->data[r][c+1] == 1 ||
-            //                            FloodEdge->data[r+1][c-1] == 1 ||
-            //                            FloodEdge->data[r+1][c  ] == 1 ||
-            //                            FloodEdge->data[r+1][c+1] == 1
-            //                            ))
-            //                    tma->Drc = 2;
-            //            }
-            //            FloodEdge->calcMap(tma, ADD);
-            //            FloodEdge->report("edge.map");
-
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
-            if(this->SwitchWatershed)
-            {
-                WaterSheds = ReadMap(LDD, getvaluename("watershed"));
-                MakeWatersheds();
-            }
+
+            //            if(this->SwitchWatershed)
+//            {
+//                WaterSheds = ReadMap(LDD, getvaluename("watershed"));
+//                //MakeWatersheds();
+//            }
 
             long nrc = 0;
             FOR_ROW_COL_MV
@@ -661,23 +642,6 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
-            // explicit OBSOLETE
-            /*
-            if (SwitchFloodExplicit)
-            {
-                Qxsum = NewMap(0);
-                qx0 = NewMap(0);
-                qx1 = NewMap(0);
-                qx2 = NewMap(0);
-                qx3 = NewMap(0);
-                Hx = NewMap(0);
-                hx = NewMap(0);
-
-                Nx = NewMap(0);
-                dHdLx = NewMap(0);
-            }
-            */
-            //explicit
             Hmx = NewMap(0);
             hmxWH = NewMap(0);
 
@@ -694,10 +658,10 @@ void TWorld::InitChannel(void)
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
             ChannelLevee = NewMap(0);
-            if (SwitchLevees)
-                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
-            if (!SwitchLevees)
-                fill(*ChannelLevee, 0.0);
+//            if (SwitchLevees)
+//                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
+//            if (!SwitchLevees)
+//                fill(*ChannelLevee, 0.0);
 
 //            if (SwitchFloodInitial)
 //            {
@@ -779,22 +743,14 @@ void TWorld::InitChannel(void)
             g2 = NewMap(0);
             g3 = NewMap(0);
 
-            f1o = NewMap(0);
-            f2o = NewMap(0);
-            f3o = NewMap(0);
-            cflxo = NewMap(0);
-            cflyo = NewMap(0);
-            g1o = NewMap(0);
-            g2o = NewMap(0);
-            g3o = NewMap(0);
-            //            f1o = NewMap(0);
-            //            f2o = NewMap(0);
-            //            f3o = NewMap(0);
-            //            cflxo = NewMap(0);
-            //            cflyo = NewMap(0);
-            //            g1o = NewMap(0);
-            //            g2o = NewMap(0);
-            //            g3o = NewMap(0);
+//            f1o = NewMap(0);
+//            f2o = NewMap(0);
+//            f3o = NewMap(0);
+//            cflxo = NewMap(0);
+//            cflyo = NewMap(0);
+//            g1o = NewMap(0);
+//            g2o = NewMap(0);
+//            g3o = NewMap(0);
 
             h1d = NewMap(0);
             h1g = NewMap(0);
@@ -803,11 +759,6 @@ void TWorld::InitChannel(void)
 
             Uflood = NewMap(0);
             Vflood = NewMap(0);
-            //q1flood = NewMap(0);
-            //q2flood = NewMap(0);
-
-
-
         }
 
     }
@@ -2315,6 +2266,7 @@ void TWorld::IntializeOptions(void)
     SwitchPesticide = false;
 }
 //---------------------------------------------------------------------------
+/*
 void TWorld::MakeWatersheds(void)
 {
     int i = 0;
@@ -2367,6 +2319,7 @@ void TWorld::MakeWatersheds(void)
     //    for(int j = 0; j <= i; j++)
    // qDebug() << i << WS[i].ws << WS[i].cr.count();
 }
+*/
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()
 {

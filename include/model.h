@@ -85,10 +85,12 @@
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
+/*
 /// shortcut for all cell in watershed with nr wsnr
 #define FOR_WATERSHED_ROW_COL(wsnr) for (long k = 0; k < WS[wsnr].cr.count(); k++) {\
     int c = WS[wsnr].cr[k]._c;\
     int r = WS[wsnr].cr[k]._r;\
+    */
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -265,6 +267,7 @@ public:
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET;
+    int ReportDigitsOut;
 
     QList<int> FBid;
 
@@ -490,7 +493,7 @@ public:
     //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;
-
+/*
     // floods watershed based
     double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
@@ -502,7 +505,7 @@ public:
     void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
     void MakeWatersheds(void);
-
+*/
 
     //SEDIMENT TRANSPORT
     int FS_SS_Method;

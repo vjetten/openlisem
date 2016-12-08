@@ -53,6 +53,11 @@ GULLIESMAPS
 */
 
 
+//--------------------------------------------------------------------
+void lisemqt::on_checkFlowBarriers_clicked()
+{
+    checkMapNameModel(BARRIERMAPS, 0, checkFlowBarriers->isChecked());
+}
 
 //--------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_clicked()
@@ -248,7 +253,7 @@ void lisemqt::doCheckRainfall(bool check)
 //--------------------------------------------------------------------
 void lisemqt::doCheckPesticides(bool check)
 {
-    checkMapNameModel(NUTRIENTSMAPS, 10, check);
+    checkMapNameModel(NUTRIENTSMAPS, 11, check);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkExpandActive_clicked()

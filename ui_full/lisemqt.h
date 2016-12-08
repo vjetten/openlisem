@@ -76,10 +76,8 @@
 #define SNOWMELTMAPS 9
 #define TILEDRAINMAPS 10   //VJ 110111
 #define HOUSESMAPS 11  //VJ 120314
-#define NUTRIENTSMAPS 12
-//#define TEXTUREMAPS 13
-//#define WHEELTRACKSMAPS 14
-//#define GULLIESMAPS 15
+#define NUTRIENTSMAPS 13
+#define BARRIERMAPS 12
 
 
 //---------------------------------------------------------------------------
@@ -333,6 +331,7 @@ public slots:
     void on_E_InfiltrationMethod_currentIndexChanged(int inr);
     void on_E_runFileList_currentIndexChanged(int);
 
+    void on_checkFlowBarriers_clicked();
     void on_checkChannelInfil_clicked();
     void on_checkChannelBaseflow_clicked();
     void on_checkChannelFlood_clicked();

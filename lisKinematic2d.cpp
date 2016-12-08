@@ -791,12 +791,12 @@ void TWorld::K2DDEMA()
         if(OUTORMV(r+1,c))
         {
             Outlet->Drc= 1;
-            if(demy1 <demy2){K2DOutlets->Drc = 1;};
+            if(demy1 < demy2){K2DOutlets->Drc = 1;};
         }
         if(OUTORMV(r-1,c))
         {
             Outlet->Drc= 1;
-            if(demy2 <demy1){K2DOutlets->Drc = 1;};
+            if(demy2 < demy1){K2DOutlets->Drc = 1;};
         }
 
         if(demx1 < demx2)
@@ -885,6 +885,11 @@ void TWorld::K2DDEMA()
         //K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
     }
 
+//FOR_ROW_COL_MV
+//{
+//    if (DomainEdge->Drc > 0 and K2DOutlets->Drc > 0)
+//        K2DOutlets->Drc = 0;
+//}
     //Detection of water available for outflow (because of local depressions)
     FOR_ROW_COL_MV
     {

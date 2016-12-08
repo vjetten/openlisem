@@ -95,35 +95,36 @@ void TWorld::GetFlowBarrierData(QString name)
             {
                 if(j == 0)
                 {
-                        FBid.append(list.at(j).toInt(&ok));
-                        if(ok == false){ErrorString = "FlowBarrier file has a non-number value "; throw 1;}
+                    FBid.append(list.at(j).toInt(&ok));
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value "; throw 1;}
                 }else if( j == 1)
                 {
-                        FBHeightN.append(list.at(j).toDouble(&ok));
-                        if(ok == false){ErrorString = "FlowBarrier file has a non-number value "; throw 1;}
+                    FBHeightN.append(list.at(j).toDouble(&ok));
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value "; throw 1;}
                 }else if( j == 2)
                 {
-                        FBHeightW.append(list.at(j).toDouble(&ok));
-                        if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                    FBHeightE.append(list.at(j).toDouble(&ok));
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
                 }else if( j == 3)
                 {
-                        FBHeightE.append(list.at(j).toDouble(&ok));
-                        if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                    FBHeightS.append(list.at(j).toDouble(&ok));
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+
                 }else if( j == 4)
                 {
-                        FBHeightS.append(list.at(j).toDouble(&ok));
-                        if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                    FBHeightW.append(list.at(j).toDouble(&ok));
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
                 }else if( j == 5)
                 {
                         FBTimeN.append(list.at(j).toDouble(&ok));
                         if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
                 }else if( j == 6)
                 {
-                        FBTimeS.append(list.at(j).toDouble(&ok));
+                        FBTimeE.append(list.at(j).toDouble(&ok));
                         if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
                 }else if( j == 7)
                 {
-                        FBTimeE.append(list.at(j).toDouble(&ok));
+                        FBTimeS.append(list.at(j).toDouble(&ok));
                         if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
                 }else if( j == 8)
                 {
@@ -180,6 +181,10 @@ void TWorld::SetFlowBarriers()
         {
             FlowBarrierN->Drc = 0;
         }
+        if(this->time > FlowBarrierET->Drc && !(FlowBarrierET->Drc < 0))
+        {
+            FlowBarrierE->Drc = 0;
+        }
         if(this->time > FlowBarrierST->Drc && !(FlowBarrierST->Drc < 0))
         {
             FlowBarrierS->Drc = 0;
@@ -188,10 +193,7 @@ void TWorld::SetFlowBarriers()
         {
             FlowBarrierW->Drc = 0;
         }
-        if(this->time > FlowBarrierET->Drc && !(FlowBarrierET->Drc < 0))
-        {
-            FlowBarrierE->Drc = 0;
-        }
+
     }
 
 

@@ -137,7 +137,7 @@ void TWorld::SplashDetachment(void)
       double WH0 = exp(-1.48*WH->Drc*1000);
       // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
-      if (AggrStab != 0)
+      if (AggrStab->Drc > 0)
       {
          strength = 2.82/AggrStab->Drc;
          b = 2.96;
@@ -378,7 +378,7 @@ double TWorld::OFTC(int r, int c, int d)
     double omegacrit = 0.4;
     // critical unit streampower in cm/s
     return std::min(MAXCONC, W_D.Drcd * 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));*/
-
+   return -1;
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

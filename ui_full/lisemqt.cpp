@@ -1540,7 +1540,7 @@ void lisemqt::resetAll()
     // flooded areas
     checkChannelFlood->setChecked(check);
     //  checkFloodInitial->setChecked(check);
-    checkWatershed->setChecked(check);
+    //checkWatershed->setChecked(check);
 
     checkLimitTC->setChecked(check);
     //   checkLimitDepTC->setChecked(check);
@@ -1566,6 +1566,8 @@ void lisemqt::resetAll()
     checkSeparateOutput->setChecked(check);
     checkWriteSOBEK->setChecked(check);
     SOBEKdatestring->setText("10/01/01");
+    E_DigitsOut->setValue(3);
+
     //checkInterceptionLAI->setChecked(true);
     E_BulkDens->setText("1400.00");
 

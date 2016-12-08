@@ -50,6 +50,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     QFileInfo fi(name);
     QString S;
     QStringList rainRecs;
+    QStringList SL;
     bool ok;
     int nrStations = 0;
     int nrSeries = 0;
@@ -86,19 +87,40 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     // DOES NOT WORK for more than one station
     // add a very large number so that the rainfall after the last timestep is 0
 
-    //   qDebug() << rainRecs.count();
 
-    QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
-    // get first line, white space character as split for header
+    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
+    int count = rainRecs[1].toInt(&ok, 10);
+    // header
+    // second line is only an integer
+    if (ok)
+    {
+        SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        if (count == SL.count())
+            oldformat = false;
+        //if the number of columns equals the integer then new format
+        nrStations = count-1;
+        // nr stations is count-1 for time as forst column
+    }
 
-    nrStations = SL[SL.size()-1].toInt(&ok, 10);
-    // read nr stations from last value in old style header
-    // failure gives 0
-    nrStations += 1;
-    SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
-    oldformat = (nrStations == SL.count());
+    if (oldformat)
+    {
+        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+        // get first line, white space character as split for header
+
+        nrStations = SL[SL.size()-1].toInt(&ok, 10);
+        // read nr stations from last value in old style header
+        // failure gives 0
+        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+        oldformat = (nrStations == SL.count()-1);
+
+    }
+
     //check if nr stations found equals nr columns-1, 1st column is time
 
+//TO DO old format check doesn't always work
+//    if (!rainRecs[0].contains("TIMESERIE INTENSITY NORMAL"))
+//        oldformat = false;
+/*
     // if not, check if new PCRaster style rainfall rec
     if (!oldformat || !ok)
     {
@@ -115,6 +137,11 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
             throw 1;
         }
     }
+*/
+    if (oldformat)
+        skiprows = 1;
+    else
+        skiprows = 3;
 
     int nrmap = 0;
     if (israinfall)
@@ -122,14 +149,15 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     else
         nrmap = countUnits(*SnowmeltZone);
 
-    if (nrmap > nrStations-1)
+    if (nrmap != nrStations)
     {
-        ErrorString = QString("Number of stations in rainfall file (%1) < than of rainfall zones in ID map (%2)").arg(nrStations-1).arg(nrmap);
+        ErrorString = QString("Number of stations in rainfall file (%1) != nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
         throw 1;
     }
 
     nrSeries = rainRecs.size() - nrStations - skiprows;
     // count rainfall or snowmelt records
+
 
     if (nrSeries <= 1)
     {
@@ -185,7 +213,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         {
             // record is a assumed to be a double
 
-            for (int i = 1; i < nrStations; i++)
+            for (int i = 1; i <= nrStations; i++)
             {
                 bool ok = false;
                 rl.intensity << SL[i].toDouble(&ok);
@@ -268,13 +296,12 @@ void TWorld::RainfallMap(void)
         FOR_ROW_COL_MV
         {
             Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
-            // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
+            // Rain in m per timestep from mm/h, rtecord nr corresponds map ID value -1
             //TODO: weighted average if dt larger than table dt
             if (!rainStarted && Rain->Drc  > 0)
                 rainStarted = true;
         }
     }
-
     if (rainStarted && RainstartTime == -1)
     {
         RainstartTime = time;

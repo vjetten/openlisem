@@ -181,7 +181,6 @@ void TWorld::ParseRunfileData(void)
      //   if (p1.compare("Flood method explicit")==0)          SwitchFloodExplicit    = iii == 1;
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
-        if (p1.compare("Include levees")==0)                 SwitchLevees     = iii == 1;
 
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
@@ -230,7 +229,7 @@ void TWorld::ParseRunfileData(void)
     //    if (p1.compare("Detachment stoniness")==0)           SwitchStoninessDET   = iii == 1;
 
     //    if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
-        if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
+   //     if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
 
         //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
@@ -249,6 +248,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Limit TC")==0)                       SwitchLimitTC =          iii == 1;
         //if (p1.compare("Limit Deposition TC")==0)            SwitchLimitDepTC =       iii == 1;
         if (p1.compare("Include litter interception")==0)    SwitchLitter =          iii == 1;
+
         if (p1.compare("Include flow barriers")==0)          SwitchFlowBarriers = iii == 1;
         if (p1.compare("Flow barrier table filename")==0)    FlowBarriersFileName = p;
 
@@ -281,6 +281,9 @@ void TWorld::ParseRunfileData(void)
             SOBEKdatestring = p;
             SOBEKdatestring.remove(10,100);
         }
+        if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
+
+
         if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
         if (p1.compare("KE parameters EQ1")==0)

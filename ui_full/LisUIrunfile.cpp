@@ -194,7 +194,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Sigma diffusion")==0)                E_SigmaDiffusion->setValue(val);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(val);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(val);
-        if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
+    //    if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
         //if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(val);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(val);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(val);
@@ -204,7 +204,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
         if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
         if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
-        if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
+  //      if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
         if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
   //      if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val); // OBSOLETE
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
@@ -262,7 +262,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
-        if (p1.compare("Include flow barriers")==0)          checkBox_FlowBarriers->setChecked(check);
+        if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
 
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
@@ -271,18 +271,10 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
         if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
-
-        //OBSOLETE
-        //    if (p1.compare("Runoff maps in l/s/m")==0)           checkRunoffPerM->setChecked(check);
-        //    if (p1.compare("Regular runoff output")==0)          checkOutputTimeStep->setChecked(check);
-        //    if (p1.compare("User defined output")==0)            checkOutputTimeUser->setChecked(check);
-        //    if (p1.compare("No erosion at outlet")==0)           checkNoErosionOutlet->setChecked(check);
-        //    if (p1.compare("Subsoil drainage")==0)               checkDrainage->setChecked(check);
-        //    if (p1.compare("Gully infiltration")==0)             checkGullyInfil->setChecked(check);
-        //    if (p1.compare("Use initial gully dimensions")==0)   checkGullyInit->setChecked(check);
-
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
         if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
+        if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(val);
+
         if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
         if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
@@ -587,7 +579,6 @@ void lisemqt::ParseInputData()
         E_SwatreTableName->setText(SwatreTableName);
     }
 
-
     checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
     checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
     checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
@@ -595,6 +586,11 @@ void lisemqt::ParseInputData()
 
     on_checkIncludeChannel_clicked();
     on_checkChannelFlood_clicked();
+
+
+    spinBoxDigits->setValue(E_DigitsOut->value());
+
+
     //****====------====****//
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
@@ -692,7 +688,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
 
-        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
+        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
         //flooding
@@ -740,7 +736,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
-        if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
+    //    if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
         //if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
@@ -750,7 +746,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
         if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
         if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
-        if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
+  //     if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Flood sediment transport method")==0)namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
 
@@ -821,6 +817,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
         if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
+        if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
+
         if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
         if (p1.compare("Canopy storage equation")==0)

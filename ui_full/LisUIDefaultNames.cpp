@@ -45,7 +45,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
-    DEFmaps.append("2;Watersheds;ws.map;watersheds (1,2,3,...);watershed");
+ //   DEFmaps.append("2;Watersheds;ws.map;watersheds (1,2,3,...);watershed");
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
     DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue (-);cover");
@@ -118,7 +118,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
-    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
+ //   DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
   //  DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
     DEFmaps.append("0;Buffers");
@@ -256,6 +256,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Report point output for SOBEK");
     namelist[i].value = QString("10\01\01");
     namelist[i++].name = QString("SOBEK date string");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("Report digits out");
+
     namelist[i].value = QString("rainfall.map");
     namelist[i++].name = QString("Rainfall map");
     namelist[i].value = QString("interception.map");
@@ -402,14 +405,14 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Flooding]");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString(" Flood calc as watershed");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString(" Flood calc as watershed");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include rainfall flooding");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include levees");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.05");
     namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("2.0");

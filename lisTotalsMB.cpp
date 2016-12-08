@@ -486,9 +486,10 @@ void TWorld::MassBalance()
         double waterin = RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow;
         double waterstore = IntercTot + IntercHouseTot + InfilTot + BufferVolin;
         double waterflow = WaterVolTot + floodVolTot + Qtot + floodBoundaryTot;
-        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
-        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+
+//        MBeM3 = (RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow +
+//                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - BufferVolin - floodBoundaryTot);
+//        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
     }
@@ -504,7 +505,7 @@ void TWorld::MassBalance()
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
         double sediment = SedTot + ChannelSedTot + FloodSedTot +BufferSedTot + SoilLossTot;
 
-        MBs = detachment > 0 ? 1-(detachment + deposition  - sediment)/detachment*100 : 0;
+        MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
 
 
 //        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +

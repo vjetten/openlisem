@@ -33,6 +33,7 @@ int countUnits(
                 if (!list.contains((long)raster.data[r][c]))
                     list.append((long)raster.data[r][c]);
             }
+
     return(list.count());
 }
 
