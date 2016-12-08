@@ -212,6 +212,8 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Enable Slope Failure")==0)    SwitchSlopeFailure = iii == 1;
 
+        if (p1.compare("Limit Failure")==0)    SF_Calibrate_LF = iii == 1;
+
         if (p1.compare("Advanced sediment configuration")==0)
         {
             if(iii == 2)

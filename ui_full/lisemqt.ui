@@ -13083,7 +13083,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item row="16" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_6">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateDC">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -13120,12 +13120,12 @@ p, li { white-space: pre-wrap; }
                   <item row="13" column="0">
                    <widget class="QLabel" name="label_191">
                     <property name="text">
-                     <string>Multiplication viscosity</string>
+                     <string>Multiplication dynamic viscosity</string>
                     </property>
                    </widget>
                   </item>
                   <item row="12" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateYS">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -13190,28 +13190,28 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item row="13" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateDV">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
                   <item row="15" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateSPF">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
                   <item row="14" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateDF">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
                   <item row="8" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateEP">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -13231,14 +13231,14 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item row="9" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateTC">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
                   <item row="10" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateSV">
                     <property name="value">
                      <double>1.000000000000000</double>
                     </property>
@@ -20178,7 +20178,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

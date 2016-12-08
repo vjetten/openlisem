@@ -397,6 +397,16 @@ public:
     double waterRep_c;
     double waterRep_d;
 
+    double Calibrate_EP;
+    double Calibrate_TC;
+    double Calibrate_SV;
+    double Calibrate_YS;
+    double Calibrate_DV;
+    double Calibrate_DF;
+    double Calibrate_SPF;
+    double Calibrate_DC;
+
+    bool SF_Calibrate_LF;
     bool SF_Calibrate_Initial;
     double SF_Calibrate_Margin;
     bool SF_Calibrate_First;

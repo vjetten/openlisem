@@ -367,6 +367,8 @@ void TWorld::CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
 
     FOR_ROW_COL_MV
     {
+
+
         bool nb_df = false;
         if(!OUTORMV(r-1,c)){if(_Initiated->data[r-1][c] > 0){nb_df = true;}}
         if(!OUTORMV(r+1,c)){if(_Initiated->data[r+1][c] > 0){nb_df = true;}}
@@ -375,6 +377,14 @@ void TWorld::CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
 
         if(_SafetyFactor->Drc < _Threshold->Drc || (_SafetyFactor->Drc < _Threshold1->Drc && nb_df))
         {
+            if(SF_Calibrate_LF)
+            {
+                if(DFFailureMask->Drc == 0)
+                {
+                    _InititationHeight->Drc = 0;
+                    continue;
+                }
+            }
 
             //get all relevant vvariables for calculation of stable depth
             double cif = cos(_InternalFrictionAngle->Drc);
@@ -430,6 +440,7 @@ void TWorld::CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
             {
                 _InititationHeight->Drc = 0;
             }
+
         }else
         {
             _InititationHeight->Drc = 0;

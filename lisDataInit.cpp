@@ -635,6 +635,16 @@ void TWorld::GetInputData(void)
     st_csdCalibration = getvaluedouble("Create Stable Initial Safety Factor");
     st_csdsfCalibration = getvaluedouble("Minimum Safety Factor Calibration");
 
+
+    Calibrate_EP = getvaluedouble("Erosive Power Calibration");
+    Calibrate_TC = getvaluedouble("Transport Capacity Calibration");
+    Calibrate_SV = getvaluedouble("Settling Velocity Calibration");
+    Calibrate_YS = getvaluedouble("Yield Stress Calibration");
+    Calibrate_DV = getvaluedouble("Dynamic Viscosity Calibration");
+    Calibrate_DF = getvaluedouble("Drag Force Calibration");
+    Calibrate_SPF = getvaluedouble("Solid Phase Friction Calibration");
+    Calibrate_DC = getvaluedouble("Deposition Criteria Calibration");
+
     StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");
@@ -1008,6 +1018,10 @@ void TWorld::GetInputData(void)
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
         SF_Calibrate_First = true;
+        if(SF_Calibrate_LF)
+        {
+            DFFailureMask = ReadMap(LDD,getvaluename("FailureMask"));
+        }
 
         //SF_Calibrate_Mask = true;
 

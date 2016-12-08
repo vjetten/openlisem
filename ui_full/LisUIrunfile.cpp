@@ -355,6 +355,16 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(val);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(val);
 
+        if (p1.compare("Erosive Power Calibration")==0)         E_CalibrateEP->setValue(val);
+        if (p1.compare("Transport Capacity Calibration")==0)    E_CalibrateTC->setValue(val);
+        if (p1.compare("Settling Velocity Calibration")==0)     E_CalibrateSV->setValue(val);
+        if (p1.compare("Yield Stress Calibration")==0)          E_CalibrateYS->setValue(val);
+        if (p1.compare("Dynamic Viscosity Calibration")==0)     E_CalibrateDV->setValue(val);
+        if (p1.compare("Drag Force Calibration")==0)            E_CalibrateDF->setValue(val);
+        if (p1.compare("Solid Phase Friction Calibration")==0)  E_CalibrateSPF->setValue(val);
+        if (p1.compare("Deposition Criteria Calibration")==0)   E_CalibrateDC->setValue(val);
+        if (p1.compare("Limit Failure")==0)                     E_LimitFailure->setChecked(check);
+
         if (p1.compare("Soil Cohesion Calibration")==0)                 E_CalibrateSoilCohesion->setValue(val);
         if (p1.compare("Soil Internal Friction Angle Calibration")==0)  E_CalibrateInternalFrictionAngle->setValue(val);
         if (p1.compare("Soil Depth Calibration")==0)                    E_CalibrateSoilDepth->setValue(val);
@@ -885,6 +895,16 @@ void lisemqt::updateModelData()
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
+
+        if (p1.compare("Erosive Power Calibration")==0)         namelist[j].value = E_CalibrateEP->text();
+        if (p1.compare("Transport Capacity Calibration")==0)    namelist[j].value = E_CalibrateTC->text();
+        if (p1.compare("Settling Velocity Calibration")==0)     namelist[j].value = E_CalibrateSV->text();
+        if (p1.compare("Yield Stress Calibration")==0)          namelist[j].value = E_CalibrateYS->text();
+        if (p1.compare("Dynamic Viscosity Calibration")==0)     namelist[j].value = E_CalibrateDV->text();
+        if (p1.compare("Drag Force Calibration")==0)            namelist[j].value = E_CalibrateDF->text();
+        if (p1.compare("Solid Phase Friction Calibration")==0)  namelist[j].value = E_CalibrateSPF->text();
+        if (p1.compare("Deposition Criteria Calibration")==0)   namelist[j].value = E_CalibrateDC->text();
+        if (p1.compare("Limit Failure")==0)                     namelist[j].value.setNum((int)E_LimitFailure->isChecked());
 
         if (p1.compare("Soil Cohesion Calibration")==0)                 namelist[j].value = E_CalibrateSoilCohesion->text();
         if (p1.compare("Soil Internal Friction Angle Calibration")==0)  namelist[j].value = E_CalibrateInternalFrictionAngle->text();

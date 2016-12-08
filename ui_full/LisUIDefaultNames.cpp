@@ -77,6 +77,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;SoilIFA;soilifa.map;Soil internal friction angle;soilifa");
     DEFmaps.append("2;SoilRockFraction;soilrockfraction.map;Soil rock fraction;soilrockfraction");
     DEFmaps.append("2;SoilRockSize;soilrocksize.map;Soil rock fraction;soilrocksize");
+    DEFmaps.append("2;FailureMask;failuremask.map;Mask indicating possible slope failure;failuremask");
 
     DEFmaps.append("1;Loose Material");
     DEFmaps.append("2;DebrisMaterial;debrismaterial.map;Soil debris material;debrismaterial");
@@ -506,6 +507,26 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel N calibration");
 
     namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Erosive Power Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Transport Capacity Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Settling Velocity Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Yield Stress Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Dynamic Viscosity Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Drag Force Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Solid Phase Friction Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Deposition Criteria Calibration");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Limit Failure");
+
+
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Soil Cohesion Calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Soil Internal Friction Angle Calibration");
@@ -515,6 +536,13 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Create Stable Initial Safety Factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Minimum Safety Factor Calibration");
+
+
+
+
+
+
+
 
 
     namelist[i].value = QString("0.1");
