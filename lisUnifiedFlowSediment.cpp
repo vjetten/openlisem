@@ -674,28 +674,97 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     double bed_density = SoilRockDensity->Drc;
     double bed_ifa= SoilRockIFA->Drc;
     double slope = channel? std::fabs(UF1D_Slope->Drc) : std::max(std::fabs(UF2D_SlopeX->Drc),std::fabs(UF2D_SlopeY->Drc));
+    double availabledepth = UnifiedFlowEntrainmentAvailableDepth(r,c,UF2D_su->Drc,UF2D_sv->Drc);
+    double vegetationcover = Cover->Drc;
+    double vegetationcohesion = RootCohesion->Drc;
+    double veg_factor = UnifiedFlowEntrainmentVegetationFactor(vegetationcover,vegetationcohesion);
 
+    double entrainment = UnifiedFlowActiveEntrainment(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, veg_factor);
 
-    double entrainment = UnifiedFlowActiveEntrainment(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa);
+    entrainment = std::min(entrainment,area * availabledepth);
 
     if(entrainment > 0)
     {
         UF_RockTake(r,c,entrainment,channel);
     }else
     {
-        //UF_RockAdd(r,c,entrainment,channel);
+        UF_RockAdd(r,c,entrainment,channel);
     }
-
-
 
 }
 
-double TWorld::UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed)
+double TWorld::UnifiedFlowEntrainmentInitiationVegetationFactor(double vcover, double vcoh)
+{
+    return std::max(1.0,1.0 + vcover * UF_ENTRAINMENT_INITIATION_VEG_A + vcoh * vcover * UF_ENTRAINMENT_INITIATION_VEG_B);
+}
+
+double TWorld::UnifiedFlowEntrainmentVegetationFactor(double vcover, double vcoh)
+{
+
+    return std::min(1.0,std::max(0.0,1.0 + vcover * UF_ENTRAINMENT_VEG_A + vcoh * vcover * UF_ENTRAINMENT_VEG_B));
+}
+
+double TWorld::UnifiedFlowEntrainmentAvailableDepth(int r,int c, double vx, double vy)
+{
+    int dr = vy > 0? 1.0:0.0;
+    int dc = vx > 0? 1.0:0.0;
+
+    double dem = DEM->data[r][c];
+
+    double depth1 = 0;
+    double depth2 = 0;
+    if(!OUTORMV(r + dr,c))
+    {
+        if(DEM->data[r+dr][c] < dem)
+        {
+            depth1 = std::max(0.0,dem - DEM->data[r+dr][c]);
+        }
+    }
+
+    if(!OUTORMV(r,c+dc))
+    {
+        if(DEM->data[r][c+dc] < dem)
+        {
+            depth2 = std::max(0.0,dem - DEM->data[r][c+dc]);
+        }
+    }
+
+    if(OUTORMV(r + dr,c) && OUTORMV(r + dr,c))
+    {
+        if(!OUTORMV(r - dr,c))
+        {
+            if(DEM->data[r-dr][c] < dem)
+            {
+                depth1 = std::max(0.0,dem - DEM->data[r-dr][c]);
+            }
+        }
+
+        if(!OUTORMV(r,c-dc))
+        {
+            if(DEM->data[r][c-dc] < dem)
+            {
+                depth2 = std::max(0.0,dem - DEM->data[r][c-dc]);
+            }
+        }
+        if(OUTORMV(r - dr,c) && OUTORMV(r - dr,c))
+        {
+            return 0;
+        }
+    }
+
+    return std::max(depth1,depth2);
+}
+
+double TWorld::UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double veg_factor)
 {
 
     double entrainment = 0;
     double h = (_f + _s)/(area);
 
+    if(area < UF_VERY_SMALL)
+    {
+        return 0;
+    }
     if(!(h > UF_MINIMUMENTRAINMENTHEIGHT))
     {
         return 0;
@@ -706,6 +775,12 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double slope, double _f, d
     //Hungr
     double dgamma = d/d_bed;
     double sf = _f > 0? (_s/_f) :1.0;
+
+    //critical velocity
+
+    //excess shear stress
+
+
 
     entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min(h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));
     //Egashira

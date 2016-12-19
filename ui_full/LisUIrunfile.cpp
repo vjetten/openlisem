@@ -192,6 +192,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
         if (p1.compare("Incldue Maximum Volume")==0)                                checkBox_MaxVolume->setChecked(check);
 
+        if (p1.compare("Kinematic Timestep Power")==0)                              E_KinematicTimestepPower->setValue(val);
+
         if (p1.compare("Spatially Dynamic Timestep")==0)                            checkBox_SpatiallyDynamicTimestep->setChecked(check);
         if (p1.compare("Flow Minimum Timestep")==0)                                 E_SFMinimumDT->setValue(val);
         if (p1.compare("Surface Flow Courant Factor")==0)                           E_SFCourant->setValue(val);
@@ -739,6 +741,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Drag Power Law Coefficient")==0)                            namelist[j].value = E_UFDragPower->text();
         if (p1.compare("Viscosity Alpha")==0)                                       namelist[j].value = E_UFViscosityAlpha->text();
         if (p1.compare("Viscosity Beta")==0)                                        namelist[j].value = E_UFViscosityBeta->text();
+
+
+        if (p1.compare("Kinematic Timestep Power")==0)                              namelist[j].value = E_KinematicTimestepPower->text();
 
         if (p1.compare("Minimal Flood Water Depth")==0)                             namelist[j].value = E_FloodMinDepth->text();
         if (p1.compare("Minimum Debris Flow Volumetric Sediment Fraction")==0)      namelist[j].value = E_DebrisFlowMinSedConcentration->text();

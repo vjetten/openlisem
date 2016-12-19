@@ -96,7 +96,7 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
             //actual max velocity
             double v = std::max(std::max(std::max(std::fabs(_fu2D->Drc),std::fabs(_fv2D->Drc)),std::fabs(_su2D->Drc)),std::fabs(_sv2D->Drc));
 
-            double kinterm = std::min(1.0,std::pow((_s2D->Drc/(a) + _f2D->Drc/(a)),2.0));
+            double kinterm = std::min(1.0,std::pow((_s2D->Drc/(a) + _f2D->Drc/(a)),UF_KINEMATIC_TIMESTEP_POWER));
             //actual accaleration
             double dvf = kinterm * std::max(std::fabs(UF2D_fay1->Drc),std::max(std::fabs(UF2D_fay2->Drc),std::max(std::fabs(UF2D_fax2->Drc),std::max(std::fabs(UF2D_fax1->Drc),std::max(std::fabs(UF2D_fax->Drc),std::fabs(UF2D_fay->Drc))))));
             double dvs = kinterm * std::max(std::fabs(UF2D_say1->Drc),std::max(std::fabs(UF2D_say2->Drc),std::max(std::fabs(UF2D_sax2->Drc),std::max(std::fabs(UF2D_sax1->Drc),std::max(std::fabs(UF2D_sax->Drc),std::fabs(UF2D_say->Drc))))));

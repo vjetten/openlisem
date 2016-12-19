@@ -405,6 +405,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Incldue Maximum Volume");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Flow Minimum Timestep");
+    namelist[i].value = QString("2.0");
+    namelist[i++].name = QString("Kinematic Timestep Power");
     namelist[i].value = QString("0.25");
     namelist[i++].name = QString("Surface Flow Courant Factor");
     namelist[i].value = QString("2");

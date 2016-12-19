@@ -305,13 +305,13 @@ void TWorld::CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
 
         if(!OUTORMV(r,c+1))
         {
-            nx += 1.0;
-            demx += _DEM->data[r][c+1] - dem;
+            ny += 1.0;
+            demy += _DEM->data[r][c+1] - dem;
         }
         if(!OUTORMV(r,c-1))
         {
             ny += 1.0;
-            demx += dem -_DEM->data[r][c-1];
+            demy += dem -_DEM->data[r][c-1];
         }
 
         if(nx == 0)

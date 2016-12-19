@@ -56,6 +56,13 @@
     double UF2D_COURANTSCHEMEFACTOR;
     double UF1D_COURANTSCHEMEFACTOR;
 
+    double UF_KINEMATIC_TIMESTEP_POWER;
+
+    double UF_ENTRAINMENT_INITIATION_VEG_A;
+    double UF_ENTRAINMENT_INITIATION_VEG_B;
+    double UF_ENTRAINMENT_VEG_A;
+    double UF_ENTRAINMENT_VEG_B;
+
     double UF_DTAverage;
 
     int UF_FrictionIterations;
@@ -546,7 +553,10 @@
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);
     //active entrainment
-    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed);
+    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double veg_factor);
+    double UnifiedFlowEntrainmentInitiationVegetationFactor(double vcover, double vcoh);
+    double UnifiedFlowEntrainmentVegetationFactor(double vcover, double vcoh);
+    double UnifiedFlowEntrainmentAvailableDepth(int r,int c, double vx, double vy);
 
     //connection to the digital elevation model
     void UFDEMLDD_Connection(int thread);

@@ -40,8 +40,8 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     if(false)
     {
         double veln = velx + a;
-        double manning = 1.0;//solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = manning * (0.1+NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
+        double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
+        double nsq = manning * (NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
 
         if(channel)
         {
@@ -74,7 +74,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double signa = a>0?1.0:-1.0;
         a = std::min(std::fabs(a)/dt,5.0 * h);
 
-        double nsq = (NN)*(0.1+NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
+        double nsq = (UF_VERY_SMALL +NN)*(UF_VERY_SMALL +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
 
         if(channel)
         {

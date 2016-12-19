@@ -5978,7 +5978,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>6</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -7003,32 +7003,6 @@
                   <string>Surface Flow Parameters</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_18">
-                  <item row="8" column="0">
-                   <widget class="QCheckBox" name="checkBox_Barriers">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Include simple digigtal elevation model barriers</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="22" column="2">
-                   <widget class="QLabel" name="label_98">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Minimal water depth displayed as flood (0 = nothing)</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="6" column="0">
                    <widget class="QCheckBox" name="checkBox_ChannelMaxVolume">
                     <property name="font">
@@ -7039,19 +7013,6 @@
                     </property>
                     <property name="text">
                      <string>Include maximum channel volume</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QCheckBox" name="checkBox_UFInitial">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Include initial Fluid-Solid mixture</string>
                     </property>
                    </widget>
                   </item>
@@ -7071,26 +7032,46 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="17" column="3">
-                   <widget class="QLabel" name="label_81">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Include levees:&lt;/span&gt;&lt;br/&gt;Levees are given in a separate map (chanlevee.map) and are always only in the channel cells, on both sides of the channel. The map contains the height of the levees in m. So if a part of the channel levee map has a value of 0.5, a wall of 0.5 m is assumed on both sides of the channel, making the channel efffectively deeper, and flood water cannot flow into the channel if it is lower than the wall&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood calculations watershed based:&lt;/span&gt;&lt;br/&gt;Each watershed is calculated with its own minimum timestep instead of a minimum timestep for the whole domain. This should speed up the simulation. Not fully tested yet.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string/>
+                  <item row="4" column="0">
+                   <widget class="QCheckBox" name="checkBox_UFInitial">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
                     </property>
                     <property name="text">
-                     <string/>
-                    </property>
-                    <property name="pixmap">
-                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     <string>Include initial Fluid-Solid mixture</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="0">
+                  <item row="23" column="2">
+                   <widget class="QLabel" name="label_98">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Minimal water depth displayed as flood (0 = nothing)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="0">
+                   <widget class="QCheckBox" name="checkBox_Barriers">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Include simple digigtal elevation model barriers</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="15" column="0">
                    <widget class="QDoubleSpinBox" name="E_SFCourant">
                     <property name="enabled">
                      <bool>true</bool>
@@ -7112,6 +7093,19 @@
                     </property>
                     <property name="value">
                      <double>0.250000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="15" column="2">
+                   <widget class="QLabel" name="label_126">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Courant Factor</string>
                     </property>
                    </widget>
                   </item>
@@ -7142,7 +7136,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="0">
+                  <item row="14" column="0">
                    <widget class="QDoubleSpinBox" name="E_SFMinimumDT">
                     <property name="enabled">
                      <bool>true</bool>
@@ -7167,8 +7161,27 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
+                  <item row="18" column="3">
+                   <widget class="QLabel" name="label_81">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Include levees:&lt;/span&gt;&lt;br/&gt;Levees are given in a separate map (chanlevee.map) and are always only in the channel cells, on both sides of the channel. The map contains the height of the levees in m. So if a part of the channel levee map has a value of 0.5, a wall of 0.5 m is assumed on both sides of the channel, making the channel efffectively deeper, and flood water cannot flow into the channel if it is lower than the wall&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood calculations watershed based:&lt;/span&gt;&lt;br/&gt;Each watershed is calculated with its own minimum timestep instead of a minimum timestep for the whole domain. This should speed up the simulation. Not fully tested yet.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="14" column="2">
-                   <widget class="QLabel" name="label_126">
+                   <widget class="QLabel" name="label_127">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -7176,11 +7189,11 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Courant Factor</string>
+                     <string>Minimum Timestep (sec)</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="16" column="0">
+                  <item row="17" column="0">
                    <widget class="QSpinBox" name="E_SFScheme">
                     <property name="enabled">
                      <bool>true</bool>
@@ -7215,7 +7228,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="16" column="2">
+                  <item row="17" column="2">
                    <widget class="QLabel" name="label_135">
                     <property name="font">
                      <font>
@@ -7281,21 +7294,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="13" column="2">
-                   <widget class="QLabel" name="label_127">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Minimum Timestep (sec)</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="19" column="2">
-                   <widget class="QLabel" name="label_96">
+                   <widget class="QLabel" name="label_68">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -7303,11 +7303,24 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Viscosity alpha</string>
+                     <string>Drag force power law coefficient</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="19" column="0">
+                  <item row="21" column="2">
+                   <widget class="QLabel" name="label_97">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Viscosity beta</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="20" column="0">
                    <widget class="QDoubleSpinBox" name="E_UFViscosityAlpha">
                     <property name="font">
                      <font>
@@ -7329,21 +7342,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="18" column="2">
-                   <widget class="QLabel" name="label_68">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Drag force power law coefficient</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="20" column="2">
-                   <widget class="QLabel" name="label_97">
+                   <widget class="QLabel" name="label_96">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -7351,18 +7351,18 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Viscosity beta</string>
+                     <string>Viscosity alpha</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="17" column="0">
-                   <widget class="QLabel" name="label_55">
+                  <item row="22" column="0">
+                   <widget class="QLabel" name="label_57">
                     <property name="text">
-                     <string>Flow Behavior</string>
+                     <string>Display options</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="18" column="0">
+                  <item row="19" column="0">
                    <widget class="QDoubleSpinBox" name="E_UFDragPower">
                     <property name="font">
                      <font>
@@ -7384,7 +7384,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="20" column="0">
+                  <item row="18" column="0">
+                   <widget class="QLabel" name="label_55">
+                    <property name="text">
+                     <string>Flow Behavior</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="21" column="0">
                    <widget class="QDoubleSpinBox" name="E_UFViscosityBeta">
                     <property name="font">
                      <font>
@@ -7407,15 +7414,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="21" column="0">
-                   <widget class="QLabel" name="label_57">
-                    <property name="text">
-                     <string>Display options</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="23" column="2">
-                   <widget class="QLabel" name="label_100">
+                  <item row="7" column="0">
+                   <widget class="QCheckBox" name="checkBox_MaxVolume">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -7423,11 +7423,11 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Minimal volumetric sediment fraction displayed as debris flow (0 = nothing)</string>
+                     <string>Include maximum volume</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="22" column="0">
+                  <item row="23" column="0">
                    <widget class="QDoubleSpinBox" name="E_FloodMinDepth">
                     <property name="font">
                      <font>
@@ -7440,7 +7440,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="23" column="0">
+                  <item row="24" column="0">
                    <widget class="QDoubleSpinBox" name="E_DebrisFlowMinSedConcentration">
                     <property name="font">
                      <font>
@@ -7450,6 +7450,19 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="value">
                      <double>0.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="24" column="2">
+                   <widget class="QLabel" name="label_100">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Minimal volumetric sediment fraction displayed as debris flow (0 = nothing)</string>
                     </property>
                    </widget>
                   </item>
@@ -7463,19 +7476,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="text">
                      <string>Include cell-boundary based flow barriers</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QCheckBox" name="checkBox_MaxVolume">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Include maximum volume</string>
                     </property>
                    </widget>
                   </item>
@@ -7499,7 +7499,23 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="21" column="3">
+                  <item row="12" column="0">
+                   <widget class="QCheckBox" name="checkBox_SpatiallyDynamicTimestep">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Spatially dynamic timestep</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="22" column="3">
                    <widget class="QLabel" name="label_101">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Include levees:&lt;/span&gt;&lt;br/&gt;Levees are given in a separate map (chanlevee.map) and are always only in the channel cells, on both sides of the channel. The map contains the height of the levees in m. So if a part of the channel levee map has a value of 0.5, a wall of 0.5 m is assumed on both sides of the channel, making the channel efffectively deeper, and flood water cannot flow into the channel if it is lower than the wall&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood calculations watershed based:&lt;/span&gt;&lt;br/&gt;Each watershed is calculated with its own minimum timestep instead of a minimum timestep for the whole domain. This should speed up the simulation. Not fully tested yet.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -7518,13 +7534,35 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0">
-                   <widget class="QCheckBox" name="checkBox_SpatiallyDynamicTimestep">
-                    <property name="text">
-                     <string>Spatially dynamic timestep</string>
+                  <item row="13" column="0">
+                   <widget class="QDoubleSpinBox" name="E_KinematicTimestepPower">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
                     </property>
-                    <property name="checked">
-                     <bool>true</bool>
+                    <property name="minimum">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.500000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>2.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="13" column="2">
+                   <widget class="QLabel" name="label_206">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Kinematic Timestep Power Coefficient ( 1.0 = linear/normal)</string>
                     </property>
                    </widget>
                   </item>
@@ -20178,7 +20216,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>
