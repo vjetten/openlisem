@@ -484,10 +484,10 @@ void TWorld::ChannelFlow(void)
     FOR_ROW_COL_MV_CH
     {
         //ChannelWH->Drc = ChannelIterateWH(r, c);
-        //double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
-        double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+       // double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
+         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
 
-        //double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
+      // double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
         // explicit...!!!
 
         // water height is not used except for output! i.e. watervolume is cycled
@@ -508,8 +508,11 @@ void TWorld::ChannelFlow(void)
 
         ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
         // recalc for output screen and maps
+    //    tma->Drc = ChannelWaterVol->Drc;
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
         // needed for concentration
+
+        //double error = (ChannelQ->Drc*_dt + tma->Drc - ChannelWaterVol->Drc - ChannelQn->Drc * _dt);
     }
 
 

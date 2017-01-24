@@ -144,6 +144,7 @@ void TWorld::Totals(void)
     }
 
     //=== all discharges ===//
+
     QtotT = 0;
     // sum outflow m3 for all timesteps for the outlet
     if(SwitchKinematic2D == 1)
@@ -175,8 +176,8 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
         FOR_ROW_COL_MV_CH
         {
-            if (LDDChannel->Drc == 5)
-                QtotT += ChannelQn->Drc*_dt; //m3
+       //     if (LDDChannel->Drc == 5)
+       //         QtotT += ChannelQn->Drc*_dt; //m3
             ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
 
         }
@@ -184,6 +185,7 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
         QtotOutlet += ChannelQn->DrcOutlet * _dt;
+        QtotT += ChannelQn->DrcOutlet * _dt;
         // sum: add channel outflow (in m3) to total for main outlet
 
         if (SwitchChannelFlood)
@@ -239,8 +241,8 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
     {
         Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
-        if (Qoutput->Drc < 0.0001)
-            Qoutput->Drc = 0.0001;
+//        if (Qoutput->Drc < 0.0001)
+//            Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
     }
 

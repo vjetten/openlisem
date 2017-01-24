@@ -30,17 +30,18 @@
 
 void TWorld::ExtendChannel()
 {
+    ChannelDepthExtended = NewMap(0.0);
+    ChannelWidthExtended = NewMap(0.0);
+    ChannelMaskExtended = NewMap(0.0);
+
     if(!SwitchIncludeChannel)
     {
         return;
     }
 
-    ChannelDepthExtended = NewMap(0.0);
-    ChannelWidthExtended = NewMap(0.0);
     ChannelNeighborsExtended = NewMap(0.0);
     ChannelSourceXExtended = NewMap(0.0);
     ChannelSourceYExtended = NewMap(0.0);
-    ChannelMaskExtended = NewMap(0.0);
     ChannelBoundaryExtended = NewMap(0.0);
     ChannelBoundaryLExtended = NewMap(0.0);
     ChannelBoundaryRExtended = NewMap(0.0);

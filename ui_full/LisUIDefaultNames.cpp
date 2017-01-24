@@ -118,8 +118,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
- //   DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-  //  DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
+    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
+    DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
@@ -421,8 +421,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding runoff partitioning");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flooding 1D2D coupling");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Flood initial level map");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flood method SWOF2D order 1");
     namelist[i].value = QString("0");

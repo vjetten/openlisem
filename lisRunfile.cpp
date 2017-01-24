@@ -228,7 +228,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
     //    if (p1.compare("Detachment stoniness")==0)           SwitchStoninessDET   = iii == 1;
 
-    //    if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
    //     if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
 

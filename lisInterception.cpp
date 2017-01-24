@@ -138,9 +138,11 @@ void TWorld::InterceptionLitter(void)
     FOR_ROW_COL_MV
             if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0)
     {
-        double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
+        //double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
         // Bracken equation, avoid log 0
-        double Smax = 0.001 * 0.1713 * LAI; // in m
+        //double Smax = 0.001 * 0.1713 * LAI; // in m
+        double Smax = 0.002*Litter->Drc;
+        // assume simply that the cover linearly scales between 0 and 2 mm of storage
 
         double LCS = LCStor->Drc;
         //actual canopy storage in m

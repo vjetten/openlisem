@@ -95,7 +95,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5752,7 +5752,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -8684,6 +8684,19 @@ p, li { white-space: pre-wrap; }
                       </property>
                      </widget>
                     </item>
+                    <item row="2" column="3">
+                     <widget class="QLabel" name="label_125">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate litter effect on interception and also splash erosion: usinf the map litter.map (0-1), assuming that the litter covers the entire cell (not only under vegetation, and has a storage increasing with cover from 0 to 2 mm.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="pixmap">
+                       <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                   <item>
@@ -9290,8 +9303,36 @@ p, li { white-space: pre-wrap; }
                   <string>2D Kinematic Wave parameters</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_18">
+                  <item row="0" column="0">
+                   <widget class="QDoubleSpinBox" name="E_TimestepMin">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>60.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="2" column="1">
                    <widget class="QLabel" name="label_99">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -9305,6 +9346,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="2" column="0">
                    <widget class="QSpinBox" name="E_K2Dconcentrate">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -9344,28 +9388,16 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="0">
-                   <widget class="QDoubleSpinBox" name="E_TimestepMin">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="label_127">
                     <property name="font">
                      <font>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>60.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.500000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
+                    <property name="text">
+                     <string>Minimum Timestep (sec)</string>
                     </property>
                    </widget>
                   </item>
@@ -9379,19 +9411,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="text">
                      <string>Courant Factor</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="label_127">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Minimum Timestep (sec)</string>
                     </property>
                    </widget>
                   </item>
@@ -11273,7 +11292,7 @@ p, li { white-space: pre-wrap; }
                        </sizepolicy>
                       </property>
                       <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The equations describe non-linear relations between rainfall intensity (mm/h) and kinetic energy (J/mm). &lt;/p&gt;&lt;p&gt;The first equation is a negative exponential  equation with avarega eglobal parameters.&lt;/p&gt;&lt;p&gt;The second is a USLE type erquation with paraneters as found in the EUROSEM model. &lt;/p&gt;&lt;p&gt;The third equation is a decreasing power law &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The equations describe non-linear relations between rainfall intensity (mm/h) and kinetic energy (J/mm). &lt;/p&gt;&lt;p&gt;The first equation is a negative exponential equation with average global parameters (van Dijk 2002). values are a= 28.3, b =0.52, c=0.042.&lt;/p&gt;&lt;p&gt;The second is a USLE type erquation with paraneters as found in the EUROSEM model (Morgan et al., 1998). a = 8.950, b=8.440&lt;/p&gt;&lt;p&gt;The third equation is a decreasing power law (Sanchez, 2012). a = 7.6, b = 0.22&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -20869,7 +20888,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

@@ -770,33 +770,35 @@ void TWorld::K2DDEMA()
         //DEM
         double dem = DEMFB(r,c,0,0,true);
 
-        double demx1 = DEMFB(r,c,0,1,true);
-        double demx2 = DEMFB(r,c,0,-1,true);
+        double demx1 = DEMFB(r,c,0,1,true); //look right
+        double demx2 = DEMFB(r,c,0,-1,true); // look left
+        double demy1 = DEMFB(r,c,1,0,true);
+        double demy2 = DEMFB(r,c,-1,0,true);
 
-        if(OUTORMV(r,c+1))
+        if(OUTORMV(r,c+1)) // returns true if outside rows. cols or mv
         {
             Outlet->Drc= 1;
-            if(demx1 <demx2){K2DOutlets->Drc = 1;};
+            if(demx1 < demx2)
+                K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r,c-1))
         {
             Outlet->Drc= 1;
-            K2DOutlets->Drc = 1;
-            if(demx2 <demx1){K2DOutlets->Drc = 1;};
+            if(demx2 <demx1)
+                K2DOutlets->Drc = 1;
         }
-
-        double demy1 = DEMFB(r,c,1,0,true);
-        double demy2 = DEMFB(r,c,-1,0,true);
 
         if(OUTORMV(r+1,c))
         {
             Outlet->Drc= 1;
-            if(demy1 < demy2){K2DOutlets->Drc = 1;};
+            if(demy1 < demy2)
+                K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r-1,c))
         {
             Outlet->Drc= 1;
-            if(demy2 < demy1){K2DOutlets->Drc = 1;};
+            if(demy2 < demy1)
+                K2DOutlets->Drc = 1;
         }
 
         if(demx1 < demx2)
@@ -818,14 +820,12 @@ void TWorld::K2DDEMA()
         if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
         {
             Dhx = 0;
-
             Outlet->Drc= 1;
             K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
         {
             Dhy = 0;
-
             Outlet->Drc= 1;
             K2DOutlets->Drc = 1;
         }
@@ -844,8 +844,8 @@ void TWorld::K2DDEMA()
         {
             if( Dhy > 0)
             {
-                Outlet->Drc= 1;
-                K2DOutlets->Drc = 1;
+               Outlet->Drc= 1;
+               K2DOutlets->Drc = 1;
             }
         }
 
@@ -883,13 +883,9 @@ void TWorld::K2DDEMA()
         }
         //minimum value for the slope
         //K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
+        //K2DOutlets->Drc = Outlet->Drc;
     }
 
-//FOR_ROW_COL_MV
-//{
-//    if (DomainEdge->Drc > 0 and K2DOutlets->Drc > 0)
-//        K2DOutlets->Drc = 0;
-//}
     //Detection of water available for outflow (because of local depressions)
     FOR_ROW_COL_MV
     {
@@ -1004,5 +1000,5 @@ void TWorld::K2DDEMA()
             }
         }
     }
-
+//report(*K2DOutlets,"kdo");
 }

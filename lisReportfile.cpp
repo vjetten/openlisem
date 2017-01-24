@@ -70,7 +70,7 @@ void TWorld::OutputUI(void)
 
     //hydrographs
     op.timestep = this->_dt/60.0;
-    op.OutletQ.at(0)->append((QtotT * 1000.0/_dt));
+    op.OutletQ.at(0)->append((QtotT * 1000.0/_dt)); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
     op.OutletC.at(0)->append((QtotT) > 1e-6? SoilLossTotT/(QtotT) : 0);
     op.OutletQtot.replace(0,Qtot);
@@ -94,12 +94,12 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge = Qoutput->Drc;
+        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, TileQn in l/s
         double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
         double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
 
-        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
+        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0); //cumulative in m3/s
         op.OutletQstot.replace(j,op.OutletQstot.at(j) + _dt * sedimentdischarge/1000.0);
         op.OutletQ.at(j)->append(discharge);
         op.OutletQs.at(j)->append(sedimentdischarge);
@@ -140,7 +140,8 @@ void TWorld::OutputUI(void)
     if (SwitchIncludeChannel)
     {
         fill(*tma,0.0);
-        DistributeOverExtendedChannel(ChannelQ,tma);
+        DistributeOverExtendedChannel(ChannelQn,tma);
+        // VJ 161222 must be channelqn not channelq
     }
 
     FOR_ROW_COL_MV
@@ -190,8 +191,6 @@ void TWorld::OutputUI(void)
         copy(*op.ComboMapsSafe.at(i), *tma);
     }
 
-
-
     //make sure sediment maps for all grain sizes are present
     if(SwitchErosion && SwitchUseGrainSizeDistribution)
     {
@@ -214,6 +213,7 @@ void TWorld::OutputUI(void)
     if (SwitchIncludeChannel)
         copy(*op.channelMap, *ChannelWidthExtended);
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
+report(*ChannelWidthExtended,"cwe.map");
     if (SwitchRoadsystem)
     {
         copy(*op.roadMap, *RoadWidthDX);

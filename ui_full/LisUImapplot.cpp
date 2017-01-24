@@ -227,7 +227,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
                 mapData << (double)-1e20;
         }
 
-    mapData.replace(0, (double)type);
+  //  mapData.replace(0, (double)type);
     // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
 
     // set intervals for rasterdata, x,y,z min and max

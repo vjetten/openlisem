@@ -43,11 +43,17 @@ public:
 
         if (z2 > -1e10)
         {
-            int index = sp2->data()->value(0,0);
-            QString name = NameList.at(index);
-            QString unit = UnitList.at(index);
+          //  int index = sp2->data()->value(0,0);
 
-            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',2);
+           // QString name = NameList.at(index);
+        //    QString unit = UnitList.at(index);
+            int dig = 2;
+            if (z0 < 1.0)
+                dig = 4;
+            if (z2 < 1.0)
+                txt = (QString("%1 ")/* + unit*/ + QString(" [%2m]")).arg(z2,0,'e',3).arg(z0,0,'f',dig);
+            else
+                txt = (QString("%1 ")/* + unit */+ QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
         }
 
         QwtText text = QwtText(txt);
@@ -56,6 +62,7 @@ public:
         return text;
     }
 };
+
 //---------------------------------------------------------------------------
 // class derived from QwtLinearColorMap to enable transparency thresholds
 class QwtLinearColorMapVJ: public QwtLinearColorMap
@@ -72,7 +79,19 @@ public:
     void setThreshold(double v);
 
 };
+//---------------------------------------------------------------------------
+// class derived from QwtLinearColorMap to enable transparency thresholds
+//class QwtPlotSpectrogramVJ: public QwtPlotSpectrogram
+//{
+//public:
 
+//    QwtPlotSpectrogramVJ( const QString &title = QString::null );
+
+//    virtual ~QwtPlotSpectrogramVJ();
+
+//    int plotnr;
+
+//};
 //---------------------------------------------------------------------------
 // class derived from QwtLinearColorMap to enable transparency thresholds
 class QwtComboColorMap: public QwtLinearColorMap

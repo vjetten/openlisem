@@ -338,7 +338,7 @@ cTMap
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
-*ChannelStore,               //!<
+//*ChannelStore,               //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 *ChannelSed,                 //!<
@@ -384,7 +384,7 @@ cTMap
 *Hmx,                        //!<
 *hmx,                        //!<
 *hmxWH,                        //!<
-// *hmxInit,                    //!<
+ *hmxInit,                    //!<
 
 // OBSOLETE
 //explicit solution

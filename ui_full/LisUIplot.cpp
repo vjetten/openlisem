@@ -131,6 +131,7 @@ void lisemqt::onOutletChanged(int point)
     {
         int index= 0;
         int oldindex = OutletIndices.indexOf(outletpoint);
+
         if(outletpoint == point)
         {
             return;
@@ -302,7 +303,7 @@ void lisemqt::showPlot()
 
     QGraph->setSamples(TData,QData);
 
-    yas = std::max(0.1,qmax.at(index));
+    yas = std::max(0.01,qmax.at(index));
     yasP = std::max(yasP, op.Pmm);
 
     PGraph->setSamples(TData,PData);

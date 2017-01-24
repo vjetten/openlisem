@@ -192,6 +192,7 @@ public:
     QwtPlotZoomer* zoomer;
     MyPicker *picker;
 
+
     //hydrograph options
     QList<int> OutletIndices;
     QList<int> OutletLocationX;

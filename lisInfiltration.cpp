@@ -492,8 +492,10 @@ void TWorld::Infiltration(void)
     FOR_ROW_COL_MV
     {
        // InfilVol->Drc -= DX->Drc*(WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        InfilVolFlood->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
+        InfilVol->Drc = fact->Drc*SoilWidthDX->Drc*DX->Drc;
         // infil volume is WH before - water after
+
+        //161222 VJ hier stond InfilVolFlood !!!
     }
 
 }

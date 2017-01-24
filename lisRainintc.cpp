@@ -149,15 +149,14 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     else
         nrmap = countUnits(*SnowmeltZone);
 
-    if (nrmap != nrStations)
-    {
-        ErrorString = QString("Number of stations in rainfall file (%1) != nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
-        throw 1;
-    }
+//    if (nrmap != nrStations)
+//    {
+//        ErrorString = QString("Number of stations in rainfall file (%1) != nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
+//        throw 1;
+//    }
 
     nrSeries = rainRecs.size() - nrStations - skiprows;
     // count rainfall or snowmelt records
-
 
     if (nrSeries <= 1)
     {
@@ -295,7 +294,13 @@ void TWorld::RainfallMap(void)
     {
         FOR_ROW_COL_MV
         {
-            Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
+                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            else
+            {
+                ErrorString = QString("No rainfall data for ID map zone %1").arg(RainZone->Drc);
+                throw 1;
+            }
             // Rain in m per timestep from mm/h, rtecord nr corresponds map ID value -1
             //TODO: weighted average if dt larger than table dt
             if (!rainStarted && Rain->Drc  > 0)
