@@ -691,15 +691,13 @@ void TWorld::K2DCalcVelDisch()
                 Q->Drc = pow((FlowWidth->Drc*hrunoff)/Alpha->Drc, beta1);
             else
                 Q->Drc = 0;
-/*
+
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
 
             if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
             {
                 V->Drc = 0;
             }
-            Q->Drc = V->Drc*FlowWidth->Drc*hrunoff;
-*/
         }
 
 

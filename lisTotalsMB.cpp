@@ -345,7 +345,7 @@ void TWorld::Totals(void)
                 Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
 //            }else
 //            {
-                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
+//                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
 //            }
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;

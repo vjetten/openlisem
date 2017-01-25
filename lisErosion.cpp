@@ -322,10 +322,10 @@ double TWorld::OFTC(int r, int c, int d)
         return 0;
     }
 
-    if(ChannelAdj->Drc < MIN_HEIGHT)
-    {
-        return 0;
-    }
+//    if(ChannelAdj->Drc < MIN_HEIGHT)
+//    {
+//        return 0;
+//    }
 
     if(SwitchKinematic2D != K1D_METHOD)
     {
