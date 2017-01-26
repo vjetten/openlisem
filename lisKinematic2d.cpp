@@ -680,7 +680,7 @@ void TWorld::K2DCalcVelDisch()
             Perim = /* 2.0*hrunoff+ */ FlowWidth->Drc;
 
             if (Perim > 0)
-                R->Drc = hrunoff;//*FlowWidth->Drc/Perim;
+                R->Drc = hrunoff*FlowWidth->Drc/Perim;
             else
                 R->Drc = 0;
 

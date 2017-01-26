@@ -72,7 +72,7 @@ void TWorld::OutputUI(void)
     op.timestep = this->_dt/60.0;
     op.OutletQ.at(0)->append((QtotT * 1000.0/_dt)); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
-    op.OutletC.at(0)->append((QtotT) > 1e-6? SoilLossTotT/(QtotT) : 0);
+    op.OutletC.at(0)->append((QtotT) > MIN_FLUX? SoilLossTotT/(QtotT) : 0);
     op.OutletQtot.replace(0,Qtot);
     op.OutletQstot.replace(0,SoilLossTot/1000.0);
 
@@ -127,7 +127,7 @@ void TWorld::OutputUI(void)
                 V->Drc = 0;
             }
         }
-    } //?????????????????
+    } //why set velocity at zero, and is also done
 
     //display maps
 //    fill(*COMBO_QOFCH, 0.0);
@@ -311,6 +311,8 @@ void TWorld::ReportTimeseriesNew(void)
     int width = (!SwitchWritePCRtimeplot ? 0 : 9+DIG-3);
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
+    double QALL = QtotT * 1000.0/_dt; // total outflow on all sides in l/s, same as point 0 in interface
+
     QFileInfo fi(resultDir + outflowFileName);
 
     if (SwitchSOBEKoutput)
@@ -364,7 +366,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << "run step\n";
                         if (SwitchRainfall) out << "Pavg (mm/h)\n";
                         if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                        out << "Qall (l/s)\n" << "chanWH (m)\n";
+                        out << "Qall (l/s)\n" << "Qoutlet (l/s)\n" << "chanWH (m)\n";
                         if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                         if (SwitchErosion) out << "Qs (kg/s)\n";
                         if (SwitchErosion) out << "C (g/l)\n";
@@ -395,7 +397,7 @@ void TWorld::ReportTimeseriesNew(void)
                             out << "\n";
                             out << "min,mm/h";
                             if (SwitchSnowmelt) out << ",mm/h";
-                            out << ",l/s" << ",m";
+                            out << ",l/s" << ",l/s" << ",m";
                             if (SwitchIncludeTile) out << ",l/s";
                             if (SwitchErosion) out << ",kg/s,g/l";
                             out << "\n";
@@ -432,6 +434,7 @@ void TWorld::ReportTimeseriesNew(void)
                 out << "Time (min)\n";
                 if (SwitchRainfall) out << "Pavg (mm/h)\n";
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
+                out << "Qall (l/s)\n";
                 FOR_ROW_COL_MV
                         if ( PointMap->Drc > 0 )
                 {
@@ -474,6 +477,7 @@ void TWorld::ReportTimeseriesNew(void)
                     out << "Time";
                     if (SwitchRainfall) out << ",P";
                     if (SwitchSnowmelt) out << ",Snow";
+                    out << ",Qall";
                     FOR_ROW_COL_MV
                             if ( PointMap->Drc > 0 )
                     {
@@ -488,6 +492,7 @@ void TWorld::ReportTimeseriesNew(void)
                     out << "min";
                     if (SwitchRainfall) out << ",mm/h";
                     if (SwitchSnowmelt) out << ",mm/h";
+                    out << ",l/s";
                     FOR_ROW_COL_MV
                             if ( PointMap->Drc > 0 )
                     {
@@ -532,7 +537,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << time/60;
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
-                    out << sep << Qoutput->Drc << sep << ChannelWH->Drc;
+                    out << sep << QALL << Qoutput->Drc << sep << ChannelWH->Drc;
                     if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << Qsoutput->Drc;
                     if (SwitchErosion) out << sep << TotalConc->Drc;
@@ -573,6 +578,7 @@ void TWorld::ReportTimeseriesNew(void)
 
             if (SwitchRainfall) out << sep << RainIntavg;
             if (SwitchSnowmelt) out << sep << SnowIntavg;
+            out << sep << QALL;
             FOR_ROW_COL_MV
             {
                 if ( PointMap->Drc > 0 )
