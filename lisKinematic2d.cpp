@@ -998,5 +998,5 @@ void TWorld::K2DDEMA()
             }
         }
     }
-//report(*K2DOutlets,"kdo");
+report(*K2DOutlets,"kdout");
 }

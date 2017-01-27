@@ -220,30 +220,86 @@ void TWorld::ChannelWaterHeightFromVolume(void)
 }
 
 //---------------------------------------------------------------------------
-double TWorld::ChannelIterateWH(int r, int c)
+double TWorld::ChannelIterateWH(double _h, int r, int c)
 {
-    double y1 = ChannelWH->Drc;
-    double y = y1;
-    double n = ChannelN->Drc;
-    double sqrtgrad = sqrt(ChannelGrad->Drc);
-    double width = ChannelWidthUpDX->Drc;
+    double y1 = _h;
+    double y = _h;
+    double dy = y/1000;
+    double GN = sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+    double w = ChannelWidthUpDX->Drc;
+    double _53 =5.0/3.0;
+    double _23 = 2.0/3.0;
     double Q = ChannelQn->Drc;
+    double dQ; //
     int count = 0;
+
+//    double Q = GN*qPow(w*_h/(2*_h+w),_23)*w*_h;
+//    double Alpha = qPow(1/GN * qPow((2*_h+w), _23),0.6);
+//    double Q = qPow(_h*w/Alpha, 1/0.6);
+
+/*
+    if (Q == 0)
+        return (0);
+    if (Q > ChannelQn->Drc)
+    {
+        do{
+            y -= dy;
+            Q = GN*pow(w*y/(2*y+w),_23)*w*y;
+            count++;
+        }while(Q > ChannelQn->Drc);
+    }
+    else
+    {
+        do{
+            y += dy;
+            Q = GN*pow(w*y/(2*y+w),_23)*w*y;
+            count++;
+        }while(Q < ChannelQn->Drc);
+    }
+*/
+
+
+    if (Q == 0)
+       return 0;
+    //int count = 0;
     do{
-        y = y1;
-        double P = width+2*y;
-        double A = y*width;
+        double P = w+2*y;
+        double A = y*w;
 
-        y1 = y - (1-Q/(sqrtgrad/n * ((qPow(A,5.0/3.0))/(qPow(P, 2.0/3.0))))) / ((5*width+6*y)/(3*y*P));
+        //y1 = y - (1-Q/(sqrtgrad/n * ((qPow(A,5.0/3.0))/(qPow(P, 2.0/3.0))))) / ((5*width+6*y)/(3*y*P));
 
+
+        //s*w^(5/3)*x^(2/3)*(6*x+5*w)/(3*(2*x+w)^(5/3))
+
+        Q = GN*A*pow(A/P,_23);
+
+        double dQ = GN*(pow(w, _53)*pow(y,_23)*(6*y+5*w))/(3*pow(P,_53));
+
+        if(dQ <= 0)
+        {
+            return _h;
+        }
+      //  if (fabs(dQ) > 1e-10)
+            y1 = y - (Q/dQ); //_dt*_dx*w*
+//        else
+  //          count = 100;
+
+        y = y1;//std::max(y1, 0.0);
+if(y < MIN_HEIGHT)
+{
+    y = 0;
+    break;
+}
         count++;
-    }while(fabs(y1-y) > 1e-15 && count < 30);
 
-    //    double a = ChannelAlpha->Drc;
-    //    ChannelAlpha->Drc = qPow(n/sqrtgrad * powl((2*y1+width), 2/3),0.6);
-    //    qDebug() << count << y1 << ChannelWH->Drc << a << ChannelAlpha->Drc;
+    }while(fabs(Q-ChannelQn->Drc) > 1e-6 && count < 100);
 
-    return std::max(y1, 0.0);
+//        double a = ChannelAlpha->Drc;
+//        ChannelAlpha->Drc = qPow(n/sqrtgrad * powl((2*y1+width), 2/3),0.6);
+
+        qDebug() << count << y << _h << Q << ChannelQn->Drc;
+
+    return std::max(y, 0.0);
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave
@@ -485,10 +541,13 @@ void TWorld::ChannelFlow(void)
     {
         //ChannelWH->Drc = ChannelIterateWH(r, c);
        // double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
-         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+      // double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+       // calc area from Q and alpha, but alpha is from before the kin wave, so this should be iterated!
+double hest = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/(ChannelDX->Drc*ChannelWidthUpDX->Drc);
+       double ChannelArea = ChannelIterateWH(hest, r, c)*ChannelDX->Drc;//
 
-      // double ChannelArea = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/ChannelDX->Drc;
-        // explicit...!!!
+       //qDebug() << ChannelArea;
+        // explicit...!!! QniKW flowng in, vol is from before changes, Qn outflow after iteration
 
         // water height is not used except for output! i.e. watervolume is cycled
         if(ChannelSide->Drc > 0)
@@ -507,10 +566,11 @@ void TWorld::ChannelFlow(void)
         }
 
         ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
-        // recalc for output screen and maps
+        // recalc for output screen and maps, new V in channel
+
     //    tma->Drc = ChannelWaterVol->Drc;
         ChannelWaterVol->Drc = ChannelArea * ChannelDX->Drc;
-        // needed for concentration
+        // needed for concentration, new volume in channel
 
         //double error = (ChannelQ->Drc*_dt + tma->Drc - ChannelWaterVol->Drc - ChannelQn->Drc * _dt);
     }

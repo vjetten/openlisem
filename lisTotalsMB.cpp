@@ -53,6 +53,7 @@ void TWorld::Totals(void)
     {
        WHmax->Drc = std::max(WHmax->Drc, WH->Drc);
     }
+    // find max water height
 
     //=== precipitation ===//
     if (SwitchRainfall)
@@ -120,7 +121,8 @@ void TWorld::Totals(void)
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-    WaterVolRunoffmm =0;
+
+    WaterVolRunoffmm = 0;
     FOR_ROW_COL_MV
     {
         WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
@@ -158,7 +160,7 @@ void TWorld::Totals(void)
     }
     else
     {
-        QtotT += K2DQOut;
+        QtotT += K2DQOut; // NOTE: K2DQOut based on if(K2DOutlets->Drc == 1)
     }
 
 
@@ -343,6 +345,7 @@ void TWorld::Totals(void)
 //            if(SwitchKinematic2D == 1)
 //            {
                 Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
+                // Qsn is calculated as Q multiplied by conc, which is calculated from sed mass/water vol, so OKAY
 //            }else
 //            {
 //                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
@@ -382,6 +385,7 @@ void TWorld::Totals(void)
             double Q = Qoutput->Drc/1000;
             TotalConc->Drc = (Q > MIN_FLUX ? Qsoutput->Drc/Q : 0);
             //WITHOUT FLOOD????
+            // conc is okay in principle, Qs is conc (mass/vol)*Q so here this is reversed
         }
     }
 

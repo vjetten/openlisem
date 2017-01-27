@@ -716,7 +716,7 @@ public:
     void OverlandFlow(void);
     void OverlandFlowNew(void);
     void ChannelFlow(void);
-    double ChannelIterateWH(int r, int c);
+    double ChannelIterateWH(double _h, int r, int c);
     void ChannelWaterHeight(void);
     void ChannelWaterHeightFromVolume();
     void ToChannel(void);

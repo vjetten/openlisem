@@ -1620,6 +1620,9 @@ void lisemqt::resetAll()
 //2D kin wave
     E_TimestepMin->setValue(1.0);
     E_CourantFactorKin->setValue(0.25);
+
+
+    showOutputData();
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)
