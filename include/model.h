@@ -112,7 +112,7 @@
 #define MIN_HEIGHT 1e-12 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-
+#define MIN_SLOPE 1e-6
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1

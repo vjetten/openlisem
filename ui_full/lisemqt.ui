@@ -3921,7 +3921,7 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="groupBoxInput">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -5752,7 +5752,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -10357,7 +10357,7 @@ p, li { white-space: pre-wrap; }
                      <string>Use bilinear interpolation for transport distribution (faster, less accurate)</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="tristate">
                      <bool>false</bool>
@@ -12042,28 +12042,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_131">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion: two equations can be chosen: and inverse linear function with cohesion (in kPa) and an exponential function. The linear function is tested for silty loams, the exponential function is more general. The linear function was default in LISEM.&lt;/p&gt;&lt;p&gt;The exponential function gives much lower values for erosion.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;p&gt;- Prevent extremes: limit the cell transport capacity.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="pixmap">
-                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="0" colspan="3">
                    <widget class="QCheckBox" name="checkLimitTC">
                     <property name="sizePolicy">
@@ -12117,28 +12095,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="text">
                      <string>Prevent extremes: transport capacity cannot be higher than surrounding cells</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_131">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flow detachment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Detachment efficient based on soil cohesion. 3 equations can be chosen: &lt;/p&gt;&lt;p&gt;1) a non-linear function with cohesion (in kPa) based on Loess soils, original LISEM&lt;br/&gt;2) a negative exponential function based on a wider range of soils EUROSEM model. &lt;br/&gt;3) an inverse non-linear fubnction based on the MMF model.&lt;/p&gt;&lt;p&gt;Equation 1 gives high values for erosion, equation 2 gives very low values and equation 3 is in between.&lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="pixmap">
-                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -12301,6 +12257,25 @@ p, li { white-space: pre-wrap; }
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_131">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;- Detachment efficiency based on soil cohesion (in kPa): three equations can be chosen: and inverse linear function with cohesion (original LISEM), an exponential function (EUROSEM model) and an inverse linear function (MMF model). The linear function is tested for silty loams, the other functions are more general. Note that they give very different soil loss. &lt;/p&gt;&lt;p&gt;- Use material depth: the deposited material can be eroded again and is assumed to be non cohesive&lt;/p&gt;&lt;p&gt;- Pervent extremes: Ttransport capacity is average with surrounding cells. Use with caution, untested.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -20888,7 +20863,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

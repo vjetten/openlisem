@@ -380,7 +380,7 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV
         {
             double Q = Qoutput->Drc/1000;
-            TotalConc->Drc = (Q > 1e-6 ? Qsoutput->Drc/Q : 0);
+            TotalConc->Drc = (Q > MIN_FLUX ? Qsoutput->Drc/Q : 0);
             //WITHOUT FLOOD????
         }
     }

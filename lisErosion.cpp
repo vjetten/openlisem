@@ -72,7 +72,7 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
 {
    double conc = MAXCONC;
 
-   if (watvol > _dx*_dx*1e-6)
+   if (watvol > _dx*_dx*MIN_HEIGHT)
       conc = sedvol/watvol;
    // 1e-6 is 1 ml/m2
    else
@@ -329,13 +329,13 @@ double TWorld::OFTC(int r, int c, int d)
 
     if(SwitchKinematic2D != K1D_METHOD)
     {
-        if(K2DSlope->Drc < MIN_HEIGHT)
+        if(K2DSlope->Drc < MIN_SLOPE)
         {
             return 0;
         }
     }else
     {
-        if(Grad->Drc < MIN_HEIGHT)
+        if(Grad->Drc < MIN_SLOPE)
         {
             return 0;
         }
