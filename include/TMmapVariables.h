@@ -274,6 +274,10 @@ cTMap
 *TotalEntrainmentDet,
 *TotalEntrainmentDep,
 
+*EntrainmentTC,
+*Entrainmentshearstressc,
+*Entrainmentshearstress,
+
 *ChannelEntrainmentDet,
 *ChannelEntrainmentDep,
 *ChannelTotalEntrainmentDet,

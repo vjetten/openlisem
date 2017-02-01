@@ -201,6 +201,8 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
         double dc = UF_DragCoefficient(ff,sf,gamma,_visc->Drc, _rocksize->Drc, _d->Drc);
 
+        UF2D_DC->Drc = dc;
+
         double lxpbf = UF_Gravity*lxh;
         double rxpbf = UF_Gravity*rxh;
         double lypbf = UF_Gravity*lyh;

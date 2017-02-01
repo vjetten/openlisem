@@ -963,6 +963,10 @@ void TWorld::GetInputData(void)
             TotalEntrainmentDet = NewMap(0.0);
             TotalEntrainmentDep = NewMap(0.0);
 
+            EntrainmentTC = NewMap(0.0);
+            Entrainmentshearstressc = NewMap(0.0);
+            Entrainmentshearstress = NewMap(0.0);
+
             SoilRockMaterial = ReadMap(LDD,getvaluename("debrismaterial"));
             SoilRockSize = ReadMap(LDD,getvaluename("rocksize"));
             SoilRockDensity = ReadMap(LDD,getvaluename("rockdensity"));
@@ -1469,6 +1473,9 @@ void TWorld::IntializeOptions(void)
     totalSoillossFileName = QString("soilloss.map");//.clear();
     totalLandunitFileName = QString("totlandunit.txt");//.clear();
     outflowFileName = QString("hydrohgraph.csv");//.clear();
+
+    FinalFluidPhaseFileName = QString("finalfv.map");//.clear();
+    FinalSolidPhaseFileName = QString("finalsv.map");//.clear();
 
     floodLevelFileName = QString("floodmaxH.map");//.clear();
     floodTimeFileName = QString("floodtime.map");//.clear();

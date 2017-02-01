@@ -145,9 +145,9 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
     }
     if(x) {
 
-        return (-UF_Gravity * sin(SlopeX + dhfdx) - UF_Gravity *dhfdx
+        return (-UF_Gravity * sin(SlopeX + dhfdx)// - UF_Gravity *dhfdx
                 -UF_Aspect *(
-                    //(dh2pbdx)/h
+                    (dh2pbdx)/h
                    + (pbf * (SlopeX+ dhfdx))
                     -(1.0/(ff * Nr))*(
                         2.0*ddfudxx + ddfvdxy + ddfudyy - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
@@ -164,9 +164,9 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
 
     } else {
 
-        return (-UF_Gravity * sin(SlopeY + dhfdy) - UF_Gravity *dhfdy
+        return (-UF_Gravity * sin(SlopeY + dhfdy)// - UF_Gravity *dhfdy
                 -UF_Aspect * (
-                    //(dh2pbdy)/h
+                    (dh2pbdy)/h
                    + (pbf * (SlopeY+ dhfdy))
                     -(1.0/(ff * Nr))*(
                         2.0*ddfudyy + ddfvdxy + ddfudxx - UF_Chi * fv/(UF_Aspect*UF_Aspect * h* h)
@@ -235,6 +235,7 @@ double TWorld::UF1D_MomentumBalanceFluid(double _f,double _s,double fu, double s
 
 }
 
+
 double TWorld::UF1D_MomentumBalanceSolid(double _f,double _s,double fu, double su, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbs,double pbf, double Slope,
                                  double dhsdx, double dhdx, double dbdx)
 {
@@ -246,4 +247,5 @@ double TWorld::UF1D_MomentumBalanceSolid(double _f,double _s,double fu, double s
 
 
 }
+
 

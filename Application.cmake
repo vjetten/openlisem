@@ -40,6 +40,7 @@ SET(APP_SOURCES
     lisUnifiedFlowMomentumBalance
     lisUnifiedFlowAdvection2
     lisUnifiedFlowSediment
+    lisUnifiedFlowEntrainmentDeposition
     lisUnifiedFlowTimestep
     lisUnifiedFlowMath
     lisUnifiedFlowMuscle

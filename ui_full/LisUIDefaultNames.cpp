@@ -615,21 +615,21 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("sed");
     namelist[i++].name = QString("OUTSED");
 
-    namelist[i].value = QString("safetyfactor");
+    namelist[i].value = QString("safa");
     namelist[i++].name = QString("OUTSAFETYFACTOR");
-    namelist[i].value = QString("slopefailure");
+    namelist[i].value = QString("slfa");
     namelist[i++].name = QString("OUTSLOPEFAILURE");
-    namelist[i].value = QString("dfheight");
+    namelist[i].value = QString("dfh");
     namelist[i++].name = QString("OUTDFHEIGHT");
-    namelist[i].value = QString("dfvelocity");
+    namelist[i].value = QString("dfv");
     namelist[i++].name = QString("OUTDFV");
-    namelist[i].value = QString("fluiphaseh");
+    namelist[i].value = QString("fph");
     namelist[i++].name = QString("OUTFPH");
-    namelist[i].value = QString("solidphaseh");
+    namelist[i].value = QString("sph");
     namelist[i++].name = QString("OUTSPH");
-    namelist[i].value = QString("entrainment");
+    namelist[i].value = QString("entr");
     namelist[i++].name = QString("OUTENTRAINMENT");
-    namelist[i].value = QString("timestep");
+    namelist[i].value = QString("ts");
     namelist[i++].name = QString("OUTTIMESTEP");
 
 

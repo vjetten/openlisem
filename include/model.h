@@ -482,6 +482,8 @@ public:
     QString FileName_SlopeFailure;
     QString FileName_MinimumSafetyFactor;
 
+    QString FinalFluidPhaseFileName;
+    QString FinalSolidPhaseFileName;
     QString floodLevelFileName;
     QString floodTimeFileName;
     QString floodStatsFileName;
@@ -583,12 +585,43 @@ public:
     void SlopeStability();
     void SlopeFailure();
     void SafetyFactor();
-    void CalculateSafetyFactor(cTMap * _DEM,cTMap * _SoilDepth,
+
+    void CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                                        cTMap * _OverlandWater, cTMap * _SoilCohesion,
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
                                        cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
                                        cTMap * _PlantCohesion,cTMap * _PlantPressure,
                                        cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated,cTMap * _SFCalibration);
+
+    double CalculateSafetyFactorAt(int r, int c, double slope, cTMap * _SoilDepth,
+                                       cTMap * _OverlandWater, cTMap * _SoilCohesion,
+                                       cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
+                                       cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
+                                       cTMap * _PlantCohesion,cTMap * _PlantPressure,
+                                       cTMap * _SFCalibration);
+
+    double CalculateSafetyFactor( double slope, double _SoilDepth,
+                                       double _OverlandWater, double _SoilCohesion,
+                                       double _InternalFrictionAngle,double _SoilWaterHeight,
+                                       double _SoilWaterSuction, double _SoilDensity,
+                                       double _PlantCohesion, double _PlantPressure,
+                                       double _SFCalibration);
+
+    double SolveStableDepthAt(int r, int c, double slope, cTMap * _SoilDepth,
+                                       cTMap * _OverlandWater, cTMap * _SoilCohesion,
+                                       cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
+                                       cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
+                                       cTMap * _PlantCohesion,cTMap * _PlantPressure,
+                                       cTMap * _Threshold,cTMap * _Threshold1,cTMap * _SFCalibration);
+
+    double SolveStableDepth( double slope, double _SoilDepth,
+                                       double _OverlandWater, double _SoilCohesion,
+                                       double _InternalFrictionAngle,double _SoilWaterHeight,
+                                       double _SoilWaterSuction, double _SoilDensity,
+                                       double _PlantCohesion, double _PlantPressure,
+                                       double _Threshold, double _Threshold1, double _SFCalibration);
+
+
     void InitiateDebrisFlow();
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);

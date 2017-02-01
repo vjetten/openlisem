@@ -50,19 +50,19 @@ void TWorld::UF_Init()
     UF_DISPLAYFLOODMINIMUM = getvaluedouble("Minimal Flood Water Depth");
     UF_DISPLAYDEBRISFLOWMINIMUM = getvaluedouble("Minimum Debris Flow Volumetric Sediment Fraction");
     UF_SigmaDiffusion = 1.0;
+
     UF_ENTRAINMENTCONSTANT = getvaluedouble("Entrainment Coefficient");
-    UF_MAXSOLIDCONCENTRATION = 0.6;
+    UF_DEPOSITIONCONSTANT = 1;
+    UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
+
+    UF_MAXSOLIDCONCENTRATION = 0.9;
     UF_MINIMUMENTRAINMENTHEIGHT = getvaluedouble("Minimum Entrainment Height");
     UF_MANNINGCOEFFICIENT_FLUID = 0.2;
     UF_MANNINGCOEFFICIENT_SOLID = 0.05;
     UF_FrictionIterations = 1;
     UF_KINEMATIC_TIMESTEP_POWER= getvaluedouble("Kinematic Timestep Power");
 
-    UF_ENTRAINMENT_INITIATION_VEG_A = 0.2;
-    UF_ENTRAINMENT_INITIATION_VEG_B = 0.025;
-    UF_ENTRAINMENT_VEG_A = -0.2;
-    UF_ENTRAINMENT_VEG_B = -0.025;
-
+    UF_DENSITY_SUSPENDED = 2000;
 
     UF_AVERAGEFACTOR = 0.5;
     UF2D_COURANTSCHEMEFACTOR = 0.5;
@@ -78,8 +78,8 @@ void TWorld::UF_Init()
 
     UF_NRA = 150000;
 
-    UF_Alpha_DV  =1.0;
-    UF_Beta_DV = 5.0;
+    UF_Alpha_DV  = getvaluedouble("Viscosity Alpha");
+    UF_Beta_DV = getvaluedouble("Viscosity Beta");
 
     UF_Alpha_YS = 0.1;
     UF_Beta_YS = 20.0;
@@ -209,6 +209,8 @@ void TWorld::UF_Init()
     UF2D_sqx2 = NewMap(0.0);
     UF2D_sqy2 = NewMap(0.0);
 
+
+    UF2D_DC = NewMap(0.0);
 
     //for new timestep
     //fluid phase

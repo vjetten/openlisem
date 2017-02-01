@@ -747,6 +747,8 @@ void TWorld::ReportMaps(int not_used)
 
     }
 
+    report(*UF2D_f, FinalFluidPhaseFileName);
+
     if (SwitchChannelFlood)
     {
         report(*floodHmxMax, floodLevelFileName);
@@ -759,6 +761,7 @@ void TWorld::ReportMaps(int not_used)
 
     if(SwitchSolidPhase)
     {
+        report(*UF2D_s, FinalSolidPhaseFileName);
         report(*MaximumDebrisFlowHeight,FileName_MaxDebrisFlowHeight);
         report(*MaximumDebrisFlowVelocity,FileName_MaxDebrisFlowVelocity);
         report(*dfTimeStart,FileName_DebrisFlowStart);
@@ -1272,6 +1275,8 @@ void TWorld::GetComboMaps()
     Colors.append("#616ca2");//#457A60");
 
     AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+    AddComboMap(0,"Solid-Fluid Drag Coefficient","-",UF2D_DC,Colormap,Colors,false,false,1.0,1.0);
+
 
 
     Colormap.clear();
@@ -1529,7 +1534,11 @@ void TWorld::GetComboMaps()
             Colors.append("#d47e17");//808000
             Colors.append("#804000");
 
-            AddComboMap(1,"Entrainment","kg/m2",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"EntrainmentTC","kg/m2",EntrainmentTC,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Entrainmentshearstressc","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Entrainmentshearstress","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
 
         }
         if(SwitchSlopeStability)

@@ -45,6 +45,9 @@
     double UF_MANNINGCOEFFICIENT_SOLID;
 
     double UF_ENTRAINMENTCONSTANT;
+    double UF_DEPOSITIONCONSTANT;
+    double UF_DEPOSITIONTHRESHOLDCONSTANT;
+
     double UF_MAXSOLIDCONCENTRATION;
     double UF_MINIMUMENTRAINMENTHEIGHT;
 
@@ -53,15 +56,13 @@
     cTMap* UF_AddedSplash;
     bool UF_DEMFEEDBACK;
 
+
+    double UF_DENSITY_SUSPENDED;
+
     double UF2D_COURANTSCHEMEFACTOR;
     double UF1D_COURANTSCHEMEFACTOR;
 
     double UF_KINEMATIC_TIMESTEP_POWER;
-
-    double UF_ENTRAINMENT_INITIATION_VEG_A;
-    double UF_ENTRAINMENT_INITIATION_VEG_B;
-    double UF_ENTRAINMENT_VEG_A;
-    double UF_ENTRAINMENT_VEG_B;
 
     double UF_DTAverage;
 
@@ -199,6 +200,8 @@
     cTMap * UF2D_sqy1;
     cTMap * UF2D_sqx2;
     cTMap * UF2D_sqy2;
+
+    cTMap * UF2D_DC;
 
     //for new timestep
     //fluid phase
@@ -553,10 +556,12 @@
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);
     //active entrainment
-    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double veg_factor);
-    double UnifiedFlowEntrainmentInitiationVegetationFactor(double vcover, double vcoh);
-    double UnifiedFlowEntrainmentVegetationFactor(double vcover, double vcoh);
+    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c);
+
+    double UnifiedFlowActiveDeposition(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, int r, int c);
+
     double UnifiedFlowEntrainmentAvailableDepth(int r,int c, double vx, double vy);
+    double UnifiedFlowDepositionAvailableDepth(int r,int c);
 
     //connection to the digital elevation model
     void UFDEMLDD_Connection(int thread);
