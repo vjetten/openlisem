@@ -298,7 +298,7 @@ void TWorld::FloodSpuriousValues()
 
     FOR_ROW_COL_MV
     {
-        if ((hmx->Drc > F_extremeHeight*2) || (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
+        if ((hmx->Drc > F_extremeHeight) && (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
         {
             double htmp = hmx->Drc;
             hmx->Drc = std::min( tm->Drc, std::min(hmx->Drc, Hmx->Drc));

@@ -541,10 +541,10 @@ void TWorld::ChannelFlow(void)
     {
         //ChannelWH->Drc = ChannelIterateWH(r, c);
        // double ChannelArea = ChannelWH->Drc * (ChannelWidthUpDX->Drc+ChannelWidth->Drc)/2.0;
-      // double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+       double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
        // calc area from Q and alpha, but alpha is from before the kin wave, so this should be iterated!
-double hest = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/(ChannelDX->Drc*ChannelWidthUpDX->Drc);
-       double ChannelArea = ChannelIterateWH(hest, r, c)*ChannelDX->Drc;//
+//double hest = (QinKW->Drc*_dt + ChannelWaterVol->Drc - ChannelQn->Drc*_dt)/(ChannelDX->Drc*ChannelWidthUpDX->Drc);
+       //double ChannelArea = ChannelIterateWH(hest, r, c)*ChannelDX->Drc;//
 
        //qDebug() << ChannelArea;
         // explicit...!!! QniKW flowng in, vol is from before changes, Qn outflow after iteration

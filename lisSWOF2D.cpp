@@ -730,41 +730,41 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
 
-//#define AVG(a1,a2) ((a1*a2 > 0) ? std::sqrt(a1*a2) : -std::sqrt(std::abs(a1*a2)))
+#define AVG(a1,a2) ((a1*a2 > 0) ? std::sqrt(a1*a2) : -std::sqrt(std::abs(a1*a2)))
 
-//     if (F_replaceV > 0)
-//     {
-         //long j = 0;
-//         FOR_CELL_IN_FLOODAREA {
-//             if (cflx->Drc > F_maxVelocity || cflx->Drc > F_maxVelocity)
-//             {
-//                 double tmp1 = cflx->Drc;
-//                 double tmp2 = cfly->Drc;
+     if (F_replaceV > 0)
+     {
+         long j = 0;
+         FOR_CELL_IN_FLOODAREA {
+             if (cflx->Drc > F_maxVelocity+qSqrt(GRAV* h1d->Drc) || cflx->Drc > F_maxVelocity+qSqrt(GRAV*h2d->Drc))
+             {
+                 double tmp1 = cflx->Drc;
+                 double tmp2 = cfly->Drc;
 
-//                 double e1 = AVG(g1->Drc,f1->Drc);
-//                 double e2 = AVG(g2->Drc,f2->Drc);
-//                 double e3 = AVG(g3->Drc,f3->Drc);
-//                 double cfle = AVG(cfly->Drc,cflx->Drc);
+                 double e1 = AVG(g1->Drc,f1->Drc);
+                 double e2 = AVG(g2->Drc,f2->Drc);
+                 double e3 = AVG(g3->Drc,f3->Drc);
+                 double cfle = AVG(cfly->Drc,cflx->Drc);
 
-//                 if (cflx->Drc > F_maxVelocity)
-//                 {
-//                     cflx->Drc = cfle;
-//                     f1->Drc = e1;
-//                     f2->Drc = e2;
-//                     f3->Drc = e3;
-//                 }
-//                 if (cfly->Drc > F_maxVelocity)
-//                 {
-//                     cfly->Drc = cfle;
-//                     g1->Drc = e1;
-//                     g2->Drc = e2;
-//                     g3->Drc = e3;
-//                 }
+                 if (cflx->Drc > F_maxVelocity)
+                 {
+                     cflx->Drc = cfle;
+                     f1->Drc = e1;
+                     f2->Drc = e2;
+                     f3->Drc = e3;
+                 }
+                 if (cfly->Drc > F_maxVelocity)
+                 {
+                     cfly->Drc = cfle;
+                     g1->Drc = e1;
+                     g2->Drc = e2;
+                     g3->Drc = e3;
+                 }
 
-//                 qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-//             }
-//         }}
-//    }
+                 qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
+             }
+         }}
+    }
 
      // find largest velocity and determine dt
      FOR_CELL_IN_FLOODAREA {
