@@ -308,10 +308,12 @@ cTMap
 
 
 *SoilRockMaterial,
+*SoilRockWater,
 *SoilRockSize,
 *SoilRockDensity,
 *SoilRockIFA,
 *RSoilRockMaterial,
+*RSoilRockWater,
 *RSoilRockSize,
 *RSoilRockDensity,
 *RSoilRockIFA,

@@ -94,6 +94,7 @@ void TWorld::SafetyFactor()
     //this way we can adapt stuff without breaking the rest of the model
     FOR_ROW_COL_MV
     {
+        double area = DX->Drc*_dx;
         DFSFIterations->Drc = -1;
         DEMIterate->Drc = DEMOriginal->Drc;
         DFSoilDepth->Drc = SoilDepth1->Drc;
@@ -101,10 +102,18 @@ void TWorld::SafetyFactor()
         {
               DFSoilDepth->Drc += SoilDepth2->Drc;
         }
+        double soildepth0 = 0;
+        double theta0 = 0;
+        if(SwitchEntrainment)
+        {
+              theta0 = (SoilRockMaterial->Drc)? SoilRockWater->Drc/SoilRockMaterial->Drc: 0.0;
+              soildepth0 = SoilRockMaterial->Drc /area;
+              DFSoilDepth->Drc += soildepth0;
+        }
         DFSoilDepth->Drc *= st_sdCalibration;
 
         DFSurfaceWaterHeight->Drc = UF2D_f->Drc/(_dx*_dx);
-        DFSoilCohesion->Drc = Cohesion->Drc * st_scCalibration;
+        DFSoilCohesion->Drc = DFSoilDepth->Drc > 0? ((Cohesion->Drc * st_scCalibration * (DFSoilDepth->Drc-soildepth0)) + (10.0 * soildepth0))/(DFSoilDepth->Drc) : 0.0;
         if(this->InfilMethod != INFIL_NONE)
         {
             DFWaterHeight->Drc = L1->Drc * (ThetaS1->Drc - ThetaI1->Drc) + ThetaI1->Drc * SoilDepth1->Drc;
@@ -112,8 +121,11 @@ void TWorld::SafetyFactor()
             {
                  DFWaterHeight->Drc += L2->Drc * (ThetaS2->Drc - ThetaI2->Drc) + ThetaI2->Drc * SoilDepth2->Drc;
             }
+            if(SwitchEntrainment)
+            {
+                DFWaterHeight->Drc += SoilRockWater->Drc /area;
+            }
         }
-        DFWaterHeight->Drc *= st_sdCalibration;
         double saturation
                 = std::max(0.0,std::min(1.0,(DFWaterHeight->Drc/DFSoilDepth->Drc)));
         double ts = 1;
@@ -127,12 +139,15 @@ void TWorld::SafetyFactor()
                     ts = (ThetaS1->Drc * SoilDepth1->Drc + ThetaS2->Drc * SoilDepth2->Drc)/(SoilDepth1->Drc + SoilDepth2->Drc);
                 }
             }
+            if(SwitchEntrainment)
+            {
+                ts = DFSoilDepth->Drc > 0? ((ts * (DFSoilDepth->Drc-soildepth0)) + (UF_FLOWCOMPACTION_DEPOSITIONPOROSITY * soildepth0))/(DFSoilDepth->Drc) : 0.0;
+            }
         }
         saturation = saturation / ts;
 
         if(this->InfilMethod != INFIL_NONE)
         {
-
             DFWaterSuction->Drc = Psi1->Drc;
             if(SwitchTwoLayer)
             {
@@ -342,14 +357,14 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
         //std::max(1.0,-60.0 * (_SoilWaterHeight->Drc/_SoilDepth->Drc) + 19.0)
         //+_SoilWaterSuction->Drc
         //calculate safety factor
-        double t1 = (Cohesion->Drc + _PlantCohesion->Drc)
+        double t1 = (_SoilCohesion->Drc *(1 - std::min(0.0,std::max(1.0,_SoilWaterHeight->Drc/_SoilDepth->Drc))) + _PlantCohesion->Drc )
                     +
                     (
                         cosa * cosa*
                         (
                          _PlantPressure->Drc +
                                (
-                                    _SoilDensity->Drc *(_SoilDepth->Drc-_SoilWaterHeight->Drc) + 1000.0 *(_SoilWaterHeight->Drc )
+                                    _SoilDensity->Drc *(_SoilDepth->Drc - _SoilWaterHeight->Drc) + 1000.0 *(_SoilWaterHeight->Drc)
                                 )
                          )*tanphi
                      );
@@ -358,6 +373,7 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                     (_SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc )+ _PlantPressure->Drc)
                 *sina*cosa
                 );
+
 
         //above 1000 is irrelevant
         double sf = (t2 > 0 ? std::max(0.0,std::min(t1/t2,1000.0)): 1000.0);
@@ -453,6 +469,13 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
 
 }
 
+double TWorld::CalculateSafetyFactorAt(int r, int c)
+{
+    return CalculateSafetyFactorAt(r,c,DFSlope->Drc,DFSoilDepth,DFSurfaceWaterHeight,DFSoilCohesion,DFSoilInternalFrictionAngle,DFWaterHeight,DFWaterSuction,DFSoilDensity,DFPlantCohesion,DFPlantPressure,DFSFCalibration);
+
+}
+
+
 double TWorld::CalculateSafetyFactorAt(int r, int c, double slope, cTMap * _SoilDepth,
                                    cTMap * _OverlandWater, cTMap * _SoilCohesion,
                                    cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
@@ -484,14 +507,14 @@ double TWorld::CalculateSafetyFactor(double slope, double _SoilDepth,
 
     //calculate safety factor
 
-    double t1 = (_SoilCohesion + _PlantCohesion + _SoilWaterSuction)
+    double t1 = (_SoilCohesion *(1 - std::min(0.0,std::max(1.0,_SoilWaterHeight/_SoilDepth))) + _PlantCohesion )
                 +
                 (
                     cosa * cosa*
                     (
                      _PlantPressure +
                            (
-                                _SoilDensity *_SoilDepth + 1000.0 *(_SoilWaterHeight)
+                                _SoilDensity *(_SoilDepth - _SoilWaterHeight) + 1000.0 *(_SoilWaterHeight)
                             )
                      )*tanphi
                  );
@@ -504,6 +527,20 @@ double TWorld::CalculateSafetyFactor(double slope, double _SoilDepth,
     //above 1000 is irrelevant
     double sf = (t2 > 0 ? std::max(0.0,std::min(_SFCalibration * t1/t2,1000.0)): 1000.0);
     return sf;
+}
+
+double TWorld::GetTotalSoilDepth(int r, int c)
+{
+    return DFSoilDepth->Drc;
+
+
+}
+
+double TWorld::SolveStableDepthAt(int r, int c)
+{
+    return SolveStableDepthAt(r,c,DFSlope->Drc,DFSoilDepth,DFSurfaceWaterHeight,DFSoilCohesion,DFSoilInternalFrictionAngle,DFWaterHeight,DFWaterSuction,DFSoilDensity,DFPlantCohesion,DFPlantPressure,DFThreshold,DFThreshold1,DFSFCalibration);
+
+
 }
 
 double TWorld::SolveStableDepthAt(int r, int c, double slope, cTMap * _SoilDepth,

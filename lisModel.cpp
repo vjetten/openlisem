@@ -166,8 +166,8 @@ void TWorld::DoModel()
 
             ////END CALCULATIONS
 
-            ThreadPool->WaitForReportThread();
 
+            ThreadPool->WaitForReportThread();
             mutex.lock();
             if(stopRequested) DEBUG("User interrupt...");
             if(stopRequested) break;
@@ -177,7 +177,6 @@ void TWorld::DoModel()
             if (waitRequested) condition.wait(&mutex);
             mutex.unlock();
             // check if user wants to quit or pause
-
 
             Totals();            // calculate all totals and cumulative values
 
@@ -283,6 +282,8 @@ void TWorld::DynamicProcessWrapper()
     ////Functions below are not yet multithreaded
     //does multithreading itself
     SlopeStability();      // slope stability calculations
+
+    //slope failure must be before flow calculations. Slope failure calculations can be used in entrainment/deposition
     SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
 
     //does multithreading itself

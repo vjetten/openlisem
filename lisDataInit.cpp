@@ -947,52 +947,75 @@ void TWorld::GetInputData(void)
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
 
-
         D50 = ReadMap(LDD,getvaluename("D50"));
         D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
-    if(SwitchSolidPhase)
+
+    EntrainmentDet = NewMap(0.0);
+    EntrainmentDep = NewMap(0.0);
+    TotalEntrainmentDet = NewMap(0.0);
+    TotalEntrainmentDep = NewMap(0.0);
+
+    EntrainmentTC = NewMap(0.0);
+    Entrainmentshearstressc = NewMap(0.0);
+    Entrainmentshearstress = NewMap(0.0);
+
+    ChannelEntrainmentDet = NewMap(0.0);
+    ChannelEntrainmentDep = NewMap(0.0);
+    ChannelTotalEntrainmentDet = NewMap(0.0);
+    ChannelTotalEntrainmentDep = NewMap(0.0);
+
+    if(SwitchSolidPhase && SwitchEntrainment)
     {
-        if(SwitchEntrainment)
+
+        SoilRockMaterial = ReadMap(LDD,getvaluename("debrismaterial"));
+        SoilRockWater = ReadMap(LDD,getvaluename("debrismaterialwater"));
+        SoilRockSize = ReadMap(LDD,getvaluename("rocksize"));
+        SoilRockDensity = ReadMap(LDD,getvaluename("rockdensity"));
+        SoilRockIFA = ReadMap(LDD,getvaluename("rockifa"));
+
+        FOR_ROW_COL_MV
         {
+            SoilRockMaterial->Drc *= _dx*_dx;
 
-
-            EntrainmentDet = NewMap(0.0);
-            EntrainmentDep = NewMap(0.0);
-            TotalEntrainmentDet = NewMap(0.0);
-            TotalEntrainmentDep = NewMap(0.0);
-
-            EntrainmentTC = NewMap(0.0);
-            Entrainmentshearstressc = NewMap(0.0);
-            Entrainmentshearstress = NewMap(0.0);
-
-            SoilRockMaterial = ReadMap(LDD,getvaluename("debrismaterial"));
-            SoilRockSize = ReadMap(LDD,getvaluename("rocksize"));
-            SoilRockDensity = ReadMap(LDD,getvaluename("rockdensity"));
-            SoilRockIFA = ReadMap(LDD,getvaluename("rockifa"));
-
-            FOR_ROW_COL_MV
+            if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
             {
-                SoilRockMaterial->Drc *= _dx*_dx;
-            }
-            if(SwitchIncludeChannel)
+                SoilRockWater->Drc = SoilRockMaterial->Drc * ThetaI1->Drc;
+            }else
             {
-                ChannelEntrainmentDet = NewMap(0.0);
-                ChannelEntrainmentDep = NewMap(0.0);
-                ChannelTotalEntrainmentDet = NewMap(0.0);
-                ChannelTotalEntrainmentDep = NewMap(0.0);
-
-                RSoilRockMaterial = NewMap(0.0);//ReadMap(LDD,getvaluename("channeldebrismaterial"));
-                RSoilRockSize = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrocksize"));
-                RSoilRockDensity = NewMap(2500.0);//ReadMap(LDD,getvaluename("channelrockdensity"));
-                RSoilRockIFA = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrockifa"));
-                /*FOR_ROW_COL_MV_CH
-                {
-                    RSoilRockMaterial->Drc *= _dx*ChannelWidth->Drc;
-                }*/
+                SoilRockWater->Drc = 0;
             }
+
         }
+        if(SwitchIncludeChannel)
+        {
+            RSoilRockMaterial = NewMap(0.0);//ReadMap(LDD,getvaluename("channeldebrismaterial"));
+            RSoilRockWater =NewMap(0.0);
+            RSoilRockSize = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrocksize"));
+            RSoilRockDensity = NewMap(2500.0);//ReadMap(LDD,getvaluename("channelrockdensity"));
+            RSoilRockIFA = NewMap(0.0);//ReadMap(LDD,getvaluename("channelrockifa"));
+
+        }
+
+    }else
+    {
+        SoilRockMaterial = NewMap(0.0);
+        SoilRockWater = NewMap(0.0);
+        SoilRockSize = NewMap(0.0);
+        SoilRockDensity = NewMap(2500.0);
+        SoilRockIFA = NewMap(0.0);
+
+        if(SwitchIncludeChannel)
+        {
+            RSoilRockMaterial = NewMap(0.0);
+            RSoilRockWater =NewMap(0.0);
+            RSoilRockSize = NewMap(0.0);
+            RSoilRockDensity = NewMap(2500.0);
+            RSoilRockIFA = NewMap(0.0);
+
+        }
+
     }
     LDDChange = NewMap(0.0);
     DEMChange = NewMap(0.0);
@@ -1028,7 +1051,6 @@ void TWorld::GetInputData(void)
         }
 
         //SF_Calibrate_Mask = true;
-
 
         DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));

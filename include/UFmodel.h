@@ -58,6 +58,10 @@
 
 
     double UF_DENSITY_SUSPENDED;
+    double UF_FLOWCOMPACTION_MAXCONCENTRATION;
+    double UF_FLOWCOMPACTION_CRITICALVELOCITY;
+
+    double UF_FLOWCOMPACTION_DEPOSITIONPOROSITY;
 
     double UF2D_COURANTSCHEMEFACTOR;
     double UF1D_COURANTSCHEMEFACTOR;
@@ -544,6 +548,9 @@
     void UF_FlowEntrainment(int thread);
     void UF_FlowDetachment(double dt, int r, int c,int d, bool channel);
     void UF_FlowEntrainment(double dt, int r, int c, bool channel);
+
+    void UF_FlowCompaction(int thread);
+    void UF_FlowCompaction(double dt, int r, int c, bool channel);
 
     double UF_SoilTake(int r, int c, int d, double potential,bool channel,bool bedload);
     void UF_SoilAdd(int r, int c, int d, double mass, bool channel);

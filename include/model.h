@@ -592,6 +592,7 @@ public:
                                        cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
                                        cTMap * _PlantCohesion,cTMap * _PlantPressure,
                                        cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated,cTMap * _SFCalibration);
+    double CalculateSafetyFactorAt(int r, int c);
 
     double CalculateSafetyFactorAt(int r, int c, double slope, cTMap * _SoilDepth,
                                        cTMap * _OverlandWater, cTMap * _SoilCohesion,
@@ -607,6 +608,8 @@ public:
                                        double _PlantCohesion, double _PlantPressure,
                                        double _SFCalibration);
 
+    double SolveStableDepthAt(int r, int c);
+
     double SolveStableDepthAt(int r, int c, double slope, cTMap * _SoilDepth,
                                        cTMap * _OverlandWater, cTMap * _SoilCohesion,
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
@@ -621,6 +624,7 @@ public:
                                        double _PlantCohesion, double _PlantPressure,
                                        double _Threshold, double _Threshold1, double _SFCalibration);
 
+    double GetTotalSoilDepth(int r, int c);
 
     void InitiateDebrisFlow();
 
