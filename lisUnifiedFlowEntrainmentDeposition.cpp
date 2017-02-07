@@ -208,7 +208,6 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double slope, double _f, d
     //get entrainment in cubic meters
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
 
-    EntrainmentTC->Drc = MaxCSF;
 
 
     if(area < UF_VERY_SMALL)
@@ -235,6 +234,9 @@ double TWorld::UnifiedFlowActiveDeposition(double dt,double slope, double _f, do
     double MaxCSF = std::max(0.25 * std::min(1.0,_fv * h),std::min(0.8,slope > tan(ifa_bed)? 1.0:(1000.0 * slope)/((d - 1000)*(tan(ifa_bed)-slope))));
 
     double deporat = UF_DEPOSITIONCONSTANT *std::max(0.0,(1.0-_fv/(UF_DEPOSITIONTHRESHOLDCONSTANT*vc)))*std::max(0.0,((_sc-MaxCSF)/0.7)*_fv);
+
+
+    EntrainmentTC->Drc = MaxCSF;
 
 
 
@@ -283,13 +285,12 @@ double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
 
         if(entrainment > 0)
         {
-
             //back to volume
             UF2D_d->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_d->Drc + entrainment * SoilRockDensity->Drc)/(UF2D_s->Drc + entrainment) : UF2D_d->Drc;
             UF2D_rocksize->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_rocksize->Drc + entrainment * SoilRockSize->Drc)/(UF2D_s->Drc + entrainment) : UF2D_rocksize->Drc;
             UF2D_ifa->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_ifa->Drc + entrainment * SoilRockIFA->Drc)/(UF2D_s->Drc + entrainment) : UF2D_ifa->Drc;
-            UF2D_s->Drc += entrainment;
-            UF2D_f->Drc += entrainment *theta;
+            UF2D_s->Drc += entrainment/(_dx*_dx);
+            UF2D_f->Drc += entrainment *theta/(_dx*_dx);
         }
         return entrainment;
     }
@@ -336,7 +337,7 @@ double TWorld::UF_RockAdd(int r, int c, double deposition, bool channel)
 void TWorld::UF_FlowCompaction(int thread)
 {
 
-    /*if(SwitchErosion && UF_SOLIDPHASE)
+    if(SwitchErosion && UF_SOLIDPHASE && SwitchSlopeStability)
     {
         cTMap*_dem = UF2D_DEM;
         cTMap*_ldd = UF1D_LDD;
@@ -353,7 +354,7 @@ void TWorld::UF_FlowCompaction(int thread)
                 UF_FlowCompaction(UF1D_DT->Drc,r,c,true);
             }}}
         }
-    }*/
+    }
 
 }
 

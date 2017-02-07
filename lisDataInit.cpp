@@ -970,7 +970,7 @@ void TWorld::GetInputData(void)
     {
 
         SoilRockMaterial = ReadMap(LDD,getvaluename("debrismaterial"));
-        SoilRockWater = ReadMap(LDD,getvaluename("debrismaterialwater"));
+        SoilRockWater = NewMap(0.0);
         SoilRockSize = ReadMap(LDD,getvaluename("rocksize"));
         SoilRockDensity = ReadMap(LDD,getvaluename("rockdensity"));
         SoilRockIFA = ReadMap(LDD,getvaluename("rockifa"));
