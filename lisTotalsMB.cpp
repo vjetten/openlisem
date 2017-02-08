@@ -248,9 +248,9 @@ void TWorld::Totals(void)
         // added minimum here to avoid strange maps
     }
 
-    Qtot += QtotT;
+    Qtot += QtotT+floodBoundaryTot;
     // add flood boundary losses
-    Qtotmm = (Qtot+floodBoundaryTot)*catchmentAreaFlatMM;
+    Qtotmm = (Qtot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
 
     /***** SEDIMENT *****/
@@ -489,6 +489,7 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
+
         double waterin = RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit + BaseFlow;
         double waterstore = IntercTot + IntercHouseTot + InfilTot + BufferVolin;
         double waterflow = WaterVolTot + floodVolTot + Qtot + floodBoundaryTot;
@@ -498,6 +499,8 @@ void TWorld::MassBalance()
 //        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
+
+        qDebug() << QString::number(waterin ,'g',15)<< QString::number(waterstore + waterflow,'g',15) <<QString::number(RainTot,'g',15) << floodVolTot << floodBoundaryTot <<QString::number(waterin - waterstore - waterflow,'g',15) << MB;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;

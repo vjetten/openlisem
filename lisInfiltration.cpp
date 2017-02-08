@@ -531,7 +531,7 @@ void TWorld::InfiltrationFloodNew(void)
         InfilMethods(Ksateff, hmx, fpot, fact, L1, L2, FFull); break;
     }
 
-    FOR_ROW_COL_MV
+    /*FOR_ROW_COL_MV
             if(FloodDomain->Drc > 0)
     {
         if (InfilMethod != INFIL_SWATRE)
@@ -556,7 +556,7 @@ void TWorld::InfiltrationFloodNew(void)
         InfilVolFlood->Drc = fact->Drc*ChannelAdj->Drc*DX->Drc;
         // infil volume is WH before - water after
         // used for water balance and screen display
-    }
+    }*/
 }
 //---------------------------------------------------------------------------
 /*!

@@ -965,7 +965,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           n++;
 
           if (correct)
-              correctMassBalance(sumh, h, 1e-12);
+              //correctMassBalance(sumh, h, 1e-12);
 
           if (n > F_MaxIter)
             break;

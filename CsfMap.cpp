@@ -24,7 +24,7 @@
 #include <cassert>
 #include "CsfMap.h"
 #include "error.h"
-
+#include <gdal.h>
 /*!
     @brief      Constructor.
     @param      data Properties of the raster and the cell values.

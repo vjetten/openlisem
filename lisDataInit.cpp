@@ -544,6 +544,10 @@ void TWorld::InitChannel(void)
 
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
+        FOR_ROW_COL_MV_CH
+        {
+            ChannelGrad->Drc = Grad->Drc;
+        }
         checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
         calcValue(*ChannelGrad, 0.001, MAX);
         ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));

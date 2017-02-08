@@ -120,7 +120,7 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
-        ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthUpDX->Drc*ChannelDX->Drc;
+        ChannelWaterVol->Drc += Rainc->Drc*(ChannelWidthUpDX->Drc)*DX->Drc;//_dx - ChannelAdj->Drc
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         //add baseflow
@@ -536,7 +536,7 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    // recalc WH from flux
+    /*// recalc WH from flux
     FOR_ROW_COL_MV_CH
     {
         //ChannelWH->Drc = ChannelIterateWH(r, c);
@@ -573,7 +573,18 @@ void TWorld::ChannelFlow(void)
         // needed for concentration, new volume in channel
 
         //double error = (ChannelQ->Drc*_dt + tma->Drc - ChannelWaterVol->Drc - ChannelQn->Drc * _dt);
+    }*/
+
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWaterVol->Drc += -ChannelQn->Drc*_dt + QinKW->Drc * _dt;
+
+        double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+        ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
     }
+    ChannelWaterHeightFromVolume();
+
+
 
 
     cover(*ChannelWH, *LDD, 0);

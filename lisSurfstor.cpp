@@ -78,8 +78,9 @@ void TWorld::addRainfallWH(void)
     {
         // if runoff in flat areas rises above a certain level it becomes flood
         if (FloodDomain->Drc > 0)
+        {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        else
+        }else
         {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)

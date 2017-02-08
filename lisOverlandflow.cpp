@@ -93,7 +93,7 @@ void TWorld::RainfallToFlood(void)
  */
 void TWorld::ToFlood(void)
 {
-    if (!SwitchChannelFlood)
+   /* if (!SwitchChannelFlood)
         return;
 
     FOR_CELL_IN_FLOODAREA
@@ -136,7 +136,7 @@ void TWorld::ToFlood(void)
 
 
 
-    }}
+    }}*/
 }
 //--------------------------------------------------------------------------------------------
 /**

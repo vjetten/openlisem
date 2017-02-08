@@ -54,6 +54,7 @@ void TWorld::ChannelOverflow()
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
         {
+
             double levee = ChannelLevee->Drc;
             double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
@@ -231,16 +232,22 @@ void TWorld::ChannelOverflow()
             }
         }
     }
-   // qDebug() << err;
-   if (err > 0)
-    FOR_CELL_IN_FLOODAREA
-            if (hmx->Drc > 0)
+
+    if (err > 0)
     {
-        hmx->Drc += (err/(nrFloodedCells+1))/(ChannelAdj->Drc*DX->Drc);
-        hmx->Drc = std::max(0.0, hmx->Drc);
+        FOR_CELL_IN_FLOODAREA
+            if (hmx->Drc > 0)
+        {
+            hmx->Drc += (err/(nrFloodedCells+1))/(ChannelAdj->Drc*DX->Drc);
+            hmx->Drc = std::max(0.0, hmx->Drc);
 
-    }}
+        }}
+    }
 
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
+    }
 
 //FOR_CELL_IN_FLOODAREA
 //{
@@ -384,19 +391,32 @@ void TWorld::ChannelFlood(void)
 
     getFloodParameters();
 
-    FOR_CELL_IN_FLOODAREA
+    /*FOR_CELL_IN_FLOODAREA
     {
         if (hmx->Drc > 0)
         {
             hmx->Drc += 0.5*(MBeM3/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
             hmx->Drc = std::max(0.0, hmx->Drc);
         }
-    }}
+    }}*/
+
+    FOR_ROW_COL_MV
+    {
+       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+    }
+    qDebug() << "before1" << QString::number(mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol) ,'g',15);
+    double sumh_t = mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol);
+
 
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
 
-    double sumh_t = mapTotal(*hmx);
+    FOR_ROW_COL_MV
+    {
+       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+    }
+    qDebug() << "before" <<  QString::number(mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol) ,'g',15);
+
     double dtflood = 0;
 
     startFlood = false;
@@ -445,21 +465,52 @@ void TWorld::ChannelFlood(void)
         // calc a fake alpha for sediment routing
     }}
 
-    ChannelOverflow();
-    // mix overflow water and flood water in channel cells
+    FOR_ROW_COL_MV
+    {
+       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+    }
 
-    correctMassBalance(sumh_t, hmx, 1e-12);
+    double sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
+    qDebug() << "after" << QString::number(mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol) ,'g',15);
+    //correctMassBalance(sumh_t, FloodWaterVol, 1e-12);
     // correct mass balance, VJ 150823: not nnecessary hhere if flow is false
 
+    double ncells = 0;
+    double floodtot = 0;
+    FOR_ROW_COL_MV
+    {
+       if(FloodWaterVol->Drc > 0.0001)
+        {
+            ncells += 1.0;
+            floodtot += FloodWaterVol->Drc;
+        }
+    }
+    double diff = (sumh_t-sumh_t2);
+    qDebug() << QString::number(sumh_t ,'g',15) << QString::number(sumh_t2 ,'g',15)<< QString::number(sumh_t2-sumh_t ,'g',15);
+
+    FOR_ROW_COL_MV
+    {
+       FloodWaterVol->Drc = floodtot > 0? FloodWaterVol->Drc  + diff * FloodWaterVol->Drc/floodtot : 0.0;
+       /*if(!OUTORMV(r,c+1))
+       {
+        FloodWaterVol->data[r][c+1] +=  0.5*FloodWaterVol->Drc;
+         FloodWaterVol->Drc *= 0.5;
+       }*/
+       hmx->Drc = FloodWaterVol->Drc / (ChannelAdj->Drc *DX->Drc);
+    }
+
+    qDebug() << "after2" << QString::number(mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol) ,'g',15);
     //new flood domain
     nrFloodedCells = 0;
-    sumh_t = 0;
+
+    sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
+    floodBoundaryTot +=(sumh_t-sumh_t2);
+
     FOR_CELL_IN_FLOODAREA
         if (hmx->Drc > 0 && FloodZonePotential->Drc == 1)
         {
             FloodDomain->Drc = 1;
             nrFloodedCells += 1.0;
-            sumh_t += hmx->Drc;
         }
         else
             FloodDomain->Drc = 0;
