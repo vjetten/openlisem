@@ -328,7 +328,7 @@ void TWorld::FloodBoundary()
             }
             double hmx_old = hmx->Drc;
             hmx->Drc = std::max(0.0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
-            floodBoundaryTot += (hmx->Drc - hmx_old)*(DX->Drc*ChannelAdj->Drc);
+            floodBoundaryTot += (hmx_old - hmx->Drc)*(DX->Drc*ChannelAdj->Drc);
         }
     }
 }
@@ -393,6 +393,10 @@ void TWorld::ChannelFlood(void)
 
 
     getFloodParameters();
+
+
+    FloodBoundary();
+    // boundary flow
 
     /*FOR_CELL_IN_FLOODAREA
     {
@@ -509,8 +513,6 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-    FloodBoundary();
-    // boundary flow
 
     copy(*Hmx, *hmx);
     // copy flood level for next dt

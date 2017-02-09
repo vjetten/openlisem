@@ -250,7 +250,7 @@ void TWorld::Totals(void)
         // added minimum here to avoid strange maps
     }
 
-    Qtot += QtotT+floodBoundaryTot;
+    Qtot += QtotT;
     // add flood boundary losses
     Qtotmm = (Qtot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
