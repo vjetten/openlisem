@@ -47,9 +47,6 @@ functions: \n
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
-    double err = 0;
-   // double errs = 0;
-    double factor = 0.5;
     FOR_ROW_COL_MV_CH
     {
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
@@ -62,9 +59,6 @@ void TWorld::ChannelOverflow()
             if (dH == 0 && hmx->Drc <= levee)
                 continue;
 
-            //            if (dH == 0 && hmx->Drc <= MDS->Drc)
-            //                continue;
-
             // no flow activity then continue
             if (dH == hmx->Drc)
                 continue;
@@ -75,8 +69,7 @@ void TWorld::ChannelOverflow()
             //double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*_dx));//ChannelWidthUpDX->Drc));
             // fraction from channel to surrounding adj area based on gravity flow perpedicular to channel
             double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(Grad->Drc)/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
-            //            tm->Drc = fracA;
-            //            tma->Drc = fracC;
+
             double fc = ChannelWidthUpDX->Drc/_dx; // 1-fc = (dx-chw)/dx = chanadj/dx
             // fraction of the channel in the gridcell
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
@@ -223,43 +216,18 @@ void TWorld::ChannelOverflow()
                 }
                 else
                 {
-
-                    err += factor*hmx->Drc*ChannelAdj->Drc*DX->Drc;
-                    hmx->Drc *= (1-factor);
-
-
+                    // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
+                    // we assume that there is no more flow towards the channel.
                 }
             }
         }
-    }
-
-    if (err > 0)
-    {
-        FOR_CELL_IN_FLOODAREA
-            if (hmx->Drc > 0)
-        {
-            hmx->Drc += (err/(nrFloodedCells+1))/(ChannelAdj->Drc*DX->Drc);
-            hmx->Drc = std::max(0.0, hmx->Drc);
-
-        }}
     }
 
     FOR_ROW_COL_MV_CH
     {
         ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
     }
-
-//FOR_CELL_IN_FLOODAREA
-//{
-//    if (hmx->Drc > 0)
-//        hmx->Drc += (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
-//    else
-//        if (hmx->Drc == -9999)
-//            hmx->Drc = (err/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
-//}}
-
-
-
+    // recalc channel water vol else big MB error
 }
 //---------------------------------------------------------------------------
 // correct mass balance
@@ -391,28 +359,17 @@ void TWorld::ChannelFlood(void)
     if (!SwitchChannelFlood)
         return;
 
-
     getFloodParameters();
 
 
     FloodBoundary();
     // boundary flow
 
-    /*FOR_CELL_IN_FLOODAREA
-    {
-        if (hmx->Drc > 0)
-        {
-            hmx->Drc += 0.5*(MBeM3/(nrFloodedCells+1))/(DX->Drc*ChannelAdj->Drc);
-            hmx->Drc = std::max(0.0, hmx->Drc);
-        }
-    }}*/
-
     FOR_ROW_COL_MV
     {
        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
     }
     double sumh_t = mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol);
-
 
     ChannelOverflow();
     // mix overflow water and flood water in channel cells
@@ -432,42 +389,25 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-//    if (SwitchWatershed)
-//    {
-//        if (SwitchFloodSWOForder1)
-//            dtflood = fullSWOF2Do1ws(hmx, Uflood, Vflood, DEM, true);
-//        else
-//            dtflood = fullSWOF2Do2ws(hmx, Uflood, Vflood, DEM, true);
-//    }
-//    else
-//    {
-        if (SwitchFloodSWOForder2)
-        {
-            dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, true);
-        }
-        else
-        if (SwitchFloodSWOForder1)
-        {
-            dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, true);
-        }
-    //}
+
+    if (SwitchFloodSWOForder2)
+    {
+        dtflood = fullSWOF2Do2(hmx, Uflood, Vflood, DEM, true);
+    }
+    else
+    if (SwitchFloodSWOForder1)
+    {
+        dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, true);
+    }
 
     //FloodSpuriousValues();
     //correct extremes
 
-   // copy(*QfloodPrev, *Qflood);
-    // copy the previous flood level, at t-1
-
     FOR_CELL_IN_FLOODAREA
     {
-        //UVflood->Drc = 0.5*(fabs(Uflood->Drc)+fabs(Vflood->Drc));
         UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
         // U and V are vectors so can be negative, UV is positive average
-
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-
-        //AlphaFlood->Drc = std::pow(N->Drc/Grad->Drc * std::pow(2*hmx->Drc+ChannelAdj->Drc, (2/3)),0.6);
-        // calc a fake alpha for sediment routing
     }}
 
     FOR_ROW_COL_MV
@@ -476,6 +416,7 @@ void TWorld::ChannelFlood(void)
     }
 
     double sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
+
     //correctMassBalance(sumh_t, FloodWaterVol, 1e-12);
     // correct mass balance, VJ 150823: not nnecessary hhere if flow is false
 
@@ -500,8 +441,9 @@ void TWorld::ChannelFlood(void)
     //new flood domain
     nrFloodedCells = 0;
 
-    sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
-    floodBoundaryTot +=(sumh_t-sumh_t2);
+//    sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
+//    floodBoundaryTot +=(sumh_t-sumh_t2);
+    // cheat!
 
     FOR_CELL_IN_FLOODAREA
         if (hmx->Drc > 0 && FloodZonePotential->Drc == 1)
@@ -523,7 +465,6 @@ void TWorld::ChannelFlood(void)
     FloodMaxandTiming();
     // flood max, start and duration
 
-  //  fill(*FloodWaterVol, 0);
     FOR_CELL_IN_FLOODAREA
        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
     }

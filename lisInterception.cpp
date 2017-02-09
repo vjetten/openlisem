@@ -52,81 +52,81 @@ void TWorld::Interception(void)
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
     FOR_ROW_COL_MV
-            if (Cover->Drc > 0 && Rainc->Drc > 0)
-    {
-        double CS = CStor->Drc;
-        //actual canopy storage in m
-        double Smax = CanopyStorage->Drc;
-        //max canopy storage in m
-        double LAIv;
-        if (SwitchInterceptionLAI)
-            LAIv = LAI->Drc;
-        else
-            LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
-            //            LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.9,Cover->Drc);
-        //?????????????????? max 0.9 ?????????????? WTF
-        //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
-        // a low cover means a low LAI means little interception
-        // avoid division by 0
-
-        if (SwitchBuffers && !SwitchSedtrap)
-            if(BufferID->Drc > 0)
-                Smax = 0;
-        // no interception with buffers, but sedtrap can have interception
-
-        if (SwitchHardsurface)
-            Smax *= (1-HardSurface->Drc);
-        //VJ 110111 no interception on hard surfaces
-
-        if (PlantHeight->Drc < WH->Drc)
+        if (Cover->Drc > 0 && Rainc->Drc > 0)
         {
-            Smax = 0;
-            CS = 0;
-        }
-        //VJ no interception when water level is heigher than plants
+            double CS = CStor->Drc;
+            //actual canopy storage in m
+            double Smax = CanopyStorage->Drc;
+            //max canopy storage in m
+            double LAIv;
+            if (SwitchInterceptionLAI)
+                LAIv = LAI->Drc;
+            else
+                LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
+            //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
+            // a low cover means a low LAI means little interception
+            // avoid division by 0
+
+            if (SwitchBuffers && !SwitchSedtrap)
+                if(BufferID->Drc > 0)
+                    Smax = 0;
+            // no interception with buffers, but sedtrap can have interception
+
+            if (SwitchHardsurface)
+                Smax *= (1-HardSurface->Drc);
+            //VJ 110111 no interception on hard surfaces
+
+//            if (PlantHeight->Drc < WH->Drc)
+//            {
+//                Smax = 0;
+//                CS = 0;
+//            }
+            //VJ no interception when water level is heigher than plants
+            //???? we cannot make interception 0 when water rises because of mass balance
 
 
-        if (Smax > 0)
+            if (Smax > 0)
+            {
+                //double k = 1-exp(-CanopyOpeness*LAIv);
+                //VJ !!!!!!2013 05 18 BUG ! was k=exp(-coLAI) MUST BE 1-exp
+                double k = 1-exp(-CanopyOpeness*LAIv);
+
+                //VJ 131010 NOT !!!!! a dense canopy has a low openess factor, so little direct throughfall and high CS
+
+                CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
+                //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
+                //VJ 110209 direct use of openess, astons value quite open for eucalypt.
+                //A good guess is using the cover LAI relation
+                //and interpreting cover as openess: k = exp(-0.45*LAI) BUT this is 0.065!!!
+            }
+            else
+                CS = 0;
+            // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
+            // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
+            // possible to use equation from Ahston but for very open Eucalypt
+
+            //CS = std::max(0.0, CS * (1-StemflowFraction));
+            //VJ 110206 decrease storage with stemflow fraction!
+            // but stemflowfraction doesn't go anywhere!!!!!!!!!!!!!!!!!
+
+
+            LeafDrain->Drc = std::max(0.0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
+            // diff between new and old strage is subtracted from rainfall
+            // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+            // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+
+            CStor->Drc = CS;
+            // put new storage back in map
+            Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc;
+            // only on soil surface, not channels or roads, in m3
+
+            RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
+            // net rainfall is direct rainfall + drainage
+            // rainfall that falls on the soil, used in infiltration
+        }else
         {
-            //double k = 1-exp(-CanopyOpeness*LAIv);
-            //VJ !!!!!!2013 05 18 BUG ! was k=exp(-coLAI) MUST BE 1-exp
-            double k = 1-exp(-CanopyOpeness*LAIv);
-
-            //VJ 131010 NOT !!!!! a dense canopy has a low openess factor, so little direct throughfall and high CS
-
-            CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
-            //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-            //VJ 110209 direct use of openess, astons value quite open for eucalypt.
-            //A good guess is using the cover LAI relation
-            //and interpreting cover as openess: k = exp(-0.45*LAI) BUT this is 0.065!!!
+            RainNet->Drc = Rainc->Drc;
         }
-        else
-            CS = 0;
-        // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
-        // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
-        // possible to use equation from Ahston but for very open Eucalypt
-
-        CS = std::max(0.0, CS * (1-StemflowFraction));
-        //VJ 110206 decrease storage with stemflow fraction!
-
-        LeafDrain->Drc = std::max(0.0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
-        // diff between new and old strage is subtracted from rainfall
-        // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
-        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
-
-        CStor->Drc = CS;
-        // put new storage back in map
-        Interc->Drc =  Cover->Drc * CS * SoilWidthDX->Drc * DX->Drc;
-        // only on soil surface, not channels or roads, in m3
-
-        RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
-        // net rainfall is direct rainfall + drainage
-        // rainfall that falls on the soil, used in infiltration
-    }else
-    {
-        RainNet->Drc = Rainc->Drc;
-    }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter(void)
@@ -140,7 +140,7 @@ void TWorld::InterceptionLitter(void)
         return;
 
     FOR_ROW_COL_MV
-            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0)
+            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && Rainc->Drc > 0)
     {
         //double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
         // Bracken equation, avoid log 0
@@ -185,7 +185,7 @@ void TWorld::InterceptionHouses(void)
 
     FOR_ROW_COL_MV
     {
-        if (HouseCover->Drc > 0)
+        if (HouseCover->Drc > 0 &&  Rainc->Drc > 0)
         {
             //house on cell in m2
             double HS = HStor->Drc;

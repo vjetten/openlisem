@@ -965,7 +965,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
           n++;
 
           if (correct)
-              //correctMassBalance(sumh, h, 1e-12);
+              correctMassBalance(sumh, h, 1e-12);
 
           if (n > F_MaxIter)
             break;
@@ -990,140 +990,6 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
 // * @param q1: flux in the x-direction(m2/s)
 // * @param q2: flux in the y-direction(m2/s)
-double TWorld::fullSWOF2Do2s(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
-{
-  double dt1 = 0, dt2, timesum = 0;
-  double dt_max = std::min(_dt, _dx*0.5);
-  int n = 0;
-  double sumh = 0;
-
-  if (prepareFlood)
-      prepareFloodZ(z);
-
-  // if there is no flood skip everything
-  if (startFlood)
-  {
-      if (correct)
-          sumh = mapTotal(*h);
-
-      verif = 1;
-
-      do {
-
-          if (verif == 1)
-          {
-              dt1 = dt_max;
-
-              setZero(h, u, v);
-
-              // Reconstruction for order 2
-              // makes h1r, h1l, u1r, u1l, v1r, v1l
-              // makes h2r, h2l, u2r, u2l, v2r, v2l
-              // makes delzc1, delzc2, delz1, delz2
-//              if (F_scheme == (int)FMUSCL)
-
-                  MUSCL(h,u,v,z);
-//              else
-//                  //if (F_scheme == (int)FENO)
-//                  ENO(h,u,v,z);
-          }
-
-          dt1 = maincalcflux(dt1, dt_max);
-          dt1 = std::min(dt1, _dt-timesum);
-          if(SwitchErosion)
-          {
-              //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
-              //otherwise they will be overwritten by the second reconstruction
-              FOR_ROW_COL_MV
-              {
-                  temp1->Drc = h1d->Drc;
-                  temp2->Drc = h1g->Drc;
-                  temp3->Drc = h2d->Drc;
-                  temp4->Drc = h2g->Drc;
-                  temp5->Drc = u1r->Drc;
-                  temp6->Drc = u1l->Drc;
-                  temp7->Drc = v1r->Drc;
-                  temp8->Drc = v1l->Drc;
-                  temp9->Drc = u2r->Drc;
-                  temp10->Drc = u2l->Drc;
-                  temp11->Drc = v2r->Drc;
-                  temp12->Drc = v2l->Drc;
-
-              }
-          }
-
-          //st venant equations, h, u, v go in hs, vs, us come out
-          maincalcscheme(dt1, h,u,v, hs,us,vs);
-          dt2 = dt1;
-
-          setZero(hs, us, vs);
-
-          //Reconstruction for order 2
-//          if (F_scheme == (int)FMUSCL)
-            MUSCL(hs,us,vs,z);
-//          else
-//            ENO(hs,us,vs,z);
-
-          dt2 = maincalcflux(dt2, dt_max);
-
-          if (dt2 < dt1)
-          {
-              dt1 = dt2;
-              verif = 0;
-          }
-          else
-          {
-              verif = 1;
-              //hs, us, vs go in hsa, vsa, usa come out
-              maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-              dt1 = std::min(dt1, _dt-timesum);
-
-              setZero(hsa, usa, vsa);
-
-              //sediment
-              SWOFSediment(dt1,h,u,v );
-
-              //Heun method (order 2 in time)
-              FOR_ROW_COL_MV
-              {
-                  double havg = 0.5*(h->Drc + hsa->Drc);
-                  if (havg >= he_ca)
-                  {
-                      double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                      u->Drc = q1/havg;
-                      double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                      v->Drc = q2/havg;
-                      h->Drc = havg;
-                  }
-                  else
-                  {
-                      u->Drc = 0;
-                      v->Drc = 0;
-                      h->Drc = 0;
-                  }
-              }//Heun
-
-              timesum = timesum + dt1;
-              n++;
-
-              if (n > F_MaxIter)
-                  break;
-          }//end for else dt2<dt1
-
-          if (correct)
-              correctMassBalance(sumh, h, 1e-12);
-
-          // qDebug() << n << timesum << dt1;
-        } while (timesum  < _dt);
-
-    } // if floodstart
-  iter_n = n;
-  dt1 = n > 0? _dt/n : dt1;
-  return(dt1);
-
-}
-//---------------------------------------------------------------------------
-//NOT USED
 double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
 {
     double dt1 = 0, dt2, timesum = 0;
@@ -1214,7 +1080,6 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
                     h->Drc = 0;
                 }
             }//Heun
-
 
             timesum = timesum + dt1;
             n++;

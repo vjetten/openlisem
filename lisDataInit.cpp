@@ -1585,11 +1585,6 @@ void TWorld::IntializeData(void)
     FOR_ROW_COL_MV
     {
         DX->Drc = _dx/cos(asin(Grad->Drc));
-//        if (SwitchIncludeChannel)
-//            if (ChannelDX->Drc > 0)
-//            {
-//                DX->Drc = ChannelDX->Drc;
-//            }
         CellArea->Drc = DX->Drc * _dx;
     }
     CatchmentArea = mapTotal(*CellArea);
