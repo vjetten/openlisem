@@ -453,7 +453,6 @@ void TWorld::CalcVelDisch()
  */
 void TWorld::OverlandFlowNew(void)
 {
-
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
