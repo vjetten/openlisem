@@ -453,9 +453,11 @@ void TWorld::CalcVelDisch()
  */
 void TWorld::OverlandFlowNew(void)
 {
+
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
+        WaterVolRunoff->Drc =  DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
 
@@ -464,6 +466,8 @@ void TWorld::OverlandFlowNew(void)
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
     }
+
+
     fill(*QinKW, 0.0);
     fill(*QoutKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
@@ -779,6 +783,8 @@ void TWorld::OverlandFlowNew(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
+        WaterVolRunoff->Drc =  DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
 
     }
 

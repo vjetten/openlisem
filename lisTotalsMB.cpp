@@ -178,8 +178,10 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
         FOR_ROW_COL_MV_CH
         {
-       //     if (LDDChannel->Drc == 5)
-       //         QtotT += ChannelQn->Drc*_dt; //m3
+            if (LDDChannel->Drc == 5)
+            {
+                QtotT += ChannelQn->Drc*_dt; //m3
+            }
             ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
 
         }
@@ -187,7 +189,7 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
         QtotOutlet += ChannelQn->DrcOutlet * _dt;
-        QtotT += ChannelQn->DrcOutlet * _dt;
+        //QtotT += ChannelQn->DrcOutlet * _dt;
         // sum: add channel outflow (in m3) to total for main outlet
 
         if (SwitchChannelFlood)
@@ -499,8 +501,6 @@ void TWorld::MassBalance()
 //        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
-
-        qDebug() << QString::number(waterin ,'g',15)<< QString::number(waterstore + waterflow,'g',15) <<QString::number(RainTot,'g',15) << floodVolTot << floodBoundaryTot <<QString::number(waterin - waterstore - waterflow,'g',15) << MB;
     }
     //watervoltot includes channel and tile
 //    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;

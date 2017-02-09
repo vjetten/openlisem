@@ -394,8 +394,8 @@ void TWorld::K2DSolvebyInterpolation(double dt)
 
         }
         //keep track of infiltration
-        K2DI->Drc -= (infil);
-        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
+        //K2DI->Drc -= (infil);
+        //K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
 
         if(K2DHNew->Drc < 0)  // prob never occurs
         {

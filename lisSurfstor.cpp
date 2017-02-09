@@ -109,13 +109,6 @@ void TWorld::SurfaceStorage(void)
 {
     FOR_ROW_COL_MV
     {
-        if(std::isnan(WHstore->Drc))
-        {
-            qDebug() << r << c << "nan";
-        }
-    }
-    FOR_ROW_COL_MV
-    {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
         double wh = WH->Drc, whflow = 0;
         double SDS;

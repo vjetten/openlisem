@@ -1852,6 +1852,7 @@ void TWorld::IntializeData(void)
     R = NewMap(0);
     Perim = NewMap(0);
     WaterVolin = NewMap(0);
+    WaterVolRunoff = NewMap(0);
     WaterVolall = NewMap(0);
 
     SwatreSoilModel = NULL;

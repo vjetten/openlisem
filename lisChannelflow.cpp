@@ -120,7 +120,7 @@ void TWorld::ChannelWaterHeight(void)
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
-        ChannelWaterVol->Drc += Rainc->Drc*(ChannelWidthUpDX->Drc)*DX->Drc;//_dx - ChannelAdj->Drc
+        ChannelWaterVol->Drc += Rainc->Drc*(_dx - ChannelAdj->Drc)*DX->Drc;
         // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         //add baseflow
@@ -200,7 +200,6 @@ void TWorld::ChannelWaterHeightFromVolume(void)
                 throw 1;
             }
             ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc;
-
 
 
             if (ChannelWidthUpDX->Drc < 0)
@@ -329,6 +328,7 @@ void TWorld::ChannelFlow(void)
             //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
         }
     }
+
     ChannelQn->setAllMV();
     fill(*QinKW, 0.0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
@@ -575,16 +575,20 @@ void TWorld::ChannelFlow(void)
         //double error = (ChannelQ->Drc*_dt + tma->Drc - ChannelWaterVol->Drc - ChannelQn->Drc * _dt);
     }*/
 
+    double outflux = 0;
     FOR_ROW_COL_MV_CH
     {
         ChannelWaterVol->Drc += -ChannelQn->Drc*_dt + QinKW->Drc * _dt;
 
         double ChannelArea = ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
         ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+
+        if(LDDChannel->Drc == 5)
+        {
+            outflux += ChannelQn->Drc*_dt;
+        }
     }
     ChannelWaterHeightFromVolume();
-
-
 
 
     cover(*ChannelWH, *LDD, 0);

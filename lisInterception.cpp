@@ -52,7 +52,7 @@ void TWorld::Interception(void)
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
     FOR_ROW_COL_MV
-            if (Cover->Drc > 0)
+            if (Cover->Drc > 0 && Rainc->Drc > 0)
     {
         double CS = CStor->Drc;
         //actual canopy storage in m
@@ -122,7 +122,11 @@ void TWorld::Interception(void)
         RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
         // net rainfall is direct rainfall + drainage
         // rainfall that falls on the soil, used in infiltration
+    }else
+    {
+        RainNet->Drc = Rainc->Drc;
     }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter(void)
