@@ -323,9 +323,12 @@ void TWorld::FloodBoundary()
         {
             //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
             if( Qflood->Drc*_dt > hmx->Drc*DX->Drc*ChannelAdj->Drc)
+            {
                 Qflood->Drc = hmx->Drc*DX->Drc*ChannelAdj->Drc/_dt;
+            }
+            double hmx_old = hmx->Drc;
             hmx->Drc = std::max(0.0, hmx->Drc - Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc));
-            floodBoundaryTot += Qflood->Drc*_dt;
+            floodBoundaryTot += (hmx->Drc - hmx_old)*(DX->Drc*ChannelAdj->Drc);
         }
     }
 }
@@ -487,11 +490,6 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV
     {
        FloodWaterVol->Drc = floodtot > 0? FloodWaterVol->Drc  + diff * FloodWaterVol->Drc/floodtot : 0.0;
-       /*if(!OUTORMV(r,c+1))
-       {
-        FloodWaterVol->data[r][c+1] +=  0.5*FloodWaterVol->Drc;
-         FloodWaterVol->Drc *= 0.5;
-       }*/
        hmx->Drc = FloodWaterVol->Drc / (ChannelAdj->Drc *DX->Drc);
     }
 
