@@ -587,11 +587,8 @@ void lisemqt::ParseInputData()
     on_checkIncludeChannel_clicked();
     on_checkChannelFlood_clicked();
 
-
-    spinBoxDigits->setValue(E_DigitsOut->value());
-
-
     //****====------====****//
+
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
     // this is to display the correct names in the interface

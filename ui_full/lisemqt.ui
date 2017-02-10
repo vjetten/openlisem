@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1594</width>
-    <height>1093</height>
+    <width>1871</width>
+    <height>1241</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -3907,7 +3907,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Digits in output</string>
+                 <string>Digits in output and display</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5752,7 +5752,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -8804,41 +8804,6 @@ p, li { white-space: pre-wrap; }
                   <string>2D Diffusive Wave parameters</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_18">
-                  <item row="0" column="0" colspan="2">
-                   <widget class="QCheckBox" name="checkCloseBoundaryOF">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Close boundary for overland flow except user Outlet</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_99">
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Diffusive flow parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Closed boundary: imperfect DEMs can generate flow to the outside of the domain when the water level rises. Making he boundary closed causes water to stop at the boundary (may cause pooling in extreme cases). Only the user defined outlets (Outlet.map = 1) allow 2D outflow. NOTE: if you are modelling a boundary with the sea (island), do not close the boundary.&lt;/p&gt;&lt;p&gt;Min timestep for 2D flow 1 second. The 2D flow is non-iterative. The minimjum timestep helps to maintain a stable flow. Make this smaller when a unstable pattern appears.&lt;/p&gt;&lt;p&gt;The courant condition hekops to keep the flow stable (smaller is more stability). Default value 0.25.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="pixmap">
-                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
                    <widget class="QDoubleSpinBox" name="E_TimestepMin">
                     <property name="enabled">
@@ -8870,8 +8835,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="label_127">
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkCloseBoundaryOF">
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -8879,7 +8844,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Minimum Timestep (sec)</string>
+                     <string>Close boundary for overland flow except where flowboundary.map = 1</string>
                     </property>
                    </widget>
                   </item>
@@ -8924,6 +8889,41 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="text">
                      <string>Courant Factor</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="label_127">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Minimum Timestep (sec)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_99">
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Diffusive flow parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Closed boundary: imperfect DEMs can generate flow to the outside of the domain when the water level rises. Making he boundary closed causes water to stop at the boundary (may cause pooling where the DEM watershed boundary is not correct). When checked, only the user defined boundary (flowboundary.map = 1) allows 2D outflow. NOTE: if you are modelling a boundary with the sea (island), do not close the boundary. Default is open (unchecked).&lt;/p&gt;&lt;p&gt;Min timestep for 2D flow 1 second. The 2D flow is non-iterative. The minimjum timestep helps to maintain a stable flow. Make this smaller when a unstable pattern appears.&lt;/p&gt;&lt;p&gt;The courant condition hekops to keep the flow stable (smaller is more stability). Default value 0.25.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -9125,7 +9125,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>1D/2D coupling</string>
+                     <string>1D Chanel / 2D flood coupling</string>
                     </property>
                    </widget>
                   </item>
@@ -20060,41 +20060,6 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4">
-                 <widget class="QSpinBox" name="spinBoxDigits">
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>9</number>
-                  </property>
-                  <property name="value">
-                   <number>3</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="QLabel" name="label_84">
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Digits</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_hydroCount">
                   <property name="font">
@@ -20897,7 +20862,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

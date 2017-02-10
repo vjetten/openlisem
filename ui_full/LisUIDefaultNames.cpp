@@ -39,6 +39,8 @@ void lisemqt::DefaultMapnames()
     //# syntax: branch level; keyword; default mapname; description; variable name
     DEFmaps.append("0;Rainfall");
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers, correspond to columns (1,2,...) in rainfall file;ID");
+    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
     DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad");
@@ -46,6 +48,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
  //   DEFmaps.append("2;Watersheds;ws.map;watersheds (1,2,3,...);watershed");
+
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
     DEFmaps.append("2;Cover;per.map;Fraction surface cover by vegetation and residue (-);cover");
@@ -55,6 +58,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road");
     DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
     DEFmaps.append("2;Canopy storage;smax.map;Maximum canopy storage (mm);smax");
+
     DEFmaps.append("0;Surface");
     DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr");
     DEFmaps.append("2;n;n.map;Manning's n (-);manning");
@@ -62,6 +66,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
     DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
     DEFmaps.append("2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (fraction 0-1);hardsurf");
+
     DEFmaps.append("0;Erosion");
     DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh");
     DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
@@ -70,6 +75,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
     DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
+
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
@@ -90,12 +96,13 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
-    DEFmaps.append("1;Ksat subtraction");
-    DEFmaps.append("2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1simple");
+//    DEFmaps.append("1;Ksat subtraction");
+//    DEFmaps.append("2;Ksat1;ksat1.map;Saturated Hydraulic Conductivity (mm/h);ksat1simple");
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
+
     DEFmaps.append("0;Channels");
     DEFmaps.append("1;Channel properties");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
@@ -110,22 +117,22 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("1;Channel BaseFLow");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
-  //  DEFmaps.append("1;Channel Baseflow");
-  //  DEFmaps.append("2;Inflow flux;chanbaseflux.map;Incoming flux into channel from the two sides (m3/s);chanbaseflux");
-  //  DEFmaps.append("2;Increase in baseflow;chanincrease.map;Increase in basevolume during rainstorm (-);chanincrease");
-  //  DEFmaps.append("2;Initial volume;chanvini.map;Initial baseflow water volume in channel (m3);chanvolini");
+
     DEFmaps.append("0;Channel Flood");
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
-    DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
+//    DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (houses, taluts, dikes, in m);barriers");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
-    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
+//    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
+
     DEFmaps.append("0;Buffers");
     DEFmaps.append("2;Buffer ID nr;bufferid.map;ID number for each buffer starting with 1 (0 is outside area);bufferID");
     DEFmaps.append("2;Buffer volume;buffervol.map;Buffer volumes at the locations of the buffers (m3);bufferVolume");
-    DEFmaps.append("0;Snowmelt");
-    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+
+//    DEFmaps.append("0;Snowmelt");
+//    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+
     DEFmaps.append("0;Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
     DEFmaps.append("2;Sink;tilesink.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
@@ -142,61 +149,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;FlowBarriers");
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
-
-
-/*    OBSOLETE and gradually replaced with new ideas
-    DEFmaps.append("0;Wheeltracks");
-    DEFmaps.append("2;LDD;lddwheel.map;LDD of wheeltrack network (can be separate branches with pits);lddwheel");
-    DEFmaps.append("2;Number;wheelnbr.map;Number of wheeltrack channels in a gridcell (-);wheelnbr");
-    DEFmaps.append("2;Width;wheelwid.map;Sum of widths of wheeltracks in a gridcell (m);wheelwidth");
-    DEFmaps.append("2;Depth;wheeldep.map;Wheel track overflow depth (cm);wheeldepth");
-    DEFmaps.append("2;Gradient;wheelgrd.map;DEFmapsope gradient of wheel tracks (-);wheelgradient");
-    DEFmaps.append("2;N;wheelman.map;Mannings n of Wheel tracks (-);wheelman");
-    DEFmaps.append("2;Cohesion;wheelcoh.map;Cohesion of wheel tracks (kPa);wheelcohesion");
-    DEFmaps.append("2;Ksat;ksatwt.map;Saturated hydraulic conductivity of wheel tracks (mm/h);ksatwt");
-
-    DEFmaps.append("0;Nutrients");
-    DEFmaps.append("1;Pesticdes");
-    DEFmaps.append("2;something;something.map;bla bla;something");
-    DEFmaps.append("2;something;something.map;bla bla;something2");
-    DEFmaps.append("1;Phosphorus");
-    DEFmaps.append("2;Bulk Dens.;bulkdens.map;Bulk density of the topsoil (kg/m3);bulk");
-    DEFmaps.append("2;P Content;pcont.map;Phosphate (P) content of the soil (kg/kg);pcont");
-    DEFmaps.append("2;P Solute;psolut.map;Initial solute store P in surface layer (kg/m2);psolute");
-    DEFmaps.append("2;P Efficiency;peff.map;Extraction efficiency (s-1);pefficiency");
-    DEFmaps.append("2;P Sorption;Psorp.map;Sorption isotherm kd (m3/kg);psorp");
-    DEFmaps.append("2;P Conversion;Pconv.map;Conversion P from soil content to clay content(-);pconv");
-    DEFmaps.append("1;NH4");
-    DEFmaps.append("2;NH4 Content;nh4cont.map;Ammonium (NH4+) content of the soil (kg/kg);nh4cont");
-    DEFmaps.append("2;NH4 Solute;nh4solut.map;Initial solute store NH4 in surface layer (kg/m2);nh4solute");
-    DEFmaps.append("2;NH4 Efficiency;nh4eff.map;Extraction efficiency (s-1);nh4efficiency");
-    DEFmaps.append("2;NH4 Sorption;NH4sorp.map;Sorption isotherm kd (m3/kg);nh4sorp");
-    DEFmaps.append("2;NH4 Conversion;NH4conv.map;Conversion NH4 from soil content to clay content(-);nh4conv");
-    DEFmaps.append("1;NO3");
-    DEFmaps.append("2;NO3 Content;NO3cont.map;Nitrate (NO3-) content of the soil (kg/kg);no3cont");
-    DEFmaps.append("2;NO3 Solute;NO3solut.map;Initial solute store NO3 in surface layer (kg/m2);no3solute");
-    DEFmaps.append("2;NO3 Efficiency;NO3eff.map;Extraction efficiency (s-1);no3efficiency");
-    DEFmaps.append("2;NO3 Sorption;NO3sorp.map;Sorption isotherm kd (m3/kg);no3sorp");
-    DEFmaps.append("2;NO3 Conversion;NO3conv.map;Conversion NO3 from soil content to clay content(-);no3conv");
-
-    DEFmaps.append("0;Gullies");
-    DEFmaps.append("1;General");
-    //   DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
-    DEFmaps.append("2;mannings N;gullyman.map;manning's n gully bottom (-);gullyn");
-    DEFmaps.append("2;Excluded areas;noncrit.map;areas to be excluded (1) and rest (0);nonfcrit");
-    DEFmaps.append("2;Gully initial Width;gulwinit.map; initial gully width (m);gulwinit");
-    DEFmaps.append("2;Gully initial Depth;guldinit.map; initial gully depth (m);guldinit");
-    DEFmaps.append("1;Soil Layer 1");
-    DEFmaps.append("2;Depth layer 1;soildep1.map;Depth to topsoil (cm);gullydep1");
-    DEFmaps.append("2;Cohesion layer 1;coh.map;Cohesion of topsoil (kPa);gullycoh1");
-    DEFmaps.append("2;BulkDensity;bulkdens.map;Bulkdensity of topsoil (kg/m3);bulkdens1");
-    DEFmaps.append("2;Ksat;ksat1.map;Ksat of topsoil for gully infil (mm/h);gulksat1");
-    DEFmaps.append("1;Soil Layer 2");
-    DEFmaps.append("2;Depth layer 2;soildep2.map;Depth to subsoil (cm);gullydep2");
-    DEFmaps.append("2;Cohesion layer 2;coh2.map;Cohesion of subsoil (kPa);gullycoh2");
-    DEFmaps.append("2;BulkDensity 2;bulkden2.map;Bulkdensity of subsoil (kg/m3);bulkdens2");
-    DEFmaps.append("2;Ksat 2;gulksat2.map;Ksat of subsoil for gully infil (mm/h);gulksat2");
-OBSOLETE   */
+    DEFmaps.append("2;FlowBoundary;flowboundary.map;A value of 1 at the domain boundary means free outflow, a 0 means no flow (-);flowboundary");
 
     // example
     //   DEFmaps.append("0;Pesticides");

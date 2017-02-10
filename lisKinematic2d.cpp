@@ -992,14 +992,13 @@ void TWorld::K2DDEMA()
                 K2DSlopeY->Drc = 0;
             }
         }
-}
-   // qDebug()<<SwitchClosedBoundaryOF;
-    FOR_ROW_COL_MV
-    {
+
+        //VJ add flowboundary map
         if (SwitchClosedBoundaryOF)
+        {
             K2DOutlets->Drc = 0;
-        if(Outlet->Drc >= 1)
-            K2DOutlets->Drc = 1;
+            if(FlowBoundary->Drc >= 1)
+                K2DOutlets->Drc = 1;
+        }
     }
-   // report(*K2DOutlets,"kdout");
 }

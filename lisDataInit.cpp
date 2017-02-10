@@ -395,8 +395,9 @@ void TWorld::InitShade(void)
 {
     Shade = NewMap(0);
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
-    if (SwitchChannelFlood)
-        calcMap(*DEM, *Barriers, ADD);
+//    if (SwitchChannelFlood)
+//        calcMap(*DEM, *Barriers, ADD);
+//DEM should already have barriers
     double maxDem = -1e9;
     double minDem = 1e9;
 
@@ -652,8 +653,10 @@ void TWorld::InitChannel(void)
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
 
-            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
-            cover(*Barriers, *LDD,0);
+//            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
+//            Barriers = ReadMap(LDD, getvaluename("barriers"));
+//            cover(*Barriers, *LDD,0);
+//STRANGE barrers are linked to lddchannel??? should ne ldd
 
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
@@ -1259,7 +1262,7 @@ void TWorld::GetInputData(void)
     //
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
-    cover(*Outlet, *LDD, 0);
+    cover(*Outlet, *LDD, 0);    
 
     bool outset = false;
     // fill outlet with zero, some users have MV where no outlet
@@ -1294,6 +1297,9 @@ void TWorld::GetInputData(void)
 
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
     //map with points for output data
+
+    if (SwitchClosedBoundaryOF)
+        FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
 
     if (SwitchRainfall)
     {

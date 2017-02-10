@@ -52,7 +52,7 @@ void TWorld::ChannelOverflow()
         if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
         {
 
-            double levee = ChannelLevee->Drc;
+            double levee = 0;//ChannelLevee->Drc;
             double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 

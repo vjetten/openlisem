@@ -325,7 +325,7 @@ void TWorld::ParseRunfileData(void)
         InfilMethod = getvalueint("Infil Method");
 
     }// first loop of runnamelist
-qDebug() << SwitchClosedBoundaryOF;
+
     if (SwitchFloodSWOForder2)
     {
         SwitchFloodSWOForder1 = false;

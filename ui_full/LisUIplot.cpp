@@ -408,7 +408,7 @@ void lisemqt::SetTextHydrographs()
     }
     int j = OutletIndices.indexOf(this->outletpoint);
 
-    double dig = spinBoxDigits->value(); //DIGITS;
+    double dig = E_DigitsOut->value(); //DIGITS;
 
     label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',dig));
     label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',dig));
@@ -482,7 +482,7 @@ void lisemqt::showOutputData()
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
 
-    double dig = spinBoxDigits->value();//DIGITS;
+    double dig = E_DigitsOut->value();//DIGITS;
 
     label_dx->setText(QString::number(op.dx,'f',dig));
     label_area->setText(QString::number(op.CatchmentArea/1000000,'f',dig));
@@ -517,7 +517,7 @@ void lisemqt::showOutputData()
 
     if(checkDoErosion->isChecked())
     {
-        int dig = spinBoxDigits->value();//DIGITS;
+        int dig = E_DigitsOut->value();//DIGITS;
         label_MBs->setText(QString::number(op.MBs,'e',dig));
         label_splashdet->setText(QString::number(op.DetTotSplash,'f',dig));
         label_flowdet->setText(QString::number(op.DetTotFlow,'f',dig));

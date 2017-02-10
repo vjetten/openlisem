@@ -52,7 +52,7 @@ void TWorld::Interception(void)
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
     FOR_ROW_COL_MV
-        if (Cover->Drc > 0 && Rainc->Drc > 0)
+        if (Cover->Drc > 0)// && Rainc->Drc > 0)
         {
             double CS = CStor->Drc;
             //actual canopy storage in m
@@ -72,8 +72,8 @@ void TWorld::Interception(void)
                     Smax = 0;
             // no interception with buffers, but sedtrap can have interception
 
-            if (SwitchHardsurface)
-                Smax *= (1-HardSurface->Drc);
+//            if (SwitchHardsurface)
+//                Smax *= (1-HardSurface->Drc);
             //VJ 110111 no interception on hard surfaces
 
 //            if (PlantHeight->Drc < WH->Drc)
@@ -102,10 +102,11 @@ void TWorld::Interception(void)
             // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
             // possible to use equation from Ahston but for very open Eucalypt
 
-            //CS = std::max(0.0, CS * (1-StemflowFraction));
+//            CS = std::max(0.0, CS * (1-StemflowFraction));
             //VJ 110206 decrease storage with stemflow fraction!
             // but stemflowfraction doesn't go anywhere!!!!!!!!!!!!!!!!!
-
+            // it doesn't matter, either stemflow is removed from the storage and added to RainNet
+            // or it is not subtracted in the first place, so the storage is a bit more but leafdrain is earlier at maximum
 
             LeafDrain->Drc = std::max(0.0, Cover->Drc*(Rainc->Drc - (CS - CStor->Drc)));
             // diff between new and old strage is subtracted from rainfall
@@ -120,10 +121,11 @@ void TWorld::Interception(void)
             RainNet->Drc = LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
-        }else
-        {
-            RainNet->Drc = Rainc->Drc;
         }
+//    else
+//        {
+//            RainNet->Drc = Rainc->Drc;
+//        }
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter(void)

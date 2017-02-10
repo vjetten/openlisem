@@ -40,6 +40,7 @@ cTMap
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
+*FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
 
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
@@ -401,7 +402,7 @@ cTMap
 //explicit solution
 
 *FloodDomain,                //!<
-*Barriers,                    //!<
+//*Barriers,                    //!<
 *ChannelMaxQ,                //!<
 *ChannelLevee,                //!<
 *FloodWaterVol,                //!<
