@@ -121,7 +121,7 @@ void TWorld::K2DInit()
             Qn->Drc = 0;
             if(ChannelAdj->Drc > 0)
             {
-               K2DHOld->Drc = WHrunoff->Drc*FlowWidth->Drc/ChannelAdj->Drc;
+                K2DHOld->Drc = WHrunoff->Drc*FlowWidth->Drc/ChannelAdj->Drc;
             }else
             {
                 K2DHOld->Drc = 0;
@@ -157,12 +157,7 @@ void TWorld::K2DInit()
 
             K2DHOld->Drc = WHrunoff->Drc;
         }
-
-
     }
-
-
-
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -218,7 +213,6 @@ double TWorld::K2DFlux()
         //within this timestep, only fraction of the cells available water should flow out
         if(K2DQ->Drc > 0)
         {
-
             double mindtr = fraction * (cdx*hrunoff*cdy)/K2DQ->Drc;
             dtr = std::min(mindtr ,dtr);
             if(!std::isnan(mindtr))
@@ -307,7 +301,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
         }else
         {
             //for each cell neigbhouring the advected location of the discharge, calculate interpolation weight
-            int big = 0;
+            //int big = 0;
             for (int i=0; i<4; i++)
             {
                 // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
@@ -316,9 +310,9 @@ void TWorld::K2DSolvebyInterpolation(double dt)
 
                 //the distribution is inverly proportional to the squared distance
                 double weight = fabs(wdx*wdy);
-                if (i > 0 && weight > w[i-1])
-                    big = i;
-                // find largest weight direction
+//                if (i > 0 && weight > w[i-1])
+//                    big = i;
+//                // find largest weight direction
 
                 w[i] = weight;
                 if(SwitchFlowBarriers)
@@ -326,7 +320,7 @@ void TWorld::K2DSolvebyInterpolation(double dt)
                     w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn*dy[i],xn*dx[i]);
                 }
             }
-            w[big] = w[big] * ConcentrateKin;
+//            w[big] = w[big] * ConcentrateKin;
             // multiply with user weight
 
             //normalize: sum of the 4 weights is equal to 1
@@ -492,7 +486,7 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         }else
         {
             //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
-            int big = 0;
+//            int big = 0;
             for (int i=0; i<4; i++)
             {
 //                int r2;
@@ -510,14 +504,14 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
                 //the distribution is inverly proportional to the squared distance
                 double weight = fabs(wdx*wdy);
                 w[i]  = weight;
-                if (i > 0 && weight > w[i-1])
-                    big = i;
+//                if (i > 0 && weight > w[i-1])
+//                    big = i;
                 if(SwitchFlowBarriers)
                 {
                     w[i] = w[i] * FBW(K2DHOld->Drc,r,c,yn * dy[i],xn * dx[i]);
                 }
             }
-            w[big] = w[big]*ConcentrateKin;
+//            w[big] = w[big]*ConcentrateKin;
         }
 
         //normalize: sum of the 4 weights is equal to 1
@@ -747,7 +741,6 @@ void TWorld::K2DDEMA()
 {
     FOR_ROW_COL_MV
     {
-        //   K2DDEM->Drc = DEM->Drc
         K2DOutlets->Drc = 0;
         K2DWHStore->Drc = 0;
         K2DPits->Drc = 0;
@@ -755,7 +748,6 @@ void TWorld::K2DDEMA()
         K2DSlopeX->Drc = 0;
         K2DSlopeY->Drc = 0;
         K2DSlope->Drc = 0;
-        //K2DAspect->Drc = 0;
         //set heigt to dem + water heigt (this provides mannings flow equation with the gradient of water head)
         K2DDEM->Drc = DEM->Drc + WHrunoff->Drc;
     }
@@ -829,6 +821,7 @@ void TWorld::K2DDEMA()
         }
 
         //at boundaries, set cell as outflow cell when slope is in the direction of the boundary
+
         if(r == 0)
         {
             if( Dhy < 0)
@@ -879,9 +872,10 @@ void TWorld::K2DDEMA()
             K2DSlopeY->Drc = 0.00;
 
         }
+
         //minimum value for the slope
         //K2DSlope->Drc = std::max(K2DSlope->Drc,0.01);
-        //K2DOutlets->Drc = Outlet->Drc;
+     //   K2DOutlets->Drc = Outlet->Drc;
     }
 
     //Detection of water available for outflow (because of local depressions)
@@ -997,6 +991,11 @@ void TWorld::K2DDEMA()
                 K2DSlopeY->Drc = 0;
             }
         }
+
+        if (SwitchClosedBoundaryOF)
+            K2DOutlets->Drc = 0;
+        if(Outlet->Drc >= 1)
+            K2DOutlets->Drc = 1;
+        report(*K2DOutlets,"kdout");
     }
-report(*K2DOutlets,"kdout");
 }

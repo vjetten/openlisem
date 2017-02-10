@@ -770,6 +770,7 @@ void lisemqt::SetStyleUI()
     //always MUSCL
     E_FloodScheme->setVisible(false);
     label_98->setVisible(false);
+    frameSpare->setVisible(false);
 
 
     //groupBoxTime->setMaximumWidth(128);

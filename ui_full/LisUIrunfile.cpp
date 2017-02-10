@@ -173,7 +173,7 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Timestep Kin Wave 2D")==0)            E_TimestepMin->setValue(val);
         if (p1.compare("Courant Kin Wave 2D")==0)            E_CourantFactorKin->setValue(val);
-        if (p1.compare("Concentrate Kin Wave 2D")==0)            E_K2Dconcentrate->setValue(val);
+        if (p1.compare("Close boundary Kin Wave 2D")==0)     checkCloseBoundaryOF->setChecked(check);
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
         //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
         //houses
@@ -705,7 +705,7 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
-        if (p1.compare("Concentrate Kin Wave 2D")==0)            namelist[j].value = E_K2Dconcentrate->text();
+        if (p1.compare("Close boundary Kin Wave 2D")==0)        namelist[j].value.setNum((int)checkCloseBoundaryOF->isChecked());
 
 //        if (p1.compare("Flood method explicit")==0)
 //        {

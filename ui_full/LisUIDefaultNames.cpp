@@ -400,7 +400,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.25");
     namelist[i++].name = QString("Courant Kin Wave 2D");
     namelist[i].value = QString("1");
-    namelist[i++].name = QString("Concentrate Kin Wave 2D");
+    namelist[i++].name = QString("Close boundary Kin Wave 2D");
 
     //###
     namelist[i++].name = QString("");

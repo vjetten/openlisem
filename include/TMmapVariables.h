@@ -239,7 +239,7 @@ cTMap
 *K2DSlopeX,                     //!<
 *K2DSlopeY,                     //!<
 *K2DSlope,                      //!<
-*K2DAspect,                     //!<
+//*K2DAspect,                     //!<
 *K2DHOld,                       //!<
 *K2DHNew,                       //!<
 *K2DQX,                         //!<
@@ -286,7 +286,7 @@ cTMap
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *L1,                         //!< depth of wetting front in layer 1 [m]
 *Soilwater,                  //!< actual soil water content [-]
-
+*ThetaSub,
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]

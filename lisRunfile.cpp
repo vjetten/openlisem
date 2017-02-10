@@ -182,6 +182,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
 
+        if (p1.compare("Close boundary Kin Wave 2D")) SwitchClosedBoundaryOF = iii == 1;
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
@@ -323,29 +324,21 @@ void TWorld::ParseRunfileData(void)
 
         InfilMethod = getvalueint("Infil Method");
 
-
-
     }// first loop of runnamelist
-
- //   rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
 
     if (SwitchFloodSWOForder2)
     {
         SwitchFloodSWOForder1 = false;
-        SwitchFloodExplicit = false;
     }
     if (SwitchFloodSWOForder1)
     {
         SwitchFloodSWOForder2 = false;
-        SwitchFloodExplicit = false;
     }
 
     SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
     CourantKin = getvaluedouble("Courant Kin Wave 2D");
-    ConcentrateKin = getvalueint("Concentrate Kin Wave 2D");
-    if (ConcentrateKin < 1 || ConcentrateKin > 10)
-        ConcentrateKin = 1;
+
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);

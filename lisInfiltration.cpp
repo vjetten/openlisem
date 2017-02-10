@@ -587,7 +587,8 @@ void TWorld::SoilWater()
         {
             bca = 5.55*qPow(Ksat1->Drc,-0.114);
             // Brooks corey value based on non lin regeression Saxton stuff
-            Percolation = Ksat1->Drc * pow(ThetaI1->Drc/ThetaS1->Drc, bca)*_dt/3600000.0;
+            double theta = 0.5*(ThetaSub->Drc + ThetaI1->Drc);
+            Percolation = Ksat1->Drc * pow(theta/ThetaS1->Drc, bca)*_dt/3600000.0;
             // percolation = unsaturated K per timestep, Brooks Corey estimate
 
             if (L1->Drc > SoilDepth1->Drc-tiny)
@@ -613,7 +614,8 @@ void TWorld::SoilWater()
         else
         {
             bca = 5.55*qPow(Ksat2->Drc,-0.114);
-            Percolation = Ksat2->Drc * pow(ThetaI2->Drc/ThetaS2->Drc, bca);
+            double theta = 0.5*(ThetaSub->Drc + ThetaI2->Drc);
+            Percolation = Ksat2->Drc * pow(theta/ThetaS2->Drc, bca);
 
             if (L2->Drc > SoilDepth2->Drc-tiny)
             {

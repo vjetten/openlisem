@@ -322,11 +322,6 @@ double TWorld::OFTC(int r, int c, int d)
         return 0;
     }
 
-//    if(ChannelAdj->Drc < MIN_HEIGHT)
-//    {
-//        return 0;
-//    }
-
     if(SwitchKinematic2D != K1D_METHOD)
     {
         if(K2DSlope->Drc < MIN_SLOPE)
@@ -2403,9 +2398,10 @@ double TWorld::RiverSedimentTCSS(int r,int c, int _d)
 
             double T = std::max((us*us/(uscr*uscr) - 1),0.0);
             double bsv = sqrt(GRAV * ChannelWH->Drc *std::max(ChannelGrad->Drc,0.05));
+            //VJ??? 5% min slope, is dat nodig?
             double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3);
 
-            double dss = 1 + 0.011*(1.8 - 1)*(T - 25);
+            //double dss = 1 + 0.011*(1.8 - 1)*(T - 25);
             double sv = 10 * (kinvis/ds) *( sqrt(1 + (ps/pw - 1) * GRAV * d50m*d50m*d50m) - 1);
 
             double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
@@ -2449,7 +2445,7 @@ double TWorld::RiverSedimentTCSS(int r,int c, int _d)
                 return 0;
             }
 
-            double dh = (ChannelWidth->Drc *h)/(ChannelWidth->Drc + 2.0* h);
+            //double dh = (ChannelWidth->Drc *h)/(ChannelWidth->Drc + 2.0* h);
             double css = 0.03* (ps - pw) * (gd) * ppk;
 
             double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h * 9.81 * slope /css) - 1.0, 0.0)* v/(sqrt(sv)),2.2);

@@ -73,7 +73,10 @@ void TWorld::CalcVelDischChannel(void)
 
         Radius = (Perim > 0 ? Area/Perim : 0);
 
+        if (grad > 0)
         ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, _23),beta);
+        else
+            ChannelAlpha->Drc = 0;
 
         if (ChannelAlpha->Drc > 0)
             ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
@@ -223,7 +226,7 @@ double TWorld::ChannelIterateWH(double _h, int r, int c)
 {
     double y1 = _h;
     double y = _h;
-    double dy = y/1000;
+    //double dy = y/1000;
     double GN = sqrt(ChannelGrad->Drc)/ChannelN->Drc;
     double w = ChannelWidthUpDX->Drc;
     double _53 =5.0/3.0;

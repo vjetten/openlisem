@@ -544,12 +544,9 @@ void TWorld::InitChannel(void)
 
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-        FOR_ROW_COL_MV_CH
-        {
-            ChannelGrad->Drc = Grad->Drc;
-        }
         checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
-        calcValue(*ChannelGrad, 0.001, MAX);
+        //calcValue(*ChannelGrad, 0.001, MAX);
+        //VJ 171002 better to check and set Q to 0 in the code
         ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
         ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
         cover(*ChannelGrad, *LDD, 0);
@@ -576,7 +573,8 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-            ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc));
+            ChannelDX->Drc = _dx/cos(asin(Grad->Drc));
+            //MUST  BE GRAD NOT CHANNELGRAD
             if (SwitchEfficiencyDET == 1)
                 ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
             else
@@ -1256,7 +1254,9 @@ void TWorld::GetInputData(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not tangent)");
-    calcValue(*Grad, 0.001, MAX);
+ //   calcValue(*Grad, 0.001, MAX);
+    //VJ 170210 better to check the code where grad is 0, there q = 0, alpha = 0, so v = 0
+    //
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     cover(*Outlet, *LDD, 0);
@@ -1409,7 +1409,9 @@ void TWorld::GetInputData(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-
+        ThetaSub = NewMap(0);
+        copy(*ThetaSub, *ThetaI1);
+        report(*ThetaSub,"tsub.map");
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
@@ -1425,6 +1427,7 @@ void TWorld::GetInputData(void)
         {
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+            copy(*ThetaSub, *ThetaI2);
 
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity

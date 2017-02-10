@@ -421,7 +421,10 @@ void TWorld::CalcVelDisch()
         else
             R->Drc = 0;
 
-        Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
+        if (Grad->Drc > 0)
+            Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
+        else
+            Alpha->Drc = 0;
 
         if (Alpha->Drc > 0)
             Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
@@ -764,9 +767,6 @@ void TWorld::OverlandFlowNew(void)
             }
         }else
         {
-//<<<<<<< HEAD
-//            if(Grad->Drc != 0)
-//=======
             if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
             {
                 if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
