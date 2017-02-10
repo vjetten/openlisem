@@ -47,7 +47,7 @@ void lisemqt::setupPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     HPlot = new QwtPlot(title, this);
     layout_Plot->insertWidget(0, HPlot, 1);
-    HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
+    //HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
 
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );
@@ -116,9 +116,9 @@ void lisemqt::setupPlot()
 //    grid->enableXmin(true);
  //   grid->enableYmin(true);
     col.setRgb( 180,180,180,180 );
-    grid->setMajPen(QPen(col, 0, Qt::DashLine));
+    grid->setMajorPen(QPen(col, 0, Qt::DashLine));
     col.setRgb( 210,210,210,180 );
-    grid->setMinPen(QPen(col, 0 , Qt::DotLine));
+    grid->setMinorPen(QPen(col, 0 , Qt::DotLine));
     grid->attach(HPlot);
 
     HPlot->replot();

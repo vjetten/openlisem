@@ -30,9 +30,14 @@
 #ifndef LISEMQT_H
 #define LISEMQT_H
 
-#include <QtGui>
-#include <QApplication>
+#include <QtGui/QtGui>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QSystemTrayIcon>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QtWidgets>
+#include <QtWidgets/QFileDialog>
 
+#include "3D/GL3DWidget.h"
 //QWT library files
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -53,7 +58,9 @@
 #include <qwt_scale_engine.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_picker.h>
-
+#include <qwt_scale_engine.h>
+#include <qwt_text.h>
+#include <qwt_text_engine.h>
 
 #include "version.h"
 #include "ui_lisemqt.h"
@@ -277,6 +284,9 @@ public:
     int mapstartnr;
     bool doShootScreens;
 
+    bool first3d = true;
+    void Setup3DPlot();
+    GL3DWidget *glwidget;
 
 public slots:
     // functions linked to actions

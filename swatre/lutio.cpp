@@ -82,7 +82,7 @@ double *TWorld::ReadSoilTable(
 
       QStringList SL = QString(buf).split(QRegExp("\\s+"),QString::SkipEmptyParts);
       currNrCols = SL.count();
-      strcpy(buf, SL.join(" ").toAscii());
+      strcpy(buf, SL.join(QString(" ")).toLatin1());
       // trim spaces and count columns
 
 		if (currNrCols == 0)

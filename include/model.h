@@ -278,15 +278,15 @@ typedef struct UNIT_LIST {
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
-typedef struct COORD {
+typedef struct lCOORD {
     int _r;
     int _c;
-} COORD;
+} lCOORD;
 //--------------------------------------------------------------------------
 /// structure for watershed coordinates for flooding
 typedef struct WS_LIST {
     bool flood;
-   QList <COORD> cr;
+   QList <lCOORD> cr;
    //  QVector <COORD> cr;
     int ws;
     double dt;

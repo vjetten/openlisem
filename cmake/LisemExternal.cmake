@@ -8,16 +8,13 @@ ADD_DEFINITIONS(
     -DBOOST_ALL_NO_LIB
 )
 
-
 # Find packages. ---------------------------------------------------------------
 FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
 FIND_PACKAGE(GDAL REQUIRED)
-FIND_PACKAGE(Qt4 4 REQUIRED QtCore QtGui)
 FIND_PACKAGE(Qwt REQUIRED)
 FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
 FIND_PACKAGE(Fern REQUIRED)
 FIND_PACKAGE(Doxygen)
-
 
 # Fixup GDAL variable.
 IF(WIN32 AND MINGW)
@@ -44,8 +41,8 @@ IF(WIN32 AND MINGW)
 ENDIF()
 
 
+
 # Configure project. -----------------------------------------------------------
-INCLUDE(${QT_USE_FILE})
 
 INCLUDE_DIRECTORIES(
     SYSTEM
@@ -54,6 +51,8 @@ INCLUDE_DIRECTORIES(
     ${QWT_INCLUDE_DIRS}
 )
 
+
+
 INCLUDE_DIRECTORIES(
     ${PCRASTER_RASTER_FORMAT_INCLUDE_DIRS}
     ${FERN_INCLUDE_DIRS}
@@ -61,7 +60,6 @@ INCLUDE_DIRECTORIES(
 
 SET(LISEM_EXTERNAL_LIBRARIES
     ${QWT_LIBRARIES}
-    ${QT_LIBRARIES}
     ${GDAL_LIBRARIES}
     ${PCRASTER_RASTER_FORMAT_LIBRARIES}
     ${FERN_LIBRARIES}

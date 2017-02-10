@@ -49,7 +49,7 @@ bool rasterCanBeOpenedForReading(
     QString const& pathName)
 {
     GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
-        pathName.toAscii().constData(), GA_ReadOnly)), close_gdal_dataset);
+        pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
     bool result{dataset};
 
     return result;
@@ -64,7 +64,7 @@ cTMap readRaster(
 {
     // Open raster dataset and obtain some properties.
     GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
-        pathName.toAscii().constData(), GA_ReadOnly)), close_gdal_dataset);
+        pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
     if(!dataset) {
         Error(QString("Map %1 cannot be opened.").arg(pathName));
     }
@@ -114,7 +114,7 @@ void writePCRasterRaster(
     QString pathName)
 {
     // Create and configure CSF map.
-    MapPtr csfMap{Rcreate(pathName.toAscii().constData(), raster.nrRows(),
+    MapPtr csfMap{Rcreate(pathName.toLatin1().constData(), raster.nrRows(),
         raster.nrCols(), CR_REAL4, VS_SCALAR, PT_YDECT2B, raster.west(),
         raster.north(), 0.0, raster.cellSize()), close_csf_map};
 
@@ -149,7 +149,7 @@ void writeGDALRaster(
     int const nrRows{raster.nrRows()};
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
-    GDALDatasetPtr dataset{driver.Create(pathName.toAscii().constData(),
+    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
         nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
 
     if(!dataset) {
@@ -168,7 +168,7 @@ void writeGDALRaster(
         raster_data.cell_size()};
     dataset->SetGeoTransform(transformation);
 
-    dataset->SetProjection(raster.projection().toAscii().constData());
+    dataset->SetProjection(raster.projection().toLatin1().constData());
 
     // PCRaster supports value scales, but other formats don't. We set the
     // value scale as a meta data item in the raster. If the format supports
@@ -217,11 +217,11 @@ void writeRaster(
 
 
     GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
-        format.toAscii().constData());
+        format.toLatin1().constData());
 
     if(!driver) {
         Error(QString("Format driver %1 not available.").arg(
-            format.toAscii().constData()));
+            format.toLatin1().constData()));
     }
 
     char** metadata{driver->GetMetadata()};
@@ -241,7 +241,7 @@ void writeRaster(
     else {
         Error(QString(
             "Format driver %1 cannot be used to create datasets.").arg(
-                format.toAscii().constData()));
+                format.toLatin1().constData()));
     }
 }
 

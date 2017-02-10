@@ -105,6 +105,8 @@ void lisemqt::runmodel()
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
+    first3d = true;
+
     W->start();
     // start the model thread, executes W->run()
     //=======================================================================================//
@@ -141,6 +143,8 @@ void lisemqt::pausemodel()
 //---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
+    glwidget->DestroyWorldFromLisem();
+
     if(W)
         W->stopRequested = true;
     if(W->waitRequested)
@@ -178,6 +182,17 @@ void lisemqt::worldShow()
     startplot = false;
 
     showMap(); // show map
+
+
+    if(first3d)
+    {
+        glwidget->CreateWorldFromLisem();
+        first3d = false;
+    }else
+    {
+        glwidget->UpdateWorldFromLisem();
+    }
+
 
     if (doShootScreens)
        shootScreen();

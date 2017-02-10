@@ -109,6 +109,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
+    Setup3DPlot();
+
     setupPlot();
     // setupSmallPlot();
     // set up the discharge graphs
@@ -1347,7 +1349,7 @@ void lisemqt::shootScreen()
 
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(2));
         fileName = outdir + fi.baseName() + QString("_q%1.png").arg(op.runstep,5,'d',0,'0');
-        originalPixmap.save(fileName, format.toAscii());
+        originalPixmap.save(fileName, format.toLatin1());
 
         originalPixmap = QPixmap::grabWidget(tabWidget->widget(3));
         QString type;
@@ -1362,7 +1364,7 @@ void lisemqt::shootScreen()
 
         fileName = outdir + fi.baseName() + type;
 
-        originalPixmap.save(fileName, format.toAscii());
+        originalPixmap.save(fileName, format.toLatin1());
     }
     else
     {
@@ -1380,7 +1382,7 @@ void lisemqt::shootScreen()
         }
 
         fileName = outdir + fi.baseName() + type;
-        originalPixmap.save(fileName, format.toAscii());
+        originalPixmap.save(fileName, format.toLatin1());
 
 
     }

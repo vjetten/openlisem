@@ -105,7 +105,7 @@ void lisemqt::setupMapPlot()
   // verticalLayout_2->addWidget( MPlot, 0);
        maplayout->insertWidget(1, MPlot, 0, 0);
     // put it on screen
-    MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
+    //MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
     MPlot->setAxisTitle(HPlot->xBottom, "m");
     MPlot->setAxisTitle(HPlot->yLeft, "m");
@@ -182,7 +182,7 @@ void lisemqt::setupMapPlot()
     panner->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from panning
 
-    picker = new MyPicker( MPlot->canvas() );
+    picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -403,7 +403,7 @@ void lisemqt::showComboMap(int i)
                     MPlot->setAxisScale( MPlot->yRight, std::max(mi,1.0), std::max(1000.0,ma));
                 }
 
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
+        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLogScaleEngine() );
     }
     else
     {

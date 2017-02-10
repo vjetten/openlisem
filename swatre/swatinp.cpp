@@ -273,7 +273,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(
       if (endHor <= endHorPrev)
          Error(QString("SWATRE: Error in profile definition nr %1").arg(p->profileId));
 
-      h = ReadHorizon(SwatreTableDir.toAscii().constData(), tableName.toAscii().constData());
+      h = ReadHorizon(SwatreTableDir.toLatin1().constData(), tableName.toLatin1().constData());
       // copy horizon info to all nodes of this horizon
 
       while (i < z->nrNodes && z->endComp[i] <= endHor )
@@ -295,7 +295,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
    int  i, mmax;
    PROFILE **tmpList;
    // PROFILE.INP is opened here
-   f = fopen(fileName.toAscii().constData(), "r");
+   f = fopen(fileName.toLatin1().constData(), "r");
 
    if (f == NULL)
    {
@@ -322,7 +322,7 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
             profileList[i++] = NULL;
       }
       profileList[nrProfileList] =
-            ReadProfileDefinition(f,z,tablePath.toAscii().constData());
+            ReadProfileDefinition(f,z,tablePath.toLatin1().constData());
 
    } while (profileList[nrProfileList++] != NULL);
    // correct for eof-marker and test if something is read

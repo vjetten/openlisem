@@ -1,21 +1,17 @@
+cmake_minimum_required(VERSION 2.8.11)
+
+INCLUDE(LISEM)
+
+# GET ALL THE APPLICATION SOURCES
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui_full/3D
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui_full/3D/World
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui_full/3D/Objects
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui_full/3D/Graphics
     ${CMAKE_CURRENT_BINARY_DIR}/.
-)
-
-SET(LIB_SOURCES
-    CsfMap
-    error
-    fixture
-    io
-)
-ADD_LIBRARY(liblisem STATIC
-    ${LIB_SOURCES}
-)
-SET_TARGET_PROPERTIES(liblisem
-    PROPERTIES
-        OUTPUT_NAME lisem)
+) 
 
 SET(APP_SOURCES
     lisTotalsMB
@@ -51,6 +47,31 @@ SET(APP_SOURCES
     lisUnifiedFlowInitialize
     include/lisUnifiedFlowThreadPool.h
     include/lisUnifiedFlowThread.h
+    ui_full/3D/Common
+    ui_full/3D/GL3DWidget
+    ui_full/3D/GL3DDrawFunctions
+    ui_full/3D/World/GL3DWorld
+    ui_full/3D/World/GL3DCamera
+    ui_full/3D/Objects/GL3DBuilding
+    ui_full/3D/Objects/GL3DFlowSurface
+    ui_full/3D/Objects/GL3DGrass
+    ui_full/3D/Objects/GL3DOcean
+    ui_full/3D/Objects/GL3DRoads
+    ui_full/3D/Objects/GL3DSkyBox
+    ui_full/3D/Objects/GL3DSurface
+    ui_full/3D/Objects/GL3DTree
+    ui_full/3D/Objects/GL3DSkyBox
+    ui_full/3D/Objects/GL3DBuilding
+    ui_full/3D/Objects/GL3DObject
+    ui_full/3D/Graphics/GL3DMath
+    ui_full/3D/Graphics/GL3DShaders
+    ui_full/3D/Graphics/GL3DTextures
+    ui_full/3D/Graphics/GL3DGeometry
+    ui_full/3D/Graphics/GL3DColorRamp
+    ui_full/3D/Graphics/GL3DMapMath
+    ui_full/3D/World/GL3DCameraController
+    ui_full/3D/GL3DInput
+    ui_full/3D/GL3DWorldCreator
     lisUnifiedFlowThreadPool.cpp
     lisUnifiedFlowThread.cpp
     lisSlopeStability
@@ -59,6 +80,10 @@ SET(APP_SOURCES
     lisSurfstor
     lisSnowmelt
     main
+    CsfMap.cpp
+    io.cpp
+    fixture.cpp
+    error.cpp
     operation
     swatre/swatstep
     swatre/swatinit
@@ -69,37 +94,45 @@ SET(APP_SOURCES
     lisInterception
     include/version.h
     include/model.h
-    include/UFmodel.h
     include/TMmapVariables.h
     include/LisUIoutput.h
+    include/Csfmap.h
+    include/array.h
+    include/error.h
+    include/fixture.h
+    include/global.h
+    include/io.h
+    include/LisUIoutput.h
+    include/masked_raster.h
+    include/mmath.h
+    include/model.h
+    include/operation.h
+    include/option.h
+    include/raster.h
+    include/stable.h
+    include/swatre_g.h
+    include/swatre_p.h
+    include/swatreLookup.h
+    include/swatremisc.h
+    include/swatresoillut.h
     openlisemico.rc
 )
-QT4_WRAP_CPP(MOC_SOURCES
-    include/lisUnifiedFlowThreadPool.h
-    include/lisUnifiedFlowThread.h
-    include/model.h
-    ui_full/lisemqt.h
-    ui_full/LisUItreemodel.h
-)
-QT4_WRAP_UI(UI_SOURCES
+
+QT5_WRAP_UI(UI_SOURCES
     ui_full/lisemqt.ui
 )
-QT4_ADD_RESOURCES(RCC_SOURCES
+QT5_ADD_RESOURCES(RCC_SOURCES
     resources/openlisem.qrc
 )
-ADD_EXECUTABLE(lisem WIN32
-    ${MOC_SOURCES}
+
+# Tell CMake to create the executable
+add_executable(Lisem WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
-)
-TARGET_LINK_LIBRARIES(lisem
-    liblisem
-    ${LISEM_EXTERNAL_LIBRARIES}
-    stdc++
-)
+    )
 
-# TODO CONFIG += exceptions
-# TODO CONFIG += precompile_header
-# TODO PRECOMPILED_HEADER = include/stable.h
-# TODO RC_FILE = openlisemico.rc
+# Use the Widgets module from Qt 5.
+target_link_libraries(Lisem ${OPENGL_gl_LIBRARY} Qt5::Widgets Qt5::Gui Qt5::Core Qt5::OpenGL ${LISEM_EXTERNAL_LIBRARIES})
+
+TARGET_LINK_LIBRARIES(Lisem ${QWT_LIBRARIES})
