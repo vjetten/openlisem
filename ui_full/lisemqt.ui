@@ -5752,7 +5752,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -8801,7 +8801,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="title">
-                  <string>2D Kinematic Wave parameters</string>
+                  <string>2D Diffusive Wave parameters</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_18">
                   <item row="0" column="0" colspan="2">
@@ -8826,7 +8826,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Diffusive flow parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Closed boundary: imperfect DEMs can generate flow to the outside of the domain when the water level rises. Making he boundary closed causes water to stop at the bpoundary (may cause pooling in extreme cases). Only the user defined outlets (Outlet.map = 1) allow 2D outflow. NOTE: if you are modelling a boundary with the sea (island), do not close the boundary.&lt;/p&gt;&lt;p&gt;Min timestep for 2D flow 1 second. The 2D flow is non-iterative. The minimjum timestep helps to maintain a stable flow. Make this smaller when a unstable pattern appears.&lt;/p&gt;&lt;p&gt;The courant condition hekops to keep the flow stable (smaller is more stability). Default value 0.25.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Diffusive flow parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Closed boundary: imperfect DEMs can generate flow to the outside of the domain when the water level rises. Making he boundary closed causes water to stop at the boundary (may cause pooling in extreme cases). Only the user defined outlets (Outlet.map = 1) allow 2D outflow. NOTE: if you are modelling a boundary with the sea (island), do not close the boundary.&lt;/p&gt;&lt;p&gt;Min timestep for 2D flow 1 second. The 2D flow is non-iterative. The minimjum timestep helps to maintain a stable flow. Make this smaller when a unstable pattern appears.&lt;/p&gt;&lt;p&gt;The courant condition hekops to keep the flow stable (smaller is more stability). Default value 0.25.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string/>
@@ -20897,7 +20897,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

@@ -182,7 +182,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood method SWOF2D order 1")==0)    SwitchFloodSWOForder1  = iii == 1;
         if (p1.compare("Flood method SWOF2D order 2")==0)    SwitchFloodSWOForder2  = iii == 1;
 
-        if (p1.compare("Close boundary Kin Wave 2D")) SwitchClosedBoundaryOF = iii == 1;
+        if (p1.compare("Close boundary Kin Wave 2D")==0)     SwitchClosedBoundaryOF = iii == 1;
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
@@ -325,7 +325,7 @@ void TWorld::ParseRunfileData(void)
         InfilMethod = getvalueint("Infil Method");
 
     }// first loop of runnamelist
-
+qDebug() << SwitchClosedBoundaryOF;
     if (SwitchFloodSWOForder2)
     {
         SwitchFloodSWOForder1 = false;

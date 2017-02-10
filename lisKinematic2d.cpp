@@ -767,26 +767,26 @@ void TWorld::K2DDEMA()
 
         if(OUTORMV(r,c+1)) // returns true if outside rows. cols or mv
         {
-            Outlet->Drc= 1;
+           // Outlet->Drc= 1;
             if(demx1 < demx2)
                 K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r,c-1))
         {
-            Outlet->Drc= 1;
+           // Outlet->Drc= 1;
             if(demx2 <demx1)
                 K2DOutlets->Drc = 1;
         }
 
         if(OUTORMV(r+1,c))
         {
-            Outlet->Drc= 1;
+            //Outlet->Drc= 1;
             if(demy1 < demy2)
                 K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r-1,c))
         {
-            Outlet->Drc= 1;
+           // Outlet->Drc= 1;
             if(demy2 < demy1)
                 K2DOutlets->Drc = 1;
         }
@@ -810,13 +810,13 @@ void TWorld::K2DDEMA()
         if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
         {
             Dhx = 0;
-            Outlet->Drc= 1;
+            //Outlet->Drc= 1;
             K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
         {
             Dhy = 0;
-            Outlet->Drc= 1;
+            //Outlet->Drc= 1;
             K2DOutlets->Drc = 1;
         }
 
@@ -826,7 +826,7 @@ void TWorld::K2DDEMA()
         {
             if( Dhy < 0)
             {
-                Outlet->Drc= 1;
+               // Outlet->Drc= 1;
                 K2DOutlets->Drc = 1;
             }
         }
@@ -835,7 +835,7 @@ void TWorld::K2DDEMA()
         {
             if( Dhy > 0)
             {
-               Outlet->Drc= 1;
+             //  Outlet->Drc= 1;
                K2DOutlets->Drc = 1;
             }
         }
@@ -844,7 +844,7 @@ void TWorld::K2DDEMA()
         {
             if( Dhx < 0)
             {
-                Outlet->Drc= 1;
+                //Outlet->Drc= 1;
                 K2DOutlets->Drc = 1;
             }
         }
@@ -853,7 +853,7 @@ void TWorld::K2DDEMA()
         {
             if( Dhx > 0)
             {
-                Outlet->Drc= 1;
+                //Outlet->Drc= 1;
                 K2DOutlets->Drc = 1;
             }
         }
@@ -983,6 +983,7 @@ void TWorld::K2DDEMA()
                 K2DSlopeX->Drc = 0;
                 K2DSlopeY->Drc = 0;
             }
+
         }else
         {
             if(pitxw && pityw && pitdw)
@@ -991,11 +992,14 @@ void TWorld::K2DDEMA()
                 K2DSlopeY->Drc = 0;
             }
         }
-
+}
+   // qDebug()<<SwitchClosedBoundaryOF;
+    FOR_ROW_COL_MV
+    {
         if (SwitchClosedBoundaryOF)
             K2DOutlets->Drc = 0;
         if(Outlet->Drc >= 1)
             K2DOutlets->Drc = 1;
-        report(*K2DOutlets,"kdout");
     }
+   // report(*K2DOutlets,"kdout");
 }
