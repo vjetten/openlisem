@@ -586,6 +586,7 @@ void TWorld::InitChannel(void)
                         ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
         }
 
+        // make a 1 cell edge around the domain, used to determine flood at the edge
         DomainEdge = NewMap(0);
         for (int r = 1; r < _nrRows-1; r++)
             for (int c = 1; c < _nrCols-1; c++)
@@ -601,10 +602,44 @@ void TWorld::InitChannel(void)
                              pcr::isMV(LDD->data[r+1][c  ]) ||
                              pcr::isMV(LDD->data[r+1][c+1]) )
                             )
-                        if (ChannelWidthUpDX->Drc == 0)
-                            DomainEdge->Drc = 1;
-                    // channel cells do not shed water to the outside
+                        DomainEdge->Drc = 1;
                 }
+//        FOR_ROW_COL_MV
+//        {
+//            if ((c == 0 || c == _nrCols-1) && !pcr::isMV(LDD->Drc))
+//                DomainEdge->Drc = 1;
+//            if ((r == 0 || r == _nrRows-1) && !pcr::isMV(LDD->Drc))
+//                DomainEdge->Drc = 1;
+//        }
+
+        FlowBoundary = NewMap(0);
+        if (FlowBoundaryType == 0) // no outflow except user defined outlets
+        {
+            FOR_ROW_COL_MV
+            {
+                if(Outlet->Drc > 0)
+                    FlowBoundary->Drc = 1;
+            }
+            copy(*DomainEdge, *FlowBoundary);
+            // use flowboundary for domainedge
+        }
+        else
+            if(FlowBoundaryType == 1) // outflow everywhere
+            {
+                // determine dynamically in function K2DDEMA
+                // for flood DomainEdge is used
+            }
+            else
+                if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
+                {
+                    FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
+                    copy(*DomainEdge, *FlowBoundary);
+                    // use flowboundary for domainedge
+                }
+        //report(*DomainEdge, "domedge.map");
+        //report(*FlowBoundary, "fbound.map");
+
+
         if (SwitchChannelFlood)
         {
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
@@ -1297,9 +1332,6 @@ void TWorld::GetInputData(void)
 
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
     //map with points for output data
-
-    if (SwitchClosedBoundaryOF)
-        FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
 
     if (SwitchRainfall)
     {

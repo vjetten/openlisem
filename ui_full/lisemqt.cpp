@@ -196,7 +196,7 @@ void lisemqt::SetConnections()
 
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
-    connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setRunoffTab(bool)));
+    connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -546,7 +546,8 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
-    tabWidgetOptions->setTabEnabled(4, checkIncludeChannel->isChecked() && checkChannelFlood->isChecked());
+    tabWidgetOptions->setTabEnabled(3, (checkIncludeChannel->isChecked() && checkChannelFlood->isChecked())
+                                    ||checkOverlandFlow2D->isChecked());
     outputMapsFlood->setEnabled(yes);
     label_107->setEnabled(yes);
     label_floodVolmm->setEnabled(yes);
@@ -555,8 +556,8 @@ void lisemqt::setFloodTab(bool yes)
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
-    tabWidgetOptions->setTabEnabled(5, checkDoErosion->isChecked());
-    tabWidgetOptions->setTabEnabled(6, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+    tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
+    tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
     if (checkDoErosion->isChecked())
         checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
@@ -602,7 +603,7 @@ void lisemqt::setErosionTab(bool yes)
 //--------------------------------------------------------------------
 void lisemqt::setRunoffTab(bool yes)
 {
-    tabWidgetOptions->setTabEnabled(3, yes);
+    tabWidgetOptions->setTabEnabled(3, checkChannelFlood->isChecked() || checkOverlandFlow2D->isChecked());
 }
 
 //--------------------------------------------------------------------
@@ -771,7 +772,7 @@ void lisemqt::SetStyleUI()
     E_FloodScheme->setVisible(false);
     label_98->setVisible(false);
     frameSpare->setVisible(false);
-
+    tabWidgetOptions->removeTab(7);
 
     //groupBoxTime->setMaximumWidth(128);
 

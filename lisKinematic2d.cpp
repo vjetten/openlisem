@@ -992,13 +992,9 @@ void TWorld::K2DDEMA()
                 K2DSlopeY->Drc = 0;
             }
         }
-
-        //VJ add flowboundary map
-        if (SwitchClosedBoundaryOF)
-        {
-            K2DOutlets->Drc = 0;
-            if(FlowBoundary->Drc >= 1)
-                K2DOutlets->Drc = 1;
-        }
     }
+
+    //VJ use flowboundary map, type 1 is open flow, else use the map
+    if (FlowBoundaryType != 1)
+        copy(*FlowBoundary, *K2DOutlets);
 }

@@ -130,12 +130,6 @@ void TWorld::OutputUI(void)
     } //why set velocity at zero, and is also done
 
     //display maps
-//    fill(*COMBO_QOFCH, 0.0);
-//    calcMap(*COMBO_QOFCH, *Qn, ADD);
-//    if (SwitchIncludeChannel)
-//        calcMap(*COMBO_QOFCH, *ChannelQn, ADD);
-//    if(SwitchChannelFlood)
-//        calcMap(*COMBO_QOFCH, *Qflood, ADD);
 
     if (SwitchIncludeChannel)
     {
@@ -356,11 +350,12 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
                     {
                         pnr.setNum((int)PointMap->Drc);
-                        out << "#LISEM total flow and sed output file for point " << pnr << "\n";
+                        out << "#LISEM flow and sed output file for point " << pnr << "\n";
 
                         // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
-                        int nrs = 3 + (SwitchErosion ? 2 : 0);
+                        int nrs = 4 + (SwitchErosion ? 3 : 0);
                         if (SwitchSnowmelt && SwitchRainfall) nrs++;
+                        if (SwitchIncludeTile) nrs++;
                         pnr.setNum(nrs);
                         out << pnr << "\n";
 
@@ -426,8 +421,9 @@ void TWorld::ReportTimeseriesNew(void)
                         if ( PointMap->Drc > 0 ) nr++;
 
                 // nr columns is time + rain (+ maybe snow) + nr points*(Q + Qs + C)
-                int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
+                int nrs = 4+(1+(SwitchErosion ? 2 : 0))*nr;
                 if (SwitchSnowmelt && SwitchRainfall) nrs++;
+                if (SwitchIncludeTile) nrs++;
                 pnr.setNum(nrs);
 
                 out << "#LISEM total flow and sed output file for all reporting points\n";
@@ -486,7 +482,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",Q #" << pnr;
                         out << ",chanWH #" << pnr;
                         if (SwitchIncludeTile) out << ",Qdr #" << pnr;
-                        if (SwitchErosion) out << "Qsall,Qs #" << pnr;
+                        if (SwitchErosion) out << ",Qsall,Qs #" << pnr;
                         if (SwitchErosion) out << ",C #" << pnr;
                     }
                     out << "\n";
@@ -501,7 +497,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",l/s #" << pnr;
                         out << ",m #" << pnr;
                         if (SwitchIncludeTile) out << ",l/s #" << pnr;
-                        if (SwitchErosion) out << ",kg/s #" << pnr;
+                        if (SwitchErosion) out << ",kg/s,kg/s #" << pnr;
                         if (SwitchErosion) out << ",g/l #" << pnr;
                     }
                     out << "\n";
@@ -538,7 +534,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << time/60;
                     if (SwitchRainfall) out << sep << RainIntavg;
                     if (SwitchSnowmelt) out << sep << SnowIntavg;
-                    out << sep << QALL << Qoutput->Drc << sep << ChannelWH->Drc;
+                    out << sep << QALL << sep << Qoutput->Drc << sep << ChannelWH->Drc;
                     if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
                     if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
                     out << "\n";
