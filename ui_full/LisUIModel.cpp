@@ -227,7 +227,20 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
+/*  VARIABLES:
+    CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
+    MB, Qtot,  Qtile, Qtiletot, RunoffFraction, RainpeakTime,
+    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,
+    RainTotmm, SurfStormm, InfilKWTotmm, Pmm, BaseFlowtotmm,LitterStorageTotmm,WaterVolTotchannelmm,
+    // channel
+    ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
+    // flood
+    FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
+    FloodDetTot, FloodDepTot, FloodSedTot,
+    // sediment
+    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
+*/
     op.ComboMaps.clear();
     op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
@@ -261,6 +274,8 @@ void lisemqt::initOP()
 
     op.MB = 0;
     op.Qtot = 0;
+    op.Qtile = 0;
+    op.Qtiletot = 0;
     op.RainpeakTime = 0;
     op.RunoffFraction = 0;
     op.FloodTotMax = 0;

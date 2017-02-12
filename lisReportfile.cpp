@@ -246,7 +246,8 @@ void TWorld::OutputUI(void)
     op.Qtotmm = Qtotmm;
     op.Qtot = Qtot; // QtotOutlet; <- only for outlet c,r but these are not valid anymore with mulyiple outlets
 
-    op.Qtile = 1000*TileQn->DrcOutlet;
+    op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
+    op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flox in l/s
 
     op.RainpeakTime = RainpeakTime/60;
     op.FloodTotMax = floodVolTotMax;
@@ -670,6 +671,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
     out << "\"Water in runoff + channel   (mm):\"," << op.WaterVolTotmm<< "\n";
     out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total Tile discharge        (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation    (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Peak discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
     out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";

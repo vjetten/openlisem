@@ -97,8 +97,8 @@ cTMap
 *Houtput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
-//*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]
-*Qsoutput,                   //!< sediemnt outflow for screen/file output, sum of overland flow and channel [kg/s]
+//*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]     OBSOLETE
+*Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
 *Perim,                      //!< perimeter overland flow [m]

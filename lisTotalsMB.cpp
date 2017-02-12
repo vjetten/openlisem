@@ -220,8 +220,12 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
         FOR_ROW_COL_MV_TILE
-                if (LDDTile->Drc == 5)
+            if (LDDTile->Drc == 5)
+            {
                 QtotT += TileQn->Drc * _dt;
+                QTiletot += TileQn->Drc * _dt;
+            }
+
         // add tile outflow (in m3) to total for all pits
 
         //QtotOutlet += TileQn->DrcOutlet * _dt;  obsolete, now Qtot-
@@ -242,9 +246,6 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
     {
         Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + TileQn->Drc); // in l/s
-//        if (Qoutput->Drc < 0.0001)
-//            Qoutput->Drc = 0.0001;
-        // added minimum here to avoid strange maps
         //NOTE: for 2D flow Qn = K2DQ, already done
     }
 
@@ -292,6 +293,7 @@ void TWorld::Totals(void)
         }
         // sum all sed in all pits (in kg), needed for mass balance
 
+// obsolete
 //        SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
 //        // for screen output, total main outlet sed loss in kg
 
@@ -314,6 +316,7 @@ void TWorld::Totals(void)
                 }
             }
 
+//obsolete
 //            SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
 //            // add channel outflow (in kg) to total for main outlet, for screen output
 
@@ -340,18 +343,11 @@ void TWorld::Totals(void)
                 BufferSedTot += mapTotal(*ChannelBufferSed);
         }
 
-        // spatial totals for output all in kg/cell
+        // spatial totals for output overland flow all in kg/cell
+        // variables are valid for both 1D and 2D flow
         FOR_ROW_COL_MV
         {
-// also kin2d results in Qsn
-//            if(SwitchKinematic2D == 1)
-//            {
-                Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // sum channel and OF sed output in kg/s
-                // Qsn is calculated as Q multiplied by conc, which is calculated from sed mass/water vol, so OKAY
-//            }else
-//            {
-//                Qsoutput->Drc = Qn->Drc*Conc->Drc + ChannelQsn->Drc;
-//            }
+            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
 
             TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
             TotalDepMap->Drc += DEP->Drc;
@@ -363,7 +359,8 @@ void TWorld::Totals(void)
             fill(*tma,0.0);
             DistributeOverExtendedChannel(ChannelDetFlow,tma);
             fill(*tmb,0.0);
-            DistributeOverExtendedChannel(ChannelDep,tma);
+            DistributeOverExtendedChannel(ChannelDep,tmb);
+            // DistributeOverExtendedChannel(ChannelDep,tma); <- typo?
             FOR_ROW_COL_MV
             {
 
@@ -421,7 +418,7 @@ void TWorld::Totals(void)
         Pestdetach += mapTotal(*Pdetach); //KCM
         PestCinfilt += mapTotal(*PCinfilt); //fc
         PestCfilmexit += mapTotal(*PCfilmexit); //KC
-        PestLossTotOutlet += Qn->DrcOutlet*C->DrcOutlet*_dt*1000*1000*1000; //µg
+        //PestLossTotOutlet += Qn->DrcOutlet*C->DrcOutlet*_dt*1000*1000*1000; //µg  //DrcOutlet obsolete
         PestRunoffSpatial = mapTotal(*PRunoffSpatial);
         PestDisMixing = mapTotal(*PDisMixing);
         PestSorMixing = mapTotal(*PSorMixing);
@@ -477,11 +474,6 @@ void TWorld::Totals(void)
     }
 
     SedimentSetMaterialDistribution();
-
-//    FOR_ROW_COL_MV
-//    {
-//        SedimentSetMaterialDistribution(r,c);
-//    }
 
 }
 //---------------------------------------------------------------------------

@@ -67,8 +67,8 @@
 #define Drcdr    at(d)->data[rr][cr]
 #define Drci data[r+dr[i]][c+dc[i]]
 
-/// shortcut to access the outlet point data
-#define DrcOutlet     data[r_outlet][c_outlet]
+// obsolete /// shortcut to access the outlet point data
+//#define DrcOutlet     data[r_outlet][c_outlet]
 
 /// shortcut missing value in map
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
@@ -309,6 +309,8 @@ public:
     double psiCalibration;
     double ChnCalibration;
     double ChKsatCalibration;
+    double COHCalibration;
+    double ASCalibration;
     double SplashDelivery;
     double DepositedCohesion;
     double StripN;
@@ -325,14 +327,14 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot,QtotT, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
-    double QtotTileOutlet, QtotOutlet, QtotChannelOutlet;
-    double floodBoundaryTot;
+    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
+   //obsolete double QtotTileOutlet, QtotOutlet, QtotChannelOutlet;
+    double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, /*SoilLossTotOutlet*/, SedTot, /*SoilLossTotSub,*/
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, /*SoilLossTotOutlet,*/ SedTot, /*SoilLossTotSub,*/
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
@@ -350,11 +352,11 @@ public:
     double Maxsolubility;
     double MaxVup;
 
-    int c_outlet;  /// copy of outlet col number OBSOLETE
-    int r_outlet;  /// copy of outlet row number
+//    int c_outlet;  /// copy of outlet col number OBSOLETE
+//    int r_outlet;  /// copy of outlet row number
 
-    int c_plot;  /// copy of col number of hydrograph plotted on screen
-    int r_plot;  /// copy of row number of hydrograph plotted on screen
+//    int c_plot;  /// copy of col number of hydrograph plotted on screen
+//    int r_plot;  /// copy of row number of hydrograph plotted on screen
 
     /// time and dx parameters
     double time, BeginTime, EndTime;

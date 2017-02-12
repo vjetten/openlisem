@@ -253,6 +253,8 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Calibration: the splash delivery factor cannot be zero.");
         throw 1;
     }
+
+
     DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
 
     StemflowFraction = getvaluedouble("Stemflow fraction");
@@ -293,7 +295,20 @@ void TWorld::InitStandardInput(void)
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     cover(*Outlet, *LDD, 0);
-    checkMap(*Outlet, LARGEREQUAL, 1.0, "Outlet map must have points with value 1 or larger.");
+    bool check = false;
+    FOR_ROW_COL_MV
+    {
+        if (Outlet->Drc > 0)
+            check = true;
+        if (check)
+           break;
+    }
+    if (!check)
+    {
+        ErrorString = "No outlet points (values >= 1) defined in outlet.map?";
+        throw 1;
+    }
+
     // USER defined outlet points. these are leading.
 
     //VJ 170211 revamped. Logic:
@@ -304,24 +319,26 @@ void TWorld::InitStandardInput(void)
     // when 2D and no channel, just do what user wants, don't check!
     // when 1D flow and no channel, outlet should be ldd->pits
     if (!SwitchIncludeChannel && SwitchKinematic2D == K1D_METHOD)
-    {
+    {        
         FOR_ROW_COL_MV
         {
             if(Outlet->Drc > 0 && LDD->Drc != 5)
+            {
                 ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
                 throw 1;
+            }
         }
     }
 
-    FOR_ROW_COL_MV
-    {
-        if (Outlet->Drc == 1)
-        {
-            c_outlet = c;
-            r_outlet = r;
-        }
-    }
-    CHECK THIS !!!!!!!!!!!!!!
+//    FOR_ROW_COL_MV
+//    {
+//        if (Outlet->Drc == 1)
+//        {
+//            c_outlet = c;
+//            r_outlet = r;
+//        }
+//    }
+//    OBSOLETE
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -568,10 +585,15 @@ void TWorld::InitStandardInput(void)
 
     if(SwitchErosion)
     {
+        COHCalibration = getvaluedouble("Aggregate stability calibration");
         Cohesion = ReadMap(LDD,getvaluename("coh"));
-        RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
-        AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+        calcValue(*Cohesion, COHCalibration, MUL);
 
+        RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+
+        ASCalibration = getvaluedouble("Cohesion calibration");
+        AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+        calcValue(*AggrStab, ASCalibration, MUL);
 
         D50 = ReadMap(LDD,getvaluename("D50"));
         if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
@@ -596,7 +618,7 @@ void TWorld::InitChannel(void)
     SedToChannel = NewMap(0);
     ChannelWidthUpDX = NewMap(0);
     ChannelWaterVol = NewMap(0);
-    //ChannelQoutflow = NewMap(0);
+    //ChannelQoutflow = NewMap(0);  // obsolete
     RunoffVolinToChannel = NewMap(0);
     //ChannelQsoutflow = NewMap(0);
     ChannelQ = NewMap(0);
@@ -632,8 +654,10 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV
         {
             if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
+            {
                 ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
-            throw 1;
+                throw 1;
+            }
         }
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
@@ -797,7 +821,7 @@ void TWorld::InitChannel(void)
 //            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
 //            Barriers = ReadMap(LDD, getvaluename("barriers"));
 //            cover(*Barriers, *LDD,0);
-//STRANGE barrers are linked to lddchannel??? should ne ldd
+//STRANGE barrers are linked to lddchannel??? should be ldd
 
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
@@ -1516,9 +1540,10 @@ void TWorld::IntializeData(void)
     //### runoff maps
     Qtot = 0;
     QtotT = 0;
-    QtotOutlet = 0;
-    QtotTileOutlet = 0;
-    QtotChannelOutlet = 0;
+    QTiletot = 0;
+//    QtotOutlet = 0;     obsolete
+//    QtotTileOutlet = 0;
+//    QtotChannelOutlet = 0;
     Qtotmm = 0;
     Qpeak = 0;
     QpeakTime = 0;
@@ -1602,7 +1627,7 @@ void TWorld::IntializeData(void)
     Qoutput = NewMap(0);
     Houtput = NewMap(0);
     Qsoutput = NewMap(0);
-    //Qoutflow = NewMap(0); // value of Qn*dt in pits only
+    //Qoutflow = NewMap(0); // obsolete
     q = NewMap(0);
     R = NewMap(0);
     Perim = NewMap(0);
@@ -2504,7 +2529,7 @@ void TWorld::InitTiledrains(void)
     TileVolTot = 0;
     TileWaterVol = NewMap(0);
     TileWaterVolSoil = NewMap(0);
-    //TileQoutflow = NewMap(0);
+    //TileQoutflow = NewMap(0);   //obsolete
     RunoffVolinToTile = NewMap(0);
     TileQ = NewMap(0);
     TileQn = NewMap(0);

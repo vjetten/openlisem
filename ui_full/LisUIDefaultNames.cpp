@@ -494,6 +494,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Ksat calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel N calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Cohesion calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Aggregate stability calibration");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Splash Delivery Ratio");
     namelist[i].value = QString("0.5");

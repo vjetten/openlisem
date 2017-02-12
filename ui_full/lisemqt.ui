@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1731</width>
-    <height>942</height>
+    <height>1002</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -5674,7 +5674,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>6</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -13588,7 +13588,7 @@ p, li { white-space: pre-wrap; }
                   <item row="6" column="1">
                    <widget class="QDoubleSpinBox" name="E_CalibrateAS">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13604,7 +13604,7 @@ p, li { white-space: pre-wrap; }
                   <item row="7" column="1">
                    <widget class="QDoubleSpinBox" name="E_CalibrateCOH">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13620,7 +13620,7 @@ p, li { white-space: pre-wrap; }
                   <item row="7" column="0">
                    <widget class="QLabel" name="label_164">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="text">
                      <string>Multiplication factor Soil Cohesion</string>
@@ -13630,7 +13630,7 @@ p, li { white-space: pre-wrap; }
                   <item row="6" column="0">
                    <widget class="QLabel" name="label_165">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="text">
                      <string>Multiplication factor Aggregate Stability</string>

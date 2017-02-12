@@ -584,7 +584,7 @@ void TWorld::OverlandFlowNew(void)
     }
     else
     {
-        //Kinematic wave solution in 2 dimensions
+        //D wave solution in 2 dimensions
         //also includes sediment and pesticides transport
         //Functions are not generic since they are only used here
         //Buffers are neglected in this method!
@@ -594,18 +594,13 @@ void TWorld::OverlandFlowNew(void)
         //initial function, set to zero
         K2DInit();
 
-        //calculate slopes based on dem, and resets variables
-        //K2DDEMA()
-        // if WH is not added to the DEM, this has to be done only once.
-
         double dt = _dt/2;
         double tof = 0.0;
         //maximum time is the lisem-timestep _dt
         while(tof < _dt-0.001)
         {
-
             K2DDEMA();
-            //calculats water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
+            //calculates water height, and computes the discharges according to manning etc.. and fluxes in 2 dimensions
 
             //function returns the minimal needed time-step for stable advection (dt > 1.0 for computational speed)
             dt = K2DFlux();
@@ -614,6 +609,7 @@ void TWorld::OverlandFlowNew(void)
             dt = std::min(dt, _dt-tof);
 
             K2DSolvebyInterpolation(dt);
+            // bylinear interpolation solution for diffusive
 
             /*sediment transport functions must be called before K2DSolve() and after K2DSolveBy..() */
             if(SwitchErosion)
@@ -634,7 +630,7 @@ void TWorld::OverlandFlowNew(void)
                 }
             }
 
-            //no longer needed
+            //subtract infiltration and sets Qn->Drc = K2DQ->Drc; and WHrunoff->Drc = K2DHNew->Drc;
             K2DSolve(dt);
 
             //total time this lisem-timestep
@@ -647,7 +643,7 @@ void TWorld::OverlandFlowNew(void)
             }
         }
 
-        //VJ new average flux over lisem timestep
+        //VJ new average flux over lisem timestep, else last Qn is used
         FOR_ROW_COL_MV
         {
             K2DQ->Drc = tmb->Drc/_dt;
@@ -658,13 +654,13 @@ void TWorld::OverlandFlowNew(void)
         if(SwitchErosion)
         {
             //calculate concentration and new sediment discharge
+            //WHrunoff and Qn are adapted in case of 2D routing
             if(!SwitchUseGrainSizeDistribution)
             {
                 FOR_ROW_COL_MV
                 {
                     Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
                     Qsn->Drc = Conc->Drc * Qn->Drc;
-                    //Qs->Drc = Qsn->Drc;
                 }
             }
             else
