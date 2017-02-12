@@ -1514,7 +1514,7 @@ void TWorld::IntializeData(void)
     FSurplus = NewMap(0);
     hesinfil = NewMap(0);
     FFull = NewMap(0);
-    runoffFractionCell = NewMap(0);
+    //runoffFractionCell = NewMap(0);
     runoffTotalCell = NewMap(0);
 
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
@@ -1971,7 +1971,7 @@ void TWorld::IntializeOptions(void)
     interceptionMapFileName = QString("interception.map");
     infiltrationMapFileName = QString("infiltration.map");
     runoffMapFileName = QString("runoff.map");
-    runoffFractionMapFileName = QString("rofraction.map");
+  //  runoffFractionMapFileName = QString("rofraction.map");
     channelDischargeMapFileName = QString("chandism3.map");
 
     rainFileName.clear();

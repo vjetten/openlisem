@@ -109,6 +109,8 @@ void lisemqt::fillMapnames()
 /** enables or disables a branch and expands or contracts it */
 void lisemqt::checkMapNameModel(int parentrow, int selrow, bool setit)
 {
+    setit = true;
+    //VJ set everything to true, not greyed out, too complicated
     if (MapNameModel)
     {
         QModelIndex indexParent = MapNameModel->index(parentrow, 0);

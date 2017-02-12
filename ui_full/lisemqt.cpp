@@ -573,7 +573,7 @@ void lisemqt::setErosionTab(bool yes)
         }
 
     }
-    yes = checkDoErosion->isChecked();
+  //  yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(yes);
     checkBox_OutConc->setEnabled(yes);
     checkBox_OutDet->setEnabled(yes);
@@ -583,17 +583,36 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutTC->setEnabled(yes);
     groupKineticEnergy->setEnabled(yes);
 
-
     checkBoxComboMaps2->setEnabled(yes);
     ComboMinSpinBox2->setEnabled(yes);
     ComboMaxSpinBox2->setEnabled(yes);
     DisplayComboBox2->setEnabled(yes);
 
+    if (!yes)
+    {
+        int dig = E_DigitsOut->value();
+        label_MBs->setText(QString::number(0,'e',dig));
+        label_splashdet->setText(QString::number(0,'f',dig));
+        label_flowdet->setText(QString::number(0,'f',dig));
+        label_sedvol->setText(QString::number(0,'f',dig));
+        label_dep->setText(QString::number(0,'f',dig));
+        label_detch->setText(QString::number(0,'f',dig));
+        label_depch->setText(QString::number(0,'f',dig));
+        label_sedvolch->setText(QString::number(0,'f',dig));
+        label_flooddet->setText(QString::number(0,'f',dig));
+        label_flooddep->setText(QString::number(0,'f',dig));
+        label_floodsed->setText(QString::number(0,'f',dig));
+        label_soilloss->setText(QString::number(0,'f',dig));
+        label_soillosskgha->setText(QString::number(0,'f',dig));
+        label_SDR->setText(QString::number(0,'f',dig));
+        label_soillosssub->setText(QString::number(0,'f',dig));
+    }
     sedgroup->setEnabled(yes);
 
-    label_31->setEnabled(yes);
-    label_28->setEnabled(yes);
-    label_60->setEnabled(yes);
+//   label_31->setEnabled(yes);
+ //   label_28->setEnabled(yes);
+ //   label_60->setEnabled(yes);
+ //   label_94->setEnabled(yes);
 
     label_soillosskgha->setEnabled(yes);
     label_soilloss->setEnabled(yes);
@@ -1425,11 +1444,19 @@ void lisemqt::resetAll()
     E_SnowmeltName->setText("");
     E_ResultDir->setText("");
 
+    checkSeparateOutput->setChecked(check);
+ //   checkWriteSOBEK->setChecked(check);
+ //   SOBEKdatestring->setText("10/01/01");
+    E_DigitsOut->setValue(3);
+    checkWritePCRnames->setChecked(true);
+    checkWritePCRaster->setChecked(check);
+    checkWriteCommaDelimited->setChecked(true);
+
     E_RainfallMap->setText("rainfall.map");
     E_InterceptionMap->setText("interception.map");
     E_InfiltrationMap->setText("infiltration.map");
     E_RunoffMap->setText("runoff.map");
-    E_RunoffFractionMap->setText("rofraction.map");
+  //  E_RunoffFractionMap->setText("rofraction.map");
     E_ChannelQtotm3Map->setText("chandism3.map");
     E_DetachmentMap->setText("detachment.map");
     E_DepositionMap->setText("deposition.map");
@@ -1478,7 +1505,6 @@ void lisemqt::resetAll()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
-    //   E_InfiltrationMethod->addItem("Subtract Ksat");
     E_InfiltrationMethod->setCurrentIndex(0);
 
     initOP();
@@ -1489,8 +1515,9 @@ void lisemqt::resetAll()
     checkSnowmelt->setChecked(false);
     checkRainfall->setChecked(true);
 
+    //main
     checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow1D->setChecked(true);
+    checkOverlandFlow2D->setChecked(true);
     checkDoErosion->setChecked(false);
     checkAdvancedSediment->setChecked(false);
 
@@ -1502,10 +1529,73 @@ void lisemqt::resetAll()
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
     checkHardsurface->setChecked(false);
+    checkRaindrum->setChecked(check);
 
+    // interception
+
+    radioButton_1->setChecked(true); //<= crops interception
+    E_CanopyOpeness->setValue(0.45);
+//    E_StemflowFraction->setValue(0.054);
     checkIncludeLitter->setChecked(false);
+    E_LitterSmax->setValue(1.0);
 
-    //E_OFMethod->setValue(0);
+    //infiltration
+    checkInfilCompact->setChecked(false);
+    checkInfilCrust->setChecked(false);
+    checkInfil2layer->setChecked(false);
+    checkImpermeable->setChecked(false);
+    checkPercolation->setChecked(true);
+    checkIncludeTiledrains->setChecked(false);
+    checkGeometric->setChecked(true);
+    E_SWATREDtsecFraction->setValue(0.2);
+    E_SwatreTableName->setText("profile.inp");
+    E_SwatreTableDir->setText("");
+
+    //flow
+    checkFlowBarriers->setChecked(false);
+    line_FlowBarriers->setText("flowbarriers.txt");
+    E_FlowBoundary->setValue(1);
+    E_TimestepMin->setValue(1.0);
+    E_CourantFactorKin->setValue(0.2);
+    E_mixingFactor->setValue(2.0);
+    E_runoffPartitioning->setValue(1.0);
+    E_1D2DCoupling->setValue(2);
+    E_floodSolution->setValue(2);
+    E_courantFactor->setValue(0.4);
+    E_FloodMaxIter->setValue(200);
+    E_FloodReconstruction->setValue(3);
+    E_FloodFluxLimiter->setValue(1);
+
+    E_courantFactor->setValue(0.2);
+
+    //   E_FloodReplaceV->setValue(1);
+    //   E_FloodMaxVelocity->setValue(10.0);
+
+    //erosion
+    checkLimitTC->setChecked(false);
+    checkBuffers->setChecked(false);
+    checkSedtrap->setChecked(false);
+    E_EfficiencyDET->setValue(1);
+    checkMaterialDepth->setChecked(false);
+    E_DepositedCohesion->setValue(0.5);
+    E_SplashDelibery->setValue(0.5);
+    checkInfilGrass->setChecked(false);
+    E_GrassStripN->setText("0.1");
+
+    radioButtonKE1->setChecked(true);
+    spinKEparameterA1->setValue(28.3);
+    spinKEparameterB1->setValue(0.52);
+    spinKEparameterC1->setValue(0.042);
+    radioButtonKE2->setChecked(false);
+    spinKEparameterA2->setValue(8.9);
+    spinKEparameterB2->setValue(8.44);
+    radioButtonKE3->setChecked(false);
+    spinKEparameterA3->setValue(7.6);
+    spinKEparameterB3->setValue(0.22);
+
+    checkKETimebased->setChecked(false);
+
+    //sediment
     E_RBLMethod->setValue(0);
     E_RSSMethod->setValue(1);
 
@@ -1521,61 +1611,31 @@ void lisemqt::resetAll()
     E_RBLMethod->setMinimum(0);
     E_RSSMethod->setMaximum(1);
     E_RSSMethod->setMinimum(1);
-    E_BLMethod->setMaximum(0);
-    E_BLMethod->setMinimum(0);
+    E_BLMethod->setMaximum(1);
     E_SSMethod->setMaximum(1);
     E_SSMethod->setMinimum(1);
-
+    E_SigmaDiffusion->setValue(1);
     checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
     checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
 
-    E_BLMethod->setValue(1);
-    E_SSMethod->setValue(1);
-
     E_NumberClasses->setValue(6);
-    //E_NumberClassesMaps->setValue(0);
     E_GrainSizes->setText("2,20,50,125,150,500");
 
-    //houses
-    checkHouses->setChecked(check);
-    checkRaindrum->setChecked(check);
-    // flooded areas
-    checkChannelFlood->setChecked(check);
-    //  checkFloodInitial->setChecked(check);
-    //checkWatershed->setChecked(check);
-
-    checkLimitTC->setChecked(check);
-    //   checkLimitDepTC->setChecked(check);
-    checkBuffers->setChecked(check);
-    checkSedtrap->setChecked(check);
-    checkInfilCompact->setChecked(check);
-    checkInfilGrass->setChecked(check);
-    checkInfilCrust->setChecked(check);
-    checkImpermeable->setChecked(check);
-    //	checkDumphead->setChecked(check);
-    checkGeometric->setChecked(true);
-    //	checkRunoffPerM->setChecked(check);
-    checkPercolation->setChecked(check);
-
-    checkWritePCRnames->setChecked(true);
-    checkWritePCRaster->setChecked(check);
-    checkWriteCommaDelimited->setChecked(true);
-    //checkOutputTimeStep->setChecked(true);
-    //checkOutputTimeUser->setChecked(check);
-    //checkNoErosionOutlet->setChecked(check);
-    //	checkDrainage->setChecked(check);
-
-    checkSeparateOutput->setChecked(check);
-    checkWriteSOBEK->setChecked(check);
-    SOBEKdatestring->setText("10/01/01");
-    E_DigitsOut->setValue(3);
-
-    //checkInterceptionLAI->setChecked(true);
     E_BulkDens->setText("1400.00");
 
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
+
+    //calibration
+    E_CalibrateKsat->setValue(1.0);
+    E_CalibrateN->setValue(1.0);
+    E_CalibrateThet->setValue(1.0);
+    E_CalibratePsi->setValue(1.0);
+    E_CalibrateChKsat->setValue(1.0);
+    E_CalibrateChN->setValue(1.0);
+    E_CalibrateAS->setValue(1.0);
+    E_CalibrateCOH->setValue(1.0);
 
     //buffergroup->setVisible(false);
     //   buffergroup->setEnabled(checkBuffers->isChecked()||checkSedtrap->isChecked());
@@ -1584,45 +1644,10 @@ void lisemqt::resetAll()
     //    label_31->setEnabled(checkDoErosion->isChecked());
     //    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
 
-    radioButton_1->setChecked(true); //<= grass interception
-    E_CanopyOpeness->setValue(0.45);
-    E_StemflowFraction->setValue(0.054);
 
-    //VJ 110706 KE equations
-    radioButtonKE1->setChecked(true);
-    spinKEparameterA1->setValue(28.3);
-    spinKEparameterB1->setValue(0.52);
-    spinKEparameterC1->setValue(0.042);
-    radioButtonKE2->setChecked(false);
-    spinKEparameterA2->setValue(8.9);
-    spinKEparameterB2->setValue(8.44);
-    radioButtonKE3->setChecked(false);
-    spinKEparameterA3->setValue(7.6);
-    spinKEparameterB3->setValue(0.22);
-
-    checkKETimebased->setChecked(false);
-
-    E_courantFactor->setValue(0.2);
-
-    //E_floodMinHeight->setValue(0.05);
-
-    E_mixingFactor->setValue(2.0);
-    E_runoffPartitioning->setValue(0.5);
-    E_FloodFluxLimiter->setValue(1); //min
-    E_FloodReconstruction->setValue(3); //set to HLL3
-    E_FloodScheme->setValue(1); //MUSCL
-    E_1D2DCoupling->setValue(1);
-    E_SSMethod->setValue(1);
-    E_SigmaDiffusion->setValue(1);
-    E_BLMethod->setValue(1);
-    E_FloodMaxIter->setValue(200);
-    //   E_FloodReplaceV->setValue(1);
-    //   E_FloodMaxVelocity->setValue(10.0);
-
-//2D kin wave
-    E_TimestepMin->setValue(1.0);
-    E_CourantFactorKin->setValue(0.25);
-
+    checkBoxComboMaps->setEnabled(true);
+    checkBoxComboMaps->setChecked(true);
+    checkBoxComboMaps2->setEnabled(false);
 
     showOutputData();
 }

@@ -133,17 +133,16 @@ void TWorld::Totals(void)
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
     FOR_ROW_COL_MV
-        if(ChannelWidthUpDX->Drc == 0)
     {
         runoffTotalCell->Drc += Qn->Drc * _dt; // in M3 !!!!
     }
     upstream(LDD, runoffTotalCell, tm);
 
-    FOR_ROW_COL_MV
-    {
-        runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;
-    }
-    //TODO runoff fraction not a very clear map
+//    FOR_ROW_COL_MV
+//    {
+//        runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;
+//    }
+    //REMOVE runoff fraction not a very clear map
 
     //=== all discharges ===//
 
@@ -151,7 +150,7 @@ void TWorld::Totals(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     // Add overland flow
-    if(SwitchKinematic2D == 1)
+    if(SwitchKinematic2D == K1D_METHOD)
     {
         FOR_ROW_COL_MV
         {

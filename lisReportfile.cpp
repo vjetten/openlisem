@@ -716,7 +716,7 @@ void TWorld::ReportMaps(void)
     report(*InfilmmCum, infiltrationMapFileName);
 
     report(*runoffTotalCell, runoffMapFileName); // in m3, total runoff from cell (but there is also runon!)
-    report(*runoffFractionCell, runoffFractionMapFileName);
+//    report(*runoffFractionCell, runoffFractionMapFileName);
 
     report(*WHmax, floodWHmaxFileName);
 

@@ -395,7 +395,7 @@ public:
     QString interceptionMapFileName;
     QString infiltrationMapFileName;
     QString runoffMapFileName;
-    QString runoffFractionMapFileName;
+   // QString runoffFractionMapFileName;
     QString channelDischargeMapFileName;
 
     QString floodLevelFileName;

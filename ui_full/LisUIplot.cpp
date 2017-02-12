@@ -165,9 +165,16 @@ void lisemqt::onOutletChanged(int point)
             showPlot();
             SetTextHydrographs();
 
-            HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-            outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-
+            if (outletpoint > 0)
+            {
+                outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+                HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+            }
+            else
+            {
+                outletgroup->setTitle(QString("Catchment outflow"));
+                HPlot->setTitle(QString("Hydrograph all outflow"));
+            }
 
         }
 
@@ -379,8 +386,16 @@ void lisemqt::startPlots()
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
     label_hydroCount->setText(QString("Hydrograph Point (0, 1-%1)").arg(OutletIndices.count()-1));
 
-    outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-    HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+    if (outletpoint > 0)
+    {
+        outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+        HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+    }
+    else
+    {
+        outletgroup->setTitle(QString("Catchment outflow"));
+        HPlot->setTitle(QString("Hydrograph all outflow"));
+    }
     // VJ 110630 show hydrograph for selected output point
 
 }
@@ -540,8 +555,4 @@ void lisemqt::showOutputData()
         SDR = std::min(SDR ,100.0);
         label_SDR->setText(QString::number(SDR,'f',dig));
     }
-
-
-
-
 }

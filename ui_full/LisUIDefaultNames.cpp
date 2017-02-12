@@ -220,7 +220,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Infiltration map");
     namelist[i].value = QString("runoff.map");
     namelist[i++].name = QString("Runoff map");
-    namelist[i].value = QString("rofraction.map");
+//    namelist[i].value = QString("rofraction.map");
     namelist[i++].name = QString("Runoff fraction map");
     namelist[i].value = QString("chandism3.map");
     namelist[i++].name = QString("Channel discharge map");

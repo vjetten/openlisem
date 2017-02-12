@@ -537,7 +537,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Interception map")==0) E_InterceptionMap->setText(p);
         if (p1.compare("Infiltration map")==0) E_InfiltrationMap->setText(p);
         if (p1.compare("Runoff map")==0) E_RunoffMap->setText(p);
-        if (p1.compare("Runoff fraction map")==0) E_RunoffFractionMap->setText(p);
+        //if (p1.compare("Runoff fraction map")==0) E_RunoffFractionMap->setText(p);
         if (p1.compare("Channel discharge map")==0) E_ChannelQtotm3Map->setText(p);
 
         if (p1.compare("Erosion map")==0) E_DetachmentMap->setText(p);
@@ -868,7 +868,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();
         if (p1.compare("Infiltration map")==0) namelist[j].value = E_InfiltrationMap->text();
         if (p1.compare("Runoff map")==0) namelist[j].value = E_RunoffMap->text();
-        if (p1.compare("Runoff fraction map")==0) namelist[j].value = E_RunoffFractionMap->text();
+       // if (p1.compare("Runoff fraction map")==0) namelist[j].value = E_RunoffFractionMap->text();
         if (p1.compare("Channel discharge map")==0) namelist[j].value = E_ChannelQtotm3Map->text();
         if (p1.compare("WH max level map")==0) namelist[j].value = E_WHmaxMap->text();
 

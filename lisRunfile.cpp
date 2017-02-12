@@ -443,8 +443,8 @@ void TWorld::ParseRunfileData(void)
             infiltrationMapFileName = checkOutputMapName(p, "infiltration map", 0);
         if (p1.compare("Runoff map")==0)
             runoffMapFileName = checkOutputMapName(p, "runoff map", 0);
-        if (p1.compare("Runoff fraction map")==0)
-            runoffFractionMapFileName = checkOutputMapName(p, "runoff fraction map", 0);
+//        if (p1.compare("Runoff fraction map")==0)
+//            runoffFractionMapFileName = checkOutputMapName(p, "runoff fraction map", 0);
         if (p1.compare("Channel discharge map")==0)
             channelDischargeMapFileName = checkOutputMapName(p, "Channel discharge map", 0);
         if (p1.compare("WH max level map")==0)
