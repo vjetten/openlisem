@@ -1444,12 +1444,12 @@ void lisemqt::resetAll()
     E_SnowmeltName->setText("");
     E_ResultDir->setText("");
 
-    checkSeparateOutput->setChecked(check);
+    checkSeparateOutput->setChecked(false);
  //   checkWriteSOBEK->setChecked(check);
  //   SOBEKdatestring->setText("10/01/01");
     E_DigitsOut->setValue(3);
     checkWritePCRnames->setChecked(true);
-    checkWritePCRaster->setChecked(check);
+    checkWritePCRaster->setChecked(false);
     checkWriteCommaDelimited->setChecked(true);
 
     E_RainfallMap->setText("rainfall.map");
@@ -1510,8 +1510,6 @@ void lisemqt::resetAll()
     initOP();
     progressBar->setValue(0);
 
-    bool check = false;
-
     checkSnowmelt->setChecked(false);
     checkRainfall->setChecked(true);
 
@@ -1529,7 +1527,7 @@ void lisemqt::resetAll()
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
     checkHardsurface->setChecked(false);
-    checkRaindrum->setChecked(check);
+    checkRaindrum->setChecked(false);
 
     // interception
 
@@ -1630,7 +1628,7 @@ void lisemqt::resetAll()
     //calibration
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateN->setValue(1.0);
-    E_CalibrateThet->setValue(1.0);
+    E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
