@@ -66,7 +66,6 @@ void TWorld::DoModel()
     time_ms.start();
     // get time to calc run length
 
-
     try
     {
         DEBUG("reading and initializing data");
@@ -116,7 +115,6 @@ void TWorld::DoModel()
 
         CountLandunits();
         //VJ 110110 for output totals per landunit
-
 
         runstep = 0; // NOTE runstep is used to initialize graph!
         printstep = 1; // printstep determines report frquency

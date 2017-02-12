@@ -42,7 +42,6 @@ functions: \n
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
 {
-
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
     double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
@@ -144,11 +143,14 @@ void TWorld::Totals(void)
     {
         runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;
     }
+    //TODO runoff fraction not a very clear map
 
     //=== all discharges ===//
 
     QtotT = 0;
-    // sum outflow m3 for all timesteps for the outlet
+    // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
+
+    // Add overland flow
     if(SwitchKinematic2D == 1)
     {
         FOR_ROW_COL_MV
@@ -160,16 +162,16 @@ void TWorld::Totals(void)
     }
     else
     {
-        QtotT += K2DQOut; // NOTE: K2DQOut based on if(K2DOutlets->Drc == 1)
+        QtotT += K2DQOut; // NOTE: K2DQOut already based on if(K2DOutlets->Drc == 1)
     }
-
 
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 
-    QtotOutlet += Qn->DrcOutlet*_dt;
-    // for screen output, total main outlet in m3
+    //QtotOutlet += Qn->DrcOutlet*_dt;  obsolete, now Qtot-
+    // for file totals output, total main outlet in m3
 
+    // add channel outflow
     if (SwitchIncludeChannel)
     {
         WaterVolTot += mapTotal(*ChannelWaterVol); //m3
@@ -182,15 +184,14 @@ void TWorld::Totals(void)
             {
                 QtotT += ChannelQn->Drc*_dt; //m3
             }
-            ChannelQntot->Drc += ChannelQn->Drc*_dt;  //m3 spatial for output
+            ChannelQntot->Drc += ChannelQn->Drc*_dt;  //cumulative m3 spatial for .map output
 
         }
         // add channel outflow (in m3) to total for all pits
         // recalc in mm for screen output
 
-        QtotOutlet += ChannelQn->DrcOutlet * _dt;
-        //QtotT += ChannelQn->DrcOutlet * _dt;
-        // sum: add channel outflow (in m3) to total for main outlet
+        //QtotOutlet += ChannelQn->DrcOutlet * _dt;  obsolete, now Qtot-
+        // sum: add channel outflow (in m3) to total for main outlet -> for totals file
 
         if (SwitchChannelFlood)
         {
@@ -200,7 +201,6 @@ void TWorld::Totals(void)
         if (runstep == 1)
             floodVolTotInit = floodVolTot;
         // save initial flood level for mass balance if start with flood
-
     }
 
     if (SwitchIncludeTile)
@@ -223,12 +223,9 @@ void TWorld::Totals(void)
                 if (LDDTile->Drc == 5)
                 QtotT += TileQn->Drc * _dt;
         // add tile outflow (in m3) to total for all pits
-        //Qtotmm = Qtot*catchmentAreaFlatMM;
-        // recalc in mm for screen output
 
-        QtotOutlet += TileQn->DrcOutlet * _dt;
-        // add channel outflow (in m3) to total for main outlet
-
+        //QtotOutlet += TileQn->DrcOutlet * _dt;  obsolete, now Qtot-
+        // add Tile outflow (in m3) to total for main outlet
     }
 
     if (SwitchBuffers)
@@ -248,12 +245,15 @@ void TWorld::Totals(void)
 //        if (Qoutput->Drc < 0.0001)
 //            Qoutput->Drc = 0.0001;
         // added minimum here to avoid strange maps
+        //NOTE: for 2D flow Qn = K2DQ, already done
     }
 
     Qtot += QtotT;
-    // add flood boundary losses
+    // Total outflow in m3 for all timesteps
     Qtotmm = (Qtot)*catchmentAreaFlatMM;
     // recalc to mm for screen output
+
+    // flood boundary losses are done separately in MB
 
     /***** SEDIMENT *****/
     // note DETFLOW, DETSPLASH AND DEP ARE IN KG/CELL
@@ -292,8 +292,8 @@ void TWorld::Totals(void)
         }
         // sum all sed in all pits (in kg), needed for mass balance
 
-        SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
-        // for screen output, total main outlet sed loss in kg
+//        SoilLossTotOutlet += Qsn->DrcOutlet * _dt;
+//        // for screen output, total main outlet sed loss in kg
 
         if (SwitchIncludeChannel)
         {
@@ -314,8 +314,8 @@ void TWorld::Totals(void)
                 }
             }
 
-            SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
-            // add channel outflow (in kg) to total for main outlet, for screen output
+//            SoilLossTotOutlet += ChannelQsn->DrcOutlet * _dt;
+//            // add channel outflow (in kg) to total for main outlet, for screen output
 
             if (SwitchChannelFlood)
             {

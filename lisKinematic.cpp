@@ -212,8 +212,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
  * A linked list of all cells connected to the pit is made, after that it 'walks' through the list
  * calculating the water fluxes from upstream to downstream.
  *
- * @param pitRowNr : row nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
- * @param pitColNr : col nr of the current pit (can be more than one, LISEM loops through all the pits, r_outlet and c_oulet is the main pit)
+ * @param pitRowNr : row nr of the current pit (can be more than one, LISEM loops through all the pits)
+ * @param pitColNr : col nr of the current pit (can be more than one, LISEM loops through all the pits)
  * @param _LDD : LDD map, can be slope, channel or tiledrain system
  * @param _Q : incoming discharge at the start of the timestep (m3/s)
  * @param _Qn : Outgoing new discharge at the end of the timestep (m3/s)

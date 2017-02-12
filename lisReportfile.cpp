@@ -244,7 +244,7 @@ void TWorld::OutputUI(void)
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;
     op.Qtotmm = Qtotmm;
-    op.Qtot = QtotOutlet;
+    op.Qtot = Qtot; // QtotOutlet; <- only for outlet c,r but these are not valid anymore with mulyiple outlets
 
     op.Qtile = 1000*TileQn->DrcOutlet;
 
@@ -721,6 +721,7 @@ void TWorld::ReportMaps(void)
     if (SwitchIncludeChannel)
     {
         report(*ChannelQntot, channelDischargeMapFileName);
+        // total flow in river, cumulative during run, in m3 !!!
     }
 
     if(SwitchErosion)

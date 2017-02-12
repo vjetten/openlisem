@@ -361,7 +361,6 @@ void TWorld::ChannelFlood(void)
 
     getFloodParameters();
 
-
     FloodBoundary();
     // boundary flow
 

@@ -325,13 +325,14 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot,QtotT, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
+    double MB, MBeM3, Qtot,QtotT, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
+    double QtotTileOutlet, QtotOutlet, QtotChannelOutlet;
     double floodBoundaryTot;
     //houses
     double IntercHouseTot, IntercHouseTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SoilLossTotOutlet, SedTot, SoilLossTotSub,
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, /*SoilLossTotOutlet*/, SedTot, /*SoilLossTotSub,*/
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm;
@@ -349,7 +350,7 @@ public:
     double Maxsolubility;
     double MaxVup;
 
-    int c_outlet;  /// copy of outlet col number
+    int c_outlet;  /// copy of outlet col number OBSOLETE
     int r_outlet;  /// copy of outlet row number
 
     int c_plot;  /// copy of col number of hydrograph plotted on screen
@@ -435,8 +436,8 @@ public:
 
     // list of pointers for substance maps: sediment, sed classes, nutrients etc.
     // used in kin wave for routing of substances
-    MapListStruct SubsMaps[32];
-    int nrSubsMaps;
+    //MapListStruct SubsMaps[32];
+    //int nrSubsMaps;
 
     // functions in lisDataInit.cpp
     void InitMapList(void);
@@ -454,6 +455,7 @@ public:
     void GetInputData(void);      // get and make input maps
     void IntializeData(void);     // make all non-input maps
     void IntializeOptions(void);  // set all options to false etc
+    void InitStandardInput(void); //VJ 170211
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
