@@ -112,6 +112,7 @@ struct output{
 
     QString runfilename;
     QString LisemDir;
+    QString format;
 
     bool doBatchmode;
 };

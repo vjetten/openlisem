@@ -82,7 +82,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     RunFileNames.clear();
     op.runfilename.clear();
 
-
     resetAll();
     // all options and mapnames are reset to their default names and values
     // fill DEFmaps stringlist and make mapList with default names
@@ -189,7 +188,7 @@ void lisemqt::SetConnections()
 
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-    connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+ //   connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
     connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
@@ -200,6 +199,40 @@ void lisemqt::SetConnections()
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
+    connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
+
+}
+//--------------------------------------------------------------------
+void lisemqt::setFormatMaps(bool check)
+{
+    QString ext = ".map";
+    if (check)
+    {
+        op.format = "GTiff";
+        ext = ".tif";
+    }
+    else
+    {
+        op.format = "PCraster";
+        ext = ".map";
+    }
+
+    E_RainfallMap->setText(QFileInfo(E_RainfallMap->text()).baseName() + ext);
+    E_InterceptionMap->setText(QFileInfo(E_InterceptionMap->text()).baseName() + ext);
+    E_InfiltrationMap->setText(QFileInfo(E_InfiltrationMap->text()).baseName() + ext);
+    E_RunoffMap->setText(QFileInfo(E_RunoffMap->text()).baseName() + ext);
+    E_DetachmentMap->setText(QFileInfo(E_DetachmentMap->text()).baseName() + ext);
+    E_DepositionMap->setText(QFileInfo(E_DepositionMap->text()).baseName() + ext);
+    E_SoillossMap->setText(QFileInfo(E_SoillossMap->text()).baseName() + ext);
+    E_ChanDetachmentMap->setText(QFileInfo(E_ChanDetachmentMap->text()).baseName() + ext);
+    E_ChanDepositionMap->setText(QFileInfo(E_ChanDepositionMap->text()).baseName() + ext);
+    E_FloodlevelMap->setText(QFileInfo(E_FloodlevelMap->text()).baseName() + ext);
+    E_FloodTimeMap->setText(QFileInfo(E_FloodTimeMap->text()).baseName() + ext);
+    E_FloodFEW->setText(QFileInfo(E_FloodFEW->text()).baseName() + ext);
+    E_FloodmaxVMap->setText(QFileInfo(E_FloodmaxVMap->text()).baseName() + ext);
+    E_ChannelMaxQ->setText(QFileInfo(E_ChannelMaxQ->text()).baseName() + ext);
+    E_ChannelMaxWH->setText(QFileInfo(E_ChannelMaxWH->text()).baseName() + ext);
+    E_ChannelQtotm3Map->setText(QFileInfo(E_ChannelQtotm3Map->text()).baseName() + ext);
 }
 //--------------------------------------------------------------------
 void lisemqt::resizeEvent(QResizeEvent* event)
@@ -642,25 +675,23 @@ void lisemqt::setWriteOutputCSV(bool doit)
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputPCR(bool /* doit */)
 {
-    if (checkWriteSOBEK->isChecked())
-    {
-        //checkWriteSOBEK->setChecked(false);
-        checkWriteCommaDelimited->setChecked(false);
-        checkWritePCRaster->setChecked(false);
-        //checkSeparateOutput->setChecked(true);
-    }
-    else
+//    if (checkWriteSOBEK->isChecked())
+//    {
+//        //checkWriteSOBEK->setChecked(false);
+//        checkWriteCommaDelimited->setChecked(false);
+//        checkWritePCRaster->setChecked(false);
+//        //checkSeparateOutput->setChecked(true);
+//    }
+//    else
         if (checkWritePCRaster->isChecked())
         {
-            checkWriteSOBEK->setChecked(false);
+            //checkWriteSOBEK->setChecked(false);
             checkWriteCommaDelimited->setChecked(false);
-            //checkWritePCRaster->setChecked(false);
         }
         else
             if (checkWriteCommaDelimited->isChecked())
             {
-                checkWriteSOBEK->setChecked(false);
-                //checkWriteCommaDelimited->setChecked(false);
+                //checkWriteSOBEK->setChecked(false);
                 checkWritePCRaster->setChecked(false);
             }
 }

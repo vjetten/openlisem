@@ -729,12 +729,11 @@ double TWorld::maincalcflux(double dt, double dt_max)
   // VJ 130517: not in the original code!
   // correct sudden extreme values, swap x or y direction
   // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-
+/*
 #define AVG(a1,a2) ((a1*a2 > 0) ? std::sqrt(a1*a2) : -std::sqrt(std::abs(a1*a2)))
 
      if (F_replaceV > 0)
      {
-         long j = 0;
          FOR_CELL_IN_FLOODAREA {
              if (cflx->Drc > F_maxVelocity+qSqrt(GRAV* h1d->Drc) || cflx->Drc > F_maxVelocity+qSqrt(GRAV*h2d->Drc))
              {
@@ -765,7 +764,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
              }
          }}
     }
-
+*/
      // find largest velocity and determine dt
      FOR_CELL_IN_FLOODAREA {
          double dx = ChannelAdj->Drc;

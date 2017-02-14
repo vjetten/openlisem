@@ -56,7 +56,7 @@
 #define DEBUG(s) emit debug(QString(s))
 
 //#define mwrite(name) writeRaster(QString(resultDir+name))
-#define report(raster, name) WriteMapSeries(raster, resultDir,QString(name), printstep)
+#define report(raster, name) WriteMapSeries(raster, resultDir,QString(name), printstep, mapFormat)
 
 // defines to make life easier
 
@@ -362,7 +362,8 @@ public:
     double time, BeginTime, EndTime;
     double _dt, _dx;
     long runstep, printstep, printinterval;
-    int fZone;
+
+    QString mapFormat;
 
     QString timestampRun; // for output filenames
 

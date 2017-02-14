@@ -329,6 +329,8 @@ void lisemqt::initOP()
     op.F_Maxiter = 200;
     op.F_SigmaDiffusion = 1;
 
+    op.format = "PCRaster";
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::setFloodOP(bool)

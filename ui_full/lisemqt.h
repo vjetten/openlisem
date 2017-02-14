@@ -273,6 +273,7 @@ public:
     int InterceptionEqNr;
     int mapstartnr;
     bool doShootScreens;
+    QString mapFormat;
 
     // buttongroups to make checkboxes mutually exclusive
     QButtonGroup GroupMapDisplay;
@@ -391,6 +392,8 @@ public slots:
 
     void setFloodOP(bool);
     //  void on_checkBoxOverlay_stateChanged(int yes);
+
+    void setFormatMaps(bool);
 
 void on_toolButtonH1_clicked();
 private slots:

@@ -211,6 +211,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("SOBEK date string");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("Report digits out");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Report format GTiff");
 
     namelist[i].value = QString("rainfall.map");
     namelist[i++].name = QString("Rainfall map");
@@ -221,7 +223,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("runoff.map");
     namelist[i++].name = QString("Runoff map");
 //    namelist[i].value = QString("rofraction.map");
-    namelist[i++].name = QString("Runoff fraction map");
+//    namelist[i++].name = QString("Runoff fraction map");
     namelist[i].value = QString("chandism3.map");
     namelist[i++].name = QString("Channel discharge map");
     namelist[i].value = QString("eros.map");
