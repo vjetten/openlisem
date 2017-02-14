@@ -12490,10 +12490,10 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </spacer>
                </item>
-               <item row="0" column="0">
+               <item row="0" column="0" colspan="2">
                 <widget class="QCheckBox" name="checkFormatGtiff">
                  <property name="text">
-                  <string>Write maps as GTiff</string>
+                  <string>Write maps as GTiff (NOTE: without cartographic projection information)</string>
                  </property>
                 </widget>
                </item>
@@ -21667,7 +21667,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

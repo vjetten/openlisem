@@ -1,160 +1,38 @@
+NEW openLISEM
 
-At this point there are two developments:
-- lisem 64bit for large projects, ONLY FOR WIN 64bit machines. This is being co-developed by Kor de Jong for parallel processing and adding debrisflows.
-- lisem 32bit. Kept in parallel for now but will merge better soon with the 64bit version.
+For older versions and list of changes contact v.g.jetten#utwente.nl
 
-If possible use the 64bit version!
+NOTE: only a 64bit version exists, 32 bit is no longer supported
 
-openLISEM README (150826)
-======================================================================
-LATEST CHANGES (v2.03beta)
-- revamped channel overflow
-- bug fix in swof DX and ChannelAdj instead of _dx
-- changed replace extremee velocity to sqrt(a*b) instead of 0.5*(a+b)
+NOTE: a linux version exists, on request (Thanks to Dr David Favis Mortlock).
 
-LATEST CHANGES (v2.02beta)
-- BUG fix: flood velocity reported is now is vector average sqrt(U*U+V*V)
-- better mixing overland flow and flood water (experimental)
-- flood when heavy rainfall on flat areas (experimental)
-- output map max flood velocity added
-- Optional: show waterlevel of runoff and flood at the same time
+version 3.95 (170214)
+- Fixed a bug in flowboundary conditions
+- Fixed a minor bug in 2D dynamic flow
+- Added GeoTiff writing for main output maps (not timeseries)
+- Added 3 missing fluxes (in mm) to report with totals
 
-LATEST CHANGES (v1.99-v2.01)
-- Prepare library GDAL for more GIS format possibilities (not activated yet)
-- fixed SWATRE table path reading bug
-- colour tweaking
+Version 2.03-3.94 (170212)
+================================================================================================================================================
+The following features are inplemented in the course of 2015 and 2016:
 
-LATEST CHANGES (v1.97-1.99)
-- Fixed bug output flood max velocity map
-- Fixed bug zoomed in map stays on location when switching map type
-- Fixed bug in flood calculations for channel cells
-- Added max flood iterations to interface
-- Added brief help descriptions in the interface
-- Added hard surfaces to buildings in interface
-- tuned correction of spurious flood values
+- Multiple catchments can be done in one simulation (limited by PC memory)
+- Spatial rainfall from rainfall maps (e.g. model results or satellite images)
+- 1D kinematic wave for runoff and channels based on a usr defined network
+- Diffusive wave 2D runoff, uses the DEM directly (does not use the LDD which is reserved for the Kinematic wave)
+- Dynamic wave shallow flooding, based on the FULLSWOF project: https://www.univ-orleans.fr/mapmo/soft/FullSWOF/
+- Sediment dynamics (erosion, transport, deposition) for splash, runoff, channel flow and flooding
+- Flow barriers (walls) can be defined to close areas in 1-4 directions, e.g. as flood protection walls of a given hieght
+- Channels can be wider than a gridcell
+- Channel stationary baseflow can be added
+- Sediment transport for suspended matter only, suspended matter and bedload movement, choice from different transport equations
+- Sediment transport for a median grainsize class or multiple classes (based on D50-D90 or user defined)
+- All fluxes are made visible as maps on screen while running, and saved to files
+- Hydrographs and sedigraphs from multiple observation points and outlets can be shown onscreen while running, and saved to files
 
-LATEST CHANGES (v1.96)
-- Added flood start as early warning information, screen and map output
-- fixed bug reaading rainfall maps
-- smooting method for extreme values caused by unstable numerical solution (replaced by average of surrounding wet values)
-- tweaks in interface
-- depreciated flood explicit scheme, didn't work
-TODO
-- check tab output for outlets
+Because of diffusive runoff the range of resolutions can now be larger, LISEM is being tested from 1 cm gridcells (2 m2) to 20m gridcells (600 km2)
 
-LATEST CHANGES (v1.95)
-- Corrrected MUSCL for boundary cells
-- Made ENO and Modified ENO operational
-- Fixed boundary flux, water flows outside on the boundary cell with a flux that equals Qflood
-  Boundary cell is made as one cell against MV boundary
-- Fixed error in Flood velocity: U and V can be negative or positive depending on direction of flow
-  UVflood is now 0.5*(abs(V)+abs(U)
-- Changed correction of spurious values in velocity by swapping to average of surrounding 8 cells
-- Added two user thresholds for correcting extreme flood heights: if h > T1 and h > T2 of the avg surrounding cells, 
-  than replace with avg of surrounding cells
 
-LATEST CHANGES (v1.93-1.94)
-- Fixed a bug that creates artificial flood boundaries, lisem now needs a map that delineates the potential floodzone (1,0)
-- Experimenting with faster flood calculations
-- corrections for spurious flood heights
-
-LATEST CHANGES (v1.8-1.92)
-- Changed map display layout and options
-- Changes to flood calculations and 1D/2D linking
-- MOVED to GIT and 64bit compilations for larger projects!
-
-LATEST CHANGES (v 1.79)
-- fixed bug in interception that has been there since approximately version 1.63
-  this gave too high interception values
-
-LATEST CHANGES (v 1.75-1.78)
-- added possibility to switch on percolation from bottom layer soil profile in non-SWARE infiltration, according to K - unsat, option in infiltration 
-- fixed error in rainfall reading when mote than one station
-- further fixing interface showing outlet or points inside the catchment
-- changed concentration in output to Qs/Q, gives more stable results than sed/vol
-- added interface map display: flood level and runoff level in one display and mapseries output
-
-LATEST CHANGES (v 1.71-1.74)
-- Further tuning of flood models and additional parameters in the interface
-- more flooding output (needs to be standardized)
-- fixed interface showing outlet or points inside the catchment
-- added interface map display: flood level and runoff level in one display and mapseries output
-- fixed interface bugs
-
-LATEST CHANGES (v 1.70-1.71)
-- Solution for 2nd order, works now!
-- map display shows meters on x and y axes insted of rows/cols
-- moved rainfall display to the right of the graph is there is no erosion
-
-LATEST CHANGES (v 1.67-1.69)
-- improved channel and flood water mixing
-- improved display, houses now also visible
-- map can be switched after run has stopped
-known issues: flood SWOF order 2 not working
-
-LATEST CHANGES (v 1.61-1.67)
-- Added flooding code from the fullSWOF2D project (Univ Orleans, http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)
-- Added a flood mass balance error spreading over flood area to keep mass balance below 0.1 percent
-- Runoff continues partly in flooded area with large flow resistsance
-- Restyled infiltration code to adapt to flooding
-- Changed gras strip infiltration to simpler change of effective Ksat to work with flooding
-- Added simple drainage function (soilwater) decrease when bottom layer is not impermebale, thetai is adapted
-- TODO: fullswof 2nd order doesn't work yet
-
-LATEST CHANGES (v 1.60-1.61)
-- Tuned flooding, mass balance error down to a few percent 
-- FIXED A BUG SINCE VERSION 1.55 FOR DEPOSITION
-
-LATEST CHANGES (v 1.57-1.60)
-- Added FLOODING!!! Still in beta stage but seems to work for shallow floods from channel system. 
-- Added better map display with roads and channels
-ToDo: mass balance with flooding not correct
-
-LATEST CHANGES (v 1.55-1.56)
-- Added shaded relief for map display (needs dem.map)
-- Added a small hydrograph plot next to the map display
-- Added multiple screenshots (every timestep) to make a movie
-- Fixed a long standing bug crshing lisem at the end of a run (hopefully)
-
-LATEST CHANGES (v 1.39-1.54)
-- Can now read rainfall and snowmelt maps (maps should have flux in mm/h)
-- added map display
-- added land use map for stats output per land use type
-- many small bug fixes (such as sobek output)
-
-LATEST CHANGES (v 1.38)
-- Bug fixes in Swatre, introduced in previous version, crash when profile becomes sturated
-
-LATEST CHANGES (v 1.37)
-- Bug fix kinetic energy time based, in hours instead of seconds, factor 1/3600
-
-LATEST CHANGES (v 1.35-1.36)
--SWATRE  include water repellency
-- Bug fix  saturation bug in SWATRE, NaN when profile is saturated
-
-LATEST CHANGES (v 1.34)
-- Fixed bug in output of erosion units, kg/m2 = kg/cell and vice versa, ton/ha ok
-
-Changes (v 1.33)
-- fixed bugs buffer operation, wrong reporting of buffer in mass balance
-- sedimentation in buffer works correctly now
-- interface refining
-- compiled with QT 4.7.3
-
-Changes (v 1.28-1.32)
-- EXPERIMENTAL epellency as a special case fo crusting. Works for Swatre only.
-
-Changes (v 1.27)
-- fixed bugs in tiledrain part
-- added tiledrain flux to output map series
-- cleaned up SWATRE infil
-
-Changes (v 1.26)
-- recompiled with 4.7.3 version of Qt
-- fixed a bug that reported averages and totals (last version was affected)
-- added calibration factors for theta and psi 
-- added kinetic energy equations for rainfall splash 
-- changes to te interface and small bug fixes
 
 1) The openLISEM model 
 ======================

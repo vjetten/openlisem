@@ -213,7 +213,7 @@ void lisemqt::setFormatMaps(bool check)
     }
     else
     {
-        op.format = "PCraster";
+        op.format = "PCRaster";
         ext = ".map";
     }
 

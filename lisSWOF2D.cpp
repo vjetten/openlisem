@@ -188,9 +188,6 @@ void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
         cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
-    if (cfl > 100)
-        qDebug() << f1 << f2 << f3 << cfl;
-
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
     HLL2_f2 = f2;
@@ -238,9 +235,6 @@ void TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
             cfl=std::max(fabs(c1),fabs(c2));
         }
     }
-    if (cfl > 100)
-        qDebug() << f1 << f2 << f3 << cfl;
-
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
     HLL2_f2 = f2;
@@ -267,11 +261,6 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
         f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
         cfl = c;//*tx;
-    }
-    if (cfl > 1000)
-    {
-      //  qDebug() << f1 << f2 << f3 << cfl;
-   qDebug() << "L " << h_L<< u_L<< v_L<< "R "<<h_R<< u_R<< v_R;
     }
     HLL2_cfl = cfl;
     HLL2_f1 = f1;
@@ -838,7 +827,6 @@ void TWorld::prepareFloodZ(cTMap *z)
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
 
-
     // edges of domain: take cell next to edge cell or 0
     FOR_ROW_COL_MV
     {
@@ -1005,6 +993,131 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
         if (correct)
             sumh = mapTotal(*h);
 
+        verif = 1;
+
+        do {
+
+            if (verif == 1)
+            {
+                dt1 = dt_max;
+
+                setZero(h, u, v);
+
+                // Reconstruction for order 2
+                // makes h1r, h1l, u1r, u1l, v1r, v1l
+                // makes h2r, h2l, u2r, u2l, v2r, v2l
+                // makes delzc1, delzc2, delz1, delz2
+                    MUSCL(h,u,v,z);
+            }
+
+            dt1 = maincalcflux(dt1, dt_max);
+            dt1 = std::min(dt1, _dt-timesum);
+            if(SwitchErosion)
+            {
+                //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
+                //otherwise they will be overwritten by the second reconstruction
+                FOR_ROW_COL_MV
+                {
+                    temp1->Drc = h1d->Drc;
+                    temp2->Drc = h1g->Drc;
+                    temp3->Drc = h2d->Drc;
+                    temp4->Drc = h2g->Drc;
+                    temp5->Drc = u1r->Drc;
+                    temp6->Drc = u1l->Drc;
+                    temp7->Drc = v1r->Drc;
+                    temp8->Drc = v1l->Drc;
+                    temp9->Drc = u2r->Drc;
+                    temp10->Drc = u2l->Drc;
+                    temp11->Drc = v2r->Drc;
+                    temp12->Drc = v2l->Drc;
+
+                }
+            }
+
+            //st venant equations, h, u, v go in hs, vs, us come out
+            maincalcscheme(dt1, h,u,v, hs,us,vs);
+            dt2 = dt1;
+
+            setZero(hs, us, vs);
+
+            //Reconstruction for order 2
+              MUSCL(hs,us,vs,z);
+
+            dt2 = maincalcflux(dt2, dt_max);
+
+            if (dt2 < dt1)
+            {
+                dt1 = dt2;
+                verif = 0;
+            }
+            else
+            {
+                verif = 1;
+                //hs, us, vs go in hsa, vsa, usa come out
+                maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
+                dt1 = std::min(dt1, _dt-timesum);
+
+                setZero(hsa, usa, vsa);
+
+                //sediment
+                SWOFSediment(dt1,h,u,v );
+
+                //Heun method (order 2 in time)
+                FOR_ROW_COL_MV
+                {
+                    double havg = 0.5*(h->Drc + hsa->Drc);
+                    if (havg >= he_ca)
+                    {
+                        double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+                        u->Drc = q1/havg;
+                        double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+                        v->Drc = q2/havg;
+                        h->Drc = havg;
+                    }
+                    else
+                    {
+                        u->Drc = 0;
+                        v->Drc = 0;
+                        h->Drc = 0;
+                    }
+                }//Heun
+
+                timesum = timesum + dt1;
+                n++;
+
+                if (n > F_MaxIter)
+                    break;
+            }//end for else dt2<dt1
+
+            if (correct)
+                correctMassBalance(sumh, h, 1e-12);
+
+            // qDebug() << n << timesum << dt1;
+          } while (timesum  < _dt);
+
+      } // if floodstart
+    iter_n = n;
+    dt1 = n > 0? _dt/n : dt1;
+    return(dt1);
+}
+//---------------------------------------------------------------------------
+// 2nd order without itertaion dt1, dt2!
+double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
+{
+    double dt1 = 0, dt2, timesum = 0;
+    double dt_max = std::min(_dt, _dx*0.5);
+    int n = 0;
+    double sumh = 0;
+
+    if (prepareFlood)
+        prepareFloodZ(z);
+
+    // if there is no flood skip everything
+    if (startFlood)
+    {
+        if (correct)
+            sumh = mapTotal(*h);
+
         do {
 
             dt1 = dt_max;
@@ -1095,5 +1208,4 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;
     return(dt1);
-
 }

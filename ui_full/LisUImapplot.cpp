@@ -177,18 +177,19 @@ void lisemqt::setupMapPlot()
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
     //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
     mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-    //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // also resets map to lower boundary
+//    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
+//    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
+//    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
+//      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
     //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
-    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+     mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     //mapRescaler->setEnabled( true );
     // rescaling fixed to avoid deformation
 
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( MPlot->yRight, false );
-    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
     // exclude right axis legend from rescaling
+    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
 
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
@@ -215,7 +216,6 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
 
     // copy map data into vector for the display structure
     for(int r = _M->nrRows()-1; r >= 0; r--)
-        //      for(int r = 0; r < _M->nrRows(); r++)
         for(int c=0; c < _M->nrCols(); c++)
         {
             if(!pcr::isMV(_M->Drc))

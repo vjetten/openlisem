@@ -287,9 +287,11 @@ void TWorld::FloodBoundary()
 {
     FOR_ROW_COL_MV
     {
+        // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
         if (DomainEdge->Drc > 0 && hmx->Drc > 0)
         {
             //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+
             if( Qflood->Drc*_dt > hmx->Drc*DX->Drc*ChannelAdj->Drc)
             {
                 Qflood->Drc = hmx->Drc*DX->Drc*ChannelAdj->Drc/_dt;
@@ -397,6 +399,10 @@ void TWorld::ChannelFlood(void)
     if (SwitchFloodSWOForder1)
     {
         dtflood = fullSWOF2Do1(hmx, Uflood, Vflood, DEM, true);
+    }
+    else
+    {
+        dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
     }
 
     //FloodSpuriousValues();

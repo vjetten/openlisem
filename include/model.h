@@ -474,7 +474,7 @@ public:
     //FLOOD according to FULLSWOF2D
     void prepareFloodZ(cTMap *z);
     double fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double fullSWOF2Do2s(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);

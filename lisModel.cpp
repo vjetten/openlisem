@@ -60,6 +60,8 @@ void TWorld::DoModel()
 
     timestampRun = QDateTime().currentDateTime().toString("yy.MM.dd-hh.mm");
 
+    mapFormat = "PCRaster";
+
     //  QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
     errorFileName = QString(resultDir + "error"+ timestampRun +".txt");
 

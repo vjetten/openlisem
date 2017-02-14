@@ -996,5 +996,6 @@ void TWorld::K2DDEMA()
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
     if (FlowBoundaryType != 1)
-        copy(*FlowBoundary, *K2DOutlets);
+        copy(*K2DOutlets, *FlowBoundary);  //copy 1 is 2
+
 }
