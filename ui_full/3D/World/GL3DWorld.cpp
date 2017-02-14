@@ -65,6 +65,10 @@ void GL3DWorld::AddObject(GL3DObject * object)
         {
             m_RenderObjectList.append(object);
         }
+        if(object->recieve_render_late)
+        {
+            m_RenderLateObjectList.append(object);
+        }
         if(object->recieve_render_post)
         {
             m_RenderPostObjectList.append(object);
@@ -83,6 +87,7 @@ void GL3DWorld::RemoveObject(GL3DObject * object)
         m_ButtonObjectList.removeAll(object);
         m_MouseMoveObjectList.removeAll(object);
         m_RenderObjectList.removeAll(object);
+        m_RenderLateObjectList.removeAll(object);
         m_RenderPostObjectList.removeAll(object);
     }
 
@@ -116,6 +121,7 @@ void GL3DWorld::RemoveAndDestroyAllObjects()
     m_ButtonObjectList.clear();
     m_MouseMoveObjectList.clear();
     m_RenderObjectList.clear();
+    m_RenderLateObjectList.clear();
     m_RenderPostObjectList.clear();
 }
 
@@ -136,6 +142,16 @@ void GL3DWorld::OnRender(GL3DWidget * widget, GL3DCamera* camera, double dt)
     {
 
         m_RenderObjectList.at(i)->OnRender(widget,this,camera,dt);
+    }
+}
+
+void GL3DWorld::OnRenderLate(GL3DWidget * widget, GL3DCamera* camera, double dt)
+{
+
+    for(int i = 0; i < m_RenderLateObjectList.length();i++)
+    {
+
+        m_RenderLateObjectList.at(i)->OnRenderLate(widget,this,camera,dt);
     }
 }
 

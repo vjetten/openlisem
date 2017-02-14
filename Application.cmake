@@ -56,7 +56,6 @@ SET(APP_SOURCES
     ui_full/3D/Objects/GL3DFlowSurface
     ui_full/3D/Objects/GL3DGrass
     ui_full/3D/Objects/GL3DOcean
-    ui_full/3D/Objects/GL3DRoads
     ui_full/3D/Objects/GL3DSkyBox
     ui_full/3D/Objects/GL3DSurface
     ui_full/3D/Objects/GL3DTree
@@ -64,6 +63,7 @@ SET(APP_SOURCES
     ui_full/3D/Objects/GL3DBuilding
     ui_full/3D/Objects/GL3DObject
     ui_full/3D/Graphics/GL3DMath
+    ui_full/3D/Graphics/GL3DModels
     ui_full/3D/Graphics/GL3DShaders
     ui_full/3D/Graphics/GL3DTextures
     ui_full/3D/Graphics/GL3DGeometry

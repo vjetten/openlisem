@@ -28,8 +28,8 @@ void GL3DGeometries::Create(GL3DWidget * widget)
 {
 
     m_Widget = widget;
-
-
+    QuadGeometry = new GL3DGeometry();
+    QuadGeometry->CreateGeometry(widget,g_quad_vertex_buffer_data,6);
 }
 
 GL3DGeometry * GL3DGeometries::LoadGeometryFromMap(cTMap * elevation, int max_res_x,int max_res_y, bool data2d)
@@ -127,6 +127,7 @@ double GL3DGeometry::GetMapValue(cTMap * map,double y, double x)
 
 void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int res_y, bool data2d)
 {
+    uses_index = true;
     this->is_2d_data = data2d;
 
     int oresx = map->nrCols();
@@ -289,6 +290,9 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int 
 
 void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex * data,int lv,const GLuint * indices, int li)
 {
+    uses_index = true;
+    is_2d_data = false;
+
     QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
     m_vertex = temp1;
     m_vertex.create();
@@ -306,6 +310,22 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex * data,int lv,
     m_index.release();
 
     m_IndexCount = li;
+}
+
+void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex * data,int lv)
+{
+    uses_index = false;
+    is_2d_data = false;
+
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_vertex = temp1;
+    m_vertex.create();
+    m_vertex.bind();
+    m_vertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_vertex.allocate(data, sizeof(Vertex) * lv);
+    m_vertex.release();
+
+    m_IndexCount = lv;
 }
 
 void GL3DGeometry::CreateGeometry(QGLWidget * widget,QString file)

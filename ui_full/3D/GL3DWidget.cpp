@@ -44,10 +44,12 @@ void GL3DWidget::initializeGL()
     m_Geometries = new GL3DGeometries();
     m_Textures = new GL3DTextures();
     m_Shaders = new GL3DShaders();
+    m_Models = new GL3DModels();
 
     m_Geometries->Create(this);
     m_Textures->Create(this);
     m_Shaders->Create(this);
+    m_Models->Create(this);
 
     setMouseTracking(true);
     setMinimumSize(100, 100);
@@ -91,6 +93,13 @@ void GL3DWidget::initializeGL()
     }
 
     this->m_Time = QDateTime::currentMSecsSinceEpoch();
+
+
+    //quad for post-processing
+    m_GLQuadObject.create();
+    BindGeometry(m_GLQuadObject,m_Shaders->copyshader,m_Geometries->QuadGeometry);
+
+
 }
 
 void GL3DWidget::timerEvent(QTimerEvent *e)
@@ -116,6 +125,8 @@ void GL3DWidget::resizeGL(int w, int h)
 {
     m_Camera->ResizeViewPort(w,h);
 
+    m_Textures->CreateFrameBuffers(this,w,h);
+
     //for now, widget resolution is render resolution
     this->Width = w;
     this->Height = h;
@@ -134,7 +145,51 @@ void GL3DWidget::Onrender()
 
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->Framebuffer);
+
+    GLenum DrawBuffers[3] = {GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT2,GL_COLOR_ATTACHMENT3};
+    gl->glDrawBuffers(3, DrawBuffers);
+
+    if(gl->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        qDebug() << "error with framebuffer";
+    }
+
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //gl->glDepthMask(GL_TRUE);
+
     this->m_World->OnRender(this,m_Camera,m_DT);
+
+    //gl->glDepthMask(GL_FALSE);
+    GLenum DrawBuffersCopy[1] = {GL_COLOR_ATTACHMENT4};
+    gl->glDrawBuffers(1, DrawBuffersCopy);
+
+    this->m_Shaders->copyshader->m_program->bind();
+    this->m_GLQuadObject.bind();
+    m_Shaders->copyshader->ActivateTextureOn(this,m_Textures->RenderTexture,"tex_input",0);
+
+    this->gl->glDrawArrays(GL_TRIANGLES,0,m_Geometries->QuadGeometry->m_IndexCount);
+
+    GLenum DrawBuffersfinal[3] = {GL_COLOR_ATTACHMENT5};
+    gl->glDrawBuffers(3, DrawBuffersfinal);
+
+    gl->glClear(GL_DEPTH_BUFFER_BIT);
+
+    this->m_World->OnRenderLate(this,m_Camera,m_DT);
+
+    gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    this->m_Shaders->blendshader->m_program->bind();
+
+    this->m_GLQuadObject.bind();
+
+    m_Shaders->blendshader->ActivateTextureOn(this,m_Textures->RenderTexture,"tex_input",0);
+    m_Shaders->blendshader->ActivateTextureOn(this,m_Textures->RenderTextureWater,"tex_input1",1);
+
+    this->gl->glDrawArrays(GL_TRIANGLES,0,m_Geometries->QuadGeometry->m_IndexCount);
 }
 
 void GL3DWidget::Update()

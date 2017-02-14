@@ -86,8 +86,74 @@ void GL3DTextures::Destroy()
 
 
 }
+
+
+void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
+{
+
+    if(this->bufferscreated)
+    {
+        widget->gl->glDeleteTextures(1,&RenderTexture);
+        widget->gl->glDeleteTextures(1,&RenderTextureCopy);
+        widget->gl->glDeleteTextures(1,&RenderTextureWater);
+        widget->gl->glDeleteTextures(1,&LocationTexture);
+        widget->gl->glDeleteTextures(1,&NormalTexture);
+        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &Framebuffer);
+    }
+
+    widget->gl->glGenFramebuffers(1, &Framebuffer);
+    widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
+
+    widget->gl->glGenTextures(1, &RenderTexture);
+    widget->gl->glGenTextures(1, &RenderTextureCopy);
+    widget->gl->glGenTextures(1, &RenderTextureWater);
+    widget->gl->glGenTextures(1, &LocationTexture);
+    widget->gl->glGenTextures(1, &NormalTexture);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureCopy);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureWater);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, LocationTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, NormalTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, RenderTexture, 0);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, LocationTexture, 0);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, NormalTexture, 0);
+
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, RenderTextureCopy, 0);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, RenderTextureWater, 0);
+
+    widget->gl->glGenRenderbuffers(1, &depthrenderbuffer);
+    widget->gl->glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+    widget->gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w,h);
+    widget->gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+    bufferscreated = true;
+
+}
+
 void GL3DTexture::CreateTexture(GL3DWidget * widget,float * ,int lx, int ly)
 {
+
 
 
 
@@ -169,6 +235,7 @@ void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevatio
                     if(debug)
                     {
                         elevation_c = elevation->data[y][x];
+                        qDebug() <<x << y << elevation_c;
                     }else
                     {
                         elevation_c = elevation->data[y][x];
@@ -242,9 +309,9 @@ void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevatio
     this->is_created = true;
 }
 
-void GL3DTexture::CreateTexture(GL3DWidget * widget,QString file, bool is_repeat)
+void GL3DTexture::CreateTextureDirectPath(GL3DWidget * widget,QString file, bool is_repeat)
 {
-    QString long_name = widget->m_Directory + "/" + GL3D_DIR_TEXTURES + file;
+    QString long_name = file;
     bool load = m_QImage.load(long_name);
     if(!load)
     {
@@ -274,6 +341,14 @@ void GL3DTexture::CreateTexture(GL3DWidget * widget,QString file, bool is_repeat
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     widget->gl->glGenerateMipmap(GL_TEXTURE_2D);
     this->is_created = true;
+
+}
+
+void GL3DTexture::CreateTexture(GL3DWidget * widget,QString file, bool is_repeat)
+{
+    QString long_name = widget->m_Directory + "/" + GL3D_DIR_TEXTURES + file;
+    CreateTextureDirectPath(widget,long_name,is_repeat);
+
 
 }
 void GL3DTexture::CreateCubeTexture(GL3DWidget * widget,QString file)
@@ -345,9 +420,134 @@ QImage GL3DTexture::createSubImage(QImage* image, const QRect & rect) {
                   image->bytesPerLine(), image->format());
 }
 
-void GL3DTexture::ClearTexture()
+void GL3DTexture::UpdateTextureFromMap(GL3DWidget * widget, cTMap * elevation, int res_x,int res_y, bool data, bool mask, bool fill, GL3DColorRamp * color_ramp)
 {
 
+    double emax = 0;
+    double emin = 0;
+    bool first = true;
+
+    FOR_ROW_COL_MV(elevation,elevation)
+    {
+        if(first)
+        {
+            first = false;
+            emax = elevation->Drc;
+            emin = elevation->Drc;
+        }else
+        {
+
+            emin = std::min(emin,elevation->Drc);
+            emax = std::max(emax,elevation->Drc);
+        }
+    }
+
+    if(!data)
+    {
+        this->m_QImage = QImage(elevation->nrCols(), elevation->nrRows(), QImage::Format_ARGB32);
+
+        QVector4D value;
+
+        for(int x = 0; x < elevation->nrCols();x++)
+        {
+            for(int y = 0; y < elevation->nrRows();y++)
+            {
+                if(pcr::isMV(elevation->data[y][x]))
+                {
+                    value = color_ramp->GetColor(emin,emax,elevation->data[y][x]);
+                    m_QImage.setPixel(x,y, (QColor(value.x(),value.y(),value.z(),value.w()).rgba()));
+                }else
+                {
+                    m_QImage.setPixel(x,y, (QColor(0,0,0,0).rgba()));
+                }
+            }
+        }
+
+
+        m_QGLImage = QGLWidget::convertToGLFormat(m_QImage);
+
+        widget->gl->glActiveTexture(GL_TEXTURE0);
+        widget->gl->glBindTexture( GL_TEXTURE_2D, m_GLTexture );
+        widget->gl->glTexSubImage2D( GL_TEXTURE_2D, 0,0,0 , m_QGLImage.width(), m_QGLImage.height(), GL_RGBA, GL_UNSIGNED_BYTE, m_QGLImage.bits());
+
+    }else if(!mask)
+    {
+        int n = elevation->nrCols()*elevation->nrRows();
+        GLfloat*data = (float *)malloc(n * sizeof(GLfloat) );
+
+        int npos = 0;
+
+        for(int x = 0; x < elevation->nrCols();x++)
+        {
+            for(int y = 0; y < elevation->nrRows();y++)
+            {
+                float elevation_c = 0;
+                int count = 0;
+                if(!pcr::isMV(elevation->data[y][x]))
+                {
+                    elevation_c = elevation->data[y][x];
+                }else
+                {
+                    elevation_c = emin;
+                }
+
+                data[(y*elevation->nrCols() + x)]=elevation_c;
+            }
+        }
+
+        //creat a texture and store data
+        widget->gl->glActiveTexture(GL_TEXTURE0);
+        widget->gl->glBindTexture(GL_TEXTURE_2D,  m_GLTexture);
+        widget->gl->glTexSubImage2D(GL_TEXTURE_2D, 0,0, 0, elevation->nrCols(),elevation->nrRows(), GL_RED, GL_FLOAT, data);
+
+        free(data);
+    }else
+    {
+        int n = elevation->nrCols()*elevation->nrRows();
+        GLfloat*data = (GLfloat *)malloc(n * sizeof(GLfloat) );
+
+        for(int x = 0; x < elevation->nrCols();x++)
+        {
+            for(int y = 0; y < elevation->nrRows();y++)
+            {
+                float elevation_c = 0;
+                int count = 0;
+                if(!pcr::isMV(elevation->data[y][x]))
+                {
+                    data[(y*elevation->nrCols() + x)]= (GLfloat) ( 1.0);
+
+                }else
+                {
+                    data[(y*elevation->nrCols() + x)]= (GLfloat) 0.0;
+                }
+            }
+        }
+
+        //creat a texture and store data
+        widget->gl->glActiveTexture(GL_TEXTURE0);
+        widget->gl->glBindTexture(GL_TEXTURE_2D,  m_GLTexture);
+        widget->gl->glTexSubImage2D(GL_TEXTURE_2D, 0,0,0, elevation->nrCols(),elevation->nrRows(), GL_RED, GL_FLOAT, data);
+
+        free(data);
+    }
+
+    int e = widget->gl->glGetError();
+    if( e != GL_NO_ERROR)
+    {
+        qDebug() << "opengl error in converting map to texture" << e;
+    }
+
+    this->is_created = true;
+
+
+
+}
+
+
+void GL3DTexture::ClearTexture(GL3DWidget * widget)
+{
+    widget->gl->glDeleteTextures(1,&(this->m_GLTexture));
+    is_created = false;
 
 
 }

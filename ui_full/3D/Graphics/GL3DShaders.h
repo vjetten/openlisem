@@ -54,6 +54,9 @@ public:
 
     GL3DShader * GetDefaultShader(int index);
 
+    GL3DShader * copyshader;
+    GL3DShader * blendshader;
+
     GL3DShaders()
     {
 
@@ -91,6 +94,7 @@ public:
     void LoadShaderFromFile(GL3DWidget * widget,QString file_ps,QString file_vs,QString file_tcs = "",QString file_tes = "",QString file_gs = "");
 
     void ActivateTextureOn(GL3DWidget * widget, GL3DTexture *t, const char * name, int slot);
+    void ActivateTextureOn(GL3DWidget * widget, GLuint t, const char * name, int slot);
 
     void ClearShader();
 
@@ -99,7 +103,7 @@ public:
 #define GL3D_SHADER_SIMPLE 0
 #define GL3D_SHADER_SKYBOX 1
 #define GL3D_SHADER_SURFACE_TESSELATED 2
-#define GL3D_SHADER_FLOWSURFACE 3
+#define GL3D_SHADER_SURFACE_FLOW 3
 #define GL3D_SHADER_VEGETATION 4
 #define GL3D_SHADER_TEXTURED 5
 

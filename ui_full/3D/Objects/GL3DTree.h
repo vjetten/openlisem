@@ -27,7 +27,7 @@
 
 #include <3D/GL3DWidget.h>
 
-class GL3DText
+class GL3DTree : public GL3DObject
 {
 
 public:

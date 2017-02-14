@@ -38,6 +38,8 @@
 #include <QtWidgets/QFileDialog>
 
 #include "3D/GL3DWidget.h"
+#include "3D/GL3DWorldCreator.h"
+
 //QWT library files
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -288,6 +290,7 @@ public:
     void Setup3DPlot();
     GL3DWidget *glwidget;
 
+    GL3DWorldCreator * creator;
 public slots:
     // functions linked to actions
     void saveRunFile();

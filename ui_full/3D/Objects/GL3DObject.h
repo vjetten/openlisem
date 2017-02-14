@@ -41,6 +41,8 @@ public:
         created = false;
     };
 
+    int draw_order = 0;
+
     //bounding box size (for determining if needs to be rendered)
     //dual-directional length, so x width from -0.5sx and 0.5sx
     double sx;
@@ -69,6 +71,7 @@ public:
 
     //based on these values, the object is registered in the GL3DWorld
     bool recieve_render;
+    bool recieve_render_late;
     bool recieve_render_post;
     bool recieve_keys;
     bool recieve_button;
@@ -79,6 +82,7 @@ public:
     virtual inline void OnAddToWorld(GL3DWorld * world)  {return;};
     virtual inline void OnUpdate(GL3DWidget * widget,GL3DWorld * world, double dt)  {return;};
     virtual inline void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
+    virtual inline void OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRenderPost(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRemoveFromWorld(GL3DWorld * world)  {return;};
     virtual inline void OnDestroy(GL3DWidget * widget)  {return;};

@@ -75,7 +75,6 @@ void TWorld::SafetyFactor()
 {
     sfset =true;
 
-
     FOR_ROW_COL_MV
     {
         tmb->Drc = 0;
@@ -373,7 +372,22 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                     (_SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc )+ _PlantPressure->Drc)
                 *sina*cosa
                 );
+        /*double t1 = (_SoilCohesion->Drc + _PlantCohesion->Drc )
+                            +
+                            (
+                                cosa * cosa*
+                                (
+                                 _PlantPressure->Drc +
+                                       (
+                                            _SoilDensity->Drc *(_SoilDepth->Drc) + 1000.0 *(_SoilWaterHeight->Drc)
+                                        )
+                                 )*tanphi
+                             );
 
+                double t2 = (
+                            (_SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc )+ _PlantPressure->Drc)
+                        *sina*cosa
+                        );*/
 
         //above 1000 is irrelevant
         double sf = (t2 > 0 ? std::max(0.0,std::min(t1/t2,1000.0)): 1000.0);

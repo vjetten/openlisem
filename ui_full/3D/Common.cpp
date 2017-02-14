@@ -34,5 +34,8 @@ void lisemqt::Setup3DPlot()
     glwidget = new GL3DWidget();
     layout_3D->addWidget(glwidget);
 
+    creator = new GL3DWorldCreator();
+    creator->LinkToWidget(glwidget);
+
 }
 

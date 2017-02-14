@@ -47,6 +47,7 @@ public:
     QList<GL3DObject*> m_ButtonObjectList;
     QList<GL3DObject*> m_MouseMoveObjectList;
     QList<GL3DObject*> m_RenderObjectList;
+    QList<GL3DObject*> m_RenderLateObjectList;
     QList<GL3DObject*> m_RenderPostObjectList;
 
     double time_multiplier;
@@ -63,6 +64,7 @@ public:
     void Destroy();
 
     void OnRender(GL3DWidget * widget, GL3DCamera* camera, double dt);
+    void OnRenderLate(GL3DWidget * widget, GL3DCamera* camera, double dt);
     void OnRenderPost(GL3DWidget * widget, GL3DCamera* camera, double dt);
     void OnUpdate(GL3DWidget * widget, double dt);
     void OnKey(int key);

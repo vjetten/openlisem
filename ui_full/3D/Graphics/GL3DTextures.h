@@ -52,6 +52,20 @@ public:
     GL3DTexture * LoadTextureFromFile(QString file, bool add = true, bool is_repeat = false);
     GL3DTexture * LoadCubeTextureFromFile(QString file, bool add = true);
 
+    void CreateFrameBuffers(GL3DWidget * widget,int w, int h);
+
+    bool bufferscreated = false;
+
+    // The depth buffer
+    GLuint depthrenderbuffer;
+
+    GLuint RenderTexture;
+    GLuint RenderTextureCopy;
+    GLuint RenderTextureWater;
+    GLuint LocationTexture;
+    GLuint NormalTexture;
+    GLuint Framebuffer;
+
     GL3DWidget * m_Widget;
 
     GL3DTextures()
@@ -108,9 +122,14 @@ public:
     void CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevation, int res_x = 0,int res_y = 0, bool data = false, bool mask = false, bool fill = false, GL3DColorRamp * color_ramp = 0);
     void CreateTexture(GL3DWidget * widget,float * ,int lx, int ly);
     void CreateTexture(GL3DWidget * widget,QString file, bool is_repeat);
+    void CreateTextureDirectPath(GL3DWidget * widget,QString file, bool is_repeat);
+
     void CreateCubeTexture(GL3DWidget * widget,QString file);
     QImage createSubImage(QImage* image, const QRect & rect);
-    void ClearTexture();
+
+    void UpdateTextureFromMap(GL3DWidget * widget, cTMap * elevation, int res_x = 0,int res_y = 0, bool data = false, bool mask = false, bool fill = false, GL3DColorRamp * color_ramp = 0);
+
+    void ClearTexture(GL3DWidget * widget);
 
 };
 

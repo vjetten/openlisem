@@ -30,10 +30,18 @@ public:
   static Q_DECL_CONSTEXPR int normalOffset();
   static Q_DECL_CONSTEXPR int stride();
 
-private:
+
   QVector3D m_position;
-  QVector3D m_color;
+  QVector2D m_UV;
   QVector3D m_normal;
+
+  QVector3D m_tangent;
+  QVector3D m_bitangent;
+
+  QVector3D m_color;
+
+private:
+
 
 };
 

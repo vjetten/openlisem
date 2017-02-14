@@ -143,7 +143,7 @@ void lisemqt::pausemodel()
 //---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
-    glwidget->DestroyWorldFromLisem();
+    creator->DestroyWorldFromLisem();
 
     if(W)
         W->stopRequested = true;
@@ -186,11 +186,11 @@ void lisemqt::worldShow()
 
     if(first3d)
     {
-        glwidget->CreateWorldFromLisem();
+        creator->CreateWorldFromLisem();
         first3d = false;
     }else
     {
-        glwidget->UpdateWorldFromLisem();
+        creator->UpdateWorldFromLisem();
     }
 
 
@@ -260,6 +260,13 @@ void lisemqt::initOP()
     op.channelMap = NULL;
     op.roadMap = NULL;
     op.houseMap = NULL;
+    op.vegcover = NULL;
+    op.vegheight = NULL;
+    op.randomroughness = NULL;
+    op.gl_flow_height = NULL;
+    op.gl_flow_u = NULL;
+    op.gl_flow_v = NULL;
+    op.gl_flow_c = NULL;
 
     op.runstep = 0;
     op.printstep = 0;

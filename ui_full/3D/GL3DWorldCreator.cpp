@@ -26,8 +26,9 @@
 #include <3D/Objects/GL3DSurface.h>
 #include <3D/Objects/GL3DSkyBox.h>
 #include <3D/World/GL3DCameraController.h>
+#include <3D/GL3DWorldCreator.h>
 
-void GL3DWidget::CreateWorldFromLisem()
+void GL3DWorldCreator::CreateWorldFromLisem()
 {
 
     qDebug() <<"create lisem world 3d";
@@ -45,12 +46,17 @@ void GL3DWidget::CreateWorldFromLisem()
     input.ImageR = new cTMap();
     input.ImageG = new cTMap();
     input.ImageB = new cTMap();
-    input.WaterHeight = new cTMap();
+    input.FlowH = new cTMap();
+    input.FlowU = new cTMap();
+    input.FlowV = new cTMap();
+    input.FlowS = new cTMap();
     input.temp = new cTMap();
     input.VegCover = new cTMap();
     input.VegHeight = new cTMap();
     input.SoilCover = new cTMap();
     input.RandomRoughness = new cTMap();
+    input.Buildings = new cTMap();
+    input.Roads = new cTMap();
 
     input.MASK->MakeMap(op.baseMapDEM,0.0);
     input.DEM->MakeMap(op.baseMapDEM,0.0);
@@ -60,53 +66,82 @@ void GL3DWidget::CreateWorldFromLisem()
     input.ImageR->MakeMap(op.baseMapDEM,0.0);
     input.ImageG->MakeMap(op.baseMapDEM,0.0);
     input.ImageB->MakeMap(op.baseMapDEM,0.0);
-    input.WaterHeight->MakeMap(op.baseMapDEM,0.0);
+    input.FlowH->MakeMap(op.baseMapDEM,0.0);
+    input.FlowU->MakeMap(op.baseMapDEM,0.0);
+    input.FlowV->MakeMap(op.baseMapDEM,0.0);
+    input.FlowS->MakeMap(op.baseMapDEM,0.0);
     input.temp->MakeMap(op.baseMapDEM,0.0);
     input.VegCover->MakeMap(op.baseMapDEM,0.0);
     input.VegHeight->MakeMap(op.baseMapDEM,0.0);
     input.SoilCover->MakeMap(op.baseMapDEM,0.0);
     input.RandomRoughness->MakeMap(op.baseMapDEM,0.0);
+    input.Buildings->MakeMap(op.baseMapDEM,0.0);
+    input.Roads->MakeMap(op.baseMapDEM,0.0);
 
     FOR_ROW_COL_MV(input.DEM,input.MASK)
     {
         input.MASK->Drc = op.baseMapDEM->Drc;
         input.DEM->Drc = op.baseMapDEM->Drc;
-
+        input.VegCover->Drc = op.vegcover->Drc;
+        input.VegHeight->Drc = op.vegheight->Drc;
+        input.SoilCover->Drc = (1.0-op.vegcover->Drc);
+        input.RandomRoughness->Drc = op.randomroughness->Drc;
+        input.Buildings->Drc = op.houseMap->Drc;
+        input.Roads->Drc = op.roadMap->Drc;
+        input.FlowH->Drc = op.gl_flow_height->Drc;
+        input.FlowU->Drc = op.gl_flow_u->Drc;
+        input.FlowV->Drc = op.gl_flow_v->Drc;
+        input.FlowS->Drc = op.gl_flow_c->Drc;
     }
 
     MapMath::FillDem(input.DEM,input.DEM_Filled,input.temp,50);
     MapMath::SlopeMap(input.DEM,input.SlopeX,input.SlopeY);
 
-    this->m_World->RemoveAllObjects();
+    m_Widget->m_World->RemoveAllObjects();
 
-    m_World->AddObject(new GL3DSkyBox());
+    m_Widget->m_World->AddObject(new GL3DSkyBox());
 
-    GL3DSurface * surface=  new GL3DSurface();
+    surface=  new GL3DSurface();
     surface->SetSurfaceMap(input.DEM,input.DEM_Filled,input.SlopeX,input.SlopeY);
+    surface->SetTerrainProperties(input.VegCover,input.VegHeight,input.RandomRoughness,input.Buildings,input.Roads);
 
-    m_World->AddObject(surface);
+    m_Widget->m_World->AddObject(surface);
 
-    GL3DCameraController * controller = new GL3DCameraController();
+    fsurface = new GL3DFlowSurface();
+    fsurface->SetSurface(surface);
+    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
+
+    m_Widget->m_World->AddObject(fsurface);
+
+    controller = new GL3DCameraController();
     controller->SetSurface(surface);
-    controller->SetCamera(m_Camera);
+    controller->SetCamera(m_Widget->m_Camera);
 
     controller->SetStartPosition();
 
-    m_World->AddObject(controller);
+    m_Widget->m_World->AddObject(controller);
 }
 
-void GL3DWidget::UpdateWorldFromLisem()
+void GL3DWorldCreator::UpdateWorldFromLisem()
 {
 
+    FOR_ROW_COL_MV(input.DEM,input.MASK)
+    {
+        input.FlowH->Drc = op.gl_flow_height->Drc;
+        input.FlowU->Drc = op.gl_flow_u->Drc;
+        input.FlowV->Drc = op.gl_flow_v->Drc;
+        input.FlowS->Drc = op.gl_flow_c->Drc;
+    }
 
+    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
 
 }
 
-void GL3DWidget::DestroyWorldFromLisem()
+void GL3DWorldCreator::DestroyWorldFromLisem()
 {
     qDebug() <<"destroy lisem world 3d";
 
-    this->m_World->RemoveAndDestroyAllObjects();
+    m_Widget->m_World->RemoveAndDestroyAllObjects();
     LisemWorldCreated = false;
 }
 

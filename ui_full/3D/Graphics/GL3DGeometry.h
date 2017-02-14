@@ -169,6 +169,15 @@ static const GLuint indices_SKYBOX[36] = {
     32,			33,			34,			35
 };
 
+static const Vertex g_quad_vertex_buffer_data[] = {
+    Vertex( QVector3D(-1.0f, -1.0f, 0.0f)),
+    Vertex( QVector3D(-1.0f, 1.0f, 0.0f)),
+    Vertex( QVector3D(1.0f, -1.0f, 0.0f)),
+    Vertex( QVector3D(1.0f,  -1.0f, 0.0f)),
+    Vertex( QVector3D(-1.0f, 1.0f, 0.0f)),
+    Vertex( QVector3D(1.0f,  1.0f, 0.0f)),
+};
+
 class GL3DGeometries
 {
 
@@ -180,6 +189,8 @@ public:
     GL3DGeometry * LoadGeometryFromFile(QString file);
 
     GL3DWidget * m_Widget;
+
+    GL3DGeometry * QuadGeometry;
 
     GL3DGeometries()
     {
@@ -208,6 +219,8 @@ public:
 
     int nr_using_objects;
 
+    bool uses_index;
+
     QOpenGLBuffer m_vertex;
     QOpenGLBuffer m_index;
 
@@ -216,8 +229,10 @@ public:
 
     };
     double GetMapValue(cTMap * map,double x, double y);
+
     void CreateGeometry(QGLWidget * widget,cTMap * map, int max_res_x, int max_res_y, bool data2d = false);
     void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv,const GLuint * indices, int li);
+    void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv);
     void CreateGeometry(QGLWidget * widget,QString file);
     void ClearGeometry();
 

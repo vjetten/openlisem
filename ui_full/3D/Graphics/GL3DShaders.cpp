@@ -73,13 +73,18 @@ void GL3DShaders::Create(GL3DWidget * widget)
     m_DefaultShaderList.clear();
     m_LoadedShaderList.clear();
 
+    copyshader = LoadShaderFromFile("postprocess/copy_f.glsl","postprocess/copy_v.glsl",false);
+
+    blendshader = LoadShaderFromFile("postprocess/blend_f.glsl","postprocess/blend_v.glsl",false);
+
     //GL3D_SHADER_SIMPLE = 0
     m_DefaultShaderList.append(LoadShaderFromText(fragmentShaderSource,vertexShaderSource,false));
     //GL3D_SHADER_SKYBOX = 1
-    m_DefaultShaderList.append(LoadShaderFromText(fragmentShaderSource_SKYBOX,vertexShaderSource_SKYBOX,false));
+    m_DefaultShaderList.append(LoadShaderFromFile("sky/sky_f.glsl","sky/sky_v.glsl",false));
     //GL3D_SHADER_SURFACE_TESSELATED = 2
-    //m_DefaultShaderList.append(LoadShaderFromText(fragmentShaderSource_SURFACE_TESSELATED,vertexShaderSource_SURFACE_TESSELATED,false,tesselationcontrolShaderSource_SURFACE_TESSELATED,tesselationevaluationShaderSource_SURFACE_TESSELATED,geometryShaderSource_SURFACE_TESSELATED));
-    m_DefaultShaderList.append(LoadShaderFromFile("surface/f.glsl","surface/v.glsl",true,"surface/tc.glsl","surface/te.glsl","surface/g.glsl"));
+    m_DefaultShaderList.append(LoadShaderFromFile("surface/f.glsl","surface/v.glsl",false,"surface/tc.glsl","surface/te.glsl","surface/g.glsl"));
+    //GL3D_SHADER_SURFACE_FLOW = 3
+    m_DefaultShaderList.append(LoadShaderFromFile("flow/f.glsl","flow/v.glsl",false,"flow/tc.glsl","flow/te.glsl","flow/g.glsl"));
 
 }
 
@@ -174,6 +179,17 @@ void GL3DShader::ActivateTextureOn(GL3DWidget * widget, GL3DTexture *t, const ch
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 }
+
+void GL3DShader::ActivateTextureOn(GL3DWidget * widget, GLuint t, const char * name, int slot)
+{
+    m_program->setUniformValue(name, slot);
+    widget->gl->glActiveTexture(GL_TEXTURE0 + slot);
+    widget->gl->glBindTexture(GL_TEXTURE_2D, t);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+}
+
 
 void GL3DShader::ClearShader()
 {

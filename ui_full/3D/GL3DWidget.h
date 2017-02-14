@@ -40,37 +40,23 @@
 #include "ui_full/3D/Objects/GL3DObject.h"
 #include <QBasicTimer>
 #include "3D/Graphics/GL3DMapMath.h"
+#include "3D/Graphics/GL3DModels.h"
+
 
 #ifndef widget3D
 #define widget3D
 
+
 class GL3DGeometries;
 class GL3DShaders;
 class GL3DTextures;
+class GL3DModels;
 class GL3DCamera;
 class GL3DWorld;
 class GL3DTexture;
 class GL3DGeometry;
 class GL3DShader;
-
-struct Output3D
-{
-    cTMap * MASK;
-    cTMap * DEM;
-    cTMap * DEM_Filled;
-    cTMap * SlopeX;
-    cTMap * SlopeY;
-    cTMap * ImageR;
-    cTMap * ImageG;
-    cTMap * ImageB;
-    cTMap * WaterHeight;
-    cTMap * temp;
-    cTMap * VegCover;
-    cTMap * VegHeight;
-    cTMap * SoilCover;
-    cTMap * RandomRoughness;
-
-};
+class GL3DModel;
 
 #define GL3D_INPUT_NRKEYS 100
 #define GL3D_INPUT_NRBUTTONS 5
@@ -92,6 +78,7 @@ struct Output3D
 #define GL3D_KEY_Q 11
 #define GL3D_KEY_E 12
 
+#define GL3D_DIR_MODELS "glresources/models/"
 #define GL3D_DIR_TEXTURES "glresources/textures/"
 #define GL3D_DIR_SHADERS "glresources/shaders/"
 
@@ -109,33 +96,29 @@ class GL3DWidget: public QGLWidget,
 {
 
 
+public:
 
 
     bool m_InitializedRun = false;
-
-    bool LisemWorldCreated = false;
 
     GL3DCamera * m_Camera;
     GL3DWorld * m_World;
 
     QBasicTimer m_Timer;
 
-public:
+    QOpenGLVertexArrayObject m_GLQuadObject;
+
 
 
     QOpenGLFunctions_4_0_Core * gl;
 
-    Output3D input;
-
     GL3DGeometries * m_Geometries;
     GL3DTextures * m_Textures;
     GL3DShaders * m_Shaders;
+    GL3DModels * m_Models;
 
     QString m_Directory;
 
-    void CreateWorldFromLisem();
-    void UpdateWorldFromLisem();
-    void DestroyWorldFromLisem();
 
 
     GL3DWidget(QWidget *parent = 0):QGLWidget(parent)

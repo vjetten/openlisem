@@ -230,6 +230,15 @@ void TWorld::OutputUI(void)
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
 
+    copy(*op.vegcover,  *Cover);
+    copy(*op.vegheight, *PlantHeight);
+    copy(*op.randomroughness,*RR);
+
+    copy(*op.gl_flow_height, *UF2D_h);
+    copy(*op.gl_flow_u, *UF2D_u);
+    copy(*op.gl_flow_v, *UF2D_v);
+    copy(*op.gl_flow_c, *UF2D_tConc);
+
     // MAP DISPLAY VARIABLES
 
     op.dx = _dx;
@@ -1060,6 +1069,13 @@ void TWorld::setupDisplayMaps()
         delete op.channelMap;
         delete op.roadMap;
         delete op.houseMap;
+        delete op.vegcover;
+        delete op.vegheight;
+        delete op.randomroughness;
+        delete op.gl_flow_height;
+        delete op.gl_flow_u;
+        delete op.gl_flow_v;
+        delete op.gl_flow_c;
     }
 
     op.baseMap = new cTMap();
@@ -1067,12 +1083,26 @@ void TWorld::setupDisplayMaps()
     op.channelMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
+    op.vegcover = new cTMap();
+    op.vegheight = new cTMap();
+    op.randomroughness = new cTMap();
+    op.gl_flow_height = new cTMap();
+    op.gl_flow_u = new cTMap();
+    op.gl_flow_v = new cTMap();
+    op.gl_flow_c = new cTMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.channelMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
+    op.vegcover->MakeMap(LDD, 0);
+    op.vegheight->MakeMap(LDD, 0);
+    op.randomroughness->MakeMap(LDD, 0);
+    op.gl_flow_height->MakeMap(LDD, 0);
+    op.gl_flow_u->MakeMap(LDD, 0);
+    op.gl_flow_v->MakeMap(LDD, 0);
+    op.gl_flow_c->MakeMap(LDD, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::setupHydrographData()

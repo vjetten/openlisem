@@ -89,6 +89,14 @@ struct output{
     cTMap *channelMap;
     cTMap *roadMap;
     cTMap *houseMap;
+    cTMap *vegcover;
+    cTMap *vegheight;
+    cTMap *randomroughness;
+
+    cTMap *gl_flow_height;
+    cTMap *gl_flow_u;
+    cTMap *gl_flow_v;
+    cTMap *gl_flow_c;
 
     QList<double> graindiameters;
 

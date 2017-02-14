@@ -32,26 +32,51 @@ void GL3DWidget::BindGeometry(QOpenGLVertexArrayObject &object,GL3DShader * s, G
 {
     if(!g->is_2d_data)
     {
-        object.bind();
-        g->m_vertex.bind();
-        g->m_index.bind();
+        if(g->uses_index)
+        {
+            object.bind();
+            g->m_vertex.bind();
+            g->m_index.bind();
 
-        s->m_program->bind();
+            s->m_program->bind();
 
-        int vertexlocation = s->m_program->attributeLocation("posAttr");
-        int colorlocation = s->m_program->attributeLocation("colAttr");
-        int texturelocation = 0;
+            int vertexlocation = s->m_program->attributeLocation("posAttr");
+            int colorlocation = s->m_program->attributeLocation("colAttr");
+            int texturelocation = 0;
 
-        s->m_program->enableAttributeArray(vertexlocation);
-        s->m_program->enableAttributeArray(colorlocation);
+            s->m_program->enableAttributeArray(vertexlocation);
+            s->m_program->enableAttributeArray(colorlocation);
 
-        s->m_program->setAttributeBuffer(vertexlocation, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
-        s->m_program->setAttributeBuffer(colorlocation, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+            s->m_program->setAttributeBuffer(vertexlocation, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
+            s->m_program->setAttributeBuffer(colorlocation, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
 
-        object.release();
-        g->m_vertex.release();
-        g->m_index.release();
-        s->m_program->release();
+            object.release();
+            g->m_vertex.release();
+            g->m_index.release();
+            s->m_program->release();
+        }else
+        {
+
+            object.bind();
+            g->m_vertex.bind();
+
+            s->m_program->bind();
+
+            int vertexlocation = s->m_program->attributeLocation("posAttr");
+            int colorlocation = s->m_program->attributeLocation("colAttr");
+            int texturelocation = 0;
+
+            s->m_program->enableAttributeArray(vertexlocation);
+            s->m_program->enableAttributeArray(colorlocation);
+
+            s->m_program->setAttributeBuffer(vertexlocation, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
+            s->m_program->setAttributeBuffer(colorlocation, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+
+            object.release();
+            g->m_vertex.release();
+            s->m_program->release();
+
+        }
     }else
     {
         object.bind();
