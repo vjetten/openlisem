@@ -6,6 +6,10 @@ NOTE: only a 64bit version exists, 32 bit is no longer supported
 
 NOTE: a linux version exists, on request (Thanks to Dr David Favis Mortlock).
 
+version 3.96 (110217)
+- Fixed a bug in coupling overland flow and flood water
+- fixed a bug in automatic adjustment of legend when switching maps
+
 version 3.95 (170214)
 - Fixed a bug in flowboundary conditions
 - Fixed a minor bug in 2D dynamic flow

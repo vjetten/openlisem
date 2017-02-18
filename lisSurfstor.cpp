@@ -169,7 +169,7 @@ void TWorld::SurfaceStorage(void)
 //                fpa->Drc = 1;
 
         if (SwitchHardsurface)
-            fpa->Drc = fpa->Drc *(1-HardSurface->Drc) + HardSurface->Drc*1.0;
+            fpa->Drc = fpa->Drc *(1-HardSurface->Drc) + HardSurface->Drc;
         // hard surface has no roughness so fpa is 1 there
 
         FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc;

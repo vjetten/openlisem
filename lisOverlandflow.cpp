@@ -416,7 +416,7 @@ void TWorld::CalcVelDisch()
         // Reynolds number ==> turbulent
 
         // avg WH from soil surface and roads, over width FlowWidth
-        Perim = /*2*WHrunoff->Drc+*/ FlowWidth->Drc;
+        Perim = /* 2*WHrunoff->Drc + */ FlowWidth->Drc;
 
         if (Perim > 0)
             R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
