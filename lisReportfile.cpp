@@ -814,7 +814,7 @@ void TWorld::ReportMaps(void)
     }
 
     if (outputcheck[3].toInt() == 1)
-        report(*runoffTotalCell, Outrwh); // in mm
+        report(*runoffTotalCell, Outrwh); // in m3
     // changed to cum runoff in mm
 
     if (outputcheck[7].toInt() == 1)

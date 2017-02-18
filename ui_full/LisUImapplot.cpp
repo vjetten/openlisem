@@ -178,8 +178,8 @@ void lisemqt::setupMapPlot()
     //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
     mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
 //    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
-//    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-//    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
+    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
+    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
 //      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
     //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
      mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );

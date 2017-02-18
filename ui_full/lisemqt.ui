@@ -5225,7 +5225,7 @@ p, li { white-space: pre-wrap; }
                      <double>10.000000000000000</double>
                     </property>
                     <property name="singleStep">
-                     <double>0.010000000000000</double>
+                     <double>0.100000000000000</double>
                     </property>
                     <property name="value">
                      <double>2.000000000000000</double>
@@ -5246,8 +5246,11 @@ p, li { white-space: pre-wrap; }
                     <property name="decimals">
                      <number>1</number>
                     </property>
+                    <property name="minimum">
+                     <double>0.100000000000000</double>
+                    </property>
                     <property name="maximum">
-                     <double>9.000000000000000</double>
+                     <double>10.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.100000000000000</double>
@@ -5338,7 +5341,7 @@ p, li { white-space: pre-wrap; }
                   <item row="1" column="3">
                    <widget class="QLabel" name="label_109">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manning n coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Overland flow continues in the flooded area but Manning's n is linked to the flood water depth (h in m) so the runoff slows down to almost 0:&lt;/p&gt;&lt;p&gt;n = n * exp(-coeff * h)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood mixture coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Flood level is increased with incoming runoff where the two overlap. The runoff is decreased with: &lt;/p&gt;&lt;p&gt;dH=WH*exp(-factor*WH/hmx) and the flood level hmx is increased with the same amount. The function is bounded between 0 and 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manning n coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Overland flow continues in the flooded area but Manning's n is linked to the flood water depth (h in m) so the runoff slows down to almost 0:&lt;/p&gt;&lt;p&gt;n = n * exp(c1 * h)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood mixture coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Flood level is increased with incoming runoff where the two overlap. The runoff is decreased with: &lt;/p&gt;&lt;p&gt;dH=WH*exp(c2r*WH/hmx) and the flood level hmx is increased with the same amount. The function is bounded between 0 and 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string/>

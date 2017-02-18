@@ -136,8 +136,7 @@ void TWorld::Totals(void)
     {
         runoffTotalCell->Drc += Qn->Drc * _dt; // in M3 !!!!
     }
-    upstream(LDD, runoffTotalCell, tm);
-
+//    upstream(LDD, runoffTotalCell, tm);
 //    FOR_ROW_COL_MV
 //    {
 //        runoffFractionCell->Drc = RainCumFlat->Drc > 0 ? (runoffTotalCell->Drc-tm->Drc)/(RainCumFlat->Drc*_dx*_dx) : 0;

@@ -93,14 +93,16 @@ void TWorld::RainfallToFlood(void)
  */
 void TWorld::ToFlood(void)
 {
-   /* if (!SwitchChannelFlood)
+    if (!SwitchChannelFlood)
         return;
 
+    fill(*tm, 0);
     FOR_CELL_IN_FLOODAREA
             if (WHrunoff->Drc > 0.01 && hmx->Drc > 0.01 && ChannelWidthUpDX->Drc == 0)
     {
         double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-        //std::min(1.0, std::max(0.0, exp(-runoff_partitioning*WH->Drc/hmx->Drc)));
+        frac = std::max(std::min(frac, 1.0),0.0);
+
         double dwh = frac * WHrunoff->Drc;
 
         hmx->Drc += dwh * FlowWidth->Drc/_dx;
@@ -126,7 +128,6 @@ void TWorld::ToFlood(void)
                 }
             }
 
-
             //immediately check for maximum concentration
             //if not done, too high concentration will show on display, before being deposited
             SWOFSedimentLayerDepth(r,c,hmx,Uflood,Vflood);
@@ -136,7 +137,8 @@ void TWorld::ToFlood(void)
 
 
 
-    }}*/
+    }}
+
 }
 //--------------------------------------------------------------------------------------------
 /**

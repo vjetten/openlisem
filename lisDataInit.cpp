@@ -462,7 +462,6 @@ void TWorld::InitStandardInput(void)
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
         ThetaSub = NewMap(0);
         copy(*ThetaSub, *ThetaI1);
-        report(*ThetaSub,"tsub.map");
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
