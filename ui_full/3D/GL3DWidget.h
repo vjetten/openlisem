@@ -46,7 +46,7 @@
 #ifndef widget3D
 #define widget3D
 
-
+class GL3DMaterial;
 class GL3DGeometries;
 class GL3DShaders;
 class GL3DTextures;
@@ -98,7 +98,7 @@ class GL3DWidget: public QGLWidget,
 
 public:
 
-
+    bool ReadyToDraw = false;
     bool m_InitializedRun = false;
 
     GL3DCamera * m_Camera;
@@ -107,7 +107,7 @@ public:
     QBasicTimer m_Timer;
 
     QOpenGLVertexArrayObject m_GLQuadObject;
-
+    QOpenGLVertexArrayObject m_GLQuadObjectChannel;
 
 
     QOpenGLFunctions_4_0_Core * gl;
@@ -119,6 +119,8 @@ public:
 
     QString m_Directory;
 
+
+    GL3DTexture * m_Texture_Rain;
 
 
     GL3DWidget(QWidget *parent = 0):QGLWidget(parent)
@@ -176,10 +178,18 @@ public:
     int Height = 0;
 
     qint64 m_Time;
+    qint64 m_Time_Start;
     double m_DT;
+    double m_Time_s;
 
     void BindGeometry(QOpenGLVertexArrayObject &object,GL3DShader * s, GL3DGeometry * g);
-    void BindTexture(QOpenGLVertexArrayObject &object,GL3DShader * s, GL3DTexture * t,int index);
+
+    void DrawModelObject(GL3DModel * m, GL3DCamera * camera,QMatrix4x4 ModelMatrix);
+    void DrawModelGeometryWithMaterial(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera, QMatrix4x4 modelmatrix);
+    void DrawModelGeometryWithMaterialMultipleStart(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera);
+    void DrawModelGeometryWithMaterialMultiple(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera, QMatrix4x4 modelmatrix);
+    void DrawModelGeometryWithMaterialMultipleEnd(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera);
+
 protected:
 
     void initializeGL();

@@ -58,13 +58,19 @@ public:
 
     // The depth buffer
     GLuint depthrenderbuffer;
-
+    GLuint channeldepthrenderbuffer;
     GLuint RenderTexture;
     GLuint RenderTextureCopy;
     GLuint RenderTextureWater;
     GLuint LocationTexture;
     GLuint NormalTexture;
+    GLuint InfoTexture;
+    GLuint ChannelInfoTexture;
+    GLuint ChannelTexture;
+    GLuint ChannelFramebuffer;
     GLuint Framebuffer;
+    GLuint FramebufferCopy;
+    GLuint FramebufferWater;
 
     GL3DWidget * m_Widget;
 

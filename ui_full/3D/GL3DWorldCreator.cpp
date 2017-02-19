@@ -27,6 +27,9 @@
 #include <3D/Objects/GL3DSkyBox.h>
 #include <3D/World/GL3DCameraController.h>
 #include <3D/GL3DWorldCreator.h>
+#include <3D/Objects/GL3DTree.h>
+#include <3D/Objects/GL3DBuilding.h>
+#include <3D/Objects/GL3DRoads.h>
 
 void GL3DWorldCreator::CreateWorldFromLisem()
 {
@@ -41,6 +44,7 @@ void GL3DWorldCreator::CreateWorldFromLisem()
     input.MASK = new cTMap();
     input.DEM = new cTMap();
     input.DEM_Filled = new cTMap();
+    input.DEM_Change = new cTMap();
     input.SlopeX = new cTMap();
     input.SlopeY = new cTMap();
     input.ImageR = new cTMap();
@@ -57,10 +61,18 @@ void GL3DWorldCreator::CreateWorldFromLisem()
     input.RandomRoughness = new cTMap();
     input.Buildings = new cTMap();
     input.Roads = new cTMap();
+    input.ChannelLDD = new cTMap();
+    input.ChannelDepth = new cTMap();
+    input.ChannelDepthFilled = new cTMap();
+    input.ChannelWidth = new cTMap();
+    input.ChannelFlowH = new cTMap();
+    input.ChannelFlowU = new cTMap();
+    input.ChannelFlowS = new cTMap();
 
     input.MASK->MakeMap(op.baseMapDEM,0.0);
     input.DEM->MakeMap(op.baseMapDEM,0.0);
     input.DEM_Filled->MakeMap(op.baseMapDEM,0.0);
+    input.DEM_Change->MakeMap(op.baseMapDEM,0.0);
     input.SlopeX->MakeMap(op.baseMapDEM,0.0);
     input.SlopeY->MakeMap(op.baseMapDEM,0.0);
     input.ImageR->MakeMap(op.baseMapDEM,0.0);
@@ -77,6 +89,17 @@ void GL3DWorldCreator::CreateWorldFromLisem()
     input.RandomRoughness->MakeMap(op.baseMapDEM,0.0);
     input.Buildings->MakeMap(op.baseMapDEM,0.0);
     input.Roads->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelLDD->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelDepth->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelDepthFilled->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelWidth->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelFlowH->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelFlowU->MakeMap(op.baseMapDEM,0.0);
+    input.ChannelFlowS->MakeMap(op.baseMapDEM,0.0);
+
+    input.DEM_Filled->setAllMV();
+    input.ChannelDepth->setAllMV();
+    input.ChannelDepthFilled->setAllMV();
 
     FOR_ROW_COL_MV(input.DEM,input.MASK)
     {
@@ -92,34 +115,72 @@ void GL3DWorldCreator::CreateWorldFromLisem()
         input.FlowU->Drc = op.gl_flow_u->Drc;
         input.FlowV->Drc = op.gl_flow_v->Drc;
         input.FlowS->Drc = op.gl_flow_c->Drc;
+        input.DEM_Change->Drc = op.gl_dem_change->Drc;
+        if(op.has_channel)
+        {
+            if(!pcr::isMV(op.ch_ldd->Drc))
+            {
+               input.ChannelDepth->Drc = op.ch_d->Drc;
+            }
+            input.ChannelLDD->Drc = op.ch_ldd->Drc;
+            input.ChannelWidth->Drc = op.ch_w->Drc;
+            input.ChannelFlowH->Drc = op.gl_ch_flow_height->Drc;
+            input.ChannelFlowU->Drc = op.gl_ch_flow_v->Drc;
+            input.ChannelFlowS->Drc = op.gl_ch_flow_c->Drc;
+        }
+
     }
 
+    input.rainfall = op.rain_average;
+
     MapMath::FillDem(input.DEM,input.DEM_Filled,input.temp,50);
+    MapMath::FillDem(input.ChannelDepth,input.ChannelDepthFilled,input.temp,10);
     MapMath::SlopeMap(input.DEM,input.SlopeX,input.SlopeY);
 
     m_Widget->m_World->RemoveAllObjects();
 
-    m_Widget->m_World->AddObject(new GL3DSkyBox());
+    GL3DSkyBox * sb = new GL3DSkyBox();
+    m_Widget->m_World->AddObject(sb,false,true,false);
 
     surface=  new GL3DSurface();
     surface->SetSurfaceMap(input.DEM,input.DEM_Filled,input.SlopeX,input.SlopeY);
     surface->SetTerrainProperties(input.VegCover,input.VegHeight,input.RandomRoughness,input.Buildings,input.Roads);
 
-    m_Widget->m_World->AddObject(surface);
+    if(op.has_channel)
+    {
+        surface->SetChannel(m_Widget,input.ChannelLDD,input.ChannelWidth,input.ChannelDepthFilled,input.temp,op.has_channelflooding);
+    }
+    m_Widget->m_World->AddObject(surface,true);
+
+    GL3DRoads * roadsobject = new GL3DRoads();
+    roadsobject->SetRoadDistribution(m_Widget,surface,input.Roads);
+    m_Widget->m_World->AddObject(roadsobject);
 
     fsurface = new GL3DFlowSurface();
     fsurface->SetSurface(surface);
     fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
-
-    m_Widget->m_World->AddObject(fsurface);
+    fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
+    fsurface->SetSkyBox(sb);
+    m_Widget->m_World->AddObject(fsurface,false,false,true);
 
     controller = new GL3DCameraController();
     controller->SetSurface(surface);
     controller->SetCamera(m_Widget->m_Camera);
-
     controller->SetStartPosition();
-
     m_Widget->m_World->AddObject(controller);
+
+    GL3DTrees * treesobject = new GL3DTrees();
+    treesobject->SetTreeDistribution(surface,input.VegCover,input.VegHeight);
+    m_Widget->m_World->AddObject(treesobject);
+
+    GL3DBuildings * buildingobject = new GL3DBuildings();
+    buildingobject->SetBuildingsDistribution(surface,input.Buildings,input.temp);
+    m_Widget->m_World->AddObject(buildingobject);
+
+    this->rain = new GL3DPPRain();
+    m_Widget->m_World->AddObject(rain);
+
+    m_Widget->ReadyToDraw = true;
 }
 
 void GL3DWorldCreator::UpdateWorldFromLisem()
@@ -131,10 +192,35 @@ void GL3DWorldCreator::UpdateWorldFromLisem()
         input.FlowU->Drc = op.gl_flow_u->Drc;
         input.FlowV->Drc = op.gl_flow_v->Drc;
         input.FlowS->Drc = op.gl_flow_c->Drc;
+        input.DEM_Change->Drc = op.gl_dem_change->Drc;
+
+        if(op.has_channel)
+        {
+            input.ChannelFlowH->Drc = op.gl_ch_flow_height->Drc;
+            input.ChannelFlowU->Drc = op.gl_ch_flow_v->Drc;
+            input.ChannelFlowS->Drc = op.gl_ch_flow_c->Drc;
+        }
     }
 
-    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
+    FOR_ROW_COL_MV(input.DEM,input.MASK)
+    {
+        if(pcr::isMV(op.ch_ldd->Drc))
+        {
+            pcr::setMV(op.gl_ch_flow_height->Drc);
+            pcr::setMV(op.gl_ch_flow_v->Drc);
+            pcr::setMV(op.gl_ch_flow_c->Drc);
+        }
+    }
 
+    MapMath::FillDem(op.gl_ch_flow_height,input.ChannelFlowH,input.temp,10);
+    MapMath::FillDem(op.gl_ch_flow_v,input.ChannelFlowU,input.temp,10);
+    MapMath::FillDem(op.gl_ch_flow_c,input.ChannelFlowS,input.temp,10);
+
+    input.rainfall = op.rain_average;
+
+    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
+    fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
+    rain->SetRainfall(input.rainfall);
 }
 
 void GL3DWorldCreator::DestroyWorldFromLisem()

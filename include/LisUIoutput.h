@@ -98,6 +98,19 @@ struct output{
     cTMap *gl_flow_v;
     cTMap *gl_flow_c;
 
+    bool has_channel = false;
+    bool has_channelflooding = false;
+    cTMap *ch_w;
+    cTMap *ch_d;
+    cTMap *ch_ldd;
+    cTMap *gl_ch_flow_height;
+    cTMap *gl_ch_flow_v;
+    cTMap *gl_ch_flow_c;
+
+    cTMap *gl_dem_change;
+    float rain_average;
+
+
     QList<double> graindiameters;
 
     //combox selection of drawn map

@@ -22,17 +22,34 @@
 **
 *************************************************************************/
 
-#ifndef Textures3D
-#define Textures3D
+#ifndef GL3DTREE
+#define GL3DTREE
 
 #include <3D/GL3DWidget.h>
+#include <3D/Graphics/GL3DModels.h>
+#include <3D/Objects/GL3DSurface.h>
 
-class GL3DTree : public GL3DObject
+class GL3DTrees : public GL3DObject
 {
 
 public:
+    GL3DTrees() : GL3DObject()
+    {
+    }
 
+    QList<QVector3D> Tree_Positions;
+    QList<float> Tree_Rotation;
+    QList<float> Tree_Height;
 
+    GL3DModel * m_Tree_highp;
+    GL3DModel * m_Tree_medp;
+    GL3DModel * m_Tree_lowp;
+
+    void OnCreate(GL3DWidget *widget);
+    void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
+    void OnDestroy(GL3DWidget *widget);
+
+    void SetTreeDistribution(GL3DSurface * s,cTMap * veg_cover, cTMap * veg_h);
 };
 
 

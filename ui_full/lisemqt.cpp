@@ -166,6 +166,7 @@ void lisemqt::SetConnections()
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
+    connect(Button3D,SIGNAL(pressed()),this,SLOT(doCheck3D()));
     // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
     // works automatically. if included here may be executed twice!!! not sure...
 
@@ -1387,6 +1388,13 @@ void lisemqt::shootScreen()
 
     }
 }
+//--------------------------------------------------------------------
+void lisemqt::doCheck3D()
+{
+
+    this->Allow3D = true;
+}
+
 //--------------------------------------------------------------------
 void lisemqt::aboutQT()
 {

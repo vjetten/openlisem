@@ -239,6 +239,27 @@ void TWorld::OutputUI(void)
     copy(*op.gl_flow_v, *UF2D_v);
     copy(*op.gl_flow_c, *UF2D_tConc);
 
+    op.has_channel = SwitchIncludeChannel;
+    if(SwitchIncludeChannel)
+    {
+
+        op.has_channel = SwitchChannelFlood;
+
+        copy(*op.ch_w, *ChannelWidth);
+        if(SwitchChannelFlood)
+        {
+            copy(*op.ch_d,*ChannelDepth);
+        }else
+        {
+            fill(*op.ch_d,-1.0);
+        }
+
+        copy(*op.ch_ldd,*LDDChannel);
+        copy(*op.gl_ch_flow_height, *UF1D_h);
+        copy(*op.gl_ch_flow_v,*UF1D_velocity);
+        copy(*op.gl_ch_flow_c,*UF1D_tConc);
+    }
+
     // MAP DISPLAY VARIABLES
 
     op.dx = _dx;
@@ -294,6 +315,7 @@ void TWorld::OutputUI(void)
     op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
     op.volFloodmm = floodTotmm;
 
+    op.rain_average = RainAvgmm*3600/_dt;
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -1076,6 +1098,14 @@ void TWorld::setupDisplayMaps()
         delete op.gl_flow_u;
         delete op.gl_flow_v;
         delete op.gl_flow_c;
+        delete op.gl_flow_height;
+        delete op.ch_w;
+        delete op.ch_d;
+        delete op.ch_ldd;
+        delete op.gl_ch_flow_height;
+        delete op.gl_ch_flow_v;
+        delete op.gl_ch_flow_c;
+        delete op.gl_dem_change;
     }
 
     op.baseMap = new cTMap();
@@ -1090,6 +1120,13 @@ void TWorld::setupDisplayMaps()
     op.gl_flow_u = new cTMap();
     op.gl_flow_v = new cTMap();
     op.gl_flow_c = new cTMap();
+    op.ch_w = new cTMap();
+    op.ch_d = new cTMap();
+    op.ch_ldd = new cTMap();
+    op.gl_ch_flow_height = new cTMap();
+    op.gl_ch_flow_v = new cTMap();
+    op.gl_ch_flow_c = new cTMap();
+    op.gl_dem_change = new cTMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
@@ -1103,6 +1140,13 @@ void TWorld::setupDisplayMaps()
     op.gl_flow_u->MakeMap(LDD, 0);
     op.gl_flow_v->MakeMap(LDD, 0);
     op.gl_flow_c->MakeMap(LDD, 0);
+    op.ch_w->MakeMap(LDD, 0);
+    op.ch_d->MakeMap(LDD, 0);
+    op.ch_ldd->MakeMap(LDD, 0);
+    op.gl_ch_flow_height->MakeMap(LDD, 0);
+    op.gl_ch_flow_v->MakeMap(LDD, 0);
+    op.gl_ch_flow_c->MakeMap(LDD, 0);
+    op.gl_dem_change->MakeMap(LDD, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::setupHydrographData()

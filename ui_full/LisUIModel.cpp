@@ -106,6 +106,7 @@ void lisemqt::runmodel()
     // run without Qt interface on openlisemtmp.run only
 
     first3d = true;
+    Allow3D = false;
 
     W->start();
     // start the model thread, executes W->run()
@@ -143,7 +144,10 @@ void lisemqt::pausemodel()
 //---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
-    creator->DestroyWorldFromLisem();
+    if(Allow3D)
+    {
+        creator->DestroyWorldFromLisem();
+    }
 
     if(W)
         W->stopRequested = true;
@@ -184,16 +188,17 @@ void lisemqt::worldShow()
     showMap(); // show map
 
 
-    if(first3d)
+    if(Allow3D)
     {
-        creator->CreateWorldFromLisem();
-        first3d = false;
-    }else
-    {
-        creator->UpdateWorldFromLisem();
+        if(first3d)
+        {
+            creator->CreateWorldFromLisem();
+            first3d = false;
+        }else
+        {
+            creator->UpdateWorldFromLisem();
+        }
     }
-
-
     if (doShootScreens)
        shootScreen();
 }

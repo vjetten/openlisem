@@ -29,7 +29,6 @@ void GL3DModels::Create(GL3DWidget * widget)
 {
     m_Widget= widget;
 
-
 }
 
 void GL3DModels::ClearUnused()
@@ -44,8 +43,17 @@ void GL3DModels::Destroy()
 
 }
 
+void GL3DModel::Create(GL3DWidget * widget)
+{
+
+    m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_MODEL);
+}
+
+
 QList<GL3DMaterial*> GL3DModel::LoadMaterialsFile(GL3DWidget * widget,QString in_file, QString path)
 {
+    qDebug() << "Load materials file for model at" << in_file;
+
     QList<GL3DMaterial *> temp_list;
 
     GL3DMaterial * current_material = 0;
@@ -82,7 +90,13 @@ QList<GL3DMaterial*> GL3DModel::LoadMaterialsFile(GL3DWidget * widget,QString in
         line = QString("");
         for(int i = 0; i < list.length(); i++)
         {
-            line = line + " " +  list.at(i);
+            if(!i == 0)
+            {
+                line = line + " " +  list.at(i);
+            }else
+            {
+                line = line +  list.at(i);
+            }
         }
 
         //empty line
@@ -222,8 +236,7 @@ QList<GL3DMaterial*> GL3DModel::LoadMaterialsFile(GL3DWidget * widget,QString in
         {
             if(current_material != 0)
             {
-                current_material->Texture_normal = new GL3DTexture();
-                current_material->Texture_normal->CreateTextureDirectPath(widget,path + line.right(line.length() - (first.length() + 1)),true);
+
             }
         }
 
@@ -234,8 +247,10 @@ QList<GL3DMaterial*> GL3DModel::LoadMaterialsFile(GL3DWidget * widget,QString in
 
 
 
-void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
+void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file, float rescale )
 {
+
+    qDebug() << "Load file for model at" << widget->m_Directory + "/" + GL3D_DIR_MODELS + in_file;
 
     Destroy(widget);
 
@@ -255,11 +270,11 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
 
     Material_List.append(m_null);
 
-    QFile file(widget->m_Directory + "/" + GL3D_DIR_SHADERS + in_file);
+    QFile file(widget->m_Directory + "/" + GL3D_DIR_MODELS + in_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    QString path = QFileInfo(widget->m_Directory + "/" + GL3D_DIR_SHADERS + in_file).absolutePath();
+    QString path = QFileInfo(widget->m_Directory + "/" + GL3D_DIR_MODELS + in_file).absolutePath();
 
     QTextStream in(&file);
     while (!in.atEnd()) {
@@ -287,7 +302,7 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
         if(first.compare(QString("mtllib")) == 0)
         {
 
-            Material_List.append(LoadMaterialsFile(widget,path + "/" + line.right(line.length() - (first.length() + 1)),path));
+            Material_List.append(LoadMaterialsFile(widget,path + "/" + line.right(line.length() - (first.length() + 1)),path + "/"));
 
             materials_loaded = true;
 
@@ -295,7 +310,7 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
         {
             vec3d temp_vec;
             sscanf(line.right(line.length() - (first.length() + 1)).toLatin1(), "%f %f %f", &temp_vec.x, &temp_vec.y, &temp_vec.z );
-            temp_vertices.push_back(QVector3D(temp_vec.x,temp_vec.y,temp_vec.z));
+            temp_vertices.push_back(QVector3D(rescale * temp_vec.x,rescale * temp_vec.y,rescale * temp_vec.z));
 
         }else if(first.compare(QString("vt")) == 0)
         {
@@ -312,12 +327,10 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
         //new object
         }else if(first.compare(QString("o")) == 0)
         {
-
             finish_geometry = true;
 
         }else if(first.compare(QString("g")) == 0)
         {
-
             finish_geometry = true;
 
 
@@ -327,7 +340,7 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
 
             finish_geometry = true;
             set_new_material = true;
-            new_material_name = line.right(line.length() - first.length() + 1);
+            new_material_name = line.right(line.length() -( first.length() + 1));
 
 
         }else if(first.compare(QString("f")) == 0)
@@ -337,9 +350,9 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
             QByteArray oString = line.right(line.length() - first.length() + 1).toLatin1();
             const char *pszString = oString.constData();
 
-            int matches = sscanf(pszString, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+            int matches = sscanf(pszString, "f %d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
             if (matches != 9){
-                printf(".obj model file must only contain triangles");
+                qDebug() << ".obj model file must only contain triangles";
                 return;
             }
 
@@ -367,31 +380,37 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
                 Vertex * vertexdata = (Vertex*) malloc(sizeof(Vertex) * nr_vertex * 3);
                 GLuint * indexdata =(GLuint*)  malloc(sizeof(int) * nr_vertex * 3);
 
+                int tmpvlength = temp_vertices.size();
+                int tmpuvlength = temp_uvs.size();
+                int tmpnlength = temp_normals.size();
+
                 for(int i = 0; i < nr_vertex; i++)
                 {
-                    indexdata[i] = i;
+                    indexdata[i*3 + 0] = i*3;
+                    indexdata[i*3 + 1] = i*3+1;
+                    indexdata[i*3 + 2] = i*3+2;
 
-                    int vi1 = vertexIndices.at(i* 3+ 0 );
-                    int uvi1 = uvIndices.at(i* 3+ 0 );
-                    int ni1 = normalIndices.at(i* 3+ 0 );
+                    int vi1 = vertexIndices.at(i* 3+ 0 )-1;
+                    int uvi1 = uvIndices.at(i* 3+ 0 )-1;
+                    int ni1 = normalIndices.at(i* 3+ 0 )-1;
 
                     Vertex v1;
                     v1.m_position = temp_vertices.at(vi1);
                     v1.m_UV = temp_uvs.at(uvi1);
                     v1.m_normal = temp_normals.at(ni1);
 
-                    int vi2 = vertexIndices.at(i* 3+ 1 );
-                    int uvi2 = uvIndices.at(i* 3+ 1 );
-                    int ni2 = normalIndices.at(i* 3+ 1 );
+                    int vi2 = vertexIndices.at(i* 3+ 1 )-1;
+                    int uvi2 = uvIndices.at(i* 3+ 1 )-1;
+                    int ni2 = normalIndices.at(i* 3+ 1 )-1;
 
                     Vertex v2;
                     v2.m_position = temp_vertices.at(vi2);
                     v2.m_UV = temp_uvs.at(uvi2);
                     v2.m_normal = temp_normals.at(ni2);
 
-                    int vi3 = vertexIndices.at(i * 3 + 2 );
-                    int uvi3 = uvIndices.at(i * 3 + 2  );
-                    int ni3 = normalIndices.at(i * 3 + 2  );
+                    int vi3 = vertexIndices.at(i * 3 + 2 )-1;
+                    int uvi3 = uvIndices.at(i * 3 + 2  )-1;
+                    int ni3 = normalIndices.at(i * 3 + 2  )-1;
 
                     Vertex v3;
                     v3.m_position = temp_vertices.at(vi3);
@@ -438,16 +457,29 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
                     v1.m_bitangent = B;
                     v2.m_bitangent = B;
                     v3.m_bitangent = B;
+
+                    vertexdata[i*3 + 0] = v1;
+                    vertexdata[i*3 + 1] = v2;
+                    vertexdata[i*3 + 2] = v3;
+
                 }
 
-                g->CreateGeometry(widget,vertexdata,nr_vertex,indexdata,nr_vertex);
+                g->CreateGeometry(widget,vertexdata,nr_vertex*3,indexdata,nr_vertex*3);
                 Geometry_List.append(g);
                 this->Material_Pointer.append(current_material);
+
+
+                free(vertexdata);
+                free(indexdata);
 
                 vertexIndices.clear();
                 uvIndices.clear();
                 normalIndices.clear();
+
                 unfinished_data = false;
+                finish_geometry = false;
+            }else
+            {
                 finish_geometry = false;
             }
         }
@@ -469,103 +501,117 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
             {
                 current_material = 0;
             }
+
+            set_new_material = false;
         }
 
     }
 
     if(unfinished_data)
     {
-        if(unfinished_data)
+
+        GL3DGeometry * g = new GL3DGeometry();
+        int nr_vertex = vertexIndices.size()/3;
+
+        int tmpvlength = temp_vertices.size();
+        int tmpuvlength = temp_uvs.size();
+        int tmpnlength = temp_normals.size();
+
+        Vertex * vertexdata = (Vertex*) malloc(sizeof(Vertex) * nr_vertex * 3);
+        GLuint * indexdata =(GLuint*)  malloc(sizeof(int) * nr_vertex * 3);
+
+        for(int i = 0; i < nr_vertex; i++)
         {
-            GL3DGeometry * g = new GL3DGeometry();
-            int nr_vertex = vertexIndices.size()/3;
+            indexdata[i*3 + 0] = i*3;
+            indexdata[i*3 + 1] = i*3+1;
+            indexdata[i*3 + 2] = i*3+2;
 
-            Vertex * vertexdata = (Vertex*) malloc(sizeof(Vertex) * nr_vertex * 3);
-            GLuint * indexdata =(GLuint*)  malloc(sizeof(int) * nr_vertex * 3);
+            int vi1 = vertexIndices.at(i* 3+ 0 )-1;
+            int uvi1 = uvIndices.at(i* 3+ 0 )-1;
+            int ni1 = normalIndices.at(i* 3+ 0 )-1;
 
-            for(int i = 0; i < nr_vertex; i++)
-            {
-                indexdata[i] = i;
+            Vertex v1;
+            v1.m_position = temp_vertices.at(vi1);
+            v1.m_UV = temp_uvs.at(uvi1);
+            v1.m_normal = temp_normals.at(ni1);
 
-                int vi1 = vertexIndices.at(i* 3+ 0 );
-                int uvi1 = uvIndices.at(i* 3+ 0 );
-                int ni1 = normalIndices.at(i* 3+ 0 );
+            int vi2 = vertexIndices.at(i* 3+ 1 )-1;
+            int uvi2 = uvIndices.at(i* 3+ 1 )-1;
+            int ni2 = normalIndices.at(i* 3+ 1 )-1;
 
-                Vertex v1;
-                v1.m_position = temp_vertices.at(vi1);
-                v1.m_UV = temp_uvs.at(uvi1);
-                v1.m_normal = temp_normals.at(ni1);
+            Vertex v2;
+            v2.m_position = temp_vertices.at(vi2);
+            v2.m_UV = temp_uvs.at(uvi2);
+            v2.m_normal = temp_normals.at(ni2);
 
-                int vi2 = vertexIndices.at(i* 3+ 1 );
-                int uvi2 = uvIndices.at(i* 3+ 1 );
-                int ni2 = normalIndices.at(i* 3+ 1 );
+            int vi3 = vertexIndices.at(i * 3 + 2 )-1;
+            int uvi3 = uvIndices.at(i * 3 + 2  ) -1;
+            int ni3 = normalIndices.at(i * 3 + 2  )-1;
 
-                Vertex v2;
-                v2.m_position = temp_vertices.at(vi2);
-                v2.m_UV = temp_uvs.at(uvi2);
-                v2.m_normal = temp_normals.at(ni2);
-
-                int vi3 = vertexIndices.at(i * 3 + 2 );
-                int uvi3 = uvIndices.at(i * 3 + 2  );
-                int ni3 = normalIndices.at(i * 3 + 2  );
-
-                Vertex v3;
-                v3.m_position = temp_vertices.at(vi3);
-                v3.m_UV = temp_uvs.at(uvi3);
-                v3.m_normal = temp_normals.at(ni3);
+            Vertex v3;
+            v3.m_position = temp_vertices.at(vi3);
+            v3.m_UV = temp_uvs.at(uvi3);
+            v3.m_normal = temp_normals.at(ni3);
 
 
-                // Calculate the vectors from the current vertex to the two other vertices in the triangle
-                QVector3D v2v1 = v2.m_position - v2.m_position;
-                QVector3D v3v1 = v3.m_position - v1.m_position;
+            // Calculate the vectors from the current vertex to the two other vertices in the triangle
+            QVector3D v2v1 = v2.m_position - v2.m_position;
+            QVector3D v3v1 = v3.m_position - v1.m_position;
 
-                // The equation presented in the article states that:
+            // The equation presented in the article states that:
 
-                // Calculate c2c1_T and c2c1_B
-                float c2c1_T = v2.m_UV.x() - v1.m_UV.x();
-                float c2c1_B = v2.m_UV.y() - v1.m_UV.y();
+            // Calculate c2c1_T and c2c1_B
+            float c2c1_T = v2.m_UV.x() - v1.m_UV.x();
+            float c2c1_B = v2.m_UV.y() - v1.m_UV.y();
 
-                // Calculate c3c1_T and c3c1_B
-                float c3c1_T = v3.m_UV.x() - v1.m_UV.x();
-                float c3c1_B = v3.m_UV.x() - v1.m_UV.x();
+            // Calculate c3c1_T and c3c1_B
+            float c3c1_T = v3.m_UV.x() - v1.m_UV.x();
+            float c3c1_B = v3.m_UV.x() - v1.m_UV.x();
 
-                float fDenominator = c2c1_T * c3c1_B - c3c1_T * c2c1_B;
+            float fDenominator = c2c1_T * c3c1_B - c3c1_T * c2c1_B;
 
-                // Calculate the reciprocal value once and for all (to achieve speed)
-                float fScale1 = 1.0f / fDenominator;
+            // Calculate the reciprocal value once and for all (to achieve speed)
+            float fScale1 = 1.0f / fDenominator;
 
-                // T and B are calculated just as the equation in the article states
-                QVector3D  T, B;
-                T = QVector3D((c3c1_B * v2v1.x() - c2c1_B * v3v1.x()) * fScale1,
-                        (c3c1_B * v2v1.y() - c2c1_B * v3v1.y()) * fScale1,
-                        (c3c1_B * v2v1.z() - c2c1_B * v3v1.z()) * fScale1);
+            // T and B are calculated just as the equation in the article states
+            QVector3D  T, B;
+            T = QVector3D((c3c1_B * v2v1.x() - c2c1_B * v3v1.x()) * fScale1,
+                    (c3c1_B * v2v1.y() - c2c1_B * v3v1.y()) * fScale1,
+                    (c3c1_B * v2v1.z() - c2c1_B * v3v1.z()) * fScale1);
 
-                B = QVector3D((-c3c1_T * v2v1.x() + c2c1_T * v3v1.x()) * fScale1,
-                        (-c3c1_T * v2v1.y() + c2c1_T * v3v1.y()) * fScale1,
-                        (-c3c1_T * v2v1.z() + c2c1_T * v3v1.z()) * fScale1);
+            B = QVector3D((-c3c1_T * v2v1.x() + c2c1_T * v3v1.x()) * fScale1,
+                    (-c3c1_T * v2v1.y() + c2c1_T * v3v1.y()) * fScale1,
+                    (-c3c1_T * v2v1.z() + c2c1_T * v3v1.z()) * fScale1);
 
-                T.normalize();
-                B.normalize();
+            T.normalize();
+            B.normalize();
 
-                v1.m_tangent = T;
-                v2.m_tangent = T;
-                v3.m_tangent = T;
+            v1.m_tangent = T;
+            v2.m_tangent = T;
+            v3.m_tangent = T;
 
-                v1.m_bitangent = B;
-                v2.m_bitangent = B;
-                v3.m_bitangent = B;
-            }
+            v1.m_bitangent = B;
+            v2.m_bitangent = B;
+            v3.m_bitangent = B;
 
-            g->CreateGeometry(widget,vertexdata,nr_vertex,indexdata,nr_vertex);
-            Geometry_List.append(g);
-            this->Material_Pointer.append(current_material);
-
-            vertexIndices.clear();
-            uvIndices.clear();
-            normalIndices.clear();
-            unfinished_data = false;
-            finish_geometry = false;
+            vertexdata[i*3 + 0] = v1;
+            vertexdata[i*3 + 1] = v2;
+            vertexdata[i*3 + 2] = v3;
         }
+
+        g->CreateGeometry(widget,vertexdata,nr_vertex*3,indexdata,nr_vertex*3);
+        Geometry_List.append(g);
+        this->Material_Pointer.append(current_material);
+
+        free(vertexdata);
+        free(indexdata);
+
+        vertexIndices.clear();
+        uvIndices.clear();
+        normalIndices.clear();
+
+        unfinished_data = false;
+        finish_geometry = false;
 
     }
 
@@ -573,7 +619,58 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file)
     temp_uvs.clear();
     temp_normals.clear();
 
+    // now create the binding with the shaders
+
+    for(int i = 0; i < this->Geometry_List.length(); i++)
+    {
+
+        QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
+        vao->create();
+
+        widget->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
+
+        GLVAO_List.append(vao);
+    }
+
+    qDebug() << "succesfully loaded object";
     this->Is_Loaded = true;
+}
+
+void GL3DModel::AddCustomGeometry(GL3DWidget * w, GL3DGeometry * g, GL3DMaterial * m)
+{
+    int i = Geometry_List.length();
+    Geometry_List.append(g);
+
+    QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
+    vao->create();
+
+    w->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
+
+    GLVAO_List.append(vao);
+
+    i = Material_List.length();
+    Material_List.append(m);
+    Material_Pointer.append(i);
+}
+
+void GL3DModel::BindCustomShader(GL3DWidget * w, GL3DShader * s)
+{
+
+    m_Shader = s;
+
+    GLVAO_List.clear();
+
+    for(int i = 0; i < this->Geometry_List.length(); i++)
+    {
+
+        QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
+        vao->create();
+
+        w->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
+
+        GLVAO_List.append(vao);
+    }
+
 }
 
 void GL3DModel::Destroy(GL3DWidget * widget)

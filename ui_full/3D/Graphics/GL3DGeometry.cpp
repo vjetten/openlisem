@@ -312,6 +312,31 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex * data,int lv,
     m_IndexCount = li;
 }
 
+void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex2D * data,int lv,const GLuint * indices, int li)
+{
+    uses_index = true;
+    is_2d_data = true;
+
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_vertex = temp1;
+    m_vertex.create();
+    m_vertex.bind();
+    m_vertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_vertex.allocate(data, sizeof(Vertex2D) * lv);
+    m_vertex.release();
+
+    QOpenGLBuffer temp2(QOpenGLBuffer::IndexBuffer);
+    m_index = temp2;
+    m_index.create();
+    m_index.bind();
+    m_index.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_index.allocate(indices, sizeof(GLuint) * li);
+    m_index.release();
+
+    m_IndexCount = li;
+}
+
+
 void GL3DGeometry::CreateGeometry(QGLWidget * widget,const Vertex * data,int lv)
 {
     uses_index = false;

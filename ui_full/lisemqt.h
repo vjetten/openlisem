@@ -287,11 +287,16 @@ public:
     bool doShootScreens;
 
     bool first3d = true;
+    bool Allow3D = false;
+
     void Setup3DPlot();
     GL3DWidget *glwidget;
 
     GL3DWorldCreator * creator;
 public slots:
+
+    void doCheck3D();
+
     // functions linked to actions
     void saveRunFile();
     void savefileas();

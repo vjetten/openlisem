@@ -73,6 +73,10 @@ void GL3DShaders::Create(GL3DWidget * widget)
     m_DefaultShaderList.clear();
     m_LoadedShaderList.clear();
 
+    rainshader = LoadShaderFromFile("postprocess/rain_f.glsl","postprocess/rain_v.glsl",false);
+
+    channelshader = LoadShaderFromFile("postprocess/channel_f.glsl","postprocess/channel_v.glsl",false);
+
     copyshader = LoadShaderFromFile("postprocess/copy_f.glsl","postprocess/copy_v.glsl",false);
 
     blendshader = LoadShaderFromFile("postprocess/blend_f.glsl","postprocess/blend_v.glsl",false);
@@ -85,6 +89,12 @@ void GL3DShaders::Create(GL3DWidget * widget)
     m_DefaultShaderList.append(LoadShaderFromFile("surface/f.glsl","surface/v.glsl",false,"surface/tc.glsl","surface/te.glsl","surface/g.glsl"));
     //GL3D_SHADER_SURFACE_FLOW = 3
     m_DefaultShaderList.append(LoadShaderFromFile("flow/f.glsl","flow/v.glsl",false,"flow/tc.glsl","flow/te.glsl","flow/g.glsl"));
+    //GL3D_SHADER_MODEL = 4
+    m_DefaultShaderList.append(LoadShaderFromFile("objects/object_f.glsl","objects/object_v.glsl",false));
+    //GL3D_SHADER_ROADS = 5
+    m_DefaultShaderList.append(LoadShaderFromFile("roads/roads_f.glsl","roads/roads_v.glsl",false));
+    //GL3D_SHADER_CHANNEL = 6
+    m_DefaultShaderList.append(LoadShaderFromFile("channel/channel_f.glsl","channel/channel_v.glsl",false,"","","channel/channel_g.glsl"));
 
 }
 
@@ -128,32 +138,29 @@ void GL3DShader::LoadShaderFromText(GL3DWidget * widget,const char * text_ps,con
 
     if(!suc)
     {
-        qCritical( "shader not compiled");
-        qDebug() << "shader not compiled";
+        qDebug() << "shader not compiled ";
     }else
     {
-        qDebug() << "shader succesfully compiled";
+        qDebug() << "shader succesfully compiled ";
     }
 }
 
 void GL3DShader::LoadShaderFromFile(GL3DWidget * widget,QString file_ps,QString file_vs,QString file_tcs ,QString file_tes,QString file_gs)
 {
-
     m_program = new QOpenGLShaderProgram(widget);
-
 
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, widget->m_Directory + "/" + GL3D_DIR_SHADERS + file_vs);
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, widget->m_Directory + "/" + GL3D_DIR_SHADERS + file_ps);
 
-    if(file_tcs != SHADER_NULL)
+    if(file_tcs.length() != 0)
     {
         m_program->addShaderFromSourceFile(QOpenGLShader::TessellationControl, widget->m_Directory + "/" + GL3D_DIR_SHADERS + file_tcs);
     }
-    if(file_tes != SHADER_NULL)
+    if(file_tes.length() != 0)
     {
         m_program->addShaderFromSourceFile(QOpenGLShader::TessellationEvaluation, widget->m_Directory + "/" + GL3D_DIR_SHADERS + file_tes);
     }
-    if(file_gs != SHADER_NULL)
+    if(file_gs.length() != 0)
     {
         m_program->addShaderFromSourceFile(QOpenGLShader::Geometry, widget->m_Directory + "/" + GL3D_DIR_SHADERS + file_gs);
     }
@@ -162,8 +169,7 @@ void GL3DShader::LoadShaderFromFile(GL3DWidget * widget,QString file_ps,QString 
 
     if(!suc)
     {
-        qCritical( "shader not compiled");
-        qDebug() << "shader not compiled";
+        qDebug() << "shader not compiled " << file_vs << " " << file_ps;
     }else
     {
         qDebug() << "shader succesfully compiled";
@@ -187,6 +193,16 @@ void GL3DShader::ActivateTextureOn(GL3DWidget * widget, GLuint t, const char * n
     widget->gl->glBindTexture(GL_TEXTURE_2D, t);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+}
+
+void GL3DShader::ActivateCubeTextureOn(GL3DWidget * widget, GLuint t, const char * name, int slot)
+{
+    m_program->setUniformValue(name, slot);
+    widget->gl->glActiveTexture(GL_TEXTURE0 + slot);
+    widget->gl->glBindTexture(GL_TEXTURE_CUBE_MAP, t);
+    widget->gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    widget->gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 }
 

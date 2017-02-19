@@ -30,12 +30,15 @@
 #include <3D/Objects/GL3DFlowSurface.h>
 #include <3D/Objects/GL3DSkyBox.h>
 #include <3D/World/GL3DCameraController.h>
+#include <3D/Objects/GL3DTree.h>
+#include <3D/Objects/GL3DPPRain.h>
 
 struct Output3D
 {
     cTMap * MASK;
     cTMap * DEM;
     cTMap * DEM_Filled;
+    cTMap * DEM_Change;
     cTMap * SlopeX;
     cTMap * SlopeY;
     cTMap * ImageR;
@@ -52,7 +55,14 @@ struct Output3D
     cTMap * RandomRoughness;
     cTMap * Buildings;
     cTMap * Roads;
-
+    cTMap * ChannelLDD;
+    cTMap * ChannelDepth;
+    cTMap * ChannelWidth;
+    cTMap * ChannelDepthFilled;
+    cTMap * ChannelFlowH;
+    cTMap * ChannelFlowU;
+    cTMap * ChannelFlowS;
+    float rainfall;
 };
 
 
@@ -88,6 +98,7 @@ public:
    GL3DFlowSurface * fsurface;
    GL3DCameraController * controller;
    GL3DSkyBox * skybox;
+   GL3DPPRain * rain;
 
 };
 

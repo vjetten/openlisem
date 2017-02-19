@@ -22,17 +22,56 @@
 **
 *************************************************************************/
 
-#ifndef Textures3D
-#define Textures3D
+#ifndef Buildings3D
+#define Buildings3D
 
 #include <3D/GL3DWidget.h>
+#include <3D/Graphics/GL3DModels.h>
+#include <3D/Objects/GL3DSurface.h>
 
-class GL3DText
+class GL3DBuildings : public GL3DObject
 {
 
 public:
+    GL3DBuildings() : GL3DObject()
+    {
+    }
+
+    QList<QVector3D> Building_h_larger_Positions;
+    QList<QVector3D> Building_h_larger_Scale;
+    QList<float> Building_h_larger_Rotation;
+
+    QList<QVector3D> Building_h_large_Positions;
+    QList<QVector3D> Building_h_large_Scale;
+    QList<float> Building_h_large_Rotation;
+
+    QList<QVector3D> Building_h_med_Positions;
+    QList<QVector3D> Building_h_med_Scale;
+    QList<float> Building_h_med_Rotation;
+
+    QList<QVector3D> Building_h_small_Positions;
+    QList<QVector3D> Building_h_small_Scale;
+    QList<float> Building_h_small_Rotation;
 
 
+    GL3DModel * m_Building_h_larger;
+    GL3DModel * m_Building_h_large;
+    GL3DModel * m_Building_h_med;
+    GL3DModel * m_Building_h_small;
+
+    GL3DModel * m_Building_l_larger;
+    GL3DModel * m_Building_l_large;
+    GL3DModel * m_Building_l_med;
+    GL3DModel * m_Building_l_small;
+
+
+    cTMap * m_BuildingCover;
+
+    void OnCreate(GL3DWidget *widget);
+    void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
+    void OnDestroy(GL3DWidget *widget);
+
+    void SetBuildingsDistribution(GL3DSurface * s,cTMap * building_cover,cTMap * temp);
 };
 
 

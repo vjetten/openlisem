@@ -27,6 +27,7 @@
 
 #include <3D/GL3DWidget.h>
 #include <3D/Objects/GL3DSurface.h>
+#include <3D/Objects/GL3DSkyBox.h>
 
 class GL3DFlowSurface : public GL3DObject
 {
@@ -37,6 +38,7 @@ public:
     }
 
 
+    GL3DSkyBox * m_SkyBox;
     GL3DSurface * m_Surface;
 
     cTMap * m_FlowH =0;
@@ -44,10 +46,18 @@ public:
     cTMap * m_FlowV =0;
     cTMap * m_FlowS =0;
 
+    cTMap * m_ChFlowH =0;
+    cTMap * m_ChFlowU =0;
+    cTMap * m_ChFlowS =0;
+
     GL3DTexture * m_Texture_FlowH;
     GL3DTexture * m_Texture_FlowU;
     GL3DTexture * m_Texture_FlowV;
     GL3DTexture * m_Texture_FlowS;
+
+    GL3DTexture * m_Texture_ChFlowH;
+    GL3DTexture * m_Texture_ChFlowU;
+    GL3DTexture * m_Texture_ChFlowS;
 
     GL3DShader * m_Shader_Flow;
 
@@ -55,7 +65,10 @@ public:
     bool text_updated = false;
 
     void SetSurface(GL3DSurface * surface);
+    void SetSkyBox(GL3DSkyBox * skybox);
+
     void SetFlowProperties(cTMap * h, cTMap * u, cTMap * v, cTMap * s);
+    void SetFlowPropertiesChannel(cTMap * h, cTMap * u, cTMap * s);
 
     void CreateTextures(GL3DWidget * widget);
 

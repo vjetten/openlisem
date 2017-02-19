@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
     Fixture fixture;
 
     QApplication app(argc, argv);
+    QString sDir = QCoreApplication::applicationDirPath();
+    app.addLibraryPath(sDir+"/plugins");
     app.setWindowIcon(QIcon(":/openlisem.ico"));
 
     QFile file(":/openlisem.qss");

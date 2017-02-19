@@ -70,6 +70,7 @@ public:
     bool current_render;
 
     //based on these values, the object is registered in the GL3DWorld
+    bool recieve_render_before;
     bool recieve_render;
     bool recieve_render_late;
     bool recieve_render_post;
@@ -81,9 +82,10 @@ public:
     virtual inline void OnCreate(GL3DWidget * widget)  {return;};
     virtual inline void OnAddToWorld(GL3DWorld * world)  {return;};
     virtual inline void OnUpdate(GL3DWidget * widget,GL3DWorld * world, double dt)  {return;};
+    virtual inline void OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
-    virtual inline void OnRenderPost(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
+    virtual inline void OnRenderPost(GL3DWidget * widget,GLuint Texture_source, GLuint Texture_target,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRemoveFromWorld(GL3DWorld * world)  {return;};
     virtual inline void OnDestroy(GL3DWidget * widget)  {return;};
     virtual inline void OnKey(int key)  {return;};

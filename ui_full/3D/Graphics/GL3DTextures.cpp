@@ -98,7 +98,13 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
         widget->gl->glDeleteTextures(1,&RenderTextureWater);
         widget->gl->glDeleteTextures(1,&LocationTexture);
         widget->gl->glDeleteTextures(1,&NormalTexture);
+        widget->gl->glDeleteTextures(1,&InfoTexture);
+        widget->gl->glDeleteTextures(1,&ChannelTexture);
+        widget->gl->glDeleteTextures(1,&ChannelInfoTexture);
+        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferCopy);
+        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &ChannelFramebuffer);
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &Framebuffer);
+        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferWater);
     }
 
     widget->gl->glGenFramebuffers(1, &Framebuffer);
@@ -106,9 +112,10 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
 
     widget->gl->glGenTextures(1, &RenderTexture);
     widget->gl->glGenTextures(1, &RenderTextureCopy);
-    widget->gl->glGenTextures(1, &RenderTextureWater);
     widget->gl->glGenTextures(1, &LocationTexture);
     widget->gl->glGenTextures(1, &NormalTexture);
+    widget->gl->glGenTextures(1, &InfoTexture);
+
 
     widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTexture);
     widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
@@ -116,11 +123,6 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureCopy);
-    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
-    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureWater);
     widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -135,17 +137,84 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    widget->gl->glBindTexture(GL_TEXTURE_2D, InfoTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
     widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, RenderTexture, 0);
     widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, LocationTexture, 0);
     widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, NormalTexture, 0);
-
-    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, RenderTextureCopy, 0);
-    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, RenderTextureWater, 0);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, InfoTexture, 0);
 
     widget->gl->glGenRenderbuffers(1, &depthrenderbuffer);
     widget->gl->glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
     widget->gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w,h);
     widget->gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+
+
+
+    widget->gl->glGenFramebuffers(1, &FramebufferCopy);
+    widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, FramebufferCopy);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, RenderTextureCopy, 0);
+
+    widget->gl->glGenTextures(1, &RenderTextureCopy);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureCopy);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, RenderTextureCopy, 0);
+
+
+
+
+    widget->gl->glGenFramebuffers(1, &ChannelFramebuffer);
+    widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, ChannelFramebuffer);
+
+    widget->gl->glGenTextures(1, &ChannelTexture);
+    widget->gl->glGenTextures(1, &ChannelInfoTexture);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, ChannelTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, ChannelInfoTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ChannelTexture, 0);
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, ChannelInfoTexture, 0);
+
+    widget->gl->glGenRenderbuffers(1, &channeldepthrenderbuffer);
+    widget->gl->glBindRenderbuffer(GL_RENDERBUFFER, channeldepthrenderbuffer);
+    widget->gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w,h);
+    widget->gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, channeldepthrenderbuffer);
+
+
+
+    widget->gl->glGenFramebuffers(1, &FramebufferWater);
+    widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, FramebufferWater);
+
+    widget->gl->glGenTextures(1, &RenderTextureWater);
+
+    widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTextureWater);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, RenderTextureWater, 0);
+
+    widget->gl->glGenRenderbuffers(1, &depthrenderbuffer);
+    widget->gl->glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+    widget->gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w,h);
+    widget->gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
 
     bufferscreated = true;
 
@@ -259,7 +328,7 @@ void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevatio
         widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         widget->gl->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-        widget->gl->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        widget->gl->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         free(data);
     }else

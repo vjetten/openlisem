@@ -4,6 +4,21 @@
 #include <QVector3D>
 #include <QVector2D>
 
+class GL3DMath
+{
+    inline static double GetGaussianProbability(double center, double width, double height, double x)
+    {
+        return pow(2.71828,-(1.0/width)*( x - center)*( x - center))*height;
+
+
+
+    }
+
+
+};
+
+
+
 class Vertex
 {
 public:
@@ -25,9 +40,17 @@ public:
   static const int PositionTupleSize = 3;
   static const int ColorTupleSize = 3;
   static const int NormalTupleSize = 3;
+  static const int UVTupleSize = 2;
+  static const int TangentTupleSize = 3;
+  static const int BiTangentTupleSize = 3;
+
   static Q_DECL_CONSTEXPR int positionOffset();
   static Q_DECL_CONSTEXPR int colorOffset();
   static Q_DECL_CONSTEXPR int normalOffset();
+  static Q_DECL_CONSTEXPR int uvOffset();
+  static Q_DECL_CONSTEXPR int tangentOffset();
+  static Q_DECL_CONSTEXPR int bitangentOffset();
+
   static Q_DECL_CONSTEXPR int stride();
 
 
@@ -70,6 +93,9 @@ void inline Vertex::setNormal(const QVector3D& normal) { m_normal = normal; }
 Q_DECL_CONSTEXPR inline int Vertex::positionOffset() { return offsetof(Vertex, m_position); }
 Q_DECL_CONSTEXPR inline int Vertex::colorOffset() { return offsetof(Vertex, m_color); }
 Q_DECL_CONSTEXPR inline int Vertex::normalOffset() { return offsetof(Vertex, m_normal); }
+Q_DECL_CONSTEXPR inline int Vertex::uvOffset() { return offsetof(Vertex, m_UV); }
+Q_DECL_CONSTEXPR inline int Vertex::tangentOffset() { return offsetof(Vertex, m_tangent); }
+Q_DECL_CONSTEXPR inline int Vertex::bitangentOffset() { return offsetof(Vertex, m_bitangent); }
 Q_DECL_CONSTEXPR inline int Vertex::stride() { return sizeof(Vertex); }
 
 class Vertex2D

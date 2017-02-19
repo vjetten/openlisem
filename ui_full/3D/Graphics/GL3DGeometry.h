@@ -232,6 +232,7 @@ public:
 
     void CreateGeometry(QGLWidget * widget,cTMap * map, int max_res_x, int max_res_y, bool data2d = false);
     void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv,const GLuint * indices, int li);
+    void CreateGeometry(QGLWidget * widget,const Vertex2D * data, int lv,const GLuint * indices, int li);
     void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv);
     void CreateGeometry(QGLWidget * widget,QString file);
     void ClearGeometry();

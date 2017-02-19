@@ -22,18 +22,52 @@
 **
 *************************************************************************/
 
-#ifndef Textures3D
-#define Textures3D
+#ifndef GL3DROADS_H
+#define GL3DROADS_H
 
 #include <3D/GL3DWidget.h>
+#include <3D/Graphics/GL3DModels.h>
+#include <3D/Objects/GL3DSurface.h>
 
-class GL3DText
+#include <3D/Graphics/GL3DTextures.h>
+#include <3D/Graphics/GL3DGeometry.h>
+#include <3D/Graphics/GL3DShaders.h>
+
+class GL3DRoads : public GL3DObject
 {
-
 public:
+    GL3DRoads() : GL3DObject()
+    {
+    }
+
+
+    GL3DTexture * m_Texture_Color;
+    GL3DTexture * m_Texture_Normal;
+    GL3DTexture * m_Texture_Bump;
+    GL3DTexture * m_Texture_Specular;
+
+    GL3DGeometry * m_Geometry;
+
+    QOpenGLVertexArrayObject m_GLObject;
+
+    GL3DModel * m_Model;
+
+    GL3DShader * m_Shader;
+
+    GL3DSurface * m_Surface;
+
+    void OnCreate(GL3DWidget *widget);
+    void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
+    void OnDestroy(GL3DWidget *widget);
+
+    void SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * roadwidth);
+
+
+
 
 
 };
 
 
-#endif
+
+#endif // GL3DROADS_H

@@ -85,6 +85,7 @@ public:
     void StrafeRight ( double Distance );
     void MoveUpward( double Distance );
 
+    void LookAt(float x, float y, float z);
     void Zoom(double dAngle);
 };
 

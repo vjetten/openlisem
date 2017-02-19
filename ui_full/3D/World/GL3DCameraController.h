@@ -47,8 +47,8 @@ public:
     inline void SetStartPosition()
     {
 
-        m_Camera->SetPosition(m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrCols()*0.5,m_Surface->m_ElevationMax + (m_Surface->m_ElevationMax -m_Surface->m_ElevationMin)* 2.0,m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrRows()*0.5 );
-
+       m_Camera->SetPosition(m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrCols()*0.3,m_Surface->m_ElevationMax + (m_Surface->m_ElevationMax -m_Surface->m_ElevationMin)* 2.0,m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrRows()*0.3 );
+       m_Camera->LookAt(m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrCols()*0.75,m_Surface->GetElevation(m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrCols()*0.75,m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrRows()*0.75 ) ,m_Surface->m_Elevation->cellSize() *m_Surface->m_Elevation->nrRows()*0.75 );
 
     }
 

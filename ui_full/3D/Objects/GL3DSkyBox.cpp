@@ -28,7 +28,6 @@
 void GL3DSkyBox::OnCreate(GL3DWidget *widget)
 {
     //this->m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_SIMPLE);
-    this->recieve_render = true;
     this->m_Geometry = widget->m_Geometries->LoadGeometryFromArray(vertices_SKYBOX,36,indices_SKYBOX,36);
     this->m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_SKYBOX);
     this->m_GLObject.create();

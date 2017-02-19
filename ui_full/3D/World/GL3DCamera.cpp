@@ -170,6 +170,14 @@ void GL3DCamera::MoveUpward( double Distance )
     m_Position += (m_Up*Distance);
 }
 
+void GL3DCamera::LookAt(float x, float y, float z)
+{
+    QVector3D look= QVector3D(x,y,z);
+    m_ViewDir = (look-m_Position);
+    m_ViewDir.normalize();
+
+}
+
 void GL3DCamera::Zoom( double dangle )
 {
 

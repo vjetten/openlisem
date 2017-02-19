@@ -69,13 +69,20 @@ public:
 
     };
 
+    GL3DShader * m_Shader;
+
     QList<GL3DMaterial *> Material_List;
     QList<GL3DGeometry *> Geometry_List;
     QList<int> Material_Pointer;
+    QList<QOpenGLVertexArrayObject *> GLVAO_List;
 
-    void LoadObjectFile(GL3DWidget * w, QString file);
+    void LoadObjectFile(GL3DWidget * w, QString file, float rescale = 1.0);
     QList<GL3DMaterial *> LoadMaterialsFile(GL3DWidget * widget,QString file,QString path);
 
+    void AddCustomGeometry(GL3DWidget * w, GL3DGeometry * g, GL3DMaterial * m);
+    void BindCustomShader(GL3DWidget * w, GL3DShader * s);
+
+    void Create(GL3DWidget * widget);
     void Destroy(GL3DWidget * widget);
 
     struct vec3d
@@ -92,25 +99,24 @@ class GL3DMaterial
 public:
     QString name;
 
-    GL3DTexture * Texture;
-    GL3DTexture * Texture_ka;
-    GL3DTexture * Texture_kd;
-    GL3DTexture * Texture_ks;
-    GL3DTexture * Texture_ns;
-    GL3DTexture * Texture_alpha;
-    GL3DTexture * Texture_disp;
-    GL3DTexture * Texture_bump;
-    GL3DTexture * Texture_normal;
+    GL3DTexture * Texture = 0;
+    GL3DTexture * Texture_ka = 0;
+    GL3DTexture * Texture_kd = 0;
+    GL3DTexture * Texture_ks = 0;
+    GL3DTexture * Texture_ns = 0;
+    GL3DTexture * Texture_alpha = 0;
+    GL3DTexture * Texture_disp = 0;
+    GL3DTexture * Texture_bump = 0;
+    GL3DTexture * Texture_normal = 0;
 
-    QVector3D color_ka;
-    QVector3D color_kd;
-    QVector3D color_ks;
-    int spec_power;
-    double alpha;
+    QVector3D color_ka = QVector3D(1.0,1.0,1.0);
+    QVector3D color_kd = QVector3D(1.0,1.0,1.0);
+    QVector3D color_ks = QVector3D(1.0,1.0,1.0);
+    float spec_power = 2.0;
+    double alpha = 1.0;
 
-    int illum;
+    int illum = 2;
 
-    GL3DShader * m_Shader;
 
 };
 

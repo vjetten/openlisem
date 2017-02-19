@@ -30,6 +30,13 @@
 #include "ui_full/3D/Graphics/GL3DShaders.h"
 #include "ui_full/3D/Graphics/GL3DTextures.h"
 
+
+typedef struct GLLDD_LINKEDLIST {
+    int rowNr;
+    int colNr;
+    struct GLLDD_LINKEDLIST *prev;
+}  GLLDD_LINKEDLIST;
+
 class GL3DSurface : public GL3DObject
 {
 
@@ -58,6 +65,8 @@ public:
     GL3DTexture * m_Texture;
     GL3DTexture * m_Texture_SlopeX;
     GL3DTexture * m_Texture_SlopeY;
+
+    GL3DTexture * m_Texture_ChannelDepth;
 
     GL3DTexture * m_Texture_Mask;
     GL3DTexture * m_Texture_MicroElevation;
@@ -109,6 +118,8 @@ public:
     GL3DTexture * m_Texture_grass_slope4_Spec;
 
 
+    GL3DTexture * m_Texture_Channel;
+
     GL3DGeometry * m_Geometry;
     GL3DGeometry * m_Geometry_Tesselated;
 
@@ -124,6 +135,17 @@ public:
     cTMap * m_Buildings = 0;
     cTMap * m_Roads = 0;
 
+    cTMap * ChannelLDD;
+    cTMap * ChannelWidth;
+    cTMap * ChannelDepth;
+
+    bool has_channel = false;
+    bool has_channeldepth = false;
+
+    GL3DGeometry * m_Geometry_Channel;
+    QOpenGLVertexArrayObject * m_Object_Channel;
+    GL3DShader * m_Shader_Channel;
+
     GL3DTexture * m_Texture_VegCover;
     GL3DTexture * m_Texture_VegHeight;
     GL3DTexture * m_Texture_RandomRoughness;
@@ -131,7 +153,15 @@ public:
     GL3DTexture * m_Texture_Roads;
 
     void SetTerrainProperties(cTMap * VegCover,cTMap * VegHeight,cTMap * RandomRoughness,cTMap * Buildings,cTMap * Roads);
+
+    void RotateRight(int &dx, int &dy);
+    void RotateLeft(int &dx, int &dy);
+    int GetRotationType(int dx1,int dy1,int dx2,int dy2);
+
+    void SetChannel(GL3DWidget * w,cTMap * LDD, cTMap * width, cTMap * depth, cTMap * temp, bool flooding);
+
     void OnCreate(GL3DWidget *widget);
+    void OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
     void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
     void OnDestroy(GL3DWidget *widget);
 
