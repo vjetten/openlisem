@@ -32,8 +32,7 @@ void GL3DWidget::initializeGL()
     gl = this;
     if ( !gl )
     {
-        qFatal("Requires OpenGL >= 4.0");
-        exit( 1 );
+        return;
     }
     gl->initializeOpenGLFunctions();
 
@@ -74,6 +73,7 @@ void GL3DWidget::initializeGL()
     if(error != GL_NO_ERROR)
     {
         qDebug() << "initialisation error 1 " <<  error;
+        return;
     }
 
     // Set up the rendering context, define display lists etc.:
@@ -90,6 +90,7 @@ void GL3DWidget::initializeGL()
     if(error != GL_NO_ERROR)
     {
         qDebug() << "initialisation error 2 " <<  error;
+        return;
     }
 
     this->m_Time = QDateTime::currentMSecsSinceEpoch();
@@ -102,7 +103,9 @@ void GL3DWidget::initializeGL()
     m_GLQuadObjectChannel.create();
     BindGeometry(m_GLQuadObjectChannel,m_Shaders->channelshader,m_Geometries->QuadGeometry);
 
+    is_created = true;
 
+    return;
 }
 
 void GL3DWidget::timerEvent(QTimerEvent *e)
@@ -180,16 +183,6 @@ void GL3DWidget::Onrender()
     this->m_World->m_SkyBox->OnRender(this,m_World,m_Camera,m_DT);
     this->m_World->m_Surface->OnRender(this,m_World,m_Camera,m_DT);
 
-    gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->FramebufferCopy);
-    //copy color texture
-    GLenum DrawBuffersCopy[1] = {GL_COLOR_ATTACHMENT0};
-    gl->glDrawBuffers(1, DrawBuffersCopy);
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    this->m_Shaders->copyshader->m_program->bind();
-    this->m_GLQuadObject.bind();
-    m_Shaders->copyshader->ActivateTextureOn(this,m_Textures->RenderTexture,"tex_input",0);
-    this->gl->glDrawArrays(GL_TRIANGLES,0,m_Geometries->QuadGeometry->m_IndexCount);
-
     gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->FramebufferWater);
     //copy color texture
     GLenum DrawBuffersCopy1[1] = {GL_COLOR_ATTACHMENT0};
@@ -221,11 +214,11 @@ void GL3DWidget::Onrender()
     this->m_World->OnRender(this,m_Camera,m_DT);
 
 
-    gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->FramebufferWater);
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->FramebufferCopy);
     //copy color texture
     GLenum DrawBuffersCopy3[1] = {GL_COLOR_ATTACHMENT0};
     gl->glDrawBuffers(1, DrawBuffersCopy3);
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->m_Shaders->copyshader->m_program->bind();
     this->m_GLQuadObject.bind();
     m_Shaders->copyshader->ActivateTextureOn(this,m_Textures->RenderTexture,"tex_input",0);

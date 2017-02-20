@@ -186,12 +186,12 @@ void GL3DFlowSurface::OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCa
     m_Shader_Flow->m_program->setUniformValue("TextureSizeY",(float)2.5);
 
 
-    m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->RenderTextureWater,"fb_color",16);
+    m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->RenderTextureCopy,"fb_color",16);
     m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->LocationTexture,"fb_location",17);
     m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->NormalTexture,"fb_normal",18);
     m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->InfoTexture,"fb_info",19);
 
-    m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->RenderTextureCopy,"fb_colorsurface",20);
+    m_Shader_Flow->ActivateTextureOn(widget,widget->m_Textures->RenderTextureWater,"fb_colorsurface",20);
 
     m_Shader_Flow->m_program->setPatchVertexCount(3);
     widget->gl->glDrawElements(GL_PATCHES, m_Surface->m_Geometry_Tesselated->m_IndexCount, GL_UNSIGNED_INT, 0);

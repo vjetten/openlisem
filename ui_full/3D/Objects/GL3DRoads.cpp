@@ -50,10 +50,6 @@ void GL3DRoads::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* came
     QMatrix4x4 matrix;
     matrix.setToIdentity();
 
-    //widget->DrawModelObject(m_Model,camera,matrix);
-
-    widget->gl->glDisable(GL_CULL_FACE);
-
     m_Model->m_Shader->m_program->bind();
     m_Model->m_Shader->m_program->setUniformValue("Cmatrix",camera->m_CameraMatrix);
     m_Model->m_Shader->m_program->setUniformValue("Mmatrix",matrix);

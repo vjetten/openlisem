@@ -41,7 +41,7 @@
 #include <QBasicTimer>
 #include "3D/Graphics/GL3DMapMath.h"
 #include "3D/Graphics/GL3DModels.h"
-
+#include <QMutex>
 
 #ifndef widget3D
 #define widget3D
@@ -98,6 +98,7 @@ class GL3DWidget: public QGLWidget,
 
 public:
 
+    bool is_created = false;
     bool ReadyToDraw = false;
     bool m_InitializedRun = false;
 
@@ -110,6 +111,7 @@ public:
     QOpenGLVertexArrayObject m_GLQuadObjectChannel;
 
 
+    QMutex * gl_context_control;
     QOpenGLFunctions_4_0_Core * gl;
 
     GL3DGeometries * m_Geometries;
