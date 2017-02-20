@@ -107,11 +107,13 @@ public:
 
     QBasicTimer m_Timer;
 
+    QMutex * gl_context_control;
+    bool gl_context_try = true;
+
     QOpenGLVertexArrayObject m_GLQuadObject;
     QOpenGLVertexArrayObject m_GLQuadObjectChannel;
 
 
-    QMutex * gl_context_control;
     QOpenGLFunctions_4_0_Core * gl;
 
     GL3DGeometries * m_Geometries;
@@ -127,7 +129,7 @@ public:
 
     GL3DWidget(QWidget *parent = 0):QGLWidget(parent)
     {
-
+        gl_context_control = new QMutex();
     };
 
     void InitRun(cTMap * copy);

@@ -102,7 +102,7 @@ void GL3DWidget::initializeGL()
 
     m_GLQuadObjectChannel.create();
     BindGeometry(m_GLQuadObjectChannel,m_Shaders->channelshader,m_Geometries->QuadGeometry);
-
+    this->
     is_created = true;
 
     return;
@@ -111,8 +111,19 @@ void GL3DWidget::initializeGL()
 void GL3DWidget::timerEvent(QTimerEvent *e)
 {
 
-    //Drawing function of parent class
-    this->update();
+    if(gl_context_try)
+    {
+        //if(gl_context_control->tryLock())
+        {
+            //this->setUpdatesEnabled(true);
+            //Drawing function of parent class
+            this->update();
+        }
+
+    }
+
+
+
 }
 
 void GL3DWidget::showEvent(QShowEvent *e)

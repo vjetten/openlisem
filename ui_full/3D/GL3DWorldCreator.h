@@ -66,6 +66,21 @@ struct Output3D
 };
 
 
+class GL3DWorldCreator;
+
+class GL3DWorldLoader : public QThread
+{
+public:
+
+    GL3DWorldCreator * creator;
+
+
+private:
+    void run();
+
+};
+
+
 class GL3DWorldCreator
 {
 
@@ -76,8 +91,11 @@ public:
 
     GL3DWorldCreator()
     {
-
+        loader = new GL3DWorldLoader();
     }
+
+    GL3DWorldLoader * loader;
+    QMutex * m_Mutex;
 
    inline void LinkToWidget(GL3DWidget * w)
    {
@@ -86,7 +104,10 @@ public:
 
    GL3DWidget * m_Widget;
 
+   bool done_creating = false;
+
    void CreateWorldFromLisem();
+   void CreateWorldFromLisemThread();
    void UpdateWorldFromLisem();
    void DestroyWorldFromLisem();
 
@@ -101,7 +122,6 @@ public:
    GL3DPPRain * rain;
 
 };
-
 
 
 #endif // GL3DWORLDCREATOR_H
