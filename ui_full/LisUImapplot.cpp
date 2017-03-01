@@ -98,10 +98,17 @@ void lisemqt::initMapPlot()
     //    transparency3->setValue(160); //roads
     //    transparency4->setValue(100); //houses
 }
+void lisemqt::doReset()
+{
+    mapRescaler->setReferenceAxis( QwtPlot::yLeft );
+}
+
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
+    connect(toolButtonResetScalar, SIGNAL(pressed()), this, SLOT(doReset()));
+
 
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
@@ -175,7 +182,8 @@ void lisemqt::setupMapPlot()
     // legend to the right of the plot
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
-    //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );  //NOT resets the plot after checking another map !!!
+    //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );
+    //NOT resets the plot all the time after checking another map !!!
     mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
 //    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
     mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );

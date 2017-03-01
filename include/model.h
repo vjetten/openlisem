@@ -322,9 +322,6 @@ public:
     double waterRep_c;
     double waterRep_d;
 
-    ///rainfall to flood max gradient
- //   double rainFloodingGradient;
-
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
@@ -344,6 +341,7 @@ public:
     bool rainStarted;
     double BufferVolTot, BufferSedTot, BufferVolTotInit, BufferSedTotInit, BulkDens, BufferVolin;
     double nrCells, CatchmentArea, nrFloodedCells;
+    double LitterSmax;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -767,6 +765,7 @@ public:
    // double cfl_fix;
     double minReportFloodHeight;
     double correctMassBalance(double sum1, cTMap *M, double minV);
+    double getMass(cTMap *M);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                    cTMap *_Q, cTMap *_Qn,
                    cTMap *_q, cTMap *_Alpha, cTMap *_DX,

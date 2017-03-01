@@ -97,6 +97,12 @@ void TWorld::Totals(void)
     IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
+    FOR_ROW_COL_MV
+    {
+        InterceptionmmCum->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
+        // for screen output only
+    }
+
     //=== infiltration ===//
     InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
 
@@ -108,6 +114,7 @@ void TWorld::Totals(void)
     // used for reporting only
     FOR_ROW_COL_MV
     {
+        //!!!!!! only used here! waste of space
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
     }

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1731</width>
-    <height>1082</height>
+    <width>1497</width>
+    <height>1038</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1983,7 +1983,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -2382,6 +2382,12 @@
                  </item>
                  <item row="0" column="3">
                   <widget class="QLabel" name="label_105">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Channels/Rivers&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- The channel system can be switched off entirely in which case only overland flow is considered (for research purposes). Channels are 1D networks using a kinematic wave for flow.&lt;/p&gt;&lt;p&gt;- Allow 2D flooding: flooding from channels will occur as an overflow process, using the full Saint Venant equations (fullSWOF solution). When erosion is also selected, diffuse and convective transport of sediment, detachm,ent and deposition are simulated.&lt;/p&gt;&lt;p&gt;- Channel infiltration: assumed to be saturated infiltration, the flux equals ChannelKsat (mm/h). If not checked the channel is assumed impermeable. Mutually exclusive with baseflow. &lt;/p&gt;&lt;p&gt;- Channel baseflow: the baseflow discharge at the outlet(s) is given in m3/s in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.&lt;/p&gt;&lt;p&gt;if channel infiltration and channel baseflow are both unckecked, the channel is assumed to be impermeable.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -2704,6 +2710,12 @@
                  </item>
                  <item row="0" column="4">
                   <widget class="QLabel" name="label_103">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Infrastructure&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Switch on or off the effect of buildings and infrastructure:&lt;/p&gt;&lt;p&gt;- Buildings have interception storage, are impermeable, obstruct flow and are non-erodable. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.&lt;/p&gt;&lt;p&gt;- Roads have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. Roads can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.&lt;/p&gt;&lt;p&gt;- Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. They behave the same as roads but are a separate class because they are often in a different land use class.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -3087,7 +3099,7 @@
                     <string>Overland flow in 1D (Kinematic wave using LDD flow network)</string>
                    </property>
                    <property name="checked">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -3146,35 +3158,29 @@
                     <string>Overland flow in 2D (Diffusive wave Using DEM)</string>
                    </property>
                    <property name="checked">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="QToolButton" name="toolButtonH1">
-                   <property name="minimumSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>1</pointsize>
-                    </font>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_121">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Overland flow&lt;/p&gt;&lt;p&gt;- 1D uses a predefined continues network that connects all cells to the outlet of the area. The network is user defined and is an input, the DEM is not used. A kinematic wave is executed (finite difference iteration) over this network to route the water.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- 2D uses the DEM to determine where water flows. The water is distributed over the three cells downstream, using bilinear interpolation. The runoff tab gives several options. An small adaptive timestep (non-iterative) is used to ensure stability.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Overland flow&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- 1D uses a predefined continues network that connects all cells to the outlet of the area. The network is user defined and is an input, the DEM is not used. A kinematic wave is executed (finite difference iteration) over this network to route the water.&lt;/p&gt;&lt;p&gt;- 2D uses the DEM to determine where water flows. The water is distributed over the cells downstream, using bilinear interpolation. This is equivalent to a diffusive wave solution. The 'flow' tab gives several options. An small adaptive timestep (non-iterative) is used to ensure stability.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>...</string>
+                    <string/>
                    </property>
-                   <property name="icon">
-                    <iconset resource="../resources/openlisem.qrc">
-                     <normaloff>:/information_4.png</normaloff>:/information_4.png</iconset>
+                   <property name="pixmap">
+                    <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
                    </property>
-                   <property name="autoRaise">
-                    <bool>true</bool>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -3187,25 +3193,23 @@
                <string>Interception</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_41">
+               <item row="1" column="0">
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item row="0" column="0">
                 <widget class="QGroupBox" name="groupBox">
-                 <layout class="QVBoxLayout" name="verticalLayout_3">
-                  <property name="spacing">
-                   <number>2</number>
-                  </property>
-                  <property name="leftMargin">
-                   <number>8</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>8</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>8</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>8</number>
-                  </property>
-                  <item>
+                 <layout class="QGridLayout" name="gridLayout_49">
+                  <item row="0" column="0" colspan="2">
                    <layout class="QGridLayout" name="gridLayout_28">
                     <item row="1" column="1">
                      <widget class="QDoubleSpinBox" name="E_CanopyOpeness">
@@ -3387,7 +3391,7 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </layout>
                   </item>
-                  <item>
+                  <item row="1" column="0" colspan="2">
                    <widget class="QGroupBox" name="groupInterception">
                     <property name="font">
                      <font>
@@ -3955,19 +3959,6 @@ p, li { white-space: pre-wrap; }
                   <size>
                    <width>40</width>
                    <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="0">
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
                   </size>
                  </property>
                 </spacer>
@@ -6488,6 +6479,9 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <item row="0" column="0">
                    <widget class="QCheckBox" name="checkFloodSedimentInterpolation">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -6501,10 +6495,10 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="text">
-                     <string>Use bilinear interpolation for transport distribution (faster, less accurate)</string>
+                     <string>Use bilinear interpolation for transport distribution</string>
                     </property>
                     <property name="checked">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="tristate">
                      <bool>false</bool>
@@ -8215,7 +8209,63 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0" colspan="2">
+                  <item row="3" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkLimitTC">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="palette">
+                     <palette>
+                      <active>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </active>
+                      <inactive>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </inactive>
+                      <disabled>
+                       <colorrole role="WindowText">
+                        <brush brushstyle="SolidPattern">
+                         <color alpha="255">
+                          <red>122</red>
+                          <green>122</green>
+                          <blue>122</blue>
+                         </color>
+                        </brush>
+                       </colorrole>
+                      </disabled>
+                     </palette>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Prevent extremes: transport capacity cannot be higher than surrounding cells</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0" colspan="3">
                    <layout class="QHBoxLayout" name="horizontalLayout_20">
                     <item>
                      <widget class="QLabel" name="label_130">
@@ -8367,62 +8417,6 @@ p, li { white-space: pre-wrap; }
                      </widget>
                     </item>
                    </layout>
-                  </item>
-                  <item row="3" column="0" colspan="2">
-                   <widget class="QCheckBox" name="checkLimitTC">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="palette">
-                     <palette>
-                      <active>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </active>
-                      <inactive>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>0</red>
-                          <green>0</green>
-                          <blue>0</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </inactive>
-                      <disabled>
-                       <colorrole role="WindowText">
-                        <brush brushstyle="SolidPattern">
-                         <color alpha="255">
-                          <red>122</red>
-                          <green>122</green>
-                          <blue>122</blue>
-                         </color>
-                        </brush>
-                       </colorrole>
-                      </disabled>
-                     </palette>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Prevent extremes: transport capacity cannot be higher than surrounding cells</string>
-                    </property>
-                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -10870,19 +10864,6 @@ p, li { white-space: pre-wrap; }
                  </layout>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_129">
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>SPARE PAGE, DELTED AT RUNTIME!!! for near obsolete options</string>
-                 </property>
-                </widget>
-               </item>
                <item row="2" column="1">
                 <spacer name="horizontalSpacer_9">
                  <property name="orientation">
@@ -10896,7 +10877,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </spacer>
                </item>
-               <item row="4" column="0">
+               <item row="6" column="0">
                 <spacer name="verticalSpacer_11">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -10969,6 +10950,131 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_129">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>SPARE PAGE, DELTED AT RUNTIME!!! for near obsolete options</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="checkBox_OutWHC">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>122</red>
+                       <green>122</green>
+                       <blue>122</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>roc - total runof depth since t=0 (mm)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QCheckBox" name="checkBox_OutHmxWH">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="WindowText">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>122</red>
+                       <green>122</green>
+                       <blue>122</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>hmxwh - flood  + runoff level (m)</string>
                  </property>
                 </widget>
                </item>
@@ -11071,7 +11177,7 @@ p, li { white-space: pre-wrap; }
            <property name="verticalSpacing">
             <number>4</number>
            </property>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QTabWidget" name="tabWidget_OutputMaps">
              <property name="enabled">
               <bool>true</bool>
@@ -11127,7 +11233,7 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab">
               <attribute name="title">
@@ -12509,6 +12615,184 @@ p, li { white-space: pre-wrap; }
               <layout class="QGridLayout" name="gridLayout_36">
                <item row="0" column="0">
                 <layout class="QGridLayout" name="gridLayout_35">
+                 <item row="10" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutQf">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Qf - flood discharge (m3/s)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <spacer name="horizontalSpacer_8">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutHmx">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>whf - flood level (m)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutRunoff">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="toolTip">
+                    <string>mapseries saved as is &quot;ro&quot;</string>
+                   </property>
+                   <property name="text">
+                    <string>ro - runoff slope + channel (l/s)</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="1" column="0" colspan="2">
                   <widget class="QCheckBox" name="checkWritePCRnames">
                    <property name="palette">
@@ -12556,231 +12840,6 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string>Mapseries as PCRaster filenames (.001, .002)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <spacer name="horizontalSpacer_8">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item row="11" column="0">
-                  <widget class="QLabel" name="label_121">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Floods</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutTC">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>tc - transport capacity (kg/m3)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutConc">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>conc - sediment concentration (g/l)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutSL">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>sloss - soilloss (selected units)</string>
                    </property>
                   </widget>
                  </item>
@@ -12959,8 +13018,8 @@ p, li { white-space: pre-wrap; }
                    </item>
                   </layout>
                  </item>
-                 <item row="4" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutDet">
+                 <item row="3" column="1">
+                  <widget class="QLabel" name="label_85">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -13006,127 +13065,12 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="font">
                     <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="text">
-                    <string>det - detachment (selected units)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutRunoff">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>mapseries saved as is &quot;ro&quot;</string>
-                   </property>
-                   <property name="text">
-                    <string>ro - runoff slope + channel (l/s)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutWH">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>wh - water depth on surface (mm)                </string>
+                    <string>Sediment</string>
                    </property>
                   </widget>
                  </item>
@@ -13193,6 +13137,286 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
+                 <item row="7" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutV">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>v - velocity (all flows) (m/s)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutSurfStor">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>sstor - surface storage (mm)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutWH">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>wh - water depth on surface (m)                </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutInf">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>inf - cumulative infiltration (mm)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutDet">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>det - detachment (selected units)</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="5" column="1">
                   <widget class="QCheckBox" name="checkBox_OutDep">
                    <property name="sizePolicy">
@@ -13249,14 +13473,8 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
-                  <widget class="QLabel" name="label_85">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
+                 <item row="6" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutSL">
                    <property name="palette">
                     <palette>
                      <active>
@@ -13296,17 +13514,17 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="font">
                     <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
+                     <weight>50</weight>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Sediment</string>
+                    <string>sloss - soilloss (selected units)</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutSurfStor">
+                 <item row="7" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutConc">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -13357,12 +13575,12 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                    <property name="text">
-                    <string>sstor - surface storage (mm)</string>
+                    <string>conc - sediment concentration (g/l)</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutInf">
+                 <item row="8" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutTC">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -13413,11 +13631,18 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                    <property name="text">
-                    <string>inf - cumulative infiltration (mm)</string>
+                    <string>tc - transport capacity (kg/m3)</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="9" column="0">
+                 <item row="9" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutSed">
+                   <property name="text">
+                    <string>sed - Sediment in flow (selected units)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="0">
                   <widget class="QCheckBox" name="checkBox_OutChanVol">
                    <property name="enabled">
                     <bool>false</bool>
@@ -13476,13 +13701,10 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutV">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
+                 <item row="11" column="0">
+                  <widget class="QCheckBox" name="checkBox_OutVf">
+                   <property name="enabled">
+                    <bool>false</bool>
                    </property>
                    <property name="palette">
                     <palette>
@@ -13528,11 +13750,11 @@ p, li { white-space: pre-wrap; }
                     </font>
                    </property>
                    <property name="text">
-                    <string>velo - velocity (m/s)</string>
+                    <string>Vf - flood velocity (m/s)</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="10" column="0">
+                 <item row="13" column="0">
                   <widget class="QCheckBox" name="checkBox_OutTiledrain">
                    <property name="enabled">
                     <bool>false</bool>
@@ -13591,287 +13813,9 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="12" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutHmx">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>hmx - flood level (m)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="13" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutHmxWH">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>hmxwh - flood  + runoff level (m)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="14" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutQf">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Qf - flood discharge (m3/s)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="15" column="0">
-                  <widget class="QCheckBox" name="checkBox_OutVf">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Vf - flood velocity</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="11" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutWHC">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="WindowText">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>122</red>
-                         <green>122</green>
-                         <blue>122</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>roc - total runof depth since t=0 (mm)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="9" column="1">
-                  <widget class="QCheckBox" name="checkBox_OutSed">
-                   <property name="text">
-                    <string>sed - Sediment in flow (selected units)</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
-               <item row="1" column="0">
+               <item row="2" column="0">
                 <spacer name="verticalSpacer_9">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -13901,7 +13845,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_128">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -20881,6 +20825,13 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="3">
+                 <widget class="QToolButton" name="toolButtonResetScalar">
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -20907,7 +20858,7 @@ p, li { white-space: pre-wrap; }
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <property name="iconSize">
               <size>
@@ -21670,7 +21621,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

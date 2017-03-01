@@ -306,6 +306,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Canopy Openess");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include litter interception");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Litter interception storage");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
@@ -547,7 +549,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTDEPO");
     namelist[i].value = QString("sloss");
     namelist[i++].name = QString("OUTSOILLOSS");
-    namelist[i].value = QString("velo");
+    namelist[i].value = QString("V");
     namelist[i++].name = QString("OUTVELO");
     namelist[i].value = QString("inf");
     namelist[i++].name = QString("OUTINF");
@@ -557,7 +559,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OUTCHVOL");
     namelist[i].value = QString("Qtile");
     namelist[i++].name = QString("OUTTILED");
-    namelist[i].value = QString("hmx");
+    namelist[i].value = QString("whf");
     namelist[i++].name = QString("OUTHMX");
     namelist[i].value = QString("qf");
     namelist[i++].name = QString("OUTQF");

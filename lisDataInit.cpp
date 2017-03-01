@@ -379,6 +379,7 @@ void TWorld::InitStandardInput(void)
     }
     else
         Litter = NewMap(0);
+    LitterSmax = getvaluedouble("Litter interception storage");
 
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
@@ -807,7 +808,7 @@ void TWorld::InitChannel(void)
             AlphaFlood = NewMap(0);
             Sedflood = NewMap(0);
 
-            Hmx = NewMap(0);
+            //Hmx = NewMap(0);
             hmxWH = NewMap(0);
 
             FloodWaterVol = NewMap(0);
@@ -1417,7 +1418,8 @@ void TWorld::IntializeData(void)
     // litter
     LCStor = NewMap(0);
     LInterc = NewMap(0);
-    LRainCum = NewMap(0);
+    //LRainCum = NewMap(0);
+    InterceptionmmCum = NewMap(0);
     //houses
     HStor = NewMap(0);
     IntercHouse = NewMap(0);
@@ -1511,7 +1513,6 @@ void TWorld::IntializeData(void)
     fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     FSurplus = NewMap(0);
-    hesinfil = NewMap(0);
     FFull = NewMap(0);
     //runoffFractionCell = NewMap(0);
     runoffTotalCell = NewMap(0);

@@ -922,7 +922,7 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
   if (startFlood)
   {
       if (correct)
-          sumh = mapTotal(*h);
+          sumh = getMass(h);
 
       do {
 
@@ -991,7 +991,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
     if (startFlood)
     {
         if (correct)
-            sumh = mapTotal(*h);
+            sumh = getMass(h);
 
         verif = 1;
 
@@ -1116,7 +1116,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
     if (startFlood)
     {
         if (correct)
-            sumh = mapTotal(*h);
+            sumh = getMass(h);
 
         do {
 

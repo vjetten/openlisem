@@ -52,6 +52,7 @@ void TWorld::Interception(void)
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
     FOR_ROW_COL_MV
+    {
         if (Cover->Drc > 0)// && Rainc->Drc > 0)
         {
             double CS = CStor->Drc;
@@ -72,15 +73,15 @@ void TWorld::Interception(void)
                     Smax = 0;
             // no interception with buffers, but sedtrap can have interception
 
-//            if (SwitchHardsurface)
-//                Smax *= (1-HardSurface->Drc);
+            //            if (SwitchHardsurface)
+            //                Smax *= (1-HardSurface->Drc);
             //VJ 110111 no interception on hard surfaces
 
-//            if (PlantHeight->Drc < WH->Drc)
-//            {
-//                Smax = 0;
-//                CS = 0;
-//            }
+            //            if (PlantHeight->Drc < WH->Drc)
+            //            {
+            //                Smax = 0;
+            //                CS = 0;
+            //            }
             //VJ no interception when water level is heigher than plants
             //???? we cannot make interception 0 when water rises because of mass balance
 
@@ -102,7 +103,7 @@ void TWorld::Interception(void)
             // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
             // possible to use equation from Ahston but for very open Eucalypt
 
-//            CS = std::max(0.0, CS * (1-StemflowFraction));
+            //            CS = std::max(0.0, CS * (1-StemflowFraction));
             //VJ 110206 decrease storage with stemflow fraction!
             // but stemflowfraction doesn't go anywhere!!!!!!!!!!!!!!!!!
             // it doesn't matter, either stemflow is removed from the storage and added to RainNet
@@ -122,16 +123,16 @@ void TWorld::Interception(void)
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
         }
-//    else
-//        {
-//            RainNet->Drc = Rainc->Drc;
-//        }
+        else
+        {
+            RainNet->Drc = Rainc->Drc;
+        }
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter(void)
 {
     // all variables are in m
-
     if (!SwitchLitter)
         return;
 
@@ -139,36 +140,35 @@ void TWorld::InterceptionLitter(void)
         return;
 
     FOR_ROW_COL_MV
-            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && Rainc->Drc > 0)
+            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && RainNet->Drc > 0)
     {
-        //double LAI = (log(1-std::min(0.9,Litter->Drc))/-0.4);
-        // Bracken equation, avoid log 0
-        //double Smax = 0.001 * 0.1713 * LAI; // in m
-        double Smax = 0.002*Litter->Drc;
-        // assume simply that the cover linearly scales between 0 and 2 mm of storage
+
+        double Smax = LitterSmax/1000.0;
+        // assume simply that the cover linearly scales between 0 and LtterSmax of storage
 
         double LCS = LCStor->Drc;
         //actual canopy storage in m
 
-        if (SwitchHardsurface)
-            Smax *= (1-HardSurface->Drc);
-        //VJ 110111 no interception on hard surfaces
+//        if (SwitchHardsurface)
+//            Smax *= (1-HardSurface->Drc);
+        //VJ 110111 no litter interception on hard surfaces
 
-        LRainCum->Drc += LeafDrain->Drc;
-        // cumulative leaf drainage falling on litter
+        LCS = std::min(LCS + RainNet->Drc, Smax);
+        // add water to the storage, not more than max
 
-        LCS = std::min(LRainCum->Drc, Smax);
-        //assume direct simple filling of litter
+//        LCS = std::min(LRainCum->Drc, Smax);
+//        //assume direct simple filling of litter
 
-        double drain = std::max(0.0, Litter->Drc*(LeafDrain->Drc - (LCS - LCStor->Drc)));
-        // diff between new and old strage is subtracted from leafdrip
+        double drain = std::max(0.0, Litter->Drc*(RainNet->Drc - (LCS - LCStor->Drc)));
+        // diff between new and old storage is subtracted from leafdrip
 
         LCStor->Drc = LCS;
-        // put new storage back in map
+        // put new storage back in map for next dt
+
         LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
         // only on soil surface, not channels or roads, in m3
 
-        RainNet->Drc = drain + (1-Litter->Drc)*LeafDrain->Drc + (1-Cover->Drc)*Rainc->Drc;
+        RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
         //recalc
     }
 }
@@ -186,60 +186,55 @@ void TWorld::InterceptionHouses(void)
     {
         if (HouseCover->Drc > 0 &&  Rainc->Drc > 0)
         {
+            double roofsurface = (SoilWidthDX->Drc * DX->Drc * HouseCover->Drc); // m2
             //house on cell in m2
             double HS = HStor->Drc;
             //actual roof storage in m
-            double DS = DStor->Drc;
-            //actual drum storage in m3
+
             double Hmax = RoofStore->Drc;
             //max roof storage in m
 
-            // GIVES MASS BALANCE ERRORS?
-            //            if (Hmax > 0)
-            //            {
-            //                double k = 1.0;
-            //                // speed of filling of roof storage, very quickly
-            //                HS = Hmax*(1-exp(-k*RainCum->Drc/Hmax));
-            //                //roof storage in m
-            //            }
-            //            else
-            //                HS = 0;
-
-            HS = HS + RainNet->Drc;
-            if (HS > Hmax)
-                HS = Hmax;
+            HS = std::min(HS + RainNet->Drc, Hmax);
 
             double housedrain = std::max(0.0, HouseCover->Drc * (RainNet->Drc - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
+
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            double Dmax = 0;
-            if (SwitchRaindrum)
-                Dmax = DrumStore->Drc;
-            //max drum storage in m3
-
-            if (Dmax > 0)
-            {
-                // housedrain water from roof in m, cover is already included
-                double dsm3 = (DS + housedrain)*SoilWidthDX->Drc*DX->Drc;
-                if (dsm3 < Dmax)
-                    dsm3 = Dmax;
-                DS = (SoilWidthDX->Drc > 0)? dsm3/(SoilWidthDX->Drc*DX->Drc) : 0.0;
-                housedrain = std::max(0.0, housedrain - (DS - DStor->Drc));
-            }
-            else
-                DS = 0;
-
-            DStor->Drc = DS;
-            // put new storage back in maps in m
-
-            IntercHouse->Drc = HouseCover->Drc * (HS+DS) * SoilWidthDX->Drc * DX->Drc;
+            IntercHouse->Drc =  roofsurface * HS; //HouseCover->Drc * HS * SoilWidthDX->Drc * DX->Drc;
             // total interception in m3,exclude roads, channels
 
             RainNet->Drc = housedrain + (1-HouseCover->Drc)*RainNet->Drc;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
+
+            // filling raindrums with surplus drainage from roofs
+            // drum is recalculated to m based on roof surface
+            double DS = 0;
+            if (SwitchRaindrum && DrumStore->Drc > 0)
+            {
+                double Dmax = DrumStore->Drc/roofsurface;
+                //max drum storage in m as if roof storage is more
+
+                DS = DStor->Drc;
+                //actual drum storage in m
+
+                DS = std::min(DS + RainNet->Drc, Dmax);
+                // fill tank to max
+                double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet->Drc - (DS - DStor->Drc)));
+
+                DStor->Drc = DS;
+                // put new drum storage back in maps in m3
+
+                IntercHouse->Drc += roofsurface * DS;//(HouseCover->Drc * DS * SoilWidthDX->Drc * DX->Drc);
+                // total interception in m3,exclude roads, channels
+
+                RainNet->Drc = drumdrain + (1-HouseCover->Drc)*RainNet->Drc;
+                // net rainfall is net rainfall + drainage
+                // rainfall that falls on the soil, used in infiltration
+
+            }
         }
     }
 }

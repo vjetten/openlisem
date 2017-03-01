@@ -231,6 +231,20 @@ void TWorld::ChannelOverflow()
 }
 //---------------------------------------------------------------------------
 // correct mass balance
+double TWorld::getMass(cTMap *M)
+{
+    double sum2 = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+        }
+    }
+    return sum2;
+}
+//---------------------------------------------------------------------------
+// correct mass balance
 double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
 {
     double sum2 = 0;
@@ -239,7 +253,7 @@ double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
     {
         if(M->Drc > 0)
         {
-            sum2 += M->Drc;
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
             if(M->Drc > minV)
                 n += 1;
         }
@@ -251,35 +265,36 @@ double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
     {
         if(M->Drc > minV)
         {
-            M->Drc += dh;
+            M->Drc += dh/(DX->Drc*ChannelAdj->Drc);
             M->Drc = std::max(M->Drc , 0.0);
         }
     }
     return dh;
 }
 //---------------------------------------------------------------------------
+//OBSOLETE !!!
 void TWorld::FloodSpuriousValues()
 {
-    fill(*tm, 0.0);
-    //calc2Maps(*tma, *DEM, *hmx, ADD);
-    FOR_ROW_COL_MV
-    {
-        if (hmx->Drc > F_extremeHeight)
-        {
-            tm->Drc = getWindowAverage(*hmx, r, c, false);
-           // tm->Drc = getWindowAverage(*tma, r, c, false);
-        }
-    }
+//    fill(*tm, 0.0);
+//    //calc2Maps(*tma, *DEM, *hmx, ADD);
+//    FOR_ROW_COL_MV
+//    {
+//        if (hmx->Drc > F_extremeHeight)
+//        {
+//            tm->Drc = getWindowAverage(*hmx, r, c, false);
+//           // tm->Drc = getWindowAverage(*tma, r, c, false);
+//        }
+//    }
 
-    FOR_ROW_COL_MV
-    {
-        if ((hmx->Drc > F_extremeHeight) && (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
-        {
-            double htmp = hmx->Drc;
-            hmx->Drc = std::min( tm->Drc, std::min(hmx->Drc, Hmx->Drc));
-            qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
-        }
-    }
+//    FOR_ROW_COL_MV
+//    {
+//        if ((hmx->Drc > F_extremeHeight) && (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
+//        {
+//            double htmp = hmx->Drc;
+//            hmx->Drc = std::min( tm->Drc, std::min(hmx->Drc, Hmx->Drc));
+//            qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
+//        }
+//    }
 
 }
 //---------------------------------------------------------------------------
@@ -461,8 +476,9 @@ void TWorld::ChannelFlood(void)
     }
 
 
-    copy(*Hmx, *hmx);
+    // copy(*Hmx, *hmx);
     // copy flood level for next dt
+            // for spurious values, obsolete
 
     calc2Maps(*hmxWH, *hmx, *WH, ADD);
     // add RO waterheight and hmx for output

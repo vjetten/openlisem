@@ -161,8 +161,6 @@ void TWorld::OutputUI(void)
                 COMBO_VOFCH->Drc = ChannelV->Drc;
     }
 
-
-
     if(SwitchErosion)
     {
         fill(*COMBO_SS, 0.0);
@@ -712,16 +710,16 @@ void TWorld::ReportMaps(void)
     FOR_ROW_COL_MV
     {
         tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
-        tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
+  //      tma->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
     }
 
     report(*tm, rainfallMapFileName);
-    report(*tma, interceptionMapFileName);
+  //  report(*tma, interceptionMapFileName);
+    report(*InterceptionmmCum, interceptionMapFileName);
 
     report(*InfilmmCum, infiltrationMapFileName);
 
     report(*runoffTotalCell, runoffMapFileName); // in m3, total runoff from cell (but there is also runon!)
-//    report(*runoffFractionCell, runoffFractionMapFileName);
 
     report(*WHmax, floodWHmaxFileName);
 
@@ -809,16 +807,29 @@ void TWorld::ReportMaps(void)
         report(*Qoutput, Outrunoff); // in l/s
     if (outputcheck[2].toInt() == 1)
     {
-        calcMapValue(*tm, *WH, 1000, MUL);// WH in mm
-        report(*tm, Outwh);
+//        calcMapValue(*tm, *WH, 1000, MUL);// WH in mm
+//        report(*tm, Outwh);
+        report(*hmxWH, Outwh);//OutHmxWH);
     }
 
     if (outputcheck[3].toInt() == 1)
         report(*runoffTotalCell, Outrwh); // in m3
     // changed to cum runoff in mm
 
+    FOR_ROW_COL_MV
+    {
+        COMBO_VOFCH->Drc = V->Drc;
+        if(SwitchChannelFlood)
+            COMBO_VOFCH->Drc += UVflood->Drc;
+        if (SwitchIncludeChannel)
+            if (ChannelWidthUpDX->Drc > 0)
+                COMBO_VOFCH->Drc = ChannelV->Drc;
+    }
+
     if (outputcheck[7].toInt() == 1)
-        report(*V, Outvelo);
+    {
+        report(*COMBO_VOFCH, Outvelo);
+    }
 
     if (outputcheck[8].toInt() == 1)
         report(*InfilmmCum, Outinf); // in mm
@@ -855,10 +866,11 @@ void TWorld::ReportMaps(void)
         {
             report(*UVflood, OutVf);
         }
-        if (outputcheck[15].toInt() == 1)
-        {
-            report(*hmxWH, OutHmxWH);
-        }
+
+//        if (outputcheck[15].toInt() == 1)
+//        {
+//            report(*hmxWH, OutHmxWH);
+//        }
 
     }
 
@@ -1030,7 +1042,7 @@ void TWorld::ChannelFloodStatistics(void)
     fp.flush();
     fp.close();
 
-}//---------------------------------------------------------------------------
+}
 //---------------------------------------------------------------------------
 // Make the maps to bedrawn in the interface as a copy in the op starcture
 // reason is that all pointers are destroyed after the run so when lisem finishes
@@ -1256,6 +1268,7 @@ void TWorld::GetComboMaps()
         Colors.append("#FFFF55");
         Colors.append("#8080FF");
         Colors.append("#0000AA");
+        AddComboMap(0,"Interception","mm",InterceptionmmCum,Colormap,Colors,false,false,1.0,1.0);
         AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
     }
 
@@ -1282,29 +1295,6 @@ void TWorld::GetComboMaps()
 
     if(SwitchChannelFlood)
     {
-//        Colormap.clear();
-//        Colormap.append(0.0);
-//        Colormap.append(0.5);
-//        Colormap.append(1.0);
-//        Colors.clear();
-//        Colors.append("#5477ff");
-//        Colors.append("#0023b1");
-//        Colors.append("#001462");
-//   //     AddComboMap(0,"Flood Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
-//        AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
-
-//        Colormap.clear();
-//        Colormap.append(0.0);
-//        Colormap.append(0.25);
-//        Colormap.append(0.75);
-//        Colormap.append(1.0);
-//        Colors.clear();
-//        Colors.append("#00FF00");
-//        Colors.append("#FFFF00");
-//        Colors.append("#FF0000");
-//        Colors.append("#A60000");
-//        AddComboMap(0,"Flood Velocity","m/s",UVflood,Colormap,Colors,false,false,1.0,0.01);
-
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
@@ -1319,6 +1309,14 @@ void TWorld::GetComboMaps()
         Colors.append("#007300");
 
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
+
+        Colors.clear();
+        Colors.append("#007300");
+        Colors.append("#00FF00");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+        Colors.append("#A60000");
+
         AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
 
     }

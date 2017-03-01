@@ -53,7 +53,7 @@ cTMap
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
 *LCStor,                     //!< actual Litter storage [m]
 *LInterc,                    //!< actual Litter storage volume, corrected for surfaces without vegetation (like roads) [m^3]
-*LRainCum,
+//*LRainCum,
 //houses
 *DStor,                      //!< actual drum storage of rainwater [m^3]
 *HStor,                      //!< actual roof storage of rainwater [m]
@@ -62,6 +62,7 @@ cTMap
 *HouseWidthDX,
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
+*InterceptionmmCum,
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]
 *Snowcover,                  //!< snowmelt cover map, value 1.0 if there is snowcover, 0 without [-]
@@ -123,9 +124,9 @@ cTMap
 *CanopyStorage,              //!< canopy storage [m]
 *LAI,                        //!< leaf area index [m^2/m^2]
 *LandUnit,                   //!< land unit class (> 0) [-]
-*WheelWidth,                 //!< not used yet, width of wheel tracks [m]
-*WheelWidthDX,               //!< not used yet, width of wheel tracks [m]
-*GullyWidthDX,               //!< not used yet, width of gullies [m]
+//*WheelWidth,                 //!< not used yet, width of wheel tracks [m]
+//*WheelWidthDX,               //!< not used yet, width of wheel tracks [m]
+//*GullyWidthDX,               //!< not used yet, width of gullies [m]
 
 *Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
 *RootCohesion,               //!< cohesion soil [kPa]
@@ -261,7 +262,6 @@ cTMap
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*hesinfil,
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
@@ -383,23 +383,10 @@ cTMap
 *floodVMax,                    //!<
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
-*Hmx,                        //!<
+//*Hmx,                        //!<
 *hmx,                        //!<
 *hmxWH,                        //!<
- *hmxInit,                    //!<
-
-// OBSOLETE
-//explicit solution
-// *Hx,                         //!<
-// *hx,                         //!<
-// *Nx,                         //!<
-// *dHdLx,                      //!<
-// *Qxsum,                      //!<
-// *qx0,                        //!<
-// *qx1,                        //!<
-// *qx2,                        //!<
-// *qx3,                        //!<
-//explicit solution
+*hmxInit,                    //!<
 
 *FloodDomain,                //!<
 //*Barriers,                    //!<

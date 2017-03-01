@@ -232,6 +232,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
    //     if (p1.compare("Flood calc as watershed")==0)          SwitchWatershed     = iii == 1;
         if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
+        //VJ 170225 always sediment interpolate
 
         //        if (p1.compare("Minimum stats flood height")==0)     SwitchLevees     = iii == 1;
         //houses
@@ -333,7 +334,7 @@ void TWorld::ParseRunfileData(void)
     if (SwitchFloodSWOForder1)
     {
         SwitchFloodSWOForder2 = false;
-    }
+    }   
 
     SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling");
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
@@ -495,12 +496,10 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
         if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
         if (p1.compare("OUTTILED" )==0)  OutTiledrain  = GetName(p);
-        if (p1.compare("OUTHMX"   )==0)    OutHmx  = GetName(p);
-        if (p1.compare("OUTQF"    )==0)     OutQf  = GetName(p);
-        if (p1.compare("OUTVF"    )==0)     OutVf  = GetName(p);
-        if (p1.compare(""
-                       ""
-                       "OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
+        if (p1.compare("OUTHMX"   )==0)  OutHmx  = GetName(p);
+        if (p1.compare("OUTQF"    )==0)  OutQf  = GetName(p);
+        if (p1.compare("OUTVF"    )==0)  OutVf  = GetName(p);
+        if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
         if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
         if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);
     }

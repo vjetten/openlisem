@@ -1623,6 +1623,7 @@ void lisemqt::resetAll()
     spinKEparameterB3->setValue(0.22);
 
     checkKETimebased->setChecked(false);
+    checkFloodSedimentInterpolation->setChecked(true);
 
     //sediment
     E_RBLMethod->setValue(0);
@@ -1775,10 +1776,5 @@ void lisemqt::fontIncrease()
                                 QTreeView {font: %1pt;} \
                                 QPlainTextEdit {font: %1pt;} \
                                 ").arg(genfontsize));
-}
-
-void lisemqt::on_toolButtonH1_clicked()
-{
-
 }
 

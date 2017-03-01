@@ -183,7 +183,7 @@ void lisemqt::ParseInputData()
         // flooding
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
         if (p1.compare("Include litter interception")==0)    checkIncludeLitter->setChecked(check);
-
+        if (p1.compare("Litter interception storage")==0)    E_LitterSmax->setValue(val);
 
         if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
         if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
@@ -699,6 +699,7 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
+        if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
 
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
@@ -977,7 +978,7 @@ void lisemqt::updateModelData()
             if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //14
             if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0"; //15
             if (checkBox_OutSL->isChecked())         outputcheck << "1"; else outputcheck << "0"; //16
-            if (checkBox_OutSed->isChecked())         outputcheck << "1"; else outputcheck << "0"; //17
+            if (checkBox_OutSed->isChecked())        outputcheck << "1"; else outputcheck << "0"; //17
             outputcheck << "0";
             outputcheck << "0";
             outputcheck << "0";

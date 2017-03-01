@@ -377,6 +377,8 @@ public slots:
     void ssetAlpha4(int v);
     void ssetAlpha5(int v);
 
+    void doReset();
+
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);
     void setWriteOutputPCR(bool);
@@ -395,7 +397,6 @@ public slots:
 
     void setFormatMaps(bool);
 
-void on_toolButtonH1_clicked();
 private slots:
 
     void showMapb(bool);
