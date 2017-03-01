@@ -74,14 +74,14 @@ void TWorld::K2DInit()
     {
         if(SwitchErosion)
         {
-            K2DQS->Drc = 0;
-            K2DQSX->Drc = 0;
-            K2DQSY->Drc = 0;
-            K2DS->Drc = Sed->Drc;
-            K2DSC->Drc = Conc->Drc;
-            K2DSCN->Drc = 0;
-            K2DSFX->Drc = 0;
-            K2DSFY->Drc = 0;
+            //K2DQS->Drc = 0;
+            //K2DQSX->Drc = 0;
+            //K2DQSY->Drc = 0;
+//            K2DS->Drc = Sed->Drc;
+//            K2DSC->Drc = Conc->Drc;
+//            K2DSCN->Drc = 0;
+//            K2DSFX->Drc = 0;
+//            K2DSFY->Drc = 0;
 
         }
         if(SwitchPesticide)
@@ -92,8 +92,8 @@ void TWorld::K2DInit()
             K2DP->Drc = Pest->Drc;
             K2DPC->Drc = C->Drc;
             K2DPCN->Drc = 0;
-            K2DPFX->Drc = 0;
-            K2DPFY->Drc = 0;
+            //K2DPFX->Drc = 0;
+            //K2DPFY->Drc = 0;
         }
 
         K2DHNew->Drc = 0;
@@ -433,8 +433,8 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         K2DQM->Drc = 0;
         K2DQMX->Drc = 0;
         K2DQMY->Drc = 0;
-        K2DFMX->Drc = 0;
-        K2DFMY->Drc = 0;
+        //K2DFMX->Drc = 0;
+        //K2DFMY->Drc = 0;
         K2DMN->Drc = K2DM->Drc;
         K2DMC->Drc = _C->Drc;
         K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
@@ -564,8 +564,8 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
         K2DQM->Drc = 0;
         K2DQMX->Drc = 0;
         K2DQMY->Drc = 0;
-        K2DFMX->Drc = 0;
-        K2DFMY->Drc = 0;
+        //K2DFMX->Drc = 0;
+       // K2DFMY->Drc = 0;
         _S->Drc = K2DMN->Drc;
         if(_C != NULL)
         {

@@ -31,7 +31,7 @@
 
 cTMap
 
-*_MASK,
+//*_MASK,
 *DEM,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
@@ -82,8 +82,8 @@ cTMap
 
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
-*Vx,                          //!< velocity of overland flow [m/s]
-*Vy,                          //!< velocity of overland flow [m/s]
+//*Vx,                          //!< velocity of overland flow [m/s]
+//*Vy,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 //*AlphaF,
 //*QF,
@@ -95,7 +95,7 @@ cTMap
 *QinKW,
 *QoutKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
-*Houtput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
+//*Houtput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 //*Qsoutflow,                  //!< new sediment discharge after kin wave at outflow point [kg/s]     OBSOLETE
@@ -128,7 +128,7 @@ cTMap
 //*WheelWidthDX,               //!< not used yet, width of wheel tracks [m]
 //*GullyWidthDX,               //!< not used yet, width of gullies [m]
 
-*Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
+//*Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
 *RootCohesion,               //!< cohesion soil [kPa]
 *CohesionSoil,               //!< cohesion by plant roots [kPa]
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
@@ -212,32 +212,32 @@ cTMap
 *K2DQM,                         //!<
 *K2DQMX,                         //!<
 *K2DQMY,                         //!<
-*K2DFMX,                         //!<
-*K2DFMY,                         //!<
+//*K2DFMX,                         //!<
+//*K2DFMY,                         //!<
 *K2DMN,                         //!<
 *K2DM,                         //!<
 *K2DMC,                         //!<
 
-*K2DQS,                         //!<
-*K2DQSX,                         //!<
-*K2DQSY,                         //!<
-*K2DS,                          //!<
-*K2DSC,                          //!<
-*K2DSCN,                          //!<
+//*K2DQS,                         //!<
+//*K2DQSX,                         //!<
+//*K2DQSY,                         //!<
+//*K2DS,                          //!<
+//*K2DSC,                          //!<
+//*K2DSCN,                          //!<
 *K2DQP,                         //!<
 *K2DQPX,                         //!<
 *K2DQPY,                         //!<
 *K2DP,                          //!<
 *K2DPC,                          //!<
 *K2DPCN,                          //!<
-*K2DSFX,
-*K2DSFY,
-*K2DPFX,
-*K2DPFY,
+//*K2DSFX,
+//*K2DSFY,
+//*K2DPFX,
+//*K2DPFY,
 
 
-*K2DDX,                         //!<
-*K2DDY,                         //!<
+//*K2DDX,                         //!<
+//*K2DDY,                         //!<
 *K2DSlopeX,                     //!<
 *K2DSlopeY,                     //!<
 *K2DSlope,                      //!<
@@ -251,13 +251,13 @@ cTMap
 *K2DFX,                         //!<
 *K2DFY,                         //!<
 
-*K2DVX,                         //!<
-*K2DVY,                         //!<
-*K2DV,                          //!<
+//*K2DVX,                         //!<
+//*K2DVY,                         //!<
+//*K2DV,                          //!<
 *K2DI,                          //!<
 
-*K2DEffQ,                          //!<
-*K2DEffV,                          //!<
+//*K2DEffQ,                          //!<
+//*K2DEffV,                          //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
@@ -277,8 +277,8 @@ cTMap
 //*ffpot,                       //!< potential infiltration rate [m/s]
 //*FfFull,                      //!< map flagging when the soil is full
 
-*Lf1,
-*Lf2,
+//*Lf1,
+//*Lf2,
 
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
@@ -336,7 +336,7 @@ cTMap
 *Channelq,                   //!<
 *ChannelAlpha,               //!<
 *ChannelWidthUpDX,           //!<
-*ChannelAdj,
+*ChannelAdj,                //!<
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
@@ -357,25 +357,23 @@ cTMap
 *SedToChannel,               //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
+*ChannelDepth,               //!<
 
 //baseflow
 *BaseFlowDischarges,
 *BaseFlowInitialVolume,
 *BaseFlowInflow,
 
-
 // flood maps
-*ChannelDepth,               //!<
+//sediment in flood
+//*QfloodPrev,                    //!<
+//*QfloodSed,                    //!<
+//*QfloodSedPrev,                    //!<
+//*AlphaFlood,                    //!<
+//*Sedflood,                     //!<
+
 *UVflood,                     //!<
 *Qflood,                    //!<
-
-//sediment in flood
-*QfloodPrev,                    //!<
-*QfloodSed,                    //!<
-*QfloodSedPrev,                    //!<
-*AlphaFlood,                    //!<
-*Sedflood,                     //!<
-
 *floodHmxMax,                    //!<
 *floodactive,                    //!<
 *floodTime,                    //!<
@@ -387,7 +385,6 @@ cTMap
 *hmx,                        //!<
 *hmxWH,                        //!<
 *hmxInit,                    //!<
-
 *FloodDomain,                //!<
 //*Barriers,                    //!<
 *ChannelMaxQ,                //!<

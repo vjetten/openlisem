@@ -586,8 +586,8 @@ void TWorld::InitStandardInput(void)
     if(SwitchErosion)
     {
         COHCalibration = getvaluedouble("Aggregate stability calibration");
-        Cohesion = ReadMap(LDD,getvaluename("coh"));
-        calcValue(*Cohesion, COHCalibration, MUL);
+        CohesionSoil = ReadMap(LDD,getvaluename("coh"));
+        calcValue(*CohesionSoil, COHCalibration, MUL);
 
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
@@ -802,11 +802,11 @@ void TWorld::InitChannel(void)
             // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
-            QfloodPrev = NewMap(0);
-            QfloodSed = NewMap(0);
-            QfloodSedPrev = NewMap(0);
-            AlphaFlood = NewMap(0);
-            Sedflood = NewMap(0);
+            //QfloodPrev = NewMap(0);
+            //QfloodSed = NewMap(0);
+            //QfloodSedPrev = NewMap(0);
+            //AlphaFlood = NewMap(0);
+            //Sedflood = NewMap(0);
 
             //Hmx = NewMap(0);
             hmxWH = NewMap(0);
@@ -995,7 +995,7 @@ void TWorld::InitMulticlass(void)
         FOR_ROW_COL_MV
         {
 
-            CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+            CohesionSoil->Drc = CohesionSoil->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
 
             if (SwitchEfficiencyDET == 1)
@@ -1557,8 +1557,8 @@ void TWorld::IntializeData(void)
     FlowWidth = NewMap(0);
     fpa = NewMap(0);
     V = NewMap(0);
-    Vx = NewMap(0);
-    Vy = NewMap(0);
+    //Vx = NewMap(0);
+    //Vy = NewMap(0);
     Alpha = NewMap(0);
 
     //    AlphaF = NewMap(0);
@@ -1581,29 +1581,29 @@ void TWorld::IntializeData(void)
         K2DQM = NewMap(0);
         K2DQMX = NewMap(0);
         K2DQMY = NewMap(0);
-        K2DFMX = NewMap(0);
-        K2DFMY = NewMap(0);
+        //K2DFMX = NewMap(0);
+        //K2DFMY = NewMap(0);
         K2DMN = NewMap(0);
         K2DM = NewMap(0);
         K2DMC = NewMap(0);
         if(SwitchErosion)
         {
-            K2DQS = NewMap(0);
-            K2DQSX = NewMap(0);
-            K2DQSY = NewMap(0);
-            K2DSFX = NewMap(0);
-            K2DSFY = NewMap(0);
-            K2DS = NewMap(0);
-            K2DSC = NewMap(0);
-            K2DSCN = NewMap(0);
+            //K2DQS = NewMap(0);
+            //K2DQSX = NewMap(0);
+           // K2DQSY = NewMap(0);
+//            K2DSFX = NewMap(0);
+//            K2DSFY = NewMap(0);
+//            K2DS = NewMap(0);
+//            K2DSC = NewMap(0);
+//            K2DSCN = NewMap(0);
         }
         if(SwitchPesticide)
         {
             K2DQP = NewMap(0);
             K2DQPX = NewMap(0);
             K2DQPY = NewMap(0);
-            K2DPFX = NewMap(0);
-            K2DPFY = NewMap(0);
+            //K2DPFX = NewMap(0);
+            //K2DPFY = NewMap(0);
             K2DP = NewMap(0);
             K2DPC = NewMap(0);
             K2DPCN = NewMap(0);
@@ -1616,8 +1616,8 @@ void TWorld::IntializeData(void)
         K2DFX = NewMap(0);
         K2DFY = NewMap(0);
         K2DQ = NewMap(0);
-        K2DEffQ = NewMap(0);
-        K2DEffV = NewMap(0);
+        //K2DEffQ = NewMap(0);
+        //K2DEffV = NewMap(0);
 
         K2DQN = NewMap(0);
         K2DI = NewMap(0);
@@ -1625,7 +1625,7 @@ void TWorld::IntializeData(void)
     QinKW = NewMap(0);
     QoutKW = NewMap(0);
     Qoutput = NewMap(0);
-    Houtput = NewMap(0);
+    //Houtput = NewMap(0);
     Qsoutput = NewMap(0);
     //Qoutflow = NewMap(0); // obsolete
     q = NewMap(0);
