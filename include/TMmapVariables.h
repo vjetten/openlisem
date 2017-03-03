@@ -128,7 +128,7 @@ cTMap
 //*WheelWidthDX,               //!< not used yet, width of wheel tracks [m]
 //*GullyWidthDX,               //!< not used yet, width of gullies [m]
 
-//*Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
+*Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
 *RootCohesion,               //!< cohesion soil [kPa]
 *CohesionSoil,               //!< cohesion by plant roots [kPa]
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
@@ -271,15 +271,6 @@ cTMap
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
 *InfilVolFlood,
 
-//*FfSurplus,                   //!< surplus infiltration for flooding, calculated as actual infil - potential infil [m]
-//*Ffcum,                       //!< cumulative infiltration [m]
-//*ffact,                       //!< actual infiltration rate [m/s]
-//*ffpot,                       //!< potential infiltration rate [m/s]
-//*FfFull,                      //!< map flagging when the soil is full
-
-//*Lf1,
-//*Lf2,
-
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
@@ -381,7 +372,6 @@ cTMap
 *floodVMax,                    //!<
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
-//*Hmx,                        //!<
 *hmx,                        //!<
 *hmxWH,                        //!<
 *hmxInit,                    //!<

@@ -809,7 +809,10 @@ void TWorld::ReportMaps(void)
     {
 //        calcMapValue(*tm, *WH, 1000, MUL);// WH in mm
 //        report(*tm, Outwh);
-        report(*hmxWH, Outwh);//OutHmxWH);
+        if (SwitchChannelFlood)
+            report(*hmxWH, Outwh);//OutHmxWH);
+        else
+            report(*WH,Outwh);
     }
 
     if (outputcheck[3].toInt() == 1)

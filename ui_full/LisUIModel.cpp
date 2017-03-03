@@ -70,6 +70,9 @@ void lisemqt::runmodel()
     tabWidget_out->setCurrentIndex(0);
     //switch to output screen
 
+    checkBoxComboMaps->setChecked(true);
+    checkBoxComboMaps2->setChecked(false);
+
     startplot = true;
     stopplot = false;
 
@@ -79,7 +82,6 @@ void lisemqt::runmodel()
     initMapPlot();
 
     initOutputData();
-
 
     initOP();
     // reset op structure

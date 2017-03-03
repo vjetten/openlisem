@@ -586,8 +586,8 @@ void TWorld::InitStandardInput(void)
     if(SwitchErosion)
     {
         COHCalibration = getvaluedouble("Aggregate stability calibration");
-        CohesionSoil = ReadMap(LDD,getvaluename("coh"));
-        calcValue(*CohesionSoil, COHCalibration, MUL);
+        Cohesion = ReadMap(LDD,getvaluename("coh"));
+        calcValue(*Cohesion, COHCalibration, MUL);
 
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
@@ -961,8 +961,6 @@ void TWorld::InitMulticlass(void)
     DepTot = 0;
     SoilLossTot = 0;
     SoilLossTotT= 0;
-    //SoilLossTotOutlet = 0;
-    //SoilLossTotSub = 0;
     SedTot = 0;
 
     //Qsoutflow = NewMap(0);
@@ -995,7 +993,7 @@ void TWorld::InitMulticlass(void)
         FOR_ROW_COL_MV
         {
 
-            CohesionSoil->Drc = CohesionSoil->Drc + Cover->Drc*RootCohesion->Drc;
+            CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
 
             if (SwitchEfficiencyDET == 1)
@@ -1187,7 +1185,6 @@ void TWorld::InitMulticlass(void)
 
                 double s = distD90- distD50;
                 double s2l = std::max(distD50 - 2*s,distD50);
-//VJ leads always to dist D50 of course
                 double s2r = 2 * s;
 
                 int classesleft = numgrainclasses;

@@ -358,6 +358,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Courant Kin Wave 2D");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Flow concentration 2D");
 
     //###
     namelist[i++].name = QString("");

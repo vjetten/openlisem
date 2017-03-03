@@ -341,6 +341,7 @@ void TWorld::ParseRunfileData(void)
     CourantKin = getvaluedouble("Courant Kin Wave 2D");
 
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
+    ConcentrateKin = getvaluedouble("Flow concentration 2D");
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
 

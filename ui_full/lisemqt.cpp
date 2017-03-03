@@ -1594,6 +1594,7 @@ void lisemqt::resetAll()
     E_FloodMaxIter->setValue(200);
     E_FloodReconstruction->setValue(3);
     E_FloodFluxLimiter->setValue(1);
+    E_concentrateFlow->setValue(1.0);
 
     E_courantFactor->setValue(0.2);
 
@@ -1677,8 +1678,9 @@ void lisemqt::resetAll()
 
     checkBoxComboMaps->setEnabled(true);
     checkBoxComboMaps->setChecked(true);
+    checkBoxComboMaps2->setEnabled(true);
+    checkBoxComboMaps2->setChecked(false);
     checkBoxComboMaps2->setEnabled(false);
-
     showOutputData();
 }
 //--------------------------------------------------------------------

@@ -50,7 +50,7 @@ public:
             int dig = 2;
             if (z0 < 1.0)
                 dig = 4;
-            if (z2 < 1.0)
+            if (fabs(z2) < 1.0)
                 txt = (QString("%1 ")/* + unit*/ + QString(" [%2m]")).arg(z2,0,'e',3).arg(z0,0,'f',dig);
             else
                 txt = (QString("%1 ")/* + unit */+ QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);

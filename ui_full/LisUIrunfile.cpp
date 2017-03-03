@@ -174,6 +174,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timestep Kin Wave 2D")==0)            E_TimestepMin->setValue(val);
         if (p1.compare("Courant Kin Wave 2D")==0)            E_CourantFactorKin->setValue(val);
         if (p1.compare("Flow Boundary 2D")==0)              E_FlowBoundary->setValue(val);
+        if (p1.compare("Flow concentration 2D")==0)              E_concentrateFlow->setValue(val);
+
 
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
         //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
@@ -709,6 +711,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
         if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
+        if (p1.compare("Flow concentration 2D")==0)     namelist[j].value = E_concentrateFlow->text();
 
         if (p1.compare("Flood method SWOF2D order 1")==0)
         {
