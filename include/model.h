@@ -310,6 +310,7 @@ public:
     double ChnCalibration;
     double ChKsatCalibration;
     double COHCalibration;
+    double COHCHCalibration;
     double ASCalibration;
     double SplashDelivery;
     double DepositedCohesion;

@@ -256,8 +256,9 @@ void TWorld::InitStandardInput(void)
 
 
     DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
+    BulkDens = getvaluedouble("Sediment bulk density");
 
-    StemflowFraction = getvaluedouble("Stemflow fraction");
+    //StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
     //  maxFloodLevel = getvaluedouble("Max flood level");
     //  minFloodDt = getvaluedouble("Min flood dt");
@@ -585,13 +586,13 @@ void TWorld::InitStandardInput(void)
 
     if(SwitchErosion)
     {
-        COHCalibration = getvaluedouble("Aggregate stability calibration");
+        COHCalibration = getvaluedouble("Cohesion calibration");
         Cohesion = ReadMap(LDD,getvaluename("coh"));
         calcValue(*Cohesion, COHCalibration, MUL);
 
         RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
-        ASCalibration = getvaluedouble("Cohesion calibration");
+        ASCalibration = getvaluedouble("Aggregate stability calibration");
         AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
         calcValue(*AggrStab, ASCalibration, MUL);
 
@@ -680,6 +681,10 @@ void TWorld::InitChannel(void)
         //VJ 171002 better to check and set Q to 0 in the code
         ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
         ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
+
+        COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
+        calcValue(*ChannelCohesion, COHCHCalibration, MUL);
+
         cover(*ChannelGrad, *LDD, 0);
         cover(*ChannelSide, *LDD, 0);
         cover(*ChannelWidth, *LDD, 0);
@@ -2421,7 +2426,6 @@ void TWorld::InitBuffers(void)
     {
         BufferID = ReadMap(LDD,getvaluename("bufferID"));
         BufferVol = ReadMap(LDD,getvaluename("bufferVolume"));
-        BulkDens = getvaluedouble("Sediment bulk density");
         // also sed trap use bufffervol to calculate the max sed store
 
         FOR_ROW_COL_MV
