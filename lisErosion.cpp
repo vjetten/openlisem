@@ -152,7 +152,9 @@ void TWorld::SplashDetachment(void)
 
       if(SwitchUseMaterialDepth)
       {
-          double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+//          double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+          double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
+          // VJ 170308 changed to bulkdensity input
           double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
           double fac2 = 1.0 - fac1;
 
@@ -604,7 +606,7 @@ void TWorld::SedimentSetMaterialDistribution()//(int r,int c)
             if(!(Storage->Drc < -1))
             {
                 //calculated layer depth based on a bulk density of 1600 kg/m3
-                double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+                double depdepth = std::max((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
                 //linear soil layers mixing factor for effective soil properties
                 double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
                 double fac2 = 1.0 - fac1;
@@ -658,7 +660,7 @@ void TWorld::SedimentSetMaterialDistribution()//(int r,int c)
                     RStorage->Drc = GetTotalDW(r,c,&RStorage_D);
 
                     //calculated layer depth based on a bulk density of 1600 kg/m3
-                    double depdepth = std::max((RStorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+                    double depdepth = std::max((RStorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
                     //linear soil layers mixing factor for effective soil properties
                     double fac1 = std::max(0.0,1.0 - depdepth/RSedimentMixingDepth->Drc);
                     double fac2 = 1 - fac1;
@@ -756,7 +758,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     if(channel)
     {\
         //calculate depth of deposited layer
-        double depdepth = std::max((RStorageDep->Drc / (1600.0))/(ChannelWidth->Drc * DX->Drc),0.0);
+        double depdepth = std::max((RStorageDep->Drc / (BulkDens))/(ChannelWidth->Drc * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
         //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
@@ -870,7 +872,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
 
     }else if(flood)
     {
-        double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+        double depdepth = std::max((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
         //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
@@ -983,7 +985,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     }else
     {
         //calculate depth of deposited layer
-        double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
+        double depdepth = std::max((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
         //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer

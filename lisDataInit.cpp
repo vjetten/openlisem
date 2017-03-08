@@ -707,13 +707,19 @@ void TWorld::InitChannel(void)
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc));
             //MUST  BE GRAD NOT CHANNELGRAD
             if (SwitchEfficiencyDET == 1)
-                ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+                ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
             else
                 if (SwitchEfficiencyDET == 2)
-                    ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
+                    ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
                 else
                     if (SwitchEfficiencyDET == 3)
-                        ChannelY->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
+                        ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
+
+            if (ChannelCohesion->Drc < 0)
+                ChannelY->Drc = 0;
+            //VJ 170308 NEW: if cohesion is negative no erosion, but sedimentation
+
+            //VJ 170308 bug: channelcohesion instead of soil cohesion, introduced when three cohesion functions
         }
 
         // make a 1 cell edge around the domain, used to determine flood at the edge
@@ -997,17 +1003,20 @@ void TWorld::InitMulticlass(void)
             // soil cohesion everywhere, plantcohesion only where plants
 
             if (SwitchEfficiencyDET == 1)
-                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*CohesionSoil->Drc));
+                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
             else
                 if (SwitchEfficiencyDET == 2)
-                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*CohesionSoil->Drc));
+                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
                 else
                     if (SwitchEfficiencyDET == 3)
-                        Y->Drc = std::min(1.0, 1.0/(2.0*CohesionSoil->Drc));
+                        Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
 
             //            if (StoneFraction->Drc > 0)
             //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
-            // GOED IDEE
+            // GOED IDEE ?
+            if (CohesionSoil->Drc < 0)
+                Y->Drc = 0;
+
         }
 
     }
