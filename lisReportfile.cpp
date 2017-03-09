@@ -234,6 +234,7 @@ void TWorld::OutputUI(void)
     copy(*op.vegheight, *PlantHeight);
     copy(*op.randomroughness,*RR);
 
+    copy(*op.gl_dem_change,*DEMChange);
     copy(*op.gl_flow_height, *UF2D_h);
     copy(*op.gl_flow_u, *UF2D_u);
     copy(*op.gl_flow_v, *UF2D_v);
@@ -1610,7 +1611,7 @@ void TWorld::GetComboMaps()
 
             AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
             AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-            AddComboMap(1,"EntrainmentTC","kg/m2",EntrainmentTC,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"Entrainmentshearstressc","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"Entrainmentshearstress","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
 

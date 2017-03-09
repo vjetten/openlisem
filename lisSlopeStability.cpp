@@ -438,8 +438,6 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
             double sf = _Threshold1->Drc;// / _SFCalibration->Drc;
 
 
-
-
             //solution for stable depth at which safety factor equals a threshold value
             double t1 = (2.0 *hf *pc *cif + d* pp* sf*cif + 2.0 *hf *sc *cif -
                          d *hf *sd *sf * cif + 2.0 *hf *ws *cif -

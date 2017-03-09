@@ -22,7 +22,7 @@
 **
 *************************************************************************/
 
-#include <3D/Objects/GL3DSkyBox.h>
+#include <3D/World/GL3DSkyBox.h>
 
 
 void GL3DSkyBox::OnCreate(GL3DWidget *widget)
@@ -31,9 +31,9 @@ void GL3DSkyBox::OnCreate(GL3DWidget *widget)
     this->m_Geometry = widget->m_Geometries->LoadGeometryFromArray(vertices_SKYBOX,36,indices_SKYBOX,36);
     this->m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_SKYBOX);
     this->m_GLObject.create();
-    this->m_Texture = widget->m_Textures->LoadCubeTextureFromFile("skybox_1.bmp");
+    this->m_Texture = widget->m_Textures->LoadCubeTextureFromFile("skybox_3.jpg");
 
-    widget->BindGeometry(m_GLObject,m_Shader,m_Geometry);
+    GL3DDrawFunctions::BindGeometry(widget,m_GLObject,m_Shader,m_Geometry);
 
 }
 

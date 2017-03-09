@@ -29,18 +29,20 @@
 void GL3DTrees::OnCreate(GL3DWidget *widget)
 {
     recieve_render = true;
-    m_Tree_highp = new GL3DModel();
-    m_Tree_highp->Create(widget);
-    m_Tree_highp->LoadObjectFile(widget,"tree_highp/Tree1.obj",0.5);
 
-    m_Tree_medp = new GL3DModel();
-    m_Tree_medp->Create(widget);
-    m_Tree_medp->LoadObjectFile(widget,"tree_medp/tree_mid.obj");
+    m_Tree_highp_i = new GL3DModel();
+    m_Tree_highp_i->Create(widget,true);
+    m_Tree_highp_i->LoadObjectFile(widget,"tree_lowp/tree_low.obj");
 
-    m_Tree_lowp = new GL3DModel();
-    m_Tree_lowp->Create(widget);
-    m_Tree_lowp->LoadObjectFile(widget,"tree_lowp/tree_low.obj");
+    this->m_Tree_highp_i->CreateMatrixBuffer(Tree_Positions.length(),&Tree_Positions,0,0);
+    this->m_Tree_highp_i->CreateVAOs(widget);
 
+    m_Tree_lowp_i = new GL3DModel();
+    m_Tree_lowp_i->Create(widget,true);
+    m_Tree_lowp_i->LoadObjectFile(widget,"tree_lowp/tree_low.obj");
+
+    this->m_Tree_lowp_i->CreateMatrixBuffer(std::min(20000,Tree_Positions.length()),&Tree_Positions,0,0);
+    this->m_Tree_lowp_i->CreateVAOs(widget);
 
 }
 
@@ -49,7 +51,9 @@ void GL3DTrees::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* came
     QMatrix4x4 ModelMatrix;
     ModelMatrix.setToIdentity();
 
-    GL3DModel * m = this->m_Tree_highp;
+    GL3DDrawFunctions::DrawModelInstanced(widget,m_Tree_lowp_i,camera);
+
+    /*GL3DModel * m = this->m_Tree_highp;
 
     for(int i = 0; i < m->GLVAO_List.length(); i++)
     {
@@ -65,13 +69,9 @@ void GL3DTrees::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* came
                 ModelMatrix.translate(Tree_Positions.at(j));
                 ModelMatrix.rotate(Tree_Rotation.at(j),0.0,1.0,0.0);
                 widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
             }
         }
-
         widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-
     }
 
     m = this->m_Tree_medp;
@@ -90,13 +90,9 @@ void GL3DTrees::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* came
                 ModelMatrix.translate(Tree_Positions.at(j));
                 ModelMatrix.rotate(Tree_Rotation.at(j),0.0,1.0,0.0);
                 widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
             }
         }
-
         widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-
     }
 
     m = this->m_Tree_lowp;
@@ -115,15 +111,10 @@ void GL3DTrees::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* came
                 ModelMatrix.translate(Tree_Positions.at(j));
                 ModelMatrix.rotate(Tree_Rotation.at(j),0.0,1.0,0.0);
                 widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
             }
         }
-
         widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-    }
-
-
+    }*/
 }
 
 void GL3DTrees::OnDestroy(GL3DWidget *widget)
@@ -131,18 +122,15 @@ void GL3DTrees::OnDestroy(GL3DWidget *widget)
     Tree_Positions.clear();
     Tree_Rotation.clear();
     Tree_Height.clear();
-
-
-
 }
 
-void GL3DTrees::SetTreeDistribution(GL3DSurface * s, cTMap * veg_cover, cTMap * veg_h)
+void GL3DTrees::SetTreeDistribution(GL3DWidget * widget, GL3DSurface * s, cTMap * veg_cover, cTMap * veg_h)
 {
     //seed random number generator
     srand(12345678);
 
-    double x_increment  = 10.0;
-    double y_increment  = 10.0;
+    double x_increment  = 6.5;
+    double y_increment  = 6.5;
     double x_rand = 1.0 * x_increment;
     double y_rand = 1.0 * y_increment;
     double cellsize = veg_cover->cellSize();

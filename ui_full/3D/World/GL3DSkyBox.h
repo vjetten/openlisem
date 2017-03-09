@@ -25,16 +25,15 @@
 #ifndef SKYBOX3D
 #define SKYBOX3D
 
-#include "ui_full/3D/Objects/GL3DObject.h"
 #include "ui_full/3D/GL3DWidget.h"
 #include "ui_full/3D/Graphics/GL3DShaders.h"
 #include "ui_full/3D/Graphics/GL3DTextures.h"
 
-class GL3DSkyBox : public GL3DObject
+class GL3DSkyBox
 {
 
 public:
-    GL3DSkyBox() : GL3DObject() {
+    GL3DSkyBox() {
     }
 
 

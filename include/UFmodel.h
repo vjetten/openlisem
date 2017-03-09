@@ -44,7 +44,9 @@
     double UF_MANNINGCOEFFICIENT_FLUID;
     double UF_MANNINGCOEFFICIENT_SOLID;
 
+    double UF_ENTRAINMENTCCONSTANT;
     double UF_ENTRAINMENTCONSTANT;
+    double UF_ENTRAINMENTTHRESHOLDCONSTANT;
     double UF_DEPOSITIONCONSTANT;
     double UF_DEPOSITIONTHRESHOLDCONSTANT;
 
@@ -135,6 +137,7 @@
     cTMap * UF2D_TimeStep;
     cTMap * UF2D_SPH;
     cTMap * UF2D_FPH;
+    cTMap * UF2D_tsf;
 
     cTMap * UF1D_h;
     cTMap * UF1D_q;
@@ -158,6 +161,7 @@
 
     //actual calculation variables
     ////2D
+    cTMap * UF2D_DEMOriginal;
     cTMap * UF2D_DEM;
     cTMap * UF2D_T;
     cTMap * UF2D_DT;
@@ -206,6 +210,12 @@
     cTMap * UF2D_sqy2;
 
     cTMap * UF2D_DC;
+
+    cTMap * UF2D_STL;
+    cTMap * UF2D_STLA;
+    cTMap * UF2D_STLH;
+    cTMap * UF2D_ST;
+    cTMap * UF1D_ST;
 
     //for new timestep
     //fluid phase
@@ -529,6 +539,8 @@
     double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, int calculationside = UF_DERIVATIVE_LR);
 
+    double UF_5CellAverage(cTMap * m,int r, int c);
+
     double UF_MinMod(double a, double b);
 
     bool UF_OUTORMV(cTMap * mask, int r, int c);
@@ -546,6 +558,12 @@
     void UF_SedimentSource(int thread);
     void UF_FlowDetachment(int thread);
     void UF_FlowEntrainment(int thread);
+
+    double UF_FlowEntrainmentST(int r, int c, bool channel);
+    double UnifiedFlowActiveEntrainmentST(double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c);
+    void UF_LateralEntrainment(int thread);
+    double UF_LateralEntrainmentArea(int r, int c, int dr, int dc);
+
     void UF_FlowDetachment(double dt, int r, int c,int d, bool channel);
     void UF_FlowEntrainment(double dt, int r, int c, bool channel);
 
@@ -563,12 +581,17 @@
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);
     //active entrainment
-    double UnifiedFlowActiveEntrainment(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c);
+    double UnifiedFlowActiveEntrainment(double dt,double st,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c);
+    double UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope, double h, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c);
 
     double UnifiedFlowActiveDeposition(double dt,double slope, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, int r, int c);
 
     double UnifiedFlowEntrainmentAvailableDepth(int r,int c, double vx, double vy);
     double UnifiedFlowDepositionAvailableDepth(int r,int c);
+
+    //collapse of entrainment sides
+    double UF_EntrainmentSideSlopeFailure(double dt, int r, int c);
+
 
     //connection to the digital elevation model
     void UFDEMLDD_Connection(int thread);

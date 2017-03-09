@@ -65,6 +65,11 @@ void TWorld::UnifiedFlow()
     while(t + UF_VERY_SMALL < _dt)
     {
 
+        cTMap * _dem = UF2D_DEMOriginal;
+        FOR_ROW_COL_UF2D
+        {
+            UF2D_DEM->Drc = UF2D_DEMOriginal->Drc + DEMChange->Drc;
+        }
         ////TOPOGRAPHY ANALYSIS
         UF_DEMLDDAnalysis(UF2D_DEM,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_s,UF2D_f,UF2D_s);
 
@@ -126,21 +131,6 @@ void TWorld::UnifiedFlow()
 
 void TWorld::UF_Compute(int thread)
 {
-    /*if(!SwitchIncludeChannel)
-    {
-        if((ThreadPool->CellRListOrdered2d.at(thread)->data[0][0] == -1 ))
-        {
-
-            return;
-        }
-    }
-    if(SwitchIncludeChannel)
-    {
-        if((ThreadPool->CellRListOrdered2d.at(thread)->data[0][0] == -1 ) && (ThreadPool->CellRListOrdered1d.at(thread)->data[0][0] == -1))
-        {
-            return;
-        }
-    }*/
 
     ////SOURCE TERMS
     //both material and momentum source terms are called here
@@ -195,8 +185,19 @@ void TWorld::UF_Compute(int thread)
                         UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                         UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
 
+
+    FOR_ROW_COL_UF2DMT
+    {
+        UF2D_tsf->Drc = UF2D_f->Drc> 0? (UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
+    }}}
+
     ////SEDIMENT AND OTHER SOIL INTERACTIONS
     UnifiedFlowSediment(thread);
+
+    FOR_ROW_COL_UF2DMT
+    {
+        UF2D_tsf->Drc = UF2D_f->Drc> 0? (UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
+    }}}
 
     ////INTERACTIONS WITH THE TERRAIN ELEVATION
     UFDEMLDD_Connection(thread);

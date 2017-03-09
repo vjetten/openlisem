@@ -35,10 +35,44 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+double TWorld::UF_5CellAverage(cTMap * m,int r, int c)
+{
+    int count = 0;
+    double total = 0;
+    if(!OUTORMV(r,c))
+    {
+        total += m->data[r][c];
+        count++;
+    }
+    if(!OUTORMV(r-1,c))
+    {
+        total += m->data[r-1][c];
+        count++;
+    }
+    if(!OUTORMV(r+1,c))
+    {
+        total += m->data[r+1][c];
+        count++;
+    }
+    if(!OUTORMV(r,c-1))
+    {
+        total += m->data[r][c-1];
+        count++;
+    }
+    if(!OUTORMV(r,c+1))
+    {
+        total += m->data[r][c+1];
+        count++;
+    }
+
+    return count > 0? total/((float)count) : 0.0;
+
+}
 
 void TWorld::UF_DEMLDDAnalysis(cTMap * _dem, cTMap * _ldd,cTMap * _lddw,
                                cTMap * _lddh,cTMap * _f1D,cTMap * _s1D,cTMap * _f2D,cTMap * _s2D)
 {
+
     FOR_ROW_COL_UF2D
     {
         UF2D_SlopeX->Drc = UF2D_Derivative(_dem,_dem,r,c,UF_DIRECTION_X);

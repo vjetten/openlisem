@@ -98,11 +98,11 @@ void GL3DWidget::initializeGL()
 
     //quad for post-processing
     m_GLQuadObject.create();
-    BindGeometry(m_GLQuadObject,m_Shaders->copyshader,m_Geometries->QuadGeometry);
+    GL3DDrawFunctions::BindGeometry(this,m_GLQuadObject,m_Shaders->copyshader,m_Geometries->QuadGeometry);
 
     m_GLQuadObjectChannel.create();
-    BindGeometry(m_GLQuadObjectChannel,m_Shaders->channelshader,m_Geometries->QuadGeometry);
-    this->
+    GL3DDrawFunctions::BindGeometry(this,m_GLQuadObjectChannel,m_Shaders->channelshader,m_Geometries->QuadGeometry);
+
     is_created = true;
 
     return;
@@ -110,6 +110,7 @@ void GL3DWidget::initializeGL()
 
 void GL3DWidget::timerEvent(QTimerEvent *e)
 {
+    qDebug() << "timerevent";
 
     if(gl_context_try)
     {
@@ -129,17 +130,23 @@ void GL3DWidget::timerEvent(QTimerEvent *e)
 void GL3DWidget::showEvent(QShowEvent *e)
 {
 
-    m_Timer.start(12, this);
+        qDebug() << "show";
+
+    m_Timer.start(1, this);
 }
 
 void GL3DWidget::hideEvent(QHideEvent *e)
 {
+        qDebug() << "hide";
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_Timer.stop();
 }
 
 void GL3DWidget::resizeGL(int w, int h)
 {
+        qDebug() << "resize";
+
     m_Camera->ResizeViewPort(w,h);
 
     m_Textures->CreateFrameBuffers(this,w,h);
@@ -151,8 +158,11 @@ void GL3DWidget::resizeGL(int w, int h)
 
 void GL3DWidget::paintGL()
 {
+        qDebug() << "paint";
+
     //Custom function
     this->Update();
+
 
    if(ReadyToDraw)
    {
@@ -166,6 +176,10 @@ void GL3DWidget::paintGL()
 void GL3DWidget::Onrender()
 {
 
+    if(m_World->m_Surface == 0 || m_World->m_SkyBox == 0 || m_World->m_WaterSurface == 0)
+    {
+        return;
+    }
     gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -204,6 +218,7 @@ void GL3DWidget::Onrender()
     m_Shaders->channelshader->ActivateTextureOn(this,m_Textures->RenderTexture,"tex_input",0);
     m_Shaders->channelshader->ActivateTextureOn(this,m_Textures->ChannelTexture,"tex_input1",1);
     m_Shaders->channelshader->ActivateTextureOn(this,m_Textures->ChannelInfoTexture,"tex_input2",2);
+    m_Shaders->channelshader->ActivateTextureOn(this,m_Textures->InfoTexture,"tex_input3",3);
     this->gl->glDrawArrays(GL_TRIANGLES,0,m_Geometries->QuadGeometry->m_IndexCount);
     this->m_Shaders->channelshader->m_program->release();
 
@@ -285,7 +300,7 @@ void GL3DWidget::Onrender()
     gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->m_Shaders->copyshader->m_program->bind();
     this->m_GLQuadObject.bind();
-    m_Shaders->copyshader->ActivateTextureOn(this,source_texture,"tex_input",0);
+    m_Shaders->copyshader->ActivateTextureOn(this,source_texture,"tex_input",0);//
     this->gl->glDrawArrays(GL_TRIANGLES,0,m_Geometries->QuadGeometry->m_IndexCount);
     this->m_Shaders->copyshader->m_program->release();
 

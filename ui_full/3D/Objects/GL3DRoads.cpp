@@ -27,6 +27,7 @@
 void GL3DRoads::OnCreate(GL3DWidget *widget)
 {
     this->recieve_render = true;
+    this->recieve_render_before = true;
 
     m_Texture_Color = widget->m_Textures->LoadTextureFromFile("asphalt.jpg");
     m_Texture_Normal = widget->m_Textures->LoadTextureFromFile("asphalt_normal.jpg");
@@ -39,58 +40,60 @@ void GL3DRoads::OnCreate(GL3DWidget *widget)
     m_Model->BindCustomShader(widget, widget->m_Shaders->GetDefaultShader(GL3D_SHADER_ROADS));
 
     m_Model->AddCustomGeometry(widget,m_Geometry,0);
+    m_Model->CreateVAOs(widget);
 }
 
-void GL3DRoads::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
+void GL3DRoads::OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
-
-    widget->gl->glDisable(GL_DEPTH_TEST);
-    widget->gl->glDisable(GL_CULL_FACE);
-
-    QMatrix4x4 matrix;
-    matrix.setToIdentity();
-
-    m_Model->m_Shader->m_program->bind();
-    m_Model->m_Shader->m_program->setUniformValue("Cmatrix",camera->m_CameraMatrix);
-    m_Model->m_Shader->m_program->setUniformValue("Mmatrix",matrix);
-    m_Model->m_Shader->m_program->setUniformValue("Cposition",camera->m_Position);
-
-    m_Model->m_Shader->m_program->setUniformValue("SurfaceExtentX",(float)m_Surface->m_XExtent);
-    m_Model->m_Shader->m_program->setUniformValue("SurfaceExtentZ",(float)m_Surface->m_ZExtent);
-
-    m_Model->m_Shader->m_program->setUniformValue("CellSize",(float)m_Surface->m_CellSize);
-
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Color,"Texture_Color",4);
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Normal,"Texture_Normal",5);
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Bump,"Texture_Bump",6);
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Specular,"Texture_Specular",7);
-
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture,"heightMap",0);
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_Mask,"mask",1);
-
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeX,"slopeX",2);
-    m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeY,"slopeY",3);
-
-    for(int i = 0; i < m_Model->GLVAO_List.length(); i++)
+    if(draw)
     {
-        m_Model->GLVAO_List.at(i)->bind();
+        widget->gl->glDisable(GL_DEPTH_TEST);
+        widget->gl->glDisable(GL_CULL_FACE);
 
-        widget->gl->glDrawElements(GL_TRIANGLES, m_Model->Geometry_List.at(i)->m_IndexCount, GL_UNSIGNED_INT, 0);
-        m_Model->GLVAO_List.at(i)->release();
+        QMatrix4x4 matrix;
+        matrix.setToIdentity();
+
+        m_Model->m_Shader->m_program->bind();
+        m_Model->m_Shader->m_program->setUniformValue("Cmatrix",camera->m_CameraMatrix);
+        m_Model->m_Shader->m_program->setUniformValue("Mmatrix",matrix);
+        m_Model->m_Shader->m_program->setUniformValue("Cposition",camera->m_Position);
+
+        m_Model->m_Shader->m_program->setUniformValue("SurfaceExtentX",(float)m_Surface->m_XExtent);
+        m_Model->m_Shader->m_program->setUniformValue("SurfaceExtentZ",(float)m_Surface->m_ZExtent);
+
+        m_Model->m_Shader->m_program->setUniformValue("CellSize",(float)m_Surface->m_CellSize);
+
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Color,"Texture_Color",4);
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Normal,"Texture_Normal",5);
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Bump,"Texture_Bump",6);
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Texture_Specular,"Texture_Specular",7);
+
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture,"heightMap",0);
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_Mask,"mask",1);
+
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeX,"slopeX",2);
+        m_Model->m_Shader->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeY,"slopeY",3);
+
+        for(int i = 0; i < m_Model->GLVAO_List.length(); i++)
+        {
+            m_Model->GLVAO_List.at(i)->bind();
+
+            widget->gl->glDrawElements(GL_TRIANGLES, m_Model->Geometry_List.at(i)->m_IndexCount, GL_UNSIGNED_INT, 0);
+            m_Model->GLVAO_List.at(i)->release();
+        }
+
+        int e = widget->gl->glGetError();
+        if( e != GL_NO_ERROR)
+        {
+            qDebug() << "opengl error in drawing roads " <<e;
+        }
+
+
+        m_Model->m_Shader->m_program->release();
+
+        widget->gl->glEnable(GL_DEPTH_TEST);
+        widget->gl->glEnable(GL_CULL_FACE);
     }
-
-    int e = widget->gl->glGetError();
-    if( e != GL_NO_ERROR)
-    {
-        qDebug() << "opengl error in drawing roads " <<e;
-    }
-
-
-    m_Model->m_Shader->m_program->release();
-
-    widget->gl->glEnable(GL_DEPTH_TEST);
-    widget->gl->glEnable(GL_CULL_FACE);
-
 }
 
 void GL3DRoads::OnDestroy(GL3DWidget *widget)
@@ -125,12 +128,13 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
     GLuint * indices = (GLuint *)malloc(sizeof(GLuint)*(  n * 6));
 
     int i = 0;
+    double threshold = 0.05 * cs;
 
     qDebug() << "create for cells" << n;
     FOR_ROW_COL_MV(rw,rw)
     {
 
-        if(rw->Drc > 0.0)
+        if(rw->Drc > threshold)
         {
             bool top = false;
             bool bottom = false;
@@ -145,7 +149,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r+1][c]))
                 {
-                    if(rw->data[r+1][c] > 0.0)
+                    if(rw->data[r+1][c] > threshold)
                     {
                         bottom = true;
                     }
@@ -155,7 +159,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r-1][c]))
                 {
-                    if(rw->data[r-1][c] > 0.0)
+                    if(rw->data[r-1][c] > threshold)
                     {
                         top = true;
                     }
@@ -165,7 +169,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r][c+1]))
                 {
-                    if(rw->data[r][c+1] > 0.0)
+                    if(rw->data[r][c+1] > threshold)
                     {
                         right = true;
                     }
@@ -175,7 +179,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r][c-1]))
                 {
-                    if(rw->data[r][c-1] > 0.0)
+                    if(rw->data[r][c-1] > threshold)
                     {
                         left = true;
                     }
@@ -188,7 +192,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r+1][c-1]))
                 {
-                    if(rw->data[r+1][c-1] > 0.0)
+                    if(rw->data[r+1][c-1] > threshold)
                     {
                         sw = true;
                     }
@@ -198,7 +202,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r+1][c-1]))
                 {
-                    if(rw->data[r+1][c-1] > 0.0)
+                    if(rw->data[r+1][c-1] > threshold)
                     {
                         se = true;
                     }
@@ -208,7 +212,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r-1][c-1]))
                 {
-                    if(rw->data[r-1][c-1] > 0.0)
+                    if(rw->data[r-1][c-1] > threshold)
                     {
                         nw = true;
                     }
@@ -218,7 +222,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             {
                 if(!pcr::isMV(rw->data[r-1][c+1]))
                 {
-                    if(rw->data[r-1][c+1] > 0.0)
+                    if(rw->data[r-1][c+1] > threshold)
                     {
                         ne = true;
                     }
@@ -241,29 +245,147 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
             double dist = (cs - crw)/2.0;//hcrwf * cs;
             double distd = (rw->Drc*0.5)/sqrt(2.0);
 
-            if(both_y && !both_x)
+            if(both_y && both_x)
             {
-                //road is aligned in y-direction
-                x1 = cx1 + dist;
-                x2 = cx2 - dist;
-                x3 = cx1 + dist;
-                x4 = cx2 - dist;
+                x1 = cx1;
+                x2 = cx2;
+                x3 = cx1;
+                x4 = cx2;
                 y1 = cy1;
                 y2 = cy1;
                 y3 = cy2;
                 y4 = cy2;
-
-            }else if(both_x && !both_y)
+            }else if(both_y)
             {
-                //road is aligned in x-direction
+                if(left)
+                {
+
+                    x1 = cx1;
+                    x2 = cx2-dist;
+                    x3 = cx1;
+                    x4 = cx2-dist;
+                    y1 = cy1;
+                    y2 = cy1;
+                    y3 = cy2;
+                    y4 = cy2;
+
+                }else if(right)
+                {
+                    x1 = cx1+dist;
+                    x2 = cx2;
+                    x3 = cx1+dist;
+                    x4 = cx2;
+                    y1 = cy1;
+                    y2 = cy1;
+                    y3 = cy2;
+                    y4 = cy2;
+
+
+                }else
+                {
+                    //road is aligned in y-direction
+                    x1 = cx1 + dist;
+                    x2 = cx2 - dist;
+                    x3 = cx1 + dist;
+                    x4 = cx2 - dist;
+                    y1 = cy1;
+                    y2 = cy1;
+                    y3 = cy2;
+                    y4 = cy2;
+                }
+
+
+
+
+            }else if(both_x)
+            {
+                if(top)
+                {
+                    //road is aligned in x-direction
+                    x1 = cx1;
+                    x2 = cx1;
+                    x3 = cx2;
+                    x4 = cx2;
+                    y1 = cy1;
+                    y2 = cy2 - dist;
+                    y3 = cy1;
+                    y4 = cy2 - dist;
+
+
+                }else if(bottom)
+                {
+                    //road is aligned in x-direction
+                    x1 = cx1;
+                    x2 = cx1;
+                    x3 = cx2;
+                    x4 = cx2;
+                    y1 = cy1 + dist;
+                    y2 = cy2;
+                    y3 = cy1 + dist;
+                    y4 = cy2;
+
+
+                }else
+                {
+
+                    //road is aligned in x-direction
+                    x1 = cx1;
+                    x2 = cx1;
+                    x3 = cx2;
+                    x4 = cx2;
+                    y1 = cy1 + dist;
+                    y2 = cy2 - dist;
+                    y3 = cy1 + dist;
+                    y4 = cy2 - dist;
+
+                }
+
+
+
+
+            }else if(left && bottom && sw)
+            {
                 x1 = cx1;
                 x2 = cx1;
-                x3 = cx2;
-                x4 = cx2;
+                x3 = cx1 + dist;
+                x4 = cx1 + dist;
+                y1 = cy2 - dist;
+                y2 = cy2;
+                y3 = cy2 - dist;
+                y4 = cy2;
+
+            }else if(right && bottom && se)
+            {
+                x1 = cx2;
+                x2 = cx2;
+                x3 = cx2 - dist;
+                x4 = cx2 - dist;
+                y1 = cy2 - dist;
+                y2 = cy2;
+                y3 = cy2 - dist;
+                y4 = cy2;
+
+            }else if(top && left && nw)
+            {
+                x1 = cx1;
+                x2 = cx1;
+                x3 = cx1 + dist;
+                x4 = cx1 + dist;
                 y1 = cy1 + dist;
-                y2 = cy2 - dist;
+                y2 = cy1;
                 y3 = cy1 + dist;
-                y4 = cy2 - dist;
+                y4 = cy1;
+
+            }else if(top && right && ne)
+            {
+                x1 = cx2;
+                x2 = cx2;
+                x3 = cx2 - dist;
+                x4 = cx2 - dist;
+                y1 = cy1 + dist;
+                y2 = cy1;
+                y3 = cy1 + dist;
+                y4 = cy1;
 
             }else if(left && bottom)
             {
@@ -456,7 +578,7 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
                 y2 = cy2 - dist;
                 y3 = cy1 + dist;
                 y4 = cy2 - dist;
-            }else
+            }
 
             double z1 = s->GetElevation(x1,y1);
             double z2 = s->GetElevation(x2,y2);
@@ -492,11 +614,8 @@ void GL3DRoads::SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * rw)
 
     m_Geometry = new GL3DGeometry();
     m_Geometry->CreateGeometry(w,vertices,n * 4,indices,n * 6);
-    m_GLObject.create();
-
 
     m_Shader = w->m_Shaders->GetDefaultShader(GL3D_SHADER_ROADS);
-    w->BindGeometry(m_GLObject,m_Shader,m_Geometry);
 
     qDebug() << " road placed in cells Nr: " << n;
 }

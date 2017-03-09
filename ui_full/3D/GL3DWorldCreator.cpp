@@ -23,32 +23,26 @@
 *************************************************************************/
 
 #include <ui_full/3D/GL3DWidget.h>
-#include <3D/Objects/GL3DSurface.h>
-#include <3D/Objects/GL3DSkyBox.h>
+#include <3D/World/GL3DSurface.h>
+#include <3D/World/GL3DSkyBox.h>
 #include <3D/World/GL3DCameraController.h>
 #include <3D/GL3DWorldCreator.h>
 #include <3D/Objects/GL3DTree.h>
 #include <3D/Objects/GL3DBuilding.h>
 #include <3D/Objects/GL3DRoads.h>
+#include <3D/Objects/GL3DInstancedTree.h>
+#include <3D/Objects/GL3DGrass.h>
 
 void GL3DWorldLoader::run()
 {
-    qDebug() << "start loading thread";
-
     creator->m_Mutex->lock();
-
-
     creator->CreateWorldFromLisemThread();
-
     creator->m_Mutex->unlock();
-
-    qDebug() << "End loading thread";
 }
 
 
 void GL3DWorldCreator::CreateWorldFromLisemThread()
 {
-    qDebug() <<"create lisem world 3d thread";
     this->m_Widget->context()->makeCurrent();
 
     MapMath::FillDem(input.DEM,input.DEM_Filled,input.temp,50);
@@ -58,19 +52,19 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
     m_Widget->m_World->RemoveAllObjects();
 
     GL3DSkyBox * sb = new GL3DSkyBox();
-    m_Widget->m_World->AddObject(sb,false,true,false);
+    m_Widget->m_World->SetSkyBox(sb);
 
     surface=  new GL3DSurface();
     surface->SetSurfaceMap(input.DEM,input.DEM_Filled,input.SlopeX,input.SlopeY);
     surface->SetTerrainProperties(input.VegCover,input.VegHeight,input.RandomRoughness,input.Buildings,input.Roads);
-
+    surface->SetDemChange(input.DEM_Change);
     if(op.has_channel)
     {
         surface->SetChannel(m_Widget,input.ChannelLDD,input.ChannelWidth,input.ChannelDepthFilled,input.temp,op.has_channelflooding);
     }
-    m_Widget->m_World->AddObject(surface,true);
+    m_Widget->m_World->SetSurface(surface);
 
-    GL3DRoads * roadsobject = new GL3DRoads();
+    roadsobject = new GL3DRoads();
     roadsobject->SetRoadDistribution(m_Widget,surface,input.Roads);
     m_Widget->m_World->AddObject(roadsobject);
 
@@ -79,19 +73,21 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
     fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
     fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
     fsurface->SetSkyBox(sb);
-    m_Widget->m_World->AddObject(fsurface,false,false,true);
+    m_Widget->m_World->SetWaterSurface(fsurface);
 
     controller = new GL3DCameraController();
     controller->SetSurface(surface);
     controller->SetCamera(m_Widget->m_Camera);
     controller->SetStartPosition();
-    m_Widget->m_World->AddObject(controller);
+    m_Widget->m_World->SetCameraController(controller);
 
-    GL3DTrees * treesobject = new GL3DTrees();
-    treesobject->SetTreeDistribution(surface,input.VegCover,input.VegHeight);
-    m_Widget->m_World->AddObject(treesobject);
+    treesobjecti = new GL3DInstancedTree();
+    m_Widget->m_World->AddObject(treesobjecti);
 
-    GL3DBuildings * buildingobject = new GL3DBuildings();
+    grassobjecti = new GL3DGrass();
+    m_Widget->m_World->AddObject(grassobjecti);
+
+    buildingobject = new GL3DBuildings();
     buildingobject->SetBuildingsDistribution(surface,input.Buildings,input.temp);
     m_Widget->m_World->AddObject(buildingobject);
 
@@ -109,12 +105,14 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
     m_Widget->setUpdatesEnabled(true);
     m_Widget->gl_context_control->unlock();
 
+    DoneLoading = true;
 
 }
 
 void GL3DWorldCreator::CreateWorldFromLisem()
 {
 
+    DoneLoading = false;
 
     qDebug() <<"create lisem world 3d";
     if(LisemWorldCreated)
@@ -276,7 +274,91 @@ void GL3DWorldCreator::UpdateWorldFromLisem()
         fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
         fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
         rain->SetRainfall(input.rainfall);
+        surface->SetDemChange(input.DEM_Change);
     }
+}
+
+void GL3DWorldCreator::UpdateWorldSettings(Settings3D s)
+{
+    this->settings = s;
+
+    //limit values in range and scale;
+    settings.Light_Ambient.setX(std::min(1.0f,std::max(0.0f,settings.Light_Ambient.x())));
+    settings.Light_Ambient.setY(std::min(1.0f,std::max(0.0f,settings.Light_Ambient.y())));
+    settings.Light_Ambient.setZ(std::min(1.0f,std::max(0.0f,settings.Light_Ambient.z())));
+    settings.Light_Ambient.setW(std::min(5.0f,std::max(0.0f,settings.Light_Ambient.w())));
+
+    settings.Light_Directional.setX(std::min(1.0f,std::max(0.0f,settings.Light_Directional.x())));
+    settings.Light_Directional.setY(std::min(1.0f,std::max(0.0f,settings.Light_Directional.y())));
+    settings.Light_Directional.setZ(std::min(1.0f,std::max(0.0f,settings.Light_Directional.z())));
+    settings.Light_Directional.setW(std::min(5.0f,std::max(0.0f,settings.Light_Directional.w())));
+
+    settings.Light_Directional_Direction.normalize();
+
+    settings.Surface_Micro_Elevation_Scale = std::min(5.0f,std::max(0.0f,((float) settings.Surface_Micro_Elevation_Scale)/100.0f));
+    settings.Surface_Mipmap_Distance_1 = std::min(20000.0f,std::max(200.0f,((float) settings.Surface_Mipmap_Distance_1)/100.0f));
+    settings.Surface_Mipmap_Distance_2 = std::min(10000.0f,std::max(100.0f,((float) settings.Surface_Mipmap_Distance_2)/100.0f));
+
+    settings.Surface_Vegetated_Large_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Large_Color.x())));
+    settings.Surface_Vegetated_Large_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Large_Color.y())));
+    settings.Surface_Vegetated_Large_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Large_Color.z())));
+    settings.Surface_Vegetated_Small_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Small_Color.x())));
+    settings.Surface_Vegetated_Small_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Small_Color.y())));
+    settings.Surface_Vegetated_Small_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Vegetated_Small_Color.z())));
+    settings.Surface_Bare_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Bare_Color.x())));
+    settings.Surface_Bare_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Bare_Color.y())));
+    settings.Surface_Bare_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Bare_Color.z())));
+    settings.Surface_Roads_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Roads_Color.x())));
+    settings.Surface_Roads_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Roads_Color.y())));
+    settings.Surface_Roads_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Roads_Color.z())));
+    settings.Surface_Buildings_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Buildings_Color.x())));
+    settings.Surface_Buildings_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Buildings_Color.y())));
+    settings.Surface_Buildings_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Buildings_Color.z())));
+    settings.Surface_Deposition_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Deposition_Color.x())));
+    settings.Surface_Deposition_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Deposition_Color.y())));
+    settings.Surface_Deposition_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Deposition_Color.z())));
+    settings.Surface_Deposition_Color.setW(std::min(5.0f,std::max(0.0f,settings.Surface_Deposition_Color.w())));
+    settings.Surface_Erosion_Color.setX(std::min(1.0f,std::max(0.0f,settings.Surface_Erosion_Color.x())));
+    settings.Surface_Erosion_Color.setY(std::min(1.0f,std::max(0.0f,settings.Surface_Erosion_Color.y())));
+    settings.Surface_Erosion_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Surface_Erosion_Color.z())));
+    settings.Surface_Erosion_Color.setW(std::min(5.0f,std::max(0.0f,settings.Surface_Erosion_Color.w())));
+
+    settings.Water_Reflectivity = std::min(5.0f,std::max(0.0f,((float)settings.Water_Reflectivity)/100.0f));
+    settings.Water_Refractivity = std::min(5.0f,std::max(0.0f,((float)settings.Water_Refractivity)/100.0f));
+    settings.Water_Velocity_Scale = std::min(5.0f,std::max(0.0f,((float)settings.Water_Velocity_Scale)/100.0f));
+    settings.Water_Micro_Elevation_Scale = std::min(5.0f,std::max(0.0f,((float)settings.Water_Micro_Elevation_Scale)/100.0f));
+    settings.Water_Transparancy = std::min(5.0f,std::max(0.0f,((float)settings.Water_Transparancy)/100.0f));
+    settings.Water_Deep_Color.setX(std::min(1.0f,std::max(0.0f,settings.Water_Deep_Color.x())));
+    settings.Water_Deep_Color.setY(std::min(1.0f,std::max(0.0f,settings.Water_Deep_Color.y())));
+    settings.Water_Deep_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Deep_Color.z())));
+    settings.Water_Shallow_Color.setX(std::min(1.0f,std::max(0.0f,settings.Water_Shallow_Color.x())));
+    settings.Water_Shallow_Color.setY(std::min(1.0f,std::max(0.0f,settings.Water_Shallow_Color.y())));
+    settings.Water_Shallow_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Shallow_Color.z())));
+    settings.Water_Sediment_Color.setX(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.x())));
+    settings.Water_Sediment_Color.setY(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.y())));
+    settings.Water_Sediment_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.z())));
+
+    settings.Roads_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Roads_Distance/100.0f)));
+    settings.Buildings_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Buildings_Distance/100.0f)));
+
+    settings.Trees_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Distance/100.0f)));
+    settings.Trees_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Instances/100.0f)));
+    settings.Trees_Increment = std::min(100.0f,std::max(0.10f,((float)settings.Trees_Increment/100.0f)));
+
+    settings.Grass_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Grass_Distance/100.0f)));
+    settings.Grass_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Grass_Instances/100.0f)));
+    settings.Grass_Increment = std::min(100.0f,std::max(0.10f,((float)settings.Grass_Increment/100.0f)));
+    settings.Grass_Vertical_Scale = std::min(5.0f,std::max(0.10f,((float)settings.Grass_Vertical_Scale/100.0f)));
+
+    this->m_Widget->m_World->Light_Ambient = settings.Light_Ambient;
+    this->m_Widget->m_World->Light_Directional = settings.Light_Directional;
+    this->m_Widget->m_World->Light_Directional_Direction = settings.Light_Directional_Direction;
+
+    this->buildingobject->SetDraw(settings.Buildings_Draw);
+    this->roadsobject->SetDraw(settings.Roads_Draw);
+    this->treesobjecti->SetDraw(settings.Trees_Draw);
+    this->grassobjecti->SetDraw(settings.Grass_Draw);
+
 }
 
 void GL3DWorldCreator::DestroyWorldFromLisem()

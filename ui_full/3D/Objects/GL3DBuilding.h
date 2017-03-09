@@ -27,7 +27,7 @@
 
 #include <3D/GL3DWidget.h>
 #include <3D/Graphics/GL3DModels.h>
-#include <3D/Objects/GL3DSurface.h>
+#include <3D/World/GL3DSurface.h>
 
 class GL3DBuildings : public GL3DObject
 {
@@ -66,6 +66,13 @@ public:
 
 
     cTMap * m_BuildingCover;
+
+    bool draw = true;
+
+    inline void SetDraw(bool in_draw)
+    {
+        draw = in_draw;
+    }
 
     void OnCreate(GL3DWidget *widget);
     void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);

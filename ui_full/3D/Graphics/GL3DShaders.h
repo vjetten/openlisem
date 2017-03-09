@@ -109,8 +109,10 @@ public:
 #define GL3D_SHADER_SURFACE_TESSELATED 2
 #define GL3D_SHADER_SURFACE_FLOW 3
 #define GL3D_SHADER_MODEL 4
-#define GL3D_SHADER_ROADS 5
-#define GL3D_SHADER_CHANNEL 6
+#define GL3D_SHADER_MODEL_INSTANCED 5
+#define GL3D_SHADER_MODEL_GLINSTANCED 6
+#define GL3D_SHADER_ROADS 7
+#define GL3D_SHADER_CHANNEL 8
 
 /////////////////////////////////////////////////////////////////////////////////////
 ///Simple shader

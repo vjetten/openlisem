@@ -91,6 +91,9 @@ class GL3DTexture
 
 public:
 
+    int Sampling_Mode;
+    int Sampling_Clamp;
+
     QImage m_QImage;
 
     QImage m_QGLImage;

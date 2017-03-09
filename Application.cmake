@@ -53,15 +53,18 @@ SET(APP_SOURCES
     ui_full/3D/World/GL3DWorld
     ui_full/3D/World/GL3DCamera
     ui_full/3D/Objects/GL3DBuilding
-    ui_full/3D/Objects/GL3DFlowSurface
+    ui_full/3D/World/GL3DFlowSurface
     ui_full/3D/Objects/GL3DGrass
     ui_full/3D/Objects/GL3DRoads
-    ui_full/3D/Objects/GL3DSkyBox
-    ui_full/3D/Objects/GL3DSurface
+    ui_full/3D/World/GL3DSkyBox
+    ui_full/3D/World/GL3DSurface
     ui_full/3D/Objects/GL3DTree
-    ui_full/3D/Objects/GL3DSkyBox
     ui_full/3D/Objects/GL3DBuilding
     ui_full/3D/Objects/GL3DObject
+    ui_full/3D/Objects/GL3DInstancedModel
+    ui_full/3D/Objects/GL3DGLInstancedModel
+    ui_full/3D/Objects/GL3DInstancedTree
+    ui_full/3D/Objects/GL3DGrass
     ui_full/3D/Objects/GL3DPPRain
     ui_full/3D/Graphics/GL3DMath
     ui_full/3D/Graphics/GL3DModels
@@ -70,6 +73,7 @@ SET(APP_SOURCES
     ui_full/3D/Graphics/GL3DGeometry
     ui_full/3D/Graphics/GL3DColorRamp
     ui_full/3D/Graphics/GL3DMapMath
+    ui_full/3D/Graphics/GL3DDrawFunctions
     ui_full/3D/World/GL3DCameraController
     ui_full/3D/GL3DInput
     ui_full/3D/GL3DWorldCreator
@@ -95,6 +99,7 @@ SET(APP_SOURCES
     lisInterception
     include/version.h
     include/model.h
+    include/UFmodel.h
     include/TMmapVariables.h
     include/LisUIoutput.h
     include/Csfmap.h

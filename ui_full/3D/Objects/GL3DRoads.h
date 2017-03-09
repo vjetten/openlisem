@@ -27,7 +27,7 @@
 
 #include <3D/GL3DWidget.h>
 #include <3D/Graphics/GL3DModels.h>
-#include <3D/Objects/GL3DSurface.h>
+#include <3D/World/GL3DSurface.h>
 
 #include <3D/Graphics/GL3DTextures.h>
 #include <3D/Graphics/GL3DGeometry.h>
@@ -40,6 +40,12 @@ public:
     {
     }
 
+    bool draw = true;
+
+    inline void SetDraw(bool in_draw)
+    {
+        draw = in_draw;
+    }
 
     GL3DTexture * m_Texture_Color;
     GL3DTexture * m_Texture_Normal;
@@ -57,7 +63,7 @@ public:
     GL3DSurface * m_Surface;
 
     void OnCreate(GL3DWidget *widget);
-    void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
+    void OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
     void OnDestroy(GL3DWidget *widget);
 
     void SetRoadDistribution(GL3DWidget * w,GL3DSurface * s,cTMap * roadwidth);

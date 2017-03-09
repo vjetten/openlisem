@@ -383,6 +383,90 @@ void lisemqt::ParseInputData()
         //   if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
         //   if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
 
+        //3d display settings
+
+        if(p1.compare("Light_Ambient_R") == 0)
+        {
+            qDebug() << namelist[j].value << " set  " << val;
+            this->GL_Light_Ambient_R->setValue(val);
+        }
+        if(p1.compare("Light_Ambient_G") == 0)  this->GL_Light_Ambient_G->setValue(val);
+        if(p1.compare("Light_Ambient_B") == 0)  this->GL_Light_Ambient_B->setValue(val);
+        if(p1.compare("Light_Ambient_A") == 0)  this->GL_Light_Ambient_A->setValue(val);
+        if(p1.compare("Light_Directional_R") == 0)  this->GL_Light_Directional_R->setValue(val);
+        if(p1.compare("Light_Directional_G") == 0)  this->GL_Light_Directional_G->setValue(val);
+        if(p1.compare("Light_Directional_B") == 0)  this->GL_Light_Directional_B->setValue(val);
+        if(p1.compare("Light_Directional_A") == 0)  this->GL_Light_Directional_A->setValue(val);
+        if(p1.compare("Light_Directional_X") == 0)  this->GL_Light_Directional_X->setValue(val);
+        if(p1.compare("Light_Directional_Y") == 0)  this->GL_Light_Directional_Y->setValue(val);
+        if(p1.compare("Light_Directional_Z") == 0)  this->GL_Light_Directional_Z->setValue(val);
+
+        if(p1.compare("Surface_Draw") == 0)  this->GL_Surface_Draw->setChecked(check);
+        if(p1.compare("Surface_Micro_Elevation_Scale") == 0)  this->GL_Surface_Micro_Elevation_Scale->setValue(val);
+        if(p1.compare("Surface_Mipmap_Distance_1") == 0)  this->GL_Surface_Mipmap_Distance_1->setValue(val);
+        if(p1.compare("Surface_Mipmap_Distance_2") == 0)  this->GL_Surface_Mipmap_Distance_2->setValue(val);
+        if(p1.compare("Surface_Vegetated_Small_Color_R") == 0)  this->GL_Surface_Vegetated_Small_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Small_Color_G") == 0)  this->GL_Surface_Vegetated_Small_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Small_Color_B") == 0)  this->GL_Surface_Vegetated_Small_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Large_Color_R") == 0)  this->GL_Surface_Vegetated_Large_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Large_Color_G") == 0)  this->GL_Surface_Vegetated_Large_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Large_Color_B") == 0)  this->GL_Surface_Vegetated_Large_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Bare_Color_R") == 0)  this->GL_Surface_Bare_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Bare_Color_G") == 0)  this->GL_Surface_Bare_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Bare_Color_B") == 0)  this->GL_Surface_Bare_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Roads_Color_R") == 0)  this->GL_Surface_Road_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Roads_Color_G") == 0)  this->GL_Surface_Road_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Roads_Color_B") == 0)  this->GL_Surface_Road_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Buildings_Color_R") == 0)  this->GL_Surface_Building_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Buildings_Color_G") == 0)  this->GL_Surface_Building_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Buildings_Color_B") == 0)  this->GL_Surface_Building_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Erosion_Color_R") == 0)  this->GL_Surface_Erosion_Color_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Erosion_Color_G") == 0)  this->GL_Surface_Erosion_Color_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Erosion_Color_B") == 0)  this->GL_Surface_Erosion_Color_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Erosion_Color_A") == 0)  this->GL_Surface_Erosion_Color_A->setValue(val);
+        if(p1.compare("Surface_Vegetated_Deposition_Color_R") == 0)  this->GL_Surface_Deposition_Color_R->setValue(val);
+        if(p1.compare("Surface_Vegetated_Deposition_Color_G") == 0)  this->GL_Surface_Deposition_Color_G->setValue(val);
+        if(p1.compare("Surface_Vegetated_Deposition_Color_B") == 0)  this->GL_Surface_Deposition_Color_B->setValue(val);
+        if(p1.compare("Surface_Vegetated_Deposition_Color_A") == 0)  this->GL_Surface_Deposition_Color_A->setValue(val);
+
+        if(p1.compare("Water_Draw") == 0)  this->GL_Water_Draw->setChecked(check);
+        if(p1.compare("Water_Reflectivity") == 0)  this->GL_Water_Reflectivity->setValue(val);
+        if(p1.compare("Water_Refractivity") == 0)  this->GL_Water_Refractivity->setValue(val);
+        if(p1.compare("Water_Velocity_Scale") == 0)  this->GL_Water_Velocity_Scale->setValue(val);
+        if(p1.compare("Water_Micro_Elevation_Scale") == 0)  this->GL_Water_Micro_Elevation_Scale->setValue(val);
+        if(p1.compare("Water_Transparancy") == 0)  this->GL_Water_Transparancy->setValue(val);
+        if(p1.compare("Water_Deep_Color_R") == 0)  this->GL_Water_Deep_R->setValue(val);
+        if(p1.compare("Water_Deep_Color_G") == 0)  this->GL_Water_Deep_G->setValue(val);
+        if(p1.compare("Water_Deep_Color_B") == 0)  this->GL_Water_Deep_B->setValue(val);
+        if(p1.compare("Water_Deep_Color_A") == 0)  this->GL_Water_Deep_A->setValue(val);
+        if(p1.compare("Water_Shallow_Color_R") == 0)  this->GL_Water_Shallow_R->setValue(val);
+        if(p1.compare("Water_Shallow_Color_G") == 0)  this->GL_Water_Shallow_G->setValue(val);
+        if(p1.compare("Water_Shallow_Color_B") == 0)  this->GL_Water_Shallow_B->setValue(val);
+        if(p1.compare("Water_Shallow_Color_A") == 0)  this->GL_Water_Shallow_A->setValue(val);
+        if(p1.compare("Water_Sediment_Color_R") == 0)  this->GL_Water_Sediment_R->setValue(val);
+        if(p1.compare("Water_Sediment_Color_G") == 0)  this->GL_Water_Sediment_G->setValue(val);
+        if(p1.compare("Water_Sediment_Color_B") == 0)  this->GL_Water_Sediment_B->setValue(val);
+        if(p1.compare("Water_Sediment_Color_A") == 0)  this->GL_Water_Sediment_A->setValue(val);
+
+        if(p1.compare("Roads_Draw") == 0)  this->GL_Objects_Roads_Draw->setChecked(check);
+        if(p1.compare("Roads_Distance") == 0)  this->GL_Objects_Roads_Distance->setValue(val);
+
+        if(p1.compare("Buildings_Draw") == 0)  this->GL_Objects_Buildings_Draw->setChecked(check);
+        if(p1.compare("Buildings_Distance") == 0)  this->GL_Objects_Buildings_Distance->setValue(val);
+
+        if(p1.compare("Trees_Draw") == 0)  this->GL_Objects_Trees_Draw->setChecked(check);
+        if(p1.compare("Trees_Distance") == 0)  this->GL_Objects_Trees_Distance->setValue(val);
+        if(p1.compare("Trees_Instances") == 0)  this->GL_Objects_Trees_Instances->setValue(val);
+        if(p1.compare("Trees_Increment") == 0)  this->GL_Objects_Trees_Increment->setValue(val);
+
+        if(p1.compare("Grass_Draw") == 0)  this->GL_Objects_Grass_Draw->setChecked(check);
+        if(p1.compare("Grass_Distance") == 0)  this->GL_Objects_Grass_Distance->setValue(val);
+        if(p1.compare("Grass_Instances") == 0)  this->GL_Objects_Grass_Instances->setValue(val);
+        if(p1.compare("Grass_Increment") == 0)  this->GL_Objects_Grass_Increment->setValue(val);
+        if(p1.compare("Grass_Vertical_Scale") == 0) this->GL_Objects_Grass_Vertical_Scale->setValue(val);
+
+
+
         //VJ 111120 water repellency
         if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
         if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(val);
@@ -923,6 +1007,88 @@ void lisemqt::updateModelData()
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
+
+        //3d display settings
+        if(p1.compare("Light_Ambient_R") == 0)
+        {
+            qDebug() << namelist[j].value << "  " << this->GL_Light_Ambient_R->text();
+            namelist[j].value = this->GL_Light_Ambient_R->text();
+        }
+        if(p1.compare("Light_Ambient_G") == 0)  namelist[j].value = this->GL_Light_Ambient_G->text();
+        if(p1.compare("Light_Ambient_B") == 0)  namelist[j].value = this->GL_Light_Ambient_B->text();
+        if(p1.compare("Light_Ambient_A") == 0)  namelist[j].value = this->GL_Light_Ambient_A->text();
+        if(p1.compare("Light_Directional_R") == 0)  namelist[j].value = this->GL_Light_Directional_R->text();
+        if(p1.compare("Light_Directional_G") == 0)  namelist[j].value = this->GL_Light_Directional_G->text();
+        if(p1.compare("Light_Directional_B") == 0)  namelist[j].value = this->GL_Light_Directional_B->text();
+        if(p1.compare("Light_Directional_A") == 0)  namelist[j].value = this->GL_Light_Directional_A->text();
+        if(p1.compare("Light_Directional_X") == 0)  namelist[j].value = this->GL_Light_Directional_X->text();
+        if(p1.compare("Light_Directional_Y") == 0)  namelist[j].value = this->GL_Light_Directional_Y->text();
+        if(p1.compare("Light_Directional_Z") == 0)  namelist[j].value = this->GL_Light_Directional_Z->text();
+
+        if(p1.compare("Surface_Draw") == 0)  namelist[j].value.setNum(this->GL_Surface_Draw->isChecked());
+        if(p1.compare("Surface_Micro_Elevation_Scale") == 0)  namelist[j].value = QString::number(this->GL_Surface_Micro_Elevation_Scale->value());
+        if(p1.compare("Surface_Mipmap_Distance_1") == 0)  namelist[j].value = QString::number(this->GL_Surface_Mipmap_Distance_1->value());
+        if(p1.compare("Surface_Mipmap_Distance_2") == 0)  namelist[j].value = QString::number(this->GL_Surface_Mipmap_Distance_2->value());
+        if(p1.compare("Surface_Vegetated_Small_Color_R") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Small_R->text();
+        if(p1.compare("Surface_Vegetated_Small_Color_G") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Small_G->text();
+        if(p1.compare("Surface_Vegetated_Small_Color_B") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Small_B->text();
+        if(p1.compare("Surface_Vegetated_Large_Color_R") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Large_R->text();
+        if(p1.compare("Surface_Vegetated_Large_Color_G") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Large_G->text();
+        if(p1.compare("Surface_Vegetated_Large_Color_B") == 0)  namelist[j].value = this->GL_Surface_Vegetated_Large_B->text();
+        if(p1.compare("Surface_Vegetated_Bare_Color_R") == 0)  namelist[j].value = this->GL_Surface_Bare_R->text();
+        if(p1.compare("Surface_Vegetated_Bare_Color_G") == 0)  namelist[j].value = this->GL_Surface_Bare_G->text();
+        if(p1.compare("Surface_Vegetated_Bare_Color_B") == 0)  namelist[j].value = this->GL_Surface_Bare_B->text();
+        if(p1.compare("Surface_Vegetated_Roads_Color_R") == 0)  namelist[j].value = this->GL_Surface_Road_R->text();
+        if(p1.compare("Surface_Vegetated_Roads_Color_G") == 0)  namelist[j].value = this->GL_Surface_Road_G->text();
+        if(p1.compare("Surface_Vegetated_Roads_Color_B") == 0)  namelist[j].value = this->GL_Surface_Road_B->text();
+        if(p1.compare("Surface_Vegetated_Buildings_Color_R") == 0)  namelist[j].value = this->GL_Surface_Building_R->text();
+        if(p1.compare("Surface_Vegetated_Buildings_Color_G") == 0)  namelist[j].value = this->GL_Surface_Building_G->text();
+        if(p1.compare("Surface_Vegetated_Buildings_Color_B") == 0)  namelist[j].value = this->GL_Surface_Building_B->text();
+        if(p1.compare("Surface_Vegetated_Erosion_Color_R") == 0)  namelist[j].value = this->GL_Surface_Erosion_Color_R->text();
+        if(p1.compare("Surface_Vegetated_Erosion_Color_G") == 0)  namelist[j].value = this->GL_Surface_Erosion_Color_G->text();
+        if(p1.compare("Surface_Vegetated_Erosion_Color_B") == 0)  namelist[j].value = this->GL_Surface_Erosion_Color_B->text();
+        if(p1.compare("Surface_Vegetated_Erosion_Color_A") == 0)  namelist[j].value = this->GL_Surface_Erosion_Color_A->text();
+        if(p1.compare("Surface_Vegetated_Deposition_Color_R") == 0)  namelist[j].value = this->GL_Surface_Deposition_Color_R->text();
+        if(p1.compare("Surface_Vegetated_Deposition_Color_G") == 0)  namelist[j].value = this->GL_Surface_Deposition_Color_G->text();
+        if(p1.compare("Surface_Vegetated_Deposition_Color_B") == 0)  namelist[j].value = this->GL_Surface_Deposition_Color_B->text();
+        if(p1.compare("Surface_Vegetated_Deposition_Color_A") == 0)  namelist[j].value = this->GL_Surface_Deposition_Color_A->text();
+
+        if(p1.compare("Water_Draw") == 0)  namelist[j].value.setNum(this->GL_Water_Draw->isChecked());
+        if(p1.compare("Water_Reflectivity") == 0)  namelist[j].value = QString::number(this->GL_Water_Reflectivity->value());
+        if(p1.compare("Water_Refractivity") == 0)  namelist[j].value = QString::number(this->GL_Water_Refractivity->value());
+        if(p1.compare("Water_Velocity_Scale") == 0)  namelist[j].value = QString::number(this->GL_Water_Velocity_Scale->value());
+        if(p1.compare("Water_Micro_Elevation_Scale") == 0)  namelist[j].value = QString::number(this->GL_Water_Micro_Elevation_Scale->value());
+        if(p1.compare("Water_Transparancy") == 0)  namelist[j].value = QString::number(this->GL_Water_Transparancy->value());
+        if(p1.compare("Water_Deep_Color_R") == 0)  namelist[j].value = this->GL_Water_Deep_R->text();
+        if(p1.compare("Water_Deep_Color_G") == 0)  namelist[j].value = this->GL_Water_Deep_G->text();
+        if(p1.compare("Water_Deep_Color_B") == 0)  namelist[j].value = this->GL_Water_Deep_B->text();
+        if(p1.compare("Water_Deep_Color_A") == 0)  namelist[j].value = this->GL_Water_Deep_A->text();
+        if(p1.compare("Water_Shallow_Color_R") == 0)  namelist[j].value = this->GL_Water_Shallow_R->text();
+        if(p1.compare("Water_Shallow_Color_G") == 0)  namelist[j].value = this->GL_Water_Shallow_G->text();
+        if(p1.compare("Water_Shallow_Color_B") == 0)  namelist[j].value = this->GL_Water_Shallow_B->text();
+        if(p1.compare("Water_Shallow_Color_A") == 0)  namelist[j].value = this->GL_Water_Shallow_A->text();
+        if(p1.compare("Water_Sediment_Color_R") == 0)  namelist[j].value = this->GL_Water_Sediment_R->text();
+        if(p1.compare("Water_Sediment_Color_G") == 0)  namelist[j].value = this->GL_Water_Sediment_G->text();
+        if(p1.compare("Water_Sediment_Color_B") == 0)  namelist[j].value = this->GL_Water_Sediment_B->text();
+        if(p1.compare("Water_Sediment_Color_A") == 0)  namelist[j].value = this->GL_Water_Sediment_A->text();
+
+        if(p1.compare("Roads_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Roads_Draw->isChecked());
+        if(p1.compare("Roads_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Roads_Distance->value());
+
+        if(p1.compare("Buildings_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Buildings_Draw->isChecked());
+        if(p1.compare("Buildings_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Buildings_Distance->value());
+
+        if(p1.compare("Trees_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Trees_Draw->isChecked());
+        if(p1.compare("Trees_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Distance->value());
+        if(p1.compare("Trees_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Instances->value());
+        if(p1.compare("Trees_Increment") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Increment->value());
+
+        if(p1.compare("Grass_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Grass_Draw->isChecked());
+        if(p1.compare("Grass_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Distance->value());
+        if(p1.compare("Grass_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Instances->value());
+        if(p1.compare("Grass_Increment") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Increment->value());
+        if(p1.compare("Grass_Vertical_Scale") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Vertical_Scale->value());
+
 
         //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
         //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();

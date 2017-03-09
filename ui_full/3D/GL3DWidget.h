@@ -40,6 +40,7 @@
 #include "ui_full/3D/Objects/GL3DObject.h"
 #include <QBasicTimer>
 #include "3D/Graphics/GL3DMapMath.h"
+#include "3D/Graphics/GL3DDrawFunctions.h"
 #include "3D/Graphics/GL3DModels.h"
 #include <QMutex>
 
@@ -186,13 +187,8 @@ public:
     double m_DT;
     double m_Time_s;
 
+    void BindGeometryInstanced(QOpenGLVertexArrayObject &object,GL3DShader * s, GL3DGeometry * g, QOpenGLBuffer &MatrixBuffer);
     void BindGeometry(QOpenGLVertexArrayObject &object,GL3DShader * s, GL3DGeometry * g);
-
-    void DrawModelObject(GL3DModel * m, GL3DCamera * camera,QMatrix4x4 ModelMatrix);
-    void DrawModelGeometryWithMaterial(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera, QMatrix4x4 modelmatrix);
-    void DrawModelGeometryWithMaterialMultipleStart(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera);
-    void DrawModelGeometryWithMaterialMultiple(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera, QMatrix4x4 modelmatrix);
-    void DrawModelGeometryWithMaterialMultipleEnd(GL3DGeometry * g,GL3DShader * s,QOpenGLVertexArrayObject * vao,GL3DMaterial * m, GL3DCamera * camera);
 
 protected:
 

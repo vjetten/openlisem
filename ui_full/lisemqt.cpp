@@ -166,6 +166,8 @@ void lisemqt::SetConnections()
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
+    connect(GL_Focus,SIGNAL(pressed()),this,SLOT(doSet3DFocus()));
+    connect(GL_Commit,SIGNAL(pressed()),this,SLOT(doUpdateGLSettings()));
     connect(Button3D,SIGNAL(pressed()),this,SLOT(doCheck3D()));
     // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
     // works automatically. if included here may be executed twice!!! not sure...
@@ -1392,7 +1394,16 @@ void lisemqt::shootScreen()
 void lisemqt::doCheck3D()
 {
 
+    //disable 3d tab
+    tabWidget->setTabEnabled(3,false);
+
     this->Allow3D = true;
+
+    QPalette pal = Button3D->palette();
+    pal.setColor(QPalette::Button, QColor(Qt::red));
+    Button3D->setAutoFillBackground(true);
+    Button3D->setPalette(pal);
+    Button3D->update();
 }
 
 //--------------------------------------------------------------------

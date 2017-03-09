@@ -76,6 +76,79 @@ public:
 
     }
 
+    inline static bool GetMVAt(cTMap * map, double x, double z)
+    {
+        double cs = map->cellSize();
+        int cn = std::floor(x/cs);
+        int rn = std::floor(z/cs);
+        return pcr::isMV(map->data[rn][cn]);
+
+    }
+
+    //bilinear interpolation, mimics opegl
+    inline static double GetValueAt(cTMap * map, double x, double z)
+    {
+        double cs = map->cellSize();
+        x = x - 1.0 * cs;
+        z = z - 1.0 * cs;
+
+        int cn = std::floor((x)/cs);
+        int rn = std::floor((z)/cs);
+
+        int sgnx = 1;
+        int sgny = 1;
+
+        double wx =1.0-fabs((x - (cn * cs))/cs);
+        double wy =1.0-fabs((z - (rn * cs))/cs);
+
+        double v1 = 0;
+        double v2 = 0;
+        double v3 = 0;
+        double v4 = 0;
+
+        double w1 = 0;
+        double w2 = 0;
+        double w3 = 0;
+        double w4 = 0;
+
+        if(!OUTOFMAP(map,rn,cn))
+        {
+            if(!MV(map,rn,cn))
+            {
+                w1 = (wx) * (wy);
+                v1 = map->data[rn][cn];
+            }
+        }
+        if(!OUTOFMAP(map,rn + sgnx *1,cn))
+        {
+            if(!MV(map,rn + sgnx *1,cn))
+            {
+                w2 = (wx) * (1.0-wy);
+                v2 =map->data[rn + sgnx *1][cn];
+            }
+        }
+        if(!OUTOFMAP(map,rn,cn + sgny *1))
+        {
+            if(!MV(map,rn,cn + sgny *1))
+            {
+                w3 = (1.0-wx) * (wy);
+                v3 =map->data[rn][cn + sgny *1];
+            }
+        }
+        if(!OUTOFMAP(map,rn + sgnx *1,cn + sgny *1))
+        {
+            if(!MV(map,rn + sgnx *1,cn + sgny *1))
+            {
+                w4 = (1.0-wx) * (1.0-wy);
+                v4 =map->data[rn + sgnx *1][cn + sgny *1];
+            }
+        }
+
+        return (w1+w2+w3+w4) > 0? ((w1*v1 + w2*v2 + w3*v3 + w4 * v4)/(w1+w2+w3+w4)): 0.0;
+
+
+    }
+
 };
 
 

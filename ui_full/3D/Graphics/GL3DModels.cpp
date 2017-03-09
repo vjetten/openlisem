@@ -43,10 +43,20 @@ void GL3DModels::Destroy()
 
 }
 
-void GL3DModel::Create(GL3DWidget * widget)
+void GL3DModel::Create(GL3DWidget * widget, bool instanced, bool is_glinstanced)
 {
 
-    m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_MODEL);
+    is_instanced = instanced;
+    if(is_glinstanced)
+    {
+        m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_MODEL_GLINSTANCED);
+    }else if(is_instanced)
+    {
+        m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_MODEL_INSTANCED);
+    }else
+    {
+        m_Shader = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_MODEL);
+    }
 }
 
 
@@ -619,19 +629,6 @@ void GL3DModel::LoadObjectFile(GL3DWidget * widget,QString in_file, float rescal
     temp_uvs.clear();
     temp_normals.clear();
 
-    // now create the binding with the shaders
-
-    for(int i = 0; i < this->Geometry_List.length(); i++)
-    {
-
-        QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
-        vao->create();
-
-        widget->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
-
-        GLVAO_List.append(vao);
-    }
-
     qDebug() << "succesfully loaded object";
     this->Is_Loaded = true;
 }
@@ -641,24 +638,171 @@ void GL3DModel::AddCustomGeometry(GL3DWidget * w, GL3DGeometry * g, GL3DMaterial
     int i = Geometry_List.length();
     Geometry_List.append(g);
 
-    QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
-    vao->create();
-
-    w->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
-
-    GLVAO_List.append(vao);
-
     i = Material_List.length();
     Material_List.append(m);
     Material_Pointer.append(i);
 }
 
-void GL3DModel::BindCustomShader(GL3DWidget * w, GL3DShader * s)
+void GL3DModel::BindMatrixBuffer()
+{
+    m_Matrix.bind();
+}
+
+void GL3DModel::WriteToMatrixBuffer(int offset, QVector3D T, QQuaternion R, QVector3D S)
+{
+    if(offset < m_BufferSize)
+    {
+        m_Matrix.write(offset * sizeof(QVector3D),&T,1 * sizeof(QVector3D));
+    }
+
+}
+void GL3DModel::WriteToMatrixBuffer(int nr, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S)
+{
+    this->m_InstanceCount = nr;
+    for(int i = 0; i < nr; i++)
+    {
+        if(!(i< m_BufferSize))
+        {
+            break;
+        }
+        /*QMatrix4x4 m;
+        m.setToIdentity();
+        m_Matrix.write(i * sizeof(QMatrix4x4),m.data(),sizeof(QMatrix4x4));*/
+        QVector3D v(i * 2.0,0.0,0.0);
+        m_Matrix.write(i * sizeof(QVector3D),&T->at(i),1 * sizeof(QVector3D));
+    }
+
+}
+
+void GL3DModel::WriteToMatrixBuffer(QList<bool> *b, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S)
 {
 
-    m_Shader = s;
+    int n = 0;
+    for(int i = 0; i < T->length(); i++)
+    {
+        if(!(n < m_BufferSize))
+        {
+            break;
+        }
+        /*QMatrix4x4 m;
+        m.setToIdentity();
+        m_Matrix.write(i * sizeof(QMatrix4x4),m.data(),sizeof(QMatrix4x4));*/
 
-    GLVAO_List.clear();
+        //if(b->at(i) == true)
+        {
+
+            QVector3D v(i * 2.0,0.0,0.0);
+            m_Matrix.write(n * sizeof(QVector3D),&T->at(i),1 * sizeof(QVector3D));
+            n++;
+        }
+    }
+    this->m_InstanceCount = n;
+    qDebug() << "buffer written to with " << n << m_BufferSize<< T->length() << b->length();
+
+}
+
+
+void GL3DModel::ReleaseMatrixBuffer()
+{
+    m_Matrix.release();
+}
+
+void GL3DModel::CreateMatrixBuffer(int n, QVector3D *T, QQuaternion *R, QVector3D *S)
+{
+    /*QMatrix4x4 * matrices = (QMatrix4x4 *) malloc(sizeof(QMatrix4x4)*n);
+
+    for(int i = 0; i < n; i++)
+    {
+        QMatrix4x4 m;
+        matrices[i].setToIdentity();
+
+        if(!(R == 0))
+        {
+            matrices[i].rotate(R[i]);
+        }
+        if(!(S == 0))
+        {
+            matrices[i].scale(S[i]);
+        }
+        if(!(T == 0))
+        {
+            matrices[i].translate(T[i]);
+        }
+    }
+
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_Matrix = temp1;
+    m_Matrix.create();
+    m_Matrix.bind();
+    m_Matrix.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_Matrix.allocate(matrices, sizeof(QMatrix4x4) * n);
+    m_Matrix.release();
+
+    free(matrices);*/
+}
+void GL3DModel::CreateMatrixBuffer(int n)
+{
+    m_BufferSize = n;
+    m_InstanceCount = n;
+
+
+    QVector3D * matrices = (QVector3D *) malloc(sizeof(QVector3D)*n);
+
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_Matrix = temp1;
+    m_Matrix.create();
+    m_Matrix.bind();
+    m_Matrix.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    m_Matrix.allocate(matrices, sizeof(QVector3D) * n);
+    m_Matrix.release();
+}
+
+void GL3DModel::CreateMatrixBuffer(int n, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S)
+{
+    m_BufferSize = n;
+    m_InstanceCount = n;
+
+    QMatrix4x4 * matrices = (QMatrix4x4 *) malloc(sizeof(QMatrix4x4)*n);
+
+    {
+        //matrices[i];
+
+        /*if(!(R == 0))
+        {
+            matrices[i].rotate(R->at(i));
+        }
+        if(!(S == 0))
+        {
+            matrices[i].scale(S->at(i));
+        }
+        matrices[i].translate(T->at(i));*/
+    }
+
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_Matrix = temp1;
+    m_Matrix.create();
+    m_Matrix.bind();
+    m_Matrix.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_Matrix.allocate(matrices, sizeof(QVector3D) * n);
+    for(int i = 0; i < n; i++)
+    {
+        /*QMatrix4x4 m;
+        m.setToIdentity();
+        m_Matrix.write(i * sizeof(QMatrix4x4),m.data(),sizeof(QMatrix4x4));*/
+        QVector3D v(i * 2.0,0.0,0.0);
+        m_Matrix.write(i * sizeof(QVector3D),&T->at(i),1 * sizeof(QVector3D));
+    }
+    m_Matrix.release();
+
+    free(matrices);
+
+}
+
+
+void GL3DModel::CreateVAOs(GL3DWidget * widget)
+{
+
+    // now create the binding with the shaders
 
     for(int i = 0; i < this->Geometry_List.length(); i++)
     {
@@ -666,11 +810,28 @@ void GL3DModel::BindCustomShader(GL3DWidget * w, GL3DShader * s)
         QOpenGLVertexArrayObject * vao = new QOpenGLVertexArrayObject();
         vao->create();
 
-        w->BindGeometry(*vao,this->m_Shader,Geometry_List.at(i));
+        qDebug() << "create instanced vao" << is_instanced;
+
+        if(is_instanced)
+        {
+            GL3DDrawFunctions::BindGeometryInstanced(widget,*vao,this->m_Shader,Geometry_List.at(i),m_Matrix);
+        }else
+        {
+            GL3DDrawFunctions::BindGeometry(widget,*vao,this->m_Shader,Geometry_List.at(i));
+
+        }
 
         GLVAO_List.append(vao);
     }
 
+
+}
+
+
+void GL3DModel::BindCustomShader(GL3DWidget * w, GL3DShader * s)
+{
+
+    m_Shader = s;
 }
 
 void GL3DModel::Destroy(GL3DWidget * widget)

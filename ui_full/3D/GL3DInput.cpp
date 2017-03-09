@@ -193,10 +193,9 @@ void GL3DWidget::keyReleaseEvent( QKeyEvent *keyEvent )
 
 void GL3DWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    QTransform t;
-    t.scale(1, -1);
-    t.translate(0, -Height+1);
-    QPoint pos = event->pos() * t;
+    QCursor c = cursor();
+
+    QPoint pos = this->mapFromGlobal(c.pos());
 
     int tempx = MouseOldX;
     int tempy = MouseOldY;
@@ -208,22 +207,26 @@ void GL3DWidget::mouseMoveEvent(QMouseEvent *event)
     MouseY = pos.y();
 
     MouseDX = MouseX - tempx;
-    MouseDY = MouseY - tempy;
+    MouseDY = -(MouseY - tempy);
 
     if(KeepMouseMiddle)
     {
-        QCursor c = cursor();
-        c.setPos(mapToGlobal(QPoint(Width / 2, Height / 2)));
-        c.setShape(Qt::BlankCursor);
-        setCursor(c);
+        QCursor c2 = cursor();
+        c2.setPos(mapToGlobal(QPoint(Width / 2, Height / 2)));
+        c2.setShape(Qt::BlankCursor);
+        setCursor(c2);
 
-        QPoint pos = this->mapFromGlobal(c.pos());
-        MouseX = pos.x();
-        MouseY = pos.y();
+        QPoint pos2 = this->mapFromGlobal(c.pos());
+        MouseX = pos2.x();
+        MouseY = pos2.y();
     }else
     {
+        MouseDX = 0;
+        MouseDY = 0;
+
         QCursor c = cursor();
         c.setShape(Qt::ArrowCursor);
+        setCursor(c);
     }
 
 }

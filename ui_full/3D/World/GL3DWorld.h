@@ -26,10 +26,17 @@
 
 #include "ui_full/3D/GL3DWidget.h"
 #include "ui_full/3D/Objects/GL3DObject.h"
+#include "ui_full/3D/World/GL3DSkyBox.h"
+#include "ui_full/3D/World/GL3DSurface.h"
+#include "ui_full/3D/World/GL3DFlowSurface.h"
+#include "ui_full/3D/World/GL3DCameraController.h"
 
 class GL3DObject;
-
+class GL3DSurface;
+class GL3DFlowSurface;
+class GL3DSkyBox;
 class GL3DWidget;
+class GL3DCameraController;
 
 class GL3DWorld
 {
@@ -43,6 +50,11 @@ public:
         is_created = false;
     };
 
+
+    QVector4D Light_Ambient;
+    QVector4D Light_Directional;
+    QVector3D Light_Directional_Direction;
+
     QList<GL3DObject*> m_ObjectList;
     QList<GL3DObject*> m_KeyObjectList;
     QList<GL3DObject*> m_ButtonObjectList;
@@ -52,9 +64,10 @@ public:
     QList<GL3DObject*> m_RenderLateObjectList;
     QList<GL3DObject*> m_RenderPostObjectList;
 
-    GL3DObject * m_Surface;
-    GL3DObject * m_SkyBox;
-    GL3DObject * m_WaterSurface;
+    GL3DSurface * m_Surface;
+    GL3DSkyBox * m_SkyBox;
+    GL3DFlowSurface * m_WaterSurface;
+    GL3DCameraController *m_CameraController;
 
     double time_multiplier;
     double time;
@@ -63,11 +76,19 @@ public:
     bool is_created;
 
     void Create(GL3DWidget * widget);
-    void AddObject(GL3DObject * object, bool is_surface = false, bool is_skybox = false, bool is_watersurface = false);
+
+    void SetSurface(GL3DSurface * s);
+    void SetSkyBox(GL3DSkyBox * s);
+    void SetWaterSurface(GL3DFlowSurface * fs);
+    void SetCameraController(GL3DCameraController * cc);
+
+    void AddObject(GL3DObject * object);
     void RemoveObject(GL3DObject * object);
     void RemoveAllObjects();
     void RemoveAndDestroyAllObjects();
     void Destroy();
+
+    void ResetToStart();
 
     void OnRenderBefore(GL3DWidget * widget, GL3DCamera* camera, double dt);
     void OnRender(GL3DWidget * widget, GL3DCamera* camera, double dt);

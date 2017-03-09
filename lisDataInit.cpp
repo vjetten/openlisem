@@ -693,12 +693,12 @@ void TWorld::GetInputData(void)
             r_plot = r_outlet;
             c_plot = c_outlet;
         }
-        if (Outlet->Drc == 1)
+        /*if (Outlet->Drc == 1)
         {
             if (LDD->Drc != 5)
             {
                 ErrorString = "Main outlet gridcell does not coincide with pit in LDD";
-              //  throw 1;
+                //throw 1;
             }
             else
             {
@@ -707,7 +707,7 @@ void TWorld::GetInputData(void)
                 r_plot = r_outlet;
                 c_plot = c_outlet;
             }
-        }
+        }*/
     }
 
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -1018,6 +1018,7 @@ void TWorld::GetInputData(void)
 
     }
     LDDChange = NewMap(0.0);
+    UF2D_DEMOriginal = NewMap(0.0);
     DEMChange = NewMap(0.0);
     DFTotalInitiationHeight = NewMap(0.0);
     DFSoilDensity = NewMap(2000.0);

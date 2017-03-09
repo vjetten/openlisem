@@ -286,6 +286,7 @@ public:
     int mapstartnr;
     bool doShootScreens;
 
+    bool doupdate3d = false;
     bool first3d = true;
     bool Allow3D = false;
 
@@ -295,7 +296,10 @@ public:
     GL3DWorldCreator * creator;
 public slots:
 
+    void doSet3DFocus();
     void doCheck3D();
+
+    void doUpdateGLSettings();
 
     // functions linked to actions
     void saveRunFile();

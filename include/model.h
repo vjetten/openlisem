@@ -194,7 +194,7 @@
     1  2  3
  */
 
-#define NUMNAMES 2000   /// \def NUMNAMES runfile namelist max
+#define NUMNAMES 3000   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 1000    /// \def max nr maps
 #define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment

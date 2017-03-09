@@ -28,7 +28,9 @@
 #include "ui_full/3D/GL3DWidget.h"
 #include "ui_full/3D/World/GL3DWorld.h"
 #include "ui_full/3D/World/GL3DCamera.h"
+#include "3D/World/GL3DSurface.h"
 
+class GL3DSurface;
 
 class GL3DObject
 {
@@ -81,7 +83,8 @@ public:
     //Overwrite these functions in the specific classes that inherit the object classs
     virtual inline void OnCreate(GL3DWidget * widget)  {return;};
     virtual inline void OnAddToWorld(GL3DWorld * world)  {return;};
-    virtual inline void OnUpdate(GL3DWidget * widget,GL3DWorld * world, double dt)  {return;};
+    virtual inline void OnCreatSurfaceBasedObjects(GL3DWidget * widget,GL3DWorld * world, GL3DSurface * surface, QVector3D current_pos) {return;};
+    virtual inline void OnUpdate(GL3DWidget * widget,GL3DWorld * world, QVector3D position, double dt)  {return;};
     virtual inline void OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};
     virtual inline void OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)  {return;};

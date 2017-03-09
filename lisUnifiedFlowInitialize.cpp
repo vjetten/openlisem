@@ -51,7 +51,11 @@ void TWorld::UF_Init()
     UF_DISPLAYDEBRISFLOWMINIMUM = getvaluedouble("Minimum Debris Flow Volumetric Sediment Fraction");
     UF_SigmaDiffusion = 1.0;
 
-    UF_ENTRAINMENTCONSTANT = getvaluedouble("Entrainment Coefficient");
+    UF_ENTRAINMENTCCONSTANT = 0.5;
+    UF_ENTRAINMENTCONSTANT = 1.0;
+    UF_ENTRAINMENTTHRESHOLDCONSTANT = 1.0;
+
+    UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000.0;
     UF_DEPOSITIONCONSTANT = 1;
     UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
 
@@ -154,6 +158,7 @@ void TWorld::UF_Init()
     //actual calculation variables
     ////2D
     UF2D_DEM = NewMap(0.0);
+    copy(*UF2D_DEMOriginal,*DEM);
     copy(*UF2D_DEM,*DEM);
     if(SwitchBarriers)
     {
@@ -195,6 +200,7 @@ void TWorld::UF_Init()
     UF2D_bltc = NewMap(0.0);
     UF2D_fsc = NewMap(0.0);
     UF2D_fsd = NewMap(0.0);
+    UF2D_tsf = NewMap(0.0);
 
     //solid phase
     UF2D_s = NewMap(0.0);
@@ -214,6 +220,12 @@ void TWorld::UF_Init()
     UF2D_sqx2 = NewMap(0.0);
     UF2D_sqy2 = NewMap(0.0);
 
+
+    UF2D_STL = NewMap(0.0);
+    UF2D_STLA = NewMap(0.0);
+    UF2D_STLH = NewMap(0.0);
+    UF2D_ST = NewMap(0.0);
+    UF1D_ST = NewMap(0.0);
 
     UF2D_DC = NewMap(0.0);
 

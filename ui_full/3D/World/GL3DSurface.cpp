@@ -22,7 +22,7 @@
 **
 *************************************************************************/
 
-#include <3D/Objects/GL3DSurface.h>
+#include <3D/World/GL3DSurface.h>
 #include <QtOpenGL>
 #include <QColor>
 #include <QGLWidget>
@@ -76,6 +76,14 @@ void GL3DSurface::SetTerrainProperties(cTMap * VegCover,cTMap * VegHeight,cTMap 
     m_RandomRoughness = RandomRoughness;
     m_Buildings = Buildings;
     m_Roads = Roads;
+
+}
+
+void GL3DSurface::SetDemChange(cTMap*DemChange)
+{
+
+    dem_updated = true;
+    m_DemChange = DemChange;
 
 }
 
@@ -403,7 +411,7 @@ void GL3DSurface::SetChannel(GL3DWidget * widget,cTMap * LDD, cTMap * width, cTM
     m_Object_Channel->create();
 
     m_Shader_Channel = widget->m_Shaders->GetDefaultShader(GL3D_SHADER_CHANNEL);
-    widget->BindGeometry(*m_Object_Channel,m_Shader_Channel,m_Geometry_Channel);
+    GL3DDrawFunctions::BindGeometry(widget,*m_Object_Channel,m_Shader_Channel,m_Geometry_Channel);
 
 }
 
@@ -427,50 +435,37 @@ void GL3DSurface::OnCreate(GL3DWidget *widget)
     this->m_Texture_MicroElevation = widget->m_Textures->LoadTextureFromFile("micro-elevation.bmp");
     this->m_Texture_MicroElevation_Normal = widget->m_Textures->LoadTextureFromFile("micro-elevation_normal.bmp");
 
-    m_Texture_grass_bare0_Color = widget->m_Textures->LoadTextureFromFile("grass_slope0_color.bmp");
-    m_Texture_grass_bare0_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope0_bmp.bmp");
-    m_Texture_grass_bare0_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope0_normal.bmp");
-    m_Texture_grass_bare0_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope0_spec.bmp");
+    this->m_Texture_DemChange = widget->m_Textures->LoadTextureFromMap(false, this->m_DemChange,0,0,true);
 
-    m_Texture_grass_bare1_Color = widget->m_Textures->LoadTextureFromFile("grass_bare1_color.bmp");
-    m_Texture_grass_bare1_Bump = widget->m_Textures->LoadTextureFromFile("grass_bare1_bmp.bmp");
-    m_Texture_grass_bare1_Normal = widget->m_Textures->LoadTextureFromFile("grass_bare1_normal.bmp");
-    m_Texture_grass_bare1_Spec = widget->m_Textures->LoadTextureFromFile("grass_bare1_spec.bmp");
+    m_Texture_grass_slope0_Color = widget->m_Textures->LoadTextureFromFile("grass_slope0_color.bmp");
+    m_Texture_grass_slope0_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope0_bmp.bmp");
+    m_Texture_grass_slope0_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope0_normal.bmp");
+    m_Texture_grass_slope0_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope0_spec.bmp");
 
-    m_Texture_grass_bare2_Color = widget->m_Textures->LoadTextureFromFile("grass_bare2_color.bmp");
-    m_Texture_grass_bare2_Bump = widget->m_Textures->LoadTextureFromFile("grass_bare2_bmp.bmp");
-    m_Texture_grass_bare2_Normal = widget->m_Textures->LoadTextureFromFile("grass_bare2_normal.bmp");
-    m_Texture_grass_bare2_Spec = widget->m_Textures->LoadTextureFromFile("grass_bare2_spec.bmp");
+    m_Texture_grass_slope1_Color = widget->m_Textures->LoadTextureFromFile("grass_slope3_color.bmp");
+    m_Texture_grass_slope1_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope3_bmp.bmp");
+    m_Texture_grass_slope1_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope3_normal.bmp");
+    m_Texture_grass_slope1_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope3_spec.bmp");
 
-    m_Texture_grass_bare3_Color = widget->m_Textures->LoadTextureFromFile("grass_bare3_color.bmp");
-    m_Texture_grass_bare3_Bump = widget->m_Textures->LoadTextureFromFile("grass_bare3_bmp.bmp");
-    m_Texture_grass_bare3_Normal = widget->m_Textures->LoadTextureFromFile("grass_bare3_normal.bmp");
-    m_Texture_grass_bare3_Spec = widget->m_Textures->LoadTextureFromFile("grass_bare3_spec.bmp");
+    m_Texture_bare_slope0_Color = widget->m_Textures->LoadTextureFromFile("bare_slope0_color.bmp");
+    m_Texture_bare_slope0_Bump = widget->m_Textures->LoadTextureFromFile("bare_slope0_bmp.bmp");
+    m_Texture_bare_slope0_Normal = widget->m_Textures->LoadTextureFromFile("bare_slope0_normal.bmp");
+    m_Texture_bare_slope0_Spec = widget->m_Textures->LoadTextureFromFile("bare_slope0_spec.bmp");
 
-    m_Texture_bare_slope1_Color = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope1_color.bmp");
-    m_Texture_bare_slope1_Bump = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope1_bmp.bmp");
-    m_Texture_bare_slope1_Normal = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope1_normal.bmp");
-    m_Texture_bare_slope1_Spec = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope1_spec.bmp");
+    m_Texture_bare_slope1_Color = widget->m_Textures->LoadTextureFromFile("bare_slope1_color.bmp");
+    m_Texture_bare_slope1_Bump = widget->m_Textures->LoadTextureFromFile("bare_slope1_bmp.bmp");
+    m_Texture_bare_slope1_Normal = widget->m_Textures->LoadTextureFromFile("bare_slope1_normal.bmp");
+    m_Texture_bare_slope1_Spec = widget->m_Textures->LoadTextureFromFile("bare_slope1_spec.bmp");
 
-    m_Texture_bare_slope4_Color = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope4_color.bmp");
-    m_Texture_bare_slope4_Bump = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope4_bmp.bmp");
-    m_Texture_bare_slope4_Normal = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope4_normal.bmp");
-    m_Texture_bare_slope4_Spec = widget->m_Textures->LoadTextureFromFile("grass_bare4_slope4_spec.bmp");
+    m_Texture_erosion_Color = widget->m_Textures->LoadTextureFromFile("dep2_color.bmp");
+    m_Texture_erosion_Bump = widget->m_Textures->LoadTextureFromFile("dep2_color.bmp");
+    m_Texture_erosion_Normal = widget->m_Textures->LoadTextureFromFile("dep2_color.bmp");
+    m_Texture_erosion_Spec = widget->m_Textures->LoadTextureFromFile("dep2_color.bmp");
 
-    m_Texture_grass_slope1_Color = widget->m_Textures->LoadTextureFromFile("grass_slope1_color.bmp");
-    m_Texture_grass_slope1_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope1_bmp.bmp");
-    m_Texture_grass_slope1_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope1_normal.bmp");
-    m_Texture_grass_slope1_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope1_spec.bmp");
-
-    m_Texture_grass_slope3_Color = widget->m_Textures->LoadTextureFromFile("grass_slope3_color.bmp");
-    m_Texture_grass_slope3_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope3_bmp.bmp");
-    m_Texture_grass_slope3_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope3_normal.bmp");
-    m_Texture_grass_slope3_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope3_spec.bmp");
-
-    m_Texture_grass_slope4_Color = widget->m_Textures->LoadTextureFromFile("grass_slope4_color.bmp");
-    m_Texture_grass_slope4_Bump = widget->m_Textures->LoadTextureFromFile("grass_slope4_bmp.bmp");
-    m_Texture_grass_slope4_Normal = widget->m_Textures->LoadTextureFromFile("grass_slope4_normal.bmp");
-    m_Texture_grass_slope4_Spec = widget->m_Textures->LoadTextureFromFile("grass_slope4_spec.bmp");
+    m_Texture_deposition_Color = widget->m_Textures->LoadTextureFromFile("dep1_color.bmp");
+    m_Texture_deposition_Bump = widget->m_Textures->LoadTextureFromFile("dep1_color.bmp");
+    m_Texture_deposition_Normal = widget->m_Textures->LoadTextureFromFile("dep1_color.bmp");
+    m_Texture_deposition_Spec = widget->m_Textures->LoadTextureFromFile("dep1_color.bmp");
 
     m_Texture_Channel = widget->m_Textures->LoadTextureFromFile("channel.jpg");
 
@@ -483,18 +478,30 @@ void GL3DSurface::OnCreate(GL3DWidget *widget)
     if(this->m_Elevation != 0)
     {
 
-        this->m_Geometry = widget->m_Geometries->LoadGeometryFromMap(this->m_Elevation,0,0);
+        /*this->m_Geometry = widget->m_Geometries->LoadGeometryFromMap(this->m_Elevation,30);
         this->m_GLObject.create();
-        widget->BindGeometry(m_GLObject,m_Shader,m_Geometry);
+        GL3DDrawFunctions::BindGeometry(widget,m_GLObject,m_Shader,m_Geometry);*/
 
-        this->m_Geometry_Tesselated = widget->m_Geometries->LoadGeometryFromMap(this->m_ElevationFilled,0,0);
+        this->m_Geometry_Tesselated = widget->m_Geometries->LoadGeometryFromMap(this->m_ElevationFilled,(float) m_Geometry_Multiplier);
         this->m_GLObject_Tesselated.create();
-        widget->BindGeometry(m_GLObject_Tesselated,m_Shader_Tesselated,m_Geometry_Tesselated);
+        GL3DDrawFunctions::BindGeometry(widget,m_GLObject_Tesselated,m_Shader_Tesselated,m_Geometry_Tesselated);
     }
 }
 
 void GL3DSurface::OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
+
+    if(dem_updated)
+    {
+        qDebug() << "GL update dem";
+        FOR_ROW_COL_MV(m_Elevation,m_Elevation)
+        {
+            m_ElevationFilled->Drc = m_Elevation->Drc + m_DemChange->Drc;
+        }
+        this->m_Texture = widget->m_Textures->LoadTextureFromMap(false, this->m_ElevationFilled,0,0,true);
+        this->m_Texture_DemChange = widget->m_Textures->LoadTextureFromMap(false, this->m_DemChange,0,0,true);
+        dem_updated = false;
+    }
 
     if(has_channel)
     {
@@ -514,12 +521,16 @@ void GL3DSurface::OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCame
         m_Shader_Channel->m_program->bind();
         m_Shader_Channel->m_program->setUniformValue("Cmatrix",camera->m_CameraMatrix);
         m_Shader_Channel->m_program->setUniformValue("Mmatrix",matrix);
-        m_Shader_Channel->m_program->setUniformValue("Cposition",camera->m_Position);
+        m_Shader_Channel->m_program->setUniformValue("CPosition",camera->m_Position);
 
         m_Shader_Channel->m_program->setUniformValue("SurfaceExtentX",(float)m_XExtent);
         m_Shader_Channel->m_program->setUniformValue("SurfaceExtentZ",(float)m_ZExtent);
 
-        m_Shader_Channel->m_program->setUniformValue("CellSize",(float)m_CellSize);
+        m_Shader_Channel->m_program->setUniformValue("CellSize",(float)m_CellSize *(float) m_Geometry_Multiplier);
+
+        m_Shader_Channel->m_program->setUniformValue("Light_Ambient",world->Light_Ambient);
+        m_Shader_Channel->m_program->setUniformValue("Light_Directional",world->Light_Directional);
+        m_Shader_Channel->m_program->setUniformValue("Light_Directional_Direction",world->Light_Directional_Direction);
 
         //m_Model_Channel->m_Shader->ActivateTextureOn(widget,m_Texture_Color,"Texture_Color",4);
         //m_Model_Channel->m_Shader->ActivateTextureOn(widget,m_Texture_Normal,"Texture_Normal",5);
@@ -558,6 +569,14 @@ void GL3DSurface::OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCame
 void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
 
+    if(dem_updated)
+    {
+
+        this->m_Texture_DemChange = widget->m_Textures->LoadTextureFromMap(false, this->m_DemChange,0,0,true);
+
+        dem_updated= false;
+    }
+
     QMatrix4x4 matrix;
     matrix.setToIdentity();
     m_Shader_Tesselated->m_program->bind();
@@ -575,7 +594,11 @@ void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* ca
     m_Shader_Tesselated->m_program->setUniformValue("ElevationMax",(float)this->m_ElevationMax);
     m_Shader_Tesselated->m_program->setUniformValue("viewportSize",camera->m_viewportSize);
 
-    m_Shader_Tesselated->m_program->setUniformValue("CellSize",(float)this->m_CellSize);
+    m_Shader_Tesselated->m_program->setUniformValue("CellSize",(float)this->m_CellSize*(float) m_Geometry_Multiplier);
+
+    m_Shader_Tesselated->m_program->setUniformValue("Light_Ambient",world->Light_Ambient);
+    m_Shader_Tesselated->m_program->setUniformValue("Light_Directional",world->Light_Directional);
+    m_Shader_Tesselated->m_program->setUniformValue("Light_Directional_Direction",world->Light_Directional_Direction);
 
     this->m_GLObject_Tesselated.bind();
 
@@ -596,51 +619,37 @@ void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* ca
     m_Shader_Tesselated->m_program->setUniformValue("TextureSizeX",(float)2.5);
     m_Shader_Tesselated->m_program->setUniformValue("TextureSizeY",(float)2.5);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare0_Color,"grass_bare0_Color",11);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare0_Bump,"grass_bare0_Bump",12);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare0_Normal,"grass_bare0_Normal",13);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare0_Spec,"grass_bare0_Spec",14);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope0_Color,"grass_slope0_Color",11);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope0_Bump,"grass_slope0_Bump",12);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope0_Normal,"grass_slope0_Normal",13);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope0_Spec,"grass_slope0_Spec",14);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare1_Color,"grass_bare1_Color",15);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare1_Bump,"grass_bare1_Bump",16);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare1_Normal,"grass_bare1_Normal",17);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare1_Spec,"grass_bare1_Spec",18);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope0_Color,"bare_slope0_Color",15);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope0_Bump,"bare_slope0_Bump",16);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope0_Normal,"bare_slope0_Normal",17);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope0_Spec,"bare_slope0_Spec",18);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare2_Color,"grass_bare2_Color",19);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare2_Bump,"grass_bare2_Bump",20);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare2_Normal,"grass_bare2_Normal",21);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare2_Spec,"grass_bare2_Spec",22);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Color,"grass_slope1_Color",19);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Bump,"grass_slope1_Bump",20);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Normal,"grass_slope1_Normal",21);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Spec,"grass_slope1_Spec",22);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare3_Color,"grass_bare3_Color",23);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare3_Bump,"grass_bare3_Bump",24);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare3_Normal,"grass_bare3_Normal",25);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_bare3_Spec,"grass_bare3_Spec",26);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Color,"bare_slope1_Color",23);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Bump,"bare_slope1_Bump",24);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Normal,"bare_slope1_Normal",25);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Spec,"bare_slope1_Spec",26);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Color,"bare_slope1_Color",27);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Bump,"bare_slope1_Bump",28);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Normal,"bare_slope1_Normal",29);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope1_Spec,"bare_slope1_Spec",30);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_erosion_Color,"erosion_Color",19);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_erosion_Bump,"erosion_Bump",20);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_erosion_Normal,"erosion_Normal",21);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_erosion_Spec,"erosion_Spec",22);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope4_Color,"bare_slope4_Color",27);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope4_Bump,"bare_slope4_Bump",28);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope4_Normal,"bare_slope4_Normal",29);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_bare_slope4_Spec,"bare_slope4_Spec",30);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_deposition_Color,"deposition_Color",23);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_deposition_Bump,"deposition_Bump",24);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_deposition_Normal,"deposition_Normal",25);
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_deposition_Spec,"deposition_Spec",26);
 
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Color,"grass_slope1_Color",35);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Bump,"grass_slope1_Bump",36);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Normal,"grass_slope1_Normal",37);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope1_Spec,"grass_slope1_Spec",38);
-
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope3_Color,"grass_slope3_Color",39);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope3_Bump,"grass_slope3_Bump",40);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope3_Normal,"grass_slope3_Normal",41);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope3_Spec,"grass_slope3_Spec",42);
-
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope4_Color,"grass_slope4_Color",43);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope4_Bump,"grass_slope4_Bump",44);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope4_Normal,"grass_slope4_Normal",45);
-    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_grass_slope4_Spec,"grass_slope4_Spec",46);
-
+    m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_DemChange,"demChange",27);
     //widget->gl->glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     m_Shader_Tesselated->m_program->setPatchVertexCount(3);
@@ -670,61 +679,6 @@ void GL3DSurface::OnDestroy(GL3DWidget *widget)
 
 double GL3DSurface::GetElevation(double x, double z)
 {
-        double cs = m_ElevationFilled->cellSize();
-        int cn = std::floor(x/cs);
-        int rn = std::floor(z/cs);
-
-        int sgnx = -1;
-        int sgny = -1;
-
-        double wx = 1.0-(x - (cn * cs))/cs;
-        double wy = 1.0-(z - (rn * cs))/cs;
-
-        double v1 = 0;
-        double v2 = 0;
-        double v3 = 0;
-        double v4 = 0;
-
-        double w1 = 0;
-        double w2 = 0;
-        double w3 = 0;
-        double w4 = 0;
-
-        if(!OUTOFMAP(m_ElevationFilled,rn,cn))
-        {
-            if(!MV(m_ElevationFilled,rn,cn))
-            {
-                w1 = (1.0-wx) * (1.0-wy);
-                v1 =m_ElevationFilled->data[rn][cn];
-            }
-        }
-        if(!OUTOFMAP(m_ElevationFilled,rn + sgnx *1,cn))
-        {
-            if(!MV(m_ElevationFilled,rn + sgnx *1,cn))
-            {
-                w2 = (1.0-wx) * (wy);
-                v2 =m_ElevationFilled->data[rn + sgnx *1][cn];
-            }
-        }
-        if(!OUTOFMAP(m_ElevationFilled,rn,cn + sgny *1))
-        {
-            if(!MV(m_ElevationFilled,rn,cn + sgny *1))
-            {
-                w3 = (wx) * (1.0-wy);
-                v3 =m_ElevationFilled->data[rn][cn + sgny *1];
-            }
-        }
-        if(!OUTOFMAP(m_ElevationFilled,rn + sgnx *1,cn + sgny *1))
-        {
-            if(!MV(m_ElevationFilled,rn + sgnx *1,cn + sgny *1))
-            {
-                w4 = (wx) * (wy);
-                v4 =m_ElevationFilled->data[rn + sgnx *1][cn + sgny *1];
-            }
-        }
-
-        return (w1+w2+w3+w4) > 0? ((w1*v1 + w2*v2 + w3*v3 + w4 * v4)/(w1+w2+w3+w4)): 0.0;
-
-
+    return MapMath::GetValueAt(m_ElevationFilled,x,z);
 
 }

@@ -27,7 +27,7 @@
 
 #include <3D/GL3DWidget.h>
 #include <3D/Graphics/GL3DModels.h>
-#include <3D/Objects/GL3DSurface.h>
+#include <3D/World/GL3DSurface.h>
 
 class GL3DTrees : public GL3DObject
 {
@@ -44,12 +44,15 @@ public:
     GL3DModel * m_Tree_highp;
     GL3DModel * m_Tree_medp;
     GL3DModel * m_Tree_lowp;
+    GL3DModel * m_Tree_highp_i;
+    GL3DModel * m_Tree_medp_i;
+    GL3DModel * m_Tree_lowp_i;
 
     void OnCreate(GL3DWidget *widget);
     void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
     void OnDestroy(GL3DWidget *widget);
 
-    void SetTreeDistribution(GL3DSurface * s,cTMap * veg_cover, cTMap * veg_h);
+    void SetTreeDistribution(GL3DWidget * widget,GL3DSurface * s,cTMap * veg_cover, cTMap * veg_h);
 };
 
 

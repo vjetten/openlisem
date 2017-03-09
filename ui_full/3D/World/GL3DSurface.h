@@ -25,7 +25,6 @@
 #ifndef Surface3D
 #define Surface3D
 
-#include "ui_full/3D/Objects/GL3DObject.h"
 #include "ui_full/3D/GL3DWidget.h"
 #include "ui_full/3D/Graphics/GL3DShaders.h"
 #include "ui_full/3D/Graphics/GL3DTextures.h"
@@ -37,11 +36,11 @@ typedef struct GLLDD_LINKEDLIST {
     struct GLLDD_LINKEDLIST *prev;
 }  GLLDD_LINKEDLIST;
 
-class GL3DSurface : public GL3DObject
+class GL3DSurface
 {
 
 public:
-    GL3DSurface() : GL3DObject()
+    GL3DSurface()
     {
     }
 
@@ -52,7 +51,6 @@ public:
     double m_CellSize;
     double m_ElevationMin;
     double m_ElevationMax;
-
 
     cTMap * m_Elevation = 0;
     cTMap * m_ElevationFilled = 0;
@@ -72,56 +70,47 @@ public:
     GL3DTexture * m_Texture_MicroElevation;
     GL3DTexture * m_Texture_MicroElevation_Normal;
 
-    GL3DTexture * m_Texture_grass_bare0_Color;
-    GL3DTexture * m_Texture_grass_bare0_Bump;
-    GL3DTexture * m_Texture_grass_bare0_Normal;
-    GL3DTexture * m_Texture_grass_bare0_Spec;
+    GL3DTexture * m_Texture_DemChange;
+    bool dem_updated = false;
 
-    GL3DTexture * m_Texture_grass_bare1_Color;
-    GL3DTexture * m_Texture_grass_bare1_Bump;
-    GL3DTexture * m_Texture_grass_bare1_Normal;
-    GL3DTexture * m_Texture_grass_bare1_Spec;
-
-    GL3DTexture * m_Texture_grass_bare2_Color;
-    GL3DTexture * m_Texture_grass_bare2_Bump;
-    GL3DTexture * m_Texture_grass_bare2_Normal;
-    GL3DTexture * m_Texture_grass_bare2_Spec;
-
-    GL3DTexture * m_Texture_grass_bare3_Color;
-    GL3DTexture * m_Texture_grass_bare3_Bump;
-    GL3DTexture * m_Texture_grass_bare3_Normal;
-    GL3DTexture * m_Texture_grass_bare3_Spec;
-
-    GL3DTexture * m_Texture_bare_slope1_Color;
-    GL3DTexture * m_Texture_bare_slope1_Bump;
-    GL3DTexture * m_Texture_bare_slope1_Normal;
-    GL3DTexture * m_Texture_bare_slope1_Spec;
-
-    GL3DTexture * m_Texture_bare_slope4_Color;
-    GL3DTexture * m_Texture_bare_slope4_Bump;
-    GL3DTexture * m_Texture_bare_slope4_Normal;
-    GL3DTexture * m_Texture_bare_slope4_Spec;
+    GL3DTexture * m_Texture_grass_slope0_Color;
+    GL3DTexture * m_Texture_grass_slope0_Bump;
+    GL3DTexture * m_Texture_grass_slope0_Normal;
+    GL3DTexture * m_Texture_grass_slope0_Spec;
 
     GL3DTexture * m_Texture_grass_slope1_Color;
     GL3DTexture * m_Texture_grass_slope1_Bump;
     GL3DTexture * m_Texture_grass_slope1_Normal;
     GL3DTexture * m_Texture_grass_slope1_Spec;
 
-    GL3DTexture * m_Texture_grass_slope3_Color;
-    GL3DTexture * m_Texture_grass_slope3_Bump;
-    GL3DTexture * m_Texture_grass_slope3_Normal;
-    GL3DTexture * m_Texture_grass_slope3_Spec;
+    GL3DTexture * m_Texture_bare_slope0_Color;
+    GL3DTexture * m_Texture_bare_slope0_Bump;
+    GL3DTexture * m_Texture_bare_slope0_Normal;
+    GL3DTexture * m_Texture_bare_slope0_Spec;
 
-    GL3DTexture * m_Texture_grass_slope4_Color;
-    GL3DTexture * m_Texture_grass_slope4_Bump;
-    GL3DTexture * m_Texture_grass_slope4_Normal;
-    GL3DTexture * m_Texture_grass_slope4_Spec;
+    GL3DTexture * m_Texture_bare_slope1_Color;
+    GL3DTexture * m_Texture_bare_slope1_Bump;
+    GL3DTexture * m_Texture_bare_slope1_Normal;
+    GL3DTexture * m_Texture_bare_slope1_Spec;
 
+    GL3DTexture * m_Texture_erosion_Color;
+    GL3DTexture * m_Texture_erosion_Bump;
+    GL3DTexture * m_Texture_erosion_Normal;
+    GL3DTexture * m_Texture_erosion_Spec;
+
+    GL3DTexture * m_Texture_deposition_Color;
+    GL3DTexture * m_Texture_deposition_Bump;
+    GL3DTexture * m_Texture_deposition_Normal;
+    GL3DTexture * m_Texture_deposition_Spec;
 
     GL3DTexture * m_Texture_Channel;
 
+    double m_Geometry_Micro_Width = 25;
+    int m_Geometry_Micro_Cells = 3;
+    int m_Geometry_Multiplier = 45.0;
     GL3DGeometry * m_Geometry;
     GL3DGeometry * m_Geometry_Tesselated;
+    GL3DGeometry * m_Geometry_Micro;
 
     QOpenGLVertexArrayObject m_GLObject;
     QOpenGLVertexArrayObject m_GLObject_Tesselated;
@@ -134,6 +123,7 @@ public:
     cTMap * m_RandomRoughness = 0;
     cTMap * m_Buildings = 0;
     cTMap * m_Roads = 0;
+    cTMap * m_DemChange = 0;
 
     cTMap * ChannelLDD;
     cTMap * ChannelWidth;
@@ -153,7 +143,7 @@ public:
     GL3DTexture * m_Texture_Roads;
 
     void SetTerrainProperties(cTMap * VegCover,cTMap * VegHeight,cTMap * RandomRoughness,cTMap * Buildings,cTMap * Roads);
-
+    void SetDemChange(cTMap*DemChange);
     void RotateRight(int &dx, int &dy);
     void RotateLeft(int &dx, int &dy);
     int GetRotationType(int dx1,int dy1,int dx2,int dy2);

@@ -26,14 +26,17 @@
 #define FLOWSURFACE3D
 
 #include <3D/GL3DWidget.h>
-#include <3D/Objects/GL3DSurface.h>
-#include <3D/Objects/GL3DSkyBox.h>
+#include <3D/World/GL3DSurface.h>
+#include <3D/World/GL3DSkyBox.h>
 
-class GL3DFlowSurface : public GL3DObject
+class GL3DSkyBox;
+class GL3DSurface;
+
+class GL3DFlowSurface
 {
 
 public:
-    GL3DFlowSurface() : GL3DObject() {
+    GL3DFlowSurface() {
 
     }
 

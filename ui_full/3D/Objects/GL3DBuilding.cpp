@@ -32,19 +32,22 @@ void GL3DBuildings::OnCreate(GL3DWidget *widget)
     m_Building_h_larger = new GL3DModel();
     m_Building_h_larger->Create(widget);
     m_Building_h_larger->LoadObjectFile(widget,"house_highp_larger/Houses_Pack.obj",11);
+    m_Building_h_larger->CreateVAOs(widget);
 
     m_Building_h_large = new GL3DModel();
     m_Building_h_large->Create(widget);
     m_Building_h_large->LoadObjectFile(widget,"house_highp_large/Final_House.obj",2.0);
+    m_Building_h_large->CreateVAOs(widget);
 
     m_Building_h_med = new GL3DModel();
     m_Building_h_med->Create(widget);
     m_Building_h_med->LoadObjectFile(widget,"house_highp_medium/house_highp.obj",0.45);
+    m_Building_h_med->CreateVAOs(widget);
 
     m_Building_h_small = new GL3DModel();
     m_Building_h_small->Create(widget);
     m_Building_h_small->LoadObjectFile(widget,"house_highp_small/house.obj",1.2);
-
+    m_Building_h_small->CreateVAOs(widget);
 
     /*m_Building_l_larger;
     m_Building_l_large;
@@ -54,92 +57,96 @@ void GL3DBuildings::OnCreate(GL3DWidget *widget)
 
 void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
-    QMatrix4x4 ModelMatrix;
-    ModelMatrix.setToIdentity();
-
-    GL3DModel * m = this->m_Building_h_larger;
-
-    for(int i = 0; i < m->GLVAO_List.length(); i++)
+    if(draw)
     {
-        widget->DrawModelGeometryWithMaterialMultipleStart(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
+        QMatrix4x4 ModelMatrix;
+        ModelMatrix.setToIdentity();
 
-        for(int j = 0;j < this->Building_h_larger_Positions.length(); j++)
+        GL3DModel * m = this->m_Building_h_larger;
+
+        for(int i = 0; i < m->GLVAO_List.length(); i++)
         {
-            ModelMatrix.setToIdentity();
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleStart(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
-                ModelMatrix.translate(this->Building_h_larger_Positions.at(j));
-                ModelMatrix.rotate(this->Building_h_larger_Rotation.at(j),0.0,1.0,0.0);
-                widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+            for(int j = 0;j < this->Building_h_larger_Positions.length(); j++)
+            {
+                ModelMatrix.setToIdentity();
 
+                    ModelMatrix.translate(this->Building_h_larger_Positions.at(j));
+                    ModelMatrix.rotate(this->Building_h_larger_Rotation.at(j),0.0,1.0,0.0);
+                    GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+
+
+            }
+
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
         }
 
-        widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
+        m = this->m_Building_h_large;
 
-    }
-
-    m = this->m_Building_h_large;
-
-    for(int i = 0; i < m->GLVAO_List.length(); i++)
-    {
-        widget->DrawModelGeometryWithMaterialMultipleStart(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-        for(int j = 0;j < this->Building_h_large_Positions.length(); j++)
+        for(int i = 0; i < m->GLVAO_List.length(); i++)
         {
-            ModelMatrix.setToIdentity();
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleStart(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
-                ModelMatrix.translate(this->Building_h_large_Positions.at(j));
-                ModelMatrix.rotate(this->Building_h_large_Rotation.at(j),0.0,1.0,0.0);
-                widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+            for(int j = 0;j < this->Building_h_large_Positions.length(); j++)
+            {
+                ModelMatrix.setToIdentity();
 
+                    ModelMatrix.translate(this->Building_h_large_Positions.at(j));
+                    ModelMatrix.rotate(this->Building_h_large_Rotation.at(j),0.0,1.0,0.0);
+                    GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+
+
+            }
+
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
         }
 
-        widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
+        m = this->m_Building_h_med;
 
-    }
-
-    m = this->m_Building_h_med;
-
-    for(int i = 0; i < m->GLVAO_List.length(); i++)
-    {
-        widget->DrawModelGeometryWithMaterialMultipleStart(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-         for(int j = 0;j < this->Building_h_med_Positions.length(); j++)
+        for(int i = 0; i < m->GLVAO_List.length(); i++)
         {
-            ModelMatrix.setToIdentity();
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleStart(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
-                ModelMatrix.translate(this->Building_h_med_Positions.at(j));
-                ModelMatrix.rotate(this->Building_h_med_Rotation.at(j),0.0,1.0,0.0);
-                widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+             for(int j = 0;j < this->Building_h_med_Positions.length(); j++)
+            {
+                ModelMatrix.setToIdentity();
+
+                    ModelMatrix.translate(this->Building_h_med_Positions.at(j));
+                    ModelMatrix.rotate(this->Building_h_med_Rotation.at(j),0.0,1.0,0.0);
+                    GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
 
 
-        }
+            }
 
-        widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
+            GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
-     }
+         }
 
-      m = this->m_Building_h_small;
+          m = this->m_Building_h_small;
 
-      for(int i = 0; i < m->GLVAO_List.length(); i++)
-      {
-          widget->DrawModelGeometryWithMaterialMultipleStart(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-          for(int j = 0;j < this->Building_h_small_Positions.length(); j++)
+          for(int i = 0; i < m->GLVAO_List.length(); i++)
           {
-              ModelMatrix.setToIdentity();
+              GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleStart(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
-                 ModelMatrix.translate(this->Building_h_small_Positions.at(j));
-                 ModelMatrix.rotate(this->Building_h_small_Rotation.at(j),0.0,1.0,0.0);
-                 widget->DrawModelGeometryWithMaterialMultiple(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+              for(int j = 0;j < this->Building_h_small_Positions.length(); j++)
+              {
+                  ModelMatrix.setToIdentity();
 
+                     ModelMatrix.translate(this->Building_h_small_Positions.at(j));
+                     ModelMatrix.rotate(this->Building_h_small_Rotation.at(j),0.0,1.0,0.0);
+                     GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+
+
+              }
+
+              GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
           }
 
-          widget->DrawModelGeometryWithMaterialMultipleEnd(m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
-      }
+    }
 
 }
 

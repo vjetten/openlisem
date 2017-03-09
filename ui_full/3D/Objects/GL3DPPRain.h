@@ -53,7 +53,7 @@ public:
         m_RainTexture = widget->m_Textures->LoadTextureFromFile("rainfall1.png",true,true);
         m_Object = new QOpenGLVertexArrayObject();
         m_Object->create();
-        widget->BindGeometry(*m_Object,m_RainShader,widget->m_Geometries->QuadGeometry);
+        GL3DDrawFunctions::BindGeometry(widget,*m_Object,m_RainShader,widget->m_Geometries->QuadGeometry);
 
     }
 

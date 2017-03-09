@@ -91,9 +91,13 @@ void GL3DShaders::Create(GL3DWidget * widget)
     m_DefaultShaderList.append(LoadShaderFromFile("flow/f.glsl","flow/v.glsl",false,"flow/tc.glsl","flow/te.glsl","flow/g.glsl"));
     //GL3D_SHADER_MODEL = 4
     m_DefaultShaderList.append(LoadShaderFromFile("objects/object_f.glsl","objects/object_v.glsl",false));
-    //GL3D_SHADER_ROADS = 5
+    //GL3D_SHADER_MODEL_INSTANCED = 5
+    m_DefaultShaderList.append(LoadShaderFromFile("objects/object_i_f.glsl","objects/object_i_v.glsl",false));
+    //GL3D_SHADER_MODEL_INSTANCED = 6
+    m_DefaultShaderList.append(LoadShaderFromFile("objects/object_gli_f.glsl","objects/object_gli_v.glsl",false));
+    //GL3D_SHADER_ROADS = 7
     m_DefaultShaderList.append(LoadShaderFromFile("roads/roads_f.glsl","roads/roads_v.glsl",false));
-    //GL3D_SHADER_CHANNEL = 6
+    //GL3D_SHADER_CHANNEL = 8
     m_DefaultShaderList.append(LoadShaderFromFile("channel/channel_f.glsl","channel/channel_v.glsl",false,"","","channel/channel_g.glsl"));
 
 }

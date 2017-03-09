@@ -76,13 +76,29 @@ public:
     QList<int> Material_Pointer;
     QList<QOpenGLVertexArrayObject *> GLVAO_List;
 
-    void LoadObjectFile(GL3DWidget * w, QString file, float rescale = 1.0);
+    int m_BufferSize = 0;
+    int m_InstanceCount = 0;
+    bool is_instanced;
+    QOpenGLBuffer m_Matrix;
+    void CreateMatrixBuffer(int n, QVector3D *T, QQuaternion *R, QVector3D *S);
+    void CreateMatrixBuffer(int n, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S);
+    void CreateMatrixBuffer(int n);
+
+    void BindMatrixBuffer();
+    void WriteToMatrixBuffer(int offset, QVector3D T, QQuaternion R, QVector3D S);
+    void WriteToMatrixBuffer(int nr, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S);
+    void WriteToMatrixBuffer(QList<bool> *b, QList<QVector3D> *T, QList<QQuaternion> *R, QList<QVector3D> *S);
+    void ReleaseMatrixBuffer();
+
+    void LoadObjectFile(GL3DWidget * w, QString file, float rescale = 1.0 );
     QList<GL3DMaterial *> LoadMaterialsFile(GL3DWidget * widget,QString file,QString path);
 
     void AddCustomGeometry(GL3DWidget * w, GL3DGeometry * g, GL3DMaterial * m);
     void BindCustomShader(GL3DWidget * w, GL3DShader * s);
 
-    void Create(GL3DWidget * widget);
+    void CreateVAOs(GL3DWidget * widget);
+
+    void Create(GL3DWidget * widget, bool instanced = false, bool glinstanced = false);
     void Destroy(GL3DWidget * widget);
 
     struct vec3d

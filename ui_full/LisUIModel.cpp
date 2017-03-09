@@ -192,10 +192,31 @@ void lisemqt::worldShow()
     {
         if(first3d)
         {
+
+
             creator->CreateWorldFromLisem();
+
             first3d = false;
+            doupdate3d = true;
+
         }else
         {
+            if(creator->DoneLoading)
+            {
+                if(doupdate3d)
+                {
+                    doUpdateGLSettings();
+                    doupdate3d = false;
+                }
+                //enable 3d tab
+                tabWidget->setTabEnabled(3,true);
+
+                QPalette pal = Button3D->palette();
+                pal.setColor(QPalette::Button, QColor(Qt::green));
+                Button3D->setAutoFillBackground(true);
+                Button3D->setPalette(pal);
+                Button3D->update();
+            }
             creator->UpdateWorldFromLisem();
         }
     }

@@ -184,7 +184,7 @@ class GL3DGeometries
 public:
     QList<GL3DGeometry *> m_GeometryList;
 
-    GL3DGeometry * LoadGeometryFromMap(cTMap * elevation, int res_x,int res_y, bool data2d = false);
+    GL3DGeometry * LoadGeometryFromMap(cTMap * elevation, int m = 1, bool data2d = false);
     GL3DGeometry * LoadGeometryFromArray(const Vertex * data, int lv,const GLuint * indices, int li);
     GL3DGeometry * LoadGeometryFromFile(QString file);
 
@@ -230,7 +230,7 @@ public:
     };
     double GetMapValue(cTMap * map,double x, double y);
 
-    void CreateGeometry(QGLWidget * widget,cTMap * map, int max_res_x, int max_res_y, bool data2d = false);
+    void CreateGeometry(QGLWidget * widget,cTMap * map, int m = 1, bool data2d = false);
     void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv,const GLuint * indices, int li);
     void CreateGeometry(QGLWidget * widget,const Vertex2D * data, int lv,const GLuint * indices, int li);
     void CreateGeometry(QGLWidget * widget,const Vertex * data, int lv);

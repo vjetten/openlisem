@@ -32,11 +32,11 @@ void GL3DGeometries::Create(GL3DWidget * widget)
     QuadGeometry->CreateGeometry(widget,g_quad_vertex_buffer_data,6);
 }
 
-GL3DGeometry * GL3DGeometries::LoadGeometryFromMap(cTMap * elevation, int max_res_x,int max_res_y, bool data2d)
+GL3DGeometry * GL3DGeometries::LoadGeometryFromMap(cTMap * elevation, int m, bool data2d)
 {
 
     GL3DGeometry *g = new GL3DGeometry();
-    g->CreateGeometry(m_Widget,elevation,max_res_x,max_res_y,data2d);
+    g->CreateGeometry(m_Widget,elevation,m,data2d);
     this->m_GeometryList.append(g);
     return g;
 }
@@ -125,14 +125,20 @@ double GL3DGeometry::GetMapValue(cTMap * map,double y, double x)
     return (w1+w2+w3+w4) > 0? ((w1*v1 + w2*v2 + w3*v3 + w4 * v4)/(w1+w2+w3+w4)): 0.0;
 }
 
-void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int res_y, bool data2d)
+void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int m, bool data2d)
 {
     uses_index = true;
     this->is_2d_data = data2d;
 
+    int n = 0;
+    for(int r = 0; r < map->nrRows(); r = r + m){
+    for (int c = 0; c < map->nrCols(); c= c + m){
+                n++;
+    }}
+
     int oresx = map->nrCols();
     int oresy = map->nrRows();
-    int n = 0;
+
     int xmin = oresx;
     int xmax = 0;
     int ymin = oresy;
@@ -149,7 +155,7 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int 
             emax = map->Drc;
             emin = map->Drc;
         }
-        n++;
+
         xmin = std::min(c,xmin);
         xmax = std::max(c,xmax);
         ymin = std::min(r,ymin);
@@ -203,11 +209,15 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int 
     qDebug() << "succesfully allocated memory";
 
     int nt =0;
-    double cs = map->cellSize();
+    double cs =  map->cellSize();
+    double csm = m * map->cellSize();
 
     qDebug() << "create vertices";
-    FOR_ROW_COL_MV(map,map)
-    {
+
+
+    for(int r = 0; r < map->nrRows(); r = r + m){
+    for (int c = 0; c < map->nrCols(); c= c + m){
+
         double c2 = (double(c))-0.5;
         double r2 = (double(r))-0.5;
 
@@ -218,13 +228,13 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int 
         if(!data2d)
         {
             vertexdata[nt*6 + 0] = Vertex(QVector3D((double)c2*cs,e1,(double)r2*cs),QVector3D((e1-emin)/(erange),(e1-emin)/(erange),(e1-emin)/(erange)));
-            vertexdata[nt*6 + 1] = Vertex(QVector3D((double)(c2+1.0)*cs,e2,(double)r2*cs),QVector3D((e2-emin)/(erange),(e2-emin)/(erange),(e2-emin)/(erange)));
-            vertexdata[nt*6 + 2] = Vertex(QVector3D((double)c2*cs,e3,(double)(r2+1.0)*cs),QVector3D((e3-emin)/(erange),(e3-emin)/(erange),(e3-emin)/(erange)));
+            vertexdata[nt*6 + 1] = Vertex(QVector3D((double)(c2+m)*cs,e2,(double)r2*cs),QVector3D((e2-emin)/(erange),(e2-emin)/(erange),(e2-emin)/(erange)));
+            vertexdata[nt*6 + 2] = Vertex(QVector3D((double)c2*cs,e3,(double)(r2+m)*cs),QVector3D((e3-emin)/(erange),(e3-emin)/(erange),(e3-emin)/(erange)));
 
             e1 = GetMapValue(map,(r2+1)*cs,(c2+1)*cs);
-            vertexdata[nt*6 + 3] = Vertex(QVector3D((double)(c2+1.0)*cs,e1,(r2+1.0)*cs),QVector3D((e1-emin)/(erange),(e1-emin)/(erange),(e1-emin)/(erange)));
-            vertexdata[nt*6 + 4] = Vertex(QVector3D((double)c2*cs,e3,(double)(r2+1.0)*cs),QVector3D((e3-emin)/(erange),(e3-emin)/(erange),(e3-emin)/(erange)));
-            vertexdata[nt*6 + 5] = Vertex(QVector3D((double)(c2+1.0)*cs,e2,(double)r2*cs),QVector3D((e2-emin)/(erange),(e2-emin)/(erange),(e2-emin)/(erange)));
+            vertexdata[nt*6 + 3] = Vertex(QVector3D((double)(c2+m)*cs,e1,(r2+m)*cs),QVector3D((e1-emin)/(erange),(e1-emin)/(erange),(e1-emin)/(erange)));
+            vertexdata[nt*6 + 4] = Vertex(QVector3D((double)c2*cs,e3,(double)(r2+m)*cs),QVector3D((e3-emin)/(erange),(e3-emin)/(erange),(e3-emin)/(erange)));
+            vertexdata[nt*6 + 5] = Vertex(QVector3D((double)(c2+m)*cs,e2,(double)r2*cs),QVector3D((e2-emin)/(erange),(e2-emin)/(erange),(e2-emin)/(erange)));
 
             indexdata[nt*6 + 0] = (GLuint)(nt*6 + 0);
             indexdata[nt*6 + 1] = (GLuint)(nt*6 + 1);
@@ -246,7 +256,7 @@ void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int res_x, int 
         }
 
         nt ++;
-    }
+    }}
     qDebug() << "succesfully created vertices";
 
     qDebug() << "create and fill buffers";

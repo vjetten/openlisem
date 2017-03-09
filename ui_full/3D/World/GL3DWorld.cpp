@@ -29,23 +29,40 @@ void GL3DWorld::Create(GL3DWidget * widget)
     m_Widget = widget;
     is_created = true;
 
+    Light_Ambient = QVector4D(1.0,1.0,1.0,0.3);
+    Light_Directional = QVector4D(1.0,1.0,1.0,0.3);
+    Light_Directional_Direction = QVector3D(-1.0,-1.0,-1.0);
+
 }
 
-
-void GL3DWorld::AddObject(GL3DObject * object, bool is_surface, bool is_skybox, bool is_watersurface)
+void GL3DWorld::SetSurface(GL3DSurface * s)
 {
-    if(is_surface)
-    {
-        this->m_Surface = object;
-    }
-    if(is_skybox)
-    {
-        this->m_SkyBox = object;
-    }
-    if(is_watersurface)
-    {
-        this->m_WaterSurface = object;
-    }
+    s->OnCreate(m_Widget);
+    this->m_Surface = s;
+
+}
+
+void GL3DWorld::SetSkyBox(GL3DSkyBox * s)
+{
+    s->OnCreate(m_Widget);
+    this->m_SkyBox = s;
+
+}
+
+void GL3DWorld::SetWaterSurface(GL3DFlowSurface * fs)
+{
+    fs->OnCreate(m_Widget);
+    this->m_WaterSurface = fs;
+
+}
+
+void GL3DWorld::SetCameraController(GL3DCameraController * cc)
+{
+    this->m_CameraController = cc;
+}
+
+void GL3DWorld::AddObject(GL3DObject * object)
+{
 
     if(object->added)
     {
@@ -55,6 +72,8 @@ void GL3DWorld::AddObject(GL3DObject * object, bool is_surface, bool is_skybox, 
     if(!object->created)
     {
         object->OnCreate(this->m_Widget);
+
+        object->OnCreatSurfaceBasedObjects(m_Widget,this,this->m_Surface, m_Widget->m_Camera->m_Position);
     }
     object->OnAddToWorld(this);
 
@@ -155,13 +174,21 @@ void GL3DWorld::Destroy()
 
 }
 
+void GL3DWorld::ResetToStart()
+{
+
+
+
+}
+
+
 void GL3DWorld::OnRenderBefore(GL3DWidget * widget, GL3DCamera* camera, double dt)
 {
 
     for(int i = 0; i < m_RenderBeforeObjectList.length();i++)
     {
 
-        m_RenderBeforeObjectList.at(i)->OnRender(widget,this,camera,dt);
+        m_RenderBeforeObjectList.at(i)->OnRenderBefore(widget,this,camera,dt);
     }
 }
 
@@ -201,9 +228,12 @@ void GL3DWorld::OnRenderPost(GL3DWidget * widget, GL3DCamera* camera, double dt)
 
 void GL3DWorld::OnUpdate(GL3DWidget * widget, double dt)
 {
+
+    this->m_CameraController->OnUpdate(widget,this,dt);
+
     for(int i = 0; i < m_ObjectList.length();i++)
     {
-        m_ObjectList.at(i)->OnUpdate(widget,this,dt);
+        m_ObjectList.at(i)->OnUpdate(widget,this, widget->m_Camera->m_Position,dt);
     }
 }
 

@@ -23,7 +23,7 @@
 *************************************************************************/
 
 #include <3D/Graphics/GL3DTextures.h>
-#include <3D/Objects/GL3DFlowSurface.h>
+#include <3D/World/GL3DFlowSurface.h>
 
 void GL3DFlowSurface::SetSurface(GL3DSurface * surface)
 {
@@ -144,7 +144,11 @@ void GL3DFlowSurface::OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCa
     m_Shader_Flow->m_program->setUniformValue("ElevationMax",(float)m_Surface->m_ElevationMax);
     m_Shader_Flow->m_program->setUniformValue("viewportSize",camera->m_viewportSize);
 
-    m_Shader_Flow->m_program->setUniformValue("CellSize",(float)m_Surface->m_CellSize);
+    m_Shader_Flow->m_program->setUniformValue("CellSize",(float)m_Surface->m_CellSize * (float) m_Surface->m_Geometry_Multiplier);
+
+    m_Shader_Flow->m_program->setUniformValue("Light_Ambient",world->Light_Ambient);
+    m_Shader_Flow->m_program->setUniformValue("Light_Directional",world->Light_Directional);
+    m_Shader_Flow->m_program->setUniformValue("Light_Directional_Direction",world->Light_Directional_Direction);
 
     m_Surface->m_GLObject_Tesselated.bind();
 

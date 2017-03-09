@@ -90,23 +90,43 @@ void GL3DTextures::Destroy()
 
 void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
 {
+    qDebug() << "create frame buffers " << w << h << "gl context " << widget << widget->gl;
 
+    if(w == 0 || h == 0)
+    {
+        return;
+    }
     if(this->bufferscreated)
     {
+        qDebug() << "delete old buffers";
         widget->gl->glDeleteTextures(1,&RenderTexture);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&RenderTextureCopy);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&RenderTextureWater);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&LocationTexture);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&NormalTexture);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&InfoTexture);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&ChannelTexture);
+        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&ChannelInfoTexture);
+        qDebug() << "deleted" << FramebufferCopy << ChannelFramebuffer << Framebuffer << FramebufferWater;
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferCopy);
+        qDebug() << "deleted";
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &ChannelFramebuffer);
+        qDebug() << "deleted";
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &Framebuffer);
+        qDebug() << "deleted";
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferWater);
+
+        qDebug() << "deleted";
     }
 
+    qDebug() << "Generate new buffers";
     widget->gl->glGenFramebuffers(1, &Framebuffer);
     widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 
@@ -117,6 +137,9 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glGenTextures(1, &InfoTexture);
 
 
+    qDebug() << "Generated";
+
+    qDebug() << "Allocate data";
     widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTexture);
     widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -218,6 +241,8 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
 
     bufferscreated = true;
 
+    qDebug() << "created frame buffers";
+
 }
 
 void GL3DTexture::CreateTexture(GL3DWidget * widget,float * ,int lx, int ly)
@@ -287,7 +312,6 @@ void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevatio
 
     }else if(!mask)
     {
-        qDebug() << "CREATE DATA TEXTURE";
         int n = elevation->nrCols()*elevation->nrRows();
         GLfloat*data = (float *)malloc(n * sizeof(GLfloat) );
 
@@ -333,7 +357,6 @@ void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevatio
         free(data);
     }else
     {
-        qDebug() << "CREATE MASK TEXTURE";
         int n = elevation->nrCols()*elevation->nrRows();
         GLfloat*data = (GLfloat *)malloc(n * sizeof(GLfloat) );
 
