@@ -46,10 +46,9 @@ INFILTRATIONMAPS
 CHANNELMAPS
 BUFFERSMAPS
 SNOWMELTMAPS
-WHEELTRACKSMAPS
-TEXTUREMAPS
+
 NUTRIENTSMAPS
-GULLIESMAPS
+
 */
 
 
@@ -223,7 +222,6 @@ void lisemqt::on_checkSedtrap_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSnowmelt_clicked()
 {
-//    checkMapNameModel(SNOWMELTMAPS, 0, checkSnowmelt->isChecked());
     checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
 
     E_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
@@ -234,7 +232,7 @@ void lisemqt::on_checkSnowmelt_clicked()
 //--------------------------------------------------------------------
 void lisemqt::doCheckSnowmelt(bool check)
 {
-    checkMapNameModel(RAINFALLMAPS/*SNOWMELTMAPS*/, 0, check);
+    checkMapNameModel(RAINFALLMAPS, 0, check);
 
     E_SnowmeltName->setEnabled(check);
     label_5->setEnabled(check);
@@ -281,7 +279,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
-    checkMapNameModel(RAINFALLMAPS /*SNOWMELTMAPS*/, 0, checkSnowmelt->isChecked());
+    checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkBuffers->isChecked());
     checkMapNameModel(BUFFERSMAPS, 0, checkSedtrap->isChecked());
 

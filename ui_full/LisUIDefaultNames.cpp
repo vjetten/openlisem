@@ -72,7 +72,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
     DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
-    DEFmaps.append("2;D90;d90.map;Median of the texture of the suspendeed matter (mu);d90");
+    DEFmaps.append("2;D90;d90.map;90% quartile of the texture of the suspendeed matter (mu);d90");
     DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
     DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
 
@@ -104,19 +104,19 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
 
     DEFmaps.append("0;Channels");
-    DEFmaps.append("1;Channel properties");
+//    DEFmaps.append("1;Channel properties");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
     DEFmaps.append("2;Width;chanwidt.map;Channel width (m);chanwidth");
     DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
+//    DEFmaps.append("1;Channel Infil");
+    DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
+//    DEFmaps.append("1;Channel BaseFLow");
+    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
-    DEFmaps.append("1;Channel Infil");
-    DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-    DEFmaps.append("1;Channel BaseFLow");
-    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
 
     DEFmaps.append("0;Channel Flood");
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
@@ -502,6 +502,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel N calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Cohesion calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Cohesion Channel calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Aggregate stability calibration");
     namelist[i].value = QString("0.1");

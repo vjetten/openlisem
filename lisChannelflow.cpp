@@ -73,7 +73,7 @@ void TWorld::CalcVelDischChannel(void)
 
         Radius = (Perim > 0 ? Area/Perim : 0);
 
-        if (grad > 0)
+        if (grad > MIN_SLOPE)
         ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, _23),beta);
         else
             ChannelAlpha->Drc = 0;

@@ -346,7 +346,7 @@ double TWorld::OFTC(int r, int c, int d)
         //### Calc transport capacity
         double omega = 0;
 
-            omega = 100* V->Drc*Grad->Drc;
+        omega = 100* V->Drc*Grad->Drc;
 
         // V in cm/s in this formula assuming grad is SINE
         double omegacrit = 0.4;

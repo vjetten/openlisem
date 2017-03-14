@@ -73,7 +73,6 @@
 #define CHANNELMAPS 6
 #define CHANNELFLOODMAPS 7
 #define BUFFERSMAPS 8
-//#define SNOWMELTMAPS 9
 #define TILEDRAINMAPS 10   //VJ 110111
 #define HOUSESMAPS 11  //VJ 120314
 #define NUTRIENTSMAPS 13
@@ -376,8 +375,6 @@ public slots:
     void ssetAlpha3(int v);
     void ssetAlpha4(int v);
     void ssetAlpha5(int v);
-
-    void doReset();
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);

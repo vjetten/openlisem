@@ -423,7 +423,7 @@ void TWorld::CalcVelDisch()
         else
             R->Drc = 0;
 
-        if (Grad->Drc > 0)
+        if (Grad->Drc > MIN_SLOPE)
             Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
         else
             Alpha->Drc = 0;
@@ -752,7 +752,7 @@ void TWorld::OverlandFlowNew(void)
 
         if(SwitchKinematic2D == K1D_METHOD)//if(SwitchKinematic2D != K1D_METHOD)
         {
-            if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+            if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
             {
                 if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
                     V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
@@ -765,7 +765,7 @@ void TWorld::OverlandFlowNew(void)
             }
         }else
         {
-            if(K2DSlope->Drc != 0 && K2DPits->Drc != 1)
+            if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
             {
                 if (ChannelAdj->Drc > 0 && WHrunoff->Drc > 0)
                     V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);

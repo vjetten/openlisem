@@ -98,18 +98,11 @@ void lisemqt::initMapPlot()
     //    transparency3->setValue(160); //roads
     //    transparency4->setValue(100); //houses
 }
-void lisemqt::doReset()
-{
-    mapRescaler->setReferenceAxis( QwtPlot::yLeft );
-}
 
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
-    connect(toolButtonResetScalar, SIGNAL(pressed()), this, SLOT(doReset()));
-
-
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);

@@ -71,8 +71,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     showMaximized();
 
-    genfontsize = 8;
-
     tabWidgetOptions->setCurrentIndex(0);
 
     MapNameModel = NULL;

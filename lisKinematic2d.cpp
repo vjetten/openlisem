@@ -115,7 +115,7 @@ void TWorld::K2DInit()
     //water is devided over the FlowWidth
     FOR_ROW_COL_MV
     {
-        if(K2DSlope->Drc == 0)
+        if(K2DSlope->Drc < MIN_SLOPE)
         {
             K2DQ->Drc = 0;
             Qn->Drc = 0;
@@ -632,7 +632,7 @@ void TWorld::K2DCalcVelDisch()
 {
     FOR_ROW_COL_MV
     {
-        if(K2DPits->Drc == 1 || K2DSlope->Drc == 0)
+        if(K2DPits->Drc == 1 || K2DSlope->Drc < MIN_SLOPE)
         {
             Q->Drc = 0;
             V->Drc = 0;

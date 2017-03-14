@@ -68,7 +68,7 @@ void TWorld::ChannelOverflow()
             // fraction from hmx to channel based on avefrage flood velocity
             //double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*_dx));//ChannelWidthUpDX->Drc));
             // fraction from channel to surrounding adj area based on gravity flow perpedicular to channel
-            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(Grad->Drc)/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
+            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
 
             double fc = ChannelWidthUpDX->Drc/_dx; // 1-fc = (dx-chw)/dx = chanadj/dx
             // fraction of the channel in the gridcell

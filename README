@@ -1,12 +1,28 @@
-NEW openLISEM
+openLISEM
+============
+Date: 170308
+============
 
-For older versions and list of changes contact v.g.jetten#utwente.nl
+For older versions and list of changes contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is no longer supported
 
 NOTE: a linux version exists, on request (Thanks to Dr David Favis Mortlock).
 
-version 3.96 (110217)
+version 3.97 - 3.99 (170308)
+- BugFix: Calibration factor for Cohesion and Aggregate stability (they were reversed)
+- BugFix: in Channel Cohesion, soil sohesion was used instead of channel cohesion
+- BugFix: cleaned up litter interception, roof interception and effect of raindrums 
+- BugFix: ensures that screen information, file and map output is all the same
+- Added: Fixed bilinear interpolation for sediment, other options give mass balance errors
+- Added: EXPERIMENTAL: an empirical factor (1-99) to increase the flow in the direction of the steepest resistance slope for diffuse overland flow. 
+- Added: calibration factor for channel cohesion
+- Added: if the cohesion of slopes or channels is negative, the detachment is assumed to be zero. Deposition will take place
+- Added: total interception (roofs, canopy, litter, randrums) to the screen output (in mm)
+- Added: the possibility to write GeoTIFF files for the main map outptu. GTiff is not georeferenced). Tif input is also automatically possible (experimental) 
+- Added: small interface changes to deal with low resolution screens
+
+version 3.96 (170211)
 - Fixed a bug in coupling overland flow and flood water
 - fixed a bug in automatic adjustment of legend when switching maps
 
@@ -68,7 +84,7 @@ Good Luck
 Victor Jetten
 
 Chair Natural Hazards and Disaster Risk Management 
-Department of Earth Systems Analysis Faculty 
+Department of Earth Systems Analysis  
 Faculty ITC, Twente University, 
 the Netherlands 
-jetten@itc.nl
+v.g.jetten AD utwente.nl
