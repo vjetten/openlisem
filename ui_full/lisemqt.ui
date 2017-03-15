@@ -95,7 +95,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -8630,8 +8630,6 @@ p, li { white-space: pre-wrap; }
                      <zorder>label_131</zorder>
                      <zorder>checkLimitTC</zorder>
                      <zorder>matdepthparams</zorder>
-                     <zorder>label_130</zorder>
-                     <zorder>E_DepositedCohesion</zorder>
                     </widget>
                    </item>
                   </layout>
@@ -15462,16 +15460,16 @@ p, li { white-space: pre-wrap; }
               <item row="0" column="0" rowspan="2">
                <layout class="QGridLayout" name="gridLayout_22">
                 <property name="leftMargin">
-                 <number>0</number>
+                 <number>4</number>
                 </property>
                 <property name="topMargin">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <property name="rightMargin">
-                 <number>0</number>
+                 <number>4</number>
                 </property>
                 <property name="bottomMargin">
-                 <number>0</number>
+                 <number>4</number>
                 </property>
                 <property name="horizontalSpacing">
                  <number>4</number>
@@ -15921,6 +15919,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="bottomMargin">
                  <number>4</number>
+                </property>
+                <property name="horizontalSpacing">
+                 <number>8</number>
                 </property>
                 <property name="verticalSpacing">
                  <number>2</number>

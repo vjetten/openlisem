@@ -206,6 +206,8 @@ void TWorld::OutputUI(void)
 
     if (SwitchIncludeChannel)
         copy(*op.channelMap, *ChannelWidthExtended);
+
+    report(*ChannelWidthExtended, "cwe.map");
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
 
     if (SwitchRoadsystem)
