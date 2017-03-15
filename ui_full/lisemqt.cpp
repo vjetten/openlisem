@@ -237,11 +237,26 @@ void lisemqt::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
    groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
-   if (this->height() >= 850)
+   if (event->size().height() >= 850)
+  // if (this->height() >= 850)
    {
        groupBox_drawMap->setVisible(true);
        groupBox_info->setVisible(true);
-
+       tabWidget_out->setIconSize(QSize(32,32));
+       this->setStyleSheet(QString("\
+                                   QLabel {font: %1pt;} \
+                                   QGroupBox {font: %1pt;} \
+                                   QLineEdit {font: %1pt;} \
+                                   QCheckBox {font: %1pt;} \
+                                   QRadioButton {font: %1pt;} \
+                                   QSpeedButton {font: %1pt;} \
+                                   QDoubleSpinBox {font: %1pt;} \
+                                   QSpinBox {font: %1pt;} \
+                                   QComboBox {font: %1pt;} \
+                                   QTabWidget {font: %1pt;} \
+                                   QTreeView {font: %1pt;} \
+                                   QPlainTextEdit {font: %1pt;} \
+                                   ").arg(8));
    }
    else
    {
@@ -250,12 +265,26 @@ void lisemqt::resizeEvent(QResizeEvent* event)
            groupBox_drawMap->setVisible(false);
            groupBox_info->setVisible(true);
        }
-
        else
        {
            groupBox_drawMap->setVisible(true);
            groupBox_info->setVisible(false);
        }
+       this->setStyleSheet(QString("\
+                                   QLabel {font: %1pt;} \
+                                   QGroupBox {font: %1pt;} \
+                                   QLineEdit {font: %1pt;} \
+                                   QCheckBox {font: %1pt;} \
+                                   QRadioButton {font: %1pt;} \
+                                   QSpeedButton {font: %1pt;} \
+                                   QDoubleSpinBox {font: %1pt;} \
+                                   QSpinBox {font: %1pt;} \
+                                   QComboBox {font: %1pt;} \
+                                   QTabWidget {font: %1pt;} \
+                                   QTreeView {font: %1pt;} \
+                                   QPlainTextEdit {font: %1pt;} \
+                                   ").arg(6));
+       tabWidget_out->setIconSize(QSize(16,16));
    }
 
 }
@@ -267,7 +296,6 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
     {
         groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
-        //tabWidget_out->currentIndex() == 1);
     }
     else
     {
@@ -1736,7 +1764,7 @@ void lisemqt::fontSelect()
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = std::max(6, genfontsize);
+    genfontsize = std::max(5, genfontsize);
 
     this->setStyleSheet(QString("\
                                 QLabel {font: %1pt;} \

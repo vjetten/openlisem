@@ -153,7 +153,7 @@ public:
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();
-    double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type);
+    double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD);//, double type);
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
@@ -371,10 +371,10 @@ public slots:
     void on_checkReadGrainSizeDistribution_toggled(bool v);
 
     void ssetAlpha(int v);
-    void ssetAlpha2(int v);
-    void ssetAlpha3(int v);
-    void ssetAlpha4(int v);
-    void ssetAlpha5(int v);
+    void ssetAlphaChannel(int v);
+    void ssetAlphaRoad(int v);
+    void ssetAlphaHouse(int v);
+    void ssetAlphaBarrier(int v);
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);

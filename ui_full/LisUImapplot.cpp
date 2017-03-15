@@ -54,28 +54,28 @@ void lisemqt::ssetAlpha(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ssetAlpha2(int v)
+void lisemqt::ssetAlphaChannel(int v)
 {
     channelMap->setAlpha(v);
     if (v > 0)
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ssetAlpha3(int v)
+void lisemqt::ssetAlphaRoad(int v)
 {
     roadMap->setAlpha(v);
     if (v > 0)
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ssetAlpha4(int v)
+void lisemqt::ssetAlphaHouse(int v)
 {
     houseMap->setAlpha(v);
     if (v > 0)
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ssetAlpha5(int v)
+void lisemqt::ssetAlphaBarrier(int v)
 {
   flowbarriersMap->setAlpha(v);
   if (v > 0)
@@ -207,7 +207,7 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type)
+double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)//, double type)
 {
     double maxV = -1e20;
     mapData.clear();  //QVector double
@@ -230,6 +230,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
 
   //  mapData.replace(0, (double)type);
     // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
+    //obsolete
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -349,7 +350,7 @@ void lisemqt::showComboMap(int i)
     MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
 
     // fill vector RD with matrix data and find the new max value
-    double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD, i);
+    double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD);//, i);
     if (MaxV ==-1e20)
         return;
 
@@ -424,7 +425,7 @@ void lisemqt::showBaseMap()
     if (!startplot)
         return;
 
-    double res = fillDrawMapData(op.baseMap, RDb, 0);
+    double res = fillDrawMapData(op.baseMap, RDb);//, 0);
     if (res == -1e20)
         return;
 
@@ -434,7 +435,7 @@ void lisemqt::showBaseMap()
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    res = fillDrawMapData(op.baseMapDEM, RDbb, 7);
+    res = fillDrawMapData(op.baseMapDEM, RDbb);//, 7);
     if (res == -1e20)
         return;
     double mindem = mapMinimum(*op.baseMapDEM);
@@ -465,7 +466,7 @@ void lisemqt::showChannelMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.channelMap, RDc,0 );
+        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
         if (res ==-1e20)
             return;
         QwtLinearColorMapVJ *pala = new colorMapFlood();
@@ -486,7 +487,7 @@ void lisemqt::showRoadMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.roadMap, RDd, 0);
+        double res = fillDrawMapData(op.roadMap, RDd);//, 0);
         if (res ==-1e20)
             return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
@@ -506,7 +507,7 @@ void lisemqt::showHouseMap()
     if (startplot)
     {
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.houseMap, RDe, 0);
+        double res = fillDrawMapData(op.houseMap, RDe);//, 0);
         if (res ==-1e20)
             return;
         RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
@@ -526,7 +527,7 @@ void lisemqt::showFlowBarriersMap()
     {
 
       // set intervals for rasterdata, x,y,z min and max
-      double res = fillDrawMapData(op.flowbarriersMap, RDf, 0);
+      double res = fillDrawMapData(op.flowbarriersMap, RDf);//, 0);
       if (res ==-1e20)
         return;
       RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));
