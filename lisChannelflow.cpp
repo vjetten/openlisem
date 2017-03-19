@@ -178,9 +178,8 @@ void TWorld::ChannelWaterHeightFromVolume(void)
         else
         {
             /*
- * non-rectangular
-   ABC fornula
-    dw      w       dw
+             non-rectangular, ABC fornula
+           dw      w       dw
    \  |            |  /
     \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
      \|____________|/

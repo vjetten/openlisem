@@ -716,9 +716,11 @@ public:
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void RainfallToFlood(void);
+//    void RainfallToFlood(void);
     void SurfaceStorage(void);
     void OverlandFlow(void);
+    void OverlandFlow2D(void);
+    void OverlandFlow1D(void);
     void OverlandFlowNew(void);
     void ChannelFlow(void);
     double ChannelIterateWH(double _h, int r, int c);
@@ -759,6 +761,7 @@ public:
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow();
+    void distributeChannelSed(int r, int c, double dh, double charea);
     void getFloodParameters(void);
     double courant_factor;
     double courant_factor_diffusive;

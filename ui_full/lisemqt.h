@@ -349,6 +349,7 @@ public slots:
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
     void on_ComboMaxSpinBox2_valueChanged(double);
+    void on_multiplierRain_valueChanged(void);
 
     void setErosionMapOutput(bool doit);
     //void on_spinBoxPointtoShow_valueChanged(int);

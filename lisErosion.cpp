@@ -2178,6 +2178,11 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @see R_BL_Method
  */
+
+//#define FSGOVERS 0
+//#define FSRIJN 1
+//#define FSRIJNFULL 2
+//#define FSWUWANGJIA 3
 double TWorld::RiverSedimentTCBL(int r,int c,int _d)
 {
     //when water height is insignificant, transport capacity is zero

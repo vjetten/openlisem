@@ -199,7 +199,7 @@ void TWorld::DoModel()
 
             CalcVelDisch();        // recalc overland flow velocity, discharge and alpha because of extractions
 
-            OverlandFlowNew();     // overland flow kin wave for water and sed
+            OverlandFlow();     // overland flow kin wave for water and sed
 
             ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
 

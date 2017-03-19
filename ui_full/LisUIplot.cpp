@@ -257,7 +257,7 @@ void lisemqt::GetPlotData()
 {
 
     QtileData << op.Qtile;
-    PData << op.Pmm;
+    PData << op.Pmm*multiplierRain->value();
     TData << op.time;
 
     for(int i = 0; i < OutletIndices.length(); i++)
@@ -287,18 +287,28 @@ void lisemqt::GetPlotData()
 }
 
 //---------------------------------------------------------------------------
+void lisemqt::on_multiplierRain_valueChanged()
+{
+    double mult = (multiplierRain->value() == 0 ? 1.0 : multiplierRain->value());
+    if(multiplierRain->value() > 1.0)
+        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (x%1 mm/h)").arg(mult));
+    else
+        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (mm/h)"));
+}
+//---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-
+    double mult = (multiplierRain->value() == 0 ? 1.0 : multiplierRain->value());
     QData.clear();
     QsData.clear();
     CData.clear();
-
+    PData.clear();
 
     int index = OutletIndices.indexOf(this->outletpoint);
 
     for(int i = 0; i < OutletQ.at(index)->length();i++)
     {
+        PData << Rainfall.at(i)*mult;
         QData << OutletQ.at(index)->at(i);
         QsData <<OutletQs.at(index)->at(i);
         CData << OutletC.at(index)->at(i);
@@ -311,7 +321,7 @@ void lisemqt::showPlot()
     QGraph->setSamples(TData,QData);
 
     yas = std::max(0.01,qmax.at(index));
-    yasP = std::max(yasP, op.Pmm);
+    yasP = std::max(yasP, op.Pmm*mult);
 
     PGraph->setSamples(TData,PData);
 
@@ -324,11 +334,11 @@ void lisemqt::showPlot()
         y2as = std::max(0.1,std::max(qsmax.at(index), cmax.at(index)));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = std::max(0.1,std::max(yas, op.Pmm));
+        yas = std::max(0.1,std::max(yas, op.Pmm*mult));
     }
     else
     {
-        y2as = std::max(0.1,std::max(y2as, op.Pmm));
+        y2as = std::max(0.1,std::max(y2as, op.Pmm*mult));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 

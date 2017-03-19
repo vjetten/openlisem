@@ -822,10 +822,10 @@ void lisemqt::SetToolBar()
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
-    connect(transparency2, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha2(int)));
-    connect(transparency3, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha3(int)));
-    connect(transparency4, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha4(int)));
-    connect(transparency5, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha5(int)));
+    connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
+    connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
+    connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
+    connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     //connect(toolButton_resetFlood, SIGNAL(clicked(bool)), this, SLOT(setFloodOP(bool)));
 }
 //---------------------------------------------------------------------------
@@ -833,7 +833,6 @@ void lisemqt::SetToolBar()
 void lisemqt::SetStyleUI()
 {
     checkBox_SedSingleSingle->setVisible(false);
-    //label_103->setVisible(false);
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);

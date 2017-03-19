@@ -40,6 +40,27 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
+
+void TWorld::distributeChannelSed(int r, int c, double dh, double charea)
+{
+    SSFlood->Drc += ChannelConc->Drc * dh * charea;
+    if(this->SwitchUse2Layer)
+    {
+        ChannelSSSed->Drc -= ChannelConc->Drc * dh * charea;
+    }else
+    {
+        ChannelBLSed->Drc -= ChannelConc->Drc * dh * charea;
+    }
+    if(SwitchUseGrainSizeDistribution)
+    {
+        FOR_GRAIN_CLASSES
+        {
+            SS_D.Drcd +=RSSC_D.Drcd * dh * charea;
+            RSS_D.Drcd -= RSSC_D.Drcd * dh * charea;
+        }
+    }
+
+}
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
@@ -53,7 +74,10 @@ void TWorld::ChannelOverflow()
         {
 
             double levee = 0;//ChannelLevee->Drc;
-            double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
+            //double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
+            double chdepth = ChannelDepthExtended->Drc + levee; // levee always assumed on both sides channel
+            double chwidth = ChannelWidthExtended->Drc;
+            double charea = chwidth*ChannelDX->Drc;
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
             if (dH == 0 && hmx->Drc <= levee)
@@ -64,18 +88,16 @@ void TWorld::ChannelOverflow()
                 continue;
             // no diff in water level, no flow, continue
 
-            double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*_dx));//ChannelAdj->Drc));
+            double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*_dx));
             // fraction from hmx to channel based on avefrage flood velocity
-            //double fracC = std::min(1.0, _dt*sqrt(ChannelWH->Drc*9.8067)/(0.5*_dx));//ChannelWidthUpDX->Drc));
-            // fraction from channel to surrounding adj area based on gravity flow perpedicular to channel
-            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));//ChannelWidthUpDX->Drc));
+            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));
 
-            double fc = ChannelWidthUpDX->Drc/_dx; // 1-fc = (dx-chw)/dx = chanadj/dx
-            // fraction of the channel in the gridcell
+            double fc = chwidth/_dx;
+            // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
             double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
             // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
             // can be negative if channelwh is below channel depth and low hmx level
-            double cwa = ChannelWidthUpDX->Drc/ChannelAdj->Drc;
+            double cwa = chwidth/ChannelAdj->Drc;
 
             bool dosimpel = (SwitchFlood1D2DCoupling == 1);
 
@@ -90,7 +112,6 @@ void TWorld::ChannelOverflow()
                     }
                     else
                     {
-
                         //qDebug() << "from" << fracC;
                         // do the flow
                         hmx->Drc += dwh*cwa;
@@ -99,25 +120,27 @@ void TWorld::ChannelOverflow()
                         //transport sediment with water
                         if(SwitchErosion)
                         {
-                            SSFlood->Drc += ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            distributeChannelSed(r,c,dwh, charea);
+                            /*
+                            SSFlood->Drc += ChannelConc->Drc * dwh * charea;
 
                             if(this->SwitchUse2Layer)
                             {
-                                ChannelSSSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelSSSed->Drc -= ChannelConc->Drc * dwh * charea;
                             }else
                             {
-                                ChannelBLSed->Drc -= ChannelConc->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelBLSed->Drc -= ChannelConc->Drc * dwh * charea;
                             }
 
                             if(SwitchUseGrainSizeDistribution)
                             {
                                 FOR_GRAIN_CLASSES
                                 {
-                                    SS_D.Drcd +=RSSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
-                                    RSS_D.Drcd -= RSSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                    SS_D.Drcd +=RSSC_D.Drcd * dwh * charea;
+                                    RSS_D.Drcd -= RSSC_D.Drcd * dwh * charea;
                                 }
                             }
-
+                            */
                         }
                     }
                 }
@@ -138,24 +161,27 @@ void TWorld::ChannelOverflow()
                         //transport sediment with water
                         if(SwitchErosion)
                         {
-                            SSFlood->Drc -= SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                            distributeChannelSed(r, c, dwh, charea);
+                            /*
+                            SSFlood->Drc -= SSCFlood->Drc * dwh * charea;
 
                             if(this->SwitchUse2Layer)
                             {
-                                ChannelSSSed->Drc += SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelSSSed->Drc += SSCFlood->Drc * dwh * charea;
                             }else
                             {
-                                ChannelBLSed->Drc += SSCFlood->Drc * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelBLSed->Drc += SSCFlood->Drc * dwh * charea;
                             }
 
                             if(SwitchUseGrainSizeDistribution)
                             {
                                 FOR_GRAIN_CLASSES
                                 {
-                                    SS_D.Drcd -=SSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
-                                    RSS_D.Drcd += SSC_D.Drcd * dwh * ChannelWidthUpDX->Drc * DX->Drc;
+                                    SS_D.Drcd -=SSC_D.Drcd * dwh * charea;
+                                    RSS_D.Drcd += SSC_D.Drcd * dwh * charea;
                                 }
                             }
+                            */
                         }
                     }
                 }
@@ -163,7 +189,7 @@ void TWorld::ChannelOverflow()
 
             if (dosimpel)
             {
-                if(whlevel > 0)
+                if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
                 {
                     double hmxold = hmx->Drc;
 
@@ -174,44 +200,49 @@ void TWorld::ChannelOverflow()
                     //transport sediment with water
                     if(SwitchErosion)
                     {
-                        double dhmx = hmx->Drc -hmxold;
+                        double dhmx = hmx->Drc - hmxold;
+
+                        distributeChannelSed(r,c, dhmx,charea);
+                        // if dhmx < 0 this also works because all signs are reversed
+/*
                         if(dhmx > 0.0)
                         {
-                            SSFlood->Drc += ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            SSFlood->Drc += ChannelConc->Drc * dhmx * charea;
                             if(this->SwitchUse2Layer)
                             {
-                                ChannelSSSed->Drc -= ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelSSSed->Drc -= ChannelConc->Drc * dhmx * charea;
                             }else
                             {
-                                ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * charea;
                             }
                             if(SwitchUseGrainSizeDistribution)
                             {
                                 FOR_GRAIN_CLASSES
                                 {
-                                    SS_D.Drcd +=RSSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
-                                    RSS_D.Drcd -= RSSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                    SS_D.Drcd +=RSSC_D.Drcd * dhmx * charea;
+                                    RSS_D.Drcd -= RSSC_D.Drcd * dhmx * charea;
                                 }
                             }
                         }else
                         {
-                            SSFlood->Drc -= SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                            SSFlood->Drc -= SSCFlood->Drc * dhmx * charea;
                             if(this->SwitchUse2Layer)
                             {
-                                ChannelSSSed->Drc += SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelSSSed->Drc += SSCFlood->Drc * dhmx * charea;
                             }else
                             {
-                                ChannelBLSed->Drc += SSCFlood->Drc * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                ChannelBLSed->Drc += SSCFlood->Drc * dhmx * charea;
                             }
                             if(SwitchUseGrainSizeDistribution)
                             {
                                 FOR_GRAIN_CLASSES
                                 {
-                                    SS_D.Drcd -=SSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
-                                    RSS_D.Drcd += SSC_D.Drcd * dhmx * ChannelWidthUpDX->Drc * DX->Drc;
+                                    SS_D.Drcd -=SSC_D.Drcd * dhmx * charea;
+                                    RSS_D.Drcd += SSC_D.Drcd * dhmx * charea;
                                 }
                             }
                         }
+                        */
                     }
                 }
                 else
@@ -220,13 +251,17 @@ void TWorld::ChannelOverflow()
                     // we assume that there is no more flow towards the channel.
                 }
             }
+            ChannelWaterVol->Drc = ChannelWH->Drc * charea;
+            // recalc channel water vol else big MB error
         }
     }
 
-    FOR_ROW_COL_MV_CH
-    {
-        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
-    }
+//    FOR_ROW_COL_MV_CH
+//    {
+//        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
+//        //??? what if channelside != 0:
+
+//    }
     // recalc channel water vol else big MB error
 }
 //---------------------------------------------------------------------------
@@ -295,7 +330,6 @@ void TWorld::FloodSpuriousValues()
 //            qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
 //        }
 //    }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodBoundary()

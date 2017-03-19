@@ -48,7 +48,6 @@ void QwtLinearColorMapVJ::setThreshold( double value)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
-    //drawMap->setAlpha(v);
     baseMap->setAlpha(v);
 
     MPlot->replot();
@@ -57,28 +56,28 @@ void lisemqt::ssetAlpha(int v)
 void lisemqt::ssetAlphaChannel(int v)
 {
     channelMap->setAlpha(v);
-    if (v > 0)
+    if (v > 0 && checkMapChannels->isChecked())
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
 {
     roadMap->setAlpha(v);
-    if (v > 0)
+    if (v > 0 && checkMapRoads->isChecked())
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHouse(int v)
 {
     houseMap->setAlpha(v);
-    if (v > 0)
+    if (v > 0 && checkMapBuildings->isChecked())
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaBarrier(int v)
 {
   flowbarriersMap->setAlpha(v);
-  if (v > 0)
+  if (v > 0 && checkMapFlowBarriers->isChecked())
     MPlot->replot();
 }
 
@@ -92,11 +91,6 @@ void lisemqt::initMapPlot()
     maxAxis4 = -1e20;
     maxAxis5 = -1e20;
     pstep = 0;
-
-    //    transparency->setValue(128);  //main data
-    //    transparency2->setValue(160); //channels
-    //    transparency3->setValue(160); //roads
-    //    transparency4->setValue(100); //houses
 }
 
 //---------------------------------------------------------------------------
@@ -246,6 +240,7 @@ void lisemqt::showMapb(bool)
 {
     showMap();
 }
+//---------------------------------------------------------------------------
 void lisemqt::showMapd(double)
 {
     showMap();
@@ -332,10 +327,10 @@ void lisemqt::showMap()
         showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
     }
 
-    channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
-    roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
-    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
-    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparency5->value() : 0);
+    channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
+    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
+    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
 
     MPlot->replot();
 }
@@ -478,7 +473,7 @@ void lisemqt::showChannelMap()
     }
 
     if (checkMapChannels->isChecked())
-        channelMap->setAlpha(transparency2->value());
+        channelMap->setAlpha(transparencyChannel->value());
     else
         channelMap->setAlpha(0);
 }
@@ -495,7 +490,7 @@ void lisemqt::showRoadMap()
     }
 
     if (checkMapRoads->isChecked())
-        roadMap->setAlpha(transparency3->value());
+        roadMap->setAlpha(transparencyRoad->value());
     else
         roadMap->setAlpha(0);
 
@@ -514,7 +509,7 @@ void lisemqt::showHouseMap()
         houseMap->setData(RDe);
     }
     if (checkMapBuildings->isChecked())
-        houseMap->setAlpha(transparency4->value());
+        houseMap->setAlpha(transparencyHouse->value());
     else
         houseMap->setAlpha(0);
 
@@ -535,7 +530,7 @@ void lisemqt::showFlowBarriersMap()
     }
 
   if (checkMapFlowBarriers->isChecked())
-    flowbarriersMap->setAlpha(transparency5->value());
+    flowbarriersMap->setAlpha(transparencyBarrier->value());
   else
     flowbarriersMap->setAlpha(0);
 

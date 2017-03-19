@@ -932,16 +932,7 @@ void TWorld::InitChannel(void)
 
     }
 
-//        ChannelDepthExtended = NewMap(0.0);
-//        ChannelWidthExtended = NewMap(0.0);
-//        ChannelMaskExtended = NewMap(0.0);
-//        copy(*ChannelWidthExtended, *ChannelWidthUpDX);
-//        if(SwitchChannelFlood)
-//            copy(*ChannelDepthExtended, *ChannelDepth);
-//        FOR_ROW_COL_MV_CH
-//              ChannelMaskExtended->Drc = (ChannelWidthUpDX->Drc > 0 ? 1.0 : 0.0);
-
-        ExtendChannel();
+    ExtendChannel();
 
 }
 
