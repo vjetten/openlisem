@@ -192,8 +192,6 @@ void lisemqt::worldShow()
     {
         if(first3d)
         {
-
-
             creator->CreateWorldFromLisem();
 
             first3d = false;
@@ -220,6 +218,7 @@ void lisemqt::worldShow()
             creator->UpdateWorldFromLisem();
         }
     }
+
     if (doShootScreens)
        shootScreen();
 }

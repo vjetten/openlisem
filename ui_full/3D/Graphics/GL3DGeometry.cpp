@@ -32,6 +32,15 @@ void GL3DGeometries::Create(GL3DWidget * widget)
     QuadGeometry->CreateGeometry(widget,g_quad_vertex_buffer_data,6);
 }
 
+GL3DGeometry * GL3DGeometries::LoadGeometryRaster(int r, int c, double size)
+{
+
+    GL3DGeometry *g = new GL3DGeometry();
+    g->CreateGeometryRaster(m_Widget,r,c,size);
+    this->m_GeometryList.append(g);
+    return g;
+}
+
 GL3DGeometry * GL3DGeometries::LoadGeometryFromMap(cTMap * elevation, int m, bool data2d)
 {
 
@@ -123,6 +132,90 @@ double GL3DGeometry::GetMapValue(cTMap * map,double y, double x)
 
 
     return (w1+w2+w3+w4) > 0? ((w1*v1 + w2*v2 + w3*v3 + w4 * v4)/(w1+w2+w3+w4)): 0.0;
+}
+
+void GL3DGeometry::CreateGeometryRaster(QGLWidget * widget,int rows, int cols, double size)
+{
+
+    uses_index = true;
+    this->is_2d_data = false;
+
+    int n = rows * cols;
+
+    int nr_triangles;
+    int nr_vertex;
+    int nr_index;
+
+    nr_triangles = n*2;
+    nr_vertex = n*2 * 3;
+    nr_index = n*2 * 3;
+
+    qDebug() << "allocate vertex memory for surface";
+    Vertex * vertexdata;
+    vertexdata =(Vertex*) malloc(sizeof(Vertex) * nr_triangles * 3);
+
+    GLuint * indexdata;
+    indexdata = (GLuint*)malloc(sizeof(GLuint) * nr_triangles * 3);
+
+    m_IndexCount = nr_index;
+    m_PatchCount = nr_index;
+
+    qDebug() << "succesfully allocated memory";
+
+    int nt =0;
+    double cs = size;
+
+    qDebug() << "create vertices";
+
+
+    for(int r = 0; r < rows; r++){
+    for (int c = 0; c < cols; c++){
+
+        double c2 = (double(c))-0.5;
+        double r2 = (double(r))-0.5;
+
+        vertexdata[nt*6 + 0] = Vertex(QVector3D((double)c2*cs,0.0,(double)r2*cs));
+        vertexdata[nt*6 + 1] = Vertex(QVector3D((double)(c2+1)*cs,0.0,(double)r2*cs));
+        vertexdata[nt*6 + 2] = Vertex(QVector3D((double)c2*cs,0.0,(double)(r2+1)*cs));
+
+        vertexdata[nt*6 + 3] = Vertex(QVector3D((double)(c2+1)*cs,0.0,(r2+1)*cs));
+        vertexdata[nt*6 + 4] = Vertex(QVector3D((double)c2*cs,0.0,(double)(r2+1)*cs));
+        vertexdata[nt*6 + 5] = Vertex(QVector3D((double)(c2+1)*cs,0.0,(double)r2*cs));
+
+        indexdata[nt*6 + 0] = (GLuint)(nt*6 + 0);
+        indexdata[nt*6 + 1] = (GLuint)(nt*6 + 1);
+        indexdata[nt*6 + 2] = (GLuint)(nt*6 + 2);
+        indexdata[nt*6 + 3] = (GLuint)(nt*6 + 3);
+        indexdata[nt*6 + 4] = (GLuint)(nt*6 + 4);
+        indexdata[nt*6 + 5] = (GLuint)(nt*6 + 5);
+
+        nt ++;
+    }}
+    qDebug() << "succesfully created vertices";
+
+    qDebug() << "create and fill buffers";
+    QOpenGLBuffer temp1(QOpenGLBuffer::VertexBuffer);
+    m_vertex = temp1;
+    m_vertex.create();
+    m_vertex.bind();
+    m_vertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_vertex.allocate(vertexdata, sizeof(Vertex) * nr_vertex);
+    m_vertex.release();
+
+
+    QOpenGLBuffer temp2(QOpenGLBuffer::IndexBuffer);
+    m_index = temp2;
+    m_index.create();
+    m_index.bind();
+    m_index.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_index.allocate(indexdata, sizeof(GLuint) * nr_index);
+    m_index.release();
+
+
+    qDebug() << "succesfully created buffers";
+
+    free(vertexdata);
+    free(indexdata);
 }
 
 void GL3DGeometry::CreateGeometry(QGLWidget * widget,cTMap * map,int m, bool data2d)

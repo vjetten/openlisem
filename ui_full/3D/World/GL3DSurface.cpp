@@ -415,6 +415,11 @@ void GL3DSurface::SetChannel(GL3DWidget * widget,cTMap * LDD, cTMap * width, cTM
 
 }
 
+void GL3DSurface::CreateMicroSurface(GL3DWidget *widget)
+{
+
+}
+
 
 void GL3DSurface::OnCreate(GL3DWidget *widget)
 {
@@ -475,8 +480,20 @@ void GL3DSurface::OnCreate(GL3DWidget *widget)
     this->m_Texture_Buildings = widget->m_Textures->LoadTextureFromMap(false, this->m_Buildings,0,0,true);
     this->m_Texture_Roads = widget->m_Textures->LoadTextureFromMap(false, this->m_Roads,0,0,true);
 
+
     if(this->m_Elevation != 0)
     {
+        this->has_microsurface = true;
+
+        if(this->m_Elevation->cellSize() < 0.2 || m_XExtent * m_ZExtent < 100)
+        {
+            this->has_microsurface = false;
+            return;
+        }
+
+        this->m_Geometry_MicroTesselated = widget->m_Geometries->LoadGeometryRaster(this->m_MicroPatches,this->m_MicroPatches,this->m_MicroPatchSize);
+        this->m_GLObject_MicroTesselated.create();
+        GL3DDrawFunctions::BindGeometry(widget,m_GLObject_MicroTesselated,m_Shader_Tesselated,m_Geometry_MicroTesselated);
 
         /*this->m_Geometry = widget->m_Geometries->LoadGeometryFromMap(this->m_Elevation,30);
         this->m_GLObject.create();
@@ -600,8 +617,6 @@ void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* ca
     m_Shader_Tesselated->m_program->setUniformValue("Light_Directional",world->Light_Directional);
     m_Shader_Tesselated->m_program->setUniformValue("Light_Directional_Direction",world->Light_Directional_Direction);
 
-    this->m_GLObject_Tesselated.bind();
-
     m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture,"heightMap",0);
     m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_MicroElevation,"microElevation",1);
     m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_MicroElevation_Normal,"microElevation_normal",2);
@@ -650,10 +665,37 @@ void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* ca
     m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_deposition_Spec,"deposition_Spec",26);
 
     m_Shader_Tesselated->ActivateTextureOn(widget,m_Texture_DemChange,"demChange",27);
-    //widget->gl->glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+
+
+
+    //draw total surface
+    m_Shader_Tesselated->m_program->setUniformValue("fix_tesselation",false);
+    m_Shader_Tesselated->m_program->setUniformValue("fix_tesselationlevel",1.0f);
+
+    m_Shader_Tesselated->m_program->setUniformValue("TerrainOffset",QVector3D(0.0,0.0,0.0));
+
+
+    this->m_GLObject_Tesselated.bind();
 
     m_Shader_Tesselated->m_program->setPatchVertexCount(3);
     widget->gl->glDrawElements(GL_PATCHES, this->m_Geometry_Tesselated->m_IndexCount, GL_UNSIGNED_INT, 0);
+
+    this->m_GLObject_Tesselated.release();
+
+    //draw microsurface
+    m_Shader_Tesselated->m_program->setUniformValue("fix_tesselation",true);
+    m_Shader_Tesselated->m_program->setUniformValue("fix_tesselationlevel",64.0f);
+
+    m_Shader_Tesselated->m_program->setUniformValue("TerrainOffset",camera->m_Position - QVector3D(0.5 * float(m_MicroPatches) * m_MicroPatchSize,0.0,0.5 * float(m_MicroPatches) * m_MicroPatchSize));
+
+    this->m_GLObject_MicroTesselated.bind();
+
+    m_Shader_Tesselated->m_program->setPatchVertexCount(3);
+    widget->gl->glDrawElements(GL_PATCHES, this->m_Geometry_MicroTesselated->m_IndexCount, GL_UNSIGNED_INT, 0);
+
+    this->m_GLObject_MicroTesselated.release();
+
 
     //widget->gl->glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
@@ -662,7 +704,7 @@ void GL3DSurface::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* ca
     {
         qDebug() <<e;
     }
-    this->m_GLObject_Tesselated.release();
+
     m_Shader_Tesselated->m_program->release();
 
 

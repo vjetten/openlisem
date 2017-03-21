@@ -150,6 +150,15 @@ public:
 
     void SetChannel(GL3DWidget * w,cTMap * LDD, cTMap * width, cTMap * depth, cTMap * temp, bool flooding);
 
+    void CreateMicroSurface(GL3DWidget *widget);
+
+    bool has_microsurface = false;
+    int m_MicroPatches = 9.0;
+    double m_MicroPatchSize = 2.0;
+    QOpenGLVertexArrayObject m_GLObject_MicroTesselated;
+    GL3DGeometry * m_Geometry_MicroTesselated;
+
+
     void OnCreate(GL3DWidget *widget);
     void OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);
     void OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt);

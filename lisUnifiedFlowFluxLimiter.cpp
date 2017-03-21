@@ -22,84 +22,53 @@
 **
 *************************************************************************/
 
-#ifndef LisemThreadH
-#define LisemThreadH
 
 /*!
- \file lisUnifiedFlowThread.h
- \brief
+ \file lisUnifiedFlowFluxLimiter.cpp
+ \brief contains the flux limiting functions
+ These functions are crucial in limiting the flux so that no oscillations
+ emerge, while allowing for wave-like behavior and other large flow volumes
+
+ MinMod works best on sloped surfaces, where pressure terms are relatively low
+ In case of large scale flooding, use the HLL or HLL2 flux limiters
 
 functions: \n
 */
-#include <QtGui>
-#include "CsfMap.h"
+
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#include <thread>
-#include <functional>
-#include "lisUnifiedFlowThreadPool.h"
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
 
-class LisemThreadPool;
-class LisemThread;
 
-class ThreadFunction
-{
-public:
-    int maskindex;
-
-    enum ThreadType
-    {
-        THREAD_SIMPLE,
-        THREAD_SPATIAL,
-        THREAD_SPATIAL_ORDERED
-    };
-    ThreadType type;
-    int core;
-    std::function<void (int)> f;
-    int waitid;
-    bool initial;
-    bool final;
-};
-
-class TWorld;
-
-class LisemThread
+double TWorld::FluxLimiter2D()
 {
 
-public:
-
-    int threadindex;
-
-    std::atomic<bool> active;
-    std::atomic<bool> done;
-
-    std::unique_lock<std::mutex> tpl;
 
 
-    LisemThreadPool *ThreadPool;
+    return 0.0;
+}
 
-    int is_active();
 
-    std::thread threadobject;
-
-    ThreadFunction *functionreference;
-    std::mutex mutex_fr;
-
-    std::condition_variable cv;
-    std::atomic<bool> quit;
+double TWorld::FluxLimiter1D()
+{
 
 
 
-    std::chrono::high_resolution_clock::time_point time_used_in_last_function;
+return 0.0;
+}
 
-    void Start();
-    void Start_intern();
-    void Quit();
 
-};
+double TWorld::FL_MinMod()
+{
 
-#endif
+
+    return 0.0;
+}
+
+
+double TWorld::FL_HLL2()
+{
+
+
+    return 0.0;
+}

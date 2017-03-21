@@ -99,6 +99,8 @@ void GL3DShaders::Create(GL3DWidget * widget)
     m_DefaultShaderList.append(LoadShaderFromFile("roads/roads_f.glsl","roads/roads_v.glsl",false));
     //GL3D_SHADER_CHANNEL = 8
     m_DefaultShaderList.append(LoadShaderFromFile("channel/channel_f.glsl","channel/channel_v.glsl",false,"","","channel/channel_g.glsl"));
+    //GL3D_SHADER_CLOUDS_GLINSTANCED = 9
+    m_DefaultShaderList.append(LoadShaderFromFile("clouds/clouds_gli_f.glsl","clouds/clouds_gli_v.glsl",false));
 
 }
 

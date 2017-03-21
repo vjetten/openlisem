@@ -14,11 +14,11 @@ class GL3DInstancedTree : public GL3DGLInstancedModel
 public:
     GL3DInstancedTree() : GL3DGLInstancedModel()
     {
-        //this->SetModelHighp("tree_lowp/tree_low.obj",100);
-        this->SetSmoothing(false,0,0);
-        this->SetIncrementDistance(20.0);
-        this->SetRandomParameters(2.5,0.25);
-        this->SetModelLowp("tree_lowp/tree_low.obj",2000);
+        //this->SetModelHighp("tree_lowp/tree_low.obj",1500);
+        this->SetSmoothing(true,150,150);
+        this->SetIncrementDistance(10.0);
+        this->SetRandomParameters(10.0,0.25);
+        this->SetModelLowp("tree_lowp/tree_low.obj",1500);
         this->SetMaxInstances(10000,100);
     }
 

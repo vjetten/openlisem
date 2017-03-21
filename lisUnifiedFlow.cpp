@@ -163,7 +163,8 @@ void TWorld::UF_Compute(int thread)
                         UF1D_f,UF1D_visc,UF1D_fu,                                    //1d fluid phase
                         UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
                         UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
-                        UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+                        UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv,         //2d solid phase
+                        1,3 );
 
 
     /////INFILTRATION
@@ -622,7 +623,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
                                  cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
                                  cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
                                  cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
-                                 cTMap * _su2D,cTMap * _sv2D)
+                                 cTMap * _su2D,cTMap * _sv2D, int nh, int nv)
 {
 
     //The Lax numerical correction is usefull to correct for artifacts of the courant factor limitation.
@@ -631,13 +632,13 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
 
     FOR_ROW_COL_UF2DMT_DT
     {
-        double w = std::min(1.0,std::max(0.0,((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.65)*0.1));
-
+        double w = std::min(1.0, std::max(0.0,((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.3)*0.3));
+        UF2D_Test->Drc = w;
 
         if(w > 0.5)
         {
             int count = 0;
-            double h = _f2D->data[r][c]; double u = _fu2D->data[r-1][c]; double v = _fv2D->data[r-1][c];
+            double h = _f2D->data[r][c]; double u = _fu2D->data[r][c]; double v = _fv2D->data[r][c];
             double h1 = h,h2 = h,h3 = h,h4 = h,u1 = u,u2 = u,u3 = u,u4 = u,v1 = v,v2 = v,v3 = v,v4 = v;
 
             if(!UF_OUTORMV(_dem,r-1,c))
@@ -701,11 +702,9 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
                 }
             }
 
-            //if(count == 4)
             {
-                //_f2D->Drc = (4.0*(1.0 + w) * _f2D->Drc + w *(h1 + h2 + h3 + h4))/8.0;
-                _fu2D->Drc = (4.0*(1.0 - w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/(4.0 + count);
-                _fv2D->Drc = (4.0*(1.0 - w) * _fv2D->Drc + w *(v1 + v2 + v3 + v4))/(4.0 + count);
+                _fu2D->Drc = ((6.0 - 4.0 *w) * _fu2D->Drc + w *(u1 + u2 + u3 + u4))/(6.0 );
+                _fv2D->Drc = ((6.0 - 4.0 *w) * _fv2D->Drc + w *(v1 + v2 + v3 + v4))/(6.0 );
             }
         }
 
@@ -723,7 +722,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
             if(w > 0.5)
             {
                 int count = 0;
-                double sh = _s2D->data[r][c]; double su = _su2D->data[r-1][c]; double sv = _sv2D->data[r-1][c];
+                double sh = _s2D->data[r][c]; double su = _su2D->data[r][c]; double sv = _sv2D->data[r][c];
                 double sh1 = sh, sh2 = sh, sh3 = sh, sh4 = sh,su1 =su,su2 = su,su3 = su,su4 = su,sv1 = sv,sv2 = sv,sv3 = sv,sv4 = sv;
 
                 if(!UF_OUTORMV(_dem,r-1,c))
@@ -791,8 +790,8 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
 
                 if(count == 4)
                 {
-                    _su2D->Drc = (4.0*(1.0 - w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/(4.0 + count);
-                    _sv2D->Drc = (4.0*(1.0 - w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/(4.0 + count);
+                    _su2D->Drc = ((6.0 - 4.0 *w) * _su2D->Drc + w *(su1 + su2 + su3 + su4))/(6.0);
+                    _sv2D->Drc = ((6.0 - 4.0 *w) * _sv2D->Drc + w *(sv1 + sv2 + sv3 + sv4))/(6.0);
                 }
 
             }
@@ -814,7 +813,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
     FOR_ROW_COL_UF1DMT_DT
     {
         double w = std::max(0.0,std::min(1.0,(_f1D->Drc/(_dx *_lddw->Drc)) / 1.5));//std::min(1.0,std::max(0.0,((_f1D->Drc/(_dx *_lddw->Drc))*std::max(std::fabs(2.5* _fu1D->Drc),std::fabs(2.5 * _su1D->Drc))/(UF_Courant * _dx) - 0.65)*0.3));
-        UF2D_Test->Drc = w;
+
         if(w > 0.5)
         {
             int count = 0;

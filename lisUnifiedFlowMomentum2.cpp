@@ -346,10 +346,18 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double vy1 = rfv + dty1 * rfay;
         double vy2 = lfv + dty2 * lfay;
 
-        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+        /*rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
         lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 1.0:1.0)*((_dem->Drc + lxh) - (_f->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
         ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:1.0)*((_dem->Drc + ryh) - (_f->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
         lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 1.0:1.0)*((_dem->Drc + lyh) - (_f->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        */
+
+        //new flux limiter test seems to work for both deep and shallow flow on flat and sloped surfaces. Note: Might require lax for stability
+        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,rxh + ((_dem->Drc) - ( _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,lxh + ((_dem->Drc) - (_dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,ryh + ((_dem->Drc) - (_dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
+        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,lyh + ((_dem->Drc) - ( _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+
 
         double cq =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * _f->Drc;
         double cqx1 =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : volx1);

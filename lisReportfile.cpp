@@ -1610,6 +1610,8 @@ void TWorld::GetComboMaps()
             Colors.append("#804000");
 
             AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"Entrainment SF","m",UF2D_EntrainmentSF,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
             AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
             AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"Entrainmentshearstressc","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);

@@ -44,7 +44,7 @@ SET(APP_SOURCES
     lisUnifiedFlowBoundary
     lisUnifiedFlowBarriers
     lisUnifiedFlowInitialize
-    lisUnifiedFlowInitialize
+    lisUnifiedFlowFluxLimiter
     include/lisUnifiedFlowThreadPool.h
     include/lisUnifiedFlowThread.h
     ui_full/3D/Common
@@ -66,6 +66,7 @@ SET(APP_SOURCES
     ui_full/3D/Objects/GL3DInstancedTree
     ui_full/3D/Objects/GL3DGrass
     ui_full/3D/Objects/GL3DPPRain
+    ui_full/3D/Objects/GL3DClouds
     ui_full/3D/Graphics/GL3DMath
     ui_full/3D/Graphics/GL3DModels
     ui_full/3D/Graphics/GL3DShaders

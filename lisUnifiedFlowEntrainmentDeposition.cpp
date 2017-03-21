@@ -189,7 +189,7 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     double slope = channel? std::fabs(UF1D_Slope->Drc) : std::max(std::fabs(UF2D_SlopeX->Drc),std::fabs(UF2D_SlopeY->Drc));
     double slope_lat = 10.0 * slope;
 
-    double availabledepth = channel? 0:UnifiedFlowEntrainmentAvailableDepth(r,c,UF2D_su->Drc,UF2D_sv->Drc);
+    double availabledepth = channel? 0:UnifiedFlowEntrainmentAvailableDepth(r,c,UF2D_fu->Drc,UF2D_fv->Drc);
     double vegetationcover = Cover->Drc;
     double vegetationcohesion = RootCohesion->Drc;
     double bed_cohesion = Cohesion->Drc * st_scCalibration;
@@ -202,7 +202,15 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
 
     double deposition = UnifiedFlowActiveDeposition(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa,r,c);
 
-    Entrainmentshearstressc->Drc = availabledepth;
+
+    if(!channel)
+    {
+        UF2D_EntrainmentSF->Drc += std::min(SoilRockMaterial->Drc,entrainment_sf);
+
+    }else
+    {
+
+    }
 
     entrainment = std::min(entrainment + entrainment_lat + entrainment_sf,0.05 * area * availabledepth);
 
@@ -405,7 +413,12 @@ double TWorld::UnifiedFlowActiveDeposition(double dt,double slope, double _f, do
 
     double MaxCSF = std::max(0.25 * std::min(1.0,_fv * h),std::min(0.8,UF_ENTRAINMENTCCONSTANT*slope > tan(ifa_bed)? 1.0:(1000.0 *UF_ENTRAINMENTCCONSTANT* slope)/((d - 1000)*(tan(ifa_bed)-UF_ENTRAINMENTCCONSTANT*slope))));
 
-    double deporat = UF_DEPOSITIONCONSTANT *std::max(0.0,(1.0-_fv/(UF_DEPOSITIONTHRESHOLDCONSTANT*vc)))*std::max(0.0,((_sc-MaxCSF)/0.7)*_fv);
+    double deporat = UF_DEPOSITIONCONSTANT *std::max(_sc - (MaxCSF)*_f,std::max(0.0 ,(1.0-_fv/(UF_DEPOSITIONTHRESHOLDCONSTANT*vc)))*std::max(0.0,((_sc-MaxCSF)/0.7)*_fv));
+
+
+
+    Entrainmentshearstressc->Drc = MaxCSF;
+    Entrainmentshearstress->Drc = vc;
 
     //returns volume of deposition
     return std::min(0.5*_s, deporat * area * dt );

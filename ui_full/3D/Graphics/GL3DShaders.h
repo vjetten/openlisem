@@ -113,6 +113,7 @@ public:
 #define GL3D_SHADER_MODEL_GLINSTANCED 6
 #define GL3D_SHADER_ROADS 7
 #define GL3D_SHADER_CHANNEL 8
+#define GL3D_SHADER_CLOUDS_GLINSTANCED 9
 
 /////////////////////////////////////////////////////////////////////////////////////
 ///Simple shader

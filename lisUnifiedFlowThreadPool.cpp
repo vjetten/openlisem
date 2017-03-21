@@ -1,6 +1,7 @@
 
 #include "lisUnifiedFlowThread.h"
 #include "lisUnifiedFlowThreadPool.h"
+#include <chrono>
 
 void LisemThreadPool::StartReportThread(TWorld * world)
 {
@@ -29,28 +30,37 @@ void LisemThreadPool::RunReportFunction(std::function<void (int)> f)
     tf->final = false;
     LisemThread*tr =reportthread;
 
-    //std::unique_lock<std::mutex> lock(tr->mutex_fr);
-    //tr->cv.wait(lock, [tr]{return !(tr->active);});
-    WaitForThreadSafe(tr);
+    std::unique_lock<std::mutex> lock(tr->mutex_fr);
 
     reportthread->active.store(true);
+    reportthread->done.store(true);
 
     reportthread->functionreference = tf;
 
+    if(lock.owns_lock())
+    {
+        lock.unlock();
+    }
     tr->cv.notify_all();
-
 }
 
 void LisemThreadPool::WaitForReportThread()
 {
 
-    if(reportthread->active.load())
+    if(reportthread->active.load() || !reportthread->active.load() )
     {
-        LisemThread*tr =reportthread;
-        //std::unique_lock<std::mutex> lock(tr->mutex_fr);
-        //tr->cv.wait(lock, [tr]{return !(tr->active);});
-        WaitForThreadSafe(tr);
+        while(!reportthread->done.load())
+        {
 
+        }
+
+        LisemThread*tr =reportthread;
+        std::unique_lock<std::mutex> lock(tr->mutex_fr);
+
+        if(lock.owns_lock())
+        {
+            lock.unlock();
+        }
         tr->cv.notify_all();
     }
 }
@@ -59,20 +69,33 @@ void LisemThreadPool::Close()
 {
 
     LisemThread*tr =reportthread;
+
+    std::unique_lock<std::mutex> rlock(reportthread->mutex_fr);
     reportthread->quit.store(true);
     reportthread->functionreference = 0;
-    reportthread->cv.notify_all();
 
+    if(rlock.owns_lock())
+    {
+        rlock.unlock();
+    }
+    reportthread->cv.notify_all();
     for(int i = 0; i < ThreadList.length(); i++)
     {
         LisemThread *thread = ThreadList.at(i);
+        std::unique_lock<std::mutex> lock(thread->mutex_fr);
+
         thread->quit.store(true);
         thread->functionreference = 0;
+        if(lock.owns_lock())
+        {
+            lock.unlock();
+        }
         thread->cv.notify_all();
     }
 
+    qDebug() << "closed threads";
     //delete reportthread;
-    ThreadList.clear();
+    //ThreadList.clear();
 }
 
 void LisemThreadPool::InitThreads(TWorld * world)
@@ -191,6 +214,12 @@ void LisemThreadPool::InitThreads(TWorld * world)
         CellCListOrdered2d.at(i)->setAllMV();
     }
 
+    LisemThread *thread = new LisemThread();
+
+    thread->ThreadPool = this;
+    thread->threadindex = TP_NumberOfCores;
+    ThreadList.append(thread);
+
     CellRDerListOrdered1d.append(world->NewMap(0.0));
     CellCDerListOrdered1d.append(world->NewMap(0.0));
     CellRMaskListOrdered1d.append(world->NewMap(0.0));
@@ -232,7 +261,7 @@ void LisemThreadPool::InitThreads(TWorld * world)
     CellRListOrdered2d.at(TP_NumberOfCores)->setAllMV();
     CellCListOrdered2d.at(TP_NumberOfCores)->setAllMV();
 
-    for(int i = 0; i < TP_NumberOfCores; i++)
+    for(int i = 0; i < TP_NumberOfCores+1; i++)
     {
         LisemThread * tr = ThreadList.at(i);
         tr->tpl = std::unique_lock<std::mutex>(tr->mutex_fr);
@@ -755,6 +784,7 @@ void LisemThreadPool::SetMask(cTMap * _demmask, cTMap * _dtmask2d, cTMap * _cell
 
 bool LisemThreadPool::StartThread()
 {
+
     bool started = false;
     bool CouldStart = false;
 
@@ -770,6 +800,14 @@ bool LisemThreadPool::StartThread()
                 if(ThreadCalls.length() == 1)
                 {
                     CouldStart = true;
+                    for(int i = 0; i <  ThreadList.length(); i++)
+                    {
+                        if((ThreadList.at(i)->active.load()))
+                        {
+                            CouldStart = false;
+                        }
+                    }
+
                 }else
                 {
                     CouldStart = false;
@@ -779,29 +817,36 @@ bool LisemThreadPool::StartThread()
                 CouldStart = true;
             }
         }
+
         if(CouldStart)
         {
             CouldStart = false;
-            for(int i = 0; i <  ThreadList.length(); i++)
+            for(int i = 0; i <  TP_NumberOfCores; i++)
             {
-                if(!(ThreadList.at(i)->active.load()))
+                if(!(ThreadList.at(i)->active.load()) || tf->final)
                 {
-                        //qDebug() << "starting thread at" << i << " for core " << tf->core << "list length"  << ThreadCalls.length();
+                        if(tf->final)
+                        {
+                            i =TP_NumberOfCores;
+                        }
 
                         //We now know an unactive thread exist, and a threading call is available
                         //Start the thread!
                         LisemThread * thread = ThreadList.at(i);
 
-
-                        //std::unique_lock<std::mutex> lock(thread->mutex_fr);
-                        //thread->cv.wait(lock, [thread]{return !(thread->active);});
-                        WaitForThreadSafe(thread);
-
-                        thread->active.store(true);
+                        std::unique_lock<std::mutex> lock(thread->mutex_fr);
 
                         thread->functionreference = tf;
+
                         ThreadCalls.removeAt(j);
 
+                        thread->active.store(true);
+                        thread->done.store(false);
+
+                        if(lock.owns_lock())
+                        {
+                            lock.unlock();
+                        }
                         thread->cv.notify_all();
 
                         started = true;
@@ -811,7 +856,6 @@ bool LisemThreadPool::StartThread()
                 }
             }
         }
-
 
     }
 
@@ -823,19 +867,7 @@ bool LisemThreadPool::StartThread()
 void LisemThreadPool::WaitForThreadSafe(LisemThread *thread)
 {
 
-    bool done  = false;
 
-    while(!done)
-    {
-        thread->cv.wait(thread->tpl, [thread]{return !(thread->active.load());});
-        if(thread->active.load() == false)
-        {
-             done = true;
-        }else
-        {
-            thread->cv.notify_all();
-        }
-    }
 }
 
 void LisemThreadPool::ThreadDone(LisemThread *thread)
@@ -855,7 +887,7 @@ void LisemThreadPool::RunCellCompute(std::function<void (int)> f)
         tf->f = f;
         tf->final = false;
         ThreadCalls.append(tf);
-    StartThread();
+        StartThread();
 
     }
 
@@ -920,11 +952,19 @@ void LisemThreadPool::WaitForAll()
 
         if(wait)
         {
-            WaitForThreadSafe(tr);
+            while(!(tr->done.load()))
+            {
+
+            }
+
+            std::unique_lock<std::mutex> lock(tr->mutex_fr);
 
             tr->active.store(false);
+            if(lock.owns_lock())
+            {
+                lock.unlock();
+            }
             tr->cv.notify_all();
-
 
             StartThread();
 
@@ -948,7 +988,6 @@ void LisemThreadPool::WaitForAll()
             }
         }
     }
-    ThreadCalls.clear();
 
 
     std::chrono::duration<double> timespan = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now()-time_since_call);

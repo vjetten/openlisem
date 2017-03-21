@@ -36,6 +36,7 @@
 #include <3D/Objects/GL3DRoads.h>
 #include <3D/Objects/GL3DInstancedTree.h>
 #include <3D/Objects/GL3DGrass.h>
+#include <3D/Objects/GL3DClouds.h>
 
 struct Output3D
 {
@@ -174,6 +175,7 @@ public:
    GL3DGrass * grassobjecti;
    GL3DBuildings * buildingobject;
    GL3DRoads * roadsobject;
+   GL3DClouds * cloudsobject;
 };
 
 

@@ -392,7 +392,7 @@
                                     cTMap * _d1D,cTMap * _ifa1D,cTMap * _rocksize1D,cTMap * _su1D,
                                     cTMap * _f2D,cTMap * _visc2D,cTMap * _fu2D,
                                     cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
-                                    cTMap * _su2D,cTMap * _sv2D);
+                                    cTMap * _su2D,cTMap * _sv2D, int nh = 1, int nv = 1);
 
     ////Timestep functions
     double UF_InitTimeStep(cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
@@ -541,6 +541,11 @@
 
     double UF_5CellAverage(cTMap * m,int r, int c);
 
+
+    double FluxLimiter2D();
+    double FluxLimiter1D();
+    double FL_MinMod();
+    double FL_HLL2();
     double UF_MinMod(double a, double b);
 
     bool UF_OUTORMV(cTMap * mask, int r, int c);
@@ -577,6 +582,8 @@
     double UF_RockAdd(int r, int c, double entrainment, bool channel);
 
     void UF_SumGrainClasses();
+
+    cTMap *UF2D_EntrainmentSF;
 
     //transport capacity
     double UnifiedFlowTransportCapacity(int r, int c, int d, bool channel, bool bedload);

@@ -57,8 +57,8 @@ public:
     static void DrawModelGLInstanced(GL3DWidget * gl, GL3DModel * m, GL3DCamera * camera, GL3DSurface * surface,double dist_min, double dist_max, double dist_fade, double increment, double rand_location, double rand_rotation, double rand_scale, float * rand);
     static void DrawModelGeometryWithMaterialGLInstanced(GL3DWidget * gl, GL3DGeometry * g,GL3DShader * Shader, QOpenGLVertexArrayObject * vao,GL3DMaterial * mat, GL3DCamera * camera, int count, GL3DSurface * surface,double dist_min, double dist_max, double dist_fade, double increment, double rand_location, double rand_rotation, double rand_scale, float * rand);
 
-
-
+    static void DrawModelGLInstancedCubic(GL3DWidget * gl, GL3DModel * m, GL3DCamera * camera, GL3DSurface * surface,int rows_draw, int cols_draw, int rows_data, int cols_data,int layers, double increment,double incrementv, double rand_location, double rand_rotation, double rand_scale, float * rand, GL3DTexture * dens_1, GL3DTexture * dens_2, int upscale = 1.0);
+    static void DrawModelGeometryWithMaterialGLInstancedCubic(GL3DWidget * gl, GL3DGeometry * g,GL3DShader * Shader, QOpenGLVertexArrayObject * vao,GL3DMaterial * mat, GL3DCamera * camera, int count, GL3DSurface * surface,int rows_draw, int cols_draw, int rows_data, int cols_data,int layers, double increment,double incrementv, double rand_location, double rand_rotation, double rand_scale, float * rand, GL3DTexture * dens_1, GL3DTexture * dens_2, int upscale = 1.0);
 
 };
 

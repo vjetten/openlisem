@@ -94,6 +94,11 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
     this->rain = new GL3DPPRain();
     m_Widget->m_World->AddObject(rain);
 
+
+    cloudsobject = new GL3DClouds();
+    m_Widget->m_World->AddObject(cloudsobject);
+
+
     m_Widget->ReadyToDraw = true;
     done_creating = true;
 

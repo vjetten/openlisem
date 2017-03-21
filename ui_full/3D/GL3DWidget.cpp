@@ -147,9 +147,11 @@ void GL3DWidget::resizeGL(int w, int h)
 {
         qDebug() << "resize";
 
-    m_Camera->ResizeViewPort(w,h);
-
-    m_Textures->CreateFrameBuffers(this,w,h);
+    if(this->is_created)
+    {
+        m_Camera->ResizeViewPort(w,h);
+        m_Textures->CreateFrameBuffers(this,w,h);
+    }
 
     //for now, widget resolution is render resolution
     this->Width = w;
@@ -236,6 +238,8 @@ void GL3DWidget::Onrender()
 
     gl->glBindFramebuffer(GL_FRAMEBUFFER, m_Textures->Framebuffer);
     gl->glDrawBuffers(4, DrawBuffers);
+
+    gl->glEnablei(GL_BLEND,m_Textures->Framebuffer);
 
     this->m_World->OnRender(this,m_Camera,m_DT);
 

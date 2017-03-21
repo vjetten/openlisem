@@ -55,7 +55,7 @@ void TWorld::UF_Init()
     UF_ENTRAINMENTCONSTANT = 1.0;
     UF_ENTRAINMENTTHRESHOLDCONSTANT = 1.0;
 
-    UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000.0;
+    UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000.0;
     UF_DEPOSITIONCONSTANT = 1;
     UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
 
@@ -337,6 +337,8 @@ void TWorld::UF_Init()
     UF1D_Det = NewMap(0.0);
     UF2D_Dep = NewMap(0.0);
     UF2D_Det = NewMap(0.0);
+
+    UF2D_EntrainmentSF = NewMap(0.0);
 
     UF2D_Infiltration = NewMap(0.0);
     UF1D_Infiltration = NewMap(0.0);

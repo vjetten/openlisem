@@ -43,6 +43,17 @@ GL3DTexture * GL3DTextures::LoadTextureFromMap(bool debug, cTMap * elevation, in
     return t;
 }
 
+GL3DTexture * GL3DTextures::LoadTextureFromPerlin(int lx, int ly,QList<float> wave, QList<float> amp)
+{
+    GL3DTexture * t = new GL3DTexture();
+
+    t->CreateTexturePerlin(m_Widget,lx,ly,wave,amp);
+
+    this->m_LoadedTextureList.append(t);
+
+    return t;
+}
+
 GL3DTexture * GL3DTextures::LoadTextureFromMatrix(float * ,int lx, int ly)
 {
 
@@ -98,35 +109,27 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     }
     if(this->bufferscreated)
     {
-        qDebug() << "delete old buffers";
         widget->gl->glDeleteTextures(1,&RenderTexture);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&RenderTextureCopy);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&RenderTextureWater);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&LocationTexture);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&NormalTexture);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&InfoTexture);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&ChannelTexture);
-        qDebug() << "deleted";
         widget->gl->glDeleteTextures(1,&ChannelInfoTexture);
-        qDebug() << "deleted" << FramebufferCopy << ChannelFramebuffer << Framebuffer << FramebufferWater;
+
+        //weird, removing frame buffers gives error when not in debugging mode
+        /*qDebug() << "deleted" << FramebufferCopy << ChannelFramebuffer << Framebuffer << FramebufferWater;
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferCopy);
         qDebug() << "deleted";
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &ChannelFramebuffer);
         qDebug() << "deleted";
         widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &Framebuffer);
         qDebug() << "deleted";
-        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferWater);
+        widget->gl->glDeleteFramebuffers(GL_FRAMEBUFFER, &FramebufferWater);*/
 
-        qDebug() << "deleted";
     }
 
-    qDebug() << "Generate new buffers";
     widget->gl->glGenFramebuffers(1, &Framebuffer);
     widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 
@@ -136,10 +139,6 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glGenTextures(1, &NormalTexture);
     widget->gl->glGenTextures(1, &InfoTexture);
 
-
-    qDebug() << "Generated";
-
-    qDebug() << "Allocate data";
     widget->gl->glBindTexture(GL_TEXTURE_2D, RenderTexture);
     widget->gl->glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, w, h, 0,GL_RGBA, GL_FLOAT, 0);
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -177,8 +176,6 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
 
-
-
     widget->gl->glGenFramebuffers(1, &FramebufferCopy);
     widget->gl->glBindFramebuffer(GL_FRAMEBUFFER, FramebufferCopy);
     widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, RenderTextureCopy, 0);
@@ -191,8 +188,6 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
     widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     widget->gl->glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, RenderTextureCopy, 0);
-
-
 
 
     widget->gl->glGenFramebuffers(1, &ChannelFramebuffer);
@@ -241,8 +236,6 @@ void GL3DTextures::CreateFrameBuffers(GL3DWidget * widget,int w, int h)
 
     bufferscreated = true;
 
-    qDebug() << "created frame buffers";
-
 }
 
 void GL3DTexture::CreateTexture(GL3DWidget * widget,float * ,int lx, int ly)
@@ -253,6 +246,52 @@ void GL3DTexture::CreateTexture(GL3DWidget * widget,float * ,int lx, int ly)
 
 }
 
+void GL3DTexture::CreateTexturePerlin(GL3DWidget *widget, int lx, int ly, QList<float> wave, QList<float> amp)
+{
+
+    int n = lx * ly;
+    GLfloat*data = (float *)malloc(n * sizeof(GLfloat) );
+
+    for(int i = 0; i < wave.length();i++)
+    {
+        PerlinNoise *p = new PerlinNoise(i*123456);
+        for(int y = 0; y < ly;y++)
+        {
+            for(int x = 0; x < lx;x++)
+            {
+                double rx = float(x) * 1.0/wave.at(i);
+                double ry = float(y) * 1.0/wave.at(i);
+                double val = p->noise(rx,ry,0);
+                data[y * lx + x] += val * amp.at(i);
+            }
+
+        }
+        delete p;
+    }
+
+    //creat a texture and store data
+    widget->gl->glGenTextures(1, &m_GLTexture);
+    widget->gl->glActiveTexture(GL_TEXTURE0);
+    widget->gl->glBindTexture(GL_TEXTURE_2D,  m_GLTexture);
+    widget->gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, lx,ly, 0, GL_RED, GL_FLOAT, data);
+
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    widget->gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    widget->gl->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    widget->gl->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    free(data);
+
+    int e = widget->gl->glGetError();
+    if( e != GL_NO_ERROR)
+    {
+        qDebug() << "opengl error in creating perlin noise texture" << e;
+    }
+
+    this->is_created = true;
+
+}
 
 void GL3DTexture::CreateTexture(bool debug, GL3DWidget * widget,cTMap * elevation, int res_x,int res_y, bool data,bool mask,bool fill, GL3DColorRamp * color_ramp )
 {
