@@ -98,7 +98,7 @@ void TWorld::ToFlood(void)
 
     fill(*tm, 0);
     FOR_CELL_IN_FLOODAREA
-            if (WHrunoff->Drc > 0.01 && hmx->Drc > 0.01 && ChannelWidthUpDX->Drc == 0)
+            if (WHrunoff->Drc > 0.01 && hmx->Drc > 0.01 && ChannelFlowWidth->Drc == 0)
     {
         double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
         frac = std::max(std::min(frac, 1.0),0.0);
@@ -151,6 +151,12 @@ void TWorld::ToChannel(void)
     if (!SwitchIncludeChannel)
         return;
 
+    FOR_ROW_COL_MV_CH
+    {
+            RunoffVolinToChannel->Drc  = 0;
+            SedToChannel->Drc = 0;
+    }
+
     for (int  r = 0; r < _nrRows; r++)
     {
         for (int  c = 0; c < _nrCols; c++)
@@ -165,8 +171,6 @@ void TWorld::ToChannel(void)
 
                 if (Volume == 0)
                 {
-                    SedToChannel->Drcr = 0;
-                    RunoffVolinToChannel->Drcr  = 0;
                     continue;
                 }
 
@@ -200,7 +204,7 @@ void TWorld::ToChannel(void)
                         fractiontochannel = 1.0;
                 // in catchment outlet cell, throw everything in channel
 
-                RunoffVolinToChannel->Drcr  = fractiontochannel*Volume;
+                RunoffVolinToChannel->Drcr  += fractiontochannel*Volume;
                 // water diverted to the channel
                 WHrunoff->Drc *= (1-fractiontochannel);
 
@@ -245,131 +249,6 @@ void TWorld::ToChannel(void)
             }
         }
     }
-
-    /*
-     if (!SwitchIncludeChannel)
-        return;
-
-    FOR_ROW_COL_MV_CH
-    {
-        double fractiontochannel;
-        double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
-        double v = V->Drc;
-
-        //K2D... maps are not initialized when 1D runoff is chosen
-        //every 2D runoff specific code section must be performed within an if statement
-        if(SwitchKinematic2D != K1D_METHOD)
-        {
-            //in case of a local depression, velocity was set to 0, leading to 0 channel inflow.
-            //Once the depression filled above capacity, all water would in one timestep flow into the channel
-            //this gave oscillating discharge.
-
-            //now set the velocity temporarily according to manning's equation with the hydraulic slope as slope.
-            if(K2DWHStore->Drc >0)
-            {
-                double hrunoff = std::max(WHrunoff->Drc,0.0);
-
-                double Perim;
-                const double beta = 0.6;
-                const double _23 = 2.0/3.0;
-                double beta1 = 1/beta;
-                double NN = N->Drc;
-                double R = 0;
-                Perim = 2.0*hrunoff+FlowWidth->Drc;
-                if (Perim > 0)
-                    R = hrunoff*FlowWidth->Drc/Perim;
-                else
-                    R = 0;
-                double Slope = hrunoff/_dx;
-                v = pow(R, _23)*sqrt(Slope)/NN;
-            }
-        }
-
-        if (Volume == 0)
-        {
-            SedToChannel->Drc = 0;
-            RunoffVolinToChannel->Drc = 0;
-            continue;
-        }
-
-        if (ChannelAdj->Drc == 0)
-            fractiontochannel = 1.0;
-        else
-            fractiontochannel = std::min(1.0, _dt*v/std::max(0.01*_dx,0.5*ChannelAdj->Drc));
-        // fraction to channel calc from half the adjacent area width and flow velocity
-
-        if (SwitchBuffers)
-            if (BufferID->Drc > 0)
-                fractiontochannel = 1.0;
-        // where there is a buffer in the channel, all goes in the channel
-
-        // cannot flow into channel is water level in channel is higher than depth
-        if (SwitchChannelFlood)
-        {
-            if (WHrunoff->Drc <= std::max(ChannelLevee->Drc, ChannelWH->Drc-ChannelDepth->Drc))
-            {
-                fractiontochannel = 0;
-            }
-            // no inflow when flooded
-            if (ChannelMaxQ->Drc > 0)
-            {
-                fractiontochannel = 0;
-            }
-            // no surface inflow when culverts and bridges
-        }
-        if (SwitchAllinChannel)
-            if (LDD->Drc == 5)
-                fractiontochannel = 1.0;
-        // in catchment outlet cell, throw everything in channel
-
-        RunoffVolinToChannel->Drc = fractiontochannel*Volume;
-        // water diverted to the channel
-        WHrunoff->Drc *= (1-fractiontochannel);
-
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        //VJ 130425
-
-
-        if (SwitchErosion)
-        {
-            if(!SwitchUse2Layer)
-            {
-                ChannelBLSed->Drc += fractiontochannel*Sed->Drc;
-            }else
-            {
-                ChannelSSSed->Drc += fractiontochannel*Sed->Drc;
-            }
-            //sediment diverted to the channel
-            Sed->Drc = Sed->Drc * (1 - fractiontochannel);
-
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed->Drc);
-            // adjust sediment in suspension
-
-            if(SwitchUseGrainSizeDistribution)
-            {
-                Conc->Drc = 0;
-                FOR_GRAIN_CLASSES
-                {
-                    if(SwitchUse2Layer)
-                    {
-                        RSS_D.Drcd += fractiontochannel * Sed_D.Drcd;
-                    }else
-                    {
-                        RBL_D.Drcd += fractiontochannel * Sed_D.Drcd;
-                    }
-                    Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * DX->Drc * ChannelAdj->Drc, Sed_D.Drcd);
-                    Conc->Drc +=Conc_D.Drcd;
-                }
-            }
-
-            RiverSedimentLayerDepth(r,c);
-
-
-
-
-        }
-    }*/
 }
 //--------------------------------------------------------------------------------------------
 /**

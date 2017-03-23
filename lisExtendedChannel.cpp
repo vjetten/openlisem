@@ -34,11 +34,9 @@ void TWorld::ExtendChannel()
     ChannelDepthExtended = NewMap(0.0);
     ChannelWidthExtended = NewMap(0.0);
     ChannelMaskExtended = NewMap(0.0);
-    copy(*ChannelWidthExtended, *ChannelWidthUpDX);
-    if(SwitchChannelFlood)
-        copy(*ChannelDepthExtended, *ChannelDepth);
-    FOR_ROW_COL_MV_CH
-            ChannelMaskExtended->Drc = (ChannelWidthUpDX->Drc > 0 ? 1.0 : 0.0);
+    ChannelFlowWidth = NewMap(0.0);
+    copy(*ChannelWidthExtended, *ChannelWidthMax);
+    copy(*ChannelDepthExtended, *ChannelDepth);
 
     if(!SwitchIncludeChannel)
     {
@@ -52,22 +50,27 @@ void TWorld::ExtendChannel()
     ChannelBoundaryLExtended = NewMap(0.0);
     ChannelBoundaryRExtended = NewMap(0.0);
 
+
+    //Channel cells are part of the extended channel
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelMaskExtended->Drc = (ChannelWidthMax->Drc > 0 ? 1.0 : 0.0);
+    }
+
     int dxl[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dyl[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+    //set width etc for channel cells, for these we know they are within the extende channel
     double MaxWidth = 0;
     FOR_ROW_COL_MV_CH
     {
-        if(ChannelWidth->Drc > MaxWidth)
+        if(ChannelWidthMax->Drc > MaxWidth)
         {
-            MaxWidth = ChannelWidth->Drc;
+            MaxWidth = ChannelWidthMax->Drc;
         }
         ChannelMaskExtended->Drc = 1;
-        if(SwitchChannelFlood)
-        {
-            ChannelDepthExtended->Drc = ChannelDepth->Drc;
-        }
-        ChannelWidthExtended->Drc = std::min(_dx,ChannelWidth->Drc);
+        ChannelDepthExtended->Drc = ChannelDepth->Drc;
+        ChannelWidthExtended->Drc = std::min(_dx,ChannelWidthMax->Drc);
         ChannelNeighborsExtended->Drc = -1;
     }
 
@@ -109,16 +112,12 @@ void TWorld::ExtendChannel()
                             //double dsy = std::max(0.0,dy-0.5*(dy/rd));
                             //double d = sqrt(dsx * dsx + dsy*dsy);
 
-                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
                             if(width > 0)
                             {
                                 found_distance = rd;
                                 found = true;
-                                if(SwitchChannelFlood)
-                                {
-                                    ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidth->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
-                                }
-
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
                                 ChannelWidthExtended->Drc += width;
                                 ChannelNeighborsExtended->Drc += 1;
                                 ChannelSourceXExtended->Drc = c2;
@@ -156,16 +155,12 @@ void TWorld::ExtendChannel()
                             //double dsx = std::max(0.0,dx-0.5*(dx/rd));
                             //double dsy = std::max(0.0,dy-0.5*(dy/rd));
                             //double d = sqrt(dsx * dsx + dsy*dsy);
-                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
                             if(width > 0)
                             {
                                 found_distance = rd;
                                 found = true;
-                                if(SwitchChannelFlood)
-                                {
-                                    ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidth->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
-                                }
-
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
                                 ChannelWidthExtended->Drc += width;
                                 ChannelNeighborsExtended->Drc += 1;
                                 ChannelSourceXExtended->Drc = c2;
@@ -203,16 +198,12 @@ void TWorld::ExtendChannel()
                             //`double dsy = std::max(0.0,dy-0.5*(dy/rd));
                             //double d = sqrt(dsx * dsx + dsy*dsy);
 
-                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
                             if(width > 0)
                             {
                                 found_distance = rd;
                                 found = true;
-                                if(SwitchChannelFlood)
-                                {
-                                    ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidth->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
-                                }
-
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
                                 ChannelWidthExtended->Drc += width;
                                 ChannelNeighborsExtended->Drc += 1;
                                 ChannelSourceXExtended->Drc = c2;
@@ -250,16 +241,12 @@ void TWorld::ExtendChannel()
                             //double dsy = std::max(0.0,dy-0.5*(dy/rd));
                             //double d = sqrt(dsx * dsx + dsy*dsy);
 
-                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidth->data[r2][c2] - rd));
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
                             if(width > 0)
                             {
                                 found_distance = rd;
                                 found = true;
-                                if(SwitchChannelFlood)
-                                {
-                                    ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidth->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
-                                }
-
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
                                 ChannelWidthExtended->Drc += width;
                                 ChannelNeighborsExtended->Drc += 1;
                                 ChannelSourceXExtended->Drc = c2;
@@ -288,10 +275,7 @@ void TWorld::ExtendChannel()
         {
             if(ChannelWidthExtended->Drc > 0 && ChannelNeighborsExtended->Drc > 0) //VJ!!!! ChannelWidthExtended without Drc
             {
-                if(SwitchChannelFlood)
-                {
-                    ChannelDepthExtended->Drc /= ChannelWidthExtended->Drc;
-                }
+                ChannelDepthExtended->Drc /= ChannelWidthExtended->Drc;
                 ChannelWidthExtended->Drc /= ChannelNeighborsExtended->Drc;
             }
         }
@@ -301,7 +285,7 @@ void TWorld::ExtendChannel()
     {
         if(ChannelMaskExtended->Drc == 1)
         {
-            if(!pcr::isMV(LDDChannel->Drc) && !(ChannelWidth->Drc > _dx))
+            if(!pcr::isMV(LDDChannel->Drc) && !(ChannelWidthMax->Drc > _dx))
             {
 
                     ChannelBoundaryExtended->Drc = 1;
@@ -365,7 +349,7 @@ void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_no
         }
         if(ChannelMaskExtended->Drc == 1)
         {
-            double ow = ChannelWidth->data[(int)ChannelSourceYExtended->Drc][(int)ChannelSourceXExtended->Drc];
+            double ow = ChannelWidthMax->data[(int)ChannelSourceYExtended->Drc][(int)ChannelSourceXExtended->Drc];
             if(ow> 0 )
             {
                 double div = do_not_divide? (proportional? ChannelWidthExtended->Drc/ _dx : 1.0): (ChannelWidthExtended->Drc / ow);

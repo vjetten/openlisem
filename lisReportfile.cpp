@@ -157,7 +157,7 @@ void TWorld::OutputUI(void)
         if(SwitchChannelFlood)
             COMBO_VOFCH->Drc += UVflood->Drc;
         if (SwitchIncludeChannel)
-            if (ChannelWidthUpDX->Drc > 0)
+            if (ChannelFlowWidth->Drc > 0)
                 COMBO_VOFCH->Drc = ChannelV->Drc;
     }
 
@@ -205,7 +205,7 @@ void TWorld::OutputUI(void)
     copy(*op.baseMapDEM, *DEM);
 
     if (SwitchIncludeChannel)
-        copy(*op.channelMap, *ChannelWidthExtended);
+        copy(*op.channelMap, *ChannelMaskExtended);
 
    // report(*ChannelWidthExtended, "cwe.map");
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
@@ -827,7 +827,7 @@ void TWorld::ReportMaps(void)
         if(SwitchChannelFlood)
             COMBO_VOFCH->Drc += UVflood->Drc;
         if (SwitchIncludeChannel)
-            if (ChannelWidthUpDX->Drc > 0)
+            if (ChannelFlowWidth->Drc > 0)
                 COMBO_VOFCH->Drc = ChannelV->Drc;
     }
 

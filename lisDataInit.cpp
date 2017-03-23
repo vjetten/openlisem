@@ -617,7 +617,8 @@ void TWorld::InitChannel(void)
     FloodDetTot = 0;
 
     SedToChannel = NewMap(0);
-    ChannelWidthUpDX = NewMap(0);
+    ChannelFlowWidth = NewMap(0);
+    ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
     //ChannelQoutflow = NewMap(0);  // obsolete
     RunoffVolinToChannel = NewMap(0);
@@ -674,6 +675,9 @@ void TWorld::InitChannel(void)
             }
         }
 
+        ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+        cover(*ChannelDepth, *LDD,0);
+
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
         checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
@@ -699,13 +703,13 @@ void TWorld::InitChannel(void)
            // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
             // store not used?
         }
-        copy(*ChannelWidthUpDX, *ChannelWidth);
-        cover(*ChannelWidthUpDX, *LDD, 0);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = std::max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
-            ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
+            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
         }
+        copy(*ChannelFlowWidth, *ChannelWidth);
+        cover(*ChannelFlowWidth, *LDD, 0);
+
 
         FOR_ROW_COL_MV_CH
         {
@@ -825,9 +829,6 @@ void TWorld::InitChannel(void)
             FloodWaterVol = NewMap(0);
 
             floodTimeStart = NewMap(0);
-
-            ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
-            cover(*ChannelDepth, *LDD,0);
 
 //            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
 //            Barriers = ReadMap(LDD, getvaluename("barriers"));
@@ -2351,7 +2352,7 @@ void TWorld::FindBaseFlow()
                                 double P,R;
                                 double wh = h;
                                 double FW = ChannelWidth->Drc;
-                                double dw = /*0.5* */(ChannelWidthUpDX->Drc - FW); // extra width when non-rectamgular
+                                double dw = /*0.5* */(ChannelFlowWidth->Drc - FW); // extra width when non-rectamgular
 
                                 if (dw > 0)
                                 {

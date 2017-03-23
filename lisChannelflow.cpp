@@ -115,6 +115,25 @@ void TWorld::ChannelWaterHeight(void)
         return;
     }
 
+
+    for (int  r = 0; r < _nrRows; r++)
+    {
+        for (int  c = 0; c < _nrCols; c++)
+        {
+            if(ChannelMaskExtended->data[r][c] == 1)
+            {
+                int rr = (int)ChannelSourceYExtended->Drc;
+                int cr = (int)ChannelSourceXExtended->Drc;
+
+                ChannelWaterVol->Drcr += Rainc->Drc*(_dx - ChannelAdj->Drc)*DX->Drc;
+                // add rainfall in m3, no interception, rainfall so do not use ChannelDX
+
+            }
+        }
+    }
+
+
+
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
@@ -122,9 +141,6 @@ void TWorld::ChannelWaterHeight(void)
 
         ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
-
-        ChannelWaterVol->Drc += Rainc->Drc*(_dx - ChannelAdj->Drc)*DX->Drc;
-        // add rainfall in m3, no interception, rainfall so do not use ChannelDX
 
         //add baseflow
         if(SwitchChannelBaseflow)
@@ -172,7 +188,7 @@ void TWorld::ChannelWaterHeightFromVolume(void)
         // calculate ChannelWH
         if (ChannelSide->Drc == 0) // rectangular channel
         {
-            ChannelWidthUpDX->Drc = ChannelWidth->Drc;
+            ChannelFlowWidth->Drc = ChannelWidth->Drc;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
         }
         else
@@ -201,21 +217,10 @@ void TWorld::ChannelWaterHeightFromVolume(void)
                 ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
                 throw 1;
             }
-            ChannelWidthUpDX->Drc = ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc;
+
+            ChannelFlowWidth->Drc = std::min(ChannelWidthMax->Drc , ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc);
 
 
-            if (ChannelWidthUpDX->Drc < 0)
-            {
-                ErrorString = QString("channel width < 0 at row %1, col %2").arg(r).arg(c);
-                throw 1;
-            }
-
-            //ChannelWidthUpDX->Drc = std::min(0.9*_dx, ChannelWidthUpDX->Drc);
-            // new channel width with new WH, goniometric, side is top angle tan, 1 is 45 degr
-            // cannot be more than 0.9*_dx
-//RECALC channelWH here!!!!
-            //ChannelAdj->Drc = std::max(0.0, _dx - ChannelWidthUpDX->Drc);
-            // experimental if channelwidth > dx
         }
     }
 }
@@ -227,7 +232,7 @@ double TWorld::ChannelIterateWH(double _h, int r, int c)
     double y = _h;
     //double dy = y/1000;
     double GN = sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-    double w = ChannelWidthUpDX->Drc;
+    double w = ChannelFlowWidth->Drc;
     double _53 =5.0/3.0;
     double _23 = 2.0/3.0;
     double Q = ChannelQn->Drc;

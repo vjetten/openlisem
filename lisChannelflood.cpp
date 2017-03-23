@@ -68,191 +68,121 @@ void TWorld::distributeChannelSed(int r, int c, double dh, double charea)
 //! those that are 0 react as usual (infinite capacity)
 void TWorld::ChannelOverflow()
 {
-    FOR_ROW_COL_MV_CH
+    for (int  r = 0; r < _nrRows; r++)
     {
-        if (ChannelDepth->Drc > 0 && ChannelMaxQ->Drc == 0 && LDD->Drc != 5)// && FloodZonePotential->Drc > 0)
+        for (int  c = 0; c < _nrCols; c++)
         {
-
-            double levee = 0;//ChannelLevee->Drc;
-            //double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
-            double chdepth = ChannelDepthExtended->Drc + levee; // levee always assumed on both sides channel
-            double chwidth = ChannelWidthExtended->Drc;
-            double charea = chwidth*ChannelDX->Drc;
-            double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
-
-            if (dH == 0 && hmx->Drc <= levee)
-                continue;
-
-            // no flow activity then continue
-            if (dH == hmx->Drc)
-                continue;
-            // no diff in water level, no flow, continue
-
-            double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*_dx));
-            // fraction from hmx to channel based on avefrage flood velocity
-            double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));
-
-            double fc = chwidth/_dx;
-            // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
-            double whlevel = (ChannelWH->Drc - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
-            // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
-            // can be negative if channelwh is below channel depth and low hmx level
-            double cwa = chwidth/ChannelAdj->Drc;
-
-            bool dosimpel = (SwitchFlood1D2DCoupling == 1);
-
-            if (SwitchFlood1D2DCoupling == 2)
+            if(ChannelMaskExtended->data[r][c] == 1)
             {
-                if (dH > hmx->Drc)   // flow from channel
+                int rr = (int)ChannelSourceYExtended->Drc;
+                int cr = (int)ChannelSourceXExtended->Drc;
+
+                if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr == 0 && LDD->Drcr != 5)// && FloodZonePotential->Drc > 0)
                 {
-                    double dwh = fracC * dH; // amount flowing from channel
-                    if (hmx->Drc + dwh*cwa > dH-dwh)   // if flow causes situation to reverse (channel dips below hmx)
-                    {
-                        dosimpel = true;
-                    }
-                    else
-                    {
-                        //qDebug() << "from" << fracC;
-                        // do the flow
-                        hmx->Drc += dwh*cwa;
-                        ChannelWH->Drc -= dwh;
 
-                        //transport sediment with water
-                        if(SwitchErosion)
+                    double levee = 0;//ChannelLevee->Drc;
+                    //double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
+                    double chdepth = ChannelDepth->Drcr + levee; // levee always assumed on both sides channel
+                    double chwidth = ChannelWidthExtended->Drc;
+                    double charea = chwidth*ChannelDX->Drcr;
+                    double dH = std::max(0.0, (ChannelWH->Drcr-chdepth));
+
+                    if (dH == 0 && hmx->Drc <= levee)
+                        continue;
+
+                    // no flow activity then continue
+                    if (dH == hmx->Drc)
+                        continue;
+                    // no diff in water level, no flow, continue
+
+                    double fracA = std::min(1.0, _dt*UVflood->Drc/(0.5*_dx));
+                    // fraction from hmx to channel based on avefrage flood velocity
+                    double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));
+
+                    double fc = chwidth/_dx;
+                    // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
+                    double whlevel = (ChannelWH->Drcr - chdepth)*fc + std::max(0.0, hmx->Drcr-levee)*(1-fc);
+                    // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
+                    // can be negative if channelwh is below channel depth and low hmx level
+                    double cwa = chwidth/ChannelAdj->Drc;
+
+                    bool dosimpel = (SwitchFlood1D2DCoupling == 1);
+
+                    if (SwitchFlood1D2DCoupling == 2)
+                    {
+                        if (dH > hmx->Drc)   // flow from channel
                         {
-                            distributeChannelSed(r,c,dwh, charea);
-                            /*
-                            SSFlood->Drc += ChannelConc->Drc * dwh * charea;
-
-                            if(this->SwitchUse2Layer)
+                            double dwh = fracC * dH; // amount flowing from channel
+                            if (hmx->Drc + dwh*cwa > dH-dwh)   // if flow causes situation to reverse (channel dips below hmx)
                             {
-                                ChannelSSSed->Drc -= ChannelConc->Drc * dwh * charea;
-                            }else
-                            {
-                                ChannelBLSed->Drc -= ChannelConc->Drc * dwh * charea;
+                                dosimpel = true;
                             }
-
-                            if(SwitchUseGrainSizeDistribution)
+                            else
                             {
-                                FOR_GRAIN_CLASSES
+                                //qDebug() << "from" << fracC;
+                                // do the flow
+                                hmx->Drc += dwh*cwa;
+                                ChannelWH->Drc -= dwh;
+
+                                //transport sediment with water
+                                if(SwitchErosion)
                                 {
-                                    SS_D.Drcd +=RSSC_D.Drcd * dwh * charea;
-                                    RSS_D.Drcd -= RSSC_D.Drcd * dwh * charea;
+                                    distributeChannelSed(rr,cr,dwh, charea);
                                 }
                             }
-                            */
                         }
-                    }
-                }
-                else   // flow to channel
-                {
-                    double dwh = fracA * std::max(0.0, hmx->Drc-levee); // amount flowing to channel
-                    if (dH + dwh/cwa > hmx->Drc-dwh)   // if too much flow
-                    {
-                        dosimpel = true;
-                    }
-                    else
-                    {
-                        //qDebug() << "to" << fracA;
-                        //do flow
-                        hmx->Drc -= dwh;
-                        ChannelWH->Drc += dwh/cwa;
-
-                        //transport sediment with water
-                        if(SwitchErosion)
+                        else   // flow to channel
                         {
-                            distributeChannelSed(r, c, dwh, charea);
-                            /*
-                            SSFlood->Drc -= SSCFlood->Drc * dwh * charea;
-
-                            if(this->SwitchUse2Layer)
+                            double dwh = fracA * std::max(0.0, hmx->Drc-levee); // amount flowing to channel
+                            if (dH + dwh/cwa > hmx->Drc-dwh)   // if too much flow
                             {
-                                ChannelSSSed->Drc += SSCFlood->Drc * dwh * charea;
-                            }else
-                            {
-                                ChannelBLSed->Drc += SSCFlood->Drc * dwh * charea;
+                                dosimpel = true;
                             }
-
-                            if(SwitchUseGrainSizeDistribution)
+                            else
                             {
-                                FOR_GRAIN_CLASSES
+                                //qDebug() << "to" << fracA;
+                                //do flow
+                                hmx->Drc -= dwh;
+                                ChannelWH->Drc += dwh/cwa;
+
+                                //transport sediment with water
+                                if(SwitchErosion)
                                 {
-                                    SS_D.Drcd -=SSC_D.Drcd * dwh * charea;
-                                    RSS_D.Drcd += SSC_D.Drcd * dwh * charea;
+                                    distributeChannelSed(rr, cr, dwh, charea);
                                 }
                             }
-                            */
                         }
                     }
+
+                    if (dosimpel)
+                    {
+                        if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
+                        {
+                            double hmxold = hmx->Drc;
+
+                            hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
+                            // cutoff hmx at levee but can be smaller
+                            ChannelWH->Drc = whlevel + chdepth;
+
+                            //transport sediment with water
+                            if(SwitchErosion)
+                            {
+                                double dhmx = hmx->Drc - hmxold;
+
+                                distributeChannelSed(rr,cr, dhmx,charea);
+                                // if dhmx < 0 this also works because all signs are reversed
+                            }
+                        }
+                        else
+                        {
+                            // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
+                            // we assume that there is no more flow towards the channel.
+                        }
+                    }
+                    ChannelWaterVol->Drcr = ChannelWH->Drcr * charea;
+                    // recalc channel water vol else big MB error
                 }
             }
-
-            if (dosimpel)
-            {
-                if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
-                {
-                    double hmxold = hmx->Drc;
-
-                    hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
-                    // cutoff hmx at levee but can be smaller
-                    ChannelWH->Drc = whlevel + chdepth;
-
-                    //transport sediment with water
-                    if(SwitchErosion)
-                    {
-                        double dhmx = hmx->Drc - hmxold;
-
-                        distributeChannelSed(r,c, dhmx,charea);
-                        // if dhmx < 0 this also works because all signs are reversed
-/*
-                        if(dhmx > 0.0)
-                        {
-                            SSFlood->Drc += ChannelConc->Drc * dhmx * charea;
-                            if(this->SwitchUse2Layer)
-                            {
-                                ChannelSSSed->Drc -= ChannelConc->Drc * dhmx * charea;
-                            }else
-                            {
-                                ChannelBLSed->Drc -= ChannelConc->Drc * dhmx * charea;
-                            }
-                            if(SwitchUseGrainSizeDistribution)
-                            {
-                                FOR_GRAIN_CLASSES
-                                {
-                                    SS_D.Drcd +=RSSC_D.Drcd * dhmx * charea;
-                                    RSS_D.Drcd -= RSSC_D.Drcd * dhmx * charea;
-                                }
-                            }
-                        }else
-                        {
-                            SSFlood->Drc -= SSCFlood->Drc * dhmx * charea;
-                            if(this->SwitchUse2Layer)
-                            {
-                                ChannelSSSed->Drc += SSCFlood->Drc * dhmx * charea;
-                            }else
-                            {
-                                ChannelBLSed->Drc += SSCFlood->Drc * dhmx * charea;
-                            }
-                            if(SwitchUseGrainSizeDistribution)
-                            {
-                                FOR_GRAIN_CLASSES
-                                {
-                                    SS_D.Drcd -=SSC_D.Drcd * dhmx * charea;
-                                    RSS_D.Drcd += SSC_D.Drcd * dhmx * charea;
-                                }
-                            }
-                        }
-                        */
-                    }
-                }
-                else
-                {
-                    // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
-                    // we assume that there is no more flow towards the channel.
-                }
-            }
-            ChannelWaterVol->Drc = ChannelWH->Drc * charea;
-            // recalc channel water vol else big MB error
         }
     }
 

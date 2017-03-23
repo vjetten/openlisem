@@ -1674,7 +1674,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           TBLFlood->Drc -= tobl;
           TSSFlood->Drc += tobl;
 
-          TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelWidthUpDX->Drc;
+          TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
 
 
           double detachment = TW->Drc * maxTC * TransportFactor; //??? wat is unity
@@ -1718,7 +1718,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           // unit kg/m3
 
           //### detachment
-          TransportFactor = _dt*TSettlingVelocity * DX->Drc *ChannelWidthUpDX->Drc;
+          TransportFactor = _dt*TSettlingVelocity * DX->Drc *ChannelFlowWidth->Drc;
           // detachment can only come from soil, not roads (so do not use flowwidth)
           // units s * m/s * m * m = m3
 
