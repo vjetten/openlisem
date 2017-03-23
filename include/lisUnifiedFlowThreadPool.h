@@ -44,13 +44,6 @@ functions: \n
 #include <QtGui>
 #include <mutex>
 
-//Main way to use functionaly of lisUnifiedFlowThreadPool
-//use these macros around a function in the UnifiedFlowCode
-//Running threaded means that each thread takes a part of the map as calculation domain
-//running on a thread means one thread will calculate the entire function!
-#define RUN_THREADED_ORDENED(x,c,self,...) ((ThreadPool->RunFunctionThreadedOrdered(std::bind(&(c::x),self,std::placeholders::_1 ,__VA_ARGS__ ))))
-#define RUN_THREADED(x,c,self,...) ((ThreadPool->RunFunctionThreaded(std::bind(&(c::x),self,std::placeholders::_1 ,__VA_ARGS__ ))))
-#define RUN_ON_THREAD(x,c,self,...) ((ThreadPool->RunFuctionOnThread(std::bind(&(c::x),self,std::placeholders::_1 ,__VA_ARGS__ ))))
 
 class TWorld;
 class LisemThread;

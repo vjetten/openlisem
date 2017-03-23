@@ -59,6 +59,9 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
 {
     if(draw)
     {
+        double max_distsq = 2000.0 * 2000.0;
+        QVector3D pos = camera->m_Position;
+
         QMatrix4x4 ModelMatrix;
         ModelMatrix.setToIdentity();
 
@@ -70,13 +73,15 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
 
             for(int j = 0;j < this->Building_h_larger_Positions.length(); j++)
             {
-                ModelMatrix.setToIdentity();
+                    double distsq =(this->Building_h_larger_Positions.at(j) - pos).lengthSquared();
+                    if(distsq < max_distsq)
+                    {
+                        ModelMatrix.setToIdentity();
+                        ModelMatrix.translate(this->Building_h_larger_Positions.at(j));
+                        ModelMatrix.rotate(this->Building_h_larger_Rotation.at(j),0.0,1.0,0.0);
+                        GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
 
-                    ModelMatrix.translate(this->Building_h_larger_Positions.at(j));
-                    ModelMatrix.rotate(this->Building_h_larger_Rotation.at(j),0.0,1.0,0.0);
-                    GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
-
+                    }
             }
 
             GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
@@ -91,13 +96,14 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
 
             for(int j = 0;j < this->Building_h_large_Positions.length(); j++)
             {
-                ModelMatrix.setToIdentity();
-
-                    ModelMatrix.translate(this->Building_h_large_Positions.at(j));
-                    ModelMatrix.rotate(this->Building_h_large_Rotation.at(j),0.0,1.0,0.0);
-                    GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
-
+                    double distsq =(this->Building_h_large_Positions.at(j) - pos).lengthSquared();
+                    if(distsq < max_distsq)
+                    {
+                        ModelMatrix.setToIdentity();
+                        ModelMatrix.translate(this->Building_h_large_Positions.at(j));
+                        ModelMatrix.rotate(this->Building_h_large_Rotation.at(j),0.0,1.0,0.0);
+                        GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
+                    }
             }
 
             GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
@@ -111,18 +117,18 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
             GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleStart(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
 
              for(int j = 0;j < this->Building_h_med_Positions.length(); j++)
-            {
-                ModelMatrix.setToIdentity();
-
+             {
+                 double distsq =(this->Building_h_med_Positions.at(j) - pos).lengthSquared();
+                 if(distsq < max_distsq)
+                 {
+                    ModelMatrix.setToIdentity();
                     ModelMatrix.translate(this->Building_h_med_Positions.at(j));
                     ModelMatrix.rotate(this->Building_h_med_Rotation.at(j),0.0,1.0,0.0);
                     GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
-
-            }
+                 }
+             }
 
             GL3DDrawFunctions::DrawModelGeometryWithMaterialMultipleEnd(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera);
-
          }
 
           m = this->m_Building_h_small;
@@ -133,12 +139,14 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
 
               for(int j = 0;j < this->Building_h_small_Positions.length(); j++)
               {
-                  ModelMatrix.setToIdentity();
-
+                  double distsq =(this->Building_h_small_Positions.at(j) - pos).lengthSquared();
+                  if(distsq < max_distsq)
+                  {
+                     ModelMatrix.setToIdentity();
                      ModelMatrix.translate(this->Building_h_small_Positions.at(j));
                      ModelMatrix.rotate(this->Building_h_small_Rotation.at(j),0.0,1.0,0.0);
                      GL3DDrawFunctions::DrawModelGeometryWithMaterialMultiple(widget,m->Geometry_List.at(i),m->m_Shader,m->GLVAO_List.at(i),m->Material_List.at(m->Material_Pointer.at(i)),camera, ModelMatrix);
-
+                  }
 
               }
 
