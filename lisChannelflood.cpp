@@ -72,7 +72,7 @@ void TWorld::ChannelOverflow()
     {
         for (int  c = 0; c < _nrCols; c++)
         {
-            if(ChannelMaskExtended->data[r][c] == 1)
+            if(ChannelMaskExtended->data[r][c] == 1 && !pcr::isMV(LDDChannel->data[r][c]))
             {
                 int rr = (int)ChannelSourceYExtended->Drc;
                 int cr = (int)ChannelSourceXExtended->Drc;
@@ -83,7 +83,7 @@ void TWorld::ChannelOverflow()
                     double levee = 0;//ChannelLevee->Drc;
                     //double chdepth = ChannelDepth->Drc + levee; // levee always assumed on both sides channel
                     double chdepth = ChannelDepth->Drcr + levee; // levee always assumed on both sides channel
-                    double chwidth = ChannelWidthExtended->Drc;
+                    double chwidth = ChannelWidth->Drcr;
                     double charea = chwidth*ChannelDX->Drcr;
                     double dH = std::max(0.0, (ChannelWH->Drcr-chdepth));
 
@@ -99,12 +99,13 @@ void TWorld::ChannelOverflow()
                     // fraction from hmx to channel based on avefrage flood velocity
                     double fracC = std::min(1.0, _dt*(std::pow(dH, 2/3)*sqrt(std::max(Grad->Drc,MIN_SLOPE))/N->Drc)/(0.5*_dx));
 
-                    double fc = chwidth/_dx;
+                    double fc = std::min(0.95,chwidth/_dx);
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
-                    double whlevel = (ChannelWH->Drcr - chdepth)*fc + std::max(0.0, hmx->Drcr-levee)*(1-fc);
+                    double whlevel = (ChannelWH->Drcr - chdepth)*fc + std::max(0.0, hmx->Drc-levee)*(1-fc);
                     // equilibrium water level = weighed values of channel surplus level + hmx, levee is counted as barrier
                     // can be negative if channelwh is below channel depth and low hmx level
-                    double cwa = chwidth/ChannelAdj->Drc;
+                    double cwa = ChannelWidth->Drcr/ChannelAdj->Drc;
+                    double widechannelfraction =(ChannelWidthExtended->Drc/ChannelWidth->Drcr);
 
                     bool dosimpel = (SwitchFlood1D2DCoupling == 1);
 
@@ -122,7 +123,7 @@ void TWorld::ChannelOverflow()
                                 //qDebug() << "from" << fracC;
                                 // do the flow
                                 hmx->Drc += dwh*cwa;
-                                ChannelWH->Drc -= dwh;
+                                ChannelWH->Drcr -= dwh;
 
                                 //transport sediment with water
                                 if(SwitchErosion)
@@ -143,7 +144,7 @@ void TWorld::ChannelOverflow()
                                 //qDebug() << "to" << fracA;
                                 //do flow
                                 hmx->Drc -= dwh;
-                                ChannelWH->Drc += dwh/cwa;
+                                ChannelWH->Drcr += (dwh/cwa);
 
                                 //transport sediment with water
                                 if(SwitchErosion)
@@ -159,10 +160,15 @@ void TWorld::ChannelOverflow()
                         if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
                         {
                             double hmxold = hmx->Drc;
+                            double chwold =  widechannelfraction *ChannelWH->Drcr;
 
+                            ChannelWH->Drcr = (whlevel + chdepth);// + (1.0-widechannelfraction) *ChannelWH->Drcr;
                             hmx->Drc = std::min(hmx->Drc, levee) + whlevel;
+
+                            //hmx->Drc = std::max(0.0,hmx->Drc - (ChannelWH->Drcr - chwold)/cwa);
                             // cutoff hmx at levee but can be smaller
-                            ChannelWH->Drc = whlevel + chdepth;
+                            //ChannelWH->Drcr = ChannelWH->Drcr  - (hmx->Drc - hmxold)*cwa;
+
 
                             //transport sediment with water
                             if(SwitchErosion)
@@ -179,7 +185,7 @@ void TWorld::ChannelOverflow()
                             // we assume that there is no more flow towards the channel.
                         }
                     }
-                    ChannelWaterVol->Drcr = ChannelWH->Drcr * charea;
+                    ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
                     // recalc channel water vol else big MB error
                 }
             }

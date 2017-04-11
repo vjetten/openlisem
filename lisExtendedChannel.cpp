@@ -35,13 +35,15 @@ void TWorld::ExtendChannel()
     ChannelWidthExtended = NewMap(0.0);
     ChannelMaskExtended = NewMap(0.0);
     ChannelFlowWidth = NewMap(0.0);
-    copy(*ChannelWidthExtended, *ChannelWidthMax);
-    copy(*ChannelDepthExtended, *ChannelDepth);
+
 
     if(!SwitchIncludeChannel)
     {
         return;
     }
+
+    copy(*ChannelWidthExtended, *ChannelWidthMax);
+    copy(*ChannelDepthExtended, *ChannelDepth);
 
     ChannelNeighborsExtended = NewMap(0.0);
     ChannelSourceXExtended = NewMap(0.0);
