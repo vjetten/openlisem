@@ -1104,7 +1104,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 // 2nd order without itertaion dt1, dt2!
 double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
 {
-    double dt1 = 0, dt2, timesum = 0;
+    double dt1 = 0, dt2 = 0, timesum = 0;
     double dt_max = std::min(_dt, _dx*0.5);
     int n = 0;
     double sumh = 0;

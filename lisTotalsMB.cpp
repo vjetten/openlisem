@@ -50,7 +50,7 @@ void TWorld::Totals(void)
 
     FOR_ROW_COL_MV
     {
-       WHmax->Drc = std::max(WHmax->Drc, WH->Drc);
+       WHmax->Drc = std::max(WHmax->Drc, WH->Drc + hmx->Drc);
     }
     // find max water height
 

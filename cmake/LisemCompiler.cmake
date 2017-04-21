@@ -11,10 +11,10 @@ INCLUDE(CheckCXXCompilerFlag)
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR
         ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     SET(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wcast-qual -Wwrite-strings -Werror=strict-aliasing -std=c++11 -pedantic"
+        "${CMAKE_CXX_FLAGS} -Wall -O2 -Wextra -Wwrite-strings -Werror=strict-aliasing -std=c++11 -pedantic"
     )
 ENDIF()
-
+# -Wcast-qual
 # Add the PIC compiler flag if needed.
 IF(UNIX AND NOT WIN32)
     IF(CMAKE_SIZEOF_VOID_P MATCHES "8")

@@ -191,14 +191,6 @@ void TWorld::ChannelOverflow()
             }
         }
     }
-
-//    FOR_ROW_COL_MV_CH
-//    {
-//        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
-//        //??? what if channelside != 0:
-
-//    }
-    // recalc channel water vol else big MB error
 }
 //---------------------------------------------------------------------------
 // correct mass balance

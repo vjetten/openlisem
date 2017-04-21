@@ -1455,43 +1455,43 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    //find transport capacity for bed and suspended layer
    for(int d  = 0 ; d < iterator;d++)
    {
-       cTMap * TBLDepthFlood;
-       cTMap * TSSDepthFlood;
+//       cTMap * TBLDepthFlood;
+//       cTMap * TSSDepthFlood;
        cTMap * TBLTCFlood;
        cTMap * TSSTCFlood;
-       cTMap * TBLCFlood;
-       cTMap * TSSCFlood;
-       cTMap * TBLFlood;
-       cTMap * TSSFlood;
-       cTMap * TW;
+//       cTMap * TBLCFlood;
+//       cTMap * TSSCFlood;
+//       cTMap * TBLFlood;
+//       cTMap * TSSFlood;
+//       cTMap * TW;
 
-       double TSettlingVelocity;
+//       double TSettlingVelocity;
 
 
        if(!SwitchUseGrainSizeDistribution)
        {
-           TBLDepthFlood = ChannelBLDepth;
-           TSSDepthFlood = ChannelSSDepth;
+//           TBLDepthFlood = ChannelBLDepth;
+//           TSSDepthFlood = ChannelSSDepth;
            TBLTCFlood = ChannelBLTC;
            TSSTCFlood = ChannelSSTC;
-           TBLCFlood = ChannelBLConc;
-           TSSCFlood = ChannelSSConc;
-           TBLFlood = ChannelBLSed;
-           TSSFlood = ChannelSSSed;
-           TW = unity;
-           TSettlingVelocity = SettlingVelocity->Drc;
+//           TBLCFlood = ChannelBLConc;
+//           TSSCFlood = ChannelSSConc;
+//           TBLFlood = ChannelBLSed;
+//           TSSFlood = ChannelSSSed;
+//           TW = unity;
+//           TSettlingVelocity = SettlingVelocity->Drc;
        }else
        {
-           TBLDepthFlood = RBLD_D.at(d);
-           TSSDepthFlood = RSSD_D.at(d);
+//           TBLDepthFlood = RBLD_D.at(d);
+//           TSSDepthFlood = RSSD_D.at(d);
            TBLTCFlood = RBLTC_D.at(d);
            TSSTCFlood = RSSTC_D.at(d);
-           TBLCFlood = RBLC_D.at(d);
-           TSSCFlood = RSSC_D.at(d);
-           TBLFlood = RBL_D.at(d);
-           TSSFlood = RSS_D.at(d);
-           TW = RW_D.at(d);
-           TSettlingVelocity = settlingvelocities.at(d);
+//           TBLCFlood = RBLC_D.at(d);
+//           TSSCFlood = RSSC_D.at(d);
+//           TBLFlood = RBL_D.at(d);
+//           TSSFlood = RSS_D.at(d);
+//           TW = RW_D.at(d);
+//           TSettlingVelocity = settlingvelocities.at(d);
        }
 
        //get transport capacit for bed/suspended load for a specific cell and grain size class

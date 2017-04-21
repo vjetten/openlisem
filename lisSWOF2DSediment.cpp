@@ -2174,43 +2174,43 @@ void TWorld::SWOFSedimentDet(double dt, int r,int c, cTMap * h,cTMap * u,cTMap *
     {
 
         //set maps for this grain class
-        cTMap * TBLDepthFlood;
-        cTMap * TSSDepthFlood;
+//        cTMap * TBLDepthFlood;
+//        cTMap * TSSDepthFlood;
         cTMap * TBLTCFlood;
         cTMap * TSSTCFlood;
-        cTMap * TBLCFlood;
-        cTMap * TSSCFlood;
-        cTMap * TBLFlood;
-        cTMap * TSSFlood;
-        cTMap * TW;
+//        cTMap * TBLCFlood;
+//        cTMap * TSSCFlood;
+//        cTMap * TBLFlood;
+//        cTMap * TSSFlood;
+//        cTMap * TW;
 
-        double TSettlingVelocity;
+//        double TSettlingVelocity;
 
 
         if(!SwitchUseGrainSizeDistribution)
         {
-            TBLDepthFlood = BLDepthFlood;
-            TSSDepthFlood = SSDepthFlood;
+//            TBLDepthFlood = BLDepthFlood;
+//            TSSDepthFlood = SSDepthFlood;
             TBLTCFlood = BLTCFlood;
             TSSTCFlood = SSTCFlood;
-            TBLCFlood = BLCFlood;
-            TSSCFlood = SSCFlood;
-            TBLFlood = BLFlood;
-            TSSFlood = SSFlood;
-            TSettlingVelocity = SettlingVelocity->Drc;
-            TW = unity;
+//            TBLCFlood = BLCFlood;
+//            TSSCFlood = SSCFlood;
+//            TBLFlood = BLFlood;
+//            TSSFlood = SSFlood;
+//            TSettlingVelocity = SettlingVelocity->Drc;
+//            TW = unity;
         }else
         {
-            TBLDepthFlood = BLD_D.at(d);
-            TSSDepthFlood = SSD_D.at(d);
+//            TBLDepthFlood = BLD_D.at(d);
+//            TSSDepthFlood = SSD_D.at(d);
             TBLTCFlood = BLTC_D.at(d);
             TSSTCFlood = SSTC_D.at(d);
-            TBLCFlood = BLC_D.at(d);
-            TSSCFlood = SSC_D.at(d);
-            TBLFlood = BL_D.at(d);
-            TSSFlood = SS_D.at(d);
-            TW = W_D.at(d);
-            TSettlingVelocity = settlingvelocities.at(d);
+//            TBLCFlood = BLC_D.at(d);
+//            TSSCFlood = SSC_D.at(d);
+//            TBLFlood = BL_D.at(d);
+//            TSSFlood = SS_D.at(d);
+//            TW = W_D.at(d);
+//            TSettlingVelocity = settlingvelocities.at(d);
         }
 
         //calculate tranport capacity for bed load and suspended load

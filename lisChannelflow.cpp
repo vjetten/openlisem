@@ -236,7 +236,7 @@ double TWorld::ChannelIterateWH(double _h, int r, int c)
     double _53 =5.0/3.0;
     double _23 = 2.0/3.0;
     double Q = ChannelQn->Drc;
-    double dQ; //
+    //double dQ; //
     int count = 0;
 
 //    double Q = GN*qPow(w*_h/(2*_h+w),_23)*w*_h;
