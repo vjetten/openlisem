@@ -72,7 +72,7 @@ void GL3DCameraController::OnUpdate(GL3DWidget * widget,GL3DWorld * world, doubl
 
     if(std::fabs(widget->MouseScroll) > 0)
     {
-        m_Camera->Zoom(widget->MouseScroll/25.0);
+        //m_Camera->Zoom(widget->MouseScroll/25.0);
     }
 
 

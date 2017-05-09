@@ -54,6 +54,9 @@ void TWorld::UF_Init()
     UF_ENTRAINMENTCCONSTANT = 0.5;
     UF_ENTRAINMENTCONSTANT = 1.0;
     UF_ENTRAINMENTTHRESHOLDCONSTANT = 1.0;
+    UF_SUSPENDEDVISCOSITY=(getvaluedouble("Suspended Viscosity")== 1.0)? true:false;
+    UF_LAXMULTIPLIER=getvaluedouble("Lax Multiplier");
+    UF_FRICTIONCORRECTION=getvaluedouble("Friction force correction");
 
     UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000.0;
     UF_DEPOSITIONCONSTANT = 1;
@@ -61,10 +64,12 @@ void TWorld::UF_Init()
 
     UF_MAXSOLIDCONCENTRATION = 0.9;
     UF_MINIMUMENTRAINMENTHEIGHT = getvaluedouble("Minimum Entrainment Height");
-    UF_MANNINGCOEFFICIENT_FLUID = 0.2;
-    UF_MANNINGCOEFFICIENT_SOLID = 0.05;
+    UF_MANNINGCOEFFICIENT_FLUID = 0.5;
+    UF_MANNINGCOEFFICIENT_SOLID = 0.1;
     UF_FrictionIterations = 1;
     UF_KINEMATIC_TIMESTEP_POWER= getvaluedouble("Kinematic Timestep Power");
+
+    UF_USE_HLL2 = getvaluedouble("Use HLL2");
 
     UF_DENSITY_SUSPENDED = 2000;
 
@@ -255,6 +260,7 @@ void TWorld::UF_Init()
             UF1D_LDD->Drc = LDDChannel->Drc;
             UF1D_LDDw->Drc = ChannelWidth->Drc;
             UF1D_Slope->Drc = -ChannelGrad->Drc;
+            UF1D_LDDs->Drc = std::fabs(ChannelGrad->Drc);
 
             if(UF_CHANNELFLOOD)
             {
@@ -523,3 +529,350 @@ void TWorld::UF_Init()
 
 }
 
+void TWorld::UF_ExtendChannel()
+{
+
+    /*ChannelDepthExtended = NewMap(0.0);
+    ChannelWidthExtended = NewMap(0.0);
+    ChannelMaskExtended = NewMap(0.0);
+    ChannelFlowWidth = NewMap(0.0);
+
+
+    if(!SwitchIncludeChannel)
+    {
+        return;
+    }
+
+    copy(*ChannelWidthExtended, *ChannelWidthMax);
+    copy(*ChannelDepthExtended, *ChannelDepth);
+
+    ChannelNeighborsExtended = NewMap(0.0);
+    ChannelSourceXExtended = NewMap(0.0);
+    ChannelSourceYExtended = NewMap(0.0);
+    ChannelBoundaryExtended = NewMap(0.0);
+    ChannelBoundaryLExtended = NewMap(0.0);
+    ChannelBoundaryRExtended = NewMap(0.0);
+
+
+    //Channel cells are part of the extended channel
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelMaskExtended->Drc = (ChannelWidthMax->Drc > 0 ? 1.0 : 0.0);
+    }
+
+    int dxl[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dyl[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    //set width etc for channel cells, for these we know they are within the extende channel
+    double MaxWidth = 0;
+    FOR_ROW_COL_MV_CH
+    {
+        if(ChannelWidthMax->Drc > MaxWidth)
+        {
+            MaxWidth = ChannelWidthMax->Drc;
+        }
+        ChannelMaskExtended->Drc = 1;
+        ChannelDepthExtended->Drc = ChannelDepth->Drc;
+        ChannelWidthExtended->Drc = std::min(_dx,ChannelWidthMax->Drc);
+        ChannelNeighborsExtended->Drc = -1;
+    }
+
+    //for iteration
+    int maxdistance = ((int) ((std::max(0.0,MaxWidth-_dx)/2.0)/_dx)) + 1;
+
+    //for checking wheter channel lies within cell
+    //double maxd = (std::max(0.0,MaxWidth-_dx)/2.0);
+
+    FOR_ROW_COL_MV
+    {
+
+        if(!pcr::isMV(LDDChannel->Drc))
+        {
+            ChannelSourceXExtended->Drc = c;
+            ChannelSourceYExtended->Drc = r;
+            continue;
+        }
+        bool found = false;
+        double found_distance = 9999999.9;
+        int i = 1;
+        while(i < maxdistance + 1 && !(found_distance < double(i) * _dx))
+        {
+
+            for(int r2 = r - i; r2 < r + i + 1; r2++)
+            {
+                int c2 = c - i;
+                if(!OUTORMV(r2,c2))
+                {
+                    if(!pcr::isMV(LDDChannel->data[r2][c2]))
+                    {
+                        double dx = fabs(double(c2-c));
+                        double dy = fabs(double(r2-r));
+                        double rd = sqrt(dx*dx+dy*dy)*_dx;
+
+                        if( rd > 0)
+                        {
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
+
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
+                            if(width > 0)
+                            {
+                                found_distance = rd;
+                                found = true;
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
+                                ChannelWidthExtended->Drc += width;
+                                ChannelNeighborsExtended->Drc += 1;
+                                ChannelSourceXExtended->Drc = c2;
+                                ChannelSourceYExtended->Drc = r2;
+                                ChannelMaskExtended->Drc =1;
+                                ChannelBoundaryExtended->Drc = 1.0;
+                                if(-dyl[(int)LDDChannel->data[r2][c2]] * double(c2-c) + dxl[(int)LDDChannel->data[r2][c2]] * double(r2-r) < 0)
+                                {
+                                     ChannelBoundaryLExtended->Drc = 1;
+                                     ChannelBoundaryRExtended->Drc = 0;
+                                }else
+                                {
+                                     ChannelBoundaryRExtended->Drc = 1;
+                                     ChannelBoundaryLExtended->Drc = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for(int r2 = r - i; r2 < r + i + 1; r2++)
+            {
+                int c2 = c+i;
+
+                if(!OUTORMV(r2,c2))
+                {
+                    if(!pcr::isMV(LDDChannel->data[r2][c2]))
+                    {
+                        double dx = fabs(double(c2-c));
+                        double dy = fabs(double(r2-r));
+                        double rd = sqrt(dx*dx+dy*dy)*_dx;
+
+                        if( rd > 0)
+                        {
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
+                            if(width > 0)
+                            {
+                                found_distance = rd;
+                                found = true;
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
+                                ChannelWidthExtended->Drc += width;
+                                ChannelNeighborsExtended->Drc += 1;
+                                ChannelSourceXExtended->Drc = c2;
+                                ChannelSourceYExtended->Drc = r2;
+                                ChannelMaskExtended->Drc =1;
+                                ChannelBoundaryExtended->Drc = 1.0;
+                                if(-dyl[(int)LDDChannel->data[r2][c2]] * double(c2-c) + dxl[(int)LDDChannel->data[r2][c2]] * double(r2-r) < 0)
+                                {
+                                     ChannelBoundaryLExtended->Drc = 1;
+                                     ChannelBoundaryRExtended->Drc = 0;
+                                }else
+                                {
+                                     ChannelBoundaryRExtended->Drc = 1;
+                                     ChannelBoundaryLExtended->Drc = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for(int c2 = c - i + 1; c2 < c + i; c2++)
+            {
+                int r2 = r - i;
+                if(!OUTORMV(r2,c2))
+                {
+                    if(!pcr::isMV(LDDChannel->data[r2][c2]))
+                    {
+                        double dx = fabs(double(c2-c));
+                        double dy = fabs(double(r2-r));
+                        double rd = sqrt(dx*dx+dy*dy)*_dx;
+
+                        if( rd > 0)
+                        {
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //`double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
+
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
+                            if(width > 0)
+                            {
+                                found_distance = rd;
+                                found = true;
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
+                                ChannelWidthExtended->Drc += width;
+                                ChannelNeighborsExtended->Drc += 1;
+                                ChannelSourceXExtended->Drc = c2;
+                                ChannelSourceYExtended->Drc = r2;
+                                ChannelMaskExtended->Drc =1;
+                                ChannelBoundaryExtended->Drc = 1.0;
+                                if(-dyl[(int)LDDChannel->data[r2][c2]] * double(c2-c) + dxl[(int)LDDChannel->data[r2][c2]] * double(r2-r) < 0)
+                                {
+                                     ChannelBoundaryLExtended->Drc = 1;
+                                     ChannelBoundaryRExtended->Drc = 0;
+                                }else
+                                {
+                                     ChannelBoundaryRExtended->Drc = 1;
+                                     ChannelBoundaryLExtended->Drc = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for(int c2 = c - i + 1; c2 < c + i; c2++)
+            {
+                int r2 = r+i;
+                if(!OUTORMV(r2,c2))
+                {
+                    if(!pcr::isMV(LDDChannel->data[r2][c2]))
+                    {
+                        double dx = fabs(double(c2-c));
+                        double dy = fabs(double(r2-r));
+                        double rd = sqrt(dx*dx+dy*dy)*_dx;
+
+                        if( rd > 0)
+                        {
+                            //double dsx = std::max(0.0,dx-0.5*(dx/rd));
+                            //double dsy = std::max(0.0,dy-0.5*(dy/rd));
+                            //double d = sqrt(dsx * dsx + dsy*dsy);
+
+                            double width =  std::min(_dx,std::max(0.0,0.5 * ChannelWidthMax->data[r2][c2] - rd));
+                            if(width > 0)
+                            {
+                                found_distance = rd;
+                                found = true;
+                                ChannelDepthExtended->Drc += std::min(_dx,std::max(0.0,ChannelWidthMax->data[r2][c2] - rd)) * ChannelDepth->data[r2][c2];
+                                ChannelWidthExtended->Drc += width;
+                                ChannelNeighborsExtended->Drc += 1;
+                                ChannelSourceXExtended->Drc = c2;
+                                ChannelSourceYExtended->Drc = r2;
+                                ChannelMaskExtended->Drc =1;
+                                ChannelBoundaryExtended->Drc = 1.0;
+                                if(-dyl[(int)LDDChannel->data[r2][c2]] * double(c2-c) + dxl[(int)LDDChannel->data[r2][c2]] * double(r2-r) < 0)
+                                {
+                                     ChannelBoundaryLExtended->Drc = 1;
+                                     ChannelBoundaryRExtended->Drc = 0;
+                                }else
+                                {
+                                     ChannelBoundaryRExtended->Drc = 1;
+                                     ChannelBoundaryLExtended->Drc = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            i++;
+        }
+
+        if(found)
+        {
+            if(ChannelWidthExtended->Drc > 0 && ChannelNeighborsExtended->Drc > 0) //VJ!!!! ChannelWidthExtended without Drc
+            {
+                ChannelDepthExtended->Drc /= ChannelWidthExtended->Drc;
+                ChannelWidthExtended->Drc /= ChannelNeighborsExtended->Drc;
+            }
+        }
+    }
+
+    FOR_ROW_COL_MV
+    {
+        if(ChannelMaskExtended->Drc == 1)
+        {
+            if(!pcr::isMV(LDDChannel->Drc) && !(ChannelWidthMax->Drc > _dx))
+            {
+
+                    ChannelBoundaryExtended->Drc = 1;
+                    ChannelBoundaryRExtended->Drc = 1;
+                    ChannelBoundaryLExtended->Drc = 1;
+            }
+
+            double nn = 0;
+
+            if(IsExtendedChannel(r,c,1,0)) { nn ++;};
+            if(IsExtendedChannel(r,c,-1,0)) { nn ++;};
+            if(IsExtendedChannel(r,c,0,1)) { nn ++;};
+            if(IsExtendedChannel(r,c,0,-1)) { nn ++;};
+            if(nn == 4){
+                ChannelBoundaryExtended->Drc = 0;
+                ChannelBoundaryRExtended->Drc = 0;
+                ChannelBoundaryLExtended->Drc = 0;
+            }
+//            if(!ChannelBoundaryExtended->Drc == 1 && nn < 4)
+                if(ChannelBoundaryExtended->Drc != 1 && nn < 4)
+            {
+                ChannelBoundaryExtended->Drc = 1;
+                ChannelBoundaryRExtended->Drc = 1;
+                ChannelBoundaryLExtended->Drc = 1;
+            }
+            if(IsExtendedChannel(r,c,-1,1)) { nn ++;};
+            if(IsExtendedChannel(r,c,-1,-1)) { nn ++;};
+            if(IsExtendedChannel(r,c,1,1)) { nn ++;};
+            if(IsExtendedChannel(r,c,1,-1)) { nn ++;};
+        }
+    }
+
+
+    return;*/
+}
+
+bool TWorld::IsExtendedChannel(int r, int c, int dr, int dc)
+{
+    /*if(!OUTORMV(r+dr,c+dc))
+    {
+        return ChannelMaskExtended->data[r+dr][c+dc] == 1;
+    }else
+    {
+        return true;
+    }*/
+
+}
+
+
+//---------------------------------------------------------------------------
+// Distributes a certain value over the actual channel width (used for display stuff)
+
+void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_not_divide,bool proportional)
+{
+    /*double totala=0;
+    double totalb=0;
+    FOR_ROW_COL_MV
+    {
+        if(!pcr::isMV(LDDChannel->Drc))
+        {
+            totala += _In->Drc;
+        }
+        if(ChannelMaskExtended->Drc == 1)
+        {
+            double ow = ChannelWidthMax->data[(int)ChannelSourceYExtended->Drc][(int)ChannelSourceXExtended->Drc];
+            if(ow> 0 )
+            {
+                double div = do_not_divide? (proportional? ChannelWidthExtended->Drc/ _dx : 1.0): (ChannelWidthExtended->Drc / ow);
+                _Out->Drc = _In->data[(int)ChannelSourceYExtended->Drc][(int)ChannelSourceXExtended->Drc] * div;
+            }
+            totalb += _Out->Drc;
+        }else
+        {
+            _Out->Drc  = 0.0;
+        }
+    }
+    if(totalb > 0)
+    {
+        FOR_ROW_COL_MV
+        {
+            if(ChannelMaskExtended->Drc == 1)
+            {
+                _Out->Drc *= totala/totalb;
+            }
+        }
+    }*/
+}

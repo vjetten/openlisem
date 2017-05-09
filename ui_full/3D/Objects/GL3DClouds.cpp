@@ -95,6 +95,7 @@ void GL3DClouds::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* cam
     //GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,4,30.0,10.0,15.0,3.14159*2.0,0.97,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2);
 
     GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,4);
+    GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,32);
 
     widget->gl->glDepthMask( GL_TRUE);
     widget->gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

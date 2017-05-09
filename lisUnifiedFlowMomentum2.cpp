@@ -194,7 +194,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
 
         double ff = _f->Drc/(_f->Drc + _s->Drc);
         double sf = _s->Drc/(_f->Drc + _s->Drc);
-        _visc->Drc = UF_DynamicViscosity(sf + (SwitchErosion? (((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0)/((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff):0.0):0.0));
+        _visc->Drc = UF_DynamicViscosity(sf + ((SwitchErosion && UF_SUSPENDEDVISCOSITY)? (((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0)/((UF2D_blm->Drc + UF2D_ssm->Drc)/2000.0 + ff):0.0):0.0));
         double Nr = std::max(0.5,UF_Reynolds(_d->Drc,_visc->Drc,ff,sf, _rocksize->Drc));
         UF2D_Nr->Drc = Nr;
         double Nra = UF_NRA;
@@ -346,17 +346,20 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double vy1 = rfv + dty1 * rfay;
         double vy2 = lfv + dty2 * lfay;
 
-        /*rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
-        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 1.0:1.0)*((_dem->Drc + lxh) - (_f->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
-        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:1.0)*((_dem->Drc + ryh) - (_f->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
-        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 1.0:1.0)*((_dem->Drc + lyh) - (_f->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
-        */
-
-        //new flux limiter test seems to work for both deep and shallow flow on flat and sloped surfaces. Note: Might require lax for stability
-        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,rxh + ((_dem->Drc) - ( _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
-        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,lxh + ((_dem->Drc) - (_dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
-        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,ryh + ((_dem->Drc) - (_dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
-        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,lyh + ((_dem->Drc) - ( _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        if(!UF_USE_HLL2)
+        {
+            rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_f->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+            lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 1.0:1.0)*((_dem->Drc + lxh) - (_f->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+            ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:1.0)*((_dem->Drc + ryh) - (_f->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
+            lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 1.0:1.0)*((_dem->Drc + lyh) - (_f->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        }else
+        {
+            //new flux limiter test seems to work for both deep and shallow flow on flat and sloped surfaces. Note: Might require lax for stability
+            rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,rxh + ((_dem->Drc) - ( _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+            lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,lxh + ((_dem->Drc) - (_dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+            ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,ryh + ((_dem->Drc) - (_dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
+            lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,lyh + ((_dem->Drc) - ( _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        }
 
 
         double cq =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * _f->Drc;
@@ -688,8 +691,6 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
             continue;
         }
 
-
-
         double h = (_f->Drc + _s->Drc)/(_dx *_lddw->Drc);
         double rhf = std::max(0.0,(UF1D_MUSCLE_1_x1->Drc));
         double lhf = std::max(0.0,(UF1D_MUSCLE_1_x2->Drc));
@@ -698,7 +699,7 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
         double lfu = (UF1D_MUSCLE_2_x2->Drc);
         double ff = ThreadPool->UF_t2.at(thread)->Drc;
         double sf = ThreadPool->UF_t3.at(thread)->Drc;
-        _visc->Drc = UF_DynamicViscosity(sf + (SwitchErosion? (((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0)/((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) :0.0):0.0));
+        _visc->Drc = UF_DynamicViscosity(sf + ((SwitchErosion && UF_SUSPENDEDVISCOSITY)? (((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) > UF_VERY_SMALL ?((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0)/((UF1D_blm->Drc + UF1D_ssm->Drc)/2000.0 + ff) :0.0):0.0));
         _d->Drc = 2000.0;
         double Nr = UF_Reynolds(_d->Drc,_visc->Drc,ff,sf, _rocksize->Drc);
         UF1D_Nr->Drc = Nr;

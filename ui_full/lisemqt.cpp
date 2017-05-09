@@ -1511,6 +1511,16 @@ void lisemqt::resetAll()
 
     checkDoErosion->setChecked(check);
 
+    checkIncludeLitter->setChecked(false);
+    E_LitterSmax->setValue(1.0);
+
+    checkBox_HLL2->setChecked(false);
+    checkBox_SuspendedViscosity->setChecked(false);
+    E_LaxMultiplier->setValue(1.0);
+    E_FrictionCorrection->setValue(1.0);
+    E_CalibrateESC->setValue(1.0);
+    E_CalibrateEGS->setValue(1.0);
+
     checkIncludeChannel->setChecked(check);
     checkChannelInfil->setChecked(check);
     checkChannelBaseflow->setChecked(check);

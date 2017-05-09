@@ -354,6 +354,9 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        UF_SoilAdd(r,c,d,-std::fabs(deposition),channel);
        // IN KG/CELL
        TBL->Drc -= std::fabs(deposition);
+
+       TBL->Drc = std::max(0.0,TBL->Drc);
+       TSS->Drc = std::max(0.0,TSS->Drc);
     }
 
 }
@@ -362,7 +365,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 //transport capacity
 double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, bool bedload)
 {
-    double velocity = channel? (UF1D_fu->Drc):(sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc));
+    double velocity = channel? (std::fabs(UF1D_fu->Drc)):(sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc));
     double surface = channel? DX->Drc * UF1D_LDDw->Drc : DX->Drc*ChannelAdj->Drc;
     double hf = (channel? UF1D_f->Drc: UF2D_f->Drc)/surface;
     double v = velocity;
@@ -371,8 +374,9 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
         return 0.0;
     }
 
+
     //use overland flow equations
-    if(hf < 0.1)
+    if(hf < 0.25)
     {
         if(bedload)
         {
@@ -392,6 +396,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
 
                 // V in cm/s in this formula assuming grad is SINE
                 double omegacrit = 0.4;
+
                 // critical unit streampower in cm/s
                 return std::max(0.0,std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc)));
                 // not more than 2650*0.32 = 848 kg/m3
@@ -400,7 +405,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
             }else
             {
                 double slope = channel? UF1D_LDDs->Drc : sqrt(UF2D_SlopeX->Drc*UF2D_SlopeX->Drc + UF2D_SlopeY->Drc*UF2D_SlopeY->Drc);
-                double om = 100.0* v*slope;
+                double om = 100.0* v*v * hf;
                 double omcr = 0.4;
                 double tc =  W_D.at(_d)->Drc * (1.0/settlingvelocities.at(_d))*(1.0 * 0.013/9.81) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/hf) ;
                 return std::max(0.0,std::min(MAXCONC,tc));
@@ -429,6 +434,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
             double me = std::max((v - ucr)/(sqrt(UF_Gravity * d50m * ((ps/pw)- 1.0))),0.0);
             double qs = 0.005 * ps*v *hf * pow(d50m/hf,1.2) * pow(me, 2.4);
             double tc =  qs/ (v * hf );
+            tc = std::isnan(tc)? 0.0:tc;
             return std::max(std::min( tc,MAXCONC ),0.0);
 
         }else
@@ -452,6 +458,7 @@ double TWorld::UnifiedFlowTransportCapacity(int r, int c, int _d, bool channel, 
             double qs = hf * 0.008 * ps*v * d50m * pow(me, 2.4) * pow(ds, -0.6);
 
             double tc =  qs/ (v * hf);
+            tc = std::isnan(tc)? 0.0:tc;
             return std::max(std::min(tc,MAXCONC),0.0);
 
 

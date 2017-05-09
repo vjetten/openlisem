@@ -44,6 +44,9 @@
     double UF_MANNINGCOEFFICIENT_FLUID;
     double UF_MANNINGCOEFFICIENT_SOLID;
 
+    bool UF_SUSPENDEDVISCOSITY;
+    double UF_LAXMULTIPLIER;
+    double UF_FRICTIONCORRECTION;
     double UF_ENTRAINMENTCCONSTANT;
     double UF_ENTRAINMENTCONSTANT;
     double UF_ENTRAINMENTTHRESHOLDCONSTANT;
@@ -69,7 +72,7 @@
     double UF1D_COURANTSCHEMEFACTOR;
 
     double UF_KINEMATIC_TIMESTEP_POWER;
-
+    double UF_USE_HLL2;
     double UF_DTAverage;
 
     int UF_FrictionIterations;
@@ -309,6 +312,10 @@
     //General Function
     void UnifiedFlow();
     void UF_Init();
+    void UF_ExtendChannel();
+    bool IsExtendedChannel(int r, int c, int dr, int dc);
+    void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_not_divide,bool proportional);
+
     void UF_SetInput();
     void UF_SetOutput();
 

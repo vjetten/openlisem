@@ -349,7 +349,7 @@ public:
     SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol, SwitchWritePCRnames, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,SwitchLitter,
     SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET, SwitchLevees, SwitchFlowBarriers, SwitchBarriers, SwitchMaxVolume, SwitchChannelMaxVolume, SwitchUFInitial,SwitchUFForced;
 
     int SwitchEfficiencyDET;
@@ -405,6 +405,8 @@ public:
     double Calibrate_DF;
     double Calibrate_SPF;
     double Calibrate_DC;
+    double Calibrate_ESC;
+    double Calibrate_EGC;
 
     bool SF_Calibrate_LF;
     bool SF_Calibrate_Initial;
@@ -432,7 +434,7 @@ public:
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
     bool rainStarted;
     double nrCells, CatchmentArea, nrFloodedCells;
-
+    double LitterSmax;
 
     int c_outlet;  /// copy of outlet col number
     int r_outlet;  /// copy of outlet row number

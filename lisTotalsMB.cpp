@@ -154,7 +154,13 @@ void TWorld::Totals(void)
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 
-    QtotOutlet += UF1D_q->DrcOutlet*_dt;
+    if (!SwitchIncludeChannel)
+    {
+        QtotOutlet += UF2D_q->DrcOutlet*_dt;
+    }else
+    {
+        QtotOutlet += UF1D_q->DrcOutlet*_dt;
+    }
     // for screen output, total main outlet in m3
 
     if (SwitchIncludeChannel)

@@ -41,7 +41,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     {
         double veln = velx + a;
         double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = manning * (NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
+        double nsq = UF_FRICTIONCORRECTION * manning * (NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
 
         if(channel)
         {
@@ -51,7 +51,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
 
             }
         }
-        double kinfac = 0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0);
+        double kinfac = 0.1 +  0.9 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0);
         return veln/(1.0+  kinfac * nsq);
 
         //activate this section to limit velocity change to balance velocity
@@ -73,8 +73,8 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double velo = velx;
         double signa = a>0?1.0:-1.0;
         a = std::min(std::fabs(a)/dt,5.0 * h);
-
-        double nsq = (UF_VERY_SMALL +NN)*(UF_VERY_SMALL +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
+        double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
+        double nsq = UF_FRICTIONCORRECTION * manning *(UF_VERY_SMALL +NN)*(UF_VERY_SMALL +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
 
         if(channel)
         {

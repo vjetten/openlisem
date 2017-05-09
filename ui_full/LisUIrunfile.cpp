@@ -171,6 +171,8 @@ void lisemqt::ParseInputData()
         // flooding
        // if (p1.compare("Flood method explicit")==0)        dummyFloodExplicit = check;
 
+        if (p1.compare("Include litter interception")==0)    checkIncludeLitter->setChecked(check);
+        if (p1.compare("Litter interception storage")==0)    E_LitterSmax->setValue(val);
 
         //Surface Flow
         if (p1.compare("Enable Solid Phase")==0)                                    checkSolidPhase->setChecked(check);
@@ -192,6 +194,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
         if (p1.compare("Incldue Maximum Volume")==0)                                checkBox_MaxVolume->setChecked(check);
 
+
+        if (p1.compare("Suspended Viscosity")==0)                                    checkBox_SuspendedViscosity->setChecked(check);
+        if (p1.compare("Lax Multiplier")==0)                                        E_LaxMultiplier->setValue(val);
+        if (p1.compare("Friction force correction")==0)                             E_FrictionCorrection->setValue(val);
+        if (p1.compare("Erosion Cohesion Calibration")==0)                          E_CalibrateESC->setValue(val);
+        if (p1.compare("Erosion Grain Size Calibration")==0)                        E_CalibrateEGS->setValue(val);
+
+        if (p1.compare("Use HLL2")==0)                                              checkBox_HLL2->setChecked(check);
         if (p1.compare("Kinematic Timestep Power")==0)                              E_KinematicTimestepPower->setValue(val);
 
         if (p1.compare("Spatially Dynamic Timestep")==0)                            checkBox_SpatiallyDynamicTimestep->setChecked(check);
@@ -797,6 +807,9 @@ void lisemqt::updateModelData()
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
 
+        if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
+        if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
+
         //Surface Flow
         if (p1.compare("Enable Solid Phase")==0)                                    namelist[j].value.setNum((int)checkSolidPhase->isChecked());
         if (p1.compare("Enable Entrainment")==0)                                    namelist[j].value.setNum((int)checkEntrainment->isChecked());
@@ -817,6 +830,14 @@ void lisemqt::updateModelData()
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());
         if (p1.compare("Incldue Maximum Volume")==0)                                namelist[j].value.setNum((int)checkBox_MaxVolume->isChecked());
 
+        if (p1.compare("Suspended Viscosity")==0)                                    namelist[j].value.setNum((int)checkBox_SuspendedViscosity->isChecked());
+        if (p1.compare("Lax Multiplier")==0)                                        namelist[j].value = E_LaxMultiplier->text();
+        if (p1.compare("Friction force correction")==0)                             namelist[j].value = E_FrictionCorrection->text();
+        if (p1.compare("Erosion Cohesion Calibration")==0)                          namelist[j].value = E_CalibrateESC->text();
+        if (p1.compare("Erosion Grain Size Calibration")==0)                        namelist[j].value = E_CalibrateEGS->text();
+
+
+        if (p1.compare("Use HLL2")==0)                                              namelist[j].value.setNum((int)checkBox_HLL2->isChecked());
         if (p1.compare("Spatially Dynamic Timestep")==0)                            namelist[j].value.setNum((int)checkBox_SpatiallyDynamicTimestep->isChecked());
         if (p1.compare("Flow Minimum Timestep")==0)                                 namelist[j].value = E_SFMinimumDT->text();
         if (p1.compare("Surface Flow Courant Factor")==0)                           namelist[j].value = E_SFCourant->text();

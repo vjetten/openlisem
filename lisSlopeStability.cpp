@@ -670,7 +670,7 @@ void TWorld::InitiateDebrisFlow()
                 if(SwitchTwoLayer)
                 {
                      fh += std::min(SoilDepth2->Drc,std::max(h-SoilDepth1->Drc,0.0)) * (L2->Drc * (ThetaS2->Drc - ThetaI2->Drc) + ThetaI2->Drc * SoilDepth2->Drc)/SoilDepth2->Drc;
-                     L2->Drc = std::max(0.0,L2->Drc - std::max(0.0,h-L1->Drc));
+                     L2->Drc = std::max(0.0,L2->Drc - std::max(0.0,h-SoilDepth1->Drc));
                 }
                 L1->Drc = std::max(0.0,L1->Drc - h);
             }

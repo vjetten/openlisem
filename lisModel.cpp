@@ -138,6 +138,8 @@ void TWorld::DoModel()
 
         DEBUG("Running...");
 
+        bool first = true;
+
         for (time = BeginTime; time < EndTime; time += _dt)
         {
             if (runstep > 0 && runstep % printinterval == 0)
@@ -196,7 +198,6 @@ void TWorld::DoModel()
             DEBUG("Report to interface");
 
             OutputUI();          // fill the "op" structure for screen output
-            // show after report calc is done
 
             if (!noInterface)
                 emit show();

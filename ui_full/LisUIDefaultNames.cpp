@@ -319,6 +319,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Stemflow fraction");
     namelist[i].value = QString("0.45");
     namelist[i++].name = QString("Canopy Openess");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include litter interception");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Litter interception storage");
 
     //###
     namelist[i++].name = QString("");
@@ -423,6 +427,19 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Minimum Debris Flow Volumetric Sediment Fraction");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Include channel flooding");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Use HLL2");
+    
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Suspended Viscosity");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Lax Multiplier");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Friction force correction");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Erosion Cohesion Calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Erosion Grain Size Calibration");
 
     //###
     namelist[i++].name = QString("");

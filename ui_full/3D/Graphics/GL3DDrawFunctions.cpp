@@ -405,7 +405,7 @@ void GL3DDrawFunctions::DrawModelGLInstancedCubic(GL3DWidget * gl, GL3DModel * m
 
 void GL3DDrawFunctions::DrawModelGeometryWithMaterialGLInstancedCubic(GL3DWidget * gl, GL3DGeometry * g,GL3DShader * Shader, QOpenGLVertexArrayObject * vao,GL3DMaterial * mat, GL3DCamera * camera, int count, GL3DSurface * surface,int rows_draw, int cols_draw, int rows_data, int cols_data,int layers, double increment, double incrementv,double rand_location, double rand_rotation, double rand_scale, float * rand, GL3DTexture * dens_1, GL3DTexture * dens_2, int upscale)
 {
-   qDebug() << "draw cloud part" << rows_draw<<cols_draw<<layers<<upscale;
+
    count = (rows_draw * cols_draw * layers);
 
    Shader->m_program->bind();
@@ -452,17 +452,18 @@ void GL3DDrawFunctions::DrawModelGeometryWithMaterialGLInstancedCubic(GL3DWidget
    Shader->ActivateTextureOn(gl,surface->m_Texture_MicroElevation_Normal,"microElevation_normal",10);
    Shader->ActivateTextureOn(gl,surface->m_Texture_Mask,"Mask",11);
 
-   Shader->ActivateTextureOn(gl,surface->m_Texture_SlopeX,"slopeX",12);
-   Shader->ActivateTextureOn(gl,surface->m_Texture_SlopeY,"slopeY",13);
+   Shader->ActivateTextureOn(gl,dens_1,"DensityMap1",12);
+   Shader->ActivateTextureOn(gl,dens_2,"DensityMap2",13);
 
-   Shader->ActivateTextureOn(gl,surface->m_Texture_VegCover,"VegCover",14);
-   Shader->ActivateTextureOn(gl,surface->m_Texture_VegHeight,"VegHeight",15);
-   Shader->ActivateTextureOn(gl,surface->m_Texture_RandomRoughness,"RandomRoughness",16);
-   Shader->ActivateTextureOn(gl,surface->m_Texture_Buildings,"Buildings",17);
-   Shader->ActivateTextureOn(gl,surface->m_Texture_Roads,"Roads",18);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_VegCover,"VegCover",14);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_VegHeight,"VegHeight",15);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_RandomRoughness,"RandomRoughness",16);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_Buildings,"Buildings",17);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_Roads,"Roads",18);
 
-   Shader->ActivateTextureOn(gl,dens_1,"DensityMap1",19);
-   Shader->ActivateTextureOn(gl,dens_2,"DensityMap2",20);
+
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_SlopeX,"slopeX",19);
+   //Shader->ActivateTextureOn(gl,surface->m_Texture_SlopeY,"slopeY",20);
 
    if((mat == 0))
    {

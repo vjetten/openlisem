@@ -277,7 +277,7 @@ void TWorld::UF2D1D_Infiltration(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
         double cdy = ChannelAdj->Drc;
 
         //calculate infiltartion in time step
-        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*cdx* dt->Drc/_dt,0.0);
+        double infil = std::min((FSurplus->Drc *SoilWidthDX->Drc*cdx*dt->Drc/_dt + UF2D_Infiltration->Drc),0.0);
         if(_f2D->Drc < fabs(infil))
         {
             infil = -_f2D->Drc;
@@ -293,7 +293,7 @@ void TWorld::UF2D1D_Infiltration(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
         //channel infiltration
         if(SwitchChannelInfil)
         {
-            double infilvol = std::min((ChannelKsat->Drc*_lddw->Drc + 2.0 * _f1D->Drc/(_dx * _lddw->Drc))* _dx * dt->Drc/ 1000.0, _f1D->Drc);
+            double infilvol = std::min(((ChannelKsat->Drc*_lddw->Drc + 2.0 * _f1D->Drc/(_dx * _lddw->Drc))* _dx * dt->Drc/ _dt + UF1D_Infiltration->Drc), _f1D->Drc);
             UF1D_Infiltration->Drc += infilvol;
             _f1D->Drc -= infilvol;
         }

@@ -78,7 +78,7 @@ void TWorld::FillTimeSeriesData()
 {
 
     //save the timeseries data temporarily for multithreading!
-    //only pointmap is threadsafe since it is not safe!
+    //only pointmap is threadsafe since it is not used!
 
     TSList_point.clear();
     TSList_rainav.clear();
@@ -91,7 +91,41 @@ void TWorld::FillTimeSeriesData()
     double RainIntavg = RainAvgmm * 3600/_dt;
     double SnowIntavg = SnowAvgmm * 3600/_dt;
 
+    TSList_point.append(0);
+    TSList_rainav.append(RainIntavg);
+    TSList_snowav.append(SnowIntavg);
 
+
+    TSList_q.append((QtotT * 1000.0/_dt));
+    if(SwitchIncludeChannel)
+    {
+        double channelwh = 0;
+        if(SwitchIncludeChannel)
+        {
+
+            FOR_ROW_COL_MV_CH
+            {
+                if(LDDChannel->Drc == 5)
+                {
+                    channelwh += UF1D_h->Drc;
+                }
+            }
+        }
+        TSList_h.append(channelwh);
+    }else
+    {
+        TSList_h.append(0);
+    }
+
+    if(SwitchErosion)
+    {
+        TSList_qs.append(SoilLossTotT/_dt);
+        TSList_c.append((QtotT) > 1e-6? SoilLossTotT/(QtotT) : 0);
+    }else
+    {
+        TSList_qs.append(0.0);
+        TSList_c.append(0.0);
+    }
 
     FOR_ROW_COL_MV
     {
@@ -167,7 +201,7 @@ void TWorld::OutputUI(void)
 
         double discharge = Qoutput->Drc;
         double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
-        double sedimentconcentration = SwitchErosion? UF1D_fsc->Drc : 0.0;
+        double sedimentconcentration = SwitchErosion? UF1D_fsConc->Drc : 0.0;
         double channelwh = SwitchIncludeChannel? UF1D_h->Drc : 0.0;
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
@@ -197,9 +231,9 @@ void TWorld::OutputUI(void)
     //output maps for combo box
     for(int i = 0; i < op.ComboMaps.length(); i++)
     {
-        fill(*ThreadPool->tma, 0.0);
-        calcMapValue(*ThreadPool->tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
-        copy(*op.ComboMapsSafe.at(i), *ThreadPool->tma);
+        fill(*tma, 0.0);
+        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
+        copy(*op.ComboMapsSafe.at(i), *tma);
     }
 
 
@@ -360,12 +394,10 @@ void TWorld::ReportTimeseriesNew(int not_used)
         SwitchWriteHeaders = false;
         if (SwitchSeparateOutput) // each point separate file
         {
-            FOR_ROW_COL_MV
-            {
-                if ( PointMap->Drc > 0 )
+            for(int p = 0; p < TSList_point.length(); p++)
                 {
                     newname1 = fi.path() + "/" + fi.baseName() + "_" +
-                            QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+                            QString::number((int)TSList_point.at(p)) + "." +  fi.suffix();
                     // make filename using point number
 
                     QFile fout(newname1);
@@ -378,7 +410,7 @@ void TWorld::ReportTimeseriesNew(int not_used)
                     // HEADERS for the 3 types
                     if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
                     {
-                        pnr.setNum((int)PointMap->Drc);
+                        pnr.setNum((int)TSList_point.at(p));
                         out << "#LISEM total flow and sed output file for point " << pnr << "\n";
 
                         // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
@@ -407,11 +439,11 @@ void TWorld::ReportTimeseriesNew(int not_used)
                             //                     if (SwitchErosion) out << " kg/s g/l";
                             //                     out << "\n";
                             //                     out << pnr << "\n";
-                            out << "* " <<  (int)PointMap->Drc << "\n";
+                            out << "* " <<  (int)TSList_point.at(p) << "\n";
                         }
                         else // flat format, comma delimited
                         {
-                            pnr.setNum((int)PointMap->Drc);
+                            pnr.setNum((int)TSList_point.at(p));
                             out << "LISEM total flow and sed output file for point " << pnr << "\n";
                             out << "Time";
                             if (SwitchRainfall) out << ",Pavg";
@@ -428,7 +460,6 @@ void TWorld::ReportTimeseriesNew(int not_used)
                         }
                     fout.close();
                 }
-            }
         }  // separate
         else   // HEADERS: all points in one file
         {
@@ -445,8 +476,7 @@ void TWorld::ReportTimeseriesNew(int not_used)
             if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
             {
                 // count nr of points
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 ) nr++;
+                nr = TSList_point.length();
 
                 // nr columns is time + rain (+ maybe snow) + nr points*(Q + Qs + C)
                 int nrs = 2+(1+(SwitchErosion ? 2 : 0))*nr;
@@ -458,10 +488,9 @@ void TWorld::ReportTimeseriesNew(int not_used)
                 out << "Time (min)\n";
                 if (SwitchRainfall) out << "Pavg (mm/h)\n";
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
-                    pnr.setNum((int)PointMap->Drc);
+                for(int p = 0; p < TSList_point.length(); p++)
+                    {
+                    pnr.setNum((int)TSList_point.at(p));
                     out << "Q #" << pnr <<  "(l/s)\n";
                     out << "chanWH #" << pnr <<  "(m)\n";
                     if (SwitchIncludeTile) out << "Qdr #" << pnr <<  "(l/s)\n";
@@ -474,19 +503,17 @@ void TWorld::ReportTimeseriesNew(int not_used)
             else // SOBEK format
                 if (SwitchSOBEKoutput) //note: sobek input does not have rainfall
                 {
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
-                        pnr.setNum((int)PointMap->Drc);
+                    for(int p = 0; p < TSList_point.length(); p++)
+                        {
+                        pnr.setNum((int)TSList_point.at(p));
                         out << " Q #" << pnr;
                         if (SwitchErosion) out << " Qs #" << pnr;
                         if (SwitchErosion) out << " C #" << pnr;
                     }
                     out << "\n";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
-                        pnr.setNum((int)PointMap->Drc);
+                    for(int p = 0; p < TSList_point.length(); p++)
+                        {
+                        pnr.setNum((int)TSList_point.at(p));
                         out << " m3/s #" << pnr;
                         if (SwitchErosion) out << " kg/s #" << pnr;
                         if (SwitchErosion) out << " g/l #" << pnr;
@@ -500,10 +527,9 @@ void TWorld::ReportTimeseriesNew(int not_used)
                     out << "Time";
                     if (SwitchRainfall) out << ",P";
                     if (SwitchSnowmelt) out << ",Snow";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
-                        pnr.setNum((int)PointMap->Drc);
+                    for(int p = 0; p < TSList_point.length(); p++)
+                        {
+                        pnr.setNum((int)TSList_point.at(p));
                         out << ",Q #" << pnr;
                         out << ",chanWH #" << pnr;
                         if (SwitchIncludeTile) out << ",Qdr #" << pnr;
@@ -514,10 +540,9 @@ void TWorld::ReportTimeseriesNew(int not_used)
                     out << "min";
                     if (SwitchRainfall) out << ",mm/h";
                     if (SwitchSnowmelt) out << ",mm/h";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
-                        pnr.setNum((int)PointMap->Drc);
+                    for(int p = 0; p < TSList_point.length(); p++)
+                        {
+                        pnr.setNum((int)TSList_point.at(p));
                         out << ",l/s #" << pnr;
                         out << ",m #" << pnr;
                         if (SwitchIncludeTile) out << ",l/s #" << pnr;
@@ -535,15 +560,13 @@ void TWorld::ReportTimeseriesNew(int not_used)
     if (SwitchSeparateOutput)
     {
         int point = 0;
-        FOR_ROW_COL_MV
-        {
-            if ( PointMap->Drc > 0 ) // all points in separate files
+        for(int p = 0; p < TSList_point.length(); p++)
             {
                 point ++;
 
            //     qDebug() << PointMap->Drc << r << c;
                 newname1 = fi.path() + "/" + fi.baseName() + "_" +
-                        QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+                        QString::number((int)TSList_point.at(p)) + "." +  fi.suffix();
                 QFile fout(newname1);
                 fout.open(QIODevice::Append | QIODevice::Text);
 
@@ -573,12 +596,11 @@ void TWorld::ReportTimeseriesNew(int not_used)
                             arg((uint)hour,2,10,QLatin1Char('0')).
                             arg((uint)min,2,10,QLatin1Char('0')).
                             arg((uint)sec,2,10,QLatin1Char('0')).
-                            arg(Qoutput->Drc/1000.0,0,'f',3);
+                            arg(TSList_q.at(point)/1000.0,0,'f',3);
                     out << ss;
                 }
                 fout.close();
             }  // if point
-        }  //rows cols
     } //switch separate
     else
     {
@@ -610,9 +632,7 @@ void TWorld::ReportTimeseriesNew(int not_used)
             }
 
             int point = 0;
-            FOR_ROW_COL_MV
-            {
-                if ( PointMap->Drc > 0 )
+            for(int p = 0; p < TSList_point.length(); p++)
                 {
                     point ++;
 
@@ -620,7 +640,7 @@ void TWorld::ReportTimeseriesNew(int not_used)
                     if (SwitchErosion) out << sep << TSList_qs.at(point);
                     if (SwitchErosion) out << sep << TSList_c.at(point);
                 }
-            }
+
             out << "\n";
         }
         else
@@ -630,16 +650,14 @@ void TWorld::ReportTimeseriesNew(int not_used)
                 out << "\"" << SOBEKdatestring << ":" << hour << ":" <<  min << ":" <<  sec;
                 out.setFieldWidth(8);
                 int point = 0;
-                FOR_ROW_COL_MV
-                {
-                    if ( PointMap->Drc > 0 )
+                for(int p = 0; p < TSList_point.length(); p++)
                     {
                         point ++;
                         out << " " << TSList_q.at(point)/1000.0;
                         if (SwitchErosion) out << " " << TSList_qs.at(point);
                         if (SwitchErosion) out << " " << TSList_c.at(point);
                     }
-                }
+
                 out << " < \n";
             }
         fout.close();

@@ -251,9 +251,16 @@ void GL3DTexture::CreateTexturePerlin(GL3DWidget *widget, int lx, int ly, QList<
 
     int n = lx * ly;
     GLfloat*data = (float *)malloc(n * sizeof(GLfloat) );
-
+    for(int y = 0; y < ly;y++)
+    {
+        for(int x = 0; x < lx;x++)
+        {
+            data[y * lx + x] = 0;
+        }
+    }
     for(int i = 0; i < wave.length();i++)
     {
+
         PerlinNoise *p = new PerlinNoise(i*123456);
         for(int y = 0; y < ly;y++)
         {
@@ -262,7 +269,9 @@ void GL3DTexture::CreateTexturePerlin(GL3DWidget *widget, int lx, int ly, QList<
                 double rx = float(x) * 1.0/wave.at(i);
                 double ry = float(y) * 1.0/wave.at(i);
                 double val = p->noise(rx,ry,0);
+
                 data[y * lx + x] += val * amp.at(i);
+
             }
 
         }
