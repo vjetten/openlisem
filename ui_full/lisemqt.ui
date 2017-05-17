@@ -5985,7 +5985,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -10292,7 +10292,7 @@ p, li { white-space: pre-wrap; }
                   <item row="12" column="2">
                    <widget class="QLabel" name="label_107">
                     <property name="text">
-                     <string>Entrainment Min. Water Height</string>
+                     <string>Critical Concentration Mult.</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -21818,7 +21818,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

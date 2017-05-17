@@ -1628,14 +1628,42 @@ void TWorld::GetComboMaps()
             Colors.append("#804000");
 
             AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-            AddComboMap(1,"Entrainment SF","m",UF2D_EntrainmentSF,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
             AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+
+            Colormap.clear();
+            Colormap.append(0.0);
+            Colormap.append(0.25);
+            Colormap.append(0.75);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#00FF00");
+            Colors.append("#FFFF00");
+            Colors.append("#FF0000");
+            Colors.append("#A60000");
+
             AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"Entrainmentshearstressc","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"Entrainmentshearstress","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
-
+            AddComboMap(1,"su","kg/m2",UF2D_su,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"sv","kg/m2",UF2D_sv,Colormap,Colors,false,false,1.0, step);
         }
+
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.3);
+        Colormap.append(0.5);
+        Colormap.append(0.70);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#616ca2");//#457A60");
+        Colors.append("#50B547");//#96B547");
+        Colors.append("#FFFFFF");
+        Colors.append("#FFFF00");
+        Colors.append("#FF0000");
+
+        AddComboMap(1,"DEMChange","m",DEMChange,Colormap,Colors,false,true,1.0, step);
+
         if(SwitchSlopeStability)
         {
             Colormap.clear();

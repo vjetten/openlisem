@@ -66,8 +66,6 @@ void TWorld::UF_FlowEntrainment(int thread)
 
             UF_FlowEntrainment(UF2D_DT->Drc,r,c,false);
 
-            UF_EntrainmentSideSlopeFailure(UF2D_DT->Drc,r,c);
-
 
         }}}
         if(UF_1DACTIVE)
@@ -90,7 +88,6 @@ double TWorld::UF_FlowEntrainmentST(int r, int c, bool channel)
 
     double sconc = UF_5CellAverage(UF2D_tsf,r,c);
 
-    Entrainmentshearstress->Drc = sconc;
     double width = channel? UF1D_LDDw->Drc : _dx;
     double area = width * DX->Drc;
     double velocity = channel? std::fabs(UF1D_fu->Drc) : sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc);
@@ -197,22 +194,23 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     double shearstress = channel? UF1D_ST->Drc : UF2D_ST->Drc;
 
     double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
-    double entrainment_lat =channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,UF2D_STLA->Drc,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
-    double entrainment_sf = channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
+    double entrainment_lat =0.0;//channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,UF2D_STLA->Drc,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
+    double entrainment_sf = 0.0;//channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
 
     double deposition = UnifiedFlowActiveDeposition(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa,r,c);
 
 
+    entrainment = std::min(entrainment + entrainment_lat + entrainment_sf,0.05 * area * availabledepth);
+
+
     if(!channel)
     {
-        UF2D_EntrainmentSF->Drc += std::min(SoilRockMaterial->Drc,entrainment_sf);
+        UF2D_EntrainmentSF->Drc  =entrainment;
 
     }else
     {
 
     }
-
-    entrainment = std::min(entrainment + entrainment_lat + entrainment_sf,0.05 * area * availabledepth);
 
     if(entrainment > 0)
     {
@@ -255,23 +253,9 @@ double TWorld::UnifiedFlowEntrainmentAvailableDepth(int r,int c, double vx, doub
             depth2 = std::max(0.0,dem - UF2D_DEM->data[r][c+dc]);
         }
     }
-    /*if(!OUTORMV(r - dr,c))
-    {
-        if(UF2D_DEM->data[r-dr][c] < dem)
-        {
-            depth3 = std::max(0.0,dem - UF2D_DEM->data[r-dr][c]);
-        }
-    }
 
-    if(!OUTORMV(r,c-dc))
-    {
-        if(UF2D_DEM->data[r][c-dc] < dem)
-        {
-            depth4 = std::max(0.0,dem - UF2D_DEM->data[r][c-dc]);
-        }
-    }*/
 
-    return std::max(depth1,depth2);//std::max(depth3,std::max(depth4,std::max(depth1,depth2)));
+    return std::max(depth1,depth2);
 }
 
 double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope, double h, double _f, double _s,double area, double _fv, double _sv, double _sc, double visc, double d, double ifa,double rocksize, double d_bed, double ifa_bed, double coh_bed, double veg_coh, double manning, int r, int c)
@@ -389,7 +373,6 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
 
 
-
     if(area < UF_VERY_SMALL)
     {
         return 0;
@@ -411,14 +394,10 @@ double TWorld::UnifiedFlowActiveDeposition(double dt,double slope, double _f, do
     double d_s = (_sc > UF_VERY_SMALL)? (d - 1000 * (1-_sc))/_sc : 2000.0;
     double vc = _sc > UF_VERY_SMALL? ( 0.15 + (1/5.0) *sqrt(UF_Gravity ) * pow(h,0.5)) : 0.0; //sin(atan((_sc *(d_s - 1000.0) * tan(ifa)/(_sc*(d_s - 1000.0) + 1000.0))))* d /(0.02 * d_s)) *(pow(0.7/_sc,1/3.0)-1.0)
 
-    double MaxCSF = std::max(0.25 * std::min(1.0,_fv * h),std::min(0.8,UF_ENTRAINMENTCCONSTANT*slope > tan(ifa_bed)? 1.0:(1000.0 *UF_ENTRAINMENTCCONSTANT* slope)/((d - 1000)*(tan(ifa_bed)-UF_ENTRAINMENTCCONSTANT*slope))));
+    double MaxCSF = std::max(0.25 * std::min(1.0,_sv * h),std::min(0.8,UF_ENTRAINMENTCCONSTANT*slope > tan(ifa_bed)? 1.0:(1000.0 *UF_ENTRAINMENTCCONSTANT* slope)/((d - 1000)*(tan(ifa_bed)-UF_ENTRAINMENTCCONSTANT*slope))));
 
     double deporat = UF_DEPOSITIONCONSTANT *std::max(_sc - (MaxCSF)*_f,std::max(0.0 ,(1.0-_fv/(UF_DEPOSITIONTHRESHOLDCONSTANT*vc)))*std::max(0.0,((_sc-MaxCSF)/0.7)*_fv));
 
-
-
-    Entrainmentshearstressc->Drc = MaxCSF;
-    Entrainmentshearstress->Drc = vc;
 
     //returns volume of deposition
     return std::min(0.5*_s, deporat * area * dt );
@@ -514,7 +493,7 @@ double TWorld::UF_RockAdd(int r, int c, double deposition, bool channel)
 void TWorld::UF_FlowCompaction(int thread)
 {
 
-    if(SwitchErosion && UF_SOLIDPHASE && SwitchSlopeStability)
+    if(SwitchErosion && UF_SOLIDPHASE )
     {
         cTMap*_dem = UF2D_DEM;
         cTMap*_ldd = UF1D_LDD;
@@ -538,98 +517,144 @@ void TWorld::UF_FlowCompaction(int thread)
 void TWorld::UF_FlowCompaction(double dt, int r, int c, bool channel)
 {
 
-    double availabledepth = UnifiedFlowDepositionAvailableDepth(r,c);
+    if(channel)
+    {
+        return;
+    }
 
     double f = channel? UF1D_f->Drc : UF2D_f->Drc;
     double s = channel? UF1D_s->Drc : UF2D_s->Drc;
-    double sf = channel? (UF1D_ssm->Drc + UF1D_blm->Drc) : (UF2D_ssm->Drc + UF2D_blm->Drc);
-    double sconc = f> 0? (s + (sf/UF_DENSITY_SUSPENDED))/(f+s + (sf/UF_DENSITY_SUSPENDED)) : 0.0;
     double width = channel? UF1D_LDDw->Drc : _dx;
     double area = width * DX->Drc;
-    double velocity = channel? std::fabs(UF1D_fu->Drc) : sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc);
-    double velocitys = channel? std::fabs(UF1D_su->Drc) : sqrt(UF2D_su->Drc*UF2D_su->Drc + UF2D_sv->Drc*UF2D_sv->Drc);
-    velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
 
-    double sc = s/(f +s);
-    if(sc > UF_FLOWCOMPACTION_MAXCONCENTRATION)
+    double h = (s)/(area);
+    double ff = f/(f+s);
+    double sf = s/(f+s);
+    double gamma = channel? UF1D_d->Drc : UF2D_d->Drc;
+    gamma = gamma > UF_VERY_SMALL? 1000.0/gamma: 0.5;
+    double dc = UF_DragCoefficient(ff,sf,gamma,channel?UF1D_visc->Drc:UF2D_visc->Drc, channel?UF1D_rocksize->Drc:UF2D_rocksize->Drc, channel?UF1D_d->Drc:UF2D_d->Drc);
+    double pbf = -UF_Gravity*f/area;
+
+    double pbs = (1-gamma)*pbf;
+    double ifa = 0.3;
+
+    double xslope = UF2D_Derivative(UF2D_DEM,UF2D_DEM,r,c,UF_DIRECTION_X);
+    double yslope = UF2D_Derivative(UF2D_DEM,UF2D_DEM,r,c,UF_DIRECTION_Y);
+
+    double xh1 = !OUTORMV(r,c-1)? UF2D_s->data[r][c-1] / (_dx*DX->data[r][c-1]) : h;
+    double xh2 = !OUTORMV(r,c+1)? UF2D_s->data[r][c+1] / (_dx*DX->data[r][c+1]) : h;
+    double yh1 = !OUTORMV(r-1,c)? UF2D_s->data[r-1][c] / (_dx*DX->data[r-1][c]) : h;
+    double yh2 = !OUTORMV(r+1,c)? UF2D_s->data[r+1][c] / (_dx*DX->data[r+1][c]) : h;
+
+    double dhdx = ((h-xh1)+( xh2-h))/(_dx*2.0);
+    double dhdy = ((h-yh1)+( yh2-h))/(_dx*2.0);
+
+    double su = UF2D_su->Drc;
+    double sv = UF2D_sv->Drc;
+
+    double vel = sqrt(su*su + sv*sv);
+
+    //x friction
+    double friction_x = (vel > 0? su/vel : 0.0)*std::tan(ifa)*pbs;
+
+    //y friction
+    double friction_y = (vel > 0? sv/vel : 0.0)*std::tan(ifa)*pbs;
+
+    //x accaleration
+    double acc_x = (-UF_Gravity * sin(xslope + dhdx) +UF_Aspect*pbs*(xslope + dhdx)
+                -UF_Aspect * gamma * pbf * ( dhdx +  xslope ));
+
+
+    //y accaleration
+    double acc_y = (-UF_Gravity * sin(yslope + dhdy)+UF_Aspect*pbs*(yslope + dhdy)
+                +UF_Aspect * gamma * pbf * ( dhdy +  yslope ));
+
+
+
+    double frictioncontribution = std::min(0.2,std::max(0.0,(std::fabs(friction_x) + std::fabs(friction_y)) - (std::fabs(acc_x) + std::fabs(acc_y) + vel))/(std::fabs(acc_x) + std::fabs(acc_y) +vel));
+    double material = frictioncontribution * s;
+    Entrainmentshearstress->Drc = frictioncontribution;
+
+    Entrainmentshearstressc->Drc = std::fabs(acc_x) + std::fabs(acc_y);
+
+
+    if(material > UF_VERY_SMALL && !(UF2D_EntrainmentSF->Drc > 0.0))
     {
-        double desired_depth = 0;
 
-        //solve (_s-d)/((_f-p*d)+(_s-d)) = UF_FLOWCOMPACTION_MAXCONCENTRATION;
-        double p = 0.3;// (water taken with compacted soil)
-        double desired_volume = std::max(0.0,(UF_FLOWCOMPACTION_MAXCONCENTRATION *(f+s) -s)/(-1 + (1+p)*UF_FLOWCOMPACTION_MAXCONCENTRATION));
-        desired_depth = desired_volume/area;
-
-        double v_c = UF_FLOWCOMPACTION_CRITICALVELOCITY;
-        double compaction = std::max(0.0,(1-velocitys/v_c) *std::min(desired_depth,availabledepth) * dt/10.0);
-
-        if(compaction > 0)
+        if(SwitchSlopeStability && !channel)
         {
-            UF_RockAdd(r,c,compaction,channel);
+            double availabledepth = UnifiedFlowDepositionAvailableDepth(r,c);
+
+            material = std::min(availabledepth*area,material);
+        }
+
+
+        {
+            UF_RockAdd(r,c,material,channel);
         }
     }
-
-
-
 }
 
 double TWorld::UnifiedFlowDepositionAvailableDepth(int r, int c)
 {
-
-
     return std::max(0.0,SolveStableDepthAt(r,c) - GetTotalSoilDepth(r,c));
-
 }
 
 double TWorld::UF_EntrainmentSideSlopeFailure(double dt, int r, int c)
 {
-    double volume = 0;
-    double h = (UF2D_f->Drc + UF2D_s->Drc) /(_dx*DX->Drc);
-    double sat = SoilRockWater->Drc/SoilRockMaterial->Drc;
-
-    int dx[4] = {0,1,0,-1};
-    int dy[4] = {1,0,-1,0};
-
-    for(int i = 0; i < 4; i++)
+    if(SwitchSlopeStability)
     {
-        int r2 = r + dy[i];
-        int c2 = c + dx[i];
+        double volume = 0;
+        double h = (UF2D_f->Drc + UF2D_s->Drc) /(_dx*DX->Drc);
+        double sat = SoilRockWater->Drc/SoilRockMaterial->Drc;
 
-        if(OUTORMV(r2,c2))
+        int dx[4] = {0,1,0,-1};
+        int dy[4] = {1,0,-1,0};
+
+        for(int i = 0; i < 4; i++)
         {
-            continue;
+            int r2 = r + dy[i];
+            int c2 = c + dx[i];
+
+            if(OUTORMV(r2,c2))
+            {
+                continue;
+            }
+
+            double el_this = UF2D_DEM->Drc;
+            double el_side = UF2D_DEM->data[r2][c2];
+
+            double d_this = SoilRockMaterial->Drc / (_dx * DX->Drc);
+            double d_side = SoilRockMaterial->data[r2][c2] / (_dx * DX->data[r2][c2]);
+
+            double dd_this = DEMChange->Drc;
+            double dd_side = DEMChange->data[r2][c2];
+
+            double dx = _dx/5.0;
+            double slope =std::max(0.0,-(dd_this-dd_side)/dx);
+
+            double sf = 0.0;
+            if(d_this < 0.1 || slope < 0.01)
+            {
+                sf = 1000.0;
+            }else
+            {
+                sf = CalculateSafetyFactor(slope,d_this,h,10.0,SoilRockIFA->Drc,sat * d_this,0.0,SoilRockDensity->Drc,RootCohesion->Drc,0.0,1.0);
+            }
+
+            if(sf < 0.9)
+            {
+                double sd = SolveStableDepth(slope,d_this,h,10.0,SoilRockIFA->Drc,sat * d_this,0.0,SoilRockDensity->Drc,RootCohesion->Drc,0.0,1.0,1.0,1.0);
+                volume += std::max(0.0,d_this - sd) * _dx * DX->Drc;
+            }
+
+
         }
 
-        double el_this = UF2D_DEM->Drc;
-        double el_side = UF2D_DEM->data[r2][c2];
-
-        double d_this = SoilRockMaterial->Drc / (_dx * DX->Drc);
-        double d_side = SoilRockMaterial->data[r2][c2] / (_dx * DX->data[r2][c2]);
-
-        double dd_this = DEMChange->Drc;
-        double dd_side = DEMChange->data[r2][c2];
-
-        double dx = _dx/5.0;
-        double slope =std::max(0.0,-(dd_this-dd_side)/dx);
-
-        double sf = 0.0;
-        if(d_this < 0.1 || slope < 0.01)
-        {
-            sf = 1000.0;
-        }else
-        {
-            sf = CalculateSafetyFactor(slope,d_this,h,10.0,SoilRockIFA->Drc,sat * d_this,0.0,SoilRockDensity->Drc,RootCohesion->Drc,0.0,1.0);
-        }
-
-        if(sf < 0.9)
-        {
-            double sd = SolveStableDepth(slope,d_this,h,10.0,SoilRockIFA->Drc,sat * d_this,0.0,SoilRockDensity->Drc,RootCohesion->Drc,0.0,1.0,1.0,1.0);
-            volume += std::max(0.0,d_this - sd) * _dx * DX->Drc;
-        }
-
-
+        return volume;
+    }else
+    {
+        return 0.0;
     }
-
-    return volume;
 
 }

@@ -51,7 +51,7 @@ void TWorld::UF_Init()
     UF_DISPLAYDEBRISFLOWMINIMUM = getvaluedouble("Minimum Debris Flow Volumetric Sediment Fraction");
     UF_SigmaDiffusion = 1.0;
 
-    UF_ENTRAINMENTCCONSTANT = 0.5;
+    UF_ENTRAINMENTCCONSTANT = getvaluedouble("Minimum Entrainment Height");
     UF_ENTRAINMENTCONSTANT = 1.0;
     UF_ENTRAINMENTTHRESHOLDCONSTANT = 1.0;
     UF_SUSPENDEDVISCOSITY=(getvaluedouble("Suspended Viscosity")== 1.0)? true:false;
@@ -63,7 +63,8 @@ void TWorld::UF_Init()
     UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
 
     UF_MAXSOLIDCONCENTRATION = 0.9;
-    UF_MINIMUMENTRAINMENTHEIGHT = getvaluedouble("Minimum Entrainment Height");
+    UF_MINIMUMENTRAINMENTHEIGHT = 0.05;
+
     UF_MANNINGCOEFFICIENT_FLUID = 0.5;
     UF_MANNINGCOEFFICIENT_SOLID = 0.1;
     UF_FrictionIterations = 1;
@@ -231,6 +232,10 @@ void TWorld::UF_Init()
     UF2D_STLH = NewMap(0.0);
     UF2D_ST = NewMap(0.0);
     UF1D_ST = NewMap(0.0);
+
+    UF2D_SolidFrictionFraction = NewMap(0.0);
+    UF1D_SolidFrictionFraction = NewMap(0.0);
+
 
     UF2D_DC = NewMap(0.0);
 

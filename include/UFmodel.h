@@ -141,6 +141,8 @@
     cTMap * UF2D_SPH;
     cTMap * UF2D_FPH;
     cTMap * UF2D_tsf;
+    cTMap * UF2D_SolidFrictionFraction;
+    cTMap * UF1D_SolidFrictionFraction;
 
     cTMap * UF1D_h;
     cTMap * UF1D_q;
@@ -542,7 +544,9 @@
     static const int UF_DERIVATIVE_R = 2;
 
     double UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside = UF_DERIVATIVE_LR, bool useflowbarriers = false);
+    double UF2D_Derivative_scaled(cTMap * _dem, cTMap * _in, int r, int c, int direction, double scale, int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, bool minmod = false, int calculationside = UF_DERIVATIVE_LR);
+    double UF1D_Derivative_scaled(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, double scale, bool minmod = false, int calculationside = UF_DERIVATIVE_LR);
     double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, int calculationside = UF_DERIVATIVE_LR);
 

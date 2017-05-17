@@ -564,11 +564,11 @@ double TWorld::UF_SoilTake(int r, int c, int d, double potential, bool channel,b
     if(channel)
     {
         UF1D_Det->Drc += detachment;
-        LDDChange->Drc -= (detachment/DFSoilDensity->Drc)/(_dx*UF1D_LDDw->Drc);
+        //LDDChange->Drc -= (detachment/DFSoilDensity->Drc)/(_dx*UF1D_LDDw->Drc);
     }else
     {
         UF2D_Det->Drc += detachment;
-        DEMChange->Drc -= (detachment/DFSoilDensity->Drc)/(_dx*_dx);
+        //DEMChange->Drc -= (detachment/DFSoilDensity->Drc)/(_dx*_dx);
     }
 
     return detachment;
@@ -589,11 +589,11 @@ void TWorld::UF_SoilAdd(int r, int c, int d, double deposition, bool channel)
     if(channel)
     {
         UF1D_Dep->Drc += deposition;
-        LDDChange->Drc += (deposition/DFSoilDensity->Drc)/(_dx*UF1D_LDDw->Drc);
+        //LDDChange->Drc += (deposition/DFSoilDensity->Drc)/(_dx*UF1D_LDDw->Drc);
     }else
     {
         UF2D_Dep->Drc += deposition;
-        DEMChange->Drc += (deposition/DFSoilDensity->Drc)/(_dx*_dx);
+        //DEMChange->Drc += (deposition/DFSoilDensity->Drc)/(_dx*_dx);
     }
 }
 

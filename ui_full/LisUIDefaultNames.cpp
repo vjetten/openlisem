@@ -383,7 +383,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Maximum safety factor for display");
     namelist[i].value = QString("0.000122");
     namelist[i++].name = QString("Entrainment Coefficient");
-    namelist[i].value = QString("0.05");
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Minimum Entrainment Height");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Minimum Failure Height");

@@ -162,6 +162,53 @@ double TWorld::UF2D_Derivative(cTMap * _dem, cTMap * _in, int r, int c, int dire
 
 }
 
+double TWorld::UF2D_Derivative_scaled(cTMap * _dem, cTMap * _in, int r, int c, int direction,double scale, int calculationside)
+{
+    if(UF_OUTORMV(_dem,r,c))
+    {
+        return 0;
+    }
+    if(direction == UF_DIRECTION_X)
+    {
+        if(calculationside == UF_DERIVATIVE_LR)
+        {
+
+            double dx1 = !(UF_OUTORMV(_dem,r,c+1))? scale *_in->data[r][c+1] -scale *_in->Drc :0.0;
+            double dx2 = !(UF_OUTORMV(_dem,r,c-1))? scale *_in->Drc - scale *_in->data[r][c-1] :0.0;
+            return (dx1 + dx2)/(2.0*_dx);
+
+        }else if(calculationside == UF_DERIVATIVE_L)
+        {
+            return (!UF_OUTORMV(_dem,r,c-1))? (scale *_in->Drc -scale *_in->data[r][c-1])/_dx :0.0;
+
+        }else if(calculationside == UF_DERIVATIVE_R)
+        {
+            return (!UF_OUTORMV(_dem,r,c+1))? (scale *_in->data[r][c+1] -scale *_in->Drc)/_dx :0.0;
+
+        }
+    }
+    if(direction == UF_DIRECTION_Y)
+    {
+        if(calculationside == UF_DERIVATIVE_LR)
+        {
+            double dy1 = (!UF_OUTORMV(_dem,r+1,c))? scale *_in->data[r+1][c] -scale *_in->Drc :0.0;
+            double dy2 = (!UF_OUTORMV(_dem,r-1,c))? scale *_in->Drc - scale *_in->data[r-1][c] :0.0;
+            return (dy1 + dy2)/(2.0*_dx);
+
+        }else if(calculationside == UF_DERIVATIVE_L)
+        {
+            return (!UF_OUTORMV(_dem,r-1,c))? (scale *_in->Drc - scale *_in->data[r-1][c])/_dx :0.0;
+
+        }else if(calculationside == UF_DERIVATIVE_R)
+        {
+            return (!UF_OUTORMV(_dem,r+1,c))? (scale *_in->data[r+1][c] -scale *_in->Drc)/_dx :0.0;
+        }
+    }
+    return 0;
+
+}
+
+
 double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside)
 {
     if(UF_OUTORMV(_dem,r,c))
@@ -260,6 +307,96 @@ double TWorld::UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, i
             {
                 if(!UF_OUTORMV(_ldd,r2,c2)){
                     x2 += _in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
+
+                }
+            }
+        }
+    }else
+    {
+        x2 = x;
+    }
+
+
+    double dx1 = (x1 - x)/_dx;
+    double dx2 = (x - x2)/_dx;
+
+
+
+    if(calculationside == UF_DERIVATIVE_R)
+    {
+        return dx1;
+    }else if(calculationside == UF_DERIVATIVE_L)
+    {
+        return dx2;
+    }else
+    {
+        return (minmod? (0.5 * UF_MinMod(dx1,dx2)) : ((dx1 + dx2)/(2.0)));
+    }
+
+}
+
+double TWorld::UF1D_Derivative_scaled(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, double scale, bool minmod, int calculationside)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    if(UF_OUTORMV(_ldd,r,c))
+    {
+        return 0;
+    }
+    double x = scale*_in->Drc;
+    double x1 = 0;
+    double x2 = 0;
+
+    //front cell
+    int lddself = (int) _ldd->data[r][c];
+    if(!(lddself == 5))
+    {
+        int r2 = r+dy[lddself];
+        int c2 = c+dx[lddself];
+
+        if(!UF_OUTORMV(_ldd,r2,c2)){
+            x1 =  scale*_in->data[r2][c2];
+        }
+    }
+    //back cells
+    double totalwidth = 0;
+    for (int i=1;i<=9;i++)
+    {
+        int r2, c2, ldd = 0;
+        if (i==5)  // Skip current cell
+            continue;
+        r2 = r+dy[i];
+        c2 = c+dx[i];
+        if (!UF_OUTORMV(_ldd,r2,c2))
+            ldd = (int) _ldd->data[r2][c2];
+        else
+            continue;
+        if (!UF_OUTORMV(_ldd,r2,c2) &&
+                FLOWS_TO(ldd, r2,c2,r,c))
+        {
+            totalwidth += _lddw->data[r2][c2];
+        }
+    }
+    if(totalwidth > 0)
+    {
+        x2 = 0;
+        for (int i=1;i<=9;i++)
+        {
+            int r2, c2, ldd = 0;
+            if (i==5)  // Skip current cell
+                continue;
+            r2 = r+dy[i];
+            c2 = c+dx[i];
+            if (!UF_OUTORMV(_ldd,r2,c2))
+                ldd = (int) _ldd->data[r2][c2];
+            else
+                continue;
+            if (!UF_OUTORMV(_ldd,r2,c2) &&
+                    FLOWS_TO(ldd, r2,c2,r,c))
+            {
+                if(!UF_OUTORMV(_ldd,r2,c2)){
+                    x2 += scale*_in->data[r2][c2] * _lddw->data[r2][c2]/totalwidth;
 
                 }
             }
