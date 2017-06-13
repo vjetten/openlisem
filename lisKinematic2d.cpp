@@ -662,7 +662,6 @@ void TWorld::K2DCalcVelDisch()
             else
                 R->Drc = 0;
 
-
             Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, _23),beta);
 
             if (Alpha->Drc > 0)
@@ -672,10 +671,9 @@ void TWorld::K2DCalcVelDisch()
 
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
 
-            if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
-            {
+           // if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
+           if(K2DPits->Drc == 1) //VJ  why zero at outlet???
                 V->Drc = 0;
-            }
         }
 
 

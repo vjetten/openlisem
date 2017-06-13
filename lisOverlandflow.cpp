@@ -417,6 +417,7 @@ void TWorld::OverlandFlow2D(void)
     //VJ new average flux over lisem timestep, else last Qn is used
     FOR_ROW_COL_MV
     {
+        WHrunoff->Drc = K2DHNew->Drc;
         K2DQ->Drc = tmb->Drc/_dt;
         Qn->Drc = tmb->Drc/_dt;
         Q->Drc = tmb->Drc/_dt;
@@ -465,7 +466,7 @@ void TWorld::OverlandFlow2D(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
+        /*if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
         {
             //   if (ChannelAdj->Drc > 0 && WHrunoff->Drc > MIN_HEIGHT)
             if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
@@ -476,7 +477,7 @@ void TWorld::OverlandFlow2D(void)
         else
         {
             V->Drc = 0;
-        }
+        }*/
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
@@ -659,28 +660,10 @@ void TWorld::OverlandFlow1D(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        if(SwitchKinematic2D == K1D_METHOD)//if(SwitchKinematic2D != K1D_METHOD)
-        {
-            if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
-                V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
-            else
-                V->Drc = 0;
-        }
+        if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
+            V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
         else
-        {
-            if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
-            {
-                //   if (ChannelAdj->Drc > 0 && WHrunoff->Drc > MIN_HEIGHT)
-                if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
-                    V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
-                else
-                    V->Drc = 0;
-            }
-            else
-            {
-                V->Drc = 0;
-            }
-        }
+            V->Drc = 0;
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
