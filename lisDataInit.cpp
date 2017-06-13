@@ -646,6 +646,52 @@ void TWorld::InitChannel(void)
     maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
 
+    // make a 1 cell edge around the domain, used to determine flood at the edge
+    DomainEdge = NewMap(0);
+    for (int r = 1; r < _nrRows-1; r++)
+        for (int c = 1; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]))
+            {
+                if (DomainEdge->Drc == 0 &&
+                        (pcr::isMV(LDD->data[r-1][c  ]) ||
+                         pcr::isMV(LDD->data[r-1][c  ]) ||
+                         pcr::isMV(LDD->data[r-1][c+1]) ||
+                         pcr::isMV(LDD->data[r  ][c-1]) ||
+                         pcr::isMV(LDD->data[r  ][c+1]) ||
+                         pcr::isMV(LDD->data[r+1][c-1]) ||
+                         pcr::isMV(LDD->data[r+1][c  ]) ||
+                         pcr::isMV(LDD->data[r+1][c+1]) )
+                        )
+                    DomainEdge->Drc = 1;
+            }
+
+    FlowBoundary = NewMap(0);
+    if (FlowBoundaryType == 0) // no outflow except user defined outlets
+    {
+        FOR_ROW_COL_MV
+        {
+            if(Outlet->Drc > 0)
+                FlowBoundary->Drc = 1;
+        }
+        copy(*DomainEdge, *FlowBoundary);
+        // use flowboundary for domainedge
+    }
+    else
+        if(FlowBoundaryType == 1) // outflow everywhere
+        {
+            // determine dynamically in function K2DDEMA
+            // for flood DomainEdge is used
+        }
+        else
+            if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
+            {
+                FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
+                copy(*DomainEdge, *FlowBoundary);
+                // use flowboundary for domainedge
+            }
+
+
+
     if (SwitchIncludeChannel)
     {
         //## channel maps
@@ -731,58 +777,6 @@ void TWorld::InitChannel(void)
             //VJ 170308 bug: channelcohesion instead of soil cohesion, introduced when three cohesion functions
         }
 
-        // make a 1 cell edge around the domain, used to determine flood at the edge
-        DomainEdge = NewMap(0);
-        for (int r = 1; r < _nrRows-1; r++)
-            for (int c = 1; c < _nrCols-1; c++)
-                if(!pcr::isMV(LDD->data[r][c]))
-                {
-                    if (DomainEdge->Drc == 0 &&
-                            (pcr::isMV(LDD->data[r-1][c  ]) ||
-                             pcr::isMV(LDD->data[r-1][c  ]) ||
-                             pcr::isMV(LDD->data[r-1][c+1]) ||
-                             pcr::isMV(LDD->data[r  ][c-1]) ||
-                             pcr::isMV(LDD->data[r  ][c+1]) ||
-                             pcr::isMV(LDD->data[r+1][c-1]) ||
-                             pcr::isMV(LDD->data[r+1][c  ]) ||
-                             pcr::isMV(LDD->data[r+1][c+1]) )
-                            )
-                        DomainEdge->Drc = 1;
-                }
-//        FOR_ROW_COL_MV
-//        {
-//            if ((c == 0 || c == _nrCols-1) && !pcr::isMV(LDD->Drc))
-//                DomainEdge->Drc = 1;
-//            if ((r == 0 || r == _nrRows-1) && !pcr::isMV(LDD->Drc))
-//                DomainEdge->Drc = 1;
-//        }
-
-        FlowBoundary = NewMap(0);
-        if (FlowBoundaryType == 0) // no outflow except user defined outlets
-        {
-            FOR_ROW_COL_MV
-            {
-                if(Outlet->Drc > 0)
-                    FlowBoundary->Drc = 1;
-            }
-            copy(*DomainEdge, *FlowBoundary);
-            // use flowboundary for domainedge
-        }
-        else
-            if(FlowBoundaryType == 1) // outflow everywhere
-            {
-                // determine dynamically in function K2DDEMA
-                // for flood DomainEdge is used
-            }
-            else
-                if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
-                {
-                    FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-                    copy(*DomainEdge, *FlowBoundary);
-                    // use flowboundary for domainedge
-                }
-        //report(*DomainEdge, "domedge.map");
-        //report(*FlowBoundary, "fbound.map");
 
 
         if (SwitchChannelFlood)
