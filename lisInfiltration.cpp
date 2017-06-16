@@ -44,7 +44,9 @@ functions: \n
 
 //NOTE fact and fpot have a unit of m (not m/s)
 
-#define tiny 1e-8
+#define tiny 0.0001
+
+//1e-8
 
 //---------------------------------------------------------------------------
 void TWorld::InfilEffectiveKsat(void)
@@ -265,19 +267,20 @@ void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fa
         }
         // two layers
 
-        // calculate potential infiltration fpot in m
+        // calculate potential infiltration fpot in m, give a very large fpot in the beginning to start of the infil
+        // process, the actual fact is then chosen anyway.
         switch (InfilMethod)
         {
         case INFIL_KSAT : _fpot->Drc = Ks; break;
         case INFIL_GREENAMPT :
         case INFIL_GREENAMPT2 :
-            _fpot->Drc = (Ks + tiny)*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc+tiny));
+            _fpot->Drc = _L1->Drc+_L2->Drc > tiny ? Ks*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc)) : 1e10;
             break;
         case INFIL_SMITH :
         case INFIL_SMITH2 :
             double B = (fwh + Psi)*space;
-            double Cdexp = exp(Fcum->Drc/B);
-            _fpot->Drc = Ks*Cdexp/(Cdexp-1);
+            double Cdexp = B > 0 ? exp(Fcum->Drc/B) : 0;
+            _fpot->Drc = Cdexp > 0 ? Ks*Cdexp/(Cdexp-1) : 1e10;
             break;
         }
 
@@ -317,7 +320,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         {
             FFull = 0;
             // because drainage can reset moisture content
-            dL1 = fact/std::max(tiny, store1);
+            dL1 = store1 > 0.0001 ? fact/store1 : 0;
             // increase in depth (m) is actual infiltration/available porespace
             // do this always, correct if 1st layer is full
             L1 += dL1;
@@ -350,8 +353,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         if (L1 < SoilDepth1->Drc)
         {
             FFull = 0;
-            dL1 = fact/std::max(tiny, store1);
-            // tiny avoids dvision by 0
+            dL1 = store1 > 0.0001 ? fact/store1 : 0;
             L1 += dL1;
             if (L1 > SoilDepth1->Drc)
             {
@@ -364,7 +366,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
             if (L1+L2 < SoilDepth2->Drc)
             {
                 FFull = 0;
-                dL2 = fact/std::max(tiny, store2);
+                dL2 = store2 > 0.0001 ? fact/store2 : 0;
                 // increase in 2nd layer
                 L2+=dL2;
 

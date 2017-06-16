@@ -102,7 +102,7 @@ cTMap
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
-*Perim,                      //!< perimeter overland flow [m]
+//*Perim,                      //!< perimeter overland flow [m]
 *N,                          //!< Manning's n
 *RR,                         //!< Random roughness, locally converted to m [cm]
 *MDS,                        //!< Maximum depression storage [m]

@@ -664,7 +664,6 @@ void TWorld::InitChannel(void)
                         )
                     DomainEdge->Drc = 1;
             }
-
     FlowBoundary = NewMap(0);
     if (FlowBoundaryType == 0) // no outflow except user defined outlets
     {
@@ -673,7 +672,7 @@ void TWorld::InitChannel(void)
             if(Outlet->Drc > 0)
                 FlowBoundary->Drc = 1;
         }
-        copy(*DomainEdge, *FlowBoundary);
+        //copy(*DomainEdge, *FlowBoundary);
         // use flowboundary for domainedge
     }
     else
@@ -681,16 +680,17 @@ void TWorld::InitChannel(void)
         {
             // determine dynamically in function K2DDEMA
             // for flood DomainEdge is used
+            copy( *FlowBoundary, *DomainEdge);
         }
         else
             if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
             {
                 FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-                copy(*DomainEdge, *FlowBoundary);
+                //copy(*DomainEdge, *FlowBoundary);
                 // use flowboundary for domainedge
             }
 
-
+    calcMap(*FlowBoundary, *DomainEdge, MUL);
 
     if (SwitchIncludeChannel)
     {
@@ -1627,7 +1627,7 @@ void TWorld::IntializeData(void)
     //Qoutflow = NewMap(0); // obsolete
     q = NewMap(0);
     R = NewMap(0);
-    Perim = NewMap(0);
+    //Perim = NewMap(0);
     WaterVolin = NewMap(0);
     WaterVolRunoff = NewMap(0);
     WaterVolall = NewMap(0);

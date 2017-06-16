@@ -265,7 +265,7 @@ void TWorld::FloodBoundary()
     FOR_ROW_COL_MV
     {
         // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
-        if (DomainEdge->Drc > 0 && hmx->Drc > 0)
+        if (/*DomainEdge->Drc > 0*/ FlowBoundary->Drc > 0 && hmx->Drc > 0)
         {
             //     qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
 
@@ -379,6 +379,7 @@ void TWorld::ChannelFlood(void)
     }
     else
     {
+ // for experiments not available to user
         dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
     }
 

@@ -666,14 +666,15 @@ void TWorld::ReportTotalsNew(void)
     out << "\"LISEM results at time (min):," << op.time <<"\"\n";
     out << "\"Catchment area              (ha):\"," << op.CatchmentArea/10000.0<< "\n";
     out << "\"Total Precipitation         (mm):\"," << op.RainTotmm<< "\n";
-    out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
+    //out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
     out << "\"Total interception          (mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total House interception    (mm):\"," << op.IntercHouseTotmm<< "\n";
     out << "\"Total infiltration          (mm):\"," << op.InfilTotmm<< "\n";
     out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
-    out << "\"Water in overland flow      (mm):\"," << op.volFloodmm<< "\n";
+    out << "\"Water in overland flow      (mm):\"," << op.WaterVolTotmm<< "\n";
+    out << "\"Water in flood              (mm):\"," << op.volFloodmm<< "\n";
     out << "\"Water in channels           (mm):\"," << op.ChannelVolTotmm<< "\n";
-    out << "\"Total outflow               (mm):\"," << op.Qtotmm<< "\n";
+    out << "\"Total outflow (all boundaries)(mm):\"," << op.Qtotmm<< "\n";
     out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
     out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
     out << "\"Total Tile discharge        (m3):\"," << op.Qtiletot<< "\n";
