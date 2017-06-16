@@ -671,9 +671,12 @@ void TWorld::K2DCalcVelDisch()
 
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
 
-           // if(K2DOutlets->Drc == 1) //VJ  why zero at outlet???
-           if(K2DPits->Drc == 1)
-                V->Drc = 0;
+            if (K2DOutlets->Drc == 1)
+            {
+                V->Drc = (FlowWidth->Drc*hrunoff > 0 ? Q->Drc/(FlowWidth->Drc*hrunoff) : 0);
+                V->Drc = std::min(V->Drc, hrunoff/_dt);
+            }
+            // limit the velocity on the outlet! can be extreme
         }
 
 
