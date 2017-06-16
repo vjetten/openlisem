@@ -930,8 +930,8 @@ double TWorld::fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
           setZero(h, u, v);
 
-          //simpleScheme(h, u, v);
-          MUSCL(h,u,v,z);
+          simpleScheme(h, u, v);
+          //MUSCL(h,u,v,z);
 
           dt1 = maincalcflux(dt1, dt_max);
           dt1 = std::min(dt1, _dt-timesum);
