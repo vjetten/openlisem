@@ -104,18 +104,16 @@ void TWorld::Totals(void)
     }
 
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*InfilVolFlood); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);// + mapTotal(*InfilVolFlood); //m3
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
-    // flood infil
-    // used for reporting only
+    // used for reporting to screen and map
     FOR_ROW_COL_MV
     {
-        //!!!!!! only used here! waste of space
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
     }
 

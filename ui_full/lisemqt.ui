@@ -5268,7 +5268,7 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="1" colspan="2">
+                      <item row="1" column="1" colspan="3">
                        <widget class="QLabel" name="label_84">
                         <property name="palette">
                          <palette>
@@ -5914,7 +5914,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="minimum">
-                         <number>1</number>
+                         <number>0</number>
                         </property>
                         <property name="maximum">
                          <number>2</number>
@@ -5939,22 +5939,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'sans-serif'; font-weight:600; color:#252525; background-color:#ffffff;&quot;&gt;Finite Volume method:&lt;/span&gt;&lt;span style=&quot; font-family:'sans-serif'; color:#252525; background-color:#ffffff;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'sans-serif'; color:#000000; background-color:#ffffff;&quot;&gt;MUSCL (Monotonic Upstream-Centered Scheme for Conservation Laws), uses reconstructed states, derived from cell-averaged states obtained from the previous time-step. For each cell, slope limited, reconstructed left and right states are obtained and used to calculate fluxes at the cell boundaries (edges). Used in the second order solution.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flux limiter:&lt;/span&gt;&lt;br /&gt;Flux limiters are used in high resolution schemes, such as the MUSCL scheme, to avoid the spurious oscillations that would otherwise occur with high order spatial discretisation schemes due to shocks, discontinuities or sharp changes in the solution domain.&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="pixmap">
-                         <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="QLabel" name="label_109">
-                        <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manning n coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Overland flow continues in the flooded area but Manning's n is linked to the flood water depth (hf in m) so the runoff slows down:&lt;br/&gt;n = n * exp(cf * hf)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood mixture coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Flood level is increased with incoming overlandflow where the two overlap. The overland flow height (hof) is decreased with: &lt;br/&gt;dH=WH*(1-exp(-cp*hof/hf)) &lt;/p&gt;&lt;p&gt;and the flood level hf is increased with the same amount. The function is bounded between 0 and 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string/>
@@ -6428,7 +6412,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>1 - SWOF first order solution; 2 - SWOF second order</string>
+                         <string>0 - experimental; 1 - Cell centered; 2 - MUSCL iteration</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -6488,7 +6472,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Numerical scheme MUSCL</string>
+                         <string>Numerical scheme </string>
                         </property>
                        </widget>
                       </item>
@@ -6539,6 +6523,28 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="text">
                          <string>1D Channel / 2D flood coupling</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="3">
+                       <widget class="QLabel" name="label_109">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manning n coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Overland flow continues in the flooded area but Manning's n is linked to the flood water depth (hf in m) so the runoff slows down:&lt;br/&gt;n = n * exp(cf * hf)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood mixture coefficient:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Flood level is increased with incoming overlandflow where the two overlap. The overland flow height (hof) is decreased with: &lt;br/&gt;dH=WH*(1-exp(-cp*hof/hf)) &lt;/p&gt;&lt;p&gt;and the flood level hf is increased with the same amount. The function is bounded between 0 and 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="pixmap">
+                         <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                         </property>
                        </widget>
                       </item>

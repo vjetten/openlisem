@@ -28,7 +28,6 @@
   \brief calculate interactions between channel flow, overland flow and flooding, calculate Q, V and call the kin wave
 
 functions: \n
-- void TWorld::RainfallToFlood(void)\n
 - void TWorld::ToFlood(void)\n
 - void TWorld::ToChannel(void)\n
 - void TWorld::CalcVelDisch(void)\n
@@ -40,44 +39,6 @@ functions: \n
 #include "operation.h"
 #define tiny 1e-8
 
-//--------------------------------------------------------------------------------------------
-/*
- * @fn void TWorld::RainfallToFlood(void)
- * @brief Calculates overland flow that becomes flooding
- *
- * Based on the overland flow energy gradient and the water height
- * overland flow can initiate flooding when TWorld::SwitchRainfallFlood is true.
- *
- * @return void
- * @see SwitchRainfallFlood
- * @see rainFloodingGradient
- */
-// OBSOLETE with runoff 2D!
-/*
-void TWorld::RainfallToFlood(void)
-{
-
-    if (SwitchRainfallFlood)
-    {
-        FOR_CELL_IN_FLOODAREA
-                if ( Grad->Drc <= rainFloodingGradient)
-        {
-            // if it rains, and there is no flood, and it is flat, and there is sufficient runoff water, then this water kan turn to
-            // flood directly!
-            if (RainNet->Drc > 0 && WHrunoff->Drc > 0.03 && hmx->Drc == 0 && ChannelWidthUpDX->Drc == 0)
-            {
-                double dwh =  WHrunoff->Drc;
-
-                hmx->Drc = dwh * FlowWidth->Drc/_dx;
-                WH->Drc -= dwh;
-                WHrunoff->Drc = 0;
-                WHGrass->Drc -= dwh;
-                WHroad->Drc -= dwh;
-            }
-        }}
-    }
-}
-*/
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::ToFlood(void)

@@ -613,6 +613,8 @@ void TWorld::K2DSolve(double dt)
             FSurplus->Drc += infil*SoilWidthDX->Drc/cdy;
             FSurplus->Drc = std::min(0.0, FSurplus->Drc);
 
+            Fcum->Drc += infil*SoilWidthDX->Drc/cdy; //VJ !!!
+
             //keep track of infiltration
             K2DI->Drc += (infil*cdx*cdy);
     }
