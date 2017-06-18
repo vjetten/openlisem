@@ -246,9 +246,9 @@ void TWorld::OutputUI(void)
 
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;
-    op.Qtotmm = Qtotmm;
-    op.Qtot = Qtot; // QtotOutlet; <- only for outlet c,r but these are not valid anymore with mulyiple outlets
-
+    op.Qtotmm = Qtotmm + FloodBoundarymm;
+    op.Qtot = Qtot; // all outflow through channeland runoff for all open and outlets boundaries
+    op.floodBoundaryTot = floodBoundaryTot;
     op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
     op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flox in l/s
 
@@ -607,9 +607,10 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Water in overland flow      (mm):\"," << op.WaterVolTotmm<< "\n";
     out << "\"Water in flood              (mm):\"," << op.volFloodmm<< "\n";
     out << "\"Water in channels           (mm):\"," << op.ChannelVolTotmm<< "\n";
-    out << "\"Total outflow (all boundaries)(mm):\"," << op.Qtotmm<< "\n";
-    out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
-    out << "\"Total discharge             (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total outflow (all flows)   (mm):\"," << op.Qtotmm<< "\n";
+   // out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
+    out << "\"Total channel+OF discharge  (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total flood discharge       (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total Tile discharge        (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation    (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Peak discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";

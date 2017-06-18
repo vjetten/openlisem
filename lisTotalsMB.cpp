@@ -254,9 +254,11 @@ void TWorld::Totals(void)
 
     Qtot += QtotT;
     // Total outflow in m3 for all timesteps
-    Qtotmm = (Qtot)*catchmentAreaFlatMM;
-    // recalc to mm for screen output
 
+    // does NOT include flood water leaving domain (floodBoundaryTot)
+    Qtotmm = Qtot*catchmentAreaFlatMM;
+    // recalc to mm for screen output
+    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // flood boundary losses are done separately in MB
 
     /***** SEDIMENT *****/

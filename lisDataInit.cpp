@@ -201,16 +201,17 @@ cTMap *TWorld::InitMaskTiledrain(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
-
-    //## Basic data start of map list etc.
     InitStandardInput();
+    //## Basic data start of map list etc.
 
     InitMulticlass();
+    //extended sediment stuff
 
-    //## read and initialize all channel maps and variables
     InitChannel();
+    //## read and initialize all channel maps and variables
 
     InitBoundary();
+    //find domain boundaries
 
     //## make shaded relief map for display.
     InitShade();
@@ -284,10 +285,6 @@ void TWorld::InitStandardInput(void)
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
 
-   // for (int i = 0; i < 32; i++)
-   //     SubsMaps[i].m = NULL;  // initialize substance structures
-   // NOT USED
-
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
@@ -331,16 +328,6 @@ void TWorld::InitStandardInput(void)
             }
         }
     }
-
-//    FOR_ROW_COL_MV
-//    {
-//        if (Outlet->Drc == 1)
-//        {
-//            c_outlet = c;
-//            r_outlet = r;
-//        }
-//    }
-//    OBSOLETE
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -578,11 +565,6 @@ void TWorld::InitStandardInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         ReadSwatreInputNew();
-
-        // obsolete
-        //      int res = ReadSwatreInput(SwatreTableName, SwatreTableDir);
-        //      if (res)
-        //         throw res;
     }
 
     if(SwitchErosion)
@@ -679,32 +661,33 @@ void TWorld::InitChannel(void)
     ChannelFlowWidth = NewMap(0);
     ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
-    //ChannelQoutflow = NewMap(0);  // obsolete
     RunoffVolinToChannel = NewMap(0);
-    //ChannelQsoutflow = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
     ChannelSed = NewMap(0);
     ChannelQs = NewMap(0);
     ChannelQsn = NewMap(0);
-    ChannelV = NewMap(0);
+    ChannelV = NewMap(0);//
     ChannelWH = NewMap(0);
-    Channelq = NewMap(0);
-    ChannelAlpha = NewMap(0);
+    Channelq = NewMap(0);//
+    ChannelAlpha = NewMap(0);//
     ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
 
-
     hmx = NewMap(0);
     FloodDomain = NewMap(0);
-    floodHmxMax = NewMap(0);
-    floodVMax = NewMap(0);
-    floodTime = NewMap(0);
-    maxChannelflow = NewMap(0);
-    maxChannelWH = NewMap(0);
     ChannelAdj = NewMap(_dx);
 
+    floodHmxMax = NewMap(0);//
+    floodVMax = NewMap(0);//
+    floodTime = NewMap(0);//
+    maxChannelflow = NewMap(0);//
+    maxChannelWH = NewMap(0);//
+
+//    Barriers = ReadMap(LDD, getvaluename("barriers"));
+//    cover(*Barriers, *LDD,0);
+    //STRANGE barrers are linked to lddchannel??? should be ldd
 
     if (SwitchIncludeChannel)
     {
@@ -797,12 +780,6 @@ void TWorld::InitChannel(void)
         {
             FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
 
-//            if(this->SwitchWatershed)
-//            {
-//                WaterSheds = ReadMap(LDD, getvaluename("watershed"));
-//                //MakeWatersheds();
-//            }
-
             long nrc = 0;
             FOR_ROW_COL_MV
             {
@@ -825,27 +802,17 @@ void TWorld::InitChannel(void)
             // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
-            //QfloodPrev = NewMap(0);
-            //QfloodSed = NewMap(0);
-            //QfloodSedPrev = NewMap(0);
-            //AlphaFlood = NewMap(0);
-            //Sedflood = NewMap(0);
 
-            //Hmx = NewMap(0);
             hmxWH = NewMap(0);
 
             FloodWaterVol = NewMap(0);
 
             floodTimeStart = NewMap(0);
 
-//            Barriers = ReadMap(LDDChannel, getvaluename("barriers"));
-//            Barriers = ReadMap(LDD, getvaluename("barriers"));
-//            cover(*Barriers, *LDD,0);
-//STRANGE barrers are linked to lddchannel??? should be ldd
 
             ChannelMaxQ = ReadMap(LDD, getvaluename("chanmaxq"));
             cover(*ChannelMaxQ, *LDD,0);
-            ChannelLevee = NewMap(0);
+
 //            if (SwitchLevees)
 //                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
 //            if (!SwitchLevees)
@@ -1556,6 +1523,7 @@ void TWorld::IntializeData(void)
 //    QtotTileOutlet = 0;
 //    QtotChannelOutlet = 0;
     Qtotmm = 0;
+    FloodBoundarymm = 0;
     Qpeak = 0;
     QpeakTime = 0;
     WH = NewMap(0);

@@ -369,16 +369,17 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
 void TWorld::Infiltration(void)
 {
 
-    if (InfilMethod == INFIL_NONE)
-        return;
+
 
     //Ksateff calculated before loop
     //NOTE: if crusting is calculated during event then move to the loop!
 
-
     switch (InfilMethod)
     {
-    case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
+    case INFIL_NONE :
+        fill(*fact, 0.0);
+        fill(*fpot, 0.0);
+        return;
     case INFIL_SWATRE :
         fill(*tm, 0);
         FOR_ROW_COL_MV

@@ -149,15 +149,11 @@ void TWorld::ToChannel(void)
                 // cannot flow into channel is water level in channel is higher than depth
                 if (SwitchChannelFlood)
                 {
-                    if (WHrunoff->Drc <= std::max(ChannelLevee->Drcr, ChannelWH->Drcr -ChannelDepthExtended->Drc))
-                    {
+                    if (WHrunoff->Drc <= std::max(0.0, ChannelWH->Drcr -ChannelDepthExtended->Drc)) //ChannelLevee->Drcr
                         fractiontochannel = 0;
-                    }
                     // no inflow when flooded
                     if (ChannelMaxQ->Drcr  > 0)
-                    {
                         fractiontochannel = 0;
-                    }
                     // no surface inflow when culverts and bridges
                 }
                 if (SwitchAllinChannel)
@@ -379,9 +375,11 @@ void TWorld::OverlandFlow2D(void)
     FOR_ROW_COL_MV
     {
         WHrunoff->Drc = K2DHNew->Drc;
-        K2DQ->Drc = tmb->Drc/_dt;
-        Qn->Drc = tmb->Drc/_dt;
-        Q->Drc = tmb->Drc/_dt;
+
+        K2DQ->Drc = tmb->Drc/_dt; //take the timestep average !?
+
+        Qn->Drc = K2DQ->Drc;
+        Q->Drc = K2DQ->Drc;
         InfilVolKinWave->Drc = K2DI->Drc;
     }
 
@@ -427,7 +425,12 @@ void TWorld::OverlandFlow2D(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        /*if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
+//        if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
+//            V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+//        else
+//            V->Drc = 0;
+
+        if(K2DSlope->Drc > MIN_SLOPE && K2DPits->Drc != 1)
         {
             //   if (ChannelAdj->Drc > 0 && WHrunoff->Drc > MIN_HEIGHT)
             if(WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
@@ -438,7 +441,7 @@ void TWorld::OverlandFlow2D(void)
         else
         {
             V->Drc = 0;
-        }*/
+        }
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);

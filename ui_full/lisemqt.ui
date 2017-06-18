@@ -95,7 +95,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2029,7 +2029,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>4</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -15164,7 +15164,7 @@ p, li { white-space: pre-wrap; }
                  <number>999999</number>
                 </property>
                 <property name="value">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                </widget>
               </item>
@@ -16905,7 +16905,7 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Discharge tot (mm)</string>
+                 <string>Discharge all (mm)</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

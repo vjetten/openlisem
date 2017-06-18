@@ -586,37 +586,24 @@ double TWorld::K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C)
 void TWorld::K2DSolve(double dt)
 {
     //finish by substracting infiltration, and calculating discharge from new water height
+    if (InfilMethod != INFIL_NONE)
     FOR_ROW_COL_MV
     {
-//        double cdx = DX->Drc;
-//        double cdy = ChannelAdj->Drc;
+        double cdx = DX->Drc;
+        double cdy = ChannelAdj->Drc;
 
-//        //calculate infiltartion in time step
-//        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
-//        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
-//        {
-//            infil = -K2DHNew->Drc*(cdx*cdy);
-//        }
-//        //keep track of infiltration
-//        K2DI->Drc -= (infil);
-//        K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
-//    }
+        //calculate infiltration in time step
+        double infil = -1.0*FSurplus->Drc*dt/_dt;
+        if (K2DHNew->Drc < infil)
+            infil = K2DHNew->Drc;
+        K2DHNew->Drc -= infil;
+        FSurplus->Drc += infil*SoilWidthDX->Drc/cdy;
+        FSurplus->Drc = std::min(0.0, FSurplus->Drc);
 
-            double cdx = DX->Drc;
-            double cdy = ChannelAdj->Drc;
+        Fcum->Drc += infil*SoilWidthDX->Drc/cdy; //VJ !!!
 
-            //calculate infiltration in time step
-            double infil = -1.0*FSurplus->Drc*dt/_dt;
-            if (K2DHNew->Drc < infil)
-                infil = K2DHNew->Drc;
-            K2DHNew->Drc -= infil;
-            FSurplus->Drc += infil*SoilWidthDX->Drc/cdy;
-            FSurplus->Drc = std::min(0.0, FSurplus->Drc);
-
-            Fcum->Drc += infil*SoilWidthDX->Drc/cdy; //VJ !!!
-
-            //keep track of infiltration
-            K2DI->Drc += (infil*cdx*cdy);
+        //keep track of infiltration
+        K2DI->Drc += (infil*cdx*cdy);
     }
 
     FOR_ROW_COL_MV
@@ -632,7 +619,7 @@ void TWorld::K2DSolve(double dt)
         }
         else{
 
-            //Qn->Drc = K2DQ->Drc;
+            Qn->Drc = K2DQ->Drc;
             WHrunoff->Drc = K2DHNew->Drc;
             K2DHOld->Drc = K2DHNew->Drc;
         }
@@ -654,6 +641,7 @@ void TWorld::K2DSolve(double dt)
  */
 void TWorld::K2DCalcVelDisch()
 {
+//    fill(*tm, 0);
     FOR_ROW_COL_MV
     {
         if(K2DPits->Drc == 1 || K2DSlope->Drc < MIN_SLOPE)
@@ -694,19 +682,18 @@ void TWorld::K2DCalcVelDisch()
                 Q->Drc = 0;
 
             V->Drc = pow(R->Drc, _23)*sqrt(K2DSlope->Drc)/NN;
+//            tm->Drc = hrunoff/_dt;
 
             if (K2DOutlets->Drc == 1)
             {
-                V->Drc = (FlowWidth->Drc*hrunoff > 0 ? Q->Drc/(FlowWidth->Drc*hrunoff) : 0);
+              //  V->Drc = (FlowWidth->Drc*hrunoff > 0 ? Q->Drc/(FlowWidth->Drc*hrunoff) : 0);
                 V->Drc = std::min(V->Drc, hrunoff/_dt);
             }
             // limit the velocity on the outlet! can be extreme
         }
-
-
-        //tm->Drc = V->Drc * R->Drc/kinvisc;
-        //Reynolds number
     }
+//    report(*V,"v");
+//    report(*tm,"vh");
 }
 
 //---------------------------------------------------------------------------
