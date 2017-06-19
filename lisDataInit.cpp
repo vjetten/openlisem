@@ -640,8 +640,8 @@ void TWorld::InitBoundary(void)
 
     calcMap(*FlowBoundary, *DomainEdge, MUL);
 
-    report(*FlowBoundary, "bound.map");
-    report(*DomainEdge, "edge.map");
+//    report(*FlowBoundary, "bound.map");
+//    report(*DomainEdge, "edge.map");
 
 }
 //---------------------------------------------------------------------------
