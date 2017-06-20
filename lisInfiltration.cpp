@@ -194,58 +194,7 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
 void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
 {
-/*
-    FOR_ROW_COL_MV
-    {
-        double fact1 = 0;
-        double Ks = _Ksateff->Drc*_dt/3600000.0;  //in m
-        double fwh = _WH->Drc; // in m, WH is old WH + net rainfall
-        double Psi = Psi1->Drc;
-        double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
-
-        if (SoilDepth1->Drc > tiny)
-        {
-            // outcrops etc: no infil in this cell
-
-            if (SwitchTwoLayer && _L1->Drc > SoilDepth1->Drc)
-            {
-                Ks = std::min(_Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc;
-                space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
-            }
-            // two layers
-
-            // calculate potential infiltration fpot in m, give a very large fpot in the beginning to start of the infil
-            // process, the actual fact is then chosen anyway.
-            switch (InfilMethod)
-            {
-            case INFIL_KSAT : _fpot->Drc = Ks; break;
-            case INFIL_GREENAMPT :
-            case INFIL_GREENAMPT2 :
-                _fpot->Drc = _L1->Drc+_L2->Drc > tiny ? Ks*(1.0+(Psi+fwh)/(_L1->Drc+_L2->Drc)) : 1e10;
-                break;
-            case INFIL_SMITH :
-            case INFIL_SMITH2 :
-                double B = (fwh + Psi)*space;
-                double Cdexp = B > 0 ? exp(Fcum->Drc/B) : 0;
-                _fpot->Drc = Cdexp > 0 ? Ks*Cdexp/(Cdexp-1) : 1e10;
-                break;
-            }
-
-            fact1 = std::min(_fpot->Drc, fwh);
-            // actual infil in m, cannot have more infil than water on the surface
-
-            _fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &_L1->Drc, &_L2->Drc, &_FFull->Drc);
-            // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-        }
-        else
-        {
-            _fpot->Drc = 0;
-            _fact->Drc = 0;
-        }
-    }
-    */
+   // OBSOLETE
 }
 //---------------------------------------------------------------------------
 /*!
@@ -274,7 +223,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         {
             FFull = 0;
             // because drainage can reset moisture content
-            dL1 = store1 > 0.0001 ? fact/store1 : 0;
+            dL1 = store1 > tiny ? fact/store1 : 0;
             // increase in depth (m) is actual infiltration/available porespace
             // do this always, correct if 1st layer is full
             L1 += dL1;
@@ -307,7 +256,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
         if (L1 < SoilDepth1->Drc)
         {
             FFull = 0;
-            dL1 = store1 > 0.0001 ? fact/store1 : 0;
+            dL1 = store1 > tiny ? fact/store1 : 0;
             L1 += dL1;
             if (L1 > SoilDepth1->Drc)
             {
@@ -320,7 +269,7 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
             if (L1+L2 < SoilDepth2->Drc)
             {
                 FFull = 0;
-                dL2 = store2 > 0.0001 ? fact/store2 : 0;
+                dL2 = store2 > tiny ? fact/store2 : 0;
                 // increase in 2nd layer
                 L2+=dL2;
 
@@ -368,9 +317,6 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
   */
 void TWorld::Infiltration(void)
 {
-
-
-
     //Ksateff calculated before loop
     //NOTE: if crusting is calculated during event then move to the loop!
 
@@ -414,47 +360,7 @@ void TWorld::Infiltration(void)
 //OBSOLETE!!!!
 void TWorld::InfiltrationFloodNew(void)
 {
-    /*
-    if (!SwitchChannelFlood)
-        return;
 
-    if (InfilMethod == INFIL_NONE)
-        return;
-
-    switch (InfilMethod)
-    {
-    case INFIL_NONE : fill(*fact, 0.0); fill(*fpot, 0.0); break;
-    case INFIL_SWATRE : InfilSwatre(hmx); break;
-    default:
-        InfilMethods(Ksateff, hmx, fpot, fact, L1, L2, FFull);
-    }
-
-    if (InfilMethod != INFIL_SWATRE)
-    {
-        FOR_ROW_COL_MV
-                if(FloodDomain->Drc > 0)
-        {
-
-            if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
-            {
-                fact->Drc = hmx->Drc;
-                hmx->Drc = 0;
-            }
-            else
-                hmx->Drc -= fact->Drc;
-
-            Fcum->Drc += fact->Drc;
-            // cumulative infil in m used in G&A infil function
-        }
-    }
-    FOR_ROW_COL_MV
-            if(FloodDomain->Drc > 0)
-    {
-        InfilVolFlood->Drc = fact->Drc*ChannelAdj->Drc*DX->Drc;
-        // infil volume is WH before - water after
-        // infil volume in flow equations is a separate variable
-    }
-*/
 }
 //---------------------------------------------------------------------------
 /*!
@@ -558,6 +464,13 @@ void TWorld::InfilMethodsNew()
         double Psi = Psi1->Drc;
         double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
 
+        if (space < tiny or Ks == 0)
+        {
+            fpot->Drc = 0;
+            fact->Drc = 0;
+            continue;
+        }
+
         if (FloodDomain->Drc == 0)
             fwh = WH->Drc;
         else
@@ -610,6 +523,9 @@ void TWorld::InfilMethodsNew()
     // adjust
     FOR_ROW_COL_MV
     {
+        if (fact->Drc == 0 && fpot->Drc == 0)
+            continue;
+
         // adjust the WH in the domains
         if(FloodDomain->Drc == 0)
         {
