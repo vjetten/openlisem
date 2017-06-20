@@ -278,6 +278,7 @@ void TWorld::FloodBoundary()
             floodBoundaryTot += (hmx_old - hmx->Drc)*(DX->Drc*ChannelAdj->Drc);
         }
     }
+    //TODO sediment over flood boundary!
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming()

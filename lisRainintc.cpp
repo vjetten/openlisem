@@ -274,7 +274,7 @@ void TWorld::RainfallMap(void)
     {
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
             RainfallSeriesM[rainplace].name)));
-qDebug() << rainplace <<timeminprev << RainfallSeriesM[rainplace].time << RainfallSeriesM[rainplace].name;
+
         FOR_ROW_COL_MV
                 if (pcr::isMV(_M->Drc))
         {
