@@ -438,9 +438,11 @@ void TWorld::OverlandFlow2D(void)
             else
                 V->Drc = 0;
         }
-        else
+        //else
+        if(DomainEdge->Drc > 0 && FlowBoundary->Drc == 0 && K2DSlope->Drc < MIN_SLOPE)
         {
             V->Drc = 0;
+            Qn->Drc = 0;
         }
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
