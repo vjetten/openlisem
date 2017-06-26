@@ -808,6 +808,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
                 setZero(h, u, v);
 
+                simpleScheme(h, u, v);
                 MUSCL(h,u,v,z);
             }
 
@@ -842,7 +843,8 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
             setZero(hs, us, vs);
 
             //Reconstruction for order 2
-              MUSCL(hs,us,vs,z);
+            simpleScheme(hs, us, vs);
+            MUSCL(hs,us,vs,z);
 
             dt2 = maincalcflux(dt2, dt_max);
 
@@ -924,7 +926,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             dt1 = dt_max;
 
             setZero(h, u, v);
-
+            simpleScheme(h, u, v);
             MUSCL(h,u,v,z);
 
             dt1 = maincalcflux(dt1, dt_max);
