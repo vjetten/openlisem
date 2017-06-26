@@ -235,31 +235,6 @@ double TWorld::correctMassBalance(double sum1, cTMap *M, double minV)
     return dh;
 }
 //---------------------------------------------------------------------------
-//OBSOLETE !!!
-void TWorld::FloodSpuriousValues()
-{
-//    fill(*tm, 0.0);
-//    //calc2Maps(*tma, *DEM, *hmx, ADD);
-//    FOR_ROW_COL_MV
-//    {
-//        if (hmx->Drc > F_extremeHeight)
-//        {
-//            tm->Drc = getWindowAverage(*hmx, r, c, false);
-//           // tm->Drc = getWindowAverage(*tma, r, c, false);
-//        }
-//    }
-
-//    FOR_ROW_COL_MV
-//    {
-//        if ((hmx->Drc > F_extremeHeight) && (hmx->Drc > F_extremeHeight && hmx->Drc > tm->Drc + F_extremeDiff))
-//        {
-//            double htmp = hmx->Drc;
-//            hmx->Drc = std::min( tm->Drc, std::min(hmx->Drc, Hmx->Drc));
-//            qDebug() << hmx->Drc << Hmx->Drc << tm->Drc << htmp << r << c ;
-//        }
-//    }
-}
-//---------------------------------------------------------------------------
 void TWorld::FloodBoundary()
 {
     FOR_ROW_COL_MV

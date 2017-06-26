@@ -267,178 +267,6 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
     HLL2_f2 = f2;
     HLL2_f3 = f3;
 }
-
-//---------------------------------------------------------------------------
-/// Essentially Non-Oscillatory schemes (ENO)
-/// Called reconstruction schemes because they reconstruct the flux through
-/// the boundary of adjacent cells frm the values at the cell centres
-/// second order scheme: based on [r, r+1, r+2] and [c, c+1, c+2]
-/// http://en.wikipedia.org/wiki/Shock_capturing_method
-void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
-{
-    double ddh1 = 0;
-    double ddz1 = 0;
-    double ddu1 = 0;
-    double ddv1 = 0;
-    double ddh2, ddv2, ddu2, ddz2;
-    double uu1 = 0, vv1 = 0, hh1 = 0;
-    double uu2, vv2, hh2;
-    double delta_h1, delta_v1, delta_u1;
-    double delta_h2, delta_v2, delta_u2;
-    double dh, du, dv, dz_h;
-    double amortENO = 0.25;
-    double MODIFENO = 0.9;
-    double a1, a2, a3, a4;
-
-  //x-direction
-    FOR_CELL_IN_FLOODAREA
-      if(c > 0 && c < _nrCols-2 && !MV(r,c-1) && !MV(r, c+1) && !MV(r, c+2))
-    {
-      hh1 = h->data[r][c-1]-2.*h->data[r][c]+h->data[r][c+1];
-      uu1 = u->data[r][c-1]-2.*u->data[r][c]+u->data[r][c+1];
-      vv1 = v->data[r][c-1]-2.*v->data[r][c]+v->data[r][c+1];
-
-      hh2 = h->Drc-2.*h->data[r][c+1]+h->data[r][c+2];
-      uu2 = u->Drc-2.*u->data[r][c+1]+u->data[r][c+2];
-      vv2 = v->Drc-2.*v->data[r][c+1]+v->data[r][c+2];
-
-      ddh2 = amortENO*limiter(hh1,hh2);
-      ddu2 = amortENO*limiter(uu1,uu2);
-      ddz2 = amortENO*limiter(hh1+som_z1->Drc,hh2+som_z1->data[r][c+1]);
-      ddv2 = amortENO*limiter(vv1,vv2);
-
-      delta_h1 = h->Drc - h->data[r][c-1];
-      delta_u1 = u->Drc - u->data[r][c-1];
-      delta_v1 = v->Drc - v->data[r][c-1];
-      delta_h2 = h->data[r][c+1]-h->Drc;
-      delta_u2 = u->data[r][c+1]-u->Drc;
-      delta_v2 = v->data[r][c+1]-v->Drc;
-
-
-      if (F_scheme == (int)FENO)
-      {
-          dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-          dz_h = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
-      }
-      else
-      {
-          a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-          a4 = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
-
-          a1 = limiter(delta_h1,delta_h2);
-          dh = limiter(2*MODIFENO*a1,a2);
-
-          a3 = limiter(delta_h1+delta_z1->data[r][c-1],delta_h2+delta_z1->Drc);
-          dz_h = limiter(2*MODIFENO*a3,a4);
-      }
-      du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
-      dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-      h1r->Drc=h->Drc+dh*0.5;
-      h1l->Drc=h->Drc-dh*0.5;
-
-      z1r->Drc=z->Drc+0.5*(dz_h-dh);
-      z1l->Drc=z->Drc+0.5*(dh-dz_h);
-
-      delzc1->Drc = z1r->Drc - z1l->Drc;
-      delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-
-      if (h->Drc>0)
-      {
-          u1r->Drc=u->Drc+h1l->Drc*du*0.5/h->Drc;
-          u1l->Drc=u->Drc-h1r->Drc*du*0.5/h->Drc;
-          v1r->Drc=v->Drc+h1l->Drc*dv*0.5/h->Drc;
-          v1l->Drc=v->Drc-h1r->Drc*dv*0.5/h->Drc;
-      }
-      else
-      {
-          u1r->Drc=u->Drc+du*0.5;
-          u1l->Drc=u->Drc-du*0.5;
-          v1r->Drc=v->Drc+dv*0.5;
-          v1l->Drc=v->Drc-dv*0.5;
-      } //end if
-
-      ddh1=ddh2;
-      ddz1=ddz2;
-      ddu1=ddu2;
-      ddv1=ddv2;
-
-    }}
-
-
-    //y-direction
-    FOR_CELL_IN_FLOODAREA
-    if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
-    {
-        hh1 = h->data[r-1][c]-2.*h->data[r][c]+h->data[r+1][c];
-        uu1 = u->data[r-1][c]-2.*u->data[r][c]+u->data[r+1][c];
-        vv1 = v->data[r-1][c]-2.*v->data[r][c]+v->data[r+1][c];
-        hh2 = h->Drc-2.*h->data[r+1][c]+h->data[r+2][c];
-        uu2 = u->Drc-2.*u->data[r+1][c]+u->data[r+2][c];
-        vv2 = v->Drc-2.*v->data[r+1][c]+v->data[r+2][c];
-
-        ddh2 = amortENO*limiter(hh1,hh2);
-        ddu2 = amortENO*limiter(uu1,uu2);
-        ddz2 = amortENO*limiter(hh1+som_z2->Drc,hh2+som_z2->data[r+1][c]);
-        ddv2 = amortENO*limiter(vv1,vv2);
-
-        delta_h1 = h->Drc - h->data[r-1][c];
-        delta_u1 = u->Drc - u->data[r-1][c];
-        delta_v1 = v->Drc - v->data[r-1][c];
-        delta_h2 = h->data[r+1][c]-h->Drc;
-        delta_u2 = u->data[r+1][c]-u->Drc;
-        delta_v2 = v->data[r+1][c]-v->Drc;
-
-        if (F_scheme == (int)FENO)
-        {
-            dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-            dz_h = limiter(delta_h1+delta_z2->data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
-        }
-        else
-        {
-            a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-            a4 = limiter(delta_h1+delta_z1->data[r-1][c]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
-
-            a1 = limiter(delta_h1,delta_h2);
-            dh = limiter(2*MODIFENO*a1,a2);
-
-            a3 = limiter(delta_h1+delta_z1->data[r-1][c],delta_h2+delta_z1->Drc);
-            dz_h = limiter(2*MODIFENO*a3,a4);
-        }
-
-        du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
-        dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-        h2r->Drc = h->Drc+dh*0.5;
-        h2l->Drc = h->Drc-dh*0.5;
-
-        z2r->Drc = z->Drc+0.5*(dz_h-dh);
-        z2l->Drc = z->Drc+0.5*(dh-dz_h);
-        delzc2->Drc = z2r->Drc-z2l->Drc;
-        delz2->data[r-1][c] = z2l->Drc-z2r->data[r-1][c];
-
-        if (h->Drc>0)
-        {
-            u2r->Drc = u->Drc+h2l->Drc*du*0.5/h->Drc;
-            u2l->Drc = u->Drc-h2r->Drc*du*0.5/h->Drc;
-            v2r->Drc = v->Drc+h2l->Drc*dv*0.5/h->Drc;
-            v2l->Drc = v->Drc-h2r->Drc*dv*0.5/h->Drc;
-        }
-        else
-        {
-            u2r->Drc = u->Drc+du*0.5;
-            u2l->Drc = u->Drc-du*0.5;
-            v2r->Drc = v->Drc+dv*0.5;
-            v2l->Drc = v->Drc-dv*0.5;
-        }
-
-        ddh1=ddh2;
-        ddz1=ddz2;
-        ddu1=ddu2;
-        ddv1=ddv2;
-
-    }} //end for
-}
 //---------------------------------------------------------------------------
 /// MUSCL: Monotone Upstream-centered Schemes for Conservation Laws
 /// see http://en.wikipedia.org/wiki/MUSCL_scheme
@@ -446,43 +274,50 @@ void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
 /// This MUSCL creates left and right u,v,h, arrays for in mainfluxcalc
 void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
-  double delta_h1, delta_u1, delta_v1;
-  double delta_h2, delta_u2, delta_v2;
+//  double delta_h1, delta_u1, delta_v1;
+//  double delta_h2, delta_u2, delta_v2;
   double dh, du, dv, dz_h;
 
-  // fill EW and NS conditions with cell itself, 1st order approximation used for boundary conditions
   FOR_CELL_IN_FLOODAREA {
-      h1r->Drc = _h->Drc;
-      u1r->Drc = _u->Drc;
-      v1r->Drc = _v->Drc;
-      h1l->Drc = _h->Drc;
-      u1l->Drc = _u->Drc;
-      v1l->Drc = _v->Drc;
-
-      h2r->Drc = _h->Drc;
-      u2r->Drc = _u->Drc;
-      v2r->Drc = _v->Drc;
-      h2l->Drc = _h->Drc;
-      u2l->Drc = _u->Drc;
-      v2l->Drc = _v->Drc;
+      if(c > 0 && !MV(r,c-1))
+      {
+          delta_h1->Drc = _h->Drc - _h->data[r][c-1];
+          delta_u1->Drc = _u->Drc - _u->data[r][c-1];
+          delta_v1->Drc = _v->Drc - _v->data[r][c-1];
+      }
+      if (c < _nrCols-1 && !MV(r,c+1))
+      {
+          delta_h2->Drc = _h->data[r][c+1] - _h->Drc;
+          delta_u2->Drc = _u->data[r][c+1] - _u->Drc;
+          delta_v2->Drc = _v->data[r][c+1] - _v->Drc;
+      }
   }}
+
+    FOR_CELL_IN_FLOODAREA {
+        if (c == 0 || (c > 0 && MV(r, c-1)))
+        {
+            delta_h1->Drc = delta_h1->data[r][c+1];
+            delta_u1->Drc = delta_u1->data[r][c+1];
+            delta_v1->Drc = delta_z1->data[r][c+1];
+        }
+        if (c == _nrCols-1 || (c < _nrCols-1 && MV(r, c+1)))
+        {
+            delta_h2->Drc = delta_h1->data[r][c-1];
+            delta_u2->Drc = delta_u1->data[r][c-1];
+            delta_v2->Drc = delta_z1->data[r][c-1];
+        }
+    }}
 
 
   FOR_CELL_IN_FLOODAREA
-    if(c > 0 && c < _nrCols-1 && !MV(r,c-1) &&  !MV(r,c+1))
   {
-      delta_h1 = _h->Drc - _h->data[r][c-1];
-      delta_u1 = _u->Drc - _u->data[r][c-1];
-      delta_v1 = _v->Drc - _v->data[r][c-1];
-
-      delta_h2 = _h->data[r][c+1] - _h->Drc;
-      delta_u2 = _u->data[r][c+1] - _u->Drc;
-      delta_v2 = _v->data[r][c+1] - _v->Drc;
-
-      dh   = 0.5*limiter(delta_h1, delta_h2);
-      dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
-      du   = 0.5*limiter(delta_u1, delta_u2);
-      dv   = 0.5*limiter(delta_v1, delta_v2);
+      dh   = 0.5*limiter(delta_h1->Drc, delta_h2->Drc);
+      if(c > 0 && !MV(r,c-1))
+          dz_h = 0.5*limiter(delta_h1->Drc + delta_z1->data[r][c-1], delta_h2->Drc + delta_z1->Drc);
+      else
+          dz_h = 0.5*limiter(delta_h1->Drc + delta_z1->Drc, delta_h2->Drc + delta_z1->Drc);
+      du   = 0.5*limiter(delta_u1->Drc, delta_u2->Drc);
+      dv   = 0.5*limiter(delta_v1->Drc, delta_v2->Drc);
 
       h1r->Drc = _h->Drc+dh;
       h1l->Drc = _h->Drc-dh;
@@ -490,8 +325,11 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
       z1r->Drc = _z->Drc+(dz_h-dh);
       z1l->Drc = _z->Drc+(dh-dz_h);
 
-      delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
-      delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
+      delzc1->Drc = z1r->Drc-z1l->Drc;
+      if(c > 0 && !MV(r,c-1))
+          delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
+      else
+          delz1->Drc = z1l->data[r][c+1] - z1r->Drc;
 
       if (_h->Drc > 0.)//he_ca)
       {
@@ -512,30 +350,56 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
       }
   }}
 
+  FOR_CELL_IN_FLOODAREA {
+      if(r > 0 && !MV(r-1,c))
+      {
+          delta_h1->Drc = _h->Drc - _h->data[r-1][c];
+          delta_u1->Drc = _u->Drc - _u->data[r-1][c];
+          delta_v1->Drc = _v->Drc - _v->data[r-1][c];
+      }
+      if(r < _nrRows-1 && !MV(r+1,c))
+      {
+          delta_h2->Drc = _h->data[r+1][c] - _h->Drc;
+          delta_u2->Drc = _u->data[r+1][c] - _u->Drc;
+          delta_v2->Drc = _v->data[r+1][c] - _v->Drc;
+      }
+  }}
 
-    FOR_CELL_IN_FLOODAREA
-      if(r > 0 && MV(r-1,c) && r < _nrRows-1 && !MV(r+1, c))
-    {
-        delta_h1 = _h->Drc - _h->data[r-1][c];
-        delta_u1 = _u->Drc - _u->data[r-1][c];
-        delta_v1 = _v->Drc - _v->data[r-1][c];
+    FOR_CELL_IN_FLOODAREA {
+        if (r == 0 || (r > 0 && MV(c, r-1)))
+        {
+            delta_h1->Drc = delta_h1->data[r+1][c];
+            delta_u1->Drc = delta_u1->data[r+1][c];
+            delta_v1->Drc = delta_v1->data[r+1][c];
+        }
+        if (c == _nrRows-1 || (r < _nrRows-1 && MV(r+1, c)))
+        {
+            delta_h2->Drc = delta_h1->data[r-1][c];
+            delta_u2->Drc = delta_u1->data[r-1][c];
+            delta_v2->Drc = delta_v1->data[r-1][c];
+        }
+    }}
 
-        delta_h2 = _h->data[r+1][c] - _h->Drc;
-        delta_u2 = _u->data[r+1][c] - _u->Drc;
-        delta_v2 = _v->data[r+1][c] - _v->Drc;
 
-        dh   = 0.5*limiter(delta_h1, delta_h2);
-        dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
-        du   = 0.5*limiter(delta_u1, delta_u2);
-        dv   = 0.5*limiter(delta_v1, delta_v2);
+    FOR_CELL_IN_FLOODAREA {
+        dh   = 0.5*limiter(delta_h1->Drc, delta_h2->Drc);
+        if (r > 0 && !MV(r-1,c))
+           dz_h = 0.5*limiter(delta_h1->Drc+delta_z2->data[r-1][c],delta_h2->Drc+delta_z2->Drc);
+        else
+           dz_h = 0.5*limiter(delta_h1->Drc+delta_z2->Drc,delta_h2->Drc+delta_z2->Drc);
+        du   = 0.5*limiter(delta_u1->Drc, delta_u2->Drc);
+        dv   = 0.5*limiter(delta_v1->Drc, delta_v2->Drc);
 
         h2r->Drc = _h->Drc+dh;
         h2l->Drc = _h->Drc-dh;
 
         z2r->Drc = _z->Drc+(dz_h-dh);
         z2l->Drc = _z->Drc+(dh-dz_h);
-        delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
-        delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
+        delzc2->Drc = z2r->Drc - z2l->Drc;
+        if (r > 0 && !MV(r-1,c))
+                delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
+        else
+                delz2->data[r-1][c] = z2l->data[c][r+1] - z2r->Drc;
 
         if (_h->Drc > 0.)
         {
@@ -561,20 +425,18 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                             cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
-  FOR_CELL_IN_FLOODAREA
-  {
-    double dx = ChannelAdj->Drc;
-    double dy = DX->Drc;
-    long double tx = dt/dx;
-    long double ty = dt/dy;
-    // Solution of the equation of mass conservation (First equation of Saint venant)
-    // f1 comes from MUSCL calculations
-    if ((r > _nrRows-2 || c > _nrCols-2) || (pcr::isMV(LDD->data[r][c+1]) || pcr::isMV(LDD->data[r+1][c])))
-      hes->Drc = he->Drc;
-    else
-      hes->Drc = he->Drc - tx*(f1->data[r][c+1]-f1->Drc) - ty*(g1->data[r+1][c]-g1->Drc);
+  FOR_CELL_IN_FLOODAREA {
+    double tx = dt/ChannelAdj->Drc;
+    double ty = dt/DX->Drc;
+
+    hes->Drc = he->Drc;
+    if (c < _nrCols-1 && !MV(c+1,r))
+        hes->Drc -= tx*(f1->data[r][c+1]-f1->Drc);
+    if (r < _nrRows-1 && !MV(c,r+1))
+        hes->Drc -= ty*(g1->data[r+1][c]-g1->Drc);
+
     if (hes->Drc > he_ca)
-      {
+    {
         //Solution of the equation of momentum (Second and third equation of Saint-venant)
         double qes1;
         double qes2;
@@ -583,19 +445,19 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
         // Solution of the equation of momentum (Second and third equation of Shallow-Water)
         // This expression for the flux (instead of the differences of the squares) avoids numerical errors
         // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
-        qes1 = (long double)he->Drc*(long double)ve1->Drc -
-            ty*((long double)g2->data[r+1][c]-(long double)g2->Drc) -
-            tx*((long double)f2->data[r][c+1]-(long double)f2->Drc +
-            GRAV*0.5*(((long double)h1g->Drc-(long double)h1l->Drc)*((long double)h1g->Drc+(long double)h1l->Drc) +
-                      ((long double)h1r->Drc-(long double)h1d->Drc)*((long double)h1r->Drc+(long double)h1d->Drc) +
-                      ((long double)h1l->Drc+(long double)h1r->Drc)*(long double)delzc1->Drc)) ;
+        qes1 = he->Drc*ve1->Drc -
+            ty*(g2->data[r+1][c]-g2->Drc) -
+            tx*(f2->data[r][c+1]-f2->Drc +
+            GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
+                      (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
+                      (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
 
         // fullswof version 1.04
-        qes2 = (long double)he->Drc*(long double)ve2->Drc - tx*((long double)f3->data[r][c+1]-(long double)f3->Drc) -
-            ty*((long double)g3->data[r+1][c]-(long double)g3->Drc +
-            GRAV*0.5*(((long double)h2g->Drc-(long double)h2l->Drc)*((long double)h2g->Drc+(long double)h2l->Drc) +
-                      ((long double)h2r->Drc-(long double)h2d->Drc)*((long double)h2r->Drc+(long double)h2d->Drc) +
-                      ((long double)h2l->Drc+(long double)h2r->Drc)*(long double)delzc2->Drc));
+        qes2 = he->Drc*ve2->Drc - tx*(f3->data[r][c+1]-f3->Drc) -
+            ty*(g3->data[r+1][c]-g3->Drc +
+            GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
+                      (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
+                      (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
 
         //Calc friction semi-implicit with old v and u and new h
@@ -715,45 +577,7 @@ double TWorld::maincalcflux(double dt, double dt_max)
      cfly->Drc = HLL2_cfl;
   }}
 
-  // VJ 130517: not in the original code!
-  // correct sudden extreme values, swap x or y direction
-  // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-/*
-#define AVG(a1,a2) ((a1*a2 > 0) ? std::sqrt(a1*a2) : -std::sqrt(std::abs(a1*a2)))
 
-     if (F_replaceV > 0)
-     {
-         FOR_CELL_IN_FLOODAREA {
-             if (cflx->Drc > F_maxVelocity+qSqrt(GRAV* h1d->Drc) || cflx->Drc > F_maxVelocity+qSqrt(GRAV*h2d->Drc))
-             {
-                 double tmp1 = cflx->Drc;
-                 double tmp2 = cfly->Drc;
-
-                 double e1 = AVG(g1->Drc,f1->Drc);
-                 double e2 = AVG(g2->Drc,f2->Drc);
-                 double e3 = AVG(g3->Drc,f3->Drc);
-                 double cfle = AVG(cfly->Drc,cflx->Drc);
-
-                 if (cflx->Drc > F_maxVelocity)
-                 {
-                     cflx->Drc = cfle;
-                     f1->Drc = e1;
-                     f2->Drc = e2;
-                     f3->Drc = e3;
-                 }
-                 if (cfly->Drc > F_maxVelocity)
-                 {
-                     cfly->Drc = cfle;
-                     g1->Drc = e1;
-                     g2->Drc = e2;
-                     g3->Drc = e3;
-                 }
-
-                 qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-             }
-         }}
-    }
-*/
      // find largest velocity and determine dt
      FOR_CELL_IN_FLOODAREA {
          double dx = ChannelAdj->Drc;
@@ -812,16 +636,14 @@ void TWorld::prepareFloodZ(cTMap *z)
     // diff between z cell and adjacent
     for (int r = 0; r < _nrRows; r++)
         for (int c = 1; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r][c-1]))
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c-1]))   // was && ???
             {
                 delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
     for (int r = 1; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r-1][c]))
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r-1][c]))
             {
                 delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
@@ -850,14 +672,12 @@ void TWorld::prepareFloodZ(cTMap *z)
     fill(*delta_z2, -9999);
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols-1; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r][c+1]))
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
                 delta_z1->Drc = z->data[r][c+1] - z->Drc;
 
     for (int r = 0; r < _nrRows-1; r++)
         for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r+1][c]))
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
                 delta_z2->Drc = z->data[r+1][c] - z->Drc;
 
     FOR_ROW_COL_MV
@@ -877,22 +697,6 @@ void TWorld::prepareFloodZ(cTMap *z)
                 delta_z2->Drc = 0 ;
         }
     }
-
-    copy(*som_z1, *z);
-    copy(*som_z2, *z);
-
-    for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r-1][c]) &&
-                    !pcr::isMV(LDD->data[r+1][c]) &&
-                    !pcr::isMV(LDD->data[r][c-1]) &&
-                    !pcr::isMV(LDD->data[r][c+1]))
-            {
-                som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
-                som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
-                // needed in ENO
-            }
 }
 //---------------------------------------------------------------------------
 /**
@@ -1004,11 +808,7 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
                 setZero(h, u, v);
 
-                // Reconstruction for order 2
-                // makes h1r, h1l, u1r, u1l, v1r, v1l
-                // makes h2r, h2l, u2r, u2l, v2r, v2l
-                // makes delzc1, delzc2, delz1, delz2
-                    MUSCL(h,u,v,z);
+                MUSCL(h,u,v,z);
             }
 
             dt1 = maincalcflux(dt1, dt_max);
@@ -1125,42 +925,45 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
 
             setZero(h, u, v);
 
-            // Reconstruction for order 2
-            // makes h1r, h1l, u1r, u1l, v1r, v1l
-            // makes h2r, h2l, u2r, u2l, v2r, v2l
-            // makes delzc1, delzc2, delz1, delz2
             MUSCL(h,u,v,z);
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = std::min(dt1, _dt-timesum);
 
-            if(SwitchErosion)
-            {
-                //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
-                //otherwise they will be overwritten by the second reconstruction
-                FOR_ROW_COL_MV
-                {
-                    temp1->Drc = h1d->Drc;
-                    temp2->Drc = h1g->Drc;
-                    temp3->Drc = h2d->Drc;
-                    temp4->Drc = h2g->Drc;
-                    temp5->Drc = u1r->Drc;
-                    temp6->Drc = u1l->Drc;
-                    temp7->Drc = v1r->Drc;
-                    temp8->Drc = v1l->Drc;
-                    temp9->Drc = u2r->Drc;
-                    temp10->Drc = u2l->Drc;
-                    temp11->Drc = v2r->Drc;
-                    temp12->Drc = v2l->Drc;
+//            if(SwitchErosion)
+//            {
+//                //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
+//                //otherwise they will be overwritten by the second reconstruction
+//                FOR_ROW_COL_MV
+//                {
+//                    temp1->Drc = h1d->Drc;
+//                    temp2->Drc = h1g->Drc;
+//                    temp3->Drc = h2d->Drc;
+//                    temp4->Drc = h2g->Drc;
+//                    temp5->Drc = u1r->Drc;
+//                    temp6->Drc = u1l->Drc;
+//                    temp7->Drc = v1r->Drc;
+//                    temp8->Drc = v1l->Drc;
+//                    temp9->Drc = u2r->Drc;
+//                    temp10->Drc = u2l->Drc;
+//                    temp11->Drc = v2r->Drc;
+//                    temp12->Drc = v2l->Drc;
 
-                }
-            }
+//                }
+//            }
 
             //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
 
             setZero(hs, us, vs);
+            setZero(hs, us, vs);
 
+            FOR_CELL_IN_FLOODAREA {
+              h->Drc = hs->Drc;
+              u->Drc = us->Drc;
+              v->Drc = vs->Drc;
+            }}
+/*
             //Reconstruction for order 2
             MUSCL(hs,us,vs,z);
             dt2 = maincalcflux(dt1, dt_max);
@@ -1193,7 +996,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
                     h->Drc = 0;
                 }
             }//Heun
-
+*/
             timesum = timesum + dt1;
             n++;
 

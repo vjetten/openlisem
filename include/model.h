@@ -599,15 +599,8 @@ public:
     //sediment for SWOF flood model
     void FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
     void FS_MUSCLE(cTMap * _sbl,cTMap * _sss);
-    void FS_ENO(cTMap * _sbl,cTMap * _sss);
     void FS_Simple(cTMap * _sbl,cTMap * _sss);
     void FS_MainCalc(cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
-
-    void FS_FluxWS(int wsnr, cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
-    void FS_MUSCLEWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_ENOWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_SimpleWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_MainCalcWS(int wsnr, cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
 
     void FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
     void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
@@ -749,18 +742,12 @@ public:
     double FBW(double h, int r, int c, int dr, int dc);
 
     //flood
-    //QVector<int> cellRow;
-    //QVector<int> cellCol;
-    int *cellRow;
-    int *cellCol;
     int *floodRow;
     int *floodCol;
-    long nrGridcells;
     long nrFloodcells;
     void ChannelFlood(void);
     void FloodMaxandTiming(void);
     void FloodBoundary(void);
-    void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow();
     void distributeChannelSed(int r, int c, double dh, double charea);
@@ -768,7 +755,6 @@ public:
     double courant_factor;
     double courant_factor_diffusive;
     double mixing_coefficient, runoff_partitioning;
-   // double cfl_fix;
     double minReportFloodHeight;
     double correctMassBalance(double sum1, cTMap *M, double minV);
     double getMass(cTMap *M);

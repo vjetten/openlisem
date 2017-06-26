@@ -166,11 +166,11 @@ cTMap
 *C_Kold,
 *CM_K,
 *CS_K,
-*C_Kexplicit,
-*CS_Kexplicit,
-*CM_Kexplicit,
-*CM_Kexplicitold,
-*CS_Kexplicitold,
+//*C_Kexplicit,
+//*CS_Kexplicit,
+//*CM_Kexplicit,
+//*CM_Kexplicitold,
+//*CS_Kexplicitold,
 *Qp,
 *Qpn,
 *C_Kn,
@@ -364,6 +364,12 @@ cTMap
 //*AlphaFlood,                    //!<
 //*Sedflood,                     //!<
 
+*delta_h1,
+*delta_u1,
+*delta_v1,
+*delta_h2,
+*delta_u2,
+*delta_v2,
 *UVflood,                     //!<
 *Qflood,                    //!<
 *floodHmxMax,                    //!<

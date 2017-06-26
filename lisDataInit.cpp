@@ -799,6 +799,14 @@ void TWorld::InitChannel(void)
             prepareFlood = true;
             iter_n = 0;
 
+            // for MUSCL
+            delta_h1 = NewMap(0);
+            delta_h2 = NewMap(0);
+            delta_u1 = NewMap(0);
+            delta_u2 = NewMap(0);
+            delta_v1 = NewMap(0);
+            delta_v2 = NewMap(0);
+
             // FloodVoltoChannel = NewMap(0);
             UVflood = NewMap(0);
             Qflood = NewMap(0);
@@ -1701,11 +1709,11 @@ void TWorld::IntializeData(void)
         C_Kn=NewMap(0);
         CS=NewMap(0);
         CM=NewMap(0);
-        C_Kexplicit=NewMap(0);
-        CM_Kexplicit=NewMap(0);
-        CS_Kexplicit=NewMap(0);
-        CM_Kexplicitold=NewMap(0);
-        CS_Kexplicitold=NewMap(0);
+//        C_Kexplicit=NewMap(0);
+//        CM_Kexplicit=NewMap(0);
+//        CS_Kexplicit=NewMap(0);
+//        CM_Kexplicitold=NewMap(0);
+//        CS_Kexplicitold=NewMap(0);
         Qp=NewMap(0);
         Qpn=NewMap(0);
         Pest=NewMap(0);
