@@ -127,31 +127,7 @@ void TWorld::setZero(cTMap *_h, cTMap *_u, cTMap *_v)
       }
   }}
 }
-//---------------------------------------------------------------------------
-//friction slope
-void TWorld::Fr_Manning(double u, double v, double hnew, double q1new, double q2new, double dt, double N)
-{
-  double nsq = N*N*GRAV*sqrt(u*u+v*v)*dt/qPow(hnew,4./3.);
-  q1man = q1new/(1.0+nsq);
-  q2man = q2new/(1.0+nsq);
-}
 
-//NOT USED!
-//Sf = Manning = v|v|/c^2*h^{4/3}
-void TWorld::Fr_ManningSf(double h, double u, double v, double N)
-{
-  double nsq = N*N*sqrt(u*u+v*v)/qPow(h,4./3.);
-  if (h>he_ca)
-    {
-      q1man = u*nsq;
-      q1man = v*nsq;
-    }
-  else
-    {
-      q1man = 0;
-      q1man = 0;
-    }
-}
 //---------------------------------------------------------------------------
 /// Numerical flux calculation on which the new velocity is based
 /// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov
@@ -268,177 +244,6 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
     HLL2_f3 = f3;
 }
 
-//---------------------------------------------------------------------------
-/// Essentially Non-Oscillatory schemes (ENO)
-/// Called reconstruction schemes because they reconstruct the flux through
-/// the boundary of adjacent cells frm the values at the cell centres
-/// second order scheme: based on [r, r+1, r+2] and [c, c+1, c+2]
-/// http://en.wikipedia.org/wiki/Shock_capturing_method
-void TWorld::ENO(cTMap *h,cTMap *u,cTMap *v,cTMap *z)
-{
-    double ddh1 = 0;
-    double ddz1 = 0;
-    double ddu1 = 0;
-    double ddv1 = 0;
-    double ddh2, ddv2, ddu2, ddz2;
-    double uu1 = 0, vv1 = 0, hh1 = 0;
-    double uu2, vv2, hh2;
-    double delta_h1, delta_v1, delta_u1;
-    double delta_h2, delta_v2, delta_u2;
-    double dh, du, dv, dz_h;
-    double amortENO = 0.25;
-    double MODIFENO = 0.9;
-    double a1, a2, a3, a4;
-
-  //x-direction
-    FOR_CELL_IN_FLOODAREA
-      if(c > 0 && c < _nrCols-2 && !MV(r,c-1) && !MV(r, c+1) && !MV(r, c+2))
-    {
-      hh1 = h->data[r][c-1]-2.*h->data[r][c]+h->data[r][c+1];
-      uu1 = u->data[r][c-1]-2.*u->data[r][c]+u->data[r][c+1];
-      vv1 = v->data[r][c-1]-2.*v->data[r][c]+v->data[r][c+1];
-
-      hh2 = h->Drc-2.*h->data[r][c+1]+h->data[r][c+2];
-      uu2 = u->Drc-2.*u->data[r][c+1]+u->data[r][c+2];
-      vv2 = v->Drc-2.*v->data[r][c+1]+v->data[r][c+2];
-
-      ddh2 = amortENO*limiter(hh1,hh2);
-      ddu2 = amortENO*limiter(uu1,uu2);
-      ddz2 = amortENO*limiter(hh1+som_z1->Drc,hh2+som_z1->data[r][c+1]);
-      ddv2 = amortENO*limiter(vv1,vv2);
-
-      delta_h1 = h->Drc - h->data[r][c-1];
-      delta_u1 = u->Drc - u->data[r][c-1];
-      delta_v1 = v->Drc - v->data[r][c-1];
-      delta_h2 = h->data[r][c+1]-h->Drc;
-      delta_u2 = u->data[r][c+1]-u->Drc;
-      delta_v2 = v->data[r][c+1]-v->Drc;
-
-
-      if (F_scheme == (int)FENO)
-      {
-          dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-          dz_h = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5, delta_h2+delta_z1->Drc-ddz2*0.5);
-      }
-      else
-      {
-          a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-          a4 = limiter(delta_h1+delta_z1->data[r][c-1]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
-
-          a1 = limiter(delta_h1,delta_h2);
-          dh = limiter(2*MODIFENO*a1,a2);
-
-          a3 = limiter(delta_h1+delta_z1->data[r][c-1],delta_h2+delta_z1->Drc);
-          dz_h = limiter(2*MODIFENO*a3,a4);
-      }
-      du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
-      dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-      h1r->Drc=h->Drc+dh*0.5;
-      h1l->Drc=h->Drc-dh*0.5;
-
-      z1r->Drc=z->Drc+0.5*(dz_h-dh);
-      z1l->Drc=z->Drc+0.5*(dh-dz_h);
-
-      delzc1->Drc = z1r->Drc - z1l->Drc;
-      delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-
-      if (h->Drc>0)
-      {
-          u1r->Drc=u->Drc+h1l->Drc*du*0.5/h->Drc;
-          u1l->Drc=u->Drc-h1r->Drc*du*0.5/h->Drc;
-          v1r->Drc=v->Drc+h1l->Drc*dv*0.5/h->Drc;
-          v1l->Drc=v->Drc-h1r->Drc*dv*0.5/h->Drc;
-      }
-      else
-      {
-          u1r->Drc=u->Drc+du*0.5;
-          u1l->Drc=u->Drc-du*0.5;
-          v1r->Drc=v->Drc+dv*0.5;
-          v1l->Drc=v->Drc-dv*0.5;
-      } //end if
-
-      ddh1=ddh2;
-      ddz1=ddz2;
-      ddu1=ddu2;
-      ddv1=ddv2;
-
-    }}
-
-
-    //y-direction
-    FOR_CELL_IN_FLOODAREA
-    if(r > 0 && r < _nrRows-2 && !MV(r-1,c) && !MV(r+1, c) && !MV(r+2, c))
-    {
-        hh1 = h->data[r-1][c]-2.*h->data[r][c]+h->data[r+1][c];
-        uu1 = u->data[r-1][c]-2.*u->data[r][c]+u->data[r+1][c];
-        vv1 = v->data[r-1][c]-2.*v->data[r][c]+v->data[r+1][c];
-        hh2 = h->Drc-2.*h->data[r+1][c]+h->data[r+2][c];
-        uu2 = u->Drc-2.*u->data[r+1][c]+u->data[r+2][c];
-        vv2 = v->Drc-2.*v->data[r+1][c]+v->data[r+2][c];
-
-        ddh2 = amortENO*limiter(hh1,hh2);
-        ddu2 = amortENO*limiter(uu1,uu2);
-        ddz2 = amortENO*limiter(hh1+som_z2->Drc,hh2+som_z2->data[r+1][c]);
-        ddv2 = amortENO*limiter(vv1,vv2);
-
-        delta_h1 = h->Drc - h->data[r-1][c];
-        delta_u1 = u->Drc - u->data[r-1][c];
-        delta_v1 = v->Drc - v->data[r-1][c];
-        delta_h2 = h->data[r+1][c]-h->Drc;
-        delta_u2 = u->data[r+1][c]-u->Drc;
-        delta_v2 = v->data[r+1][c]-v->Drc;
-
-        if (F_scheme == (int)FENO)
-        {
-            dh = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-            dz_h = limiter(delta_h1+delta_z2->data[r-1][c]+ddz1*0.5,delta_h2+delta_z2->Drc-ddz2*0.5);
-        }
-        else
-        {
-            a2 = limiter(delta_h1+ddh1*0.5,delta_h2-ddh2*0.5);
-            a4 = limiter(delta_h1+delta_z1->data[r-1][c]+ddz1*0.5,delta_h2+delta_z1->Drc-ddz2*0.5);
-
-            a1 = limiter(delta_h1,delta_h2);
-            dh = limiter(2*MODIFENO*a1,a2);
-
-            a3 = limiter(delta_h1+delta_z1->data[r-1][c],delta_h2+delta_z1->Drc);
-            dz_h = limiter(2*MODIFENO*a3,a4);
-        }
-
-        du = limiter(delta_u1+ddu1*0.5,delta_u2-ddu2*0.5);
-        dv = limiter(delta_v1+ddv1*0.5,delta_v2-ddv2*0.5);
-
-        h2r->Drc = h->Drc+dh*0.5;
-        h2l->Drc = h->Drc-dh*0.5;
-
-        z2r->Drc = z->Drc+0.5*(dz_h-dh);
-        z2l->Drc = z->Drc+0.5*(dh-dz_h);
-        delzc2->Drc = z2r->Drc-z2l->Drc;
-        delz2->data[r-1][c] = z2l->Drc-z2r->data[r-1][c];
-
-        if (h->Drc>0)
-        {
-            u2r->Drc = u->Drc+h2l->Drc*du*0.5/h->Drc;
-            u2l->Drc = u->Drc-h2r->Drc*du*0.5/h->Drc;
-            v2r->Drc = v->Drc+h2l->Drc*dv*0.5/h->Drc;
-            v2l->Drc = v->Drc-h2r->Drc*dv*0.5/h->Drc;
-        }
-        else
-        {
-            u2r->Drc = u->Drc+du*0.5;
-            u2l->Drc = u->Drc-du*0.5;
-            v2r->Drc = v->Drc+dv*0.5;
-            v2l->Drc = v->Drc-dv*0.5;
-        }
-
-        ddh1=ddh2;
-        ddz1=ddz2;
-        ddu1=ddu2;
-        ddv1=ddv2;
-
-    }} //end for
-}
 //---------------------------------------------------------------------------
 /// MUSCL: Monotone Upstream-centered Schemes for Conservation Laws
 /// see http://en.wikipedia.org/wiki/MUSCL_scheme
@@ -715,45 +520,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
      cfly->Drc = HLL2_cfl;
   }}
 
-  // VJ 130517: not in the original code!
-  // correct sudden extreme values, swap x or y direction
-  // cfl = v+sqrt(v), cannot be extremely large such as 100 m/s!
-/*
-#define AVG(a1,a2) ((a1*a2 > 0) ? std::sqrt(a1*a2) : -std::sqrt(std::abs(a1*a2)))
-
-     if (F_replaceV > 0)
-     {
-         FOR_CELL_IN_FLOODAREA {
-             if (cflx->Drc > F_maxVelocity+qSqrt(GRAV* h1d->Drc) || cflx->Drc > F_maxVelocity+qSqrt(GRAV*h2d->Drc))
-             {
-                 double tmp1 = cflx->Drc;
-                 double tmp2 = cfly->Drc;
-
-                 double e1 = AVG(g1->Drc,f1->Drc);
-                 double e2 = AVG(g2->Drc,f2->Drc);
-                 double e3 = AVG(g3->Drc,f3->Drc);
-                 double cfle = AVG(cfly->Drc,cflx->Drc);
-
-                 if (cflx->Drc > F_maxVelocity)
-                 {
-                     cflx->Drc = cfle;
-                     f1->Drc = e1;
-                     f2->Drc = e2;
-                     f3->Drc = e3;
-                 }
-                 if (cfly->Drc > F_maxVelocity)
-                 {
-                     cfly->Drc = cfle;
-                     g1->Drc = e1;
-                     g2->Drc = e2;
-                     g3->Drc = e3;
-                 }
-
-                 qDebug() << "swap extreme velocity with avg XY" << tmp1 << tmp2 << cflx->Drc << cfly->Drc << r << c;
-             }
-         }}
-    }
-*/
      // find largest velocity and determine dt
      FOR_CELL_IN_FLOODAREA {
          double dx = ChannelAdj->Drc;
@@ -877,22 +643,6 @@ void TWorld::prepareFloodZ(cTMap *z)
                 delta_z2->Drc = 0 ;
         }
     }
-
-    copy(*som_z1, *z);
-    copy(*som_z2, *z);
-
-    for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 1; c < _nrCols-1; c++)
-            if(!pcr::isMV(LDD->data[r][c]) &&
-                    !pcr::isMV(LDD->data[r-1][c]) &&
-                    !pcr::isMV(LDD->data[r+1][c]) &&
-                    !pcr::isMV(LDD->data[r][c-1]) &&
-                    !pcr::isMV(LDD->data[r][c+1]))
-            {
-                som_z1->Drc = z->data[r][c-1]-2*z->Drc+z->data[r][c+1];
-                som_z2->Drc = z->data[r-1][c]-2*z->Drc+z->data[r+1][c];
-                // needed in ENO
-            }
 }
 //---------------------------------------------------------------------------
 /**

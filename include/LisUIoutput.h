@@ -59,12 +59,12 @@ struct output{
     F_BLMethod,
     F_SigmaDiffusion,
     F_fluxLimiter,
-    F_replaceV,
+//    F_replaceV,
     F_Maxiter;
     double
-    F_maxVelocity,
-    F_extremeHeight,
-    F_extremeDiff,
+//    F_maxVelocity,
+//    F_extremeHeight,
+//    F_extremeDiff,
     F_courant,
     F_courant_diffusive;
 

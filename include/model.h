@@ -478,40 +478,23 @@ public:
     double fullSWOF2Do1(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double limiter(double a, double b);
     void MUSCL(cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-    void ENO(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void simpleScheme(cTMap *_h, cTMap *_u, cTMap *_v);
     double maincalcflux(double dt, double dt_max);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void Fr_Manning(double uold, double vold, double hnew, double q1new, double q2new, double dt, double N);
-    void Fr_ManningSf(double h, double u, double v, double cf);
     void setZero(cTMap *_h, cTMap *_u, cTMap *_v);
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter;
-    double F_maxVelocity;
-    double F_extremeHeight;
-    double F_extremeDiff;
+    int F_scheme, F_fluxLimiter, F_reconstruction, F_MaxIter;
+    // int F_replaceV;
+//    double F_maxVelocity;
+//    double F_extremeHeight;
+//    double F_extremeDiff;
 
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
-    double q1man, q2man;
-    //double dt_max, dt1;
     bool prepareFlood, startFlood;
     int verif, iter_n;
-/*
-    // floods watershed based
-    double fullSWOF2Do2ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    double fullSWOF2Do1ws(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    void MUSCLws(int wsnr, cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-    void ENOws(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
-    void simpleSchemews(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
-    void maincalcfluxws(int wsnr);
-    void findDTws(int wsnr, bool two);
-    void maincalcschemews(int wsnr, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void setZerows(int wsnr, cTMap *_h, cTMap *_u, cTMap *_v);
-    void MakeWatersheds(void);
-*/
 
     //SEDIMENT TRANSPORT
     int FS_SS_Method;
@@ -599,41 +582,27 @@ public:
     //sediment for SWOF flood model
     void FS_Flux(cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
     void FS_MUSCLE(cTMap * _sbl,cTMap * _sss);
-    void FS_ENO(cTMap * _sbl,cTMap * _sss);
     void FS_Simple(cTMap * _sbl,cTMap * _sss);
     void FS_MainCalc(cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
-
-    void FS_FluxWS(int wsnr, cTMap * _sbl,cTMap * _sss,cTMap * _h1d,cTMap * _h1g,cTMap * _h2d,cTMap * _h2g,cTMap * _u1r,cTMap * _u1l,cTMap * _v1r,cTMap * _v1l,cTMap * _u2r,cTMap * _u2l,cTMap * _v2r,cTMap * _v2l);
-    void FS_MUSCLEWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_ENOWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_SimpleWS(int wsnr, cTMap * _sbl,cTMap * _sss);
-    void FS_MainCalcWS(int wsnr, cTMap * _h, cTMap * _sbl,cTMap * _sbln,cTMap * _sss,cTMap * _sssn, double dt);
 
     void FS_HLL(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
     void FS_HLL2(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
     void FS_Rusanov(double h_L,double bl_L,double ss_L,double u_L,double v_L,double h_R, double bl_R,double ss_R,double u_R,double v_R);
 
     void SWOFSedimentBalance();
-    void SWOFSedimentBalanceWS(int l);
 
     void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h,cTMap * u,cTMap * v);
 
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDiffusionWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-
-
     double SWOFSedimentTCBL(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
     double SWOFSedimentTCSS(int r,int c, int d, cTMap * h,cTMap * u,cTMap * v);
 
     void SWOFSedimentFlow(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(double dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentFlowWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolationWS(int wsnr, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentWS(int l,double dt, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, cTMap * h,cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
@@ -644,8 +613,6 @@ public:
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed,cTMap*_VolStore, cTMap*_SedStore);
 
-
-    double K2DSolvebyFluxSed(double dt, cTMap *M, cTMap *MC);
     double K2DSolvebyInterpolationSed(double dt, cTMap *M, cTMap *MC);
 
 
@@ -707,18 +674,10 @@ public:
 
     void InfilEffectiveKsat();
     void Infiltration(void);
-    void InfiltrationFlood(void);
-    void InfiltrationFloodNew(void);
     void InfilSwatre(cTMap *_WH);
-//    void InfilGreenAmpt1(cTMap *_WH);  //OBSOLETE
-//    void InfilSmithParlange1(cTMap *_WH); //OBSOLETE
-//    void InfilMorelSeytoux1(cTMap *_WH); //OBSOLETE
-//    void InfilKsat(cTMap *_WH); //OBSOLETE
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void InfilMethodsNew(void);
-//    void RainfallToFlood(void);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void OverlandFlow2D(void);
@@ -786,7 +745,6 @@ public:
     // kinematic 2D
     double K2DFlux();
     void K2DSolve(double dt);
-    void K2DSolvebyFlux(double dt);
     void K2DSolvebyInterpolation(double dt);
     void K2DInit();
     void K2DCalcVelDisch();
@@ -797,7 +755,6 @@ public:
     double CourantKin;
     double ConcentrateKin;
     double TimestepKinMin;
-    double KinematicBoundaryFraction = 0.05;
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;
