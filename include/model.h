@@ -700,18 +700,10 @@ public:
 
     void InfilEffectiveKsat();
     void Infiltration(void);
-    void InfiltrationFlood(void);
-    void InfiltrationFloodNew(void);
     void InfilSwatre(cTMap *_WH);
-//    void InfilGreenAmpt1(cTMap *_WH);  //OBSOLETE
-//    void InfilSmithParlange1(cTMap *_WH); //OBSOLETE
-//    void InfilMorelSeytoux1(cTMap *_WH); //OBSOLETE
-//    void InfilKsat(cTMap *_WH); //OBSOLETE
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     void SoilWater(void);
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void InfilMethodsNew(void);
-//    void RainfallToFlood(void);
     void SurfaceStorage(void);
     void OverlandFlow(void);
     void OverlandFlow2D(void);

@@ -181,22 +181,6 @@ void TWorld::InfilSwatre(cTMap *_WH)
 
 }
 //---------------------------------------------------------------------------
-//OBSOLETE
-// Infiltration by Green and Ampt,Smith and Parlange or Ksat.
-// All the same except for calculation of the potential infiltration fpot
-// 1 layer and 2 layers
-/*!
-\brief function to calculate potential and actula infiltration rate according to
-Green and Mapt, Smith and Parlange or Ksat subtraction.
-
-This function calculates the potential infiltration according to Ksat, G&A or S&P \n
-then calls IncreaseInfiltrationDepth to increase the wetting front.
-*/
-void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
-{
-   // OBSOLETE
-}
-//---------------------------------------------------------------------------
 /*!
 \brief function to increase wetting front and deal with 2nd layer and impermeable subsoil
  returns actual infiltration rate.
@@ -355,12 +339,122 @@ void TWorld::Infiltration(void)
 
 }
 
+
 //---------------------------------------------------------------------------
-// do infiltration for flooded area exclusing channel cells
-//OBSOLETE!!!!
-void TWorld::InfiltrationFloodNew(void)
+/*!
+\brief function to calculate potential and actual infiltration rate according to
+Green and Ampt, Smith and Parlange or Ksat subtraction.
+
+This function calculates the actual potential infiltration according to Ksat, G&A or S&P \n
+1 or 2 layers, then calls IncreaseInfiltrationDepth to increase the wetting front. \n
+Then the appropriate domain water heights are adjusted and FSurplus is calculated.
+*/
+void TWorld::InfilMethodsNew()
 {
 
+    FOR_ROW_COL_MV
+    {
+        double fact1 = 0;
+        double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
+        double fwh = 0;
+        double Psi = Psi1->Drc;
+        double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
+
+        if (space < tiny || Ks == 0 || SoilDepth1->Drc < tiny)
+        {
+            fpot->Drc = 0;
+            fact->Drc = 0;
+            FSurplus->Drc = 0;
+            FFull->Drc = 1;
+        }
+        else
+        {
+            if (FloodDomain->Drc == 0)
+                fwh = WH->Drc;
+            else
+                fwh = hmx->Drc;
+            // select the appropriate domain water height for overpressure
+
+            if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc)
+            {
+                Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
+                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+                Psi = Psi2->Drc;
+                space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
+            }
+            // two layers
+
+            // calculate potential infiltration fpot in m, give a very large fpot in the beginning to start of the infil
+            // process, the actual fact is then chosen anyway.
+            switch (InfilMethod)
+            {
+            case INFIL_KSAT : fpot->Drc = Ks; break;
+            case INFIL_GREENAMPT :
+            case INFIL_GREENAMPT2 :
+                fpot->Drc = L1->Drc+L2->Drc > tiny ? Ks*(1.0+(Psi+fwh)/(L1->Drc+L2->Drc)) : 1e10;
+                break;
+            case INFIL_SMITH :
+            case INFIL_SMITH2 :
+                double B = (fwh + Psi)*space;
+                double Cdexp = B > 0.1 ? exp(Fcum->Drc/B) : 1.0;
+                fpot->Drc = Cdexp > 1 ? Ks*Cdexp/(Cdexp-1): 1e10;
+                break;
+            }
+
+            fact1 = std::min(fpot->Drc, fwh);
+            // actual infil in m, cannot have more infil than water on the surface
+
+            fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
+            // adjust fact and increase L1 and L2, for twolayer, impermeable etc
+
+            // adjust the WH in the domains with new fact
+            if(FloodDomain->Drc == 0)
+            {
+                if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
+                {
+                    fact->Drc = WH->Drc;
+                    WH->Drc = 0;
+                }
+                else
+                    WH->Drc -= fact->Drc;
+            }
+            else
+            {
+                if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
+                {
+                    fact->Drc = hmx->Drc;
+                    hmx->Drc = 0;
+                }
+                else
+                    hmx->Drc -= fact->Drc;
+            }
+
+            Fcum->Drc += fact->Drc;
+            // cumulative infil in m
+
+            // calc surplus infiltration (negative in m) for kin wave
+            if (FFull->Drc == 1)
+                FSurplus->Drc = 0;
+            else
+            {
+                FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc);
+
+                //limit surplus to available room in soil
+                double room = 0;
+                if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
+                {
+                    room = (SoilDepth1->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);\
+                    FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
+                }
+                else
+                    if (SwitchTwoLayer && L1->Drc == SoilDepth1->Drc)
+                    {
+                        room = (SoilDepth2->Drc - L2->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);
+                        FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
+                    }
+            }
+        }
+    }
 }
 //---------------------------------------------------------------------------
 /*!
@@ -442,134 +536,5 @@ void TWorld::SoilWater()
 
         }
 
-    }
-}
-//---------------------------------------------------------------------------
-/*!
-\brief function to calculate potential and actual infiltration rate according to
-Green and Ampt, Smith and Parlange or Ksat subtraction.
-
-This function calculates the actual potential infiltration according to Ksat, G&A or S&P \n
-1 or 2 layers, then calls IncreaseInfiltrationDepth to increase the wetting front. \n
-Then the appropriate domain water heights are adjusted and FSurplus is calculated.
-*/
-void TWorld::InfilMethodsNew()
-{
-
-    FOR_ROW_COL_MV
-    {
-        double fact1 = 0;
-        double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
-        double fwh = 0;
-        double Psi = Psi1->Drc;
-        double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
-
-        if (space < tiny or Ks == 0)
-        {
-            fpot->Drc = 0;
-            fact->Drc = 0;
-            continue;
-        }
-
-        if (FloodDomain->Drc == 0)
-            fwh = WH->Drc;
-        else
-            fwh = hmx->Drc;
-        // select the appropriate domain water height for overpressure
-
-        if (SoilDepth1->Drc > tiny)
-        {
-            if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc)
-            {
-                Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc;
-                space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
-            }
-            // two layers
-
-            // calculate potential infiltration fpot in m, give a very large fpot in the beginning to start of the infil
-            // process, the actual fact is then chosen anyway.
-            switch (InfilMethod)
-            {
-            case INFIL_KSAT : fpot->Drc = Ks; break;
-            case INFIL_GREENAMPT :
-            case INFIL_GREENAMPT2 :
-                fpot->Drc = L1->Drc+L2->Drc > tiny ? Ks*(1.0+(Psi+fwh)/(L1->Drc+L2->Drc)) : 1e10;
-                break;
-            case INFIL_SMITH :
-            case INFIL_SMITH2 :
-                double B = (fwh + Psi)*space;
-                double Cdexp = B > 0 ? exp(Fcum->Drc/B) : 0;
-                fpot->Drc = Cdexp > 0 ? Ks*Cdexp/(Cdexp-1) : 1e10;
-                break;
-            }
-
-            fact1 = std::min(fpot->Drc, fwh);
-            // actual infil in m, cannot have more infil than water on the surface
-
-            fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
-            // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-        }
-        else
-        {
-            fpot->Drc = 0;
-            fact->Drc = 0;
-            // outcrops etc: no infil in this cell
-        }
-    }
-    // we have now the correct fact and fpot
-
-    // adjust
-    FOR_ROW_COL_MV
-    {
-        if (fact->Drc == 0 && fpot->Drc == 0)
-            continue;
-
-        // adjust the WH in the domains
-        if(FloodDomain->Drc == 0)
-        {
-            if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
-            {
-                fact->Drc = WH->Drc;
-                WH->Drc = 0;
-            }
-            else
-                WH->Drc -= fact->Drc;
-        }
-        else
-        {
-            if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
-            {
-                fact->Drc = hmx->Drc;
-                hmx->Drc = 0;
-            }
-            else
-                hmx->Drc -= fact->Drc;
-        }
-
-        Fcum->Drc += fact->Drc;
-        // cumulative infil in m
-
-        // calc surplus infiltration (negative in m) for kin wave
-        if (FFull->Drc == 1)
-            FSurplus->Drc = 0;
-        else
-        {
-            FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc);
-
-            double room = 0;
-            if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
-            {
-                room = (SoilDepth1->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);\
-                FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
-            }
-            else
-                if (SwitchTwoLayer && L1->Drc == SoilDepth1->Drc)
-                {
-                    room = (SoilDepth2->Drc - L2->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);
-                    FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
-                }
-        }
     }
 }
