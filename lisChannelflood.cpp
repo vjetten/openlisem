@@ -297,10 +297,10 @@ void TWorld::getFloodParameters(void)
     SwitchFloodSWOForder1 = (op.F_solution == 1);
     F_scheme = op.F_scheme;                        //MUSCL
     F_fluxLimiter = op.F_fluxLimiter;              //HLL
-    F_replaceV = op.F_replaceV;
-    F_maxVelocity = op.F_maxVelocity;
-    F_extremeHeight = F_extremeHeight;
-    F_extremeDiff = op.F_extremeDiff;
+//    F_replaceV = op.F_replaceV;
+//    F_maxVelocity = op.F_maxVelocity;
+//    F_extremeHeight = F_extremeHeight;
+//    F_extremeDiff = op.F_extremeDiff;
     courant_factor = op.F_courant;
     courant_factor_diffusive = op.F_courant_diffusive;
     F_MaxIter = op.F_Maxiter;

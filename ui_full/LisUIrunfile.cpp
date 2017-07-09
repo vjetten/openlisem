@@ -176,7 +176,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flow Boundary 2D")==0)              E_FlowBoundary->setValue(val);
         if (p1.compare("Flow concentration 2D")==0)              E_concentrateFlow->setValue(val);
 
-
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
         //if (p1.compare("All water and sediment to outlet")==0) checkAllinChannel->setChecked(check);
         //houses
@@ -204,13 +203,15 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding 1D2D coupling")==0)         E_1D2DCoupling->setValue(val);
      //   if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
         //if (p1.compare("Flood limit max velocity")==0)       E_FloodReplaceV->setValue(val);
-        if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
-        if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
-        if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
+//        if (p1.compare("Flood max velocity threshold")==0)   E_FloodMaxVelocity->setValue(val);
+//        if (p1.compare("Flood extreme value height")==0)     E_FloodExtremeHeight->setValue(val);
+//        if (p1.compare("Flood extreme value difference")==0) E_FloodExtremeDiff->setValue(val);
   //      if (p1.compare("Flood calc as watershed")==0)        checkWatershed->setChecked(check);
         if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
   //      if (p1.compare("Rainfall flooding gradient")==0)     E_RainFloodGradient->setValue(val); // OBSOLETE
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(val);
+        if (p1.compare("Timestep flood")==0)            E_floodTimestepMin->setValue(val);
+
 
     //    if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
         if (p1.compare("Advanced sediment")==0)               checkAdvancedSediment->setChecked(check);
@@ -742,14 +743,14 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flooding 1D2D coupling")==0)         namelist[j].value = E_1D2DCoupling->text();
         //if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
-        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value.setNum((int)E_FloodReplaceVcheck->isChecked());
-        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
-        if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
-        if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
+//        if (p1.compare("Flood limit max velocity")==0)       namelist[j].value.setNum((int)E_FloodReplaceVcheck->isChecked());
+//        if (p1.compare("Flood max velocity threshold")==0)   namelist[j].value = E_FloodMaxVelocity->text();
+//        if (p1.compare("Flood extreme value height")==0)     namelist[j].value = E_FloodExtremeHeight->text();
+//        if (p1.compare("Flood extreme value difference")==0) namelist[j].value = E_FloodExtremeDiff->text();
   //     if (p1.compare("Flood calc as watershed")==0)        namelist[j].value.setNum((int)checkWatershed->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
-        if (p1.compare("Flood sediment transport method")==0)namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
-
+        if (p1.compare("Flood sediment transport method")==0) namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
+        if (p1.compare("Timestep flood")==0)           namelist[j].value = E_floodTimestepMin->text();
         //        if (p1.compare("OF method")==0)                       namelist[j].value = E_OFMethod->text();
 
         if (p1.compare("Advanced sediment")==0)               namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());

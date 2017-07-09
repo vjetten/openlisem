@@ -51,10 +51,10 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
+#define he_ca 1e-4
+#define ve_ca 1e-6
 
-#define dt_ca 0.005
+#define dt_ca 0.001
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
@@ -274,50 +274,37 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 /// This MUSCL creates left and right u,v,h, arrays for in mainfluxcalc
 void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
-//  double delta_h1, delta_u1, delta_v1;
-//  double delta_h2, delta_u2, delta_v2;
+  double delta_h1, delta_u1, delta_v1;
+  double delta_h2, delta_u2, delta_v2;
   double dh, du, dv, dz_h;
 
-  FOR_CELL_IN_FLOODAREA {
-      if(c > 0 && !MV(r,c-1))
-      {
-          delta_h1->Drc = _h->Drc - _h->data[r][c-1];
-          delta_u1->Drc = _u->Drc - _u->data[r][c-1];
-          delta_v1->Drc = _v->Drc - _v->data[r][c-1];
-      }
-      if (c < _nrCols-1 && !MV(r,c+1))
-      {
-          delta_h2->Drc = _h->data[r][c+1] - _h->Drc;
-          delta_u2->Drc = _u->data[r][c+1] - _u->Drc;
-          delta_v2->Drc = _v->data[r][c+1] - _v->Drc;
-      }
-  }}
-
-    FOR_CELL_IN_FLOODAREA {
-        if (c == 0 || (c > 0 && MV(r, c-1)))
-        {
-            delta_h1->Drc = delta_h1->data[r][c+1];
-            delta_u1->Drc = delta_u1->data[r][c+1];
-            delta_v1->Drc = delta_z1->data[r][c+1];
-        }
-        if (c == _nrCols-1 || (c < _nrCols-1 && MV(r, c+1)))
-        {
-            delta_h2->Drc = delta_h1->data[r][c-1];
-            delta_u2->Drc = delta_u1->data[r][c-1];
-            delta_v2->Drc = delta_z1->data[r][c-1];
-        }
-    }}
-
+  simpleScheme(_h, _u, _v);
 
   FOR_CELL_IN_FLOODAREA
   {
-      dh   = 0.5*limiter(delta_h1->Drc, delta_h2->Drc);
-      if(c > 0 && !MV(r,c-1))
-          dz_h = 0.5*limiter(delta_h1->Drc + delta_z1->data[r][c-1], delta_h2->Drc + delta_z1->Drc);
-      else
-          dz_h = 0.5*limiter(delta_h1->Drc + delta_z1->Drc, delta_h2->Drc + delta_z1->Drc);
-      du   = 0.5*limiter(delta_u1->Drc, delta_u2->Drc);
-      dv   = 0.5*limiter(delta_v1->Drc, delta_v2->Drc);
+      if(c > 0 && !MV(r,c-1)) {
+          delta_h1 = _h->Drc - _h->data[r][c-1];
+          delta_u1 = _u->Drc - _u->data[r][c-1];
+          delta_v1 = _v->Drc - _v->data[r][c-1];
+      } else {
+          delta_h1 = 0;
+          delta_u1 = 0;
+          delta_v1 = 0;
+      }
+      if(c < _nrCols-1 &&  !MV(r,c+1)) {
+          delta_h2 = _h->data[r][c+1] - _h->Drc;
+          delta_u2 = _u->data[r][c+1] - _u->Drc;
+          delta_v2 = _v->data[r][c+1] - _v->Drc;
+      } else {
+          delta_h2 = 0;
+          delta_u2 = 0;
+          delta_v2 = 0;
+      }
+
+      dh   = 0.5*limiter(delta_h1, delta_h2);
+      dz_h = 0.5*limiter(delta_h1 + delta_z1->data[r][c-1], delta_h2 + delta_z1->Drc);
+      du   = 0.5*limiter(delta_u1, delta_u2);
+      dv   = 0.5*limiter(delta_v1, delta_v2);
 
       h1r->Drc = _h->Drc+dh;
       h1l->Drc = _h->Drc-dh;
@@ -325,14 +312,10 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
       z1r->Drc = _z->Drc+(dz_h-dh);
       z1l->Drc = _z->Drc+(dh-dz_h);
 
-      delzc1->Drc = z1r->Drc-z1l->Drc;
-      if(c > 0 && !MV(r,c-1))
-          delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-      else
-          delz1->Drc = z1l->data[r][c+1] - z1r->Drc;
+      delzc1->Drc = (long double)z1r->Drc-(long double)z1l->Drc;
+      delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];  //outside noundary a value exists with preparefloodz
 
-      if (_h->Drc > 0.)//he_ca)
-      {
+      if (_h->Drc > he_ca) {
           double h1lh = h1l->Drc/_h->Drc;
           double h1rh = h1r->Drc/_h->Drc;
 
@@ -340,9 +323,7 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
           u1l->Drc = _u->Drc - h1rh * du;
           v1r->Drc = _v->Drc + h1lh * dv;
           v1l->Drc = _v->Drc - h1rh * dv;
-      }
-      else
-      {
+      } else {
           u1r->Drc = _u->Drc + du;
           u1l->Drc = _u->Drc - du;
           v1r->Drc = _v->Drc + dv;
@@ -350,59 +331,41 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
       }
   }}
 
-  FOR_CELL_IN_FLOODAREA {
-      if(r > 0 && !MV(r-1,c))
-      {
-          delta_h1->Drc = _h->Drc - _h->data[r-1][c];
-          delta_u1->Drc = _u->Drc - _u->data[r-1][c];
-          delta_v1->Drc = _v->Drc - _v->data[r-1][c];
-      }
-      if(r < _nrRows-1 && !MV(r+1,c))
-      {
-          delta_h2->Drc = _h->data[r+1][c] - _h->Drc;
-          delta_u2->Drc = _u->data[r+1][c] - _u->Drc;
-          delta_v2->Drc = _v->data[r+1][c] - _v->Drc;
-      }
-  }}
-
     FOR_CELL_IN_FLOODAREA {
-        if (r == 0 || (r > 0 && MV(c, r-1)))
-        {
-            delta_h1->Drc = delta_h1->data[r+1][c];
-            delta_u1->Drc = delta_u1->data[r+1][c];
-            delta_v1->Drc = delta_v1->data[r+1][c];
+        if(r > 0 && MV(r-1,c)) {
+            delta_h1 = _h->Drc - _h->data[r-1][c];
+            delta_u1 = _u->Drc - _u->data[r-1][c];
+            delta_v1 = _v->Drc - _v->data[r-1][c];
+        } else {
+            delta_h1 = 0;
+            delta_u1 = 0;
+            delta_v1 = 0;
         }
-        if (c == _nrRows-1 || (r < _nrRows-1 && MV(r+1, c)))
-        {
-            delta_h2->Drc = delta_h1->data[r-1][c];
-            delta_u2->Drc = delta_u1->data[r-1][c];
-            delta_v2->Drc = delta_v1->data[r-1][c];
+        if(r < _nrRows-1 && !MV(r+1, c)) {
+            delta_h2 = _h->data[r+1][c] - _h->Drc;
+            delta_u2 = _u->data[r+1][c] - _u->Drc;
+            delta_v2 = _v->data[r+1][c] - _v->Drc;
+        } else {
+            delta_h2 = 0;
+            delta_u2 = 0;
+            delta_v2 = 0;
         }
-    }}
 
-
-    FOR_CELL_IN_FLOODAREA {
-        dh   = 0.5*limiter(delta_h1->Drc, delta_h2->Drc);
-        if (r > 0 && !MV(r-1,c))
-           dz_h = 0.5*limiter(delta_h1->Drc+delta_z2->data[r-1][c],delta_h2->Drc+delta_z2->Drc);
-        else
-           dz_h = 0.5*limiter(delta_h1->Drc+delta_z2->Drc,delta_h2->Drc+delta_z2->Drc);
-        du   = 0.5*limiter(delta_u1->Drc, delta_u2->Drc);
-        dv   = 0.5*limiter(delta_v1->Drc, delta_v2->Drc);
+        dh   = 0.5*limiter(delta_h1, delta_h2);
+        dz_h = 0.5*limiter(delta_h1+delta_z2->data[r-1][c],delta_h2+delta_z2->Drc);
+        du   = 0.5*limiter(delta_u1, delta_u2);
+        dv   = 0.5*limiter(delta_v1, delta_v2);
 
         h2r->Drc = _h->Drc+dh;
         h2l->Drc = _h->Drc-dh;
 
         z2r->Drc = _z->Drc+(dz_h-dh);
         z2l->Drc = _z->Drc+(dh-dz_h);
-        delzc2->Drc = z2r->Drc - z2l->Drc;
-        if (r > 0 && !MV(r-1,c))
-                delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
-        else
-                delz2->data[r-1][c] = z2l->data[c][r+1] - z2r->Drc;
 
-        if (_h->Drc > 0.)
-        {
+        delzc2->Drc = (long double)z2r->Drc - (long double)z2l->Drc;
+        delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c]; //outside noundary a value exists with preparefloodz
+
+        if (_h->Drc > he_ca) {
             double h2lh = h2l->Drc/_h->Drc;
             double h2rh = h2r->Drc/_h->Drc;
 
@@ -410,9 +373,7 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             u2l->Drc = _u->Drc - h2rh * du;
             v2r->Drc = _v->Drc + h2lh * dv;
             v2l->Drc = _v->Drc - h2rh * dv;
-        }
-        else
-        {
+        } else {
             u2r->Drc = _u->Drc + du;
             u2l->Drc = _u->Drc - du;
             v2r->Drc = _v->Drc + dv;
@@ -425,57 +386,64 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                             cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
-  FOR_CELL_IN_FLOODAREA {
-    double tx = dt/ChannelAdj->Drc;
-    double ty = dt/DX->Drc;
+    FOR_CELL_IN_FLOODAREA {
+      double tx = dt/ChannelAdj->Drc;
+      double ty = dt/DX->Drc;
 
-    hes->Drc = he->Drc;
-    if (c < _nrCols-1 && !MV(c+1,r))
-        hes->Drc -= tx*(f1->data[r][c+1]-f1->Drc);
-    if (r < _nrRows-1 && !MV(c,r+1))
-        hes->Drc -= ty*(g1->data[r+1][c]-g1->Drc);
+      hes->Drc = he->Drc;
+      if (c < _nrCols-1 && !MV(c+1,r))
+          hes->Drc -= tx*(f1->data[r][c+1]-f1->Drc);
+      if (r < _nrRows-1 && !MV(c,r+1))
+          hes->Drc -= ty*(g1->data[r+1][c]-g1->Drc);
 
-    if (hes->Drc > he_ca)
-    {
-        //Solution of the equation of momentum (Second and third equation of Saint-venant)
-        double qes1;
-        double qes2;
-
-        // fullswof version 1.04
-        // Solution of the equation of momentum (Second and third equation of Shallow-Water)
-        // This expression for the flux (instead of the differences of the squares) avoids numerical errors
-        // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
-        qes1 = he->Drc*ve1->Drc -
-            ty*(g2->data[r+1][c]-g2->Drc) -
-            tx*(f2->data[r][c+1]-f2->Drc +
-            GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
-                      (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
-                      (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
-
-        // fullswof version 1.04
-        qes2 = he->Drc*ve2->Drc - tx*(f3->data[r][c+1]-f3->Drc) -
-            ty*(g3->data[r+1][c]-g3->Drc +
-            GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
-                      (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
-                      (h2l->Drc+h2r->Drc)*delzc2->Drc));
-
-
-        //Calc friction semi-implicit with old v and u and new h
-        //Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
-
-        double nsq = N->Drc*N->Drc*GRAV*sqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc)*dt/qPow(hes->Drc,4.0/3.0);
-
-        ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
-        ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
-      }
-    else
+      if (hes->Drc > he_ca)
       {
-        // Case of height of water is zero.
-        ves1->Drc = 0;
-        ves2->Drc = 0;
-        hes->Drc = 0;
+          //Solution of the equation of momentum (Second and third equation of Saint-venant)
+          double qes1;
+          double qes2;
+
+          // fullswof version 1.04
+          // Solution of the equation of momentum (Second and third equation of Shallow-Water)
+          // This expression for the flux (instead of the differences of the squares) avoids numerical errors
+          // see http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html section "Cancellation".
+          int rr = r < _nrRows-1 && !MV(r+1,c) ? r+1 : r;
+          int cc = c < _nrCols-1 && !MV(r,c+1) ? c+1 : c;
+          qes1 = he->Drc*ve1->Drc -
+                  ty*(g2->data[rr][c]-g2->Drc) -
+                  tx*(f2->data[r][cc]-f2->Drc +
+                      GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
+                                (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc) +
+                                (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
+
+          // fullswof version 1.04
+          qes2 = he->Drc*ve2->Drc - tx*(f3->data[r][cc]-f3->Drc) -
+                  ty*(g3->data[rr][c]-g3->Drc +
+                      GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
+                                (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc) +
+                                (h2l->Drc+h2r->Drc)*delzc2->Drc));
+
+
+          //Calc friction semi-implicit with old v and u and new h
+          //Fr_Manning(ve1->Drc, ve2->Drc, hes->Drc, qes1, qes2, dt, N->Drc);
+
+          double nsq = N->Drc*N->Drc*GRAV*sqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc)*dt/qPow(hes->Drc,4.0/3.0);
+
+          ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
+          ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
+
+          if (std::fabs(ves1->Drc) > 25 || std::fabs(ves2->Drc) > 25) {
+              ves1->Drc = hes->Drc/_dt;
+              ves2->Drc = hes->Drc/_dt;
+          }
       }
-  }}
+      else
+      {
+          // Case of height of water is zero.
+          ves1->Drc = 0;
+          ves2->Drc = 0;
+          hes->Drc = 0;
+      }
+    }}
 }
 //---------------------------------------------------------------------------
 /**
@@ -486,121 +454,71 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
 */
 double TWorld::maincalcflux(double dt, double dt_max)
 {
-  double dt_tmp, dtx, dty;
-  dtx = dt_max;
-  dty = dt_max;
+    double dt_tmp, dtx, dty;
+    dtx = dt_max;
+    dty = dt_max;
 
-  FOR_CELL_IN_FLOODAREA
-      if (c > 0 && !pcr::isMV(LDD->data[r][c-1]))
-  {
-    h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
-    h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
-    if (F_scheme == 1)
-      F_Rusanov(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-    else
-      if (F_scheme == 2)
-        F_HLL(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-      else
-        F_HLL2(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+    FOR_CELL_IN_FLOODAREA {
+        int cc = (c > 0 && !MV(r,c-1)) ? c-1 : c;
+        h1d->data[r][cc] = std::max(0.0, h1r->data[r][cc] - std::max(0.0,  delz1->data[r][cc] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][cc])));
+        h1g->Drc         = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][cc] + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][cc])));
+        if (F_scheme == 1)
+            F_Rusanov(h1d->data[r][cc], u1r->data[r][cc], v1r->data[r][cc],h1g->Drc, u1l->Drc, v1l->Drc);
+        else
+            if (F_scheme == 2)
+                F_HLL(h1d->data[r][cc], u1r->data[r][cc], v1r->data[r][cc],h1g->Drc, u1l->Drc, v1l->Drc);
+            else
+                F_HLL2(h1d->data[r][cc], u1r->data[r][cc], v1r->data[r][cc],h1g->Drc, u1l->Drc, v1l->Drc);
 
-    f1->Drc = (std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
-    f2->Drc = (std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
-    f3->Drc = (std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
-//    f1->Drc = HLL2_f1;
-//    f2->Drc = HLL2_f2;
-//    f3->Drc = HLL2_f3;
-    cflx->Drc = HLL2_cfl;
-  }
-  else
-  {
-    h1d->data[r][c] = std::max(0.0, h1r->data[r][c] - std::max(0.0,  delz1->data[r][c]));
-    h1g->Drc        = std::max(0.0, h1l->Drc        - std::max(0.0, -delz1->data[r][c]));
-    if (F_scheme == 1)
-      F_Rusanov(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
-    else
-      if (F_scheme == 2)
-        F_HLL(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
-      else
-        F_HLL2(h1d->data[r][c], u1r->data[r][c], v1r->data[r][c],h1g->Drc, u1l->Drc, v1l->Drc);
+        f1->Drc = HLL2_f1;//(std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
+        f2->Drc = HLL2_f2;//(std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
+        f3->Drc = HLL2_f3;//(std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
 
-    f1->Drc = (std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
-    f2->Drc = (std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
-    f3->Drc = (std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
-//    f1->Drc = HLL2_f1;
-//    f2->Drc = HLL2_f2;
-//    f3->Drc = HLL2_f3;
-    cflx->Drc = HLL2_cfl;
-  }}
+        cflx->Drc = HLL2_cfl;
+    }}
 
-  FOR_CELL_IN_FLOODAREA
-  if(r > 0 && !pcr::isMV(LDD->data[r-1][c]))
-  {
+    FOR_CELL_IN_FLOODAREA {
+        int rr = (r > 0 && !MV(r-1,c)) ? r-1 : r;
+        h2d->data[rr][c] = std::max(0.0, h2r->data[rr][c] - std::max(0.0,  delz2->data[rr][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[rr][c])));
+        h2g->Drc         = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[rr][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[rr][c])));
+        if (F_scheme == 1)
+            F_Rusanov(h2d->data[rr][c],v2r->data[rr][c],u2r->data[rr][c],h2g->Drc,v2l->Drc,u2l->Drc);
+        else
+            if (F_scheme == 2)
+                F_HLL(h2d->data[rr][c],v2r->data[rr][c],u2r->data[rr][c],h2g->Drc,v2l->Drc,u2l->Drc);
+            else
+                F_HLL2(h2d->data[rr][c],v2r->data[rr][c],u2r->data[rr][c],h2g->Drc,v2l->Drc,u2l->Drc);
 
-    h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
-    h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c] + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
-
-    if (F_scheme == 1)
-      F_Rusanov(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-    else
-      if (F_scheme == 2)
-        F_HLL(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-      else
-        F_HLL2(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c],h2g->Drc,v2l->Drc,u2l->Drc);
-
-//    g1->Drc = HLL2_f1;
-//    g2->Drc = HLL2_f3;
-//    g3->Drc = HLL2_f2;
-    g1->Drc = (std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
-    g2->Drc = (std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
-    g3->Drc = (std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
-    cfly->Drc = HLL2_cfl;
-  }
-  else
-  {
-     h2d->data[r][c] = std::max(0.0, h2r->data[r][c] - std::max(0.0,  delz2->data[r][c]));
-     h2g->Drc        = std::max(0.0, h2l->Drc        - std::max(0.0, -delz2->data[r][c]));
-
-     if (F_scheme == 1)
-     F_Rusanov(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
-     else
-     if (F_scheme == 2)
-     F_HLL(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
-     else
-     F_HLL2(h2d->data[r][c],v2r->data[r][c],u2r->data[r][c],h2g->Drc,v2l->Drc,u2l->Drc);
-
-//     g1->Drc = HLL2_f1;
-//     g2->Drc = HLL2_f3;
-//     g3->Drc = HLL2_f2;
-     g1->Drc = (std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
-     g2->Drc = (std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
-     g3->Drc = (std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
-     cfly->Drc = HLL2_cfl;
-  }}
+        g1->Drc = HLL2_f1;//(std::abs(HLL2_f1) < he_ca ? 0: HLL2_f1);
+        g2->Drc = HLL2_f3;//(std::abs(HLL2_f3) < he_ca ? 0: HLL2_f3);
+        g3->Drc = HLL2_f2;//(std::abs(HLL2_f2) < he_ca ? 0: HLL2_f2);
+        cfly->Drc = HLL2_cfl;
+    }}
 
 
-     // find largest velocity and determine dt
-     FOR_CELL_IN_FLOODAREA {
-         double dx = ChannelAdj->Drc;
-         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
-             dt_tmp = dt_max;
-         else
-             dt_tmp = courant_factor*dx/cflx->Drc;
-         // was cfl_fix = 0.4
-         dtx = std::min(std::min(dt, dt_tmp), dtx);
-     }}
+// find largest velocity and determine dt
+    FOR_CELL_IN_FLOODAREA {
+        double dx = ChannelAdj->Drc;
+        if (qFabs(cflx->Drc*dt/dx) < 1e-10)
+            dt_tmp = dt_max;
+        else
+            dt_tmp = courant_factor*dx/cflx->Drc;
+        // was cfl_fix = 0.4
+        dtx = std::min(std::min(dt, dt_tmp), dtx);
+    }}
 
 
-  // find largest velocity and determine dt
-     FOR_CELL_IN_FLOODAREA {
-         double dy = DX->Drc;
-         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
-             dt_tmp = dt_max;
-         else
-             dt_tmp = courant_factor*dy/cfly->Drc;
-         dty = std::min(std::min(dt, dt_tmp), dty);
-     }}
+// find largest velocity and determine dt
+    FOR_CELL_IN_FLOODAREA {
+        double dy = DX->Drc;
+        if (qFabs(cfly->Drc*dt/dy) < 1e-10)
+            dt_tmp = dt_max;
+        else
+            dt_tmp = courant_factor*dy/cfly->Drc;
+        dty = std::min(std::min(dt, dt_tmp), dty);
+    }}
 
-     return(std::max(dt_ca, std::min(dtx,dty)));
+     return(std::max(TimestepfloodMin, std::min(dtx,dty)));
 
 }
 //---------------------------------------------------------------------------
@@ -608,7 +526,6 @@ double TWorld::maincalcflux(double dt, double dt_max)
 // fill the left and right h,u,v arrays to solve the 1D scheme, also used as prep for the 2D MUSCL scheme for the boundary cells
 void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
 {
-
     FOR_CELL_IN_FLOODAREA {
         h1r->Drc = _h->Drc;
         u1r->Drc = _u->Drc;
@@ -628,6 +545,7 @@ void TWorld::simpleScheme(cTMap *_h,cTMap *_u,cTMap *_v)
 //---------------------------------------------------------------------------
 void TWorld::prepareFloodZ(cTMap *z)
 {
+
     prepareFlood = false;
 
     fill(*delz1,-9999);
@@ -636,67 +554,105 @@ void TWorld::prepareFloodZ(cTMap *z)
     // diff between z cell and adjacent
     for (int r = 0; r < _nrRows; r++)
         for (int c = 1; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c-1]))   // was && ???
+            if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r][c-1]))
             {
                 delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
     for (int r = 1; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r-1][c]))
+            if(!pcr::isMV(LDD->data[r][c]) ||
+                    !pcr::isMV(LDD->data[r-1][c]))
             {
                 delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
-
-    // edges of domain: take cell next to edge cell or 0
+    fill(*tm,0);
     FOR_ROW_COL_MV
     {
-        if (delz1->Drc == -9999)
+        double v = 0;
+        double cnt = 0;
+        for (int i = -1; i < 2; i++)
+            for (int j = -1; j < 2; j++)
         {
-            if (!pcr::isMV(LDD->data[r][c-1]))
-                delz1->Drc = delz1->data[r][c-1];
-            else
-                delz1->Drc = 0 ;
-        }
-        if (delz2->Drc == -9999)
-        {
-            if (!pcr::isMV(LDD->data[r-1][c]))
-                delz2->Drc = delz2->data[r-1][c];
-            else
-                delz2->Drc = 0 ;
+            if(INSIDE(r+i, c+j) && delz1->data[r+i][c+j] > -9999 && !pcr::isMV(LDD->data[r+i][c+j]))
+            {
+                v += delz1->data[r+i][c+j]; cnt+=1.0;
+            }
+            tm->Drc = cnt > 0 ? v/cnt : 0;
         }
     }
+    FOR_ROW_COL_MV
+        if(delz1->Drc == -9999) delz1->Drc = tm->Drc;
+
+    fill(*tm,0);
+    FOR_ROW_COL_MV
+    {
+        double v = 0;
+        double cnt = 0;
+        for (int i = -1; i < 2; i++)
+            for (int j = -1; j < 2; j++)
+        {
+            if(INSIDE(r+i, c+j) && delz2->data[r+i][c+j] > -9999 && !pcr::isMV(LDD->data[r+i][c+j]))
+            {
+                v += delz2->data[r+i][c+j]; cnt+=1.0;
+            }
+            tm->Drc = cnt > 0 ? v/cnt : 0;
+        }
+    }
+    FOR_ROW_COL_MV
+        if(delz2->Drc == -9999) delz2->Drc = tm->Drc;
 
     fill(*delta_z1, -9999);
     fill(*delta_z2, -9999);
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols-1; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
+            if(!pcr::isMV(LDD->data[r][c]) ||
+                    !pcr::isMV(LDD->data[r][c+1]))
                 delta_z1->Drc = z->data[r][c+1] - z->Drc;
 
     for (int r = 0; r < _nrRows-1; r++)
         for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
+            if(!pcr::isMV(LDD->data[r][c]) ||
+                    !pcr::isMV(LDD->data[r+1][c]))
                 delta_z2->Drc = z->data[r+1][c] - z->Drc;
 
+    fill(*tm,0);
     FOR_ROW_COL_MV
     {
-        if (delta_z1->Drc == -9999)
+        double v = 0;
+        double cnt = 0;
+        for (int i = -1; i < 2; i++)
+            for (int j = -1; j < 2; j++)
         {
-            if (!pcr::isMV(LDD->data[r][c-1]))
-                delta_z1->Drc = delta_z1->data[r][c-1];
-            else
-                delta_z1->Drc = 0 ;
-        }
-        if (delta_z2->Drc == -9999)
-        {
-            if (!pcr::isMV(LDD->data[r-1][c]))
-                delta_z2->Drc = delta_z2->data[r-1][c];
-            else
-                delta_z2->Drc = 0 ;
+            if(INSIDE(r+i, c+j) && delta_z1->data[r+i][c+j] > -9999 && !pcr::isMV(LDD->data[r+i][c+j]))
+            {
+                v += delta_z1->data[r+i][c+j]; cnt+=1.0;
+            }
+            tm->Drc = cnt > 0 ? v/cnt : 0;
         }
     }
+    FOR_ROW_COL_MV
+        if(delta_z1->Drc == -9999) delta_z1->Drc = tm->Drc;
+
+    fill(*tm,0);
+    FOR_ROW_COL_MV
+    {
+        double v = 0;
+        double cnt = 0;
+        for (int i = -1; i < 2; i++)
+            for (int j = -1; j < 2; j++)
+        {
+            if(INSIDE(r+i, c+j) && delta_z2->data[r+i][c+j] > -9999 && !pcr::isMV(LDD->data[r+i][c+j]))
+            {
+                v += delta_z2->data[r+i][c+j]; cnt+=1.0;
+            }
+            tm->Drc = cnt > 0 ? v/cnt : 0;
+        }
+    }
+    FOR_ROW_COL_MV
+        if(delta_z2->Drc == -9999) delta_z2->Drc = tm->Drc;
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -808,7 +764,6 @@ double TWorld::fullSWOF2Do2(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct
 
                 setZero(h, u, v);
 
-                simpleScheme(h, u, v);
                 MUSCL(h,u,v,z);
             }
 
@@ -926,33 +881,11 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             dt1 = dt_max;
 
             setZero(h, u, v);
-            simpleScheme(h, u, v);
+           // simpleScheme(h, u, v);
             MUSCL(h,u,v,z);
 
             dt1 = maincalcflux(dt1, dt_max);
             dt1 = std::min(dt1, _dt-timesum);
-
-//            if(SwitchErosion)
-//            {
-//                //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
-//                //otherwise they will be overwritten by the second reconstruction
-//                FOR_ROW_COL_MV
-//                {
-//                    temp1->Drc = h1d->Drc;
-//                    temp2->Drc = h1g->Drc;
-//                    temp3->Drc = h2d->Drc;
-//                    temp4->Drc = h2g->Drc;
-//                    temp5->Drc = u1r->Drc;
-//                    temp6->Drc = u1l->Drc;
-//                    temp7->Drc = v1r->Drc;
-//                    temp8->Drc = v1l->Drc;
-//                    temp9->Drc = u2r->Drc;
-//                    temp10->Drc = u2l->Drc;
-//                    temp11->Drc = v2r->Drc;
-//                    temp12->Drc = v2l->Drc;
-
-//                }
-//            }
 
             //st venant equations, h, u, v go in hs, vs, us come out
             maincalcscheme(dt1, h,u,v, hs,us,vs);
@@ -965,40 +898,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
               u->Drc = us->Drc;
               v->Drc = vs->Drc;
             }}
-/*
-            //Reconstruction for order 2
-            MUSCL(hs,us,vs,z);
-            dt2 = maincalcflux(dt1, dt_max);
 
-            //hs, us, vs go in hsa, vsa, usa come out
-            maincalcscheme(dt1, hs,us,vs, hsa, usa, vsa);
-            dt1 = std::min(dt1, _dt-timesum);
-
-            setZero(hsa, usa, vsa);
-
-            //sediment
-            SWOFSediment(dt1,h,u,v );
-
-            //Heun method (order 2 in time)
-            FOR_ROW_COL_MV
-            {
-                double havg = 0.5*(h->Drc + hsa->Drc);
-                if (havg >= he_ca)
-                {
-                    double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                    u->Drc = q1/havg;
-                    double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                    v->Drc = q2/havg;
-                    h->Drc = havg;
-                }
-                else
-                {
-                    u->Drc = 0;
-                    v->Drc = 0;
-                    h->Drc = 0;
-                }
-            }//Heun
-*/
             timesum = timesum + dt1;
             n++;
 

@@ -159,6 +159,7 @@ public:
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
+    QwtPlotSpectrogram *contourDEM;  // raster map drawing
     QwtPlotSpectrogram *channelMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
@@ -171,6 +172,8 @@ public:
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
     QwtMatrixRasterData *RDf;
+    QList<double> contourLevels;
+    double contourmin, contourmax;
     //   double drawNrCols;
     //   double drawNrRows;
     // vars for store map display in runfile

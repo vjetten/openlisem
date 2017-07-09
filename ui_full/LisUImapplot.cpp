@@ -152,6 +152,11 @@ void lisemqt::setupMapPlot()
     channelMap->attach( MPlot );
     // channel map
 
+    contourDEM = new QwtPlotSpectrogram();
+    contourDEM->setRenderThreadCount( 0 );
+    contourDEM->attach( MPlot );
+    // contours
+
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
     RDbb = new QwtMatrixRasterData();
@@ -332,6 +337,15 @@ void lisemqt::showMap()
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
     flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
 
+    if (nrcontourlevels->value() > 0)
+    {
+        contourLevels.clear();
+        for ( double level = contourmin; level < contourmax; level += (contourmax-contourmin)/(double)nrcontourlevels->value() )
+            contourLevels += level;
+        contourDEM->setContourLevels( contourLevels );
+    }
+    contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, nrcontourlevels->value() > 0 );
+
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
@@ -434,11 +448,19 @@ void lisemqt::showBaseMap()
     if (res == -1e20)
         return;
     double mindem = mapMinimum(*op.baseMapDEM);
+    contourmax = mapMaximum(*op.baseMapDEM);
+    contourmin = mindem;
 
     baseMapDEM->setAlpha(255);
-    baseMapDEM->setColorMap(new colorMapElevation());//colorMapGray());//
+    baseMapDEM->setColorMap(new colorMapElevation());
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
+
+    contourDEM->setAlpha(255);
+    contourDEM->setColorMap(new colorMapTransparent());
+    RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
+    contourDEM->setData(RDbb);
+
 
     double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
     double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
@@ -494,7 +516,7 @@ void lisemqt::showRoadMap()
     else
         roadMap->setAlpha(0);
 
-    roadMap->setColorMap(new colorMapRoads3());
+    roadMap->setColorMap(new colorMapRoads2());
 }
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()

@@ -143,7 +143,25 @@ public:
     double thresholdmin;
     bool thresholduse;
 };
+//---------------------------------------------------------------------------
+/// House color legend
+class colorMapTransparent: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < -1e19 )
+            return qRgba( 228, 228, 228, 255 );
 
+        if ( value < 1e20 )
+            return qRgba( 0, 0, 0, 0 );
+
+        return QwtLinearColorMap::rgb( interval, value );
+    }
+public:
+    colorMapTransparent():
+          QwtLinearColorMap( QColor("#AAAAAA"), QColor("#222222"))
+    { }
+};
 //---------------------------------------------------------------------------
 /// House color legend
 class colorMapHouse: public QwtLinearColorMap

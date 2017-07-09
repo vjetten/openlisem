@@ -229,20 +229,6 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
-/*  VARIABLES:
-    CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
-
-    MB, Qtot,  Qtile, Qtiletot, RunoffFraction, RainpeakTime,
-    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,
-    RainTotmm, SurfStormm, InfilKWTotmm, Pmm, BaseFlowtotmm,LitterStorageTotmm,WaterVolTotchannelmm,
-    // channel
-    ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-    // flood
-    FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
-    FloodDetTot, FloodDepTot, FloodSedTot,
-    // sediment
-    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
-*/
     op.ComboMaps.clear();
     op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
@@ -322,10 +308,10 @@ void lisemqt::initOP()
     op.F_solution = 1;
     op.F_scheme = 1;
     op.F_fluxLimiter = 1;
-    op.F_replaceV = 1;
-    op.F_maxVelocity = 99.0,
-    op.F_extremeHeight = 5.0,
-    op.F_extremeDiff = 2.0;
+//    op.F_replaceV = 1;
+//    op.F_maxVelocity = 99.0,
+//    op.F_extremeHeight = 5.0,
+//    op.F_extremeDiff = 2.0;
     op.F_courant = 0.2;
     op.F_courant_diffusive = 0.2;
     op.F_Maxiter = 200;
@@ -343,10 +329,10 @@ void lisemqt::setFloodOP(bool)
     op.F_SSMethod = E_SSMethod->text().toInt();
     op.F_SigmaDiffusion = E_SigmaDiffusion->text().toDouble();
     op.F_BLMethod = E_BLMethod->text().toInt();
-    op.F_replaceV = (E_FloodReplaceVcheck->isChecked() ? 1:0);
-    op.F_maxVelocity = E_FloodMaxVelocity->text().toDouble(),
-    op.F_extremeHeight = E_FloodExtremeHeight->text().toDouble(),
-    op.F_extremeDiff = E_FloodExtremeDiff->text().toDouble();
+//    op.F_replaceV = (E_FloodReplaceVcheck->isChecked() ? 1:0);
+//    op.F_maxVelocity = E_FloodMaxVelocity->text().toDouble(),
+//    op.F_extremeHeight = E_FloodExtremeHeight->text().toDouble(),
+//    op.F_extremeDiff = E_FloodExtremeDiff->text().toDouble();
     op.F_courant = E_courantFactor->text().toDouble();
     op.F_courant_diffusive = E_courantFactorDiffusive->text().toDouble();
     op.F_Maxiter = E_FloodMaxIter->text().toInt();

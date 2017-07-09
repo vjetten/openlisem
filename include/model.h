@@ -775,7 +775,9 @@ public:
     double CourantKin;
     double ConcentrateKin;
     double TimestepKinMin;
-    double KinematicBoundaryFraction = 0.05;
+    double TimestepfloodMin;
+
+
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;

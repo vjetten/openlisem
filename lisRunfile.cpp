@@ -342,7 +342,7 @@ void TWorld::ParseRunfileData(void)
 
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
     ConcentrateKin = getvaluedouble("Flow concentration 2D");
-
+    TimestepfloodMin = getvaluedouble("Timestep flood");
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
 
     if (SwitchChannelFlood && !SwitchFloodSWOForder1 && !SwitchFloodSWOForder2)

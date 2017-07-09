@@ -367,47 +367,6 @@ void TWorld::K2DSolvebyInterpolation(double dt)
             }
         }
     }
-
-    //finish by substracting infiltration, and calculating discharge from new water height
-//    FOR_ROW_COL_MV
-//    {
-//        double cdx = DX->Drc;
-//        double cdy = ChannelAdj->Drc;
-
-//        //calculate infiltration in time step
-//        double infil = -1.0*FSurplus->Drc*dt/_dt;
-//        if (K2DHNew->Drc < infil)
-//            infil = K2DHNew->Drc;
-//        K2DHNew->Drc -= infil;
-//        FSurplus->Drc += infil*SoilWidthDX->Drc/cdy;
-//        FSurplus->Drc = std::min(0.0, FSurplus->Drc);
-
-// //        double infil = std::min(FSurplus->Drc *SoilWidthDX->Drc*DX->Drc * dt/_dt,0.0);
-// //        if(K2DHNew->Drc < fabs(infil)/(cdx*cdy))
-// //        {
-// //            infil = -K2DHNew->Drc*(cdx*cdy);
-// //        }
-
-//        //keep track of infiltration
-//        K2DI->Drc += (infil*cdx*cdy);
-//        //K2DHNew->Drc = std::max(K2DHNew->Drc + infil/(cdx*cdy) ,0.0);
-
-//        if(K2DHNew->Drc < 0)  // prob never occurs
-//        {
-//            K2DHNew->Drc = 0;
-//            K2DQ->Drc = 0;
-//            Qn->Drc = K2DQ->Drc;
-//            WHrunoff->Drc = K2DHNew->Drc;
-//            K2DHOld->Drc = K2DHNew->Drc;
-//            qDebug() << r << c << K2DHNew->Drc<<  "WH negative?!!!";
-//        }
-//        else{
-
-//            //Qn->Drc = K2DQ->Drc;
-//            WHrunoff->Drc = K2DHNew->Drc;
-//            K2DHOld->Drc = K2DHNew->Drc;
-//        }
-//    }
 }
 
 //--------------------------------------------------------------------------------------------

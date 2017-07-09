@@ -859,10 +859,10 @@ void TWorld::InitChannel(void)
             FS_SS_Method = getvalueint("Flooding SS method");
             FS_BL_Method = getvalueint("Flooding BL method");
             FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-            F_replaceV = getvalueint("Flood limit max velocity");
-            F_maxVelocity = getvaluedouble("Flood max velocity threshold");
-            F_extremeHeight = getvaluedouble("Flood extreme value height");
-            F_extremeDiff = getvaluedouble("Flood extreme value Difference");
+//            F_replaceV = getvalueint("Flood limit max velocity");
+//            F_maxVelocity = getvaluedouble("Flood max velocity threshold");
+//            F_extremeHeight = getvaluedouble("Flood extreme value height");
+//            F_extremeDiff = getvaluedouble("Flood extreme value Difference");
             F_MaxIter = getvalueint("Flood max Iterations");
 
             hs = NewMap(0);
