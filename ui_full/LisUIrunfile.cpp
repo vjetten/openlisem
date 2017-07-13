@@ -178,6 +178,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Enable Solid Phase")==0)                                    checkSolidPhase->setChecked(check);
         if (p1.compare("Enable Entrainment")==0)                                    checkEntrainment->setChecked(check);
         if (p1.compare("Enable Slope Stability")==0)                                checkSlopeStability->setChecked(check);
+        if (p1.compare("Enable Upslope Forcing") == 0)                              checkUpslopeForcing->setChecked(check);
         if (p1.compare("Enable Slope Failure")==0)                                  checkSlopeFailure->setChecked(check);
         if (p1.compare("Minimum Safety Factor")==0)                                 E_PRESF->setValue(val);
         if (p1.compare("Maximum Safety Factor")==0)                                 E_POSTSF->setValue(val);
@@ -411,7 +412,7 @@ void lisemqt::ParseInputData()
         if(p1.compare("Light_Directional_Y") == 0)  this->GL_Light_Directional_Y->setValue(val);
         if(p1.compare("Light_Directional_Z") == 0)  this->GL_Light_Directional_Z->setValue(val);
 
-        if(p1.compare("Surface_Draw") == 0)  this->GL_Surface_Draw->setChecked(check);
+        /*if(p1.compare("Surface_Draw") == 0)  this->GL_Surface_Draw->setChecked(check);
         if(p1.compare("Surface_Micro_Elevation_Scale") == 0)  this->GL_Surface_Micro_Elevation_Scale->setValue(val);
         if(p1.compare("Surface_Mipmap_Distance_1") == 0)  this->GL_Surface_Mipmap_Distance_1->setValue(val);
         if(p1.compare("Surface_Mipmap_Distance_2") == 0)  this->GL_Surface_Mipmap_Distance_2->setValue(val);
@@ -456,24 +457,26 @@ void lisemqt::ParseInputData()
         if(p1.compare("Water_Sediment_Color_R") == 0)  this->GL_Water_Sediment_R->setValue(val);
         if(p1.compare("Water_Sediment_Color_G") == 0)  this->GL_Water_Sediment_G->setValue(val);
         if(p1.compare("Water_Sediment_Color_B") == 0)  this->GL_Water_Sediment_B->setValue(val);
-        if(p1.compare("Water_Sediment_Color_A") == 0)  this->GL_Water_Sediment_A->setValue(val);
+        if(p1.compare("Water_Sediment_Color_A") == 0)  this->GL_Water_Sediment_A->setValue(val);*/
 
+        if(p1.compare("Clouds_Draw") == 0)  this->GL_Objects_Clouds_Draw->setChecked(check);
+        if(p1.compare("Rain_Draw") == 0)  this->GL_Objects_Rain_Draw->setChecked(check);
         if(p1.compare("Roads_Draw") == 0)  this->GL_Objects_Roads_Draw->setChecked(check);
-        if(p1.compare("Roads_Distance") == 0)  this->GL_Objects_Roads_Distance->setValue(val);
+        //if(p1.compare("Roads_Distance") == 0)  this->GL_Objects_Roads_Distance->setValue(val);
 
         if(p1.compare("Buildings_Draw") == 0)  this->GL_Objects_Buildings_Draw->setChecked(check);
         if(p1.compare("Buildings_Distance") == 0)  this->GL_Objects_Buildings_Distance->setValue(val);
 
         if(p1.compare("Trees_Draw") == 0)  this->GL_Objects_Trees_Draw->setChecked(check);
         if(p1.compare("Trees_Distance") == 0)  this->GL_Objects_Trees_Distance->setValue(val);
-        if(p1.compare("Trees_Instances") == 0)  this->GL_Objects_Trees_Instances->setValue(val);
+        //if(p1.compare("Trees_Instances") == 0)  this->GL_Objects_Trees_Instances->setValue(val);
         if(p1.compare("Trees_Increment") == 0)  this->GL_Objects_Trees_Increment->setValue(val);
 
         if(p1.compare("Grass_Draw") == 0)  this->GL_Objects_Grass_Draw->setChecked(check);
         if(p1.compare("Grass_Distance") == 0)  this->GL_Objects_Grass_Distance->setValue(val);
-        if(p1.compare("Grass_Instances") == 0)  this->GL_Objects_Grass_Instances->setValue(val);
+        //if(p1.compare("Grass_Instances") == 0)  this->GL_Objects_Grass_Instances->setValue(val);
         if(p1.compare("Grass_Increment") == 0)  this->GL_Objects_Grass_Increment->setValue(val);
-        if(p1.compare("Grass_Vertical_Scale") == 0) this->GL_Objects_Grass_Vertical_Scale->setValue(val);
+        //if(p1.compare("Grass_Vertical_Scale") == 0) this->GL_Objects_Grass_Vertical_Scale->setValue(val);
 
 
 
@@ -814,6 +817,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Enable Solid Phase")==0)                                    namelist[j].value.setNum((int)checkSolidPhase->isChecked());
         if (p1.compare("Enable Entrainment")==0)                                    namelist[j].value.setNum((int)checkEntrainment->isChecked());
         if (p1.compare("Enable Slope Stability")==0)                                namelist[j].value.setNum((int)checkSlopeStability->isChecked());
+        if (p1.compare("Enable Upslope Forcing") == 0)                              namelist[j].value.setNum((int)checkUpslopeForcing->isChecked());
         if (p1.compare("Enable Slope Failure")==0)                                  namelist[j].value.setNum((int)checkSlopeFailure->isChecked());
         if (p1.compare("Minimum Safety Factor")==0)                                 namelist[j].value = E_PRESF->text();
         if (p1.compare("Maximum Safety Factor")==0)                                 namelist[j].value = E_POSTSF->text();
@@ -1046,7 +1050,7 @@ void lisemqt::updateModelData()
         if(p1.compare("Light_Directional_Y") == 0)  namelist[j].value = this->GL_Light_Directional_Y->text();
         if(p1.compare("Light_Directional_Z") == 0)  namelist[j].value = this->GL_Light_Directional_Z->text();
 
-        if(p1.compare("Surface_Draw") == 0)  namelist[j].value.setNum(this->GL_Surface_Draw->isChecked());
+        /*if(p1.compare("Surface_Draw") == 0)  namelist[j].value.setNum(this->GL_Surface_Draw->isChecked());
         if(p1.compare("Surface_Micro_Elevation_Scale") == 0)  namelist[j].value = QString::number(this->GL_Surface_Micro_Elevation_Scale->value());
         if(p1.compare("Surface_Mipmap_Distance_1") == 0)  namelist[j].value = QString::number(this->GL_Surface_Mipmap_Distance_1->value());
         if(p1.compare("Surface_Mipmap_Distance_2") == 0)  namelist[j].value = QString::number(this->GL_Surface_Mipmap_Distance_2->value());
@@ -1091,24 +1095,26 @@ void lisemqt::updateModelData()
         if(p1.compare("Water_Sediment_Color_R") == 0)  namelist[j].value = this->GL_Water_Sediment_R->text();
         if(p1.compare("Water_Sediment_Color_G") == 0)  namelist[j].value = this->GL_Water_Sediment_G->text();
         if(p1.compare("Water_Sediment_Color_B") == 0)  namelist[j].value = this->GL_Water_Sediment_B->text();
-        if(p1.compare("Water_Sediment_Color_A") == 0)  namelist[j].value = this->GL_Water_Sediment_A->text();
+        if(p1.compare("Water_Sediment_Color_A") == 0)  namelist[j].value = this->GL_Water_Sediment_A->text();*/
 
+        if(p1.compare("Clouds_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Clouds_Draw->isChecked());
+        if(p1.compare("Rain_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Rain_Draw->isChecked());
         if(p1.compare("Roads_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Roads_Draw->isChecked());
-        if(p1.compare("Roads_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Roads_Distance->value());
+        //if(p1.compare("Roads_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Roads_Distance->value());
 
         if(p1.compare("Buildings_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Buildings_Draw->isChecked());
         if(p1.compare("Buildings_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Buildings_Distance->value());
 
         if(p1.compare("Trees_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Trees_Draw->isChecked());
         if(p1.compare("Trees_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Distance->value());
-        if(p1.compare("Trees_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Instances->value());
+        //if(p1.compare("Trees_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Instances->value());
         if(p1.compare("Trees_Increment") == 0)  namelist[j].value = QString::number(this->GL_Objects_Trees_Increment->value());
 
         if(p1.compare("Grass_Draw") == 0)  namelist[j].value.setNum(this->GL_Objects_Grass_Draw->isChecked());
         if(p1.compare("Grass_Distance") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Distance->value());
-        if(p1.compare("Grass_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Instances->value());
+        //if(p1.compare("Grass_Instances") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Instances->value());
         if(p1.compare("Grass_Increment") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Increment->value());
-        if(p1.compare("Grass_Vertical_Scale") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Vertical_Scale->value());
+        //if(p1.compare("Grass_Vertical_Scale") == 0)  namelist[j].value = QString::number(this->GL_Objects_Grass_Vertical_Scale->value());
 
 
         //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();

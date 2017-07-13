@@ -55,7 +55,7 @@ void TWorld::UF_Init()
     UF_ENTRAINMENTCONSTANT = 1.0;
     UF_ENTRAINMENTTHRESHOLDCONSTANT = 1.0;
     UF_SUSPENDEDVISCOSITY=(getvaluedouble("Suspended Viscosity")== 1.0)? true:false;
-    UF_LAXMULTIPLIER=getvaluedouble("Lax Multiplier");
+    UF_LAXMULTIPLIER=0.1 *getvaluedouble("Lax Multiplier");
     UF_FRICTIONCORRECTION=getvaluedouble("Friction force correction");
 
     UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000.0;
@@ -65,8 +65,8 @@ void TWorld::UF_Init()
     UF_MAXSOLIDCONCENTRATION = 0.9;
     UF_MINIMUMENTRAINMENTHEIGHT = 0.05;
 
-    UF_MANNINGCOEFFICIENT_FLUID = 0.5;
-    UF_MANNINGCOEFFICIENT_SOLID = 0.1;
+    UF_MANNINGCOEFFICIENT_FLUID = 0.01;
+    UF_MANNINGCOEFFICIENT_SOLID = 0.0001;
     UF_FrictionIterations = 1;
     UF_KINEMATIC_TIMESTEP_POWER= getvaluedouble("Kinematic Timestep Power");
 
@@ -80,7 +80,7 @@ void TWorld::UF_Init()
     UF_FLOWCOMPACTION_DEPOSITIONPOROSITY = 0.35;
 
     UF_AVERAGEFACTOR = 0.5;
-    UF2D_COURANTSCHEMEFACTOR = 0.5;
+    UF2D_COURANTSCHEMEFACTOR = 1.0;
     UF1D_COURANTSCHEMEFACTOR = 1.0;
 
     UF_AddedSplash = NewMap(0.0);

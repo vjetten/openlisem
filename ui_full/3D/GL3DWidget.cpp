@@ -110,8 +110,6 @@ void GL3DWidget::initializeGL()
 
 void GL3DWidget::timerEvent(QTimerEvent *e)
 {
-    qDebug() << "timerevent";
-
     if(gl_context_try)
     {
         //if(gl_context_control->tryLock())
@@ -145,8 +143,6 @@ void GL3DWidget::hideEvent(QHideEvent *e)
 
 void GL3DWidget::resizeGL(int w, int h)
 {
-        qDebug() << "resize";
-
     if(this->is_created)
     {
         m_Camera->ResizeViewPort(w,h);
@@ -160,8 +156,6 @@ void GL3DWidget::resizeGL(int w, int h)
 
 void GL3DWidget::paintGL()
 {
-        qDebug() << "paint";
-
     //Custom function
     this->Update();
 

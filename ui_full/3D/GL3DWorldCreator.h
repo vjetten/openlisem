@@ -108,6 +108,8 @@ struct Settings3D
     double Grass_Instances;
     double Grass_Increment;
     double Grass_Vertical_Scale;
+    bool Rain_Draw;
+    bool Clouds_Draw;
 };
 
 

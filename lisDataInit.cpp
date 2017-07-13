@@ -1063,7 +1063,14 @@ void TWorld::GetInputData(void)
         DFThreshold = NewMap(0.0);
         DFThreshold1 = NewMap(0.0);
         DFSlope = NewMap(0.0);
+        DFSlopeX = NewMap(0.0);
+        DFSlopeY = NewMap(0.0);
         DFFailureMask = NewMap(1.0);
+
+        DFForcingDemand = NewMap(0.0);
+        DFForcingCapacity = NewMap(0.0);
+        DFForcing = NewMap(0.0);
+        DFForcingAdded = NewMap(0.0);
 
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");

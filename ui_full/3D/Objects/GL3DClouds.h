@@ -41,6 +41,8 @@ public:
             m_Noise = new PerlinNoise();
     }
 
+    bool draw = false;
+
     PerlinNoise *m_Noise;
 
     float * randomdata;

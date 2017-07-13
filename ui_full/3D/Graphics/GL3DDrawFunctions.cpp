@@ -415,6 +415,10 @@ void GL3DDrawFunctions::DrawModelGeometryWithMaterialGLInstancedCubic(GL3DWidget
    //set textures
    vao->bind();
 
+   Shader->m_program->setUniformValue("dist_min",(float) 0.0);
+   Shader->m_program->setUniformValue("dist_max",(float) (double(0.5 * upscale *std::max(rows_draw,cols_draw)))*float(increment));
+   Shader->m_program->setUniformValue("dist_fade",0.5f * (float) (double(0.5 * upscale *std::max(rows_draw,cols_draw)))*float(increment));
+
    Shader->m_program->setUniformValueArray("random",(GLfloat *)rand, 32, 4);
 
    Shader->m_program->setUniformValue("time",(float)gl->m_Time_s);
@@ -557,7 +561,7 @@ void GL3DDrawFunctions::DrawModelGeometryWithMaterialGLInstancedCubic(GL3DWidget
 
  void GL3DDrawFunctions::DrawModelGeometryWithMaterialGLInstanced(GL3DWidget * gl, GL3DGeometry * g,GL3DShader * Shader, QOpenGLVertexArrayObject * vao,GL3DMaterial * mat, GL3DCamera * camera, int count, GL3DSurface * surface,double dist_min, double dist_max, double dist_fade, double increment, double rand_location, double rand_rotation, double rand_scale, float * rand)
 {
-    int rows_display = floor(2.0 *(dist_max + dist_fade)/(increment));
+    int rows_display = floor(2.0 *(dist_max)/(increment));
     if((rows_display % 2) == 1)
     {
         rows_display += 1;

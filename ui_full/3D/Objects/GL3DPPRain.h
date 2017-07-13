@@ -44,6 +44,13 @@ public:
     GL3DShader * m_RainShader;
     QOpenGLVertexArrayObject * m_Object;
 
+    bool draw = false;
+
+    inline void SetDraw(bool in_draw)
+    {
+        draw = in_draw;
+    }
+
     float rainfall = 0;
 
     inline void OnCreate(GL3DWidget * widget)
@@ -64,18 +71,18 @@ public:
 
     inline void OnRenderPost(GL3DWidget * widget,GLuint Texture_Source, GLuint Texture_target, GL3DWorld * world, GL3DCamera* camera, double dt)
     {
+        if(draw)
+        {
 
-
-        m_RainShader->m_program->bind();
-        this->m_Object->bind();
-        m_RainShader->ActivateTextureOn(widget,Texture_Source,"tex_input",0);
-        m_RainShader->ActivateTextureOn(widget,m_RainTexture->m_GLTexture,"tex_rain",1);
-        m_RainShader->m_program->setUniformValue("time", (float) widget->m_Time_s);
-        m_RainShader->m_program->setUniformValue("rainfall", (float) rainfall);
-        widget->gl->glDrawArrays(GL_TRIANGLES,0,widget->m_Geometries->QuadGeometry->m_IndexCount);
-        this->m_Object->release();
-
-
+            m_RainShader->m_program->bind();
+            this->m_Object->bind();
+            m_RainShader->ActivateTextureOn(widget,Texture_Source,"tex_input",0);
+            m_RainShader->ActivateTextureOn(widget,m_RainTexture->m_GLTexture,"tex_rain",1);
+            m_RainShader->m_program->setUniformValue("time", (float) widget->m_Time_s);
+            m_RainShader->m_program->setUniformValue("rainfall", (float) rainfall);
+            widget->gl->glDrawArrays(GL_TRIANGLES,0,widget->m_Geometries->QuadGeometry->m_IndexCount);
+            this->m_Object->release();
+        }
     }
 
 

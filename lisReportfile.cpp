@@ -792,8 +792,8 @@ void TWorld::ReportMaps(int not_used)
         //calcMap(*(ThreadPool->tm), 1/(_dx*_dx), MUL);
         if (outputcheck[17].toInt() == 1) report(*(ThreadPool->tm), OutSed);      // in user units
 
-        if (outputcheck[1].toInt() == 1) report(*Conc, Outconc);  // in g/l
-        if (outputcheck[4].toInt() == 1) report(*TC, Outtc);      // in g/l
+        if (outputcheck[1].toInt() == 1) report(*UF2D_sConc, Outconc);  // in g/l
+        if (outputcheck[4].toInt() == 1) report(*UF2D_sstc, Outtc);      // in g/l
 
     }
 
@@ -1680,6 +1680,7 @@ void TWorld::GetComboMaps()
             Colors.append("#007300");
 
             AddComboMap(1,"Safety Factor","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing","-",DFForcing,Colormap,Colors,false,false,1.0,0.2);
             AddComboMap(1,"Water Depth","-",DFWaterHeight,Colormap,Colors,false,false,1.0,0.2);
         }
         if(SwitchSlopeFailure)

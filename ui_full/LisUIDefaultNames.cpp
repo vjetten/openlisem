@@ -372,6 +372,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Enable Entrainment");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Slope Stability");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Upslope Forcing");
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Slope Failure");
@@ -678,6 +680,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Water_Sediment_Color_A");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Roads_Draw");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Rain_Draw");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Clouds_Draw");
     namelist[i].value = QString("2000");
     namelist[i++].name = QString("Roads_Distance");
     namelist[i].value = QString("0");

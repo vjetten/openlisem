@@ -510,7 +510,6 @@ void GL3DSurface::OnRenderBefore(GL3DWidget * widget,GL3DWorld * world, GL3DCame
 
     if(dem_updated)
     {
-        qDebug() << "GL update dem";
         FOR_ROW_COL_MV(m_Elevation,m_Elevation)
         {
             m_ElevationFilled->Drc = m_Elevation->Drc + m_DemChange->Drc;

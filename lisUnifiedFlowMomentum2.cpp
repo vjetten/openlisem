@@ -293,8 +293,8 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double lfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf*lvpow)));
-                double rfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
+                double lfacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf*lvpow)));
+                double rfacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
                 ThreadPool->UF_t6.at(thread)->Drc = (1.0-lfacu) * ThreadPool->UF_t6.at(thread)->Drc + (lfacu) * _su->Drc;
                 ThreadPool->UF_t7.at(thread)->Drc = (1.0-rfacu) * ThreadPool->UF_t7.at(thread)->Drc + (rfacu) * _su->Drc;
             }
@@ -315,8 +315,8 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double lfacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *lvpow)));
-                double rfacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
+                double lfacv = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf *lvpow)));
+                double rfacv = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf *rvpow)));
                 ThreadPool->UF_t6.at(thread)->Drc = (1.0-lfacv) * ThreadPool->UF_t6.at(thread)->Drc + (lfacv) * _sv->Drc;
                 ThreadPool->UF_t7.at(thread)->Drc = (1.0-rfacv) * ThreadPool->UF_t7.at(thread)->Drc + (rfacv) * _sv->Drc;
             }
@@ -544,8 +544,8 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_fu->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_fu->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_fu->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double lsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
-                double rsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
+                double lsacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
+                double rsacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
                 ThreadPool->UF_t6.at(thread)->Drc = (1.0-lsacu) * ThreadPool->UF_t6.at(thread)->Drc + (lsacu) * _fu->Drc;
                 ThreadPool->UF_t7.at(thread)->Drc = (1.0-rsacu) * ThreadPool->UF_t7.at(thread)->Drc + (rsacu) * _fu->Drc;
             }
@@ -565,8 +565,8 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
 
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_fv->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_fv->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_fv->Drc)+(_fu->Drc-_su->Drc)*(_fu->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double lsacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
-                double rsacv = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
+                double lsacv = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *lvpow)));
+                double rsacv = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *rvpow)));
 
                 ThreadPool->UF_t6.at(thread)->Drc = (1.0-lsacv) * ThreadPool->UF_t6.at(thread)->Drc + (lsacv) * _fv->Drc;
                 ThreadPool->UF_t7.at(thread)->Drc = (1.0-rsacv) * ThreadPool->UF_t7.at(thread)->Drc + (rsacv) * _fv->Drc;
@@ -600,11 +600,20 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double vx2 = lsu + dtx2 * lsax;
         double vy1 = rsv + dty1 * rsay;
         double vy2 = lsv + dty2 * lsay;
-
-        rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_s->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
-        lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 1.0:1.0)*((_dem->Drc + lxh) - (_s->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
-        ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:1.0)*((_dem->Drc + ryh) - (_s->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
-        lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 1.0:1.0)*((_dem->Drc + lyh) - (_s->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        if(!UF_USE_HLL2)
+        {
+            rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,(vx1 > 0? 1.0:1.0)*((_dem->Drc + rxh) - (_s->data[r][c+1]/(_dx*_dx) + _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+            lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,(vx2 > 0? 1.0:1.0)*((_dem->Drc + lxh) - (_s->data[r][c-1]/(_dx*_dx) + _dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+            ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,(vy1 > 0? 1.0:1.0)*((_dem->Drc + ryh) - (_s->data[r+1][c]/(_dx*_dx) + _dem->data[r+1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+            lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,(vy2 > 0? 1.0:1.0)*((_dem->Drc + lyh) - (_s->data[r-1][c]/(_dx*_dx) + _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        }else
+        {
+            //new flux limiter test seems to work for both deep and shallow flow on flat and sloped surfaces. Note: Might require lax for stability
+            rxh = UF_OUTORMV(_dem,r,c+1)?0.0:std::min(rxh,std::max(0.0,rxh + ((_dem->Drc) - ( _dem->data[r][c+1] +GetFlowBarrierHeight(r,c,0,1)))));
+            lxh = UF_OUTORMV(_dem,r,c-1)?0.0:std::min(lxh,std::max(0.0,lxh + ((_dem->Drc) - (_dem->data[r][c-1] +GetFlowBarrierHeight(r,c,0,-1)))));
+            ryh = UF_OUTORMV(_dem,r+1,c)?0.0:std::min(ryh,std::max(0.0,ryh + ((_dem->Drc) - (_dem->data[r+1][c] +GetFlowBarrierHeight(r,c,1,0)))));
+            lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,lyh + ((_dem->Drc) - ( _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
+        }
 
         double cq =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * _s->Drc;
         double cqx1 = UF2D_COURANTSCHEMEFACTOR *UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : volx1);
@@ -746,8 +755,8 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
         {
             double lupow = pow((ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc),0.5*(UF_j-1.0));
             double rupow = pow((ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc),0.5*(UF_j-1.0));
-            double lfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *lupow)));
-            double rfacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * sf *rupow)));
+            double lfacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf *lupow)));
+            double rfacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * sf *rupow)));
             ThreadPool->UF_t6.at(thread)->Drc = (1.0-lfacu) * ThreadPool->UF_t6.at(thread)->Drc + (lfacu) * _su->Drc;
             ThreadPool->UF_t7.at(thread)->Drc = (1.0-rfacu) * ThreadPool->UF_t7.at(thread)->Drc + (rfacu) * _su->Drc;
         }
@@ -980,8 +989,8 @@ void TWorld::UF1D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
         {
             double lupow = pow((ThreadPool->UF_t6.at(thread)->Drc-_fu->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_fu->Drc),0.5*(UF_j-1.0));
             double rupow = pow((ThreadPool->UF_t7.at(thread)->Drc-_fu->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_fu->Drc),0.5*(UF_j-1.0));
-            double lsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *lupow)));
-            double rsacu = std::min(0.25,std::max(0.0,std::fabs(dt->Drc * dc * ff *rupow)));
+            double lsacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *lupow)));
+            double rsacu = std::min(0.5,std::max(0.0,std::fabs(dt->Drc * dc * ff *rupow)));
             ThreadPool->UF_t6.at(thread)->Drc = (1.0-lsacu) * ThreadPool->UF_t6.at(thread)->Drc + (lsacu) * _fu->Drc;
             ThreadPool->UF_t7.at(thread)->Drc = (1.0-rsacu) * ThreadPool->UF_t7.at(thread)->Drc + (rsacu) * _fu->Drc;
         }

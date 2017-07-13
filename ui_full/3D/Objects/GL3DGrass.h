@@ -17,8 +17,8 @@ public:
         this->SetSmoothing(true,25,25);
         this->SetIncrementDistance(2.0);
         this->SetRandomParameters(2.5,0.25);
-        this->SetModelLowp("grass_highp/grass_low_poly.obj",100,0.2);
-        this->SetMaxInstances(2000,100);
+        this->SetModelLowp("grass_highp/grass_low_poly.obj",500,0.125);
+        this->SetMaxInstances(20000,100);
     }
 
 };

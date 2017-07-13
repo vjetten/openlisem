@@ -71,7 +71,7 @@ void lisemqt::doUpdateGLSettings()
     s.Light_Directional_Direction.setY(this->GL_Light_Directional_Y->value());
     s.Light_Directional_Direction.setZ(this->GL_Light_Directional_Z->value());
 
-    s.Surface_Draw = this->GL_Surface_Draw->isChecked();
+    /*s.Surface_Draw = this->GL_Surface_Draw->isChecked();
     s.Surface_Micro_Elevation_Scale = this->GL_Surface_Micro_Elevation_Scale->value();
     s.Surface_Mipmap_Distance_1 = this->GL_Surface_Mipmap_Distance_1->value();
     s.Surface_Mipmap_Distance_2 = this->GL_Surface_Mipmap_Distance_2->value();
@@ -116,24 +116,26 @@ void lisemqt::doUpdateGLSettings()
     s.Water_Sediment_Color.setX(this->GL_Water_Sediment_R->value());
     s.Water_Sediment_Color.setY(this->GL_Water_Sediment_G->value());
     s.Water_Sediment_Color.setZ(this->GL_Water_Sediment_B->value());
-    s.Water_Sediment_Color.setW(this->GL_Water_Sediment_A->value());
+    s.Water_Sediment_Color.setW(this->GL_Water_Sediment_A->value());*/
 
+    s.Clouds_Draw = this->GL_Objects_Clouds_Draw->isChecked();
+    s.Rain_Draw = this->GL_Objects_Rain_Draw->isChecked();
     s.Roads_Draw = this->GL_Objects_Roads_Draw->isChecked();
-    s.Roads_Distance = this->GL_Objects_Roads_Distance->value();
+    //s.Roads_Distance = this->GL_Objects_Roads_Distance->value();
 
     s.Buildings_Draw = this->GL_Objects_Buildings_Draw->isChecked();
     s.Buildings_Distance = this->GL_Objects_Buildings_Distance->value();
 
     s.Trees_Draw = this->GL_Objects_Trees_Draw->isChecked();
     s.Trees_Distance = this->GL_Objects_Trees_Distance->value();
-    s.Trees_Instances = this->GL_Objects_Trees_Instances->value();
+    //s.Trees_Instances = this->GL_Objects_Trees_Instances->value();
     s.Trees_Increment = this->GL_Objects_Trees_Increment->value();
 
     s.Grass_Draw = this->GL_Objects_Grass_Draw->isChecked();
     s.Grass_Distance = this->GL_Objects_Grass_Distance->value();
-    s.Grass_Instances = this->GL_Objects_Grass_Instances->value();
+    //s.Grass_Instances = this->GL_Objects_Grass_Instances->value();
     s.Grass_Increment = this->GL_Objects_Grass_Increment->value();
-    s.Grass_Vertical_Scale = this->GL_Objects_Grass_Vertical_Scale->value();
+    //s.Grass_Vertical_Scale = this->GL_Objects_Grass_Vertical_Scale->value();
 
     creator->UpdateWorldSettings(s);
 

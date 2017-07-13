@@ -335,6 +335,8 @@ cTMap
 *DFThreshold1,
 *DFSafetyFactor,
 *DFSlope,
+*DFSlopeX,
+*DFSlopeY,
 *DFTotalInitiationHeight,
 *DFSoilInternalFrictionAngle,
 *DFSoilDensity,
@@ -342,6 +344,11 @@ cTMap
 *DFSoilRockSize,
 *DFSFCalibration,
 *DFFailureMask,
+
+*DFForcingDemand,
+*DFForcingCapacity,
+*DFForcing,
+*DFForcingAdded,
 
 *DEMChange,
 *LDDChange;

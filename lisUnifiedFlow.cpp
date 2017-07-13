@@ -634,7 +634,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
     {
         double hf = _f2D->data[r][c]/(_dx*_dx);
         double hs = _s2D->data[r][c]/(_dx*_dx);
-        double w = UF_LAXMULTIPLIER * std::min(1.0,std::max(0.0,((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.3)*0.2));
+        double w = std::min(1.0,std::max((hf + hs - 0.4) / 3.5, UF_LAXMULTIPLIER *((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.3)*0.2));
 
         //double w = std::min(1.0, std::max(0.0,(((std::max(std::fabs(hf * 2.5* _fu2D->Drc),std::max(std::fabs(hf *2.5 * _fv2D->Drc),std::max(std::fabs(hs *_su2D->Drc),std::fabs(hs *_sv2D->Drc)))))/(UF_Courant * _dx) + 0.5 * (hf+hs)) - 0.2)*0.5));
         UF2D_Test->Drc = w;
@@ -816,7 +816,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
 
     FOR_ROW_COL_UF1DMT_DT
     {
-        double w = UF_LAXMULTIPLIER * std::max(0.0,std::min(1.0,(_f1D->Drc/(_dx *_lddw->Drc)) +2.0 * std::fabs(_fu1D->Drc) ));//std::min(1.0,std::max(0.0,((_f1D->Drc/(_dx *_lddw->Drc))*std::max(std::fabs(2.5* _fu1D->Drc),std::fabs(2.5 * _su1D->Drc))/(UF_Courant * _dx) - 0.65)*0.3));
+        double w = std::max(0.0,std::min(1.0,UF_LAXMULTIPLIER * (_f1D->Drc/(_dx *_lddw->Drc)) +2.0 * std::fabs(_fu1D->Drc) ));//std::min(1.0,std::max(0.0,((_f1D->Drc/(_dx *_lddw->Drc))*std::max(std::fabs(2.5* _fu1D->Drc),std::fabs(2.5 * _su1D->Drc))/(UF_Courant * _dx) - 0.65)*0.3));
         UF2D_Test->Drc = w;
 
         if(w > 0.0)

@@ -60,7 +60,6 @@ void GL3DGLInstancedModel::SetMaxInstances(int max_lowp,int max_highp)
 void GL3DGLInstancedModel::SetIncrementDistance(double increment)
 {
     length_increment = increment;
-
 }
 
 void GL3DGLInstancedModel::SetRandomParameters(double rand_increment, double rand_scale)
@@ -104,6 +103,27 @@ void GL3DGLInstancedModel::OnCreate(GL3DWidget *widget)
 
 }
 
+void GL3DGLInstancedModel::ChangeIncrement(double increment)
+{
+
+    length_increment = increment;
+}
+
+void GL3DGLInstancedModel::ChangeDistanceLowp(double distance)
+{
+
+    max_distance_lowp = distance;
+
+}
+
+void GL3DGLInstancedModel::ChangeDistanceHighp(double distance)
+{
+
+    max_distance_highp = distance;
+
+}
+
+
 void GL3DGLInstancedModel::OnCreatSurfaceBasedObjects(GL3DWidget * widget,GL3DWorld * world, GL3DSurface * surface, QVector3D current_pos)
 {
     m_Surface = surface;
@@ -135,23 +155,23 @@ void GL3DGLInstancedModel::OnUpdate(GL3DWidget * widget,GL3DWorld * world, QVect
 
 void GL3DGLInstancedModel::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
+
     if(draw)
     {
-
         if(has_highp && !has_lowp)
         {
-            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_highp,camera,m_Surface,0.0,max_distance_highp,has_smooth? distance_smooth_highp:0.0,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
+            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_highp,camera,m_Surface,0.0,max_distance_highp,0.3 * max_distance_highp,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
         }else if(has_highp && has_lowp)
         {
-            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_highp,camera,m_Surface,0.0,max_distance_highp,has_smooth? distance_smooth_highp:0.0,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
+            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_highp,camera,m_Surface,max_distance_lowp,max_distance_highp,0.3 * max_distance_highp,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
         }
         if(has_lowp && !has_highp)
         {
-            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_lowp,camera,m_Surface,0,max_distance_lowp,has_smooth? distance_smooth_lowp:0.0,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
+            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_lowp,camera,m_Surface,0,max_distance_lowp,0.3 * max_distance_lowp ,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
 
         }else if(has_lowp && has_highp)
         {
-            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_lowp,camera,m_Surface,0.0,max_distance_lowp,has_smooth? distance_smooth_lowp:0.0,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
+            GL3DDrawFunctions::DrawModelGLInstanced(widget,m_Model_lowp,camera,m_Surface,0.0,max_distance_lowp,0.3 * max_distance_lowp,length_increment,length_random,rotate_random? 3.14159 * 2.0 :0.0,scale_random,this->randomdata);
 
         }
     }

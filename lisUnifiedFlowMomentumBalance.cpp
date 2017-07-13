@@ -34,14 +34,14 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope, bool solid, bool channel, double flowwidth)
+double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope, bool solid, bool channel, double flowwidth, double solids)
 {
     //old method, this is highly unstable with spatially dynamic timmestep, and furthermore requires small timestep for overland flow
     if(false)
     {
         double veln = velx + a;
         double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning * (NN)*(0.1+NN)*UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
+        double nsq = UF_FRICTIONCORRECTION * manning * (NN)*(0.1+NN)*UF_Gravity * UF_Gravity*sqrt(std::fabs(velx * veln))*dt/pow(std::max(0.01,h),4.0/3.0);
 
         if(channel)
         {
@@ -72,15 +72,15 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     {
         double velo = velx;
         double signa = a>0?1.0:-1.0;
-        a = std::min(std::fabs(a)/dt,5.0 * h);
-        double manning = solid?UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning *(UF_VERY_SMALL +NN)*(UF_VERY_SMALL +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
+        a = std::min(std::fabs(a)/dt,25.0 * h);
+        double manning = solid? UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
+        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
 
         if(channel)
         {
             if(flowwidth > 0)
             {
-                nsq = nsq * (flowwidth + 0.5 * h)/(flowwidth);
+                nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
 
             }
         }
@@ -143,12 +143,12 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
     {
         return 0;
     }
-    if(x) {
+    /*if(x) {
 
-        return (-UF_Gravity * sin(SlopeX + dhfdx)// - UF_Gravity *dhfdx
+        return (-UF_Gravity * sin(SlopeX + dhfdx)
                 -UF_Aspect *(
                     (dh2pbdx)/h
-                   + (pbf * (SlopeX+ dhfdx))
+                   + (pbf *  (SlopeX+ dhfdx))
                     -(1.0/(ff * Nr))*(
                         2.0*ddfudxx + ddfvdxy + ddfudyy - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
                         )
@@ -164,7 +164,7 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
 
     } else {
 
-        return (-UF_Gravity * sin(SlopeY + dhfdy)// - UF_Gravity *dhfdy
+        return (-UF_Gravity * sin(SlopeY + dhfdy)
                 -UF_Aspect * (
                     (dh2pbdy)/h
                    + (pbf * (SlopeY+ dhfdy))
@@ -180,9 +180,46 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
                     -(UF_Ksi*sf*(fv - sv)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
                     )
                 );
-    }
+    }*/
 
+    if(x) {
 
+            return (-UF_Gravity * sin(SlopeX)
+                    -UF_Aspect *(
+                        (dh2pbdx)/h
+                       + (pbf *  (SlopeX))
+                        -(1.0/(ff * Nr))*(
+                            2.0*ddfudxx + ddfvdxy + ddfudyy - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
+                            )
+                        +(1.0/(ff * Nra))*(
+                            2.0 *(dsfdx*(dfudx - dsudx) + ddsfdxx*(fu - su))
+                            +(dsfdx*(dfvdy - dsvdy) + ddsfdxy*(fv - sv))
+                            +(dsfdy*(dfudy - dsudy) + ddsfdyy*(fu - su))
+                            + UF_Chi * fu/(UF_Aspect*UF_Aspect*ff*Nra*h*h)
+                            )
+                        -(UF_Ksi*sf*(fu - su)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
+                        )
+                    );
+
+        } else {
+
+            return (-UF_Gravity * sin(SlopeY)
+                    -UF_Aspect * (
+                        (dh2pbdy)/h
+                       + (pbf * (SlopeY))
+                        -(1.0/(ff * Nr))*(
+                            2.0*ddfudyy + ddfvdxy + ddfudxx - UF_Chi * fv/(UF_Aspect*UF_Aspect * h* h)
+                            )
+                        +(1.0/(ff * Nra))*(
+                            2.0 *(dsfdy*(dfvdy - dsvdy) + ddsfdyy*(fv - sv))
+                            +(dsfdy*(dfudx - dsudx) + ddsfdxy*(fu - su))
+                            +(dsfdx*(dfvdx - dsvdx) + ddsfdxx*(fv - sv))
+                            + UF_Chi * fv/(UF_Aspect*UF_Aspect*ff*Nra*h*h)
+                            )
+                        -(UF_Ksi*sf*(fv - sv)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
+                        )
+                    );
+        }
 
 }
 
@@ -196,15 +233,28 @@ double TWorld::UF2D_MomentumBalanceSolid(bool x, double _f,double _s,double fu, 
     }
     if(x)
     {
-        return (-UF_Gravity * sin(SlopeX + dhdx) +(vel > 0? su/vel : 0.0)*std::tan(ifa)*pbs +UF_Aspect*pbs*(SlopeX + dhdx)
-                -UF_Aspect * gamma * pbf * ( dhdx +  SlopeX )
+        return (-UF_Gravity * sin(SlopeX) +(vel > 0? su/vel : 0.0)*std::tan(ifa)*pbs +UF_Aspect*pbs*std::fabs(pbs)*( dhdx)
+                +UF_Aspect * gamma * pbf *  (SlopeX + dhdx)
                  );
     }else
     {
-        return (-UF_Gravity * sin(SlopeY + dhdy) +(vel > 0? sv/vel : 0.0)*std::tan(ifa)*pbs+UF_Aspect*pbs*(SlopeY + dhdy)
-                +UF_Aspect * gamma * pbf * ( dhdy +  SlopeY )
+        return (-UF_Gravity * sin(SlopeY) +(vel > 0? sv/vel : 0.0)*std::tan(ifa)*pbs+UF_Aspect*pbs*std::fabs(pbs)*(dhdy)
+                +UF_Aspect * gamma * pbf *(SlopeY +  dhdy)
                );
     }
+
+    /*if(x)
+        {
+            return (-UF_Gravity * sin(SlopeX) +(vel > 0? su/vel : 0.0)*std::tan(ifa)*pbs +UF_Aspect*pbs*(SlopeX)
+                    -UF_Aspect * gamma * pbf * ( dhdx)
+                     );
+        }else
+        {
+            return (-UF_Gravity * sin(SlopeY) +(vel > 0? sv/vel : 0.0)*std::tan(ifa)*pbs+UF_Aspect*pbs*(SlopeY)
+                    +UF_Aspect * gamma * pbf * ( dhdy )
+                   );
+        }
+        */
 
 }
 

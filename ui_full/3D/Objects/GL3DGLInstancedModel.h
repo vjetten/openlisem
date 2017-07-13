@@ -88,6 +88,9 @@ public:
 
     void SetSmoothing(bool smooth, double smooth_lowp, double smooth_highp);
 
+    void ChangeIncrement(double increment);
+    void ChangeDistanceLowp(double distance);
+    void ChangeDistanceHighp(double distance);
 
     void SetLocations(QList<QVector3D> positions);
     void SetIncrementDistance(double increment);

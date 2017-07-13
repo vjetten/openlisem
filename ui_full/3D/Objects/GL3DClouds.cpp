@@ -28,9 +28,10 @@
 
 
 
-void GL3DClouds::SetDraw(bool draw)
+void GL3DClouds::SetDraw(bool in_draw)
 {
 
+    this->draw = in_draw;
 
 
 }
@@ -89,16 +90,19 @@ void GL3DClouds::OnUpdate(GL3DWidget * widget,GL3DWorld * world, QVector3D Posit
 
 void GL3DClouds::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* camera, double dt)
 {
-    widget->gl->glDepthMask( GL_FALSE);
-    widget->gl->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    if(draw)
+    {
+        widget->gl->glDepthMask( GL_FALSE);
+        widget->gl->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
-    //GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,4,30.0,10.0,15.0,3.14159*2.0,0.97,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2);
+        //GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,4,30.0,10.0,15.0,3.14159*2.0,0.97,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2);
 
-    GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,4);
-    GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,32);
+        GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,4);
+        GL3DDrawFunctions::DrawModelGLInstancedCubic(widget,m_Model_highp,camera,m_Surface,64,64,256,256,2,30.0,10.0,15.0,3.14159*2.0,0.85,this->randomdata,m_Texture_Perlin1,m_Texture_Perlin2,32);
 
-    widget->gl->glDepthMask( GL_TRUE);
-    widget->gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        widget->gl->glDepthMask( GL_TRUE);
+        widget->gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 }
 
 void GL3DClouds::OnDestroy(GL3DWidget *widget)

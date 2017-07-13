@@ -59,7 +59,7 @@ void GL3DBuildings::OnRender(GL3DWidget * widget,GL3DWorld * world, GL3DCamera* 
 {
     if(draw)
     {
-        double max_distsq = 2000.0 * 2000.0;
+        double max_distsq = max_dist_draw*max_dist_draw;
         QVector3D pos = camera->m_Position;
 
         QMatrix4x4 ModelMatrix;
@@ -214,7 +214,7 @@ void GL3DBuildings::SetBuildingsDistribution(GL3DSurface * s,cTMap * bc, cTMap *
 
     int max_iterations_search = std::max(1.0,area_large/cs);
 
-    double cover_threshold = 0.5;
+    double cover_threshold = 0.2;
 
     int n_buildingsll = 0;
     int n_buildingsl = 0;

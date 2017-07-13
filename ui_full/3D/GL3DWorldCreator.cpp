@@ -300,7 +300,7 @@ void GL3DWorldCreator::UpdateWorldSettings(Settings3D s)
 
     settings.Light_Directional_Direction.normalize();
 
-    settings.Surface_Micro_Elevation_Scale = std::min(5.0f,std::max(0.0f,((float) settings.Surface_Micro_Elevation_Scale)/100.0f));
+    /*settings.Surface_Micro_Elevation_Scale = std::min(5.0f,std::max(0.0f,((float) settings.Surface_Micro_Elevation_Scale)/100.0f));
     settings.Surface_Mipmap_Distance_1 = std::min(20000.0f,std::max(200.0f,((float) settings.Surface_Mipmap_Distance_1)/100.0f));
     settings.Surface_Mipmap_Distance_2 = std::min(10000.0f,std::max(100.0f,((float) settings.Surface_Mipmap_Distance_2)/100.0f));
 
@@ -341,19 +341,55 @@ void GL3DWorldCreator::UpdateWorldSettings(Settings3D s)
     settings.Water_Shallow_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Shallow_Color.z())));
     settings.Water_Sediment_Color.setX(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.x())));
     settings.Water_Sediment_Color.setY(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.y())));
-    settings.Water_Sediment_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.z())));
+    settings.Water_Sediment_Color.setZ(std::min(1.0f,std::max(0.0f,settings.Water_Sediment_Color.z())));*/
 
-    settings.Roads_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Roads_Distance/100.0f)));
-    settings.Buildings_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Buildings_Distance/100.0f)));
+    //settings.Trees_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Instances/100.0f)));
+    //settings.Grass_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Grass_Instances/100.0f)));
+    //settings.Grass_Vertical_Scale = std::min(5.0f,std::max(0.10f,((float)settings.Grass_Vertical_Scale/100.0f)));
 
-    settings.Trees_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Distance/100.0f)));
-    settings.Trees_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Instances/100.0f)));
-    settings.Trees_Increment = std::min(100.0f,std::max(0.10f,((float)settings.Trees_Increment/100.0f)));
+    //double rd = std::min(20000.0f,std::max(100.0f,((float)settings.Roads_Distance/100.0f)));
 
-    settings.Grass_Distance = std::min(20000.0f,std::max(100.0f,((float)settings.Grass_Distance/100.0f)));
-    settings.Grass_Instances = std::min(20000.0f,std::max(100.0f,((float)settings.Grass_Instances/100.0f)));
-    settings.Grass_Increment = std::min(100.0f,std::max(0.10f,((float)settings.Grass_Increment/100.0f)));
-    settings.Grass_Vertical_Scale = std::min(5.0f,std::max(0.10f,((float)settings.Grass_Vertical_Scale/100.0f)));
+
+    double bd = std::min(20000.0f,std::max(100.0f,((float)settings.Buildings_Distance/100.0f)));
+
+    double td = std::min(20000.0f,std::max(100.0f,((float)settings.Trees_Distance/100.0f)));
+
+    double ti = std::min(100.0f,std::max(5.0f,((float)settings.Trees_Increment/100.0f)));
+
+    double gd = std::min(1000.0f,std::max(100.0f,((float)settings.Grass_Distance/100.0f)));
+    double gi = std::min(100.0f,std::max(0.10f,((float)settings.Grass_Increment/100.0f)));
+
+
+    if(bd != settings.Buildings_Distance)
+    {
+        buildingobject->max_dist_draw = bd;
+    }
+    if(td != settings.Trees_Distance)
+    {
+        treesobjecti->ChangeDistanceLowp(td);
+    }
+    if(ti != settings.Trees_Increment)
+    {
+        treesobjecti->ChangeIncrement(ti);
+    }
+    if(gd != settings.Grass_Distance)
+    {
+        grassobjecti->ChangeDistanceLowp(gd);
+    }
+    if(gi != settings.Grass_Increment)
+    {
+        grassobjecti->ChangeIncrement(gi);
+    }
+
+    //settings.Roads_Distance = rd;
+    settings.Buildings_Distance = bd;
+
+    settings.Trees_Distance = td;
+
+    settings.Trees_Increment = ti;
+
+    settings.Grass_Distance = gd;
+    settings.Grass_Increment = gi;
 
     this->m_Widget->m_World->Light_Ambient = settings.Light_Ambient;
     this->m_Widget->m_World->Light_Directional = settings.Light_Directional;
@@ -361,9 +397,10 @@ void GL3DWorldCreator::UpdateWorldSettings(Settings3D s)
 
     this->buildingobject->SetDraw(settings.Buildings_Draw);
     this->roadsobject->SetDraw(settings.Roads_Draw);
+    this->rain->SetDraw(settings.Rain_Draw);
+    this->cloudsobject->SetDraw(settings.Clouds_Draw);
     this->treesobjecti->SetDraw(settings.Trees_Draw);
     this->grassobjecti->SetDraw(settings.Grass_Draw);
-
 }
 
 void GL3DWorldCreator::DestroyWorldFromLisem()

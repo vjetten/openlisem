@@ -37,6 +37,8 @@ public:
     {
     }
 
+    double max_dist_draw = 10000.0;
+
     QList<QVector3D> Building_h_larger_Positions;
     QList<QVector3D> Building_h_larger_Scale;
     QList<float> Building_h_larger_Rotation;

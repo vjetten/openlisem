@@ -128,7 +128,7 @@ void TWorld::UF_LateralEntrainment(int thread)
     {
         double h = (UF2D_f->Drc + UF2D_s->Drc)/(_dx * DX->Drc);
         double fac = std::min(3.0,std::max(1.0,sqrt(h)));
-        double width_factor = 5.0;
+        double width_factor = 0.01;
 
         if(!OUTORMV(r-1,c))
         {
@@ -194,7 +194,7 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     double shearstress = channel? UF1D_ST->Drc : UF2D_ST->Drc;
 
     double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
-    double entrainment_lat =0.0;//channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,UF2D_STLA->Drc,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
+    double entrainment_lat =channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
     double entrainment_sf = 0.0;//channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
 
     double deposition = UnifiedFlowActiveDeposition(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa,r,c);

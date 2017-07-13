@@ -18,8 +18,8 @@ public:
         this->SetSmoothing(true,150,150);
         this->SetIncrementDistance(10.0);
         this->SetRandomParameters(10.0,0.25);
-        this->SetModelLowp("tree_lowp/tree_low.obj",1500);
-        this->SetMaxInstances(10000,100);
+        this->SetModelLowp("tree_lowp/tree_low.obj",5000);
+        this->SetMaxInstances(25000,100);
     }
 
 };
