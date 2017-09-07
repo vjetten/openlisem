@@ -177,6 +177,8 @@ void lisemqt::ParseInputData()
         //Surface Flow
         if (p1.compare("Enable Solid Phase")==0)                                    checkSolidPhase->setChecked(check);
         if (p1.compare("Enable Entrainment")==0)                                    checkEntrainment->setChecked(check);
+        if (p1.compare("Enable Deposition")==0)                                     checkBox_Deposition->setChecked(check);
+        if (p1.compare("Enable Compaction")==0)                                     checkBox_Compaction->setChecked(check);
         if (p1.compare("Enable Slope Stability")==0)                                checkSlopeStability->setChecked(check);
         if (p1.compare("Enable Upslope Forcing") == 0)                              checkUpslopeForcing->setChecked(check);
         if (p1.compare("Enable Slope Failure")==0)                                  checkSlopeFailure->setChecked(check);
@@ -202,6 +204,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Erosion Cohesion Calibration")==0)                          E_CalibrateESC->setValue(val);
         if (p1.compare("Erosion Grain Size Calibration")==0)                        E_CalibrateEGS->setValue(val);
 
+        if (p1.compare("Solid-Fluid Drag Coefficient")==0)                          E_UFDrag->setValue(val);
         if (p1.compare("Use HLL2")==0)                                              checkBox_HLL2->setChecked(check);
         if (p1.compare("Kinematic Timestep Power")==0)                              E_KinematicTimestepPower->setValue(val);
 
@@ -371,7 +374,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Erosive Power Calibration")==0)         E_CalibrateEP->setValue(val);
         if (p1.compare("Transport Capacity Calibration")==0)    E_CalibrateTC->setValue(val);
         if (p1.compare("Settling Velocity Calibration")==0)     E_CalibrateSV->setValue(val);
-        if (p1.compare("Yield Stress Calibration")==0)          E_CalibrateYS->setValue(val);
+        if (p1.compare("Internal Friction Angle")==0)          E_CalibrateYS->setValue(val);
         if (p1.compare("Dynamic Viscosity Calibration")==0)     E_CalibrateDV->setValue(val);
         if (p1.compare("Drag Force Calibration")==0)            E_CalibrateDF->setValue(val);
         if (p1.compare("Solid Phase Friction Calibration")==0)  E_CalibrateSPF->setValue(val);
@@ -816,6 +819,8 @@ void lisemqt::updateModelData()
         //Surface Flow
         if (p1.compare("Enable Solid Phase")==0)                                    namelist[j].value.setNum((int)checkSolidPhase->isChecked());
         if (p1.compare("Enable Entrainment")==0)                                    namelist[j].value.setNum((int)checkEntrainment->isChecked());
+        if (p1.compare("Enable Deposition")==0)                                     namelist[j].value.setNum((int)checkBox_Deposition->isChecked());
+        if (p1.compare("Enable Compaction")==0)                                     namelist[j].value.setNum((int)checkBox_Compaction->isChecked());
         if (p1.compare("Enable Slope Stability")==0)                                namelist[j].value.setNum((int)checkSlopeStability->isChecked());
         if (p1.compare("Enable Upslope Forcing") == 0)                              namelist[j].value.setNum((int)checkUpslopeForcing->isChecked());
         if (p1.compare("Enable Slope Failure")==0)                                  namelist[j].value.setNum((int)checkSlopeFailure->isChecked());
@@ -840,7 +845,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Erosion Cohesion Calibration")==0)                          namelist[j].value = E_CalibrateESC->text();
         if (p1.compare("Erosion Grain Size Calibration")==0)                        namelist[j].value = E_CalibrateEGS->text();
 
-
+        if (p1.compare("Solid-Fluid Drag Coefficient")==0)                          namelist[j].value = E_UFDrag->text();
         if (p1.compare("Use HLL2")==0)                                              namelist[j].value.setNum((int)checkBox_HLL2->isChecked());
         if (p1.compare("Spatially Dynamic Timestep")==0)                            namelist[j].value.setNum((int)checkBox_SpatiallyDynamicTimestep->isChecked());
         if (p1.compare("Flow Minimum Timestep")==0)                                 namelist[j].value = E_SFMinimumDT->text();
@@ -1013,7 +1018,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Erosive Power Calibration")==0)         namelist[j].value = E_CalibrateEP->text();
         if (p1.compare("Transport Capacity Calibration")==0)    namelist[j].value = E_CalibrateTC->text();
         if (p1.compare("Settling Velocity Calibration")==0)     namelist[j].value = E_CalibrateSV->text();
-        if (p1.compare("Yield Stress Calibration")==0)          namelist[j].value = E_CalibrateYS->text();
+        if (p1.compare("Internal Friction Angle")==0)          namelist[j].value = E_CalibrateYS->text();
         if (p1.compare("Dynamic Viscosity Calibration")==0)     namelist[j].value = E_CalibrateDV->text();
         if (p1.compare("Drag Force Calibration")==0)            namelist[j].value = E_CalibrateDF->text();
         if (p1.compare("Solid Phase Friction Calibration")==0)  namelist[j].value = E_CalibrateSPF->text();

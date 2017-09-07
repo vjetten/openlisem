@@ -238,10 +238,10 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
 
         if(conc > UF_VERY_SMALL)
         {
-            double qx1 = std::min(_qx1->Drc,0.25 * _m->Drc);
-            double qx2 = std::min(_qx2->Drc,0.25 * _m->Drc);
-            double qy1 = std::min(_qy1->Drc,0.25 * _m->Drc);
-            double qy2 = std::min(_qy2->Drc,0.25 * _m->Drc);
+            double qx1 = std::min(_qx1->Drc,0.15 * _m->Drc);
+            double qx2 = std::min(_qx2->Drc,0.15 * _m->Drc);
+            double qy1 = std::min(_qy1->Drc,0.15 * _m->Drc);
+            double qy2 = std::min(_qy2->Drc,0.15 * _m->Drc);
 
             if(!UF_OUTORMV(_dem,r,c+1))
             {
@@ -345,7 +345,6 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
         }}}
     }
     return outflow;
-
 }
 
 void TWorld::UF2D_Advect2_prop(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qx2,cTMap * _qy1, cTMap * _qy2,cTMap *_prop, cTMap * out_prop)

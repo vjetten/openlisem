@@ -321,7 +321,14 @@ void TWorld::Totals(void)
                 MinimumSafetyFactor->Drc = DFSafetyFactor->Drc;
             }else
             {
-                MinimumSafetyFactor->Drc = std::min(MinimumSafetyFactor->Drc,DFSafetyFactor->Drc);
+                if( MinimumSafetyFactor->Drc < 0.01)
+                {
+                    MinimumSafetyFactor->Drc = DFSafetyFactor->Drc;
+                }else
+                {
+
+                    MinimumSafetyFactor->Drc = std::min(MinimumSafetyFactor->Drc,DFSafetyFactor->Drc);
+                }
             }
         }
 

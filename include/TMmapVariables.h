@@ -277,6 +277,7 @@ cTMap
 *EntrainmentTC,
 *Entrainmentshearstressc,
 *Entrainmentshearstress,
+*DepositionT,
 
 *ChannelEntrainmentDet,
 *ChannelEntrainmentDep,

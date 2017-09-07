@@ -30,6 +30,7 @@ SET(APP_SOURCES
     lisInfiltration
     lisModel
     lisRainintc
+    lisExtendedChannel
     lisUnifiedFlow
     lisUnifiedFlowCommon
     lisUnifiedFlowMomentum2

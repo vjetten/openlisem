@@ -639,7 +639,7 @@ void TWorld::GetInputData(void)
     Calibrate_EP = getvaluedouble("Erosive Power Calibration");
     Calibrate_TC = getvaluedouble("Transport Capacity Calibration");
     Calibrate_SV = getvaluedouble("Settling Velocity Calibration");
-    Calibrate_YS = getvaluedouble("Yield Stress Calibration");
+    Calibrate_YS = getvaluedouble("Internal Friction Angle");
     Calibrate_DV = getvaluedouble("Dynamic Viscosity Calibration");
     Calibrate_DF = getvaluedouble("Drag Force Calibration");
     Calibrate_SPF = getvaluedouble("Solid Phase Friction Calibration");
@@ -982,6 +982,7 @@ void TWorld::GetInputData(void)
     EntrainmentTC = NewMap(0.0);
     Entrainmentshearstressc = NewMap(0.0);
     Entrainmentshearstress = NewMap(0.0);
+    DepositionT = NewMap(0.0);
 
     ChannelEntrainmentDet = NewMap(0.0);
     ChannelEntrainmentDep = NewMap(0.0);
@@ -999,6 +1000,7 @@ void TWorld::GetInputData(void)
 
         FOR_ROW_COL_MV
         {
+            SoilRockIFA->Drc = SoilRockIFA->Drc * Calibrate_YS;
             SoilRockMaterial->Drc *= _dx*_dx;
 
             if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -1549,6 +1551,8 @@ void TWorld::IntializeOptions(void)
     FileName_Entrainment = QString("entrainment.map");
     FileName_SlopeFailure = QString("slopefailure.map");
     FileName_MinimumSafetyFactor = QString("minimumsafetyfactor.map");
+    FileName_EntrainmentDet = QString("SolidEnt.map");
+    FileName_EntrainmentDep = QString("SolidDep.map");
 
     rainFileName.clear();
     SwitchLimitTC = false;

@@ -62,7 +62,7 @@ double TWorld::UF_DragCoefficient(double ffraction, double sfraction, double gam
     double P = UF_P(rocksize,ffraction, viscosity, sfraction, density);
     double den = pow((UF_Aspect * UF_TerminalVelocity(rocksize,ffraction,viscosity,sfraction,density)*( P * F + (1-P) * G)),UF_j);
     double dc = den > 0? ffraction * sfraction * (1-gamma)/den : 0.0;
-    return 10.0;
+    return UF_SOLIDFLUIDDRAG + UF_SOLIDFLUIDDRAG * dc;
 
 }
 

@@ -371,6 +371,10 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Entrainment");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Deposition");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Compaction");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Slope Stability");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Upslope Forcing");
@@ -431,7 +435,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Use HLL2");
-    
+    namelist[i].value = QString("0.5");
+    namelist[i++].name = QString("Solid-Fluid Drag Coefficient");
+
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Suspended Viscosity");
     namelist[i].value = QString("1.0");
@@ -534,7 +540,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Settling Velocity Calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Yield Stress Calibration");
+    namelist[i++].name = QString("Internal Friction Angle");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Dynamic Viscosity Calibration");
     namelist[i].value = QString("1.0");

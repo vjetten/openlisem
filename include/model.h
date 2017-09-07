@@ -477,13 +477,15 @@ public:
     QString runoffFractionMapFileName;
     QString channelDischargeMapFileName;
 
+
+    QString FileName_EntrainmentDet;
+    QString FileName_EntrainmentDep;
     QString FileName_MaxDebrisFlowHeight;
     QString FileName_MaxDebrisFlowVelocity;
     QString FileName_DebrisFlowStart;
     QString FileName_Entrainment;
     QString FileName_SlopeFailure;
     QString FileName_MinimumSafetyFactor;
-
     QString FinalFluidPhaseFileName;
     QString FinalSolidPhaseFileName;
     QString floodLevelFileName;
@@ -565,7 +567,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment, SwitchSlopeStability,SwitchUpslopeForcing, SwitchSlopeFailure;
+    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment,SwitchDeposition,SwitchCompaction, SwitchSlopeStability,SwitchUpslopeForcing, SwitchSlopeFailure;
 //SwithEstimated90,
     int numgrainclasses;
     QString GrainMaps;

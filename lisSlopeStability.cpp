@@ -270,7 +270,13 @@ void TWorld::SafetyFactor()
         {
             break;
         }
+
         iter ++;
+
+        if(iter > 50)
+        {
+            break;
+        }
 
     }
 
@@ -302,6 +308,8 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                                    cTMap * _PlantCohesion,cTMap * _PlantPressure,
                                    cTMap * _SFCalibration)
 {
+
+    qDebug() << "calc forcign";
 
     FOR_ROW_COL_MV
     {
@@ -416,32 +424,43 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                 double forcingcapacity = std::max(0.0,(DFForcingCapacity->Drc-DFForcingDemand->Drc) -DFForcing->Drc);
                 DFForcingAdded->Drc = std::max(0.0,(forcingcapacity > 0? (1.0/_dx):1.0) * (DFForcingAdded->Drc-forcingcapacity));
 
-
                 if(demx1 < demx2 && !OUTORMV(r,c-1))
                 {
                     stable = false;
-                    double forceflux = DFForcingAdded->Drc * (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
+                    double forceflux = DFForcingAdded->Drc *
+                            std::max(0.0,std::min(1.0,(1.0 - std::max(0.0,DFSlopeX->Drc * DFSlopeX->data[r][c-1] + DFSlopeX->Drc * DFSlopeX->data[r][c-1]))))*
+                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r][c-1] += forceflux;
 
                 }
                 if(demx1 > demx2 && !OUTORMV(r,c+1))
                 {
                     stable = false;
-                    double forceflux = DFForcingAdded->Drc * (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
+                    double forceflux = DFForcingAdded->Drc *
+                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r][c+1] + DFSlopeX->Drc * DFSlopeX->data[r][c+1]))))*
+                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r][c+1] +=  forceflux;
 
                 }
                 if(demy1 < demy2 && !OUTORMV(r-1,c))
                 {
                     stable = false;
-                    double forceflux = DFForcingAdded->Drc * (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
+                    double forceflux = DFForcingAdded->Drc *
+                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r-1][c] + DFSlopeX->Drc * DFSlopeX->data[r-1][c]))))*
+                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r-1][c] +=  forceflux;
 
                 }
                 if(demy1 > demy2 && !OUTORMV(r+1,c))
                 {
                     stable = false;
-                    double forceflux = DFForcingAdded->Drc * (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
+                    double forceflux = DFForcingAdded->Drc *
+                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r+1][c] + DFSlopeX->Drc * DFSlopeX->data[r+1][c]))))*
+                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r+1][c] +=  forceflux;
 
                 }

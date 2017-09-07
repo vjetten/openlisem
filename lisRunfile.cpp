@@ -208,6 +208,8 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Enable Solid Phase") == 0)    SwitchSolidPhase = iii == 1;
         if (p1.compare("Enable Entrainment") == 0)    SwitchEntrainment = iii == 1;
+        if (p1.compare("Enable Deposition") == 0)    SwitchDeposition = iii == 1;
+        if (p1.compare("Enable Compaction") == 0)    SwitchCompaction = iii == 1;
         if (p1.compare("Enable Slope Stability") == 0)SwitchSlopeStability = iii == 1;
         if (p1.compare("Enable Upslope Forcing") == 0)SwitchUpslopeForcing = iii == 1;
         if (p1.compare("Enable Slope Failure")==0)    SwitchSlopeFailure = iii == 1;

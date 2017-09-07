@@ -722,6 +722,28 @@ void TWorld::ReportMaps(int not_used)
         ThreadPool->tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
 
+    //creating a wig-shaped map
+    /*for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 * std::fabs(double(float(r) - 0.5 * _nrRows)) + 2.0 * double(_nrCols - float(c));
+
+        }
+    }*/
+
+    //creating a test dem for a landslide dam
+    /*for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            double x = std::fabs(double(float(r) - 0.5 * _nrRows)) < 3 ? std::pow((std::fabs(double(float(r) - 0.5 * _nrRows))/3.0),4.0)*3.0 : std::fabs(double(float(r) - 0.5 * _nrRows));
+
+            ThreadPool->tm->Drc = 15.0 * x - 0.05 * double(_nrCols - float(c));
+
+        }
+    }*/
+
     report(*ThreadPool->tm, rainfallMapFileName);
     report(*ThreadPool->tma, interceptionMapFileName);
 
@@ -827,7 +849,8 @@ void TWorld::ReportMaps(int not_used)
     }
     if(SwitchEntrainment)
     {
-        //report(*,FileName_Entrainment);
+        report(*TotalEntrainmentDet,FileName_EntrainmentDet);
+        report(*TotalEntrainmentDep,FileName_EntrainmentDep);
     }
 
 
@@ -912,11 +935,11 @@ void TWorld::ReportMaps(int not_used)
         }
         if (outputcheck[22].toInt() == 1)
         {
-            report(*UF2D_FPH, OutFPH);
+            report(*UF2D_FPH, "fph");
         }
         if (outputcheck[23].toInt() == 1)
         {
-            report(*UF2D_SPH, OutSPH);
+            report(*UF2D_SPH, "sph");
         }
 
     }
@@ -925,14 +948,14 @@ void TWorld::ReportMaps(int not_used)
     {
         if (outputcheck[24].toInt() == 1)
         {
-            report(*EntrainmentDet, OutEntrainment);
+            report(*TotalEntrainmentDet, "ent");
         }
 
     }
 
     if (outputcheck[25].toInt() == 1)
     {
-        report(*UF2D_TimeStep, OutTimestep);
+        report(*UF2D_TimeStep, "ts");
     }
 
 }
@@ -1515,14 +1538,7 @@ void TWorld::GetComboMaps()
     Colors.append("#804000");
 
     AddComboMap(0,"Viscosity"," ",UF2D_visc,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"outlet distance"," ",UF1D_OutletDistance,Colormap,Colors,false,false,1.0, 0.05);
     AddComboMap(0,"lax factor"," ",UF2D_Test,Colormap,Colors,false,false,1.0, 0.05);
-
-    AddComboMap(0,"UF1D_fa1"," ",UF1D_fa1,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"UF1D_fa2"," ",UF1D_fa2,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"UF1D_fa"," ",UF1D_fa,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"UF1D_fq1"," ",UF1D_fq1,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"UF1D_fq2"," ",UF1D_fq2,Colormap,Colors,false,false,1.0, 0.05);
 
     Colormap.clear();
     Colormap.append(0.0);
@@ -1630,6 +1646,7 @@ void TWorld::GetComboMaps()
             AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
             AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"DepositionT","m",DepositionT,Colormap,Colors,false,false,1.0, step);
 
             Colormap.clear();
             Colormap.append(0.0);
@@ -1643,10 +1660,10 @@ void TWorld::GetComboMaps()
             Colors.append("#A60000");
 
             AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"Entrainmentshearstressc","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"Entrainmentshearstress","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"su","kg/m2",UF2D_su,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"sv","kg/m2",UF2D_sv,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"sqy","kg/m2",UF2D_sqy,Colormap,Colors,false,false,1.0, step);
         }
 
         Colormap.clear();

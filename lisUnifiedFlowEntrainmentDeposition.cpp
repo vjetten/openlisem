@@ -188,17 +188,22 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
 
     double availabledepth = channel? 0:UnifiedFlowEntrainmentAvailableDepth(r,c,UF2D_fu->Drc,UF2D_fv->Drc);
     double vegetationcover = Cover->Drc;
-    double vegetationcohesion = RootCohesion->Drc;
+    double entrained_depth = TotalEntrainmentDep->Drc/ (_dx * _dx);
+    double vegetationcohesion = (channel? std::max(0.0,((UF_ENTRAINMENTROOTDEPTH-entrained_depth)/UF_ENTRAINMENTROOTDEPTH)) : 1.0) * RootCohesion->Drc;
     double bed_cohesion = Cohesion->Drc * st_scCalibration;
 
     double shearstress = channel? UF1D_ST->Drc : UF2D_ST->Drc;
 
-    double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
-    double entrainment_lat =channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
-    double entrainment_sf = 0.0;//channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
+    double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
+    double entrainment_lat = channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
+    double entrainment_sf = channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
 
-    double deposition = UnifiedFlowActiveDeposition(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa,r,c);
+    double deposition = 0;
 
+    if(SwitchDeposition)
+    {
+        deposition = UnifiedFlowActiveDeposition(dt,slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa,r,c);
+    }
 
     entrainment = std::min(entrainment + entrainment_lat + entrainment_sf,0.05 * area * availabledepth);
 
@@ -265,20 +270,30 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
     double UF_SOILROCKPOROSITY = 0.65;
 
     //Hungr
-    //double dgamma = d/d_bed;
-    //double sf = _f > 0? (_s/_f) :1.0;
-    //entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min(h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));
+    /*double dgamma = d/d_bed;
+    double sf = _f > 0? (_s/_f) :1.0;
+    entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min(h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));*/
 
-    //Egashira
+    //RAMMS
+    /*double dgamma = d/d_bed;
+    double sf = _f > 0? (_s/_f) :1.0;
+    entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min( h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * h * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));*/
+
+    ////Egashira
 
     /*double densdiff = (d - 1000.0);
     double tanifa = tan(ifa_bed);
     double tanalpha = tan(slope);
     double tanalphae = tan( atan(densdiff/(densdiff + 1000.0))*tanifa);
     entrainment = UF_ENTRAINMENTCONSTANT * area  * _sv * UF_SOILROCKPOROSITY * (tanalphae - tanalpha);*/
-
     //Egashira can be negative, usefull to include?
-    //returns volume of entrainment
+
+    ////Pudasaini
+
+    /*double entrainment_solid = ((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
+    double entrainment_fluid = ((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
+
+    entrainment = entrainment_solid + entrainment_fluid;*/
 
 
     ////Takahashi
@@ -305,8 +320,6 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
     double scourat = std::max(0.0,UF_ENTRAINMENTCONSTANT * (t- UF_ENTRAINMENTTHRESHOLDCONSTANT *tc));
     //get entrainment in cubic meters
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
-
-
 
     if(area < UF_VERY_SMALL)
     {
@@ -331,20 +344,30 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     double UF_SOILROCKPOROSITY = 0.65;
 
     //Hungr
-    //double dgamma = d/d_bed;
-    //double sf = _f > 0? (_s/_f) :1.0;
-    //entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min(h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));
+    /*double dgamma = d/d_bed;
+    double sf = _f > 0? (_s/_f) :1.0;
+    entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min(h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));*/
 
-    //Egashira
+    //RAMMS
+    /*double dgamma = d/d_bed;
+    double sf = _f > 0? (_s/_f) :1.0;
+    entrainment =(sf > UF_MAXSOLIDCONCENTRATION)?0.0: std::max(0.0,std::min( h * (UF_MAXSOLIDCONCENTRATION - sf),dt * area * h * ( UF_ENTRAINMENTCONSTANT * (0.5 *_fv +sf * _sv))));*/
+
+    ////Egashira
 
     /*double densdiff = (d - 1000.0);
     double tanifa = tan(ifa_bed);
     double tanalpha = tan(slope);
     double tanalphae = tan( atan(densdiff/(densdiff + 1000.0))*tanifa);
     entrainment = UF_ENTRAINMENTCONSTANT * area  * _sv * UF_SOILROCKPOROSITY * (tanalphae - tanalpha);*/
-
     //Egashira can be negative, usefull to include?
-    //returns volume of entrainment
+
+    ////Pudasaini
+
+    /*double entrainment_solid = ((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
+    double entrainment_fluid = ((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
+
+    entrainment = entrainment_solid + entrainment_fluid;*/
 
 
     ////Takahashi
@@ -371,7 +394,6 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     double scourat = std::max(0.0,UF_ENTRAINMENTCONSTANT * (t- UF_ENTRAINMENTTHRESHOLDCONSTANT *tc));
     //get entrainment in cubic meters
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
-
 
     if(area < UF_VERY_SMALL)
     {
@@ -462,7 +484,7 @@ double TWorld::UF_RockAdd(int r, int c, double deposition, bool channel)
         //convert to kg, and limimt to present material
         deposition = std::min(UF1D_s->Drc, deposition);
         double depositionw = std::min(UF1D_f->Drc, deposition * UF_FLOWCOMPACTION_DEPOSITIONPOROSITY);
-        EntrainmentDep->Drc = deposition;
+        EntrainmentDep->Drc += deposition;
         UF1D_s->Drc -= deposition;
         UF1D_f->Drc -= depositionw;
         LDDChange->Drc += deposition/(_dx*UF1D_LDDw->Drc);
@@ -475,7 +497,7 @@ double TWorld::UF_RockAdd(int r, int c, double deposition, bool channel)
         //convert to kg, and limimt to present material
         deposition = std::min(UF2D_s->Drc, deposition);
         double depositionw = std::min(UF2D_f->Drc, deposition * UF_FLOWCOMPACTION_DEPOSITIONPOROSITY);
-        EntrainmentDep->Drc = deposition;
+        EntrainmentDep->Drc += deposition;
         UF2D_s->Drc -= deposition;
         UF2D_f->Drc -= depositionw;
         DEMChange->Drc += deposition/(_dx*_dx);
@@ -492,30 +514,36 @@ double TWorld::UF_RockAdd(int r, int c, double deposition, bool channel)
 
 void TWorld::UF_FlowCompaction(int thread)
 {
-
-    if(SwitchErosion && UF_SOLIDPHASE )
+    if(SwitchCompaction)
     {
-        cTMap*_dem = UF2D_DEM;
-        cTMap*_ldd = UF1D_LDD;
 
-        FOR_ROW_COL_UF2DMT
+        if(SwitchErosion && UF_SOLIDPHASE )
         {
-            UF_FlowCompaction(UF2D_DT->Drc,r,c,false);
-        }}}
+            cTMap*_dem = UF2D_DEM;
+            cTMap*_ldd = UF1D_LDD;
 
-        if(UF_1DACTIVE)
-        {
-            FOR_ROW_COL_UF1DMT
+            FOR_ROW_COL_UF2DMT
             {
-                UF_FlowCompaction(UF1D_DT->Drc,r,c,true);
+                UF_FlowCompactionThreshold(UF2D_DT->Drc,r,c,false);
+
+                UF_FlowCompaction(UF2D_DT->Drc,r,c,false);
             }}}
+
+            if(UF_1DACTIVE)
+            {
+                FOR_ROW_COL_UF1DMT
+                {
+                    UF_FlowCompaction(UF1D_DT->Drc,r,c,true);
+                }}}
+            }
         }
     }
 
 }
 
-void TWorld::UF_FlowCompaction(double dt, int r, int c, bool channel)
+void TWorld::UF_FlowCompactionThreshold(double dt, int r, int c, bool channel)
 {
+
 
     if(channel)
     {
@@ -533,10 +561,10 @@ void TWorld::UF_FlowCompaction(double dt, int r, int c, bool channel)
     double gamma = channel? UF1D_d->Drc : UF2D_d->Drc;
     gamma = gamma > UF_VERY_SMALL? 1000.0/gamma: 0.5;
     double dc = UF_DragCoefficient(ff,sf,gamma,channel?UF1D_visc->Drc:UF2D_visc->Drc, channel?UF1D_rocksize->Drc:UF2D_rocksize->Drc, channel?UF1D_d->Drc:UF2D_d->Drc);
-    double pbf = -UF_Gravity*f/area;
+    double pbf = -UF_Gravity;
 
     double pbs = (1-gamma)*pbf;
-    double ifa = 0.3;
+    double ifa = UF2D_ifa->Drc < 0.01? 0.3:UF2D_ifa->Drc;
 
     double xslope = UF2D_Derivative(UF2D_DEM,UF2D_DEM,r,c,UF_DIRECTION_X);
     double yslope = UF2D_Derivative(UF2D_DEM,UF2D_DEM,r,c,UF_DIRECTION_Y);
@@ -552,46 +580,91 @@ void TWorld::UF_FlowCompaction(double dt, int r, int c, bool channel)
     double su = UF2D_su->Drc;
     double sv = UF2D_sv->Drc;
 
+    double sux1 = UF2D_su->Drc;
+    double svx1 = UF2D_sv->Drc;
+
+    double sux2 = UF2D_su->Drc;
+    double svx2 = UF2D_sv->Drc;
+
+    double suy1 = UF2D_su->Drc;
+    double svy1 = UF2D_sv->Drc;
+
+    double suy2 = UF2D_su->Drc;
+    double svy2 = UF2D_sv->Drc;
+
     double vel = sqrt(su*su + sv*sv);
 
     //x friction
-    double friction_x = (vel > 0? su/vel : 0.0)*std::tan(ifa)*pbs;
+    double friction_x = std::tan(ifa)* UF_Gravity;
 
     //y friction
-    double friction_y = (vel > 0? sv/vel : 0.0)*std::tan(ifa)*pbs;
+    double friction_y = std::tan(ifa)* UF_Gravity;
 
     //x accaleration
     double acc_x = (-UF_Gravity * sin(xslope + dhdx) +UF_Aspect*pbs*(xslope + dhdx)
-                -UF_Aspect * gamma * pbf * ( dhdx +  xslope ));
+                -UF_Aspect * gamma * pbf * ( dhdx ));
 
 
     //y accaleration
     double acc_y = (-UF_Gravity * sin(yslope + dhdy)+UF_Aspect*pbs*(yslope + dhdy)
-                +UF_Aspect * gamma * pbf * ( dhdy +  yslope ));
+                +UF_Aspect * gamma * pbf * ( dhdy +yslope ));
 
+    double frictioncontribution = std::min(0.05,std::max(0.0,(std::fabs(friction_x) + std::fabs(friction_y)) - (std::fabs(acc_x) + std::fabs(acc_y)))/(std::fabs(acc_x) + std::fabs(acc_y)));
 
-
-    double frictioncontribution = std::min(0.2,std::max(0.0,(std::fabs(friction_x) + std::fabs(friction_y)) - (std::fabs(acc_x) + std::fabs(acc_y) + vel))/(std::fabs(acc_x) + std::fabs(acc_y) +vel));
-    double material = frictioncontribution * s;
-    Entrainmentshearstress->Drc = frictioncontribution;
-
-    Entrainmentshearstressc->Drc = std::fabs(acc_x) + std::fabs(acc_y);
-
-
-    if(material > UF_VERY_SMALL && !(UF2D_EntrainmentSF->Drc > 0.0))
+    if(std::fabs(UF2D_sqx->Drc) + std::fabs(UF2D_sqy->Drc) < 0.5 && s > UF_VERY_SMALL && UF2D_EntrainmentSF->Drc == 0)
     {
+        UF2D_Compaction->Drc = frictioncontribution;
+    }else
+    {
+        UF2D_Compaction->Drc = 0;
+    }
 
-        if(SwitchSlopeStability && !channel)
+}
+
+
+void TWorld::UF_FlowCompaction(double dt, int r, int c, bool channel)
+{
+
+    double s = channel? UF1D_s->Drc : UF2D_s->Drc;
+    double width = channel? UF1D_LDDw->Drc : _dx;
+    double area = width * DX->Drc;
+
+    if(channel)
+    {
+        return;
+    }
+
+    double compaction = UF2D_Compaction->Drc;
+    if(!OUTORMV(r+1,c))
+    {
+        compaction = std::max(compaction,0.5 * UF2D_Compaction->data[r+1][c]);
+    }
+    if(!OUTORMV(r-1,c))
+    {
+        compaction = std::max(compaction,0.5 * UF2D_Compaction->data[r-1][c]);
+    }
+    if(!OUTORMV(r,c+1))
+    {
+        compaction = std::max(compaction,0.5 * UF2D_Compaction->data[r][c+1]);
+    }
+    if(!OUTORMV(r,c-1))
+    {
+        compaction = std::max(compaction,0.5 * UF2D_Compaction->data[r][c-1]);
+    }
+
+    if(compaction > 0)
+    {
+        DepositionT->Drc += dt;
+
+        if(DepositionT->Drc > 5.0)
         {
-            double availabledepth = UnifiedFlowDepositionAvailableDepth(r,c);
-
-            material = std::min(availabledepth*area,material);
+            {
+                UF_RockAdd(r,c,s * std::min(0.1,0.01*dt),channel);
+            }
         }
-
-
-        {
-            UF_RockAdd(r,c,material,channel);
-        }
+    }else
+    {
+        DepositionT->Drc = 0;
     }
 }
 
@@ -630,8 +703,13 @@ double TWorld::UF_EntrainmentSideSlopeFailure(double dt, int r, int c)
             double dd_this = DEMChange->Drc;
             double dd_side = DEMChange->data[r2][c2];
 
+            if(dd_this < dd_side)
+            {
+                continue;
+            }
+
             double dx = _dx/5.0;
-            double slope =std::max(0.0,-(dd_this-dd_side)/dx);
+            double slope =std::max(0.0,(dd_this-dd_side)/dx);
 
             double sf = 0.0;
             if(d_this < 0.1 || slope < 0.01)

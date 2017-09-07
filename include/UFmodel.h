@@ -44,6 +44,8 @@
     double UF_MANNINGCOEFFICIENT_FLUID;
     double UF_MANNINGCOEFFICIENT_SOLID;
 
+    double UF_SOLIDFLUIDDRAG;
+
     bool UF_SUSPENDEDVISCOSITY;
     double UF_LAXMULTIPLIER;
     double UF_FRICTIONCORRECTION;
@@ -52,6 +54,7 @@
     double UF_ENTRAINMENTTHRESHOLDCONSTANT;
     double UF_DEPOSITIONCONSTANT;
     double UF_DEPOSITIONTHRESHOLDCONSTANT;
+    double UF_ENTRAINMENTROOTDEPTH;
 
     double UF_MAXSOLIDCONCENTRATION;
     double UF_MINIMUMENTRAINMENTHEIGHT;
@@ -209,10 +212,14 @@
     cTMap * UF2D_say1;
     cTMap * UF2D_sax2;
     cTMap * UF2D_say2;
+    cTMap * UF2D_sqx;
+    cTMap * UF2D_sqy;
     cTMap * UF2D_sqx1;
     cTMap * UF2D_sqy1;
     cTMap * UF2D_sqx2;
     cTMap * UF2D_sqy2;
+
+    cTMap * UF2D_Compaction;
 
     cTMap * UF2D_DC;
 
@@ -446,6 +453,7 @@
 
     ////Momentum balance functions
     double UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0, double solids = 0);
+    double UF_SFriction(double a, double v, double dt);
     double UF_Friction2(double vel,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0);
 
     double UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double SlopeX, double SlopeY,
@@ -550,6 +558,7 @@
     double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, int calculationside = UF_DERIVATIVE_LR);
 
+    double UF_DEMACCES(cTMap * dem, cTMap * h,int r, int c, int dr, int dc);
     double UF_5CellAverage(cTMap * m,int r, int c);
 
 
@@ -585,6 +594,7 @@
 
     void UF_FlowCompaction(int thread);
     void UF_FlowCompaction(double dt, int r, int c, bool channel);
+    void UF_FlowCompactionThreshold(double dt, int r, int c, bool channel);
 
     double UF_SoilTake(int r, int c, int d, double potential,bool channel,bool bedload);
     void UF_SoilAdd(int r, int c, int d, double mass, bool channel);

@@ -35,6 +35,29 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+
+double TWorld::UF_DEMACCES(cTMap * dem, cTMap * h,int r, int c, int dr, int dc)
+{
+    return 1.0;
+
+    double dem1 = dem->data[r][c];
+    double h1 = h->data[r][c];
+
+    if(OUTORMV(r + dr,c+dc))
+    {
+        return 0;
+    }
+
+    double dem2 = dem->data[r+dr][c+dc];
+
+    if(h1 < UF_VERY_SMALL)
+    {
+        return 0.0;
+    }
+
+    return std::max(0.0,std::min(1.0,1.0 - std::min(std::max(0.0,(dem2 - dem1)),h1)/h1));
+}
+
 double TWorld::UF_5CellAverage(cTMap * m,int r, int c)
 {
     int count = 0;

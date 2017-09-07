@@ -40,6 +40,10 @@ functions: \n
 #include "operation.h"
 
 
+////NOTE!!!!!!
+////THIS FUNTIONS ARE STILL IN THE lisUnifiedFlowMomentum2.cpp
+////still need to transfer this stuffs to re-usable functions here
+
 double TWorld::FluxLimiter2D()
 {
 

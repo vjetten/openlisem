@@ -58,15 +58,17 @@ void TWorld::UF_Init()
     UF_LAXMULTIPLIER=0.1 *getvaluedouble("Lax Multiplier");
     UF_FRICTIONCORRECTION=getvaluedouble("Friction force correction");
 
+    UF_SOLIDFLUIDDRAG =getvaluedouble("Solid-Fluid Drag Coefficient");
     UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000.0;
     UF_DEPOSITIONCONSTANT = 1;
     UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
+    UF_ENTRAINMENTROOTDEPTH = 0.25;
 
     UF_MAXSOLIDCONCENTRATION = 0.9;
     UF_MINIMUMENTRAINMENTHEIGHT = 0.05;
 
-    UF_MANNINGCOEFFICIENT_FLUID = 0.01;
-    UF_MANNINGCOEFFICIENT_SOLID = 0.0001;
+    UF_MANNINGCOEFFICIENT_FLUID = 0.005;
+    UF_MANNINGCOEFFICIENT_SOLID = 0.000005;
     UF_FrictionIterations = 1;
     UF_KINEMATIC_TIMESTEP_POWER= getvaluedouble("Kinematic Timestep Power");
 
@@ -77,11 +79,11 @@ void TWorld::UF_Init()
     UF_FLOWCOMPACTION_MAXCONCENTRATION = 0.5;
     UF_FLOWCOMPACTION_CRITICALVELOCITY = 0.25;
 
-    UF_FLOWCOMPACTION_DEPOSITIONPOROSITY = 0.35;
+    UF_FLOWCOMPACTION_DEPOSITIONPOROSITY = 0.5;
 
     UF_AVERAGEFACTOR = 0.5;
-    UF2D_COURANTSCHEMEFACTOR = 1.0;
-    UF1D_COURANTSCHEMEFACTOR = 1.0;
+    UF2D_COURANTSCHEMEFACTOR = 0.25;
+    UF1D_COURANTSCHEMEFACTOR = 0.5;
 
     UF_AddedSplash = NewMap(0.0);
 
@@ -89,7 +91,7 @@ void TWorld::UF_Init()
 
     UF_DTAverage = 0;
 
-    UF_MAX_NUM_VEL = 50;
+    UF_MAX_NUM_VEL = 100;
 
     UF_NRA = 150000;
 
@@ -221,11 +223,16 @@ void TWorld::UF_Init()
     UF2D_say1 = NewMap(0.0);
     UF2D_sax2 = NewMap(0.0);
     UF2D_say2 = NewMap(0.0);
+
+    UF2D_sqx = NewMap(0.0);
+    UF2D_sqy = NewMap(0.0);
+
     UF2D_sqx1 = NewMap(0.0);
     UF2D_sqy1 = NewMap(0.0);
     UF2D_sqx2 = NewMap(0.0);
     UF2D_sqy2 = NewMap(0.0);
 
+    UF2D_Compaction = NewMap(0.0);
 
     UF2D_STL = NewMap(0.0);
     UF2D_STLA = NewMap(0.0);
@@ -411,6 +418,12 @@ void TWorld::UF_Init()
         UF2D_InitialSDensity = ReadMap(DEM,getvaluename("initialsdensity"));
         UF2D_InitialSIFA = ReadMap(DEM,getvaluename("initialsifa"));
         UF2D_InitialSRocksize = ReadMap(DEM,getvaluename("initialsrocksize"));
+
+        FOR_ROW_COL_MV
+        {
+            UF2D_InitialSIFA->Drc = UF2D_InitialSIFA->Drc * Calibrate_YS;
+
+        }
     }
 
     UF_InitializedF = 0;
