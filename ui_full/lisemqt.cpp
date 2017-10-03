@@ -124,6 +124,15 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     E_runFileList->clear();
 
 
+    SetAllInLayoutInvisible(Advanced_Flow_General,false);
+    SetAllInLayoutInvisible(Advanced_Output,false);
+    SetAllInLayoutInvisible(Advanced_Computational,false);
+    SetAllInLayoutInvisible(Advanced_Erosion1,false);
+    SetAllInLayoutInvisible(Advanced_Erosion2,false);
+    SetAllInLayoutInvisible(Advanced_Infiltration,false);
+    SetAllInLayoutInvisible(Advanced_Sediment_Transport,false);
+    SetAllInLayoutInvisible(Advanced_Slopes,false);
+
     doBatchmode = doBatch;
     batchRunname = runname;
 
@@ -754,6 +763,15 @@ void lisemqt::SetToolBar()
     runGroup->addAction(pauseAct);
     runGroup->addAction(stopAct);
     stopAct->setChecked(true);
+
+    toolBar->addSeparator();
+
+
+    AdvancedAct = new QAction(QIcon(":/advanced.png"), "Stop the model...", this);
+    AdvancedAct->setStatusTip("stop the model run ...");
+    connect(AdvancedAct, SIGNAL(triggered()), this, SLOT(Advancedmodel()));
+    AdvancedAct->setCheckable(true);
+    toolBar->addAction(AdvancedAct);
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));

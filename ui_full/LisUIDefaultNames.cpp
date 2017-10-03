@@ -71,21 +71,28 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
     DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
 
-    DEFmaps.append("0;Debris Flow");
+    DEFmaps.append("0;Slope Stability");
     DEFmaps.append("1;Slope Stability");
-    DEFmaps.append("2;SoilDensity;soildensity.map;Soil density (m);soildensity");
-    DEFmaps.append("2;SoilIFA;soilifa.map;Soil internal friction angle;soilifa");
-    DEFmaps.append("2;SoilRockFraction;soilrockfraction.map;Soil rock fraction;soilrockfraction");
-    DEFmaps.append("2;SoilRockSize;soilrocksize.map;Soil rock fraction;soilrocksize");
-    DEFmaps.append("2;FailureMask;failuremask.map;Mask indicating possible slope failure;failuremask");
-
+    DEFmaps.append("2;SoilDensity;soildensity.map;Soil density (kg/m3);soildensity");
+    DEFmaps.append("2;SoilIFA;soilifa.map;Soil internal friction angle (radians);soilifa");
+    DEFmaps.append("2;SoilRockSize;soilrocksize.map;Typical soil rock size (m);soilrocksize");
+    DEFmaps.append("2;FailureMask;failuremask.map;Mask indicating possible slope failure (-);failuremask");
+    DEFmaps.append("2;SoilStructured;soilstructured.map;Is material structured (-);soilstructured");
+    DEFmaps.append("1;Bottom layer Slope Stability");
+    DEFmaps.append("2;SoilDensity2;soildensity2.map;Soil density (kg/m3);soildensity2");
+    DEFmaps.append("2;SoilIFA2;soilifa2.map;Soil internal friction angle(radians);soilifa2");
+    DEFmaps.append("2;SoilCohesion2;soilcohesion2.map;Soil Cohesion (kPa);soilcohesion2");
+    DEFmaps.append("2;SoilRockSize2;soilrocksize2.map;Typical soil rock size (m);soilrocksize2");
+    DEFmaps.append("2;SoilStructured2;soilstructured2.map;Is material structured (-);soilstructured2");
+    DEFmaps.append("1;Seismic Trigger");
+    DEFmaps.append("2;PGA;pga.map;Peak Ground Accaleration map (m/s2);pga");
+    DEFmaps.append("2;PGATiming;pgatiming.map;timing f peak ground accaleration (min);pgatiming");
+    DEFmaps.append("0;Entrainment");
     DEFmaps.append("1;Loose Material");
-    DEFmaps.append("2;DebrisMaterial;debrismaterial.map;Soil debris material;debrismaterial");
-    DEFmaps.append("2;RockSize;rocksize.map;debris material rock size (m);rocksize");
-    DEFmaps.append("2;RockDensity;rockdensity.map;debris material density (m);rockdensity");
-    DEFmaps.append("2;RockIFA;rockifa.map;debris material internal friction angle;rockifa");
-
-
+    DEFmaps.append("2;DebrisMaterial;debrismaterial.map;Depth of loose material (m);debrismaterial");
+    DEFmaps.append("2;RockSize;rocksize.map;Loose material rock size (m);rocksize");
+    DEFmaps.append("2;RockDensity;rockdensity.map;Loose material density (kg/m3);rockdensity");
+    DEFmaps.append("2;RockIFA;rockifa.map;Loose material internal friction angle (radians);rockifa");
 
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -144,16 +151,16 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;InitiationTime;initiationtime.map;initial time (min);initiationtime");
     DEFmaps.append("2;InitialFVolume;initialfvolume.map;initial fluid volume (m3);initialfvolume");
     DEFmaps.append("2;InitialSVolume;initialsvolume.map;initial solid volume (m3);initialsvolume");
-    DEFmaps.append("2;InitialSDensity;initialsdensity.map;initial solid density (m3);initialsdensity");
-    DEFmaps.append("2;InitialSRocksize;initialsrocksize.map;initial solid rocksize (m3);initialsrocksize");
-    DEFmaps.append("2;InitialSIFA;initialsifa.map;initial internal friction angle;initialsifa");
+    DEFmaps.append("2;InitialSDensity;initialsdensity.map;initial solid density (kg/m3);initialsdensity");
+    DEFmaps.append("2;InitialSRocksize;initialsrocksize.map;initial solid rocksize (m);initialsrocksize");
+    DEFmaps.append("2;InitialSIFA;initialsifa.map;initial internal friction angle (radians);initialsifa");
 
     DEFmaps.append("1;Forced Volume condition");
     DEFmaps.append("2;forcedfvolume;forcedfvolume.map;forced fluid volume (m3);forcedfvolume");
     DEFmaps.append("2;ForcedSVolume;forcedsvolume.map;forced solid volume (m3);forcedsvolume");
-    DEFmaps.append("2;ForcedSDensity;forcedsdensity.map;forced solid density (m3);forcedsdensity");
-    DEFmaps.append("2;ForcedSRocksize;forcedsrocksize.map;forced solid rocksize (m3);forcedsrocksize");
-    DEFmaps.append("2;ForcedSIFA;forcedsifa.map;forced internal friction angle;forcedsifa");
+    DEFmaps.append("2;ForcedSDensity;forcedsdensity.map;forced solid density (kg/m3);forcedsdensity");
+    DEFmaps.append("2;ForcedSRocksize;forcedsrocksize.map;forced solid rocksize (m);forcedsrocksize");
+    DEFmaps.append("2;ForcedSIFA;forcedsifa.map;forced internal friction angle (radians);forcedsifa");
 
     DEFmaps.append("0;FlowBarriers");
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
@@ -375,9 +382,15 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Compaction");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Seismic");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Slope Stability");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Upslope Forcing");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Downslope Forcing");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Bedrock Layer");
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Slope Failure");

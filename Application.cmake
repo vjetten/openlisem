@@ -26,6 +26,7 @@ SET(APP_SOURCES
     ui_full/LisUIplot
     ui_full/LisUImapplot
     lisDataInit
+    lisSeismic
     lisErosion
     lisInfiltration
     lisModel

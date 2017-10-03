@@ -142,6 +142,37 @@ void lisemqt::pausemodel()
     }
 }
 //---------------------------------------------------------------------------
+void lisemqt::Advancedmodel()
+{
+
+    bool advanced = AdvancedAct->isChecked();
+
+    SetAllInLayoutInvisible(Advanced_Flow_General,advanced);
+    SetAllInLayoutInvisible(Advanced_Output,advanced);
+    SetAllInLayoutInvisible(Advanced_Computational,advanced);
+    SetAllInLayoutInvisible(Advanced_Erosion1,advanced);
+    SetAllInLayoutInvisible(Advanced_Erosion2,advanced);
+    SetAllInLayoutInvisible(Advanced_Infiltration,advanced);
+    SetAllInLayoutInvisible(Advanced_Sediment_Transport,advanced);
+    SetAllInLayoutInvisible(Advanced_Slopes,advanced);
+}
+
+void lisemqt::SetAllInLayoutInvisible(QLayout * layout,bool visible)
+{
+    for(int i = 0; i < layout->count(); i++)
+    {
+        QLayoutItem *item = layout->itemAt(i);
+        QWidget * widget = item->widget();
+        if(widget != 0)
+        {
+            widget->setVisible(visible);
+        }
+    }
+
+
+}
+
+//---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
     if(Allow3D)

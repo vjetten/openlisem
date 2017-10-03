@@ -179,8 +179,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("Enable Entrainment")==0)                                    checkEntrainment->setChecked(check);
         if (p1.compare("Enable Deposition")==0)                                     checkBox_Deposition->setChecked(check);
         if (p1.compare("Enable Compaction")==0)                                     checkBox_Compaction->setChecked(check);
+        if (p1.compare("Enable Seismic") == 0)                                      checkSeismic->setChecked(check);
         if (p1.compare("Enable Slope Stability")==0)                                checkSlopeStability->setChecked(check);
         if (p1.compare("Enable Upslope Forcing") == 0)                              checkUpslopeForcing->setChecked(check);
+        if (p1.compare("Enable Downslope Forcing") == 0)                              checkDownslopeForcing->setChecked(check);
+        if (p1.compare("Include Bedrock Layer") == 0)                              checkBedRockLayer->setChecked(check);
         if (p1.compare("Enable Slope Failure")==0)                                  checkSlopeFailure->setChecked(check);
         if (p1.compare("Minimum Safety Factor")==0)                                 E_PRESF->setValue(val);
         if (p1.compare("Maximum Safety Factor")==0)                                 E_POSTSF->setValue(val);
@@ -211,7 +214,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Spatially Dynamic Timestep")==0)                            checkBox_SpatiallyDynamicTimestep->setChecked(check);
         if (p1.compare("Flow Minimum Timestep")==0)                                 E_SFMinimumDT->setValue(val);
         if (p1.compare("Surface Flow Courant Factor")==0)                           E_SFCourant->setValue(val);
-        if (p1.compare("Surface Flow Scheme")==0)                                   E_SFScheme->setValue(val);
 
         if (p1.compare("Drag Power Law Coefficient")==0)                            E_UFDragPower->setValue(val);
         if (p1.compare("Viscosity Alpha")==0)                                       E_UFViscosityAlpha->setValue(val);
@@ -233,7 +235,7 @@ void lisemqt::ParseInputData()
             checkBox_SedSingleSingle->setChecked(false);
             checkBox_SedMultiSingle->setChecked(false);
             checkBox_SedMultiMulti->setChecked(false);
-            tabWidgetOptions->setTabEnabled(5,true);
+            //tabWidgetOptions->setTabEnabled(6,true);
             if(val == 2)
                 checkBox_SedMultiMulti->setChecked(true);
             else
@@ -242,7 +244,7 @@ void lisemqt::ParseInputData()
                 else
                 {
                     checkBox_SedSingleSingle->setChecked(true);
-                    tabWidgetOptions->setTabEnabled(5,false);
+                    //tabWidgetOptions->setTabEnabled(6,false);
                 }
         }
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(val);
@@ -821,8 +823,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Enable Entrainment")==0)                                    namelist[j].value.setNum((int)checkEntrainment->isChecked());
         if (p1.compare("Enable Deposition")==0)                                     namelist[j].value.setNum((int)checkBox_Deposition->isChecked());
         if (p1.compare("Enable Compaction")==0)                                     namelist[j].value.setNum((int)checkBox_Compaction->isChecked());
+        if (p1.compare("Enable Seismic") == 0)                                      namelist[j].value.setNum((int)checkSeismic->isChecked());
         if (p1.compare("Enable Slope Stability")==0)                                namelist[j].value.setNum((int)checkSlopeStability->isChecked());
         if (p1.compare("Enable Upslope Forcing") == 0)                              namelist[j].value.setNum((int)checkUpslopeForcing->isChecked());
+        if (p1.compare("Enable Downslope Forcing") == 0)                              namelist[j].value.setNum((int)checkDownslopeForcing->isChecked());
+        if (p1.compare("Include Bedrock Layer") == 0)                              namelist[j].value.setNum((int)checkBedRockLayer->isChecked());
         if (p1.compare("Enable Slope Failure")==0)                                  namelist[j].value.setNum((int)checkSlopeFailure->isChecked());
         if (p1.compare("Minimum Safety Factor")==0)                                 namelist[j].value = E_PRESF->text();
         if (p1.compare("Maximum Safety Factor")==0)                                 namelist[j].value = E_POSTSF->text();
@@ -850,7 +855,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Spatially Dynamic Timestep")==0)                            namelist[j].value.setNum((int)checkBox_SpatiallyDynamicTimestep->isChecked());
         if (p1.compare("Flow Minimum Timestep")==0)                                 namelist[j].value = E_SFMinimumDT->text();
         if (p1.compare("Surface Flow Courant Factor")==0)                           namelist[j].value = E_SFCourant->text();
-        if (p1.compare("Surface Flow Scheme")==0)                                   namelist[j].value = E_SFScheme->text();
 
         if (p1.compare("Drag Power Law Coefficient")==0)                            namelist[j].value = E_UFDragPower->text();
         if (p1.compare("Viscosity Alpha")==0)                                       namelist[j].value = E_UFViscosityAlpha->text();

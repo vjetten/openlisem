@@ -744,6 +744,94 @@ void TWorld::ReportMaps(int not_used)
         }
     }*/
 
+    //creating a flume
+    /*double slope1 = std::tan(std::asin(10.0 *3.14/180));
+    double slope2 = std::tan(std::asin(12.0 *3.14/180));
+    double slope3 = std::tan(std::asin(14.0 *3.14/180));
+    double slope4 = std::tan(std::asin(16.0 *3.14/180));
+    double slope5 = std::tan(std::asin(18.0 *3.14/180));
+
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 + slope1 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        }
+    }
+    for(int r = 1; r < _nrRows-1; r++)
+    {
+        for (int c = 1; c < _nrCols-1; c++)
+        {
+            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
+        }
+    }
+    report(*ThreadPool->tm, QString("dem1"));
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 + slope2 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        }
+    }
+    for(int r = 1; r < _nrRows-1; r++)
+    {
+        for (int c = 1; c < _nrCols-1; c++)
+        {
+            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
+        }
+    }
+    report(*ThreadPool->tm, QString("dem2"));
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 + slope3 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        }
+    }
+    for(int r = 1; r < _nrRows-1; r++)
+    {
+        for (int c = 1; c < _nrCols-1; c++)
+        {
+            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
+        }
+    }
+    report(*ThreadPool->tm, QString("dem3"));
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 + slope4 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        }
+    }
+    for(int r = 1; r < _nrRows-1; r++)
+    {
+        for (int c = 1; c < _nrCols-1; c++)
+        {
+            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
+        }
+    }
+    report(*ThreadPool->tm, QString("dem4"));
+    for(int r = 0; r < _nrRows; r++)
+    {
+        for (int c = 0; c < _nrCols; c++)
+        {
+            ThreadPool->tm->Drc = 1.0 + slope5 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        }
+    }
+    for(int r = 1; r < _nrRows-1; r++)
+    {
+        for (int c = 1; c < _nrCols-1; c++)
+        {
+            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
+        }
+    }
+    report(*ThreadPool->tm, QString("dem5"));*/
+
     report(*ThreadPool->tm, rainfallMapFileName);
     report(*ThreadPool->tma, interceptionMapFileName);
 
@@ -1302,6 +1390,8 @@ void TWorld::ClearHydrographData()
 //---------------------------------------------------------------------------
 void TWorld::GetComboMaps()
 {
+    qDebug() << "dx read from map is " << _dx;
+
     //combo box maps
     ClearComboMaps();
 
@@ -1326,7 +1416,10 @@ void TWorld::GetComboMaps()
     Colors.append("#FF0000");
     Colors.append("#FF3300");
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Channel Flow Height","m",UF1D_h,Colormap,Colors,false,false,1.0, 0.01);
+    if(SwitchIncludeChannel)
+    {
+        AddComboMap(0,"Channel Flow Height","m",UF1D_h,Colormap,Colors,false,false,1.0, 0.01);
+    }
 
     Colormap.clear();
     Colormap.append(0.0);
@@ -1391,29 +1484,32 @@ void TWorld::GetComboMaps()
     Colors.append("#616ca2");//#457A60");
 
     AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
-    AddComboMap(0,"Solid-Fluid Drag Coefficient","-",UF2D_DC,Colormap,Colors,false,false,1.0,1.0);
+    //AddComboMap(0,"Solid-Fluid Drag Coefficient","-",UF2D_DC,Colormap,Colors,false,false,1.0,1.0);
 
+    if(SwitchIncludeChannel)
+    {
 
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.5);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#5477ff");
+        Colors.append("#0023b1");
+        Colors.append("#001462");
+        AddComboMap(0,"Channel Fluid Phase Volume","m3",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
 
-    Colormap.clear();
-    Colormap.append(0.0);
-    Colormap.append(0.5);
-    Colormap.append(1.0);
-    Colors.clear();
-    Colors.append("#5477ff");
-    Colors.append("#0023b1");
-    Colors.append("#001462");
-    AddComboMap(0,"Channel Fluid Phase Volume","m3",UF1D_f,Colormap,Colors,false,false,1.0,1.0);
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.5);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#ffffff");
+        Colors.append("#50B547");//#96B547");
+        Colors.append("#616ca2");//#457A60");
+        AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
 
-    Colormap.clear();
-    Colormap.append(0.0);
-    Colormap.append(0.5);
-    Colormap.append(1.0);
-    Colors.clear();
-    Colors.append("#ffffff");
-    Colors.append("#50B547");//#96B547");
-    Colors.append("#616ca2");//#457A60");
-    AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
+    }
 
     if(InfilMethod != INFIL_NONE)
     {
@@ -1484,7 +1580,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
     }
 
-    if(UF_DISPLAYDEBRISFLOWMINIMUM > 0)
+    if(SwitchSolidPhase && UF_DISPLAYDEBRISFLOWMINIMUM > 0)
     {
         Colormap.clear();
         Colormap.append(0.0);
@@ -1604,20 +1700,26 @@ void TWorld::GetComboMaps()
         Colors.append("#d47e17");//808000
         Colors.append("#804000");
 
-        AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
         AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+        if(SwitchIncludeChannel)
+        {
+            //AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+            AddComboMap(1,"Channel Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+
+        }
         AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
         AddComboMap(1,"Flow detachment","kg/m2",DETFlowCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
-        AddComboMap(1,"UF1D_blm","kg/m2",UF1D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF1D_ssm","kg/m2",UF1D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF2D_blm","kg/m2",UF2D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF2D_ssm","kg/m2",UF2D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF1D_blm","kg/m2",UF1D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF1D_ssm","kg/m2",UF1D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF2D_blm","kg/m2",UF2D_blm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF2D_ssm","kg/m2",UF2D_ssm,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
-        AddComboMap(1,"UF1D_bltc","kg/m2",UF1D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF1D_sstc","kg/m2",UF1D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF2D_bltc","kg/m2",UF2D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"UF2D_sstc","kg/m2",UF2D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF1D_bltc","kg/m2",UF1D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF1D_sstc","kg/m2",UF1D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF2D_bltc","kg/m2",UF2D_bltc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        //AddComboMap(1,"UF2D_sstc","kg/m2",UF2D_sstc,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
 
         Colormap.clear();
@@ -1645,9 +1747,11 @@ void TWorld::GetComboMaps()
 
             AddComboMap(1,"Entrainment","m",TotalEntrainmentDet,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
 
-            AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-            AddComboMap(1,"DepositionT","m",DepositionT,Colormap,Colors,false,false,1.0, step);
-
+            if(SwitchDeposition || SwitchCompaction)
+            {
+                AddComboMap(1,"Deposition","m",TotalEntrainmentDep,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+                //AddComboMap(1,"DepositionT","m",DepositionT,Colormap,Colors,false,false,1.0, step);
+            }
             Colormap.clear();
             Colormap.append(0.0);
             Colormap.append(0.25);
@@ -1660,10 +1764,10 @@ void TWorld::GetComboMaps()
             Colors.append("#A60000");
 
             AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"sqy","kg/m2",UF2D_sqy,Colormap,Colors,false,false,1.0, step);
+            //AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            //AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
+            //AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);
+            //AddComboMap(1,"sqy","kg/m2",UF2D_sqy,Colormap,Colors,false,false,1.0, step);
         }
 
         Colormap.clear();
@@ -1698,7 +1802,21 @@ void TWorld::GetComboMaps()
 
             AddComboMap(1,"Safety Factor","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
             AddComboMap(1,"Forcing","-",DFForcing,Colormap,Colors,false,false,1.0,0.2);
-            AddComboMap(1,"Water Depth","-",DFWaterHeight,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFForcingUp,Colormap,Colors,false,false,1.0,0.2);
+
+            if(SwitchBedrock)
+            {
+                AddComboMap(1,"BR Depth","m",DFSoilDepth2,Colormap,Colors,false,false,1.0,0.2);
+                AddComboMap(1,"BR Safety Factor","-",DFSafetyFactor2,Colormap,Colors,false,false,1.0,0.2);
+                AddComboMap(1,"BR Forcing","-",DFForcing2,Colormap,Colors,false,false,1.0,0.2);
+                AddComboMap(1,"BR Forcing up","-",DFForcingUp2,Colormap,Colors,false,false,1.0,0.2);
+
+            }
+            if(SwitchSeismic)
+            {
+
+
+            }
         }
         if(SwitchSlopeFailure)
         {

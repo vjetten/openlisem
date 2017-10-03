@@ -632,8 +632,8 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
 
     FOR_ROW_COL_UF2DMT_DT
     {
-        double hf = _f2D->data[r][c]/(_dx*_dx);
-        double hs = _s2D->data[r][c]/(_dx*_dx);
+        double hf = (_f2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
+        double hs = (_s2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
         double wf = std::min(1.0,std::max(0.0,((hf + hs - 0.2) / 1.5)* UF_LAXMULTIPLIER *((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(0.0,0.0))))/(UF_Courant * _dx) - 0.15)*0.5));
         double ws = std::min(1.0,std::max(0.0,((hf + hs - 0.2) / 1.5)* UF_LAXMULTIPLIER *((std::max(0.0,std::max(0.0,std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.15)*0.5));
 

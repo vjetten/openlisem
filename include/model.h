@@ -196,11 +196,11 @@
 
 #define NUMNAMES 3000   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 1000    /// \def max nr maps
-#define MIN_FLUX 1e-12 /// \def minimum flux (m3/s) in kinematic wave
-#define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
+#define MIN_FLUX 1e-18 /// \def minimum flux (m3/s) in kinematic wave
+#define MIN_HEIGHT 1e-12 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define UF_VERY_SMALL 1e-12 /// \def min timestep/flux/height in unified flow equations
+#define UF_VERY_SMALL 1e-24 /// \def min timestep/flux/height in unified flow equations
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -567,7 +567,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment,SwitchDeposition,SwitchCompaction, SwitchSlopeStability,SwitchUpslopeForcing, SwitchSlopeFailure;
+    bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment,SwitchDeposition,SwitchCompaction, SwitchSlopeStability,SwitchUpslopeForcing,SwitchDownslopeForcing,SwitchBedrock, SwitchSeismic,SwitchSlopeFailure;
 //SwithEstimated90,
     int numgrainclasses;
     QString GrainMaps;
@@ -595,13 +595,20 @@ public:
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
                                        cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
                                        cTMap * _PlantCohesion,cTMap * _PlantPressure,
-                                       cTMap * _SafetyFactor,cTMap * _Threshold,cTMap * _Threshold1,cTMap * _InititationHeight,cTMap * _Initiated,cTMap * _SFCalibration);
+                                       cTMap * _SafetyFactor,cTMap * _Threshold,
+                                       cTMap * _Threshold1,cTMap * _InititationHeight,
+                                       cTMap * _Initiated,cTMap * _SFCalibration,
+                                       cTMap * _Forcing, cTMap * _ForcingUp, cTMap * _PGA);
     void CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                                        cTMap * _OverlandWater, cTMap * _SoilCohesion,
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,
                                        cTMap * _SoilWaterSuction, cTMap * _SoilDensity,
                                        cTMap * _PlantCohesion,cTMap * _PlantPressure,
-                                       cTMap * _SFCalibration);
+                                       cTMap * _SFCalibration,
+                                       cTMap * _DFForcing, cTMap * _DFForcingUp,
+                                       cTMap * _GPA);
+
+    void CalculateBedrockDepth(cTMap * DEM, cTMap * SoilDepth, cTMap * BedrockDepth);
 
     double CalculateSafetyFactorAt(int r, int c);
 
@@ -638,6 +645,10 @@ public:
     double GetTotalSoilDepth(int r, int c);
 
     void InitiateDebrisFlow();
+
+    void Seismic();
+    double GetSeismicStrengthLoss(double H, double s, double ifa, double c, double gamma, double gammaw, double theta, double apeak, double psi, double forcingdown, double forcingup, double sf_cal);
+
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
     double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);

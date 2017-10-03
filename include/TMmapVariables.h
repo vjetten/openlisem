@@ -293,6 +293,7 @@ cTMap
 *tmb,                        //!< Auxilary map
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
+*tme,                        //!< Auxilary map
 //display combinations
 *COMBO_QOFCH,
 *COMBO_SS,
@@ -338,6 +339,8 @@ cTMap
 *DFSlope,
 *DFSlopeX,
 *DFSlopeY,
+*DFSlopeXf,
+*DFSlopeYf,
 *DFTotalInitiationHeight,
 *DFSoilInternalFrictionAngle,
 *DFSoilDensity,
@@ -346,13 +349,38 @@ cTMap
 *DFSFCalibration,
 *DFFailureMask,
 
+*DFZERO,
+*DFAddedPressure,
+*DFUnstable2,
+*DFInitiationHeight2,
+*DFSFIterations2,
+*DFSoilDepth2,
+*DFSafetyFactor2,
+*DFSoilInternalFrictionAngle2,
+*DFSoilCohesion2,
+*DFSoilDensity2,
+*DFSoilRockFraction2,
+*DFSoilRockSize2,
+*DFSFCalibration2,
+*DFForcing2,
+*DFForcingUp2,
+
 *DFForcingDemand,
 *DFForcingCapacity,
 *DFForcing,
 *DFForcingAdded,
+*DFForcingUp,
+*DFForcingUpAdded,
 
 *DEMChange,
-*LDDChange;
+*LDDChange,
+
+*PGA,
+*PGATiming,
+*StrengthLoss,
+*StrengthLoss2,
+*PGAInitiated,
+*PGACurrent;
 
 
 QList<cTMap *> IW_D;

@@ -670,6 +670,7 @@ void TWorld::GetInputData(void)
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
+    tme = NewMap(0); // temp map for aux calculations
     difkin =  NewMap(0); // temp map for aux calculations
 
     for (int i = 0; i < 32; i++)
@@ -1067,12 +1068,19 @@ void TWorld::GetInputData(void)
         DFSlope = NewMap(0.0);
         DFSlopeX = NewMap(0.0);
         DFSlopeY = NewMap(0.0);
+
+        DFSlopeXf = NewMap(0.0);
+        DFSlopeYf = NewMap(0.0);
         DFFailureMask = NewMap(1.0);
 
         DFForcingDemand = NewMap(0.0);
         DFForcingCapacity = NewMap(0.0);
         DFForcing = NewMap(0.0);
         DFForcingAdded = NewMap(0.0);
+        DFForcingUp = NewMap(0.0);
+        DFForcingUpAdded = NewMap(0.0);
+        DFForcing2 = NewMap(0.0);
+        DFForcingUp2 = NewMap(0.0);
 
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
@@ -1082,16 +1090,61 @@ void TWorld::GetInputData(void)
             DFFailureMask = ReadMap(LDD,getvaluename("FailureMask"));
         }
 
+
+        //calibration values for slope failure aspect
+        st_scCalibration = getvaluedouble("Soil Cohesion Calibration");
+        st_sifaCalibration = getvaluedouble("Soil Internal Friction Angle Calibration");
+        st_sdCalibration = getvaluedouble("Soil Depth Calibration");
+        st_csdCalibration = getvaluedouble("Create Stable Initial Safety Factor");
+        st_csdsfCalibration = getvaluedouble("Minimum Safety Factor Calibration");
+
         //SF_Calibrate_Mask = true;
 
         DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));
-        DFSoilRockFraction = ReadMap(LDD,getvaluename("soilrockfraction"));
         DFSoilRockSize = ReadMap(LDD,getvaluename("soilrocksize"));
+        DFZERO = NewMap(0.0);
+
+        if(SwitchBedrock)
+        {
+
+            DFUnstable2 = NewMap(0.0);
+            DFAddedPressure = NewMap(0.0);
+            DFInitiationHeight2 = NewMap(0.0);
+            DFSFIterations2 = NewMap(0.0);
+            DFSoilDepth2 = NewMap(0.0);
+            DFSafetyFactor2 = NewMap(0.0);
+            DFSoilInternalFrictionAngle2 = ReadMap(LDD,getvaluename("soilifa2"));
+            DFSoilCohesion2 = ReadMap(LDD,getvaluename("soilcohesion2"));
+            DFSoilDensity2 = ReadMap(LDD,getvaluename("soildensity2"));
+            DFSoilRockSize2 = ReadMap(LDD,getvaluename("soilrocksize2"));
+            DFSFCalibration2 = NewMap(0.0);
+
+            FOR_ROW_COL_MV
+            {
+                DFSoilInternalFrictionAngle2->Drc = DFSoilInternalFrictionAngle2->Drc * st_sifaCalibration;
+                DFSoilCohesion2->Drc = DFSoilCohesion2->Drc * st_sifaCalibration;
+            }
+        }
+
         FOR_ROW_COL_MV
         {
             DEMOriginal->Drc = DEM->Drc;
             DFSoilInternalFrictionAngle->Drc *= st_sifaCalibration;
+        }
+
+        if(SwitchSeismic)
+        {
+            PGA = ReadMap(LDD,getvaluename("pga"));
+            PGATiming = ReadMap(LDD,getvaluename("pgatiming"));
+            StrengthLoss = NewMap(0.0);
+            StrengthLoss2 = NewMap(0.0);
+            PGAInitiated = NewMap(0.0);
+            PGACurrent = NewMap(0.0);
+            if(SwitchBedrock)
+            {
+                StrengthLoss2 = NewMap(0.0);
+            }
         }
 
     }

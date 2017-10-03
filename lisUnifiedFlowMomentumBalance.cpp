@@ -154,8 +154,8 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
     if(x) {
 
             return (-UF_Gravity * sin(SlopeX)
-                    -UF_Aspect *(
-                        (dh2pbdx)/h
+                    -UF_Aspect
+                    *((dh2pbdx)/h
                        + (pbf *  (SlopeX))
                         -(1.0/(ff * Nr))*(
                             2.0*ddfudxx + ddfvdxy + ddfudyy - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
@@ -173,11 +173,11 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
         } else {
 
             return (-UF_Gravity * sin(SlopeY)
-                    -UF_Aspect * (
-                        (dh2pbdy)/h
+                    -UF_Aspect
+                    * ((dh2pbdy)/h
                        + (pbf * (SlopeY))
                         -(1.0/(ff * Nr))*(
-                            2.0*ddfudyy + ddfvdxy + ddfudxx - UF_Chi * fv/(UF_Aspect*UF_Aspect * h* h)
+                            2.0*ddfvdyy + ddfudxy + ddfvdxx - UF_Chi * fv/(UF_Aspect*UF_Aspect * h* h)
                             )
                         +(1.0/(ff * Nra))*(
                             2.0 *(dsfdy*(dfvdy - dsvdy) + ddsfdyy*(fv - sv))

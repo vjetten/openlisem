@@ -288,6 +288,8 @@ void TWorld::DynamicProcessWrapper()
     //slope failure must be before flow calculations. Slope failure calculations can be used in entrainment/deposition
     SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
 
+    Seismic();
+
     //does multithreading itself
     UnifiedFlow();      	//Unified flow method
 

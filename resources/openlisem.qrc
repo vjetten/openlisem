@@ -36,5 +36,7 @@
         <file>chart-line-stacked-icon.png</file>
         <file>mapicon.png</file>
         <file>map.png</file>
+        <file>advanced.png</file>
+        <file>simple.png</file>
     </qresource>
 </RCC>

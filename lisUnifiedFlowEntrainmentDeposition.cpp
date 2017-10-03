@@ -208,6 +208,7 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     entrainment = std::min(entrainment + entrainment_lat + entrainment_sf,0.05 * area * availabledepth);
 
 
+
     if(!channel)
     {
         UF2D_EntrainmentSF->Drc  =entrainment;
@@ -217,8 +218,10 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
 
     }
 
-    if(entrainment > 0)
+    if(entrainment > 0 && SoilRockMaterial->Drc > 0)
     {
+        Entrainmentshearstress->Drc += entrainment;
+
         UF_RockTake(r,c,entrainment,channel);
     }else
     {
@@ -373,7 +376,7 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     ////Takahashi
     //first get maximum solids concentration that still allows entrainment
 
-    double MaxCSF = std::max(0.0,std::min(0.8,(UF_ENTRAINMENTCCONSTANT)*slope > tan(ifa_bed)? 1.0:(1000.0 * (UF_ENTRAINMENTCCONSTANT)*slope)/((d - 1000)*(tan(ifa_bed)-(UF_ENTRAINMENTCCONSTANT)*slope))));
+    double MaxCSF = std::max(0.1,std::min(0.8,(UF_ENTRAINMENTCCONSTANT)*slope > tan(ifa_bed)? 1.0:(1000.0 * (UF_ENTRAINMENTCCONSTANT)*slope)/((d - 1000)*(tan(ifa_bed)-(UF_ENTRAINMENTCCONSTANT)*slope))));
 
     //shear stress
     double gamma = std::min(1.0,d > UF_VERY_SMALL? 1000.0/d : 1.0);
@@ -389,11 +392,13 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     //critical shear stress
     double tc = (coh + (1-Coeff_Susp) *_sc * (d - 1000.0) * UF_Gravity * h * (cos(slope)*cos(slope) * tan(ifa_bed)));
 
+
     //get the actual scouring rate
     //double scourat = (UF_ENTRAINMENTCONSTANT * h * std::sqrt( _fv*_fv + _sv*_sv)*(MaxCSF - (_s/_f+_s)))/((UF_SOILROCKPOROSITY - MaxCSF)*rocksize);
     double scourat = std::max(0.0,UF_ENTRAINMENTCONSTANT * (t- UF_ENTRAINMENTTHRESHOLDCONSTANT *tc));
     //get entrainment in cubic meters
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
+
 
     if(area < UF_VERY_SMALL)
     {
@@ -434,7 +439,7 @@ double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
         //convert to kg, and limimt to present material
 
         entrainment = std::min(RSoilRockMaterial->Drc, entrainment);
-        double theta = SoilRockMaterial->Drc >0?SoilRockWater->Drc/SoilRockMaterial->Drc:0.0;
+        double theta = SoilRockMaterial->Drc >0?RSoilRockWater->Drc/RSoilRockMaterial->Drc:0.0;
         RSoilRockMaterial->Drc -= entrainment;
         RSoilRockWater->Drc -= entrainment *theta;
 
@@ -458,8 +463,10 @@ double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
         double theta = SoilRockMaterial->Drc >0?SoilRockWater->Drc/SoilRockMaterial->Drc:0.0;
         SoilRockMaterial->Drc -= entrainment;
         SoilRockWater->Drc -= entrainment *theta;
-        EntrainmentDet->Drc = entrainment;
+        EntrainmentDet->Drc += entrainment;
         DEMChange->Drc -= entrainment/(_dx*_dx);
+
+        Entrainmentshearstressc->Drc += entrainment;
 
         if(entrainment > 0)
         {
@@ -467,8 +474,8 @@ double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
             UF2D_d->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_d->Drc + entrainment * SoilRockDensity->Drc)/(UF2D_s->Drc + entrainment) : UF2D_d->Drc;
             UF2D_rocksize->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_rocksize->Drc + entrainment * SoilRockSize->Drc)/(UF2D_s->Drc + entrainment) : UF2D_rocksize->Drc;
             UF2D_ifa->Drc = (UF2D_s->Drc + entrainment) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_ifa->Drc + entrainment * SoilRockIFA->Drc)/(UF2D_s->Drc + entrainment) : UF2D_ifa->Drc;
-            UF2D_s->Drc += entrainment/(_dx*_dx);
-            UF2D_f->Drc += entrainment *theta/(_dx*_dx);
+            UF2D_s->Drc += entrainment;
+            UF2D_f->Drc += entrainment *theta;
         }
         return entrainment;
     }

@@ -315,6 +315,9 @@ public slots:
     void aboutInfo();
     void resetAll();
 
+    void SetAllInLayoutInvisible(QLayout * layout,bool visible);
+    void Advancedmodel();
+
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
     void openMapname(QModelIndex topLeft);
@@ -420,6 +423,8 @@ private:
     QAction *runAct;
     QAction *pauseAct;
     QAction *stopAct;
+    QAction *SimpleAct;
+    QAction *AdvancedAct;
     QAction *shootscreenAct;
     QAction *shootMscreenAct;
     QAction *aboutAct;
