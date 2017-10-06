@@ -301,7 +301,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lfax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lxh,lxslope,false))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rfax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,rxh,rxslope,false))/2.0;
 
-            /*if(sf > UF_VERY_SMALL)
+            if(sf > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
@@ -311,7 +311,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
                 double ur_balance = ff * ThreadPool->UF_t7.at(thread)->Drc + sf * _su->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
-            }*/
+            }
 
             lfax = (ThreadPool->UF_t6.at(thread)->Drc - lfu)/dt->Drc;
             rfax = (ThreadPool->UF_t7.at(thread)->Drc - rfu)/dt->Drc;
@@ -325,7 +325,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lfay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lyh,lyslope,false))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rfay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,ryh,ryslope,false))/2.0;
 
-            /*if(sf > UF_VERY_SMALL)
+            if(sf > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)+(_fu->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
@@ -335,7 +335,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
                 double ur_balance = ff * ThreadPool->UF_t7.at(thread)->Drc + sf * _sv->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
-            }*/
+            }
 
             lfay = (ThreadPool->UF_t6.at(thread)->Drc - lfv)/dt->Drc;
             rfay = (ThreadPool->UF_t7.at(thread)->Drc - rfv)/dt->Drc;
@@ -578,7 +578,7 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lsax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lxh,lxslope,true))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rsax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,rxh,rxslope,true))/2.0;
 
-            /*if(ff > UF_VERY_SMALL)
+            if(ff > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
@@ -588,7 +588,7 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
                 double ur_balance = sf * ThreadPool->UF_t7.at(thread)->Drc + ff * _fu->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
-            }*/
+            }
 
             ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc);
             ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc);
@@ -604,7 +604,7 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lsay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lyh,lyslope,true))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rsay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,ryh,ryslope,true))/2.0;
 
-            /*if(ff > UF_VERY_SMALL)
+            if(ff > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fv->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fv->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
@@ -614,7 +614,7 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
                 double ur_balance = sf * ThreadPool->UF_t7.at(thread)->Drc + ff * _fv->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
-            }*/
+            }
 
             ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc);
             ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc);

@@ -35,10 +35,12 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "3.3"
-#define DATE "2016/05/10"
+#define VERSIONNR "1.0"
+#define DATE "2017/10/05"
 
-#define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)
+#define VERSION QString("openLISEM Hazard version %1 - %2").arg(VERSIONNR).arg(DATE)
 
+//define this to compile without the dependency on 3d stuff, button will be deactivated and old laptops can run again!
+#define COMPILE_WITHOUT_3D
 
 #endif /* VERSION_H_ */

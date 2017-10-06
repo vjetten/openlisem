@@ -364,7 +364,8 @@ cTMap
 *DFSFCalibration2,
 *DFForcing2,
 *DFForcingUp2,
-
+*MaximumUpslopeForcing,
+*MinimumDownslopeForcing,
 *DFForcingDemand,
 *DFForcingCapacity,
 *DFForcing,

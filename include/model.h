@@ -486,6 +486,8 @@ public:
     QString FileName_Entrainment;
     QString FileName_SlopeFailure;
     QString FileName_MinimumSafetyFactor;
+    QString FileName_MaximumUpSlopeForcing;
+    QString FileName_MinimumDownSlopeForcing;
     QString FinalFluidPhaseFileName;
     QString FinalSolidPhaseFileName;
     QString floodLevelFileName;

@@ -105,8 +105,10 @@ void lisemqt::runmodel()
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
+#ifndef COMPILE_WITHOUT_3D
     first3d = true;
     Allow3D = false;
+#endif
 
     W->start();
     // start the model thread, executes W->run()
@@ -175,17 +177,19 @@ void lisemqt::SetAllInLayoutInvisible(QLayout * layout,bool visible)
 //---------------------------------------------------------------------------
 void lisemqt::stopmodel()
 {
+#ifndef COMPILE_WITHOUT_3D
     if(Allow3D)
     {
         creator->DestroyWorldFromLisem();
     }
-
+#endif
     if(W)
         W->stopRequested = true;
     if(W->waitRequested)
     {
         W->condition.wakeAll();
     }
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()
@@ -218,7 +222,7 @@ void lisemqt::worldShow()
 
     showMap(); // show map
 
-
+#ifndef COMPILE_WITHOUT_3D
     if(Allow3D)
     {
         if(first3d)
@@ -249,6 +253,8 @@ void lisemqt::worldShow()
             creator->UpdateWorldFromLisem();
         }
     }
+
+#endif
 
     if (doShootScreens)
        shootScreen();

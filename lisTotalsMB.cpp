@@ -315,12 +315,34 @@ void TWorld::Totals(void)
         }
         if(SwitchSlopeStability)
         {
+
+
             if(firstssreport && sfset)
             {
                 firstssreport = false;
                 MinimumSafetyFactor->Drc = DFSafetyFactor->Drc;
+
+                /*if(SwitchUpslopeForcing)
+                {
+                    MaximumUpslopeForcing->Drc = DFForcing->Drc + SwitchBedrock? DFForcing2->Drc : 0.0;
+                }
+                if(SwitchDownslopeForcing)
+                {
+                    MinimumDownslopeForcing->Drc = DFForcingUp->Drc + SwitchBedrock? DFForcingUp2->Drc : 0.0;
+                }*/
+
             }else
             {
+
+                /*if(SwitchUpslopeForcing)
+                {
+                    MaximumUpslopeForcing->Drc = std::max(MaximumUpslopeForcing->Drc,DFForcing->Drc + SwitchBedrock? DFForcing2->Drc : 0.0);
+                }
+                if(SwitchDownslopeForcing)
+                {
+                    MinimumDownslopeForcing->Drc = std::min(MinimumDownslopeForcing->Drc,DFForcingUp->Drc + SwitchBedrock? DFForcingUp2->Drc : 0.0);
+                }*/
+
                 if( MinimumSafetyFactor->Drc < 0.01)
                 {
                     MinimumSafetyFactor->Drc = DFSafetyFactor->Drc;

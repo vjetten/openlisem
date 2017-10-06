@@ -732,105 +732,6 @@ void TWorld::ReportMaps(int not_used)
         }
     }*/
 
-    //creating a test dem for a landslide dam
-    /*for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            double x = std::fabs(double(float(r) - 0.5 * _nrRows)) < 3 ? std::pow((std::fabs(double(float(r) - 0.5 * _nrRows))/3.0),4.0)*3.0 : std::fabs(double(float(r) - 0.5 * _nrRows));
-
-            ThreadPool->tm->Drc = 15.0 * x - 0.05 * double(_nrCols - float(c));
-
-        }
-    }*/
-
-    //creating a flume
-    /*double slope1 = std::tan(std::asin(10.0 *3.14/180));
-    double slope2 = std::tan(std::asin(12.0 *3.14/180));
-    double slope3 = std::tan(std::asin(14.0 *3.14/180));
-    double slope4 = std::tan(std::asin(16.0 *3.14/180));
-    double slope5 = std::tan(std::asin(18.0 *3.14/180));
-
-    for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            ThreadPool->tm->Drc = 1.0 + slope1 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-        }
-    }
-    for(int r = 1; r < _nrRows-1; r++)
-    {
-        for (int c = 1; c < _nrCols-1; c++)
-        {
-            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
-        }
-    }
-    report(*ThreadPool->tm, QString("dem1"));
-    for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            ThreadPool->tm->Drc = 1.0 + slope2 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-        }
-    }
-    for(int r = 1; r < _nrRows-1; r++)
-    {
-        for (int c = 1; c < _nrCols-1; c++)
-        {
-            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
-        }
-    }
-    report(*ThreadPool->tm, QString("dem2"));
-    for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            ThreadPool->tm->Drc = 1.0 + slope3 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-        }
-    }
-    for(int r = 1; r < _nrRows-1; r++)
-    {
-        for (int c = 1; c < _nrCols-1; c++)
-        {
-            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
-        }
-    }
-    report(*ThreadPool->tm, QString("dem3"));
-    for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            ThreadPool->tm->Drc = 1.0 + slope4 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-        }
-    }
-    for(int r = 1; r < _nrRows-1; r++)
-    {
-        for (int c = 1; c < _nrCols-1; c++)
-        {
-            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
-        }
-    }
-    report(*ThreadPool->tm, QString("dem4"));
-    for(int r = 0; r < _nrRows; r++)
-    {
-        for (int c = 0; c < _nrCols; c++)
-        {
-            ThreadPool->tm->Drc = 1.0 + slope5 * std::fabs(double(float(_nrRows -r))) * _dx + 0.05 * _dx * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-        }
-    }
-    for(int r = 1; r < _nrRows-1; r++)
-    {
-        for (int c = 1; c < _nrCols-1; c++)
-        {
-            ThreadPool->tm->Drc = (ThreadPool->tm->Drc * 2.0 + (!OUTORMV(r,c-1)? ThreadPool->tm->data[r][c-1] : ThreadPool->tm->Drc)+ (!OUTORMV(r,c+1)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r-1,c)? ThreadPool->tm->data[r-1][c] : ThreadPool->tm->Drc)+ (!OUTORMV(r+1,c)? ThreadPool->tm->data[r+1][c] : ThreadPool->tm->Drc))/6.0;
-        }
-    }
-    report(*ThreadPool->tm, QString("dem5"));*/
 
     report(*ThreadPool->tm, rainfallMapFileName);
     report(*ThreadPool->tma, interceptionMapFileName);
@@ -934,12 +835,25 @@ void TWorld::ReportMaps(int not_used)
     if(SwitchSlopeStability)
     {
         report(*MinimumSafetyFactor,FileName_MinimumSafetyFactor);
+
+        if(SwitchUpslopeForcing)
+        {
+            //report(*MaximumUpslopeForcing,FileName_MaximumUpSlopeForcing);
+            report(*DFForcing,FileName_MaximumUpSlopeForcing);
+        }
+
+        if(SwitchDownslopeForcing)
+        {
+            //report(*MinimumDownslopeForcing,FileName_MinimumDownSlopeForcing);
+            report(*DFForcingUp,FileName_MinimumDownSlopeForcing);
+        }
     }
     if(SwitchEntrainment)
     {
         report(*TotalEntrainmentDet,FileName_EntrainmentDet);
         report(*TotalEntrainmentDep,FileName_EntrainmentDep);
     }
+
 
 
     if (outputcheck[0].toInt() == 1)

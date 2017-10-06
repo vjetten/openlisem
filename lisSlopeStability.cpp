@@ -204,6 +204,20 @@ void TWorld::SafetyFactor()
 
     }
 
+    //store safety factor for display
+    FOR_ROW_COL_MV
+    {
+
+        if(SwitchUpslopeForcing)
+        {
+            MaximumUpslopeForcing->Drc = std::max(MaximumUpslopeForcing->Drc,DFForcing->Drc + SwitchBedrock? DFForcing2->Drc : 0.0);
+        }
+        if(SwitchDownslopeForcing)
+        {
+            MinimumDownslopeForcing->Drc = std::min(MinimumDownslopeForcing->Drc,DFForcingUp->Drc + SwitchBedrock? DFForcingUp2->Drc : 0.0);
+        }
+    }
+
     //Since slope failure at one cell influences the next, we iterate untill we end up with a stable situation
     //the function CalculateSafetyFactor does the actual calculations for safety factor and possible slope failure depth
     //we then adapt the slope and do it again, untill nothing more fails

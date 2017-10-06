@@ -30,6 +30,8 @@
 
 void lisemqt::Setup3DPlot()
 {
+#ifndef COMPILE_WITHOUT_3D
+
     //disable 3d tab
     tabWidget->setTabEnabled(3,false);
 
@@ -46,15 +48,22 @@ void lisemqt::Setup3DPlot()
     Button3D->update();
 
     glwidget->setFocus();
+
+#endif
+
 }
 
 void lisemqt::doSet3DFocus()
 {
+#ifndef COMPILE_WITHOUT_3D
     glwidget->setFocus();
+#endif
 }
 
 void lisemqt::doUpdateGLSettings()
 {
+#ifndef COMPILE_WITHOUT_3D
+
     glwidget->setFocus();
 
     //get the 3d setting from interface and give them to the lisem world creator
@@ -138,5 +147,7 @@ void lisemqt::doUpdateGLSettings()
     //s.Grass_Vertical_Scale = this->GL_Objects_Grass_Vertical_Scale->value();
 
     creator->UpdateWorldSettings(s);
+
+#endif
 
 }

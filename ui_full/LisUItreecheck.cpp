@@ -36,23 +36,77 @@
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+
 /*
-RAINFALLMAPS
-CATCHMENTMAPS
-LANDUSEMAPS
-SURFACEMAPS
-EROSIONMAPS
-INFILTRATIONMAPS
-CHANNELMAPS
-BUFFERSMAPS
-SNOWMELTMAPS
-WHEELTRACKSMAPS
-TEXTUREMAPS
-NUTRIENTSMAPS
-GULLIESMAPS
+#define RAINFALLMAPS 0
+#define CATCHMENTMAPS 1
+#define LANDUSEMAPS 2
+#define SURFACEMAPS 3
+#define EROSIONMAPS 4
+#define SLOPESTABILITYMAPS 5
+#define ENTRAINMENTMAPS 6
+#define INFILTRATIONMAPS 7
+#define CHANNELMAPS 8
+#define SURFACEFLOWMAPS 9
+#define SNOWMELTMAPS 10
+#define HOUSESMAPS 11
+
+#define CHANNELPROPERTIES 1
+#define CHANNELINFIL 2
+#define CHANNELBASEFLOW 3
+
+#define TOPLAYERSLOPESTABILITYMAPS 1
+#define BOTTOMLAYERSLOPESTABILITYMAPS 2
+#define SEISMICSLOPESTABILITYMAPS 2
+
+#define SWATREMAPS 1
+#define GREENANDAMPTLAYER1MAPS 2
+#define GREENANDAMPTLAYER2MAPS 3
+#define KSATSUBSTRACTIONMAPS 4
+
+#define FLOWBARRIERS 1
+#define FLOWLIMITING 2
+#define FLOWINITIAL 3
+#define FLOWFORCED 4
+#define FLOWCELLBARRIERS 5
 */
 
-
+void lisemqt::on_checkDoInitialFlow_clicked()
+{
+    checkMapNameModel(SURFACEFLOWMAPS, 10 +FLOWINITIAL, checkBox_UFInitial->isChecked());
+}
+void lisemqt::on_checkDoForcedFlow_clicked()
+{
+    checkMapNameModel(SURFACEFLOWMAPS, 10 +FLOWFORCED, checkBox_UFForced->isChecked());
+}
+void lisemqt::on_checkDoFlowLimiting_clicked()
+{
+    //checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+}
+void lisemqt::on_checkDoFlowBarriers_clicked()
+{
+    //checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+}
+void lisemqt::on_checkDoFlowCellBarriers_clicked()
+{
+    //checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+}
+void lisemqt::on_checkDoSlopeStabilityTop_clicked()
+{
+    checkMapNameModel(SLOPESTABILITYMAPS, 10 +TOPLAYERSLOPESTABILITYMAPS, checkSlopeStability->isChecked());
+}
+void lisemqt::on_checkDoSlopeStabilityBottom_clicked()
+{
+    checkMapNameModel(SLOPESTABILITYMAPS, 10 +BOTTOMLAYERSLOPESTABILITYMAPS, checkBedRockLayer->isChecked());
+}
+void lisemqt::on_checkDoSlopeStabilitySeismic_clicked()
+{
+    checkMapNameModel(SLOPESTABILITYMAPS, 10 +SEISMICSLOPESTABILITYMAPS, checkSeismic->isChecked());
+}
+void lisemqt::on_checkDoEntrainment_clicked()
+{
+    checkMapNameModel(ENTRAINMENTMAPS, 0, checkSlopeStability->isChecked());
+}
 
 //--------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_clicked()
@@ -79,7 +133,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
 {
-    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkHouses_clicked()
@@ -105,8 +159,7 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelFlood_clicked()
 {
-    checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
-    //checkNoErosion->setChecked(true);
+
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
@@ -230,7 +283,7 @@ void lisemqt::doCheckRainfall(bool check)
 //--------------------------------------------------------------------
 void lisemqt::doCheckPesticides(bool check)
 {
-    checkMapNameModel(NUTRIENTSMAPS, 10, check);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkExpandActive_clicked()
@@ -253,7 +306,6 @@ void lisemqt::RunAllChecks()
 
     // PROCESS IN REVERSE ORDER
 
-    checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
@@ -289,14 +341,15 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(SURFACEMAPS, 0, true);
     checkMapNameModel(LANDUSEMAPS, 0, true);
     checkMapNameModel(CATCHMENTMAPS, 0, true);
+    checkMapNameModel(SURFACEFLOWMAPS, 0, true);
     checkMapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
 
-    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
     //houses
     checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
-
-    checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
-
+    checkMapNameModel(ENTRAINMENTMAPS, 0, checkSlopeStability->isChecked());
+    checkMapNameModel(SURFACEFLOWMAPS, 10+FLOWINITIAL, checkBox_UFInitial->isChecked());
+    checkMapNameModel(SURFACEFLOWMAPS, 10+FLOWFORCED, checkBox_UFForced->isChecked());
+    checkMapNameModel(SLOPESTABILITYMAPS, 10 +SEISMICSLOPESTABILITYMAPS, checkSeismic->isChecked());
     checkExpandActive->setChecked(false);
     treeView->collapseAll();
 }

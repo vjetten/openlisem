@@ -109,7 +109,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
+#ifndef COMPILE_WITHOUT_3D
     Setup3DPlot();
+#endif
 
     setupPlot();
     // setupSmallPlot();
@@ -175,9 +177,18 @@ void lisemqt::SetConnections()
     connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
+    connect(checkBox_UFForced, SIGNAL(clicked()), this, SLOT(on_checkDoInitialFlow_clicked()));
+    connect(checkBox_UFInitial, SIGNAL(clicked()), this, SLOT(on_checkDoForcedFlow_clicked()));
+    connect(checkSeismic, SIGNAL(clicked()), this, SLOT(on_checkDoSlopeStabilityBottom_clicked()));
+    connect(checkBedRockLayer, SIGNAL(clicked()), this, SLOT(on_checkDoSlopeStabilityBottom_clicked()));
+    connect(checkSlopeStability, SIGNAL(clicked()), this, SLOT(on_checkDoSlopeStabilityTop_clicked()));
+    connect(checkEntrainment, SIGNAL(clicked()), this, SLOT(on_checkDoEntrainment_clicked()));
+
+#ifndef COMPILE_WITHOUT_3D
     connect(GL_Focus,SIGNAL(pressed()),this,SLOT(doSet3DFocus()));
     connect(GL_Commit,SIGNAL(pressed()),this,SLOT(doUpdateGLSettings()));
     connect(Button3D,SIGNAL(pressed()),this,SLOT(doCheck3D()));
+#endif
     // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
     // works automatically. if included here may be executed twice!!! not sure...
 
@@ -1411,7 +1422,7 @@ void lisemqt::shootScreen()
 //--------------------------------------------------------------------
 void lisemqt::doCheck3D()
 {
-
+#ifndef COMPILE_WITHOUT_3D
     //disable 3d tab
     tabWidget->setTabEnabled(3,false);
 
@@ -1422,6 +1433,7 @@ void lisemqt::doCheck3D()
     Button3D->setAutoFillBackground(true);
     Button3D->setPalette(pal);
     Button3D->update();
+#endif
 }
 
 //--------------------------------------------------------------------

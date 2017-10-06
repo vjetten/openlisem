@@ -1082,6 +1082,16 @@ void TWorld::GetInputData(void)
         DFForcing2 = NewMap(0.0);
         DFForcingUp2 = NewMap(0.0);
 
+        if(SwitchUpslopeForcing)
+        {
+            MaximumUpslopeForcing = NewMap(0.0);
+        }
+
+        if(SwitchDownslopeForcing)
+        {
+            MinimumDownslopeForcing = NewMap(1e30);
+        }
+
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
         SF_Calibrate_First = true;
@@ -1606,6 +1616,8 @@ void TWorld::IntializeOptions(void)
     FileName_MinimumSafetyFactor = QString("minimumsafetyfactor.map");
     FileName_EntrainmentDet = QString("SolidEnt.map");
     FileName_EntrainmentDep = QString("SolidDep.map");
+    FileName_MaximumUpSlopeForcing = QString("MaxForcingUpslope.map");
+    FileName_MinimumDownSlopeForcing = QString("MinForcingDownslope.map");
 
     rainFileName.clear();
     SwitchLimitTC = false;

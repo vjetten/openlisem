@@ -87,8 +87,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("1;Seismic Trigger");
     DEFmaps.append("2;PGA;pga.map;Peak Ground Accaleration map (m/s2);pga");
     DEFmaps.append("2;PGATiming;pgatiming.map;timing f peak ground accaleration (min);pgatiming");
+
     DEFmaps.append("0;Entrainment");
-    DEFmaps.append("1;Loose Material");
     DEFmaps.append("2;DebrisMaterial;debrismaterial.map;Depth of loose material (m);debrismaterial");
     DEFmaps.append("2;RockSize;rocksize.map;Loose material rock size (m);rocksize");
     DEFmaps.append("2;RockDensity;rockdensity.map;Loose material density (kg/m3);rockdensity");
@@ -120,6 +120,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
+
     DEFmaps.append("0;Channels");
     DEFmaps.append("1;Channel properties");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
@@ -130,6 +131,10 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
+    DEFmaps.append("1;Channel Infil");
+    DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
+    DEFmaps.append("1;Channel BaseFLow");
+    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
 
     DEFmaps.append("0;Surface Flow");
     DEFmaps.append("1;Flow barriers");
@@ -141,12 +146,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;ChannelMaxVolume;channelmaxvolume.map; Maximum flow volume for Channel;channelmaxvol");
     DEFmaps.append("2;ChannelConnected;channelconnected.map; Is the channel connected to overland flow;channelconnected");
-    DEFmaps.append("1;Channel Infil");
-    DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-    DEFmaps.append("1;Channel BaseFLow");
-    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
-
-
     DEFmaps.append("1;Initial Volume");
     DEFmaps.append("2;InitiationTime;initiationtime.map;initial time (min);initiationtime");
     DEFmaps.append("2;InitialFVolume;initialfvolume.map;initial fluid volume (m3);initialfvolume");
@@ -154,15 +153,13 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;InitialSDensity;initialsdensity.map;initial solid density (kg/m3);initialsdensity");
     DEFmaps.append("2;InitialSRocksize;initialsrocksize.map;initial solid rocksize (m);initialsrocksize");
     DEFmaps.append("2;InitialSIFA;initialsifa.map;initial internal friction angle (radians);initialsifa");
-
     DEFmaps.append("1;Forced Volume condition");
     DEFmaps.append("2;forcedfvolume;forcedfvolume.map;forced fluid volume (m3);forcedfvolume");
     DEFmaps.append("2;ForcedSVolume;forcedsvolume.map;forced solid volume (m3);forcedsvolume");
     DEFmaps.append("2;ForcedSDensity;forcedsdensity.map;forced solid density (kg/m3);forcedsdensity");
     DEFmaps.append("2;ForcedSRocksize;forcedsrocksize.map;forced solid rocksize (m);forcedsrocksize");
     DEFmaps.append("2;ForcedSIFA;forcedsifa.map;forced internal friction angle (radians);forcedsifa");
-
-    DEFmaps.append("0;FlowBarriers");
+    DEFmaps.append("1;Flow cell boundary based Barriers");
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
 
     DEFmaps.append("0;Snowmelt");

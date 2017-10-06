@@ -75,7 +75,8 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double signa = a>0?1.0:-1.0;
         a = std::min(std::fabs(a)/dt,25.0 * h);
         double manning = solid? UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/pow(std::max(UF_VERY_SMALL,h),4.0/3.0);
+        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );
+
 
         if(channel)
         {
@@ -87,10 +88,13 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
             }
         }
         double kinfac = std::max(0.05,(0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0)));
-        velx = sqrt(a)/sqrt(kinfac *nsq); //-nsq * dt *a + sqrt(nsq)*sqrt(std::fabs(a))*sqrt(4 + a * dt*dt*nsq)/(2.0*nsq);
+
+        velx = (nsq ==0)? velo : sqrt(a)/sqrt(kinfac *nsq); //-nsq * dt *a + sqrt(nsq)*sqrt(std::fabs(a))*sqrt(4 + a * dt*dt*nsq)/(2.0*nsq);
         velx = signa *velx ;
 
         double fac = exp(-dt / std::max(20.0,20.0 * h));
+
+
         velx = fac * velo + (1.0-fac) *velx;
 
         return velx;

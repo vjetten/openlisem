@@ -193,7 +193,7 @@ void lisemqt::editMapname(QModelIndex topLeft, QModelIndex /* bottomRight */)
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS )
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
 
    for (int k = 0; k < nrmaplist; k++)
@@ -224,7 +224,7 @@ void lisemqt::openMapname(QModelIndex topLeft)
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
    // correct for 3 level structures
 

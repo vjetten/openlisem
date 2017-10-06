@@ -78,17 +78,32 @@
 #define LANDUSEMAPS 2
 #define SURFACEMAPS 3
 #define EROSIONMAPS 4
-#define INFILTRATIONMAPS 5
-#define CHANNELMAPS 6
-#define CHANNELFLOODMAPS 7
-#define BUFFERSMAPS 8
-#define SNOWMELTMAPS 9
-#define TILEDRAINMAPS 10   //VJ 110111
-#define HOUSESMAPS 11  //VJ 120314
-#define NUTRIENTSMAPS 12
-//#define TEXTUREMAPS 13
-//#define WHEELTRACKSMAPS 14
-//#define GULLIESMAPS 15
+#define SLOPESTABILITYMAPS 5
+#define ENTRAINMENTMAPS 6
+#define INFILTRATIONMAPS 7
+#define CHANNELMAPS 8
+#define SURFACEFLOWMAPS 9
+#define SNOWMELTMAPS 10
+#define HOUSESMAPS 11
+
+#define CHANNELPROPERTIES 0
+#define CHANNELINFIL 1
+#define CHANNELBASEFLOW 2
+
+#define TOPLAYERSLOPESTABILITYMAPS 0
+#define BOTTOMLAYERSLOPESTABILITYMAPS 1
+#define SEISMICSLOPESTABILITYMAPS 2
+
+#define SWATREMAPS 0
+#define GREENANDAMPTLAYER1MAPS 1
+#define GREENANDAMPTLAYER2MAPS 2
+#define KSATSUBSTRACTIONMAPS 3
+
+#define FLOWBARRIERS 0
+#define FLOWLIMITING 1
+#define FLOWINITIAL 2
+#define FLOWFORCED 3
+#define FLOWCELLBARRIERS 4
 
 
 //---------------------------------------------------------------------------
@@ -291,10 +306,26 @@ public:
     bool Allow3D = false;
 
     void Setup3DPlot();
+#ifndef COMPILE_WITHOUT_3D
     GL3DWidget *glwidget;
 
     GL3DWorldCreator * creator;
+#endif
+
+
+
+
 public slots:
+
+    void on_checkDoInitialFlow_clicked();
+    void on_checkDoForcedFlow_clicked();
+    void on_checkDoFlowBarriers_clicked();
+    void on_checkDoFlowCellBarriers_clicked();
+    void on_checkDoFlowLimiting_clicked();
+    void on_checkDoSlopeStabilityTop_clicked();
+    void on_checkDoSlopeStabilityBottom_clicked();
+    void on_checkDoSlopeStabilitySeismic_clicked();
+    void on_checkDoEntrainment_clicked();
 
     void doSet3DFocus();
     void doCheck3D();

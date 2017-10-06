@@ -293,11 +293,10 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
 
     ////Pudasaini
 
-    /*double entrainment_solid = ((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
-    double entrainment_fluid = ((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
+    /*double entrainment_solid = UF_ENTRAINMENTCONSTANT *((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
+    double entrainment_fluid = UF_ENTRAINMENTCONSTANT *((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
 
     entrainment = entrainment_solid + entrainment_fluid;*/
-
 
     ////Takahashi
     //first get maximum solids concentration that still allows entrainment
@@ -367,8 +366,8 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
 
     ////Pudasaini
 
-    /*double entrainment_solid = ((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
-    double entrainment_fluid = ((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
+    /*double entrainment_solid = UF_ENTRAINMENTCONSTANT *((_f + _s) > 0? (_s/(_f + _s)): 0.0) * 0.003 * area * std::sqrt(h * cos(slope) * UF_Gravity);
+    double entrainment_fluid = UF_ENTRAINMENTCONSTANT *((_f + _s) > 0? (_f/(_f + _s)): 0.0) * 0.002 * area * _fv;
 
     entrainment = entrainment_solid + entrainment_fluid;*/
 
