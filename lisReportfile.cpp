@@ -272,7 +272,7 @@ void TWorld::OutputUI(void)
     copy(*op.gl_flow_height, *UF2D_h);
     copy(*op.gl_flow_u, *UF2D_u);
     copy(*op.gl_flow_v, *UF2D_v);
-    copy(*op.gl_flow_c, *UF2D_tConc);
+    copy(*op.gl_flow_c, *UF2D_s);
 
     op.has_channel = SwitchIncludeChannel;
     if(SwitchIncludeChannel)
@@ -1322,6 +1322,15 @@ void TWorld::GetComboMaps()
     Colormap.append(1.0);
 
     Colors.clear();
+    /* normalized colors, looks very dull
+    Colors.append("#71f7e7");
+    Colors.append("#71f4f7");
+    Colors.append("#71e5f7");
+    Colors.append("#7194f7");
+    Colors.append("#7371f7");
+    Colors.append("#f77171");
+    Colors.append("#f771c3");*/
+
     Colors.append("#8C8CFF");
     Colors.append("#8080FF");
     Colors.append("#4040ff");
@@ -1329,6 +1338,30 @@ void TWorld::GetComboMaps()
     Colors.append("#00006F");
     Colors.append("#FF0000");
     Colors.append("#FF3300");
+
+    /* //alternative color scheme with more colors, but a ugly? look?
+    Colormap.clear();
+    Colormap.append(0.005);
+    Colormap.append(0.01);
+    Colormap.append(0.03);
+    Colormap.append(0.08);
+    Colormap.append(0.1);
+    Colormap.append(0.3);
+    Colormap.append(0.5);
+    Colormap.append(0.8);
+    Colormap.append(1.0);
+
+    Colors.clear();
+    Colors.append("#99FFED");
+    Colors.append("#00E6FF");
+    Colors.append("#0084FF");
+    Colors.append("#0030CB");
+    Colors.append("#040189");
+    Colors.append("#FF9599");
+    Colors.append("#FF6600");
+    Colors.append("#FF0000");
+    Colors.append("#FF009D");*/
+
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
     if(SwitchIncludeChannel)
     {

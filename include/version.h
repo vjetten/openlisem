@@ -41,6 +41,6 @@
 #define VERSION QString("openLISEM Hazard version %1 - %2").arg(VERSIONNR).arg(DATE)
 
 //define this to compile without the dependency on 3d stuff, button will be deactivated and old laptops can run again!
-#define COMPILE_WITHOUT_3D
+//#define COMPILE_WITHOUT_3D
 
 #endif /* VERSION_H_ */

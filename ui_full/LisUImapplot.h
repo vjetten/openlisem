@@ -149,6 +149,32 @@ public:
 
     }
 };
+
+//---------------------------------------------------------------------------
+/// House color legend
+class colorMapConcentration: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+
+        if ( value < 0.05 )
+        {
+            return qRgba( 0, 0, 0, 0 );
+        }
+
+        QRgb c = QwtLinearColorMap::rgb( interval, value );
+
+        return qRgba(0, 255, 0,float(qRed(c)) * (125.0/255.0));
+    }
+public:
+    colorMapConcentration():
+//        QwtLinearColorMap( QColor("#333300"), QColor("#ada399"))
+ //     QwtLinearColorMap( QColor("#c06969"), QColor("#421010"))
+          QwtLinearColorMap( QColor("#000000"), QColor("#FFFFFF"))
+    {
+
+    }
+};
 //---------------------------------------------------------------------------
 ///  relief map display
 ///http://www.colorschemer.com/schemes/viewscheme.php?id=81

@@ -63,6 +63,7 @@
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_engine.h>
+#include <LisQwtPlot.h>
 
 #include "version.h"
 #include "ui_lisemqt.h"
@@ -181,22 +182,25 @@ public:
     void showChannelMap();
     void showRoadMap();
     void showHouseMap();
+    void showConcentrationMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type);
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
+    QwtPlotSpectrogram *drawSMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
     QwtPlotSpectrogram *channelMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
-    QwtPlot *MPlot;               // plot in which the raster map is drawn
+    LisQwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtMatrixRasterData *RD;
     QwtMatrixRasterData *RDb;
     QwtMatrixRasterData *RDbb;
     QwtMatrixRasterData *RDc;
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
+    QwtMatrixRasterData *RDconc;
     //   double drawNrCols;
     //   double drawNrRows;
     // vars for store map display in runfile
@@ -415,6 +419,9 @@ public slots:
 
     void on_checkEstimateGrainSizeDistribution_toggled(bool v);
     void on_checkReadGrainSizeDistribution_toggled(bool v);
+
+    void onVectorsToggled(bool b);
+    void onSolidsToggled(bool b);
 
     void ssetAlpha(int v);
     void ssetAlpha2(int v);

@@ -25,6 +25,7 @@ SET(APP_SOURCES
     ui_full/lisemqt
     ui_full/LisUIplot
     ui_full/LisUImapplot
+    ui_full/LisQwtPlot
     lisDataInit
     lisSeismic
     lisErosion

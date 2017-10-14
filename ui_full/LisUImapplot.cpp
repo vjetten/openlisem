@@ -44,6 +44,16 @@ void QwtLinearColorMapVJ::setThreshold( double value)
 {
     thresholdLCM = value;
 }
+void lisemqt::onVectorsToggled(bool b)
+{
+    MPlot->setVelocityFieldEnabled(b);
+    MPlot->replot();
+}
+void lisemqt::onSolidsToggled(bool b)
+{
+    drawSMap->setAlpha(b? 255 : 0);
+    MPlot->replot();
+}
 
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
@@ -98,7 +108,7 @@ void lisemqt::setupMapPlot()
 
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
-    MPlot = new QwtPlot(title, this);
+    MPlot = new LisQwtPlot(title, this);
     // make the plot window
     //Layout_Map_2
 
@@ -107,8 +117,8 @@ void lisemqt::setupMapPlot()
     // put it on screen
     //MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
-    MPlot->setAxisTitle(HPlot->xBottom, "m");
-    MPlot->setAxisTitle(HPlot->yLeft, "m");
+    MPlot->setAxisTitle(MPlot->xBottom, "m");
+    MPlot->setAxisTitle(MPlot->yLeft, "m");
 
     // attach plot to widget in UI
 
@@ -126,6 +136,11 @@ void lisemqt::setupMapPlot()
     drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
+
+    drawSMap = new QwtPlotSpectrogram();
+    drawSMap->setRenderThreadCount( 0 );
+    drawSMap->attach( MPlot );
+
 
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
@@ -153,6 +168,7 @@ void lisemqt::setupMapPlot()
     RDc = new QwtMatrixRasterData();
     RDd = new QwtMatrixRasterData();
     RDe = new QwtMatrixRasterData();
+    RDconc = new QwtMatrixRasterData();
 
     // raster data to link to plot
 
@@ -327,7 +343,12 @@ void lisemqt::showMap()
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
 
+
+    MPlot->setVelocityField(op.gl_flow_u,op.gl_flow_v,op.gl_flow_u->cellSize());
+
     MPlot->replot();
+
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
@@ -518,4 +539,19 @@ void lisemqt::showHouseMap()
         houseMap->setAlpha(0);
 
     houseMap->setColorMap(new colorMapHouse());
+}
+//---------------------------------------------------------------------------
+void lisemqt::showConcentrationMap()
+{
+
+    // set intervals for rasterdata, x,y,z min and max
+    double res = fillDrawMapData(op.gl_flow_c, RDconc, 0);
+    if (res ==-1e20)
+        return;
+    RDconc->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
+    drawSMap->setData(RDconc);
+
+    //drawSMap->setAlpha(checkSolidsMap->isChecked()? 255:0);
+
+    drawSMap->setColorMap(new colorMapConcentration());
 }

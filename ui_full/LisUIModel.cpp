@@ -218,6 +218,8 @@ void lisemqt::worldShow()
 
     showHouseMap(); // show building structures map
 
+    showConcentrationMap();
+
     startplot = false;
 
     showMap(); // show map
