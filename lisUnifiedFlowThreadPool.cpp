@@ -100,8 +100,13 @@ void LisemThreadPool::Close()
 
 void LisemThreadPool::InitThreads(TWorld * world)
 {
+
+
+    bool limit_threads = world->getvalueint("Limit Cores") == 1;
+    double limit_nr = world->getvalueint("Core Limit") == 1;
+
     //first get the number of cores
-    TP_NumberOfCores = std::thread::hardware_concurrency();
+    TP_NumberOfCores = limit_threads? std::max(1.0,limit_nr) : std::thread::hardware_concurrency();
     //make this 1, instead of the actual cores
 
 

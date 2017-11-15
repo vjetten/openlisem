@@ -39,7 +39,7 @@ double TWorld::UF_BoundaryFlux2D(double dt, double cellx, double celly, double f
     double Perim;
     const double beta = 0.6;
     const double _23 = 2.0/3.0;
-    double beta1 = 1/beta;
+    double beta1 = 1.0/beta;
     double h = (f + s)/(cellx*celly);
     double grad = sqrt(slopeX*slopeX + slopeY*slopeY);
     double R;
@@ -64,7 +64,7 @@ double TWorld::UF_BoundaryFlux2D(double dt, double cellx, double celly, double f
 
     V = pow(R, _23)*sqrt(grad)/NN;
 
-    return std::min((f+s) * UF_Courant,dt * Q);
+    return std::min((f+s) * UF_Courant,0.1*dt * Q);
 }
 
 double TWorld::UF_BoundaryFlux1D(double dt, double width, double f, double s, double fu, double su, double slope,double NN, bool front )

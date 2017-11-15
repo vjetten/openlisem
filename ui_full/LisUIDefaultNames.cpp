@@ -408,6 +408,13 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Spatially Dynamic Timestep");
 
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Limit Cores");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Core Limit");
+
+
+
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Levees");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Enable Barriers");

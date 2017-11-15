@@ -378,6 +378,11 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             lyh = UF_OUTORMV(_dem,r-1,c)?0.0:std::min(lyh,std::max(0.0,lyh + ((_dem->Drc) - ( _dem->data[r-1][c] +GetFlowBarrierHeight(r,c,-1,0)))));
         }
 
+        double outlet = 0.0;
+        outlet = UF_OUTORMV(_dem,r,c+1)? 1.0 : outlet;
+        outlet = UF_OUTORMV(_dem,r,c-1)? 1.0 : outlet;
+        outlet = UF_OUTORMV(_dem,r+1,c)? 1.0 : outlet;
+        outlet = UF_OUTORMV(_dem,r-1,c)? 1.0 : outlet;
 
         double cq =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * _f->Drc;
         double cqx1 =  UF2D_COURANTSCHEMEFACTOR *UF_Courant * (UF_OUTORMV(_dem,r,c+1)? 0.0 : volx1);
@@ -396,9 +401,9 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double qy2old = qy2;
 
         qx1 = ((qx1 > 0)? 1.0 : 0.0) * std::min(std::fabs(qx1),(qx1 > 0)? cq : cqx1);
-        qx2 = ((qx2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qx2),(qx2 < 0)? cqx2 : cq);
+        qx2 = ((qx2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qx2),(qx2 > 0)? cqx2 : cq);
         qy1 = ((qy1 > 0)? 1.0 : 0.0) * std::min(std::fabs(qy1),(qy1 > 0)? cq : cqy1);
-        qy2 = ((qy2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qy2),(qy2 < 0)? cqy2 : cq);
+        qy2 = ((qy2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qy2),(qy2 > 0)? cqy2 : cq);
 
         double qnextx1 = UF_OUTORMV(_dem,r,c+1)? 0.0: dtx1 * (_fu->data[r][c+1]/_dx) *_f->data[r][c+1];
         double qnextx2 = UF_OUTORMV(_dem,r,c-1)? 0.0: dtx1 * (_fu->data[r][c-1]/_dx) *_f->data[r][c-1];
@@ -410,15 +415,15 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         qy1 = qy1 + UF_MinMod(qy1old - qy1,qnexty1);
         qy2 = qy2 + UF_MinMod(qy2old - qy2,qnexty2);
 
-        qx1 = UF_OUTORMV(_dem,r,c+1)? UF_BoundaryFlux2D(dtx1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,1) : qx1;
-        qx2 = UF_OUTORMV(_dem,r,c-1)? -UF_BoundaryFlux2D(dtx2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 0,-1) : qx2;
-        qy1 = UF_OUTORMV(_dem,r+1,c)? UF_BoundaryFlux2D(dty1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, 1,0) : qy1;
-        qy2 = UF_OUTORMV(_dem,r-1,c)? -UF_BoundaryFlux2D(dty2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.1 + N->Drc, -1,0) : qy2;
+        qx1 = UF_OUTORMV(_dem,r,c+1)? UF_BoundaryFlux2D(dtx1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.05 + N->Drc, 0,1) : qx1;
+        qx2 = UF_OUTORMV(_dem,r,c-1)? -UF_BoundaryFlux2D(dtx2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.05 + N->Drc, 0,-1) : qx2;
+        qy1 = UF_OUTORMV(_dem,r+1,c)? UF_BoundaryFlux2D(dty1,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.05 + N->Drc, 1,0) : qy1;
+        qy2 = UF_OUTORMV(_dem,r-1,c)? -UF_BoundaryFlux2D(dty2,_dx,_dx,_f->Drc,0,_fu->Drc,_fv->Drc,_su->Drc,_sv->Drc,UF2D_SlopeX->Drc,UF2D_SlopeY->Drc,0.05 + N->Drc, -1,0) : qy2;
 
         qx1 = ((qx1 > 0)? 1.0 : 0.0) * std::min(std::fabs(qx1),(qx1 > 0)? cq : cqx1);
-        qx2 = ((qx2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qx2),(qx2 < 0)? cqx2 : cq);
+        qx2 = ((qx2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qx2),(qx2 > 0)? cqx2 : cq);
         qy1 = ((qy1 > 0)? 1.0 : 0.0) * std::min(std::fabs(qy1),(qy1 > 0)? cq : cqy1);
-        qy2 = ((qy2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qy2),(qy2 < 0)? cqy2 : cq);
+        qy2 = ((qy2 > 0)? 0.0 : -1.0) * std::min(std::fabs(qy2),(qy2 > 0)? cqy2 : cq);
 
         UF2D_fqx1->Drc = qx1;
         UF2D_fqx2->Drc = qx2;

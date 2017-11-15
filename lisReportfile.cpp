@@ -138,12 +138,12 @@ void TWorld::FillTimeSeriesData()
 
             if(SwitchIncludeChannel)
             {
-                TSList_q.append(std::fabs(UF1D_q->Drc) + std::fabs(UF2D_q->Drc));
+                TSList_q.append(1000.0*std::max(std::fabs(UF1D_q->Drc) + std::fabs(UF2D_q->Drc),std::fabs(UF1D_qout->Drc) + std::fabs(UF2D_qout->Drc) ));
                 TSList_h.append(UF1D_h->Drc + UF2D_h->Drc);
 
                 if(SwitchErosion)
                 {
-                    TSList_qs.append(std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc));
+                    TSList_qs.append(1000.0*std::max(std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc),std::fabs(UF1D_qsout->Drc) + std::fabs(UF2D_qsout->Drc)));
                     TSList_c.append((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0);
                 }else
                 {
@@ -153,11 +153,11 @@ void TWorld::FillTimeSeriesData()
 
             }else
             {
-                TSList_q.append(std::fabs(UF2D_q->Drc));
+                TSList_q.append(1000.0*std::max(std::fabs(UF2D_q->Drc),std::fabs(UF2D_qout->Drc)) );
                 TSList_h.append(UF2D_h->Drc);
                 if(SwitchErosion)
                 {
-                    TSList_qs.append(std::fabs(UF2D_qs->Drc));
+                    TSList_qs.append(1000.0*std::max(std::fabs(UF2D_qs->Drc),std::fabs(UF2D_qsout->Drc)) );
                     TSList_c.append(UF2D_tConc->Drc);
                 }else
                 {
@@ -207,7 +207,7 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge = UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0;
+        double discharge = std::max(UF2D_qout->Drc + SwitchIncludeChannel? UF1D_qout->Drc : 0.0,UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0);
         double sedimentdischarge = SwitchErosion?  (SwitchIncludeChannel? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0) : UF2D_tConc->Drc) :0.0;
         double sedimentconcentration = SwitchErosion? (SwitchIncludeChannel?std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc) : std::fabs(UF2D_qs->Drc)):0.0;
         double channelwh = UF2D_h->Drc +SwitchIncludeChannel? UF1D_h->Drc : 0.0;
@@ -1371,6 +1371,15 @@ void TWorld::GetComboMaps()
     Colors.append("#FF009D");*/
 
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
+
+
+    AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);
+
+    AddComboMap(0,"Flow Height","m",UF2D_fqx1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Height","m",UF2D_fqx2,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Height","m",UF2D_fqy1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Height","m",UF2D_fqy2,Colormap,Colors,false,false,1.0, 0.01);
+
     if(SwitchIncludeChannel)
     {
         AddComboMap(0,"Channel Flow Height","m",UF1D_h,Colormap,Colors,false,false,1.0, 0.01);

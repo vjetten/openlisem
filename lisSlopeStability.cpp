@@ -122,7 +122,7 @@ void TWorld::SafetyFactor()
         DFSoilDepth->Drc *= st_sdCalibration;
 
         DFSurfaceWaterHeight->Drc = 0;//UF2D_f->Drc/(_dx*_dx);
-        DFSoilCohesion->Drc = DFSoilDepth->Drc > 0? ((Cohesion->Drc * st_scCalibration * (DFSoilDepth->Drc-soildepth0)) + (10.0 * soildepth0))/(DFSoilDepth->Drc) : 0.0;
+        DFSoilCohesion->Drc = DFSoilDepth->Drc > 0? 1000.0*((Cohesion->Drc * st_scCalibration * (DFSoilDepth->Drc-soildepth0)) + (10.0 * soildepth0))/(DFSoilDepth->Drc) : 0.0;
         if(this->InfilMethod != INFIL_NONE)
         {
             DFWaterHeight->Drc = L1->Drc * (ThetaS1->Drc - ThetaI1->Drc) + ThetaI1->Drc * SoilDepth1->Drc;

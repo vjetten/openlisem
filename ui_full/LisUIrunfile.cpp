@@ -207,6 +207,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Erosion Cohesion Calibration")==0)                          E_CalibrateESC->setValue(val);
         if (p1.compare("Erosion Grain Size Calibration")==0)                        E_CalibrateEGS->setValue(val);
 
+        if (p1.compare("Limit Cores")==0)                                           checkBox_CoreLimit->setChecked(check);
+        if (p1.compare("Core Limit")==0)                                            E_CoreLimit->setValue(val);
+
         if (p1.compare("Solid-Fluid Drag Coefficient")==0)                          E_UFDrag->setValue(val);
         if (p1.compare("Use HLL2")==0)                                              checkBox_HLL2->setChecked(check);
         if (p1.compare("Kinematic Timestep Power")==0)                              E_KinematicTimestepPower->setValue(val);
@@ -860,6 +863,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Viscosity Alpha")==0)                                       namelist[j].value = E_UFViscosityAlpha->text();
         if (p1.compare("Viscosity Beta")==0)                                        namelist[j].value = E_UFViscosityBeta->text();
 
+        if (p1.compare("Limit Cores")==0)                                           namelist[j].value.setNum((int)checkBox_CoreLimit->isChecked());
+        if (p1.compare("Core Limit")==0)                                            namelist[j].value = E_CoreLimit->text();
 
         if (p1.compare("Kinematic Timestep Power")==0)                              namelist[j].value = E_KinematicTimestepPower->text();
 
