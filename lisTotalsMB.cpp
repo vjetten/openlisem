@@ -403,6 +403,18 @@ void TWorld::Totals(void)
     }
 
 
+    FOR_ROW_COL_MV
+    {
+        double Qtotal = std::fabs(UF2D_q->Drc);
+        if(SwitchIncludeChannel)
+        {
+            Qtotal += std::fabs(UF1D_q->Drc);
+        }
+        if(Qtotal > Qmax->Drc)
+        {
+            Qmax->Drc = Qtotal;
+        }
+    }
 
 }
 //---------------------------------------------------------------------------

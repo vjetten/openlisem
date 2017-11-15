@@ -214,7 +214,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Enable Slope Stability") == 0)SwitchSlopeStability = iii == 1;
         if (p1.compare("Enable Upslope Forcing") == 0)SwitchUpslopeForcing = iii == 1;
         if (p1.compare("Enable Downslope Forcing") == 0)SwitchDownslopeForcing = iii == 1;
-        if (p1.compare("Include Bedrock Layer") == 0)SwitchBedrock = iii == 1;
+        if (p1.compare("Include Bedrock Layer") == 0) SwitchBedrock = iii == 1;
         if (p1.compare("Enable Slope Failure")==0)    SwitchSlopeFailure = iii == 1;
 
         if (p1.compare("Limit Failure")==0)    SF_Calibrate_LF = iii == 1;

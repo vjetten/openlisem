@@ -381,7 +381,14 @@ cTMap
 *StrengthLoss,
 *StrengthLoss2,
 *PGAInitiated,
-*PGACurrent;
+*PGACurrent,
+
+
+*GWDepth,
+
+*Qmax,
+*FailLimit
+;
 
 
 QList<cTMap *> IW_D;

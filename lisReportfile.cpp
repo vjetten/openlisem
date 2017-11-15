@@ -135,14 +135,16 @@ void TWorld::FillTimeSeriesData()
             TSList_rainav.append(RainIntavg);
             TSList_snowav.append(SnowIntavg);
 
+
             if(SwitchIncludeChannel)
             {
-                TSList_q.append(Qoutput->Drc);
-                TSList_h.append(UF1D_h->Drc);
+                TSList_q.append(std::fabs(UF1D_q->Drc) + std::fabs(UF2D_q->Drc));
+                TSList_h.append(UF1D_h->Drc + UF2D_h->Drc);
+
                 if(SwitchErosion)
                 {
-                    TSList_qs.append(Qsoutput->Drc);
-                    TSList_c.append(TotalConc->Drc);
+                    TSList_qs.append(std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc));
+                    TSList_c.append((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0);
                 }else
                 {
                     TSList_qs.append(0.0);
@@ -151,14 +153,20 @@ void TWorld::FillTimeSeriesData()
 
             }else
             {
-                TSList_q.append(0.0);
-                TSList_h.append(0.0);
+                TSList_q.append(std::fabs(UF2D_q->Drc));
+                TSList_h.append(UF2D_h->Drc);
                 if(SwitchErosion)
+                {
+                    TSList_qs.append(std::fabs(UF2D_qs->Drc));
+                    TSList_c.append(UF2D_tConc->Drc);
+                }else
                 {
                     TSList_qs.append(0.0);
                     TSList_c.append(0.0);
+
                 }
             }
+
 
 
         }
@@ -199,10 +207,10 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge = Qoutput->Drc;
-        double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
-        double sedimentconcentration = SwitchErosion? UF1D_fsConc->Drc : 0.0;
-        double channelwh = SwitchIncludeChannel? UF1D_h->Drc : 0.0;
+        double discharge = UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0;
+        double sedimentdischarge = SwitchErosion?  (SwitchIncludeChannel? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0) : UF2D_tConc->Drc) :0.0;
+        double sedimentconcentration = SwitchErosion? (SwitchIncludeChannel?std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc) : std::fabs(UF2D_qs->Drc)):0.0;
+        double channelwh = UF2D_h->Drc +SwitchIncludeChannel? UF1D_h->Drc : 0.0;
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
         op.OutletQstot.replace(j,op.OutletQstot.at(j) + _dt * sedimentdischarge/1000.0);
@@ -742,7 +750,7 @@ void TWorld::ReportMaps(int not_used)
     report(*runoffFractionCell, runoffFractionMapFileName);
 
     report(*WHmax, floodWHmaxFileName);
-
+    report(*Qmax, "qmax.map");
 
     if(SwitchErosion)
     {
@@ -1472,6 +1480,10 @@ void TWorld::GetComboMaps()
         Colors.append("#8080FF");
         Colors.append("#0000AA");
         AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
+        AddComboMap(0,"GW Depth","m",GWDepth,Colormap,Colors,false,false,1.0,1.0);
+
+
+
     }
 
     Colormap.clear();
@@ -1711,7 +1723,7 @@ void TWorld::GetComboMaps()
             Colors.append("#A60000");
 
             AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
-            //AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"sqy","kg/m2",UF2D_sqy,Colormap,Colors,false,false,1.0, step);
@@ -1750,6 +1762,16 @@ void TWorld::GetComboMaps()
             AddComboMap(1,"Safety Factor","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
             AddComboMap(1,"Forcing","-",DFForcing,Colormap,Colors,false,false,1.0,0.2);
             AddComboMap(1,"Forcing up","-",DFForcingUp,Colormap,Colors,false,false,1.0,0.2);
+
+            /*AddComboMap(1,"Forcing up","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFSafetyFactor,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFSoilCohesion,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFSoilInternalFrictionAngle,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFWaterHeight,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFWaterSuction,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFSoilDensity,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFPlantCohesion,Colormap,Colors,false,false,1.0,0.2);
+            AddComboMap(1,"Forcing up","-",DFPlantPressure,Colormap,Colors,false,false,1.0,0.2);*/
 
             if(SwitchBedrock)
             {

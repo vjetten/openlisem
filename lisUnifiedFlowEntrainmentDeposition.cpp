@@ -399,6 +399,9 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
 
 
+    Entrainmentshearstressc->Drc = MaxCSF;
+
+
     if(area < UF_VERY_SMALL)
     {
         return 0;
@@ -465,7 +468,6 @@ double TWorld::UF_RockTake(int r, int c, double entrainment, bool channel)
         EntrainmentDet->Drc += entrainment;
         DEMChange->Drc -= entrainment/(_dx*_dx);
 
-        Entrainmentshearstressc->Drc += entrainment;
 
         if(entrainment > 0)
         {

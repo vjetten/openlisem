@@ -498,6 +498,7 @@ public:
     QString floodFEWFileName;
     QString floodMaxVFileName;
     QString floodWHmaxFileName;
+    QString QmaxFileName;
     QString timestamp;
 
     QString rainFileName;
@@ -600,7 +601,7 @@ public:
                                        cTMap * _SafetyFactor,cTMap * _Threshold,
                                        cTMap * _Threshold1,cTMap * _InititationHeight,
                                        cTMap * _Initiated,cTMap * _SFCalibration,
-                                       cTMap * _Forcing, cTMap * _ForcingUp, cTMap * _PGA);
+                                       cTMap * _Forcing, cTMap * _ForcingUp, cTMap * _PGA, bool limit_slope = false);
     void CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                                        cTMap * _OverlandWater, cTMap * _SoilCohesion,
                                        cTMap * _InternalFrictionAngle,cTMap * _SoilWaterHeight,

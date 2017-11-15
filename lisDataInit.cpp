@@ -409,6 +409,8 @@ void TWorld::InitMulticlass(void)
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
 
+    GWDepth = NewMap(0);
+
 
     TotalDetMap = NewMap(0);
     TotalDepMap = NewMap(0);
@@ -672,6 +674,9 @@ void TWorld::GetInputData(void)
     tmd = NewMap(0); // temp map for aux calculations
     tme = NewMap(0); // temp map for aux calculations
     difkin =  NewMap(0); // temp map for aux calculations
+
+    Qmax = NewMap(0.0);
+
 
     for (int i = 0; i < 32; i++)
         SubsMaps[i].m = NULL;  // initialize substance structures
@@ -1002,7 +1007,7 @@ void TWorld::GetInputData(void)
         FOR_ROW_COL_MV
         {
             SoilRockIFA->Drc = SoilRockIFA->Drc * Calibrate_YS;
-            SoilRockMaterial->Drc *= _dx*_dx;
+            SoilRockMaterial->Drc = SoilRockMaterial->Drc* _dx*_dx;
 
             if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
             {
@@ -1056,6 +1061,7 @@ void TWorld::GetInputData(void)
         DFInitiationHeight = NewMap(0.0);
         DFSFIterations = NewMap(0.0);
         DEMIterate = NewMap(0.0);
+        FailLimit = NewMap(0.0);
         DFSoilDepth = NewMap(0.0);
         DFSurfaceWaterHeight = NewMap(0.0);
         DFSoilCohesion = NewMap(0.0);
@@ -1133,7 +1139,7 @@ void TWorld::GetInputData(void)
             FOR_ROW_COL_MV
             {
                 DFSoilInternalFrictionAngle2->Drc = DFSoilInternalFrictionAngle2->Drc * st_sifaCalibration;
-                DFSoilCohesion2->Drc = DFSoilCohesion2->Drc * st_sifaCalibration;
+                DFSoilCohesion2->Drc = DFSoilCohesion2->Drc * st_scCalibration;
             }
         }
 

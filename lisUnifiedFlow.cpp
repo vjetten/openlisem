@@ -584,7 +584,15 @@ void TWorld::UF_SetOutput()
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 
+        if(InfilMethod != INFIL_NONE)
+        {
 
+            GWDepth->Drc = L1->Drc * (ThetaS1->Drc - ThetaI1->Drc) + ThetaI1->Drc * SoilDepth1->Drc;
+            if(SwitchTwoLayer)
+            {
+                 GWDepth->Drc += L2->Drc * (ThetaS2->Drc - ThetaI2->Drc) + ThetaI2->Drc * SoilDepth2->Drc;
+            }
+        }
 
     }
 
