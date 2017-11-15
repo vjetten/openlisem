@@ -1373,12 +1373,13 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
 
 
-    AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);
+    /*AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);
 
     AddComboMap(0,"Flow Height","m",UF2D_fqx1,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Height","m",UF2D_fqx2,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Height","m",UF2D_fqy1,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Height","m",UF2D_fqy2,Colormap,Colors,false,false,1.0, 0.01);
+*/
 
     if(SwitchIncludeChannel)
     {
