@@ -184,10 +184,12 @@ void lisemqt::stopmodel()
     }
 #endif
     if(W)
-        W->stopRequested = true;
-    if(W->waitRequested)
     {
-        W->condition.wakeAll();
+        W->stopRequested = true;
+        if(W->waitRequested)
+        {
+            W->condition.wakeAll();
+        }
     }
 
 }

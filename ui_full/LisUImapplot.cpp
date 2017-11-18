@@ -142,6 +142,7 @@ void lisemqt::setupMapPlot()
     drawSMap->attach( MPlot );
 
 
+
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
@@ -342,7 +343,7 @@ void lisemqt::showMap()
     channelMap->setAlpha(checkMapChannels->isChecked() ? transparency2->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparency3->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparency4->value() : 0);
-
+    drawSMap->setAlpha(checkSolidsMap->isChecked() ? 255 : 0);
 
     MPlot->setVelocityField(op.gl_flow_u,op.gl_flow_v,op.gl_flow_u->cellSize());
 

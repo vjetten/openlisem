@@ -83,7 +83,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -19621,8 +19621,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>254</width>
-             <height>585</height>
+             <width>377</width>
+             <height>1193</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_24">

@@ -452,7 +452,7 @@
                              cTMap * _su2D,cTMap * _sv2D);
 
     ////Momentum balance functions
-    double UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0, double solids = 0);
+    double UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0, double solids = 0,double ff = 1.0, double sf = 0.0, double Nr = 1.0);
     double UF_SFriction(double a, double v, double dt);
     double UF_Friction2(double vel,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0);
 

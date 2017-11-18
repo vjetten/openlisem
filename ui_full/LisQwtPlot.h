@@ -20,6 +20,7 @@
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_engine.h>
+#include <pcrtypes.h>
 
 #ifndef LISQWTPLOT_H
 #define LISQWTPLOT_H
@@ -52,7 +53,7 @@ class LisQwtPlot : public QwtPlot
     bool m_velocitySet = false;
     bool m_velocityEnabled = false;
     bool m_velocitySet2 = false;
-    double m_velocityPeriod = 15;
+    double m_velocityPeriod = 25;
 
     inline void setVelocityField(cTMap * _velx1, cTMap * _vely1, double cellsize, cTMap * _velx2 = 0, cTMap * _vely2 = 0, double startx = 0, double starty = 0)
     {
@@ -103,6 +104,21 @@ class LisQwtPlot : public QwtPlot
 
         if(m_velocityEnabled && m_velocitySet && m_velx1 != 0 && m_vely1 != 0)
         {
+            double max_velsqr = 0;
+
+            for(int i = 0; i < m_velx1->nrCols() ; i++)
+            {
+                for(int j = 0; j < m_velx1->nrRows() ; j++)
+                {
+
+                    if(!pcr::isMV(m_velx1->data[j][i]))
+                    {
+                        max_velsqr = std::max(max_velsqr, m_velx1->data[j][i] *m_velx1->data[j][i] + m_vely1->data[j][i] *m_vely1->data[j][i]);
+                    }
+                }
+            }
+            double max_vel = std::sqrt(max_velsqr);
+
             QwtInterval interval_x = this->axisInterval(xBottom);
             QwtInterval interval_y = this->axisInterval(yLeft);
 
@@ -133,16 +149,21 @@ class LisQwtPlot : public QwtPlot
                     double p_x = p_startx + (p_endx - p_startx)*(l_x/w_width);
                     double p_y = m_velx1->nrRows() * m_cellsize - (p_endy - (p_endy - p_starty)*(l_y/w_height));
 
-                    QPoint vel = getVelocityAt(m_velx1,m_vely1,p_x,p_y);
+                    QPointF vel = getVelocityAt(m_velx1,m_vely1,p_x,p_y);
+                    double vel_l = std::sqrt(double(vel.x()*vel.x() + vel.y()*vel.y()));
 
-                    double d_x = (std::min(std::max(vel.x() /30.0,-1.0),1.0)) * m_velocityPeriod*2.0/3.0;
-                    double d_y = (std::min(std::max(vel.y() /30.0,-1.0),1.0)) * m_velocityPeriod*2.0/3.0;
-
-                    if(std::fabs(d_x) > 1.0 || std::fabs(d_y) > 1.0)
+                    if(vel_l > 0.001)
                     {
-                        p->setPen(QColor(255,0,0,255));
-                        p->drawLine(QPoint(l_x,l_y),QPoint(l_x + d_x, l_y + d_y));
+                        double d_x =  2.0*(double(vel.x())/vel_l)* (vel_l/max_vel)* m_velocityPeriod*2.0/3.0;
+                        double d_y = 2.0*(double(vel.y())/vel_l)* (vel_l/max_vel) * m_velocityPeriod*2.0/3.0;
+
+                        if(std::fabs(d_x) > 1.0 || std::fabs(d_y) > 1.0)
+                        {
+                            p->setPen(QColor(0,0,0,255));
+                            p->drawLine(QPoint(l_x,l_y),QPoint(l_x + d_x, l_y + d_y));
+                        }
                     }
+
 
                 }
             }
@@ -150,7 +171,7 @@ class LisQwtPlot : public QwtPlot
         }
     }
 
-    inline QPoint getVelocityAt(cTMap * _velx, cTMap * _vely,double x, double y)
+    inline QPointF getVelocityAt(cTMap * _velx, cTMap * _vely,double x, double y)
     {
 
         double cs = _velx->cellSize();
@@ -209,7 +230,7 @@ class LisQwtPlot : public QwtPlot
             }
         }
 
-        QPoint vel = QPoint(0,0);
+        QPointF vel = QPoint(0,0);
         vel.setX((w1+w2+w3+w4) > 0? ((w1*u1 + w2*u2 + w3*u3 + w4 * u4)/(w1+w2+w3+w4)): 0.0);
         vel.setY((w1+w2+w3+w4) > 0? ((w1*v1 + w2*v2 + w3*v3 + w4 * v4)/(w1+w2+w3+w4)): 0.0);
 

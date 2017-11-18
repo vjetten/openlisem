@@ -34,7 +34,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope, bool solid, bool channel, double flowwidth, double solids)
+double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope, bool solid, bool channel, double flowwidth, double solids, double ff, double sf, double Nr)
 {
     //old method, this is highly unstable with spatially dynamic timmestep, and furthermore requires small timestep for overland flow
     if(false)
@@ -75,8 +75,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double signa = a>0?1.0:-1.0;
         a = std::min(std::fabs(a)/dt,25.0 * h);
         double manning = solid? UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );
-
+        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) ) + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
 
         if(channel)
         {
@@ -159,12 +158,13 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
 
     if(x) {
 
-            return (-UF_Gravity * sin(SlopeX)
+        double acc_x =
+            (-UF_Gravity * sin(SlopeX)
                     -UF_Aspect
                     *((dh2pbdx)/h
                        + (pbf *  (SlopeX))
                         -(1.0/(ff * Nr))*(
-                            2.0*ddfudxx + ddfvdxy + ddfudyy - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
+                            2.0*ddfudxx + ddfvdxy + ddfudyy
                             )
                         +(1.0/(ff * Nra))*(
                             2.0 *(dsfdx*(dfudx - dsudx) + ddsfdxx*(fu - su))
@@ -176,14 +176,17 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
                         )
                     );
 
+
+        return acc_x;
+
         } else {
 
-            return (-UF_Gravity * sin(SlopeY)
+            double acc_y = (-UF_Gravity * sin(SlopeY)
                     -UF_Aspect
                     * ((dh2pbdy)/h
                        + (pbf * (SlopeY))
                         -(1.0/(ff * Nr))*(
-                            2.0*ddfvdyy + ddfudxy + ddfvdxx - UF_Chi * fv/(UF_Aspect*UF_Aspect * h* h)
+                            2.0*ddfvdyy + ddfudxy + ddfvdxx
                             )
                         +(1.0/(ff * Nra))*(
                             2.0 *(dsfdy*(dfvdy - dsvdy) + ddsfdyy*(fv - sv))
@@ -194,6 +197,9 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
                         -(UF_Ksi*sf*(fv - sv)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
                         )
                     );
+
+
+            return acc_y;
         }
 
 }
@@ -231,13 +237,13 @@ double TWorld::UF1D_MomentumBalanceFluid(double _f,double _s,double fu, double s
     {
         return 0;
     }
-    return
+    double acc =
         (-UF_Gravity * sin(Slope + dhfdx) - //h * UF_Gravity *dhfdx   -
         UF_Aspect *(
              +(dh2pbdx)/h
              +(pbf * (Slope + dhfdx))
              -(1.0/(ff * Nr))*(
-                 2.0*ddfudxx - UF_Chi * fu/(UF_Aspect*UF_Aspect * h* h)
+                 2.0*ddfudxx
                  )
              +(1.0/(ff * Nra))*(
                  2.0 *(dsfdx*(dfudx - dsudx) + ddsfdxx*(fu - su))
@@ -246,6 +252,8 @@ double TWorld::UF1D_MomentumBalanceFluid(double _f,double _s,double fu, double s
              -(UF_Ksi*sf*(fu - su)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
              )
           );
+
+    return acc;
 
 
 }
