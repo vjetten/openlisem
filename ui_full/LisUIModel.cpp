@@ -105,6 +105,8 @@ void lisemqt::runmodel()
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
+    first_plot = true;
+
 #ifndef COMPILE_WITHOUT_3D
     first3d = true;
     Allow3D = false;
@@ -157,6 +159,43 @@ void lisemqt::Advancedmodel()
     SetAllInLayoutInvisible(Advanced_Infiltration,advanced);
     SetAllInLayoutInvisible(Advanced_Sediment_Transport,advanced);
     SetAllInLayoutInvisible(Advanced_Slopes,advanced);
+}
+
+//---------------------------------------------------------------------------
+void lisemqt::ProfileClicked()
+{
+
+    bool checked = ProfileAct->isChecked();
+
+    panner->setEnabled(!checked);
+    magnifier->setEnabled(!checked);
+    mapRescaler->setEnabled(!checked);
+
+    MPlot->SetProfileMode(checked);
+
+    /*if(checked)
+    {
+        ProfileDrawTimer = new QTimer(this);
+        connect(ProfileDrawTimer, SIGNAL(timeout()), this, SLOT(OnProfileTimer));
+        ProfileDrawTimer->start(10);
+    }else
+    {
+        ProfileDrawTimer->stop();
+    }*/
+
+}
+
+void lisemqt::OnProfileTimer()
+{
+
+   /*bool checked = ProfileAct->isChecked();
+
+    if(!checked)
+    {
+        ProfileDrawTimer->stop();
+    }
+
+    qDebug() <<"timer";*/
 }
 
 void lisemqt::SetAllInLayoutInvisible(QLayout * layout,bool visible)
@@ -225,6 +264,29 @@ void lisemqt::worldShow()
     startplot = false;
 
     showMap(); // show map
+
+    MPlot->map_mutex.lock();
+    if(first_plot)
+    {
+        first_plot = false;
+        MPlot->DEM = new cTMap();
+        MPlot->DEM->MakeMap(op.baseMapDEM,0.0);
+        MPlot->DEMChange = new cTMap();
+        MPlot->DEMChange->MakeMap(op.baseMapDEM,0.0);
+    }
+    {
+        for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
+        {
+            for(int c = 0; c < op.baseMapDEM->nrCols(); c++)
+            {
+                MPlot->DEM->Drc = op.baseMapDEM->Drc;
+                MPlot->DEMChange->Drc = op.gl_dem_change->Drc;
+            }
+
+        }
+
+    }
+    MPlot->map_mutex.unlock();
 
 #ifndef COMPILE_WITHOUT_3D
     if(Allow3D)

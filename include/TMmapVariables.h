@@ -402,6 +402,8 @@ QList<cTMap *> Storage_D;
 QList<cTMap *> RStorageDep_D;
 QList<cTMap *> RStorage_D;
 
+cTMap * InflowID;
+
 cTMap * FlowBarrier;
 
 cTMap * FlowBarrierN;

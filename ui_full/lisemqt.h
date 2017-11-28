@@ -72,6 +72,7 @@
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
 
+#include <QMouseEvent>
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -134,6 +135,24 @@ public:
 
     bool doBatchmode;
     QString batchRunname;
+
+    /*inline bool event(QEvent * e)
+    {
+        if(MPlot && e->type() == QEvent::MouseButtonPress)
+        {
+            qDebug() << "event";
+            if(MPlot->isVisible() && MPlot->profile_enabled)
+            {
+                MPlot->replot();
+
+            }
+
+        }
+       return QMainWindow::event(e);
+    }*/
+
+    QTimer *ProfileDrawTimer;
+
 
     void initMapTree();
     void DefaultMapnames();
@@ -309,6 +328,7 @@ public:
     bool first3d = true;
     bool Allow3D = false;
 
+    bool first_plot = true;
     void Setup3DPlot();
 #ifndef COMPILE_WITHOUT_3D
     GL3DWidget *glwidget;
@@ -352,7 +372,8 @@ public slots:
 
     void SetAllInLayoutInvisible(QLayout * layout,bool visible);
     void Advancedmodel();
-
+    void ProfileClicked();
+    void OnProfileTimer();
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
     void openMapname(QModelIndex topLeft);
@@ -463,6 +484,7 @@ private:
     QAction *stopAct;
     QAction *SimpleAct;
     QAction *AdvancedAct;
+    QAction *ProfileAct;
     QAction *shootscreenAct;
     QAction *shootMscreenAct;
     QAction *aboutAct;

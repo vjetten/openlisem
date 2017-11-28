@@ -109,6 +109,8 @@ void lisemqt::setupMapPlot()
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new LisQwtPlot(title, this);
+
+
     // make the plot window
     //Layout_Map_2
 
@@ -125,6 +127,7 @@ void lisemqt::setupMapPlot()
     QwtPlotGrid *grid = new QwtPlotGrid();
     grid->setPen( QPen( Qt::DotLine ) );
     grid->attach( MPlot );
+
 
     // NOTE the order in which these are attached is the order displayed.
     baseMapDEM = new QwtPlotSpectrogram();
@@ -198,6 +201,7 @@ void lisemqt::setupMapPlot()
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from panning
+
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
 
@@ -348,6 +352,8 @@ void lisemqt::showMap()
     MPlot->setVelocityField(op.gl_flow_u,op.gl_flow_v,op.gl_flow_u->cellSize());
 
     MPlot->replot();
+
+
 
 
 }

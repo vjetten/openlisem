@@ -163,6 +163,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
         // triggers also loading the interface with all variable values
         // if ini is empty nothing happens
     }
+
+    this->installEventFilter(this);
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
@@ -783,6 +785,19 @@ void lisemqt::SetToolBar()
     connect(AdvancedAct, SIGNAL(triggered()), this, SLOT(Advancedmodel()));
     AdvancedAct->setCheckable(true);
     toolBar->addAction(AdvancedAct);
+
+    toolBar->addSeparator();
+
+    ProfileAct = new QAction(QIcon(":/profile.png"), "make profile plot", this);
+    ProfileAct->setStatusTip("stop the model run ...");
+    connect(ProfileAct, SIGNAL(triggered()), this, SLOT(ProfileClicked()));
+    ProfileAct->setCheckable(true);
+    toolBar->addAction(ProfileAct);
+
+
+
+
+    toolBar->addSeparator();
 
     aboutActI = new QAction(QIcon(":/Info.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));

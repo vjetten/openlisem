@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1596</width>
-    <height>1356</height>
+    <height>1385</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -7181,6 +7181,71 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item row="3" column="0" colspan="4">
                    <layout class="QGridLayout" name="Advanced_Flow_General">
+                    <item row="2" column="1">
+                     <widget class="QCheckBox" name="checkBox_ChannelMaxVolume">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Limit Channel Volume</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QCheckBox" name="checkBox_UFForced">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Include forced Fluid-Solid conditions</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QLineEdit" name="lineEdit_FlowBarriers">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>flowbarriers.txt</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QCheckBox" name="checkBox_MaxVolume">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Limit Volume</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QCheckBox" name="checkBox_FlowBarriers">
+                      <property name="font">
+                       <font>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Include cell-boundary based flow barriers</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="0" column="0">
                      <widget class="QCheckBox" name="checkLevees">
                       <property name="enabled">
@@ -7234,45 +7299,6 @@ p, li { white-space: pre-wrap; }
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QCheckBox" name="checkBox_Barriers">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Include simple digigtal elevation model barriers</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QCheckBox" name="checkBox_MaxVolume">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Limit Volume</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QCheckBox" name="checkBox_FlowBarriers">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Include cell-boundary based flow barriers</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="0" column="1">
                      <widget class="QCheckBox" name="checkBox_UFInitial">
                       <property name="font">
@@ -7286,8 +7312,8 @@ p, li { white-space: pre-wrap; }
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1">
-                     <widget class="QCheckBox" name="checkBox_UFForced">
+                    <item row="1" column="0">
+                     <widget class="QCheckBox" name="checkBox_Barriers">
                       <property name="font">
                        <font>
                         <weight>50</weight>
@@ -7295,33 +7321,21 @@ p, li { white-space: pre-wrap; }
                        </font>
                       </property>
                       <property name="text">
-                       <string>Include forced Fluid-Solid conditions</string>
+                       <string>Include simple digigtal elevation model barriers</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1">
-                     <widget class="QCheckBox" name="checkBox_ChannelMaxVolume">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
+                    <item row="4" column="0">
+                     <widget class="QCheckBox" name="checkBox_Inflow">
                       <property name="text">
-                       <string>Limit Channel Volume</string>
+                       <string>Inflow </string>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QLineEdit" name="lineEdit_FlowBarriers">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
+                    <item row="4" column="1">
+                     <widget class="QLineEdit" name="lineEdit_Inflow">
                       <property name="text">
-                       <string>flowbarriers.txt</string>
+                       <string>inflow.txt</string>
                       </property>
                      </widget>
                     </item>
@@ -19486,7 +19500,7 @@ p, li { white-space: pre-wrap; }
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="iconSize">
              <size>
@@ -19621,8 +19635,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>377</width>
-             <height>1193</height>
+             <width>254</width>
+             <height>585</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_24">

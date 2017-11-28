@@ -317,6 +317,50 @@ void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
         _f1D->Drc += (dt->Drc/_dt) * Rainc->Drc*ChannelWidthUpDX->Drc *ChannelDX->Drc;
 
 
+        if(SwitchInflow)
+        {
+
+
+            if(InflowID->Drc > 0)
+            {
+
+                int col = InflowID->Drc;
+                int i = 0;
+                bool end = false;
+                while(!end)
+                {
+                    if(i <= IFTime.length())
+                    {
+                        if(IFTime.at(i) < time/60)
+                        {
+                            i++;
+                        }else
+                        {
+
+                            end = true;
+                        }
+                    }else
+                    {
+                        end = true;
+                    }
+                }
+                i = i - 1;
+
+                double q = 0;
+
+                if(i < 0)
+                {
+                    q = 0;
+                }else
+                {
+                    q = IFQ.at(col-1)->at(std::min(IFQ.at(col-1)->length(),i));
+                }
+
+
+                _f1D->Drc += dt->Drc * q;
+
+            }
+        }
 
         //add baseflow
         if(SwitchChannelBaseflow)

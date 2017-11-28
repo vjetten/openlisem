@@ -195,6 +195,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Enable Barriers")==0)                                       checkBox_Barriers->setChecked(check);
         if (p1.compare("Enable Flow Barriers")==0)                                  checkBox_FlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)                           lineEdit_FlowBarriers->setText(p);
+        if (p1.compare("Enable Inflow")==0)                                           checkBox_Inflow->setChecked(check);
+        if (p1.compare("Inflow table filename")==0)                           lineEdit_Inflow->setText(p);
         if (p1.compare("Include Initial FluidSolid Mixture")==0)                    checkBox_UFInitial->setChecked(check);
         if (p1.compare("Include Forced FluidSolid Mixture")==0)                     checkBox_UFForced->setChecked(check);
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
@@ -842,6 +844,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Enable Barriers")==0)                                       namelist[j].value.setNum((int)checkBox_Barriers->isChecked());
         if (p1.compare("Enable Flow Barriers")==0)                                  namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)                           namelist[j].value = lineEdit_FlowBarriers->text();
+        if (p1.compare("Enable Inflow")==0)                                   namelist[j].value.setNum((int)checkBox_Inflow->isChecked());
+        if (p1.compare("Inflow table filename")==0)                           namelist[j].value = lineEdit_Inflow->text();
         if (p1.compare("Include Initial FluidSolid Mixture")==0)                    namelist[j].value.setNum((int)checkBox_UFInitial->isChecked());
         if (p1.compare("Include Forced FluidSolid Mixture")==0)                     namelist[j].value.setNum((int)checkBox_UFForced->isChecked());
         if (p1.compare("Incldue Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());

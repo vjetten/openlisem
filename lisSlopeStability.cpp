@@ -72,6 +72,8 @@ void TWorld::SlopeFailure()
     return;
 }
 
+
+
 void TWorld::SafetyFactor()
 {
     sfset =true;
@@ -98,10 +100,10 @@ void TWorld::SafetyFactor()
     {
 
 
-        DFForcingDemand->Drc = 0.0;
+        /*DFForcingDemand->Drc = 0.0;
         DFForcingCapacity->Drc = 0.0;
         DFForcing->Drc = 0.0;
-        DFForcingAdded->Drc = 0.0;
+        DFForcingAdded->Drc = 0.0;*/
 
         double area = DX->Drc*_dx;
         DFSFIterations->Drc = -1;
@@ -184,24 +186,21 @@ void TWorld::SafetyFactor()
         }
     }
 
+
     if(SwitchBedrock)
     {
         CalculateBedrockDepth(DEMIterate,DFSoilDepth, DFSoilDepth2);
-
     }
+
 
     if(SwitchUpslopeForcing)
     {
         CalculateSlopeForcing(DEMIterate,DFSoilDepth,DFSurfaceWaterHeight,DFSoilCohesion,DFSoilInternalFrictionAngle,DFWaterHeight,DFWaterSuction,DFSoilDensity,DFPlantCohesion,DFPlantPressure,DFSFCalibration, DFForcing, DFForcingUp,SwitchSeismic?PGACurrent : DFZERO);
 
-
-        if(SwitchBedrock)
+        if(SwitchBedrock && SF_BedRock_First)
         {
-            CalculateSlopeForcing(DEMIterate,DFSoilDepth2,DFSurfaceWaterHeight,DFSoilCohesion2,DFSoilInternalFrictionAngle2,DFZERO,DFZERO,DFSoilDensity2,DFZERO,DFAddedPressure,DFSFCalibration2, DFForcing2, DFForcingUp2,SwitchSeismic?PGACurrent : DFZERO);
-
+            CalculateSlopeForcing(DEMIterate,DFSoilDepth2,DFSurfaceWaterHeight,DFSoilCohesion2,DFSoilInternalFrictionAngle2,DFZERO,DFZERO,DFSoilDensity2,DFZERO,DFAddedPressure,DFSFCalibration2, DFForcing2, DFForcingUp2,SwitchSeismic?PGACurrent : DFZERO );
         }
-
-
     }
 
     //store safety factor for display
@@ -218,6 +217,7 @@ void TWorld::SafetyFactor()
         }
     }
 
+
     //Since slope failure at one cell influences the next, we iterate untill we end up with a stable situation
     //the function CalculateSafetyFactor does the actual calculations for safety factor and possible slope failure depth
     //we then adapt the slope and do it again, untill nothing more fails
@@ -226,6 +226,11 @@ void TWorld::SafetyFactor()
     int iter = 0;
     while(!resolved)
     {
+
+
+
+
+
         FOR_ROW_COL_MV
         {
             DEMIterate->Drc -= tmb->Drc;
@@ -235,7 +240,10 @@ void TWorld::SafetyFactor()
 
             tma->Drc = DFUnstable->Drc;
             tmb->Drc = 0;
-            tmc->Drc = 0;
+            if(iter == 0)
+            {
+                tmc->Drc = 0;
+            }
 
             if(SwitchBedrock)
             {
@@ -245,10 +253,10 @@ void TWorld::SafetyFactor()
             tmd->Drc = 0;
         }
 
-        CalculateSafetyFactors(DEMIterate,DFSoilDepth,DFSurfaceWaterHeight,DFSoilCohesion,DFSoilInternalFrictionAngle,DFWaterHeight,DFWaterSuction,DFSoilDensity,DFPlantCohesion,DFPlantPressure,DFSafetyFactor,DFThreshold,DFThreshold1, tmb,DFInitiationHeight,DFSFCalibration,DFForcing,DFForcingUp,SwitchSeismic?PGACurrent : DFZERO);
+        //CalculateSafetyFactors(DEMIterate,DFSoilDepth,DFSurfaceWaterHeight,DFSoilCohesion,DFSoilInternalFrictionAngle,DFWaterHeight,DFWaterSuction,DFSoilDensity,DFPlantCohesion,DFPlantPressure,DFSafetyFactor,DFThreshold,DFThreshold1, tmb,DFInitiationHeight,DFSFCalibration,DFForcing,DFForcingUp,SwitchSeismic?PGACurrent : DFZERO);
 
 
-        if(SwitchBedrock)
+        if(SwitchBedrock  && SF_BedRock_First)
         {
             CalculateBedrockDepth(DEMIterate,DFSoilDepth, DFSoilDepth2);
 
@@ -256,6 +264,7 @@ void TWorld::SafetyFactor()
             {
                 DFAddedPressure->Drc = DFPlantPressure->Drc +(DFSoilDensity->Drc *(DFSoilDepth->Drc - DFWaterHeight->Drc) + 1000.0 *(DFWaterHeight->Drc));
             }
+
 
             CalculateSafetyFactors(DEMIterate,DFSoilDepth2,DFSurfaceWaterHeight,DFSoilCohesion2,DFSoilInternalFrictionAngle2,DFZERO,DFZERO,DFSoilDensity2,DFZERO,DFAddedPressure,DFSafetyFactor2,DFThreshold,DFThreshold1, tmd,DFInitiationHeight2,DFSFCalibration2,DFForcing2,DFForcingUp2,SwitchSeismic?PGACurrent : DFZERO,false);
         }
@@ -293,6 +302,7 @@ void TWorld::SafetyFactor()
 
             }
         }
+
 
         //check if there were any slope failures in this iteration
         resolved = true;
@@ -366,6 +376,7 @@ void TWorld::SafetyFactor()
             }
         }
 
+
         //if slope failure is off anyway, we can get out of the loop anyway!
         if(!SwitchSlopeFailure)
         {
@@ -374,18 +385,21 @@ void TWorld::SafetyFactor()
 
         iter ++;
 
-        if(iter > 300)
+        if(iter > 200)
         {
             break;
         }
 
     }
 
+     SF_BedRock_First = false;
+
     //store safety factor for display
     FOR_ROW_COL_MV
     {
 
         DFSafetyFactor->Drc = tmc->Drc;
+
     }
 }
 
@@ -467,7 +481,7 @@ void TWorld::CalculateBedrockDepth(cTMap * _DEM,cTMap * _SoilDepth,
 
         Slope = std::min(_dx,fabs(SlopeX) + fabs(SlopeY));
 
-        _BedrockDepth->Drc = std::max(_dx,0.5 *std::max(0.0,dem - min_surr));// + Slope * _dx;//std::max(_dx,Slope * 0.5 *_dx );
+        _BedrockDepth->Drc = std::max(_dx* 0.5,0.5 * std::max(0.0,dem - min_surr));// + Slope * _dx;//std::max(_dx,Slope * 0.5 *_dx );
 
        }
 
@@ -568,7 +582,7 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
         double sina = sin(angle);
         double tanphi = tan(_InternalFrictionAngle->Drc);
 
-        DFForcingCapacity->Drc = _SFCalibration->Drc * (_SoilCohesion->Drc *(1 - std::min(0.0,std::max(1.0,_SoilWaterHeight->Drc/_SoilDepth->Drc))) + _PlantCohesion->Drc )
+        DFForcingCapacity->Drc = _SFCalibration->Drc * (_SoilCohesion->Drc + _PlantCohesion->Drc )
                     +
                     (
                         cosa * cosa*
@@ -594,6 +608,8 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
         DFForcingUpAdded->Drc = std::max(0.0,DFForcingCapacity->Drc-DFForcingDemand->Drc);
     }
 
+    double scale = 9.81;
+
     bool stable = false;
     int iterf = 0;
     while(!stable)
@@ -612,46 +628,47 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                 double demy2 = OUTORMV(r+1,c)? dem: DEM->data[r+1][c];
 
                 double forcingcapacity = std::max(0.0,(DFForcingCapacity->Drc-DFForcingDemand->Drc) -DFForcing->Drc);
-                //DFForcingAdded->Drc = std::max(0.0,(forcingcapacity > 0? (1.0/_dx):1.0) * (DFForcingAdded->Drc-forcingcapacity));
+                //DFForcingAdded->Drc = 0.5*std::max(0.0,(forcingcapacity > 0?1.0:1.0) * (DFForcingAdded->Drc-forcingcapacity));
 
+                double ls = std::sqrt(DFSlopeX->Drc *DFSlopeX->Drc + DFSlopeY->Drc *DFSlopeY->Drc);
                 bool reverse = false;
-                if((demx1 < demx2) && !OUTORMV(r,c-1))
+                if((demx1 < demx2 && demx1 < dem) && !OUTORMV(r,c-1))
                 {
                     stable = false;
                     double forceflux = DFForcingAdded->Drc *
-                            std::max(0.0,std::min(1.0,(1.0 - std::max(0.0,DFSlopeX->Drc * DFSlopeX->data[r][c-1] + DFSlopeX->Drc * DFSlopeX->data[r][c-1]))))*
-                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
+                            std::max(0.0,std::min(1.0,(std::max(0.0,DFSlopeX->Drc * DFSlopeX->data[r][c-1] + DFSlopeY->Drc * DFSlopeY->data[r][c-1])/(ls*std::sqrt(DFSlopeX->data[r][c-1] *DFSlopeX->data[r][c-1]+ DFSlopeY->data[r][c-1] *DFSlopeY->data[r][c-1])))))*
+                            std::max(0.0,std::min(1.0,  DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r][c-1] += forceflux;
 
                 }
-                if((demx1 > demx2) && !OUTORMV(r,c+1))
+                if((demx1 > demx2 && demx2 < dem) && !OUTORMV(r,c+1))
                 {
                     stable = false;
                     double forceflux = DFForcingAdded->Drc *
-                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r][c+1] + DFSlopeX->Drc * DFSlopeX->data[r][c+1]))))*
-                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
+                            std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r][c+1] + DFSlopeY->Drc * DFSlopeY->data[r][c+1])/(ls*std::sqrt(DFSlopeX->data[r][c+1] *DFSlopeX->data[r][c+1]+ DFSlopeY->data[r][c+1] *DFSlopeY->data[r][c+1])))))*
+                            std::max(0.0,std::min(1.0,  DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeX->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r][c+1] +=  forceflux;
 
                 }
-                if(demy1 < demy2 && !OUTORMV(r-1,c))
+                if(demy1 < demy2 && demy1 < dem && !OUTORMV(r-1,c))
                 {
                     stable = false;
                     double forceflux = DFForcingAdded->Drc *
-                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r-1][c] + DFSlopeX->Drc * DFSlopeX->data[r-1][c]))))*
-                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
+                            std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r-1][c] + DFSlopeY->Drc * DFSlopeY->data[r-1][c])/(ls*std::sqrt(DFSlopeX->data[r-1][c] *DFSlopeX->data[r-1][c]+ DFSlopeY->data[r-1][c] *DFSlopeY->data[r-1][c])))))*
+                            std::max(0.0,std::min(1.0, DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc);//* (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r-1][c] +=  forceflux;
 
                 }
-                if(demy1 > demy2 && !OUTORMV(r+1,c))
+                if(demy1 > demy2 && demy2 < dem && !OUTORMV(r+1,c))
                 {
                     stable = false;
                     double forceflux = DFForcingAdded->Drc *
-                            std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r+1][c] + DFSlopeX->Drc * DFSlopeX->data[r+1][c]))))*
-                            std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
+                            std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r+1][c] + DFSlopeY->Drc * DFSlopeY->data[r+1][c])/(ls*std::sqrt(DFSlopeX->data[r+1][c] *DFSlopeX->data[r+1][c]+ DFSlopeY->data[r+1][c] *DFSlopeY->data[r+1][c])))))*
+                            std::max(0.0,std::min(1.0, DFSlope->Drc));// * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                            (std::fabs(DFSlopeY->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
                     DFForcingAdded->data[r+1][c] +=  forceflux;
 
                 }
@@ -661,7 +678,7 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
         }
 
         iterf ++;
-        if(iterf > 200/_dx)
+        if(iterf > 100/_dx)
         {
             break;
         }
@@ -687,56 +704,59 @@ void TWorld::CalculateSlopeForcing(cTMap * _DEM,cTMap * _SoilDepth,
                     double demy2 = OUTORMV(r+1,c)? dem: DEM->data[r+1][c];
 
                     double forcingcapacity = std::max(0.0,(DFForcingDemand->Drc-DFForcingCapacity->Drc) -DFForcingUp->Drc);
-                    //DFForcingUpAdded->Drc = std::max(0.0,(forcingcapacity > 0? (1.0/_dx):1.0) * (DFForcingUpAdded->Drc-forcingcapacity));
+                    //DFForcingUpAdded->Drc = 0.5* std::max(0.0,(forcingcapacity > 0? 1.0:1.0) * (DFForcingUpAdded->Drc-forcingcapacity));
 
+                    double ls = std::sqrt(DFSlopeX->Drc *DFSlopeX->Drc + DFSlopeY->Drc *DFSlopeY->Drc);
                     bool reverse = false;
-                    if((demx1 > demx2) && !OUTORMV(r,c-1))
+                    if((demx1 > demx2 && demx1 > dem) && !OUTORMV(r,c-1))
                     {
                         stable = false;
                         double forceflux = DFForcingUpAdded->Drc *
-                                std::max(0.0,std::min(1.0,(1.0 - std::max(0.0,DFSlopeX->Drc * DFSlopeX->data[r][c-1] + DFSlopeX->Drc * DFSlopeX->data[r][c-1]))))*
-                                std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                                (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
+                                std::max(0.0,std::min(1.0,(std::max(0.0,DFSlopeX->Drc * DFSlopeX->data[r][c-1] + DFSlopeY->Drc * DFSlopeY->data[r][c-1])/(ls*std::sqrt(DFSlopeX->data[r][c-1] *DFSlopeX->data[r][c-1]+ DFSlopeY->data[r][c-1] *DFSlopeY->data[r][c-1])))))*
+                                std::max(0.0,std::min(1.0, DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                                (std::fabs(DFSlopeX->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c-1])/DFSoilDepth->Drc);
                         DFForcingUpAdded->data[r][c-1] += forceflux;
 
                     }
-                    if((demx1 < demx2) && !OUTORMV(r,c+1))
+                    if((demx1 < demx2 && demx2 > dem) && !OUTORMV(r,c+1))
                     {
                         stable = false;
                         double forceflux = DFForcingUpAdded->Drc *
-                                std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r][c+1] + DFSlopeX->Drc * DFSlopeX->data[r][c+1]))))*
-                                std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                                (std::fabs(DFSlopeX->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
+                                std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r][c+1] + DFSlopeY->Drc * DFSlopeY->data[r][c+1])/(ls*std::sqrt(DFSlopeX->data[r][c+1] *DFSlopeX->data[r][c+1]+ DFSlopeY->data[r][c+1] *DFSlopeY->data[r][c+1])))))*
+                                std::max(0.0,std::min(1.0, DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                                (std::fabs(DFSlopeX->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r][c+1])/DFSoilDepth->Drc);
                         DFForcingUpAdded->data[r][c+1] +=  forceflux;
 
                     }
-                    if(demy1 > demy2 && !OUTORMV(r-1,c))
+                    if(demy1 > demy2 && demy1 > dem && !OUTORMV(r-1,c))
                     {
                         stable = false;
                         double forceflux = DFForcingUpAdded->Drc *
-                                std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r-1][c] + DFSlopeX->Drc * DFSlopeX->data[r-1][c]))))*
-                                std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                                (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
+                                std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r-1][c] + DFSlopeY->Drc * DFSlopeY->data[r-1][c])/(ls*std::sqrt(DFSlopeX->data[r-1][c] *DFSlopeX->data[r-1][c]+ DFSlopeY->data[r-1][c] *DFSlopeY->data[r-1][c])))))*
+                                std::max(0.0,std::min(1.0, DFSlope->Drc)) * //std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                                (std::fabs(DFSlopeY->Drc)/DFSlope->Drc);//* (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r-1][c])/DFSoilDepth->Drc);
                         DFForcingUpAdded->data[r-1][c] +=  forceflux;
 
                     }
-                    if(demy1 < demy2 && !OUTORMV(r+1,c))
+                    if(demy1 < demy2 && demy2 > dem && !OUTORMV(r+1,c))
                     {
                         stable = false;
                         double forceflux = DFForcingUpAdded->Drc *
-                                std::max(0.0,std::min(1.0,(1.0 - std::fabs(DFSlopeX->Drc * DFSlopeX->data[r+1][c] + DFSlopeX->Drc * DFSlopeX->data[r+1][c]))))*
-                                std::max(0.0,std::min(1.0, 9.81 * DFSlope->Drc)) * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
-                                (std::fabs(DFSlopeY->Drc)/DFSlope->Drc) * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
+                                std::max(0.0,std::min(1.0,(std::fabs(DFSlopeX->Drc * DFSlopeX->data[r+1][c] + DFSlopeY->Drc * DFSlopeY->data[r+1][c])/(ls*std::sqrt(DFSlopeX->data[r+1][c] *DFSlopeX->data[r+1][c]+ DFSlopeY->data[r+1][c] *DFSlopeY->data[r+1][c])))))*
+                                std::max(0.0,std::min(1.0, DFSlope->Drc));// * std::max(0.0, std::min(1.0, 1.0 - (1/(9.81 ) )*(_dx/DFSoilDepth->data[r][c]))) *
+                                (std::fabs(DFSlopeY->Drc)/DFSlope->Drc);//  * (std::min(DFSoilDepth->Drc,DFSoilDepth->data[r+1][c])/DFSoilDepth->Drc);
                         DFForcingUpAdded->data[r+1][c] +=  forceflux;
 
                     }
+
+
                     _DFForcingUp->Drc += DFForcingUpAdded->Drc ;
                     DFForcingUpAdded->Drc = 0;
                 }
             }
 
             iterf ++;
-            if(iterf > 200/_dx)
+            if(iterf > 100/_dx)
             {
                 return;
             }
@@ -838,8 +858,11 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
         //std::max(1.0,-60.0 * (_SoilWaterHeight->Drc/_SoilDepth->Drc) + 19.0)
         //+_SoilWaterSuction->Drc
         //calculate safety factor
+
+        //*(1 - std::min(0.0,std::max(1.0,_SoilWaterHeight->Drc/_SoilDepth->Drc)))
+
         double t1 =
-                (_DFForcingUp->Drc + _SoilCohesion->Drc *(1 - std::min(0.0,std::max(1.0,_SoilWaterHeight->Drc/_SoilDepth->Drc))) + _PlantCohesion->Drc )
+                (_DFForcingUp->Drc + _SoilCohesion->Drc  + _PlantCohesion->Drc )
                     +
                     (
                         cosa * sina*_PGA->Drc*
@@ -849,7 +872,7 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                         +
                         cosa * cosa*
                         (
-                         _PlantPressure->Drc +
+
                                (
                                     _SoilDensity->Drc *(_SoilDepth->Drc - _SoilWaterHeight->Drc) + 1000.0 *(_SoilWaterHeight->Drc)
                                 )
@@ -860,13 +883,26 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                 (
                 cosa*cosa*_PGA->Drc*(_SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc ))
                     +
-                    (_PlantPressure->Drc + _SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc )+ _PlantPressure->Drc)
+                    ( _SoilDensity->Drc * _SoilDepth->Drc + 1000.0 *(_SoilWaterHeight->Drc ))
                 *sina*cosa
                 ));
 
 
+        double sf;
+
+
+
         //above 1000 is irrelevant
-        double sf = (t2 > 0 ? std::max(0.0,std::min(t1/t2,1000.0)): 10.0);
+        if(t2 < 1e-12)
+        {
+
+            sf = 100.999;
+        }else
+        {
+
+            sf = std::max(0.0,std::min(t1/t2,1000.0));
+        }
+
 
         //compensate for initial calibration
         _SafetyFactor->Drc = _SFCalibration->Drc * sf;
@@ -876,14 +912,20 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
     FOR_ROW_COL_MV
     {
 
+        bool boundary = false;
 
         bool nb_df = false;
-        if(!OUTORMV(r-1,c)){if(_Initiated->data[r-1][c] > 0){nb_df = true;}}
-        if(!OUTORMV(r+1,c)){if(_Initiated->data[r+1][c] > 0){nb_df = true;}}
-        if(!OUTORMV(r,c-1)){if(_Initiated->data[r][c-1] > 0){nb_df = true;}}
-        if(!OUTORMV(r,c+1)){if(_Initiated->data[r][c+1] > 0){nb_df = true;}}
+        if(!OUTORMV(r-1,c)){if(_Initiated->data[r-1][c] > 0){nb_df = true;}}else{boundary = true;}
+        if(!OUTORMV(r+1,c)){if(_Initiated->data[r+1][c] > 0){nb_df = true;}}else{boundary = true;}
+        if(!OUTORMV(r,c-1)){if(_Initiated->data[r][c-1] > 0){nb_df = true;}}else{boundary = true;}
+        if(!OUTORMV(r,c+1)){if(_Initiated->data[r][c+1] > 0){nb_df = true;}}else{boundary = true;}
 
-        if(_SafetyFactor->Drc < _Threshold->Drc || (_SafetyFactor->Drc < _Threshold1->Drc && nb_df))
+        if(boundary)
+        {
+            continue;
+        }
+
+        if((_SafetyFactor->Drc < _Threshold->Drc || (_SafetyFactor->Drc < _Threshold1->Drc && nb_df) ) && _SoilDepth->Drc > 0.1)
         {
             if(SF_Calibrate_LF)
             {
@@ -910,57 +952,18 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
 
             double h0 = hf;
             double a = _SoilCohesion->Drc + _PlantCohesion->Drc;
-            double b =  std::tan(_InternalFrictionAngle->Drc) *(wd * wf + (1.0 - wf) *_SoilDensity->Drc);
-            double cc = (wd * wf + (1.0 - wf) *_SoilDensity->Drc);
-            double d = (_DFForcing->Drc - _DFForcingUp->Drc)/_SoilDepth->Drc + _PGA->Drc *(wd * wf + (1.0 - wf) *_SoilDensity->Drc)*cosa*cosa;
+            double cc =  std::tan(_InternalFrictionAngle->Drc) *((1.0 - wf) *_SoilDensity->Drc-wd * wf);
+            double b = (wd * wf + (1.0 - wf) *_SoilDensity->Drc);
+            double d = 0;//(_DFForcing->Drc )/_SoilDepth->Drc + _PGA->Drc *(wd * wf + (1.0 - wf) *_SoilDensity->Drc)*cosa*cosa;
             double e = 0.0;
             double f = 0.0;
-            double g = std::max(0.001,_PGA->Drc * (wd * wf + (1.0 - wf) *_SoilDensity->Drc)*cosa*sina);
-            double hdx = 0.5 * _dx;
+            double g = 0;//(_DFForcingUp->Drc)/_SoilDepth->Drc +_PGA->Drc * (wd * wf + (1.0 - wf) *_SoilDensity->Drc)*cosa*sina;
+            double hdx = _dx;
 
             double soildepthn = _SoilDepth->Drc;
             double soildepths = _SoilDepth->Drc;
 
-            if(SwitchUpslopeForcing || SwitchDownslopeForcing)
-            {
-                double c1 = -1.0 * a*h0*h0 - 1.0* a *hdx*hdx;
-                double c2 = 2.0*a*h0 + d*h0*h0* sf - 1.0*cc*h0*sf*hdx + b*hdx*hdx + d*sf*hdx*hdx;
-                double c3 = -1.0* a - 2.0* d*h0* sf + cc* sf* hdx;
-                double c4 = 1.0 + d *sf;
 
-                double c2_13 = std::pow(2.0,1.0/3.0);
-
-                double sd_p1 = -(c3/(3.0*c4));
-                double sd_p2 = -
-                        (c2_13 * (-c3*c3 + 3.0*c2*c4))
-                        /
-                        (3*c4*
-                         std::pow(
-                             -2.0*c3*c3*c3 + 9.0*c2*c3*c4 - 27.0*c1*c4*c4
-                                  + std::sqrt((
-                                      4.0*std::pow(c3*c3+ 3.0*c2*c4,3.0)
-                                      + std::pow(-2.0*c3*c3*c3 + 9.0*c2*c3*c4 -27.0*c1*c4*c4,2.0)
-                                      ))
-                            ,(1.0/3.0))
-                         );
-                double sd_p3 = +
-                        1.0/(3.0*c2_13*c4)
-                        *
-                        std::pow(-2.0*c3*c3*c3
-                                 + 9.0*c2*c3*c4
-                                 - 27.0*c1*c4*c4 +
-                                 std::sqrt((
-                                    4.0*std::pow(c3*c3 + 3.0*c2*c4,3.0) +
-                                     std::pow(-2.0*c3*c3*c3 + 9.0*c2*c3*c4 - 27.0*c1*c4*c4,2.0)
-                                     ))
-                        ,1.0/3.0);
-
-                soildepthn = std::min(_SoilDepth->Drc,(!std::isnan(sd_p1 + sd_p2 + sd_p3))? sd_p1 + sd_p2 + sd_p3 : _SoilDepth->Drc);
-
-            }
-
-            if(SwitchSeismic)
-            {
 
             //Use wolfram mathematica to find a analytical solution
 
@@ -972,59 +975,98 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
 
             //this is the root to the third power polynomial equation that is real
 
-                        /*h == Root[
-              a h0^2 - 1. g h0^2 h1 + d h0^2 h1 sf + f h0 sf xd + a xd^2 +
-                e xd^2 - 1. g h1 xd^2 +
-                d h1 sf xd^2
-            + (-2. a h0 + g h0^2 + 2. g h0 h1 - 1. d h0^2 sf -
-                   2. d h0 h1 sf - 1. f sf xd + c h0 sf xd + b xd^2 + g xd^2 -
-                   1. d sf xd^2) #1
-            + (a - 2. g h0 - 1. g h1 + 2. d h0 sf +
-                   d h1 sf - 1. c sf xd) #1^2
+                        /*h == Root[a h0^2 - 1. g h0^2 h1 + d h0^2 h1 sf + f h0 sf xd + a xd^2 + e xd^2 - 1. g h1 xd^2 + d h1 sf xd^2
+            + (-2. a h0 + g h0^2 + 2. g h0 h1 - 1. d h0^2 sf - 2. d h0 h1 sf - 1. f sf xd + c h0 sf xd + b xd^2 + g xd^2 - 1. d sf xd^2) #1
+            + (a - 2. g h0 - 1. g h1 + 2. d h0 sf + d h1 sf - 1. c sf xd) #1^2
              + (g - 1. d sf) #1^3 &, 1] */
 
+            if(SwitchSeismic || SwitchUpslopeForcing || SwitchDownslopeForcing)
+            {
 
-            //to get the third power root with real value
-            double c1 = -1.0 * a*h0*h0 - g*h0*h0*h0 + d * h0*h0*h0* + f*h0*sf*hdx +e*hdx*hdx + g*h0*hdx*hdx + d*h0*sf*hdx*hdx + 1.0* a *hdx*hdx;
-            double c2 = -2.0 * a * h0 + g * h0*h0 + 2.0 * g * h0*h0 + 1.0 * d * h0 * h0*sf + 2.0 * d*h0*h0*sf - 1.0 * f*sf*hdx + c * h0*sf*hdx + b * hdx*hdx + g * hdx* hdx + d * sf*hdx*hdx;
-            double c3 = a - 2.0 * g * h0 - g * h0 + 2.0 * d * h0*sf + d * h0*sf - c* sf*hdx;
-            double c4 = g - (0.1 + d *sf);
 
-            double c2_13 = std::pow(2.0,1.0/3.0);
+                /*
+                //to get the third power root with real value
+                //double c1 = 1.0 * a*h0*h0 - g*h0*h0*h0 + d * h0*h0*h0* sf+ f*h0*sf*hdx +a * hdx * hdx + e*hdx*hdx - g*h0*hdx*hdx + d*h0*sf*hdx*hdx;
+                //double c2 = -2.0 * a * h0 + g * h0*h0 + 2.0 * g * h0*h0 - 1.0 * d * h0 * h0*sf - 2.0 * d*h0*h0*sf - 1.0 * f*sf*hdx + cc * h0*sf*hdx + b * hdx*hdx + g * hdx* hdx - d * sf*hdx*hdx;
+                //double c3 = a - 2.0 * g * h0 - g * h0 + 2.0 * d * h0*sf + d * h0*sf - cc* sf*hdx;
+                //double c4 = g - (d *sf);
 
-            double sd_p1 = -(c3/(3.0*c4));
-            double sd_p2 = -
-                    (c2_13 * (-c3*c3 + 3.0*c2*c4))
-                    /
-                    (3*c4*
-                     std::pow(
-                         -2.0*c3*c3*c3 + 9.0*c2*c3*c4 - 27.0*c1*c4*c4
-                              + std::sqrt((
-                                  4.0*std::pow(c3*c3+ 3.0*c2*c4,3.0)
-                                  + std::pow(-2.0*c3*c3*c3 + 9.0*c2*c3*c4 -27.0*c1*c4*c4,2.0)
-                                  ))
-                        ,(1.0/3.0))
-                     );
-            double sd_p3 = +
-                    1.0/(3.0*c2_13*c4)
-                    *
-                    std::pow(-2.0*c3*c3*c3
-                             + 9.0*c2*c3*c4
-                             - 27.0*c1*c4*c4 +
-                             std::sqrt((
-                                4.0*std::pow(c3*c3 + 3.0*c2*c4,3.0) +
-                                 std::pow(-2.0*c3*c3*c3 + 9.0*c2*c3*c4 - 27.0*c1*c4*c4,2.0)
-                                 ))
-                    ,1.0/3.0);
+                double c1 = a*h0*h0 + a * hdx*hdx;
+                double c2 =-2.0*a*h0 + g * h0 * h0 - 1.0 * d * h0*h0*sf + c * h0*sf*hdx + b *hdx*hdx + g * hdx*hdx - 1.0 * d * sf * hdx*hdx ;
+                double c3 = a - 2.0 * g * h0 + 2.0 * d * h0 * sf - 1.0 * cc * sf * hdx;
+                double c4 = g - (d *sf);
 
-            soildepths = std::min(_SoilDepth->Drc,(!std::isnan(sd_p1 + sd_p2 + sd_p3))? sd_p1 + sd_p2 + sd_p3 : _SoilDepth->Drc);
+                double *x = new double[3];
+                x[0] = 0.0;
+                x[1] = 0.0;
+                x[2] = 0.0;
+
+                int nsol = 0;
+                if( std::fabs(c4) > 0.0)
+                {
+                    nsol = SolveP3(x,c3/c4,c2/c4,c1/c4);
+                }else if( std::fabs(c3) > 0.0)
+                {
+                    nsol = SolveP2(x,c2/c3,c1/c3);
+                }else if( std::fabs(c2) > 0.0)
+                {
+                    soildepths = -c1/c2;
+                }else
+                {
+                    soildepths = _SoilDepth->Drc;
+                }
+
+                soildepths = (_SoilDepth->Drc);
+
+
+
+                double ifzero = soildepths;
+                if(nsol == 1)
+                {
+                    soildepths = x[0] < 0 ? ifzero : std::min(soildepths,x[0]);
+                    soildepths = std::max(0.0,std::min(soildepths,_SoilDepth->Drc));
+
+                }else if(nsol == 2)
+                {
+                    soildepths = x[0] < 0 ? ifzero : std::min(soildepths,x[0]);
+                    soildepths = x[1] < 0 ? ifzero : std::min(soildepths,x[1]);
+                    soildepths = std::max(0.0,std::min(soildepths,_SoilDepth->Drc));
+
+                }else if(nsol == 3)
+                {
+                    soildepths = x[0] < 0 ? ifzero : std::min(soildepths,x[0]);
+                    soildepths = x[1] < 0 ? ifzero : std::min(soildepths,x[1]);
+                    soildepths = x[2] < 0 ? ifzero : std::min(soildepths,x[2]);
+                    soildepths = std::max(0.0,std::min(soildepths,_SoilDepth->Drc));
+                }
+
+                if(soildepths > _SoilDepth->Drc - 1e-10)
+                {
+                    soildepths = 0;
+                }*/
+
+                /*double t1 = (-2.0*a*h0 - 2.0*g*h0 + b*hdx*hdx + 2.0*d*h0*sf +
+                             c*h0*hdx*sf);
+
+                double h1 = (0.5 *(2.0* a*h0 + 2.0*g*h0 - 1.0*b*hdx*hdx - 2.0*d*h0*sf - 1.0*c*h0*hdx*sf - 1.0 *
+                                   std::sqrt(t1*t1 - 4.0 *(a + g - 1.0*d*sf - 1.0*c*hdx*sf)*(a*h0*h0 + g*h0*h0 + a*hdx*h0 + g*hdx*h0 - 1.0*d*h0*h0 *sf - 1.0*d*hdx*hdx*sf))))
+                        /(a + g - 1.0*d*sf - 1.0* c*hdx*sf);
+                double h2 = (0.5 *(2.0* a*h0 + 2.0*g*h0 - 1.0*b*hdx*hdx - 2.0*d*h0*sf - 1.0*c*h0*hdx*sf + 1.0 *
+                                   std::sqrt(t1*t1 - 4.0 *(a + g - 1.0*d*sf - 1.0*c*hdx*sf)*(a*h0*h0 + g*h0*h0 + a*hdx*h0 + g*hdx*h0 - 1.0*d*h0*h0 *sf - 1.0*d*hdx*hdx*sf))))
+                        /(a + g - 1.0*d*sf - 1.0* c*hdx*sf);;
+
+                soildepths = std::max(0.0,std::min(_SoilDepth->Drc,std::min(_SoilDepth->Drc,std::max(0.0,std::min(h1,h2)))));
+
+                qDebug() << _SoilDepth->Drc << h1 << h2;
+                qDebug() << _SoilDepth->Drc << soildepths << _SafetyFactor->Drc;*/
+
 
             }
 
             double h1 = _SoilDepth->Drc;
             double h2 = _SoilDepth->Drc;
 
-            //if(!(SwitchUpslopeForcing || SwitchDownslopeForcing))
+            //if(!(SwitchSeismic || SwitchUpslopeForcing || SwitchDownslopeForcing))
             {
                 //get all relevant vvariables for calculation of stable depth
                 double cif = cos(_InternalFrictionAngle->Drc);
@@ -1038,7 +1080,7 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                 double pc = _PlantCohesion->Drc;
                 double sd = _SoilDensity->Drc;
                 double ws = _SoilWaterSuction->Drc;
-                double sc = _SoilCohesion->Drc;
+                double sc = _SoilCohesion->Drc - _DFForcing->Drc + _DFForcingUp->Drc;
 
                 //threshold safety factor value
                 //include sf calibration (compensation factor to make sure that the initial state is stable)
@@ -1066,10 +1108,14 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
                 //positive and negative solution
                 h1 = (t1 + t2)/t3;
                 h2 = (t1 - t2)/t3;
+
+                h1 = std::isnan(h1)? 0.0:h1;
+                h2 = std::isnan(h2)? 0.0:h2;
+
+                //qDebug() << h1 << h2 << _DFForcing->Drc << _DFForcingUp->Drc;
             }
 
-
-            double hnew = std::min(_SoilDepth->Drc,std::min(soildepths,std::min(soildepthn,std::min(_SoilDepth->Drc,std::max(0.0,std::max(h1,h2))))));
+            double hnew = std::max(_SoilDepth->Drc*0.8,std::min(_SoilDepth->Drc,std::min(soildepths,std::min(soildepthn,std::min(_SoilDepth->Drc,std::max(0.0,std::max(h1,h2)))))));
 
 
             double fheight = std::max(0.0,_SoilDepth->Drc - hnew);
@@ -1081,15 +1127,6 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
 
             //final initiation height can not be more than Soildepth
             _InititationHeight->Drc =fheight;
-
-            //if(std::max(0.0,_SoilDepth->Drc - hnew) > 0.1)
-            //{
-            //    qDebug() << _SoilDepth->Drc << soildepths << soildepthn << h1 << h2;
-            //}
-
-
-            //qDebug() << "SAFET FACTOR BELOW THRESHOLD" << r << c << _InititationHeight->Drc <<_SoilDepth->Drc << hnew;
-
 
             //minimum initiation height is 0.1 meters depth, otherwise not relevant
             double DF_MinInitiationHeight = 0.1;
@@ -1107,6 +1144,7 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
 
 
 }
+
 
 double TWorld::CalculateSafetyFactorAt(int r, int c)
 {

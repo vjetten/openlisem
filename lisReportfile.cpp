@@ -207,7 +207,7 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge = std::max(UF2D_qout->Drc + SwitchIncludeChannel? UF1D_qout->Drc : 0.0,UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0);
+        double discharge =1000.0* std::max(UF2D_qout->Drc + SwitchIncludeChannel? UF1D_qout->Drc : 0.0,UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0);
         double sedimentdischarge = SwitchErosion?  (SwitchIncludeChannel? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0) : UF2D_tConc->Drc) :0.0;
         double sedimentconcentration = SwitchErosion? (SwitchIncludeChannel?std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc) : std::fabs(UF2D_qs->Drc)):0.0;
         double channelwh = UF2D_h->Drc +SwitchIncludeChannel? UF1D_h->Drc : 0.0;
@@ -570,9 +570,7 @@ void TWorld::ReportTimeseriesNew(int not_used)
         int point = 0;
         for(int p = 0; p < TSList_point.length(); p++)
             {
-                point ++;
 
-           //     qDebug() << PointMap->Drc << r << c;
                 newname1 = fi.path() + "/" + fi.baseName() + "_" +
                         QString::number((int)TSList_point.at(p)) + "." +  fi.suffix();
                 QFile fout(newname1);
@@ -608,6 +606,9 @@ void TWorld::ReportTimeseriesNew(int not_used)
                     out << ss;
                 }
                 fout.close();
+
+                 point ++;
+
             }  // if point
     } //switch separate
     else
@@ -642,11 +643,13 @@ void TWorld::ReportTimeseriesNew(int not_used)
             int point = 0;
             for(int p = 0; p < TSList_point.length(); p++)
                 {
-                    point ++;
 
                     out << sep << TSList_q.at(point) << sep <<TSList_h.at(point);
                     if (SwitchErosion) out << sep << TSList_qs.at(point);
                     if (SwitchErosion) out << sep << TSList_c.at(point);
+
+                    point ++;
+
                 }
 
             out << "\n";
@@ -660,10 +663,11 @@ void TWorld::ReportTimeseriesNew(int not_used)
                 int point = 0;
                 for(int p = 0; p < TSList_point.length(); p++)
                     {
-                        point ++;
+
                         out << " " << TSList_q.at(point)/1000.0;
                         if (SwitchErosion) out << " " << TSList_qs.at(point);
                         if (SwitchErosion) out << " " << TSList_c.at(point);
+                        point ++;
                     }
 
                 out << " < \n";
@@ -729,13 +733,34 @@ void TWorld::ReportMaps(int not_used)
         tm->Drc = RainCumFlat->Drc * 1000.0; // m to mm
         ThreadPool->tma->Drc = (Interc->Drc + IntercHouse->Drc)*1000.0/CellArea->Drc;
     }
-
+/*
     //creating a wig-shaped map
-    /*for(int r = 0; r < _nrRows; r++)
+    for(int r = 0; r < _nrRows; r++)
     {
         for (int c = 0; c < _nrCols; c++)
         {
-            ThreadPool->tm->Drc = 1.0 * std::fabs(double(float(r) - 0.5 * _nrRows)) + 2.0 * double(_nrCols - float(c));
+            double border = 0.1 *double( _nrCols);
+
+            if(c <= border)
+            {
+                ThreadPool->tm->Drc = double(c)/border * 0.1;
+
+            }else if(double(c) > border && double(c) < double(_nrCols) - 1.0 * border)
+            {
+                double x = ((double(c)-border) * (3.14159/2.0) /(double(_nrCols)-2.0 * border));
+                double x1 = x/(3.14159/2.0);
+                //ThreadPool->tm->Drc = 0.1 + sin(x)*sin(x)*sin(x);
+                //ThreadPool->tm->Drc = 0.1 + (sin(x)*sin(x) * (x1)*(x1) ) ;
+                //ThreadPool->tm->Drc = 0.1 + tanh(x)*tanh(x) / (tanh((3.14159/2.0))*tanh((3.14159/2.0))) ;
+                //ThreadPool->tm->Drc = 0.1 + atan(x) ;
+
+            }else if( double(c) >= double(_nrCols) - 1.0 * border)
+            {
+                ThreadPool->tm->Drc = 1.1 + double(c-(_nrCols - 1.0 * border))/border * 0.1;
+
+            }
+            double x = double(abs(0.5*_nrRows - r))* (3.14159/2.0) /(0.5*double(_nrRows));
+            ThreadPool->tm->Drc = ThreadPool->tm->Drc - 0.35 *  sin(x)*sin(x)*sin(x);
 
         }
     }*/
@@ -918,7 +943,6 @@ void TWorld::ReportMaps(int not_used)
 
     if(SwitchSlopeStability)
     {
-
         if (outputcheck[18].toInt() == 1)
         {
             report(*DFSafetyFactor, OutSafetyFactor);

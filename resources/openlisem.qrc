@@ -38,5 +38,6 @@
         <file>map.png</file>
         <file>advanced.png</file>
         <file>simple.png</file>
+        <file>profile.png</file>
     </qresource>
 </RCC>

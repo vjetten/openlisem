@@ -21,6 +21,20 @@
 #include <qwt_text.h>
 #include <qwt_text_engine.h>
 #include <pcrtypes.h>
+#include <QMouseEvent>
+#include <QPoint>
+#include <QWidget>
+#include <QList>
+#include <QSize>
+#include <QLayout>
+#include <QVBoxLayout>
+#include <QPlainTextEdit>
+#include "qwt_plot_curve.h"
+#include "qwt_plot_canvas.h"
+#include "qwt_plot.h"
+#include "global.h"
+#include <CsfMap.h>
+#include <QMutex>
 
 #ifndef LISQWTPLOT_H
 #define LISQWTPLOT_H
@@ -54,6 +68,23 @@ class LisQwtPlot : public QwtPlot
     bool m_velocityEnabled = false;
     bool m_velocitySet2 = false;
     double m_velocityPeriod = 25;
+
+    bool profile_enabled = false;
+    int profile_currentx = 0;
+    int profile_currenty = 0;
+    bool profile_started = false;
+    bool profile_ended = false;
+    bool profile_mousepressed = false;
+    QList<QPointF> profile_pointlist;
+    QWidget *profile_window= 0;
+    QwtPlotCurve *PGraph;
+    QwtPlotCurve *MGraph;
+    QPlainTextEdit * textGraph;
+    QwtPlot * HPlot;
+
+    QMutex map_mutex;
+    cTMap * DEM;
+    cTMap * DEMChange;
 
     inline void setVelocityField(cTMap * _velx1, cTMap * _vely1, double cellsize, cTMap * _velx2 = 0, cTMap * _vely2 = 0, double startx = 0, double starty = 0)
     {
@@ -97,11 +128,418 @@ class LisQwtPlot : public QwtPlot
 
     }
 
+    inline void SetProfileMode(bool set)
+    {
+         profile_enabled = set;
+
+         profile_started = false;
+         profile_ended = false;
+
+        profile_pointlist.clear();
+    }
+
+    inline void mousePressEvent(QMouseEvent * e)
+    {
+
+
+        QPoint loc = this->canvas()->pos();
+        profile_currentx = e->localPos().x() - loc.x();
+        profile_currenty = e->localPos().y() - loc.y();
+
+
+
+        profile_mousepressed = true;
+
+        replot();
+
+    }
+
+    inline void mouseReleaseEvent(QMouseEvent * e)
+    {
+
+        if(e->button() == Qt::MouseButton::LeftButton)
+        {
+            profile_started = true;
+
+            QPoint loc = this->canvas()->pos();
+
+
+            QwtInterval interval_x = this->axisInterval(xBottom);
+            QwtInterval interval_y = this->axisInterval(yLeft);
+
+            QSize w_size = this->canvas()->size();
+
+            double w_width = w_size.width();
+            double w_height = w_size.height();
+
+
+            profile_pointlist.append(LocalToModelSpace(QPoint(e->localPos().x()-loc.x(),e->localPos().y() - loc.y()),interval_x,interval_y,w_width,w_height));
+
+
+        }else if(e->button() == Qt::MouseButton::RightButton)
+        {
+            profile_started = false;
+            profile_ended = false;
+
+
+            StartPlot();
+
+           profile_pointlist.clear();
+        }
+
+
+
+        profile_mousepressed = false;
+
+        replot();
+    }
+
+    inline void StartPlot()
+    {
+
+        bool suc = true;
+        if(profile_pointlist.length() > 0)
+        {
+
+            QList<int> Lx;    //x location
+            QList<int> Ly;    //y location
+            QList<double> Ls;    //distance from starting point
+
+            QVector<double> SData;
+            QVector<double> EData;
+            QVector<double> ENData;
+
+            QList<double> Ps;
+
+
+            for(int i = 0; i < profile_pointlist.length() - 1; i++)
+            {
+                  double _dx = op.dx;
+
+                    qDebug() << profile_pointlist.at(i).x() << profile_pointlist.at(i+1).x() << "   " << profile_pointlist.at(i).y() <<profile_pointlist.at(i+1).y();
+
+                  double y1 = profile_pointlist.at(i).y() /_dx;
+                  double y2 = profile_pointlist.at(i+1).y()/_dx;
+                  double x1 = profile_pointlist.at(i).x()/_dx;
+                  double x2 = profile_pointlist.at(i+1).x()/_dx;
+
+
+
+                  if(y1 == y2 && x1 == x2)
+                  {
+                      continue;
+                  }
+
+                  const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+                  if(steep)
+                  {
+                    std::swap(x1, y1);
+                    std::swap(x2, y2);
+                  }
+                  bool reverse = false;
+                  if(x1 > x2)
+                  {
+                    reverse = true;
+                    std::swap(x1, x2);
+                    std::swap(y1, y2);
+                  }
+
+                  const float dx = x2 - x1;
+                  const float dy = fabs(y2 - y1);
+
+                  float error = dx / 2.0f;
+                  const int ystep = (y1 < y2) ? 1 : -1;
+                  int y = (int)y1;
+
+                  const int maxX = (int)x2;
+
+                  for(int x=(int)x1; x<maxX; x++)
+                  {
+                    if(steep)
+                    {
+
+                        Lx.append(y);
+                        Ly.append(x);
+                        double s = !reverse? std::sqrt(_dx*double((y-y1)*(y-y1)+(x-x1)*(x-x1))) : std::sqrt(_dx*double((y-y2)*(y-y2)+(x-x2)*(x-x2)));
+                        for(int k = 0; k < Ps.length(); k++)
+                        {
+                            s = s +Ps.at(k);
+                        }
+                        Ls.append(s);
+                    }
+                    else
+                    {
+
+                        Lx.append(x);
+                        Ly.append(y);
+                        double s = !reverse? std::sqrt(_dx*double((y-y1)*(y-y1)+(x-x1)*(x-x1))) : std::sqrt(_dx*double((y-y2)*(y-y2)+(x-x2)*(x-x2)));
+                        for(int k = 0; k < Ps.length(); k++)
+                        {
+                            s = s +Ps.at(k);
+                        }
+                        Ls.append(s);
+                    }
+
+                    error -= dy;
+                    if(error < 0)
+                    {
+                        y += ystep;
+                        error += dx;
+                    }
+                  }
+
+                  Ps.append(std::sqrt(_dx*double((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1))));
+
+                  map_mutex.lock();
+                  for(int j =  0; j < Ls.length() ; j= j+1)
+                  {
+                      int j2 = reverse? Ls.length() - 1 - j : j;
+                      int r = DEM->nrCols() - Ly.at(j2);
+                      int c = Lx.at(j2);
+
+                      if(r > 0 && c <DEM->nrCols() && c > 0 && r < DEM->nrRows())
+                      {
+                          if(!pcr::isMV(op.baseMapDEM->data[r][c]))
+                          {
+                              SData << Ls.at(j2);
+                              EData << DEM->data[r][c];
+                              ENData << DEM->data[r][c] + DEMChange->data[r][c];
+                          }
+                      }
+                  }
+                  map_mutex.unlock();
+
+                  Ls.clear();
+                  Ly.clear();
+                  Lx.clear();
+
+            }
+
+            if(SData.length() > 0)
+            {
+
+
+
+
+                bool exists = false;
+                if(profile_window!= 0)
+                {
+                    //if(profile_window->isVisible())
+                    {
+                        exists = true;
+                    }
+                }
+
+                /*if(exists)
+                {
+
+                    //window already exists,
+                    //just update the date in the plot
+
+
+                    PGraph->setSamples(SData,EData);
+                    MGraph->setSamples(SData,ENData);
+
+                    textGraph->clear();
+
+                    for(int i = 0; i < Ls.length(); i++)
+                    {
+                        textGraph->appendPlainText(QString("%1 %2 %3 ")
+                                                   .arg(SData.at(i),15,'f',3,' ')
+                                                   .arg(EData.at(i),15,'f',3,' ')
+                                                   .arg(ENData.at(i),15,'f',3,' '));
+                    }
+
+                    HPlot->replot();
+                    profile_window->show();
+
+                }else*/
+                {
+                //create new window
+
+
+                    profile_window=new QWidget();
+                    profile_window->setWindowTitle("profile");
+                    profile_window->setMinimumWidth(400);
+                    profile_window->setMinimumHeight(500);
+                    profile_window->setAttribute(Qt::WA_DeleteOnClose);
+
+
+                    QwtText title;
+                    title.setText("Profile");
+                    title.setFont(QFont("MS Shell Dlg 2",12));
+                    HPlot = new QwtPlot(title, profile_window);
+
+                    // panning with the left mouse button
+                    (void) new QwtPlotPanner( HPlot->canvas() );
+
+                    // zoom in/out with the wheel
+                    (void) new QwtPlotMagnifier( HPlot->canvas() );
+
+                    PGraph = new QwtPlotCurve("Elevation");
+                    PGraph->attach(HPlot);
+                    PGraph->setPen(QPen("#000000"));
+                    PGraph->setStyle(QwtPlotCurve::Lines);
+                    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+                    PGraph->setSamples(SData,EData);
+
+                    MGraph = new QwtPlotCurve("New Elevation");
+                    MGraph->attach(HPlot);
+                    MGraph->setPen(QPen("#FF0000"));
+                    MGraph->setStyle(QwtPlotCurve::Lines);
+                    MGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+                    MGraph->setSamples(SData,ENData);
+
+
+                    HPlot->setCanvasBackground(QBrush(Qt::white));
+                    HPlot->enableAxis(HPlot->yRight,true);
+                    HPlot->enableAxis(HPlot->yLeft,true);
+                    HPlot->setAxisTitle(HPlot->xBottom, "distance (m)");
+
+                    HPlot->setAxisTitle(HPlot->yLeft, "elevation (m)");
+
+
+                    textGraph = new QPlainTextEdit(this);
+                    textGraph->setWordWrapMode(QTextOption::NoWrap);
+                    textGraph->setMaximumHeight(80);
+                    textGraph->clear();
+
+                    for(int i = 0; i < SData.length(); i++)
+                    {
+                        textGraph->appendPlainText(QString("%1 %2 %3 ")
+                                                   .arg(SData.at(i),15,'f',3,' ')
+                                                   .arg(EData.at(i),15,'f',3,' ')
+                                                   .arg(ENData.at(i),15,'f',3,' '));
+                    }
+                    QVBoxLayout *layout= new QVBoxLayout(profile_window);
+                    layout->addWidget(HPlot);
+                    layout->addWidget(textGraph);
+
+                    profile_window->show();
+                    HPlot->replot();
+                }
+
+        }else
+        {
+            suc = false;
+        }
+
+
+        }else
+        {
+            suc = false;
+        }
+
+        if(!suc)
+        {
+
+            QMessageBox::warning(this, "openLISEM",
+                                 QString("not enough points in map extent for profile")
+                                 );
+        }
+    }
+
+    inline QPointF LocalToModelSpace(QPoint p,QwtInterval i_x,QwtInterval i_y, int width, int height)
+    {
+        QPointF ret;
+
+        ret.setX(i_x.minValue() + (double(p.x())/double(width)) * (i_x.maxValue() - i_x.minValue()));
+        ret.setY(i_y.minValue() + ((double(height) -double(p.y()))/double(height)) * (i_y.maxValue() - i_y.minValue()));
+
+        return ret;
+    }
+
+    inline QPointF ModelToLocalSpace(QPointF p,QwtInterval i_x,QwtInterval i_y, int width, int height)
+    {
+        QPointF ret;
+
+        ret.setX(double(width) * (double(p.x() - i_x.minValue()))/(i_x.maxValue() - i_x.minValue()));
+        ret.setY(double(height) - double(height) * (double(p.y() - i_y.minValue()))/(i_y.maxValue() - i_y.minValue()));
+
+        return ret;
+
+    }
+
+
+    inline void mouseMoveEvent(QMouseEvent * e)
+    {
+
+        QPoint loc = this->canvas()->pos();
+
+        profile_currentx = e->localPos().x()-loc.x();
+        profile_currenty = e->localPos().y() - loc.y();
+
+
+        replot();
+
+    }
+
+    inline void mouseDoubleClickEvent(QMouseEvent * e)
+    {
+
+
+        replot();
+    }
+
+    inline void drawItems(QPainter *p, const QRectF & r,
+                          const QwtScaleMapTable & s)
+    {
+        QwtPlot::drawItems(p,r,s);
+
+
+    };
+
     inline void drawCanvas(QPainter * p)
     {
 
+        //draw original canvas first (the map display as original
         QwtPlot::drawCanvas(p);
 
+
+
+        //draw Lines for the profile tool
+        //draw from all existing lines in the point list
+        //finally, if currently picking another point, draw towards the mouse cursor
+        if(profile_enabled && profile_started == true && profile_ended == false)
+        {
+
+            QwtInterval interval_x = this->axisInterval(xBottom);
+            QwtInterval interval_y = this->axisInterval(yLeft);
+
+            QSize w_size = this->canvas()->size();
+
+            double w_width = w_size.width();
+            double w_height = w_size.height();
+
+            for(int i = 0; i < profile_pointlist.length() - 1; i++)
+            {
+                QPointF p1 = ModelToLocalSpace(profile_pointlist.at(i),interval_x,interval_y,w_width,w_height);
+                QPointF p2 = ModelToLocalSpace(profile_pointlist.at(i+1),interval_x,interval_y,w_width,w_height);
+
+                p->setPen(QColor(255,0,0,255));
+                p->drawLine(p1,p2);
+
+            }
+
+            if(profile_pointlist.length()>0 && profile_mousepressed)
+            {
+                QPointF p1 = ModelToLocalSpace(profile_pointlist.at(profile_pointlist.length() - 1),interval_x,interval_y,w_width,w_height);
+                QPointF p2 = QPointF(profile_currentx,profile_currenty);
+
+                p->setPen(QColor(255,0,0,255));
+                p->drawLine(p1,p2);
+
+            }
+
+        }
+
+
+
+        //Draw velocity field
+        //
+        //basicly iterate through the canvas, for every nth pixel (determined by velocity_period), draw a line in the direction of the velocity map
         if(m_velocityEnabled && m_velocitySet && m_velx1 != 0 && m_vely1 != 0)
         {
             double max_velsqr = 0;

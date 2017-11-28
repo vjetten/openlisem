@@ -135,6 +135,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("1;Channel BaseFLow");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
+    DEFmaps.append("2;InflowId;inflowid.map; id for inflow conditions (m);inflowid");
 
     DEFmaps.append("0;Surface Flow");
     DEFmaps.append("1;Flow barriers");
@@ -422,6 +423,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Enable Flow Barriers");
     namelist[i].value = QString("flowbarriers.txt");
     namelist[i++].name = QString("Flow barrier table filename");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Enable Inflow");
+    namelist[i].value = QString("inflow.txt");
+    namelist[i++].name = QString("Inflow table filename");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Initial FluidSolid Mixture");
     namelist[i].value = QString("0");

@@ -26,6 +26,98 @@
 #include "error.h"
 #include "model.h"
 
+void TWorld::InitInflow(void)
+{
+    InflowID = NewMap(0);
+
+    if(SwitchInflow)
+    {
+        QString filename = getvaluename("Inflow table filename");
+
+        GetInflowData(filename);
+
+        InflowID = ReadMap(LDD,getvaluename("inflowid"));
+
+    }
+
+}
+
+void TWorld::GetInflowData(QString name)
+{
+    QFile fff(name);
+    QFileInfo fi(name);
+    QString S;
+    QStringList InflowTypes;
+
+    if (!fi.exists())
+    {
+        ErrorString = "Inflow file not found: " + name;
+        throw 1;
+    }
+
+    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    while (!fff.atEnd())
+    {
+        S = fff.readLine();
+        if (S.contains("\n"))
+            S.remove(S.count()-1,1);
+        // readLine also reads \n as a character on an empty line!
+        if (!S.trimmed().isEmpty())
+            InflowTypes << S.trimmed();
+    }
+    fff.close();
+
+
+    for(int i = InflowTypes.length() -1;  i > 0; i--)
+    {
+        if(InflowTypes.at(i).at(0) == '/')
+        {
+            InflowTypes.removeAt(i);
+        }
+    }
+
+
+    IFTime.clear();
+    IFQ.clear();
+
+    int nr_id = 0;
+    bool  ok = true;
+
+    for(int i = 0; i < InflowTypes.length(); i++)
+    {
+        QStringList list = InflowTypes.at(i).split(QRegExp("\\s+"),QString::SplitBehavior::SkipEmptyParts );
+
+        qDebug() << list;
+
+        IFTime.append(list.at(0).toDouble(&ok));
+        if(!ok) { ErrorString = "Not a Number: " + list.at(0);}
+
+        if( i == 0)
+        {
+           nr_id = std::max(0,list.length() - 1);
+        }else if( list.length() - 1 != nr_id)
+        {
+            ErrorString = "wrong length in file: " + name + " row " + QString::number(i);
+            throw 1;
+        }
+
+        for(int j = 1; j < list.length(); j++ )
+        {
+            if(i == 0)
+            {
+                QList<double> * nlist = new QList<double>();
+                IFQ.append(nlist);
+            }
+
+            IFQ.at(j-1)->append(list.at(j).toDouble(&ok));
+            if(!ok) { ErrorString = "Not a Number: " + list.at(0);}
+        }
+
+
+    }
+
+}
 
 
 void TWorld::InitFlowBarriers(void)

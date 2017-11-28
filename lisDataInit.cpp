@@ -1101,6 +1101,7 @@ void TWorld::GetInputData(void)
         SF_Calibrate_Initial = (getvalueint("Create Stable Initial Safety Factor") == 1);
         SF_Calibrate_Margin = getvaluedouble("Minimum Safety Factor Calibration");
         SF_Calibrate_First = true;
+        SF_BedRock_First = true;
         if(SF_Calibrate_LF)
         {
             DFFailureMask = ReadMap(LDD,getvaluename("FailureMask"));
@@ -1571,6 +1572,8 @@ void TWorld::IntializeData(void)
     //read and initialize the flow barrier table and map
     InitFlowBarriers();
 
+    //read and initialize the flow barrier table and map
+    InitInflow();
 
     //create a function object referring to the cellprocesses wrapper
     fcompute = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
@@ -1693,6 +1696,7 @@ void TWorld::IntializeOptions(void)
     initSwatreStructure = false;
     // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchFlowBarriers = true;
+    SwitchInflow = false;
     SwitchBarriers = true;
     SwitchMaxVolume = true;
     SwitchChannelMaxVolume = true;
