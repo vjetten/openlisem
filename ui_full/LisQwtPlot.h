@@ -225,7 +225,7 @@ class LisQwtPlot : public QwtPlot
                     {
                         if(!pcr::isMV(op.baseMapDEM->data[r][c]))
                         {
-                            SData << Distances.at(i);
+                            SData << i;//Distances.at(i);
                             EData << DEM->data[r][c];
                             ENData << DEM->data[r][c] + DEMChange->data[r][c];
                             ENHData << DEM->data[r][c] + DEMChange->data[r][c] + FlowH->data[r][c];

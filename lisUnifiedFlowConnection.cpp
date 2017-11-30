@@ -319,8 +319,6 @@ void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
 
         if(SwitchInflow)
         {
-
-
             if(InflowID->Drc > 0)
             {
 
@@ -372,8 +370,8 @@ void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
                 BaseFlow += BaseFlowInitialVolume->Drc;
 
             }
-            _f1D->Drc += BaseFlowInflow->Drc * _dt;
-            BaseFlow += BaseFlowInflow->Drc * _dt;
+            _f1D->Drc += BaseFlowInflow->Drc * dt->Drc;
+            BaseFlow += BaseFlowInflow->Drc * dt->Drc;
 
         }
     }}}

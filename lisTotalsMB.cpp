@@ -121,6 +121,7 @@ void TWorld::Totals(void)
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
 
+
     WaterVolRunoffmm =0;
     FOR_ROW_COL_MV
     {
@@ -165,7 +166,13 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeChannel)
     {
-        WaterVolTot += mapTotal(*UF1D_f); //m3
+        if(SwitchIncludeChannel)
+        {
+            FOR_ROW_COL_MV_CH
+            {
+                WaterVolTot += UF1D_h->Drc * ChannelWidth->Drc * _dx;//m3
+            }
+        }
         // add channel vol to total
 
         QtotT += UF1D_foutflow;
@@ -420,13 +427,15 @@ void TWorld::Totals(void)
 //---------------------------------------------------------------------------
 void TWorld::MassBalance()
 {
+
+
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot > 0)
     {
         MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + floodVolTotInit + BaseFlow +
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
-        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100;
+        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit)*100.0;
     }
     //qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
 
@@ -435,7 +444,7 @@ void TWorld::MassBalance()
     //VJ 110825 forgot to include channeldettot in denominator in MBs!
     if (SwitchErosion && SoilLossTot > 1e-9)
         MBs = (1-(DetTot + ChannelDetTot - SedTot - ChannelSedTot +
-                  DepTot + ChannelDepTot)/(SoilLossTot))*100;
+                  DepTot + ChannelDepTot)/(SoilLossTot))*100.0;
     //VJ 121212 changed to mass balance relative to soil loss
 }
 //---------------------------------------------------------------------------

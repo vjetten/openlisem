@@ -68,7 +68,7 @@ void TWorld::UnifiedFlow()
         cTMap * _dem = UF2D_DEMOriginal;
         FOR_ROW_COL_UF2D
         {
-            UF2D_DEM->Drc = UF2D_DEMOriginal->Drc + DEMChange->Drc;
+            UF2D_DEM->Drc = UF2D_DEMOriginal->Drc;// + DEMChange->Drc;
         }
         ////TOPOGRAPHY ANALYSIS
         UF_DEMLDDAnalysis(UF2D_DEM,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_s,UF2D_f,UF2D_s);
@@ -397,6 +397,8 @@ void TWorld::UF1D_Scheme(int thread,cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap 
 
         //advect mass
         UF1D_foutflow += UF1D_Advect2_mass(thread,dt,_ldd,_lddw,_lddh,UF1D_f,UF1D_f,UF1D_fq1,UF1D_fq2,UF1D_fn, UF1D_qout);
+
+
         if(UF_SOLIDPHASE)
         {
             UF1D_soutflow += UF1D_Advect2_mass(thread,dt,_ldd,_lddw,_lddh,UF1D_s,UF1D_s,UF1D_sq1,UF1D_sq2,UF1D_sn, UF1D_qsout);
@@ -618,7 +620,7 @@ void TWorld::UF_UpdateDisplayMaps(int thread,cTMap * dt, cTMap * _dem,cTMap * _l
 
     FOR_ROW_COL_UF1DMT_DT
     {
-        double q = (UF1D_fq1->Drc - UF1D_fq2->Drc);
+        double q = (UF1D_fq1->Drc + UF1D_fq2->Drc);
         double fsc = (UF1D_f->Drc) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc) : 0.0;
         UF1D_q->Drc += q;
         UF1D_qs->Drc += (UF1D_sq1->Drc - UF1D_sq2->Drc) + q * fsc;

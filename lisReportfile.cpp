@@ -207,7 +207,7 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge =1000.0* std::max(UF2D_qout->Drc + SwitchIncludeChannel? UF1D_qout->Drc : 0.0,UF2D_q->Drc +SwitchIncludeChannel? UF1D_q->Drc : 0.0);
+        double discharge =1000.0* (UF2D_qout->Drc + UF1D_qout->Drc > 0? UF1D_qout->Drc : UF1D_q->Drc);
         double sedimentdischarge = SwitchErosion?  (SwitchIncludeChannel? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0) : UF2D_tConc->Drc) :0.0;
         double sedimentconcentration = SwitchErosion? (SwitchIncludeChannel?std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc) : std::fabs(UF2D_qs->Drc)):0.0;
         double channelwh = UF2D_h->Drc +SwitchIncludeChannel? UF1D_h->Drc : 0.0;

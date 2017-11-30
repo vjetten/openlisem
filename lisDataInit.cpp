@@ -1828,6 +1828,8 @@ void TWorld::FindBaseFlow()
 
                 inflow = (baseflow + infiltration)/ ncells;
 
+                qDebug() << baseflow << infiltration << ncells;
+
                 list = NULL;
                 temp = NULL;
                 list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
