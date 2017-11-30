@@ -273,6 +273,10 @@ void lisemqt::worldShow()
         MPlot->DEM->MakeMap(op.baseMapDEM,0.0);
         MPlot->DEMChange = new cTMap();
         MPlot->DEMChange->MakeMap(op.baseMapDEM,0.0);
+        MPlot->FlowH = new cTMap();
+        MPlot->FlowH->MakeMap(op.baseMapDEM,0.0);
+        MPlot->FlowV = new cTMap();
+        MPlot->FlowV->MakeMap(op.baseMapDEM,0.0);
     }
     {
         for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
@@ -281,9 +285,12 @@ void lisemqt::worldShow()
             {
                 MPlot->DEM->Drc = op.baseMapDEM->Drc;
                 MPlot->DEMChange->Drc = op.gl_dem_change->Drc;
+                MPlot->FlowH->Drc = op.gl_flow_height->Drc;
+                MPlot->FlowV->Drc = std::sqrt(op.gl_flow_u->Drc*op.gl_flow_u->Drc + op.gl_flow_v->Drc*op.gl_flow_v->Drc);
             }
 
         }
+        MPlot->OnNewPlotData();
 
     }
     MPlot->map_mutex.unlock();

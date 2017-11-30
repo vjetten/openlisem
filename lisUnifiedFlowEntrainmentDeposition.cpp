@@ -196,7 +196,7 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
 
     double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
     double entrainment_lat = channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
-    double entrainment_sf = channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
+    double entrainment_sf = 0.0;//channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
 
     double deposition = 0;
 

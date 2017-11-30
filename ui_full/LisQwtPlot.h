@@ -79,12 +79,21 @@ class LisQwtPlot : public QwtPlot
     QWidget *profile_window= 0;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *MGraph;
+    QwtPlotCurve *MHGraph;
     QPlainTextEdit * textGraph;
     QwtPlot * HPlot;
+    QwtPlotCurve *HGraph;
+    QwtPlotCurve *VGraph;
+    QwtPlot * HPlot2;
 
     QMutex map_mutex;
     cTMap * DEM;
     cTMap * DEMChange;
+    cTMap * FlowH;
+    cTMap * FlowV;
+    QList<int> CurrentRList;
+    QList<int> CurrentCList;
+    QList<double> Distances;
 
     inline void setVelocityField(cTMap * _velx1, cTMap * _vely1, double cellsize, cTMap * _velx2 = 0, cTMap * _vely2 = 0, double startx = 0, double starty = 0)
     {
@@ -194,12 +203,60 @@ class LisQwtPlot : public QwtPlot
         replot();
     }
 
+    inline void OnNewPlotData()
+    {
+        if(profile_window!= 0)
+        {
+            if(profile_window->isVisible())
+            {
+                QVector<double> SData;
+                QVector<double> EData;
+                QVector<double> ENData;
+                QVector<double> ENHData;
+                QVector<double> HData;
+                QVector<double> VData;
+
+                for(int i = 0; i < CurrentRList.length(); i++)
+                {
+                    int r= CurrentRList.at(i);
+                    int c = CurrentCList.at(i);
+
+                    if(r > 0 && c <DEM->nrCols() && c > 0 && r < DEM->nrRows())
+                    {
+                        if(!pcr::isMV(op.baseMapDEM->data[r][c]))
+                        {
+                            SData << Distances.at(i);
+                            EData << DEM->data[r][c];
+                            ENData << DEM->data[r][c] + DEMChange->data[r][c];
+                            ENHData << DEM->data[r][c] + DEMChange->data[r][c] + FlowH->data[r][c];
+                            HData << FlowH->data[r][c];
+                            VData << FlowV->data[r][c];
+                        }
+                    }
+                }
+
+                OpenWindow(
+                    SData,
+                    EData,
+                    ENData,
+                    ENHData,
+                    HData,
+                    VData);
+            }
+        }
+
+
+    }
+
     inline void StartPlot()
     {
 
         bool suc = true;
         if(profile_pointlist.length() > 0)
         {
+
+            CurrentRList.clear();
+            CurrentCList.clear();
 
             QList<int> Lx;    //x location
             QList<int> Ly;    //y location
@@ -208,15 +265,17 @@ class LisQwtPlot : public QwtPlot
             QVector<double> SData;
             QVector<double> EData;
             QVector<double> ENData;
+            QVector<double> ENHData;
+            QVector<double> HData;
+            QVector<double> VData;
 
             QList<double> Ps;
 
+            Distances.clear();
 
             for(int i = 0; i < profile_pointlist.length() - 1; i++)
             {
                   double _dx = op.dx;
-
-                    qDebug() << profile_pointlist.at(i).x() << profile_pointlist.at(i+1).x() << "   " << profile_pointlist.at(i).y() <<profile_pointlist.at(i+1).y();
 
                   double y1 = profile_pointlist.at(i).y() /_dx;
                   double y2 = profile_pointlist.at(i+1).y()/_dx;
@@ -297,13 +356,20 @@ class LisQwtPlot : public QwtPlot
                       int r = DEM->nrCols() - Ly.at(j2);
                       int c = Lx.at(j2);
 
+                      CurrentRList.append(r);
+                      CurrentCList.append(c);
+
                       if(r > 0 && c <DEM->nrCols() && c > 0 && r < DEM->nrRows())
                       {
                           if(!pcr::isMV(op.baseMapDEM->data[r][c]))
                           {
                               SData << Ls.at(j2);
+                              Distances.append(Ls.at(j2));
                               EData << DEM->data[r][c];
                               ENData << DEM->data[r][c] + DEMChange->data[r][c];
+                              ENHData << DEM->data[r][c] + DEMChange->data[r][c] + FlowH->data[r][c];
+                              HData << FlowH->data[r][c];
+                              VData << FlowV->data[r][c];
                           }
                       }
                   }
@@ -315,116 +381,13 @@ class LisQwtPlot : public QwtPlot
 
             }
 
-            if(SData.length() > 0)
-            {
-
-
-
-
-                bool exists = false;
-                if(profile_window!= 0)
-                {
-                    //if(profile_window->isVisible())
-                    {
-                        exists = true;
-                    }
-                }
-
-                /*if(exists)
-                {
-
-                    //window already exists,
-                    //just update the date in the plot
-
-
-                    PGraph->setSamples(SData,EData);
-                    MGraph->setSamples(SData,ENData);
-
-                    textGraph->clear();
-
-                    for(int i = 0; i < Ls.length(); i++)
-                    {
-                        textGraph->appendPlainText(QString("%1 %2 %3 ")
-                                                   .arg(SData.at(i),15,'f',3,' ')
-                                                   .arg(EData.at(i),15,'f',3,' ')
-                                                   .arg(ENData.at(i),15,'f',3,' '));
-                    }
-
-                    HPlot->replot();
-                    profile_window->show();
-
-                }else*/
-                {
-                //create new window
-
-
-                    profile_window=new QWidget();
-                    profile_window->setWindowTitle("profile");
-                    profile_window->setMinimumWidth(400);
-                    profile_window->setMinimumHeight(500);
-                    profile_window->setAttribute(Qt::WA_DeleteOnClose);
-
-
-                    QwtText title;
-                    title.setText("Profile");
-                    title.setFont(QFont("MS Shell Dlg 2",12));
-                    HPlot = new QwtPlot(title, profile_window);
-
-                    // panning with the left mouse button
-                    (void) new QwtPlotPanner( HPlot->canvas() );
-
-                    // zoom in/out with the wheel
-                    (void) new QwtPlotMagnifier( HPlot->canvas() );
-
-                    PGraph = new QwtPlotCurve("Elevation");
-                    PGraph->attach(HPlot);
-                    PGraph->setPen(QPen("#000000"));
-                    PGraph->setStyle(QwtPlotCurve::Lines);
-                    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-                    PGraph->setSamples(SData,EData);
-
-                    MGraph = new QwtPlotCurve("New Elevation");
-                    MGraph->attach(HPlot);
-                    MGraph->setPen(QPen("#FF0000"));
-                    MGraph->setStyle(QwtPlotCurve::Lines);
-                    MGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-
-                    MGraph->setSamples(SData,ENData);
-
-
-                    HPlot->setCanvasBackground(QBrush(Qt::white));
-                    HPlot->enableAxis(HPlot->yRight,true);
-                    HPlot->enableAxis(HPlot->yLeft,true);
-                    HPlot->setAxisTitle(HPlot->xBottom, "distance (m)");
-
-                    HPlot->setAxisTitle(HPlot->yLeft, "elevation (m)");
-
-
-                    textGraph = new QPlainTextEdit(this);
-                    textGraph->setWordWrapMode(QTextOption::NoWrap);
-                    textGraph->setMaximumHeight(80);
-                    textGraph->clear();
-
-                    for(int i = 0; i < SData.length(); i++)
-                    {
-                        textGraph->appendPlainText(QString("%1 %2 %3 ")
-                                                   .arg(SData.at(i),15,'f',3,' ')
-                                                   .arg(EData.at(i),15,'f',3,' ')
-                                                   .arg(ENData.at(i),15,'f',3,' '));
-                    }
-                    QVBoxLayout *layout= new QVBoxLayout(profile_window);
-                    layout->addWidget(HPlot);
-                    layout->addWidget(textGraph);
-
-                    profile_window->show();
-                    HPlot->replot();
-                }
-
-        }else
-        {
-            suc = false;
-        }
+            OpenWindow(
+                SData,
+                EData,
+                ENData,
+                ENHData,
+                HData,
+                VData);
 
 
         }else
@@ -439,6 +402,189 @@ class LisQwtPlot : public QwtPlot
                                  QString("not enough points in map extent for profile")
                                  );
         }
+    }
+
+    inline void OpenWindow(
+    QVector<double> SData,
+    QVector<double> EData,
+    QVector<double> ENData,
+    QVector<double> ENHData,
+    QVector<double> HData,
+    QVector<double> VData)
+    {
+
+
+    if(SData.length() > 0)
+    {
+
+
+
+
+        bool exists = false;
+        if(profile_window!= 0)
+        {
+            if(profile_window->isVisible())
+            {
+                exists = true;
+            }
+        }
+
+        qDebug() << exists;
+
+        if(exists)
+        {
+
+            //window already exists,
+            //just update the date in the plot
+
+
+            PGraph->setSamples(SData,EData);
+            MGraph->setSamples(SData,ENData);
+            MHGraph->setSamples(SData,ENHData);
+            HGraph->setSamples(SData,HData);
+            VGraph->setSamples(SData,VData);
+
+            textGraph->clear();
+
+            textGraph->appendPlainText(QString("Distance (m) Elevation (m) Elevation New (m) Flow elevation (m) flow height (m) flow velocity (m/s)"));
+
+            for(int i = 0; i < SData.length(); i++)
+            {
+
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
+                                           .arg(SData.at(i),15,'f',3,' ')
+                                           .arg(EData.at(i),15,'f',3,' ')
+                                           .arg(ENData.at(i),15,'f',3,' ')
+                                           .arg(ENHData.at(i),15,'f',3,' ')
+                                           .arg(HData.at(i),15,'f',3,' ')
+                                           .arg(VData.at(i),15,'f',3,' '));
+            }
+
+            HPlot->replot();
+            HPlot2->replot();
+            profile_window->show();
+
+        }else
+        {
+        //create new window
+
+
+            profile_window=new QWidget();
+            profile_window->setWindowTitle("profile");
+            profile_window->setMinimumWidth(400);
+            profile_window->setMinimumHeight(500);
+            profile_window->setAttribute(Qt::WA_DeleteOnClose);
+
+
+            QwtText title;
+            title.setText("Profile");
+            title.setFont(QFont("MS Shell Dlg 2",12));
+            HPlot = new QwtPlot(title, profile_window);
+
+            // panning with the left mouse button
+            (void) new QwtPlotPanner( HPlot->canvas() );
+
+            // zoom in/out with the wheel
+            (void) new QwtPlotMagnifier( HPlot->canvas() );
+
+            PGraph = new QwtPlotCurve("Elevation");
+            PGraph->attach(HPlot);
+            PGraph->setPen(QPen("#000000"));
+            PGraph->setStyle(QwtPlotCurve::Lines);
+            PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+            PGraph->setSamples(SData,EData);
+
+            MGraph = new QwtPlotCurve("New Elevation");
+            MGraph->attach(HPlot);
+            MGraph->setPen(QPen("#FF0000"));
+            MGraph->setStyle(QwtPlotCurve::Lines);
+            MGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+            MGraph->setSamples(SData,ENData);
+
+
+            MHGraph = new QwtPlotCurve("Elevation and Water");
+            MHGraph->attach(HPlot);
+            MHGraph->setPen(QPen("#0000FF"));
+            MHGraph->setStyle(QwtPlotCurve::Lines);
+            MHGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+            MHGraph->setSamples(SData,ENHData);
+
+            HPlot->setCanvasBackground(QBrush(Qt::white));
+            HPlot->enableAxis(HPlot->yRight,true);
+            HPlot->enableAxis(HPlot->yLeft,true);
+            HPlot->setAxisTitle(HPlot->xBottom, "distance (m)");
+
+            HPlot->setAxisTitle(HPlot->yLeft, "elevation (m)");
+
+            title;
+            title.setText("Profile");
+            title.setFont(QFont("MS Shell Dlg 2",12));
+            HPlot2 = new QwtPlot(title, profile_window);
+
+            // panning with the left mouse button
+            (void) new QwtPlotPanner( HPlot2->canvas() );
+
+            // zoom in/out with the wheel
+            (void) new QwtPlotMagnifier( HPlot2->canvas() );
+
+            HGraph = new QwtPlotCurve("Flow Height");
+            HGraph->attach(HPlot2);
+            HGraph->setPen(QPen("#0000FF"));
+            HGraph->setStyle(QwtPlotCurve::Lines);
+            HGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+            HGraph->setSamples(SData,HData);
+
+            VGraph = new QwtPlotCurve("Velocity");
+            VGraph->attach(HPlot2);
+            VGraph->setPen(QPen("#FF0000"));
+            VGraph->setStyle(QwtPlotCurve::Lines);
+            VGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+
+            VGraph->setSamples(SData,VData);
+
+            HPlot2->setCanvasBackground(QBrush(Qt::white));
+            HPlot2->enableAxis(HPlot2->yRight,true);
+            HPlot2->enableAxis(HPlot2->yLeft,true);
+            HPlot2->setAxisTitle(HPlot2->xBottom, "distance (m)");
+
+            HPlot2->setAxisTitle(HPlot2->yLeft, "height (m)");
+            HPlot2->setAxisTitle(HPlot2->yLeft, "velocity (m/s)");
+
+            textGraph = new QPlainTextEdit(this);
+            textGraph->setWordWrapMode(QTextOption::NoWrap);
+            textGraph->setMaximumHeight(80);
+            textGraph->clear();
+
+            textGraph->appendPlainText(QString("Distance (m) Elevation (m) Elevation New (m) Flow elevation (m) flow height (m) flow velocity (m/s)"));
+
+            for(int i = 0; i < SData.length(); i++)
+            {
+
+                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
+                                           .arg(SData.at(i),15,'f',3,' ')
+                                           .arg(EData.at(i),15,'f',3,' ')
+                                           .arg(ENData.at(i),15,'f',3,' ')
+                                           .arg(ENHData.at(i),15,'f',3,' ')
+                                           .arg(HData.at(i),15,'f',3,' ')
+                                           .arg(VData.at(i),15,'f',3,' '));
+            }
+            QVBoxLayout *layout= new QVBoxLayout(profile_window);
+            layout->addWidget(HPlot);
+            layout->addWidget(HPlot2);
+            layout->addWidget(textGraph);
+
+            profile_window->show();
+            HPlot->replot();
+        }
+    }else
+    {
+
+    }
+
     }
 
     inline QPointF LocalToModelSpace(QPoint p,QwtInterval i_x,QwtInterval i_y, int width, int height)
