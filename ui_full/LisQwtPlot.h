@@ -35,9 +35,35 @@
 #include "global.h"
 #include <CsfMap.h>
 #include <QMutex>
+#include <QMessageBox>
 
 #ifndef LISQWTPLOT_H
 #define LISQWTPLOT_H
+
+#define MV(map,r,c) pcr::isMV(map->data[r][c])
+#define INSIDE(map,r, c) (r>=0 && r<map->nrRows() && c>=0 && c<map->nrCols())
+#define OUTOFMAP(map,r, c) (r<0 || r >= map->nrRows() || c<0 || c>= map->nrCols())
+#define FOR_ROW_COL_MV(mask,map) for(int r = 0; r < map->nrRows(); r++)\
+    for (int c = 0; c < map->nrCols(); c++)\
+    if(!pcr::isMV(mask->data[r][c]))
+
+
+class LisQwtPlot;
+
+class LisProfileWindow : public QWidget
+{
+    public:
+
+    LisQwtPlot * lis;
+    LisProfileWindow(LisQwtPlot * _lis, QWidget * w= NULL ) : QWidget(w)
+    {
+
+        lis = _lis;
+    }
+
+    void closeEvent(QCloseEvent *event);
+
+};
 
 
 
@@ -45,9 +71,12 @@ class LisQwtPlot : public QwtPlot
 {
 
     public:
+
+    bool LISEM_IS_PROFILE_OPEN;
+
     LisQwtPlot( QWidget * w = NULL ) : QwtPlot(w)
     {
-
+        LISEM_IS_PROFILE_OPEN = false;
 
     }
 
@@ -56,6 +85,9 @@ class LisQwtPlot : public QwtPlot
 
 
     }
+
+
+
 
     cTMap * m_velx1;
     cTMap * m_vely1;
@@ -76,7 +108,7 @@ class LisQwtPlot : public QwtPlot
     bool profile_ended = false;
     bool profile_mousepressed = false;
     QList<QPointF> profile_pointlist;
-    QWidget *profile_window= 0;
+    LisProfileWindow  *profile_window= 0;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *MGraph;
     QwtPlotCurve *MHGraph;
@@ -207,7 +239,7 @@ class LisQwtPlot : public QwtPlot
     {
         if(profile_window!= 0)
         {
-            if(profile_window->isVisible())
+            if(LISEM_IS_PROFILE_OPEN)
             {
                 QVector<double> SData;
                 QVector<double> EData;
@@ -216,16 +248,33 @@ class LisQwtPlot : public QwtPlot
                 QVector<double> HData;
                 QVector<double> VData;
 
+                double s = 0;
+                int rp = 0;
+                int cp = 0;
+                bool first = true;
+
+                double _dx = op.dx;
                 for(int i = 0; i < CurrentRList.length(); i++)
                 {
+
                     int r= CurrentRList.at(i);
                     int c = CurrentCList.at(i);
+
+                    if(first)
+                    {
+                        first = false;
+                        rp = r;
+                        cp = c;
+
+                    }
+
 
                     if(r > 0 && c <DEM->nrCols() && c > 0 && r < DEM->nrRows())
                     {
                         if(!pcr::isMV(op.baseMapDEM->data[r][c]))
                         {
-                            SData << i;//Distances.at(i);
+                            s = s + sqrt((r-rp)*(r-rp) + (c-cp)*(c-cp))*_dx;
+                            SData << s;
                             EData << DEM->data[r][c];
                             ENData << DEM->data[r][c] + DEMChange->data[r][c];
                             ENHData << DEM->data[r][c] + DEMChange->data[r][c] + FlowH->data[r][c];
@@ -233,6 +282,8 @@ class LisQwtPlot : public QwtPlot
                             VData << FlowV->data[r][c];
                         }
                     }
+                    rp = r;
+                    cp = c;
                 }
 
                 OpenWindow(
@@ -353,7 +404,7 @@ class LisQwtPlot : public QwtPlot
                   for(int j =  0; j < Ls.length() ; j= j+1)
                   {
                       int j2 = reverse? Ls.length() - 1 - j : j;
-                      int r = DEM->nrCols() - Ly.at(j2);
+                      int r = DEM->nrRows() - Ly.at(j2);
                       int c = Lx.at(j2);
 
                       CurrentRList.append(r);
@@ -361,6 +412,7 @@ class LisQwtPlot : public QwtPlot
 
                       if(r > 0 && c <DEM->nrCols() && c > 0 && r < DEM->nrRows())
                       {
+
                           if(!pcr::isMV(op.baseMapDEM->data[r][c]))
                           {
                               SData << Ls.at(j2);
@@ -423,13 +475,11 @@ class LisQwtPlot : public QwtPlot
         bool exists = false;
         if(profile_window!= 0)
         {
-            if(profile_window->isVisible())
+            if(LISEM_IS_PROFILE_OPEN)
             {
                 exists = true;
             }
         }
-
-        qDebug() << exists;
 
         if(exists)
         {
@@ -464,12 +514,14 @@ class LisQwtPlot : public QwtPlot
             HPlot2->replot();
             profile_window->show();
 
+            LISEM_IS_PROFILE_OPEN = true;
+
         }else
         {
         //create new window
 
 
-            profile_window=new QWidget();
+            profile_window=new LisProfileWindow(this);
             profile_window->setWindowTitle("profile");
             profile_window->setMinimumWidth(400);
             profile_window->setMinimumHeight(500);
@@ -579,6 +631,8 @@ class LisQwtPlot : public QwtPlot
 
             profile_window->show();
             HPlot->replot();
+
+            LISEM_IS_PROFILE_OPEN = true;
         }
     }else
     {
@@ -832,6 +886,11 @@ class LisQwtPlot : public QwtPlot
 
 
 };
+
+
+
+
+
 
 
 #endif // LISQWTPLOT_H

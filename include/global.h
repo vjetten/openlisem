@@ -26,6 +26,7 @@
   \file global.h
   \brief external to output structure used between interface and model
   */
+#include <LisUIoutput.h>
 
 #ifndef GLOBAL_H_
 #define GLOBAL_H_

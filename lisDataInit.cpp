@@ -325,7 +325,7 @@ void TWorld::InitChannel(void)
         //        ChannelWidthUpDX->calcValue(v, MIN);
         FOR_ROW_COL_MV
         {
-            ChannelAdj->Drc = std::max(0.05*_dx, _dx - ChannelWidthUpDX->Drc);
+            ChannelAdj->Drc = std::max(0.01*_dx, _dx - ChannelWidthUpDX->Drc);
             ChannelWidthUpDX->Drc = _dx - ChannelAdj->Drc;
         }
 

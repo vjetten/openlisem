@@ -191,13 +191,14 @@ void TWorld::DoModel()
             efout.flush();
             efout.close();
 
+            OutputUI();          // fill the "op" structure for screen output
+
             DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
 
             DEBUG("Report to interface");
 
-            OutputUI();          // fill the "op" structure for screen output
 
             if (!noInterface)
                 emit show();

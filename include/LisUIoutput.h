@@ -27,6 +27,10 @@
   \brief structure to pass variables form the model to the interface, visible by both
   */
 
+
+#include <CsfMap.h>
+
+
 #ifndef LISUIOUTPUT_H_
 #define LISUIOUTPUT_H_
 
