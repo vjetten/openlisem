@@ -30,12 +30,14 @@ void GL3DFlowSurface::SetSurface(GL3DSurface * surface)
     m_Surface = surface;
 }
 
-void GL3DFlowSurface::SetFlowProperties(cTMap * h, cTMap * u, cTMap * v, cTMap * s)
+void GL3DFlowSurface::SetFlowProperties(cTMap * h, cTMap * u, cTMap * v, cTMap * s, cTMap * sx, cTMap * sy)
 {
     m_FlowH = h;
     m_FlowU = u;
     m_FlowV = v;
     m_FlowS = s;
+    m_FlowSlopeX =sx;
+    m_FlowSlopeY =sy;
 
     text_updated = true;
 
@@ -69,6 +71,9 @@ void GL3DFlowSurface::CreateTextures(GL3DWidget * widget)
                 m_Texture_FlowV = widget->m_Textures->LoadTextureFromMap(false,m_FlowV,0,0,true);
                 m_Texture_FlowS = widget->m_Textures->LoadTextureFromMap(false,m_FlowS,0,0,true);
 
+                m_Texture_FlowSlopeX = widget->m_Textures->LoadTextureFromMap(false, this->m_FlowSlopeX,0,0,true);
+                m_Texture_FlowSlopeY = widget->m_Textures->LoadTextureFromMap(false, this->m_FlowSlopeY,0,0,true);
+
                 if(this->m_Surface->has_channel)
                 {
                     m_Texture_ChFlowH = widget->m_Textures->LoadTextureFromMap(false,m_ChFlowH,0,0,true);
@@ -91,6 +96,9 @@ void GL3DFlowSurface::CreateTextures(GL3DWidget * widget)
             m_Texture_FlowU->UpdateTextureFromMap(widget, m_FlowU,0,0,true);
             m_Texture_FlowV->UpdateTextureFromMap(widget, m_FlowV,0,0,true);
             m_Texture_FlowS->UpdateTextureFromMap(widget, m_FlowS,0,0,true);
+
+            m_Texture_FlowSlopeX->UpdateTextureFromMap(widget, this->m_FlowSlopeX,0,0,true);
+            m_Texture_FlowSlopeY->UpdateTextureFromMap(widget, this->m_FlowSlopeY,0,0,true);
 
             if(this->m_Surface->has_channel)
             {
@@ -157,8 +165,8 @@ void GL3DFlowSurface::OnRenderLate(GL3DWidget * widget,GL3DWorld * world, GL3DCa
     m_Shader_Flow->ActivateTextureOn(widget,m_Surface->m_Texture_MicroElevation_Normal,"microElevation_normal",2);
     m_Shader_Flow->ActivateTextureOn(widget,m_Surface->m_Texture_Mask,"mask",3);
 
-    m_Shader_Flow->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeX,"slopeX",4);
-    m_Shader_Flow->ActivateTextureOn(widget,m_Surface->m_Texture_SlopeY,"slopeY",5);
+    m_Shader_Flow->ActivateTextureOn(widget,m_Texture_FlowSlopeX,"slopeX",4);
+    m_Shader_Flow->ActivateTextureOn(widget,m_Texture_FlowSlopeY,"slopeY",5);
 
     m_Shader_Flow->ActivateTextureOn(widget,m_Texture_FlowH,"FlowH",6);
     m_Shader_Flow->ActivateTextureOn(widget,m_Texture_FlowU,"FlowU",7);

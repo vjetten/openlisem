@@ -86,13 +86,13 @@ double TWorld::UF_FlowEntrainmentST(int r, int c, bool channel)
     double s = channel? UF1D_s->Drc : UF2D_s->Drc;
     double sf = channel? (UF1D_ssm->Drc + UF1D_blm->Drc) : (UF2D_ssm->Drc + UF2D_blm->Drc);
 
-    double sconc = UF_5CellAverage(UF2D_tsf,r,c);
+    double sconc = (f+s) >0 ? s/(f+s) : 0.0;//UF_5CellAverage(UF2D_tsf,r,c);
 
     double width = channel? UF1D_LDDw->Drc : _dx;
     double area = width * DX->Drc;
     double velocity = channel? std::fabs(UF1D_fu->Drc) : sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc);
     double velocitys = channel? std::fabs(UF1D_su->Drc) : sqrt(UF2D_su->Drc*UF2D_su->Drc + UF2D_sv->Drc*UF2D_sv->Drc);
-    velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
+    //velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
     double visc = channel? UF1D_visc->Drc : UF2D_visc->Drc;
     double density = channel? (std::max(1000.0,UF1D_d->Drc) * (f+s) + UF_DENSITY_SUSPENDED * (sf/UF_DENSITY_SUSPENDED))/(s+f+ (sf/UF_DENSITY_SUSPENDED) )
                             : (std::max(1000.0,UF2D_d->Drc) * (f+s) + UF_DENSITY_SUSPENDED * (sf/UF_DENSITY_SUSPENDED))/(s+f+ (sf/UF_DENSITY_SUSPENDED) );
@@ -102,6 +102,7 @@ double TWorld::UF_FlowEntrainmentST(int r, int c, bool channel)
     double bed_ifa= SoilRockIFA->Drc;
     double slope = channel? std::fabs(UF1D_Slope->Drc) : std::max(std::fabs(UF2D_SlopeX->Drc),std::fabs(UF2D_SlopeY->Drc));
     double bed_cohesion = Cohesion->Drc * st_scCalibration;
+
 
     return UnifiedFlowActiveEntrainmentST(slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, RootCohesion->Drc,N->Drc, r, c);
 
@@ -168,13 +169,13 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     //get all parameters for entrainment either from 1D or 2D maps (channel or not)
     double f = channel? UF1D_f->Drc : UF2D_f->Drc;
     double s = channel? UF1D_s->Drc : UF2D_s->Drc;
-    double sf = channel? (UF1D_ssm->Drc + UF1D_blm->Drc) : (UF2D_ssm->Drc + UF2D_blm->Drc);
+    double sf = 0;//channel? (UF1D_ssm->Drc + UF1D_blm->Drc) : (UF2D_ssm->Drc + UF2D_blm->Drc);
     double sconc = f> 0? (s + (sf/UF_DENSITY_SUSPENDED))/(f+s + (sf/UF_DENSITY_SUSPENDED)) : 0.0;
     double width = channel? UF1D_LDDw->Drc : _dx;
     double area = width * DX->Drc;
     double velocity = channel? std::fabs(UF1D_fu->Drc) : sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc);
     double velocitys = channel? std::fabs(UF1D_su->Drc) : sqrt(UF2D_su->Drc*UF2D_su->Drc + UF2D_sv->Drc*UF2D_sv->Drc);
-    velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
+    //velocitys = (s+sf)>0? (s*velocitys + sf * velocity)/(s+sf):0.0;
     double visc = channel? UF1D_visc->Drc : UF2D_visc->Drc;
     double density = channel? (std::max(1000.0,UF1D_d->Drc) * (f+s) + UF_DENSITY_SUSPENDED * (sf/UF_DENSITY_SUSPENDED))/(s+f+ (sf/UF_DENSITY_SUSPENDED) )
                             : (std::max(1000.0,UF2D_d->Drc) * (f+s) + UF_DENSITY_SUSPENDED * (sf/UF_DENSITY_SUSPENDED))/(s+f+ (sf/UF_DENSITY_SUSPENDED) );
@@ -195,7 +196,7 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
     double shearstress = channel? UF1D_ST->Drc : UF2D_ST->Drc;
 
     double entrainment = UnifiedFlowActiveEntrainment(dt,shearstress, slope,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
-    double entrainment_lat = channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
+    double entrainment_lat = 0.0;//channel? 0.0:UnifiedFlowActiveEntrainmentLat(dt,UF2D_STL->Drc, slope_lat,UF2D_STLH->Drc,f,s,area,velocity,velocitys,sconc,visc,density,ifa,rocksize,bed_density, bed_ifa, bed_cohesion, vegetationcohesion,N->Drc, r, c);
     double entrainment_sf = 0.0;//channel? 0.0:UF_EntrainmentSideSlopeFailure(dt,r,c);
 
     double deposition = 0;
@@ -220,7 +221,6 @@ void TWorld::UF_FlowEntrainment(double dt, int r, int c, bool channel)
 
     if(entrainment > 0 && SoilRockMaterial->Drc > 0)
     {
-        Entrainmentshearstress->Drc += entrainment;
 
         UF_RockTake(r,c,entrainment,channel);
     }else
@@ -308,7 +308,7 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
     double pbs = (1-gamma)*(-UF_Gravity * h);
     double dc = UF_DragCoefficient(_f/(_f+_s),_sc,gamma ,visc,rocksize,d);
 
-    double t = st / area;//UF_Gravity * h * d * (_fv*_fv + _sv*_sv)*0.5*(manning*manning/(pow(h,4.0/3.0)) + _sc * ifa);
+    double t = UF_Gravity * h * d * (_fv*_fv + _sv*_sv)*0.5*(manning*manning/(pow(h,4.0/3.0)) + _sc * ifa);
 
     double Coeff_Susp = 0.5;
 
@@ -322,6 +322,8 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
     double scourat = std::max(0.0,UF_ENTRAINMENTCONSTANT * (t- UF_ENTRAINMENTTHRESHOLDCONSTANT *tc));
     //get entrainment in cubic meters
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
+
+
 
     if(area < UF_VERY_SMALL)
     {
@@ -382,7 +384,7 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     double pbs = (1-gamma)*(-UF_Gravity * h);
     double dc = UF_DragCoefficient(_f/(_f+_s),_sc,gamma ,visc,rocksize,d);
 
-    double t = st / area;//UF_Gravity * h * d * (_fv*_fv + _sv*_sv)*0.5*(manning*manning/(pow(h,4.0/3.0)) + _sc * ifa);
+    double t = UF_Gravity * h * d * (_fv*_fv + _sv*_sv)*0.5*(manning*manning/(pow(h,4.0/3.0)) + _sc * ifa);
 
     double Coeff_Susp = 0.5;
 
@@ -399,8 +401,9 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     entrainment = std::max(0.0,std::min(0.5 * (MaxCSF - _sc)*area * h,scourat *area*dt));
 
 
-    Entrainmentshearstressc->Drc = MaxCSF;
 
+    Entrainmentshearstressc->Drc = MaxCSF;
+    Entrainmentshearstress->Drc = _sc;
 
     if(area < UF_VERY_SMALL)
     {

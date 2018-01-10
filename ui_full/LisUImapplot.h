@@ -47,7 +47,7 @@ public:
             QString name = NameList.at(index);
             QString unit = UnitList.at(index);
 
-            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',2).arg(z0,0,'f',2);
+            txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',5).arg(z0,0,'f',5);
         }
 
         QwtText text = QwtText(txt);

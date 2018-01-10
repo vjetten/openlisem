@@ -38,7 +38,6 @@ functions: \n
 
 double TWorld::UF_DEMACCES(cTMap * dem, cTMap * h,int r, int c, int dr, int dc)
 {
-    return 1.0;
 
     double dem1 = dem->data[r][c];
     double h1 = h->data[r][c];
@@ -48,14 +47,18 @@ double TWorld::UF_DEMACCES(cTMap * dem, cTMap * h,int r, int c, int dr, int dc)
         return 0;
     }
 
+
     double dem2 = dem->data[r+dr][c+dc];
+
 
     if(h1 < UF_VERY_SMALL)
     {
         return 0.0;
     }
 
-    return std::max(0.0,std::min(1.0,1.0 - std::min(std::max(0.0,(dem2 - dem1)),h1)/h1));
+    double hdemdif = 1.0 - std::max(0.0,std::min(1.0,std::min((dem2 - dem1),h1)/h1));
+
+    return hdemdif;
 }
 
 double TWorld::UF_5CellAverage(cTMap * m,int r, int c)
@@ -609,10 +612,12 @@ double TWorld::UF_MinMod(double a, double b)
 {
     double rec = 0;
     if (a >= 0 && b >= 0)
+    {
       rec = std::min(a, b);
-    else
-      if (a <= 0 && b <= 0)
+    }else if (a <= 0 && b <= 0)
+    {
         rec = std::max(a, b);
+    }
     return rec;
 
 }

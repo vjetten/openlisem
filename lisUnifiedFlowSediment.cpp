@@ -87,6 +87,7 @@ void TWorld::AddSource(int r, int c, double f, double s, double d, double rocksi
 
 void TWorld::UF2D_FluidSource(int thread,cTMap * dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_f)
 {
+
     FOR_ROW_COL_UF2DMTDER
     {
         out_f->Drc = _f->Drc + SourceFluid->Drc;
@@ -109,6 +110,7 @@ void TWorld::UF2D_SolidSource(int thread,cTMap * dt, cTMap * _dem,cTMap * _f,cTM
 
 void TWorld::UF1D_FluidSource(int thread,cTMap * dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su, cTMap * out_f)
 {
+
     FOR_ROW_COL_UF1DMTDER
     {
         out_f->Drc = _f->Drc + ChannelSourceFluid->Drc;

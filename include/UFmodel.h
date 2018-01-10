@@ -459,9 +459,9 @@
     double UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double SlopeX, double SlopeY,
                                      double dhfdx,double dhfdy, double dh2pbdx, double dh2pbdy, double dsfdx, double dsfdy, double ddsfdxx, double ddsfdyy, double ddsfdxy,
                                      double dfudx, double dfudy, double dfvdx, double dfvdy, double ddfudxx, double ddfudyy, double ddfvdxy, double ddfvdxx, double ddfvdyy, double ddfudxy,
-                                     double dsudx, double dsudy, double dsvdx,double dsvdy);
+                                     double dsudx, double dsudy, double dsvdx,double dsvdy, double ddemhdx , double ddemhdy);
     double UF2D_MomentumBalanceSolid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbs,double pbf, double SlopeX, double SlopeY,
-                                     double dhsdx, double dhsdy, double dhdx, double dhdy, double dbdx, double dbdy);
+                                     double dhsdx, double dhsdy, double dhdx, double dhdy, double dbdx, double dbdy,double ddemhdx,double ddemhdy);
     double UF1D_MomentumBalanceFluid(double _f,double _s,double fu, double su, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double Slope,
                                      double dhfdx, double dh2pbdx, double dsfdsx, double ddsfdxx, double dfudx, double ddfudxx, double dsudx);
     double UF1D_MomentumBalanceSolid(double _f,double _s,double fu, double su, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbs, double pbf, double Slope,

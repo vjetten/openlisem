@@ -673,6 +673,7 @@ void TWorld::GetInputData(void)
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
     tme = NewMap(0); // temp map for aux calculations
+    tmf = NewMap(0); // temp map for aux calculations
     difkin =  NewMap(0); // temp map for aux calculations
 
     Qmax = NewMap(0.0);
@@ -833,6 +834,7 @@ void TWorld::GetInputData(void)
         // can be zero for outcrops
         FOR_ROW_COL_MV
         {
+            SoilDepth1->Drc *= st_sdCalibration;
             if (SoilDepth1->Drc < 0)
             {
                 ErrorString = QString("SoilDepth1 values < 0 at row %1, col %2").arg(r).arg(c);
@@ -877,6 +879,7 @@ void TWorld::GetInputData(void)
 
             FOR_ROW_COL_MV
             {
+                SoilDepth2->Drc *= st_sdCalibration;
                 if (SoilDepth2->Drc < 0)
                 {
                     ErrorString = QString("SoilDepth2 values < 0 at row %1, col %2").arg(r).arg(c);
@@ -1117,7 +1120,8 @@ void TWorld::GetInputData(void)
 
         //SF_Calibrate_Mask = true;
 
-        DFSoilInternalFrictionAngle = ReadMap(LDD,getvaluename("soilifa"));
+        DFSoilInternalFrictionAngleOrg = ReadMap(LDD,getvaluename("soilifa"));
+        DFSoilInternalFrictionAngle = NewMap(0.0);
         DFSoilDensity = ReadMap(LDD,getvaluename("soildensity"));
         DFSoilRockSize = ReadMap(LDD,getvaluename("soilrocksize"));
         DFZERO = NewMap(0.0);
@@ -1131,23 +1135,25 @@ void TWorld::GetInputData(void)
             DFSFIterations2 = NewMap(0.0);
             DFSoilDepth2 = NewMap(0.0);
             DFSafetyFactor2 = NewMap(0.0);
-            DFSoilInternalFrictionAngle2 = ReadMap(LDD,getvaluename("soilifa2"));
-            DFSoilCohesion2 = ReadMap(LDD,getvaluename("soilcohesion2"));
+            DFSoilInternalFrictionAngle2Org = ReadMap(LDD,getvaluename("soilifa2"));
+            DFSoilInternalFrictionAngle2 = NewMap(0.0);
+            DFSoilCohesion2Org = ReadMap(LDD,getvaluename("soilcohesion2"));
+            DFSoilCohesion2 = NewMap(0.0);
             DFSoilDensity2 = ReadMap(LDD,getvaluename("soildensity2"));
             DFSoilRockSize2 = ReadMap(LDD,getvaluename("soilrocksize2"));
             DFSFCalibration2 = NewMap(0.0);
 
             FOR_ROW_COL_MV
             {
-                DFSoilInternalFrictionAngle2->Drc = DFSoilInternalFrictionAngle2->Drc * st_sifaCalibration;
-                DFSoilCohesion2->Drc = DFSoilCohesion2->Drc * st_scCalibration;
+                DFSoilInternalFrictionAngle2Org->Drc = DFSoilInternalFrictionAngle2Org->Drc * st_sifaCalibration;
+                DFSoilCohesion2Org->Drc = DFSoilCohesion2Org->Drc * st_scCalibration;
             }
         }
 
         FOR_ROW_COL_MV
         {
             DEMOriginal->Drc = DEM->Drc;
-            DFSoilInternalFrictionAngle->Drc *= st_sifaCalibration;
+            DFSoilInternalFrictionAngleOrg->Drc *= st_sifaCalibration;
         }
 
         if(SwitchSeismic)

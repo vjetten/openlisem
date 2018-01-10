@@ -88,18 +88,33 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
     FOR_ROW_COL_UF2D
     {
         double a = (_dx*_dx);
-        if(_s2D->Drc + _f2D->Drc > UF_VERY_SMALL)
+        double vol = _f2D->Drc;
+        double svol = 0;
+        double svu = 0;
+        double svv = 0;
+        if(UF_SOLIDPHASE)
+        {
+            vol += _s2D->Drc;
+            svol = _s2D->Drc;
+            svu = _su2D->Drc;
+            svv = _sv2D->Drc;
+        }
+        if(vol > UF_VERY_SMALL)
         {
             //empirical estimation
-            double vest = ((_s2D->Drc/(a) + _f2D->Drc/(a)) * (_s2D->Drc/(a) + _f2D->Drc/(a)));
+            double vest = 10.0 * ((svol/(a) + _f2D->Drc/(a)) * (svol/(a) + _f2D->Drc/(a)));
 
             //actual max velocity
-            double v = std::max(std::max(std::max(std::fabs(_fu2D->Drc),std::fabs(_fv2D->Drc)),std::fabs(_su2D->Drc)),std::fabs(_sv2D->Drc));
+            double v = std::max(std::max(std::max(std::fabs(_fu2D->Drc),std::fabs(_fv2D->Drc)),std::fabs(svu)),std::fabs(svv));
 
-            double kinterm = std::min(1.0,std::pow((_s2D->Drc/(a) + _f2D->Drc/(a)),UF_KINEMATIC_TIMESTEP_POWER));
+            double kinterm = std::min(1.0,std::pow((svol/(a) + _f2D->Drc/(a)),UF_KINEMATIC_TIMESTEP_POWER));
             //actual accaleration
             double dvf = kinterm * std::max(std::fabs(UF2D_fay1->Drc),std::max(std::fabs(UF2D_fay2->Drc),std::max(std::fabs(UF2D_fax2->Drc),std::max(std::fabs(UF2D_fax1->Drc),std::max(std::fabs(UF2D_fax->Drc),std::fabs(UF2D_fay->Drc))))));
-            double dvs = kinterm * std::max(std::fabs(UF2D_say1->Drc),std::max(std::fabs(UF2D_say2->Drc),std::max(std::fabs(UF2D_sax2->Drc),std::max(std::fabs(UF2D_sax1->Drc),std::max(std::fabs(UF2D_sax->Drc),std::fabs(UF2D_say->Drc))))));
+            double dvs = 0;
+            if(UF_SOLIDPHASE)
+            {
+                dvs = kinterm * std::max(std::fabs(UF2D_say1->Drc),std::max(std::fabs(UF2D_say2->Drc),std::max(std::fabs(UF2D_sax2->Drc),std::max(std::fabs(UF2D_sax1->Drc),std::max(std::fabs(UF2D_sax->Drc),std::fabs(UF2D_say->Drc))))));
+            }
 
             //based on velocity and accaleration provide needed timestep
             out_dt2d->Drc = ((v + dvf + vest)>0? std::min(_dt,std::max(UF2D_MinimumDT,(UF_Courant *_dx/(std::max(v,std::max(dvf,std::max(dvs,vest)))))) ): _dt);
@@ -125,17 +140,30 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
         if(!UF_OUTORMV(_ldd,r,c))
         {
             double a = (_dx*_lddw->Drc);
-            if(_s1D->Drc + _f1D->Drc > UF_VERY_SMALL)
+            double vol = _f1D->Drc;
+            double svol = 0;
+            double svu = 0;
+            if(UF_SOLIDPHASE)
             {
-                double vest = ((_s1D->Drc/(a) + _f1D->Drc/(a)) * (_s1D->Drc/(a) + _f1D->Drc/(a)));
+                vol += _s1D->Drc;
+                svol = _s1D->Drc;
+                svu = _su1D->Drc;
+            }
 
-                double v = std::max(std::fabs(_fu1D->Drc),std::fabs(_su1D->Drc));
+            if(vol > UF_VERY_SMALL)
+            {
+                double vest = ((svol/(a) + _f1D->Drc/(a)) * (svol/(a) + _f1D->Drc/(a)));
 
-                double kinterm = std::min(1.0,std::pow((_s1D->Drc/(a) + _f1D->Drc/(a)),2.0));
+                double v = std::max(std::fabs(_fu1D->Drc),std::fabs(svol));
+
+                double kinterm = std::min(1.0,std::pow((svol/(a) + _f1D->Drc/(a)),2.0));
                 //actual accaleration
                 double dvf = kinterm *std::max(std::fabs(UF1D_fa1->Drc),std::max(std::fabs(UF1D_fa2->Drc),std::fabs(UF1D_fa->Drc)));
-                double dvs = kinterm *std::max(std::fabs(UF1D_sa1->Drc),std::max(std::fabs(UF1D_sa2->Drc),std::fabs(UF1D_sa->Drc)));
-
+                double dvs = 0;
+                if(UF_SOLIDPHASE)
+                {
+                    dvs =kinterm *std::max(std::fabs(UF1D_sa1->Drc),std::max(std::fabs(UF1D_sa2->Drc),std::fabs(UF1D_sa->Drc)));
+                }
 
                 if(_ldd->Drc == 5)
                 {

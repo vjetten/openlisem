@@ -251,7 +251,6 @@ cTMap
 *maxChannelWH,                    //!<
 *Hmx,                        //!<
 *hmx,                        //!<
-*hmxWH,                        //!<
 // *hmxInit,                    //!<
 
 *dfhmx,
@@ -294,6 +293,7 @@ cTMap
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
 *tme,                        //!< Auxilary map
+*tmf,
 //display combinations
 *COMBO_QOFCH,
 *COMBO_SS,
@@ -343,6 +343,7 @@ cTMap
 *DFSlopeYf,
 *DFTotalInitiationHeight,
 *DFSoilInternalFrictionAngle,
+*DFSoilInternalFrictionAngleOrg,
 *DFSoilDensity,
 *DFSoilRockFraction,
 *DFSoilRockSize,
@@ -357,7 +358,9 @@ cTMap
 *DFSoilDepth2,
 *DFSafetyFactor2,
 *DFSoilInternalFrictionAngle2,
+*DFSoilInternalFrictionAngle2Org,
 *DFSoilCohesion2,
+*DFSoilCohesion2Org,
 *DFSoilDensity2,
 *DFSoilRockFraction2,
 *DFSoilRockSize2,

@@ -46,6 +46,8 @@ struct Output3D
     cTMap * DEM_Change;
     cTMap * SlopeX;
     cTMap * SlopeY;
+    cTMap * FlowSlopeX;
+    cTMap * FlowSlopeY;
     cTMap * ImageR;
     cTMap * ImageG;
     cTMap * ImageB;

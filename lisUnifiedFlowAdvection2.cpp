@@ -41,10 +41,16 @@ void TWorld::UF2D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _dem,cTMap * _f
     {
         out_fu->Drc = _fu->Drc;
         out_fv->Drc = _fv->Drc;
-        out_su->Drc = _su->Drc;
-        out_sv->Drc = _sv->Drc;
-        ThreadPool->UF_t3.at(thread)->Drc = _f->Drc;
-        ThreadPool->UF_t4.at(thread)->Drc = _s->Drc;
+
+         ThreadPool->UF_t3.at(thread)->Drc = _f->Drc;
+
+        if(UF_SOLIDPHASE)
+        {
+            out_su->Drc = _su->Drc;
+            out_sv->Drc = _sv->Drc;
+
+            ThreadPool->UF_t4.at(thread)->Drc = _s->Drc;
+        }
     }}}
 
     FOR_ROW_COL_UF2DMT_DT
@@ -54,76 +60,73 @@ void TWorld::UF2D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _dem,cTMap * _f
         double qy1 = out_qfy1->Drc;
         double qy2 = out_qfy2->Drc;
 
-        if(!UF_OUTORMV(_dem,r,c+1))
-        {
+        if(!UF_OUTORMV(_dem,r,c-1)){
             if(qx1 > 0)
             {
-                out_fu->data[r][c+1] = ((ThreadPool->UF_t3.at(thread)->data[r][c+1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c+1] * out_fu->data[r][c+1] + qx1 * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c+1] + qx1) : 0.0;
-                out_fv->data[r][c+1] = ((ThreadPool->UF_t3.at(thread)->data[r][c+1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c+1] * out_fv->data[r][c+1] + qx1 * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c+1] + qx1) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r][c+1] += qx1;
-                ThreadPool->UF_t3.at(thread)->Drc -= qx1;
+
+                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + qx1 * _fu->data[r][c-1])/(ThreadPool->UF_t3.at(thread)->Drc + qx1) : 0.0;
+                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + qx1 * _fv->data[r][c-1])/(ThreadPool->UF_t3.at(thread)->Drc + qx1) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r][c-1] -= qx1;
+                ThreadPool->UF_t3.at(thread)->Drc += qx1;
             }else if(qx1 != 0)
             {
                 qx1 = std::fabs(qx1);
-                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + qx1 * _fu->data[r][c+1])/(ThreadPool->UF_t3.at(thread)->Drc + qx1) : 0.0;
-                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + qx1 * _fv->data[r][c+1])/(ThreadPool->UF_t3.at(thread)->Drc + qx1) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r][c+1] -= qx1;
-                ThreadPool->UF_t3.at(thread)->Drc += qx1;
+                out_fu->data[r][c-1] = ((ThreadPool->UF_t3.at(thread)->data[r][c-1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c-1] * out_fu->data[r][c-1] + qx1 * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c-1] + qx1) : 0.0;
+                out_fv->data[r][c-1] = ((ThreadPool->UF_t3.at(thread)->data[r][c-1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c-1] * out_fv->data[r][c-1] + qx1 * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c-1] + qx1) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r][c-1] += qx1;
+                ThreadPool->UF_t3.at(thread)->Drc -= qx1;
             }
         }
-        if(!UF_OUTORMV(_dem,r,c-1)){
-
+        if(!UF_OUTORMV(_dem,r,c+1)){
             if(qx2 < 0)
             {
                 qx2 = std::fabs(qx2);
-                out_fu->data[r][c-1] = ((ThreadPool->UF_t3.at(thread)->data[r][c-1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c-1] * out_fu->data[r][c-1] + std::fabs(qx2) * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c-1] + std::fabs(qx2)) : 0.0;
-                out_fv->data[r][c-1] = ((ThreadPool->UF_t3.at(thread)->data[r][c-1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c-1] * out_fv->data[r][c-1] + std::fabs(qx2) * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c-1] + std::fabs(qx2)) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r][c-1] += qx2;
-                ThreadPool->UF_t3.at(thread)->Drc -= qx2;
+                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + std::fabs(qx2) * _fu->data[r][c+1])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) : 0.0;
+                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + std::fabs(qx2) * _fv->data[r][c+1])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r][c+1] -= qx2;
+                ThreadPool->UF_t3.at(thread)->Drc += qx2;
             }else if(qx2 != 0)
             {
-
-                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + std::fabs(qx2) * _fu->data[r][c-1])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) : 0.0;
-                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + std::fabs(qx2) * _fv->data[r][c-1])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qx2)) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r][c-1] -= qx2;
-                ThreadPool->UF_t3.at(thread)->Drc += qx2;
+                out_fu->data[r][c+1] = ((ThreadPool->UF_t3.at(thread)->data[r][c+1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c+1] * out_fu->data[r][c+1] + std::fabs(qx2) * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c+1] + std::fabs(qx2)) : 0.0;
+                out_fv->data[r][c+1] = ((ThreadPool->UF_t3.at(thread)->data[r][c+1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r][c+1] * out_fv->data[r][c+1] + std::fabs(qx2) * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r][c+1] + std::fabs(qx2)) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r][c+1] += qx2;
+                ThreadPool->UF_t3.at(thread)->Drc -= qx2;
             }
         }
-        if(!UF_OUTORMV(_dem,r+1,c)){
+
+        if(!UF_OUTORMV(_dem,r-1,c)){
             if(qy1 > 0)
             {
 
-                out_fu->data[r+1][c] = ((ThreadPool->UF_t3.at(thread)->data[r+1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r+1][c] * out_fu->data[r+1][c] + qy1 * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r+1][c] + qy1) : 0.0;
-                out_fv->data[r+1][c] = ((ThreadPool->UF_t3.at(thread)->data[r+1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r+1][c] * out_fv->data[r+1][c] + qy1 * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r+1][c] + qy1) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r+1][c] += qy1;
-                ThreadPool->UF_t3.at(thread)->Drc -= qy1;
+                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + qy1 * _fu->data[r-1][c])/(ThreadPool->UF_t3.at(thread)->Drc + qy1) : 0.0;
+                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + qy1 * _fv->data[r-1][c])/(ThreadPool->UF_t3.at(thread)->Drc + qy1) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r-1][c] -= qy1;
+                ThreadPool->UF_t3.at(thread)->Drc += qy1;
             }else if(qy1 != 0)
             {
                 qy1 = std::fabs(qy1);
-                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + qy1 * _fu->data[r+1][c])/(ThreadPool->UF_t3.at(thread)->Drc + qy1) : 0.0;
-                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + qy1 * _fv->data[r+1][c])/(ThreadPool->UF_t3.at(thread)->Drc + qy1) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r+1][c] -= qy1;
-                ThreadPool->UF_t3.at(thread)->Drc += qy1;
+                out_fu->data[r-1][c] = ((ThreadPool->UF_t3.at(thread)->data[r-1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r-1][c] * out_fu->data[r-1][c] + qy1 * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r-1][c] + qy1) : 0.0;
+                out_fv->data[r-1][c] = ((ThreadPool->UF_t3.at(thread)->data[r-1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r-1][c] * out_fv->data[r-1][c] + qy1 * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r-1][c] + qy1) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r-1][c] += qy1;
+                ThreadPool->UF_t3.at(thread)->Drc -= qy1;
             }
         }
-        if(!UF_OUTORMV(_dem,r-1,c)){
+        if(!UF_OUTORMV(_dem,r+1,c)){
             if(qy2 < 0)
             {
                 qy2 = std::fabs(qy2);
-                out_fu->data[r-1][c] = ((ThreadPool->UF_t3.at(thread)->data[r-1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r-1][c] * out_fu->data[r-1][c] + std::fabs(qy2) * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r-1][c] + std::fabs(qy2)) : 0.0;
-                out_fv->data[r-1][c] = ((ThreadPool->UF_t3.at(thread)->data[r-1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r-1][c] * out_fv->data[r-1][c] + std::fabs(qy2) * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r-1][c] + std::fabs(qy2)) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r-1][c] += qy2;
-                ThreadPool->UF_t3.at(thread)->Drc -= qy2;
+                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + std::fabs(qy2) * _fu->data[r+1][c])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) : 0.0;
+                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + std::fabs(qy2) * _fv->data[r+1][c])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r+1][c] -= qy2;
+                ThreadPool->UF_t3.at(thread)->Drc += qy2;
             }else if(qy2 != 0)
             {
-
-                out_fu->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fu->Drc + std::fabs(qy2) * _fu->data[r-1][c])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) : 0.0;
-                out_fv->Drc = ((ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->Drc * out_fv->Drc + std::fabs(qy2) * _fv->data[r-1][c])/(ThreadPool->UF_t3.at(thread)->Drc + std::fabs(qy2)) : 0.0;
-                ThreadPool->UF_t3.at(thread)->data[r-1][c] -= qy2;
-                ThreadPool->UF_t3.at(thread)->Drc += qy2;
+                out_fu->data[r+1][c] = ((ThreadPool->UF_t3.at(thread)->data[r+1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r+1][c] * out_fu->data[r+1][c] + std::fabs(qy2) * _fu->Drc)/(ThreadPool->UF_t3.at(thread)->data[r+1][c] + std::fabs(qy2)) : 0.0;
+                out_fv->data[r+1][c] = ((ThreadPool->UF_t3.at(thread)->data[r+1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t3.at(thread)->data[r+1][c] * out_fv->data[r+1][c] + std::fabs(qy2) * _fv->Drc)/(ThreadPool->UF_t3.at(thread)->data[r+1][c] + std::fabs(qy2)) : 0.0;
+                ThreadPool->UF_t3.at(thread)->data[r+1][c] += qy2;
+                ThreadPool->UF_t3.at(thread)->Drc -= qy2;
             }
         }
-
     }}}
 
     if(UF_SOLIDPHASE)
@@ -135,70 +138,71 @@ void TWorld::UF2D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _dem,cTMap * _f
             double qy1 = out_qsy1->Drc;
             double qy2 = out_qsy2->Drc;
 
-            if(!UF_OUTORMV(_dem,r,c+1))
-            {
+            if(!UF_OUTORMV(_dem,r,c-1)){
                 if(qx1 > 0)
                 {
-                    out_su->data[r][c+1] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c+1] * out_su->data[r][c+1] + qx1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c+1] + qx1) : 0.0;
-                    out_sv->data[r][c+1] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c+1] * out_sv->data[r][c+1] + qx1 * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c+1] + qx1) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r][c+1] += qx1;
-                    ThreadPool->UF_t4.at(thread)->Drc -= qx1;
+
+                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + qx1 * _su->data[r][c-1])/(ThreadPool->UF_t4.at(thread)->Drc + qx1) : 0.0;
+                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + qx1 * _sv->data[r][c-1])/(ThreadPool->UF_t4.at(thread)->Drc + qx1) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r][c-1] -= qx1;
+                    ThreadPool->UF_t4.at(thread)->Drc += qx1;
                 }else if(qx1 != 0)
                 {
                     qx1 = std::fabs(qx1);
-                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + qx1 * _su->data[r][c+1])/(ThreadPool->UF_t4.at(thread)->Drc + qx1) : 0.0;
-                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + qx1 * _sv->data[r][c+1])/(ThreadPool->UF_t4.at(thread)->Drc + qx1) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r][c+1] -= qx1;
-                    ThreadPool->UF_t4.at(thread)->Drc += qx1;
+                    out_su->data[r][c-1] = ((ThreadPool->UF_t4.at(thread)->data[r][c-1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c-1] * out_su->data[r][c-1] + qx1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c-1] + qx1) : 0.0;
+                    out_sv->data[r][c-1] = ((ThreadPool->UF_t4.at(thread)->data[r][c-1] + qx1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c-1] * out_sv->data[r][c-1] + qx1 * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c-1] + qx1) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r][c-1] += qx1;
+                    ThreadPool->UF_t4.at(thread)->Drc -= qx1;
                 }
             }
-            if(!UF_OUTORMV(_dem,r,c-1)){
-
+            if(!UF_OUTORMV(_dem,r,c+1)){
                 if(qx2 < 0)
                 {
                     qx2 = std::fabs(qx2);
-                    out_su->data[r][c-1] = ((ThreadPool->UF_t4.at(thread)->data[r][c-1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c-1] * out_su->data[r][c-1] + std::fabs(qx2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c-1] + std::fabs(qx2)) : 0.0;
-                    out_sv->data[r][c-1] = ((ThreadPool->UF_t4.at(thread)->data[r][c-1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c-1] * out_sv->data[r][c-1] + std::fabs(qx2) * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c-1] + std::fabs(qx2)) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r][c-1] += qx2;
-                    ThreadPool->UF_t4.at(thread)->Drc -= qx2;
+                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c+1])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) : 0.0;
+                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + std::fabs(qx2) * _sv->data[r][c+1])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r][c+1] -= qx2;
+                    ThreadPool->UF_t4.at(thread)->Drc += qx2;
                 }else if(qx2 != 0)
                 {
-                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(qx2) * _su->data[r][c-1])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) : 0.0;
-                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + std::fabs(qx2) * _sv->data[r][c-1])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qx2)) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r][c-1] -= qx2;
-                    ThreadPool->UF_t4.at(thread)->Drc += qx2;
+                    out_su->data[r][c+1] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c+1] * out_su->data[r][c+1] + std::fabs(qx2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c+1] + std::fabs(qx2)) : 0.0;
+                    out_sv->data[r][c+1] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + std::fabs(qx2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r][c+1] * out_sv->data[r][c+1] + std::fabs(qx2) * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r][c+1] + std::fabs(qx2)) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r][c+1] += qx2;
+                    ThreadPool->UF_t4.at(thread)->Drc -= qx2;
+                }
+            }
+
+            if(!UF_OUTORMV(_dem,r-1,c)){
+                if(qy1 > 0)
+                {
+
+                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + qy1 * _su->data[r-1][c])/(ThreadPool->UF_t4.at(thread)->Drc + qy1) : 0.0;
+                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + qy1 * _sv->data[r-1][c])/(ThreadPool->UF_t4.at(thread)->Drc + qy1) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r-1][c] -= qy1;
+                    ThreadPool->UF_t4.at(thread)->Drc += qy1;
+                }else if(qy1 != 0)
+                {
+                    qy1 = std::fabs(qy1);
+                    out_su->data[r-1][c] = ((ThreadPool->UF_t4.at(thread)->data[r-1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r-1][c] * out_su->data[r-1][c] + qy1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r-1][c] + qy1) : 0.0;
+                    out_sv->data[r-1][c] = ((ThreadPool->UF_t4.at(thread)->data[r-1][c] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r-1][c] * out_sv->data[r-1][c] + qy1 * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r-1][c] + qy1) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r-1][c] += qy1;
+                    ThreadPool->UF_t4.at(thread)->Drc -= qy1;
                 }
             }
             if(!UF_OUTORMV(_dem,r+1,c)){
-                if(qy1 > 0)
-                {
-                    out_su->data[r+1][c] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r+1][c] * out_su->data[r+1][c] + qy1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r+1][c] + qy1) : 0.0;
-                    out_sv->data[r+1][c] = ((ThreadPool->UF_t4.at(thread)->data[r][c+1] + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r+1][c] * out_sv->data[r+1][c] + qy1 * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r+1][c] + qy1) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r+1][c] += qy1;
-                    ThreadPool->UF_t4.at(thread)->Drc -= qy1;
-                }else  if(qy1 != 0)
-                {
-                    qy1 = std::fabs(qy1);
-                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + qy1 * _su->data[r+1][c])/(ThreadPool->UF_t4.at(thread)->Drc + qy1) : 0.0;
-                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + qy1) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + qy1 * _sv->data[r+1][c])/(ThreadPool->UF_t4.at(thread)->Drc + qy1) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r+1][c] -= qy1;
-                    ThreadPool->UF_t4.at(thread)->Drc += qy1;
-                }
-            }
-            if(!UF_OUTORMV(_dem,r-1,c)){
                 if(qy2 < 0)
                 {
                     qy2 = std::fabs(qy2);
-                    out_su->data[r-1][c] = ((ThreadPool->UF_t4.at(thread)->data[r-1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r-1][c] * out_su->data[r-1][c] + std::fabs(qy2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r-1][c] + std::fabs(qy2)) : 0.0;
-                    out_sv->data[r-1][c] = ((ThreadPool->UF_t4.at(thread)->data[r-1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r-1][c] * out_sv->data[r-1][c] + std::fabs(qy2) * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r-1][c] + std::fabs(qy2)) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r-1][c] += qy2;
-                    ThreadPool->UF_t4.at(thread)->Drc -= qy2;
-                }else  if(qy2 != 0)
-                {
-                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r-1][c])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) : 0.0;
-                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + std::fabs(qy2) * _sv->data[r-1][c])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) : 0.0;
-                    ThreadPool->UF_t4.at(thread)->data[r-1][c] -= qy2;
+                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(qy2) * _su->data[r+1][c])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) : 0.0;
+                    out_sv->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->Drc * out_sv->Drc + std::fabs(qy2) * _sv->data[r+1][c])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(qy2)) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r+1][c] -= qy2;
                     ThreadPool->UF_t4.at(thread)->Drc += qy2;
+                }else if(qy2 != 0)
+                {
+                    out_su->data[r+1][c] = ((ThreadPool->UF_t4.at(thread)->data[r+1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r+1][c] * out_su->data[r+1][c] + std::fabs(qy2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r+1][c] + std::fabs(qy2)) : 0.0;
+                    out_sv->data[r+1][c] = ((ThreadPool->UF_t4.at(thread)->data[r+1][c] + std::fabs(qy2)) > UF_VERY_SMALL)? (ThreadPool->UF_t4.at(thread)->data[r+1][c] * out_sv->data[r+1][c] + std::fabs(qy2) * _sv->Drc)/(ThreadPool->UF_t4.at(thread)->data[r+1][c] + std::fabs(qy2)) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->data[r+1][c] += qy2;
+                    ThreadPool->UF_t4.at(thread)->Drc -= qy2;
                 }
             }
 
@@ -234,101 +238,105 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
         }
 
 
-        double conc =(f->Drc > UF_VERY_SMALL)? (_m->Drc/f->Drc) :0.0;
+        double conc =(f->Drc > UF_VERY_SMALL)? (_m->Drc/f->Drc) :1.0;
 
         if(conc > UF_VERY_SMALL)
         {
-            double qx1 = std::min(_qx1->Drc,0.15 * _m->Drc);
-            double qx2 = std::min(_qx2->Drc,0.15 * _m->Drc);
-            double qy1 = std::min(_qy1->Drc,0.15 * _m->Drc);
-            double qy2 = std::min(_qy2->Drc,0.15 * _m->Drc);
+            double concx1 = !UF_OUTORMV(_m,r,c-1)? 1.0 : ((f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 1.0);
+            double concx2 = !UF_OUTORMV(_m,r,c+1)? 1.0: ((f->data[r][c+1] > UF_VERY_SMALL)?_m->data[r][c+1]/f->data[r][c+1] : 1.0);
+            double concy1 = !UF_OUTORMV(_m,r-1,c)? 1.0: ((f->data[r-1][c] > UF_VERY_SMALL)? _m->data[r-1][c]/f->data[r-1][c] : 1.0);
+            double concy2 = !UF_OUTORMV(_m,r+1,c)? 1.0: ((f->data[r+1][c] > UF_VERY_SMALL)?_m->data[r+1][c]/f->data[r+1][c] : 1.0);
 
-            if(!UF_OUTORMV(_dem,r,c+1))
-            {
+            double qx1 =_qx1->Drc;// (_qx1->Drc > 0? 1.0 * (!UF_OUTORMV(_m,r,c-1)? std::min(concx1*std::fabs(_qx1->Drc),0.1 * _m->data[r][c-1]) : concx1*std::fabs(_qy2->Drc)) : -1.0*std::min(conc*std::fabs(_qx1->Drc),0.1 * _m->Drc));
+            double qx2 =_qx2->Drc;// (_qx2->Drc > 0? 1.0*std::min(conc*std::fabs(_qx2->Drc),0.1 * _m->Drc) : -1.0* (!UF_OUTORMV(_m,r,c+1)? std::min(concx2*std::fabs(_qx2->Drc),0.1 * _m->data[r][c+1]) : concx2*std::fabs(_qx2->Drc)) ) ;
+            double qy1 =_qy1->Drc;// (_qy1->Drc > 0? 1.0* (!UF_OUTORMV(_m,r-1,c)? std::min(concy1*std::fabs(_qy1->Drc),0.1 * _m->data[r-1][c]) : concy1*std::fabs(_qy1->Drc))  : -1.0*std::min(conc*std::fabs(_qy1->Drc),0.1 * _m->Drc)) ;
+            double qy2 =_qy2->Drc;// (_qy2->Drc > 0? 1.0*std::min(conc*std::fabs(_qy2->Drc),0.1 * _m->Drc) : -1.0* (!UF_OUTORMV(_m,r+1,c)? std::min(concy2*std::fabs(_qy2->Drc),0.1 * _m->data[r+1][c]) :concy2*std::fabs(_qy2->Drc)) ) ;
+
+            if(!UF_OUTORMV(_dem,r,c-1)){
                 if(qx1 > 0)
                 {
-                    out_m->data[r][c+1] += conc * qx1;
-                    out_m->Drc -= conc *qx1;
+                    out_m->data[r][c-1] -= qx1;
+                    out_m->Drc +=  qx1;
                 }else
                 {
                     qx1 = std::fabs(qx1);
-                    double c2 = (f->data[r][c+1] > UF_VERY_SMALL)? _m->data[r][c+1]/f->data[r][c+1] : 0.0;
-                    out_m->data[r][c+1] -= c2 * qx1;
-                    out_m->Drc += c2 * qx1;
+                    out_m->data[r][c-1] += qx1;
+                    out_m->Drc -= qx1;
                 }
             }else
             {
-                if(qx1 > 0)
+                if(qx1 < 0)
                 {
-                    outflow += conc*qx1;
-                    outflowm->Drc +=conc*std::fabs(qx1);
-                    out_m->Drc -= conc*qx1;
+                    qx1 = std::fabs(qx1);
+                    outflow += qx1;
+                    outflowm->Drc +=std::fabs(qx1);
+                    out_m->Drc -= qx1;
                 }
             }
-            if(!UF_OUTORMV(_dem,r,c-1)){
-
+            if(!UF_OUTORMV(_dem,r,c+1)){
                 if(qx2 < 0)
                 {
                     qx2 = std::fabs(qx2);
-                    out_m->data[r][c-1] += conc * qx2;
-                    out_m->Drc -= conc * qx2;
+                    out_m->data[r][c+1] -=  qx2;
+                    out_m->Drc +=  qx2;
                 }else
                 {
-                    double c2 = (f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 0.0;
-                    out_m->data[r][c-1] -= c2 * qx2;
-                    out_m->Drc += c2 * qx2;
+                    out_m->data[r][c+1] += qx2;
+                    out_m->Drc -=  qx2;
                 }
             }else
             {
-                if(qx2 < 0)
+                if(qx2 > 0)
                 {
                     qx2 = std::fabs(qx2);
-                    outflow += conc*qx2;
-                    outflowm->Drc +=conc*std::fabs(qx2);
-                    out_m->Drc -= conc*qx2;
+                    outflow += qx2;
+                    outflowm->Drc +=std::fabs(qx2);
+                    out_m->Drc -= qx2;
                 }
             }
-            if(!UF_OUTORMV(_dem,r+1,c)){
+
+
+
+            if(!UF_OUTORMV(_dem,r-1,c)){
                 if(qy1 > 0)
                 {
-                    out_m->data[r+1][c] += conc * qy1;
-                    out_m->Drc -= conc * qy1;
+                    out_m->data[r-1][c] -= conc * qy1;
+                    out_m->Drc += conc * qy1;
                 }else
                 {
                     qy1 = std::fabs(qy1);
-                    double c2 = (f->data[r+1][c] > UF_VERY_SMALL)? _m->data[r+1][c]/f->data[r+1][c] : 0.0;
-                    out_m->data[r+1][c] -= c2 * qy1;
-                    out_m->Drc += c2 * qy1;
+                    out_m->data[r-1][c] += qy1;
+                    out_m->Drc -=  qy1;
                 }
             }else
             {
-                if(qy1 > 0)
+                if(qy1 < 0)
                 {
-                    outflow += conc*qy1;
-                    outflowm->Drc +=conc*std::fabs(qy1);
-                    out_m->Drc -= conc*qy1;
+                    qy1 = std::fabs(qy1);
+                    outflow += qy1;
+                    outflowm->Drc +=std::fabs(qy1);
+                    out_m->Drc -= qy1;
                 }
             }
-            if(!UF_OUTORMV(_dem,r-1,c)){
+            if(!UF_OUTORMV(_dem,r+1,c)){
                 if(qy2 < 0)
                 {
                     qy2 = std::fabs(qy2);
-                    out_m->data[r-1][c] += conc * qy2;
-                    out_m->Drc -= conc * qy2;
+                    out_m->data[r+1][c] -=  qy2;
+                    out_m->Drc += qy2;
                 }else
                 {
-                    double c2 = (f->data[r-1][c] > UF_VERY_SMALL)?_m->data[r-1][c]/f->data[r-1][c] : 0.0;
-                    out_m->data[r-1][c] -= c2 * qy2;
-                    out_m->Drc += c2 * qy2;
+                    out_m->data[r+1][c] += qy2;
+                    out_m->Drc -= qy2;
                 }
             }else
             {
-                if(qy2 < 0)
+                if(qy2 > 0)
                 {
                     qy2 = std::fabs(qy2);
-                    outflow += conc*qy2;
-                    outflowm->Drc +=std::fabs(conc*qy2);
-                    out_m->Drc -= conc*qy2;
+                    outflow += qy2;
+                    outflowm->Drc +=std::fabs(qy2);
+                    out_m->Drc -= qy2;
                 }
             }
 
@@ -341,7 +349,7 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
         FOR_ROW_COL_UF2DMTDER
         {
 
-            _m->Drc = out_m->Drc;
+            _m->Drc = std::max(0.0,std::isnan(out_m->Drc)?out_m->Drc : 0.0);
         }}}
     }
     return outflow;
@@ -367,10 +375,11 @@ void TWorld::UF2D_Advect2_prop(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, cT
         {
             continue;
         }
-        double qx1 = _qx1->Drc;
-        double qx2 = _qx2->Drc;
-        double qy1 = _qy1->Drc;
-        double qy2 = _qy2->Drc;
+        double qx1 = (_qx1->Drc > 0? 1.0 : -1.0) *std::min(std::fabs(_qx1->Drc),0.15 * _m->Drc);
+        double qx2 = (_qx2->Drc > 0? 1.0 : -1.0) *std::min(std::fabs(_qx2->Drc),0.15 * _m->Drc);
+        double qy1 = (_qy1->Drc > 0? 1.0 : -1.0) *std::min(std::fabs(_qy1->Drc),0.15 * _m->Drc);
+        double qy2 = (_qy2->Drc > 0? 1.0 : -1.0) *std::min(std::fabs(_qy2->Drc),0.15 * _m->Drc);
+
 
         double conc = (f->Drc > UF_VERY_SMALL)? (_m->Drc/f->Drc) : 0.0;
         if(!UF_OUTORMV(_dem,r,c+1))
@@ -458,13 +467,18 @@ void TWorld::UF1D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _ldd,cTMap * _l
     FOR_ROW_COL_UF1DMTDER
     {
         out_fu->Drc = _fu->Drc;
-        out_su->Drc = _su->Drc;
+
         ThreadPool->UF_t3.at(thread)->Drc = _f->Drc;
-        ThreadPool->UF_t4.at(thread)->Drc = _s->Drc;
+
         UF1D_fq1->Drc = UF1D_fq1->Drc;
         UF1D_fq2->Drc = UF1D_fq2->Drc;
-        UF1D_sq1->Drc = UF1D_sq1->Drc;
-        UF1D_sq2->Drc = UF1D_sq2->Drc;
+        if(UF_SOLIDPHASE)
+        {
+            out_su->Drc = _su->Drc;
+            UF1D_sq1->Drc = UF1D_sq1->Drc;
+            UF1D_sq2->Drc = UF1D_sq2->Drc;
+            ThreadPool->UF_t4.at(thread)->Drc = _s->Drc;
+        }
     }}}
 
     FOR_ROW_COL_UF1DMT_DT
@@ -560,60 +574,43 @@ void TWorld::UF1D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _ldd,cTMap * _l
         }
     }}}
 
-    FOR_ROW_COL_UF1DMT_DT
+    if(UF_SOLIDPHASE)
     {
-        double q1 = UF1D_sq1->Drc;
-        double q2 = UF1D_sq2->Drc;
-
-        //front cell
-        int lddself = (int) _ldd->data[r][c];
-        if(!(lddself == 5))
+        FOR_ROW_COL_UF1DMT_DT
         {
-            int r2 = r+dy[lddself];
-            int c2 = c+dx[lddself];
+            double q1 = UF1D_sq1->Drc;
+            double q2 = UF1D_sq2->Drc;
 
-            if(!UF_OUTORMV(_ldd,r2,c2)){
-                if( q1 >0)
+            //front cell
+            int lddself = (int) _ldd->data[r][c];
+            if(!(lddself == 5))
+            {
+                int r2 = r+dy[lddself];
+                int c2 = c+dx[lddself];
+
+                if(!UF_OUTORMV(_ldd,r2,c2)){
+                    if( q1 >0)
+                    {
+                        out_su->data[r2][c2] = ((ThreadPool->UF_t4.at(thread)->data[r2][c2] + q1) > 0)? (ThreadPool->UF_t4.at(thread)->data[r2][c2] * out_su->data[r2][c2] + q1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r2][c2] + q1) : 0.0;
+                    }else
+                    {
+                        out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(q1)) > 0)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(q1) * _su->data[r2][c2])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(q1)) : 0.0;
+                    }
+
+                    ThreadPool->UF_t4.at(thread)->Drc -= q1;
+                    ThreadPool->UF_t4.at(thread)->data[r2][c2] += q1;
+                }else// if(q1 > 0)
                 {
-                    out_su->data[r2][c2] = ((ThreadPool->UF_t4.at(thread)->data[r2][c2] + q1) > 0)? (ThreadPool->UF_t4.at(thread)->data[r2][c2] * out_su->data[r2][c2] + q1 * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r2][c2] + q1) : 0.0;
-                }else
-                {
-                    out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + std::fabs(q1)) > 0)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + std::fabs(q1) * _su->data[r2][c2])/(ThreadPool->UF_t4.at(thread)->Drc + std::fabs(q1)) : 0.0;
+                    ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q1);
                 }
-
-                ThreadPool->UF_t4.at(thread)->Drc -= q1;
-                ThreadPool->UF_t4.at(thread)->data[r2][c2] += q1;
             }else// if(q1 > 0)
             {
                 ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q1);
             }
-        }else// if(q1 > 0)
-        {
-            ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q1);
-        }
-        //backward flux
+            //backward flux
 
-        //back cells
-        double totalwidth = 0;
-        for (int i=1;i<=9;i++)
-        {
-            int r2, c2, ldd = 0;
-            if (i==5)  // Skip current cell
-                continue;
-            r2 = r+dy[i];
-            c2 = c+dx[i];
-            if (!UF_OUTORMV(_ldd,r2,c2))
-                ldd = (int) _ldd->data[r2][c2];
-            else
-                continue;
-            if (!UF_OUTORMV(_ldd,r2,c2) &&
-                    FLOWS_TO(ldd, r2,c2,r,c))
-            {
-                totalwidth += _lddw->data[r2][c2];
-            }
-        }
-        if(totalwidth > 0)
-        {
+            //back cells
+            double totalwidth = 0;
             for (int i=1;i<=9;i++)
             {
                 int r2, c2, ldd = 0;
@@ -628,29 +625,49 @@ void TWorld::UF1D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _ldd,cTMap * _l
                 if (!UF_OUTORMV(_ldd,r2,c2) &&
                         FLOWS_TO(ldd, r2,c2,r,c))
                 {
-                    if(!UF_OUTORMV(_ldd,r2,c2)){
-
-                        if( q2 < 0)
-                        {
-                            out_su->data[r2][c2] = ((ThreadPool->UF_t4.at(thread)->data[r2][c2] + std::fabs(q2)) > 0)? (ThreadPool->UF_t4.at(thread)->data[r2][c2] * out_su->data[r2][c2] + std::fabs(q2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r2][c2] + std::fabs(q2)) : 0.0;
-                        }else
-                        {
-                            out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + q2) > 0)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + q2 * _su->data[r2][c2])/(ThreadPool->UF_t4.at(thread)->Drc + q2) : 0.0;
-                        }
-
-                        ThreadPool->UF_t4.at(thread)->Drc += q2;
-                        ThreadPool->UF_t4.at(thread)->data[r2][c2] -= q2;
-                    }else// if(q2 < 0)
-                    {
-                        ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q2);
-                    }
+                    totalwidth += _lddw->data[r2][c2];
                 }
             }
-        }else// if(q2 < 0)
-        {
-            ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q2);
-        }
-    }}}
+            if(totalwidth > 0)
+            {
+                for (int i=1;i<=9;i++)
+                {
+                    int r2, c2, ldd = 0;
+                    if (i==5)  // Skip current cell
+                        continue;
+                    r2 = r+dy[i];
+                    c2 = c+dx[i];
+                    if (!UF_OUTORMV(_ldd,r2,c2))
+                        ldd = (int) _ldd->data[r2][c2];
+                    else
+                        continue;
+                    if (!UF_OUTORMV(_ldd,r2,c2) &&
+                            FLOWS_TO(ldd, r2,c2,r,c))
+                    {
+                        if(!UF_OUTORMV(_ldd,r2,c2)){
+
+                            if( q2 < 0)
+                            {
+                                out_su->data[r2][c2] = ((ThreadPool->UF_t4.at(thread)->data[r2][c2] + std::fabs(q2)) > 0)? (ThreadPool->UF_t4.at(thread)->data[r2][c2] * out_su->data[r2][c2] + std::fabs(q2) * _su->Drc)/(ThreadPool->UF_t4.at(thread)->data[r2][c2] + std::fabs(q2)) : 0.0;
+                            }else
+                            {
+                                out_su->Drc = ((ThreadPool->UF_t4.at(thread)->Drc + q2) > 0)? (ThreadPool->UF_t4.at(thread)->Drc * out_su->Drc + q2 * _su->data[r2][c2])/(ThreadPool->UF_t4.at(thread)->Drc + q2) : 0.0;
+                            }
+
+                            ThreadPool->UF_t4.at(thread)->Drc += q2;
+                            ThreadPool->UF_t4.at(thread)->data[r2][c2] -= q2;
+                        }else// if(q2 < 0)
+                        {
+                            ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q2);
+                        }
+                    }
+                }
+            }else// if(q2 < 0)
+            {
+                ThreadPool->UF_t4.at(thread)->Drc -= std::fabs(q2);
+            }
+        }}}
+    }
 }
 
 double TWorld::UF1D_Advect2_mass(int thread,cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap *_lddh,cTMap * _m, cTMap * _f, cTMap * _q1,cTMap * _q2, cTMap * out_m,cTMap *outflowm)

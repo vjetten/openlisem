@@ -76,6 +76,31 @@ public:
 
     }
 
+    inline static void FlowSlopeMap(cTMap * in_dem, cTMap * in_flow, cTMap * out_slope_x,cTMap * out_slope_y)
+    {
+
+        FOR_ROW_COL_MV(in_dem,in_dem)
+        {
+            double slope = 0;
+            double Dhx = 0;
+            double Dhy = 0;
+
+            //DEM
+            double dem = in_dem->data[r][c] + in_flow->data[r][c];
+
+            double demx1 = (INSIDE(in_dem,r,c+1))? (!MV(in_dem,r,c+1)? in_dem->data[r][c+1]+in_flow->data[r][c+1]: dem):dem;
+            double demx2 = (INSIDE(in_dem,r,c-1))? (!MV(in_dem,r,c-1)? in_dem->data[r][c-1]+in_flow->data[r][c-1]: dem):dem;
+
+            double demy1 = (INSIDE(in_dem,r+1,c))? (!MV(in_dem,r+1,c)? in_dem->data[r+1][c]+in_flow->data[r+1][c]: dem):dem;
+            double demy2 = (INSIDE(in_dem,r-1,c))? (!MV(in_dem,r-1,c)? in_dem->data[r-1][c]+in_flow->data[r-1][c]: dem):dem;
+
+            out_slope_x->data[r][c] = (demx1 -demx2)/in_dem->cellSize();
+            out_slope_y->data[r][c] = (demy1 -demy2)/in_dem->cellSize();
+
+        }
+    }
+
+
     inline static bool GetMVAt(cTMap * map, double x, double z)
     {
         double cs = map->cellSize();

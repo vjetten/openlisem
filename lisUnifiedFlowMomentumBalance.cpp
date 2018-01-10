@@ -71,34 +71,36 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
     //another version of the earlier functionality, provides much better accuary, timesteps, and smoothness
     }else
     {
-        double velo = velx;
+        double velo = std::fabs(velx);
+        double signv = velx>0?1.0:-1.0;
         double signa = a>0?1.0:-1.0;
+
         a = std::min(std::fabs(a)/dt,25.0 * h);
-        double manning = solid? UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning *(0.05 +NN)*(0.05 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );// + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
+        double manning = solid? std::max(0.001,std::min(1.0,(std::fabs(velo) *h / 10.0)))*UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
+        double nsq = UF_FRICTIONCORRECTION * manning *(0.01 +NN)*(0.01 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );// + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
 
         if(channel)
         {
-            nsq = (2.0/UF_MANNINGCOEFFICIENT_FLUID) * nsq;
+            nsq = 2.0 * nsq;
             if(flowwidth > 0)
             {
                 nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
 
             }
         }
-        double kinfac = std::max(0.05,(0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0)));
+        double kinfac = std::max(0.01,(0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0)));
 
-        velx = (nsq ==0)? velo : sqrt(a)/sqrt(nsq); //-nsq * dt *a + sqrt(nsq)*sqrt(std::fabs(a))*sqrt(4 + a * dt*dt*nsq)/(2.0*nsq);
+        velx = (nsq ==0)? velo :  sqrt(a)/sqrt(nsq);
         velx = signa *velx ;
+        double veln = velx;
 
-        double facdev = (0.05 +NN)*(0.05 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );
+        double fac = std::min(1.0,std::max(0.0,(std::fabs((velx - velo)) < 0.01? 1.0 :kinfac *exp( -dt * std::fabs(std::min(9.81,a)) / (std::fabs((velx - velo))+0.01)))));
+        double dir = veln < velo ? -1.0: 1.0;
 
-        double fac = kinfac * exp(-dt / std::max(facdev,facdev));
+        double velxtr = signv * velo + signa * a*dt ;
+        double velxntr = fac * signv * velo + (1.0-fac) *velx;
 
-
-        velx = fac * velo + (1.0-fac) *velx;
-
-        return velx;
+        return std::min(signv*velo +  a*dt,std::max(signv*velo -  a*dt,velxntr));//std::fabs(velxtr) < std::fabs(velxntr) ? velxtr : velxntr;
     }
 
 
@@ -147,7 +149,7 @@ double TWorld::UF_Friction2(double vel,double dt,double velx,double vely, double
 double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double SlopeX, double SlopeY,
                                  double dhfdx,double dhfdy, double dh2pbdx, double dh2pbdy, double dsfdx, double dsfdy, double ddsfdxx, double ddsfdyy, double ddsfdxy,
                                  double dfudx, double dfudy, double dfvdx, double dfvdy, double ddfudxx, double ddfudyy, double ddfvdxy, double ddfvdxx, double ddfvdyy, double ddfudxy,
-                                 double dsudx, double dsudy, double dsvdx,double dsvdy)
+                                 double dsudx, double dsudy, double dsvdx,double dsvdy,double ddemhdx,double ddemhdy)
 {
 
     double h = (_f + _s)/(_dx*_dx);
@@ -155,76 +157,83 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
     {
         return 0;
     }
+    double acc = 0;
+    double h_dev = std::max(0.1,h);
+    double ff_dev = std::max(0.05,ff);
 
     if(x) {
 
         double acc_x =
-            (-UF_Gravity * sin(SlopeX)
+            (-UF_Gravity * sin(atan(ddemhdx))
                     -UF_Aspect
-                    *((dh2pbdx)/h
-                       + (pbf *  (SlopeX))
-                        -(1.0/(ff * Nr))*(
+                    *(//(dh2pbdx)/h
+                       //+ (pbf *  (SlopeX))
+                        -(1.0/(ff_dev * Nr))*(
                             2.0*ddfudxx + ddfvdxy + ddfudyy
                             )
-                        +(1.0/(ff * Nra))*(
+                        +(1.0/(ff_dev * Nra))*(
                             2.0 *(dsfdx*(dfudx - dsudx) + ddsfdxx*(fu - su))
                             +(dsfdx*(dfvdy - dsvdy) + ddsfdxy*(fv - sv))
                             +(dsfdy*(dfudy - dsudy) + ddsfdyy*(fu - su))
-                            + UF_Chi * fu/(UF_Aspect*UF_Aspect*ff*Nra*h*h)
+                            + UF_Chi * fu/(UF_Aspect*UF_Aspect*ff_dev*Nra*h_dev*h_dev)
                             )
-                        -(UF_Ksi*sf*(fu - su)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
+                        -(UF_Ksi*sf*(fu - su)/(UF_Aspect*UF_Aspect*ff_dev*Nra*h_dev*h_dev))
                         )
                     );
 
 
-        return acc_x;
+        acc = acc_x;
 
         } else {
 
-            double acc_y = (-UF_Gravity * sin(SlopeY)
+            double acc_y = (-UF_Gravity * sin(atan(ddemhdy))
                     -UF_Aspect
-                    * ((dh2pbdy)/h
-                       + (pbf * (SlopeY))
-                        -(1.0/(ff * Nr))*(
+                     *(//(dh2pbdy)/h
+                       //+ (pbf * (SlopeY))
+                        -(1.0/(ff_dev * Nr))*(
                             2.0*ddfvdyy + ddfudxy + ddfvdxx
                             )
-                        +(1.0/(ff * Nra))*(
+                        +(1.0/(ff_dev * Nra))*(
                             2.0 *(dsfdy*(dfvdy - dsvdy) + ddsfdyy*(fv - sv))
                             +(dsfdy*(dfudx - dsudx) + ddsfdxy*(fu - su))
                             +(dsfdx*(dfvdx - dsvdx) + ddsfdxx*(fv - sv))
-                            + UF_Chi * fv/(UF_Aspect*UF_Aspect*ff*Nra*h*h)
+                            + UF_Chi * fv/(UF_Aspect*UF_Aspect*ff_dev*Nra*h_dev*h_dev)
                             )
-                        -(UF_Ksi*sf*(fv - sv)/(UF_Aspect*UF_Aspect*ff*Nra*h*h))
+                        -(UF_Ksi*sf*(fv - sv)/(UF_Aspect*UF_Aspect*ff_dev*Nra*h_dev*h_dev))
                         )
                     );
 
 
-            return acc_y;
+            acc = acc_y;
         }
+
+
+    return acc;
 
 }
 
 double TWorld::UF2D_MomentumBalanceSolid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbs,double pbf, double SlopeX, double SlopeY,
-                                 double dhsdx, double dhsdy, double dhdx, double dhdy, double dbdx, double dbdy)
+                                 double dhsdx, double dhsdy, double dhdx, double dhdy, double dbdx, double dbdy, double ddemhdx,double  ddemhdy)
 {
     double vel = sqrt(su*su + sv*sv);
     if(_f < UF_VERY_SMALL)
     {
         return 0;
     }
+
+    double pressurebase = std::max(0.0,pbs-pbf);
     if(x)
     {
-        double a = (-UF_Gravity * sin(atan(SlopeX)) + UF_Aspect*pbs*( dhdx)
+        double a = (-UF_Gravity * sin(atan(ddemhdx)) + UF_Aspect*pbs*( dhdx)
                 +UF_Aspect * gamma * pbf *  (SlopeX + dhdx)
                  );
-        return a > 0? std::max(0.0,a - std::fabs(std::tan(ifa)*pbs)) : std::min(0.0,a + std::fabs(std::tan(ifa)*pbs));
+        return a;//a > 0? std::max(0.0,a - std::fabs(std::tan(ifa))) : std::min(0.0,a + std::fabs(std::tan(ifa) ));
     }else
     {
-        double a = (-UF_Gravity * sin(atan(SlopeY)) +UF_Aspect*pbs*(dhdy)
+        double a = (-UF_Gravity * sin(atan(ddemhdy)) +UF_Aspect*pbs*(dhdy)
                 +UF_Aspect * gamma * pbf *(SlopeY + dhdy)
                );
-
-        return a > 0? std::max(0.0,a - std::fabs(std::tan(ifa)*pbs)) : std::min(0.0,a + std::fabs(std::tan(ifa)*pbs));
+        return a;//a > 0? std::max(0.0,a - std::fabs(std::tan(ifa) )) : std::min(0.0,a + std::fabs(std::tan(ifa) ));
     }
 
 }

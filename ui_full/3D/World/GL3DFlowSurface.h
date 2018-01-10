@@ -49,6 +49,9 @@ public:
     cTMap * m_FlowV =0;
     cTMap * m_FlowS =0;
 
+    cTMap * m_FlowSlopeX =0;
+    cTMap * m_FlowSlopeY =0;
+
     cTMap * m_ChFlowH =0;
     cTMap * m_ChFlowU =0;
     cTMap * m_ChFlowS =0;
@@ -57,6 +60,9 @@ public:
     GL3DTexture * m_Texture_FlowU;
     GL3DTexture * m_Texture_FlowV;
     GL3DTexture * m_Texture_FlowS;
+
+    GL3DTexture * m_Texture_FlowSlopeX;
+    GL3DTexture * m_Texture_FlowSlopeY;
 
     GL3DTexture * m_Texture_ChFlowH;
     GL3DTexture * m_Texture_ChFlowU;
@@ -70,7 +76,7 @@ public:
     void SetSurface(GL3DSurface * surface);
     void SetSkyBox(GL3DSkyBox * skybox);
 
-    void SetFlowProperties(cTMap * h, cTMap * u, cTMap * v, cTMap * s);
+    void SetFlowProperties(cTMap * h, cTMap * u, cTMap * v, cTMap * s, cTMap * sx, cTMap * sy);
     void SetFlowPropertiesChannel(cTMap * h, cTMap * u, cTMap * s);
 
     void CreateTextures(GL3DWidget * widget);

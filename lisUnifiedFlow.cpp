@@ -68,7 +68,7 @@ void TWorld::UnifiedFlow()
         cTMap * _dem = UF2D_DEMOriginal;
         FOR_ROW_COL_UF2D
         {
-            UF2D_DEM->Drc = UF2D_DEMOriginal->Drc;// + DEMChange->Drc;
+            UF2D_DEM->Drc = UF2D_DEMOriginal->Drc + DEMChange->Drc;
         }
         ////TOPOGRAPHY ANALYSIS
         UF_DEMLDDAnalysis(UF2D_DEM,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_s,UF2D_f,UF2D_s);
@@ -188,7 +188,12 @@ void TWorld::UF_Compute(int thread)
 
     FOR_ROW_COL_UF2DMT
     {
-        UF2D_tsf->Drc = UF2D_f->Drc> 0? (UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
+        double s = 0;
+        if(UF_SOLIDPHASE)
+        {
+            s = UF2D_s->Drc;
+        }
+        UF2D_tsf->Drc = UF2D_f->Drc> 0? (s + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+s + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
     }}}
 
     ////SEDIMENT AND OTHER SOIL INTERACTIONS
@@ -196,7 +201,12 @@ void TWorld::UF_Compute(int thread)
 
     FOR_ROW_COL_UF2DMT
     {
-        UF2D_tsf->Drc = UF2D_f->Drc> 0? (UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+UF2D_s->Drc + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
+        double s = 0;
+        if(UF_SOLIDPHASE)
+        {
+            s = UF2D_s->Drc;
+        }
+        UF2D_tsf->Drc = UF2D_f->Drc> 0? (s + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED))/(UF2D_f->Drc+s + ((UF2D_ssm->Drc + UF2D_blm->Drc)/UF_DENSITY_SUSPENDED)) : 0.0;
     }}}
 
     ////INTERACTIONS WITH THE TERRAIN ELEVATION
@@ -460,7 +470,7 @@ void TWorld::UF_SetInput()
     cTMap * _ldd = UF1D_LDD;
     FOR_ROW_COL_UF2D
     {
-        UF2D_Test->Drc = 0;
+        //UF2D_Test->Drc = 0;
         UF2D_f->Drc = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
         UF2D_q->Drc = 0;
@@ -497,9 +507,9 @@ void TWorld::UF_SetInput()
         //here is the place to add water or solid volumes for testing extreme scenarios
         FOR_ROW_COL_UF2D
         {
-            if(r != 250 && c!= 250)
+            //if(r != 250 && c!= 250)
             {
-                //UF2D_f->Drc += 10;
+                //UF2D_f->Drc =10.0*10.0*std::max(0.0,-DEM->Drc);
                 //UF2D_s->Drc += 5;
             }
         }
@@ -519,26 +529,54 @@ void TWorld::UF_SetOutput()
     cTMap * _dem = UF2D_DEM;
     FOR_ROW_COL_UF2D
     {
+
+        double s2d = 0;
+        double su2d = 0;
+        double sv2d = 0;
+        double d2d = 0;
+        if(UF_SOLIDPHASE)
+        {
+            s2d = UF2D_s->Drc;
+            su2d =UF2D_su->Drc;
+            sv2d =UF2D_sv->Drc;
+            d2d =UF2D_d->Drc;
+        }
+        double s1d = 0;
+        double su1d = 0;
+        double d1d = 0;
+        if(UF_SOLIDPHASE)
+        {
+            s1d = UF1D_s->Drc;
+            su1d =UF1D_su->Drc;
+            d1d =UF1D_d->Drc;
+        }
+
+
         //just for display
-        UF2D_h->Drc = (UF2D_f->Drc + UF2D_s->Drc)/(_dx*_dx);
-        UF2D_fsConc->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_ssm->Drc + UF2D_blm->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0;
-        UF2D_sConc->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_s->Drc * UF2D_d->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0 ;
+        UF2D_h->Drc = (UF2D_f->Drc + s2d)/(_dx*_dx);
+        UF2D_fsConc->Drc = (UF2D_f->Drc + s2d) > UF_VERY_SMALL? (UF2D_ssm->Drc + UF2D_blm->Drc)/(UF2D_f->Drc + s2d) : 0.0;
+        UF2D_sConc->Drc = (UF2D_f->Drc + s2d) > UF_VERY_SMALL? (s2d * d2d)/(UF2D_f->Drc + s2d) : 0.0 ;
         UF2D_tConc->Drc = UF2D_fsConc->Drc + UF2D_sConc->Drc;
-        UF2D_u->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fu->Drc + UF2D_s->Drc * UF2D_su->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0;
-        UF2D_v->Drc = (UF2D_f->Drc + UF2D_s->Drc) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fv->Drc + UF2D_s->Drc * UF2D_sv->Drc)/(UF2D_f->Drc + UF2D_s->Drc) : 0.0;
+        UF2D_u->Drc = (UF2D_f->Drc + s2d) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fu->Drc + s2d * su2d)/(UF2D_f->Drc + s2d) : 0.0;
+        UF2D_v->Drc = (UF2D_f->Drc + s2d) > UF_VERY_SMALL? (UF2D_f->Drc * UF2D_fv->Drc + s2d * sv2d)/(UF2D_f->Drc + s2d) : 0.0;
         UF2D_velocity->Drc = std::sqrt(UF2D_u->Drc * UF2D_u->Drc + UF2D_v->Drc * UF2D_v->Drc);
         UF2D_q->Drc = std::fabs(UF2D_q->Drc/_dt);
         UF2D_qs->Drc = std::fabs(UF2D_qs->Drc/_dt);
 
 
-        UF1D_h->Drc = (UF1D_f->Drc + UF1D_s->Drc)/(_dx * UF1D_LDDw->Drc);
-        UF1D_fsConc->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc + UF1D_s->Drc) : 0.0;
-        UF1D_sConc->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL?(UF1D_s->Drc * UF1D_d->Drc)/(UF1D_f->Drc + UF1D_s->Drc) : 0.0;
+        UF1D_h->Drc = (UF1D_f->Drc + s1d)/(_dx * UF1D_LDDw->Drc);
+        UF1D_fsConc->Drc = (UF1D_f->Drc + s1d) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc + s1d) : 0.0;
+        UF1D_sConc->Drc = (UF1D_f->Drc + s1d) > UF_VERY_SMALL?(s1d * d1d)/(UF1D_f->Drc + s1d) : 0.0;
         UF1D_tConc->Drc = UF1D_fsConc->Drc + UF1D_sConc->Drc;
-        UF1D_velocity->Drc = (UF1D_f->Drc + UF1D_s->Drc) > UF_VERY_SMALL? std::fabs((UF1D_f->Drc * UF1D_fu->Drc + UF1D_s->Drc * UF1D_su->Drc)/(UF1D_f->Drc + UF1D_s->Drc)) : 0.0;
+        UF1D_velocity->Drc = (UF1D_f->Drc + s1d) > UF_VERY_SMALL? std::fabs((UF1D_f->Drc * UF1D_fu->Drc + s1d * su1d)/(UF1D_f->Drc + s1d)) : 0.0;
         UF1D_q->Drc = std::fabs(UF1D_q->Drc/_dt);
         UF1D_qs->Drc = std::fabs(UF1D_qs->Drc/_dt);
 
+        if(SwitchErosion)
+        {
+            COMBO_SS->Drc = UF1D_ssm->Drc + UF1D_blm->Drc + UF2D_ssm->Drc + UF2D_blm->Drc;
+
+        }
         UF2D_qout->Drc = UF2D_qout->Drc/_dt;
         UF2D_qsout->Drc = UF2D_qsout->Drc/_dt;
         UF2D_qblout->Drc = UF2D_qblout->Drc/_dt;
@@ -550,7 +588,7 @@ void TWorld::UF_SetOutput()
 
         UF2D_TimeStep->Drc = UF_DTMIN * UF2D_DTStep->Drc;
         UF2D_FPH->Drc = UF2D_f->Drc/(_dx*_dx);
-        UF2D_SPH->Drc = UF2D_s->Drc/(_dx*_dx);
+        UF2D_SPH->Drc = s2d/(_dx*_dx);
         //return water height to the rest of OpenLisem
         if(ChannelAdj->Drc > 0)
         {
@@ -614,7 +652,13 @@ void TWorld::UF_UpdateDisplayMaps(int thread,cTMap * dt, cTMap * _dem,cTMap * _l
         double q = (UF2D_fqx1->Drc - UF2D_fqx2->Drc) + (UF2D_fqy1->Drc - UF2D_fqy2->Drc);
         double fsc = (UF2D_f->Drc) > UF_VERY_SMALL? (UF2D_ssm->Drc + UF2D_blm->Drc)/(UF2D_f->Drc) : 0.0;
         UF2D_q->Drc += q;
-        UF2D_qs->Drc += (UF2D_sqx1->Drc - UF2D_sqx2->Drc) + (UF2D_sqy1->Drc - UF2D_sqy2->Drc) + q * fsc;
+        if(UF_SOLIDPHASE)
+        {
+            UF2D_qs->Drc += (UF2D_sqx1->Drc - UF2D_sqx2->Drc) + (UF2D_sqy1->Drc - UF2D_sqy2->Drc) + q * fsc;
+        }else
+        {
+            UF2D_qs->Drc += q * fsc;
+        }
     }}}
 
     FOR_ROW_COL_UF1DMT_DT
@@ -622,7 +666,13 @@ void TWorld::UF_UpdateDisplayMaps(int thread,cTMap * dt, cTMap * _dem,cTMap * _l
         double q = (UF1D_fq1->Drc + UF1D_fq2->Drc);
         double fsc = (UF1D_f->Drc) > UF_VERY_SMALL? (UF1D_ssm->Drc + UF1D_blm->Drc)/(UF1D_f->Drc) : 0.0;
         UF1D_q->Drc += q;
-        UF1D_qs->Drc += (UF1D_sq1->Drc - UF1D_sq2->Drc) + q * fsc;
+        if(UF_SOLIDPHASE)
+        {
+            UF1D_qs->Drc += (UF1D_sq1->Drc - UF1D_sq2->Drc) + q * fsc;
+        }else
+        {
+            UF1D_qs->Drc += q * fsc;
+        }
     }}}
 }
 
@@ -641,13 +691,23 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
 
     FOR_ROW_COL_UF2DMT_DT
     {
-        double hf = (_f2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
-        double hs = (_s2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
-        double wf = std::min(1.0,std::max(0.0,((hf + hs - 0.2) / 1.5)* UF_LAXMULTIPLIER *((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(0.0,0.0))))/(UF_Courant * _dx) - 0.15)*0.5));
-        double ws = std::min(1.0,std::max(0.0,((hf + hs - 0.2) / 1.5)* UF_LAXMULTIPLIER *((std::max(0.0,std::max(0.0,std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.15)*0.5));
+        double hf = 2.0 *(_f2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
+        double hs = 0;
+        if(UF_SOLIDPHASE)
+        {
+            hs = 2.0 *(_s2D->data[r][c]/(_dx*_dx))/(0.5 * _dx);
+        }
+        double wf = std::min(1.0,std::max(0.0,std::max(((hf + hs - 0.5) / 5.5)* UF_LAXMULTIPLIER, UF_LAXMULTIPLIER *((std::max(std::fabs(2.5* _fu2D->Drc),std::max(std::fabs(2.5 * _fv2D->Drc),std::max(0.0,0.0))))/(UF_Courant * _dx) - 0.15)*0.2)));
+        double ws = 0;
+        if(UF_SOLIDPHASE)
+        {
+            ws = std::min(1.0,std::max(0.0,std::max(((hf + hs - 0.5) / 5.5)* UF_LAXMULTIPLIER, UF_LAXMULTIPLIER *((std::max(0.0,std::max(0.0,std::max(std::fabs(_su2D->Drc),std::fabs(_sv2D->Drc)))))/(UF_Courant * _dx) - 0.15)*0.2)));
+        }
+        wf = std::max(wf,ws);
+        //ws = wf;
 
         //double w = std::min(1.0, std::max(0.0,(((std::max(std::fabs(hf * 2.5* _fu2D->Drc),std::max(std::fabs(hf *2.5 * _fv2D->Drc),std::max(std::fabs(hs *_su2D->Drc),std::fabs(hs *_sv2D->Drc)))))/(UF_Courant * _dx) + 0.5 * (hf+hs)) - 0.2)*0.5));
-        UF2D_Test->Drc = wf + ws;
+        //UF2D_Test->Drc = wf + ws;
 
         if(wf > 0.0)
         {
@@ -829,7 +889,7 @@ void TWorld::UF2D1D_LaxNumericalCorrection(int thread,cTMap * dt, cTMap * _dem,c
     FOR_ROW_COL_UF1DMT_DT
     {
         double w = std::max(0.0,std::min(1.0,UF_LAXMULTIPLIER * (_f1D->Drc/(_dx *_lddw->Drc)) +2.0 * std::fabs(_fu1D->Drc) ));//std::min(1.0,std::max(0.0,((_f1D->Drc/(_dx *_lddw->Drc))*std::max(std::fabs(2.5* _fu1D->Drc),std::fabs(2.5 * _su1D->Drc))/(UF_Courant * _dx) - 0.65)*0.3));
-        UF2D_Test->Drc = w;
+        //UF2D_Test->Drc = w;
 
         if(w > 0.0)
         {

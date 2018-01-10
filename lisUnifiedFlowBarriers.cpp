@@ -347,7 +347,7 @@ double TWorld::GetFlowBarrierHeight(int r, int c, int rd, int cd)
 
                 }else
                 {
-                   return 0;
+                   return 0.0;
                 }
             }
 
@@ -358,7 +358,7 @@ double TWorld::GetFlowBarrierHeight(int r, int c, int rd, int cd)
 
             }else
             {
-               return 0;
+               return 0.0;
             }
 
         }else
@@ -368,7 +368,7 @@ double TWorld::GetFlowBarrierHeight(int r, int c, int rd, int cd)
 
         if(rd == 0 && cd == 0)
         {
-            return 0;
+            return 0.0;
         }
 
         if(rd == 1 && cd == 0)

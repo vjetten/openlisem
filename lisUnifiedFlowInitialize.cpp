@@ -131,7 +131,6 @@ void TWorld::UF_Init()
     UF2D_velocity = NewMap(0.0);
     UF2D_u = NewMap(0.0);
     UF2D_v = NewMap(0.0);
-    UF2D_Nr = NewMap(0.0);
     UF2D_q = NewMap(0.0);
     UF2D_qs = NewMap(0.0);
 
@@ -211,50 +210,59 @@ void TWorld::UF_Init()
     UF2D_tsf = NewMap(0.0);
 
     //solid phase
-    UF2D_s = NewMap(0.0);
-    UF2D_d = NewMap(2000.0);
-    UF2D_ifa = NewMap(0.3);
-    UF2D_rocksize = NewMap(0.1);
-    UF2D_su = NewMap(0.0);
-    UF2D_sv = NewMap(0.0);
-    UF2D_sax = NewMap(0.0);
-    UF2D_say = NewMap(0.0);
-    UF2D_sax1 = NewMap(0.0);
-    UF2D_say1 = NewMap(0.0);
-    UF2D_sax2 = NewMap(0.0);
-    UF2D_say2 = NewMap(0.0);
+    if(UF_SOLIDPHASE)
+    {
 
-    UF2D_sqx = NewMap(0.0);
-    UF2D_sqy = NewMap(0.0);
+        UF2D_Nr = NewMap(0.0);
 
-    UF2D_sqx1 = NewMap(0.0);
-    UF2D_sqy1 = NewMap(0.0);
-    UF2D_sqx2 = NewMap(0.0);
-    UF2D_sqy2 = NewMap(0.0);
+        UF2D_s = NewMap(0.0);
+        UF2D_d = NewMap(2000.0);
+        UF2D_ifa = NewMap(0.3);
+        UF2D_rocksize = NewMap(0.1);
+        UF2D_su = NewMap(0.0);
+        UF2D_sv = NewMap(0.0);
+        UF2D_sax = NewMap(0.0);
+        UF2D_say = NewMap(0.0);
+        UF2D_sax1 = NewMap(0.0);
+        UF2D_say1 = NewMap(0.0);
+        UF2D_sax2 = NewMap(0.0);
+        UF2D_say2 = NewMap(0.0);
 
-    UF2D_Compaction = NewMap(0.0);
+        UF2D_sqx = NewMap(0.0);
+        UF2D_sqy = NewMap(0.0);
 
-    UF2D_STL = NewMap(0.0);
-    UF2D_STLA = NewMap(0.0);
-    UF2D_STLH = NewMap(0.0);
-    UF2D_ST = NewMap(0.0);
-    UF1D_ST = NewMap(0.0);
+        UF2D_sqx1 = NewMap(0.0);
+        UF2D_sqy1 = NewMap(0.0);
+        UF2D_sqx2 = NewMap(0.0);
+        UF2D_sqy2 = NewMap(0.0);
 
-    UF2D_SolidFrictionFraction = NewMap(0.0);
-    UF1D_SolidFrictionFraction = NewMap(0.0);
+        UF2D_Compaction = NewMap(0.0);
+
+        UF2D_STL = NewMap(0.0);
+        UF2D_STLA = NewMap(0.0);
+        UF2D_STLH = NewMap(0.0);
+        UF2D_ST = NewMap(0.0);
+        UF1D_ST = NewMap(0.0);
+
+        UF2D_SolidFrictionFraction = NewMap(0.0);
+        UF1D_SolidFrictionFraction = NewMap(0.0);
 
 
-    UF2D_DC = NewMap(0.0);
+        UF2D_DC = NewMap(0.0);
+
+
+        //solid phase
+        UF2D_sn = NewMap(0.0);
+        UF2D_sun = NewMap(0.0);
+        UF2D_svn = NewMap(0.0);
+    }
 
     //for new timestep
     //fluid phase
     UF2D_fn = NewMap(0.0);
     UF2D_fun = NewMap(0.0);
     UF2D_fvn = NewMap(0.0);
-    //solid phase
-    UF2D_sn = NewMap(0.0);
-    UF2D_sun = NewMap(0.0);
-    UF2D_svn = NewMap(0.0);
+
 
     ////1D
     UF1D_LDD = NewMap(0.0);
@@ -303,17 +311,20 @@ void TWorld::UF_Init()
     UF1D_fsd = NewMap(0.0);
 
     //solid phase
-    UF1D_sstore = NewMap(0.0);
-    UF1D_s = NewMap(0.0);
-    UF1D_d = NewMap(2000.0);
-    UF1D_ifa = NewMap(0.3);
-    UF1D_rocksize = NewMap(0.1);
-    UF1D_su = NewMap(0.0);
-    UF1D_sa = NewMap(0.0);
-    UF1D_sa1 = NewMap(0.0);
-    UF1D_sa2 = NewMap(0.0);
-    UF1D_sq1 = NewMap(0.0);
-    UF1D_sq2 = NewMap(0.0);
+    if(SwitchSolidPhase)
+    {
+        UF1D_sstore = NewMap(0.0);
+        UF1D_s = NewMap(0.0);
+        UF1D_d = NewMap(2000.0);
+        UF1D_ifa = NewMap(0.3);
+        UF1D_rocksize = NewMap(0.1);
+        UF1D_su = NewMap(0.0);
+        UF1D_sa = NewMap(0.0);
+        UF1D_sa1 = NewMap(0.0);
+        UF1D_sa2 = NewMap(0.0);
+        UF1D_sq1 = NewMap(0.0);
+        UF1D_sq2 = NewMap(0.0);
+    }
 
     //for new timestep
     //fluid phase
@@ -387,58 +398,95 @@ void TWorld::UF_Init()
     UF1D_MUSCLE_OUT_x1 = NewMap(0.0);
     UF1D_MUSCLE_OUT_x2 = NewMap(0.0);
 
-    //maps for forced and initial conditions
-    UF2D_ForcedFVolume = NewMap(0.0);
-    UF2D_ForcedSVolume = NewMap(0.0);
-    UF2D_ForcedSDensity = NewMap(0.0);
-    UF2D_ForcedSIFA = NewMap(0.0);
-    UF2D_ForcedSRocksize = NewMap(0.0);
 
-    UF2D_InitialFVolume = NewMap(0.0);
-    UF2D_InitialSVolume = NewMap(0.0);
-    UF2D_InitialSDensity = NewMap(0.0);
-    UF2D_InitialSIFA = NewMap(0.0);
-    UF2D_InitialSRocksize = NewMap(0.0);
 
     if(SwitchUFForced)
     {
+
+        //maps for forced and initial conditions
+        UF2D_ForcedFVolume = NewMap(0.0);
+        if(SwitchSolidPhase)
+        {
+            UF2D_ForcedSVolume = NewMap(0.0);
+            UF2D_ForcedSDensity = NewMap(0.0);
+            UF2D_ForcedSIFA = NewMap(0.0);
+            UF2D_ForcedSRocksize = NewMap(0.0);
+        }
+
         UF2D_ForcedFVolume = ReadMap(DEM,getvaluename("forcedfvolume"));
-        UF2D_ForcedSVolume = ReadMap(DEM,getvaluename("forcedsvolume"));
-        UF2D_ForcedSDensity = ReadMap(DEM,getvaluename("forcedsdensity"));
-        UF2D_ForcedSIFA = ReadMap(DEM,getvaluename("forcedsifa"));
-        UF2D_ForcedSRocksize = ReadMap(DEM,getvaluename("forcedsrocksize"));
+        if(SwitchSolidPhase)
+        {
+            UF2D_ForcedSVolume = ReadMap(DEM,getvaluename("forcedsvolume"));
+            UF2D_ForcedSDensity = ReadMap(DEM,getvaluename("forcedsdensity"));
+            UF2D_ForcedSIFA = ReadMap(DEM,getvaluename("forcedsifa"));
+            UF2D_ForcedSRocksize = ReadMap(DEM,getvaluename("forcedsrocksize"));
+        }
+
+        if(SwitchSolidPhase)
+        {
+            FOR_ROW_COL_MV
+            {
+                UF2D_ForcedSIFA->Drc = UF2D_ForcedSIFA->Drc * Calibrate_YS;
+
+            }
+        }
     }
     UF_NeedsInitial = true;
     if(SwitchUFInitial)
     {
+
+        UF2D_InitialFVolume = NewMap(0.0);
+        if(SwitchSolidPhase)
+        {
+            UF2D_InitialSVolume = NewMap(0.0);
+            UF2D_InitialSDensity = NewMap(0.0);
+            UF2D_InitialSIFA = NewMap(0.0);
+            UF2D_InitialSRocksize = NewMap(0.0);
+        }
+
         UF2D_Initialized = NewMap(0.0);
         UF2D_InitialTime = ReadMap(DEM,getvaluename("initiationtime"));
         UF2D_InitialFVolume = ReadMap(DEM,getvaluename("initialfvolume"));
-        UF2D_InitialSVolume = ReadMap(DEM,getvaluename("initialsvolume"));
-        UF2D_InitialSDensity = ReadMap(DEM,getvaluename("initialsdensity"));
-        UF2D_InitialSIFA = ReadMap(DEM,getvaluename("initialsifa"));
-        UF2D_InitialSRocksize = ReadMap(DEM,getvaluename("initialsrocksize"));
 
-        FOR_ROW_COL_MV
+        if(SwitchSolidPhase)
         {
-            UF2D_InitialSIFA->Drc = UF2D_InitialSIFA->Drc * Calibrate_YS;
+            UF2D_InitialSVolume = ReadMap(DEM,getvaluename("initialsvolume"));
+            UF2D_InitialSDensity = ReadMap(DEM,getvaluename("initialsdensity"));
+            UF2D_InitialSIFA = ReadMap(DEM,getvaluename("initialsifa"));
+            UF2D_InitialSRocksize = ReadMap(DEM,getvaluename("initialsrocksize"));
+        }
 
+        if(SwitchSolidPhase)
+        {
+            FOR_ROW_COL_MV
+            {
+                UF2D_InitialSIFA->Drc = UF2D_InitialSIFA->Drc * Calibrate_YS;
+
+            }
         }
     }
 
     UF_InitializedF = 0;
     UF_InitializedS = 0;
 
-    SourceSolid = NewMap(0.0);
-    SourceSolidDensity = NewMap(0.0);
-    SourceSolidRocksize = NewMap(0.0);
-    SourceSolidIFA = NewMap(0.0);
     SourceFluid = NewMap(0.0);
 
-    ChannelSourceSolid = NewMap(0.0);
-    ChannelSourceSolidDensity = NewMap(0.0);
-    ChannelSourceSolidRocksize = NewMap(0.0);
-    ChannelSourceSolidIFA = NewMap(0.0);
+    if(SwitchSolidPhase)
+    {
+        SourceSolid = NewMap(0.0);
+        SourceSolidDensity = NewMap(0.0);
+        SourceSolidRocksize = NewMap(0.0);
+        SourceSolidIFA = NewMap(0.0);
+
+
+        ChannelSourceSolid = NewMap(0.0);
+        ChannelSourceSolidDensity = NewMap(0.0);
+        ChannelSourceSolidRocksize = NewMap(0.0);
+        ChannelSourceSolidIFA = NewMap(0.0);
+
+
+    }
+
     ChannelSourceFluid = NewMap(0.0);
 
     //multithreading library

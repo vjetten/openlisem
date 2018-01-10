@@ -48,10 +48,15 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
     {
         if(!UF_OUTORMV(_ldd,r,c))
         {
-            double h = (_f1D->Drc + _s1D->Drc)/(_dx*_lddw->Drc);
+            double h = (_f1D->Drc)/(_dx*_lddw->Drc);
 
             double fV = sqrt(_fu2D->Drc * _fu2D->Drc + _fv2D->Drc * _fv2D->Drc);
-            double sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
+            double sV = 0;
+            if(UF_SOLIDPHASE)
+            {
+                sV = sqrt(_su2D->Drc * _su2D->Drc + _sv2D->Drc * _sv2D->Drc);
+                h += (_s1D->Drc)/(_dx*_lddw->Drc);
+            }
 
             if(UF_CHANNELFLOOD)
             {
@@ -67,7 +72,11 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
                     double fractions = std::max(0.0,std::min(0.95, dt->Drc*sV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
 
                     double volf = _f2D->Drc * (fractionf);
-                    double vols = _s2D->Drc * (fractions);
+                    double vols = 0;
+                    if(UF_SOLIDPHASE)
+                    {
+                        vols = _s2D->Drc * (fractions);
+                    }
 
                     if(volf+vols > maxvol)
                     {
@@ -77,20 +86,33 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
                     }
 
                     double vf = _f1D->Drc + volf;
-                    double vs = _s1D->Drc + vols;
+                    double vs = 0;
+                    if(UF_SOLIDPHASE)
+                    {
+                       vs =  _s1D->Drc + vols;
+                    }
 
                     //_fu1D->Drc = vf > UF_VERY_SMALL? (_fu1D->Drc *_f1D->Drc + fV * _f2D->Drc * (fractionf))/vf: 0.0;
                     //_su1D->Drc = vs > UF_VERY_SMALL? (_su1D->Drc *_s1D->Drc + sV * _s2D->Drc * (fractions))/vs: 0.0;
                     //_visc1D->Drc = vf > UF_VERY_SMALL? (_visc1D->Drc *_f1D->Drc + _visc2D->Drc * _f2D->Drc * (fractionf))/vf: 0.0;
                     //_d1D->Drc = vs > UF_VERY_SMALL? (_d1D->Drc *_s1D->Drc + _d2D->Drc * vols)/vs: 0.0;
-                    _ifa1D->Drc = vs > UF_VERY_SMALL? (_ifa1D->Drc *_s1D->Drc + _ifa2D->Drc * vols)/vs: 0.0;
-                    _rocksize1D->Drc = vs > UF_VERY_SMALL? (_rocksize1D->Drc *_s1D->Drc + _rocksize2D->Drc * vols)/vs: 0.0;
+                    if(UF_SOLIDPHASE)
+                    {
+                        _ifa1D->Drc = vs > UF_VERY_SMALL? (_ifa1D->Drc *_s1D->Drc + _ifa2D->Drc * vols)/vs: 0.0;
+                        _rocksize1D->Drc = vs > UF_VERY_SMALL? (_rocksize1D->Drc *_s1D->Drc + _rocksize2D->Drc * vols)/vs: 0.0;
+                    }
 
                     _f1D->Drc = vf;
-                    _s1D->Drc = vs;
+                    if(UF_SOLIDPHASE)
+                    {
+                        _s1D->Drc = vs;
+                    }
 
                     _f2D->Drc = _f2D->Drc - volf;
-                    _s2D->Drc = _s2D->Drc - vols;
+                    if(UF_SOLIDPHASE)
+                    {
+                        _s2D->Drc = _s2D->Drc - vols;
+                    }
 
                     if(SwitchErosion)
                     {
@@ -129,20 +151,33 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
                     double fractions = (extravol/vol) ;
 
                     double volf = fractionf * _f1D->Drc;
-                    double vols = fractions * _s1D->Drc;
+                    double vols = 0;
 
+                    if(UF_SOLIDPHASE)
+                    {
+                        vols = fractions * _s1D->Drc;
+                    }
                     double vfn = _f2D->Drc + volf;
-                    double vsn = _s2D->Drc + vols;
-
-                    _d2D->Drc = vsn > UF_VERY_SMALL? (_d2D->Drc *_s2D->Drc + _d1D->Drc * vols)/vsn: 0.0;
-                    _ifa2D->Drc = vsn > UF_VERY_SMALL? (_ifa2D->Drc *_s2D->Drc + _ifa1D->Drc * vols)/vsn: 0.0;
-                    _rocksize2D->Drc = vsn > UF_VERY_SMALL? (_rocksize2D->Drc *_s2D->Drc + _rocksize1D->Drc * vols)/vsn: 0.0;
+                    double vsn = 0;
+                    if(UF_SOLIDPHASE)
+                    {
+                        vsn = _s2D->Drc + vols;
+                        _d2D->Drc = vsn > UF_VERY_SMALL? (_d2D->Drc *_s2D->Drc + _d1D->Drc * vols)/vsn: 0.0;
+                        _ifa2D->Drc = vsn > UF_VERY_SMALL? (_ifa2D->Drc *_s2D->Drc + _ifa1D->Drc * vols)/vsn: 0.0;
+                        _rocksize2D->Drc = vsn > UF_VERY_SMALL? (_rocksize2D->Drc *_s2D->Drc + _rocksize1D->Drc * vols)/vsn: 0.0;
+                    }
 
                     _f1D->Drc = _f1D->Drc - volf;
-                    _s1D->Drc = _s1D->Drc - vols;
+                    if(UF_SOLIDPHASE)
+                    {
+                        _s1D->Drc = _s1D->Drc - vols;
+                    }
 
                     _f2D->Drc = vfn;
-                    _s2D->Drc = vsn;
+                    if(UF_SOLIDPHASE)
+                    {
+                        _s2D->Drc = vsn;
+                    }
 
                     if(SwitchErosion)
                     {
@@ -177,23 +212,40 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
                 double fractions = std::max(0.0,std::min(0.95, dt->Drc*sV/std::max(0.01*_dx,0.5*(_dx - _lddw->Drc))));
 
                 double volf = _f2D->Drc * (fractionf);
-                double vols = _s2D->Drc * (fractions);
+                double vols = 0;
+                if(UF_SOLIDPHASE)
+                {
+                    vols = _s2D->Drc * (fractions);
+                }
 
                 double vf = _f1D->Drc + volf;
-                double vs = _s1D->Drc + vols;
+                double vs = 0;
+                if(UF_SOLIDPHASE)
+                {
+                    vs= _s1D->Drc + vols;
+                }
 
                 //_fu1D->Drc = vf > UF_VERY_SMALL? (_fu1D->Drc *_f1D->Drc + fV * _f2D->Drc * (fractionf))/vf: 0.0;
                 //_su1D->Drc = vs > UF_VERY_SMALL? (_su1D->Drc *_s1D->Drc + sV * _s2D->Drc * (fractions))/vs: 0.0;
                 //_visc1D->Drc = vf > UF_VERY_SMALL? (_visc1D->Drc *_f1D->Drc + _visc2D->Drc * _f2D->Drc * (fractionf))/vf: 0.0;
                 //_d1D->Drc = vs > UF_VERY_SMALL? (_d1D->Drc *_s1D->Drc + _d2D->Drc * vols)/vs: 0.0;
-                _ifa1D->Drc = vs > UF_VERY_SMALL? (_ifa1D->Drc *_s1D->Drc + _ifa2D->Drc * vols)/vs: 0.0;
-                _rocksize1D->Drc = vs > UF_VERY_SMALL? (_rocksize1D->Drc *_s1D->Drc + _rocksize2D->Drc * vols)/vs: 0.0;
+                if(UF_SOLIDPHASE)
+                {
+                    _ifa1D->Drc = vs > UF_VERY_SMALL? (_ifa1D->Drc *_s1D->Drc + _ifa2D->Drc * vols)/vs: 0.0;
+                    _rocksize1D->Drc = vs > UF_VERY_SMALL? (_rocksize1D->Drc *_s1D->Drc + _rocksize2D->Drc * vols)/vs: 0.0;
+                }
 
                 _f1D->Drc = vf;
-                _s1D->Drc = vs;
+                 if(UF_SOLIDPHASE)
+                 {
+                    _s1D->Drc = vs;
+                 }
 
                 _f2D->Drc = _f2D->Drc - volf;
-                _s2D->Drc = _s2D->Drc - vols;
+                if(UF_SOLIDPHASE)
+                {
+                    _s2D->Drc = _s2D->Drc - vols;
+                }
 
                 if(SwitchErosion)
                 {
@@ -234,6 +286,38 @@ void TWorld::UF2D1D_Connection(int thread,cTMap * dt, cTMap * _dem,cTMap * _ldd,
 
             }
 
+        }
+    }}}
+
+    FOR_ROW_COL_UF2DMT
+    {
+        if(!UF_OUTORMV(_ldd,r,c))
+        {
+            _f2D->Drc = std::max(0.0,_f2D->Drc);
+            if(UF_SOLIDPHASE)
+            {
+                _s2D->Drc = std::max(0.0,_s2D->Drc);
+                _s1D->Drc = std::max(0.0,_s1D->Drc);
+            }
+            _f1D->Drc = std::max(0.0,_f1D->Drc);
+
+            if(SwitchErosion)
+            {
+                UF1D_blm->Drc = std::max(0.0,UF1D_blm->Drc);
+                UF2D_blm->Drc = std::max(0.0,UF2D_blm->Drc);
+                UF1D_ssm->Drc = std::max(0.0,UF1D_ssm->Drc);
+                UF2D_ssm->Drc = std::max(0.0,UF2D_ssm->Drc);
+                if(SwitchUseGrainSizeDistribution)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        UF1D_blm_D.Drcd = std::max(0.0,UF1D_blm_D.Drcd);
+                        UF2D_blm_D.Drcd = std::max(0.0,UF2D_blm_D.Drcd);
+                        UF1D_ssm_D.Drcd = std::max(0.0,UF1D_ssm_D.Drcd);
+                        UF2D_ssm_D.Drcd = std::max(0.0,UF2D_ssm_D.Drcd);
+                    }
+                }
+            }
         }
     }}}
 

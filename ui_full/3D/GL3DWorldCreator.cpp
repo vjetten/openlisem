@@ -48,6 +48,7 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
     MapMath::FillDem(input.DEM,input.DEM_Filled,input.temp,50);
     MapMath::FillDem(input.ChannelDepth,input.ChannelDepthFilled,input.temp,10);
     MapMath::SlopeMap(input.DEM,input.SlopeX,input.SlopeY);
+    MapMath::FlowSlopeMap(input.DEM,input.FlowH,input.FlowSlopeX,input.FlowSlopeY);
 
     m_Widget->m_World->RemoveAllObjects();
 
@@ -70,7 +71,7 @@ void GL3DWorldCreator::CreateWorldFromLisemThread()
 
     fsurface = new GL3DFlowSurface();
     fsurface->SetSurface(surface);
-    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
+    fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS, input.FlowSlopeX,input.FlowSlopeY);
     fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
     fsurface->SetSkyBox(sb);
     m_Widget->m_World->SetWaterSurface(fsurface);
@@ -132,6 +133,8 @@ void GL3DWorldCreator::CreateWorldFromLisem()
     input.DEM_Change = new cTMap();
     input.SlopeX = new cTMap();
     input.SlopeY = new cTMap();
+    input.FlowSlopeX = new cTMap();
+    input.FlowSlopeY = new cTMap();
     input.ImageR = new cTMap();
     input.ImageG = new cTMap();
     input.ImageB = new cTMap();
@@ -160,6 +163,8 @@ void GL3DWorldCreator::CreateWorldFromLisem()
     input.DEM_Change->MakeMap(op.baseMapDEM,0.0);
     input.SlopeX->MakeMap(op.baseMapDEM,0.0);
     input.SlopeY->MakeMap(op.baseMapDEM,0.0);
+    input.FlowSlopeX->MakeMap(op.baseMapDEM,0.0);
+    input.FlowSlopeY->MakeMap(op.baseMapDEM,0.0);
     input.ImageR->MakeMap(op.baseMapDEM,0.0);
     input.ImageG->MakeMap(op.baseMapDEM,0.0);
     input.ImageB->MakeMap(op.baseMapDEM,0.0);
@@ -273,10 +278,12 @@ void GL3DWorldCreator::UpdateWorldFromLisem()
         MapMath::FillDem(op.gl_ch_flow_height,input.ChannelFlowH,input.temp,10);
         MapMath::FillDem(op.gl_ch_flow_v,input.ChannelFlowU,input.temp,10);
         MapMath::FillDem(op.gl_ch_flow_c,input.ChannelFlowS,input.temp,10);
+        MapMath::SlopeMap(input.DEM,input.SlopeX,input.SlopeY);
+        MapMath::FlowSlopeMap(input.DEM,input.FlowH,input.FlowSlopeX,input.FlowSlopeY);
 
         input.rainfall = op.rain_average;
 
-        fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS);
+        fsurface->SetFlowProperties(input.FlowH,input.FlowU,input.FlowV,input.FlowS,input.FlowSlopeX,input.FlowSlopeY);
         fsurface->SetFlowPropertiesChannel(input.ChannelFlowH,input.ChannelFlowU,input.ChannelFlowS);
         rain->SetRainfall(input.rainfall);
         surface->SetDemChange(input.DEM_Change);

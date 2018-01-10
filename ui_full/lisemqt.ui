@@ -83,7 +83,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5989,7 +5989,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>7</number>
              </property>
              <widget class="QWidget" name="tab_global">
               <attribute name="title">
@@ -14990,6 +14990,9 @@ p, li { white-space: pre-wrap; }
                     <bold>false</bold>
                    </font>
                   </property>
+                  <property name="decimals">
+                   <number>8</number>
+                  </property>
                   <property name="minimum">
                    <double>0.000000000000000</double>
                   </property>
@@ -15014,6 +15017,9 @@ p, li { white-space: pre-wrap; }
                     <weight>50</weight>
                     <bold>false</bold>
                    </font>
+                  </property>
+                  <property name="decimals">
+                   <number>8</number>
                   </property>
                   <property name="minimum">
                    <double>0.000000000000000</double>
@@ -19653,8 +19659,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>254</width>
-             <height>585</height>
+             <width>377</width>
+             <height>1222</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -21261,7 +21267,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

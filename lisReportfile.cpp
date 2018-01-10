@@ -138,7 +138,7 @@ void TWorld::FillTimeSeriesData()
 
             if(SwitchIncludeChannel)
             {
-                TSList_q.append(1000.0*std::max(std::fabs(UF1D_q->Drc) + std::fabs(UF2D_q->Drc),std::fabs(UF1D_qout->Drc) + std::fabs(UF2D_qout->Drc) ));
+                TSList_q.append(1000.0* ((UF2D_qout->Drc> 0? UF2D_qout->Drc : UF2D_q->Drc) + UF1D_qout->Drc > 0? UF1D_qout->Drc : UF1D_q->Drc));
                 TSList_h.append(UF1D_h->Drc + UF2D_h->Drc);
 
                 if(SwitchErosion)
@@ -207,9 +207,9 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
 
-        double discharge =1000.0* (UF2D_qout->Drc + UF1D_qout->Drc > 0? UF1D_qout->Drc : UF1D_q->Drc);
+        double discharge =1000.0* ((UF2D_qout->Drc> 0? UF2D_qout->Drc : UF2D_q->Drc) + UF1D_qout->Drc > 0? UF1D_qout->Drc : UF1D_q->Drc);
         double sedimentdischarge = SwitchErosion?  (SwitchIncludeChannel? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0) : UF2D_tConc->Drc) :0.0;
-        double sedimentconcentration = SwitchErosion? (SwitchIncludeChannel?std::fabs(UF1D_qs->Drc) + std::fabs(UF2D_qs->Drc) : std::fabs(UF2D_qs->Drc)):0.0;
+        double sedimentconcentration = SwitchErosion? ((UF1D_f->Drc + UF2D_f->Drc) > 1e-8? (UF1D_f->Drc*UF1D_tConc->Drc + UF2D_f->Drc*UF2D_tConc->Drc)/(UF1D_f->Drc + UF2D_f->Drc) : 0.0):0.0;
         double channelwh = UF2D_h->Drc +SwitchIncludeChannel? UF1D_h->Drc : 0.0;
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0);
@@ -280,7 +280,10 @@ void TWorld::OutputUI(void)
     copy(*op.gl_flow_height, *UF2D_h);
     copy(*op.gl_flow_u, *UF2D_u);
     copy(*op.gl_flow_v, *UF2D_v);
-    copy(*op.gl_flow_c, *UF2D_s);
+    if(SwitchSolidPhase)
+    {
+        copy(*op.gl_flow_c, *UF2D_s);
+    }
 
     op.has_channel = SwitchIncludeChannel;
     if(SwitchIncludeChannel)
@@ -764,8 +767,6 @@ void TWorld::ReportMaps(int not_used)
 
         }
     }*/
-
-
     report(*ThreadPool->tm, rainfallMapFileName);
     report(*ThreadPool->tma, interceptionMapFileName);
 
@@ -865,8 +866,10 @@ void TWorld::ReportMaps(int not_used)
     {
         report(*TotalSlopeFailure,FileName_SlopeFailure);
     }
+
     if(SwitchSlopeStability)
     {
+
         report(*MinimumSafetyFactor,FileName_MinimumSafetyFactor);
 
         if(SwitchUpslopeForcing)
@@ -880,14 +883,18 @@ void TWorld::ReportMaps(int not_used)
             //report(*MinimumDownslopeForcing,FileName_MinimumDownSlopeForcing);
             report(*DFForcingUp,FileName_MinimumDownSlopeForcing);
         }
+
+        if(SwitchSeismic)
+        {
+            report(*StrengthLoss,"strengthloss.map");
+            report(*StrengthLoss2,"strengthloss2.map");
+        }
     }
     if(SwitchEntrainment)
     {
         report(*TotalEntrainmentDet,FileName_EntrainmentDet);
         report(*TotalEntrainmentDep,FileName_EntrainmentDep);
     }
-
-
 
     if (outputcheck[0].toInt() == 1)
         report(*Qoutput, Outrunoff); // in l/s
@@ -916,7 +923,6 @@ void TWorld::ReportMaps(int not_used)
 
     if (outputcheck[10].toInt() == 1) report(*UF1D_f, Outchvol);
 
-
     if (SwitchChannelFlood)
     {
         if (outputcheck[12].toInt() == 1)
@@ -933,11 +939,11 @@ void TWorld::ReportMaps(int not_used)
         }
         if (outputcheck[15].toInt() == 1)
         {
-            report(*hmxWH, OutHmxWH);
+            report(*hmx, OutHmxWH);
         }
         if (outputcheck[16].toInt() == 1)
         {
-            report(*hmxWH, OutHmxWH);
+            report(*hmx, OutHmxWH);
         }
     }
 
@@ -947,13 +953,21 @@ void TWorld::ReportMaps(int not_used)
         {
             report(*DFSafetyFactor, OutSafetyFactor);
         }
+        if(SwitchBedrock)
+        {
+            if (outputcheck[18].toInt() == 1)
+            {
+                report(*DFSafetyFactor2, "safabr");
+            }
+        }
+
     }
 
     if(SwitchSlopeFailure)
     {
         if (outputcheck[19].toInt() == 1)
         {
-            report(*DFInitiationHeight, OutSlopeFailure);
+            report(*DFTotalInitiationHeight, OutSlopeFailure);
         }
     }
 
@@ -991,7 +1005,6 @@ void TWorld::ReportMaps(int not_used)
     {
         report(*UF2D_TimeStep, "ts");
     }
-
 }
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
@@ -1336,7 +1349,7 @@ void TWorld::ClearHydrographData()
 //---------------------------------------------------------------------------
 void TWorld::GetComboMaps()
 {
-    qDebug() << "dx read from map is " << _dx;
+
 
     //combo box maps
     ClearComboMaps();
@@ -1397,13 +1410,27 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
 
 
-    /*AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);
+    /*AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);*/
 
-    AddComboMap(0,"Flow Height","m",UF2D_fqx1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Height","m",UF2D_fqx2,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Height","m",UF2D_fqy1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Height","m",UF2D_fqy2,Colormap,Colors,false,false,1.0, 0.01);
-*/
+    /*AddComboMap(0,"fqx1","m",UF2D_fqx1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"fqx2","m",UF2D_fqx2,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"fqy1","m",UF2D_fqy1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"fqy2","m",UF2D_fqy2,Colormap,Colors,false,false,1.0, 0.01);
+
+    AddComboMap(0,"Fax1","m",UF2D_fax1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Fax2","m",UF2D_fax2,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Fay1","m",UF2D_fay1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Fay2","m",UF2D_fay2,Colormap,Colors,false,false,1.0, 0.01);
+
+    AddComboMap(0,"Sax1","m",UF2D_sax1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Sax2","m",UF2D_sax2,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Say1","m",UF2D_say1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Say2","m",UF2D_say2,Colormap,Colors,false,false,1.0, 0.01);
+
+    AddComboMap(0,"Sqx1","m",UF2D_sqx1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Sqx2","m",UF2D_sqx2,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Sqy1","m",UF2D_sqy1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Sqy2","m",UF2D_sqy2,Colormap,Colors,false,false,1.0, 0.01);*/
 
     if(SwitchIncludeChannel)
     {
@@ -1472,7 +1499,10 @@ void TWorld::GetComboMaps()
     Colors.append("#50B547");//#96B547");
     Colors.append("#616ca2");//#457A60");
 
-    AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+    if(SwitchSolidPhase)
+    {
+        AddComboMap(0,"Solid Phase Volume","m3",UF2D_s,Colormap,Colors,false,false,1.0,1.0);
+    }
     //AddComboMap(0,"Solid-Fluid Drag Coefficient","-",UF2D_DC,Colormap,Colors,false,false,1.0,1.0);
 
     if(SwitchIncludeChannel)
@@ -1496,7 +1526,10 @@ void TWorld::GetComboMaps()
         Colors.append("#ffffff");
         Colors.append("#50B547");//#96B547");
         Colors.append("#616ca2");//#457A60");
-        AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
+        if(SwitchSolidPhase)
+        {
+            AddComboMap(0,"Channel Solid Phase Volume","m3",UF1D_s,Colormap,Colors,false,false,1.0,1.0);
+        }
 
     }
 
@@ -1615,7 +1648,7 @@ void TWorld::GetComboMaps()
 
     }
 
-    Colormap.clear();
+    /*Colormap.clear();
     Colormap.append(0.0);
     Colormap.append(0.5);
     Colormap.append(0.9);
@@ -1651,7 +1684,8 @@ void TWorld::GetComboMaps()
     if(SwitchIncludeChannel)
     {
         AddComboMap(0,"UF1D_CoreMask" ,"kg/m2",ThreadPool->CoreMask1d,Colormap,Colors,false,false,1.0,1.0);
-    }
+    }*/
+
 
     if(SwitchErosion)
     {
@@ -1693,12 +1727,14 @@ void TWorld::GetComboMaps()
         Colors.append("#d47e17");//808000
         Colors.append("#804000");
 
-        //AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-        AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
+        AddComboMap(1,"Sed Concentration","kg/m3",UF2D_fsConc,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"TC","kg/m3",UF2D_bltc,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"TC","kg/m3",UF2D_sstc,Colormap,Colors,false,false,1.0, step);
         if(SwitchIncludeChannel)
         {
             //AddComboMap(1,"Sediment Load","kg/m2",COMBO_SS,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-            AddComboMap(1,"Channel Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Channel Sed Concentration","kg/m3",UF1D_fsConc,Colormap,Colors,false,false,1.0, step);
 
         }
         AddComboMap(1,"Splash detachment","kg/m2",DETSplashCum,Colormap,Colors,false,false,1.0/(_dx*_dx), step);
@@ -1747,6 +1783,21 @@ void TWorld::GetComboMaps()
             }
             Colormap.clear();
             Colormap.append(0.0);
+            Colormap.append(0.0025);
+            Colormap.append(0.075);
+            Colormap.append(0.275);
+            Colormap.append(1.0);
+            Colors.clear();
+            Colors.append("#00FF00");
+            Colors.append("#AAFF00");
+            Colors.append("#FFAA00");
+            Colors.append("#FF0000");
+            Colors.append("#A60000");
+
+            AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,true,false,1.0, step);
+
+            Colormap.clear();
+            Colormap.append(0.0);
             Colormap.append(0.25);
             Colormap.append(0.75);
             Colormap.append(1.0);
@@ -1756,8 +1807,8 @@ void TWorld::GetComboMaps()
             Colors.append("#FF0000");
             Colors.append("#A60000");
 
-            AddComboMap(1,"Entr. ShearStress","kg/m2",UF2D_ST,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"sqy","kg/m2",UF2D_sqy,Colormap,Colors,false,false,1.0, step);
@@ -1813,12 +1864,12 @@ void TWorld::GetComboMaps()
                 AddComboMap(1,"BR Safety Factor","-",DFSafetyFactor2,Colormap,Colors,false,false,1.0,0.2);
                 AddComboMap(1,"BR Forcing","-",DFForcing2,Colormap,Colors,false,false,1.0,0.2);
                 AddComboMap(1,"BR Forcing up","-",DFForcingUp2,Colormap,Colors,false,false,1.0,0.2);
-
             }
+
             if(SwitchSeismic)
             {
-
-
+                AddComboMap(1,"Strength Loss","m",StrengthLoss,Colormap,Colors,false,false,1.0,0.2);
+                AddComboMap(1,"BR Strength Loss","m",StrengthLoss2,Colormap,Colors,false,false,1.0,0.2);
             }
         }
         if(SwitchSlopeFailure)
