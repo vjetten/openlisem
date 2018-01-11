@@ -242,7 +242,6 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
     TBLTC->Drc = UnifiedFlowTransportCapacity(r,c,d,channel,true);
     TSSTC->Drc = UnifiedFlowTransportCapacity(r,c,d,channel,false);
 
-
     if(!(hf > UF_VERY_SMALL) || surface < UF_VERY_SMALL)
     {
         //dump everything since there is hardly any water volume
@@ -269,7 +268,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        tobl = TransportFactor * minTC;
 
-       tobl = std::min(std::fabs(tobl),std::fabs(TSS->Drc));
+       tobl = std::min(std::fabs(tobl),std::fabs(minTC * watervol));
 
        TBL->Drc += std::fabs(tobl);
        TSS->Drc -= std::fabs(tobl);
@@ -281,7 +280,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
        //correct detachment for grass strips, hard surfaces and houses
        double detachment = TW->Drc * maxTC * TransportFactor;
 
-       detachment = std::max(0.0,std::min(detachment,discharge * maxTC));
+       detachment = std::max(0.0,std::min(detachment,watervol * maxTC));
 
        //check how much of the potential detachment can be detached from soil layer
        detachment = UF_SoilTake(r,c,d,detachment,channel,false);
@@ -337,9 +336,9 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
 
        ////bed load sediment deposition
        if (blhf > MIN_HEIGHT)
-          TransportFactor = (1-exp(-dt*TSettlingVelocity/hf)) * watervol;
+          TransportFactor = (1.0-exp(-dt*TSettlingVelocity/hf)) * watervol;
        else
-          TransportFactor = 1*watervol;
+          TransportFactor = 1.0*watervol;
        // if settl velo is very small, transportfactor is 0 and depo is 0
        // if settl velo is very large, transportfactor is 1 and depo is max
 
@@ -603,6 +602,8 @@ void TWorld::UF_SumGrainClasses()
 {
     if(SwitchUseGrainSizeDistribution)
     {
+        qDebug() << "reset distribution";
+
         cTMap * _dem = UF2D_DEM;
         FOR_ROW_COL_UF2D
         {

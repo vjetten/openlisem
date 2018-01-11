@@ -242,15 +242,45 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
 
         if(conc > UF_VERY_SMALL)
         {
-            double concx1 = !UF_OUTORMV(_m,r,c-1)? 1.0 : ((f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 1.0);
-            double concx2 = !UF_OUTORMV(_m,r,c+1)? 1.0: ((f->data[r][c+1] > UF_VERY_SMALL)?_m->data[r][c+1]/f->data[r][c+1] : 1.0);
-            double concy1 = !UF_OUTORMV(_m,r-1,c)? 1.0: ((f->data[r-1][c] > UF_VERY_SMALL)? _m->data[r-1][c]/f->data[r-1][c] : 1.0);
-            double concy2 = !UF_OUTORMV(_m,r+1,c)? 1.0: ((f->data[r+1][c] > UF_VERY_SMALL)?_m->data[r+1][c]/f->data[r+1][c] : 1.0);
+            double concx1 = UF_OUTORMV(_m,r,c-1)? 1.0 : ((f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 1.0);
+            double concx2 = UF_OUTORMV(_m,r,c+1)? 1.0: ((f->data[r][c+1] > UF_VERY_SMALL)?_m->data[r][c+1]/f->data[r][c+1] : 1.0);
+            double concy1 = UF_OUTORMV(_m,r-1,c)? 1.0: ((f->data[r-1][c] > UF_VERY_SMALL)? _m->data[r-1][c]/f->data[r-1][c] : 1.0);
+            double concy2 = UF_OUTORMV(_m,r+1,c)? 1.0: ((f->data[r+1][c] > UF_VERY_SMALL)?_m->data[r+1][c]/f->data[r+1][c] : 1.0);
 
-            double qx1 =_qx1->Drc;// (_qx1->Drc > 0? 1.0 * (!UF_OUTORMV(_m,r,c-1)? std::min(concx1*std::fabs(_qx1->Drc),0.1 * _m->data[r][c-1]) : concx1*std::fabs(_qy2->Drc)) : -1.0*std::min(conc*std::fabs(_qx1->Drc),0.1 * _m->Drc));
-            double qx2 =_qx2->Drc;// (_qx2->Drc > 0? 1.0*std::min(conc*std::fabs(_qx2->Drc),0.1 * _m->Drc) : -1.0* (!UF_OUTORMV(_m,r,c+1)? std::min(concx2*std::fabs(_qx2->Drc),0.1 * _m->data[r][c+1]) : concx2*std::fabs(_qx2->Drc)) ) ;
-            double qy1 =_qy1->Drc;// (_qy1->Drc > 0? 1.0* (!UF_OUTORMV(_m,r-1,c)? std::min(concy1*std::fabs(_qy1->Drc),0.1 * _m->data[r-1][c]) : concy1*std::fabs(_qy1->Drc))  : -1.0*std::min(conc*std::fabs(_qy1->Drc),0.1 * _m->Drc)) ;
-            double qy2 =_qy2->Drc;// (_qy2->Drc > 0? 1.0*std::min(conc*std::fabs(_qy2->Drc),0.1 * _m->Drc) : -1.0* (!UF_OUTORMV(_m,r+1,c)? std::min(concy2*std::fabs(_qy2->Drc),0.1 * _m->data[r+1][c]) :concy2*std::fabs(_qy2->Drc)) ) ;
+            double qx1;
+            double qx2;
+            double qy1;
+            double qy2;
+
+            if(_qx1->Drc > 0)
+            {
+                qx1 = 1.0 * (!UF_OUTORMV(_m,r,c-1)? std::min(concx1*std::fabs(_qx1->Drc),0.1 * _m->data[r][c-1]) : concx1*std::fabs(_qx1->Drc));
+            }else
+            {
+                qx1 = -1.0*std::min(conc*std::fabs(_qx1->Drc),0.1 * _m->Drc);
+            }
+            if(_qx2->Drc > 0)
+            {
+                qx2= 1.0*std::min(conc*std::fabs(_qx2->Drc),0.1 * _m->Drc) ;
+            }else
+            {
+                qx2 = -1.0* (!UF_OUTORMV(_m,r,c+1)? std::min(concx2*std::fabs(_qx2->Drc),0.1 * _m->data[r][c+1]) : concx2*std::fabs(_qx2->Drc));
+            }
+            if(_qy1->Drc > 0)
+            {
+                qy1 = 1.0* (!UF_OUTORMV(_m,r-1,c)? std::min(concy1*std::fabs(_qy1->Drc),0.1 * _m->data[r-1][c]) : concy1*std::fabs(_qy1->Drc));
+            }else
+            {
+                qy1 = -1.0*std::min(conc*std::fabs(_qy1->Drc),0.1 * _m->Drc);
+            }
+            if(_qy2->Drc > 0)
+            {
+                qy2 = 1.0*std::min(conc*std::fabs(_qy2->Drc),0.1 * _m->Drc) ;
+            }else
+            {
+                qy2 = -1.0* (!UF_OUTORMV(_m,r+1,c)? std::min(concy2*std::fabs(_qy2->Drc),0.1 * _m->data[r+1][c]) :concy2*std::fabs(_qy2->Drc));
+            }
+
 
             if(!UF_OUTORMV(_dem,r,c-1)){
                 if(qx1 > 0)
@@ -349,7 +379,7 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
         FOR_ROW_COL_UF2DMTDER
         {
 
-            _m->Drc = std::max(0.0,std::isnan(out_m->Drc)?out_m->Drc : 0.0);
+            _m->Drc = std::max(0.0,std::isnan(out_m->Drc)? 0.0: out_m->Drc);
         }}}
     }
     return outflow;
