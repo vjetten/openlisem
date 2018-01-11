@@ -191,7 +191,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Entrainment Coefficient")==0)                               E_EntrainmentCoefficient->setValue(val);
         if (p1.compare("Minimum Entrainment Height")==0)                            E_EntrainmentMinimumWaterHeight->setValue(val);
         if (p1.compare("Minimum Failure Height")==0)                                E_MinimumFailureHeight->setValue(val);
-        if (p1.compare("Enable Levees")==0)                                         checkLevees->setChecked(check);
+        //if (p1.compare("Enable Levees")==0)                                         checkLevees->setChecked(check);
         if (p1.compare("Enable Barriers")==0)                                       checkBox_Barriers->setChecked(check);
         if (p1.compare("Enable Flow Barriers")==0)                                  checkBox_FlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)                           lineEdit_FlowBarriers->setText(p);
@@ -231,7 +231,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("SS method")==0)                     E_SSMethod->setValue(val);
         if (p1.compare("Sigma diffusion")==0)               E_SigmaDiffusion->setValue(val);
 
-        if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
+        //if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
 
     //    if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
         if (p1.compare("Advanced sediment")==0)               checkAdvancedSediment->setChecked(check);
@@ -840,7 +840,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Entrainment Coefficient")==0)                               namelist[j].value = E_EntrainmentCoefficient->text();
         if (p1.compare("Minimum Entrainment Height")==0)                            namelist[j].value = E_EntrainmentMinimumWaterHeight->text();
         if (p1.compare("Minimum Failure Height")==0)                                namelist[j].value = E_MinimumFailureHeight->text();
-        if (p1.compare("Enable Levees")==0)                                         namelist[j].value.setNum((int)checkLevees->isChecked());
+        //if (p1.compare("Enable Levees")==0)                                         namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Enable Barriers")==0)                                       namelist[j].value.setNum((int)checkBox_Barriers->isChecked());
         if (p1.compare("Enable Flow Barriers")==0)                                  namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)                           namelist[j].value = lineEdit_FlowBarriers->text();

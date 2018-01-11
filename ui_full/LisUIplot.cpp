@@ -616,7 +616,7 @@ void lisemqt::showOutputData()
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
     label_watervolchannel->setText(QString::number(op.ChannelVolTot,'f',3));
     label_baseflowtot->setText(QString::number(op.BaseFlowtot,'f',3));
-    label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
+    //label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
 
  //   if (op.outputpointnr > 1)
  //   {

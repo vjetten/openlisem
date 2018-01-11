@@ -87,90 +87,101 @@ void TWorld::addRainfallWH(int thread)
 void TWorld::SurfaceStorage(int thread)
 {
     FOR_ROW_COL_2DMT
-    {
-        double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
-        double wh = WH->Drc, whflow = 0;
-        double SDS;
-        double mds = MDS->Drc;  // mds is in meters
-        double WaterVolrunoff;
+     {
+         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
+         double whflow = 0;
+         //double mds = MDS->Drc;  // mds is in meters
+         double WaterVolrunoff;
 
-        //### surface storage
-        SDS = 0.1*mds;
-        // arbitrary minimum depression storage is 10% of max depr storage, in m
+         //### surface storage
+         //SDS = 0.1*mds;
+         // arbitrary minimum depression storage is 10% of max depr storage, in m
 
-        if (mds > 0)
-            whflow = std::max(0.0,wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
-        //could be: whflow = (wh-SDS) * (1-exp(-wh/mds));
-        // non-linear release fo water from depression storage
-        // resemles curves from GIS surface tests, unpublished
-        else
-            whflow = wh;
+         if (RRm == 0)
+             WHstore->Drc = 0;
+         else
+             WHstore->Drc = MDS->Drc*(1-exp(-1.875*(WH->Drc/RRm)));
+         //houses or hard surfaces no surf storage
+         if (SwitchHouses)
+             WHstore->Drc *= 1-HouseCover->Drc;
+         if (SwitchHardsurface)
+             WHstore->Drc *= 1-HardSurface->Drc;
+         whflow = std::max(0.0, WH->Drc - WHstore->Drc);
 
-        // whflow = std::max(0.0, wh-SDS);
-        // subtract surface storage and calc water available for runoff, in m
-        // assumed on soilsurface because there is the roughness
+ /*
+         if (mds > 0)
+             whflow = std::max(0.0,wh-SDS) * (1-exp(-1000*wh*(wh-SDS)/(mds-SDS)));
+         //could be: whflow = (wh-SDS) * (1-exp(-wh/mds));
+         // non-linear release fo water from depression storage
+         // resemles curves from GIS surface tests, unpublished
+         else
+             whflow = wh;
 
-        WHstore->Drc = wh - whflow;
-        // average water stored on flowwidth and not available for flow, in m
+         // whflow = std::max(0.0, wh-SDS);
+         // subtract surface storage and calc water available for runoff, in m
+         // assumed on soilsurface because there is the roughness
 
-//        if (SwitchChannelFlood)
-//            if (FloodDomain->Drc > 0)
-//                WHstore->Drc = 0;
-        // soilwidth already includes houses
-        //houses no surf storage
-        if (SwitchHouses)
-        {
-            WHstore->Drc *= 1-HouseCover->Drc;
-            whflow = wh - WHstore->Drc;
-        }
-        // hard surface no surface storage
-        if (SwitchHardsurface)
-        {
-            WHstore->Drc *= 1-HardSurface->Drc;
-            whflow = wh - WHstore->Drc;
-        }
+         WHstore->Drc = wh - whflow;
+         // average water stored on flowwidth and not available for flow, in m
 
-        WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        // runoff volume available for flow, surface + road
-        WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        // all water in the cell incl storage
+ //        if (SwitchChannelFlood)
+ //            if (FloodDomain->Drc > 0)
+ //                WHstore->Drc = 0;
+         // soilwidth already includes houses
+         //houses no surf storage
+         if (SwitchHouses)
+         {
+             WHstore->Drc *= 1-HouseCover->Drc;
+             whflow = wh - WHstore->Drc;
+         }
+         // hard surface no surface storage
+         if (SwitchHardsurface)
+         {
+             WHstore->Drc *= 1-HardSurface->Drc;
+             whflow = wh - WHstore->Drc;
+         }
+ */
+         WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+         // runoff volume available for flow, surface + road
+         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+         // all water in the cell incl storage
 
-        //### the trick: use ponded area for flowwidth
-        // for "natural" soil surfaces with a given roughness
-        if (RRm == 0)
-            fpa->Drc = 1;
-        else
-            fpa->Drc = 1-exp(-1.875*(wh/RRm));
-        // fraction ponded area of a gridcell
+         //### the trick: use ponded area for flowwidth
+         // for "natural" soil surfaces with a given roughness
+         if (RRm == 0)
+             fpa->Drc = 1;
+         else
+             fpa->Drc = 1-exp(-1.875*(WH->Drc/RRm));
+         // fraction ponded area of a gridcell
 
-//        if (SwitchChannelFlood)
-//            if (FloodDomain->Drc > 0)
-//                fpa->Drc = 1;
+ //        if (SwitchChannelFlood)
+ //            if (FloodDomain->Drc > 0)
+ //                fpa->Drc = 1;
 
-        if (SwitchHardsurface)
-            fpa->Drc = fpa->Drc *(1-HardSurface->Drc) + HardSurface->Drc*1.0;
-        // hard surface has no roughness so fpa is 1 there
+         if (SwitchHardsurface)
+             fpa->Drc = fpa->Drc *(1-HardSurface->Drc) + HardSurface->Drc*1.0;
+         // hard surface has no roughness so fpa is 1 there
 
-        FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc;
-        // calculate flowwidth by fpa*surface + road, excludes channel already
+         FlowWidth->Drc = fpa->Drc*SoilWidthDX->Drc + RoadWidthDX->Drc;
+         // calculate flowwidth by fpa*surface + road, excludes channel already
 
-        if (GrassFraction->Drc > 0)
-            FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
-        // assume grassstrip spreads water over entire width
+         if (GrassFraction->Drc > 0)
+             FlowWidth->Drc = GrassWidthDX->Drc + (1-GrassFraction->Drc)*FlowWidth->Drc;
+         // assume grassstrip spreads water over entire width
 
-        //Houses
-        if (SwitchHouses)
-            FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
-        // assume house severely restricts flow width, 0.5 is arbitrary
-        // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere
+         //Houses
+         if (SwitchHouses)
+             FlowWidth->Drc = (1-0.5*HouseCover->Drc)*FlowWidth->Drc;
+         // assume house severely restricts flow width, 0.5 is arbitrary
+         // cannot be zero flowwidth in 100% house pixel because watwer would not go anywhere
 
-        if (FlowWidth->Drc > 0)
-            WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);
-        else
-            WHrunoff->Drc = 0;
-        // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
-        // this now takes care of ponded area, so water height is adjusted
-    }}}
+         if (FlowWidth->Drc > 0)
+             WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);
+         else
+             WHrunoff->Drc = 0;
+         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
+         // this now takes care of ponded area, so water height is adjusted
+     }}}
 
 
 }

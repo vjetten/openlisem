@@ -863,7 +863,7 @@ void lisemqt::SetStyleUI()
     label_ppeaktime->setMinimumSize(w,h);
     label_QPfrac->setMinimumSize(w,h);
     label_watervolchannel->setMinimumSize(w,h);
-    label_litterstore->setMinimumSize(w,h);
+    //label_litterstore->setMinimumSize(w,h);
     label_baseflowtot->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
@@ -904,7 +904,7 @@ void lisemqt::SetStyleUI()
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
     label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
-    label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
+    //label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
     label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
