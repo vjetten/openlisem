@@ -322,8 +322,8 @@ void lisemqt::showMap()
         checkBoxComboMaps2->setChecked(false);
         checkBoxComboMaps->setChecked(true);
 
-        DisplayComboBox->setFixedWidth(180);
-        DisplayComboBox2->setFixedWidth(180);
+        //DisplayComboBox->setFixedWidth(180);
+        //DisplayComboBox2->setFixedWidth(180);
 
         DisplayComboBox2->setCurrentIndex(0);
         DisplayComboBox->setCurrentIndex(0);

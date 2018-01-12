@@ -55,7 +55,7 @@ void TWorld::UnifiedFlow()
 
     double t = 0;
     double dt = UF_DTMIN;
-
+    double nsteps = 0;
 
     ////START MAIN LOOP
     ////from now on all input and output is provided as function arguments
@@ -107,10 +107,11 @@ void TWorld::UnifiedFlow()
 
         //increase timer by the current timstep!
         t = t + dt;
+        nsteps+=1.0;
 
 
     }
-
+    DEBUG(QString("Average timestep %1 (sec) - (n=%2)").arg(nsteps > 0 ? _dt/nsteps : _dt).arg(nsteps));
     ////STOP MAIN LOOP
     ////again uses non-functionparameter variables
 

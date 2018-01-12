@@ -502,6 +502,9 @@ void lisemqt::startPlots()
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
 
 
+    if (outletpoint == 0)
+    outletgroup->setTitle(QString("Catchment outflow (all)").arg(outletpoint));
+    else
     outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
     HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
     // VJ 110630 show hydrograph for selected output point
@@ -534,8 +537,8 @@ void lisemqt::SetTextHydrographs()
 
     label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',3));
     label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',3));
-    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',3));
-    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',3));
+    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',1));
+    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',1));
 
     if(checkDoErosion->isChecked())
         label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',2));
@@ -616,6 +619,7 @@ void lisemqt::showOutputData()
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm,'f',3));
     label_watervolchannel->setText(QString::number(op.ChannelVolTot,'f',3));
     label_baseflowtot->setText(QString::number(op.BaseFlowtot,'f',3));
+    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',3));
     //label_litterstore->setText(QString::number(op.LitterStorageTot,'f',3));
 
  //   if (op.outputpointnr > 1)

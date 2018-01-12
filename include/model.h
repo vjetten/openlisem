@@ -85,11 +85,6 @@
     int r = floodRow[_i];\
     int c = floodCol[_i];
 
-/// shortcut for all cell in watershed with nr wsnr
-#define FOR_WATERSHED_ROW_COL(wsnr) for (long k = 0; k < WS[wsnr].cr.count(); k++) {\
-    int c = WS[wsnr].cr[k]._c;\
-    int r = WS[wsnr].cr[k]._r;\
-
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
@@ -135,27 +130,26 @@
     if(!INSIDE(r,c)){break;}\
 
 
-/// shortcut for LDD row and col loop
+/// shortcut for LDD row and col loop, no edeges only a core
 #define FOR_ROW_COL_UF2DMT for(int rc = 0; rc < _nrRows; rc++)\
     {for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRMaskListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCMaskListOrdered2d.at(thread)->data[rc][cc]);\
     if(!INSIDE(r,c)){break;}\
 
-/// shortcut for LDD row and col loop
+/// shortcut for LDD row and col loop, core and 1 edge
 #define FOR_ROW_COL_UF2DMTDER for(int rc = 0; rc < _nrRows; rc++)\
     {for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRDerListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCDerListOrdered2d.at(thread)->data[rc][cc]);\
     if(!INSIDE(r,c)){break;}\
 
-/// shortcut for LDD row and col loop
+/// shortcut for LDD row and col loop, only cells that need processing with dt
 #define FOR_ROW_COL_UF2DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
     {for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCListOrdered2d.at(thread)->data[rc][cc]);\
     if(!INSIDE(r,c)){break;}\
-
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_UF1DMT  for(int rc = 0; rc < _nrRows; rc++)\

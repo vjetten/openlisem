@@ -270,6 +270,7 @@ void TWorld::InitChannel(void)
     floodHmxMax = NewMap(0);
     floodVMax = NewMap(0);
     floodTime = NewMap(0);
+    floodWaterVol= NewMap(0);
 
     dfhmx = NewMap(0);
     dfUV = NewMap(0);
@@ -698,7 +699,7 @@ void TWorld::GetInputData(void)
     {
         if(needset && Outlet->Drc > 0)
         {
-            needset == false;
+            needset = false;
             c_outlet = c;
             r_outlet = r;
             r_plot = r_outlet;

@@ -380,6 +380,7 @@ void TWorld::Totals(void)
 
             floodHmxMax->Drc = std::max(floodHmxMax->Drc,hmx->Drc);
             floodVMax->Drc = std::max(floodVMax->Drc,UVflood->Drc);
+            floodWaterVol->Drc = std::max(0.0, hmx->Drc-UF_DISPLAYFLOODMINIMUM)*ChannelAdj->Drc*DX->Drc;
         }else
         {
             hmx->Drc = 0;
@@ -409,6 +410,9 @@ void TWorld::Totals(void)
         }
     }
 
+
+    floodTotmm = mapTotal(*floodWaterVol)*catchmentAreaFlatMM;
+    //mm
 
     FOR_ROW_COL_MV
     {

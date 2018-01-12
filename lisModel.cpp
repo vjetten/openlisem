@@ -154,7 +154,7 @@ void TWorld::DoModel()
 
 
 
-            DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
+           // DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
 
 
             ////START CALCULATIONS
@@ -193,11 +193,11 @@ void TWorld::DoModel()
 
             OutputUI();          // fill the "op" structure for screen output
 
-            DEBUG("Report to files");
+            //DEBUG("Report to files");
 
             reportAll();          // report all maps and timeseries
 
-            DEBUG("Report to interface");
+            //DEBUG("Report to interface");
 
 
             if (!noInterface)

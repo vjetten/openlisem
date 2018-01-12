@@ -81,9 +81,9 @@ public:
 
         FOR_ROW_COL_MV(in_dem,in_dem)
         {
-            double slope = 0;
-            double Dhx = 0;
-            double Dhy = 0;
+//            double slope = 0;
+//            double Dhx = 0;
+//            double Dhy = 0;
 
             //DEM
             double dem = in_dem->data[r][c] + in_flow->data[r][c];

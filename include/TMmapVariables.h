@@ -247,6 +247,7 @@ cTMap
 *floodTime,                    //!<
 *floodTimeStart,                //!<
 *floodVMax,                    //!<
+*floodWaterVol,
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
 *Hmx,                        //!<

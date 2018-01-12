@@ -298,8 +298,8 @@ void lisemqt::ParseInputData()
         //    if (p1.compare("Use initial gully dimensions")==0)   checkGullyInit->setChecked(check);
 
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
-        if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
-        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
+        //if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
+        //if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
 
         if (p1.compare("Canopy storage equation")==0)
@@ -939,8 +939,8 @@ void lisemqt::updateModelData()
         //if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
         //if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-        if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
-        if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
+        //if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
+        //if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
         if (p1.compare("Canopy storage equation")==0)
         {

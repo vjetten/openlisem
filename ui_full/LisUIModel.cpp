@@ -152,7 +152,7 @@ void lisemqt::Advancedmodel()
     bool advanced = AdvancedAct->isChecked();
 
     SetAllInLayoutInvisible(Advanced_Flow_General,advanced);
-    SetAllInLayoutInvisible(Advanced_Output,advanced);
+  //  SetAllInLayoutInvisible(Advanced_Output,advanced);
     SetAllInLayoutInvisible(Advanced_Computational,advanced);
     SetAllInLayoutInvisible(Advanced_Erosion1,advanced);
     SetAllInLayoutInvisible(Advanced_Erosion2,advanced);
