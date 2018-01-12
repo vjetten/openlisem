@@ -348,13 +348,14 @@ void TWorld::InitChannel(void)
         {
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
-
+            /* obsolete
             ChannelLevee = NewMap(0);
-            /*if (SwitchLevees)
-                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));*/
+
+              if (SwitchLevees)
+                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
-
+            */
         }
 
     }

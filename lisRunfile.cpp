@@ -180,7 +180,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
 
         //Surface Flow
-        if (p1.compare("Enable Levees")==0)                             SwitchLevees           = iii == 1;
+      //  if (p1.compare("Enable Levees")==0)                             SwitchLevees           = iii == 1;
         if (p1.compare("Enable Barriers")==0)                           SwitchBarriers         = iii == 1;
         if (p1.compare("Enable Flow Barriers")==0)                      SwitchFlowBarriers     = iii == 1;
         if (p1.compare("Enable Inflow")==0)                      SwitchInflow     = iii == 1;
