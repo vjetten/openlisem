@@ -191,7 +191,7 @@ void TWorld::InitShade(void)
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     //double MaxDem = DEM->mapMaximum();
     // double MinDem = DEM->mapMinimum();
-
+    double PI=3.14159265;
     FOR_ROW_COL_MV
     {
         double Incl = 20.0/180.0*PI;

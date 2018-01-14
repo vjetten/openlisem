@@ -503,7 +503,7 @@ void lisemqt::startPlots()
 
 
     if (outletpoint == 0)
-    outletgroup->setTitle(QString("Catchment outflow (all)").arg(outletpoint));
+    outletgroup->setTitle(QString("Catchment outflow (all)"));
     else
     outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
     HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
