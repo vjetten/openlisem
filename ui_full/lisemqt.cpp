@@ -130,7 +130,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
   //  SetAllInLayoutInvisible(Advanced_Output,false);
     SetAllInLayoutInvisible(Advanced_Computational,false);
     SetAllInLayoutInvisible(Advanced_Erosion1,false);
-    SetAllInLayoutInvisible(Advanced_Erosion2,false);
+    //SetAllInLayoutInvisible(Advanced_Erosion2,false);
     SetAllInLayoutInvisible(Advanced_Infiltration,false);
     SetAllInLayoutInvisible(Advanced_Sediment_Transport,false);
     SetAllInLayoutInvisible(Advanced_Slopes,false);
@@ -804,11 +804,8 @@ void lisemqt::SetStyleUI()
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
-    E_floodMinHeight->setVisible(false);
-    label_99->setVisible(false);
-    checkRainfallFlood->setVisible(false);
-    E_RainFloodGradient->setVisible(false);
-    checkFloodInitial->setVisible(false);
+   // E_floodMinHeight->setVisible(false);
+   // label_99->setVisible(false);
     // interface elements that are not visible for now
 
     //groupBoxTime->setMaximumWidth(128);
@@ -1624,7 +1621,7 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    E_floodMinHeight->setValue(0.05);
+    //E_floodMinHeight->setValue(0.05);
 
     E_SSMethod->setValue(1);
     E_SigmaDiffusion->setValue(1);
