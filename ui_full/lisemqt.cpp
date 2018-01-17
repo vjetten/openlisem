@@ -595,6 +595,7 @@ void lisemqt::setErosionTab(bool yes)
         checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
     // note checkBox_SedSingleSingle is not visible but still needed
 
+    sedboxgen->setEnabled(checkAdvancedSediment->isChecked());
 
     if (checkAdvancedSediment->isChecked())
     {
@@ -613,7 +614,7 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(yes);
     checkBox_OutSed->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
-    groupKineticEnergy->setEnabled(yes);
+//    groupKineticEnergy->setEnabled(yes);
 
 
     checkBoxComboMaps2->setEnabled(yes);
@@ -747,7 +748,7 @@ void lisemqt::SetToolBar()
     toolBar->addSeparator();
 
 
-    AdvancedAct = new QAction(QIcon(":/advanced.png"), "Stop the model...", this);
+    AdvancedAct = new QAction(QIcon(":/advanced.png"), "Show additional parameters...", this);
     AdvancedAct->setStatusTip("stop the model run ...");
     connect(AdvancedAct, SIGNAL(triggered()), this, SLOT(Advancedmodel()));
     AdvancedAct->setCheckable(true);
@@ -807,7 +808,7 @@ void lisemqt::SetStyleUI()
    // E_floodMinHeight->setVisible(false);
    // label_99->setVisible(false);
     // interface elements that are not visible for now
-
+checkAdvancedSediment->setVisible(false);
     //groupBoxTime->setMaximumWidth(128);
 
 

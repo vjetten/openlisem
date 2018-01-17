@@ -155,6 +155,7 @@ void lisemqt::Advancedmodel()
   //  SetAllInLayoutInvisible(Advanced_Output,advanced);
     SetAllInLayoutInvisible(Advanced_Computational,advanced);
     SetAllInLayoutInvisible(Advanced_Erosion1,advanced);
+    checkAdvancedSediment->setVisible((advanced));
     //SetAllInLayoutInvisible(Advanced_Erosion2,advanced);
     SetAllInLayoutInvisible(Advanced_Infiltration,advanced);
    SetAllInLayoutInvisible(Advanced_Sediment_Transport,advanced);
