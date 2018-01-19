@@ -223,7 +223,7 @@ cTMap
 *SedimentMixingDepth,
 *RSedimentMixingDepth,
 
-*ChannelLevee,
+//*ChannelLevee,
 //baseflow
 *BaseFlowDischarges,
 *BaseFlowInitialVolume,
@@ -247,6 +247,7 @@ cTMap
 *floodTime,                    //!<
 *floodTimeStart,                //!<
 *floodVMax,                    //!<
+*floodWaterVol,
 *maxChannelflow,                    //!<
 *maxChannelWH,                    //!<
 *Hmx,                        //!<

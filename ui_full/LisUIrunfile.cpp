@@ -159,11 +159,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
 
-        if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
-       // if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check); // OBSOLETE
+    //    if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
-
-
 
         //houses
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
@@ -191,7 +188,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Entrainment Coefficient")==0)                               E_EntrainmentCoefficient->setValue(val);
         if (p1.compare("Minimum Entrainment Height")==0)                            E_EntrainmentMinimumWaterHeight->setValue(val);
         if (p1.compare("Minimum Failure Height")==0)                                E_MinimumFailureHeight->setValue(val);
-        if (p1.compare("Enable Levees")==0)                                         checkLevees->setChecked(check);
+        //if (p1.compare("Enable Levees")==0)                                         checkLevees->setChecked(check);
         if (p1.compare("Enable Barriers")==0)                                       checkBox_Barriers->setChecked(check);
         if (p1.compare("Enable Flow Barriers")==0)                                  checkBox_FlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)                           lineEdit_FlowBarriers->setText(p);
@@ -231,7 +228,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("SS method")==0)                     E_SSMethod->setValue(val);
         if (p1.compare("Sigma diffusion")==0)               E_SigmaDiffusion->setValue(val);
 
-        if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
+        //if (p1.compare("Include levees")==0)                 checkLevees->setChecked(check);
 
     //    if (p1.compare("OF method")==0)                       E_OFMethod->setValue(val);
         if (p1.compare("Advanced sediment")==0)               checkAdvancedSediment->setChecked(check);
@@ -298,8 +295,8 @@ void lisemqt::ParseInputData()
         //    if (p1.compare("Use initial gully dimensions")==0)   checkGullyInit->setChecked(check);
 
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
-        if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
-        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
+        //if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
+        //if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
 
         if (p1.compare("Canopy storage equation")==0)
@@ -711,13 +708,12 @@ void lisemqt::ParseInputData()
     }
 
 
-    checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
 
     on_checkIncludeChannel_clicked();
-    on_checkChannelFlood_clicked();
     //****====------====****//
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
@@ -815,7 +811,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
 
         //flooding
-        if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
+   //     if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
    //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
@@ -840,7 +836,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Entrainment Coefficient")==0)                               namelist[j].value = E_EntrainmentCoefficient->text();
         if (p1.compare("Minimum Entrainment Height")==0)                            namelist[j].value = E_EntrainmentMinimumWaterHeight->text();
         if (p1.compare("Minimum Failure Height")==0)                                namelist[j].value = E_MinimumFailureHeight->text();
-        if (p1.compare("Enable Levees")==0)                                         namelist[j].value.setNum((int)checkLevees->isChecked());
+        //if (p1.compare("Enable Levees")==0)                                         namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Enable Barriers")==0)                                       namelist[j].value.setNum((int)checkBox_Barriers->isChecked());
         if (p1.compare("Enable Flow Barriers")==0)                                  namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)                           namelist[j].value = lineEdit_FlowBarriers->text();
@@ -939,8 +935,8 @@ void lisemqt::updateModelData()
         //if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
         //if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-        if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
-        if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
+        //if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
+        //if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
         if (p1.compare("Canopy storage equation")==0)
         {

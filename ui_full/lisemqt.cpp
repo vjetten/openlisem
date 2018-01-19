@@ -127,10 +127,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
 
     SetAllInLayoutInvisible(Advanced_Flow_General,false);
-    SetAllInLayoutInvisible(Advanced_Output,false);
+  //  SetAllInLayoutInvisible(Advanced_Output,false);
     SetAllInLayoutInvisible(Advanced_Computational,false);
     SetAllInLayoutInvisible(Advanced_Erosion1,false);
-    SetAllInLayoutInvisible(Advanced_Erosion2,false);
+    //SetAllInLayoutInvisible(Advanced_Erosion2,false);
     SetAllInLayoutInvisible(Advanced_Infiltration,false);
     SetAllInLayoutInvisible(Advanced_Sediment_Transport,false);
     SetAllInLayoutInvisible(Advanced_Slopes,false);
@@ -217,7 +217,7 @@ void lisemqt::SetConnections()
 
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-    connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+    //connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
 
     //    connect(checkNoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
@@ -589,43 +589,13 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
     checkEstimateGrainSizeDistribution->setChecked(!v);
 }
 //--------------------------------------------------------------------
-//void lisemqt::on_E_NumberClasses_valueChanged(int v)
-//{
-//    if(checkEstimateGrainSizeDistribution->isChecked())
-//    {
-//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-//    }else
-//    {
-//        if(checkReadGrainSizeDistribution->isChecked())
-//        {
-//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-//        }
-//    }
-//}
-//--------------------------------------------------------------------
-//void lisemqt::on_E_NumberClassesMaps_valueChanged(int v)
-//{
-//    if(checkEstimateGrainSizeDistribution->isChecked())
-//    {
-//        E_DisplaySedimentClass->setMaximum(E_NumberClasses->value());
-//    }else
-//    {
-//        if(checkReadGrainSizeDistribution->isChecked())
-//        {
-//            E_DisplaySedimentClass->setMaximum(E_NumberClassesMaps->value());
-//        }
-//    }
-//}
-//--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
 {
-    //tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
-    //tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
-
     if (checkDoErosion->isChecked())
         checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
     // note checkBox_SedSingleSingle is not visible but still needed
 
+    sedboxgen->setEnabled(checkAdvancedSediment->isChecked());
 
     if (checkAdvancedSediment->isChecked())
     {
@@ -644,7 +614,7 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(yes);
     checkBox_OutSed->setEnabled(yes);
     checkBox_OutTC->setEnabled(yes);
-    groupKineticEnergy->setEnabled(yes);
+//    groupKineticEnergy->setEnabled(yes);
 
 
     checkBoxComboMaps2->setEnabled(yes);
@@ -661,9 +631,7 @@ void lisemqt::setErosionTab(bool yes)
     label_soillosskgha->setEnabled(yes);
     label_soilloss->setEnabled(yes);
     label_SDR->setEnabled(yes);
-
 }
-
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
 {
@@ -674,31 +642,31 @@ void lisemqt::setWriteOutputSOBEK(bool doit)
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputCSV(bool doit)
 {
-    checkWriteSOBEK->setChecked(!doit);
+    //checkWriteSOBEK->setChecked(!doit);
     //   checkWriteCommaDelimited->setChecked(!doit);
     checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputPCR(bool /* doit */)
 {
-    if (checkWriteSOBEK->isChecked())
-    {
-        //checkWriteSOBEK->setChecked(false);
-        checkWriteCommaDelimited->setChecked(false);
-        checkWritePCRaster->setChecked(false);
-        //checkSeparateOutput->setChecked(true);
-    }
-    else
+//    if (checkWriteSOBEK->isChecked())
+//    {
+//        //checkWriteSOBEK->setChecked(false);
+//        checkWriteCommaDelimited->setChecked(false);
+//        checkWritePCRaster->setChecked(false);
+//        //checkSeparateOutput->setChecked(true);
+//    }
+//    else
         if (checkWritePCRaster->isChecked())
         {
-            checkWriteSOBEK->setChecked(false);
+            //checkWriteSOBEK->setChecked(false);
             checkWriteCommaDelimited->setChecked(false);
             //checkWritePCRaster->setChecked(false);
         }
         else
             if (checkWriteCommaDelimited->isChecked())
             {
-                checkWriteSOBEK->setChecked(false);
+                //checkWriteSOBEK->setChecked(false);
                 //checkWriteCommaDelimited->setChecked(false);
                 checkWritePCRaster->setChecked(false);
             }
@@ -780,7 +748,7 @@ void lisemqt::SetToolBar()
     toolBar->addSeparator();
 
 
-    AdvancedAct = new QAction(QIcon(":/advanced.png"), "Stop the model...", this);
+    AdvancedAct = new QAction(QIcon(":/advanced.png"), "Show additional parameters...", this);
     AdvancedAct->setStatusTip("stop the model run ...");
     connect(AdvancedAct, SIGNAL(triggered()), this, SLOT(Advancedmodel()));
     AdvancedAct->setCheckable(true);
@@ -837,13 +805,10 @@ void lisemqt::SetStyleUI()
     E_CalibratePsi->setVisible(false);
     label_77->setVisible(false);
     label_79->setVisible(false);
-    E_floodMinHeight->setVisible(false);
-    label_99->setVisible(false);
-    checkRainfallFlood->setVisible(false);
-    E_RainFloodGradient->setVisible(false);
-    checkFloodInitial->setVisible(false);
+   // E_floodMinHeight->setVisible(false);
+   // label_99->setVisible(false);
     // interface elements that are not visible for now
-
+checkAdvancedSediment->setVisible(false);
     //groupBoxTime->setMaximumWidth(128);
 
 
@@ -863,8 +828,9 @@ void lisemqt::SetStyleUI()
     label_ppeaktime->setMinimumSize(w,h);
     label_QPfrac->setMinimumSize(w,h);
     label_watervolchannel->setMinimumSize(w,h);
-    label_litterstore->setMinimumSize(w,h);
+    //label_litterstore->setMinimumSize(w,h);
     label_baseflowtot->setMinimumSize(w,h);
+    label_floodVolmm->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
     label_dischargesub->setMinimumSize(w,h);
@@ -904,7 +870,8 @@ void lisemqt::SetStyleUI()
     label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
     //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
     label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
-    label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
+    label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
+    //label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
     label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
 
     label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
@@ -1603,8 +1570,7 @@ void lisemqt::resetAll()
     //houses
     checkHouses->setChecked(check);
     checkRaindrum->setChecked(check);
-    // flooded areas
-    checkChannelFlood->setChecked(check);
+
     checkInfilCompact->setChecked(check);
     checkInfilGrass->setChecked(check);
     checkInfilCrust->setChecked(check);
@@ -1623,8 +1589,8 @@ void lisemqt::resetAll()
     //	checkDrainage->setChecked(check);
 
     checkSeparateOutput->setChecked(check);
-    checkWriteSOBEK->setChecked(check);
-    SOBEKdatestring->setText("10/01/01");
+    //checkWriteSOBEK->setChecked(check);
+    //SOBEKdatestring->setText("10/01/01");
     //checkInterceptionLAI->setChecked(true);
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
@@ -1655,7 +1621,7 @@ void lisemqt::resetAll()
 
     checkKETimebased->setChecked(false);
 
-    E_floodMinHeight->setValue(0.05);
+    //E_floodMinHeight->setValue(0.05);
 
     E_SSMethod->setValue(1);
     E_SigmaDiffusion->setValue(1);

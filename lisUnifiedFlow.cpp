@@ -55,7 +55,7 @@ void TWorld::UnifiedFlow()
 
     double t = 0;
     double dt = UF_DTMIN;
-
+    double nsteps = 0;
 
     ////START MAIN LOOP
     ////from now on all input and output is provided as function arguments
@@ -107,10 +107,11 @@ void TWorld::UnifiedFlow()
 
         //increase timer by the current timstep!
         t = t + dt;
+        nsteps+=1.0;
 
 
     }
-
+    DEBUG(QString("Average timestep %1 (sec) - (n=%2)").arg(nsteps > 0 ? _dt/nsteps : _dt,0,'f', 3).arg(nsteps));
     ////STOP MAIN LOOP
     ////again uses non-functionparameter variables
 
@@ -149,7 +150,7 @@ void TWorld::UF_Compute(int thread)
     if(UF_1DACTIVE)
     {
 
-        ////1D SCHEME
+        ////1D SCHEME for channel
         UF1D_Scheme(thread,UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
 
     }

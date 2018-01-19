@@ -453,8 +453,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Minimal Flood Water Depth");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Minimum Debris Flow Volumetric Sediment Fraction");
-    namelist[i].value = QString("0.0");
-    namelist[i++].name = QString("Include channel flooding");
+ //   namelist[i].value = QString("0.0");
+ //   namelist[i++].name = QString("Include channel flooding");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Use HLL2");
     namelist[i].value = QString("0.5");

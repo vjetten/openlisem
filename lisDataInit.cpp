@@ -191,7 +191,7 @@ void TWorld::InitShade(void)
     //shade=cos?(I)sin?(S)cos(A-D)+sin?(I)cos(S)
     //double MaxDem = DEM->mapMaximum();
     // double MinDem = DEM->mapMinimum();
-
+    double PI=3.14159265;
     FOR_ROW_COL_MV
     {
         double Incl = 20.0/180.0*PI;
@@ -270,6 +270,7 @@ void TWorld::InitChannel(void)
     floodHmxMax = NewMap(0);
     floodVMax = NewMap(0);
     floodTime = NewMap(0);
+    floodWaterVol= NewMap(0);
 
     dfhmx = NewMap(0);
     dfUV = NewMap(0);
@@ -291,6 +292,7 @@ void TWorld::InitChannel(void)
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         //      ChannelWidth->calcValue(0.9*_dx, MIN);
+        report(*ChannelWidth, "cw.map");
         FOR_ROW_COL_MV_CH
         {
             if (ChannelWidth->Drc <= 0)
@@ -348,13 +350,14 @@ void TWorld::InitChannel(void)
         {
             ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
             cover(*ChannelDepth, *LDD,0);
-
+            /* obsolete
             ChannelLevee = NewMap(0);
-            /*if (SwitchLevees)
-                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));*/
+
+              if (SwitchLevees)
+                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
             if (!SwitchLevees)
                 fill(*ChannelLevee, 0.0);
-
+            */
         }
 
     }
@@ -697,7 +700,7 @@ void TWorld::GetInputData(void)
     {
         if(needset && Outlet->Drc > 0)
         {
-            needset == false;
+            needset = false;
             c_outlet = c;
             r_outlet = r;
             r_plot = r_outlet;
@@ -1653,7 +1656,7 @@ void TWorld::IntializeOptions(void)
     SwitchWheelPresent = false;
     SwitchCompactPresent = false;
     SwitchIncludeChannel = false;
-    SwitchChannelFlood = false;
+    SwitchChannelFlood = true;
     SwitchChannelBaseflow = false;
     startbaseflowincrease = false;
     SwitchChannelInfil = false;

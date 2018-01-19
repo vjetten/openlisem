@@ -174,13 +174,13 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel   = iii == 1;
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
-        if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
+    //    if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
         if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood    = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem       = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
 
         //Surface Flow
-        if (p1.compare("Enable Levees")==0)                             SwitchLevees           = iii == 1;
+      //  if (p1.compare("Enable Levees")==0)                             SwitchLevees           = iii == 1;
         if (p1.compare("Enable Barriers")==0)                           SwitchBarriers         = iii == 1;
         if (p1.compare("Enable Flow Barriers")==0)                      SwitchFlowBarriers     = iii == 1;
         if (p1.compare("Enable Inflow")==0)                      SwitchInflow     = iii == 1;
@@ -340,7 +340,7 @@ void TWorld::ParseRunfileData(void)
     }// first loop of runnamelist
 
  //   rainFloodingGradient = getvaluedouble("Rainfall flooding gradient");
-
+    SwitchChannelFlood = true;
 
     OF_Method = (SwitchUseGrainSizeDistribution? OFHAIRSINEROSE : OFGOVERS);
 
@@ -375,7 +375,7 @@ void TWorld::ParseRunfileData(void)
     if (!SwitchIncludeChannel)
     {
         SwitchChannelBaseflow = false;
-        SwitchChannelFlood = false;
+        //SwitchChannelFlood = false;
         SwitchChannelInfil = false;
     }
 

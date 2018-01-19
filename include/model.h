@@ -50,10 +50,8 @@
 #include "lisUnifiedFlowThreadPool.h"
 
 
-#define OLDSWATRE 1
-
 //---------------------------------------------------------------------------
-#define PI 3.14159265
+//#define PI 3.14159265
 
 #define DEBUG(s) emit debug(QString(s))
 
@@ -71,7 +69,7 @@
 #define DrcOutlet     data[r_outlet][c_outlet]
 
 /// shortcut missing value in map
-#define MV(r,c) pcr::isMV(LDD->data[r][c])
+// #define MV(r,c) pcr::isMV(LDD->data[r][c])
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
@@ -79,16 +77,6 @@
     if(!pcr::isMV(LDD->data[r][c]))
 
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
-
-#define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
-{\
-    int r = floodRow[_i];\
-    int c = floodCol[_i];
-
-/// shortcut for all cell in watershed with nr wsnr
-#define FOR_WATERSHED_ROW_COL(wsnr) for (long k = 0; k < WS[wsnr].cr.count(); k++) {\
-    int c = WS[wsnr].cr[k]._c;\
-    int r = WS[wsnr].cr[k]._r;\
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -110,11 +98,12 @@
     if(!pcr::isMV(_dem->data[r][c]) )
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2D_DT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+#define FOR_ROW_COL_UF2D_DT {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (UF2D_CellR->data[rc][cc]);\
     int c = (int) (UF2D_CellC->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
     if(!pcr::isMV(_dem->data[r][c]) && !(dt->Drc == 0))
 
 /// shortcut for LDD row and col loop
@@ -128,62 +117,65 @@
     if(!pcr::isMV(_ldd->data[r][c]) && !(dt->Drc == 0))
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_2DMT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+#define FOR_ROW_COL_2DMT {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRDerListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCDerListOrdered2d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
-
-/// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2DMT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+/// shortcut for LDD row and col loop, no edeges only a core
+#define FOR_ROW_COL_UF2DMT {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRMaskListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCMaskListOrdered2d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
-/// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2DMTDER for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+/// shortcut for LDD row and col loop, core and 1 edge
+#define FOR_ROW_COL_UF2DMTDER {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRDerListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCDerListOrdered2d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
-/// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF2DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+/// shortcut for LDD row and col loop, only cells that need processing with dt
+#define FOR_ROW_COL_UF2DMT_DT {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRListOrdered2d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCListOrdered2d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
-
+    if(!INSIDE(r,c)){out = true; break;}\
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF1DMT  for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+#define FOR_ROW_COL_UF1DMT  {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRMaskListOrdered1d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCMaskListOrdered1d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF1DMTDER  for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+#define FOR_ROW_COL_UF1DMTDER  {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRDerListOrdered1d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCDerListOrdered1d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
 /// shortcut for LDD row and col loop
-#define FOR_ROW_COL_UF1DMT_DT for(int rc = 0; rc < _nrRows; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
+#define FOR_ROW_COL_UF1DMT_DT {bool out = false;\
+    for(int rc = 0; rc < _nrRows && !out; rc++)\
+    for (int cc = 0; cc < _nrCols; cc++)\
     {int r = (int) (ThreadPool->CellRListOrdered1d.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCListOrdered1d.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){break;}\
+    if(!INSIDE(r,c)){out = true; break;}\
 
 // check if cell From flows to To
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
-
-#define MAX_ITERS 50
 
 /*
   local drain direction maps have values for directions as follows:
@@ -216,30 +208,8 @@
 #define KE_LOGFUNCTION 1
 #define KE_POWERFUNCTION 2
 
-#define MINMOD 1
-#define VANALBEDA 2
-#define VANLEER 3
-
-#define FMUSCL 1
-#define FENO 2
-#define FENOMOD 3
-
-#define FSGOVERS 0
-#define FSRIJN 1
-#define FSRIJNFULL 2
-#define FSWUWANGJIA 3
-
-#define RGOVERS 0
-#define RRIJN 1
-#define RRIJNFULL 2
-#define RWUWANGJIA 3
-
 #define OFGOVERS 0
 #define OFHAIRSINEROSE 1
-
-#define K1D_METHOD       1
-#define K2D_METHOD_FLUX  2
-#define K2D_METHOD_INTER 3
 
 
 //---------------------------------------------------------------------------
@@ -278,6 +248,8 @@ typedef struct UNIT_LIST {
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
+///
+/*
 typedef struct lCOORD {
     int _r;
     int _c;
@@ -293,6 +265,7 @@ typedef struct WS_LIST {
     double dt2;
     double dtsum;
 } WS_LIST;
+*/
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
@@ -526,8 +499,8 @@ public:
     int nrrunnamelist;
 
 
-    QList <WS_LIST> WS;
-    QList <COORD> FA;
+//    QList <WS_LIST> WS;
+//    QList <COORD> FA;
 
 
     // list of pointers for substance maps: sediment, sed classes, nutrients etc.

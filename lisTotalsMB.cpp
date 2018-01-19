@@ -125,7 +125,7 @@ void TWorld::Totals(void)
     WaterVolRunoffmm =0;
     FOR_ROW_COL_MV
     {
-        WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
+       WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
     }
     WaterVolRunoffmm = WaterVolRunoffmm*catchmentAreaFlatMM;
 
@@ -380,6 +380,7 @@ void TWorld::Totals(void)
 
             floodHmxMax->Drc = std::max(floodHmxMax->Drc,hmx->Drc);
             floodVMax->Drc = std::max(floodVMax->Drc,UVflood->Drc);
+            floodWaterVol->Drc = std::max(0.0, hmx->Drc-UF_DISPLAYFLOODMINIMUM)*ChannelAdj->Drc*DX->Drc;
         }else
         {
             hmx->Drc = 0;
@@ -410,6 +411,9 @@ void TWorld::Totals(void)
     }
 
 
+    floodTotmm = mapTotal(*floodWaterVol)*catchmentAreaFlatMM;
+    //mm
+
     FOR_ROW_COL_MV
     {
         double Qtotal = std::fabs(UF2D_q->Drc);
@@ -433,9 +437,12 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
     if (RainTot + SnowTot+BaseFlow > 1e-9)
     {
-        MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + floodVolTotInit + BaseFlow +
-                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
-        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit+BaseFlow)*100.0;
+//        MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + floodVolTotInit + BaseFlow +
+//                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
+//        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit+BaseFlow)*100.0;
+        MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + BaseFlow +
+                 - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - Qtot);
+        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + BaseFlow)*100.0;
     }
     qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
 
