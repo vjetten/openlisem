@@ -159,11 +159,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
 
-        if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
-       // if (p1.compare("Include rainfall flooding")==0)      checkRainfallFlood->setChecked(check); // OBSOLETE
+    //    if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
-
-
 
         //houses
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
@@ -711,13 +708,12 @@ void lisemqt::ParseInputData()
     }
 
 
-    checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
+    //checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
 
     on_checkIncludeChannel_clicked();
-    on_checkChannelFlood_clicked();
     //****====------====****//
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
@@ -815,7 +811,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
 
         //flooding
-        if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
+   //     if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
    //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
    //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());

@@ -535,7 +535,7 @@ void lisemqt::SetTextHydrographs()
     }
     int j = OutletIndices.indexOf(this->outletpoint);
 
-    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',3));
+    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',1));
     label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',3));
     label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',1));
     label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',1));

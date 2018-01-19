@@ -15,12 +15,3 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR
     )
 ENDIF()
 
-# Add the PIC compiler flag if needed.
-IF(UNIX AND NOT WIN32)
-    IF(CMAKE_SIZEOF_VOID_P MATCHES "8")
-        CHECK_CXX_COMPILER_FLAG("-fPIC" WITH_FPIC)
-        IF(WITH_FPIC)
-            ADD_DEFINITIONS(-fPIC)
-        ENDIF()
-    ENDIF()
-ENDIF()

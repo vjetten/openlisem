@@ -322,7 +322,7 @@ void TWorld::OutputUI(void)
     op.ChannelVolTot = SwitchIncludeChannel? mapTotal(*UF1D_f) * 1000.0/(_dx*_dx*nrCells) : 0.0;
 
     op.RainTotmm = RainTotmm + SnowTotmm;
-    op.WaterVolTotmm = WaterVolRunoffmm;//WaterVolTotmm-SurfStoremm;
+    op.WaterVolTotmm = WaterVolTotmm-SurfStoremm;//WaterVolRunoffmm;//
     op.Qtotmm = Qtotmm;
     op.Qtot = QtotOutlet;
 

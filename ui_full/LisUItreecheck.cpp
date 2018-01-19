@@ -34,7 +34,7 @@
 
 
 #include "lisemqt.h"
-#include "model.h"
+//#include "model.h"
 #include "global.h"
 
 /*
@@ -120,7 +120,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
     {
         checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
         checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
-        checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
+        //checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
     }
 
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
@@ -128,7 +128,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
     checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
-    checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
+  // checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
@@ -155,11 +155,6 @@ void lisemqt::on_checkChannelBaseflow_clicked()
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
 
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkChannelFlood_clicked()
-{
-
 }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at

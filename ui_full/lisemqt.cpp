@@ -1570,8 +1570,7 @@ void lisemqt::resetAll()
     //houses
     checkHouses->setChecked(check);
     checkRaindrum->setChecked(check);
-    // flooded areas
-    checkChannelFlood->setChecked(check);
+
     checkInfilCompact->setChecked(check);
     checkInfilGrass->setChecked(check);
     checkInfilCrust->setChecked(check);

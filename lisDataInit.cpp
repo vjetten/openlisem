@@ -292,6 +292,7 @@ void TWorld::InitChannel(void)
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         //      ChannelWidth->calcValue(0.9*_dx, MIN);
+        report(*ChannelWidth, "cw.map");
         FOR_ROW_COL_MV_CH
         {
             if (ChannelWidth->Drc <= 0)
@@ -1655,7 +1656,7 @@ void TWorld::IntializeOptions(void)
     SwitchWheelPresent = false;
     SwitchCompactPresent = false;
     SwitchIncludeChannel = false;
-    SwitchChannelFlood = false;
+    SwitchChannelFlood = true;
     SwitchChannelBaseflow = false;
     startbaseflowincrease = false;
     SwitchChannelInfil = false;
