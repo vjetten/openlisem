@@ -170,7 +170,7 @@ void TWorld::Totals(void)
         {
             FOR_ROW_COL_MV_CH
             {
-                WaterVolTot += UF1D_h->Drc * ChannelWidth->Drc * _dx;//m3
+                WaterVolTot += UF1D_f->Drc;//m3
             }
         }
         // add channel vol to total
@@ -437,7 +437,7 @@ void TWorld::MassBalance()
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - floodVolTot - Qtot - floodBoundaryTot);
         MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit+BaseFlow)*100.0;
     }
-    //qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
+    qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
 
     // Mass Balance sediment, all in kg
 

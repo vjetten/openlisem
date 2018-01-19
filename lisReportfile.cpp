@@ -1660,9 +1660,9 @@ void TWorld::GetComboMaps()
     Colors.append("#804000");
 
     AddComboMap(0,"Viscosity"," ",UF2D_visc,Colormap,Colors,false,false,1.0, 0.05);
-    AddComboMap(0,"lax factor"," ",UF2D_Test,Colormap,Colors,false,false,1.0, 0.05);
+    AddComboMap(0,"lax factor"," ",UF2D_Test,Colormap,Colors,false,false,1.0, 0.05);*/
 
-    Colormap.clear();
+    /*Colormap.clear();
     Colormap.append(0.0);
     Colormap.append(0.25);
     Colormap.append(0.5);
