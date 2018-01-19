@@ -16738,7 +16738,7 @@ p, li { white-space: pre-wrap; }
                    </font>
                   </property>
                   <property name="text">
-                   <string>Flood (mm)</string>
+                   <string>Flood (part of runoff) (mm)</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -16789,6 +16789,9 @@ p, li { white-space: pre-wrap; }
                     <weight>50</weight>
                     <bold>false</bold>
                    </font>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
                   </property>
                   <property name="text">
                    <string>0</string>

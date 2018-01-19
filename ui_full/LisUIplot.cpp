@@ -612,7 +612,7 @@ void lisemqt::showOutputData()
 
     // mm output
     label_raintot->setText(QString::number(op.RainTotmm,'f',3));
-    label_watervoltot->setText(QString::number(op.WaterVolTotmm-op.volFloodmm,'f',3));
+    label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',3));
     label_qtot->setText(QString::number(op.Qtotmm,'f',3));
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',3));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',3));
