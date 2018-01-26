@@ -555,7 +555,7 @@
     double UF2D_Derivative_scaled(cTMap * _dem, cTMap * _in, int r, int c, int direction, double scale, int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, bool minmod = false, int calculationside = UF_DERIVATIVE_LR);
     double UF1D_Derivative_scaled(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, double scale, bool minmod = false, int calculationside = UF_DERIVATIVE_LR);
-    double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR);
+    double UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction,int calculationside = UF_DERIVATIVE_LR, double dx = 1.0);
     double UF1D_Derivative2(cTMap * _ldd,cTMap * _lddw, cTMap * _in, int r, int c, int calculationside = UF_DERIVATIVE_LR);
 
     double UF_DEMACCES(cTMap * dem, cTMap * h,int r, int c, int dr, int dc);

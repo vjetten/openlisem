@@ -17,6 +17,8 @@ public:
 
     QList<QString> NameList;
     QList<QString> UnitList;
+    double max_x = 0;
+    double max_y = 0;
 
     MyPicker( QwtPlotCanvas *canvas ):
         QwtPlotPicker( canvas )
@@ -32,15 +34,25 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(1));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(2));
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
         // elevation info
 
-        if (sp2->data() == NULL)
+        if (sp2->data() == NULL || sp0->data() == NULL)
             return QwtText(txt);
-        double z2 = sp2->data()->value(pos.x(), pos.y());
-        double z0 = sp0->data()->value(pos.x(), pos.y());
 
+        double z2 = 0;
+        double z0 = 0;
+
+        //qDebug() << pos.x() << pos.y() << pos.x() << pos.y() << z2;
+        if(pos.x() > 0 && pos.y() > 0 && pos.x() < max_x && pos.y() < max_y)
+        {
+            z2 = sp2->data()->value(pos.x(), pos.y());
+            z0 = sp0->data()->value(pos.x(), pos.y());
+        }else
+        {
+            return QwtText(txt);
+        }
         if (z2 > -1e10)
         {
             int index = sp2->data()->value(0,0);
@@ -48,6 +60,9 @@ public:
             QString unit = UnitList.at(index);
 
             txt = (QString("%1 ") + unit + QString(" [%2m]")).arg(z2,0,'f',5).arg(z0,0,'f',5);
+        }else
+        {
+            return QwtText(txt);
         }
 
         QwtText text = QwtText(txt);
@@ -81,7 +96,7 @@ class QwtComboColorMap: public QwtLinearColorMap
     {
 
         if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+            return qRgba( 228, 228, 228, 0 );
         if(thresholduse)
         {
             if ( value <= thresholdmin )
@@ -183,7 +198,7 @@ class colorMapElevation: public QwtLinearColorMap
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
         if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+            return qRgba( 228, 228, 228, 0.0 );
 
         return QwtLinearColorMap::rgb( interval, value );
     }
@@ -214,14 +229,33 @@ public:
 
 
     }
-};//---------------------------------------------------------------------------
+};
+//---------------------------------------------------------------------------
+/// Gray scale legend for shaded relief map display
+class colorMapRGB: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+
+        char * valuechar = ((char*)(&value));
+        return qRgba( (int) valuechar[0], (int) valuechar[1], (int) valuechar[2], 255 );
+    }
+public:
+    colorMapRGB():
+        QwtLinearColorMap( QColor("#555555"),QColor("#ffffff"))
+    {
+//        addColorStop(0.000,QColor("#555555"));
+    }
+};
+
+//---------------------------------------------------------------------------
 /// Gray scale legend for shaded relief map display
 class colorMapGray: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
         if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+            return qRgba( 228, 228, 228, 0 );
 
         return QwtLinearColorMap::rgb( interval, value );
     }

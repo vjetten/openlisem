@@ -90,6 +90,7 @@ SET(APP_SOURCES
     lisSnowmelt
     main
     CsfMap.cpp
+    CsfRGBMap
     io.cpp
     fixture.cpp
     error.cpp

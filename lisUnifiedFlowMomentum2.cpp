@@ -54,8 +54,8 @@ void TWorld::UF2D_FluidApplyMomentum2(int thread,cTMap * dt, cTMap * _dem,cTMap 
             continue;
         }
 
-        out_fu->Drc = out_fu->Drc+dt->Drc * UF2D_fax->Drc;
-        out_fv->Drc = out_fv->Drc+dt->Drc * UF2D_fay->Drc;
+        out_fu->Drc =  out_fu->Drc+dt->Drc * UF2D_fax->Drc;
+        out_fv->Drc =  out_fv->Drc+dt->Drc * UF2D_fay->Drc;
 
     }}}
 
@@ -145,7 +145,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         }
 
         double h = (s + _f->Drc)/(_dx * _dx);
-        ThreadPool->UF_t1.at(thread)->Drc = h*h*(UF_Gravity*h)/2.0;
+        ThreadPool->UF_t1.at(thread)->Drc = h*(UF_Gravity*h)/2.0;
 
         if(_f->Drc + s> UF_VERY_SMALL)
         {
@@ -261,7 +261,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double daly = UF_DEMACCES(_dem,ThreadPool->UF_t6.at(thread),r,c,-1,0);
         double dary = UF_DEMACCES(_dem,ThreadPool->UF_t6.at(thread),r,c,1,0);
         double dax = (dalx + darx ) * 0.5;
-        double day =  (daly + dary ) * 0.5;
+        double day = (daly + dary ) * 0.5;
 
 
         double dhfdx = dax * UF2D_Derivative(_dem,ThreadPool->UF_t4.at(thread),r,c,UF_DIRECTION_X);
@@ -297,16 +297,16 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double ddsfdyy = day * UF2D_Derivative2(_dem,ThreadPool->UF_t3.at(thread),r,c,UF_DIRECTION_Y);
         double ddsfdxy = dax * day * UF2D_Derivative2(_dem,ThreadPool->UF_t3.at(thread),r,c,UF_DIRECTION_XY);
 
-        double dfudx = dax * UF2D_Derivative(_dem,_fu,r,c,UF_DIRECTION_X);
-        double dfudy = day * UF2D_Derivative(_dem,_fu,r,c,UF_DIRECTION_Y);
-        double dfvdx = dax * UF2D_Derivative(_dem,_fv,r,c,UF_DIRECTION_X);
-        double dfvdy = day * UF2D_Derivative(_dem,_fv,r,c,UF_DIRECTION_Y);
-        double ddfudxx = dax * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_X);
-        double ddfudyy = day * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_Y);
-        double ddfvdxy = dax * day * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_XY);
-        double ddfvdxx = dax * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_X);
-        double ddfvdyy = day * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_Y);
-        double ddfudxy = dax * day * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_XY);
+        double dfudx = dax * UF2D_Derivative(_dem,_fu,r,c,UF_DIRECTION_X,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double dfudy = day * UF2D_Derivative(_dem,_fu,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double dfvdx = dax * UF2D_Derivative(_dem,_fv,r,c,UF_DIRECTION_X,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double dfvdy = day * UF2D_Derivative(_dem,_fv,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfudxx = dax * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_X,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfudyy = day * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfvdxy = dax * day * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_XY,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfvdxx = dax * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_X,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfvdyy = day * UF2D_Derivative2(_dem,_fv,r,c,UF_DIRECTION_Y,UF_DERIVATIVE_LR,std::max(_dx,1.0));
+        double ddfudxy = dax * day * UF2D_Derivative2(_dem,_fu,r,c,UF_DIRECTION_XY,UF_DERIVATIVE_LR,std::max(_dx,1.0));
 
         double dsudx = 0;
         double dsudy = 0;
@@ -358,7 +358,20 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
                                                  dsudx,   dsudy,   dsvdx,  dsvdy,0,rddemhdy);
 
 
+        /*rfax = -lddemhdx * 9.81;
+        lfax = -rddemhdx * 9.81;
+        rfay = -lddemhdy * 9.81;
+        lfay = -rddemhdy * 9.81;*/
 
+        /*rfax = 0.0;
+        lfax = 0.0;
+        rfay = 10.0;
+        lfay = 10.0;*/
+
+        /*rfax = -UF2D_SlopeX->Drc * 9.81;
+        lfax = -UF2D_SlopeX->Drc * 9.81;
+        rfay = -UF2D_SlopeY->Drc * 9.81;
+        lfay = -UF2D_SlopeY->Drc * 9.81;*/
 
         UF2D_fax1->Drc = rfax;
         UF2D_fax2->Drc = lfax;
@@ -374,7 +387,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = lfu;
             ThreadPool->UF_t7.at(thread)->Drc = rfu;
 
-            ThreadPool->UF_t6.at(thread)->Drc = UF_Friction(dt->Drc*UF_TIMERATIO* lfax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lxh,lxslope,false,false,0.0,0,ff,sf,Nr);
+            ThreadPool->UF_t6.at(thread)->Drc =  UF_Friction(dt->Drc*UF_TIMERATIO* lfax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lxh,lxslope,false,false,0.0,0,ff,sf,Nr);
             ThreadPool->UF_t7.at(thread)->Drc = UF_Friction(dt->Drc*UF_TIMERATIO* rfax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,rxh,rxslope,false,false,0.0,0,ff,sf,Nr);
 
 

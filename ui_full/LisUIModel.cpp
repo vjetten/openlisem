@@ -391,6 +391,10 @@ void lisemqt::initOP()
     op.comboboxset = false;
 
     op.graindiameters.clear();
+
+    op.Image = NULL;
+    op.has_image = false;
+
     op.baseMap = NULL;
     op.baseMapDEM = NULL;
     op.channelMap = NULL;

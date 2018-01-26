@@ -75,7 +75,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double signv = velx>0?1.0:-1.0;
         double signa = a>0?1.0:-1.0;
 
-        a = std::min(std::fabs(a)/dt,25.0 * h);
+        a = std::fabs(a)/dt;
         double manning = solid? std::max(0.001,std::min(1.0,(std::fabs(velo) *h / 10.0)))*UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
         double nsq = UF_FRICTIONCORRECTION * manning *(0.01 +NN)*(0.01 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );// + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
 
@@ -91,7 +91,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double kinfac = std::max(0.01,(0.5 +  0.5 * pow(std::max(0.0,std::min(1.0,(h/0.25))),2.0)));
 
         velx = (nsq ==0)? velo :  sqrt(a)/sqrt(nsq);
-        velx = signa *velx ;
+        velx = signa *velx;
         double veln = velx;
 
         double fac = std::min(1.0,std::max(0.0,(std::fabs((velx - velo)) < 0.01? 1.0 :kinfac *exp( -dt * std::fabs(std::min(9.81,a)) / (std::fabs((velx - velo))+0.01)))));
@@ -158,7 +158,7 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
         return 0;
     }
     double acc = 0;
-    double h_dev = std::max(0.1,h);
+    double h_dev = std::max(0.01,h);
     double ff_dev = std::max(0.05,ff);
 
     if(x) {
@@ -188,7 +188,7 @@ double TWorld::UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, 
 
             double acc_y = (-UF_Gravity * sin(atan(ddemhdy))
                     -UF_Aspect
-                     *(//(dh2pbdy)/h
+                     *(0.0// (dh2pbdy)/h
                        //+ (pbf * (SlopeY))
                         -(1.0/(ff_dev * Nr))*(
                             2.0*ddfvdyy + ddfudxy + ddfvdxx

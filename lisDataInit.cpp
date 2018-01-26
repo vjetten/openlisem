@@ -46,7 +46,7 @@
 #include "io.h"
 #include "model.h"
 #include "operation.h"
-
+#include "CsfRGBMap.h"
 
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
@@ -1192,7 +1192,7 @@ void TWorld::GetInputData(void)
     //## make shaded relief map for display.
     InitShade();
 
-
+    InitImages();
 
 }
 //---------------------------------------------------------------------------
@@ -2004,5 +2004,23 @@ void TWorld::FindBaseFlow()
     }
 
 
+
+}
+
+void TWorld::InitImages()
+{
+
+    if(SwitchImage)
+    {
+        cTRGBMap *image = readRasterImage(imageFileName);
+        qDebug() << image->cellSize()  << image->nrCols() << image->nrRows();
+        this->RGB_Image = image;
+    }
+
+    if(SwitchMask)
+    {
+
+
+    }
 
 }

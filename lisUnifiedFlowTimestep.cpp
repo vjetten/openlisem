@@ -295,7 +295,7 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
             out_dt2d->Drc = _dt - out_t2d->Drc;
 
 
-        }else if(true)//long timesteps first
+        }else if(false)//long timesteps first
         {
             if(!(out_t2d->Drc > t ))
             {
@@ -306,7 +306,7 @@ double TWorld::UF_TimeStep(double t, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                 out_dt2d->Drc = 0;
             }
 
-        }else if(false)//short timesteps first
+        }else if(true)//short timesteps first
         {
            //this creates weird atrifacts
            //it does handle movements above courant criteria better though!, but just set courant factor lower

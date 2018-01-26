@@ -49,6 +49,11 @@ void lisemqt::onVectorsToggled(bool b)
     MPlot->setVelocityFieldEnabled(b);
     MPlot->replot();
 }
+void lisemqt::onImageToggled(bool b)
+{
+    baseMapImage->setAlpha(b? 255 : 0);
+    MPlot->replot();
+}
 void lisemqt::onSolidsToggled(bool b)
 {
     drawSMap->setAlpha(b? 255 : 0);
@@ -135,6 +140,11 @@ void lisemqt::setupMapPlot()
     baseMapDEM->attach( MPlot );
     // dem
 
+    baseMapImage = new QwtPlotSpectrogram();
+    baseMapImage->setRenderThreadCount( 0 );
+    baseMapImage->attach( MPlot );
+    //image
+
     drawMap = new QwtPlotSpectrogram();
     drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
@@ -166,6 +176,7 @@ void lisemqt::setupMapPlot()
     channelMap->attach( MPlot );
     // channel map
 
+    RImage = new QwtMatrixRasterData();
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
     RDbb = new QwtMatrixRasterData();
@@ -249,6 +260,66 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type
     return maxV;
 }
 //---------------------------------------------------------------------------
+// fill the current raster data structure with new data, called each run step
+double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD, double type)
+{
+    double maxV = -1e20;
+    mapData.clear();  //QVector double
+
+    if (_M == NULL)
+        return (maxV);
+
+    // copy map data into vector for the display structure
+    for(int r = _M->nrRows()-1; r >= 0; r--)
+        //      for(int r = 0; r < _M->nrRows(); r++)
+        for(int c=0; c < _M->nrCols(); c++)
+        {
+
+            if(true)//!pcr::isMV(_M->dataR[r][c]))
+            {
+                double value = 0;
+                char * valuechar = ((char*)(&value));
+                valuechar[0] = _M->dataR[r][c];
+                if(_M->bands > 1)
+                {
+                    valuechar[1] = _M->dataG[r][c];
+                    valuechar[2] = _M->dataB[r][c];
+                }else
+                {
+                    valuechar[1] = _M->dataR[r][c];
+                    valuechar[2] = _M->dataR[r][c];
+                }
+
+                mapData << value;
+                maxV = std::max(maxV, 1.0);
+            }
+            else
+            {
+                mapData << (double)-1e20;
+            }
+        }
+
+    mapData.replace(0, (double)type);
+    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
+
+    // set intervals for rasterdata, x,y,z min and max
+    _RD->setValueMatrix( mapData, _M->nrCols() );
+    // set column number to divide vector into rows
+
+    /*qDebug() << "referencing";
+    qDebug() << _M->north() << base->north() << _M->nrRows() * _M->cellSize() << base->nrRows()*base->cellSize();
+    qDebug() << _M->west() << base->west();*/
+
+    double cy = (_M->north()-base->north())+(-_M->nrRows()*_M->cellSize() +base->nrRows()*base->cellSize());
+    double cx = (_M->west()-base->west());
+
+    _RD->setInterval( Qt::XAxis, QwtInterval( cx,cx+ (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( cy,cy+ (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    // set x/y axis intervals
+    return maxV;
+}
+
+//---------------------------------------------------------------------------
 void lisemqt::showMapb(bool)
 {
     showMap();
@@ -283,6 +354,8 @@ void lisemqt::showMap()
         picker->UnitList.clear();
         IndexList.clear();
         IndexList1.clear();
+        picker->max_x = op.baseMapDEM->cellSize() * op.baseMapDEM->nrCols();
+        picker->max_y = op.baseMapDEM->cellSize() * op.baseMapDEM->nrRows();
 
         for(int i = 0; i < op.ComboMapsSafe.length(); i++)
         {
@@ -463,6 +536,19 @@ void lisemqt::showBaseMap()
     baseMapDEM->setColorMap(new colorMapElevation());//colorMapGray());//
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
+
+    if(op.has_image)
+    {
+
+        res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage, 0);
+        RImage->setInterval( Qt::ZAxis, QwtInterval( 0,res));
+
+        baseMapImage->setAlpha(0);
+        baseMapImage->setColorMap(new colorMapRGB());//colorMapGray());//
+        RImage->setInterval( Qt::ZAxis, QwtInterval( 0,1));
+        baseMapImage->setData(RImage);
+
+    }
 
     double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
     double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();

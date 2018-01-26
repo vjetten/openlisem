@@ -204,6 +204,17 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Snowmelt file");
 
     //###
+    namelist[i++].name = QString("[display]");
+    namelist[i++].name = QString("Image Directory");
+    namelist[i++].name = QString("Image file");
+    namelist[i++].name = QString("Mask Directory");
+    namelist[i++].name = QString("Mask file");
+    namelist[i++].name = QString("Include Image");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Mask");
+    namelist[i].value = QString("0");
+
+    //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output]");
     namelist[i++].name = QString("Result Directory");

@@ -314,7 +314,7 @@ public:
     bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
-    SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, SwitchRunoffPerM, SwitchInfilCompact,
+    SwitchSimpleDepression, SwitchBuffers, SwitchBuffersImpermeable, SwitchSedtrap, SwitchSnowmelt, SwitchRainfall,SwitchImage,SwitchMask, SwitchRunoffPerM, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
     SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
     SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
@@ -479,6 +479,10 @@ public:
     QString rainFileDir;
     QString snowmeltFileName;
     QString snowmeltFileDir;
+    QString imageFileName;
+    QString imageFileDir;
+    QString maskFileName;
+    QString maskFileDir;
     QString resultFileName;
     QString temprunname;
     QStringList outputcheck;
@@ -518,6 +522,7 @@ public:
     cTMap *InitMaskTiledrain(QString name);
     void InitChannel(void); //VJ 110112
     void InitShade(void); //VJ 130301
+    void InitImages(void);
     void InitMulticlass(void); //VJ 110511
     void GetInputData(void);      // get and make input maps
     void IntializeData(void);     // make all non-input maps

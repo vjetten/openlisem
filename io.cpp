@@ -7,7 +7,9 @@
 #include <gdal_priv.h>
 #include "csf.h"
 #include "CsfMap.h"
+#include "CsfRGBMap.h"
 #include "error.h"
+#include "QDebug"
 
 
 //! Function to close a CSF MAP.
@@ -106,6 +108,248 @@ cTMap readRaster(
     }
 
     return cTMap(std::move(raster_data), projection, pathName);
+}
+
+/*!
+    @brief      Read raster @a pathName and return the result.
+*/
+cTRGBMap *readRasterImage(
+    QString const& pathName)
+{
+    // Open raster dataset and obtain some properties.
+    GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
+        pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
+    if(!dataset) {
+        Error(QString("Map %1 cannot be opened.").arg(pathName));
+    }
+
+    int nr_bands = dataset->GetRasterCount();
+    if(nr_bands == 0) {
+        Error(QString("Map %1 does not contain any bands.").arg(pathName));
+    }
+
+    double transformation[6];
+    dataset->GetGeoTransform(transformation);
+
+    QString projection{dataset->GetProjectionRef()};
+
+
+    // Read the first raster band.
+    GDALRasterBand* band{dataset->GetRasterBand(1)};
+    assert(band);
+
+    int const nr_rows{band->GetYSize()};
+    int const nr_cols{band->GetXSize()};
+    double const west{transformation[0]};
+    double const north{transformation[3]};
+    double const cell_size{transformation[1]};
+
+    qDebug() << "loading image " << pathName<< west << north << cell_size << nr_rows << nr_cols << nr_bands << band->GetRasterDataType();
+
+    if(nr_bands == 1 || nr_bands == 2)
+    {
+        MaskedRaster<float> raster_data(nr_rows, nr_cols, north, west, cell_size);
+
+        if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
+                nr_cols, nr_rows, GDT_Float32, 0, 0) != CE_None) {
+            Error(QString("Raster band %1 cannot be read.").arg(pathName));
+        }
+        int s = 0;
+        int s2 = 0;
+        double min = band->GetMinimum(&s);
+        double max = band->GetMaximum(&s2);
+
+        int hasNoDataValue{false};
+        double noDataValue{band->GetNoDataValue(&hasNoDataValue)};
+        if(hasNoDataValue) {
+            raster_data.replace_with_mv(noDataValue);
+        }
+
+
+        double av = 0;
+        int n = 0;
+        for(int i =0; i < nr_rows; i++)
+        {
+            for(int j = 0; j < nr_cols; j++)
+            {
+                if(!pcr::isMV(raster_data[i][j]))
+                {
+                     av += raster_data[i][j];
+                     n++;
+                }
+            }
+        }
+        av = av/n;
+
+        MaskedRaster<char> raster_data_int(nr_rows, nr_cols, north, west, cell_size);
+
+        for(int i =0; i < nr_rows; i++)
+        {
+            for(int j = 0; j < nr_cols; j++)
+            {
+                raster_data_int[i][j] = char(int(std::min(255.0,std::max(1.0,(255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min))))));
+            }
+        }
+
+        return new cTRGBMap(std::move(raster_data_int),projection,pathName);
+    }else if(nr_bands > 2)
+    {
+
+        MaskedRaster<char> raster_data_int1(nr_rows, nr_cols, north, west, cell_size);
+        MaskedRaster<char> raster_data_int2(nr_rows, nr_cols, north, west, cell_size);
+        MaskedRaster<char> raster_data_int3(nr_rows, nr_cols, north, west, cell_size);
+
+
+        {
+            MaskedRaster<float> raster_data(nr_rows, nr_cols, north, west, cell_size);
+
+            if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
+                    nr_cols, nr_rows, GDT_Float32, 0, 0) != CE_None) {
+                Error(QString("Raster band %1 cannot be read.").arg(pathName));
+            }
+            int s = 0;
+            int s2 = 0;
+
+
+            double min = band->GetMinimum(&s);
+            double max = band->GetMaximum(&s2);
+
+            int hasNoDataValue{false};
+            double noDataValue{band->GetNoDataValue(&hasNoDataValue)};
+            if(hasNoDataValue) {
+                raster_data.replace_with_mv(noDataValue);
+            }
+
+            double av = 0;
+            int n = 0;
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    if(!pcr::isMV(raster_data[i][j]))
+                    {
+                         av += raster_data[i][j];
+                         n++;
+                    }
+                }
+            }
+            av = av/n;
+
+            qDebug() << av << min << max;
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    raster_data_int1[i][j] = char(int(std::min(255.0,std::max(1.0,255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                }
+            }
+        }
+
+        band = dataset->GetRasterBand(2);
+        assert(band);
+
+        if(!(band->GetYSize() == nr_rows && band->GetXSize() == nr_cols))
+        {
+            Error(QString("band 2 is not identical in size to band 1.").arg(pathName));
+        }
+
+        {
+            MaskedRaster<float> raster_data(nr_rows, nr_cols, north, west, cell_size);
+
+            if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
+                    nr_cols, nr_rows, GDT_Float32, 0, 0) != CE_None) {
+                Error(QString("Raster band %1 cannot be read.").arg(pathName));
+            }
+            int s = 0;
+            int s2 = 0;
+            double min = band->GetMinimum(&s);
+            double max = band->GetMaximum(&s2);
+
+            int hasNoDataValue{false};
+            double noDataValue{band->GetNoDataValue(&hasNoDataValue)};
+            if(hasNoDataValue) {
+                raster_data.replace_with_mv(noDataValue);
+            }
+
+            double av = 0;
+            int n = 0;
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    if(!pcr::isMV(raster_data[i][j]))
+                    {
+                         av += raster_data[i][j];
+                         n++;
+                    }
+                }
+            }
+            av = av/n;
+
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    raster_data_int2[i][j] = char(int(std::min(255.0,(255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                }
+            }
+        }
+
+        band = dataset->GetRasterBand(3);
+        assert(band);
+
+        if(!(band->GetYSize() == nr_rows && band->GetXSize() == nr_cols))
+        {
+            Error(QString("band 3 is not identical in size to band 1.").arg(pathName));
+        }
+
+        {
+            MaskedRaster<float> raster_data(nr_rows, nr_cols, north, west, cell_size);
+
+            if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
+                    nr_cols, nr_rows, GDT_Float32, 0, 0) != CE_None) {
+                Error(QString("Raster band %1 cannot be read.").arg(pathName));
+            }
+            int s = 0;
+            int s2 = 0;
+            double min = band->GetMinimum(&s);
+            double max = band->GetMaximum(&s2);
+
+
+            int hasNoDataValue{false};
+            double noDataValue{band->GetNoDataValue(&hasNoDataValue)};
+            if(hasNoDataValue) {
+                raster_data.replace_with_mv(noDataValue);
+            }
+
+            double av = 0;
+            int n = 0;
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    if(!pcr::isMV(raster_data[i][j]))
+                    {
+                         av += raster_data[i][j];
+                         n++;
+                    }
+                }
+            }
+            av = av/n;
+
+
+            for(int i =0; i < nr_rows; i++)
+            {
+                for(int j = 0; j < nr_cols; j++)
+                {
+                    raster_data_int3[i][j] = char(int((std::min(255.0,255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                }
+            }
+        }
+
+        return new cTRGBMap(std::move(raster_data_int1),std::move(raster_data_int2),std::move(raster_data_int3),projection,pathName);
+    }
+
 }
 
 

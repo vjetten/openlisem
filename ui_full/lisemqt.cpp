@@ -789,6 +789,7 @@ void lisemqt::SetToolBar()
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
 
+    connect(checkMapImage, SIGNAL(clicked(bool)), this, SLOT(onImageToggled(bool)));
     connect(checkMapVectors, SIGNAL(clicked(bool)), this, SLOT(onVectorsToggled(bool)));
     connect(checkSolidsMap, SIGNAL(clicked(bool)), this, SLOT(onSolidsToggled(bool)));
 
@@ -1013,6 +1014,43 @@ void lisemqt::on_toolButton_RainfallName_clicked()
         RainFileName = fi.fileName();
         RainFileDir = CheckDir(fi.absolutePath());//Dir().path());
         E_RainfallName->setText( RainFileDir + RainFileName );
+    }
+}
+//--------------------------------------------------------------------
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_ImageName_clicked()
+{
+    QString path;
+
+    ImageFileDir = findValidDir(RainFileDir, false);
+
+    path = QFileDialog::getOpenFileName(this,
+                                        QString("Select Image file"),
+                                        ImageFileDir);
+    if(!path.isEmpty())
+    {
+        QFileInfo fi(path);
+        ImageFileName = fi.fileName();
+        ImageFileDir = CheckDir(fi.absolutePath());//Dir().path());
+        E_ImageName->setText( ImageFileDir + ImageFileName );
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_MaskName_clicked()
+{
+    QString path;
+
+    MaskFileDir = findValidDir(MaskFileDir, false);
+
+    path = QFileDialog::getOpenFileName(this,
+                                        QString("Select Mask file"),
+                                        MaskFileDir);
+    if(!path.isEmpty())
+    {
+        QFileInfo fi(path);
+        MaskFileName = fi.fileName();
+        MaskFileDir = CheckDir(fi.absolutePath());//Dir().path());
+        E_MaskName->setText( MaskFileDir + MaskFileName );
     }
 }
 //--------------------------------------------------------------------

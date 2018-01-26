@@ -419,3 +419,6 @@ cTMap * FlowBarrierNT;
 cTMap * FlowBarrierWT;
 cTMap * FlowBarrierST;
 cTMap * FlowBarrierET;
+
+
+cTRGBMap * RGB_Image;

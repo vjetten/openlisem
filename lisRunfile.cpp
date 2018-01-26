@@ -261,6 +261,8 @@ void TWorld::ParseRunfileData(void)
         //VJ 100526 always true in old LISEM
 
         if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
+        if (p1.compare("Include Image")==0)               SwitchImage =         iii == 1;
+        if (p1.compare("Include Mask")==0)               SwitchMask =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
         //  if (p1.compare("Alternative flow detachment")==0)    SwitchAltErosion =       iii == 1;
         if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
@@ -418,6 +420,16 @@ void TWorld::ParseRunfileData(void)
         {
             if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
             if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
+        }
+        if (SwitchImage)
+        {
+            if (p1.compare("Image Directory")==0) imageFileDir = CheckDir(p);
+            if (p1.compare("Image file")==0) imageFileName = imageFileDir + "/" + p;
+        }
+        if (SwitchMask)
+        {
+            if (p1.compare("Mask Directory")==0) maskFileDir = CheckDir(p);
+            if (p1.compare("Mask file")==0) maskFileName = maskFileDir + "/" + p;
         }
 
         // OUTPUT FILES

@@ -235,8 +235,12 @@ double TWorld::UF2D_Derivative_scaled(cTMap * _dem, cTMap * _in, int r, int c, i
 }
 
 
-double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside)
+double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int direction, int calculationside, double dx)
 {
+    if(dx == 0)
+    {
+        dx = _dx;
+    }
     if(UF_OUTORMV(_dem,r,c))
     {
         return 0;
@@ -247,7 +251,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
         double x1 = !UF_OUTORMV(_dem,r,c+1)? _in->data[r][c+1] : x;
         double x2 = !UF_OUTORMV(_dem,r,c-1)? _in->data[r][c-1] : x;
 
-        return (x1 - 2.0 * x + x2)/(_dx*_dx);
+        return (x1 - 2.0 * x + x2)/(dx*dx);
     }
     if(direction == UF_DIRECTION_Y)
     {
@@ -255,7 +259,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
         double y1 = !UF_OUTORMV(_dem,r+1,c)? _in->data[r+1][c] : y;
         double y2 = !UF_OUTORMV(_dem,r-1,c)? _in->data[r-1][c] : y;
 
-        return (y1 - 2.0 * y + y2)/(_dx*_dx);
+        return (y1 - 2.0 * y + y2)/(dx*dx);
     }
     if(direction == UF_DIRECTION_XY)
     {
@@ -265,7 +269,7 @@ double TWorld::UF2D_Derivative2(cTMap * _dem, cTMap * _in, int r, int c, int dir
         double xy3 = !UF_OUTORMV(_dem,r-1,c+1)? _in->data[r-1][c+1] : xy;
         double xy4 = !UF_OUTORMV(_dem,r-1,c-1)? _in->data[r-1][c-1] : xy;
 
-        return (xy1 - xy2 - xy3 + xy4)/(4.0*_dx*_dx);
+        return (xy1 - xy2 - xy3 + xy4)/(4.0*dx*dx);
     }
     return 0;
 

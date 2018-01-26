@@ -203,16 +203,19 @@ public:
     void showHouseMap();
     void showConcentrationMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double type);
+    double fillDrawMapDataRGB(cTMap *base,cTRGBMap *_M, QwtMatrixRasterData *_RD, double type);
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *drawSMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
+    QwtPlotSpectrogram *baseMapImage;  // raster map drawing
     QwtPlotSpectrogram *channelMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
     LisQwtPlot *MPlot;               // plot in which the raster map is drawn
+    QwtMatrixRasterData *RImage;
     QwtMatrixRasterData *RD;
     QwtMatrixRasterData *RDb;
     QwtMatrixRasterData *RDbb;
@@ -303,6 +306,10 @@ public:
     QString currentDir;
     QString RainFileName;
     QString RainFileDir;
+    QString ImageFileName;
+    QString ImageFileDir;
+    QString MaskFileName;
+    QString MaskFileDir;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
@@ -385,6 +392,8 @@ public slots:
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
     void on_toolButton_RainfallName_clicked();
+    void on_toolButton_ImageName_clicked();
+    void on_toolButton_MaskName_clicked();
     void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
     void on_toolButton_SnowmeltShow_clicked();
@@ -441,6 +450,7 @@ public slots:
     void on_checkReadGrainSizeDistribution_toggled(bool v);
 
     void onVectorsToggled(bool b);
+    void onImageToggled(bool b);
     void onSolidsToggled(bool b);
 
     void ssetAlpha(int v);

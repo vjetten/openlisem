@@ -29,6 +29,7 @@
 
 
 #include <CsfMap.h>
+#include <CsfRGBMap.h>
 
 
 #ifndef LISUIOUTPUT_H_
@@ -87,6 +88,9 @@ struct output{
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
 
+
+    cTRGBMap * Image;
+    bool has_image;
 
     cTMap *baseMap;
     cTMap *baseMapDEM;

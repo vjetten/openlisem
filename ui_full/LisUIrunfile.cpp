@@ -391,7 +391,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Create Stable Initial Safety Factor")==0)       E_IncreaseSlopeStabilityCohesion->setChecked(check);
         if (p1.compare("Minimum Safety Factor Calibration")==0)         E_CalibrateMinimumSafetyFactor->setValue(val);
 
-
+        if (p1.compare("Include Image")==0) checkImage->setChecked(check);
+        if (p1.compare("Include Mask")==0) checkMask->setChecked(check);
 
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(val);
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(val);
@@ -650,6 +651,31 @@ void lisemqt::ParseInputData()
                 E_RainfallName->setText(RainFileDir + p);
             }
         }
+
+
+        if (p1.compare("Image Directory")==0) ImageFileDir = CheckDir(p);
+        if (p1.compare("Image file")==0)
+        {
+            E_ImageName->setText(ImageFileDir + p);
+            ImageFileName = p;///*rainFileDir + */E_RainfallName->text();
+            if (!QFileInfo(E_ImageName->text()).exists())
+            {
+                ImageFileDir = QString(E_WorkDir/*->text()*/ + "rain/");
+                E_ImageName->setText(ImageFileDir + p);
+            }
+        }
+        if (p1.compare("Mask Directory")==0) MaskFileDir = CheckDir(p);
+        if (p1.compare("Mask file")==0)
+        {
+            E_MaskName->setText(MaskFileDir + p);
+            MaskFileName = p;///*rainFileDir + */E_RainfallName->text();
+            if (!QFileInfo(E_MaskName->text()).exists())
+            {
+                MaskFileDir = QString(E_WorkDir/*->text()*/ + "rain/");
+                E_MaskName->setText(MaskFileDir + p);
+            }
+        }
+
 
         if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
         if (p1.compare("Interception map")==0) E_InterceptionMap->setText(p);
@@ -912,10 +938,12 @@ void lisemqt::updateModelData()
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 
+
         //houses
         if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
-
+        if (p1.compare("Include Image")==0)                  namelist[j].value.setNum((int)checkImage->isChecked());
+        if (p1.compare("Include Mask")==0)                   namelist[j].value.setNum((int)checkMask->isChecked());
         if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
@@ -987,6 +1015,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName; //E_RainfallName->text();
         if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
         if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;//E_SnowmeltName->text();
+        if (p1.compare("Mask Directory")==0) namelist[j].value = MaskFileDir;
+        if (p1.compare("Mask file")==0) namelist[j].value =MaskFileName;
+        if (p1.compare("Image Directory")==0) namelist[j].value = ImageFileDir;
+        if (p1.compare("Image file")==0) namelist[j].value =ImageFileName;
 
         if (p1.compare("Rainfall map")==0) namelist[j].value = E_RainfallMap->text();
         if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();

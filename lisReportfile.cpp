@@ -1236,6 +1236,12 @@ void TWorld::setupDisplayMaps()
     op.gl_ch_flow_v->MakeMap(LDD, 0);
     op.gl_ch_flow_c->MakeMap(LDD, 0);
     op.gl_dem_change->MakeMap(LDD, 0);
+
+    if(SwitchImage)
+    {
+        op.has_image = true;
+        op.Image = RGB_Image;
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::setupHydrographData()
@@ -1412,17 +1418,31 @@ void TWorld::GetComboMaps()
 
     /*AddComboMap(0,"Flow Height","m",UF2D_qout,Colormap,Colors,false,false,1.0, 0.01);*/
 
-    /*AddComboMap(0,"fqx1","m",UF2D_fqx1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"fqx2","m",UF2D_fqx2,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"fqy1","m",UF2D_fqy1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"fqy2","m",UF2D_fqy2,Colormap,Colors,false,false,1.0, 0.01);
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.3);
+    Colormap.append(0.5);
+    Colormap.append(0.70);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#616ca2");//#457A60");
+    Colors.append("#50B547");//#96B547");
+    Colors.append("#FFFFFF");
+    Colors.append("#FFFF00");
+    Colors.append("#FF0000");
 
-    AddComboMap(0,"Fax1","m",UF2D_fax1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Fax2","m",UF2D_fax2,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Fay1","m",UF2D_fay1,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Fay2","m",UF2D_fay2,Colormap,Colors,false,false,1.0, 0.01);
 
-    AddComboMap(0,"Sax1","m",UF2D_sax1,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"fqx1","m",UF2D_fqx1,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"fqx2","m",UF2D_fqx2,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"fqy1","m",UF2D_fqy1,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"fqy2","m",UF2D_fqy2,Colormap,Colors,false,true,1.0, 0.01);
+
+    AddComboMap(0,"Fax1","m",UF2D_fax1,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"Fax2","m",UF2D_fax2,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"Fay1","m",UF2D_fay1,Colormap,Colors,false,true,1.0, 0.01);
+    AddComboMap(0,"Fay2","m",UF2D_fay2,Colormap,Colors,false,true,1.0, 0.01);
+
+    /*AddComboMap(0,"Sax1","m",UF2D_sax1,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Sax2","m",UF2D_sax2,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Say1","m",UF2D_say1,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Say2","m",UF2D_say2,Colormap,Colors,false,false,1.0, 0.01);

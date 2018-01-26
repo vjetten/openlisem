@@ -792,8 +792,10 @@ class LisQwtPlot : public QwtPlot
 
                     if(vel_l > 0.001)
                     {
-                        double d_x =  2.0*(double(vel.x())/vel_l)* (vel_l/max_vel)* m_velocityPeriod*2.0/3.0;
-                        double d_y = 2.0*(double(vel.y())/vel_l)* (vel_l/max_vel) * m_velocityPeriod*2.0/3.0;
+                        //double d_x =  2.0*(double(vel.x())/vel_l)* (vel_l/max_vel)* m_velocityPeriod*2.0/3.0;
+                        //double d_y = 2.0*(double(vel.y())/vel_l)* (vel_l/max_vel) * m_velocityPeriod*2.0/3.0;
+                        double d_x =  2.0*(double(vel.x())/vel_l)* m_velocityPeriod*2.0/3.0;
+                        double d_y = 2.0*(double(vel.y())/vel_l)* m_velocityPeriod*2.0/3.0;
 
                         if(std::fabs(d_x) > 1.0 || std::fabs(d_y) > 1.0)
                         {
