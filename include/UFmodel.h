@@ -219,6 +219,14 @@
     cTMap * UF2D_sqx2;
     cTMap * UF2D_sqy2;
 
+    // for suspended matter
+    cTMap * UF2D_ssqx1;
+    cTMap * UF2D_ssqy1;
+    cTMap * UF2D_ssqx2;
+    cTMap * UF2D_ssqy2;
+    cTMap * UF2D_empty;
+
+
     cTMap * UF2D_Compaction;
 
     cTMap * UF2D_DC;

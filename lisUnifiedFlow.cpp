@@ -322,14 +322,14 @@ double TWorld::UF2D_Scheme(int thread,cTMap* dt, cTMap * _dem,cTMap * _f,cTMap *
         {
             UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qblout);
             UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qssout);
+
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
                 {
                     UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
                     UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
-
-                }
+            }
             }
         }
 

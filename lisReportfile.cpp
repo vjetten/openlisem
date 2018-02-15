@@ -797,7 +797,11 @@ void TWorld::ReportMaps(int not_used)
         calcMap(*(ThreadPool->tm), *(ThreadPool->tma), MUL);
         report(*(ThreadPool->tm), totalErosionFileName);
         if (outputcheck[5].toInt() == 1)
+        {
             report(*(ThreadPool->tm), Outeros); // in units
+
+        }
+
 
         // all deposition combined
         FOR_ROW_COL_MV
@@ -843,6 +847,20 @@ void TWorld::ReportMaps(int not_used)
     }
 
     report(*UF2D_f, FinalFluidPhaseFileName);
+    report(*UF2D_fqx1, "FQx1O");
+    report(*UF2D_fqx2, "FQx2O");
+    report(*UF2D_fqy1, "FQy1O");
+    report(*UF2D_fqy2, "FQy2O");
+
+    report(*UF2D_bltc, "BLTC");
+    report(*UF2D_sstc, "SSTC");
+
+
+    report(*UF2D_ssqx1, "SSQx1O");
+   // report(*UF2D_ssqx2, "SSQx2O");
+   // report(*UF2D_ssqy1, "SSQy1O");
+   //  report(*UF2D_ssqy2, "SSQy2O");
+
 
     if (SwitchChannelFlood)
     {
@@ -896,8 +914,14 @@ void TWorld::ReportMaps(int not_used)
         report(*TotalEntrainmentDep,FileName_EntrainmentDep);
     }
 
+
+
     if (outputcheck[0].toInt() == 1)
+    {
         report(*Qoutput, Outrunoff); // in l/s
+
+
+    }
     if (outputcheck[2].toInt() == 1)
     {
         calcMapValue(*(ThreadPool->tm), *WH, 1000, MUL);// WH in mm

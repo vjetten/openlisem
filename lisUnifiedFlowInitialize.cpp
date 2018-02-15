@@ -209,6 +209,13 @@ void TWorld::UF_Init()
     UF2D_fsd = NewMap(0.0);
     UF2D_tsf = NewMap(0.0);
 
+    //suspended matter
+    UF2D_ssqx1 = NewMap(0.0);
+    UF2D_ssqy1 = NewMap(0.0);
+    UF2D_ssqx2 = NewMap(0.0);
+    UF2D_ssqy2 = NewMap(0.0);
+    UF2D_empty = NewMap(0.0);
+
     //solid phase
     if(UF_SOLIDPHASE)
     {
