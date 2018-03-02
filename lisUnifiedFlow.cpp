@@ -486,11 +486,16 @@ void TWorld::UF_SetInput()
         UF1D_qblout->Drc = 0;
         UF1D_qssout->Drc = 0;
     }
-    FOR_ROW_COL_UF1D
+    if(SwitchIncludeChannel)
     {
-
-        UF1D_q->Drc = 0;
-        UF1D_qs->Drc = 0;
+        FOR_ROW_COL_UF1D
+        {
+            // add rainfall in m3, no interception
+            UF1D_f->Drc +=  Rain->Drc*_dx*ChannelWidth->Drc;
+            RainTot += Rain->Drc*_dx*ChannelWidth->Drc;
+            UF1D_q->Drc = 0;
+            UF1D_qs->Drc = 0;
+        }
     }
 
     UF2D_foutflow = 0;

@@ -64,7 +64,7 @@ void TWorld::Totals(void)
 
         calcMapValue(*tm, *Rain, (_dx*_dx), MUL); //in m3
         rainfall = mapTotal(*tm);
-        RainTot += rainfall; // in m3
+        //RainTot += rainfall; // in m3
 
         oldrainpeak  = Rainpeak;
         Rainpeak = std::max(Rainpeak, rainfall);

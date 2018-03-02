@@ -399,8 +399,6 @@ void TWorld::UF2D1D_ChannelWater(int thread,cTMap * dt, cTMap * _dem,cTMap * _ld
 
     FOR_ROW_COL_UF1DMT_DT
     {
-        // add rainfall in m3, no interception
-        _f1D->Drc += (dt->Drc/_dt) * Rainc->Drc*DX->Drc*ChannelWidth->Drc;
 
 
         if(SwitchInflow)

@@ -86,8 +86,6 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     // DOES NOT WORK for more than one station
     // add a very large number so that the rainfall after the last timestep is 0
 
-    //   qDebug() << rainRecs.count();
-
     QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
     // get first line, white space character as split for header
 
@@ -237,6 +235,8 @@ void TWorld::RainfallMap(void)
         if (timeminprev < RainfallSeriesM[rainplace].time)
             break;
 
+    double rainav = 0;
+
     if (RainfallSeriesM[rainplace].isMap)
     {
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
@@ -274,11 +274,14 @@ void TWorld::RainfallMap(void)
         RainstartTime = time;
     }
 
-
     FOR_ROW_COL_MV
     {
+        rainav += Rain->Drc;
         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
         // correction for slope dx/DX, water spreads out over larger area
+
+        RainTot += Rain->Drc * _dx * ChannelAdj->Drc;
+
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
         RainCum->Drc += Rainc->Drc;
@@ -287,6 +290,7 @@ void TWorld::RainfallMap(void)
         // net rainfall in case of interception
 
     }
+
 }
 //---------------------------------------------------------------------------
 

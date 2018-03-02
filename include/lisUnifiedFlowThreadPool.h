@@ -98,6 +98,7 @@ public:
     cTMap * cellC1d;
 
     cTMap * CoreMask2d;
+    cTMap * CoreMask2dfull;
     cTMap * InverseDTMask2d;
     cTMap * Mask2d;
     cTMap * DTMask2d;

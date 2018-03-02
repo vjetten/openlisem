@@ -78,9 +78,10 @@ void TWorld::DoModel()
         DEBUG("ParseRunfileData()");
         ParseRunfileData();
         // get and parse runfile
-
+        qDebug() << "get input";
         DEBUG("GetInputData()");
         GetInputData();
+        qDebug() << "get input done";
         DEBUG("IntializeData()");
         IntializeData();
 
@@ -152,7 +153,8 @@ void TWorld::DoModel()
                 qDebug() << runstep << maxstep << time/60 ;
             }
 
-
+            n_cores = 0;
+            rain_total = 0;
 
            // DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
 
@@ -167,6 +169,7 @@ void TWorld::DoModel()
                 DynamicProcessWrapper();
 
             ////END CALCULATIONS
+
 
 
             ThreadPool->WaitForReportThread();

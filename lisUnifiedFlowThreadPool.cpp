@@ -103,7 +103,7 @@ void LisemThreadPool::InitThreads(TWorld * world)
 
 
     bool limit_threads = world->getvalueint("Limit Cores") == 1;
-    double limit_nr = world->getvalueint("Core Limit") == 1;
+    double limit_nr = world->getvalueint("Core Limit");
 
     //first get the number of cores
     TP_NumberOfCores = limit_threads? std::max(1.0,limit_nr) : std::thread::hardware_concurrency();
@@ -141,6 +141,7 @@ void LisemThreadPool::InitThreads(TWorld * world)
     cellC1d = world->NewMap(0.0);
 
     CoreMask2d = world->NewMap(-1.0);
+    CoreMask2dfull = world->NewMap(-1.0);
     InverseDTMask2d = world->NewMap(0.0);
     Mask2d = world->NewMap(0.0);
     DTMask2d = world->NewMap(0.0);
@@ -340,8 +341,14 @@ void LisemThreadPool::SetMaskInitial(cTMap * _demmask,cTMap *_ldd)
     {
         for (int cc = minc; cc < maxc+1; cc++)
         {
-            if(!pcr::isMV(_demmask->data[rc][cc]) )
+
             {
+                bool add = false;
+                if(!pcr::isMV(_demmask->data[rc][cc]) )
+                {
+                    add = true;
+                }
+
                 bool inend = allinend;
                 if(!allinend)
                 {
@@ -373,54 +380,59 @@ void LisemThreadPool::SetMaskInitial(cTMap * _demmask,cTMap *_ldd)
                         core += c2;
                     }
                     core = std::max(0,std::min( TP_NumberOfCores - 1,core));
-                    CoreMask2d->data[rc][cc] = core;
+                    CoreMask2dfull->data[rc][cc] = core;
 
-                    int trc = trcl2d.at(core);
-                    int tcc = tccl2d.at(core);
-
-                    CellRMaskListOrdered2d.at(core)->data[trc][tcc] = rc;
-                    CellCMaskListOrdered2d.at(core)->data[trc][tcc] = cc;
-
-                    tcc ++;
-                    if(cc == _nrCols)
+                    if(add)
                     {
-                        trc ++;
-                        tcc = 0;
-                    }
-                    if(INSIDE(trc,tcc))
-                    {
-                        CellRMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
-                        CellCMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
-                    }
-                    trcl2d.replace(core,trc);
-                    tccl2d.replace(core,tcc);
+                        CoreMask2d->data[rc][cc] = core;
 
-                    if(_ldd != 0)
-                    {
-                        if(!pcr::isMV(_ldd->data[rc][cc]) )
+                        int trc = trcl2d.at(core);
+                        int tcc = tccl2d.at(core);
+
+                        CellRMaskListOrdered2d.at(core)->data[trc][tcc] = rc;
+                        CellCMaskListOrdered2d.at(core)->data[trc][tcc] = cc;
+
+                        tcc ++;
+                        if(cc == _nrCols)
                         {
-                            CoreMask1d->data[rc][cc] = core;
+                            trc ++;
+                            tcc = 0;
+                        }
+                        if(INSIDE(trc,tcc))
+                        {
+                            CellRMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
+                            CellCMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
+                        }
+                        trcl2d.replace(core,trc);
+                        tccl2d.replace(core,tcc);
 
-                            trc = trcl1d.at(core);
-                            tcc = tccl1d.at(core);
-
-                            CellRMaskListOrdered1d.at(core)->data[trc][tcc] = rc;
-                            CellCMaskListOrdered1d.at(core)->data[trc][tcc] = cc;
-
-                            tcc ++;
-                            if(tcc == _nrCols)
+                        if(_ldd != 0)
+                        {
+                            if(!pcr::isMV(_ldd->data[rc][cc]) )
                             {
-                                trc ++;
-                                tcc = 0;
-                            }
-                            if(INSIDE(trc,tcc))
-                            {
-                                CellRMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
-                                CellCMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
-                            }
-                            trcl1d.replace(core,trc);
-                            tccl1d.replace(core,tcc);
+                                CoreMask1d->data[rc][cc] = core;
 
+                                trc = trcl1d.at(core);
+                                tcc = tccl1d.at(core);
+
+                                CellRMaskListOrdered1d.at(core)->data[trc][tcc] = rc;
+                                CellCMaskListOrdered1d.at(core)->data[trc][tcc] = cc;
+
+                                tcc ++;
+                                if(tcc == _nrCols)
+                                {
+                                    trc ++;
+                                    tcc = 0;
+                                }
+                                if(INSIDE(trc,tcc))
+                                {
+                                    CellRMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
+                                    CellCMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
+                                }
+                                trcl1d.replace(core,trc);
+                                tccl1d.replace(core,tcc);
+
+                            }
                         }
                     }
                 }else
@@ -430,55 +442,60 @@ void LisemThreadPool::SetMaskInitial(cTMap * _demmask,cTMap *_ldd)
                     {
                         core= 0;
                     }
-                    CoreMask2d->data[rc][cc] = core;
+                    CoreMask2dfull->data[rc][cc] = core;
 
-                    int trc = trcl2d.at(core);
-                    int tcc = tccl2d.at(core);
-
-                    CellRMaskListOrdered2d.at(core)->data[trc][tcc] = rc;
-                    CellCMaskListOrdered2d.at(core)->data[trc][tcc] = cc;
-
-                    tcc ++;
-                    if(tcc == _nrCols)
+                    if(add)
                     {
-                        trc ++;
-                        tcc = 0;
-                    }
-                    if(INSIDE(trc,tcc))
-                    {
-                        CellRMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
-                        CellCMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
-                    }
-                    trcl2d.replace(core,trc);
-                    tccl2d.replace(core,tcc);
+                        CoreMask2d->data[rc][cc] = core;
 
-                    if(_ldd != 0)
-                    {
-                        if(!pcr::isMV(_ldd->data[rc][cc]))
+                        int trc = trcl2d.at(core);
+                        int tcc = tccl2d.at(core);
+
+                        CellRMaskListOrdered2d.at(core)->data[trc][tcc] = rc;
+                        CellCMaskListOrdered2d.at(core)->data[trc][tcc] = cc;
+
+                        tcc ++;
+                        if(tcc == _nrCols)
                         {
+                            trc ++;
+                            tcc = 0;
+                        }
+                        if(INSIDE(trc,tcc))
+                        {
+                            CellRMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
+                            CellCMaskListOrdered2d.at(core)->data[trc][tcc] = -1;
+                        }
+                        trcl2d.replace(core,trc);
+                        tccl2d.replace(core,tcc);
 
-                            CoreMask1d->data[rc][cc] = core;
-
-                            trc = trcl1d.at(core);
-                            tcc = tccl1d.at(core);
-
-                            CellRMaskListOrdered1d.at(core)->data[trc][tcc] = rc;
-                            CellCMaskListOrdered1d.at(core)->data[trc][tcc] = cc;
-
-                            tcc ++;
-                            if(tcc == _nrCols)
+                        if(_ldd != 0)
+                        {
+                            if(!pcr::isMV(_ldd->data[rc][cc]))
                             {
-                                trc ++;
-                                tcc = 0;
-                            }
-                            if(INSIDE(trc,tcc))
-                            {
-                                CellRMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
-                                CellCMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
-                            }
-                            trcl1d.replace(core,trc);
-                            tccl1d.replace(core,tcc);
 
+                                CoreMask1d->data[rc][cc] = core;
+
+                                trc = trcl1d.at(core);
+                                tcc = tccl1d.at(core);
+
+                                CellRMaskListOrdered1d.at(core)->data[trc][tcc] = rc;
+                                CellCMaskListOrdered1d.at(core)->data[trc][tcc] = cc;
+
+                                tcc ++;
+                                if(tcc == _nrCols)
+                                {
+                                    trc ++;
+                                    tcc = 0;
+                                }
+                                if(INSIDE(trc,tcc))
+                                {
+                                    CellRMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
+                                    CellCMaskListOrdered1d.at(core)->data[trc][tcc] = -1;
+                                }
+                                trcl1d.replace(core,trc);
+                                tccl1d.replace(core,tcc);
+
+                            }
                         }
                     }
                 }
@@ -511,35 +528,35 @@ void LisemThreadPool::SetMaskInitial(cTMap * _demmask,cTMap *_ldd)
                 {
                     found = true;
                 }
-                if(INSIDE(r,c-1)){if(CoreMask2d->data[r][c-1] == i)
+                if(INSIDE(r,c-1)){if(CoreMask2dfull->data[r][c-1] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r,c+1)){if(CoreMask2d->data[r][c+1] == i)
+                if(INSIDE(r,c+1)){if(CoreMask2dfull->data[r][c+1] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r-1,c)){if(CoreMask2d->data[r-1][c] == i)
+                if(INSIDE(r-1,c)){if(CoreMask2dfull->data[r-1][c] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r+1,c)){if(CoreMask2d->data[r+1][c] == i)
+                if(INSIDE(r+1,c)){if(CoreMask2dfull->data[r+1][c] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r+1,c-1)){if(CoreMask2d->data[r+1][c-1] == i)
+                if(INSIDE(r+1,c-1)){if(CoreMask2dfull->data[r+1][c-1] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r-1,c+1)){if(CoreMask2d->data[r-1][c+1] == i)
+                if(INSIDE(r-1,c+1)){if(CoreMask2dfull->data[r-1][c+1] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r-1,c-1)){if(CoreMask2d->data[r-1][c-1] == i)
+                if(INSIDE(r-1,c-1)){if(CoreMask2dfull->data[r-1][c-1] == i)
                 {
                     found = true;
                 }}
-                if(INSIDE(r+1,c+1)){if(CoreMask2d->data[r+1][c+1] == i)
+                if(INSIDE(r+1,c+1)){if(CoreMask2dfull->data[r+1][c+1] == i)
                 {
                     found = true;
                 }}

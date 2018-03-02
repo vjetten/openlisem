@@ -391,6 +391,10 @@ public:
  //   double rainFloodingGradient;
     bool firstssreport,sfset;
 
+    double n_cores;
+    double n_rainfall[8];
+    double rain_total;
+
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot,QtotT, QtotOutlet, IntercTot, WaterVolTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlow;
