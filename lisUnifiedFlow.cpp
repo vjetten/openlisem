@@ -320,16 +320,16 @@ double TWorld::UF2D_Scheme(int thread,cTMap* dt, cTMap * _dem,cTMap * _f,cTMap *
 
         if(SwitchErosion)
         {
-            UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qblout);
-            UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qssout);
+            UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qblout,UF2D_fsqx1,UF2D_fsqx2,UF2D_fsqx1,UF2D_fsqx2);
+            UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0, UF2D_qssout,UF2D_fsqx1,UF2D_fsqx2,UF2D_fsqx1,UF2D_fsqx2);
 
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
                 {
-                    UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
-                    UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0);
-            }
+                    UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_blm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0,UF2D_fsqx1,UF2D_fsqx2,UF2D_fsqx1,UF2D_fsqx2);
+                    UF2D_fsoutflow += UF2D_Advect2_mass(thread,dt,_dem,UF2D_ssm_D.at(d),_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,0,UF2D_fsqx1,UF2D_fsqx2,UF2D_fsqx1,UF2D_fsqx2);
+                }
             }
         }
 
@@ -660,6 +660,30 @@ void TWorld::UF_UpdateDisplayMaps(int thread,cTMap * dt, cTMap * _dem,cTMap * _l
         {
             UF2D_qs->Drc += q * fsc;
         }
+
+        if(SwitchErosion)
+        {
+            UF2D_tfsqx1->Drc += UF2D_fsqx1->Drc;
+            UF2D_tfsqx2->Drc += UF2D_fsqx2->Drc;
+            UF2D_tfsqy1->Drc += UF2D_fsqy1->Drc;
+            UF2D_tfsqy2->Drc += UF2D_fsqy2->Drc;
+
+            UF2D_fsqx1->Drc = 0;
+            UF2D_fsqx2->Drc = 0;
+            UF2D_fsqy1->Drc = 0;
+            UF2D_fsqy2->Drc = 0;
+        }
+
+        UF2D_tfqx1->Drc += UF2D_fqx1->Drc;
+        UF2D_tfqx2->Drc += UF2D_fqx2->Drc;
+        UF2D_tfqy1->Drc += UF2D_fqy1->Drc;
+        UF2D_tfqy2->Drc += UF2D_fqy2->Drc;
+
+        UF2D_fqx1->Drc = 0;
+        UF2D_fqx2->Drc = 0;
+        UF2D_fqy1->Drc = 0;
+        UF2D_fqy2->Drc = 0;
+
     }}}
 
     FOR_ROW_COL_UF1DMT_DT

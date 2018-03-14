@@ -190,10 +190,10 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             UF2D_fax2->Drc = 0;
             UF2D_fay1->Drc = 0;
             UF2D_fay2->Drc = 0;
-            UF2D_ssqx1->Drc = 0;
-            UF2D_ssqx2->Drc = 0;
-            UF2D_ssqy1->Drc = 0;
-            UF2D_ssqy2->Drc = 0;
+            UF2D_fsqx1->Drc = 0;
+            UF2D_fsqx2->Drc = 0;
+            UF2D_fsqy1->Drc = 0;
+            UF2D_fsqy2->Drc = 0;
             continue;
         }
 
@@ -205,10 +205,10 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             UF2D_fqx2->Drc = 0;
             UF2D_fqy1->Drc = 0;
             UF2D_fqy2->Drc = 0;
-            UF2D_ssqx1->Drc = 0;
-            UF2D_ssqx2->Drc = 0;
-            UF2D_ssqy1->Drc = 0;
-            UF2D_ssqy2->Drc = 0;
+            UF2D_fsqx1->Drc = 0;
+            UF2D_fsqx2->Drc = 0;
+            UF2D_fsqy1->Drc = 0;
+            UF2D_fsqy2->Drc = 0;
             UF2D_fax1->Drc = 0;
             UF2D_fax2->Drc = 0;
             UF2D_fay1->Drc = 0;

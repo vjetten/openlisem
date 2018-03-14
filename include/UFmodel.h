@@ -220,12 +220,20 @@
     cTMap * UF2D_sqy2;
 
     // for suspended matter
-    cTMap * UF2D_ssqx1;
-    cTMap * UF2D_ssqy1;
-    cTMap * UF2D_ssqx2;
-    cTMap * UF2D_ssqy2;
+    cTMap * UF2D_fsqx1;
+    cTMap * UF2D_fsqy1;
+    cTMap * UF2D_fsqx2;
+    cTMap * UF2D_fsqy2;
     cTMap * UF2D_empty;
 
+    cTMap * UF2D_tfqx1;
+    cTMap * UF2D_tfqy1;
+    cTMap * UF2D_tfqx2;
+    cTMap * UF2D_tfqy2;
+    cTMap * UF2D_tfsqx1;
+    cTMap * UF2D_tfsqy1;
+    cTMap * UF2D_tfsqx2;
+    cTMap * UF2D_tfsqy2;
 
     cTMap * UF2D_Compaction;
 
@@ -366,7 +374,7 @@
 
     //advection with MUSCLE scheme
     void UF2D_Advect2_Momentum(int thread, cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv,cTMap * out_qfx1,cTMap *out_qfx2,cTMap * out_qfy1,cTMap *out_qfy2,cTMap * out_qsx1,cTMap *out_qsx2,cTMap * out_qsy1,cTMap *out_qsy2);
-    double UF2D_Advect2_mass(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m,cTMap *outflow = 0);
+    double UF2D_Advect2_mass(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m,cTMap *outflow = 0 , cTMap * out_qfsx1=0,cTMap *out_qfsx2=0,cTMap *out_qfsy1=0,cTMap *out_qfsy2=0);
     void UF2D_Advect2_prop(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2,cTMap *_prop, cTMap * out_prop = 0);
 
     //momentum functions

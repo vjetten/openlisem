@@ -847,20 +847,33 @@ void TWorld::ReportMaps(int not_used)
     }
 
     report(*UF2D_f, FinalFluidPhaseFileName);
-    report(*UF2D_fqx1, "FQx1O");
-    report(*UF2D_fqx2, "FQx2O");
-    report(*UF2D_fqy1, "FQy1O");
-    report(*UF2D_fqy2, "FQy2O");
 
     report(*UF2D_bltc, "BLTC");
     report(*UF2D_sstc, "SSTC");
 
 
-    report(*UF2D_ssqx1, "SSQx1O");
-   // report(*UF2D_ssqx2, "SSQx2O");
-   // report(*UF2D_ssqy1, "SSQy1O");
-   //  report(*UF2D_ssqy2, "SSQy2O");
+    report(*UF2D_tfqx1, "FQx1O");
+    report(*UF2D_tfqx2, "FQx2O");
+    report(*UF2D_tfqy1, "FQy1O");
+    report(*UF2D_tfqy2, "FQy2O");
 
+    report(*UF2D_tfsqx1, "SSQx1O");
+    report(*UF2D_tfsqx2, "SSQx2O");
+    report(*UF2D_tfsqy1, "SSQy1O");
+    report(*UF2D_tfsqy2, "SSQy2O");
+
+    FOR_ROW_COL_MV
+    {
+        UF2D_tfqx1->Drc = 0;
+        UF2D_tfqx2->Drc = 0;
+        UF2D_tfqy1->Drc = 0;
+        UF2D_tfqy2->Drc = 0;
+
+        UF2D_tfsqx1->Drc = 0;
+        UF2D_tfsqx2->Drc = 0;
+        UF2D_tfsqy1->Drc = 0;
+        UF2D_tfsqy2->Drc = 0;
+    }
 
     if (SwitchChannelFlood)
     {

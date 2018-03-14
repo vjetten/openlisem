@@ -215,8 +215,10 @@ void TWorld::UF2D_Advect2_Momentum(int thread,cTMap* dt, cTMap * _dem,cTMap * _f
 
 }
 
-double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qx2,cTMap * _qy1, cTMap * _qy2, cTMap * out_m,cTMap *outflowm)
+double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qx2,cTMap * _qy1, cTMap * _qy2, cTMap * out_m,cTMap *outflowm, cTMap * out_qfsx1,cTMap *out_qfsx2,cTMap *out_qfsy1,cTMap *out_qfsy2)
 {
+
+
     double outflow = 0;
     bool write_to_input = false;
     if(out_m ==0)
@@ -242,131 +244,150 @@ double TWorld::UF2D_Advect2_mass(int thread,cTMap* dt, cTMap * _dem,cTMap * _m, 
 
         if(conc > UF_VERY_SMALL)
         {
-            double concx1 = UF_OUTORMV(_m,r,c-1)? 1.0 : ((f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 1.0);
+            double concx1 = UF_OUTORMV(_m,r,c-1)? 1.0: ((f->data[r][c-1] > UF_VERY_SMALL)? _m->data[r][c-1]/f->data[r][c-1] : 1.0);
             double concx2 = UF_OUTORMV(_m,r,c+1)? 1.0: ((f->data[r][c+1] > UF_VERY_SMALL)?_m->data[r][c+1]/f->data[r][c+1] : 1.0);
             double concy1 = UF_OUTORMV(_m,r-1,c)? 1.0: ((f->data[r-1][c] > UF_VERY_SMALL)? _m->data[r-1][c]/f->data[r-1][c] : 1.0);
             double concy2 = UF_OUTORMV(_m,r+1,c)? 1.0: ((f->data[r+1][c] > UF_VERY_SMALL)?_m->data[r+1][c]/f->data[r+1][c] : 1.0);
 
-            double qx1;
-            double qx2;
-            double qy1;
-            double qy2;
+            double qmx1;
+            double qmx2;
+            double qmy1;
+            double qmy2;
 
             if(_qx1->Drc > 0)
             {
-                qx1 = 1.0 * (!UF_OUTORMV(_m,r,c-1)? std::min(concx1*std::fabs(_qx1->Drc),0.1 * _m->data[r][c-1]) : concx1*std::fabs(_qx1->Drc));
+                qmx1 = 1.0 * (!UF_OUTORMV(_m,r,c-1)? std::min(concx1*std::fabs(_qx1->Drc),0.1 * _m->data[r][c-1]) : concx1*std::fabs(_qx1->Drc));
             }else
             {
-                qx1 = -1.0*std::min(conc*std::fabs(_qx1->Drc),0.1 * _m->Drc);
+                qmx1 = -1.0*std::min(conc*std::fabs(_qx1->Drc),0.1 * _m->Drc);
             }
             if(_qx2->Drc > 0)
             {
-                qx2= 1.0*std::min(conc*std::fabs(_qx2->Drc),0.1 * _m->Drc) ;
+                qmx2= 1.0*std::min(conc*std::fabs(_qx2->Drc),0.1 * _m->Drc) ;
             }else
             {
-                qx2 = -1.0* (!UF_OUTORMV(_m,r,c+1)? std::min(concx2*std::fabs(_qx2->Drc),0.1 * _m->data[r][c+1]) : concx2*std::fabs(_qx2->Drc));
+                qmx2 = -1.0* (!UF_OUTORMV(_m,r,c+1)? std::min(concx2*std::fabs(_qx2->Drc),0.1 * _m->data[r][c+1]) : concx2*std::fabs(_qx2->Drc));
             }
             if(_qy1->Drc > 0)
             {
-                qy1 = 1.0* (!UF_OUTORMV(_m,r-1,c)? std::min(concy1*std::fabs(_qy1->Drc),0.1 * _m->data[r-1][c]) : concy1*std::fabs(_qy1->Drc));
+                qmy1 = 1.0* (!UF_OUTORMV(_m,r-1,c)? std::min(concy1*std::fabs(_qy1->Drc),0.1 * _m->data[r-1][c]) : concy1*std::fabs(_qy1->Drc));
             }else
             {
-                qy1 = -1.0*std::min(conc*std::fabs(_qy1->Drc),0.1 * _m->Drc);
+                qmy1 = -1.0*std::min(conc*std::fabs(_qy1->Drc),0.1 * _m->Drc);
             }
             if(_qy2->Drc > 0)
             {
-                qy2 = 1.0*std::min(conc*std::fabs(_qy2->Drc),0.1 * _m->Drc) ;
+                qmy2 = 1.0*std::min(conc*std::fabs(_qy2->Drc),0.1 * _m->Drc) ;
             }else
             {
-                qy2 = -1.0* (!UF_OUTORMV(_m,r+1,c)? std::min(concy2*std::fabs(_qy2->Drc),0.1 * _m->data[r+1][c]) :concy2*std::fabs(_qy2->Drc));
+                qmy2 = -1.0* (!UF_OUTORMV(_m,r+1,c)? std::min(concy2*std::fabs(_qy2->Drc),0.1 * _m->data[r+1][c]) :concy2*std::fabs(_qy2->Drc));
+            }
+
+            //HERE THE DISCHARGES ARE KNOWN
+
+            if(out_qfsx1 != 0)
+            {
+                out_qfsx1->Drc = out_qfsx1->Drc + qmx1;
+            }
+            if(out_qfsx2 != 0)
+            {
+                out_qfsx2->Drc = out_qfsx2->Drc + qmx2;
+            }
+            if(out_qfsy1 != 0)
+            {
+                out_qfsy1->Drc = out_qfsy1->Drc + qmy1;
+            }
+            if(out_qfsy2 != 0)
+            {
+                out_qfsy2->Drc = out_qfsy2->Drc + qmy2;
             }
 
 
             if(!UF_OUTORMV(_dem,r,c-1)){
-                if(qx1 > 0)
+                if(qmx1 > 0)
                 {
-                    out_m->data[r][c-1] -= qx1;
-                    out_m->Drc +=  qx1;
+                    out_m->data[r][c-1] -= qmx1;
+                    out_m->Drc +=  qmx1;
                 }else
                 {
-                    qx1 = std::fabs(qx1);
-                    out_m->data[r][c-1] += qx1;
-                    out_m->Drc -= qx1;
+                    qmx1 = std::fabs(qmx1);
+                    out_m->data[r][c-1] += qmx1;
+                    out_m->Drc -= qmx1;
                 }
             }else
             {
-                if(qx1 < 0)
+                if(qmx1 < 0)
                 {
-                    qx1 = std::fabs(qx1);
-                    outflow += qx1;
-                    outflowm->Drc +=std::fabs(qx1);
-                    out_m->Drc -= qx1;
+                    qmx1 = std::fabs(qmx1);
+                    outflow += qmx1;
+                    outflowm->Drc +=std::fabs(qmx1);
+                    out_m->Drc -= qmx1;
                 }
             }
             if(!UF_OUTORMV(_dem,r,c+1)){
-                if(qx2 < 0)
+                if(qmx2 < 0)
                 {
-                    qx2 = std::fabs(qx2);
-                    out_m->data[r][c+1] -=  qx2;
-                    out_m->Drc +=  qx2;
+                    qmx2 = std::fabs(qmx2);
+                    out_m->data[r][c+1] -=  qmx2;
+                    out_m->Drc +=  qmx2;
                 }else
                 {
-                    out_m->data[r][c+1] += qx2;
-                    out_m->Drc -=  qx2;
+                    out_m->data[r][c+1] += qmx2;
+                    out_m->Drc -=  qmx2;
                 }
             }else
             {
-                if(qx2 > 0)
+                if(qmx2 > 0)
                 {
-                    qx2 = std::fabs(qx2);
-                    outflow += qx2;
-                    outflowm->Drc +=std::fabs(qx2);
-                    out_m->Drc -= qx2;
+                    qmx2 = std::fabs(qmx2);
+                    outflow += qmx2;
+                    outflowm->Drc +=std::fabs(qmx2);
+                    out_m->Drc -= qmx2;
                 }
             }
 
 
 
             if(!UF_OUTORMV(_dem,r-1,c)){
-                if(qy1 > 0)
+                if(qmy1 > 0)
                 {
-                    out_m->data[r-1][c] -= conc * qy1;
-                    out_m->Drc += conc * qy1;
+                    out_m->data[r-1][c] -= conc * qmy1;
+                    out_m->Drc += conc * qmy1;
                 }else
                 {
-                    qy1 = std::fabs(qy1);
-                    out_m->data[r-1][c] += qy1;
-                    out_m->Drc -=  qy1;
+                    qmy1 = std::fabs(qmy1);
+                    out_m->data[r-1][c] += qmy1;
+                    out_m->Drc -=  qmy1;
                 }
             }else
             {
-                if(qy1 < 0)
+                if(qmy1 < 0)
                 {
-                    qy1 = std::fabs(qy1);
-                    outflow += qy1;
-                    outflowm->Drc +=std::fabs(qy1);
-                    out_m->Drc -= qy1;
+                    qmy1 = std::fabs(qmy1);
+                    outflow += qmy1;
+                    outflowm->Drc +=std::fabs(qmy1);
+                    out_m->Drc -= qmy1;
                 }
             }
             if(!UF_OUTORMV(_dem,r+1,c)){
-                if(qy2 < 0)
+                if(qmy2 < 0)
                 {
-                    qy2 = std::fabs(qy2);
-                    out_m->data[r+1][c] -=  qy2;
-                    out_m->Drc += qy2;
+                    qmy2 = std::fabs(qmy2);
+                    out_m->data[r+1][c] -=  qmy2;
+                    out_m->Drc += qmy2;
                 }else
                 {
-                    out_m->data[r+1][c] += qy2;
-                    out_m->Drc -= qy2;
+                    out_m->data[r+1][c] += qmy2;
+                    out_m->Drc -= qmy2;
                 }
             }else
             {
-                if(qy2 > 0)
+                if(qmy2 > 0)
                 {
-                    qy2 = std::fabs(qy2);
-                    outflow += qy2;
-                    outflowm->Drc +=std::fabs(qy2);
-                    out_m->Drc -= qy2;
+                    qmy2 = std::fabs(qmy2);
+                    outflow += qmy2;
+                    outflowm->Drc +=std::fabs(qmy2);
+                    out_m->Drc -= qmy2;
                 }
             }
 
