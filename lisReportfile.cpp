@@ -1414,6 +1414,7 @@ void TWorld::GetComboMaps()
     Colors.append("#FF009D");*/
 
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Height","m",WHstore,Colormap,Colors,false,false,1.0, 0.01);
 
 
     //AddComboMap(0,"tp","m",ThreadPool->CellCDerListOrdered2d.at(0),Colormap,Colors,false,false,1.0, 0.01);
@@ -1682,7 +1683,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Viscosity"," ",UF2D_visc,Colormap,Colors,false,false,1.0, 0.05);
     AddComboMap(0,"lax factor"," ",UF2D_Test,Colormap,Colors,false,false,1.0, 0.05);*/
 
-    /*Colormap.clear();
+    Colormap.clear();
     Colormap.append(0.0);
     Colormap.append(0.25);
     Colormap.append(0.5);
@@ -1704,7 +1705,7 @@ void TWorld::GetComboMaps()
     if(SwitchIncludeChannel)
     {
         AddComboMap(0,"UF1D_CoreMask" ,"kg/m2",ThreadPool->CoreMask1d,Colormap,Colors,false,false,1.0,1.0);
-    }*/
+    }
 
 
     if(SwitchErosion)

@@ -1343,16 +1343,36 @@ void TWorld::InitiateDebrisFlow()
     {
         return;
     }
+    qDebug() << "Switch" <<SwitchBedrock;
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+        double fail = 0.0;
+    FOR_ROW_COL_UF2D
+    {
+        fail += DFInitiationHeight->Drc;
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    qDebug() << "fail" << fail;
+    if(nan)
+    {
+    qDebug() << "NAN 31";
+    }}
 
     int n_init = 0;
     FOR_ROW_COL_MV
     {
         if(DFInitiationHeight->Drc > UF_VERY_SMALL)
         {
+
             n_init ++;
             DFTotalInitiationHeight->Drc += DFInitiationHeight->Drc;
 
-            double h = DFInitiationHeight->Drc;
+            double h = !std::isnan(DFInitiationHeight->Drc)? DFInitiationHeight->Drc : 0.0;
 
             //change DEM (flow DEM is altered later through DEMChange)
             DEMOriginal->Drc -= h;
@@ -1374,6 +1394,7 @@ void TWorld::InitiateDebrisFlow()
             }
 
             double fvol = fh * _dx * _dx;
+            fvol = !std::isnan(fvol)? fvol : 0.0;
 
             UF2D_f->Drc += fvol;
 
@@ -1384,6 +1405,7 @@ void TWorld::InitiateDebrisFlow()
                 svol += std::min(SoilDepth2->Drc,std::max(h-SoilDepth1->Drc,0.0)) * (1.0-ThetaS2->Drc) * _dx * _dx;
             }
 
+            svol = !std::isnan(svol)? svol : 0.0;
             //and flow properties updated
             UF2D_su->Drc = (svol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_su->Drc)/(svol + UF2D_s->Drc) : 0.0;
             UF2D_sv->Drc = (svol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_sv->Drc)/(svol + UF2D_s->Drc) : 0.0;
@@ -1453,4 +1475,19 @@ void TWorld::InitiateDebrisFlow()
         }
 
     }
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 32";
+    }}
 }

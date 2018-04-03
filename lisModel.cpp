@@ -281,23 +281,136 @@ void TWorld::DynamicProcessWrapper()
 {
 
 
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 0";
+    }}
+
     //set input for unified flow model
     //put in the multithreaded cell processes?
     UF_SetInput();
+
+
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 1";
+    }}
 
     ////Functions below are not yet multithreaded
     //does multithreading itself
     SlopeStability();      // slope stability calculations
 
+
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 2";
+    }}
+
     //slope failure must be before flow calculations. Slope failure calculations can be used in entrainment/deposition
     SlopeFailure();        // slope failure, transfers solids and liquids to unified flow equations
 
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 3";
+    }}
+
     Seismic();
+
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 4";
+    }}
 
     //does multithreading itself
     UnifiedFlow();      	//Unified flow method
 
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 5";
+    }}
     //set output of unified flow equations for lisem
     UF_SetOutput();
+
+
+    {cTMap * _dem = UF2D_DEM;
+        bool nan = false;
+    FOR_ROW_COL_UF2D
+    {
+        if(std::isnan(UF2D_f->Drc))
+        {
+           nan = true;
+        }
+
+    }
+    if(nan)
+    {
+    qDebug() << "NAN 6";
+    }}
 
 }

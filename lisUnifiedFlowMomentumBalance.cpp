@@ -75,9 +75,11 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         double signv = velx>0?1.0:-1.0;
         double signa = a>0?1.0:-1.0;
 
+        h = solid? std::max(1.0,h):h;
+
         a = std::fabs(a)/dt;
-        double manning = solid? std::max(0.001,std::min(1.0,(std::fabs(velo) *h / 10.0)))*UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;
-        double nsq = UF_FRICTIONCORRECTION * manning *(0.01 +NN)*(0.01 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );// + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
+        double manning = solid? UF_MANNINGCOEFFICIENT_SOLID:UF_MANNINGCOEFFICIENT_FLUID;//std::max(0.0000001,std::min(0.1,((h) / 10.0)))*
+        double nsq = UF_FRICTIONCORRECTION * manning *(0.001 +NN)*(0.001 +NN)*UF_Gravity/(pow(std::max(UF_VERY_SMALL,h),4.0/3.0) );// + ff < UF_VERY_SMALL ?  0.0 : UF_FRICTIONCORRECTION *UF_Aspect*(1.0/(ff * (10.0 + 10000.0 * (1.0 -sf))))* UF_Chi/(UF_Aspect*UF_Aspect * h* h);
 
         if(channel)
         {
@@ -94,7 +96,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
         velx = signa *velx;
         double veln = velx;
 
-        double fac = std::min(1.0,std::max(0.0,(std::fabs((velx - velo)) < 0.01? 1.0 :kinfac *exp( -dt * std::fabs(std::min(9.81,a)) / (std::fabs((velx - velo))+0.01)))));
+        double fac = std::min(1.0,std::max(0.0,(std::fabs((velx - velo)) < 0.01? 1.0 :kinfac *exp( -dt * std::fabs(std::min(9.81,a)) / (std::fabs((velx - velo))+0.001)))));
         double dir = veln < velo ? -1.0: 1.0;
 
         double velxtr = signv * velo + signa * a*dt ;

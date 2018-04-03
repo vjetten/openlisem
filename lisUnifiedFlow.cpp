@@ -40,6 +40,7 @@ void TWorld::UnifiedFlow()
 {
 
 
+
     ////START ALGORITHM
     ////from now on all input and output is provided as funciton arguments
     ////This increases re-usablitiy of the code (use another DEM, Velocity map.. etc.. and everything will remain functional)
@@ -95,6 +96,9 @@ void TWorld::UnifiedFlow()
                                 UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv,        //2d solid phase
                                 UF2D_T,UF2D_DT,UF2D_DTStep,UF1D_T,UF1D_DT,UF1D_DTStep);      //output timesteps
 
+
+
+
             //set threadpool masks;
             ThreadPool->SetMask(UF2D_DEM, UF2D_DT, UF2D_CellR, UF2D_CellC,UF_1DACTIVE? UF1D_LDD : 0,UF1D_DT,UF1D_CellR,UF1D_CellC);
 
@@ -132,6 +136,7 @@ void TWorld::UnifiedFlow()
 void TWorld::UF_Compute(int thread)
 {
 
+
     ////SOURCE TERMS
     //both material and momentum source terms are called here
     UF2D_Source(thread,UF2D_DT,UF2D_DEM,UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);
@@ -140,7 +145,6 @@ void TWorld::UF_Compute(int thread)
     {
         UF1D_Source(thread,UF1D_DT,UF1D_LDD,UF1D_LDDw,UF1D_LDDh,UF1D_f,UF1D_visc,UF1D_fu,UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su);
     }
-
 
 
     ////2D SCHEME
@@ -165,6 +169,7 @@ void TWorld::UF_Compute(int thread)
                         UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                         UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv,         //2d solid phase
                         1,3 );
+
 
 
     /////INFILTRATION
@@ -233,6 +238,7 @@ void TWorld::UF_Compute(int thread)
                            UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                            UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
     }
+
 
     ////update the discharge maps
     UF_UpdateDisplayMaps(thread,UF2D_DT,     UF2D_DEM,                                        //dem info
@@ -306,6 +312,7 @@ double TWorld::UF2D_Source(int thread, cTMap* dt, cTMap * _dem,cTMap * _f,cTMap 
 double TWorld::UF2D_Scheme(int thread,cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv)
 {
 
+
     if(UF_SCHEME == UF_SCHEME_BOUNDARYMUSCLE)
     {
         //advect momentum
@@ -341,6 +348,7 @@ double TWorld::UF2D_Scheme(int thread,cTMap* dt, cTMap * _dem,cTMap * _f,cTMap *
             UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_ifa,0);
             UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_rocksize,0);
         }
+
 
         UF_SWAP2D(_f,UF2D_fn,cTMap*);
         UF_SWAP2D(_fu,UF2D_fun,cTMap*);
@@ -471,6 +479,7 @@ void TWorld::UF_SetInput()
     cTMap * _ldd = UF1D_LDD;
     FOR_ROW_COL_UF2D
     {
+
         //UF2D_Test->Drc = 0;
         UF2D_f->Drc = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
 
@@ -535,6 +544,7 @@ void TWorld::UF_SetOutput()
     cTMap * _dem = UF2D_DEM;
     FOR_ROW_COL_UF2D
     {
+
 
         double s2d = 0;
         double su2d = 0;
