@@ -59,7 +59,7 @@ void TWorld::UF_Init()
     UF_FRICTIONCORRECTION=getvaluedouble("Friction force correction");
 
     UF_SOLIDFLUIDDRAG =getvaluedouble("Solid-Fluid Drag Coefficient");
-    UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000.0;
+    UF_ENTRAINMENTCONSTANT =  getvaluedouble("Entrainment Coefficient")/1000000000.0;
     UF_DEPOSITIONCONSTANT = 1;
     UF_DEPOSITIONTHRESHOLDCONSTANT = 0.6;
     UF_ENTRAINMENTROOTDEPTH = 0.25;
@@ -153,6 +153,7 @@ void TWorld::UF_Init()
     UF1D_qssout = NewMap(0.0);
 
     UF2D_TimeStep = NewMap(0.0);
+    UF2D_TimeStepAv = NewMap(0.0);
     UF2D_SPH = NewMap(0.0);
     UF2D_FPH = NewMap(0.0);
 
@@ -275,6 +276,17 @@ void TWorld::UF_Init()
 
     if(UF_1DACTIVE)
     {
+
+        if(SwitchChannelMaxCS)
+        {
+
+            UF1D_ChannelMaxCS = ReadMap(DEM,getvaluename("channelmaxcs"));
+        }
+        if(SwitchChannelConnection)
+        {
+            UF1D_ChannelConnected = ReadMap(DEM,getvaluename("channelconnected"));
+        }
+
         FOR_ROW_COL_MV_CH
         {
             UF1D_LDD->Drc = LDDChannel->Drc;
@@ -292,10 +304,8 @@ void TWorld::UF_Init()
     UF1D_DT = NewMap(0.0);
 
     UF1D_DTStep = NewMap(0.0);
-    UF1D_Courant = NewMap(0.0);
     //fluid phase
     UF1D_f = NewMap(0.0);
-    UF1D_fstore = NewMap(0.0);
     UF1D_visc = NewMap(1.0);
     UF1D_fu = NewMap(0.0);
     UF1D_fa = NewMap(0.0);

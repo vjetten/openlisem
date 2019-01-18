@@ -106,6 +106,7 @@ void TWorld::SplashDetachment(int thread)
       return;
 
 
+
    FOR_ROW_COL_2DMT
    {
       double b, strength, DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
@@ -161,7 +162,7 @@ void TWorld::SplashDetachment(int thread)
 
 
       // Between plants, directrain is already with 1-cover
-      DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * directrain;
+      DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT+b)*WH0 * directrain;
       //ponded areas, kg/m2/mm * mm = kg/m2
       DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * directrain * SplashDelivery;
       //dry areas, kg/m2/mm * mm = kg/m2
@@ -170,7 +171,7 @@ void TWorld::SplashDetachment(int thread)
       {
          if (directrain > 0)
          {
-            DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT*WH0+b) * _dt/3600;
+            DetDT1 = g_to_kg * fpa->Drc*(strength*KE_DT+b)*WH0 * _dt/3600;
             //ponded areas, kg/m2/sec * sec = kg/m2
             DetDT2 = g_to_kg * (1-fpa->Drc)*(strength*KE_DT+b) * _dt/3600 * SplashDelivery;
             //dry areas, kg/m2/sec * sec = kg/m2
@@ -179,7 +180,7 @@ void TWorld::SplashDetachment(int thread)
       //based on work by Juan Sanchez
 
       // Under plants, throughfall is already with cover
-      DetLD1 = g_to_kg * fpa->Drc*(strength*KE_LD*WH0+b) * throughfall;
+      DetLD1 = g_to_kg * fpa->Drc*(strength*KE_LD+b)*WH0 * throughfall;
       //ponded areas, kg/m2/mm * mm = kg/m2
       DetLD2 = g_to_kg * (1-fpa->Drc)*(strength*KE_LD+b) * throughfall * SplashDelivery;
       //dry areas, kg/m2/mm * mm = kg/m2
@@ -278,7 +279,7 @@ void TWorld::SplashDetachment(int thread)
           DETSplash->Drc = detachment;
 
       }
-       UF_AddedSplash->Drc =0;//DETSplash->Drc;
+       UF_AddedSplash->Drc =DETSplash->Drc;
       // IN KG/CELL
    }}}
 }

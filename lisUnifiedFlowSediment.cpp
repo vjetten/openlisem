@@ -99,9 +99,9 @@ void TWorld::UF2D_SolidSource(int thread,cTMap * dt, cTMap * _dem,cTMap * _f,cTM
 {
     FOR_ROW_COL_UF2DMTDER
     {
-        _d->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidDensity->Drc + _s->Drc* _d->Drc)/(SourceSolid->Drc + _s->Drc) : _d->Drc;
-        _rocksize->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidRocksize->Drc + _s->Drc* _rocksize->Drc)/(SourceSolid->Drc + _s->Drc) :_rocksize->Drc;
-        _ifa->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidIFA->Drc + _s->Drc* _ifa->Drc)/(SourceSolid->Drc + _s->Drc) : _ifa->Drc;
+        //_d->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidDensity->Drc + _s->Drc* _d->Drc)/(SourceSolid->Drc + _s->Drc) : _d->Drc;
+        //_rocksize->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidRocksize->Drc + _s->Drc* _rocksize->Drc)/(SourceSolid->Drc + _s->Drc) :_rocksize->Drc;
+        //_ifa->Drc = (SourceSolid->Drc + _s->Drc) > UF_VERY_SMALL? (SourceSolid->Drc * SourceSolidIFA->Drc + _s->Drc* _ifa->Drc)/(SourceSolid->Drc + _s->Drc) : _ifa->Drc;
 
         out_s->Drc = _s->Drc + SourceSolid->Drc;
         SourceSolid->Drc = 0;
@@ -224,6 +224,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
         TSettlingVelocity = settlingvelocities.at(d);
     }
 
+
     double surface = channel? DX->Drc * UF1D_LDDw->Drc : DX->Drc*ChannelAdj->Drc;
     double watervol = (channel? UF1D_f->Drc: UF2D_f->Drc);
     double blm = TBL->Drc;
@@ -231,7 +232,7 @@ void TWorld::UF_FlowDetachment(double dt, int r, int c,int d, bool channel)
     double ssconc = watervol > UF_VERY_SMALL? ssm/watervol : 0.0;
     double blconc = watervol > UF_VERY_SMALL? blm/watervol : 0.0;
     double hf = (channel? UF1D_f->Drc: UF2D_f->Drc)/surface;
-    double hs = (channel? UF1D_s->Drc: UF2D_s->Drc)/surface;
+    //double hs = (channel? UF1D_s->Drc: UF2D_s->Drc)/surface;
     double velocity = channel? (std::fabs(UF1D_fu->Drc)):(sqrt(UF2D_fu->Drc*UF2D_fu->Drc + UF2D_fv->Drc*UF2D_fv->Drc));
     double discharge = hf * _dx * velocity;
     double blhf = std::min(0.05,hf);
@@ -602,8 +603,6 @@ void TWorld::UF_SumGrainClasses()
 {
     if(SwitchUseGrainSizeDistribution)
     {
-        qDebug() << "reset distribution";
-
         cTMap * _dem = UF2D_DEM;
         FOR_ROW_COL_UF2D
         {

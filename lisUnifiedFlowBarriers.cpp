@@ -123,25 +123,28 @@ void TWorld::GetInflowData(QString name)
 void TWorld::InitFlowBarriers(void)
 {
 
-    FlowBarrier = NewMap(0);
 
-    FlowBarrierN = NewMap(0);
-    FlowBarrierW = NewMap(0);
-    FlowBarrierS = NewMap(0);
-    FlowBarrierE = NewMap(0);
-
-    FlowBarrierNT = NewMap(-1);
-    FlowBarrierWT = NewMap(-1);
-    FlowBarrierST = NewMap(-1);
-    FlowBarrierET = NewMap(-1);
 
     if(SwitchFlowBarriers)
     {
+        FlowBarrierDestroyed = NewMap(0.0);
+        FlowBarrier = NewMap(0);
+
+        FlowBarrierN = NewMap(0);
+        FlowBarrierW = NewMap(0);
+        FlowBarrierS = NewMap(0);
+        FlowBarrierE = NewMap(0);
+
+        FlowBarrierNT = NewMap(-1);
+        FlowBarrierWT = NewMap(-1);
+        FlowBarrierST = NewMap(-1);
+        FlowBarrierET = NewMap(-1);
+
         QString filename = getvaluename("Flow barrier table filename");
 
-        GetFlowBarrierData(filename);
-
         FlowBarrier = ReadMap(LDD,getvaluename("flowbarrierindex"));
+
+        GetFlowBarrierData(filename);
 
 
         for(int i = 0; i < FBid.length(); i++)
@@ -212,6 +215,12 @@ void TWorld::GetFlowBarrierData(QString name)
     FBTimeE.clear();
     FBTimeW.clear();
 
+    FBMinH.clear();
+    FBMinV.clear();
+
+    FBCritCells.clear();
+    FBCritCells2.clear();
+
     for(int i = BarrierTypes.length() -1;  i > 0; i--)
     {
         if(BarrierTypes.at(i).at(0) == '/')
@@ -225,7 +234,10 @@ void TWorld::GetFlowBarrierData(QString name)
     {
         QStringList list = BarrierTypes.at(i).split(QRegExp("\\s+"),QString::SplitBehavior::SkipEmptyParts );
 
-        for(int j = 0; j < 9; j++ )
+
+        bool crit_set = false;
+
+        for(int j = 0; j < 11; j++ )
         {
             bool ok = true;
             if(j < list.length())
@@ -266,6 +278,21 @@ void TWorld::GetFlowBarrierData(QString name)
                 {
                         FBTimeW.append(list.at(j).toDouble(&ok));
                         if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                }else if(j == 9)
+                {
+                    crit_set = true;
+                    double h_min = list.at(j).toDouble(&ok);
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                    FBMinH.append(h_min);
+
+
+                }else if(j == 10)
+                {
+                    crit_set = true;
+                    double v_min = list.at(j).toDouble(&ok);
+                    if(ok == false){ErrorString = "FlowBarrier file has a non-number value"; throw 1;}
+                    FBMinV.append(v_min);
+
                 }
             }else
             {
@@ -297,10 +324,71 @@ void TWorld::GetFlowBarrierData(QString name)
                 {
                         FBTimeW.append(-1.0);
 
+                }else if( j == 9)
+                {
+                        FBMinH.append(-1.0);
+                }else if( j ==10)
+                {
+                        FBMinV.append(-1.0);
+
                 }
 
             }
 
+        }
+
+
+        for(int i = 0; i < FBid.length(); i++)
+        {
+            QList<QPoint> list;
+            FBCritCells.append(list);
+            QList<QPoint> list2;
+            FBCritCells2.append(list2);
+        }
+
+        if(crit_set)
+        {
+
+            FlowBarrierCrit = ReadMap(LDD,getvaluename("flowbarriercrit"));
+
+
+            FOR_ROW_COL_MV
+            {
+                int id = FlowBarrierCrit->Drc;
+                if(id > 0)
+                {
+                    for(int i = 0; i < FBid.length(); i++)
+                    {
+                        if(FBid.at(i) == id)
+                        {
+                            QList<QPoint> l = FBCritCells.at(i);
+                            l.append(QPoint(r,c));
+                            FBCritCells.replace(i,l);
+                        }
+                    }
+
+
+                }
+            }
+
+            FOR_ROW_COL_MV
+            {
+                int id = FlowBarrier->Drc;
+                if(id > 0)
+                {
+                    for(int i = 0; i < FBid.length(); i++)
+                    {
+                        if(FBid.at(i) == id)
+                        {
+                            QList<QPoint> l = FBCritCells2.at(i);
+                            l.append(QPoint(r,c));
+                            FBCritCells2.replace(i,l);
+                        }
+                    }
+
+
+                }
+            }
         }
 
     }
@@ -311,32 +399,46 @@ void TWorld::GetFlowBarrierData(QString name)
 
 void TWorld::SetFlowBarriers()
 {
-    FOR_ROW_COL_MV
+    if(SwitchFlowBarriers)
     {
-        if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
+        FOR_ROW_COL_MV
         {
-            FlowBarrierN->Drc = 0;
-        }
-        if(this->time > FlowBarrierST->Drc && !(FlowBarrierST->Drc < 0))
-        {
-            FlowBarrierS->Drc = 0;
-        }
-        if(this->time > FlowBarrierWT->Drc && !(FlowBarrierWT->Drc < 0))
-        {
-            FlowBarrierW->Drc = 0;
-        }
-        if(this->time > FlowBarrierET->Drc && !(FlowBarrierET->Drc < 0))
-        {
-            FlowBarrierE->Drc = 0;
+            if(FlowBarrierDestroyed->Drc > 0.0)
+            {
+                    FlowBarrierN->Drc = 0;
+                    FlowBarrierS->Drc = 0;
+                    FlowBarrierW->Drc = 0;
+                    FlowBarrierE->Drc = 0;
+            }else
+            {
+                if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
+                {
+                    FlowBarrierN->Drc = 0;
+                }
+                if(this->time > FlowBarrierST->Drc && !(FlowBarrierST->Drc < 0))
+                {
+                    FlowBarrierS->Drc = 0;
+                }
+                if(this->time > FlowBarrierWT->Drc && !(FlowBarrierWT->Drc < 0))
+                {
+                    FlowBarrierW->Drc = 0;
+                }
+                if(this->time > FlowBarrierET->Drc && !(FlowBarrierET->Drc < 0))
+                {
+                    FlowBarrierE->Drc = 0;
+                }
+            }
+
         }
     }
-
 
 }
 
 double TWorld::GetFlowBarrierHeight(int r, int c, int rd, int cd)
 {
-    if(INSIDE(r+rd,c+cd))
+    if(SwitchFlowBarriers)
+    {
+        if(INSIDE(r+rd,c+cd))
         {
             if(!pcr::isMV(LDD->data[r+rd][c+cd]))
             {
@@ -402,7 +504,83 @@ double TWorld::GetFlowBarrierHeight(int r, int c, int rd, int cd)
         {
             return std::max(FlowBarrierS->Drc,FlowBarrierW->Drc);
         }
+    }else
+    {
+        return 0.0;
+    }
+
+
+}
 
 
 
+////this function removes the barriers if the specified conditions are met,
+/// if no conditions are specified, they are never removed!
+void TWorld::UFBARRIERCHECK()
+{
+    if(SwitchFlowBarriers)
+    {
+        for(int i = 0; i < FBid.length(); i++)
+        {
+            int id = FBid.at(i);
+            if(FBMinH.at(i) > 0 || FBMinV.at(i) > 0)
+            {
+                double h_av = 0;
+                double v_av = 0;
+                int n = 0;
+
+                for(int j = 0; j  < FBCritCells.at(i).length(); j++)
+                {
+                    int r = FBCritCells.at(i).at(j).x();
+                    int c = FBCritCells.at(i).at(j).y();
+                    if(FlowBarrierCrit->Drc == id)
+                    {
+                        double s = 0;
+                        if(SwitchSolidPhase)
+                        {
+                            s = UF2D_s->Drc;
+                        }
+
+                        h_av += UF2D_f->Drc / (_dx*_dx);
+
+                        double vel_v = std::sqrt(UF2D_fu->Drc * UF2D_fu->Drc + UF2D_fv->Drc * UF2D_fv->Drc);
+                        double vel_s = 0;
+                        if(SwitchSolidPhase)
+                        {
+                            vel_s = std::sqrt(UF2D_su->Drc * UF2D_su->Drc + UF2D_sv->Drc * UF2D_sv->Drc);
+                        }
+                        double v =(UF2D_f->Drc*vel_v + s*vel_s);
+                        if(UF2D_f->Drc + s > 0)
+                        {
+                                v = v/(UF2D_f->Drc + s);
+                        }
+                        v_av += v;
+
+                        n++;
+                    }
+                }
+
+                if(n > 0)
+                {
+                    h_av = h_av/ (double) (n);
+                    v_av = v_av/ (double) (n);
+
+                    if(((FBMinH.at(i) > 0 && h_av >FBMinH.at(i)) || FBMinH.at(i) < 0 ) && ((FBMinV.at(i) > 0 && v_av >FBMinV.at(i)) || FBMinV.at(i) < 0 ))
+                    {
+                        for(int j = 0; j  < FBCritCells2.at(i).length(); j++)
+                        {
+                            int r = FBCritCells2.at(i).at(j).x();
+                            int c = FBCritCells2.at(i).at(j).y();
+
+                            FlowBarrierDestroyed->Drc = 1.0;
+                        }
+
+                    }
+                }
+
+
+
+            }
+        }
+    }
 }

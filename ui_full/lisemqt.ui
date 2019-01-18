@@ -402,7 +402,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -7383,7 +7383,7 @@
                   </widget>
                  </item>
                  <item row="4" column="0">
-                  <widget class="QCheckBox" name="checkBox_MaxVolume">
+                  <widget class="QCheckBox" name="checkBox_ChannelConnection">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -7391,7 +7391,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Limit Volume</string>
+                    <string>Specify Channel Connection</string>
                    </property>
                   </widget>
                  </item>
@@ -7893,7 +7893,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item row="4" column="0" colspan="2">
-                  <widget class="QCheckBox" name="checkBox_Inflow">
+                  <widget class="QCheckBox" name="lineEdit_InflowChannel">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -7905,7 +7905,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0">
+                 <item row="8" column="0">
                   <widget class="QDoubleSpinBox" name="E_DebrisFlowMinSedConcentration">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -7927,7 +7927,20 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="1" colspan="3">
+                 <item row="3" column="2" colspan="2">
+                  <widget class="QLineEdit" name="lineEdit_FlowBarriers">
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>flowbarriers.txt</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1" colspan="3">
                   <widget class="QLabel" name="label_98">
                    <property name="font">
                     <font>
@@ -7940,7 +7953,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="0">
+                 <item row="9" column="0">
                   <widget class="QDoubleSpinBox" name="E_FloodMinDepth">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -7959,19 +7972,6 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="2" colspan="2">
-                  <widget class="QLineEdit" name="lineEdit_FlowBarriers">
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>flowbarriers.txt</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="2" column="0" colspan="4">
                   <widget class="QCheckBox" name="checkBox_Barriers">
                    <property name="font">
@@ -7982,6 +7982,22 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string>Include simple digital elevation model barriers (barriers.map added to the DEM)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2" colspan="2">
+                  <widget class="QLabel" name="label_109">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -8010,24 +8026,8 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="2" colspan="2">
-                  <widget class="QLabel" name="label_109">
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../resources/openlisem.qrc">:/information_4.png</pixmap>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="4" column="2" colspan="2">
-                  <widget class="QLineEdit" name="lineEdit_Inflow">
+                  <widget class="QLineEdit" name="lineEdit_InflowChannel_2">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -8039,7 +8039,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="0" colspan="4">
+                 <item row="7" column="0" colspan="4">
                   <widget class="QLabel" name="label_57">
                    <property name="font">
                     <font>
@@ -8049,19 +8049,6 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string>Display options</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1" colspan="3">
-                  <widget class="QLabel" name="label_100">
-                   <property name="font">
-                    <font>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Minimal volumetric sediment fraction displayed as debris flow (0 = nothing)</string>
                    </property>
                   </widget>
                  </item>
@@ -8075,6 +8062,29 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string>General</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1" colspan="3">
+                  <widget class="QLabel" name="label_100">
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Minimal volumetric sediment fraction displayed as debris flow (0 = nothing)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <widget class="QLineEdit" name="lineEdit_Inflow"/>
+                 </item>
+                 <item row="5" column="0" colspan="2">
+                  <widget class="QCheckBox" name="checkBox_Inflow">
+                   <property name="text">
+                    <string>user defined inflow</string>
                    </property>
                   </widget>
                  </item>
@@ -13055,6 +13065,9 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="decimals">
+                     <number>3</number>
+                    </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
                     </property>
@@ -13084,7 +13097,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>2</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13328,7 +13341,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>2</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13461,7 +13474,7 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>2</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13609,6 +13622,9 @@ p, li { white-space: pre-wrap; }
                       <bold>false</bold>
                      </font>
                     </property>
+                    <property name="decimals">
+                     <number>3</number>
+                    </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
                     </property>
@@ -13686,7 +13702,7 @@ p, li { white-space: pre-wrap; }
                   <item row="18" column="0">
                    <widget class="QLabel" name="label_199">
                     <property name="text">
-                     <string>Multiplication deposition criteria</string>
+                     <string>Multiplication Release Volume</string>
                     </property>
                    </widget>
                   </item>
@@ -13701,13 +13717,6 @@ p, li { white-space: pre-wrap; }
                    <widget class="QLabel" name="label_189">
                     <property name="text">
                      <string>Multiplication Internal Friction Angle</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="26" column="0">
-                   <widget class="QCheckBox" name="E_LimitFailure">
-                    <property name="text">
-                     <string>Limit possible failure (needs slopefail.map)</string>
                     </property>
                    </widget>
                   </item>
@@ -13767,6 +13776,9 @@ p, li { white-space: pre-wrap; }
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
+                    </property>
+                    <property name="decimals">
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>0.010000000000000</double>
@@ -13982,6 +13994,13 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="value">
                      <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="24" column="1">
+                   <widget class="QCheckBox" name="E_LimitFailure">
+                    <property name="text">
+                     <string>Limit possible failure (needs slopefail.map)</string>
                     </property>
                    </widget>
                   </item>
@@ -19981,8 +20000,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>377</width>
-             <height>1083</height>
+             <width>381</width>
+             <height>520</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -21190,7 +21209,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

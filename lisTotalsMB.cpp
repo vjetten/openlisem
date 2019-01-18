@@ -442,9 +442,9 @@ void TWorld::MassBalance()
 //        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + floodVolTotInit+BaseFlow)*100.0;
         MBeM3 = (RainTot + SnowTot + UF_InitializedF + WaterVolSoilTot + BaseFlow +
                  - IntercTot - IntercHouseTot - InfilTot - WaterVolTot - Qtot);
-        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + BaseFlow)*100.0;
+        MB = MBeM3/(RainTot + SnowTot + WaterVolSoilTot + UF_InitializedF + BaseFlow)*100.0;
     }
-    qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
+    //qDebug() <<MB << "   "<< RainTot << SnowTot << WaterVolTot << WaterVolSoilTot << floodVolTotInit << BaseFlow << IntercTot << IntercHouseTot << InfilTot << Qtot << floodBoundaryTot << floodVolTot;
 
     // Mass Balance sediment, all in kg
 

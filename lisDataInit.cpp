@@ -648,7 +648,7 @@ void TWorld::GetInputData(void)
     Calibrate_DV = getvaluedouble("Dynamic Viscosity Calibration");
     Calibrate_DF = getvaluedouble("Drag Force Calibration");
     Calibrate_SPF = getvaluedouble("Solid Phase Friction Calibration");
-    Calibrate_DC = getvaluedouble("Deposition Criteria Calibration");
+    Calibrate_DC = getvaluedouble("Release Volume Calibration");
     Calibrate_ESC = getvaluedouble("Erosion Cohesion Calibration");
     Calibrate_EGC = getvaluedouble("Erosion Grain Size Calibration");
 
@@ -1056,6 +1056,7 @@ void TWorld::GetInputData(void)
     LDDChange = NewMap(0.0);
     UF2D_DEMOriginal = NewMap(0.0);
     DEMChange = NewMap(0.0);
+    DEMChangeTotal = NewMap(0.0);
     DFTotalInitiationHeight = NewMap(0.0);
     DFSoilDensity = NewMap(2000.0);
     if(SwitchSlopeStability)
@@ -1584,6 +1585,7 @@ void TWorld::IntializeData(void)
     //read and initialize the flow barrier table and map
     InitInflow();
 
+
     //create a function object referring to the cellprocesses wrapper
     fcompute = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
 
@@ -1708,7 +1710,8 @@ void TWorld::IntializeOptions(void)
     SwitchInflow = false;
     SwitchBarriers = true;
     SwitchMaxVolume = true;
-    SwitchChannelMaxVolume = true;
+    SwitchChannelConnection = false;
+    SwitchChannelMaxCS = false;
     SwitchUFInitial = true;
     SwitchUFForced = true;
 
@@ -1837,7 +1840,6 @@ void TWorld::FindBaseFlow()
 
                 inflow = (baseflow + infiltration)/ ncells;
 
-                qDebug() << baseflow << infiltration << ncells;
 
                 list = NULL;
                 temp = NULL;
@@ -2013,7 +2015,6 @@ void TWorld::InitImages()
     if(SwitchImage)
     {
         cTRGBMap *image = readRasterImage(imageFileName);
-        qDebug() << image->cellSize()  << image->nrCols() << image->nrRows();
         this->RGB_Image = image;
     }
 

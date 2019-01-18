@@ -777,6 +777,9 @@ void TWorld::ReportMaps(int not_used)
 
     report(*WHmax, floodWHmaxFileName);
     report(*Qmax, "qmax.map");
+    report(*UF2D_DEM, "dem_final.map");
+
+
 
     if(SwitchErosion)
     {
@@ -860,6 +863,14 @@ void TWorld::ReportMaps(int not_used)
         report(*MaximumDebrisFlowHeight,FileName_MaxDebrisFlowHeight);
         report(*MaximumDebrisFlowVelocity,FileName_MaxDebrisFlowVelocity);
         report(*dfTimeStart,FileName_DebrisFlowStart);
+
+        if(SwitchEntrainment)
+        {
+            report(*DEMChange,"dem_change.map");
+            report(*TotalEntrainmentDet,FileName_EntrainmentDet);
+            report(*TotalEntrainmentDep,FileName_EntrainmentDep);
+        }
+
     }
 
     if(SwitchSlopeFailure)
@@ -890,11 +901,7 @@ void TWorld::ReportMaps(int not_used)
             report(*StrengthLoss2,"strengthloss2.map");
         }
     }
-    if(SwitchEntrainment)
-    {
-        report(*TotalEntrainmentDet,FileName_EntrainmentDet);
-        report(*TotalEntrainmentDep,FileName_EntrainmentDep);
-    }
+
 
     if (outputcheck[0].toInt() == 1)
         report(*Qoutput, Outrunoff); // in l/s
@@ -990,21 +997,24 @@ void TWorld::ReportMaps(int not_used)
             report(*UF2D_SPH, "sph");
         }
 
-    }
-
-    if(SwitchEntrainment)
-    {
-        if (outputcheck[24].toInt() == 1)
+        if(SwitchEntrainment)
         {
-            report(*TotalEntrainmentDet, "ent");
-        }
+            if (outputcheck[24].toInt() == 1)
+            {
+                report(*TotalEntrainmentDet, "ent");
+                report(*UF2D_DEM, "dem");
+            }
 
+        }
     }
+
 
     if (outputcheck[25].toInt() == 1)
     {
         report(*UF2D_TimeStep, "ts");
     }
+
+     report(*UF2D_TimeStepAv, "ts_av.map");
 }
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
@@ -1414,7 +1424,7 @@ void TWorld::GetComboMaps()
     Colors.append("#FF009D");*/
 
     AddComboMap(0,"Flow Height","m",UF2D_h,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Height","m",WHstore,Colormap,Colors,false,false,1.0, 0.01);
+    //AddComboMap(0,"DEM","m",UF2D_DEM,Colormap,Colors,false,false,1.0, 0.01);
 
 
     //AddComboMap(0,"tp","m",ThreadPool->CellCDerListOrdered2d.at(0),Colormap,Colors,false,false,1.0, 0.01);
@@ -1782,6 +1792,26 @@ void TWorld::GetComboMaps()
         Colors.append("#616ca2");
         AddComboMap(1,"Deposition","kg/m2",TotalDepMap,Colormap,Colors,false,false,-1.0/(_dx*_dx), step);
 
+        Colormap.clear();
+        Colormap.append(0.0);
+        Colormap.append(0.0025);
+        Colormap.append(0.075);
+        Colormap.append(0.275);
+        Colormap.append(1.0);
+        Colors.clear();
+        Colors.append("#00FF00");
+        Colors.append("#AAFF00");
+        Colors.append("#FFAA00");
+        Colors.append("#FF0000");
+        Colors.append("#A60000");
+
+        if(SwitchSolidPhase)
+        {
+            AddComboMap(1,"d","kg/m2",UF2D_d,Colormap,Colors,true,false,1.0, step);
+            AddComboMap(1,"ifa","kg/m2",UF2D_ifa,Colormap,Colors,true,false,1.0, step);
+            AddComboMap(1,"rs","kg/m2",UF2D_rocksize,Colormap,Colors,true,false,1.0, step);
+        }
+
         if(SwitchEntrainment)
         {
             Colormap.clear();
@@ -1828,7 +1858,7 @@ void TWorld::GetComboMaps()
             Colors.append("#FF0000");
             Colors.append("#A60000");
 
-            AddComboMap(1,"test2","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Ent. Cr. ST.","kg/m2",Entrainmentshearstressc,Colormap,Colors,false,false,1.0, step);
             AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"test1","kg/m2",Entrainmentshearstress,Colormap,Colors,false,false,1.0, step);
             //AddComboMap(1,"sqx","kg/m2",UF2D_sqx,Colormap,Colors,false,false,1.0, step);

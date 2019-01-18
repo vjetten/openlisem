@@ -110,6 +110,58 @@ void TWorld::UF_ForcedConditions(int thread, cTMap * dt, cTMap * _dem,cTMap * _l
                        cTMap * _fv2D,cTMap * _s2D,cTMap * _d2D,cTMap * _ifa2D,cTMap * _rocksize2D,
                        cTMap * _su2D,cTMap * _sv2D)
 {
+
+    if(SwitchInflow)
+    {
+        FOR_ROW_COL_UF2DMT_DT
+        {
+
+
+
+            if(InflowID->Drc > 0)
+            {
+
+                int col = InflowID->Drc;
+                int i = 0;
+                bool end = false;
+                while(!end)
+                {
+                    if(i <= IFTime.length())
+                    {
+                        if(IFTime.at(i) < time/60)
+                        {
+                            i++;
+                        }else
+                        {
+
+                            end = true;
+                        }
+                    }else
+                    {
+                        end = true;
+                    }
+                }
+                i = i - 1;
+
+                double q = 0;
+
+                if(i < 0)
+                {
+                    q = 0;
+                }else
+                {
+                    q = IFQ.at(col-1)->at(std::min(IFQ.at(col-1)->length(),i));
+                }
+
+
+                _f2D->Drc += dt->Drc * q;
+
+            }
+        }}}
+    }
+
+
+
     if(SwitchUFForced)
     {
         FOR_ROW_COL_UF2DMT
@@ -171,15 +223,15 @@ void TWorld::UF_Initial( cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
 
                 if(!(UF2D_InitialFVolume->Drc < 0))
                 {
-                    _f2D->Drc = UF2D_InitialFVolume->Drc;
-                    UF_InitializedF += UF2D_InitialFVolume->Drc;
+                    _f2D->Drc += UF2D_InitialFVolume->Drc * Calibrate_DC;
+                    UF_InitializedF += UF2D_InitialFVolume->Drc * Calibrate_DC;
                 }
                 if(UF_SOLIDPHASE)
                 {
                     if(!(UF2D_InitialSVolume->Drc < 0))
                     {
-                        _s2D->Drc = UF2D_InitialSVolume->Drc;
-                        UF_InitializedS += UF2D_InitialSVolume->Drc;
+                        _s2D->Drc += UF2D_InitialSVolume->Drc* Calibrate_DC;
+                        UF_InitializedS += UF2D_InitialSVolume->Drc * Calibrate_DC;
                         if(_s2D->Drc > UF_VERY_SMALL)
                         {
                             _d2D->Drc = UF2D_InitialSDensity->Drc;

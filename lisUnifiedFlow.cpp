@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
 **  contact:
@@ -108,6 +108,10 @@ void TWorld::UnifiedFlow()
 
             //now wait till all threads are done!
             ThreadPool->WaitForAll();
+
+            ////INTERACTIONS WITH BARRIERS
+            UFBARRIERCHECK();
+            SetFlowBarriers();
 
         //increase timer by the current timstep!
         t = t + dt;
@@ -219,6 +223,7 @@ void TWorld::UF_Compute(int thread)
     UFDEMLDD_Connection(thread);
 
 
+
     if(UF_1DACTIVE)
     {
         ////CONNECTIONS
@@ -237,7 +242,9 @@ void TWorld::UF_Compute(int thread)
                            UF1D_s,UF1D_d,UF1D_ifa,UF1D_rocksize,UF1D_su,                //1d solid phase
                            UF2D_f,UF2D_visc,UF2D_fu,UF2D_fv,                            //2d fluid phase
                            UF2D_s,UF2D_d,UF2D_ifa,UF2D_rocksize,UF2D_su,UF2D_sv);       //2d solid phase
+
     }
+
 
 
     ////update the discharge maps
@@ -341,12 +348,11 @@ double TWorld::UF2D_Scheme(int thread,cTMap* dt, cTMap * _dem,cTMap * _f,cTMap *
         }
 
         //advect properties
-        UF2D_Advect2_prop(thread,dt,_dem,_f,_f,UF2D_fqx1,UF2D_fqx2,UF2D_fqy1,UF2D_fqy2,UF2D_visc,0);
         if(UF_SOLIDPHASE)
         {
-            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_d,0);
-            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_ifa,0);
-            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_rocksize,0);
+            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_d,0,1000.0,3000.0);
+            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_ifa,0,0.1,1.0);
+            UF2D_Advect2_prop(thread,dt,_dem,_s,_s,UF2D_sqx1,UF2D_sqx2,UF2D_sqy1,UF2D_sqy2,UF2D_rocksize,0,0.001,10.0);
         }
 
 
@@ -457,11 +463,13 @@ void TWorld::UF1D_Scheme(int thread,cTMap* dt, cTMap * _ldd,cTMap * _lddw,cTMap 
         }
 
         //first recalculate for the momentum source terms
+        UF_SWAP1D(_fu,UF1D_fun,cTMap*);
         UF1D_FluidApplyMomentum2(thread,dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_fun);
         UF_SWAP1D(_fu,UF1D_fun,cTMap*);
 
         if(UF_SOLIDPHASE)
         {
+            UF_SWAP1D(_su,UF1D_sun,cTMap*);
             UF1D_SolidApplyMomentum2(thread,dt,_ldd,_lddw,_lddh,_f,_visc,_fu,_s,_d,_ifa,_rocksize,_su,UF1D_sun);
             UF_SWAP1D(_su,UF1D_sun,cTMap*);
         }
@@ -603,6 +611,8 @@ void TWorld::UF_SetOutput()
         UF1D_qssout->Drc = UF1D_qssout->Drc/_dt;
 
         UF2D_TimeStep->Drc = UF_DTMIN * UF2D_DTStep->Drc;
+        UF2D_TimeStepAv->Drc = (UF2D_TimeStepAv->Drc * double((runstep - 1)) + UF2D_TimeStep->Drc)/double((runstep));
+
         UF2D_FPH->Drc = UF2D_f->Drc/(_dx*_dx);
         UF2D_SPH->Drc = s2d/(_dx*_dx);
         //return water height to the rest of OpenLisem

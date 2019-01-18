@@ -7,6 +7,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+set_property(SOURCE ui_lisemqt.h PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE ui_lisemqt.h PROPERTY SKIP_AUTOUIC ON)
+set_property(SOURCE ui_lisemqt.h PROPERTY SKIP_AUTOGEN ON)
+set_property(SOURCE qrc_openlisem.cpp PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE qrc_openlisem.cpp PROPERTY SKIP_AUTOUIC ON)
+set_property(SOURCE qrc_openlisem.cpp PROPERTY SKIP_AUTOGEN ON)
+
 # Find the QtWidgets library
 find_package(Qt5Widgets)
 find_package(Qt5Core)

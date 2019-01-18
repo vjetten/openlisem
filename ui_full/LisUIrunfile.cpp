@@ -196,8 +196,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Inflow table filename")==0)                           lineEdit_Inflow->setText(p);
         if (p1.compare("Include Initial FluidSolid Mixture")==0)                    checkBox_UFInitial->setChecked(check);
         if (p1.compare("Include Forced FluidSolid Mixture")==0)                     checkBox_UFForced->setChecked(check);
-        if (p1.compare("Incldue Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
-        if (p1.compare("Incldue Maximum Volume")==0)                                checkBox_MaxVolume->setChecked(check);
+        if (p1.compare("Include Maximum ChannelVolume")==0)                         checkBox_ChannelMaxVolume->setChecked(check);
+        if (p1.compare("Include Channel Connection")==0)                            checkBox_ChannelConnection->setChecked(check);
 
 
         if (p1.compare("Suspended Viscosity")==0)                                    checkBox_SuspendedViscosity->setChecked(check);
@@ -382,7 +382,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Dynamic Viscosity Calibration")==0)     E_CalibrateDV->setValue(val);
         if (p1.compare("Drag Force Calibration")==0)            E_CalibrateDF->setValue(val);
         if (p1.compare("Solid Phase Friction Calibration")==0)  E_CalibrateSPF->setValue(val);
-        if (p1.compare("Deposition Criteria Calibration")==0)   E_CalibrateDC->setValue(val);
+        if (p1.compare("Release Volume Calibration")==0)   E_CalibrateDC->setValue(val);
         if (p1.compare("Limit Failure")==0)                     E_LimitFailure->setChecked(check);
 
         if (p1.compare("Soil Cohesion Calibration")==0)                 E_CalibrateSoilCohesion->setValue(val);
@@ -866,12 +866,12 @@ void lisemqt::updateModelData()
         if (p1.compare("Enable Barriers")==0)                                       namelist[j].value.setNum((int)checkBox_Barriers->isChecked());
         if (p1.compare("Enable Flow Barriers")==0)                                  namelist[j].value.setNum((int)checkBox_FlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)                           namelist[j].value = lineEdit_FlowBarriers->text();
-        if (p1.compare("Enable Inflow")==0)                                   namelist[j].value.setNum((int)checkBox_Inflow->isChecked());
-        if (p1.compare("Inflow table filename")==0)                           namelist[j].value = lineEdit_Inflow->text();
+        if (p1.compare("Enable Inflow")==0)                                         namelist[j].value.setNum((int)checkBox_Inflow->isChecked());
+        if (p1.compare("Inflow table filename")==0)                                 namelist[j].value = lineEdit_Inflow->text();
         if (p1.compare("Include Initial FluidSolid Mixture")==0)                    namelist[j].value.setNum((int)checkBox_UFInitial->isChecked());
         if (p1.compare("Include Forced FluidSolid Mixture")==0)                     namelist[j].value.setNum((int)checkBox_UFForced->isChecked());
-        if (p1.compare("Incldue Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());
-        if (p1.compare("Incldue Maximum Volume")==0)                                namelist[j].value.setNum((int)checkBox_MaxVolume->isChecked());
+        if (p1.compare("Include Maximum ChannelVolume")==0)                         namelist[j].value.setNum((int)checkBox_ChannelMaxVolume->isChecked());
+        if (p1.compare("Include Channel Connection")==0)                            namelist[j].value.setNum((int)checkBox_ChannelConnection->isChecked());
 
         if (p1.compare("Suspended Viscosity")==0)                                    namelist[j].value.setNum((int)checkBox_SuspendedViscosity->isChecked());
         if (p1.compare("Lax Multiplier")==0)                                        namelist[j].value = E_LaxMultiplier->text();
@@ -1063,7 +1063,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Dynamic Viscosity Calibration")==0)     namelist[j].value = E_CalibrateDV->text();
         if (p1.compare("Drag Force Calibration")==0)            namelist[j].value = E_CalibrateDF->text();
         if (p1.compare("Solid Phase Friction Calibration")==0)  namelist[j].value = E_CalibrateSPF->text();
-        if (p1.compare("Deposition Criteria Calibration")==0)   namelist[j].value = E_CalibrateDC->text();
+        if (p1.compare("Release Volume Calibration")==0)   namelist[j].value = E_CalibrateDC->text();
         if (p1.compare("Limit Failure")==0)                     namelist[j].value.setNum((int)E_LimitFailure->isChecked());
 
         if (p1.compare("Soil Cohesion Calibration")==0)                 namelist[j].value = E_CalibrateSoilCohesion->text();

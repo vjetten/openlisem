@@ -192,7 +192,7 @@
 #define MIN_HEIGHT 1e-12 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define UF_VERY_SMALL 1e-24 /// \def min timestep/flux/height in unified flow equations
+#define UF_VERY_SMALL 1e-12 /// \def min timestep/flux/height in unified flow equations
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -323,7 +323,7 @@ public:
     SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput,
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum,SwitchLitter,
-    SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET, SwitchLevees, SwitchFlowBarriers, SwitchInflow, SwitchBarriers, SwitchMaxVolume, SwitchChannelMaxVolume, SwitchUFInitial,SwitchUFForced;
+    SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET, SwitchLevees, SwitchFlowBarriers, SwitchInflow, SwitchBarriers, SwitchMaxVolume, SwitchChannelConnection, SwitchChannelMaxCS, SwitchUFInitial,SwitchUFForced;
 
     int SwitchEfficiencyDET;
 
@@ -555,6 +555,7 @@ public:
 
     bool SwitchUseMaterialDepth,SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchSolidPhase,SwitchEntrainment,SwitchDeposition,SwitchCompaction, SwitchSlopeStability,SwitchUpslopeForcing,SwitchDownslopeForcing,SwitchBedrock, SwitchSeismic,SwitchSlopeFailure;
 //SwithEstimated90,
+    bool INCLUDE_DEPOSITS_STABILITY =false;
     int numgrainclasses;
     QString GrainMaps;
     QList<double> graindiameters;
@@ -780,7 +781,11 @@ public:
     QList<double> FBTimeS;
     QList<double> FBTimeE;
     QList<double> FBTimeW;
+    QList<double> FBMinH;
+    QList<double> FBMinV;
 
+    QList<QList<QPoint>> FBCritCells;
+    QList<QList<QPoint>> FBCritCells2;
 
     void InitFlowBarriers(void);
     void SetFlowBarriers();

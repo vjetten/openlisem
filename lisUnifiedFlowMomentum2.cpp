@@ -162,7 +162,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
 
         ThreadPool->UF_t6.at(thread)->Drc = (s+_f->Drc)/(_dx * _dx);
 
-        ThreadPool->UF_t8.at(thread)->Drc = DEM->Drc + (s+_f->Drc)/(_dx * _dx);
+        ThreadPool->UF_t8.at(thread)->Drc = UF2D_DEM->Drc + (s+_f->Drc)/(_dx * _dx);
 
         UF2D_fax->Drc = 0;
         UF2D_fay->Drc = 0;
@@ -240,7 +240,7 @@ void TWorld::UF2D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
         double gamma = 1.0;
         if(UF_SOLIDPHASE)
         {
-            _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
+            gamma = _d->Drc > UF_VERY_SMALL? 1000.0/_d->Drc : 0.5;
         }
         double dc = 0.0;
 
@@ -773,20 +773,24 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lsax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lxh,lxslope,true))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rsax,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,rxh,rxslope,true))/2.0;
 
+            double left_l = 0;
+            double left_r = 0;
+
+
+            ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc, left_l);
+            ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc, left_r);
+
             if(ff > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fv->Drc-_sv->Drc)*(_fv->Drc-_sv->Drc),0.5*(UF_j-1.0));
-                double lfacu = std::max(0.0,std::fabs(dt->Drc * dc * ff));
-                double rfacu = std::max(0.0,std::fabs(dt->Drc * dc * ff));
+                double lfacu = std::max(0.0,std::fabs(dt->Drc * std::max(0.0,dc*ff-left_l)));//std::max(0.0,dc*ff - left_l)));
+                double rfacu = std::max(0.0,std::fabs(dt->Drc * std::max(0.0,dc*ff - left_r)));// std::max(0.0,dc*ff - left_r)));
                 double ul_balance = sf * ThreadPool->UF_t6.at(thread)->Drc + ff * _fu->Drc;
                 double ur_balance = sf * ThreadPool->UF_t7.at(thread)->Drc + ff * _fu->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
             }
-
-            ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc);
-            ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc);
 
             lsax = (ThreadPool->UF_t6.at(thread)->Drc - lsu)/dt->Drc;
             rsax = (ThreadPool->UF_t7.at(thread)->Drc - rsu)/dt->Drc;
@@ -799,20 +803,23 @@ void TWorld::UF2D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _dem,cTMap
             ThreadPool->UF_t6.at(thread)->Drc = (ThreadPool->UF_t6.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* lsay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t6.at(thread)->Drc,0,N->Drc,lyh,lyslope,true))/2.0;
             ThreadPool->UF_t7.at(thread)->Drc = (ThreadPool->UF_t7.at(thread)->Drc + UF_Friction(dt->Drc*UF_TIMERATIO* rsay,dt->Drc*UF_TIMERATIO,ThreadPool->UF_t7.at(thread)->Drc,0,N->Drc,ryh,ryslope,true))/2.0;
 
+            left_l = 0;
+            left_r = 0;
+
+            ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc, left_l);
+            ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc, left_r);
+
             if(ff > UF_VERY_SMALL)
             {
                 double lvpow = pow((ThreadPool->UF_t6.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t6.at(thread)->Drc-_su->Drc)+(_fu->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
                 double rvpow = pow((ThreadPool->UF_t7.at(thread)->Drc-_sv->Drc)*(ThreadPool->UF_t7.at(thread)->Drc-_su->Drc)+(_fu->Drc-_su->Drc)*(_fv->Drc-_su->Drc),0.5*(UF_j-1.0));
-                double lfacu = std::max(0.0,std::fabs(dt->Drc * dc * ff));
-                double rfacu = std::max(0.0,std::fabs(dt->Drc * dc * ff));
+                double lfacu = std::max(0.0,std::fabs(dt->Drc  * std::max(0.0,dc*ff-left_l)));// std::max(0.0,dc*ff - left_l)));
+                double rfacu = std::max(0.0,std::fabs(dt->Drc  * std::max(0.0,dc*ff-left_r)));// std::max(0.0,dc * ff - left_r)));
                 double ul_balance = sf * ThreadPool->UF_t6.at(thread)->Drc + ff * _fv->Drc;
                 double ur_balance = sf * ThreadPool->UF_t7.at(thread)->Drc + ff * _fv->Drc;
                 ThreadPool->UF_t6.at(thread)->Drc = ul_balance + (ThreadPool->UF_t6.at(thread)->Drc - ul_balance)*std::exp(-lfacu);
                 ThreadPool->UF_t7.at(thread)->Drc = ur_balance + (ThreadPool->UF_t7.at(thread)->Drc - ur_balance)*std::exp(-rfacu);
             }
-
-            ThreadPool->UF_t6.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t6.at(thread)->Drc,dt->Drc);
-            ThreadPool->UF_t7.at(thread)->Drc = UF_SFriction(sf*0.5*UF_Gravity *std::tan(ifa),ThreadPool->UF_t7.at(thread)->Drc,dt->Drc);
 
             lsay = (ThreadPool->UF_t6.at(thread)->Drc - lsv)/dt->Drc;
             rsay = (ThreadPool->UF_t7.at(thread)->Drc - rsv)/dt->Drc;
@@ -1045,7 +1052,7 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
         }
         if(UF_SOLIDPHASE)
         {
-            _d->Drc = 2000.0;
+            //_d->Drc = 2000.0;
         }
         double Nr = 1.0;
         if(UF_SOLIDPHASE)
@@ -1144,15 +1151,42 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
                 double volx = std::fabs(UF_LDDOUT(_ldd,r,c,true)?0.0:std::min(0.0,(_dx*_lddw->Drc) * (-(hself - ((_f->data[r2][c2])/(_dx*_lddw->data[r2][c2]) + (UF1D_Slope->Drc + UF1D_Slope->data[r2][c2])*0.5 * _dx)))));
                 double cq = UF1D_COURANTSCHEMEFACTOR * volx;
                 double volxr = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * (hself - (_f->data[r2][c2]/(_dx*_lddw->data[r2][c2]) + (UF1D_Slope->Drc + UF1D_Slope->data[r2][c2])*0.5  * _dx)));
+
                 double dtx1 = dt->Drc;
                 double vxr = (rfu + dtx1 * rfa);
 
                 double cqt = UF1D_COURANTSCHEMEFACTOR * (volxr);
 
                 double q1 = UF_AVERAGEFACTOR * dtx1 * (vxr) *hself*_lddw->Drc;
+
+                if(SwitchChannelMaxCS)
+                {
+                    double h_max = UF1D_ChannelMaxCS->Drc;
+                    if(h_max > 0.0)
+                    {
+                         q1 = UF_AVERAGEFACTOR * dtx1 * (vxr) *std::min(ff*h_max,hself)*_lddw->Drc;
+                    }
+                }
+
                 double qold = q1;
                 q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? std::fabs(cq) : cqt);
 
+                if(SwitchChannelConnection)
+                {
+                    double connection = UF1D_ChannelConnected->Drc;
+                    if(connection == 0.0)
+                    {
+                        double volx_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * hself);
+                        double volxr_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) * (_f->data[r2][c2]/(_dx*_lddw->data[r2][c2])));
+                        double volx_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * _lddh->Drc);
+                        double volxr_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) *  _lddh->data[r2][c2]);
+                        q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? ff*std::max(0.0,volxr_max-volxr_r) : ff*std::max(0.0,volx_max-volx_r));
+                    }
+                }
+
+
+
+                double volxr_max = 0;
 
                 double qleft = qold - q1;
                 double qnext = dtx1 * (_fu->data[r2][c2]/_dx) *_f->data[r2][c2];
@@ -1237,7 +1271,31 @@ void TWorld::UF1D_FluidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
                         double cqt = UF1D_COURANTSCHEMEFACTOR *(volxl);
                         double q2 = UF_AVERAGEFACTOR * dtx1 * (vxl/_dx) * _f->Drc* (_lddw->data[r2][c2]/totalwidth);
                         double qold = q2;
+
+                        if(SwitchChannelMaxCS)
+                        {
+                            double h_max = UF1D_ChannelMaxCS->Drc;
+                            if(h_max > 0.0)
+                            {
+                                 q2 = UF_AVERAGEFACTOR * dtx1 * (vxl) *std::min(ff * h_max,hself)*_lddw->Drc;
+                            }
+                        }
+
                         q2 = ((q2 > 0)? 1.0 : -1.0) *std::min(std::fabs(q2),(q2 > 0)? cqt : std::fabs(cq));
+
+
+                        if(SwitchChannelConnection)
+                        {
+                            double connection = UF1D_ChannelConnected->Drc;
+                            if(connection == 0.0)
+                            {
+                                double volx_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * hself);
+                                double volxr_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) * (_f->data[r2][c2]/(_dx*_lddw->data[r2][c2])));
+                                double volx_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * _lddh->Drc);
+                                double volxr_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) *  _lddh->data[r2][c2]);
+                                q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? ff*std::max(0.0,volxr_max-volxr_r) : ff*std::max(0.0,volx_max-volx_r));
+                            }
+                        }
 
                         double qleft = qold - q2;
                         double qnext = dtx1 * (_fu->data[r2][c2]/_dx) *_f->data[r2][c2];
@@ -1390,6 +1448,28 @@ void TWorld::UF1D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
                 double q1 = UF_AVERAGEFACTOR * dtx1 * (vxr) * _s->Drc/_dx;
                 q1 = ((q1 > 0)? 1.0 : 0.0) * std::min(std::fabs(q1),(q1 > 0)? cqt : cqt);
 
+                if(SwitchChannelMaxCS)
+                {
+                    double h_max = UF1D_ChannelMaxCS->Drc;
+                    if(h_max > 0.0)
+                    {
+                         q1 = UF_AVERAGEFACTOR * dtx1 * (vxr) *std::min(sf * h_max,hself)*_lddw->Drc;
+                    }
+                }
+
+                if(SwitchChannelConnection)
+                {
+                    double connection = UF1D_ChannelConnected->Drc;
+                    if(connection == 0.0)
+                    {
+                        double volx_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * hself);
+                        double volxl_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) * (_s->data[r2][c2]/(_dx*_lddw->data[r2][c2])));
+                        double volx_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * _lddh->Drc);
+                        double volxl_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) *  _lddh->data[r2][c2]);
+                        q1 = ((q1 > 0)? 1.0 : -1.0) * std::min(std::fabs(q1),(q1 > 0)? sf * std::max(0.0,volxl_max-volxl_r) : sf * std::max(0.0,volx_max-volx_r));
+                    }
+                }
+
                 UF1D_sq1->Drc = q1;
             }//else if(_su->Drc > 0)
             {
@@ -1461,7 +1541,31 @@ void TWorld::UF1D_SolidMomentum2Source(int thread,cTMap * dt, cTMap * _ldd,cTMap
                         double cqt = UF1D_COURANTSCHEMEFACTOR * UF_Courant * (volxl);
                         double q2 = UF_AVERAGEFACTOR * dtx1 * (vxl) * lhs *_lddw->Drc* (_lddw->data[r2][c2]/totalwidth);
 
+                        if(SwitchChannelMaxCS)
+                        {
+                            double h_max = UF1D_ChannelMaxCS->Drc;
+                            if(h_max > 0.0)
+                            {
+                                 q2 = UF_AVERAGEFACTOR * dtx1 * (vxl) *std::min(sf * h_max,hself)*_lddw->Drc;
+                            }
+                        }
+
                         q2 = ((q2 > 0)? 0.0 :-1.0) * std::min(std::fabs(q2),(q2 > 0)? cqt : cqt);
+
+
+                        if(SwitchChannelConnection)
+                        {
+                            double connection = UF1D_ChannelConnected->Drc;
+                            if(connection == 0.0)
+                            {
+                                double volx_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * hself);
+                                double volxr_r = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) * (_s->data[r2][c2]/(_dx*_lddw->data[r2][c2])));
+                                double volx_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->Drc) * _lddh->Drc);
+                                double volxr_max = UF_LDDOUT(_ldd,r,c,true)?0.0:std::max(0.0,(_dx*_lddw->data[r2][c2]) *  _lddh->data[r2][c2]);
+                                q2 = ((q2 > 0)? 1.0 : -1.0) * std::min(std::fabs(q2),(q2 > 0)? sf* std::max(0.0,volxr_max-volxr_r) :  sf*std::max(0.0,volx_max-volx_r));
+                            }
+                        }
+
 
                         UF1D_sq2->Drc += q2;
                     }

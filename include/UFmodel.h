@@ -141,6 +141,7 @@
     cTMap * UF2D_u;
     cTMap * UF2D_v;
     cTMap * UF2D_TimeStep;
+    cTMap * UF2D_TimeStepAv;
     cTMap * UF2D_SPH;
     cTMap * UF2D_FPH;
     cTMap * UF2D_tsf;
@@ -242,6 +243,8 @@
 
     ////1D
     cTMap * UF1D_OutletDistance;
+    cTMap * UF1D_ChannelMaxCS;
+    cTMap * UF1D_ChannelConnected;
 
     cTMap * UF1D_LDD;
     cTMap * UF1D_LDDw;
@@ -252,10 +255,8 @@
     cTMap * UF1D_CellC;
     cTMap * UF1D_Slope;
     cTMap * UF1D_DTStep;
-    cTMap * UF1D_Courant;
     //fluid phase
     cTMap * UF1D_f;
-    cTMap * UF1D_fstore;
     cTMap * UF1D_visc;
     cTMap * UF1D_fu;
     cTMap * UF1D_fa;
@@ -359,7 +360,7 @@
     //advection with MUSCLE scheme
     void UF2D_Advect2_Momentum(int thread, cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv, cTMap * out_fu, cTMap * out_fv,  cTMap * out_su, cTMap * out_sv,cTMap * out_qfx1,cTMap *out_qfx2,cTMap * out_qfy1,cTMap *out_qfy2,cTMap * out_qsx1,cTMap *out_qsx2,cTMap * out_qsy1,cTMap *out_qsy2);
     double UF2D_Advect2_mass(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2, cTMap * out_m,cTMap *outflow = 0);
-    void UF2D_Advect2_prop(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2,cTMap *_prop, cTMap * out_prop = 0);
+    void UF2D_Advect2_prop(int thread, cTMap* dt, cTMap * _dem,cTMap * _m, cTMap * f,cTMap * _qx1, cTMap * _qy1,cTMap * _qx2, cTMap * _qy2,cTMap *_prop, cTMap * out_prop = 0,double max_val = -1e-31,double min_val = 1e-31);
 
     //momentum functions
     void UF2D_FluidMomentum2Source(int thread, cTMap* dt, cTMap * _dem,cTMap * _f,cTMap * _visc,cTMap * _fu,cTMap * _fv,cTMap * _s,cTMap * _d,cTMap * _ifa,cTMap * _rocksize,cTMap * _su,cTMap * _sv,cTMap * out_fu, cTMap * out_fv);
@@ -401,6 +402,8 @@
     ////boundary conditions
     double UF_BoundaryFlux2D(double dt, double cellx, double celly, double f, double s, double fu, double fv, double su, double sv, double slopeX, double slopeY,double NN, int dr, int dc );
     double UF_BoundaryFlux1D(double dt, double width, double f, double s, double fu, double su, double slope, double NN, bool front );
+
+    void UFBARRIERCHECK();
 
     void UF2D1D_LaxNumericalCorrection(int thread, cTMap * dt, cTMap * _dem,cTMap * _ldd,cTMap * _lddw,
                                     cTMap * _lddh,cTMap * _f1D,cTMap * _visc1D,
@@ -453,7 +456,7 @@
 
     ////Momentum balance functions
     double UF_Friction(double a,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0, double solids = 0,double ff = 1.0, double sf = 0.0, double Nr = 1.0);
-    double UF_SFriction(double a, double v, double dt);
+    double UF_SFriction(double a, double v, double dt, double &left);
     double UF_Friction2(double vel,double dt,double velx,double vely, double NN, double h, double slope,bool solid, bool channel = false, double flowwidth = 0);
 
     double UF2D_MomentumBalanceFluid(bool x, double _f,double _s,double fu, double fv, double su, double sv, double ff, double sf, double Nr, double Nra, double ifa, double gamma, double visc, double pbf, double SlopeX, double SlopeY,

@@ -106,7 +106,7 @@ void TWorld::SafetyFactor()
         DFForcing->Drc = 0.0;
         DFForcingAdded->Drc = 0.0;*/
 
-        double area = DX->Drc*_dx;
+        double area = _dx*_dx;
         DFSFIterations->Drc = -1;
         DEMIterate->Drc = DEMOriginal->Drc;
         DFSoilDepth->Drc = SoilDepth1->Drc;
@@ -116,12 +116,13 @@ void TWorld::SafetyFactor()
         }
         double soildepth0 = 0;
         double theta0 = 0;
-        if(SwitchEntrainment)
+        if(SwitchEntrainment && INCLUDE_DEPOSITS_STABILITY)
         {
               theta0 = (SoilRockMaterial->Drc)? SoilRockWater->Drc/SoilRockMaterial->Drc: 0.0;
               soildepth0 = SoilRockMaterial->Drc /area;
               DFSoilDepth->Drc += soildepth0;
         }
+
         //DFSoilDepth->Drc *= st_sdCalibration;
 
         DFSurfaceWaterHeight->Drc = 0;//UF2D_f->Drc/(_dx*_dx);
@@ -144,7 +145,7 @@ void TWorld::SafetyFactor()
             {
                  DFWaterHeight->Drc += L2->Drc * (ThetaS2->Drc - ThetaI2->Drc) + ThetaI2->Drc * SoilDepth2->Drc;
             }
-            if(SwitchEntrainment)
+            if(SwitchEntrainment && INCLUDE_DEPOSITS_STABILITY)
             {
                 DFWaterHeight->Drc += SoilRockWater->Drc /area;
             }
@@ -162,7 +163,7 @@ void TWorld::SafetyFactor()
                     ts = (ThetaS1->Drc * SoilDepth1->Drc + ThetaS2->Drc * SoilDepth2->Drc)/(SoilDepth1->Drc + SoilDepth2->Drc);
                 }
             }
-            if(SwitchEntrainment)
+            if(SwitchEntrainment && INCLUDE_DEPOSITS_STABILITY)
             {
                 ts = DFSoilDepth->Drc > 0? ((ts * (DFSoilDepth->Drc-soildepth0)) + (UF_FLOWCOMPACTION_DEPOSITIONPOROSITY * soildepth0))/(DFSoilDepth->Drc) : 0.0;
             }
@@ -228,6 +229,7 @@ void TWorld::SafetyFactor()
         {
             MinimumDownslopeForcing->Drc = std::min(MinimumDownslopeForcing->Drc,DFForcingUp->Drc + SwitchBedrock? DFForcingUp2->Drc : 0.0);
         }
+
     }
 
 
@@ -1011,14 +1013,14 @@ void TWorld::CalculateSafetyFactors(cTMap * _DEM,cTMap * _SoilDepth,
             {
 
 
-                /*
+
                 //to get the third power root with real value
                 //double c1 = 1.0 * a*h0*h0 - g*h0*h0*h0 + d * h0*h0*h0* sf+ f*h0*sf*hdx +a * hdx * hdx + e*hdx*hdx - g*h0*hdx*hdx + d*h0*sf*hdx*hdx;
                 //double c2 = -2.0 * a * h0 + g * h0*h0 + 2.0 * g * h0*h0 - 1.0 * d * h0 * h0*sf - 2.0 * d*h0*h0*sf - 1.0 * f*sf*hdx + cc * h0*sf*hdx + b * hdx*hdx + g * hdx* hdx - d * sf*hdx*hdx;
                 //double c3 = a - 2.0 * g * h0 - g * h0 + 2.0 * d * h0*sf + d * h0*sf - cc* sf*hdx;
                 //double c4 = g - (d *sf);
 
-                double c1 = a*h0*h0 + a * hdx*hdx;
+                /*double c1 = a*h0*h0 + a * hdx*hdx;
                 double c2 =-2.0*a*h0 + g * h0 * h0 - 1.0 * d * h0*h0*sf + c * h0*sf*hdx + b *hdx*hdx + g * hdx*hdx - 1.0 * d * sf * hdx*hdx ;
                 double c3 = a - 2.0 * g * h0 + 2.0 * d * h0 * sf - 1.0 * cc * sf * hdx;
                 double c4 = g - (d *sf);
@@ -1343,25 +1345,7 @@ void TWorld::InitiateDebrisFlow()
     {
         return;
     }
-    qDebug() << "Switch" <<SwitchBedrock;
 
-    {cTMap * _dem = UF2D_DEM;
-        bool nan = false;
-        double fail = 0.0;
-    FOR_ROW_COL_UF2D
-    {
-        fail += DFInitiationHeight->Drc;
-        if(std::isnan(UF2D_f->Drc))
-        {
-           nan = true;
-        }
-
-    }
-    qDebug() << "fail" << fail;
-    if(nan)
-    {
-    qDebug() << "NAN 31";
-    }}
 
     int n_init = 0;
     FOR_ROW_COL_MV
@@ -1378,6 +1362,24 @@ void TWorld::InitiateDebrisFlow()
             DEMOriginal->Drc -= h;
             //DEM->Drc -= h;
             DEMChange->Drc -= h;
+
+            double area = _dx*_dx;
+            if(SwitchEntrainment && INCLUDE_DEPOSITS_STABILITY)
+            {
+                  double depthdep = SoilRockMaterial->Drc /area;
+                  double depthdepfail = std::min(h,depthdep);
+                  h = std::max(0.0, h - depthdepfail);
+                  double sdepvol = depthdepfail*area;
+                  UF2D_f->Drc +=sdepvol;
+                  UF2D_s->Drc +=sdepvol* 0.4;
+                  SoilRockMaterial->Drc =std::max(0.0,SoilRockMaterial->Drc-sdepvol);
+                  UF2D_su->Drc = (sdepvol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_su->Drc)/(sdepvol + UF2D_s->Drc) : 0.0;
+                  UF2D_sv->Drc = (sdepvol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_sv->Drc)/(sdepvol + UF2D_s->Drc) : 0.0;
+                  UF2D_d->Drc = (sdepvol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_d->Drc + DFSoilDensity->Drc * sdepvol)/(sdepvol + UF2D_s->Drc) : UF2D_d->Drc;
+                  UF2D_ifa->Drc = (sdepvol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_ifa->Drc + DFSoilInternalFrictionAngle->Drc * sdepvol)/(sdepvol + UF2D_s->Drc) : UF2D_ifa->Drc;
+                  UF2D_rocksize->Drc = (sdepvol + UF2D_s->Drc)> 0? (UF2D_s->Drc *UF2D_rocksize->Drc + DFSoilRockSize->Drc * sdepvol)/(sdepvol + UF2D_s->Drc) : UF2D_rocksize->Drc;
+            }
+
 
             //fluid volume is added
 
@@ -1397,6 +1399,8 @@ void TWorld::InitiateDebrisFlow()
             fvol = !std::isnan(fvol)? fvol : 0.0;
 
             UF2D_f->Drc += fvol;
+
+            UF_InitializedF += fvol;
 
             //solid phase volume is added
             double svol = std::min(SoilDepth1->Drc,h) * (1.0-ThetaS1->Drc) * _dx * _dx;
@@ -1476,18 +1480,4 @@ void TWorld::InitiateDebrisFlow()
 
     }
 
-    {cTMap * _dem = UF2D_DEM;
-        bool nan = false;
-    FOR_ROW_COL_UF2D
-    {
-        if(std::isnan(UF2D_f->Drc))
-        {
-           nan = true;
-        }
-
-    }
-    if(nan)
-    {
-    qDebug() << "NAN 32";
-    }}
 }

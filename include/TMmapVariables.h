@@ -378,6 +378,7 @@ cTMap
 *DFForcingUpAdded,
 
 *DEMChange,
+*DEMChangeTotal,
 *LDDChange,
 
 *PGA,
@@ -407,9 +408,10 @@ QList<cTMap *> RStorageDep_D;
 QList<cTMap *> RStorage_D;
 
 cTMap * InflowID;
+cTMap * FlowBarrierCrit;
+cTMap * FlowBarrierDestroyed;
 
 cTMap * FlowBarrier;
-
 cTMap * FlowBarrierN;
 cTMap * FlowBarrierW;
 cTMap * FlowBarrierS;

@@ -135,17 +135,19 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("1;Channel BaseFLow");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
+    DEFmaps.append("2;InflowIdCh;inflowidch.map; id for inflow conditions Channel(m);inflowidCh");
     DEFmaps.append("2;InflowId;inflowid.map; id for inflow conditions (m);inflowid");
 
     DEFmaps.append("0;Surface Flow");
     DEFmaps.append("1;Flow barriers");
     DEFmaps.append("2;DemBarriers;barriers.map;Barrier depth (is added to dem) (m);barriers");
     DEFmaps.append("2;FlowbarrierIndex;flowbarrierindex.map;Flow barrier index (reads properties from table);flowbarrierindex");
+    DEFmaps.append("2;FlowbarrierCrit;fbcrit.map;Flow barrier critical locations;flowbarriercrit");
     DEFmaps.append("2;MaxVolume;maxvolume.map; Maximum flow volume;maxvol");
     DEFmaps.append("1;Flow Limiting");
     DEFmaps.append("2;ChannelDepth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-    DEFmaps.append("2;ChannelMaxVolume;channelmaxvolume.map; Maximum flow volume for Channel;channelmaxvol");
+    DEFmaps.append("2;ChannelMaxCS;channelmaxcs.map; Maximum flow cross section for Channel;channelmaxcs");
     DEFmaps.append("2;ChannelConnected;channelconnected.map; Is the channel connected to overland flow;channelconnected");
     DEFmaps.append("1;Initial Volume");
     DEFmaps.append("2;InitiationTime;initiationtime.map;initial time (min);initiationtime");
@@ -162,6 +164,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ForcedSIFA;forcedsifa.map;forced internal friction angle (radians);forcedsifa");
     DEFmaps.append("1;Flow cell boundary based Barriers");
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+    DEFmaps.append("2;FlowBarrierCriteriaIndex;fbcrit.map;An index value, indicating where to use flow barrier criteria (-);flowbarriercrit");
 
     DEFmaps.append("0;Snowmelt");
     DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
@@ -443,7 +446,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Forced FluidSolid Mixture");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Incldue Maximum ChannelVolume");
+    namelist[i++].name = QString("Include Maximum ChannelVolume");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Channel Connection");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Incldue Maximum Volume");
     namelist[i].value = QString("1.0");
@@ -581,7 +586,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Solid Phase Friction Calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Deposition Criteria Calibration");
+    namelist[i++].name = QString("Release Volume Calibration");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Limit Failure");
 

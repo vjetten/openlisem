@@ -48,7 +48,7 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
             //nsq = (1.0/UF_MANNINGCOEFFICIENT_FLUID) * nsq;
             if(flowwidth > 0)
             {
-                nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
+                //nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
 
             }
         }
@@ -83,10 +83,10 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
 
         if(channel)
         {
-            nsq = 2.0 * nsq;
+            //nsq = 2.0 * nsq;
             if(flowwidth > 0)
             {
-                nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
+                //nsq = nsq * (flowwidth + 2.0 * h)/(flowwidth);
 
             }
         }
@@ -110,8 +110,9 @@ double TWorld::UF_Friction(double a,double dt,double velx,double vely, double NN
 
 }
 
-double TWorld::UF_SFriction(double a, double v, double dt)
+double TWorld::UF_SFriction(double a, double v, double dt, double &left)
 {
+    left = std::max(0.0,std::fabs(a) - std::fabs(v)/std::max(UF_VERY_SMALL,dt));
     return v > 0? std::max(0.0, v - dt * std::fabs(a)) : std::min(0.0, v + dt * std::fabs(a));
 }
 

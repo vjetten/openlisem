@@ -310,14 +310,16 @@ double TWorld::UnifiedFlowActiveEntrainmentLat(double dt,double st, double slope
     double pbs = (1-gamma)*(-UF_Gravity * h);
     double dc = UF_DragCoefficient(_f/(_f+_s),_sc,gamma ,visc,rocksize,d);
 
-    double t = UF_Gravity * h * d * ((_fv*_fv + _sv*_sv)*0.5*manning*manning/(pow(h,4.0/3.0)) + _sc * ifa);
+    double ff = _f/std::max(UF_VERY_SMALL,_s+_f);
+    double sf = _s/std::max(UF_VERY_SMALL,_s+_f);
+    double t = UF_Gravity * h * d * ((ff*_fv + sf*_sv)*(ff*_fv + sf*_sv)*manning/(pow(std::max(0.1,h),4.0/3.0)) + sf * ifa);
 
     double Coeff_Susp = 0.5;
 
     double coh = coh_bed + veg_coh;
 
     //critical shear stress
-    double tc = (coh + (1-Coeff_Susp) *_sc * (d - 1000.0) * UF_Gravity * h * (cos(slope)*cos(slope) * tan(ifa_bed)));
+    double tc = (coh * 1000.0 + (1-Coeff_Susp) *sf * (d - 1000.0) * UF_Gravity * h * (cos(slope)*cos(slope) * tan(ifa_bed)));
 
     //get the actual scouring rate
     //double scourat = (UF_ENTRAINMENTCONSTANT * h * std::sqrt( _fv*_fv + _sv*_sv)*(MaxCSF - (_s/_f+_s)))/((UF_SOILROCKPOROSITY - MaxCSF)*rocksize);
@@ -386,14 +388,17 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
     double pbs = (1.0-gamma)*(-UF_Gravity * h);
     double dc = UF_DragCoefficient(_f/(_f+_s),_sc,gamma ,visc,rocksize,d);
 
-    double t = UF_Gravity * h * d * ((_fv*_fv + _sv*_sv)*0.5*manning*manning/(pow(std::max(0.1,h),4.0/3.0)) + _sc * ifa);
+    double ff = _f/std::max(UF_VERY_SMALL,_s+_f);
+    double sf = _s/std::max(UF_VERY_SMALL,_s+_f);
+
+    double t = UF_Gravity * h * d * (abs(ff*_fv + sf*_sv)*manning/(pow(std::max(0.1,h),4.0/3.0)) + sf * ifa);
 
     double Coeff_Susp = 0.5;
 
     double coh = coh_bed + veg_coh;
 
     //critical shear stress
-    double tc = (coh + (1.0-Coeff_Susp) *_sc * (d - 1000.0) * UF_Gravity * h * (cos(slope)*cos(slope) * tan(ifa_bed)));
+    double tc = (coh * 1000.0 + (1.0-Coeff_Susp) *sf * (d - 1000.0) * UF_Gravity * h * (cos(slope)*cos(slope) * tan(ifa_bed)));
 
 
     //get the actual scouring rate
@@ -404,8 +409,9 @@ double TWorld::UnifiedFlowActiveEntrainment(double dt,double st, double slope, d
 
 UF2D_ST->Drc = t;
 
-    Entrainmentshearstressc->Drc = (_fv*_fv + _sv*_sv)*0.5*manning*manning/(pow(h,4.0/3.0));
-    Entrainmentshearstress->Drc = _sc * ifa;
+
+    Entrainmentshearstressc->Drc = tc;
+
 
     if(area < UF_VERY_SMALL)
     {
