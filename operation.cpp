@@ -1,6 +1,7 @@
 #include "operation.h"
 #include <algorithm>
 #include <QList>
+#include <qmath.h>
 #include "CsfMap.h"
 #include "error.h"
 
@@ -192,15 +193,15 @@ double getWindowAverage(
 {
   double i = 0;
   double sum = 0, avg = 0;
-  if (!pcr::isMV(raster.data[r-1][c-1]) && raster.data[r-1][c-1]> 0) { sum += raster.data[r-1][c-1]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r-1][c  ]) && raster.data[r-1][c  ]> 0) { sum += raster.data[r-1][c  ]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r-1][c+1]) && raster.data[r-1][c+1]> 0) { sum += raster.data[r-1][c+1]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r  ][c-1]) && raster.data[r  ][c-1]> 0) { sum += raster.data[r  ][c-1]; i+=1.0;}
-  if (center && !pcr::isMV(raster.data[r  ][c]) && raster.data[r  ][c]> 0) { sum += raster.data[r  ][c]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r  ][c+1]) && raster.data[r  ][c+1]> 0) { sum += raster.data[r  ][c+1]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r+1][c-1]) && raster.data[r+1][c-1]> 0) { sum += raster.data[r+1][c-1]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r+1][c  ]) && raster.data[r+1][c  ]> 0) { sum += raster.data[r+1][c  ]; i+=1.0;}
-  if (!pcr::isMV(raster.data[r+1][c+1]) && raster.data[r+1][c+1]> 0) { sum += raster.data[r+1][c+1]; i+=1.0;}
+  if (r > 0 && c > 0 && !pcr::isMV(raster.data[r-1][c-1]) && raster.data[r-1][c-1]> 0) { sum += raster.data[r-1][c-1]; i+=1.0;}
+  if (r > 0 && !pcr::isMV(raster.data[r-1][c  ]) && raster.data[r-1][c  ]> 0) { sum += raster.data[r-1][c  ]; i+=1.0;}
+  if (r > 0 && c < raster.nrCols()-1 && !pcr::isMV(raster.data[r-1][c+1]) && raster.data[r-1][c+1]> 0) { sum += raster.data[r-1][c+1]; i+=1.0;}
+  if (c < raster.nrCols()-1 && !pcr::isMV(raster.data[r  ][c-1]) && raster.data[r  ][c-1]> 0) { sum += raster.data[r  ][c-1]; i+=1.0;}
+  if (center && !pcr::isMV(raster.data[r][c]) && raster.data[r][c]> 0) { sum += raster.data[r  ][c]; i+=1.0;}
+  if (c < raster.nrCols()-1 && !pcr::isMV(raster.data[r  ][c+1]) && raster.data[r  ][c+1]> 0) { sum += raster.data[r  ][c+1]; i+=1.0;}
+  if (r < raster.nrRows()-1 && c > 0 && !pcr::isMV(raster.data[r+1][c-1]) && raster.data[r+1][c-1]> 0) { sum += raster.data[r+1][c-1]; i+=1.0;}
+  if (r < raster.nrRows()-1 && !pcr::isMV(raster.data[r+1][c  ]) && raster.data[r+1][c  ]> 0) { sum += raster.data[r+1][c  ]; i+=1.0;}
+  if (r < raster.nrRows()-1 && c < raster.nrCols()-1 && !pcr::isMV(raster.data[r+1][c+1]) && raster.data[r+1][c+1]> 0) { sum += raster.data[r+1][c+1]; i+=1.0;}
   avg = (i > 0 ? sum / i : 0);
 
   return(avg);
@@ -241,7 +242,7 @@ void calcValue(
                 case MUL: raster.data[r][c] *= value; break;
                 case DIV: if (value > 0) raster.data[r][c] /= value;
                     else pcr::setMV(raster.data[r][c]); break;
-                case POW: raster.data[r][c] = pow(raster.data[r][c],value); break;
+                case POW: raster.data[r][c] = std::pow(raster.data[r][c],value); break;
                 case MIN: raster.data[r][c] = std::min(raster.data[r][c],value); break;//VJ 110420 new
                 case MAX: raster.data[r][c] = std::max(raster.data[r][c],value); break;
                 }

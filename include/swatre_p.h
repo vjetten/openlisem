@@ -102,11 +102,15 @@ typedef double NODE_ARRAY[MAX_NODES_P];
 typedef struct PIXEL_INFO {
    const PROFILE *profile;    /** profile this pixel belongs to */
    double        *h;          /** array of MAX_NODES nodes with matrix head */
+   double        *theta;          /** array of MAX_NODES nodes with matrix head */
+   double        *k;          /** array of MAX_NODES nodes with matrix head */
    double        currDt;      /** current size of SWATRE timestep */
    double        tiledrain;   /** drainage into tiledrin system at a given depth */
    int           tilenode;    /** nearest node that has the tiledrain */
    int           repellency;  /** water repellency will be calculated if 1 */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
+   int nrNodes;
+   double var; // variable can be used for anything
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 

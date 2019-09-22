@@ -48,6 +48,7 @@
 
 
 
+
 //--------------------------------------------------------------------------------
 /// new matrix head: Gaussian elimination and backsubstitution
 /**
@@ -106,7 +107,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 	else
 	{
 		 /*  q at soil surface prescribed, qtop = rainfall  */
-		 (*ponded) = FALSE;
+         (*ponded) = false;
 		 thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
 		 thomb[0] = -thomc[0] + dimoca[0];
 		 thomf[0] = dimoca[0]*h[0] +
@@ -144,7 +145,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 	/* correct tridiagonal matrix */
 	for (i = 0; i < nN; i++) {
 		double theta = TheNode(h[i], Horizon(p,i));
-		double dimocaNew = DmcNode(h[i], Horizon(p,i));
+        double dimocaNew = DmcNode(h[i], Horizon(p,i));
 
 		thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
 		thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
@@ -316,7 +317,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    double *h = pixel->h;
    int    i, n = NrNodes(p);
    //double ThetaSat;
-   double dt = pixel->currDt;
+   double dt = std::max(_dt/5, pixel->currDt);
    double pond = *waterHeightIO;
    double elapsedTime = 0;
    double influx = 0;
@@ -330,14 +331,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
+   //   qDebug() << pixel->profile->profileId << elapsedTime << dt;
       //--- get nodal values of theta, K, dif moist cap ---//
       for (i=0; i < n; i++)
       {
-         k[i] = HcoNode(h[i], p->horizon[i] /*Horizon(p, i)*/, ksatCalibration);
+    //      qDebug() << i <<  h[i] << pixel->profile->horizon[i]->name;
+         k[i] = HcoNode(h[i], pixel->profile->horizon[i], ksatCalibration);
          // input tables in cm/day function returns in cm/sec !!
-         dimoca[i] = DmcNode(h[i], Horizon(p, i));
+         dimoca[i] = DmcNode(h[i], pixel->profile->horizon[i]);
          // differential moisture capacity dtheta/dh
-         theta[i] = TheNode(h[i], Horizon(p, i));
+         theta[i] = TheNode(h[i], pixel->profile->horizon[i]);
          // moisture content
       }
 
@@ -388,12 +391,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
       //VJ 110122 why not last node? this gives nan, why? => n does not exist!
 
-
-
       // 1st check flux aginst max flux
       ThetaSat = TheNode(0.0, Horizon(p, 0));    
       kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
-         
+      //waar slaat dit op ??? ksavg0 is sqrt(ksat, k[0]), waarom ksat???
+
+
+//pixel->var = kavg[0]*36000; //k layer 0 in mm/h
       //kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);       
       
       // geometric avg of ksat and k[0]
@@ -426,12 +430,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
             fltsat = false;
             break;
          }
-
-//      for (i = 0; i < n && h[i] >= 0; i++)
-         /* nothing */;
-  //    fltsat = (i == n); /* TRUE if forall i h[i] >= 0 */
-    //  if (fltsat)
-      //   i = 1;
 
       // save last h and theta, used in headcalc
       for (i = 0; i < n; i++)
@@ -498,10 +496,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
       if (elapsedTime+dt+TIME_EPS >= _dt)
          dt = _dt - elapsedTime;
-
+         // elapsedTime = _dt+TIME_EPS;
 
    } /* elapsedTime < lisemTimeStep */
-
+   for (i=0; i < n; i++)  {
+       pixel->theta[i] = theta[i];
+       pixel->k[i] = kavg[i];
+   }
    /*
     if (pixel->dumpH>0)
        printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
@@ -527,17 +528,19 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where)
+void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
    // for normal soil surface where is always 1.
    // this prevents doing swatrestep for crusting for cells that are 0 for instance
+ //  fill(*tmc,0);
    FOR_ROW_COL_MV
          if(where->Drc > 0) // flag to indicate if this pixel has to be done
          // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
    {
       double wh, infil, drain, drainfraction = 0, Theta, repellency;
+      QString dig;
 
       wh = _WH->Drc*100;
       // WH is in m, convert to cm
@@ -546,10 +549,24 @@ void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, 
 
       if (SwitchIncludeTile)
          drainfraction = TileWidth->Drc/_dx;
-
+//qDebug() << r << c << r*_nrCols+c;
       ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,
                       &repellency, &Theta, s);
       // estimate new h and theta at the end of dt
+//tmc->Drc = s->pixel[r*_nrCols+c].var;
+SwitchDumpH = true;
+      if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+          if(s->pixel[r*_nrCols+c].dumpHid > 0) {
+              for (int i = 0; i < s->pixel[r*_nrCols+c].nrNodes; i++) {
+                  QString name = QString("SwH%1").arg(step,2, 10, QLatin1Char('0'));
+                  dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
+                  name=name+dig;
+                  name.insert(8, ".");
+                  qDebug() << name << dig;
+              }
+          }
+      }
+
 
       _WH->Drc = wh*0.01;
       //back to m
@@ -568,6 +585,7 @@ void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, 
       if (SwitchWaterRepellency)
          RepellencyFraction->Drc = repellency;
    }
+  // report (*tmc,"ksatav");
 }
 //--------------------------------------------------------------------------------
 

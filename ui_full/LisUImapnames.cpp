@@ -63,8 +63,8 @@ void lisemqt::fillNamelistMapnames(bool to)
          }
       }
    }
-   //   for (int k = 0; k < nrmaplist; k++)
-   //      qDebug() << mapList[k].name << mapList[k].value << mapList[k].groupnr << mapList[k].varnr;
+//      for (int k = 0; k < nrmaplist; k++)
+//         qDebug() << mapList[k].name << mapList[k].value << mapList[k].groupnr << mapList[k].varnr;
 }
 //--------------------------------------------------------------------
 // DEFmaps has default var names, filenames and descriptions, in LisUIDefaultNames.cpp
@@ -72,7 +72,7 @@ void lisemqt::fillNamelistMapnames(bool to)
 // fill the mapList structure
 void lisemqt::fillMapnames()
 {
-   int subbranch = 0, branch = -1, nr = -1 /*VJ bug fix */, dec = 0;
+   int subbranch = 0, branch = -1, nr = -1, dec = 0;
    QStringList SL;
 
    for (int i = 0; i < DEFmaps.count(); i++)\
@@ -150,6 +150,7 @@ void lisemqt::checkMapNameModel(int parentrow, int selrow, bool setit)
         }
     }
 }
+
 //--------------------------------------------------------------------
 /** initialize the map tree interface, this function is called twice: first to initialize the interface
 also after each call of a runfile so that the runfile mapnames are loaded */
@@ -158,7 +159,7 @@ void lisemqt::initMapTree()
     if (MapNameModel)
     {
         delete MapNameModel;
-        MapNameModel = NULL;
+        MapNameModel = nullptr;
     }
 
    MapNameModel = new TreeModel(DEFmaps);
@@ -195,7 +196,7 @@ void lisemqt::editMapname(QModelIndex topLeft, QModelIndex /* bottomRight */)
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS)// || groupnr == CHANNELMAPS)// || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
 
    for (int k = 0; k < nrmaplist; k++)
@@ -226,7 +227,7 @@ void lisemqt::openMapname(QModelIndex topLeft)
    if (topLeft.parent().parent().row() < 0)
       groupnr = topLeft.parent().row();
 
-   if (groupnr == INFILTRATIONMAPS || groupnr == CHANNELMAPS || groupnr == NUTRIENTSMAPS)
+   if (groupnr == INFILTRATIONMAPS)// || groupnr == CHANNELMAPS)// || groupnr == NUTRIENTSMAPS)
       varnr = (topLeft.parent().row()+1)*10 + topLeft.row();
    // correct for 3 level structures
 

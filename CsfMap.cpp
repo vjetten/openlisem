@@ -97,7 +97,7 @@ void cTMap::MakeMap(
     cTMap *dup,
     REAL8 value)
 {
-  if (dup == NULL)
+  if (dup == nullptr)
     return;
 
   data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),

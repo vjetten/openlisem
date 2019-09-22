@@ -84,8 +84,8 @@ double DmcNode(
     //if (head >= 0) return 0;
 
     if (head >= -1.0E-2)
-//        return LUT_Highest(hor->lut, DMCC_COL);
-              LUT_LinIntPol(hor->lut, DMCC_COL, head, DMCH_COL);
+       return LUT_Highest(hor->lut, DMCC_COL);
+    //       return LUT_LinIntPol(hor->lut, DMCC_COL, head, DMCH_COL);
 
     l = hor->lut;
     i = LUT_Index_LE(l, head, DMCH_COL);

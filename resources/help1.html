@@ -1,0 +1,31 @@
+<p><strong>Overland flow</strong></p>
+<ul>
+<li>1D uses a kinematic wave on a predefined continues network that connects all cells to the outlet of the area (ldd.map). The network is user defined and is an input, the DEM is not used. The kinematic wave uses a finite difference iteration. If there is no channel activated, there is only runoff and no flood.</li>
+<li>2D diffusive flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using bilinear interpolation, with DEM and water height, but there is no conservation of momentum. This is equivalent to a diffusive wave solution. The 'flow' tab gives several options. A small adaptive timestep (non-iterative) is used to ensure stability.</li>
+<li>2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave for shallow flow. 'Shallow' means that an average velocity is used for the depth. The 'flow' tab gives several numerical options. A small adaptive timestep (non-iterative) is used to ensure stability.</li>
+</ul>
+<p>NOTE: if a channel is ativated, all overflow from the channel on land is always simulated using a 2D dynamic wave. </p>
+<p>NOTE: channel flow is always 1D kinematic wave over a channel network.</p>
+<p><strong>Flood threshold</strong></p>
+<p>Independent of the numerical flow simulation, flood is regarded from a practical stakeholder point of view! All overland flow below a certain <strong>depth threshold</strong> is regarded as <strong>runoff</strong>, above this threshold it is regarded as <strong>flood</strong>. The threshold is user defined (default 5 cm). This threshold also affects flood timing and duration and flood statistics.</p>
+<p><strong>Sediment processes</strong></p>
+<ul>
+<li>Switch erosion processes on or off. If switched on, sediment dynamics are simulated for for all flows. Only suspended matter is simulated (no bedload) using the Govers transport capacity equation.</li>
+<li>Advanced sediment transporty allows you to simulate suspended and bedload transport, and mulitple grainsize classes, and you can choose form different transport capacity equations.</li>
+</ul>
+<p><br /><strong>Channels/Rivers</strong></p>
+<p>The channel system can be switched off entirely in which case only overland flow is considered (for research purposes). Channels are 1D networks using a kinematic wave for flow.</p>
+<ul>
+<li>Channel infiltration: assumed to be saturated infiltration, the flux equals ChannelKsat (mm/h). If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.</li>
+<li>Channel baseflow: the baseflow discharge at the outlet(s) is given in m3/s in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.</li>
+</ul>
+<p><br /><strong>Infrastructure</strong></p>
+<p>Switch on or off the effect of buildings and infrastructure:</p>
+<ul>
+<li>Buildings have interception storage, are impermeable, obstruct flow and are non-erodable. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.</li>
+<li>Roads have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. Roads can be smaller than the girdcell in which case the characteristics of the soil and vegegation are used.</li>
+<li>Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. They behave the same as roads but are a separate class because they are often in a different land use class.</li>
+<li>Storm drains (tile drains) are networks of circular subsurface pipes with regular inlets. A kinematic wave transports water along this system. The maximum flow is determined by the diameter, gradient and Manning's n. Can be used for urban drains or agricultural tile drains.</li>
+</ul>
+<p><strong>Parallel processing</strong></p>
+<p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. The flow domain is divided in areas that are calculated in parallel with a narrow band to connect these areas when they are done. This is usually faster (approx. 20 and 50%) for large areas but may also lead to errors. For small areas there is hardly any difference. Defualt = 1 (1 core used). Note that writing results to disk and screen is always done in a separate core.</p>

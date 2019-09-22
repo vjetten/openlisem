@@ -44,12 +44,23 @@ void QwtLinearColorMapVJ::setThreshold( double value)
 {
     thresholdLCM = value;
 }
-
+//---------------------------------------------------------------------------
+void lisemqt::onImageToggled(bool b)
+{
+    baseMapImage->setAlpha(b? 255 : 0);
+    MPlot->replot();
+}
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlpha(int v)
 {
     baseMap->setAlpha(v);
 
+    MPlot->replot();
+}
+//---------------------------------------------------------------------------
+void lisemqt::ssetAlphaMap(int v)
+{
+    drawMap->setAlpha(v);
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
@@ -79,6 +90,7 @@ void lisemqt::ssetAlphaBarrier(int v)
   flowbarriersMap->setAlpha(v);
   if (v > 0 && checkMapFlowBarriers->isChecked())
     MPlot->replot();
+  // flowbarrier is now sat image, highjacked!
 }
 
 //---------------------------------------------------------------------------
@@ -101,12 +113,9 @@ void lisemqt::setupMapPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    //Layout_Map_2
+    maplayout->insertWidget(1, MPlot, 0, 0);
 
-  // verticalLayout_2->addWidget( MPlot, 0);
-       maplayout->insertWidget(1, MPlot, 0, 0);
     // put it on screen
-    MPlot->canvas()->setFrameStyle( QFrame::StyledPanel);
     MPlot->enableAxis( MPlot->yRight );
     MPlot->setAxisTitle(HPlot->xBottom, "m");
     MPlot->setAxisTitle(HPlot->yLeft, "m");
@@ -123,15 +132,20 @@ void lisemqt::setupMapPlot()
     baseMapDEM->attach( MPlot );
     // dem
 
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
+    baseMapImage = new QwtPlotSpectrogram();
+    baseMapImage->setRenderThreadCount( 0 );
+    baseMapImage->attach( MPlot );
+    //image
 
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
-    // shaded relief   
+    // shaded relief
+
+    drawMap = new QwtPlotSpectrogram(); //shaded
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
 
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
@@ -164,6 +178,7 @@ void lisemqt::setupMapPlot()
     RDd = new QwtMatrixRasterData();
     RDe = new QwtMatrixRasterData();
     RDf = new QwtMatrixRasterData();
+    RImage = new QwtMatrixRasterData();
 
     // raster data to link to plot
 
@@ -189,13 +204,14 @@ void lisemqt::setupMapPlot()
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from rescaling
-    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::ShiftModifier);
+    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::NoModifier );//Qt::ShiftModifier);
+    magnifier->setZoomOutKey((int)Qt::Key_Minus, Qt::NoModifier );
 
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from panning
 
-    picker = new MyPicker( MPlot->canvas() );
+    picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -211,7 +227,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)//, double t
     double maxV = -1e20;
     mapData.clear();  //QVector double
 
-    if (_M == NULL)
+    if (_M == nullptr)
         return (maxV);
 
     // copy map data into vector for the display structure
@@ -237,6 +253,65 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)//, double t
 
     _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    // set x/y axis intervals
+    return maxV;
+}
+//---------------------------------------------------------------------------
+// fill the current raster data structure with new data, called each run step
+double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
+{
+    double maxV = -1e20;
+    mapData.clear();  //QVector double
+
+    if (_M == nullptr)
+        return (maxV);
+
+    // copy map data into vector for the display structure
+    for(int r = _M->nrRows()-1; r >= 0; r--)
+        //      for(int r = 0; r < _M->nrRows(); r++)
+        for(int c=0; c < _M->nrCols(); c++)
+        {
+
+            if(true)//!pcr::isMV(_M->dataR[r][c]))
+            {
+                double value = 0;
+                char * valuechar = ((char*)(&value));
+                valuechar[0] = _M->dataR[r][c];
+                if(_M->bands > 1)
+                {
+                    valuechar[1] = _M->dataG[r][c];
+                    valuechar[2] = _M->dataB[r][c];
+                }else
+                {
+                    valuechar[1] = _M->dataR[r][c];
+                    valuechar[2] = _M->dataR[r][c];
+                }
+
+                mapData << value;
+                maxV = std::max(maxV, 1.0);
+            }
+            else
+            {
+                mapData << (double)-1e20;
+            }
+        }
+
+  //   mapData.replace(0, (double)type);
+    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
+
+    // set intervals for rasterdata, x,y,z min and max
+    _RD->setValueMatrix( mapData, _M->nrCols() );
+    // set column number to divide vector into rows
+
+    /*qDebug() << "referencing";
+    qDebug() << _M->north() << base->north() << _M->nrRows() * _M->cellSize() << base->nrRows()*base->cellSize();
+    qDebug() << _M->west() << base->west();*/
+
+    double cy = (_M->north()-base->north())+(-_M->nrRows()*_M->cellSize() +base->nrRows()*base->cellSize());
+    double cx = (_M->west()-base->west());
+
+    _RD->setInterval( Qt::XAxis, QwtInterval( cx,cx+ (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( cy,cy+ (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
     return maxV;
 }
@@ -308,8 +383,9 @@ void lisemqt::showMap()
         DisplayComboBox2->addItems(S1);
         ActiveList = 0;
 
-        DisplayComboBox->setFixedWidth(180);
-        DisplayComboBox2->setFixedWidth(180);
+
+        DisplayComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        DisplayComboBox2->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
         DisplayComboBox2->setCurrentIndex(0);
         DisplayComboBox->setCurrentIndex(0);
@@ -335,12 +411,20 @@ void lisemqt::showMap()
     channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
-    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
+
+    flowbarriersMap->setAlpha(0);  // flow barriers foir now not used, sat image instead
+//    if (checkFlowBarriers->isChecked())
+//    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
+    if (checksatImage->isChecked()){
+        baseMapImage->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
+    }
+
+    baseMapDEM->setAlpha(checkMapFlowBarriers->isChecked() ? 0 : 255);
 
     if (nrcontourlevels->value() > 0)
     {
         contourLevels.clear();
-        for ( double level = contourmin; level < contourmax; level += (contourmax-contourmin)/(double)nrcontourlevels->value() )
+        for ( double level = contourmin; level < contourmax; level += (contourmax-contourmin)/nrcontourlevels->value() )
             contourLevels += level;
         contourDEM->setContourLevels( contourLevels );
     }
@@ -387,11 +471,15 @@ void lisemqt::showComboMap(int i)
         mi = MinV;
     if(mi == ma) // because of they are equal nothing is displayed (raincum)
         mi = 0;
-//qDebug() << mi << ma << MinV << MaxV;
+    if(mi > ma)
+        ma = mi;
+     //qDebug() << mi << ma << MinV << MaxV;
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
-        mi = -ma;
+    {
 
+        mi = -ma;
+    }
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
     QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
@@ -401,7 +489,7 @@ void lisemqt::showComboMap(int i)
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    cm->thresholduse = ActiveList == 0;
+    cm->thresholduse = true;//ActiveList == 0;
     cmL->thresholduse = false; // !op.ComboSymColor.at(i);
 
     cm->thresholdmin = mi;
@@ -409,6 +497,7 @@ void lisemqt::showComboMap(int i)
 
     drawMap->setData(RD);
     drawMap->setColorMap(cm);
+    drawMap->setAlpha(transparencyMap->value());
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cmL);
 
@@ -419,7 +508,7 @@ void lisemqt::showComboMap(int i)
         ma = (ma == 0 ? std::pow(10,coef)    : ma);
 
         MPlot->setAxisScale( MPlot->yRight, mi, ma );
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLog10ScaleEngine() );
+        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLogScaleEngine() );
     }
     else
     {
@@ -451,7 +540,7 @@ void lisemqt::showBaseMap()
     contourmax = mapMaximum(*op.baseMapDEM);
     contourmin = mindem;
 
-    baseMapDEM->setAlpha(255);
+    baseMapDEM->setAlpha(checkMapFlowBarriers->isChecked() ? 0 : 255);
     baseMapDEM->setColorMap(new colorMapElevation());
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
@@ -461,16 +550,11 @@ void lisemqt::showBaseMap()
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     contourDEM->setData(RDbb);
 
-
     double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
     double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
     double dx = std::max(nrCols,nrRows)/20;
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
-
-    //  MPlot->setAxisAutoScale(MPlot->yRight, false);
-    //  MPlot->setAxisAutoScale(MPlot->xBottom, true);
-    //  MPlot->setAxisAutoScale(MPlot->yLeft, false);
 
     MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
     MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
@@ -538,8 +622,10 @@ void lisemqt::showHouseMap()
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
+// NOTE HIGHJACKING barrier for image
 void lisemqt::showFlowBarriersMap()
 {
+    /*
   if (startplot)
     {
 
@@ -557,5 +643,21 @@ void lisemqt::showFlowBarriersMap()
     flowbarriersMap->setAlpha(0);
 
   flowbarriersMap->setColorMap(new colorMapFlowBarrier());
+  */
+
+    if (startplot && checksatImage->isChecked())
+    {
+        // set intervals for rasterdata, x,y,z min and max
+        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
+        RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
+        baseMapImage->setData(RImage);
+    }
+
+    if (checksatImage->isChecked())
+      baseMapImage->setAlpha(transparencyBarrier->value());
+    else
+      baseMapImage->setAlpha(0);
+
+    baseMapImage->setColorMap(new colorMapRGB());
 }
 

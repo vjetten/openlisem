@@ -32,11 +32,11 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(1));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
         // elevation info
 
-        if (sp2->data() == NULL)
+        if (sp2->data() == nullptr)
             return QwtText(txt);
         double z2 = sp2->data()->value(pos.x(), pos.y());
         double z0 = sp0->data()->value(pos.x(), pos.y());
@@ -51,7 +51,7 @@ public:
             if (z0 < 1.0)
                 dig = 4;
             if (fabs(z2) < 1.0)
-                txt = (QString("%1 ")/* + unit*/ + QString(" [%2m]")).arg(z2,0,'e',3).arg(z0,0,'f',dig);
+                txt = (QString("%1 ")/* + unit*/ + QString(" [%2m]")).arg(z2,0,'g',3).arg(z0,0,'f',dig);
             else
                 txt = (QString("%1 ")/* + unit */+ QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
         }
@@ -81,25 +81,12 @@ public:
 };
 //---------------------------------------------------------------------------
 // class derived from QwtLinearColorMap to enable transparency thresholds
-//class QwtPlotSpectrogramVJ: public QwtPlotSpectrogram
-//{
-//public:
-
-//    QwtPlotSpectrogramVJ( const QString &title = QString::null );
-
-//    virtual ~QwtPlotSpectrogramVJ();
-
-//    int plotnr;
-
-//};
-//---------------------------------------------------------------------------
-// class derived from QwtLinearColorMap to enable transparency thresholds
 class QwtComboColorMap: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
         if(thresholduse)
         {
             if ( value <= thresholdmin )
@@ -144,14 +131,27 @@ public:
     bool thresholduse;
 };
 //---------------------------------------------------------------------------
-/// House color legend
+class colorMapRGB: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+
+        char * valuechar = ((char*)(&value));
+        return qRgba( (int) valuechar[0], (int) valuechar[1], (int) valuechar[2], 255 );
+    }
+public:
+    colorMapRGB():
+        QwtLinearColorMap( QColor("#555555"),QColor("#ffffff"))
+    {
+
+    }
+};
+//---------------------------------------------------------------------------
+/// for contour layer map, transparent
 class colorMapTransparent: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
         if ( value < 1e20 )
             return qRgba( 0, 0, 0, 0 );
 
@@ -168,9 +168,6 @@ class colorMapHouse: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
         if ( value < 0.05 )
             return qRgba( 0, 0, 0, 0 );
 
@@ -186,14 +183,11 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-/// House color legend
+/// flow barrier map
 class colorMapFlowBarrier: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
         if ( value < 0.05 )
             return qRgba( 0, 0, 0, 0 );
 
@@ -211,13 +205,14 @@ public:
 //---------------------------------------------------------------------------
 ///  relief map display
 ///http://www.colorschemer.com/schemes/viewscheme.php?id=81
-class colorMapElevation: public QwtLinearColorMap
+class colorMapElevation: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
+        if ( value <= thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
@@ -225,7 +220,7 @@ public:
 //        QwtLinearColorMap( QColor("#B17142"),QColor("#FFDFC7"))
 //              QwtLinearColorMap( QColor("#8d5524"),QColor("#ffdbac").lighter())
  //                           QwtLinearColorMap( QColor("#D7191C"),QColor("#ffffbf"))
-  QwtLinearColorMap( QColor(141,116,94),QColor(255,251,244)) //skincolor
+  QwtLinearColorMapVJ( QColor(141,116,94),QColor(255,251,244)) //skincolor
   //     QwtLinearColorMap( QColor(188,170,39),QColor(20,129,2))
    //     QwtLinearColorMap( QColor("#279400").lighter(),QColor("#F3EEC4").lighter())//kurt arcgis
     {
@@ -253,32 +248,49 @@ public:
 //        addColorStop(0.5,QColor("#EAD49A"));
 
     }
-};//---------------------------------------------------------------------------
+};
+//---------------------------------------------------------------------------
 /// Gray scale legend for shaded relief map display
-class colorMapGray: public QwtLinearColorMap
+class colorMapGray: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
-
+        if ( value <= thresholdLCM )
+            return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
     colorMapGray():
-        QwtLinearColorMap( QColor("#555555"),QColor("#ffffff"))
-    {
-//        addColorStop(0.000,QColor("#555555"));
-    }
+        QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
+    {   }
 };
+//---------------------------------------------------------------------------
+// /// Gray scale legend for shaded relief map display
+//class colorMapGrayGap: public QwtLinearColorMapVJ
+//{
+//    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+//    {
+//        if ( value <= thresholdLCM )
+//            return qRgba( 0, 0, 0, 0 );
+//        if ( value > 0.3 && value < 0.7)
+//            return qRgba( 0, 0, 0, 0 );
+//        return QwtLinearColorMap::rgb( interval, value );
+//    }
+//public:
+//    colorMapGrayGap():
+//        QwtLinearColorMapVJ( QColor("#111111"),QColor("#ffffff"))
+//    {
+////        addColorStop(0.000,QColor("#111111"));
+//    }
+//};
 //---------------------------------------------------------------------------
 /// Dark yellow legend for maps for road map overlay
 class colorMapRoads3: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -298,8 +310,8 @@ class colorMapRoads: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -319,8 +331,8 @@ class colorMapRoads2: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -340,8 +352,8 @@ class colorMapWaterLog: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -366,8 +378,8 @@ class colorMapWater: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -388,8 +400,8 @@ class colorMapFlood: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -410,11 +422,11 @@ class colorMapSed: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
-        //        if ( value < thresholdLCM )
-        //            return qRgba( 0, 0, 0, 0 );
+                if ( value < thresholdLCM && value > -thresholdLCM)
+                    return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
@@ -433,11 +445,11 @@ class colorMapSedB: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
-//        if ( value < thresholdLCM )
-//            return qRgba( 0, 0, 0, 0 );
+        if ( value < thresholdLCM && value > -thresholdLCM)
+            return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
@@ -455,8 +467,8 @@ class colorMapFloodV: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -477,8 +489,8 @@ class colorMapP: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
@@ -498,8 +510,8 @@ class colorMapFEW: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value < -1e19 )
-            return qRgba( 228, 228, 228, 255 );
+//        if ( value < -1e19 )
+//            return qRgba( 228, 228, 228, 255 );
 
         if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );

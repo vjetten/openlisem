@@ -173,9 +173,9 @@ void TWorld::GetFlowBarrierData(QString name)
 
 }
 
-void TWorld::SetFlowBarriers()
+void TWorld::SetFlowBarriers(int thread)
 {
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
         {
@@ -194,7 +194,7 @@ void TWorld::SetFlowBarriers()
             FlowBarrierW->Drc = 0;
         }
 
-    }
+    }}}}
 
 
 }
@@ -366,6 +366,7 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
     {
         return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
     }
+    return 0;
 }
 
 //---------------------------------------------------------------------------

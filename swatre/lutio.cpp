@@ -68,12 +68,12 @@ double *TWorld::ReadSoilTable(
 	nrL = 0;
 	l = (double *)malloc(sizeof(double) * sizeL);
 	f = fopen(fileName, "r");
-	if (f == NULL)
+    if (f == nullptr)
 		Error(QString(OPEN_ERRORs).arg(fileName));
 
 	do {
 		int currNrCols;
-		if (fgets(buf, 1024, f) == NULL)
+        if (fgets(buf, 1024, f) == nullptr)
 		{
 			if (feof(f))
 				break; /* OK, END OF FILE */
@@ -82,7 +82,7 @@ double *TWorld::ReadSoilTable(
 
       QStringList SL = QString(buf).split(QRegExp("\\s+"),QString::SkipEmptyParts);
       currNrCols = SL.count();
-      strcpy(buf, SL.join(" ").toAscii());
+      strcpy(buf, SL.join(" ").toLatin1());
       // trim spaces and count columns
 
 		if (currNrCols == 0)

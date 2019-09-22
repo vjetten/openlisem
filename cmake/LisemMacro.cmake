@@ -25,7 +25,7 @@ FUNCTION(add_unit_test)
     ADD_EXECUTABLE(${test_exe_name} ${test_module_name})
     TARGET_LINK_LIBRARIES(${test_exe_name}
         ${add_unit_test_LINK_LIBRARIES}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  #      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
         stdc++)
     ADD_TEST(NAME ${test_exe_name}
         # catch_system_errors: Prevent UTF to detect system errors. This
@@ -35,7 +35,7 @@ FUNCTION(add_unit_test)
 
     # Maybe add ${EXECUTABLE_OUTPUT_PATH} in the future. If needed.
     SET(path_list $ENV{PATH})
-    LIST(INSERT path_list 0 ${Boost_LIBRARY_DIRS})
+  #  LIST(INSERT path_list 0 ${Boost_LIBRARY_DIRS})
     SET(path_string "${path_list}")
 
     IF(${host_system_name} STREQUAL "windows")

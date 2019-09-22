@@ -1,6 +1,6 @@
 #pragma once
 #include <QString>
-
+#include <masked_raster.h>
 
 class cTMap;
 
@@ -18,3 +18,7 @@ void               WriteMapSeries      (cTMap const& raster,
                                         QString Name,
                                         int count,
                                         QString const& format="PCRaster");
+
+class cTRGBMap;
+
+cTRGBMap  *readRasterImage        (QString const& pathName);

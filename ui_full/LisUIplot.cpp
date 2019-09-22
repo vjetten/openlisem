@@ -49,7 +49,7 @@ void lisemqt::setupPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     HPlot = new QwtPlot(title, this);
     layout_Plot->insertWidget(0, HPlot, 1);
-    HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
+    //HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
 
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );
@@ -116,9 +116,9 @@ void lisemqt::setupPlot()
     // set gridlines
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );
-    grid->setMajPen(QPen(col, 0, Qt::DashLine));
+    grid->setMajorPen(QPen(col, 0, Qt::DashLine));
     col.setRgb( 210,210,210,180 );
-    grid->setMinPen(QPen(col, 0 , Qt::DotLine));
+    grid->setMinorPen(QPen(col, 0 , Qt::DotLine));
     grid->attach(HPlot);
 
     HPlot->replot();
@@ -139,7 +139,7 @@ void lisemqt::onOutletChanged(int point)
         if(oldindex == -1)
         {
             outletpoint = 0;
-            spinBoxPointtoShow->setValue(0);
+            spinBoxPointtoShow->setValue(1);
 
             showPlot();
             SetTextHydrographs();
@@ -257,7 +257,7 @@ void lisemqt::GetPlotData()
 {
 
     QtileData << op.Qtile;
-    PData << op.Pmm*multiplierRain->value();
+    PData << op.Pmm*qPow(10.0, multiplierRain->value());
     TData << op.time;
 
     for(int i = 0; i < OutletIndices.length(); i++)
@@ -287,10 +287,10 @@ void lisemqt::GetPlotData()
 }
 
 //---------------------------------------------------------------------------
-void lisemqt::on_multiplierRain_valueChanged()
+void lisemqt::on_multiplierRain_valueChanged(double)
 {
-    double mult = (multiplierRain->value() == 0 ? 1.0 : multiplierRain->value());
-    if(multiplierRain->value() > 1.0)
+    double mult = qPow(10.0, multiplierRain->value());
+    if(multiplierRain->value() > 0)
         HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (x%1 mm/h)").arg(mult));
     else
         HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (mm/h)"));
@@ -298,7 +298,7 @@ void lisemqt::on_multiplierRain_valueChanged()
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-    double mult = (multiplierRain->value() == 0 ? 1.0 : multiplierRain->value());
+    double mult = qPow(10.0, multiplierRain->value());
     QData.clear();
     QsData.clear();
     CData.clear();
@@ -391,8 +391,8 @@ void lisemqt::startPlots()
         cmax.append(0);
     }
 
-    outletpoint = 0;
-    spinBoxPointtoShow->setValue(0);
+    outletpoint = 1;
+    spinBoxPointtoShow->setValue(1);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
     label_hydroCount->setText(QString("Hydrograph Point (0, 1-%1)").arg(OutletIndices.count()-1));
 
@@ -431,9 +431,10 @@ void lisemqt::SetTextHydrographs()
     {
         return;
     }
+
     int j = OutletIndices.indexOf(this->outletpoint);
 
-    double dig = E_DigitsOut->value(); //DIGITS;
+    int dig = E_DigitsOut->value(); //DIGITS;
 
     label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',dig));
     label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',dig));
@@ -507,7 +508,7 @@ void lisemqt::showOutputData()
     // "op" struct is declared in lisUIoutput.h
     // "op" struct is shared everywhere in global.h
 
-    double dig = E_DigitsOut->value();//DIGITS;
+    int dig = E_DigitsOut->value();//DIGITS;
 
     label_dx->setText(QString::number(op.dx,'f',dig));
     label_area->setText(QString::number(op.CatchmentArea/1000000,'f',dig));
@@ -518,15 +519,22 @@ void lisemqt::showOutputData()
 
     // mass balance
     label_MB->setText(QString::number(op.MB,'e',dig));
+    if (op.MB > 0)
+        label_MB->setText(" "+label_MB->text());
 
     // mm output
     label_raintot->setText(QString::number(op.RainTotmm,'f',dig));
+
     label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',dig));
+    label_stormdraintot->setText(QString::number(op.StormDrainTotmm,'f',dig));
     label_qtot->setText(QString::number(op.Qtotmm,'f',dig));
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',dig));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',dig));
     label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.LitterStorageTotmm,'f',dig));
-    label_floodVolmm->setText(QString::number(op.volFloodmm,'f',dig));
+    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
+        label_floodVolmm->setText(QString::number(0,'f',dig));
+    else
+        label_floodVolmm->setText(QString::number(op.volFloodmm,'f',dig));
 
     label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',dig));
     label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',dig));
@@ -544,18 +552,21 @@ void lisemqt::showOutputData()
     {
         int dig = E_DigitsOut->value();//DIGITS;
         label_MBs->setText(QString::number(op.MBs,'e',dig));
+        if (op.MBs > 0)
+            label_MBs->setText(" "+label_MBs->text());
+
         label_splashdet->setText(QString::number(op.DetTotSplash,'f',dig));
-        label_flowdet->setText(QString::number(op.DetTotFlow,'f',dig));
-        label_sedvol->setText(QString::number(op.SedTot,'f',dig));
-        label_dep->setText(QString::number(op.DepTot,'f',dig));
+        label_flowdet->setText(QString::number(op.DetTotFlow+op.FloodDetTot,'f',dig));
+        label_sedvol->setText(QString::number(op.SedTot+op.FloodSedTot,'f',dig));
+        label_dep->setText(QString::number(op.DepTot+op.FloodDepTot,'f',dig));
 
         label_detch->setText(QString::number(op.ChannelDetTot,'f',dig));
         label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
         label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
 
-        label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
-        label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
-        label_floodsed->setText(QString::number(op.FloodSedTot,'f',dig));
+//        label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
+//        label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
+//        label_floodsed->setText(QString::number(op.FloodSedTot,'f',dig));
 
         label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
         label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));

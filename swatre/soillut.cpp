@@ -112,6 +112,10 @@ LUT *CreateLutFromContents(
     l->key = (double *)malloc(sizeof(double)*nrCols);
     l->lut = (const double **)malloc(sizeof(double *)*nrRows);
 
+    //    l = new(LUT);
+    //    l->key = new double(nrCols);
+    //    l->lut = new *double(nrRows);
+
     for (i=0; i < nrRows; i++)
     {
         // make indirect 2d-array
@@ -128,8 +132,10 @@ LUT *CreateLutFromContents(
 //--------------------------------------------------------------------------------
 void FreeLut(LUT *l)
 {
-    free((void *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
+   free((void *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
     free((void *)(l->lut));
+    //free((l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
+    //free((l->lut));
     free(l->key);
     free(l);
 }

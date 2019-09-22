@@ -44,14 +44,14 @@ functions: \n
 /// - so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2\n
 /// - therefore the same goes for LAI: the LAI of the plants inside the gridcell\n
 /// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
-void TWorld::Interception(void)
+void TWorld::Interception(int thread)
 {
     // all variables are in m
     if (!SwitchRainfall)
         return;
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         if (Cover->Drc > 0)// && Rainc->Drc > 0)
         {
@@ -67,11 +67,6 @@ void TWorld::Interception(void)
             //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
             // a low cover means a low LAI means little interception
             // avoid division by 0
-
-            if (SwitchBuffers && !SwitchSedtrap)
-                if(BufferID->Drc > 0)
-                    Smax = 0;
-            // no interception with buffers, but sedtrap can have interception
 
             //            if (SwitchHardsurface)
             //                Smax *= (1-HardSurface->Drc);
@@ -127,10 +122,10 @@ void TWorld::Interception(void)
         {
             RainNet->Drc = Rainc->Drc;
         }
-    }
+    }}}}
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionLitter(void)
+void TWorld::InterceptionLitter(int thread)
 {
     // all variables are in m
     if (!SwitchLitter)
@@ -139,41 +134,43 @@ void TWorld::InterceptionLitter(void)
     if (!SwitchRainfall)
         return;
 
-    FOR_ROW_COL_MV
-            if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && RainNet->Drc > 0)
+    FOR_ROW_COL_2DMT
     {
+        if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && RainNet->Drc > 0)
+        {
 
-        double Smax = LitterSmax/1000.0;
-        // assume simply that the cover linearly scales between 0 and LtterSmax of storage
+            double Smax = LitterSmax/1000.0;
+            // assume simply that the cover linearly scales between 0 and LtterSmax of storage
 
-        double LCS = LCStor->Drc;
-        //actual canopy storage in m
+            double LCS = LCStor->Drc;
+            //actual canopy storage in m
 
-//        if (SwitchHardsurface)
-//            Smax *= (1-HardSurface->Drc);
-        //VJ 110111 no litter interception on hard surfaces
+    //        if (SwitchHardsurface)
+    //            Smax *= (1-HardSurface->Drc);
+            //VJ 110111 no litter interception on hard surfaces
 
-        LCS = std::min(LCS + RainNet->Drc, Smax);
-        // add water to the storage, not more than max
+            LCS = std::min(LCS + RainNet->Drc, Smax);
+            // add water to the storage, not more than max
 
-//        LCS = std::min(LRainCum->Drc, Smax);
-//        //assume direct simple filling of litter
+    //        LCS = std::min(LRainCum->Drc, Smax);
+    //        //assume direct simple filling of litter
 
-        double drain = std::max(0.0, Litter->Drc*(RainNet->Drc - (LCS - LCStor->Drc)));
-        // diff between new and old storage is subtracted from leafdrip
+            double drain = std::max(0.0, Litter->Drc*(RainNet->Drc - (LCS - LCStor->Drc)));
+            // diff between new and old storage is subtracted from leafdrip
 
-        LCStor->Drc = LCS;
-        // put new storage back in map for next dt
+            LCStor->Drc = LCS;
+            // put new storage back in map for next dt
 
-        LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
-        // only on soil surface, not channels or roads, in m3
+            LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
+            // only on soil surface, not channels or roads, in m3
 
-        RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
-        //recalc
-    }
+            RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
+            //recalc
+        }
+    }}}}
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionHouses(void)
+void TWorld::InterceptionHouses(int thread)
 {
     // all variables are in m
     if (!SwitchHouses)
@@ -182,7 +179,7 @@ void TWorld::InterceptionHouses(void)
     if (!SwitchRainfall)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         if (HouseCover->Drc > 0 &&  Rainc->Drc > 0)
         {
@@ -236,6 +233,6 @@ void TWorld::InterceptionHouses(void)
 
             }
         }
-    }
+    }}}}
 }
 //---------------------------------------------------------------------------

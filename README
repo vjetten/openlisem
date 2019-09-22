@@ -1,13 +1,66 @@
 openLISEM
 ============
-Date: 170308
+Date: 190820
 ============
 
 For older versions and list of changes contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is no longer supported
 
-NOTE: a linux version exists, on request (Thanks to Dr David Favis Mortlock).
+NOTE: a linux version exists on request, which is not maintained (Thanks to Dr David Favis Mortlock).
+
+version 5.5
+- Added stormdrains: kinematic wave on a subsurface LDD network (lddtile.map) with inlets,  diameter (pipe), mannings n, gradient
+- Cleaned up everything so that it compiles under QT 5.13, QWT 6.1.4, mingw 73, revised LISEM_EXTERNAL (no fern)
+
+version 5.4
+- fixed a bug in SWATRE where the infiltration form SWATRE was not properly subtracted from the surface water layer
+- Fixed a bug in Green and Ampt using Psi in the wrong units (cm vs. m)
+- made the calibration for psi also count for SWATRE (this value is multiplied with the inithead maps)
+- fixed a small bug where the screenshots were not in the right directory
+
+version 5.31
+- fixed a bug in SWATRE where the infiltration form SWATRE was not properly subtracted from the surface water layer
+- made the calibration for psi also count for SWATRE (this value is multiplied with the inithead maps)
+- fixed a small bug where the screenshots were not in the right directory
+
+version 5.3
+- Fixed a bug in percolation for a 2 layer Green and Ampt infiltration, where the percolation flux was not converted from mm/h to m/s
+- Fixed a bug that prevented the kinematic wave from causing floods
+- Added theta1 and theta2 to the output screens when using G&A
+
+version 4.94-5.2
+- fixed a bug in SWATRE, water level infiltration was not adjusted after infiltration
+- courant values between dynamic and diffusive wave mixed up in run file
+- fixed code on reporting cumulative erosion values (may need more work)
+- added momentum and soil moisture to screen map display
+- merged output flooding and water height parameters, they were the same anyway
+- difference between runoff and flood is user choice on water level
+- Interface: all ',' in the run file replaced with ';' and decimals are always read as '.'
+- Interface: reset button per tab for default values and better help information
+- Interface: added variables to map display
+- Interface: Geotiff file can be used as background
+
+NOTE: mass balance errors in erosion modules still possible
+
+version 4.92-4.93
+- fixed a bug in boudary conditions dynamic wave sometimes causing too much vertical flow
+- fixed a coding error in erosion slowing down calculations
+- some interface cleanup (Heun in dynamic wave is not useful)
+- multicore remains more unstable than single core, and less accurate
+- Possible bug: flood deposition can become negative and positive (only negative allowed)
+
+version 4.91 (180119)
+- fixed a bug in the screen output causing negative values of discharge and a large mass balance error. 
+  Note: when you select dynamic wave flow, the flood height in mm reported is not part of the mass balance, as it is already 
+  included in overland flow.
+
+version 3.99-4.9 (180116)
+- added dynamic wave for overland flow, three numerical solutions now: kinematic (using LDD), diffusive and dynamic (using DEM). 
+- Flooding is always solved with a dynamic wave, channel flow is always kinematic.
+- Random roughness and surface storage slightly changed to avoid bugs in the dynamic wave solution
+- Multi CPU Core application for paralklel computing. If this gives problems, select only 1 core.
+- small bugfixes 
 
 version 3.97 - 3.99 (170308)
 - BugFix: Calibration factor for Cohesion and Aggregate stability (they were reversed)

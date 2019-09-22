@@ -32,21 +32,21 @@ functions: \n
 - void TWorld::InfilSwatre(cTMap *_WH)
 - void TWorld::InfilMorelSeytoux1(cTMap *_WH) Not working yet!
 - void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
-- double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
+- double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double *L1p, double *L2p, double *FFullp)
 - void TWorld::Infiltration(void)
 - void TWorld::InfiltrationFloodNew(void)
 - void TWorld::SoilWater()
  */
 
 #include <algorithm>
+#include "lisemqt.h"
+#include "global.h"
 #include "model.h"
 #include "operation.h"
 
 //NOTE fact and fpot have a unit of m (not m/s)
 
-#define tiny 0.0001
-
-//1e-8
+#define TINY 0.0001
 
 //---------------------------------------------------------------------------
 void TWorld::InfilEffectiveKsat(void)
@@ -64,29 +64,53 @@ void TWorld::InfilEffectiveKsat(void)
                 Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
                         KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
 
+            Poreeff->Drc = ThetaS1->Drc;
+            Thetaeff->Drc = ThetaI1->Drc;
+
+            if (SwitchInfilCompact) {
+                Poreeff->Drc = ThetaS1->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+                Thetaeff->Drc = ThetaI1->Drc*(1-CompactFraction->Drc) +
+                        ThetaI1->Drc*PoreCompact->Drc/ThetaS1->Drc *CompactFraction->Drc;
+            }
+            if (SwitchInfilCrust) {
+                Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+                Thetaeff->Drc = ThetaI1->Drc*(1-CrustFraction->Drc) +
+                        ThetaI1->Drc*PoreCrust->Drc/ThetaS1->Drc *CrustFraction->Drc;
+            }
+            if (SwitchGrassStrip) {
+                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+                Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
+                Thetaeff->Drc = ThetaI1->Drc*(1-GrassFraction->Drc) +
+                        ThetaI1->Drc*PoreGrass->Drc/ThetaS1->Drc *GrassFraction->Drc;
+            }
+
             if (SwitchHardsurface)
                 Ksateff->Drc *= (1-HardSurface->Drc);
 
-            if (SwitchHouses)
+            if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);
+            }
 
-            if (RoadWidthDX->Drc > 0)
-                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-
-            if (GrassFraction->Drc > 0)
-                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+//            if (RoadWidthDX->Drc > 0) {
+//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
+//            //    Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
+//            }
+//VJ 4.94 VJ 180215 roads are already excluded in surf storage so do not use it here
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            // incase combining all fractions lead to less than zero
+            Poreeff->Drc = std::max(0.0, Poreeff->Drc);
+            Thetaeff->Drc = std::min(Thetaeff->Drc, Poreeff->Drc);
+            // prob unneccessary
 
             Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
 
-            if (SwitchBuffers && !SwitchSedtrap && SwitchBuffersImpermeable)
-                if(BufferID->Drc > 0)
-                    Ksateff->Drc = 0;
         }
     }
+//    report(*ThetaI2,"ti2.map");
+//     report(*Thetaeff,"te.map");
+//    report(*Ksateff, "kseff.map");
+//        report(*Poreeff,"porec.map");
 }
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
@@ -100,10 +124,11 @@ void TWorld::InfilSwatre(cTMap *_WH)
     // formula = f = 1/(1+1.2^(theta-30)), theta in %
 
     // for normal surface swatre should be done in all cells
-    SwatreStep(SwatreSoilModel, _WH, fpot, TileDrainSoil, thetaTop, tma);
+    SwatreStep(op.runstep, SwatreSoilModel, _WH, fpot, TileDrainSoil, thetaTop, tma);
     // NOTE WH changes in SWATRE
     // tiledrainsoil is in m per timestep, if not switchtiles then contains 0
 
+	
     // WH and fpot done in swatrestep
     FOR_ROW_COL_MV
             fact->Drc = (WHbef->Drc - _WH->Drc);
@@ -116,7 +141,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
+        SwatreStep(op.runstep, SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
         // calculate crust SWATRE and get the soil moisture of the top node
         // CrustFraction is cells > 0
 
@@ -138,7 +163,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
+        SwatreStep(op.runstep, SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
 
         FOR_ROW_COL_MV
         {
@@ -158,7 +183,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmb, 0.0);
         fill(*tmc, 0.0);
 
-        SwatreStep(SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
+        SwatreStep(op.runstep, SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
 
         FOR_ROW_COL_MV
         {
@@ -177,9 +202,11 @@ void TWorld::InfilSwatre(cTMap *_WH)
         //      }
         //        thetaTop->report("thtop");
         //        RepellencyFraction->report("repelfr");
+
     }
 
 }
+
 //---------------------------------------------------------------------------
 /*!
 \brief function to increase wetting front and deal with 2nd layer and impermeable subsoil
@@ -189,100 +216,76 @@ void TWorld::InfilSwatre(cTMap *_WH)
  - one layer or two layers
  - impermeable bottom or not, returns flag profile full
  - returns depth of the wetting front (L1 or L1+L2)\n
- - returns actual infiltration
+ - returns actual infiltration in mm, NOT rate in mm/h
 */
-double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
+
+double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, double *L1p, double *L2p, double *FFullp)
 {
-    double dL1, dL2; // increase in wetting front layer 1 and 2 in m
-    double L1, L2, FFull; // wetting front depth layer 1 and 2 in m
-    double store1=(ThetaS1->Drc-ThetaI1->Drc);
+    double store1 = (Poreeff->Drc-Thetaeff->Drc); // space in the top layer
+    double store2 = 0;
+    double L = L1->Drc + L2->Drc;
+    double dfact = 0;
+    double fact_out = 0;
+    bool passing = false;
 
-    L1 = *L1p;
-    L2 = *L2p;
-    FFull = *FFullp;
+     if (SwitchTwoLayer)
+         store2 = (ThetaS2->Drc-ThetaI2->Drc);
 
-    if (!SwitchTwoLayer)
-    {
-        if (L1 < SoilDepth1->Drc)
-        {
-            FFull = 0;
-            // because drainage can reset moisture content
-            dL1 = store1 > tiny ? fact/store1 : 0;
-            // increase in depth (m) is actual infiltration/available porespace
-            // do this always, correct if 1st layer is full
-            L1 += dL1;
-            // reaches bottom in this timestep, dL1 is remaning space (can be 0)
-            // if impermeable fact = 0, if not impermeable fact is calculated with fixed L1
-            if (L1 > SoilDepth1->Drc)
-            {
-                fact = (SoilDepth1->Drc-L1)*store1;
-                L1 = SoilDepth1->Drc;
+    if (FFull->Drc == 1 && SwitchImpermeable)
+        return 0;  // act infil is zero, soil is full
+
+    //L = L + fact->Drc/std::max(store, TINY);
+    // add infil to wetting front
+    FFull->Drc = 0;
+    if (SwitchTwoLayer) {
+
+        if (L < SoilDepth1->Drc) { // still in first layer
+            L = L + fact->Drc/store1;
+
+            if (L > SoilDepth1->Drc) { // moving into second layer
+                dfact = fact->Drc - (SoilDepth1->Drc - L1->Drc) * store1;
+                L1->Drc = SoilDepth1->Drc;
+                passing = true;
+            } else {
+                fact_out = fact->Drc;
+                L1->Drc = L;
+            }
+        } else {  // already in 2nd layer
+             L = L + fact->Drc/store2;
+
+             if (L > SoilDepth2->Drc) {
+                 fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
+                 L2->Drc = SoilDepth2->Drc-SoilDepth1->Drc;
+                 if (SwitchImpermeable)
+                     FFull->Drc = 1;
+             } else
+                 fact_out = fact->Drc;
+        }
+        if (passing) {  // moving from depth 1 to 2
+            L = L1->Drc + dfact/store2; // increase L with remaining fact
+            if (L > SoilDepth2->Drc) {
+                fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
+                L2->Drc = SoilDepth2->Drc-SoilDepth1->Drc;
                 if (SwitchImpermeable)
-                    FFull = 1;
-            }
-        }
-        else
-        {
-            L1 = SoilDepth1->Drc;
-            if (SwitchImpermeable)
-            {
-                FFull = 1;
-                fact = 0;
-            }
-        }
-    }
-    else  //twolayer
-    {
-        double store2=(ThetaS2->Drc-ThetaI2->Drc);
-        //layer 1 available space
-
-        // if not reached bottomof first layer
-        if (L1 < SoilDepth1->Drc)
-        {
-            FFull = 0;
-            dL1 = store1 > tiny ? fact/store1 : 0;
-            L1 += dL1;
-            if (L1 > SoilDepth1->Drc)
-            {
-                fact = (L1-SoilDepth1->Drc)*store1;
-                L1 = SoilDepth1->Drc;
-            }
-        }
-        else  // deeper than L1
-        {
-            if (L1+L2 < SoilDepth2->Drc)
-            {
-                FFull = 0;
-                dL2 = store2 > tiny ? fact/store2 : 0;
-                // increase in 2nd layer
-                L2+=dL2;
-
-                if ((L1+L2) > SoilDepth2->Drc)
-                {
-                    fact = ((L2+L1)-SoilDepth2->Drc)*store2;
-                    L2 = SoilDepth2->Drc-L1;
-                    if (SwitchImpermeable)
-                        FFull = 1;
-                }
+                    FFull->Drc = 1;
             }
             else
-            {
-                L2 = SoilDepth2->Drc-L1;
-                if (SwitchImpermeable)
-                {
-                    FFull = 1;
-                    fact= 0;
-                }
-            }
+                fact_out = fact->Drc;
+        }
+    } else { //single layer
+        L = L + fact->Drc/store1;
+        if (L > SoilDepth1->Drc) {
+            fact_out = (SoilDepth1->Drc - L1->Drc) * store1;
+            L1->Drc = SoilDepth1->Drc;
+            if (SwitchImpermeable)
+                FFull->Drc = 1;
+        } else {
+            L1->Drc = L;
+            fact_out = fact->Drc;
         }
     }
 
-    *L1p = (REAL8)L1;
-    *L2p = (REAL8)L2;
-    *FFullp = (REAL8)FFull;
-
-    return fact;
-    // return new fact
+    return fact_out;
 
 }
 //---------------------------------------------------------------------------
@@ -299,8 +302,9 @@ double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, 
   - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
   - decrease of surface water layer WH and calculate infiltration volume\n
   */
-void TWorld::Infiltration(void)
+void TWorld::Infiltration(int thread)
 {
+
     //Ksateff calculated before loop
     //NOTE: if crusting is calculated during event then move to the loop!
 
@@ -319,14 +323,25 @@ void TWorld::Infiltration(void)
             else
                 tm->Drc = hmx->Drc;
         }
-        InfilSwatre(tm); // includes grasstrips, compaction etc, results in fact and fpot
+        InfilSwatre(tm);
+        FOR_ROW_COL_MV
+        {
+            if (FloodDomain->Drc == 0)
+                WH->Drc = tm->Drc;
+            else
+                hmx->Drc = tm->Drc;
+        }
+
         break;
     default:
-        InfilMethodsNew();
+        InfilMethodsNew(thread);        
+        // this function results in an actual infiltration "fact" (in m) and
+        // potential infiltration "fpot" (in m), according to G&A, S&P etc.
+        // It deals with 1 or 2 layers and increase of water depth
     }
 
     // calc infiltrated volume for mass balance
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
         double cy = SoilWidthDX->Drc;
         if(FloodDomain->Drc > 0)
@@ -334,207 +349,325 @@ void TWorld::Infiltration(void)
 
         InfilVol->Drc = fact->Drc*cy*DX->Drc;
         // infil volume is WH before - water after
-        // infil volume in flow equations is a separate variable
-    }
+    }}}}
+
 
 }
-
-
 //---------------------------------------------------------------------------
+// Infiltration by Green and Ampt,Smith and Parlange or Ksat.
+// All the same except for calculation of the potential infiltration fpot
+// 1 layer and 2 layers
 /*!
-\brief function to calculate potential and actual infiltration rate according to
-Green and Ampt, Smith and Parlange or Ksat subtraction.
+\brief function to calculate potential and actula infiltration rate according to
+Green and Mapt, Smith and Parlange or Ksat subtraction.
 
-This function calculates the actual potential infiltration according to Ksat, G&A or S&P \n
-1 or 2 layers, then calls IncreaseInfiltrationDepth to increase the wetting front. \n
-Then the appropriate domain water heights are adjusted and FSurplus is calculated.
+This function calculates the potential infiltration according to Ksat, G&A or S&P \n
+then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
-void TWorld::InfilMethodsNew()
-{
 
-    FOR_ROW_COL_MV
-    {
+void TWorld::InfilMethodsNew(int thread)
+{
+    FOR_ROW_COL_2DMT {
+        // default vars are first layer vars
         double fact1 = 0;
         double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
         double fwh = 0;
-        double Psi = Psi1->Drc;
-        double space = std::max(ThetaS1->Drc-ThetaI1->Drc, 0.0);
+        double Psi = Psi1->Drc/100; // in m
+        double space = std::max(Poreeff->Drc-Thetaeff->Drc, 0.0);
+        double L = L1->Drc + L2->Drc;
 
-        if (space < tiny || Ks == 0 || SoilDepth1->Drc < tiny)
-        {
-            fpot->Drc = 0;
-            fact->Drc = 0;
-            FSurplus->Drc = 0;
-            FFull->Drc = 1;
-        }
+        // get the correct water layer
+        if (FloodDomain->Drc == 0)
+            fwh = WH->Drc; //runoff
         else
-        {
-            if (FloodDomain->Drc == 0)
-                fwh = WH->Drc;
-            else
-                fwh = hmx->Drc;
-            // select the appropriate domain water height for overpressure
+            fwh = hmx->Drc; // flood
+        // select the appropriate domain water height for overpressure
 
-            if (SwitchTwoLayer && L1->Drc > SoilDepth1->Drc)
+        //calculate potential insiltration rate fpot
+        if (SwitchTwoLayer ) {
+
+            // if wetting front in second layer set those vars
+            if (L1->Drc > SoilDepth1->Drc)
             {
                 Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc;
+                Psi = Psi2->Drc/100;
                 space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
             }
-            // two layers
-
-            // calculate potential infiltration fpot in m, give a very large fpot in the beginning to start of the infil
-            // process, the actual fact is then chosen anyway.
-            switch (InfilMethod)
-            {
-            case INFIL_KSAT : fpot->Drc = Ks; break;
-            case INFIL_GREENAMPT :
-            case INFIL_GREENAMPT2 :
-                fpot->Drc = L1->Drc+L2->Drc > tiny ? Ks*(1.0+(Psi+fwh)/(L1->Drc+L2->Drc)) : 1e10;
-                break;
-            case INFIL_SMITH :
-            case INFIL_SMITH2 :
-                double B = (fwh + Psi)*space;
-                double Cdexp = B > 0.1 ? exp(Fcum->Drc/B) : 1.0;
-                fpot->Drc = Cdexp > 1 ? Ks*Cdexp/(Cdexp-1): 1e10;
-                break;
-            }
-
-            fact1 = std::min(fpot->Drc, fwh);
-            // actual infil in m, cannot have more infil than water on the surface
-
-            fact->Drc = IncreaseInfiltrationDepth(r, c, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
-            // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-
-            // adjust the WH in the domains with new fact
-            if(FloodDomain->Drc == 0)
-            {
-                if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
-                {
-                    fact->Drc = WH->Drc;
-                    WH->Drc = 0;
-                }
-                else
-                    WH->Drc -= fact->Drc;
-            }
-            else
-            {
-                if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
-                {
-                    fact->Drc = hmx->Drc;
-                    hmx->Drc = 0;
-                }
-                else
-                    hmx->Drc -= fact->Drc;
-            }
-
-            Fcum->Drc += fact->Drc;
-            // cumulative infil in m
-
-            // calc surplus infiltration (negative in m) for kin wave
-            if (FFull->Drc == 1)
-                FSurplus->Drc = 0;
-            else
-            {
-                FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc);
-
-                //limit surplus to available room in soil
-                double room = 0;
-                if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
-                {
-                    room = (SoilDepth1->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);\
-                    FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
-                }
-                else
-                    if (SwitchTwoLayer && L1->Drc == SoilDepth1->Drc)
-                    {
-                        room = (SoilDepth2->Drc - L2->Drc - L1->Drc)*(ThetaS1->Drc-ThetaI1->Drc);
-                        FSurplus->Drc = FSurplus->Drc < -room ? -room : FSurplus->Drc;
-                    }
-            }
         }
-    }
+
+        switch (InfilMethod)
+        {
+        case INFIL_KSAT : fpot->Drc = Ks; break;
+        case INFIL_GREENAMPT :
+        case INFIL_GREENAMPT2 : fpot->Drc = Ks*(1.0+(Psi+fwh)/std::max(TINY, L)); break;
+        case INFIL_SMITH :
+        case INFIL_SMITH2 :
+            double B = (fwh + Psi)*space;
+            if (B > 0.01) {
+                double Cdexp =exp(Fcum->Drc/B);
+                fpot->Drc = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
+            } else
+                fpot->Drc = Ks;
+            break;
+        }
+
+        fact->Drc = std::min(fpot->Drc, fwh);
+        // actual infil in m, cannot have more infil than water on the surface
+
+        fact->Drc = IncreaseInfiltrationDepthNew(r, c);//, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
+        // adjust fact and increase L1 and L2, for twolayer, impermeable etc
+
+
+        // adjust the WH in the correct domain with new fact
+        if(FloodDomain->Drc == 0)
+        {
+            if (WH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
+            {
+                fact->Drc = WH->Drc;
+                WH->Drc = 0;
+            }
+            else
+                WH->Drc -= fact->Drc;
+        }
+        else
+        {
+            if (hmx->Drc < fact->Drc) // in case of rounding of errors, fact
+            {
+                fact->Drc = hmx->Drc;
+                hmx->Drc = 0;
+            }
+            else
+                hmx->Drc -= fact->Drc;
+        }
+
+        Fcum->Drc += fact->Drc;
+        // increase cumulative infil in m
+
+        // calc surplus infiltration (negative in m) for kin wave
+        if (FFull->Drc == 1)
+            FSurplus->Drc = 0;
+        else
+        {
+            space = (SoilDepth1->Drc - L1->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+            if (SwitchTwoLayer)
+                space = space + (SoilDepth2->Drc - L2->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
+            // total spce left in the soil in m
+
+            FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc); // negative value
+            if (FSurplus->Drc > -space)
+                FSurplus->Drc = -space;
+
+//            //limit surplus to available room in soil
+//            if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
+//            {
+//                space = (SoilDepth1->Drc - L1->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+//                FSurplus->Drc = FSurplus->Drc < -space ? -space : FSurplus->Drc;
+//            }
+//            else
+//                if (SwitchTwoLayer && L2->Drc > 0)
+//                {
+//                    space = (SoilDepth2->Drc - L2->Drc - L1->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
+//                    FSurplus->Drc = FSurplus->Drc < -space ? -space : FSurplus->Drc;
+//                }
+        }
+    }}}}
+//report(*fpot,"fpot");
+//report(*L1,"la");
+//report(*L2,"lb");
+//report(*fact,"factb");
 }
 //---------------------------------------------------------------------------
+
 /*!
  \brief Calculates changes in soilwater with percolation from the bottom of the profile.
 
   Calculates changes in soilwater with percolation from the bottom of the profile, \n
   resulting in the soil becoming dryer. Based on BrooksCorey type of percolation: \n
   percolation = ksat*(theta/pore)*bca, where bca = 5.55*qPow(Ksat2->Drc,-0.114); \n
-  This is completely undocumented. Effects in ksateff do not influence percolation \n
-  so ksat1 or ksat2 are used.
+  This is completely undocumented. The soil is either impermeable or has percolation. \n
   */
-void TWorld::SoilWater()
+//
+void TWorld::SoilWater(int thread)
 {
-    if (!SwitchPercolation
-            || InfilMethod == INFIL_SWATRE
-            || SwitchImpermeable
-            || InfilMethod == INFIL_NONE)
+    if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
+        return;
+    if (SwitchImpermeable)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_2DMT
     {
-        double Percolation, bca;
+        double Percolation, Ks, bca, dL, thetar, theta_E;
 
-        if (FFull->Drc == 1)
-            continue;
+        Percolation = 0;
 
-        if (!SwitchTwoLayer)
-        {
-            bca = 5.55*qPow(Ksat1->Drc,-0.114);
-            // Brooks corey value based on non lin regeression Saxton stuff
-            double theta = 0.5*(ThetaSub->Drc + ThetaI1->Drc);
-            Percolation = Ksat1->Drc * pow(theta/ThetaS1->Drc, bca)*_dt/3600000.0;
-            // percolation = unsaturated K per timestep, Brooks Corey estimate
+        if(SwitchTwoLayer) {
+            thetar = 0.025 * ThetaS2->Drc;
+            if(ThetaI2->Drc > thetar) {
+                Ks = Ksat2->Drc*_dt/3600000.0;
+                bca = 5.55*qPow(Ksat2->Drc,-0.114);
+                theta_E = (ThetaI2->Drc-thetar)/(ThetaS2->Drc-thetar);
+                Percolation = Ks * pow(theta_E, bca);
+                // percolation in m
 
-            if (L1->Drc > SoilDepth1->Drc-tiny)
-            {
-                L1->Drc = std::max(0.01, SoilDepth1->Drc-Percolation/(ThetaS1->Drc-ThetaI1->Drc+0.01));
-                // cannot be less than 0.01= 1 cm to avoid misery
-                // add 0.01 for safety to avoid division by zero
+                dL = std::min(SoilDepth2->Drc - SoilDepth1->Drc, SoilDepth2->Drc - L1->Drc - L2->Drc);
+                // dL is the second layer when L2 is 0 or the remainder of the second layer when L2 > 0
+                // so we only have to deal with ThetaI2
+                double moisture = dL*(ThetaI2->Drc-thetar);
+
+                if (moisture > Percolation) {
+                    // decrease thetaeff because of percolation
+                    moisture -= Percolation;
+                    ThetaI2->Drc = moisture/dL+thetar;
+                } else {
+                    // decrease thetaeff because of percolation and decrease L1 with the remaining bit
+                    double dP = Percolation - moisture;
+                    ThetaI2->Drc = thetar;
+                    L2->Drc -= std::max(0.0, dP/(ThetaS2->Drc - thetar));
+                }
+
+                if (L1->Drc+L2->Drc < SoilDepth2->Drc)
+                    FFull->Drc = 0;
+            }
+        } else {
+            thetar = 0.025 * Poreeff->Drc;
+            if(Thetaeff->Drc > thetar) {
+                Ks = Ksateff->Drc*_dt/3600000.0;
+                bca = 5.55*qPow(Ksateff->Drc,-0.114);
+                theta_E = (Thetaeff->Drc-thetar)/(Poreeff->Drc-thetar);
+                Percolation = Ks * pow(theta_E, bca);
             }
 
-            Soilwater->Drc = (SoilDepth1->Drc - L1->Drc)*ThetaI1->Drc;
-            // max available water = unsat zone depth * thetai
-            Percolation = std::min(Percolation, Soilwater->Drc);
-            // cannot have more percolation than available water
-
-            if (Soilwater->Drc-Percolation > 0.01*ThetaS1->Drc)
-                Soilwater->Drc -= Percolation;
-            // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
-
-            ThetaI1->Drc = (SoilDepth1->Drc - L1->Drc > 0 ? Soilwater->Drc/(SoilDepth1->Drc - L1->Drc) : ThetaS1->Drc);
-            ThetaI1->Drc = std::min(ThetaI1->Drc, ThetaS1->Drc);\
-            // recalc thetai1 with new soilwater
-        }
-        else
-        {
-            bca = 5.55*qPow(Ksat2->Drc,-0.114);
-            double theta = 0.5*(ThetaSub->Drc + ThetaI2->Drc);
-            Percolation = Ksat2->Drc * pow(theta/ThetaS2->Drc, bca);
-
-            if (L2->Drc > SoilDepth2->Drc-tiny)
-            {
-                L2->Drc = std::max(0.01, SoilDepth2->Drc-Percolation/(ThetaS2->Drc-ThetaI2->Drc+0.01));
-                // cannot be less than 0.01= 1 cm to avoid misery
-                // add 0.01 for safety to avoid division by zero
+            dL = std::max(0.0, SoilDepth1->Drc - L1->Drc);
+            double moisture = dL*(Thetaeff->Drc-thetar);
+            if (moisture > Percolation) {
+                // decrease thetaeff because of percolation
+                moisture -= Percolation;
+                Thetaeff->Drc = moisture/dL+thetar;
+            } else {
+                // decrease thetaeff because of percolation and decrease L1 with the remaining bit
+                double dP = Percolation - moisture;
+                Thetaeff->Drc = thetar;
+                L1->Drc -= std::max(0.0, dP/(ThetaS1->Drc - thetar));
             }
-            Soilwater->Drc = (SoilDepth2->Drc - L2->Drc)*ThetaI2->Drc;
-            // max available water = unsat zone depth * thetai
-            Percolation = std::min(Percolation, Soilwater->Drc);
-            // cannot have more percolation than available water
 
-            if (Soilwater->Drc-Percolation > 0.01*ThetaS2->Drc)
-                Soilwater->Drc -= Percolation;
-            // subtract percolation, cannot be less than residual theta is assumed 1 % of porosity
 
-            ThetaI2->Drc = (SoilDepth2->Drc - L2->Drc > 0 ? Soilwater->Drc/(SoilDepth2->Drc - L2->Drc) : ThetaS2->Drc);
-            ThetaI2->Drc = std::min(ThetaI2->Drc, ThetaS2->Drc);\
-            // recalc thetai2 with new soilwater
+            if (L1->Drc < SoilDepth1->Drc)
+                FFull->Drc = 0;
 
         }
+        Perc->Drc = Percolation;
+    }}}}
+// report(*Perc, "perc");
+}
 
+
+//---------------------------------------------------------------------------
+void TWorld::infilInWave(cTMap * inf, cTMap *_h, double dt1)
+{
+    if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
+        return;
+
+    FOR_ROW_COL_MV {
+        double cdx = DX->Drc;
+        double cdy = ChannelAdj->Drc;
+
+        //calculate infiltration in time step
+        double infil = -1.0*FSurplus->Drc*dt1/_dt;
+        if (_h->Drc < infil)
+            infil = _h->Drc;
+        _h->Drc -= infil;
+        _h->Drc = std::max(_h->Drc , 0.0);
+        FSurplus->Drc += infil;//*SoilWidthDX->Drc/cdy;
+        FSurplus->Drc = std::min(0.0, FSurplus->Drc);
+
+        Fcum->Drc += infil;//*SoilWidthDX->Drc/cdy; //VJ !!!
+
+        //keep track of infiltration
+        inf->Drc = (infil*cdx*cdy);
     }
+}
+//---------------------------------------------------------------------------
+double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
+{
+    double dL1, dL2; // increase in wetting front layer 1 and 2 in m
+    double L1, L2, FFull; // wetting front depth layer 1 and 2 in m
+    double store1=(Poreeff->Drc-Thetaeff->Drc); // space in the top layer
+    double dfact = 0;
+
+    L1 = *L1p;
+    L2 = *L2p;
+    FFull = *FFullp; // flag profile full
+
+    // infiltration in top layer
+    if (L1 < SoilDepth1->Drc) { // still room in layer 1
+        FFull = 0;
+        // because drainage can reset moisture content
+        dL1 = store1 > TINY ? fact/store1 : 0;
+        // increase in depth (m) is actual infiltration/available porespace
+        double L1d = L1; // store old
+        L1 += dL1; // add increase
+
+        if (L1 > SoilDepth1->Drc-TINY) // fills up in this timestep
+        {
+            dfact = fact;
+            fact = (SoilDepth1->Drc-L1d)*store1; //remaining
+            dfact -= fact; // left over for infiltration in layer 2 is this exists
+            L1 = SoilDepth1->Drc;
+            FFull = 1;
+        }
+    } else {
+        if (!SwitchTwoLayer){
+            L1 = SoilDepth1->Drc;
+            FFull = 1;
+            fact = 0;
+            dfact = 0;
+            if (store1 < TINY)
+                fact = Ksateff->Drc;
+        }
+    }
+
+
+    if (SwitchTwoLayer)
+    {
+        double store2=(ThetaS2->Drc-ThetaI2->Drc);
+        //layer 2 available space
+
+        if (dfact > 0 || L1 > SoilDepth1->Drc-TINY) // infil beyond first layer
+        {
+            if (L1+L2 < SoilDepth2->Drc) {  // if there is room in layer 2
+                FFull = 0;
+                if (dfact > 0)
+                    dL2 = store2 > TINY ? dfact/store2 : 0; // finish overflowing tiumestep
+                else
+                    dL2 = store2 > TINY ? fact/store2 : 0;  // L1 is full continue with L2
+                // increase in 2nd layer
+                double L2d = L2;
+                L2+=dL2;
+
+                if ((L1+L2) > SoilDepth2->Drc) // if beyond soildepth 2 in this timestep
+                {
+                    fact = (SoilDepth2->Drc-L1-L2d)*store2;
+                    L2 = SoilDepth2->Drc-L1;
+                    if (SwitchImpermeable)
+                        FFull = 1;
+                }
+            }
+            else {  // if L2 also full
+                L2 = SoilDepth2->Drc-L1;
+                if (SwitchImpermeable)
+                {
+                    FFull = 1;
+                    fact = 0;
+                }
+            }
+        }
+    }
+
+    *L1p = (REAL8)L1;
+    *L2p = (REAL8)L2;
+    *FFullp = (REAL8)FFull;
+
+    return fact+dfact;
+    // return new fact
 }

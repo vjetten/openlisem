@@ -1,31 +1,40 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
 
-PROJECT(Lisem)
+project(Lisem)
 
-# SET(${CMAKE_PROJECT}_ORGANISATION_NAME "TODO")
-# SET(${CMAKE_PROJECT}_COPYRIGHT "Copyright \(C\) 2010-2015 TODO")
-# SET(${CMAKE_PROJECT}_PROJECT_NAME "${CMAKE_PROJECT_NAME}")
-SET(${CMAKE_PROJECT}_HOMEPAGE "http://blogs.itc.nl/lisem")
-# SET(${CMAKE_PROJECT}_MAJOR_VERSION "TODO")
-# SET(${CMAKE_PROJECT}_MINOR_VERSION "TODO")
-# SET(${CMAKE_PROJECT}_PATCH_VERSION "TODO")
-# SET(${CMAKE_PROJECT}_PRE_RELEASE_VERSION "TODO")
-# SET(${CMAKE_PROJECT}_VERSION
-#     "${${CMAKE_PROJECT}_MAJOR_VERSION}.${${CMAKE_PROJECT}_MINOR_VERSION}.${${CMAKE_PROJECT}_PATCH_VERSION}${${CMAKE_PROJECT}_PRE_RELEASE_VERSION}")
+# `ind includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
-ENABLE_TESTING()
+# Find the QtWidgets library
+find_package(Qt5Widgets)
+find_package(Qt5Core)
+find_package(Qt5Gui)
+
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+
+
+add_definitions(${Qt5Widgets_DEFINITIONS})
+add_definitions(${Qt5Core_DEFINITIONS})
+add_definitions(${Qt5Gui_DEFINITIONS})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS}")
+
+set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+
+set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
 
 SET(CMAKE_MODULE_PATH
     $ENV{CMAKE_MODULE_PATH}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
-INCLUDE(Lisem)
+
+
+# Include application makefile
 INCLUDE(Application)
-
-CONFIGURE_FILE(
-    ${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake
-)
-
-ADD_SUBDIRECTORY(doxygen)

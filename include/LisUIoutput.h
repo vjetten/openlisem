@@ -27,11 +27,17 @@
   \brief structure to pass variables form the model to the interface, visible by both
   */
 
+#include <CsfMap.h>
+#include <CsfRGBMap.h>
+#include <QList>
+
 #ifndef LISUIOUTPUT_H_
 #define LISUIOUTPUT_H_
 
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
+
+
 
 struct output{
     int runstep;
@@ -50,32 +56,31 @@ struct output{
     QList<double> OutletQpeaktime;
     QList<double> OutletQtot;
     QList<double> OutletQstot;
-    double timestep;
-
-    int
-    F_solution,
-    F_scheme,
-    F_SSMethod,
-    F_BLMethod,
-    F_SigmaDiffusion,
-    F_fluxLimiter,
-   // F_replaceV,
-    F_Maxiter;
-    double
+//    int
+//    F_solution,
+//    F_scheme,
+//    F_SSMethod,
+//    F_BLMethod,
+//    F_SigmaDiffusion,
+//    F_fluxLimiter,
+//    F_replaceV,
+//    F_Maxiter;
+//    double
 //    F_maxVelocity,
 //    F_extremeHeight,
 //    F_extremeDiff,
-    F_courant,
-    F_courant_diffusive;
+//    F_MinTimestepFlood,
+//    F_courant,
+//    F_courant_diffusive;
 
-    double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
+    double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
     double
     // water
     MB, Qtot,  Qtile, Qtiletot, RunoffFraction, RainpeakTime,
-    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,
+    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm,
     RainTotmm, SurfStormm, InfilKWTotmm, Pmm, BaseFlowtotmm,LitterStorageTotmm,WaterVolTotchannelmm,
-    floodBoundaryTot,
+    floodBoundaryTot, floodBoundarySedTot,
     // channel
     ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
     // flood
@@ -84,17 +89,16 @@ struct output{
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
 
-
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;
     cTMap *roadMap;
     cTMap *houseMap;
     cTMap *flowbarriersMap;
+    cTRGBMap *Image;
 
     QList<double> graindiameters;
 
-    //combox selection of drawn map
     QList<int> ComboLists;
     QList<cTMap *> ComboMaps;
     QList<cTMap *> ComboMapsSafe;
@@ -110,10 +114,12 @@ struct output{
     QList<double> comboStep;
 
     bool comboboxset;
+    bool has_image;
 
     QString runfilename;
     QString LisemDir;
     QString format;
+    QString timeStartRun;
 
     bool doBatchmode;
 };

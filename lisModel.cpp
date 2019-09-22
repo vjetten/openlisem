@@ -39,6 +39,12 @@
 #include "model.h"
 #include "global.h"
 
+/*
+ * 1D hydrology
+ * runoff 1D kin or 2D diffusive wave -> liserosion + flooding 2Ddyn + swofsediment
+ * runoff/flood 2D dyn wave: swof + swof sediment
+ */
+
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :
     QThread(parent)
@@ -64,7 +70,7 @@ void TWorld::DoModel()
 
     //  QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
     errorFileName = QString(resultDir + "error"+ timestampRun +".txt");
-
+    errorSedFileName = QString(resultDir + "errorsed"+ timestampRun +".txt");
     time_ms.start();
     // get time to calc run length
 
@@ -128,15 +134,40 @@ void TWorld::DoModel()
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << "#error tryout\n";
-        eout << "2\n";
-        eout << "time\n";
+        eout << "#water mass balance error (%)\n";
+        eout << "3\n";
+        eout << "run step\n";
         eout << "error\n";
+        eout << "runtime\n";
         efout.flush();
         efout.close();
 
+        if (SwitchErosion) {
+        QFile esfout(resultDir+errorSedFileName);
+        esfout.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream esout(&esfout);
+        esout << "#sediment mass balance error (%)\n";
+        esout << "2\n";
+        esout << "run step\n";
+        esout << "MBs error\n";
+        esfout.flush();
+        esfout.close();
+        }
+
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
+
+        //start multithreading threadpool
+        ThreadPool = new LisemThreadPool();
+        ThreadPool->InitThreads(this);
+        ThreadPool->SetMaskInitial(DEM);
+        copy(*CoreMask, *ThreadPool->CoreMask);
+        ThreadPool->StartReportThread(this);
+
+        //create a function object referring to the cellprocesses wrapper
+        wrapCellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
+       // fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
+        // obsolete
 
         DEBUG("Running...");
 
@@ -148,14 +179,14 @@ void TWorld::DoModel()
 
             if (noInterface && !noOutput)
             {
-                int maxstep = (int)(EndTime-BeginTime)/_dt ;
+                int maxstep = static_cast <int>((EndTime-BeginTime)/_dt) ;
                 qDebug() << runstep << maxstep << time/60 ;
             }
 
             mutex.lock();
-            if(stopRequested) DEBUG("User interrupt...");
-            if(stopRequested) break;
+            if(stopRequested) DEBUG("User interrupt... finishing time step");
             mutex.unlock();
+
             mutex.lock();
             if (waitRequested) DEBUG("User pause...");
             if (waitRequested) condition.wait(&mutex);
@@ -164,75 +195,72 @@ void TWorld::DoModel()
 
             //DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
 
-            SetFlowBarriers();     // update the presence of flow barriers
-            GridCell();            // set channel widths, flowwidths road widths etc
+            //these functions read files, so they can not be multithreaded well
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
 
-            Interception();        // vegetation interception
-            InterceptionLitter();  // litter interception
-            InterceptionHouses();  // urban interception
-
-
-            addRainfallWH();       // adds rainfall to runoff water height or flood water height
-
-            Infiltration();        // infil of overland flow water, decrease WH
-         //   InfiltrationFloodNew();// infil in flooded area, decrease hmx
-
-            SoilWater();           // simple soil water balance, percolation from lower boundary
-            SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
-
-            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-
-            SplashDetachment();    // splash detachment
-
-       //     FlowDetachment();      // flow detachment
-
-            //Pestmobilisation();  // experimental
+            //do cell specific stuff, hydrology and splash detachment, threaded
+            ThreadPool->RunCellCompute(wrapCellProcesses1D);
+            ThreadPool->WaitForAll();            
 
             ToFlood();             // overland flow water added to flood (not in channel cells)
-            ToChannel();           // water and sed flux going into channel in channel cells
+            ToChannel();           // water and sed flux going into channel in channel cells, goes to channeloverflow
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-            OverlandFlow();     // overland flow kin wave for water and sed
+            // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded)
+            // if 2Ddyn then also SWOFsediment!
+            OverlandFlow();
 
-            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-            FlowDetachment();      // flow detachment
+            // flow detachment
+         //   ThreadPool->RunCellCompute(fcompute2);
+         //   ThreadPool->WaitForAll();
 
-            ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
+            // flooding for 1D and 2Ddiff
+            ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
-            ChannelFlood();        // st venant channel 2D flooding from channel
+            //do ordered solutions such as channel LDD etc..
+            // non threaded
+            OrderedProcesses();
 
-            CalcVelDischChannel(); // alpha, V and Q from Manning
-
-            ChannelFlow();         // channel erosion and kin wave
-
-            TileFlow();          // tile drain flow kin wave
+            //wait for the report thread that was started in the previous timestep
+            ThreadPool->WaitForReportThread();
 
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
+            OutputUI();          // fill the "op" structure for screen output
 
             QFile efout(resultDir+errorFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
-            eout << " " << runstep << " " << MB << "\n";
+            eout << " " << runstep << " " << MB << " " << op.t << "\n";
             efout.flush();
             efout.close();
 
-            //DEBUG("Report to files");
+            if (SwitchErosion) {
+            QFile esfout(resultDir+errorSedFileName);
+            esfout.open(QIODevice::Append | QIODevice::Text);
+            QTextStream esout(&esfout);
+            esout << " " << runstep << " " << MBs <<  "\n";
+            esfout.flush();
+            esfout.close();
+            }
 
-            reportAll();          // report all maps and timeseries
-
-            //DEBUG("Report to interface");
-
-            OutputUI();          // fill the "op" structure for screen output
-            // show after report calc is done
+            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+            ThreadPool->RunReportFunction(freport);
 
             if (!noInterface)
                 emit show();
             // send the op structure with data to function worldShow in LisUIModel.cpp
+
+            if(stopRequested)
+                time = EndTime;
         }
+
+        //close the threads
+        ThreadPool->WaitForReportThread();
+        ThreadPool->WaitForAll();
+        ThreadPool->Close();
 
         DestroyData();  // destroy all maps automatically
         DEBUG("Data destroyed");
@@ -243,6 +271,7 @@ void TWorld::DoModel()
         {
             if (!noOutput)
                 qDebug() << "Done";
+
             QApplication::quit();
         }
 
@@ -261,3 +290,86 @@ void TWorld::DoModel()
         }
     }
 }
+
+void TWorld::CellProcesses(int thread)
+{
+    SetFlowBarriers(thread);     // update the presence of flow barriers
+    GridCell(thread);            // set channel widths, flowwidths road widths etc
+
+    Interception(thread);        // vegetation interception
+    InterceptionLitter(thread);  // litter interception
+    InterceptionHouses(thread);  // urban interception
+
+    addRainfallWH(thread);       // adds rainfall to runoff water height or flood water height
+
+    Infiltration(thread);        // infil of overland flow/flood water, decrease WH
+
+    SoilWater(thread);           // simple soil water balance, percolation from lower boundary
+    SurfaceStorage(thread);      // surface storage and flow width, split WH in WHrunoff and WHstore
+
+    CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
+
+    SplashDetachment(thread);    // splash detachment
+
+    FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
+
+    //Pestmobilisation();         // experimental
+
+//   ToTiledrain(thread);         // fraction going into tiledrain directly from surface
+
+//    ToFlood(thread);             // overland flow water added to flood (not in channel cells)
+
+//    ToChannel(thread);           // water and sed flux going into channel in channel cells, goes to channeloverflow
+
+}
+
+void TWorld::CellProcesses2(int thread)
+{
+    CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
+
+    FlowDetachment(thread);      // flow detachment
+}
+
+
+void TWorld::OrderedProcesses()
+{
+    ChannelWaterHeightNT();  //NT is non threaded
+
+    CalcVelDischChannelNT(); // alpha, V and Q from Manning
+
+    ChannelFlow();         // channel erosion and kin wave
+
+    TileFlow();          // storm/tile drain flow kin wave
+
+    StormDrainFlow();
+
+}
+
+/* non threaded version for reference:
+            SetFlowBarriers();     // update the presence of flow barriers
+            GridCell();            // set channel widths, flowwidths road widths etc
+            RainfallMap();         // get rainfall from table or mpas
+            SnowmeltMap();         // get snowmelt
+            Interception();        // vegetation interception
+            InterceptionLitter();  // litter interception
+            InterceptionHouses();  // urban interception
+            addRainfallWH();       // adds rainfall to runoff water height or flood water height
+            Infiltration();        // infil of overland flow water, decrease WH
+            SoilWater();           // simple soil water balance, percolation from lower boundary
+            SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
+            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
+            SplashDetachment();    // splash detachment
+            ToFlood();             // overland flow water added to flood (not in channel cells)
+            ToChannel();           // water and sed flux going into channel in channel cells
+            ToTiledrain();         // fraction going into tiledrain directly from surface
+            OverlandFlow();        // overland flow wave for water and sed
+            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
+            FlowDetachment();      // flow detachment
+            ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
+            ChannelFlood();        // st venant channel 2D flooding from channel
+            CalcVelDischChannel(); // alpha, V and Q from Manning
+            ChannelFlow();         // channel erosion and kin wave
+            TileFlow();            // tile drain flow kin wave
+            Totals();              // calculate all totals and cumulative values
+            MassBalance();         // check water and sed mass balance
+            */

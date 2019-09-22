@@ -27,7 +27,7 @@
 \brief SWATRE: initialize soil profile with inithead maps data and clean up after run
 
 functions:
-- SOIL_MODEL * TWorld::InitSwatre(cTMap *profileMap, QString initHeadMaps, double minDt); \n
+- SOIL_MODEL * TWorld::InitSwatre(cTMap *profileMap); \n
 - void TWorld::CloseSwatre(SOIL_MODEL *s); \n
 */
 
@@ -36,29 +36,31 @@ functions:
 
 //--------------------------------------------------------------------------------
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
-//      QString initHeadMaps,
-//      cTMap *tiledepthMap,
-//      double minDt)
-//initheadName, TileDepth, swatreDT);
 {
    SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
    /* TODO check if this needs freeing when error */
 
-   int  i, n, nrNodes  = ((zone == NULL) ? -1 : zone->nrNodes);
+   int  i, n, nrNodes  = ((zone == nullptr) ? -1 : zone->nrNodes);
    int nodeDataIncr = nrNodes+1;
    long nrCells = _nrCols*_nrRows;
 
    s->minDt = swatreDT;
    s->pixel = new PIXEL_INFO[nrCells];
-
+//fill(*tmb,0);
    // set initial values
    for (i = 0; i < nrCells; i++)
    {
-      s->pixel[i].profile = NULL;
+      s->pixel[i].profile = nullptr;
       s->pixel[i].h = new REAL8[nodeDataIncr];
-      for (n = 0; n < nrNodes; n++)
+      s->pixel[i].theta = new REAL8[nodeDataIncr];
+      s->pixel[i].k = new REAL8[nodeDataIncr];
+      for (n = 0; n < nrNodes; n++) {
          s->pixel[i].h[n] = -1e10;
+         s->pixel[i].theta[n] = 0.01;
+         s->pixel[i].k[n] = 0;
+      }
 
+      s->pixel[i].nrNodes = nrNodes;  //set to 1 for output of a pixel
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
       s->pixel[i].tilenode = -1;
@@ -75,7 +77,11 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       // profileNr throws an error if profile nr not found
 
       if (SwitchWaterRepellency)
-         s->pixel[r*_nrCols+c].repellency = RepellencyCell->Drc;
+         s->pixel[r*_nrCols+c].repellency = (int)RepellencyCell->Drc;
+
+      if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+          s->pixel[r*_nrCols+c].dumpHid = SwatreOutput->Drc;
+      }
 
    }
 
@@ -91,8 +97,9 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 
       FOR_ROW_COL_MV
       {
-         s->pixel[r*_nrCols+c].h[n] = inith->data[r][c];
-
+         s->pixel[r*_nrCols+c].h[n] = inith->data[r][c]*psiCalibration;
+//if (n == 1)
+//    tmb->Drc = inith->data[r][c]*psiCalibration;
          // find depth of tilenode
          if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
          {
@@ -103,13 +110,14 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
          }
       }
    }
+ //  report(*tmb,"inith.map");
    return(s);
 }
 //--------------------------------------------------------------------------------
 /// soil model instance to be freed
 void TWorld::CloseSwatre(SOIL_MODEL *s)
 {
-   if (s == NULL)
+   if (s == nullptr)
       return;
 
    swatreProfileDef.clear();
@@ -120,6 +128,6 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
 
    free(s->pixel);
    free(s);
-   s = NULL;
+   s = nullptr;
 }
 //--------------------------------------------------------------------------------

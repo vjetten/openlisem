@@ -292,7 +292,7 @@ for (int i = 0; i < MapNameModel->rowCount(); i++)
   S = S + "\n";
  }
  S = S + "\n";
- QByteArray line(S.toAscii());
+ QByteArray line(S.toLatin1());
  fout.write(line);
 }
 fout.close();

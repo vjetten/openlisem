@@ -1,0 +1,18 @@
+<p><span style="font-size: 10pt;"><strong>Erosion options</strong></span></p>
+<p><span style="font-size: 9pt;"><strong>Detachment efficiency</strong> <strong>based on soil cohesion (in kPa)</strong>: 3 equations can be chosen: and inverse linear function with cohesion (original LISEM), an exponential function (EUROSEM model) and an inverse linear function (MMF model). The linear function is tested for silty loams, the other functions are more general. Note that they give very different soil loss. Values 1-3: 1 - Y = 1.0/(0.89+0.56COH);\n2 - Y = 0.79 exp(-0.85 COH); 3 - Y = 1.0/(2.0*COH);</span></p>
+<p><span style="font-size: 9pt;"><strong>Use sediment material depth</strong>: </span><span style="font-size: 9pt;">the deposited material has a different cohesion than the original soil, and has a limited depth based on the bulk density.</span></p>
+<ul>
+<li><span style="font-size: 9pt;">Deposited particle cohesion: The cohesion of freshly deposited soil particles. This value is used in the calculation of splash detachment from the top layer.</span></li>
+<li><span style="font-size: 9pt;">Bulk density used to convert to volume (default 1600 kg/m3)</span></li>
+</ul>
+<p><span style="font-size: 10pt;"><strong>Spash detachment</strong></span></p>
+<p><span style="font-size: 9pt;">T</span><span style="font-size: 9pt;">he equations describe non-linear relations between rainfall intensity (mm/h) and kinetic energy (J/mm):</span></p>
+<ul>
+<li><span style="font-size: 9pt;">A negative exponential equation with average global parameters (van Dijk 2002). values are a= 28.3, b =0.52, c=0.042.</span></li>
+<li><span style="font-size: 9pt;">A USLE type erquation with paraneters as found in the EUROSEM model (Morgan et al., 1998). a = 8.950, b=8.440</span></li>
+<li><span style="font-size: 9pt;">A decreasing power law (Sanchez, 2012). a = 7.6, b = 0.22, This equation is available in an nintensity based and timebased version.</span></li>
+</ul>
+<p><span style="font-size: 9pt;"><strong>Splash delivery</strong> is the fraction of sediment splashed from dry parts in a cell to ponded areas in a cell. The division of dry and ponded parts is calculated from the surface roughness and water height.<br /></span></p>
+<p><span style="font-size: 10pt;"><strong>Conservation measures</strong></span></p>
+<p><span style="font-size: 9pt;"><strong>Sediment trap</strong>: cells that trap all sediment (to simulate e.g. hedgerows or sediment traps) but not water. This uses the map "sedtrap.map", which can have empirical values from 0 to 1. 1 means full sediment trapping, all sediment in flow is depositted, water is slowed down (sedtrap value is added to Manning's n), 0 means sediment dynamics are not affected.</span></p>
+<p><span style="font-size: 9pt;"><strong>Grass strip: </strong>defined as a map that has grass strip width perpendicular to flow. Be aware of diagonal LDD conncentions crossing corners of the grass strip in 1D surface flow! The Mannings n of a grass strip slows down the water, 0.3 is a heigh value for long grass. It is assumed that grass strips have no detachment but only sedimentation.</span></p>

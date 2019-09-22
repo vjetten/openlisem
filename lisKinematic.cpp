@@ -144,7 +144,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX)
+double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double Qmax)
 {
     /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
@@ -175,11 +175,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
     {
-        ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+
+        ab_pQ = alpha*beta*pow((Qold+Qin)/2,beta-1);
         // derivative of diagonal average (space-time), must be > 0 because of pow function
         Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
         // explicit first guess Qkx, VERY important
         Qkx   = std::max(Qkx, 0.0);
+        Qkx = std::min(Qkx, Qmax);
     }
     else
         Qkx =  0;
@@ -196,6 +198,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
         Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+        Qkx = std::min(Qkx, Qmax);
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
 
@@ -204,7 +207,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
 }
 //---------------------------------------------------------------------------
 /**
- * @fn void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX,cTMap *_Vol,cTMap *_StorVol)
+ * @fn void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX,cTMap *_Qmax)
  * @brief Spatial implementation of the kinematic wave
  *
  * Kinematic wave spatial part, used for slope, channel and tiledrain system:
@@ -220,8 +223,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
  * @param _q : infiltration surplus from infiltration functions, 0 or negative value
  * @param _Alpha : a in A=aQ^b
  * @param _DX : dx corrected for slope
- * @param _Vol : water volume in cell (m3)
- * @param _StorVol : water volume in buffers (m3)
  * @return new water discharge
  *
  * @see TWorld::IterateToQnew
@@ -230,29 +231,21 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
 void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                        cTMap *_Q, cTMap *_Qn,
                        cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                       cTMap *_Vol,
-                       cTMap *_StorVol)
+                       cTMap *_Qmax)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-    LDD_LINKEDLIST *list = NULL, *temp = NULL;
+    LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 
-    list->prev = NULL;
+    list->prev = nullptr;
     /// start gridcell: outflow point of area
     list->rowNr = pitRowNr;
     list->colNr = pitColNr;
 
-    //    if (SwitchErosion)
-    //        _Qsn->fill(0);
-    // set output sed flux to 0
-    //   _Qn->setMV();
-    // flag all Qn gridcell with MV
-    // does not work with multtple pits because earlier iterations are set to zero
-
-    while (list != NULL)
+    while (list != nullptr)
     {
         int i = 0;
         bool  subCachDone = true; // are sub-catchment cells done ?
@@ -297,7 +290,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
         // rowNr and colNr are the last upstreM cell linked
         if (subCachDone)
         {
-            double Qin=0.0, Sin=0.0;
+            double Qin=0.0;//, Sin=0.0;
 
             // for all incoming cells of a cell, sum Q and Sed and put in Qin and Sin
             // note these are values of Qn and Qsn so the new flux
@@ -328,109 +321,13 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                 }
             }
 
-            bool isBufferCellWater = false; // check if buffer is full, true means not full
-            //bool isBufferCellSed = false;
+            itercount = 0;
+            double QMax = _Qmax->data[rowNr][colNr];
+            if (QMax <= 0) QMax = 1e15;
+            _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr], QMax );
+            // Newton Rapson iteration for water of current cell
 
-            //if buffers, add the incoming water Qin to the buffer
-            if(SwitchBuffers)
-            {
-                //_StorVol is remaining space in buffers, not water in buffers!
-                //_StorVol will go to 0
-                if (_StorVol->data[rowNr][colNr] > 0)
-                {
-                    isBufferCellWater = true;
-                    //buffer still active, skip normal kin wave
-
-                    _StorVol->data[rowNr][colNr] -= Qin*_dt;
-                    // fill up storage with incoming water
-
-//                    _q->data[rowNr][colNr] = Qin;
-                    QinKW->data[rowNr][colNr] = Qin;
-
-                    Qin = 0;
-                    // assume first buffer is not full, no outflow
-                    // trick kin wave by saying that the buffer storage is a ink (_q) like infiltration, taken out of the flow
-                    // and there is no incoming flux Qin to deal wth in the kin wave
-
-                    // now check if the uffer was overflowing and there is a little bit of Qin!
-                    if (_StorVol->data[rowNr][colNr] < 0)  // negative means overflowing
-                    {
-                        Qin = -_StorVol->data[rowNr][colNr]/_dt;
-                        //_q->data[rowNr][colNr] -= Qin;
-                        // overflow part becomes flux again
-                        _StorVol->data[rowNr][colNr] = 0;
-                        // remaining store = 0
-                        isBufferCellWater = false;
-                        //buffer is full, go to normal kin wave outflow
-                    }
-
-                    if (isBufferCellWater)
-                        _Qn->data[rowNr][colNr] = 0;
-                    // if still volume left no outflow to downstream cell
-                }
-            }
-
-            // sediment in buffers
-            /*if(SwitchErosion && (SwitchBuffers || SwitchSedtrap))
-            {
-                // if there is water storage catch all the sediment
-                if (_StorVol->data[rowNr][colNr] > 0)
-                {
-                    isBufferCellSed = true;
-                    //buffer still active
-
-                    _StorSed->data[rowNr][colNr] += Sin*_dt;
-                    Sin = 0;
-
-                    if (!SwitchSedtrap)
-                    {
-                        _StorVol->data[rowNr][colNr] -= Sin/2600;
-                        // decrease storvol with volume loss caused by incoming sediment
-                        // the bulkdensity does not matter, the volume taken up is related
-                        // to the particle desity dens, because the pores are filled with water
-                        // if we use bulk dens here we assume pores are empty!
-
-                        if (_StorVol->data[rowNr][colNr] < 0)
-                        {
-                            Qin = -_StorVol->data[rowNr][colNr]/_dt;
-                            // overflow part becomes flux again
-                            _StorVol->data[rowNr][colNr] = 0;
-                            // remaining store = 0
-                            isBufferCellWater = false;
-                            //buffer is full, outflow in kin wave
-                            isBufferCellSed = false;
-                            //buffer is full, sed outflow in kin wave
-                        }
-                    }
-                }
-            }*/
-
-            // if cell is not a buffer cell or buffer is filled calc outflow with iteration
-            if (!isBufferCellWater)
-            {
-                itercount = 0;
-                _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr],
-                                                        _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-                // Newton Rapson iteration for water of current cell
-            }
-
-            // if cell is not a buffer cell or buffer is filled calc SED outflow with iteration
-            /*if (SwitchErosion && !isBufferCellSed)
-            {
-                if (!SwitchSimpleSedKinWave)
-                    _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
-                                                              Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-                else
-                    _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
-                                                             _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
-
-                _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
-                // no more sediment outflow than total sed in cell
-
-                _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
-                // new sed volume based on all fluxes and org sed present
-            }*/
-            /* cell rowN, colNr is now done */
+              /* cell rowN, colNr is now done */
 
             temp=list;
             list=list->prev;
@@ -438,7 +335,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             // go to the previous cell in the list
 
         }/* eof subcatchment done */
-    } /* eowhile list != NULL */   
+    } /* eowhile list != nullptr */
 }
 //---------------------------------------------------------------------------
 /**
@@ -470,15 +367,15 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
  */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                             cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                            cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
+                            cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap *_Sed)// ,cTMap *_StorVol, cTMap *_StorSed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-    LDD_LINKEDLIST *list = NULL, *temp = NULL;
+    LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-    list->prev = NULL;
+    list->prev = nullptr;
     /// start gridcell: outflow point of area
     list->rowNr = pitRowNr;
     list->colNr = pitColNr;
@@ -487,7 +384,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
     // NOT wrong when multiple outlets! DO this befiore the loop
     //VJ 12/12/12 set output substance to zero
 
-    while (list != NULL)
+    while (list != nullptr)
     {
         int i = 0;
         bool  subCachDone = true; // are sub-catchment cells done ?
@@ -560,58 +457,20 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 }
             }
 
-            bool isBufferCellSed = false;
 
-            // sediment in buffers
-            if((SwitchBuffers || SwitchSedtrap) && _StorSed != NULL)
-            {
-                // if there is water storage catch all the sediment
-                if (_StorVol->data[rowNr][colNr] > 0)
-                {
-                    isBufferCellSed = true;
-                    //buffer still active
-
-                    _StorSed->data[rowNr][colNr] += Sin*_dt;
-                    Sin = 0;
-
-                    if (!SwitchSedtrap)
-                    {
-                        _StorVol->data[rowNr][colNr] -= Sin/2600;
-                        // decrease storvol with volume loss caused by incoming sediment
-                        // the bulkdensity does not matter, the volume taken up is related
-                        // to the particle desity dens, because the pores are filled with water
-                        // if we use bulk dens here we assume pores are empty!
-
-                        if (_StorVol->data[rowNr][colNr] < 0)
-                        {
-                            Qin = -_StorVol->data[rowNr][colNr]/_dt;
-                            // overflow part becomes flux again
-                            _StorVol->data[rowNr][colNr] = 0;
-
-                            //buffer is full, outflow in kin wave
-                            isBufferCellSed = false;
-                            //buffer is full, sed outflow in kin wave
-                        }
-                    }
-                }
-            }
-
-            if (!isBufferCellSed)
-            {
 
                             //if (!SwitchSimpleSedKinWave)
-                _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
-                                                          Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-                            /*else
+            _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+                                                      Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
+            /*else
                                 _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
                                                                          _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
                             */
-                _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
-                // no more sediment outflow than total sed in cell
+            _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
+            // no more sediment outflow than total sed in cell
 
-                _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
-                // new sed volume based on all fluxes and org sed present
-            }
+            _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
+            // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */
 
@@ -621,7 +480,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             // go to the previous cell in the list
 
         }/* eof subcatchment done */
-    } /* eowhile list != NULL */
+    } /* eowhile list != nullptr */
 }
 //---------------------------------------------------------------------------
 /**
@@ -673,125 +532,4 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
         out->Drc = tot;
     }
 }
-/*
- *******************************
- * OLD FUNCTIONS, NOT USED!!!
- *******************************
-//---------------------------------------------------------------------------
-/// return the sum of all values upstream
-void TWorld::KinWave(cTMap *_LDD,cTMap *_Q, cTMap *_Qn,cTMap *_q, cTMap *_Alpha, cTMap *_DX)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    fill(*tm, 0.0);
-
-    FOR_ROW_COL_MV
-    {
-        for (int i=1; i<=9; i++)
-        {
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            // look around in 8 directions
-            int row = r+dy[i];
-            int col = c+dx[i];
-            int ldd = 0;
-
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
-                ldd = (int) _LDD->Drc;
-            else
-                continue;
-
-            // if no MVs and row,col flows to central cell r,c
-            if (FLOWS_TO(ldd, row, col, r, c))
-            {
-                tm->Drc += _Q->data[row][col];
-            }
-        }
-    }
-
-    FOR_ROW_COL_MV
-    {
-        _Qn->Drc = IterateToQnew(tm->Drc, _Q->Drc, _q->Drc,_Alpha->Drc, _dt, _DX->Drc);
-        // Newton Rapson iteration for water of current cell
-
-        _q->Drc = tm->Drc;
-        //VJ 050831 REPLACE infil with sum of all incoming fluxes, needed for infil calculation below
-        // q is now in m3/s
-    }
-}
-
-
-
-long TWorld::SortNetwork(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Ksort)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-    long counter = 0;
-
-    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-    LDD_LINKEDLIST *list = NULL, *temp = NULL;
-    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-    list->prev = NULL;
-    /// start gridcell: outflow point of area
-    list->rowNr = pitRowNr;
-    list->colNr = pitColNr;
-
-    while (list != NULL)
-    {
-        int i = 0;
-        bool  subCachDone = true; // are sub-catchment cells done ?
-        int rowNr = list->rowNr;
-        int colNr = list->colNr;
-
-
-        for (i=1; i<=9; i++)
-        {
-            int r, c;
-            int ldd = 0;
-
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            r = rowNr+dy[i];
-            c = colNr+dx[i];
-
-            if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                ldd = (int) _LDD->Drc;
-            else
-                continue;
-
-            // check if there are more cells upstream, if not subCatchDone remains true
-            if (pcr::isMV(_Qn->Drc) &&
-                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                    INSIDE(r, c))
-            {
-                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                temp->prev = list;
-                list = temp;
-                list->rowNr = r;
-                list->colNr = c;
-                subCachDone = false;
-                counter++;
-                _Ksort->Drc = counter;
-            }
-        }
-
-        // all cells above a cell are linked in a "sub-catchment or branch
-        // continue with water and sed calculations
-        // rowNr and colNr are the last upstreM cell linked
-        if (subCachDone)
-        {
-            temp=list;
-            list=list->prev;
-            free(temp);
-            // go to the previous cell in the list
-        }
-    }
-    return counter;
-}
-*/

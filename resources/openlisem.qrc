@@ -18,12 +18,6 @@
         <file>deletereport4.png</file>
         <file>refresh_24.png</file>
         <file>vsplitter.png</file>
-        <file>black.qss</file>
-        <file>coffee.qss</file>
-        <file>default.qss</file>
-        <file>pagefold.qss</file>
-        <file>new1.qss</file>
-        <file>openlisem.qss</file>
         <file>fontbigger.png</file>
         <file>fontselect.png</file>
         <file>fontsmaller.png</file>
@@ -36,5 +30,51 @@
         <file>chart-line-stacked-icon.png</file>
         <file>map3.png</file>
         <file>map4.png</file>
+        <file>2X/aguila2d2X.png</file>
+        <file>2X/bullet2X.png</file>
+        <file>2X/chart-line-stacked-icon2X.png</file>
+        <file>2X/deletereport42X.png</file>
+        <file>2X/diropen2X.png</file>
+        <file>2X/fileopen2X.png</file>
+        <file>2X/filesave2X.png</file>
+        <file>2X/filesaveas2X.png</file>
+        <file>2X/fontbigger2X.png</file>
+        <file>2X/fontselect2X.png</file>
+        <file>2X/fontsmaller2X.png</file>
+        <file>2X/help12X.png</file>
+        <file>2X/hsplitter2X.png</file>
+        <file>2X/Info2X.png</file>
+        <file>2X/information_42X.png</file>
+        <file>2X/map2X.png</file>
+        <file>2X/map32X.png</file>
+        <file>2X/map42X.png</file>
+        <file>2X/Mscreenshots2X.png</file>
+        <file>2X/ofilesave2X.png</file>
+        <file>2X/ofilesaveas2X.png</file>
+        <file>2X/ofolderopen2X.png</file>
+        <file>2X/ofolderopen12X.png</file>
+        <file>2X/onewfile2X.png</file>
+        <file>2X/openLisem2X.png</file>
+        <file>2X/openLisem252X.png</file>
+        <file>2X/pause22X.png</file>
+        <file>2X/refresh_242X.png</file>
+        <file>2X/screenshots2X.png</file>
+        <file>2X/start12X.png</file>
+        <file>2X/stop12X.png</file>
+        <file>2X/stop1202X.png</file>
+        <file>2X/stop1242X.png</file>
+        <file>2X/timeplot2X.png</file>
+        <file>2X/Undo-icon2X.png</file>
+        <file>2X/vsplitter2X.png</file>
+        <file>2X/workdir2X.png</file>
+        <file>question-mark-button.png</file>
+        <file>2X/question-mark-button2x.png</file>
+        <file>help4.html</file>
+        <file>help1.html</file>
+        <file>help3.html</file>
+        <file>help2.html</file>
+        <file>help5.html</file>
+        <file>help6.html</file>
+        <file>help7.html</file>
     </qresource>
 </RCC>

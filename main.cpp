@@ -42,19 +42,28 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
-    Fixture fixture;
+    Fixture fixture; // <= necessary for GDAL
+  // qputenv("QT_DEVICE_PIXEL_RATIO",QByteArray("2"));
+ //   QApplication::setAttribute(Qt::AA_Use96Dpi);
+ //   QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/openlisem.ico"));
+//QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QLocale loc = QLocale::system(); // current locale
+    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(loc);
+    qDebug() << loc;
 
-    QFile file(":/openlisem.qss");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-    file.close();
-
-    qApp->setStyleSheet(styleSheet);
-    QFont f("MS Shell Dlg 2", 8);
-    qApp->setFont( f);
+//    QFile file(":/openlisem.qss");
+//    file.open(QFile::ReadOnly);
+//    QString styleSheet = QLatin1String(file.readAll());
+//    file.close();
+//    qApp->setStyleSheet(styleSheet);
+//    QFont f("MS Shell Dlg 2", 8);
+ //   qApp->setFont( f);
+//app.setStyle(QString("cleanlooks"));
+app.setStyle(QStyleFactory::create("Fusion"));
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file

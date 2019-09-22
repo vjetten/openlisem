@@ -42,5 +42,5 @@ double HcoNode(
 
 double DmcNode(
 		double head,
-		const  HORIZON *hor);
+        const  HORIZON *hor);
 

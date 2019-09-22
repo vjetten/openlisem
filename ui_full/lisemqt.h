@@ -32,6 +32,8 @@
 
 #include <QtGui>
 #include <QApplication>
+#include <QtWidgets>
+#include <QSystemTrayIcon>
 
 //QWT library files
 #include <qwt_plot.h>
@@ -71,12 +73,11 @@
 #define EROSIONMAPS 4
 #define INFILTRATIONMAPS 5
 #define CHANNELMAPS 6
-#define CHANNELFLOODMAPS 7
-#define BUFFERSMAPS 8
-#define TILEDRAINMAPS 10   //VJ 110111
-#define HOUSESMAPS 11  //VJ 120314
-#define NUTRIENTSMAPS 13
-#define BARRIERMAPS 12
+#define CONSERVATIONMAPS 7
+#define TILEDRAINMAPS 8
+#define HOUSESMAPS 9
+//#define NUTRIENTSMAPS 13
+#define BARRIERMAPS 10
 
 
 //---------------------------------------------------------------------------
@@ -100,12 +101,19 @@ public:
     ~lisemqt();
 
     int genfontsize;
+    double dpiscale;
+
+     QDialog *helpbox;
+     QTextEdit *helptxt;
+     QHBoxLayout *helpLayout;
 
     QProgressBar *pb;
     void resizeEvent(QResizeEvent* event);
 
     bool doBatchmode;
     QString batchRunname;
+
+    bool WhasStopped;
 
     void initMapTree();
     void DefaultMapnames();
@@ -154,11 +162,13 @@ public:
     void showHouseMap();
     void showFlowBarriersMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD);//, double type);
+    double fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD);//, double type);
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
+    QwtPlotSpectrogram *baseMapImage;  // raster map drawing
     QwtPlotSpectrogram *contourDEM;  // raster map drawing
     QwtPlotSpectrogram *channelMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
@@ -172,7 +182,9 @@ public:
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
     QwtMatrixRasterData *RDf;
+    QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
+
     double contourmin, contourmax;
     //   double drawNrCols;
     //   double drawNrRows;
@@ -212,6 +224,7 @@ public:
     double timestep;
 
     int outletpoint = 1;
+    int cpucores = 0;
 
     QList<double> qmax;
     QList<double> qsmax;
@@ -261,9 +274,12 @@ public:
     QString SwatreTableDir;
     QStringList DEFmaps;
     QStringList RunFileNames;
+    QString satImageFileDir;
+    QString satImageFileName;
     int CurrentRunFile;
     int uiInfilMethod;
     double swatreDT;
+    QString screenShotDir;
 
     QList<cTMap *> ComboMapsSafe;
 
@@ -274,7 +290,7 @@ public:
     QStringList outputcheck; /// list of '0' and '1' to see which output mapseries are checled by the nuser
     int InterceptionEqNr;
     int mapstartnr;
-    bool doShootScreens;
+    bool doShootScreens, startShootScreens;
     QString mapFormat;
 
     // buttongroups to make checkboxes mutually exclusive
@@ -284,6 +300,11 @@ public:
     QButtonGroup GroupRunoff;
 
     void setDisplayComboBoxes();
+    void on_toolButton_help(int page);
+    void resetTabErosion();
+    void resetTabFlow();
+    void resetTabCalibration();
+    void resetTabSediment();
 
 public slots:
     // functions linked to actions
@@ -300,6 +321,7 @@ public slots:
     void aboutInfo();
     void resetAll();
 
+
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
     void openMapname(QModelIndex topLeft);
@@ -310,16 +332,31 @@ public slots:
     void setWorkDir();
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
+
+    void on_toolButton_resetErosion_clicked();
+    void on_toolButton_resetFlow_clicked();
+    void on_toolButton_resetCalibration_clicked();
+    void on_toolButton_resetSediment_clicked();
+
+    void on_toolButton_help1_clicked();
+    void on_toolButton_help2_clicked();
+    void on_toolButton_help3_clicked();
+    void on_toolButton_help4_clicked();
+    void on_toolButton_help5_clicked();
+    void on_toolButton_help6_clicked();
+    void on_toolButton_help7_clicked();
+
     void on_toolButton_RainfallName_clicked();
     void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
     void on_toolButton_SnowmeltShow_clicked();
     void on_toolButton_ShowRunfile_clicked();
+    void on_toolButton_satImageName_clicked();
     //void on_toolButton_fileOpen_clicked();
     void on_toolButton_SwatreTableDir_clicked();
     void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
-    void on_E_floodSolution_valueChanged(int nr);
+    void on_E_floodMinHeight_valueChanged(double);
 
     void on_checkBox_SedSingleSingle_toggled(bool v);
     void on_checkBox_SedMultiSingle_toggled(bool v);
@@ -338,21 +375,20 @@ public slots:
     void on_checkFlowBarriers_clicked();
     void on_checkChannelInfil_clicked();
     void on_checkChannelBaseflow_clicked();
-    void on_checkChannelFlood_clicked();
     void on_checkDoErosion_clicked();
     void on_checkOverlandFlow1D_clicked();
     void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
-//    void on_checkImpermeable_stateChanged(int);
-//    void on_checkPercolation_stateChanged(int);
     void on_checkBoxComboMaps_stateChanged(int);
     void on_checkBoxComboMaps2_stateChanged(int);
+    void on_nrUserCores_valueChanged(int d);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
     void on_ComboMaxSpinBox2_valueChanged(double);
-    void on_multiplierRain_valueChanged(void);
+    void on_multiplierRain_valueChanged(double);
+    void onImageToggled(bool b);
 
     void setErosionMapOutput(bool doit);
     //void on_spinBoxPointtoShow_valueChanged(int);
@@ -364,7 +400,6 @@ public slots:
     void on_checkInfilCrust_clicked();
     void on_checkInfilGrass_clicked();
     void on_checkInfil2layer_clicked();
-    void on_checkBuffers_clicked();
     void on_checkSedtrap_clicked();
     void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
@@ -379,6 +414,7 @@ public slots:
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
     void ssetAlphaBarrier(int v);
+    void ssetAlphaMap(int v);
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);
@@ -392,10 +428,9 @@ public slots:
     void fontSelect();
     void fontDecrease();
     void fontIncrease();
+    void setfontSize();
 
-    void setFloodOP(bool);
-    //  void on_checkBoxOverlay_stateChanged(int yes);
-
+    void setFloodOP();
     void setFormatMaps(bool);
 
 private slots:

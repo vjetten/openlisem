@@ -38,65 +38,56 @@ functions: \n
 
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing from the surface to the tiledrain system
-void TWorld::ToTiledrain(void)
+void TWorld::ToTiledrain()//int thread)
 {
-   if (SwitchIncludeTile)
-   {
-      FOR_ROW_COL_MV_TILE
-      {
-         if(TileSinkhole->Drc > 0)
-         {
-            double fractiontotile = _dt*V->Drc/(0.5*sqrt(_dx*DX->Drc-TileSinkhole->Drc));
-            // fraction based on velocity
-            fractiontotile = std::max(TileSinkhole->Drc/(_dx*DX->Drc),fractiontotile);
-            // fraction based on surface, take the largest
-            fractiontotile = std::min(1.0, fractiontotile);
-            // not more than 1.0
 
-            double Volume = WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+    if (SwitchIncludeTile || SwitchIncludeStormDrains)
+    {
+        fill(*RunoffVolinToTile,0);
+        FOR_ROW_COL_MV_TILE {
+            if(TileSinkhole->Drc > 0)
+            {
+                double fractiontotile = std::max(1.0, std::min(0.0,TileSinkhole->Drc/(_dx*DX->Drc)));
+                // fraction based on surface, simpel! Street inlet is assumed to be a hole in the street
 
-            RunoffVolinToTile->Drc = fractiontotile*Volume;
+                double MaxVol = DX->Drc * PI*TileDiameter->Drc*TileDiameter->Drc*0.25;
+                if (TileWaterVol->Drc > MaxVol*0.99)
+                    fractiontotile = 0;
 
-            // water diverted to the channel
-            WHrunoff->Drc *= (1-fractiontotile);
-            // adjust water height
-         }
-         else
-            RunoffVolinToTile->Drc = 0;
-      }
+                RunoffVolinToTile->Drc = fractiontotile*WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
+                // water diverted to the channel
+                WHrunoff->Drc *= (1-fractiontotile);
+                // adjust water height
 
- //     CalcVelDisch();
-      // recalc velocity and discharge
-   }
+                WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            }
+        }
+    }
 }
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischTile()
 {
+    double Perim, Area;
+    const double beta = 0.6;
+    const double _23 = 2.0/3.0;
+    double beta1 = 1/beta;
+
    FOR_ROW_COL_MV_TILE
    {
-      double Perim, /* Radius, */ Area;
-      const double beta = 0.6;
-      const double _23 = 2.0/3.0;
-      double beta1 = 1/beta;
       double wh = TileWH->Drc;
-      double FW = TileWidth->Drc;
+      Perim = TileWidth->Drc + 2*wh;
+      Area = TileWidth->Drc*wh;
       double grad = sqrt(TileGrad->Drc);
 
-      Perim = FW + 2*wh;
-      Area = FW*wh;
-
-      // if (Perim > 0)
-      //    Radius = Area/Perim;
-      // else
-      //    Radius = 0;
-
       TileAlpha->Drc = qPow(TileN->Drc/grad * powl(Perim, _23),beta);
+      TileV->Drc = powl(Area/Perim,_23) * grad/TileN->Drc;
+      TileQ->Drc = Area*TileV->Drc;
 
-      if (TileAlpha->Drc > 0)
-         TileQ->Drc = qPow(Area/TileAlpha->Drc, beta1);
-      else
-         TileQ->Drc = 0;
+//      if (TileAlpha->Drc > 0)
+//         TileQ->Drc = qPow(Area/TileAlpha->Drc, beta1);
+//      else
+//         TileQ->Drc = 0;
 
    }
    else
@@ -112,10 +103,14 @@ void TWorld::TileFlow(void)
    if (!SwitchIncludeTile)
       return;
 
-   fill(*tm, 0.0);
-   fill(*tma, 0.0);
-   fill(*tmb, 0.0);
-   // calculate new Tile WH , WidthUp and Volume
+   double sum = 0;
+//   FOR_ROW_COL_MV_TILE {
+//    sum = sum + TileWaterVol->Drc;
+//   }
+//   if (sum < 0.001)
+//       return;
+
+
    FOR_ROW_COL_MV_TILE
    {
       /*---- Water ----*/
@@ -143,29 +138,126 @@ void TWorld::TileFlow(void)
    CalcVelDischTile();
 
    TileQn->setAllMV();
-   fill(*TileQsn, 0.0);
+
    fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
-      {
-         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX,
-                   TileWaterVol, tma);
-      }
+         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX, TileMaxQ);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
-   cover(*TileQs, *LDD, 0);
 
    FOR_ROW_COL_MV_TILE
    {
-      double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
-      InfilVolKinWave->Drc += QinKW->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
+       TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
+       TileWaterVol->Drc =  TileWaterVol->Drc < 0 ? 0 : TileWaterVol->Drc;
+
+//      double TileArea = TileAlpha->Drc*pow(TileQn->Drc, 0.6);
+//      InfilVolKinWave->Drc += QinKW->Drc*_dt + TileWaterVol->Drc - (TileArea * TileDX->Drc) - TileQn->Drc*_dt;
       // diff is a small error in this case added to kin wave infil!
 
-      TileWaterVol->Drc = TileArea * TileDX->Drc;
+//      TileWaterVol->Drc = TileArea * TileDX->Drc;
       // total water vol after kin wave in m3, going to the next timestep
    }
+
 }
 //---------------------------------------------------------------------------
+// V, alpha and Q in the Tile
+//https://www.engineersedge.com/fluid_flow/partially_full_pipe_flow_calculation/partiallyfullpipeflow_calculation.htm
+//https://www.ajdesigner.com/phphydraulicradius/hydraulic_radius_equation_pipe.php
+// Neweton iteration to derive drain water height
+void TWorld::CalcVelDischDrain()
+{
+
+    FOR_ROW_COL_MV_TILE
+    {
+
+        double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
+        double rr = TileDiameter->Drc/2;
+        double  Perim, K, theta;
+
+        double Area = TileWaterVol->Drc / TileDX->Drc;
+
+        theta = PI;
+        double fx, Fx;
+        double Ar = 2*Area/(rr*rr);
+        bool stop = false;
+        for (int k = 0 ; k< 20; k++) {
+            fx = 1-cos(theta);
+            Fx = -sin(theta) + theta - Ar;
+            theta = fx > 0 ? theta - Fx/fx : 0.0;
+            if( Fx < 1e-6)
+                break;
+        }
+
+        K = rr*rr*(theta-sin(theta))*0.5;
+        TileWH->Drc = rr - cos(theta/2.0)*rr;
+
+        Perim = Area < 0.5*rr*rr*PI ? rr*theta : PI*TileDiameter->Drc-rr*theta;
+
+        double minV = std::pow(TileWH->Drc,2.0/3.0) * gradN;
+        TileV->Drc = Perim > 1e-10 ? std::min(minV, std::pow(Area/Perim,2.0/3.0) * gradN) : 0.0;
+
+        TileQ->Drc = Area*TileV->Drc;
+        TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
+
+//qDebug() << halffull << hoi << theta <<  Perim << Area << TileWH->Drc << TileV->Drc << TileQ->Drc   ;
+    }
+}
+//---------------------------------------------------------------------------
+//- calc Tileflow, Tileheight, kin wave
+void TWorld::StormDrainFlow(void)
+{
+   if (!SwitchIncludeStormDrains)
+      return;
+   FOR_ROW_COL_MV_TILE
+   {
+      TileWaterVol->Drc += RunoffVolinToTile->Drc;
+      // add from the surface
+   }
+
+   CalcVelDischDrain();
+   // calc Q, V Aplha for circular drain
+
+   TileQn->setAllMV();
+   fill(*QinKW, 0.0);
+   // flag all new flux as missing value, needed in kin wave and replaced by new flux
+   FOR_ROW_COL_MV_TILE
+   {
+      if (LDDTile->Drc == 5)
+         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX, TileMaxQ);
+   }
+
+   cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
+
+   FOR_ROW_COL_MV_TILE
+   {
+      TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
+      TileWaterVol->Drc =  std::max(0.0, TileWaterVol->Drc);
+      TileQ->Drc = TileQn->Drc;
+
+      // total water vol after kin wave in m3, going to the next timestep
+      double Area = TileWaterVol->Drc/TileDX->Drc;
+
+      double rr = TileDiameter->Drc/2.0;
+      double theta = PI;
+      double fx, Fx;
+      double Ar = 2*Area/(rr*rr);
+
+      for (int k = 0 ; k< 20; k++) {
+          fx = 1-cos(theta);
+          Fx = -sin(theta) + theta - Ar;
+          theta = fx > 0 ? theta - Fx/fx : 0.0;
+          if( Fx < 1e-6)
+              break;
+      }
+
+      TileWH->Drc = rr - cos(theta/2.0)*rr;
+      double minV = std::pow(TileWH->Drc, 2.0/3.0)*sqrt(TileGrad->Drc)/TileN->Drc;
+      TileV->Drc = Area < 1E-10 ?  minV : TileQn->Drc/Area;
+
+   }
+}
+
