@@ -1216,60 +1216,76 @@ void TWorld::setColor(int i)
     if (i == 1){  //blue red
         Colormap.clear();
         Colormap.append(0.0);
-        Colormap.append(0.0005);
         Colormap.append(0.01);
-        Colormap.append(0.05);
         Colormap.append(0.1);
-        Colormap.append(0.9);
+        Colormap.append(0.3);
         Colormap.append(1.0);
 
         Colors.clear();
-        Colors.append("#8C8CFF");
-        Colors.append("#8080FF");
-        Colors.append("#4040ff");
-        Colors.append("#0000FF");
-        Colors.append("#00006F");
-        Colors.append("#FF0000");
-        Colors.append("#FF3300");
+        Colors.append("#dae3ff");
+        Colors.append("#6daaff");
+        Colors.append("#4c76e8");
+        Colors.append("#4c57c3");
+        Colors.append("#df2a36");
     }
     if (i == 2){ // yellow red
+//        Colormap.clear();
+//        Colormap.append(0.0);
+//        Colormap.append(0.25);
+//        Colormap.append(0.75);
+//        Colormap.append(1.0);
+//        Colors.clear();
+//        Colors.append("#00FF00");
+//        Colors.append("#FFFF00");
+//        Colors.append("#FF0000");
+//        Colors.append("#A60000");
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
+        Colormap.append(0.5);
         Colormap.append(0.75);
         Colormap.append(1.0);
+
         Colors.clear();
-        Colors.append("#00FF00");
-        Colors.append("#FFFF00");
-        Colors.append("#FF0000");
-        Colors.append("#A60000");
+        Colors.append("#ffffb2");
+        Colors.append("#fecc5c");
+        Colors.append("#fd8d3c");
+        Colors.append("#f03b20");
+        Colors.append("#bd0026");
+
+
     }
     if (i == 3){ //blue
         Colormap.clear();
         Colormap.append(0.0);
-        Colormap.append(0.6);
+        Colormap.append(0.25);
+        Colormap.append(0.5);
+        Colormap.append(0.75);
         Colormap.append(1.0);
-        Colors.clear();
-        //    Colors.append("#9fb2fc");
-        //    Colors.append("#0023b1");
-        //    Colors.append("#082aaf");
 
-        Colors.append("#7692FF");
-        Colors.append("#0023b1");
-        Colors.append("#001462");
+        Colors.clear();
+        Colors.append("#bfdcf9");
+        Colors.append("#b1c0e9");
+        Colors.append("#7b94e7");
+        Colors.append("#2037b5");
+        Colors.append("#183280");
+
+
     }
     if (i == 4) { // yellow blue
         Colormap.clear();
         Colormap.append(0.0);
-        Colormap.append(0.1);
-        Colormap.append(0.4);
+        Colormap.append(0.25);
+        Colormap.append(0.5);
+        Colormap.append(0.75);
         Colormap.append(1.0);
 
         Colors.clear();
-        Colors.append("#f6f666");
-        Colors.append("#FFFF55");
-        Colors.append("#8080FF");
-        Colors.append("#0000AA");
+        Colors.append("#ffff61");
+        Colors.append("#c7e55a");
+        Colors.append("#32b1df");
+        Colors.append("#3271ca");
+        Colors.append("#2c3898");
     }
     if (i == 5) { // blue green
 
@@ -1283,32 +1299,66 @@ void TWorld::setColor(int i)
         Colors.append("#008800");
     }
     if (i == 6) { // red yellow green
+//        Colormap.clear();
+//        Colormap.append(0.0);
+//        Colormap.append(0.25);
+//        Colormap.append(0.5);
+//        Colormap.append(0.75);
+//        Colormap.append(1.0);
+//        Colors.clear();
+//        Colors.append("#A60000");
+//        Colors.append("#FF0000");
+//        Colors.append("#FFFF00");
+//        Colors.append("#00FF00");
+//        Colors.append("#007300");
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
         Colormap.append(0.5);
         Colormap.append(0.75);
         Colormap.append(1.0);
+
         Colors.clear();
-        Colors.append("#A60000");
-        Colors.append("#FF0000");
-        Colors.append("#FFFF00");
-        Colors.append("#00FF00");
-        Colors.append("#007300");
+//        Colors.append("#1a9641");
+//        Colors.append("#a6d96a");
+//        Colors.append("#ffffa0");
+//        Colors.append("#fdae61");
+//        Colors.append("#e0181c");
+Colors.append("#d7191c");
+Colors.append("#fdae61");
+Colors.append("#fdfd7e");
+Colors.append("#abdda4");
+Colors.append("#2b83ba");
+
+
     }
-    if (i == 7) { //green yellow red
+
+    if (i == 7) { //blue green yellow red
+
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
         Colormap.append(0.5);
         Colormap.append(0.75);
         Colormap.append(1.0);
+//        Colors.clear();
+//        Colors.append("#007300");
+//        Colors.append("#00FF00");
+//        Colors.append("#FFFF00");
+//        Colors.append("#FF0000");
+//        Colors.append("#A60000");
+
         Colors.clear();
-        Colors.append("#007300");
-        Colors.append("#00FF00");
-        Colors.append("#FFFF00");
-        Colors.append("#FF0000");
-        Colors.append("#A60000");
+//        Colors.append("#e0181c");
+//        Colors.append("#fdae61");
+//        Colors.append("#ffffa0");
+//        Colors.append("#a6d96a");
+//        Colors.append("#1a9641");
+        Colors.append("#2b83ba");
+        Colors.append("#abdda4");
+        Colors.append("#ffffdf");
+        Colors.append("#fdae61");
+        Colors.append("#d7191c");
     }
     if (i == 8) {  // green white yellow red
         Colormap.clear();
@@ -1324,27 +1374,35 @@ void TWorld::setColor(int i)
         Colors.append("#FFFF00");
         Colors.append("#FF0000");
     }
-    if (i == 9) {  // brown colors
+    if (i == 9) {  //YELLOW ORGANDE BROWN/RED
+
         Colormap.clear();
         Colormap.append(0.0);
+        Colormap.append(0.25);
         Colormap.append(0.5);
-        Colormap.append(0.9);
+        Colormap.append(0.75);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#FAFAD2");
-        Colors.append("#FFFF66");
-        Colors.append("#d47e17");//808000
-        Colors.append("#804000");
+        Colors.append("#ffffd4");
+        Colors.append("#fed98e");
+        Colors.append("#fe9929");
+        Colors.append("#d95f0e");
+        Colors.append("#a94400");
+
     }
     if (i == 10) {  // greenish colors
         Colormap.clear();
         Colormap.append(0.0);
+        Colormap.append(0.25);
         Colormap.append(0.5);
+        Colormap.append(0.75);
         Colormap.append(1.0);
         Colors.clear();
-        Colors.append("#EEEfcd");
-        Colors.append("#50B547");//#96B547");
-        Colors.append("#616ca2");//#457A60");
+        Colors.append("#f0f9e8");
+        Colors.append("#bae4bc");
+        Colors.append("#7bccc4");
+        Colors.append("#43a2ca");
+        Colors.append("#0868ac");
     }
 }
 

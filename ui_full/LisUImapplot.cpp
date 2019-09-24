@@ -478,7 +478,7 @@ void lisemqt::showComboMap(int i)
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 
-        mi = -ma;
+   //     mi = -ma;
     }
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
