@@ -251,8 +251,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
 
 
-        if (p1.compare("Include Rainfall")==0)               dummyrain = check;
-        if (p1.compare("Include Snowmelt")==0)               dummysnow = check;
+     //   if (p1.compare("Include Rainfall")==0)               dummyrain = check;
+        if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
 
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
@@ -451,11 +451,11 @@ void lisemqt::ParseInputData()
     checkDoErosion->setChecked(dummyErosion);
     setErosionTab(dummyErosion);
 
-    if (!dummyrain && !dummysnow)
-        QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
+ //   if (!dummyrain && !dummysnow)
+  //      QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
 
-    checkRainfall->setChecked(dummyrain);
-    checkSnowmelt->setChecked(dummysnow);
+  //  checkRainfall->setChecked(dummyrain);
+ //   checkSnowmelt->setChecked(dummysnow);
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     checkOverlandFlow2D->setChecked(dummykinwave == 2);
@@ -591,12 +591,12 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Storm Drain map")==0) E_stormDrainMap->setText(p);
 
-        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-        if (p1.compare("Snowmelt file")==0)
-        {
-            E_SnowmeltName->setText(SnowmeltFileDir + p);
-            SnowmeltFileName = p;// /*SnowmeltFileDir + */E_SnowmeltName->text();
-        }
+//        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+//        if (p1.compare("Snowmelt file")==0)
+//        {
+//            E_SnowmeltName->setText(SnowmeltFileDir + p);
+//            SnowmeltFileName = p;// /*SnowmeltFileDir + */E_SnowmeltName->text();
+//        }
 
         if (uiInfilMethod == 1 && p1.compare("Table Directory")==0)
         {
@@ -705,8 +705,8 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 //! It is ALSO called just before the model is run to create a tmp runfile for the model to read
 void lisemqt::updateModelData()
 {
-    if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
-        QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
+//    if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
+//        QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
 
 
     for (int j = 0; j < nrnamelist; j++)
@@ -825,7 +825,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Include storm drains")==0)           namelist[j].value.setNum((int)checkStormDrains->isChecked());
 
-        if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
+     //   if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
         if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 

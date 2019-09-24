@@ -114,6 +114,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     doBatchmode = doBatch;
     batchRunname = runname;
+    doCheckRainfall(true);
 
     if(doBatchmode)
     {
@@ -153,8 +154,8 @@ lisemqt::~lisemqt()
 // works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
-    connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
-    connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
+   // connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
+   // connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
@@ -1126,23 +1127,23 @@ void lisemqt::on_toolButton_satImageName_clicked()
     }
 }
 //--------------------------------------------------------------------
-void lisemqt::on_toolButton_SnowmeltName_clicked()
-{
-    QString path;
+//void lisemqt::on_toolButton_SnowmeltName_clicked()
+//{
+//    QString path;
 
-    SnowmeltFileDir = findValidDir(SnowmeltFileDir, false);
+//    SnowmeltFileDir = findValidDir(SnowmeltFileDir, false);
 
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select snow melt file"),
-                                        SnowmeltFileDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        SnowmeltFileName = fi.fileName();
-        SnowmeltFileDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_SnowmeltName->setText( SnowmeltFileDir + SnowmeltFileName );
-    }
-}
+//    path = QFileDialog::getOpenFileName(this,
+//                                        QString("Select snow melt file"),
+//                                        SnowmeltFileDir);
+//    if(!path.isEmpty())
+//    {
+//        QFileInfo fi(path);
+//        SnowmeltFileName = fi.fileName();
+//        SnowmeltFileDir = CheckDir(fi.absolutePath());//Dir().path());
+//        E_SnowmeltName->setText( SnowmeltFileDir + SnowmeltFileName );
+//    }
+//}
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SnowmeltShow_clicked()
 {
@@ -1662,7 +1663,7 @@ void lisemqt::resetAll()
 
     E_MapDir->setText("");
     E_RainfallName->setText("");
-    E_SnowmeltName->setText("");
+    //E_SnowmeltName->setText("");
     E_ResultDir->setText("");
     E_satImageName->setText("");
     checksatImage->setChecked(false);
@@ -1729,7 +1730,7 @@ void lisemqt::resetAll()
     progressBar->setValue(0);
 
     checkSnowmelt->setChecked(false);
-    checkRainfall->setChecked(true);
+    //checkRainfall->setChecked(true);
 
     //main
     checkOverlandFlow1D->setChecked(false);

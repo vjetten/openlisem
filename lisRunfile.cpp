@@ -163,6 +163,7 @@ void TWorld::ParseRunfileData(void)
 {
     int j=0;
     int dummyAdvancedSed= 0;
+    SwitchRainfall = true;
 
     // do all switches (checkbox options) first
     for (j = 0; j < nrrunnamelist; j++)
@@ -178,7 +179,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
       //  if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
-        if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
+      //  if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
 
         if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use Heun")==0) SwitchHeun = iii == 1;
@@ -217,7 +218,7 @@ void TWorld::ParseRunfileData(void)
 //        SwitchAllinChannel = true;
         //VJ 100526 always true in old LISEM
 
-        if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
+     //   if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
         if (p1.compare("Include Satellite Image")==0)        SwitchImage =            iii == 1;
      //   if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
@@ -381,11 +382,11 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
             if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + "/" + p;
         }
-        if (SwitchSnowmelt)
-        {
-            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
-            if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir + p;
-        }
+//        if (SwitchSnowmelt)
+//        {
+//            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
+//            if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir+ "/" + p;
+//        }
         if (SwitchImage)
         {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
@@ -476,6 +477,12 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);               
         */
     }
+
+    if(SwitchSnowmelt) {
+        SwitchRainfall = false;
+        snowmeltFileName = rainFileName;
+    }
+
     Outrunoff = "ro";
     Outconc   = "conc";
     Outwh     = "wh";

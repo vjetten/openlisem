@@ -305,6 +305,7 @@ public:
     void resetTabFlow();
     void resetTabCalibration();
     void resetTabSediment();
+    void doCheckRainfall(bool);
 
 public slots:
     // functions linked to actions
@@ -347,7 +348,7 @@ public slots:
     void on_toolButton_help7_clicked();
 
     void on_toolButton_RainfallName_clicked();
-    void on_toolButton_SnowmeltName_clicked();
+//   void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
     void on_toolButton_SnowmeltShow_clicked();
     void on_toolButton_ShowRunfile_clicked();
@@ -365,8 +366,8 @@ public slots:
     void on_DisplayComboBox_currentIndexChanged(int);
     void on_DisplayComboBox2_currentIndexChanged(int);
 
-    void doCheckSnowmelt(bool);
-    void doCheckRainfall(bool);
+   // void doCheckSnowmelt(bool);
+
     void doCheckPesticides(bool check);
 
     void on_E_InfiltrationMethod_currentIndexChanged(int inr);
@@ -401,7 +402,7 @@ public slots:
     void on_checkInfilGrass_clicked();
     void on_checkInfil2layer_clicked();
     void on_checkSedtrap_clicked();
-    void on_checkSnowmelt_clicked();
+  //  void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();

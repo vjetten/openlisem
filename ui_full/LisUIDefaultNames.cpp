@@ -187,12 +187,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
-    namelist[i++].name = QString("Include Rainfall");
+  //  namelist[i++].name = QString("Include Rainfall");
     namelist[i++].name = QString("Rainfall Directory");
     namelist[i++].name = QString("Rainfall file");
     namelist[i++].name = QString("Include Snowmelt");
-    namelist[i++].name = QString("Snowmelt Directory");
-    namelist[i++].name = QString("Snowmelt file");
+ //   namelist[i++].name = QString("Snowmelt Directory");
+ //   namelist[i++].name = QString("Snowmelt file");
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Satellite Image");

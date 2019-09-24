@@ -193,25 +193,25 @@ void lisemqt::on_checkSedtrap_clicked()
    // groupBoxConservation->setEnabled(checkSedtrap->isChecked()||checkInfilGrass->isChecked());
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkSnowmelt_clicked()
-{
-    checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
+//void lisemqt::on_checkSnowmelt_clicked()
+//{
+//    checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
 
-    E_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
-    label_5->setEnabled(checkSnowmelt->isChecked());
-    toolButton_SnowmeltShow->setEnabled(checkSnowmelt->isChecked());
-    toolButton_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
-}
-//--------------------------------------------------------------------
-void lisemqt::doCheckSnowmelt(bool check)
-{
-    checkMapNameModel(RAINFALLMAPS, 0, check);
+//    E_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
+//    label_5->setEnabled(checkSnowmelt->isChecked());
+//    toolButton_SnowmeltShow->setEnabled(checkSnowmelt->isChecked());
+//    toolButton_SnowmeltName->setEnabled(checkSnowmelt->isChecked());
+//}
+////--------------------------------------------------------------------
+//void lisemqt::doCheckSnowmelt(bool check)
+//{
+//    checkMapNameModel(RAINFALLMAPS, 0, check);
 
-    E_SnowmeltName->setEnabled(check);
-    label_5->setEnabled(check);
-    toolButton_SnowmeltShow->setEnabled(check);
-    toolButton_SnowmeltName->setEnabled(check);
-}
+//    E_SnowmeltName->setEnabled(check);
+//    label_5->setEnabled(check);
+//    toolButton_SnowmeltShow->setEnabled(check);
+//    toolButton_SnowmeltName->setEnabled(check);
+//}
 //--------------------------------------------------------------------
 void lisemqt::doCheckRainfall(bool check)
 {
@@ -283,7 +283,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(SURFACEMAPS, 0, true);
     checkMapNameModel(LANDUSEMAPS, 0, true);
     checkMapNameModel(CATCHMENTMAPS, 0, true);
-    checkMapNameModel(RAINFALLMAPS, 0, checkRainfall->isChecked());
+    checkMapNameModel(RAINFALLMAPS, 0, true);
 
     checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
     //houses
