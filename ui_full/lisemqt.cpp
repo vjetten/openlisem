@@ -109,6 +109,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
+//    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
+//    splitter->addWidget(tabWidget_out);
+//    splitter->addWidget(widgetMB);
+
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
 
