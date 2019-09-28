@@ -188,7 +188,7 @@ void TWorld::ChannelWaterHeight(int thread)
 
     FOR_ROW_COL_2DMT
     {
-        if(ChannelMaskExtended->data[r][c] == 1 && ChannelMaxQ->Drc == 0)
+        if(ChannelMaskExtended->data[r][c] == 1)// && ChannelMaxQ->Drc <= 0) // there is also a volume when chan max q
         {
             int rr = (int)ChannelSourceYExtended->Drc;
             int cr = (int)ChannelSourceXExtended->Drc;
@@ -240,7 +240,7 @@ void TWorld::ChannelWaterHeightNT(void)
     {
         for (int  c = 0; c < _nrCols; c++)
         {
-            if(ChannelMaskExtended->data[r][c] == 1 && ChannelMaxQ->Drc == 0)
+            if(ChannelMaskExtended->data[r][c] == 1)// && ChannelMaxQ->Drc <= 0)
             {
                 int rr = (int)ChannelSourceYExtended->Drc;
                 int cr = (int)ChannelSourceXExtended->Drc;
@@ -414,6 +414,7 @@ void TWorld::ChannelFlow(void)
 
     ChannelQn->setAllMV();
     fill(*QinKW, 0.0);
+    fill(*tm, 0);
     // flag all new flux as missing value, needed in kin wave and replaced by new flux
 
     //VJ calc concentrations and ingoing Qs

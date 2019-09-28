@@ -201,7 +201,7 @@ void TWorld::ToChannel()//int thread)
                     fractiontochannel = 0;
                 }
                 // no inflow when flooded
-                if (ChannelMaxQ->Drcr  > 0)
+                if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
                 {
                     fractiontochannel = 0;
                 }

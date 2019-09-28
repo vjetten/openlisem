@@ -10,7 +10,7 @@ ENDIF()
 # example linux
 IF(UNIX)
  SET(LISEM_QWT_ROOT "/usr/local/qwt-6.1.4")
- SET(PCRASTER_BUILD_DIR "/home/<user name>/pcraster-4.2.1")
+ SET(PCRASTER_BUILD_DIR "~/pcraster-4.2.1")
 ENDIF()
 
 INCLUDE(Lisem)

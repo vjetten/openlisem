@@ -144,7 +144,8 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double Qmax)
+double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
+                             double deltaT, double deltaX, double Qmax)
 {
     /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
@@ -175,12 +176,11 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, do
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
     {
-
-        ab_pQ = alpha*beta*pow((Qold+Qin)/2,beta-1);
+        ab_pQ = alpha*beta*pow(std::min((Qold+Qin)/2.0, Qmax),beta-1);
         // derivative of diagonal average (space-time), must be > 0 because of pow function
         Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
         // explicit first guess Qkx, VERY important
-        Qkx   = std::max(Qkx, 0.0);
+        Qkx = std::max(Qkx, 0.0); // deltaT * q can negative ?
         Qkx = std::min(Qkx, Qmax);
     }
     else
@@ -323,7 +323,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
 
             itercount = 0;
             double QMax = _Qmax->data[rowNr][colNr];
-            if (QMax <= 0) QMax = 1e15;
+            if (QMax <= 0)
+                QMax = 1e15;
             _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr], QMax );
             // Newton Rapson iteration for water of current cell
 

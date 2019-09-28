@@ -97,7 +97,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 int rr = (int)ChannelSourceYExtended->Drc;
                 int cr = (int)ChannelSourceXExtended->Drc;
 
-                if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr == 0)// && LDD->Drcr != 5)// && FloodZonePotential->Drc > 0)
+                if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr <= 0)// && LDD->Drcr != 5)// && FloodZonePotential->Drc > 0)
                 {
                     double chdepth = ChannelDepth->Drcr;
                    // double charea = ChannelWidth->Drcr*ChannelDX->Drcr;

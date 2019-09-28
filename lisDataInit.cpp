@@ -831,10 +831,10 @@ void TWorld::InitChannel(void)
             // store not used?
         }
 
-//        if (SwitchCulverts) {
-//            ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
-//            cover(*ChannelMaxQ, *LDD,0);
-//        } else
+        if (SwitchCulverts) {
+            ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
+            cover(*ChannelMaxQ, *LDD,0);
+        } else
             ChannelMaxQ = NewMap(0);
 
 
