@@ -39,7 +39,7 @@ functions: \n
 
 #include <algorithm>
 #include "lisemqt.h"
-#include "model.h"
+//#include "model.h"
 #include "operation.h"
 #include "global.h"
 

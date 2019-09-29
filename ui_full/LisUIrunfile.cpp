@@ -35,7 +35,7 @@
 
 #include <algorithm>
 #include "lisemqt.h"
-#include "model.h"
+//#include "model.h"
 #include "global.h"
 #include "option.h"
 

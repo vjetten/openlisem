@@ -44,7 +44,10 @@
 #include <algorithm>
 #include <qstring.h>
 #include "io.h"
-#include "model.h"
+#include "lisemqt.h"
+#include "global.h"
+
+//#include "model.h"
 #include "operation.h"
 #include "CsfRGBMap.h"
 
@@ -225,6 +228,8 @@ void TWorld::GetInputData(void)
 
     //## get flow barriers;
     InitFlowBarriers();
+
+    InitChanNetwork();
 
 }
 //---------------------------------------------------------------------------
@@ -2555,5 +2560,109 @@ void TWorld::InitShade(void)
     }
 
 }
+//---------------------------------------------------------------------------
+void TWorld::InitChanNetwork()
+{
+    if(!SwitchIncludeChannel)
+        return;
+
+
+    int branchnr = 0;
+
+    op.branches << 0;
+
+    op.ChanDataX.clear();
+    op.ChanDataY.clear();
+    op.Chanbranch.clear();
+
+    fill(*tma, 0); // flag if cell is done
+
+    for (int  rr = 0; rr < _nrRows; rr++)
+        for (int  cc = 0; cc < _nrCols; cc++)
+            if(!pcr::isMV(LDDChannel->data[rr][cc])) {
+                if(LDDChannel->data[rr][cc] == 5) {
+                    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+                    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
+                    LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
+                    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                    list->prev = nullptr;
+                    /// start gridcell: outflow point of area
+                    list->rowNr = rr;
+                    list->colNr = cc;
+                    int len = 0;
+
+                    while (list != nullptr)
+                    {
+                        int i = 0;
+                        bool  subCachDone = true;
+
+                        int rowNr = list->rowNr;
+                        int colNr = list->colNr;
+
+                        for (i=1; i<=9; i++)
+                        {
+                            int r, c;
+                            int ldd = 0;
+
+                            // this is the current cell
+                            if (i==5)
+                                continue;
+
+                            r = rowNr+dy[i];
+                            c = colNr+dx[i];
+
+                            if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                                ldd = (int) LDDChannel->Drc;
+                            else
+                                continue;
+
+                            // check if there are more cells upstream, if not subCatchDone remains true
+                            if (tma->Drc == 0 &&
+                                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                    INSIDE(r, c))
+                            {
+                                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                                temp->prev = list;
+                                list = temp;
+                                list->rowNr = r;
+                                list->colNr = c;
+                                subCachDone = false;
+                                len++;
+                            }
+                        }
+
+                        if (subCachDone)
+                        {
+                            int r = list->rowNr;
+                            int c = list->colNr;
+
+
+                            if (len != op.branches.at(op.branches.length() -1) ) {
+                                branchnr++;
+                                op.branches << len;
+                            }
+                            tma->Drc = branchnr; // flag done
+                            op.Chanbranch << branchnr;
+                            op.ChanDataX << c*_dx + 0.5*_dx;
+                            op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
+                   //         op.ChanDataY << (r)*_dx + 0.5*_dx;
+
+                            temp=list;
+                            list=list->prev;
+                            free(temp);
+                            // go to the previous cell in the list
+                         }/* eof subcatchment done */
+
+                    } /* eowhile list != nullptr */
+                }
+            }  //pit 5
+   // report(*tma, "node.map");
+   // qDebug() << op.Chanbranch.length() ;
+   // qDebug() << op.ChanDataX.length() ;
+}
+
 //---------------------------------------------------------------------------
 

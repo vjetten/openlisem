@@ -184,6 +184,7 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
+    QwtPlotCurve *river;
 
     double contourmin, contourmax;
     //   double drawNrCols;

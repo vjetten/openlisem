@@ -41,7 +41,7 @@ functions: \n
 #include <algorithm>
 #include "lisemqt.h"
 #include "global.h"
-#include "model.h"
+//#include "model.h"
 #include "operation.h"
 
 //NOTE fact and fpot have a unit of m (not m/s)

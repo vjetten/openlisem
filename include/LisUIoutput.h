@@ -56,6 +56,11 @@ struct output{
     QList<double> OutletQpeaktime;
     QList<double> OutletQtot;
     QList<double> OutletQstot;
+
+    QVector <double> ChanDataX;
+    QVector <double> ChanDataY;
+    QVector<int> Chanbranch;
+    QList <int> branches;
 //    int
 //    F_solution,
 //    F_scheme,

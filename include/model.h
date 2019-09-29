@@ -489,6 +489,7 @@ public:
     void IntializeOptions(void);  // set all options to false etc
     void InitStandardInput(void); //VJ 170211
     void InitFlood(void);
+    void InitChanNetwork();
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);

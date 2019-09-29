@@ -36,7 +36,7 @@
 
 #include <QtGui>
 #include "lisemqt.h"
-#include "model.h"
+//#include "model.h"
 #include "global.h"
 
 /*

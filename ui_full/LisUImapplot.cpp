@@ -166,6 +166,11 @@ void lisemqt::setupMapPlot()
     channelMap->attach( MPlot );
     // channel map
 
+    river = new QwtPlotCurve();
+    river->setPen(QColor("#000066"), 3, Qt::SolidLine );
+    river->attach( MPlot );
+    river->setAxes(MPlot->xBottom, MPlot->yLeft);
+
     contourDEM = new QwtPlotSpectrogram();
     contourDEM->setRenderThreadCount( 0 );
     contourDEM->attach( MPlot );
@@ -565,8 +570,49 @@ void lisemqt::showBaseMap()
 //---------------------------------------------------------------------------
 void lisemqt::showChannelMap()
 {
+    if (!checkIncludeChannel->isChecked())
+        return;
+    if(op.Chanbranch.length() == 0)
+        return;
+
     if (startplot)
     {
+        QList <QVector <double>> Xa;
+        QList <QVector <double>> Ya;
+        QVector <double> X;
+        QVector <double> Y;
+
+        int start = op.Chanbranch.at(0);
+
+        for(int i = 1; i <= op.Chanbranch.length(); i++) {
+            if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {
+                if (op.Chanbranch.at(i) == start) {
+                    X << op.ChanDataX.at(i);
+                    Y << op.ChanDataY.at(i);
+                } else {
+                    start = op.Chanbranch.at(i);
+                    Xa.push_back(X);
+                    Ya.push_back(Y);
+                    X.clear();
+                    Y.clear();
+                }
+                Xa.push_back(X);
+                Ya.push_back(Y);
+               // qDebug() << op.Chanbranch.at(i) << op.Chanbranch.at(i-1);
+            }
+        }
+
+        for (int i = 0; i < Xa.length(); i++) {
+
+            QwtPlotCurve *rivera = new QwtPlotCurve();
+            rivera->setPen(QColor("#000000"), 2, Qt::SolidLine );
+            rivera->attach( MPlot );
+            rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
+
+            rivera->setSamples(Xa.at(i),Ya.at(i));
+        }
+
+
         double res = fillDrawMapData(op.channelMap, RDc);//,0 );
         if (res ==-1e20)
             return;
