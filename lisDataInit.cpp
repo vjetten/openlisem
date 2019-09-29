@@ -2563,17 +2563,17 @@ void TWorld::InitShade(void)
 //---------------------------------------------------------------------------
 void TWorld::InitChanNetwork()
 {
-    if(!SwitchIncludeChannel)
-        return;
-
-
-    int branchnr = 0;
 
     op.branches << 0;
-
     op.ChanDataX.clear();
     op.ChanDataY.clear();
     op.Chanbranch.clear();
+
+    if(!SwitchIncludeChannel)
+        return;
+
+    int branchnr = 0;
+
 
     fill(*tma, 0); // flag if cell is done
 

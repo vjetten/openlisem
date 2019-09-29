@@ -105,6 +105,9 @@ void lisemqt::runmodel()
 
     showOutputData();
 
+   // MPlot->clear();
+   // MPlot->replot();
+
     //=======================================================================================//
 
     W = new TWorld();
@@ -382,6 +385,11 @@ struct output{
     op.houseMap = nullptr;
     op.flowbarriersMap = nullptr;
     op.Image = nullptr;
+
+    op.ChanDataX.clear();
+    op.ChanDataY.clear();
+    op.Chanbranch.clear();
+    op.branches.clear();
 
     op.runstep = 0;
     op.printstep = 0;

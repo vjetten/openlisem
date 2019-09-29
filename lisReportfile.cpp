@@ -305,7 +305,7 @@ void TWorld::OutputUI(void)
     copy(*op.baseMapDEM, *DEM);
 
     if (SwitchIncludeChannel)
-        copy(*op.channelMap, *ChannelMaskExtended);
+        copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
 
    // report(*ChannelWidthExtended, "cwe.map");
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel

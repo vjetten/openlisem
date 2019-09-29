@@ -28,6 +28,9 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
+#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+_dy[ldd]==rTo && cFrom+_dx[ldd]==cTo )
+
 //---------------------------------------------------------------------------
 QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):
     QwtLinearColorMap( format )
@@ -582,19 +585,40 @@ void lisemqt::showChannelMap()
         QVector <double> X;
         QVector <double> Y;
 
+
         int start = op.Chanbranch.at(0);
 
         for(int i = 1; i <= op.Chanbranch.length(); i++) {
             if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {
+
                 if (op.Chanbranch.at(i) == start) {
                     X << op.ChanDataX.at(i);
                     Y << op.ChanDataY.at(i);
                 } else {
                     start = op.Chanbranch.at(i);
+
+                    // find connecting cell
+                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                    int _dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+                    double dx = op.channelMap->cellSize();
+                    int nrRows = op.channelMap->nrRows();
+                    double xx = X.at(X.length()-1);
+                    double yy = Y.at(Y.length()-1);
+
+                    int c = int((xx-0.5*dx)/dx);
+                    int r = nrRows-1-int((yy-0.5*dx)/dx);//
+
+                    double ldd = op.channelMap->Drc;
+                      qDebug() << i<< dx << yy << xx << r << c << ldd;
+                    Y << yy + _dy[(int)ldd]*dx;
+                    X << xx + _dx[(int)ldd]*dx;
+                    //
+
                     Xa.push_back(X);
                     Ya.push_back(Y);
                     X.clear();
                     Y.clear();
+                    //break;
                 }
                 Xa.push_back(X);
                 Ya.push_back(Y);
@@ -612,22 +636,21 @@ void lisemqt::showChannelMap()
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
+//        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
+//        if (res ==-1e20)
+//            return;
+//        QwtLinearColorMapVJ *pala = new colorMapFlood();
+//        pala->thresholdLCM = 0.01;
 
-        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
-        if (res ==-1e20)
-            return;
-        QwtLinearColorMapVJ *pala = new colorMapFlood();
-        pala->thresholdLCM = 0.01;
-
-        channelMap->setColorMap(pala);
-        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
-        channelMap->setData(RDc);
+//        channelMap->setColorMap(pala);
+//        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
+//        channelMap->setData(RDc);
     }
 
-    if (checkMapChannels->isChecked())
-        channelMap->setAlpha(transparencyChannel->value());
-    else
-        channelMap->setAlpha(0);
+//    if (checkMapChannels->isChecked())
+//        channelMap->setAlpha(transparencyChannel->value());
+//    else
+//        channelMap->setAlpha(0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()

@@ -223,6 +223,7 @@ void lisemqt::initPlot()
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
     }
 
+
 }
 //---------------------------------------------------------------------------
 /// free data structures graph
