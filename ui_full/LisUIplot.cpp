@@ -185,7 +185,6 @@ void lisemqt::onOutletChanged(int point)
 /// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
 {
-
     HPlot->setTitle("Hydrograph Outlet");
     // VJ 110630 show hydrograph for selected output point
 

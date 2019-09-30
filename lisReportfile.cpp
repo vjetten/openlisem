@@ -1360,7 +1360,7 @@ Colors.append("#2b83ba");
 //        Colors.append("#1a9641");
         Colors.append("#2b83ba");
         Colors.append("#abdda4");
-        Colors.append("#ffffdf");
+        Colors.append("#ffffee");
         Colors.append("#fdae61");
         Colors.append("#d7191c");
     }
@@ -1375,8 +1375,9 @@ Colors.append("#2b83ba");
         Colors.append("#616ca2");
         Colors.append("#50B547");
         Colors.append("#FFFFFF");
-        Colors.append("#FFFF00");
+        Colors.append("#ffff88");
         Colors.append("#FF0000");
+
     }
     if (i == 9) {  //YELLOW ORGANDE BROWN/RED
 
@@ -1503,7 +1504,7 @@ void TWorld::GetComboMaps()
     if(SwitchErosion)
     {
         double step = 0.01;
-        setColor(8);
+        setColor(7);
 
         QString unit = "kg/cell";
         double factor = 1.0;

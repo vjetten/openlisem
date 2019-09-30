@@ -69,9 +69,9 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
-    channelMap->setAlpha(v);
-    if (v > 0 && checkMapChannels->isChecked())
-        MPlot->replot();
+//    channelMap->setAlpha(v);
+//    if (v > 0 && checkMapChannels->isChecked())
+//        MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
@@ -99,7 +99,7 @@ void lisemqt::ssetAlphaBarrier(int v)
 //---------------------------------------------------------------------------
 // called when a model run is started
 void lisemqt::initMapPlot()
-{
+{  
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
@@ -114,6 +114,7 @@ void lisemqt::setupMapPlot()
 {
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
+
     MPlot = new QwtPlot(title, this);
     // make the plot window
     maplayout->insertWidget(1, MPlot, 0, 0);
@@ -164,15 +165,10 @@ void lisemqt::setupMapPlot()
     flowbarriersMap->setRenderThreadCount( 0 );
     flowbarriersMap->attach( MPlot );
 
-    channelMap = new QwtPlotSpectrogram();
-    channelMap->setRenderThreadCount( 0 );
-    channelMap->attach( MPlot );
+//    channelMap = new QwtPlotSpectrogram();
+//    channelMap->setRenderThreadCount( 0 );
+//    channelMap->attach( MPlot );
     // channel map
-
-    river = new QwtPlotCurve();
-    river->setPen(QColor("#000066"), 3, Qt::SolidLine );
-    river->attach( MPlot );
-    river->setAxes(MPlot->xBottom, MPlot->yLeft);
 
     contourDEM = new QwtPlotSpectrogram();
     contourDEM->setRenderThreadCount( 0 );
@@ -416,7 +412,7 @@ void lisemqt::showMap()
         showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
     }
 
-    channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
+    //channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
 
@@ -486,7 +482,9 @@ void lisemqt::showComboMap(int i)
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 
-   //     mi = -ma;
+        mi = -ma;
+        if (ComboMaxSpinBox2->value() > 0)
+                ComboMinSpinBox2->setValue(mi);
     }
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
@@ -571,20 +569,18 @@ void lisemqt::showBaseMap()
 
 }
 //---------------------------------------------------------------------------
-void lisemqt::showChannelMap()
+void lisemqt::showChannelVector()
 {
     if (!checkIncludeChannel->isChecked())
         return;
     if(op.Chanbranch.length() == 0)
         return;
 
+
     if (startplot)
     {
-        QList <QVector <double>> Xa;
-        QList <QVector <double>> Ya;
         QVector <double> X;
         QVector <double> Y;
-
 
         int start = op.Chanbranch.at(0);
 
@@ -609,7 +605,7 @@ void lisemqt::showChannelMap()
                     int r = nrRows-1-int((yy-0.5*dx)/dx);//
 
                     double ldd = op.channelMap->Drc;
-                      qDebug() << i<< dx << yy << xx << r << c << ldd;
+              //        qDebug() << i<< dx << yy << xx << r << c << ldd;
                     Y << yy + _dy[(int)ldd]*dx;
                     X << xx + _dx[(int)ldd]*dx;
                     //
@@ -622,7 +618,6 @@ void lisemqt::showChannelMap()
                 }
                 Xa.push_back(X);
                 Ya.push_back(Y);
-               // qDebug() << op.Chanbranch.at(i) << op.Chanbranch.at(i-1);
             }
         }
 
@@ -636,21 +631,51 @@ void lisemqt::showChannelMap()
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
-//        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
-//        if (res ==-1e20)
-//            return;
-//        QwtLinearColorMapVJ *pala = new colorMapFlood();
-//        pala->thresholdLCM = 0.01;
+        Xa.clear();
+        Ya.clear();
+        op.ChanDataX.clear();
+        op.ChanDataY.clear();
+        op.Chanbranch.clear();
 
-//        channelMap->setColorMap(pala);
-//        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
-//        channelMap->setData(RDc);
+        if (checkChannelCulverts->isChecked()) {
+            int dx = (int) op.channelMap->cellSize();
+            QwtPlotCurve *culvert = new QwtPlotCurve();
+            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,
+                                                               QPen( Qt::black ), QSize( dx,dx ) );
+            culvert->setSymbol(whitedot);
+            culvert->setStyle( QwtPlotCurve::NoCurve );
+            culvert->attach( MPlot );
+            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
+
+            culvert->setSamples(op.CulvertX,op.CulvertY);
+        }
+        op.CulvertX.clear();
+        op.CulvertY.clear();
+    }
+}
+//---------------------------------------------------------------------------
+void lisemqt::showChannelMap()
+{
+    if (!checkIncludeChannel->isChecked())
+        return;
+
+    if (startplot)
+    {
+        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
+        if (res ==-1e20)
+            return;
+        QwtLinearColorMapVJ *pala = new colorMapFlood();
+        pala->thresholdLCM = 0.01;
+
+        channelMap->setColorMap(pala);
+        RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
+        channelMap->setData(RDc);
     }
 
-//    if (checkMapChannels->isChecked())
-//        channelMap->setAlpha(transparencyChannel->value());
-//    else
-//        channelMap->setAlpha(0);
+    if (checkMapChannels->isChecked())
+        channelMap->setAlpha(transparencyChannel->value());
+    else
+        channelMap->setAlpha(0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()

@@ -109,6 +109,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
+    checkMapChannels->setVisible(false);
+    transparencyChannel->setVisible(false);
+
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
 //    splitter->addWidget(tabWidget_out);
 //    splitter->addWidget(widgetMB);

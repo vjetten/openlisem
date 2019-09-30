@@ -93,7 +93,7 @@ void lisemqt::runmodel()
     startplot = true;
     stopplot = false;
 
-    // initialize output graphs and maps
+    // initialize output graphs
     initPlot();
 
     initMapPlot();
@@ -104,9 +104,6 @@ void lisemqt::runmodel()
     // reset op structure
 
     showOutputData();
-
-   // MPlot->clear();
-   // MPlot->replot();
 
     //=======================================================================================//
 
@@ -199,7 +196,8 @@ void lisemqt::worldShow()
 
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
-    showChannelMap(); // show channel map
+    //showChannelMap(); // show channel map
+    showChannelVector();
 
     showRoadMap(); // show road map
 
@@ -236,7 +234,6 @@ void lisemqt::worldDone(const QString &results)
     }
     //free the world instance
 
-
     stopplot = true;
 
     // free the map plot discharge bdata
@@ -256,6 +253,9 @@ void lisemqt::worldDone(const QString &results)
 
     if (doBatchmode)
         close();
+
+    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
+    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world
@@ -267,90 +267,6 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
-/*
-struct output{
-    int runstep;
-    int printstep;
-    int maxstep;
-
-    QList<int> OutletIndices;
-    QList<int> OutletLocationX;
-    QList<int> OutletLocationY;
-    QList<QList<double>*> OutletQ;
-    QList<QList<double>*> OutletQs;
-    QList<QList<double>*> OutletC;
-    QList<QList<double>*> OutletChannelWH;
-    QList<double> OutletQpeak;
-    QList<double> OutletQpeaktime;
-    QList<double> OutletQtot;
-    QList<double> OutletQstot;
-    double timestep;
-
-    int
-    F_solution,
-    F_scheme,
-    F_SSMethod,
-    F_BLMethod,
-    F_SigmaDiffusion,
-    F_fluxLimiter,
-    double
-    F_MinTimestepFlood,
-    F_courant,
-    F_courant_diffusive;
-
-    double CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
-
-    double
-    // water
-    MB, Qtot,  Qtile, Qtiletot, RunoffFraction, RainpeakTime,
-    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,
-    RainTotmm, SurfStormm, InfilKWTotmm, Pmm, BaseFlowtotmm,LitterStorageTotmm,WaterVolTotchannelmm,
-    floodBoundaryTot, floodBoundarySedTot,
-    // channel
-    ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
-    // flood
-    FloodTotMax, FloodAreaMax, WHflood, Qflood, volFloodmm,
-    FloodDetTot, FloodDepTot, FloodSedTot,
-    // sediment
-    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
-
-
-    cTMap *baseMap;
-    cTMap *baseMapDEM;
-    cTMap *channelMap;
-    cTMap *roadMap;
-    cTMap *houseMap;
-    cTMap *flowbarriersMap;
-    cTRGBMap *Image;
-
-    QList<double> graindiameters;
-
-    //combox selection of drawn map
-    QList<int> ComboLists;
-    QList<cTMap *> ComboMaps;
-    QList<cTMap *> ComboMapsSafe;
-    QList<QList<double>> ComboColorMap;
-    QList<QList<QString>> ComboColors;
-    QList<bool> ComboLogaritmic;
-    QList<bool> ComboSymColor;
-    QStringList ComboMapNames;
-    QStringList ComboUnits;
-    QList<double> ComboScaling;
-    QList<double> userMinV;
-    QList<double> userMaxV;
-    QList<double> comboStep;
-
-    bool comboboxset;
-    bool has_image;
-
-    QString runfilename;
-    QString LisemDir;
-    QString format;
-
-    bool doBatchmode;
-};
-
-*/
     op.OutletIndices.clear();
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
@@ -390,6 +306,8 @@ struct output{
     op.ChanDataY.clear();
     op.Chanbranch.clear();
     op.branches.clear();
+    op.CulvertX.clear();
+    op.CulvertY.clear();
 
     op.runstep = 0;
     op.printstep = 0;

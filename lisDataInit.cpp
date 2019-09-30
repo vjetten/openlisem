@@ -2568,12 +2568,13 @@ void TWorld::InitChanNetwork()
     op.ChanDataX.clear();
     op.ChanDataY.clear();
     op.Chanbranch.clear();
+    op.CulvertX.clear();
+    op.CulvertY.clear();
 
     if(!SwitchIncludeChannel)
         return;
 
     int branchnr = 0;
-
 
     fill(*tma, 0); // flag if cell is done
 
@@ -2662,6 +2663,17 @@ void TWorld::InitChanNetwork()
    // report(*tma, "node.map");
    // qDebug() << op.Chanbranch.length() ;
    // qDebug() << op.ChanDataX.length() ;
+
+    if(SwitchCulverts) {
+        FOR_ROW_COL_MV {
+            if (ChannelMaxQ->Drc > 0) {
+                op.CulvertX << c*_dx + 0.5*_dx;
+                op.CulvertY << (_nrRows-r-1)*_dx + 0.5*_dx;
+            }
+
+        }
+    }
+
 }
 
 //---------------------------------------------------------------------------

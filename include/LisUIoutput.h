@@ -61,6 +61,9 @@ struct output{
     QVector <double> ChanDataY;
     QVector<int> Chanbranch;
     QList <int> branches;
+    QVector <double> CulvertX;
+    QVector <double> CulvertY;
+
 //    int
 //    F_solution,
 //    F_scheme,

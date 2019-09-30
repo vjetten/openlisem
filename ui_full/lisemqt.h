@@ -50,11 +50,11 @@
 #include <qwt_matrix_raster_data.h>
 #include <qwt_scale_widget.h>
 #include <qwt_plot_renderer.h>
-#include <qwt_plot_grid.h>
 #include <qwt_plot_rescaler.h>
 #include <qwt_scale_engine.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_picker.h>
+#include <qwt_symbol.h>
 
 
 #include "version.h"
@@ -158,6 +158,7 @@ public:
 
     void showBaseMap();
     void showChannelMap();
+    void showChannelVector();
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();
@@ -184,7 +185,9 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
-    QwtPlotCurve *river;
+
+    QList <QVector <double>> Xa;
+    QList <QVector <double>> Ya;
 
     double contourmin, contourmax;
     //   double drawNrCols;
