@@ -85,6 +85,7 @@ class QwtComboColorMap: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
+
         if(thresholduse)
         {
             if ( value <= thresholdmin )
@@ -98,7 +99,6 @@ class QwtComboColorMap: public QwtLinearColorMap
                 return qRgba( 0, 0, 0, 0 );
             }*/
         }
-
         return QwtLinearColorMap::rgb( interval, value );
     }
 

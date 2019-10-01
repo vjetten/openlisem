@@ -1359,9 +1359,9 @@ Colors.append("#2b83ba");
 //        Colors.append("#a6d96a");
 //        Colors.append("#1a9641");
         Colors.append("#2b83ba");
-        Colors.append("#abdda4");
-        Colors.append("#ffffee");
-        Colors.append("#fdae61");
+        Colors.append("#a4ddd9");//abdda4");
+        Colors.append("#ffffef");
+        Colors.append("#d3b03e");//#fdae61");
         Colors.append("#d7191c");
     }
     if (i == 8) {  // green white yellow red

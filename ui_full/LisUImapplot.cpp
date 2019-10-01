@@ -477,7 +477,7 @@ void lisemqt::showComboMap(int i)
         mi = 0;
     if(mi > ma)
         ma = mi;
-     //qDebug() << mi << ma << MinV << MaxV;
+  //   qDebug() << mi << ma << MinV << MaxV;
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
@@ -486,6 +486,9 @@ void lisemqt::showComboMap(int i)
         if (ComboMaxSpinBox2->value() > 0)
                 ComboMinSpinBox2->setValue(mi);
     }
+  //  qDebug() << mi << ma << MinV << MaxV;
+
+
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
 
     QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
@@ -495,11 +498,14 @@ void lisemqt::showComboMap(int i)
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    cm->thresholduse = true;//ActiveList == 0;
-    cmL->thresholduse =  !op.ComboSymColor.at(i);
-
+    cm->thresholduse = true;
+    cmL->thresholduse = true;
     cm->thresholdmin = mi;
     cmL->thresholdmin = mi;
+    if (op.ComboSymColor.at(i)) {
+        cm->thresholdmin = MinV;
+        cmL->thresholdmin = mi;
+    }
 
     drawMap->setData(RD);
     drawMap->setColorMap(cm);
