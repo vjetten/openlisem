@@ -218,7 +218,7 @@ void TWorld::SplashDetachment(int thread)
 
       DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
       // no splash on snow deck
-DETSplash->Drc = 0;
+//DETSplash->Drc = 0;
 
       if(SwitchUseMaterialDepth)
       {

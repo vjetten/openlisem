@@ -1035,10 +1035,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
     double deposition = 0;
 
-//    SSFlood->Drc += DETSplash->Drc*DT->Drc/_dt;
-//    SSCFlood->Drc = MaxConcentration(sswatervol, SSFlood->Drc);
-
-
     if(h->Drc < MIN_HEIGHT)//he_ca)
     {
         //set all to zero when the water height is zero
