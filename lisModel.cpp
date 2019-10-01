@@ -143,15 +143,15 @@ void TWorld::DoModel()
         efout.close();
 
         if (SwitchErosion) {
-        QFile esfout(resultDir+errorSedFileName);
-        esfout.open(QIODevice::WriteOnly | QIODevice::Text);
-        QTextStream esout(&esfout);
-        esout << "#sediment mass balance error (%)\n";
-        esout << "2\n";
-        esout << "run step\n";
-        esout << "MBs error\n";
-        esfout.flush();
-        esfout.close();
+            QFile esfout(resultDir+errorSedFileName);
+            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream esout(&esfout);
+            esout << "#sediment mass balance error (%)\n";
+            esout << "2\n";
+            esout << "run step\n";
+            esout << "MBs error\n";
+            esfout.flush();
+            esfout.close();
         }
 
         InfilEffectiveKsat();

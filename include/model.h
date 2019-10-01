@@ -514,6 +514,7 @@ public:
     void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
     void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
     double limiter(double a, double b);
     void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -889,6 +890,7 @@ public:
     std::function<void(int)> flood_cellcompute;   //swof part 1
     std::function<void(int)> flood_flowcompute;   // swof part 2
     std::function<void(int)> flood_flowcompute2;   // swof part 2 for Heun
+    std::function<void(int)> flood_flowcompute3;   // swof part 3 erosion
 
     QList<double> TSList_point;
     QList<double> TSList_rainav;

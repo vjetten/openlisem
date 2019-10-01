@@ -962,11 +962,11 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
     double sumh = 0;
     bool stop;
 
-    if (SwitchErosion) {
-        FOR_ROW_COL_MV {
-            SSFlood->Drc += DETSplash->Drc;
-        }
-    }
+//    if (SwitchErosion) {
+//        FOR_ROW_COL_MV {
+//            SSFlood->Drc += DETSplash->Drc;
+//        }
+//    }
 
     SwitchHeun = false;
     if (startFlood)
@@ -1069,6 +1069,10 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
 
         correctMassBalance(sumh, h);
 
+        flood_flowcompute3 = std::bind((&TWorld::fullSWOF2Do2lightWrapperErosion),this,std::placeholders::_1,h,u,v,dt1);
+        ThreadPool->RunDynamicCompute(flood_flowcompute3);
+        ThreadPool->WaitForAll();
+
     } // if floodstart
 
     iter_n = n;
@@ -1102,7 +1106,7 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
     setZero(thread,hs, us, vs);
 
     //sediment
-    SWOFSediment(thread,FloodDT,dt1,h,u,v );
+//    SWOFSediment(thread,FloodDT,dt1,h,u,v );
 
     if (!SwitchHeun)
     {
@@ -1125,6 +1129,15 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, 
     maincalcscheme(thread, dt1, hs,us,vs, hsa,usa,vsa);
 
     setZero(thread,hsa, usa, vsa);
+
+
+}
+//---------------------------------------------------------------------------
+void TWorld::fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1)
+{
+
+    //sediment
+    SWOFSediment(thread,FloodDT,dt1,h,u,v );
 
 
 }
