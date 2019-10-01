@@ -218,6 +218,7 @@ void TWorld::SplashDetachment(int thread)
 
       DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
       // no splash on snow deck
+DETSplash->Drc = 0;
 
       if(SwitchUseMaterialDepth)
       {
@@ -1143,58 +1144,7 @@ void TWorld::FlowDetachment(int thread)
 
    }}}}
 
-   //VJ 110829 TC cannot be more than surrounding cells, this limits the spikes in deposition and erosion
-/*
-   if (SwitchLimitTC)
-   {
-        //ldd directions, all adjecent cells and the cell itself at index 5
-        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-        int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
-      FOR_ROW_COL_2DMT
-      {
-         double maxtc = 0;
-         double avgtc = 0;
-         int count = 0;
-
-         //check all surrounding cells for MV or present sediment
-         for (int i = 1; i <= 9; i++)
-            if(i != 5)
-            {
-               if ((r+dx[i] >= 0 && c+dy[i] >= 0 && r+dx[i] < _nrRows && c+dy[i] < _nrCols)
-                   && !pcr::isMV(TC->data[r+dx[i]][c+dy[i]]))
-               {
-                       avgtc = avgtc + TC->data[r+dx[i]][c+dy[i]];
-                       maxtc = std::max(maxtc,TC->data[r+dx[i]][c+dy[i]]);
-                       count++;
-
-               }
-            }
-
-         //limit sediment current cell
-         double tcold = TC->Drc;
-
-         if(count > 0)
-         {
-             TC->Drc = std::max(TC->Drc, avgtc/count);
-         }
-         TC->Drc = std::min(TC->Drc, maxtc);
-
-         //when a grain size distribution is used, scale ale induvidual transport capacity's
-         if(SwitchUseGrainSizeDistribution)
-         {
-             double fact = TC->Drc/tcold;
-             if(tcold != 0)
-             {
-                 FOR_GRAIN_CLASSES
-                 {
-                     TC_D.Drcd *= fact;
-                 }
-             }
-         }
-      }}}}
-   }
-*/
-   //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
+    //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
    int iterator = numgrainclasses;
    if(!SwitchUseGrainSizeDistribution){
         iterator = 1;
@@ -1915,23 +1865,16 @@ void TWorld::RiverSedimentMaxC(int r, int c)
  * @see FS_SigmaDiffusion
  *
  */
-void TWorld::RiverSedimentDiffusion(double dt,/* cTMap * _BL,cTMap * _BLC,*/ cTMap * _SS,cTMap * _SSC)
+void TWorld::RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC)
 {
 
     FOR_ROW_COL_MV
     {
 
-     //   MBLNFlood->Drc = _BL->Drc;
-        MSSNFlood->Drc = _SS->Drc;
-     //   MBLFlood->Drc = _BL->Drc;
-        MSSFlood->Drc = _SS->Drc;
+       MSSNFlood->Drc = _SS->Drc;
 
         //set concentration from present sediment
-//        MBLCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, MBLFlood->Drc);
-       // MBLCFlood->Drc = MaxConcentration(ChannelBLWaterVol->Drc, MBLFlood->Drc);
-
-        //set concentration from present sediment
-       MSSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, MSSFlood->Drc);
+       MSSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, MSSNFlood->Drc);
  //        MSSCFlood->Drc = MaxConcentration(ChannelSSWaterVol->Drc, MSSFlood->Drc);
 
     }
@@ -2020,7 +1963,9 @@ void TWorld::RiverSedimentDiffusion(double dt,/* cTMap * _BL,cTMap * _BLC,*/ cTM
         //add diffusive fluxes to previous cell in channel.
         if(foundp)
         {
-            double coeff1 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]),courant_factor_diffusive/2.0) * MSSFlood->Drc;
+            double coeff1 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]),
+                                     courant_factor/2.0) * MSSNFlood->Drc;
+//                                     courant_factor_diffusive/2.0) * MSSNFlood->Drc;
 
             MSSNFlood->data[rp][cp] += coeff1;
             MSSNFlood->data[r][c] -= coeff1;
@@ -2029,7 +1974,9 @@ void TWorld::RiverSedimentDiffusion(double dt,/* cTMap * _BL,cTMap * _BLC,*/ cTM
         //add diffusive fluxes to next cell in channel.
         if(foundn)
         {
-            double coeff2 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]),courant_factor_diffusive/2.0) * MSSFlood->Drc;
+            double coeff2 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]),
+                                     courant_factor/2.0) * MSSNFlood->Drc;
+//            courant_factor_diffusive/2.0) * MSSNFlood->Drc;
 
             MSSNFlood->data[rn][cn] += coeff2;
             MSSNFlood->data[r][c] -= coeff2;
@@ -2039,18 +1986,9 @@ void TWorld::RiverSedimentDiffusion(double dt,/* cTMap * _BL,cTMap * _BLC,*/ cTM
     //recalculate concentrations
     FOR_ROW_COL_MV
     {
-        //_BL->Drc = MBLNFlood->Drc;
         _SS->Drc = MSSNFlood->Drc;
         //set concentration from present sediment
-        //_BLC->Drc = MaxConcentration(ChannelBLWaterVol->Drc, _BL->Drc);
-
-        //set concentration from present sediment
- //        _SSC->Drc = MaxConcentration(ChannelSSWaterVol->Drc, _SS->Drc);
-        //set concentration from present sediment
-  //      _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc, _BL->Drc);
-
-        //set concentration from present sediment
-       _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
     }
 }
 //---------------------------------------------------------------------------

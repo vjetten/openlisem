@@ -633,7 +633,7 @@ public:
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
 
-    void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
 
     double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
     double SWOFSedimentTCSS(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);

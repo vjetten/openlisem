@@ -306,6 +306,7 @@ void TWorld::Totals(void)
         calcMap(*DETSplashCum, *DETSplash, ADD);
         calcMap(*DETFlowCum, *DETFlow, ADD);
         calcMap(*DEPCum, *DEP, ADD);
+        // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
@@ -316,7 +317,7 @@ void TWorld::Totals(void)
                     SoilLossTotT += Qsn->Drc * _dt;
             }
         } else {
-            SoilLossTotT += K2DQSOut;
+            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
         }
         // sum all sed in all boundary (in kg), needed for mass balance
 
@@ -326,39 +327,16 @@ void TWorld::Totals(void)
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
             ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed); //mapTotal(*ChannelSed);//
-//qDebug() << ChannelSedTot << ChannelDetTot << ChannelDepTot;
-//            fill(*tma,0.0);
-//            DistributeOverExtendedChannel(ChannelDetFlow, tma);
-//            calcMap(*DETFlowCum, *tma, ADD);
-//            fill(*tma,0.0);
-//            DistributeOverExtendedChannel(ChannelDep, tma);
-//            calcMap(*DEPCum, *tma, ADD);
-
-//            FOR_ROW_COL_MV_CH
-//            {
-//                if (LDDChannel->Drc == 5)
-//                    SoilLossTotT += ChannelQsn->Drc * _dt;
-//            }
-//            double hoi = mapTotal(*ChannelBLSed);
-//            qDebug() << hoi;
         }
 
         // used for mass balance and screen output
-        FloodDetTot += mapTotal(*BLDetFloodT) + mapTotal(*SSDetFloodT);
-        FloodDepTot += mapTotal(*BLDepFloodT);// + mapTotal(*SSDepFloodT);
+        FloodDetTot += mapTotal(*BLDetFloodTot) + mapTotal(*SSDetFloodTot);
+        FloodDepTot += mapTotal(*BLDepFloodTot);
         FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
 
-        calcMap(*DETFlowCum, *BLDetFloodT, ADD);
-        calcMap(*DETFlowCum, *SSDetFloodT, ADD);
-        calcMap(*DEPCum, *BLDepFloodT, ADD);
-       // calcMap(*DEPCum, *SSDepFloodT, ADD);
-        calcMap(*DEPBLCum, *BLDepFloodT, ADD);
-        //. these values are 0 when kin wave
-        // DETSplashCum, DETFlowCum, DEPCum are spatial temporal cumulatives, entire run
-
-
-        //            TotalDetMap->Drc += DETSplash->Drc + DETFlow->Drc;
-        //            TotalDepMap->Drc += DEP->Drc;
+        calcMap(*DETFlowCum, *BLDetFloodTot, ADD);
+        calcMap(*DETFlowCum, *SSDetFloodTot, ADD);
+        calcMap(*DEPCum, *BLDepFloodTot, ADD);
 
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
@@ -417,9 +395,9 @@ void TWorld::Totals(void)
             // for output
         }
 
-        fill(*BLDetFloodT,0.0);
-        fill(*BLDepFloodT,0.0);
-        fill(*SSDetFloodT,0.0);
+        fill(*BLDetFloodTot,0.0);
+        fill(*BLDepFloodTot,0.0);
+        fill(*SSDetFloodTot,0.0);
 //        fill(*SSDepFloodT,0.0);
         // RESET flood variables (?)
 
@@ -491,15 +469,13 @@ void TWorld::MassBalance()
     {
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
-        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot + floodBoundarySedTot;
-//        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
-//        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
-//        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;//already in soiloss: + floodBoundarySedTot;
+
+    //    qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
+    //    qDebug() << DepTot << ChannelDepTot << FloodDepTot;
+    //    qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
-
-//        MBs = (1-(DetTot + ChannelDetTot + FloodDetTot - SedTot - ChannelSedTot - FloodSedTot +
-//                  DepTot + ChannelDepTot + FloodDepTot - BufferSedTot)/(SoilLossTot))*100;
     }
     //VJ 121212 changed to mass balance relative to soil loss
 

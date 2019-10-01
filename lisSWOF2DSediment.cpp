@@ -1,4 +1,4 @@
-
+﻿
 
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
@@ -70,28 +70,30 @@ functions: \n
  * @return void
  */
 
-void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
+void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMap *u,cTMap *v,
+                                           cTMap *_BL, cTMap *_BLC, cTMap *_SS, cTMap *_SSC)
 {
 
     FOR_ROW_COL_UF2DMTDER {
         if(FloodHMaskDer->Drc != 0)
         {
-
+            //M... only used in this function!
             MBLNFlood->Drc = _BL->Drc;
             MSSNFlood->Drc = _SS->Drc;
-            MBLFlood->Drc = _BL->Drc;
-            MSSFlood->Drc = _SS->Drc;
 
             //set concentration from present sediment
-           MBLCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MBLFlood->Drc);
+            MBLCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MBLNFlood->Drc);
 
             //set concentration from present sediment
-           MSSCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSFlood->Drc);
+            MSSCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSNFlood->Drc);
+
+           //USING h HERE and NOT ssdepth bldepth
 
         }
     }}}}
 
     double courant = this->courant_factor;
+    // flooding courant factor
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
     FOR_ROW_COL_UF2DMT_DT {
@@ -103,30 +105,29 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTM
                 continue;
             }
 
-
             //the sign of the x and y direction of flow
             double yn = signf(v->Drc);
             double xn = signf(u->Drc);
 
             double vel = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
 
-            if(vel < he_ca ||h->Drc < he_ca)
+            if(vel < he_ca || h->Drc < he_ca)
             {
                 continue;
             }
 
             double qbl = DT->Drc*vel*ChannelAdj->Drc *BLDepthFlood->Drc * MBLCFlood->Drc;
 
-            if(qbl > courant * MBLFlood->Drc)
+            if(qbl > courant * MBLNFlood->Drc)
             {
-                qbl =  courant * MBLFlood->Drc;
+                qbl =  courant * MBLNFlood->Drc;
             }
 
             double qss = DT->Drc*vel*ChannelAdj->Drc *SSDepthFlood->Drc * MSSCFlood->Drc;
 
-            if(qss > courant * MSSFlood->Drc)
+            if(qss > courant * MSSNFlood->Drc)
             {
-                qss = courant *  MSSFlood->Drc;
+                qss = courant *  MSSNFlood->Drc;
             }
 
             //should not travel more distance than cell size
@@ -145,7 +146,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTM
             {
                 int r2, c2;
 
-                //must multiply the cell directiosby the sign of the slope vector components
+                //must multiply the cell directions by the sign of the slope vector components
                 r2 = r+(int)yn*dy[i];
                 c2 = c+(int)xn*dx[i];
 
@@ -154,11 +155,11 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTM
                 double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
 
                 //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) *fabs(wdy);
+                double weight = fabs(wdx) * fabs(wdy);
 
                 if(INSIDE(r2,c2))
                 {
-                    if( !pcr::isMV(LDD->data[r2][c2]) && h->data[r2][c2] > 0)
+                    if( !pcr::isMV(LDD->data[r2][c2]) && h->data[r2][c2] > he_ca)//0)
                     {
                         w[i] = weight;
                     }
@@ -192,11 +193,12 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTM
                 if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
                 {
 
-                    if(h->data[r2][c2] > 0)
+                    if(h->data[r2][c2] > he_ca)
                     {
                         //weight * the flow is distributed to the ith cell that neighbours the advected flow.
                         MBLNFlood->data[r2][c2] +=  w[i]* qbl;
                         MBLNFlood->data[r][c] -=  w[i]* qbl;
+
                         MSSNFlood->data[r2][c2] +=  w[i]* qss;
                         MSSNFlood->data[r][c] -=  w[i]* qss;
                     }
@@ -218,6 +220,9 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap * DT, cTMap * h,cTM
 
             //set concentration from present sediment
             _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _SS->Drc);
+
+            //USING h HERE and NOT ssdepth bldepth
+
 
         }
     }}}}
@@ -243,14 +248,14 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
     cTMap * _SS = SSFlood;
     cTMap * _SSC = SSCFlood;
 
-    if(!(h->Drc > 0))
+    if(!(h->Drc > he_ca))//0))
     {
 
         if(!SwitchUseGrainSizeDistribution)
         {
             //add sediment to deposition
-            BLDepFloodT->Drc += -(_BL->Drc);
-            BLDepFloodT->Drc += -(_SS->Drc);
+            BLDepFloodTot->Drc += -(_BL->Drc);
+            BLDepFloodTot->Drc += -(_SS->Drc);
 
             //add to soil layer
             if(SwitchUseMaterialDepth)
@@ -279,8 +284,8 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
             //add all to deposition
             FOR_GRAIN_CLASSES
             {
-                BLDepFloodT->Drc += -(BL_D.Drcd);
-                BLDepFloodT->Drc += -(SS_D.Drcd);
+                BLDepFloodTot->Drc += -(BL_D.Drcd);
+                BLDepFloodTot->Drc += -(SS_D.Drcd);
 
                 //add to soil layer
                 if(SwitchUseMaterialDepth)
@@ -371,7 +376,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)//,cTMap * u,c
 
 //--------------------------------------------------------------------------------------------
 /**
- * @fn void TWorld::SWOFSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
+ * @fn void TWorld::SWOFSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC)
  * @brief Applies diffusion to bed load and suspended load based
  *
  * Applies diffusion to bed load and suspended load based on concentrations.
@@ -382,8 +387,6 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)//,cTMap * u,c
  * @param h : the flood water height
  * @param u : the flood velocity in the x-direction
  * @param v : the flood velocity in the y-direction
- * @param _BL : Bed load sediment
- * @param _BLC : Bed load sediment
  * @param _SS : Suspended sediment
  * @param _SSC : Suspended sediment concentration
  *
@@ -391,22 +394,15 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)//,cTMap * u,c
  *
  * @see FS_SigmaDiffusion
  */
-void TWorld::SWOFSedimentDiffusion(int thread, cTMap * DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
+void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
     FOR_ROW_COL_UF2DMTDER {
         if(FloodHMaskDer->Drc != 0)
         {
-            MBLNFlood->Drc = _BL->Drc;
             MSSNFlood->Drc = _SS->Drc;
-            MBLFlood->Drc = _BL->Drc;
-            MSSFlood->Drc = _SS->Drc;
-
             //set concentration from present sediment
-            MBLCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MBLFlood->Drc);
-
-            //set concentration from present sediment
-            MSSCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSFlood->Drc);
-
+            MSSCFlood->Drc = _SSC->Drc;
+                    //MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSNFlood->Drc);
         }
     }}}}
 
@@ -419,7 +415,7 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap * DT, cTMap * h,cTMap * u,c
             //cell sizes
             double cdx = DX->Drc;
             double cdy = _dx;
-            //here it is about spacing, not flow width, so use _dx instead of CHannelAdj->Drc
+            //here it is about spacing, not flow width, so use _dx instead of ChannelAdj->Drc
 
             //mixing coefficient
             double sigma = 1;
@@ -478,10 +474,12 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap * DT, cTMap * h,cTMap * u,c
                 if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
                 {
                     //diffusion coefficient
-                    double coeff = std::min(DT->Drc*eta *std::min(1.0,SSDepthFlood->data[r2][c2]/SSDepthFlood->data[r][c]),courant_factor_diffusive/4.0) * MSSFlood->Drc;
+                    double coeff =  DT->Drc * eta * std::min(1.0, SSDepthFlood->data[r2][c2]/SSDepthFlood->data[r][c]);
+                    coeff = std::min(coeff, courant_factor/4.0);
+//                    std::min(1.0, SSDepthFlood->data[r2][c2]/SSDepthFlood->data[r][c]), courant_factor_diffusive/4.0);
 
-                    MSSNFlood->data[r2][c2] += coeff;
-                    MSSNFlood->data[r][c] -= coeff;
+                    MSSNFlood->data[r2][c2] += coeff*MSSNFlood->Drc;
+                    MSSNFlood->data[r][c] -= coeff*MSSNFlood->Drc;
                 }
             }
         }
@@ -490,17 +488,9 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap * DT, cTMap * h,cTMap * u,c
     FOR_ROW_COL_UF2DMTDER {
         if(FloodHMaskDer->Drc != 0)
         {
-            MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
-            MSSNFlood->Drc = std::max(0.0,MSSNFlood->Drc);
-            _BL->Drc = MBLNFlood->Drc;
-            _SS->Drc = MSSNFlood->Drc;
-
-            //set concentration from present sediment
-            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _BL->Drc);
-
+            _SS->Drc = std::max(0.0,MSSNFlood->Drc);
             //set concentration from present sediment
             _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _SS->Drc);
-
         }
     }}}}
 }
@@ -539,7 +529,7 @@ void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
         double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSDepthFlood->Drc;
         if(sssmax < _SS->Drc)
         {
-            BLDepFloodT->Drc += -(_SS->Drc - sssmax);
+            BLDepFloodTot->Drc += -(_SS->Drc - sssmax);
             if(SwitchUseMaterialDepth)
             {
                 StorageDep->Drc += (_SS->Drc - sssmax);
@@ -553,7 +543,7 @@ void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
         double smax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLDepthFlood->Drc;
         if(smax < _BL->Drc)
         {
-            BLDepFloodT->Drc += -(_BL->Drc - smax);
+            BLDepFloodTot->Drc += -(_BL->Drc - smax);
             if(SwitchUseMaterialDepth)
             {
                 StorageDep->Drc += (_BL->Drc - smax);
@@ -580,7 +570,7 @@ void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
             double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSD_D.Drcd;
             if(sssmax < SS_D.Drcd)
             {
-                BLDepFloodT->Drc += -(SS_D.Drcd - sssmax);
+                BLDepFloodTot->Drc += -(SS_D.Drcd - sssmax);
                 SSFlood->Drc += -(SS_D.Drcd - sssmax);
                 if(SwitchUseMaterialDepth)
                 {
@@ -596,7 +586,7 @@ void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
             sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLD_D.Drcd;
             if(sssmax < BL_D.Drcd)
             {
-                BLDepFloodT->Drc += -(BL_D.Drcd - sssmax);
+                BLDepFloodTot->Drc += -(BL_D.Drcd - sssmax);
                 BLFlood->Drc += -(BL_D.Drcd - sssmax);
                 if(SwitchUseMaterialDepth)
                 {
@@ -995,283 +985,181 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, cTMap * h, double velocity)//
 void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap * v)
 {
     //first calculate layer depth
-    double UV=qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
-    SWOFSedimentLayerDepth(r,c,h, UV);
+    double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
+    SWOFSedimentLayerDepth(r,c,h, velocity);
     // gives BLDepthFlood->Drc and SSDepthFlood->Drc
 
-    //iterator is the number of grain classes
-    int iterator = numgrainclasses;
-    if(!SwitchUseGrainSizeDistribution)
-    {
-        iterator = 1;
-    }
+    //BLDepthFlood->Drc = 0;
+    //SSDepthFlood->Drc = h->Drc;
 
     BLDetFlood->Drc = 0;
     SSDetFlood->Drc = 0;
     BLDepFlood->Drc = 0;
 
-    // calculate TC of BL and SS
-    for(int d  = 0 ; d < iterator;d++)
+    //set maps for this grain class
+    cTMap * TBLTCFlood;
+    cTMap * TSSTCFlood;
+
+    TBLTCFlood = BLTCFlood;
+    TSSTCFlood = SSTCFlood;
+
+    //calculate tranport capacity for bed load and suspended load
+    TBLTCFlood->Drc = SWOFSedimentTCBL(r,c,1,h,velocity);  // van Rijn etc
+    TSSTCFlood->Drc = SWOFSedimentTCSS(r,c,1,h,velocity);   // Govers, van Rijn etc
+
+    //set maps for this grain class
+    cTMap * TBLDepthFlood;
+    cTMap * TSSDepthFlood;
+    cTMap * TBLCFlood;
+    cTMap * TSSCFlood;
+    cTMap * TBLFlood;
+    cTMap * TSSFlood;
+    cTMap * TW;
+
+    double TSettlingVelocity;
+    TBLDepthFlood = BLDepthFlood;
+    TSSDepthFlood = SSDepthFlood;
+    TBLCFlood = BLCFlood;
+    TSSCFlood = SSCFlood;
+    TBLFlood = BLFlood;
+    TSSFlood = SSFlood;
+    TSettlingVelocity = SettlingVelocity->Drc;
+    TW = unity;
+
+    //discharges for both layers and watervolumes
+    double bldischarge = velocity * ChannelAdj->Drc * TBLDepthFlood->Drc;
+    double blwatervol = ChannelAdj->Drc * DX->Drc * TBLDepthFlood->Drc;
+
+    double ssdischarge = velocity * ChannelAdj->Drc * TSSDepthFlood->Drc;
+    double sswatervol = ChannelAdj->Drc * DX->Drc * TSSDepthFlood->Drc;
+
+    double deposition = 0;
+
+//    SSFlood->Drc += DETSplash->Drc*DT->Drc/_dt;
+//    SSCFlood->Drc = MaxConcentration(sswatervol, SSFlood->Drc);
+
+
+    if(h->Drc < MIN_HEIGHT)//he_ca)
     {
-
-        //set maps for this grain class
-        cTMap * TBLTCFlood;
-        cTMap * TSSTCFlood;
-
-        if(!SwitchUseGrainSizeDistribution)
-        {
-            TBLTCFlood = BLTCFlood;
-            TSSTCFlood = SSTCFlood;
-        }else
-        {
-            TBLTCFlood = BLTC_D.at(d);
-            TSSTCFlood = SSTC_D.at(d);
-        }
-
-        //calculate tranport capacity for bed load and suspended load
-      //  double UV = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
-        TBLTCFlood->Drc = SWOFSedimentTCBL(r,c,d,h,UV);  // van Rijn etc
-        TSSTCFlood->Drc = SWOFSedimentTCSS(r,c,d,h,UV);   // Govers, van Rijn etc
-
-    }
-
-    //check for concentrations above MAXCONC
-    if(SwitchUseGrainSizeDistribution)
-    {
-        //set total load as sum of induvidual grain size classes
+        //set all to zero when the water height is zero
+        BLDepFlood->Drc = -BLFlood->Drc;
+        BLDepFloodTot->Drc += -BLFlood->Drc;
         BLTCFlood->Drc = 0;
+        BLDetFlood->Drc = 0;
+        BLFlood->Drc = 0;
+        BLCFlood->Drc = 0;
+
+        BLDepFlood->Drc += -SSFlood->Drc;
+        BLDepFloodTot->Drc += -SSFlood->Drc;
         SSTCFlood->Drc = 0;
-        FOR_GRAIN_CLASSES
-        {
-            BLTCFlood->Drc += BLTC_D.Drcd;
-            SSTCFlood->Drc += SSTC_D.Drcd;
-        }
+        SSFlood->Drc = 0;
+        SSCFlood->Drc = 0;
+        SSDetFlood->Drc = 0;
 
-        //check if bed load concentration is too high
-        if(BLTCFlood->Drc > MAXCONCBL)
-        {
-            //rescale concentration of grain classes
-            FOR_GRAIN_CLASSES
-            {
-                BLTC_D.Drcd *= MAXCONCBL/BLTCFlood->Drc;
-            }
-            BLTCFlood->Drc = MAXCONCBL;
-        }
-        //check if suspended load concentration is too high
-        if(SSTCFlood->Drc > MAXCONC)
-        {
-            //rescale concentration of grain classes
-            FOR_GRAIN_CLASSES
-            {
-                SSTC_D.Drcd *= MAXCONC/SSTCFlood->Drc;
-            }
-            SSTCFlood->Drc = MAXCONC;
-        }
+    } else {
+        // there is water
 
-        //set total load as sum of induvidual grain size classes
-        BLTCFlood->Drc = 0;
-        SSTCFlood->Drc = 0;
-        FOR_GRAIN_CLASSES
-        {
-            BLTCFlood->Drc += BLTC_D.Drcd;
-            SSTCFlood->Drc += SSTC_D.Drcd;
-        }
+        //### calc SS dep and det and put dep into BL layer
 
-    }
+        //first check if sediment goes to suspended sediment layer or to bed layer
+        double tobl = 0;
+        double TransportFactor;
 
-    // pre pare local vars
-    for(int d  = 0 ; d < iterator;d++)
-    {
-        //set maps for this grain class
-        cTMap * TBLDepthFlood;
-        cTMap * TSSDepthFlood;
-        cTMap * TBLTCFlood;
-        cTMap * TSSTCFlood;
-        cTMap * TBLCFlood;
-        cTMap * TSSCFlood;
-        cTMap * TBLFlood;
-        cTMap * TSSFlood;
-        cTMap * TW;
+        int d = 1;
 
-        double TSettlingVelocity;
-        if(!SwitchUseGrainSizeDistribution)
-        {
-            TBLDepthFlood = BLDepthFlood;
-            TSSDepthFlood = SSDepthFlood;
-            TBLTCFlood = BLTCFlood;
-            TSSTCFlood = SSTCFlood;
-            TBLCFlood = BLCFlood;
-            TSSCFlood = SSCFlood;
-            TBLFlood = BLFlood;
-            TSSFlood = SSFlood;
-            TSettlingVelocity = SettlingVelocity->Drc;
-            TW = unity;
-        }else
-        {
-            TBLDepthFlood = BLD_D.at(d);
-            TSSDepthFlood = SSD_D.at(d);
-            TBLTCFlood = BLTC_D.at(d);
-            TSSTCFlood = SSTC_D.at(d);
-            TBLCFlood = BLC_D.at(d);
-            TSSCFlood = SSC_D.at(d);
-            TBLFlood = BL_D.at(d);
-            TSSFlood = SS_D.at(d);
-            TW = W_D.at(d);
-            TSettlingVelocity = settlingvelocities.at(d);
-        }
+        //TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
+        // limit concentration to 846 !!
+        //NEEDED?
 
-        double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-
-        double bldepth = TBLDepthFlood->Drc;
-        double ssdepth = TSSDepthFlood->Drc;
-
-
-
-        //discharges for both layers and watervolumes
-        double bldischarge = velocity * ChannelAdj->Drc * bldepth;
-        double blwatervol = ChannelAdj->Drc * DX->Drc * bldepth;
-
-        double ssdischarge = velocity * ChannelAdj->Drc * ssdepth;
-        double sswatervol = ChannelAdj->Drc * DX->Drc * ssdepth;
-
-      //  qDebug() << ssdepth << bldepth << h->Drc;
-
-        double bltc = 0;
-        double sstc = 0;
-
-        bltc = TBLTCFlood->Drc;  // TCs
-        sstc = TSSTCFlood->Drc;
-
-        double deposition = 0;
-
-
-        if(h->Drc < he_ca)
-        {
-            //set all to zero when the water height is zero
-            BLTCFlood->Drc = 0;
-            BLDepFlood->Drc = 0;
-            BLDetFlood->Drc = 0;
-            deposition = -TBLFlood->Drc;
-
-            if(SwitchUseMaterialDepth)
-            {
-                StorageDep->Drc += -deposition;
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    StorageDep_D.Drcd += -deposition;
-                }
-            }
-
-
-            BLDepFloodT->Drc += deposition;
-            TBLFlood->Drc = 0;
-            TBLCFlood->Drc = 0;
-
-            SSTCFlood->Drc = 0;
-            deposition = -TSSFlood->Drc;
-            if(SwitchUseMaterialDepth)
-            {
-                StorageDep->Drc += -deposition;
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    StorageDep_D.Drcd += -deposition;
-                }
-            }
-
-            BLDepFloodT->Drc += deposition;
-            TSSFlood->Drc = 0;
-            TSSCFlood->Drc = 0;
-
-BLDepFloodT->Drc += DETSplash->Drc;
-// splash becomes deposition directly
-
-            if(SwitchUseGrainSizeDistribution)
-            {
-                BL_D.Drcd = 0;
-                SS_D.Drcd = 0;
-                BLTC_D.Drcd = 0;
-                SSTC_D.Drcd = 0;
-                BLC_D.Drcd = 0;
-                SSC_D.Drcd = 0;
-            }
+        //deposition based on settling velocity
+        //if there is a significant water height
+        if (TSSDepthFlood->Drc > MIN_HEIGHT) {
+            TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/TSSDepthFlood->Drc)) * sswatervol;
         } else {
-            //first check if sediment goes to suspended sediment layer or to bed layer
-            double tobl = 0;
-            double TransportFactor;
+            TransportFactor =  1.0*sswatervol;
+            // all sed is deposited
+        }
+        double maxTC = std::max(TSSTCFlood->Drc - TSSCFlood->Drc,0.0) ;
+        // positive difference: TC deficit becomes detachment (ppositive)
+        double minTC = std::min(TSSTCFlood->Drc - TSSCFlood->Drc,0.0) ;
+        // negative diff, becomes deposition
 
-            if (ssdepth > he_ca) {
-                TSSFlood->Drc += DETSplash->Drc;  // assumes that FloodMaskDer is known to splash?
-                MaxConcentration(sswatervol, TSSFlood->Drc);
-                // add splash det
-            } else {
-                TBLFlood->Drc += DETSplash->Drc;
-                MaxConcentration(blwatervol, TBLFlood->Drc);
-            }
+        tobl = TransportFactor * minTC; // m3*kg/m3 = kg
+        tobl = std::max(tobl,-TSSFlood->Drc);
+        TBLFlood->Drc -= tobl;  // tobl is a negative value
+        TSSFlood->Drc += tobl;
 
+        //erosion values based on discharge
+        TransportFactor = ssdischarge*DT->Drc;
+        //    DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc;//SoilWidthDX->Drc;
+        double detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
+        //detachment = std::min(detachment, maxTC * ssdischarge*DT->Drc); //VJ 0518 this line is new
 
-            //deposition based on settling velocity
-            //if there is a significant water height
-            if (ssdepth > he_ca)// MIN_HEIGHT) ???
-            {
-                TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/TSSDepthFlood->Drc)) * sswatervol;
-                //else all sediment potentially is deposited
-            }else
-            {
-                TransportFactor =  1.0*sswatervol;
-            }
-            double maxTC = std::max(sstc - TSSCFlood->Drc,0.0) ;
-            // positive difference: TC deficit becomes detachment (ppositive)
-            double minTC = std::min(sstc - TSSCFlood->Drc,0.0) ;
-            // negative diff, becomes deposition
+        // exceptions
+    //    if (FlowBoundary->Drc > 0)
+     //       detachment = 0;
+        // VJ 190325 prevent any activity on the boundary!
 
-            tobl = TransportFactor * minTC;
+        if (GrassFraction->Drc > 0)
+            detachment = (1-GrassFraction->Drc) * detachment;
+        // no flow detachment on grass strips
 
-            tobl = std::max(tobl,-TSSFlood->Drc);
-            TBLFlood->Drc -= tobl;  // tobl is a negative value
-            TSSFlood->Drc += tobl;
+        // Detachment edxceptions:
+        detachment = (1-StoneFraction->Drc) * detachment;
+        // no flow detachment on stony surfaces
 
-            //erosion values based on settling velocity
-            TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
+        if (SwitchHardsurface)
+            detachment = (1-HardSurface->Drc) * detachment;
+        // no flow detachment on hard surfaces
 
-            double detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
-            detachment = std::min(detachment, maxTC * ssdischarge*DT->Drc); //VJ 0518 this line is new
+        if (SwitchHouses)
+            detachment = (1-HouseCover->Drc)*detachment;
+        // no flow det from house roofs
 
-            if (FlowBoundary->Drc > 0)
-                detachment = 0;
-            // VJ 190325 prevent any activity on the boundary!
+        detachment = (1-Snowcover->Drc) * detachment;
+        /* TODO: CHECK THIS no flow detachment on snow */
+        //is there erosion and sedimentation under the snowdeck?
 
-            //correct detachment for grass strips, hard surfaces and houses
-            if (GrassFraction->Drc > 0)
-                detachment = (1-GrassFraction->Drc) * detachment;
-            detachment = (1-StoneFraction->Drc) * detachment ;
-            if (SwitchHardsurface)
-                detachment = (1-HardSurface->Drc) * detachment;
-            if (SwitchHouses)
-                detachment = (1-HouseCover->Drc)* detachment;
-
-            //check how much of the potential detachment can be detached from soil layer
-            detachment = DetachMaterial(r,c,d, false, true, false, detachment);
-            //bool channel, bool flood,bool bl
-
-            SSDetFlood->Drc += detachment;// set to zero this timestep
-
-            //### sediment balance
-            TSSFlood->Drc += detachment;
-            SSDetFloodT->Drc += detachment;  // set to zero in mass balance
+        //check how much of the potential detachment can be detached from soil layer
+        detachment = Y->Drc * detachment;
+        //DetachMaterial(r,c,d, false, true, false, detachment);
+        //bool channel, bool flood,bool bl
 
 
-            double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*ssdepth;
-            if(sssmax < TSSFlood->Drc)
-            {
-                TBLFlood->Drc += (TSSFlood->Drc - sssmax);
-                TSSFlood->Drc = sssmax;
-            }
+        if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
+            detachment = std::max(0.0, MAXCONC * sswatervol - TSSFlood->Drc);
+        // not more detachment then is needed to keep below ssmax
 
+        //### sediment balance
+        SSDetFlood->Drc += detachment;// set to zero this timestep
+        // actually redundant
+        TSSFlood->Drc += detachment;
+        SSDetFloodTot->Drc += detachment;  // set to zero in mass balance
+        TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
+        // limit concentration to 850
+
+
+        // ########### do bedload
+        if(TBLDepthFlood->Drc < MIN_HEIGHT) {
+
+            // if the BLdepth is to small dump everything
+            BLDepFlood->Drc = -BLFlood->Drc;
+            BLDepFloodTot->Drc += -BLFlood->Drc;
+            BLTCFlood->Drc = 0;
+            BLDetFlood->Drc = 0;
+            BLFlood->Drc = 0;
+            BLCFlood->Drc = 0;
+
+        } else {
+            // there is BL transport
+
+            double deposition = 0;
+
+            if(MAXCONC * blwatervol < TBLFlood->Drc)
+                deposition = std::min(0.0, TBLFlood->Drc - MAXCONC * blwatervol);
 
             TBLCFlood->Drc = MaxConcentration(blwatervol, TBLFlood->Drc);
-            // limit concentration to 850 and throw rest in deposition
-            TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
-            // limit concentration to 850 and throw rest in deposition
+            // limit concentration to 850
 
             //deposition and detachment
             //### calc concentration and net transport capacity
@@ -1282,19 +1170,21 @@ BLDepFloodT->Drc += DETSplash->Drc;
             // unit kg/m3
 
             //### detachment
-            TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc *SoilWidthDX->Drc;
+            TransportFactor = bldischarge*DT->Drc;
+            //DT->Drc*TSettlingVelocity * DX->Drc *SoilWidthDX->Drc;
             // detachment can only come from soil, not roads (so do not use flowwidth)
             // units s * m/s * m * m = m3
 
             detachment = TW->Drc * maxTC * TransportFactor;
             // unit = kg/m3 * m3 = kg
-            detachment = std::min(detachment, maxTC * bldischarge*DT->Drc);
-            // cannot have more detachment than remaining capacity in flow
-            // use discharge because standing water has no erosion
 
 
-            if (FlowBoundary->Drc > 0)
-                detachment = 0;
+            if(MAXCONC * blwatervol < TBLFlood->Drc+detachment)
+                detachment = std::max(0.0, MAXCONC * blwatervol - TBLFlood->Drc);
+            // limit detachment to what BLflood can carry
+
+        //    if (FlowBoundary->Drc > 0)
+        //        detachment = 0;
             // VJ 190325 prevent any activity on the boundary!
 
             if (GrassFraction->Drc > 0)
@@ -1313,75 +1203,39 @@ BLDepFloodT->Drc += DETSplash->Drc;
                 detachment = (1-HouseCover->Drc)*detachment;
             // no flow det from house roofs
 
-//            detachment = DetachMaterial(r,c,d,false,true,true, detachment);
-            detachment = DetachMaterial(r,c,d,false,false,true, detachment);
-
-            // IN KG/CELL
-
-            //DETFlow->Drc = (1-Snowcover->Drc) * DETFlow->Drc ;
+            detachment = (1-Snowcover->Drc) * detachment;
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
 
+            //detachment = DetachMaterial(r,c,d,false,true,true, detachment);
+            detachment = detachment * Y->Drc;
+            //DetachMaterial(r,c,d,false,false,true, detachment);
+
+            // IN KG/CELL
+
             //### deposition
-            if (BLDepthFlood->Drc > MIN_HEIGHT)
-                TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/bldepth)) * blwatervol;
-            else
-                TransportFactor = 1*blwatervol;
-            // if settl velo is very small, transportfactor is 0 and depo is 0
-            // if settl velo is very large, transportfactor is 1 and depo is max
+            TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/BLDepthFlood->Drc)) * blwatervol;
 
             //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
             // deposition can occur on roads and on soil (so use flowwidth)
 
-            double deposition = minTC * TransportFactor;
+            deposition += minTC * TransportFactor;
             // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-
-//            if (SwitchLimitDepTC) //obsolete?
-//                deposition = std::max(deposition, minTC *blwatervol);
-            // cannot be more than sediment above capacity
             deposition = std::max(deposition, -TBLFlood->Drc);
             // cannot have more depo than sediment present
-            if (FlowBoundary->Drc > 0)
-                deposition = 0;
+         //   if (FlowBoundary->Drc > 0)
+         //       deposition = 0;
             // VJ 190325 prevent any activity on the boundary!
-            if(SwitchUseMaterialDepth)
-            {
-                StorageDep->Drc += -deposition;
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    StorageDep_D.Drcd += -deposition;
-                }
-            }
 
-            //### sediment balance
-            BLDepFloodT->Drc += deposition;
-            BLDetFloodT->Drc += detachment;
-            // IN KG/CELL
-
+            //### sediment balance IN KG/CELL
+            BLDetFlood->Drc += detachment; //reduncdant, actually not used
+            BLDepFloodTot->Drc += deposition;
+            BLDetFloodTot->Drc += detachment;
             TBLFlood->Drc += detachment;
             TBLFlood->Drc += deposition;
 
-
         }
     }
-
-    if(SwitchUseGrainSizeDistribution)
-    {
-        BLFlood->Drc = 0;
-        SSFlood->Drc = 0;
-        BLTCFlood->Drc = 0;
-        SSTCFlood->Drc = 0;
-
-        FOR_GRAIN_CLASSES
-        {
-            BLFlood->Drc += BL_D.Drcd;
-            SSFlood->Drc += SS_D.Drcd;
-            BLTCFlood->Drc += BLTC_D.Drcd;
-            SSTCFlood->Drc += SSTC_D.Drcd;
-        }
-    }
-
-    //SWOFSedimentMaxC(r,c);
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -1402,22 +1256,23 @@ void TWorld::SWOFSedimentBalance(int thread)
                 BLCFlood->Drc = 0;
                 SSFlood->Drc = 0;
                 SSCFlood->Drc = 0;
-            }}}}}
+            }
+        }}}}
 
-//then sum up all induvidual grain size classes
-FOR_ROW_COL_UF2DMT_DT {
-    if(FloodHMaskDer->Drc != 0)
-    {
-        FOR_GRAIN_CLASSES
-        {
-            BLFlood->Drc += BL_D.Drcd;
-            BLCFlood->Drc += BLC_D.Drcd;
-            SSFlood->Drc += SS_D.Drcd;
-            SSCFlood->Drc += SSC_D.Drcd;
-        }
-    }}}}}
-}
-return;
+        //then sum up all induvidual grain size classes
+        FOR_ROW_COL_UF2DMT_DT {
+            if(FloodHMaskDer->Drc != 0)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    BLFlood->Drc += BL_D.Drcd;
+                    BLCFlood->Drc += BLC_D.Drcd;
+                    SSFlood->Drc += SS_D.Drcd;
+                    SSCFlood->Drc += SSC_D.Drcd;
+                }
+            }
+        }}}}
+    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -1440,70 +1295,68 @@ return;
  * @see SWOFSedimentCheckZero
  * @see SWOFSedimentSetConcentration
  */
+
 void TWorld::SWOFSediment(int thread,cTMap* DT,double dt,cTMap * h,cTMap * u,cTMap * v)
 {
-    //only when sediment is modelled
-    if (!SwitchErosion)
-        return;
-
     //sediment detachment or deposition
     FOR_ROW_COL_UF2DMT_DT {
-        //when dt = 0, soil loss becomes NaN!
-        if(FloodHMaskDer->Drc != 0 && DT->Drc > 1e-6)
+                                      //????????? ONZIN when dt = 0, soil loss becomes NaN!
+        if(FloodHMaskDer->Drc != 0)// && DT->Drc > 1e-6)
         {
             SWOFSedimentDet(DT,r,c,h,u,v);
         }
     }}}}
 
-//check for cells with insignificant water height and calculate concentration
-FOR_ROW_COL_UF2DMT_DT {
-    if(FloodHMaskDer->Drc != 0)
+    //check for cells with insignificant water height and calculate concentration
+    FOR_ROW_COL_UF2DMT_DT {
+        if(FloodHMaskDer->Drc != 0)
+        {
+            SWOFSedimentCheckZero(r,c,h);
+            //ALREADY DONE IN DET
+            SWOFSedimentSetConcentration(r,c,h);
+        }
+    }}}}
+
+
+    //transport sediment using velocities and water heights from SWOF
+    if(!SwitchUseGrainSizeDistribution)
     {
-        SWOFSedimentCheckZero(r,c,h);//,u,v);
-        SWOFSedimentSetConcentration(r,c,h);//,u,v);
+        SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
+
+       SWOFSedimentDiffusion(thread,DT,h,u,v, SSFlood, SSCFlood);
+
+    } else {
+         //or if there are multiple grain size classes
+
+         //calculate total sediment as sum of grain classes
+        //SWOFSedimentBalance(thread);
+
+        //transport sediment using velocities and water heights from SWOF
+        FOR_GRAIN_CLASSES
+        {
+            SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BL_D.at(d), BLC_D.at(d), SS_D.at(d),SSC_D.at(d));
+        }
+
+        //calculate total sediment as sum of grain classes
+        //SWOFSedimentBalance(thread);
+
+        //diffusion
+        FOR_GRAIN_CLASSES
+        {
+            SWOFSedimentDiffusion(thread,DT,h,u,v,  SS_D.at(d), SSC_D.at(d));
+        }
+
+        //calculate total sediment as sum of grain classes
+        SWOFSedimentBalance(thread);
     }
-}}}}
 
-
-//transport sediment using velocities and water heights from SWOF
-if(!SwitchUseGrainSizeDistribution)
-{
-    SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BLFlood, BLCFlood, SSFlood,SSCFlood);
-
-    SWOFSedimentDiffusion(thread,DT,h,u,v, BLFlood, BLCFlood, SSFlood,SSCFlood);
-
-    //or if there are multiple grain size classes
-}else
-{
-//calculate total sediment as sum of grain classes
-SWOFSedimentBalance(thread);
-
-//transport sediment using velocities and water heights from SWOF
-FOR_GRAIN_CLASSES
-{
-    SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BL_D.at(d), BLC_D.at(d), SS_D.at(d),SSC_D.at(d));
-}
-
-//calculate total sediment as sum of grain classes
-SWOFSedimentBalance(thread);
-
-//diffusion
-FOR_GRAIN_CLASSES
-{
-    SWOFSedimentDiffusion(thread,DT,h,u,v,  BL_D.at(d),  BLC_D.at(d),  SS_D.at(d), SSC_D.at(d));
-}
-
-//calculate total sediment as sum of grain classes
-SWOFSedimentBalance(thread);
-}
-
-//correct for maximum concentration LISEM
-FOR_ROW_COL_UF2DMT_DT {
-    if(FloodHMaskDer->Drc != 0)
-    {
-        SWOFSedimentMaxC(r,c);//,h,u,v);
-    }
-}}}}
+    //correct for maximum concentration LISEM
+    FOR_ROW_COL_UF2DMT_DT {
+        if(FloodHMaskDer->Drc != 0)
+        {
+            SWOFSedimentMaxC(r,c);
+        }
+    }}}}
 
 
 }

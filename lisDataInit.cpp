@@ -969,54 +969,54 @@ void TWorld::InitFlood(void)
     BLDepFlood = NewMap(0);
     BLDetFlood = NewMap(0);
 
-    BLDepFloodT = NewMap(0);
-    BLDetFloodT = NewMap(0);
+    BLDepFloodTot = NewMap(0);
+    BLDetFloodTot = NewMap(0);
 
-    bl1r = NewMap(0);
-    bl1l = NewMap(0);
-    bl2r = NewMap(0);
-    bl2l = NewMap(0);
-    blf1 = NewMap(0);
-    blg1 = NewMap(0);
-    bls = NewMap(0);
-    bl1d = NewMap(0);
-    bl1g = NewMap(0);
-    bl2d = NewMap(0);
-    bl2g = NewMap(0);
+//    bl1r = NewMap(0);
+//    bl1l = NewMap(0);
+//    bl2r = NewMap(0);
+//    bl2l = NewMap(0);
+//    blf1 = NewMap(0);
+//    blg1 = NewMap(0);
+//    bls = NewMap(0);
+//    bl1d = NewMap(0);
+//    bl1g = NewMap(0);
+//    bl2d = NewMap(0);
+//    bl2g = NewMap(0);
 
     SSCFlood = NewMap(0);
     SSFlood = NewMap(0);
     SSTCFlood = NewMap(0);
-    SSDetFloodT = NewMap(0);
+    SSDetFloodTot = NewMap(0);
     SSDetFlood = NewMap(0);
     SSDepFlood = NewMap(0);
     //SSDepFloodT = NewMap(0);
 
-    ss1r = NewMap(0);
-    ss1l = NewMap(0);
-    ss2r = NewMap(0);
-    ss2l = NewMap(0);
-    ssf1 = NewMap(0);
-    ssg1 = NewMap(0);
-    sss = NewMap(0);
-    sss2 = NewMap(0);
-    ss1d = NewMap(0);
-    ss1g = NewMap(0);
-    ss2d = NewMap(0);
-    ss2g = NewMap(0);
+//    ss1r = NewMap(0);
+//    ss1l = NewMap(0);
+//    ss2r = NewMap(0);
+//    ss2l = NewMap(0);
+//    ssf1 = NewMap(0);
+//    ssg1 = NewMap(0);
+//    sss = NewMap(0);
+//    sss2 = NewMap(0);
+//    ss1d = NewMap(0);
+//    ss1g = NewMap(0);
+//    ss2d = NewMap(0);
+//    ss2g = NewMap(0);
 
-    temp1 = NewMap(0);
-    temp2 = NewMap(0);
-    temp3 = NewMap(0);
-    temp4 = NewMap(0);
-    temp5 = NewMap(0);
-    temp6 = NewMap(0);
-    temp7 = NewMap(0);
-    temp8 = NewMap(0);
-    temp9 = NewMap(0);
-    temp10 = NewMap(0);
-    temp11= NewMap(0);
-    temp12= NewMap(0);
+//    temp1 = NewMap(0);
+//    temp2 = NewMap(0);
+//    temp3 = NewMap(0);
+//    temp4 = NewMap(0);
+//    temp5 = NewMap(0);
+//    temp6 = NewMap(0);
+//    temp7 = NewMap(0);
+//    temp8 = NewMap(0);
+//    temp9 = NewMap(0);
+//    temp10 = NewMap(0);
+//    temp11= NewMap(0);
+//    temp12= NewMap(0);
 
     prepareFloodZ(DEM);
 }
@@ -1060,7 +1060,7 @@ void TWorld::InitMulticlass(void)
     DETFlowCum = NewMap(0);
     DEP = NewMap(0);
     DEPCum = NewMap(0);
-    DEPBLCum = NewMap(0);
+    //DEPBLCum = NewMap(0);
     Sed = NewMap(0);
     TC = NewMap(0);
     Conc = NewMap(0);
@@ -1125,13 +1125,13 @@ void TWorld::InitMulticlass(void)
     {
         MSSCFlood = NewMap(0);
         MSSNFlood = NewMap(0);
-        MSSFlood = NewMap(0);
-        MSSCNFlood = NewMap(0);
+        //MSSFlood = NewMap(0);
+        //MSSCNFlood = NewMap(0);
 
         MBLCFlood = NewMap(0);
         MBLNFlood = NewMap(0);
-        MBLFlood = NewMap(0);
-        MBLCNFlood = NewMap(0);
+        //MBLFlood = NewMap(0);
+        //MBLCNFlood = NewMap(0);
 
         graindiameters.clear();
         settlingvelocities.clear();

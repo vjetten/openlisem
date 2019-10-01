@@ -128,7 +128,7 @@ cTMap
 *DETFlow,                    //!< flow detachment [kg/cell]
 *DETFlowCum,
 *DEPCum,
-*DEPBLCum,
+//*DEPBLCum,
 *DEP,                        //!< deposition [kg/cell]
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]
@@ -385,8 +385,8 @@ cTMap
 *temp9,*temp10,*temp11,*temp12,
 
 //layer itneraction
-*BLDepFlood,*BLDetFlood,*BLDepFloodT,*BLDetFloodT,*BLTCFlood,
-*SSTCFlood,*SSDetFlood,*SSDetFloodT,*SSDepFlood,/* *SSDepFloodT,  */
+*BLDepFlood,*BLDetFlood,*BLDepFloodTot,*BLDetFloodTot,*BLTCFlood,
+*SSTCFlood,*SSDetFlood,*SSDetFloodTot,*SSDepFlood,/* *SSDepFloodT,  */
 
 //sediment maps
 *BLCFlood,
@@ -396,13 +396,15 @@ cTMap
 
 //transport
 //Bed Load layer
-*MBLCFlood,*MBLCNFlood,*MBLNFlood,*MBLFlood,
-*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
+*MBLCFlood, *MBLNFlood,
+// *MBLCNFlood,*MBLFlood,
+//*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
 
 //transport
 //Suspended Sediment Layer
-*MSSCFlood,*MSSCNFlood,*MSSNFlood,*MSSFlood,
-*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
+*MSSCFlood,*MSSNFlood,
+//*MSSCNFlood,*MSSFlood,
+//*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
 
 //*q1flood,*q2flood,
 *som_z1,*som_z2,

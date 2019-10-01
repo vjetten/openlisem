@@ -496,7 +496,7 @@ void lisemqt::showComboMap(int i)
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
 
     cm->thresholduse = true;//ActiveList == 0;
-    cmL->thresholduse = false; // !op.ComboSymColor.at(i);
+    cmL->thresholduse =  !op.ComboSymColor.at(i);
 
     cm->thresholdmin = mi;
     cmL->thresholdmin = mi;
@@ -519,7 +519,7 @@ void lisemqt::showComboMap(int i)
     else
     {
 
-        MPlot->setAxisScale( MPlot->yRight, mi, ma);//std::max(mi,0.001)
+        MPlot->setAxisScale( MPlot->yRight, mi, ma);
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
 }
