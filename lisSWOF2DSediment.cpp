@@ -910,8 +910,14 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v) //cTM
  *
  * @return void
  */
-void TWorld::SWOFSedimentLayerDepth(int r , int c, cTMap * h, double velocity)//,cTMap * u,cTMap * v )
+void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 {
+    if (!SwitchUse2Layer) {
+        BLDepthFlood->Drc = 0;
+        SSDepthFlood->Drc = h;
+        return;
+    }
+
     if(!SwitchUseGrainSizeDistribution)
     {
 
@@ -922,13 +928,12 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, cTMap * h, double velocity)//
         //  double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
 
         //critical shear velocity for bed level motion by van rijn
-        double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h->Drc/(h->Drc * 2 + ChannelAdj->Drc))/d90m));
+        double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/d90m));
         //critical shear stress for bed level motion by van rijn
         double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
         //rough bed bed load layer depth by Hu en Hui
-        BLDepthFlood->Drc = std::min(0.1*h->Drc, 0.1);
-                //std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h->Drc), 0.1);
-        SSDepthFlood->Drc = std::max(h->Drc - BLDepthFlood->Drc,0.0);
+        BLDepthFlood->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h), 0.1);
+        SSDepthFlood->Drc = std::max(h - BLDepthFlood->Drc,0.0);
     }else
     {
         FOR_GRAIN_CLASSES
@@ -941,12 +946,12 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, cTMap * h, double velocity)//
             //double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
 
             //critical shear velocity for bed level motion by van rijn
-            double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h->Drc/(h->Drc * 2 + ChannelAdj->Drc))/(d90m)));
+            double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/(d90m)));
             //critical shear stress for bed level motion by van rijn
             double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
             //rough bed bed load layer depth by Hu en Hui
-            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h->Drc), 0.1);
-            SSD_D.Drcd = std::max(h->Drc - BLD_D.Drcd,0.0);
+            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h), 0.1);
+            SSD_D.Drcd = std::max(h - BLD_D.Drcd,0.0);
             BLDepthFlood->Drc += BLD_D.Drcd * W_D.Drcd;
             SSDepthFlood->Drc += SSD_D.Drcd * W_D.Drcd;
 
@@ -986,11 +991,10 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 {
     //first calculate layer depth
     double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-    SWOFSedimentLayerDepth(r,c,h, velocity);
     // gives BLDepthFlood->Drc and SSDepthFlood->Drc
 
-    //BLDepthFlood->Drc = 0;
-    //SSDepthFlood->Drc = h->Drc;
+    SWOFSedimentLayerDepth(r,c,h->Drc, velocity);
+        //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
 
     //iterator is the number of grain classes
     int iterator = numgrainclasses;
@@ -1154,12 +1158,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             double tobl = 0;
             double TransportFactor;
 
-            int d = 1;
-
-            //TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
-            // limit concentration to 846 !!
-            //NEEDED?
-
             //deposition based on settling velocity
             //if there is a significant water height
             if (TSSDepthFlood->Drc > MIN_HEIGHT) {
@@ -1211,9 +1209,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
             //check how much of the potential detachment can be detached from soil layer
             detachment = Y->Drc * detachment;
-            //DetachMaterial(r,c,d, false, true, false, detachment);
+//DetachMaterial(r,c,d, false, true, false, detachment);
             //bool channel, bool flood,bool bl
-
 
             if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
                 detachment = std::max(0.0, MAXCONC * sswatervol - TSSFlood->Drc);
@@ -1315,7 +1312,14 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 //   if (FlowBoundary->Drc > 0)
                 //       deposition = 0;
                 // VJ 190325 prevent any activity on the boundary!
-
+                if(SwitchUseMaterialDepth)
+                {
+                    StorageDep->Drc += -deposition;
+                    if(SwitchUseGrainSizeDistribution)
+                    {
+                        StorageDep_D.Drcd += -deposition;
+                    }
+                }
                 //### sediment balance IN KG/CELL
                 BLDetFlood->Drc += detachment; //reduncdant, actually not used
                 BLDepFloodTot->Drc += deposition;

@@ -579,10 +579,9 @@ void lisemqt::showChannelVector()
 {
     if (!checkIncludeChannel->isChecked())
         return;
-    if(op.Chanbranch.length() == 0)
+    if(op.Chanbranch.isEmpty())
         return;
-
-
+return;
     if (startplot)
     {
         QVector <double> X;

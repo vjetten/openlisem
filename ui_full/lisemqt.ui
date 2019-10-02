@@ -1639,8 +1639,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>783</width>
-                <height>811</height>
+                <width>834</width>
+                <height>825</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>6</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7318,7 +7318,26 @@ p, li { white-space: pre-wrap; }
                         <property name="verticalSpacing">
                          <number>4</number>
                         </property>
-                        <item row="4" column="0" colspan="2">
+                        <item row="0" column="1">
+                         <widget class="QLabel" name="label_91">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detachment efficiency: 1-&lt;span style=&quot; font-style:italic;&quot;&gt;Y=1/(0.89+0.56COH)&lt;/span&gt; ;2-&lt;span style=&quot; font-style:italic;&quot;&gt;Y=0.79exp(-0.85 COH);3-Y=1/(2.0*COH)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="3" column="0" colspan="2">
                          <widget class="QFrame" name="matdepthparams">
                           <property name="enabled">
                            <bool>false</bool>
@@ -7579,20 +7598,7 @@ p, li { white-space: pre-wrap; }
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="2">
-                         <spacer name="horizontalSpacer_4">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item row="3" column="0" colspan="2">
+                        <item row="2" column="0" colspan="2">
                          <widget class="QCheckBox" name="checkMaterialDepth">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -7611,31 +7617,25 @@ p, li { white-space: pre-wrap; }
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="1">
-                         <widget class="QLabel" name="label_91">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
+                        <item row="0" column="2">
+                         <spacer name="horizontalSpacer">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
                           </property>
-                          <property name="font">
-                           <font>
-                            <weight>50</weight>
-                            <bold>false</bold>
-                           </font>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
                           </property>
-                          <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detachment efficiency: 1-&lt;span style=&quot; font-style:italic;&quot;&gt;Y=1/(0.89+0.56COH)&lt;/span&gt; ;2-&lt;span style=&quot; font-style:italic;&quot;&gt;Y=0.79exp(-0.85 COH);3-Y=1/(2.0*COH)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                          </property>
-                         </widget>
+                         </spacer>
                         </item>
                        </layout>
                        <zorder>E_EfficiencyDET</zorder>
                        <zorder>matdepthparams</zorder>
                        <zorder>checkMaterialDepth</zorder>
                        <zorder>label_91</zorder>
-                       <zorder>horizontalSpacer_4</zorder>
+                       <zorder>horizontalSpacer</zorder>
                       </widget>
                      </item>
                      <item row="1" column="1" rowspan="4">

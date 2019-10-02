@@ -559,7 +559,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwitchSimpleErosion, SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+    bool SwitchUseMaterialDepth,/*SwitchSimpleErosion,*/ SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
 
     int numgrainclasses;
     QString GrainMaps;
@@ -641,7 +641,7 @@ public:
     void SWOFSedimentFlowInterpolation(int thread,cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSediment(int thread,cTMap* DT, double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentLayerDepth(int r , int c, cTMap * h, double velocity);//cTMap * u,cTMap * v);
+    void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,

@@ -390,12 +390,15 @@ void TWorld::ChannelFlow(void)
     if (SwitchErosion)
     {
         FOR_ROW_COL_MV_CH {
+
             ChannelFlowDetachment(r,c);
 
             //check for concentration surpassing MAXCONC and calc sed load
             RiverSedimentMaxC(r,c);
-            //total concentration ALL DONE, not necessary
-
+            //total concentration ALL DONE:
+            //    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+            //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+            // on the basis of SS depth and BL depth
         }
     }
 
@@ -412,38 +415,34 @@ void TWorld::ChannelFlow(void)
         }
     }
 
-    ChannelQn->setAllMV();
-    fill(*QinKW, 0.0);
-    fill(*tm, 0);
-    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-
     //VJ calc concentrations and ingoing Qs
     if (SwitchErosion)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-            //WRONG THIS MAKES BEDLOAD MOVE AS FAST AS SS ??
             FOR_ROW_COL_MV_CH
             {
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
                 double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
-                // is already done above
-                ChannelConc->Drc = (concbl + concss);
+                //temp conc because we move everything with channelQ
+
+                ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
                 ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-                ChannelQBLs->Drc = ChannelQ->Drc *  concbl;// * fraction;
-                ChannelQSSs->Drc = ChannelQ->Drc  * concss;// * (1-fraction);
+                ChannelQBLs->Drc = ChannelQ->Drc *  concbl;
+                ChannelQSSs->Drc = ChannelQ->Drc  * concss;
             }
 
-        }else
-        {
+        } else {
             double concbl = 0;
             double concss = 0;
             FOR_GRAIN_CLASSES
             {
                 FOR_ROW_COL_MV_CH
                  {
-                    concbl += RBLC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd);
-                    concss += RSSC_D.Drcd =MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd);
+                    RBLC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd);
+                    RSSC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd);
+                    concbl += RBLC_D.Drcd;
+                    concss += RSSC_D.Drcd;
 
                     ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
 
@@ -460,72 +459,29 @@ void TWorld::ChannelFlow(void)
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
         }
-    }
-    ChannelQBLsn->setAllMV();
-    ChannelQSSsn->setAllMV();
-    if(SwitchUseGrainSizeDistribution)
-    {
-        FOR_GRAIN_CLASSES
+
+        ChannelQBLsn->setAllMV();
+        ChannelQSSsn->setAllMV();
+        if(SwitchUseGrainSizeDistribution)
         {
-            Tempb_D.at(d)->setAllMV();
-            Tempd_D.at(d)->setAllMV();
+            FOR_GRAIN_CLASSES
+            {
+                Tempb_D.at(d)->setAllMV();
+                Tempd_D.at(d)->setAllMV();
+            }
         }
     }
-
-    ChannelQBLsn->setAllMV();
-    ChannelQSSsn->setAllMV();
-
-    if(SwitchUseGrainSizeDistribution)
-    FOR_GRAIN_CLASSES
-    {
-        Tempb_D.at(d)->setAllMV();
-        Tempd_D.at(d)->setAllMV();
-    }
+    ChannelQn->setAllMV();
+    fill(*QinKW, 0.0);
 
     // route water 1D and sediment
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
-        {
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);            // kin wave on water
-
-            if (SwitchErosion)
-            {
-                if(!SwitchUseGrainSizeDistribution)
-                {
-                    if (SwitchUse2Layer) {
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
-                                       ChannelAlpha, ChannelDX, ChannelBLWaterVol, ChannelBLSed); //ChannelBLWaterVol
-                    }
-                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                                   ChannelAlpha, ChannelDX, ChannelSSWaterVol, ChannelSSSed); //ChannelSSWaterVol
-                    //explicit routing of matter using Q and new Qn
-                }else
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d),
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
-                    }
-                }
-            }
-        }
     }
-
     cover(*ChannelQn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
-
-//    if (SwitchChannelFlood)
-//    {
-//        FOR_ROW_COL_MV_CH
-//        {
-//        if (ChannelMaxQ->Drc > 0)
-//            ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
-//        }
-//    }
-    // limit channel Q when culverts > 0
 
     FOR_ROW_COL_MV_CH
     {
@@ -548,11 +504,40 @@ void TWorld::ChannelFlow(void)
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
     }
 
+
+
     if (SwitchErosion)
     {
+        // route water 1D and sediment
+        FOR_ROW_COL_MV_CH
+        {
+            if (LDDChannel->Drc == 5)
+            {
+                //explicit routing of matter using Q and new Qn
+                if(!SwitchUseGrainSizeDistribution)
+                {
+                    if (SwitchUse2Layer) {
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed); //ChannelBLWaterVol
+                    }
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed); //ChannelSSWaterVol
+                }else
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d),
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
+                    }
+                }
+            }
+        }
+
         FOR_ROW_COL_MV_CH {
-            RiverSedimentLayerDepth(r, c);
-            // new depths and volumes for SS and BL from new ChannelV and WH
+            RiverSedimentLayerDepth(r,c);
+            RiverSedimentMaxC(r,c);
         }
 
         cover(*ChannelQBLsn, *LDD, 0);
@@ -595,8 +580,9 @@ void TWorld::ChannelFlow(void)
             }
         }
         else
-        {
-            RiverSedimentDiffusion(_dt, /*ChannelBLSed,ChannelBLConc,*/ ChannelSSSed,ChannelSSConc);
+        {            
+            RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+            // note SSsed goes in and out, SSconc is recalculated inside
         }
 
         if(!SwitchUseGrainSizeDistribution)
@@ -606,8 +592,15 @@ void TWorld::ChannelFlow(void)
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                 ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
-                ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
-                ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
+
+                RiverSedimentLayerDepth(r,c);
+
+                ChannelBLWaterVol->Drc = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+                ChannelSSWaterVol->Drc = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+
+                ChannelSSConc->Drc = MaxConcentration(ChannelSSWaterVol->Drc, ChannelSSSed->Drc);
+                ChannelBLConc->Drc = MaxConcentration(ChannelBLWaterVol->Drc, ChannelBLSed->Drc);
+
             }
         }
         else

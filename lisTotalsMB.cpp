@@ -326,7 +326,7 @@ void TWorld::Totals(void)
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed); //mapTotal(*ChannelSed);//
+            ChannelSedTot = mapTotal(*ChannelSed);//mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed); //mapTotal(*ChannelSed);//
         }
 
         // used for mass balance and screen output

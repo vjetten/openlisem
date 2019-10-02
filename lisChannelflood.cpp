@@ -45,21 +45,31 @@ void TWorld::distributeChannelSed(int r, int c, double dh, bool fromchannel)
 {
     if (fromchannel) {
         double vol = dh*ChannelDX->Drc*ChannelWidth->Drc;
+        double frac = dh/ChannelWH->Drc;
 // only susp matter, bedload cannot flow out of channel
-        SSFlood->Drc += ChannelSSConc->Drc * vol;
+
+
+      //  SSFlood->Drc += ChannelSSSed->Drc*frac;
+       SSFlood->Drc +=  ChannelSSConc->Drc * vol;
+//        ChannelSSSed->Drc -= ChannelSSSed->Drc * frac;
         ChannelSSSed->Drc -= ChannelSSConc->Drc * vol;
         ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
         if(SwitchUseGrainSizeDistribution)
         {
             FOR_GRAIN_CLASSES
             {
-                SS_D.Drcd +=RSSC_D.Drcd * vol;
+//                SS_D.Drcd += RSS_D.Drcd * frac;
+//                RSS_D.Drcd -= RSS_D.Drcd * frac;
+                SS_D.Drcd += RSSC_D.Drcd * vol;
                 RSS_D.Drcd -= RSSC_D.Drcd * vol;
             }
         }
     } else {
         double vol = dh*DX->Drc*ChannelAdj->Drc;
-
+        double frac = dh/WH->Drc;
+//        SSFlood->Drc -= SSFlood->Drc * frac;
+//        ChannelSSSed->Drc += SSFlood->Drc * frac;
+//        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
         SSFlood->Drc -= SSCFlood->Drc * vol;
         ChannelSSSed->Drc += SSCFlood->Drc * vol;
         ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
@@ -67,8 +77,8 @@ void TWorld::distributeChannelSed(int r, int c, double dh, bool fromchannel)
         {
             FOR_GRAIN_CLASSES
             {
-                SS_D.Drcd -= SSC_D.Drcd * vol;
-                RSS_D.Drcd += SSC_D.Drcd * vol;
+                SS_D.Drcd -= SS_D.Drcd * frac;
+                RSS_D.Drcd += SS_D.Drcd * frac;
             }
         }
     }
@@ -139,7 +149,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 //transport sediment with water
                                 if(SwitchErosion) {
                                     RiverSedimentLayerDepth(rr,cr);
-                                    SWOFSedimentLayerDepth(rr, cr, _h, V->Drcr);
+
+                                    SWOFSedimentLayerDepth(rr, cr, _h->Drcr, V->Drcr);
                                     distributeChannelSed(rr,cr,dwh, true);
                                 }
                             }
@@ -157,7 +168,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 //transport sediment with water
                                 if(SwitchErosion) {
                                     RiverSedimentLayerDepth(rr,cr);
-                                    SWOFSedimentLayerDepth(rr, cr, _h, V->Drcr);
+                                    SWOFSedimentLayerDepth(rr, cr, _h->Drcr, V->Drcr);
                                     distributeChannelSed(rr, cr, dwh,  false);
                                 }
                             }
@@ -168,24 +179,19 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     {
                         if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
                         {
-                            //double _hold = _h->Drcr;
-
                             ChannelWH->Drcr = (whlevel + chdepth);
                             _h->Drcr = whlevel;
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-                                RiverSedimentLayerDepth(rr,cr);
-                                SWOFSedimentLayerDepth(rr, cr, _h, V->Drcr);
-                                double _sed = ChannelSSSed->Drcr + SSFlood->Drcr;
-//                                double _vol = (ChannelWH->Drcr*ChannelWidth->Drcr + _h->Drcr*ChannelAdj->Drcr)*DX->Drcr;
-                                double _vol = (ChannelSSDepth->Drcr*ChannelWidth->Drcr + SSDepthFlood->Drcr*ChannelAdj->Drcr)*DX->Drcr;
-                                double _concavg = _sed/_vol;
-                                ChannelSSConc->Drcr = _concavg;
-                                ChannelSSSed->Drc = _concavg*ChannelSSWaterVol->Drcr;
-                                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-                                SSCFlood->Drcr = _concavg;
-                                SSFlood->Drcr = _concavg*SSDepthFlood->Drcr*ChannelAdj->Drcr*DX->Drcr;
+                                double totsed = ChannelSSSed->Drc + SSFlood->Drcr;
+                                double totvol = ChannelWH->Drcr*ChannelWidth->Drc*ChannelDX->Drcr +
+                                        _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
+                                double concavg = MaxConcentration(totvol, totsed);
+
+                                ChannelSSSed->Drcr = concavg*ChannelSSWaterVol->Drcr;
+                                ChannelSed->Drcr = ChannelBLSed->Drcr + ChannelSSSed->Drcr;
+                                SSFlood->Drcr = concavg*SSDepthFlood->Drcr*ChannelAdj->Drcr*DX->Drcr;
                             }
                         }
                         else

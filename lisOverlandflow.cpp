@@ -135,8 +135,8 @@ void TWorld::ToFlood()//int thread)
                 //immediately check for maximum concentration
                 //if not done, too high concentration will show on display, before being deposited
                 double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-                SWOFSedimentLayerDepth(r,c,hmx,UV);
-                SWOFSedimentMaxC(r,c);//,hmx,Uflood,Vflood);
+                SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
+                SWOFSedimentMaxC(r,c);
             }
          }
     }
@@ -169,7 +169,7 @@ void TWorld::ToChannel()//int thread)
     FOR_ROW_COL_MV_CH
     {
         RunoffVolinToChannel->Drc  = 0;
-        SedToChannel->Drc = 0;
+     //   SedToChannel->Drc = 0;
     }
 
     FOR_ROW_COL_MV_CH
@@ -356,7 +356,7 @@ void TWorld::Boundary2Ddyn(void)
                 K2DQSOut += sout;
                 BLFlood->Drc -= sout;
             }
- //            SWOFSedimentLayerDepth(r,c,WHrunoff,V->Drc);
+ //            SWOFSedimentLayerDepth(r,c,WHrunoff->Drc,V->Drc);
  //            BLCFlood->Drc = MaxConcentration(BLVolFlood->Drc, BLFlood->Drc);
  //            SSCFlood->Drc = MaxConcentration(SSVolFlood->Drc, SSFlood->Drc);
         }

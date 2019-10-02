@@ -327,16 +327,17 @@ void TWorld::ParseRunfileData(void)
         if(dummyAdvancedSed == 2) {
             SwitchUse2Layer = true;
             SwitchUseGrainSizeDistribution = true;
-            SwitchSimpleErosion = false;
+    //        SwitchSimpleErosion = false;
         } else if(dummyAdvancedSed == 1) {
             SwitchUse2Layer = true;
             SwitchUseGrainSizeDistribution = false;
-            SwitchSimpleErosion = false;
+    //        SwitchSimpleErosion = false;
         } else if(dummyAdvancedSed == 0) {
             SwitchUse2Layer = false;
             SwitchUseGrainSizeDistribution = false;
-            SwitchSimpleErosion = true;
+    //        SwitchSimpleErosion = true;
         }
+        qDebug() << "2layer" << SwitchUse2Layer << SwitchUseGrainSizeDistribution;
     }
 
     // fill up outputcheck for older runfiles

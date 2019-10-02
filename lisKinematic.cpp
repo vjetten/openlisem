@@ -105,7 +105,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
 {
     double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
     const double beta = 0.6;
-
+// Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q
 
     if (Qj1i1 < MIN_FLUX)
         return (0);

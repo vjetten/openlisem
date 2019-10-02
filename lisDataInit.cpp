@@ -643,7 +643,7 @@ void TWorld::InitStandardInput(void)
 
         D50 = ReadMap(LDD,getvaluename("D50"));
         //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
-        if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
+        if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
         {
             D90 = ReadMap(LDD,getvaluename("D90"));
         }
@@ -651,7 +651,7 @@ void TWorld::InitStandardInput(void)
         FOR_ROW_COL_MV
         {
             D50->Drc = D50->Drc *gsizeCalibration;
-            if(SwitchErosion &&(SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution)) )
+            if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
             {
                 D90->Drc = D90->Drc *gsizeCalibration;
             }
@@ -742,7 +742,7 @@ void TWorld::InitChannel(void)
     FloodDepTot = 0;
     FloodDetTot = 0;
 
-    SedToChannel = NewMap(0);
+    //SedToChannel = NewMap(0);
     ChannelFlowWidth = NewMap(0);
     ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
@@ -846,7 +846,7 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_CH
         {
             ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-            ChannelDX->Drc = _dx/cos(asin(Grad->Drc));
+            ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
 
         copy(*ChannelFlowWidth, *ChannelWidth);
@@ -2641,7 +2641,7 @@ void TWorld::InitChanNetwork()
                             int c = list->colNr;
 
 
-                            if (len != op.branches.at(op.branches.length() -1) ) {
+                            if (len != op.branches.last()) {//op.branches.at(op.branches.length() -1) ) {
                                 branchnr++;
                                 op.branches << len;
                             }
@@ -2650,7 +2650,6 @@ void TWorld::InitChanNetwork()
                             op.ChanDataX << c*_dx + 0.5*_dx;
                             op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
                    //         op.ChanDataY << (r)*_dx + 0.5*_dx;
-
                             temp=list;
                             list=list->prev;
                             free(temp);
@@ -2663,6 +2662,7 @@ void TWorld::InitChanNetwork()
    // report(*tma, "node.map");
    // qDebug() << op.Chanbranch.length() ;
    // qDebug() << op.ChanDataX.length() ;
+   // qDebug() << "branches" << op.branches;
 
     if(SwitchCulverts) {
         FOR_ROW_COL_MV {
