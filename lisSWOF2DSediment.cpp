@@ -1001,8 +1001,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
     if(!SwitchUseGrainSizeDistribution)
         iterator = 1;
 
-    BLDetFlood->Drc = 0;
-    SSDetFlood->Drc = 0;
+    //BLDetFlood->Drc = 0;
+    //SSDetFlood->Drc = 0;
     BLDepFlood->Drc = 0;
 
     for(int d = 0 ; d < iterator; d++)
@@ -1119,7 +1119,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             BLDepFlood->Drc = -BLFlood->Drc;
             BLDepFloodTot->Drc += -BLFlood->Drc;
             BLTCFlood->Drc = 0;
-            BLDetFlood->Drc = 0;
+            //BLDetFlood->Drc = 0;
             BLFlood->Drc = 0;
             BLCFlood->Drc = 0;
 
@@ -1128,7 +1128,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             SSTCFlood->Drc = 0;
             SSFlood->Drc = 0;
             SSCFlood->Drc = 0;
-            SSDetFlood->Drc = 0;
+            //SSDetFlood->Drc = 0;
 
             if(SwitchUseGrainSizeDistribution)
             {
@@ -1217,7 +1217,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             // not more detachment then is needed to keep below ssmax
 
             //### sediment balance
-            SSDetFlood->Drc += detachment;// set to zero this timestep
+            //SSDetFlood->Drc += detachment;// set to zero this timestep
             // actually redundant
             TSSFlood->Drc += detachment;
             SSDetFloodTot->Drc += detachment;  // set to zero in mass balance
@@ -1232,7 +1232,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 BLDepFlood->Drc = -BLFlood->Drc;
                 BLDepFloodTot->Drc += -BLFlood->Drc;
                 BLTCFlood->Drc = 0;
-                BLDetFlood->Drc = 0;
+                //BLDetFlood->Drc = 0;
                 BLFlood->Drc = 0;
                 BLCFlood->Drc = 0;
 
@@ -1321,7 +1321,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                     }
                 }
                 //### sediment balance IN KG/CELL
-                BLDetFlood->Drc += detachment; //reduncdant, actually not used
+                //BLDetFlood->Drc += detachment; //reduncdant, actually not used
                 BLDepFloodTot->Drc += deposition;
                 BLDetFloodTot->Drc += detachment;
                 TBLFlood->Drc += detachment;

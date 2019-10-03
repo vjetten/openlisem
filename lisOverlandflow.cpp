@@ -169,7 +169,6 @@ void TWorld::ToChannel()//int thread)
     FOR_ROW_COL_MV_CH
     {
         RunoffVolinToChannel->Drc  = 0;
-     //   SedToChannel->Drc = 0;
     }
 
     FOR_ROW_COL_MV_CH
@@ -186,7 +185,7 @@ void TWorld::ToChannel()//int thread)
             {
                 continue;
             }
-//SHOULD ALL BE Drcr ??
+
             if (ChannelAdj->Drcr == 0)
                 fractiontochannel = 1.0;
             else
@@ -213,7 +212,9 @@ void TWorld::ToChannel()//int thread)
             WHrunoff->Drcr *= (1-fractiontochannel);
 
             WH->Drcr = WHrunoff->Drcr + WHstore->Drcr;
-            //VJ 130425
+
+            ChannelWaterHeightFromVolumeNT();
+            // add tochannel to volume and recalc channelwh
 
             if (SwitchErosion)
             {
@@ -237,7 +238,10 @@ void TWorld::ToChannel()//int thread)
                 }
 
                 RiverSedimentLayerDepth(rr,cr);
-                ChannelSSConc->Drcr = MaxConcentration(ChannelSSWaterVol->Drcr, ChannelSSSed->Drcr);
+                double sswatervol = ChannelSSDepth->Drcr*DX->Drcr*ChannelWidth->Drcr;
+               // ChannelSSConc->Drcr = MaxConcentration(sswatervol, ChannelSSSed->Drcr);
+                ChannelSSConc->Drcr = MaxConcentration(ChannelWaterVol->Drcr, ChannelSSSed->Drcr);
+
             }
         }
     }

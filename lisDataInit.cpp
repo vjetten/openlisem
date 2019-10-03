@@ -746,8 +746,8 @@ void TWorld::InitChannel(void)
     ChannelFlowWidth = NewMap(0);
     ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
-    ChannelBLWaterVol = NewMap(0);
-    ChannelSSWaterVol = NewMap(0);
+    //ChannelBLWaterVol = NewMap(0);
+    //ChannelSSWaterVol = NewMap(0);
     RunoffVolinToChannel = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQn = NewMap(0);
@@ -967,56 +967,18 @@ void TWorld::InitFlood(void)
     BLFlood = NewMap(0);
     BLTCFlood = NewMap(0);
     BLDepFlood = NewMap(0);
-    BLDetFlood = NewMap(0);
+    //BLDetFlood = NewMap(0);
 
     BLDepFloodTot = NewMap(0);
     BLDetFloodTot = NewMap(0);
-
-//    bl1r = NewMap(0);
-//    bl1l = NewMap(0);
-//    bl2r = NewMap(0);
-//    bl2l = NewMap(0);
-//    blf1 = NewMap(0);
-//    blg1 = NewMap(0);
-//    bls = NewMap(0);
-//    bl1d = NewMap(0);
-//    bl1g = NewMap(0);
-//    bl2d = NewMap(0);
-//    bl2g = NewMap(0);
 
     SSCFlood = NewMap(0);
     SSFlood = NewMap(0);
     SSTCFlood = NewMap(0);
     SSDetFloodTot = NewMap(0);
-    SSDetFlood = NewMap(0);
+    //SSDetFlood = NewMap(0);
     SSDepFlood = NewMap(0);
     //SSDepFloodT = NewMap(0);
-
-//    ss1r = NewMap(0);
-//    ss1l = NewMap(0);
-//    ss2r = NewMap(0);
-//    ss2l = NewMap(0);
-//    ssf1 = NewMap(0);
-//    ssg1 = NewMap(0);
-//    sss = NewMap(0);
-//    sss2 = NewMap(0);
-//    ss1d = NewMap(0);
-//    ss1g = NewMap(0);
-//    ss2d = NewMap(0);
-//    ss2g = NewMap(0);
-
-//    temp1 = NewMap(0);
-//    temp2 = NewMap(0);
-//    temp3 = NewMap(0);
-//    temp4 = NewMap(0);
-//    temp5 = NewMap(0);
-//    temp6 = NewMap(0);
-//    temp7 = NewMap(0);
-//    temp8 = NewMap(0);
-//    temp9 = NewMap(0);
-//    temp10 = NewMap(0);
-//    temp11= NewMap(0);
-//    temp12= NewMap(0);
 
     prepareFloodZ(DEM);
 }

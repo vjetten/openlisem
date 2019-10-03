@@ -581,13 +581,13 @@ void lisemqt::showChannelVector()
         return;
     if(op.Chanbranch.isEmpty())
         return;
-return;
+
     if (startplot)
     {
         QVector <double> X;
         QVector <double> Y;
 
-        int start = op.Chanbranch.at(0);
+        int start = op.Chanbranch.at(0); // debug gives an assert error here!
 
         for(int i = 1; i <= op.Chanbranch.length(); i++) {
             if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {

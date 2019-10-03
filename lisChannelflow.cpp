@@ -387,6 +387,8 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
+
+    double SedSSTot = 0, SedBLTot = 0;
     if (SwitchErosion)
     {
         FOR_ROW_COL_MV_CH {
@@ -399,6 +401,9 @@ void TWorld::ChannelFlow(void)
             //    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
             //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
             // on the basis of SS depth and BL depth
+
+            SedSSTot = SedSSTot + ChannelSSSed->Drc;
+            SedBLTot = SedBLTot + ChannelBLSed->Drc;
         }
     }
 
@@ -583,25 +588,35 @@ void TWorld::ChannelFlow(void)
         {            
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
             // note SSsed goes in and out, SSconc is recalculated inside
+
         }
 
+        double SedSSTot2 = 0;
+        double SedBLTot2 = 0;
         if(!SwitchUseGrainSizeDistribution)
         {
             FOR_ROW_COL_MV_CH
             {
+                RiverSedimentLayerDepth(r,c);
+                RiverSedimentMaxC(r,c);
+
+                SedSSTot2 += ChannelSSSed->Drc;
+                SedBLTot2 += ChannelBLSed->Drc;
+
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                 ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
 
-                RiverSedimentLayerDepth(r,c);
+                //ChannelBLWaterVol->Drc = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+                //ChannelSSWaterVol->Drc = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+                double ChannelBLWaterVol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+                double ChannelSSWaterVol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
 
-                ChannelBLWaterVol->Drc = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-                ChannelSSWaterVol->Drc = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
-
-                ChannelSSConc->Drc = MaxConcentration(ChannelSSWaterVol->Drc, ChannelSSSed->Drc);
-                ChannelBLConc->Drc = MaxConcentration(ChannelBLWaterVol->Drc, ChannelBLSed->Drc);
+                ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
+                ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
 
             }
+           // qDebug() << "check MB " <<SedSSTot2-SedSSTot << SedBLTot2-SedBLTot;
         }
         else
         {

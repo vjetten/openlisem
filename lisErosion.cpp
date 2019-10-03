@@ -1380,15 +1380,15 @@ void TWorld::ChannelFlowDetachment(int r, int c)
     RiverSedimentLayerDepth(r,c);
     //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-    ChannelBLWaterVol->Drc = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-    ChannelSSWaterVol->Drc = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+    double blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+    double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
 
     double bldepth = ChannelBLDepth->Drc;
     double ssdepth = ChannelSSDepth->Drc;
 
     //discharges for both layers and watervolumes
-    double blwatervol = ChannelBLWaterVol->Drc;
-    double sswatervol = ChannelSSWaterVol->Drc;
+    //double blwatervol = ChannelBLWaterVol->Drc;
+    //double sswatervol = ChannelSSWaterVol->Drc;
     double bldischarge = ChannelV->Drc * ChannelAdj->Drc * ChannelBLDepth->Drc;
     double ssdischarge = ChannelV->Drc * ChannelAdj->Drc * ChannelSSDepth->Drc;
 
@@ -1708,8 +1708,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            }
            ChannelBLSed->Drc += RBL_D.Drcd;
        }
-       ChannelBLConc->Drc = MaxConcentration(blwatervol, ChannelBLSed->Drc);
-       ChannelSSConc->Drc = MaxConcentration(sswatervol, ChannelSSSed->Drc);;
+     //  ChannelBLConc->Drc = MaxConcentration(blwatervol, ChannelBLSed->Drc);
+     //  ChannelSSConc->Drc = MaxConcentration(sswatervol, ChannelSSSed->Drc);
+       ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
+       ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
    }
 
 
