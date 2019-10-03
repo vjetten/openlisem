@@ -323,6 +323,12 @@ void TWorld::Totals(void)
 
         if (SwitchIncludeChannel)
         {
+            FOR_ROW_COL_MV_CH
+            {
+                if (LDDChannel->Drc == 5)
+                    SoilLossTotT += ChannelQsn->Drc * _dt;
+            }
+
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
@@ -364,15 +370,7 @@ void TWorld::Totals(void)
                 TotalChanDepMap->Drc += ChannelDep->Drc;
             }
         }
-//        if (SwitchChannelFlood)
-//        {
-//            FOR_ROW_COL_MV
-//            {
-//                TotalDepMap->Drc += BLDepFloodT->Drc;
-//                TotalDetMap->Drc += SSDetFloodT->Drc;
-//                TotalDetMap->Drc += BLDetFloodT->Drc;
-//            }
-//        }
+
 
         // with all det and dep calculate the soil loss, excl channel
         FOR_ROW_COL_MV
