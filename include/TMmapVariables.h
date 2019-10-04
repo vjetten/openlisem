@@ -378,15 +378,21 @@ cTMap
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
 *SSDepthFlood,
-*BLVolFlood,
-*SSVolFlood,
-*temp1,*temp2,*temp3,*temp4,
-*temp5,*temp6,*temp7,*temp8,
-*temp9,*temp10,*temp11,*temp12,
+//*BLVolFlood,
+//*SSVolFlood,
+//*temp1,*temp2,*temp3,*temp4,
+//*temp5,*temp6,*temp7,*temp8,
+//*temp9,*temp10,*temp11,*temp12,
 
 //layer itneraction
-*BLDepFlood,*BLDetFlood,*BLDepFloodTot,*BLDetFloodTot,*BLTCFlood,
-*SSTCFlood,*SSDetFlood,*SSDetFloodTot,*SSDepFlood,/* *SSDepFloodT,  */
+//*BLDepFlood,
+*BLDetFlood,
+//*BLDetFloodTot,
+*BLTCFlood,
+*SSTCFlood,
+*SSDetFlood,
+//*SSDetFloodTot,
+*DepFlood,
 
 //sediment maps
 *BLCFlood,

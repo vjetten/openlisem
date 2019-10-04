@@ -332,17 +332,17 @@ void TWorld::Totals(void)
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed); //mapTotal(*ChannelSed);
+            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
         }
 
         // used for mass balance and screen output
-        FloodDetTot += mapTotal(*BLDetFloodTot) + mapTotal(*SSDetFloodTot);
-        FloodDepTot += mapTotal(*BLDepFloodTot);
+        FloodDetTot += mapTotal(*BLDetFlood) + mapTotal(*SSDetFlood);
+        FloodDepTot += mapTotal(*DepFlood);
         FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
 
-        calcMap(*DETFlowCum, *BLDetFloodTot, ADD);
-        calcMap(*DETFlowCum, *SSDetFloodTot, ADD);
-        calcMap(*DEPCum, *BLDepFloodTot, ADD);
+        calcMap(*DETFlowCum, *BLDetFlood, ADD);
+        calcMap(*DETFlowCum, *SSDetFlood, ADD);
+        calcMap(*DEPCum, *DepFlood, ADD);
 
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
@@ -352,6 +352,7 @@ void TWorld::Totals(void)
             // for reporting sed discharge screen
         }
 
+        // for reporting
         if (SwitchIncludeChannel)
         {
             fill(*tma,0.0);
@@ -360,9 +361,6 @@ void TWorld::Totals(void)
             DistributeOverExtendedChannel(ChannelDep,tmb);
             FOR_ROW_COL_MV
             {
-              //  TotalDetMap->Drc += tma->Drc;
-              //  TotalDepMap->Drc += tmb->Drc;
-
                 DETFlowCum->Drc += tma->Drc;
                 DEPCum->Drc += tmb->Drc;
 
@@ -393,10 +391,9 @@ void TWorld::Totals(void)
             // for output
         }
 
-        fill(*BLDetFloodTot,0.0);
-        fill(*BLDepFloodTot,0.0);
-        fill(*SSDetFloodTot,0.0);
-//        fill(*SSDepFloodT,0.0);
+        fill(*DepFlood,0.0);
+        fill(*BLDetFlood,0.0);
+        fill(*SSDetFlood,0.0);
         // RESET flood variables (?)
 
         SoilLossTot += SoilLossTotT;

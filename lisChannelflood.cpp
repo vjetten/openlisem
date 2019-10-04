@@ -148,17 +148,18 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 ChannelWH->Drcr -= dwh;
 
                                 if(SwitchErosion) {
-//                                   ChannelSSDepth->Drcr = ChannelWH->Drcr - ChannelBLDepth->Drcr;
-//                                   SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
-//                                   double sed = dwh*ChannelSSConc->Drcr;
-//                                   ChannelSSSed->Drcr -= sed;
-//                                   ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-//                                   SSFlood->Drcr += sed;
-//                                   double maxsed = MAXCONC * SSFlood->Drcr*DX->Drcr*ChannelAdj->Drcr;
-//                                   if (SSFlood->Drcr > maxsed) {
-//                                       BLDepFloodTot->Drcr +=  SSFlood->Drcr -maxsed ;
-//                                   }
-//                                   //distributeChannelSed(rr,cr,dwh, true);
+                                     double sed = std::min(ChannelSSSed->Drcr, dwh*ChannelSSConc->Drcr);
+                                     ChannelSSSed->Drcr -= sed;
+                                     SSFlood->Drcr += sed;
+                                     if(SwitchUseGrainSizeDistribution)
+                                     {
+                                         FOR_GRAIN_CLASSES
+                                         {
+                                            // SS_D.Drcd += RSSC_D.Drcd * vol;
+                                            /// RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                         }
+                                         //CALC TOTALS HERE
+                                     }
                                 }
 
                             }
@@ -172,17 +173,25 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 _h->Drcr -= dwh;
                                 ChannelWH->Drcr += (dwh/cwa);
                                 if(SwitchErosion) {
-//                                    ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
-//                                    SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
-//                                    double sed = dwh*SSCFlood->Drcr;
-//                                    ChannelSSSed->Drcr += sed;
-//                                    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-//                                    SSFlood->Drcr -= sed;
-//                                    double maxsed = MAXCONC * ChannelSSDepth->Drcr*DX->Drcr*ChannelWidth->Drcr;
-//                                    if (ChannelSSSed->Drcr > maxsed) {
-//                                        ChannelDep->Drcr +=  ChannelSSSed->Drcr - maxsed ;
-//                                    }
-
+                                    ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
+                                    SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
+                                    double sed = dwh*SSCFlood->Drcr;
+                                    ChannelSSSed->Drcr += sed;
+                                    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+                                    SSFlood->Drcr -= sed;
+                                    double maxsed = MAXCONC * ChannelSSDepth->Drcr*DX->Drcr*ChannelWidth->Drcr;
+                                    if (ChannelSSSed->Drcr > maxsed) {
+                                        ChannelDep->Drcr +=  ChannelSSSed->Drcr - maxsed ;
+                                    }
+                                    if(SwitchUseGrainSizeDistribution)
+                                    {
+                                        FOR_GRAIN_CLASSES
+                                        {
+                                           // SS_D.Drcd += RSSC_D.Drcd * vol;
+                                           // RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                        }
+                                        //CALC TOTALS HERE
+                                    }
 //                                   // distributeChannelSed(rr, cr, dwh,  false);
                                 }
                             }
@@ -202,19 +211,24 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-//                                double totsed = (ChannelSSConc->Drcr*whlevel + SSFlood->Drcr);
-//                                double totvol = whlevel*DX->Drcr*_dx;
-//                                double concavg = MaxConcentration(totvol, totsed);
-//                                // mix SS sed top layer water above channel
+                                double totsed = (ChannelSSConc->Drcr*whlevel + SSFlood->Drcr);
+                                double totvol = whlevel*DX->Drcr*_dx;
+                                double concavg = MaxConcentration(totvol, totsed);
+                                // mix SS sed top layer water above channel
 
-//                                ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
-//                                SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
+                                ChannelSSSed->Drcr = concavg*ChannelWidth->Drcr*whlevel*ChannelDX->Drcr +
+                                        ChannelSSConc->Drcr*chdepth*ChannelDX->Drcr*ChannelWidth->Drcr;
+                                SSFlood->Drcr = concavg*SSDepthFlood->Drcr*ChannelAdj->Drcr*DX->Drcr;
 
-//                                ChannelSSSed->Drcr = concavg*ChannelWidth->Drcr*whlevel*ChannelDX->Drcr +
-//                                                     ChannelSSConc->Drcr*chdepth*ChannelDX->Drcr*ChannelWidth->Drcr;
-//                                ChannelSed->Drcr = ChannelBLSed->Drcr + ChannelSSSed->Drcr;
-//                                SSFlood->Drcr = concavg*SSDepthFlood->Drcr*ChannelAdj->Drcr*DX->Drcr;
-
+                                if(SwitchUseGrainSizeDistribution)
+                                {
+                                    FOR_GRAIN_CLASSES
+                                    {
+                                       // SS_D.Drcd += RSSC_D.Drcd * vol;
+                                       // RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                    }
+                                    //CALC TOTALS HERE
+                                }
                             }
                         }
                         else
@@ -225,35 +239,29 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                         }
                     }
                     ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+                    FloodWaterVol->Drc = _h->Drc*ChannelAdj->Drc*DX->Drc;
+
                     // recalc channel water vol else big MB error
                     if(SwitchErosion)
                     {
-                        double WH = _h->Drcr;
-                        double CWH = ChannelWH->Drcr;
-
-                        if (CWH < CWHbef){
-                //            qDebug() << "from CH"  << (CWHbef-CWH) << WH-WHbef;
-                            double dsedChannel = ChannelSSConc->Drcr*(CWHbef-CWH)*ChannelWidth->Drcr*ChannelDX->Drcr;
-                            SSFlood->Drcr +=  dsedChannel;
-                            ChannelSSSed->Drcr -= dsedChannel;
-                        }
-                        if (WH < WHbef){
-                     //       qDebug() << "to CH"  << CWH-CWHbef << WHbef-WH;
-                            double dsedFlood = SSCFlood->Drcr*(WHbef-WH)*ChannelAdj->Drcr*DX->Drcr;
-                            SSFlood->Drcr -=  dsedFlood;
-                            ChannelSSSed->Drcr += dsedFlood;
-                        }
                         ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
                         SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
-                        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
+                        if (SSDepthFlood->Drcr < 0) {
+                            qDebug() <<"fout" << SSDepthFlood->Drcr;
+                            SSDepthFlood->Drcr = 0;
+                        }
+                        if (ChannelSSDepth->Drcr < 0) {
+                            qDebug() <<"fout CH" << ChannelSSDepth->Drcr;
+                            ChannelSSDepth->Drcr = 0;
+                        }
 
                         SWOFSedimentSetConcentration(rr,cr, _h);
                         RiverSedimentMaxC(rr, cr);
+                        // all concentrations, possible ChannelDep when surplus
+
                     }
 
-
-                   // FloodWaterVol->Drc = _h->Drc*ChannelAdj->Drc*DX->Drc;
                 }
             }
         }

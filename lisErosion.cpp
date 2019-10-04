@@ -1506,6 +1506,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
        //when waterheight is insignificant, deposite all remaining sediment
        double deposition = 0;
+       double detachment = 0;
 
        if(ChannelWH->Drc < MIN_HEIGHT)
        {
@@ -1551,7 +1552,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           //deposition
           double TransportFactor;
           if (TSSDepthFlood->Drc > MIN_HEIGHT)
-              TransportFactor = (1-exp(-_dt*TSettlingVelocity/TSSDepthFlood->Drc)) * sswatervol;
+              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthFlood
           else
               TransportFactor =  1.0 * sswatervol;
 
@@ -1559,35 +1560,30 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           double maxTC = std::max(TSSTCFlood->Drc - TSSCFlood->Drc,0.0);
           double minTC = std::min(TSSTCFlood->Drc - TSSCFlood->Drc,0.0);
 
-          deposition = TransportFactor * minTC;
-          deposition = std::max(deposition,-TSSFlood->Drc);
+          deposition = std::max(TransportFactor * minTC,-TSSFlood->Drc);
           // not more than SS present
-          TSSFlood->Drc += deposition;
-          TBLFlood->Drc -= deposition;
-          // add to bedload
 
           //  detachment
           TransportFactor = ssdischarge*_dt;
                   //_dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
           //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
-          double detachment = TW->Drc * maxTC * TransportFactor;
+          detachment = TW->Drc * maxTC * TransportFactor;
           //detachment = std::min(detachment, maxTC * ChannelQn->Drc*ssdepth/ChannelWH->Drc *_dt); // this line is new
           // cannot have more detachment than remaining capacity in flow
           // use discharge because standing water has no erosion
           detachment = ChannelY->Drc * detachment;
 //DetachMaterial(r,c,d,true,false,false, detachment);
           // multiply by Y
-
+if(detachment > 10)
+    qDebug()<<r<<c<<detachment<<deposition<<ChannelV->Drc;
           if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
               detachment = std::max(0.0, MAXCONC * sswatervol - TSSFlood->Drc);
 
           //### sediment balance
           TSSFlood->Drc += detachment;
-          TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
-          // recalc conc for diffusion
-
-          ChannelDetFlow->Drc += detachment;
+          TSSFlood->Drc += deposition;
           ChannelDep->Drc += deposition;
+          ChannelDetFlow->Drc += detachment;
 
           if(SwitchUseMaterialDepth)
           {
@@ -1596,27 +1592,16 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                   RStorageDep_D.Drcd += -deposition;
           }
 
-          deposition = 0;
-
-
           //### do bedload
 
           if(TBLDepthFlood->Drc < MIN_HEIGHT) {
               ChannelDep->Drc += -ChannelBLSed->Drc;
               ChannelBLTC->Drc = 0;;
-              ChannelBLConc->Drc = 0;;
+              ChannelBLConc->Drc = 0;
               ChannelBLSed->Drc = 0;
 
           } else {
               //there is BL
-
-              deposition = 0;
-
-              if(MAXCONC * blwatervol < TBLFlood->Drc)
-                  deposition = std::min(0.0, TBLFlood->Drc - MAXCONC * blwatervol);
-
-              TBLCFlood->Drc = MaxConcentration(blwatervol, TBLFlood->Drc);
-              // limit concentration to 850, one layer blwatervol = 0
 
               maxTC = std::max(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
               minTC = std::min(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
@@ -1644,9 +1629,8 @@ void TWorld::ChannelFlowDetachment(int r, int c)
               //### deposition
               TransportFactor = (1-exp(-_dt*TSettlingVelocity/bldepth)) * blwatervol;
 
-              deposition = minTC * TransportFactor;
               // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-              deposition = std::max(deposition, -TBLFlood->Drc);
+              deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
               // cannot have more depo than sediment present
 
               if(SwitchUseMaterialDepth)
@@ -1677,12 +1661,13 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            RSSC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RSSD_D.Drcd, RSS_D.Drcd);
            double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*RSSD_D.Drcd;
            if(sssmax < RSS_D.Drcd) {
-               ChannelDep->Drc += (RSS_D.Drcd - sssmax);
+               double surplus = RSS_D.Drcd - sssmax;
+               ChannelDep->Drc -= surplus;
                RSS_D.Drcd = sssmax;
                if(SwitchUseMaterialDepth)
                {
-                   RStorageDep->Drc += (RSS_D.Drcd - sssmax);
-                   RStorageDep_D.Drcd += (RSS_D.Drcd - sssmax);
+                   RStorageDep->Drc += surplus;
+                   RStorageDep_D.Drcd += surplus;
                    if(std::isnan(RStorageDep_D.Drcd))
                    {
                        qDebug() << "NAN dep3" << d;
@@ -1694,7 +1679,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            RBLC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RBLD_D.Drcd, RBL_D.Drcd);
            sssmax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*RBLD_D.Drcd;
            if(sssmax < BL_D.Drcd) {
-               ChannelDep->Drc += (RBL_D.Drcd - sssmax);
+               ChannelDep->Drc -= (RBL_D.Drcd - sssmax);
                RBL_D.Drcd = sssmax;
                if(SwitchUseMaterialDepth)
                {
@@ -1708,18 +1693,15 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            }
            ChannelBLSed->Drc += RBL_D.Drcd;
        }
-     //  ChannelBLConc->Drc = MaxConcentration(blwatervol, ChannelBLSed->Drc);
-     //  ChannelSSConc->Drc = MaxConcentration(sswatervol, ChannelSSSed->Drc);
-       ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
-       ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
    }
 
 
    //total transport capacity (bed load + suspended load), used for output
    ChannelTC->Drc = ChannelBLTC->Drc + ChannelSSTC->Drc;
    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-   //total concentration
-   ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+
+   RiverSedimentMaxC(r,c);
+   //partial and total concentration ALL DONE:
 }
 //---------------------------------------------------------------------------
 /**
@@ -1745,14 +1727,10 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     //maximum concentraion
     if(!SwitchUseGrainSizeDistribution)
     {
-//        _SSC->Drc = MaxConcentration(ChannelWidth->Drc*DX->Drc*ChannelSSDepth->Drc, _SS->Drc);
-//        // limit concentration to 850 and throw rest in deposition
-        //??? if you do this first the next vstement has no use because it is alresady 850 limit
-
         double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*ChannelSSDepth->Drc;
         if(sssmax < _SS->Drc)
         {
-            ChannelDep->Drc += (_SS->Drc - sssmax);
+            ChannelDep->Drc += (sssmax - _SS->Drc);// - sssmax);
             if(SwitchUseMaterialDepth)
             {
                 RStorageDep->Drc += (_SS->Drc - sssmax);
@@ -1762,13 +1740,10 @@ void TWorld::RiverSedimentMaxC(int r, int c)
         _SSC->Drc = MaxConcentration(ChannelWidth->Drc*DX->Drc*ChannelSSDepth->Drc, _SS->Drc);
         // limit concentration to 850 and throw rest in deposition
 
-//        //set concentration from present sediment
-//        _BLC->Drc = MaxConcentration(ChannelWidth->Drc*DX->Drc*ChannelBLDepth->Drc, _BL->Drc);
-
         double smax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*ChannelBLDepth->Drc;
         if(smax < _BL->Drc)
         {
-            ChannelDep->Drc += (_BL->Drc - smax);
+            ChannelDep->Drc += (smax - _BL->Drc);// - smax);
             if(SwitchUseMaterialDepth)
             {
                 RStorageDep->Drc += (_BL->Drc - smax);

@@ -238,12 +238,12 @@ void TWorld::DoModel()
             efout.close();
 
             if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::Append | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << " " << runstep << " " << MBs <<  "\n";
-            esfout.flush();
-            esfout.close();
+                QFile esfout(resultDir+errorSedFileName);
+                esfout.open(QIODevice::Append | QIODevice::Text);
+                QTextStream esout(&esfout);
+                esout << " " << runstep << " " << MBs <<  "\n";
+                esfout.flush();
+                esfout.close();
             }
 
             std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
@@ -314,16 +314,9 @@ void TWorld::CellProcesses(int thread)
     FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
     //Pestmobilisation();         // experimental
-
-//   ToTiledrain(thread);         // fraction going into tiledrain directly from surface
-
-//    ToFlood(thread);             // overland flow water added to flood (not in channel cells)
-
-//    ToChannel(thread);           // water and sed flux going into channel in channel cells, goes to channeloverflow
-
 }
 
-void TWorld::CellProcesses2(int thread)
+void TWorld::CellProcesses2(int thread) // obsolete for now
 {
     CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
 

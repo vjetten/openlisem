@@ -238,9 +238,7 @@ void TWorld::ToChannel()//int thread)
                 }
 
                 RiverSedimentLayerDepth(rr,cr);
-                double sswatervol = ChannelSSDepth->Drcr*DX->Drcr*ChannelWidth->Drcr;
-               // ChannelSSConc->Drcr = MaxConcentration(sswatervol, ChannelSSSed->Drcr);
-                ChannelSSConc->Drcr = MaxConcentration(ChannelWaterVol->Drcr, ChannelSSSed->Drcr);
+                RiverSedimentMaxC(rr,cr);
 
             }
         }
@@ -422,7 +420,6 @@ void TWorld::OverlandFlow2Ddyn(void)
             {
                 Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
-                        //Conc->Drc * Qn->Drc;
             }
         }
         else
@@ -443,6 +440,7 @@ void TWorld::OverlandFlow2Ddyn(void)
                     Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
                     Conc->Drc += Conc_D.Drcd;
                 }
+                Qsn->Drc = Conc->Drc*Qn->Drc;
             }
         }
     }

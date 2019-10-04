@@ -960,25 +960,19 @@ void TWorld::InitFlood(void)
 
     BLDepthFlood = NewMap(0);
     SSDepthFlood = NewMap(0);
-    BLVolFlood= NewMap(0);
-    SSVolFlood= NewMap(0);
-
-    BLCFlood = NewMap(0);
     BLFlood = NewMap(0);
+    BLCFlood = NewMap(0);
     BLTCFlood = NewMap(0);
-    BLDepFlood = NewMap(0);
-    //BLDetFlood = NewMap(0);
+    BLDetFlood = NewMap(0);
 
-    BLDepFloodTot = NewMap(0);
-    BLDetFloodTot = NewMap(0);
-
-    SSCFlood = NewMap(0);
     SSFlood = NewMap(0);
+    SSCFlood = NewMap(0);
     SSTCFlood = NewMap(0);
-    SSDetFloodTot = NewMap(0);
-    //SSDetFlood = NewMap(0);
-    SSDepFlood = NewMap(0);
-    //SSDepFloodT = NewMap(0);
+    SSDetFlood = NewMap(0);
+
+    DepFlood = NewMap(0);
+
+
 
     prepareFloodZ(DEM);
 }

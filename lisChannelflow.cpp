@@ -387,23 +387,13 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-
-    double SedSSTot = 0, SedBLTot = 0;
     if (SwitchErosion)
     {
         FOR_ROW_COL_MV_CH {
-
+if(ChannelWH->Drc > MIN_HEIGHT)
             ChannelFlowDetachment(r,c);
+            //detachment, deposition for SS and BL
 
-            //check for concentration surpassing MAXCONC and calc sed load
-            RiverSedimentMaxC(r,c);
-            //total concentration ALL DONE:
-            //    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-            //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
-            // on the basis of SS depth and BL depth
-
-            SedSSTot = SedSSTot + ChannelSSSed->Drc;
-            SedBLTot = SedBLTot + ChannelBLSed->Drc;
         }
     }
 
@@ -540,10 +530,10 @@ void TWorld::ChannelFlow(void)
             }
         }
 
-        FOR_ROW_COL_MV_CH {
-            RiverSedimentLayerDepth(r,c);
-            RiverSedimentMaxC(r,c);
-        }
+//        FOR_ROW_COL_MV_CH {
+//            RiverSedimentLayerDepth(r,c);
+//            RiverSedimentMaxC(r,c);
+//        }
 
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
@@ -558,7 +548,7 @@ void TWorld::ChannelFlow(void)
 
             FOR_GRAIN_CLASSES
             {
-                RiverSedimentDiffusion(_dt, /*RBL_D.at(d),RBLC_D.at(d),*/ RSS_D.at(d),RSSC_D.at(d));
+                RiverSedimentDiffusion(_dt, RSS_D.at(d),RSSC_D.at(d));
             }
             FOR_ROW_COL_MV_CH
             {
@@ -591,29 +581,26 @@ void TWorld::ChannelFlow(void)
 
         }
 
-        double SedSSTot2 = 0;
-        double SedBLTot2 = 0;
+//        double SedSSTot2 = 0;
+//        double SedBLTot2 = 0;
         if(!SwitchUseGrainSizeDistribution)
         {
             FOR_ROW_COL_MV_CH
             {
+           //     RiverSedimentLayerDepth(r,c);
+           //     RiverSedimentMaxC(r,c);
+
+//                SedSSTot2 += ChannelSSSed->Drc;
+//                SedBLTot2 += ChannelBLSed->Drc;
+
+                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
+
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
 
-                SedSSTot2 += ChannelSSSed->Drc;
-                SedBLTot2 += ChannelBLSed->Drc;
+                //ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+                //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
 
-                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
-                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-                ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
-
-                //ChannelBLWaterVol->Drc = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-                //ChannelSSWaterVol->Drc = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
-                double ChannelBLWaterVol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-                double ChannelSSWaterVol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
-
-                ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
-                ChannelBLConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
 
             }
            // qDebug() << "check MB " <<SedSSTot2-SedSSTot << SedBLTot2-SedBLTot;

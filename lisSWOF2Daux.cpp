@@ -412,18 +412,18 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
                 //temporarily store all the values from the MUSCL or ENO, so the sediment transport model can use these
                 //otherwise they will be overwritten by the second reconstruction
                 FOR_ROW_COL_MV {
-                    temp1->Drc = h1d->Drc;
-                    temp2->Drc = h1g->Drc;
-                    temp3->Drc = h2d->Drc;
-                    temp4->Drc = h2g->Drc;
-                    temp5->Drc = u1r->Drc;
-                    temp6->Drc = u1l->Drc;
-                    temp7->Drc = v1r->Drc;
-                    temp8->Drc = v1l->Drc;
-                    temp9->Drc = u2r->Drc;
-                    temp10->Drc = u2l->Drc;
-                    temp11->Drc = v2r->Drc;
-                    temp12->Drc = v2l->Drc;
+//                    temp1->Drc = h1d->Drc;
+//                    temp2->Drc = h1g->Drc;
+//                    temp3->Drc = h2d->Drc;
+//                    temp4->Drc = h2g->Drc;
+//                    temp5->Drc = u1r->Drc;
+//                    temp6->Drc = u1l->Drc;
+//                    temp7->Drc = v1r->Drc;
+//                    temp8->Drc = v1l->Drc;
+//                    temp9->Drc = u2r->Drc;
+//                    temp10->Drc = u2l->Drc;
+//                    temp11->Drc = v2r->Drc;
+//                    temp12->Drc = v2l->Drc;
 
                 }
             }
