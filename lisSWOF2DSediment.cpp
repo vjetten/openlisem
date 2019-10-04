@@ -1181,12 +1181,11 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 }
             }
 
-
             //erosion values based on discharge
-            TransportFactor =// ssdischarge*DT->Drc;
-                DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc;//SoilWidthDX->Drc;
+            TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
+            TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+            TransportFactor = ssdischarge*_dt;
             detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
-            detachment = std::min(detachment, maxTC * ssdischarge*DT->Drc); //VJ 0518 this line is new
 
             // exceptions
             //    if (FlowBoundary->Drc > 0)
@@ -1214,8 +1213,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             //is there erosion and sedimentation under the snowdeck?
 
             //check how much of the potential detachment can be detached from soil layer
-            detachment = Y->Drc * detachment;
-//DetachMaterial(r,c,d, false, true, false, detachment);
+            detachment = DetachMaterial(r,c,d, false, true, false, detachment);
             //bool channel, bool flood,bool bl
 
             if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
@@ -1255,18 +1253,13 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 // unit kg/m3
 
                 //### detachment
-                TransportFactor = bldischarge*DT->Drc;
-                //DT->Drc*TSettlingVelocity * DX->Drc *SoilWidthDX->Drc;
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
-
+                TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
+                TransportFactor = std::min(TransportFactor, bldischarge*_dt);
+                TransportFactor = bldischarge*_dt;
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg
-
-
-                if(MAXCONC * blwatervol < TBLFlood->Drc+detachment)
-                    detachment = std::max(0.0, MAXCONC * blwatervol - TBLFlood->Drc);
-                // limit detachment to what BLflood can carry
 
                 //    if (FlowBoundary->Drc > 0)
                 //        detachment = 0;
@@ -1292,9 +1285,11 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 /* TODO: CHECK THIS no flow detachment on snow */
                 //is there erosion and sedimentation under the snowdeck?
 
-                //detachment = DetachMaterial(r,c,d,false,true,true, detachment);
-                detachment = detachment * Y->Drc;
-                //DetachMaterial(r,c,d,false,false,true, detachment);
+                detachment = DetachMaterial(r,c,d,false,false,true, detachment);
+
+                if(MAXCONC * blwatervol < TBLFlood->Drc+detachment)
+                    detachment = std::max(0.0, MAXCONC * blwatervol - TBLFlood->Drc);
+                // limit detachment to what BLflood can carry
 
                 // IN KG/CELL
 

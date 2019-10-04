@@ -1564,16 +1564,15 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           //  detachment
           TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
           TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+          TransportFactor = ssdischarge*_dt;
           //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
           detachment = TW->Drc * maxTC * TransportFactor;
           //detachment = std::min(detachment, maxTC * ChannelQn->Drc*ssdepth/ChannelWH->Drc *_dt); // this line is new
           // cannot have more detachment than remaining capacity in flow
           // use discharge because standing water has no erosion
-          detachment = ChannelY->Drc * detachment;
-//DetachMaterial(r,c,d,true,false,false, detachment);
+          detachment = DetachMaterial(r,c,d,true,false,false, detachment);
           // multiply by Y
-if(detachment > 10)
-    qDebug()<<r<<c<<detachment<<deposition<<ChannelV->Drc;
+
           if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
               detachment = std::max(0.0, MAXCONC * sswatervol - TSSFlood->Drc);
 
@@ -1607,22 +1606,19 @@ if(detachment > 10)
               //### detachment
               TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc *ChannelFlowWidth->Drc;
               TransportFactor = std::min(TransportFactor, bldischarge*_dt);
+              TransportFactor = bldischarge*_dt;
               // detachment can only come from soil, not roads (so do not use flowwidth)
               // units s * m/s * m * m = m3
               detachment =  TW->Drc *  maxTC * TransportFactor;
               // unit = kg/m3 * m3 = kg
-           //   detachment = std::min(detachment, maxTC * ChannelQn->Drc*bldepth/ChannelWH->Drc *_dt); // this line is new
-              // cannot have more detachment than remaining capacity in flow
-              // use discharge because standing water has no erosion
+
+              detachment = DetachMaterial(r,c,d,true,false,true, detachment);
+              // mult by Y and mixingdepth
+              // IN KG/CELL
 
               if(MAXCONC * blwatervol < TBLFlood->Drc+detachment)
                   detachment = std::max(0.0, MAXCONC * blwatervol - TBLFlood->Drc);
               // limit detachment to what BLflood can carry
-
-              detachment = ChannelY->Drc * detachment;
-//DetachMaterial(r,c,d,true,false,true, detachment);
-              // mult by Y and mixingdepth
-              // IN KG/CELL
 
               //### deposition
               TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol;
