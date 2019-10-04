@@ -149,7 +149,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 ChannelWH->Drcr -= dwh;
 
                                 if(SwitchErosion) {
-                                     double sed = std::min(ChannelSSSed->Drcr, dwh*ChannelSSConc->Drcr);
+                                     double sed = dwh*ChannelSSConc->Drcr;
                                      ChannelSSSed->Drcr -= sed;
                                      SSFlood->Drcr += sed;
                                      if(SwitchUseGrainSizeDistribution)
@@ -174,16 +174,10 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 _h->Drcr -= dwh;
                                 ChannelWH->Drcr += (dwh/cwa);
                                 if(SwitchErosion) {
-                                    ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
-                                    SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
                                     double sed = dwh*SSCFlood->Drcr;
                                     ChannelSSSed->Drcr += sed;
-                                    ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                                     SSFlood->Drcr -= sed;
-                                    double maxsed = MAXCONC * ChannelSSDepth->Drcr*DX->Drcr*ChannelWidth->Drcr;
-                                    if (ChannelSSSed->Drcr > maxsed) {
-                                        ChannelDep->Drcr +=  ChannelSSSed->Drcr - maxsed ;
-                                    }
+
                                     if(SwitchUseGrainSizeDistribution)
                                     {
                                         FOR_GRAIN_CLASSES
@@ -193,7 +187,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                         }
                                         //CALC TOTALS HERE
                                     }
-//                                   // distributeChannelSed(rr, cr, dwh,  false);
                                 }
                             }
                         }
@@ -202,9 +195,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     if (dosimpel)
                     {
 
-                        if(whlevel > 0) // instantaneous waterlevel exquilibrium acccross channel and adjacent
+                        if(whlevel > HMIN) // instantaneous waterlevel exquilibrium acccross channel and adjacent
                         {
-                          //  qDebug() << r << c << "simpel";
+                            qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = (whlevel + chdepth);
                             _h->Drcr = whlevel;
 
@@ -212,14 +205,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-                                double totsed = (ChannelSSConc->Drcr*whlevel + SSFlood->Drcr);
-                                double totvol = whlevel*DX->Drcr*_dx;
-                                double concavg = MaxConcentration(totvol, totsed);
-                                // mix SS sed top layer water above channel
+                                double totsed = ChannelSSSed->Drcr + SSFlood->Drcr; //(ChannelSSConc->Drcr*whlevel + SSFlood->Drcr);
+                                double chanvol = ChannelWH->Drcr*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
+                                double floodvol = whlevel*ChannelAdj->Drcr*DX->Drcr;
+                                double totvol =  chanvol+floodvol;
 
-                                ChannelSSSed->Drcr = concavg*ChannelWidth->Drcr*whlevel*ChannelDX->Drcr +
-                                        ChannelSSConc->Drcr*chdepth*ChannelDX->Drcr*ChannelWidth->Drcr;
-                                SSFlood->Drcr = concavg*SSDepthFlood->Drcr*ChannelAdj->Drcr*DX->Drcr;
+                                SSFlood->Drcr = totsed * floodvol/totvol;
+                                ChannelSSSed->Drcr = totsed * chanvol/totvol;
 
                                 if(SwitchUseGrainSizeDistribution)
                                 {
