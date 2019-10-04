@@ -198,8 +198,10 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     // recalc channel water vol else big MB error
                     if(SwitchErosion)
                     {
-                        ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
-                        SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
+                       // ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
+                       // SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
+                        SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drcr);
+                        RiverSedimentLayerDepth(rr,cr);
 
                         if (SSDepthFlood->Drcr < 0) {
                             qDebug() <<"fout" << SSDepthFlood->Drcr;

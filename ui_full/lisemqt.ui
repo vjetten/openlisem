@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1757</width>
-    <height>1234</height>
+    <height>1237</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1639,8 +1639,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>834</width>
-                <height>825</height>
+                <width>783</width>
+                <height>811</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>5</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7981,7 +7981,7 @@ p, li { white-space: pre-wrap; }
                         </font>
                        </property>
                        <property name="title">
-                        <string>Flow Sediment Transport</string>
+                        <string>Surface Sediment Transport</string>
                        </property>
                        <property name="checkable">
                         <bool>false</bool>

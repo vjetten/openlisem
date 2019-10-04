@@ -1461,15 +1461,7 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,double dt,cTMap * h,cTMap * u,cTM
         SWOFSedimentBalance(thread);
     }
 
-//    //correct for maximum concentration LISEM
-//    FOR_ROW_COL_UF2DMT_DT {
-//        if(FloodHMaskDer->Drc != 0)
-//        {
-//            SWOFSedimentMaxC(r,c);
-//        }
-//    }}}}
 
-    //check for cells with insignificant water height and calculate concentration
     FOR_ROW_COL_UF2DMT_DT {
         if(FloodHMaskDer->Drc != 0)
         {

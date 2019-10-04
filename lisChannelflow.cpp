@@ -393,7 +393,6 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CH {
             ChannelFlowDetachment(r,c);
             //detachment, deposition for SS and BL
-
         }
     }
 
@@ -530,11 +529,6 @@ void TWorld::ChannelFlow(void)
             }
         }
 
-//        FOR_ROW_COL_MV_CH {
-//            RiverSedimentLayerDepth(r,c);
-//            RiverSedimentMaxC(r,c);
-//        }
-
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
 
@@ -581,29 +575,15 @@ void TWorld::ChannelFlow(void)
 
         }
 
-//        double SedSSTot2 = 0;
-//        double SedBLTot2 = 0;
         if(!SwitchUseGrainSizeDistribution)
         {
             FOR_ROW_COL_MV_CH
             {
-           //     RiverSedimentLayerDepth(r,c);
-           //     RiverSedimentMaxC(r,c);
-
-//                SedSSTot2 += ChannelSSSed->Drc;
-//                SedBLTot2 += ChannelBLSed->Drc;
-
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
 
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
-
-                //ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-                //ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
-
-
             }
-           // qDebug() << "check MB " <<SedSSTot2-SedSSTot << SedBLTot2-SedBLTot;
         }
         else
         {
