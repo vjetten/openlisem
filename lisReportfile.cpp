@@ -1524,9 +1524,11 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sediment Load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
         if (SwitchKinematic2D == K2D_METHOD_DYN) {
             AddComboMap(1,"suspended sed",unit,SSFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"bedload sed",unit,BLFlood,Colormap,Colors,false,false,factor, step);
+            if(!SwitchUse2Layer)
+                AddComboMap(1,"bedload sed",unit,BLFlood,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"TC suspended",unit,SSTCFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
+            if(!SwitchUse2Layer)
+                AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
         }
         AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
@@ -1539,9 +1541,7 @@ void TWorld::GetComboMaps()
 
 
         setColor(10);
-         // AddComboMap(1,"Deposition",unit,TotalDepMap,Colormap,Colors,false,false,-factor, step);
         AddComboMap(1,"Deposition",unit,DEPCum,Colormap,Colors,false,false,-factor, step);
-     //   AddComboMap(1,"Deposition",unit,DEPBLCum,Colormap,Colors,false,false,-factor, step);
 
         if(SwitchUseGrainSizeDistribution)
         {

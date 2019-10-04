@@ -1978,20 +1978,23 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
         ChannelBLDepth->Drc = 0;
         return;
     }
+
+    double ps = 2400;
+    double pw = 1000;
+    double factor = 0.5;
+
     if(!SwitchUseGrainSizeDistribution)
     {
         //if a two layer system is modelled, calculate thickness of layer
             double d50m = (D50->Drc/1000000.0);
             double d90m = (D90->Drc/1000000.0);
-            double ps = 2400;
-            double pw = 1000;
 
             //critical shear velocity for bed level motion by van rijn
             double critshearvel = ChannelV->Drc * sqrt(GRAV)/(18 * log10(4*(ChannelWidth->Drc * ChannelWH->Drc/(ChannelWH->Drc * 2 + ChannelWidth->Drc))/d90m));
             //critical shear stress for bed level motion by van rijn
             double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
             //rough bed bed load layer depth by Hu en Hui
-            ChannelBLDepth->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), ChannelWH->Drc), 0.1);
+            ChannelBLDepth->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
             ChannelSSDepth->Drc = std::max(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
 
         //if no two layer system is used
@@ -2005,15 +2008,12 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
             double d50m = graindiameters.at(d)/1000000.0;
             double d90m = 1.5 * graindiameters.at(d)/1000000.0;
 
-            double ps = 2400;
-            double pw = 1000;
-
             //critical shear velocity for bed level motion by van rijn
             double critshearvel = ChannelV->Drc * sqrt(GRAV)/(18 * log10(4*(ChannelWidth->Drc * ChannelWH->Drc/(ChannelWH->Drc * 2 + ChannelWidth->Drc))/(d90m)));
             //critical shear stress for bed level motion by van rijn
             double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
             //rough bed bed load layer depth by Hu en Hui
-            RBLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), ChannelWH->Drc), 0.1);
+            RBLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
             RSSD_D.Drcd = std::max(ChannelWH->Drc - RBLD_D.Drcd ,0.0);
 
             ChannelBLDepth->Drc += RBLD_D.Drcd * RW_D.Drcd;

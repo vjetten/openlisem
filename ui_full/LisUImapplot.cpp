@@ -500,7 +500,7 @@ void lisemqt::showComboMap(int i)
 
     cm->thresholduse = true;
     cmL->thresholduse = true;
-    cm->thresholdmin = mi;
+    cm->thresholdmin = MinV;//mi;
     cmL->thresholdmin = mi;
     if (op.ComboSymColor.at(i)) {
         cm->thresholdmin = MinV;

@@ -41,51 +41,6 @@ functions: \n
 #include "global.h"
 
 
-void TWorld::distributeChannelSed(int r, int c, double dh, bool fromchannel)
-{
-    // only susp matter, bedload cannot flow out of channel
-
-    if (fromchannel) {
-        //  qDebug() << r << c << "sed from chan";
-        double vol = dh*ChannelDX->Drc*ChannelWidth->Drc;
-        double sed = ChannelSSConc->Drc * vol;
-
-        SSFlood->Drc += sed;
-        ChannelSSSed->Drc -= sed;
-        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-
-        if(SwitchUseGrainSizeDistribution)
-        {
-            FOR_GRAIN_CLASSES
-            {
-                SS_D.Drcd += RSSC_D.Drcd * vol;
-                RSS_D.Drcd -= RSSC_D.Drcd * vol;
-            }
-            //CALC TOTALS HERE
-        }
-    } else {
-        //   qDebug() << r << c << "sed to chan";
-        double vol = dh*DX->Drc*ChannelAdj->Drc;
-        double sed = SSCFlood->Drc * vol;
-        SSFlood->Drc -= sed;
-        ChannelSSSed->Drc += sed;
-        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-        if(SwitchUseGrainSizeDistribution)
-        {
-            FOR_GRAIN_CLASSES
-            {
-                SS_D.Drcd -= SSC_D.Drcd * vol;
-                RSS_D.Drcd += SSC_D.Drcd * vol;
-            }
-            //CALC TOTALS HERE
-        }
-    }
-    //   ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
-    RiverSedimentMaxC(r,c);
-    //   SSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, SSFlood->Drc);
-    //SWOFSedimentSetConcentration(r,c,h);
-    //SWOFSedimentMaxC(r,c);
-}
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
@@ -141,10 +96,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     {
                         if (dH > _h->Drcr)   // flow from channel
                         {
-                            double dwh = fracC * dH; // amount flowing from channel
-                            if (_h->Drcr + dwh*cwa > dH-dwh) {   // if flow causes situation to reverse (channel dips below _h)
+                            double dwh = fracC * dH;
+                            // amount flowing from channel
+                            if (_h->Drcr + dwh*cwa > dH-dwh) {
+                                // if flow causes situation to reverse (channel dips below _h)
                                 dosimpel = true;
                             } else {
+
                                 _h->Drcr += dwh*cwa;
                                 ChannelWH->Drcr -= dwh;
 
@@ -157,7 +115,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                          FOR_GRAIN_CLASSES
                                          {
                                             // SS_D.Drcd += RSSC_D.Drcd * vol;
-                                            /// RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                            // RSS_D.Drcd -= RSSC_D.Drcd * vol;
                                          }
                                          //CALC TOTALS HERE
                                      }
@@ -167,10 +125,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                         }
                         else   // flow to channel
                         {
-                            double dwh = fracA * std::max(0.0, _h->Drcr); // amount flowing to channel
-                            if (dH + dwh/cwa > _h->Drcr-dwh) {   // if too much flow
+                            double dwh = fracA * std::max(0.0, _h->Drcr);
+                            // amount flowing to channel
+                            if (dH + dwh/cwa > _h->Drcr-dwh) {
+                                // if too much flow
                                 dosimpel = true;
                             } else {
+
                                 _h->Drcr -= dwh;
                                 ChannelWH->Drcr += (dwh/cwa);
                                 if(SwitchErosion) {
@@ -197,7 +158,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                         if(whlevel > HMIN) // instantaneous waterlevel exquilibrium acccross channel and adjacent
                         {
-                            qDebug() << r << c << "simpel";
+                          //  qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = (whlevel + chdepth);
                             _h->Drcr = whlevel;
 

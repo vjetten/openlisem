@@ -765,18 +765,13 @@ double TWorld::SWOFSedimentTCBL(int r, int c, int _d, cTMap * hm, double v)
  *
  * @see FS_SS_Method
  */
-double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v) //cTMap * um,cTMap * vm)
+double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
 {
 
     if(hm->Drc < MIN_HEIGHT || SSDepthFlood->Drc < MIN_HEIGHT)
-    {
         return 0;
-    }
-    //   double v = std::sqrt(um->Drc *um->Drc + vm->Drc * vm->Drc);
     if(v < he_ca)
-    {
         return 0;
-    }
 
     if(FS_SS_Method == FSGOVERS)
     {
@@ -928,21 +923,19 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
         return;
     }
 
+    double ps = 2400;
+    double pw = 1000;
+    double factor = 0.5;
     if(!SwitchUseGrainSizeDistribution)
     {
-
         double d50m = (D50->Drc/1000000.0);
         double d90m = (D90->Drc/1000000.0);
-        double ps = 2400;
-        double pw = 1000;
-        //  double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-
         //critical shear velocity for bed level motion by van rijn
         double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/d90m));
         //critical shear stress for bed level motion by van rijn
         double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
         //rough bed bed load layer depth by Hu en Hui
-        BLDepthFlood->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h), 0.1);
+        BLDepthFlood->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
         SSDepthFlood->Drc = std::max(h - BLDepthFlood->Drc,0.0);
     }else
     {
@@ -951,16 +944,12 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
             double d50m = graindiameters.at(d)/1000000.0;
             double d90m = 1.5 * graindiameters.at(d)/1000000.0;
 
-            double ps = 2400;
-            double pw = 1000;
-            //double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-
             //critical shear velocity for bed level motion by van rijn
             double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/(d90m)));
             //critical shear stress for bed level motion by van rijn
             double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
             //rough bed bed load layer depth by Hu en Hui
-            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), h), 0.1);
+            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
             SSD_D.Drcd = std::max(h - BLD_D.Drcd,0.0);
             BLDepthFlood->Drc += BLD_D.Drcd * W_D.Drcd;
             SSDepthFlood->Drc += SSD_D.Drcd * W_D.Drcd;

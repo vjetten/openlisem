@@ -778,7 +778,7 @@ public:
     void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void distributeChannelSed(int r, int c, double dh, bool fromchannel);
+
     double courant_factor;
     double courant_factor_diffusive;
     double courant_factor_sed;
