@@ -1624,13 +1624,13 @@ if (SwitchGrassStrip) {
     WHinitVolTot = 0;
 
     if (SwitchFloodInitial) {
-        hmxInit = ReadMap(LDD, getvaluename("hmxinit")); //NewMap(0);//
-        //report(*hmxInit, "hi.map");
-        copy(*WH, *hmxInit);
-        FOR_ROW_COL_MV {
-            tma->Drc = hmxInit->Drc * DX->Drc * _dx;
-        }
-        WHinitVolTot = mapTotal(*tma);
+//        hmxInit = ReadMap(LDD, getvaluename("hmxinit")); //NewMap(0);//
+//        //report(*hmxInit, "hi.map");
+//        copy(*WH, *hmxInit);
+//        FOR_ROW_COL_MV {
+//            tma->Drc = hmxInit->Drc * DX->Drc * _dx;
+//        }
+//        WHinitVolTot = mapTotal(*tma);
     }
 
     SwatreSoilModel = nullptr;

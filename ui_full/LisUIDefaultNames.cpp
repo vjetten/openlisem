@@ -379,8 +379,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flow concentration 2D");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Flooding]");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel flooding");
+//    namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Include channel flooding");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include levees");
     namelist[i].value = QString("0.05");
@@ -391,8 +391,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding runoff partitioning");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("Flooding 1D2D coupling");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Flood initial level map");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Flood initial level map");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("Flood method SWOF2D order 1");
 //    namelist[i].value = QString("0");
@@ -413,13 +413,13 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include flow barriers");
     namelist[i].value = QString("flowbarriers.txt");
     namelist[i++].name = QString("Flow barrier table filename");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Variable Timestep");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Heun");
+    namelist[i++].name = QString("Variable Timestep");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use Heun");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use MUSCL");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
     //###
     namelist[i++].name = QString("");
@@ -436,8 +436,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Detachment efficiency");
     //    namelist[i].value = QString("0");
     //    namelist[i++].name = QString("Detachment stoniness");
+
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use material depth");
+    namelist[i++].name = QString("No detachment boundary");
 
     //###
     namelist[i++].name = QString("");

@@ -559,7 +559,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,/*SwitchSimpleErosion,*/ SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+    bool SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
 
     int numgrainclasses;
     QString GrainMaps;

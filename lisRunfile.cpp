@@ -180,7 +180,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel culverts")==0)       SwitchCulverts  = iii == 1;
       //  if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
-      //  if (p1.compare("Include rainfall flooding")==0)      SwitchRainfallFlood     = iii == 1;
 
         if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use Heun")==0) SwitchHeun = iii == 1;
@@ -196,6 +195,7 @@ void TWorld::ParseRunfileData(void)
 //        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
       //  if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
+           if (p1.compare("No detachment boundary")==0)              SwitchNoBoundarySed  = iii == 1;
 
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
 
@@ -208,7 +208,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
     //    if (p1.compare("Detachment stoniness")==0)           SwitchStoninessDET   = iii == 1;
 
-        if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
+     //   if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
     //    if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
         // not used, always on
         //VJ 170225 always sediment interpolate

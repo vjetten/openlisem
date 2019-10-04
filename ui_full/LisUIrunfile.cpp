@@ -208,7 +208,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         // if (p1.compare("Flooding 1D2D coupling")==0)         E_1D2DCoupling->setValue(val);
-        if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
+    //    if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
         //if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(valc);
        // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
@@ -250,7 +250,7 @@ void lisemqt::ParseInputData()
             E_GrainSizes->setText(p);
         }
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
-
+        if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
 
      //   if (p1.compare("Include Rainfall")==0)               dummyrain = check;
         if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
@@ -816,7 +816,7 @@ void lisemqt::updateModelData()
         //if (p1.compare("Number of grain size classes (maps)")==0)  namelist[j].value = E_NumberClassesMaps->text();
         if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
         if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
-
+        if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 

@@ -1261,8 +1261,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg
 
-                //    if (FlowBoundary->Drc > 0)
-                //        detachment = 0;
+                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                     detachment = 0;
                 // VJ 190325 prevent any activity on the boundary!
 
                 if (GrassFraction->Drc > 0)
@@ -1303,8 +1303,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
                 // cannot have more depo than sediment present
 
-                //   if (FlowBoundary->Drc > 0)
-                //       deposition = 0;
+                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                    deposition = 0;
                 // VJ 190325 prevent any activity on the boundary!
 
                 if(SwitchUseMaterialDepth)
