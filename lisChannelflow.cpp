@@ -255,9 +255,10 @@ void TWorld::ChannelWaterHeightNT(void)
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
-        ChannelWH->Drc = 0;
+       // ChannelWH->Drc = 0;
 
-        ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+        if(SwitchKinematic2D != K2D_METHOD_DYN)
+            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
         //add baseflow
@@ -390,7 +391,6 @@ void TWorld::ChannelFlow(void)
     if (SwitchErosion)
     {
         FOR_ROW_COL_MV_CH {
-if(ChannelWH->Drc > MIN_HEIGHT)
             ChannelFlowDetachment(r,c);
             //detachment, deposition for SS and BL
 

@@ -1380,17 +1380,15 @@ void TWorld::ChannelFlowDetachment(int r, int c)
     RiverSedimentLayerDepth(r,c);
     //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-    double blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-    double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+    double blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
+    double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
 
-    double bldepth = ChannelBLDepth->Drc;
-    double ssdepth = ChannelSSDepth->Drc;
+  //  double bldepth = ChannelBLDepth->Drc;
+ //   double ssdepth = ChannelSSDepth->Drc;
 
     //discharges for both layers and watervolumes
-    //double blwatervol = ChannelBLWaterVol->Drc;
-    //double sswatervol = ChannelSSWaterVol->Drc;
-    double bldischarge = ChannelV->Drc * ChannelAdj->Drc * ChannelBLDepth->Drc;
-    double ssdischarge = ChannelV->Drc * ChannelAdj->Drc * ChannelSSDepth->Drc;
+    double bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
+    double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
 
     //iterator is number of grain classes
     int iterator = numgrainclasses;
@@ -1564,8 +1562,8 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           // not more than SS present
 
           //  detachment
-          TransportFactor = ssdischarge*_dt;
-                  //_dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
+          TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
+          TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
           //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
           detachment = TW->Drc * maxTC * TransportFactor;
           //detachment = std::min(detachment, maxTC * ChannelQn->Drc*ssdepth/ChannelWH->Drc *_dt); // this line is new
@@ -1596,7 +1594,7 @@ if(detachment > 10)
 
           if(TBLDepthFlood->Drc < MIN_HEIGHT) {
               ChannelDep->Drc += -ChannelBLSed->Drc;
-              ChannelBLTC->Drc = 0;;
+              ChannelBLTC->Drc = 0;
               ChannelBLConc->Drc = 0;
               ChannelBLSed->Drc = 0;
 
@@ -1607,8 +1605,8 @@ if(detachment > 10)
               minTC = std::min(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
 
               //### detachment
-              TransportFactor = bldischarge*_dt;
-                      //_dt*TSettlingVelocity * DX->Drc *ChannelFlowWidth->Drc;
+              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc *ChannelFlowWidth->Drc;
+              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
               // detachment can only come from soil, not roads (so do not use flowwidth)
               // units s * m/s * m * m = m3
               detachment =  TW->Drc *  maxTC * TransportFactor;
@@ -1627,7 +1625,7 @@ if(detachment > 10)
               // IN KG/CELL
 
               //### deposition
-              TransportFactor = (1-exp(-_dt*TSettlingVelocity/bldepth)) * blwatervol;
+              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol;
 
               // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
               deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
@@ -1676,8 +1674,8 @@ if(detachment > 10)
            }
            ChannelSSSed->Drc += RSS_D.Drcd;
 
-           RBLC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RBLD_D.Drcd, RBL_D.Drcd);
-           sssmax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*RBLD_D.Drcd;
+           RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, RBL_D.Drcd);
+           sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
            if(sssmax < BL_D.Drcd) {
                ChannelDep->Drc -= (RBL_D.Drcd - sssmax);
                RBL_D.Drcd = sssmax;
@@ -1737,10 +1735,10 @@ void TWorld::RiverSedimentMaxC(int r, int c)
             }
             _SS->Drc = sssmax;
         }
-        _SSC->Drc = MaxConcentration(ChannelWidth->Drc*DX->Drc*ChannelSSDepth->Drc, _SS->Drc);
+        _SSC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc, _SS->Drc);
         // limit concentration to 850 and throw rest in deposition
 
-        double smax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*ChannelBLDepth->Drc;
+        double smax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*ChannelBLDepth->Drc;
         if(smax < _BL->Drc)
         {
             ChannelDep->Drc += (smax - _BL->Drc);// - smax);
@@ -1752,14 +1750,14 @@ void TWorld::RiverSedimentMaxC(int r, int c)
 
         }
         //set concentration from present sediment
-        _BLC->Drc = MaxConcentration(ChannelWidth->Drc*DX->Drc*ChannelBLDepth->Drc, _BL->Drc);
+        _BLC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelBLDepth->Drc, _BL->Drc);
     } else {
        FOR_GRAIN_CLASSES
        {
-            RSSC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RSSD_D.Drcd, RSS_D.Drcd);
+            RSSC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RSSD_D.Drcd, RSS_D.Drcd);
             // limit concentration to 850 and throw rest in deposition
 
-            double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*RSSD_D.Drcd;
+            double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*RSSD_D.Drcd;
             if(sssmax < RSS_D.Drcd)
             {
                 ChannelDep->Drc += (RSS_D.Drcd - sssmax);
@@ -1778,10 +1776,10 @@ void TWorld::RiverSedimentMaxC(int r, int c)
             }
 
 
-            RBLC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RBLD_D.Drcd, RBL_D.Drcd);
+            RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, RBL_D.Drcd);
             // limit concentration to 850 and throw rest in deposition
 
-            sssmax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*RBLD_D.Drcd;
+            sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
             if(sssmax < BL_D.Drcd)
             {
                 ChannelDep->Drc += (RBL_D.Drcd - sssmax);

@@ -83,7 +83,8 @@ void TWorld::distributeChannelSed(int r, int c, double dh, bool fromchannel)
     //   ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
     RiverSedimentMaxC(r,c);
     //   SSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, SSFlood->Drc);
-    SWOFSedimentMaxC(r,c);
+    //SWOFSedimentSetConcentration(r,c,h);
+    //SWOFSedimentMaxC(r,c);
 }
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
