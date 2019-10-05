@@ -84,11 +84,6 @@ void TWorld::CalcVelDischTile()
       TileV->Drc = powl(Area/Perim,_23) * grad/TileN->Drc;
       TileQ->Drc = Area*TileV->Drc;
 
-//      if (TileAlpha->Drc > 0)
-//         TileQ->Drc = qPow(Area/TileAlpha->Drc, beta1);
-//      else
-//         TileQ->Drc = 0;
-
    }
    else
    {
@@ -102,14 +97,6 @@ void TWorld::TileFlow(void)
 {
    if (!SwitchIncludeTile)
       return;
-
-   double sum = 0;
-//   FOR_ROW_COL_MV_TILE {
-//    sum = sum + TileWaterVol->Drc;
-//   }
-//   if (sum < 0.001)
-//       return;
-
 
    FOR_ROW_COL_MV_TILE
    {

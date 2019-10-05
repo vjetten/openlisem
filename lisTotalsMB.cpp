@@ -48,25 +48,12 @@ void TWorld::Totals(void)
 
     /***** WATER *****/
 
-//    if(SwitchIncludeChannel)
-//    {
-//        DistributeOverExtendedChannel(ChannelWH,tm,true);
-//    }
-    // find max water height OBSOLETE
     FOR_ROW_COL_MV
     {
- //        if(SwitchIncludeChannel)
- //        {
-
- //            WHmax->Drc = std::max(WHmax->Drc, WH->Drc + hmx->Drc + tm->Drc);
- //        }else
- //        {
         if (SwitchKinematic2D < 3)
               WHmax->Drc = std::max(WHmax->Drc, WH->Drc + hmx->Drc);
         else
               WHmax->Drc = std::max(WHmax->Drc, std::max(WH->Drc, hmx->Drc));
-
-//        }
     }
 
 

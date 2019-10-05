@@ -62,19 +62,16 @@ void TWorld::OverlandFlow(void)
 
     if(SwitchKinematic2D == K2D_METHOD_DYN
        || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) ) {
+
         copy(*hmxWH, *WH);
+
         FloodMaxandTiming(WH, V, minReportFloodHeight);
-        // when dyn wave V = sqrt(UU+VV)
+
         FOR_ROW_COL_MV {
             hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-//            hmxflood->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
             FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
         }
-
-        if(SwitchKinematic2D == K2D_METHOD_DYN)
-            copy(*UVflood, *V);
-        //copy V into UVflood
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -94,8 +91,8 @@ void TWorld::ToFlood()//int thread)
 {
     if (!SwitchIncludeChannel)
         return;
-    if (!SwitchChannelFlood)
-        return;
+//    if (!SwitchChannelFlood)
+//        return;
 
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
@@ -157,10 +154,10 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-//    ChannelOverflow(WHrunoff, V);
-//    // non threaded
-//    return;
+    ChannelOverflow(WHrunoff, V);
+    return;
 
+/* OBSOLETE
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         ChannelOverflow(WHrunoff, V);
         return;
@@ -193,8 +190,8 @@ void TWorld::ToChannel()//int thread)
             // fraction to channel calc from half the adjacent area width and flow velocity
 
             // cannot flow into channel is water level in channel is higher than depth
-            if (SwitchChannelFlood)
-            {
+          //  if (SwitchChannelFlood)
+          //  {
                 if (WHrunoff->Drcr <= std::max(0.0 , ChannelWH->Drcr -ChannelDepthExtended->Drcr))
                 {
                     fractiontochannel = 0;
@@ -205,7 +202,7 @@ void TWorld::ToChannel()//int thread)
                     fractiontochannel = 0;
                 }
                 // no surface inflow when culverts and bridges
-            }
+          //  }
 
             RunoffVolinToChannel->Drcr  += fractiontochannel*Volume;
             // water diverted to the channel
@@ -243,7 +240,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-
+*/
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -379,14 +376,8 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
- //   ChannelOverflow(WHrunoff, V);
-    // now done in toflood
-
     dtOF = fullSWOF2Do2light(WHrunoff, URO, VRO, DEM, true);
     // this includes erosion
-
-    //  dtOF = fullSWOF2RO(WHrunoff, URO, VRO, DEM, true);
-    // non threaded flooding
 
   //  report(*URO,"uro");
  //   report(*VRO,"vro");
@@ -400,7 +391,9 @@ void TWorld::OverlandFlow2Ddyn(void)
         WHrunoff->Drc = std::max(WHrunoff->Drc, 0.0);
         V->Drc = qSqrt(URO->Drc*URO->Drc + VRO->Drc*VRO->Drc);
 
-        //Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc); //?????FlowWidth->Drc); //
+        UVflood->Drc = V->Drc;
+        //copy V into UVflood, for report and MB stuff
+
         Qn->Drc = V->Drc*(WHrunoff->Drc*FlowWidth->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 
@@ -466,6 +459,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 //        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 //    }
 //    copy(*UVflood, *V);
+
 
     debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting

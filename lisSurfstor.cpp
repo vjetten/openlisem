@@ -73,11 +73,9 @@ void TWorld::addRainfallWH(int thread)
 {
     FOR_ROW_COL_2DMT
     {
-        if (FloodDomain->Drc > 0)
-        {
+        if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-        }else
-        {
+        } else {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)
 
@@ -154,7 +152,6 @@ void TWorld::SurfaceStorage(int thread)
 //        else
 //            fpa->Drc = 1-exp(-1.875*(wh/RRm));
         // fraction ponded area of a gridcell
-//        if(SwitchKinematic2D == 3)
         fpa->Drc = 1;
 
 //        if (SwitchHardsurface)
