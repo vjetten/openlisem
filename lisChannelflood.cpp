@@ -349,12 +349,6 @@ void TWorld::ChannelFlood(void)
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
 
-    FOR_ROW_COL_MV
-    {
-       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-    }
-    double sumh_t = mapTotal(*FloodWaterVol) +mapTotal(*ChannelWaterVol);
-
     double dtflood = 0;
 
     startFlood = false;
@@ -365,8 +359,7 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-   // if(startFlood)
-        dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
+    dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
     //infilInWave(Iflood, hmx, _dt);
@@ -381,29 +374,6 @@ void TWorld::ChannelFlood(void)
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
     }
 
-//    double sumh_t2 = mapTotal(*FloodWaterVol)+mapTotal(*ChannelWaterVol);
-
-//    //correctMassBalance(sumh_t, FloodWaterVol, 1e-12);
-//    // correct mass balance, VJ 150823: not nnecessary hhere if flow is false
-
-//    double ncells = 0;
-//    double floodtot = 0;
-//    FOR_ROW_COL_MV
-//    {
-//       if(FloodWaterVol->Drc > 1e-6)
-//        {
-//            ncells += 1.0;
-//            floodtot += FloodWaterVol->Drc;
-//        }
-//    }
-//    double diff = (sumh_t-sumh_t2);
-
-//    FOR_ROW_COL_MV
-//    {
-//       FloodWaterVol->Drc = floodtot > 0? FloodWaterVol->Drc  + diff * FloodWaterVol->Drc/floodtot : 0.0;
-//       hmx->Drc = FloodWaterVol->Drc / (ChannelAdj->Drc *DX->Drc);
-//    }
-
     //new flood domain
     nrFloodedCells = 0;
 
@@ -417,26 +387,6 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-
-
-    // add RO waterheight and hmx for output, and calc flood for output
-//    FOR_ROW_COL_MV {
-//        hmxWH->Drc = hmx->Drc + WH->Drc;
-//        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-//    }
-
-//    fill(*tma, 0);
-//    FOR_ROW_COL_MV {
-//       tma->Drc = UVflood->Drc > 0 ? UVflood->Drc : V->Drc;
-//    }
-
-//    FloodMaxandTiming(hmxWH, tma, minReportFloodHeight);
-//    // flood max, start and duration
-
-//    FOR_CELL_IN_FLOODAREA
-//       FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-//    }
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;

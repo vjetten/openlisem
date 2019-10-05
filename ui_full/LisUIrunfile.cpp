@@ -217,18 +217,17 @@ void lisemqt::ParseInputData()
         if (p1.compare("Advanced sediment")==0)              checkAdvancedSediment->setChecked(check);
         if (p1.compare("Advanced sediment configuration")==0)
         {
-            checkBox_SedSingleSingle->setChecked(false);
-            checkBox_SedMultiSingle->setChecked(false);
-            checkBox_SedMultiMulti->setChecked(false);
+            checkBox_Sed2Phase->setChecked(false);
+            checkBox_SedMultiGrain->setChecked(false);
             tabWidgetOptions->setTabEnabled(5,true);
             if(valc == 2)
-                checkBox_SedMultiMulti->setChecked(true);
+                checkBox_SedMultiGrain->setChecked(true);
             else
                 if(valc == 1)
-                    checkBox_SedMultiSingle->setChecked(true);
+                    checkBox_Sed2Phase->setChecked(true);
                 else
                 {
-                    checkBox_SedSingleSingle->setChecked(true);
+                    checkAdvancedSediment->setChecked(false);
                     tabWidgetOptions->setTabEnabled(5,false);
                 }
         }
@@ -411,6 +410,11 @@ void lisemqt::ParseInputData()
                 checkUnits_kgm2->setChecked(true);
         }
 
+        setSedimentText(E_BLMethod->value(), 1, 0);
+        setSedimentText(E_SSMethod->value(), 1, 1);
+        setSedimentText(E_RBLMethod->value(), 0, 0);
+        setSedimentText(E_RSSMethod->value(), 0, 1);
+
 
         if (p1.compare("CheckOutputMaps")==0)
         {
@@ -452,12 +456,6 @@ void lisemqt::ParseInputData()
     checkDoErosion->setChecked(dummyErosion);
     setErosionTab(dummyErosion);
 
- //   if (!dummyrain && !dummysnow)
-  //      QMessageBox::warning(this,"openLISEM","Must have rainfall, snowmelt or both");
-
-  //  checkRainfall->setChecked(dummyrain);
- //   checkSnowmelt->setChecked(dummysnow);
-
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     checkOverlandFlow2D->setChecked(dummykinwave == 2);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
@@ -466,13 +464,10 @@ void lisemqt::ParseInputData()
     bool yes = true;
     if(checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
         yes = false;
-    qDebug() << yes;
     label_198->setEnabled(yes);
     E_floodMinHeight->setEnabled(yes);
     setFloodTab(yes);
     //outputMapsFlood->setEnabled(yes);
-
-//    setFloodTab(true);
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -792,21 +787,18 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Advanced sediment configuration")==0)
         {
-            if(checkBox_SedMultiMulti->isChecked())
-            {
+            if(checkBox_SedMultiGrain->isChecked())
                 namelist[j].value.setNum((int)2);
-            }else
-                if(checkBox_SedMultiSingle->isChecked())
-                {
+            else
+                if(checkBox_Sed2Phase->isChecked())
                     namelist[j].value.setNum((int)1);
-                }else
-                {
+                else
                     namelist[j].value.setNum((int)0);
-                }
         }
 
         if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
         if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
+
         if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
 
         if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());

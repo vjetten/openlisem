@@ -770,9 +770,22 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
 
     if(hm->Drc < MIN_HEIGHT || SSDepthFlood->Drc < MIN_HEIGHT)
         return 0;
-    if(v < he_ca)
+    if(v < MIN_FLUX)
         return 0;
 
+    double ps = 2400.0;
+    double pw = 1000.0;
+    double d50m = (D50->Drc/1000000.0);
+    double d90m = (D90->Drc/1000000.0);
+    double tc = 0;
+
+    if(FS_SS_Method == FHAIRSINEROSE)
+    {
+        double om =  v*Grad->Drc;
+        double omcr = 0.004;
+        double tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) *
+                ( std::max(0.0, (om - omcr))/hm->Drc) ;
+    } else
     if(FS_SS_Method == FSGOVERS)
     {
         //Govers with a maximum bed load layer depth (1980)
@@ -782,7 +795,7 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
         // V in cm/s in this formula assuming grad is SINE
         double omegacrit = 0.4;
         // critical unit streampower in cm/s
-        return std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
+        tc = 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc);
         // not more than 2650*0.32 = 848 kg/m3
 
     }else
@@ -790,10 +803,7 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
         {
             //Van rijn simplified (1984)
             double ucr;
-            double d50m = (D50->Drc/1000000.0);
-            double d90m = (D90->Drc/1000000.0);
-            double ps = 2400.0;
-            double pw = 1000.0;
+
             double mu = 1.0;
             if( d50m < 0.0005)
             {
@@ -806,17 +816,13 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
             double ds = d50m * GRAV * ((ps/pw)-1)/(mu*mu);
             double qs = hm->Drc * 0.008 * ps*v * d50m * pow(me, 2.4) * pow(ds, -0.6);
 
-            double tc =  qs/ (v * SSDepthFlood->Drc);
-            return std::max(std::min(tc,MAXCONC),0.0);
-        }else if(FS_SS_Method == FSRIJNFULL)
+             tc =  qs/ (v * SSDepthFlood->Drc);
+        }else
+            if(FS_SS_Method == FSRIJNFULL)
         {
             //van Rijn full (1980)
 
             double kinvis = 1.0;
-            double d50m = (D50->Drc/1000000.0);
-            double d90m = (D90->Drc/1000000.0);
-            double ps = 2400.0;
-            double pw = 1000.0;
             double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
             double dh = hm->Drc;
             double chevey = 18 * log10(4 * dh/d90m);
@@ -855,8 +861,7 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
             double ad = 0.1;
             double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
             double qs = F * v * hm->Drc * ca;
-            double tc = ps * ChannelAdj->Drc * qs/ (v * SSDepthFlood->Drc * ChannelAdj->Drc);
-            return std::max(std::min(tc,MAXCONC ),0.0);
+            tc = ps * ChannelAdj->Drc * qs/ (v * SSDepthFlood->Drc * ChannelAdj->Drc);
         }else if(FS_SS_Method == FSWUWANGJIA)
         {
             if(SSD_D.at(_d)->Drc < 0.004)
@@ -864,8 +869,6 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
                 return 0;
             }
             double slope = Grad->Drc;
-            double ps = 2400.0;
-            double pw = 1000.0;
             double h = hm->Drc;
             double phk = 0;
             double pek = 0;
@@ -891,16 +894,11 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
             double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h /css) - 1.0, 0.0)* v/(sqrt(sv)),2.2);
             qs =  qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
 
-            double tc = ps * ChannelAdj->Drc * qs/ (v * SSDepthFlood->Drc * ChannelAdj->Drc);
-            return std::max(std::min(tc,MAXCONC ),0.0);
+            tc = ps * ChannelAdj->Drc * qs/ (v * SSDepthFlood->Drc * ChannelAdj->Drc);
 
-        }else
-        {
 
-            return 0;
         }
-
-
+    return std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -1183,8 +1181,10 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
             //erosion values based on discharge
             TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
-            TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
-            TransportFactor = ssdischarge*_dt;
+            TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
+
+            TransportFactor = ssdischarge*DT->Drc;
+
             detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
 
             // exceptions
@@ -1256,8 +1256,9 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
                 TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
-                TransportFactor = std::min(TransportFactor, bldischarge*_dt);
-                TransportFactor = bldischarge*_dt;
+                TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
+
+                TransportFactor = bldischarge*DT->Drc;
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg
 

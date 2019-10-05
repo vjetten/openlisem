@@ -487,35 +487,83 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
     this->showMap();
 }
-//--------------------------------------------------------------------
-void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
+
+void lisemqt::setSedimentText(int i, int j, int k)
 {
-    if(v)
-    {
-        checkBox_SedMultiSingle->setChecked(false);
-        checkBox_SedMultiMulti->setChecked(false);
-        sedbox1->setEnabled(false);
-        sedbox2->setEnabled(false);
-        sedbox3->setEnabled(false);
-        E_RBLMethod->setValue(1); //1=van rijn simple
-        E_RSSMethod->setValue(0); //0=govers
-        E_BLMethod->setValue(1);
-        E_SSMethod->setValue(0);
+    // i = TC, j= river or surface, k = BL or SS
+    if (j == 0) {
+        if ( k == 0) {
+            if (i==1) label_RTBL->setText("Van Rijn (simplified), 1984");
+            if (i==2) label_RTBL->setText("Van Rijn (full), 1980");
+            if (i==3) label_RTBL->setText("Wu, Wang & Jia (multiclass)");
+        } else {
+            if (i==0) label_RTSS->setText("Govers, 1980");
+            if (i==1) label_RTSS->setText("Van Rijn (simplified), 1984");
+            if (i==2) label_RTSS->setText("Van Rijn (full), 1980");
+            if (i==3) label_RTSS->setText("Wu, Wang & Jia (multiclass)");
+        }
     } else {
-        if(!checkBox_SedMultiSingle->isChecked() && !checkBox_SedMultiMulti->isChecked())
-        {
-            checkBox_SedSingleSingle->setChecked(true);
+        if ( k == 0) {
+            if (i==1) label_STBL->setText("Van Rijn (simplified), 1984");
+            if (i==2) label_STBL->setText("Van Rijn (full), 1980");
+            if (i==3) label_STBL->setText("Wu, Wang & Jia (multiclass)");
+        } else {
+            if (i==0) label_STSS->setText("Govers, 1980");
+            if (i==1) label_STSS->setText("Van Rijn (simplified), 1984");
+            if (i==2) label_STSS->setText("Van Rijn (full), 1980");
+            if (i==3) label_STSS->setText("Wu, Wang & Jia (multiclass)");
         }
     }
 }
 //--------------------------------------------------------------------
+void lisemqt::on_E_RBLMethod_valueChanged(int i)
+{
+    setSedimentText(i, 0, 0);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_RSSMethod_valueChanged(int i)
+{
+    setSedimentText(i, 0, 1);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_BLMethod_valueChanged(int i)
+{
+    setSedimentText(i, 1, 0);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_SSMethod_valueChanged(int i)
+{
+    setSedimentText(i, 1, 1);
+}
+//--------------------------------------------------------------------
+//void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
+//{
+//    if(v)
+//    {
+//        checkBox_Sed2Phase->setChecked(false);
+//        checkBox_SedMultiGrain->setChecked(false);
+//        sedbox1->setEnabled(false);
+//        sedbox2->setEnabled(false);
+//        sedbox3->setEnabled(false);
+//        E_RBLMethod->setValue(1); //1=van rijn simple
+//        E_RSSMethod->setValue(0); //0=govers
+//        E_BLMethod->setValue(1);
+//        E_SSMethod->setValue(0);
+//    } else {
+//        if(!checkBox_Sed2Phase->isChecked() && !checkBox_SedMultiMulti->isChecked())
+//        {
+//            checkBox_SedSingleSingle->setChecked(true);
+//        }
+//    }
+//}
+//--------------------------------------------------------------------
 
-void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
+void lisemqt::on_checkBox_Sed2Phase_toggled(bool v)
 {
     if(v)
     {
-        checkBox_SedMultiMulti->setChecked(false);
-        checkBox_SedSingleSingle->setChecked(false);
+        checkBox_SedMultiGrain->setChecked(false);
+       // checkBox_SedSingleSingle->setChecked(false);
         sedbox1->setEnabled(false);
         sedbox2->setEnabled(true);
         sedbox3->setEnabled(true);
@@ -529,46 +577,33 @@ void lisemqt::on_checkBox_SedMultiSingle_toggled(bool v)
         E_SSMethod->setEnabled(true);
     }else
     {
-        if(!checkBox_SedMultiMulti->isChecked() && !checkBox_SedSingleSingle->isChecked())
+        if(!checkBox_SedMultiGrain->isChecked())// && !checkBox_SedSingleSingle->isChecked())
         {
-            checkBox_SedMultiSingle->setChecked(true);
+            checkBox_Sed2Phase->setChecked(true);
         }
     }
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkBox_SedMultiMulti_toggled(bool v)
+void lisemqt::on_checkBox_SedMultiGrain_toggled(bool v)
 {
-    if(v)
-    {
-        checkBox_SedMultiSingle->setChecked(false);
-        checkBox_SedSingleSingle->setChecked(false);
+    if(v) {
+        checkBox_Sed2Phase->setChecked(false);
         sedbox1->setEnabled(true);
         sedbox2->setEnabled(true);
         sedbox3->setEnabled(true);
-//        E_RBLMethod->setValue(3);
-//        E_RSSMethod->setValue(3);
-//        E_BLMethod->setValue(3);
-//        E_SSMethod->setValue(3);
+        E_RBLMethod->setValue(3);
+        E_RSSMethod->setValue(4);
+        E_BLMethod->setValue(3);
+        E_SSMethod->setValue(4);
         E_RBLMethod->setEnabled(false);
         E_RSSMethod->setEnabled(false);
         E_BLMethod->setEnabled(false);
         E_SSMethod->setEnabled(false);
 
-//        E_RBLMethod->setMaximum(3);
-//        E_RBLMethod->setMinimum(3);
-//        E_RSSMethod->setMaximum(3);
-//        E_RSSMethod->setMinimum(3);
-//        E_BLMethod->setMaximum(3);
-//        E_BLMethod->setMinimum(3);
-//        E_SSMethod->setMaximum(3);
-//        E_SSMethod->setMinimum(3);
-    }else
-    {
-        if(!checkBox_SedMultiSingle->isChecked() && !checkBox_SedSingleSingle->isChecked())
-        {
-            checkBox_SedMultiMulti->setChecked(true);
-        }
+    } else {
+        if(!checkBox_Sed2Phase->isChecked())
+            checkBox_SedMultiGrain->setChecked(true);
     }
 }
 //--------------------------------------------------------------------
@@ -604,18 +639,34 @@ void lisemqt::setErosionTab(bool yes)
     tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
     tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
-    if (checkDoErosion->isChecked())
-        checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
-    // note checkBox_SedSingleSingle is not visible but still needed
+//    if (checkDoErosion->isChecked())
+//        checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
+//    // note checkBox_SedSingleSingle is not visible but still needed
 
 
     if (checkAdvancedSediment->isChecked())
     {
-        if (!checkBox_SedMultiSingle->isChecked() && !checkBox_SedMultiMulti->isChecked())
+        if (!checkBox_Sed2Phase->isChecked() && !checkBox_SedMultiGrain->isChecked())
         {
-            checkBox_SedMultiMulti->setChecked(false);
-            checkBox_SedMultiSingle->setChecked(true);
+            checkBox_SedMultiGrain->setChecked(false);
+            checkBox_Sed2Phase->setChecked(true);
         }
+
+
+        int i1 = E_RBLMethod->value();
+        int i2 = E_RSSMethod->value();
+        int i3 = E_BLMethod->value();
+        int i4 = E_SSMethod->value();
+
+        E_RBLMethod->setValue(0);
+        E_RSSMethod->setValue(0);
+        E_BLMethod->setValue(0);
+        E_SSMethod->setValue(0);
+        E_RBLMethod->setValue(i1);
+        E_RSSMethod->setValue(i2);
+        E_BLMethod->setValue(i3);
+        E_SSMethod->setValue(i4);
+
 
     }
     //  yes = checkDoErosion->isChecked();
@@ -860,7 +911,6 @@ void lisemqt::SetStyleUI()
     toolButton_help7->setStyleSheet(flat);
 
 
-    checkBox_SedSingleSingle->setVisible(false);
     // interface elements that are not visible for now
     //always MUSCL
     //E_FloodScheme->setVisible(false);
@@ -1601,8 +1651,8 @@ void lisemqt::resetTabFlow()
 void lisemqt::resetTabSediment()
 {
     //sediment
-    checkBox_SedMultiSingle->setChecked(true);
-    checkBox_SedMultiMulti->setChecked(false);
+    checkBox_Sed2Phase->setChecked(true);
+    checkBox_SedMultiGrain->setChecked(false);
   //  checkBox_SedSingleSingle->setChecked(false);
 
     E_RBLMethod->setValue(1);
@@ -1749,7 +1799,6 @@ void lisemqt::resetAll()
 
     checkDoErosion->setChecked(false);
     checkAdvancedSediment->setChecked(false);
-    checkBox_SedSingleSingle->setChecked(true);
 
     checkIncludeChannel->setChecked(true);
     checkChannelFlood->setChecked(true);
@@ -1790,9 +1839,8 @@ void lisemqt::resetAll()
 
     //sediment
     resetTabSediment();
-    checkBox_SedMultiSingle->setChecked(false);
-    checkBox_SedMultiMulti->setChecked(false);
-    checkBox_SedSingleSingle->setChecked(true);
+    checkBox_Sed2Phase->setChecked(false);
+    checkBox_SedMultiGrain->setChecked(false);
 
     //calibration
     resetTabCalibration();

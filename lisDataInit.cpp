@@ -311,9 +311,9 @@ void TWorld::InitStandardInput(void)
         R_SS_Method  = getvalueint("River SS method");
         FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
         if (SwitchUse2Layer && SwitchUseGrainSizeDistribution) {
-            R_BL_Method = FSWUWANGJIA;
+            R_BL_Method = FSWUWANGJIABL;
             R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
-            FS_BL_Method = FSWUWANGJIA;
+            FS_BL_Method = FSWUWANGJIABL;
             FS_SS_Method = FSWUWANGJIA;
         } else
             if(!SwitchUse2Layer && !SwitchUseGrainSizeDistribution) {

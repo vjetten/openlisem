@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>7</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7441,7 +7441,7 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <layout class="QGridLayout" name="gridLayout_49">
                         <item row="1" column="0" colspan="2">
-                         <widget class="QCheckBox" name="checkBox_SedMultiSingle">
+                         <widget class="QCheckBox" name="checkBox_Sed2Phase">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -7482,7 +7482,10 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="2" column="0" colspan="2">
-                         <widget class="QCheckBox" name="checkBox_SedMultiMulti">
+                         <widget class="QCheckBox" name="checkBox_SedMultiGrain">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -7820,7 +7823,7 @@ p, li { white-space: pre-wrap; }
                          <number>3</number>
                         </property>
                         <item row="4" column="1">
-                         <widget class="QLabel" name="label_147">
+                         <widget class="QLabel" name="label_RTSS">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -7862,7 +7865,7 @@ p, li { white-space: pre-wrap; }
                            <number>0</number>
                           </property>
                           <property name="maximum">
-                           <number>2</number>
+                           <number>3</number>
                           </property>
                           <property name="value">
                            <number>0</number>
@@ -7901,7 +7904,7 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="3" column="1">
-                         <widget class="QLabel" name="label_146">
+                         <widget class="QLabel" name="label_RTBL">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -7923,7 +7926,7 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="5" column="1" colspan="2">
-                         <widget class="QLabel" name="label_148">
+                         <widget class="QLabel" name="label_RTPrandtl">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -8026,7 +8029,7 @@ p, li { white-space: pre-wrap; }
                            <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
-                           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                            </sizepolicy>
@@ -8046,7 +8049,7 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="2" column="1">
-                         <widget class="QLabel" name="label_149">
+                         <widget class="QLabel" name="label_STBL">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -8072,6 +8075,12 @@ p, li { white-space: pre-wrap; }
                           <property name="enabled">
                            <bool>true</bool>
                           </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
                           <property name="font">
                            <font>
                             <weight>50</weight>
@@ -8095,7 +8104,7 @@ p, li { white-space: pre-wrap; }
                            <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
-                           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                            </sizepolicy>
@@ -8113,7 +8122,7 @@ p, li { white-space: pre-wrap; }
                            <number>0</number>
                           </property>
                           <property name="maximum">
-                           <number>2</number>
+                           <number>3</number>
                           </property>
                           <property name="value">
                            <number>0</number>
@@ -8121,7 +8130,7 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="4" column="1" colspan="2">
-                         <widget class="QLabel" name="label_151">
+                         <widget class="QLabel" name="label_STPrandtl">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -8143,7 +8152,7 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="3" column="1" colspan="2">
-                         <widget class="QLabel" name="label_150">
+                         <widget class="QLabel" name="label_STSS">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -11035,28 +11044,6 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="value">
                        <number>200</number>
-                      </property>
-                     </widget>
-                     <widget class="QCheckBox" name="checkBox_SedSingleSingle">
-                      <property name="geometry">
-                       <rect>
-                        <x>10</x>
-                        <y>0</y>
-                        <width>750</width>
-                        <height>22</height>
-                       </rect>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>1 layer, Suspended sediment only, Single median Grainsize from soil properties</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
                       </property>
                      </widget>
                      <widget class="QDoubleSpinBox" name="E_courantFactorSed">

@@ -177,8 +177,9 @@ class LisemThreadPool;
 #define FSGOVERS 0
 #define FSRIJN 1
 #define FSRIJNFULL 2
-#define FSWUWANGJIA 3
-#define FHAIRSINEROSE 4
+#define FHAIRSINEROSE 3
+#define FSWUWANGJIA 4
+#define FSWUWANGJIABL 3
 
 #define RGOVERS 0
 #define RRIJN 1

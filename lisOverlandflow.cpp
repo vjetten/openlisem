@@ -402,6 +402,17 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     Boundary2Ddyn();  // do the domain boundaries
 
+    FOR_ROW_COL_MV
+    {
+        WHroad->Drc = WHrunoff->Drc;
+        // set road to average outflowing wh, no surface storage.
+
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        // add new average waterlevel (A/dx) to stored water
+
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+
+    }
 
     if(SwitchErosion)
     {
@@ -438,28 +449,17 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-    FOR_ROW_COL_MV
-    {
-        WHroad->Drc = WHrunoff->Drc;
-        // set road to average outflowing wh, no surface storage.
+//    FOR_ROW_COL_MV
+//    {
+//        WHroad->Drc = WHrunoff->Drc;
+//        // set road to average outflowing wh, no surface storage.
 
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        // add new average waterlevel (A/dx) to stored water
+//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+//        // add new average waterlevel (A/dx) to stored water
 
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
-    }
-
-//    copy(*hmxWH, *WH);
-//    FloodMaxandTiming(WH, V, minReportFloodHeight);
-//    FOR_ROW_COL_MV {
-//        hmx->Drc = std::max(0.0, WH->Drc-minReportFloodHeight);
-//    hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//        hmxflood->Drc = std::max(0.0, WH->Drc-minReportFloodHeight);
-//        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 //    }
-//    copy(*UVflood, *V);
-
 
     debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting

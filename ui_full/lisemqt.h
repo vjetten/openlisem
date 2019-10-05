@@ -311,6 +311,8 @@ public:
     void resetTabSediment();
     void doCheckRainfall(bool);
 
+    void setSedimentText(int i, int j, int k);
+
 public slots:
     // functions linked to actions
     void saveRunFile();
@@ -363,9 +365,14 @@ public slots:
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
 
-    void on_checkBox_SedSingleSingle_toggled(bool v);
-    void on_checkBox_SedMultiSingle_toggled(bool v);
-    void on_checkBox_SedMultiMulti_toggled(bool v);
+  //  void on_checkBox_SedSingleSingle_toggled(bool v);
+    void on_checkBox_Sed2Phase_toggled(bool v);
+    void on_checkBox_SedMultiGrain_toggled(bool v);
+
+    void on_E_RBLMethod_valueChanged(int);
+    void on_E_RSSMethod_valueChanged(int);
+    void on_E_BLMethod_valueChanged(int);
+    void on_E_SSMethod_valueChanged(int);
 
     void on_DisplayComboBox_currentIndexChanged(int);
     void on_DisplayComboBox2_currentIndexChanged(int);

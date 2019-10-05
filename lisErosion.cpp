@@ -2101,7 +2101,7 @@ double TWorld::RiverSedimentTCBL(int r,int c,int _d)
 
             return std::max(std::min(tc,MAXCONCBL ),0.0);
         }else
-            if(R_BL_Method == FSWUWANGJIA)
+            if(R_BL_Method == FSWUWANGJIABL)
             {
                 if(RBLD_D.at(_d)->Drc < 0.04)
                 {
@@ -2162,14 +2162,25 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
     //this is necessary since some of the used equations have strange behaviour
     //for these water heights or velocities. (h and v outside of valid range)
     if(ChannelWH->Drc < MIN_HEIGHT || ChannelSSDepth->Drc < MIN_HEIGHT)
-    {
         return 0;
-    }
+
+    if(ChannelV->Drc < MIN_FLUX)
+        return 0;
+
     double v = ChannelV->Drc;
-    if(v < MIN_FLUX)
+    double d50m = (D50->Drc/1000000.0);
+    double d90m = (D90->Drc/1000000.0);
+    double ps = 2400.0;
+    double pw = 1000.0;
+    double tc = 0;
+
+    if(FS_SS_Method == FHAIRSINEROSE)
     {
-        return 0;
-    }
+        double om =  v*Grad->Drc;
+        double omcr = 0.004;
+        tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) *
+                ( std::max(0.0, (om - omcr))/ChannelWH->Drc) ;
+    } else
 
     if(R_SS_Method == FSGOVERS)
     {
@@ -2178,20 +2189,14 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
         // V in cm/s in this formula assuming grad is SINE
         double omegacrit = 0.4;
         // critical unit streampower in cm/s
-        double tc = 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc);
+        tc = 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc);
        // qDebug() << tc << CG->Drc << DG->Drc;
-         return std::max(std::min(tc,MAXCONC),0.0);
-        // not more than 2650*0.32 = 848 kg/m3
 
     }else
         if(R_SS_Method == FSRIJN)
     {
         //Van rijn simplified (1984)
         double ucr;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
-        double ps = 2400.0;
-        double pw = 1000.0;
         double mu = 1.0;
         if( d50m < 0.0005)
         {
@@ -2203,18 +2208,12 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
         double me = std::max((v - ucr)/sqrt(GRAV * d50m * (ps/pw - 1.0)),0.0);
         double ds = d50m * GRAV * ((ps/pw)-1)/(mu*mu);
         double qs = 0.008 * ChannelWH->Drc * ps*v * d50m  * pow(ds, -0.6) * pow(me, 2.4);
-        double tc =  qs/ (v * ChannelSSDepth->Drc);
-
-        return std::max(std::min(tc,MAXCONC),0.0);
+         tc =  qs/ (v * ChannelSSDepth->Drc);
 
     }else if(R_SS_Method == FSRIJNFULL)
     {
         //van Rijn full (1980)
         double kinvis = 1.0;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
-        double ps = 2400.0;
-        double pw = 1000.0;
         double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
         double dh = ChannelWH->Drc;
         double chevey = 18 * log10(4 * dh/d90m);
@@ -2254,8 +2253,7 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
         double ad = 0.1;
         double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
         double qs = F * v * ChannelWH->Drc * ca;
-        double tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
-        return std::max(std::min(tc,MAXCONC ),0.0);
+        tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
 
     }else if(R_SS_Method == FSWUWANGJIA)
     {
@@ -2264,8 +2262,6 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
             return 0;
         }
         double slope = ChannelGrad->Drc;
-        double ps = 2400.0;
-        double pw = 1000.0;
         double h = ChannelWH->Drc;
         double phk = 0;
         double pek = 0;
@@ -2289,14 +2285,11 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
         double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h * 9.81 * slope /css) - 1.0, 0.0)* v/(sqrt(sv)),2.2);
         qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
 
-        double tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
+        tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
 
-        return std::max(std::min(tc,MAXCONC ),0.0);
-
-    }else // never happens
-    {
-        return 0;
     }
+
+    return std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**
@@ -2331,27 +2324,27 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
     if(_v < MIN_FLUX)
         return 0;
 
+    double tc = 0;
+    double d50m = (D50->Drc/1000000.0);
+    double d90m = (D90->Drc/1000000.0);
+    double ps = 2400.0;
+    double pw = 1000.0;
+
     if(method == FSGOVERS)
     {
         //### Calc transport capacity
-        double omega = 100.0*_v*_grad->Drc; //in cm/s
+        double uc = 100.0*_v*_grad->Drc; //in cm/s
         //BUG channelgrad missing!!!
         // V in cm/s in this formula assuming grad is SINE
-        double omegacrit = 0.4;
+        double ucr = 0.4;
         // critical unit streampower in cm/s
-        double tc = 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc);
+        tc = 2650 * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc);
         // qDebug() << tc << CG->Drc << DG->Drc;
-        return std::max(std::min(tc,MAXCONC),0.0);
-        // not more than 2650*0.32 = 848 kg/m3
     }else
         if(method == FSRIJN)
     {
         //Van rijn simplified (1984)
         double ucr;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
-        double ps = 2400.0;
-        double pw = 1000.0;
         double mu = 1.0;
         if( d50m < 0.0005)
             ucr = 0.19 * pow(d50m, 0.1) * log10(4.0* _hss->Drc/d90m);
@@ -2362,7 +2355,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
         double ds = d50m * GRAV * ((ps/pw)-1)/(mu*mu);
         double qs = _h->Drc * 0.008 * ps*_v * d50m * pow(me, 2.4) * pow(ds, -0.6);
 
-        double tc =  qs/ (_v * _hss->Drc);
+        tc =  qs/ (_v * _hss->Drc);
 
         return std::max(std::min(tc,MAXCONC),0.0);
 
@@ -2371,15 +2364,11 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
     {
         //van Rijn full (1980)
         double kinvis = 1.0;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
-        double ps = 2400.0;
-        double pw = 1000.0;
         double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
         double chevey = 18 * log10(4 * _h->Drc/d90m);
         double a = 0.1;
 
-        double us = _v* sqrt(GRAV)/chevey;
+        double uc = _v* sqrt(GRAV)/chevey;
         double uscr = 0.055;
 
         if(ds <150 && !(ds < 20))
@@ -2393,35 +2382,22 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
 
         uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
 
-        double T = std::max((us*us/(uscr*uscr) - 1),0.0);
+        double T = std::max(((uc*uc)/(uscr*uscr) - 1),0.0);
         double bsv = sqrt(GRAV * _h->Drc *std::max(_grad->Drc,0.05));
         double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3);
         double sv = 10 * (kinvis/ds) *( sqrt(1 + (ps/pw - 1) * GRAV * d50m*d50m*d50m) - 1);
         double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
         double powcb = 0.1; // was 1.0
-//        if(ChannelBLConc->Drc > 0)
-//        {
-//            powcb = 0.1;//pow(ca/BLCFlood->Drc,0.4);
-//        }
         double phi = 2.5 * pow(sv/bsv,0.8) * powcb;
         double Z = sv/(beta*bsv*0.40);
         double Zs = Z + phi;
         double ad = 0.1;
         double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
         double qs = F * _v* _h->Drc * ca;
-        double tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
-
-        return std::max(std::min(tc,MAXCONC ),0.0);
+        tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
 
     }else if(R_SS_Method == FSWUWANGJIA)
     {
-
-//        if(RSSD_D.at(_d)->Drc < 0.04  )
-//        {
-//            return 0;
-//        }
-        double ps = 2400.0;
-        double pw = 1000.0;
         double phk = 0;
         double pek = 0;
         double sv = settlingvelocities.at(_d);
@@ -2443,14 +2419,10 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
         double qs = 0.0000262 *pow(std::max(( pw * 0.01 * _h->Drc * 9.81 * _grad->Drc /css) - 1.0, 0.0)* _v/(sqrt(sv)),2.2);
         qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
 
-        double tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
+        tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
 
-        return std::max(std::min(tc,MAXCONC ),0.0);
-
-    }else // never happens
-    {
-        return 0;
     }
+    return std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**
@@ -2483,15 +2455,17 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
         return 0;
     if(_v < MIN_FLUX)
         return 0;
+    double ps = 2400.0;
+    double pw = 1000.0;
+    double d50m = (D50->Drc/1000000.0);
+    double d90m = (D90->Drc/1000000.0);
+    double tc = 0;
 
     if(method == FSRIJN)
     {
         //Van rijn simplified (1984)
-        double ps = 2400.0;
-        double pw = 1000.0;
         double ucr;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
+
         if( d50m < 0.005)
         {
             ucr  = 0.19 * pow(d50m, 0.1) * log10(4.0* _h->Drc/d90m);
@@ -2501,18 +2475,12 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
         }
         double me = std::max((_v - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
         double qs = 0.005 * ps * _v *_h->Drc * pow(d50m/_h->Drc,1.2) * pow(me, 2.4);
-        double tc =  qs/ (_v * _hbl->Drc );
-
-        return std::max(std::min(tc,MAXCONCBL),0.0);
+        tc =  qs/ (_v * _hbl->Drc );
 
     }else if(method == FSRIJNFULL)
     {
         //van Rijn full (1980)
-        double ps = 2400.0;
-        double pw = 1000.0;
         double kinvis = 1.0;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
 
         double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
         double chevey = 18 * log(4 * _h->Drc/d90m);
@@ -2531,18 +2499,10 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
         uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
         double T = std::max((us*us/(uscr*uscr)) - 1,0.0);
         double qs = 0.053 * (pow(T,2.1)/pow(ds,0.3)) * sqrt((ps/pw -1)*GRAV)*d50m*sqrt(d50m);
-        double tc = 0.1 *  ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
+        tc = 0.1 *  ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
 
-        return std::max(std::min(tc,MAXCONCBL ),0.0);
-
-    }else if(method == FSWUWANGJIA)
+    }else if(method == FSWUWANGJIABL)
     {
-//        if (channel) {
-//            if(RBLD_D.at(_d)->Drc < 0.04)
-//                return 0;
-//        }
-        double ps = 2400.0;
-        double pw = 1000.0;
         double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/std::max(_n->Drc,0.001);
         double phk = 0;
         double pek = 0;
@@ -2564,13 +2524,9 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
         double qs = 0.0053 *pow(std::max(pow(na,1.5)*((pw * dh * 9.81 * 0.1 * _grad->Drc/css)) - 1.0, 0.0),2.2);
         qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(graindiameters.at(_d)/1000000.0,3.0));
 
-        double tc = ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
+        tc = ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
 
-
-        return std::max(std::min(tc,MAXCONCBL ),0.0);
-
-    }else // never happens
-    {
-        return 0;
     }
+
+    return std::max(std::min(tc,MAXCONCBL),0.0);
 }

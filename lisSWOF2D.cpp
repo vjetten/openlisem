@@ -962,18 +962,19 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
     double sumh = 0;
     bool stop;
 
-    if (SwitchErosion) {
-        FOR_ROW_COL_MV {
-            SSFlood->Drc += DETSplash->Drc;
-            double vol = ChannelAdj->Drc * DX->Drc * h->Drc;
-            SSCFlood->Drc = MaxConcentration(vol, SSFlood->Drc);
-            // recalc concentration
-        }
-    }
-
     SwitchHeun = false;
+
     if (startFlood)
     {
+        if (SwitchErosion) {
+            FOR_ROW_COL_MV {
+                SSFlood->Drc += DETSplash->Drc;
+                double vol = ChannelAdj->Drc * DX->Drc * h->Drc;
+                SSCFlood->Drc = MaxConcentration(vol, SSFlood->Drc);
+                // recalc concentration
+            }
+        }
+
         fill(*FloodT,0.0);
 
         if (correct)
