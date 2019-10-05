@@ -587,30 +587,33 @@ void lisemqt::showChannelVector()
         QVector <double> X;
         QVector <double> Y;
 
-        int start = op.Chanbranch.at(0); // debug gives an assert error here!
+        double xend, yend;
+
+        int start = 1;//op.Chanbranch.at(0); // debug gives an assert error here!
 
         for(int i = 1; i <= op.Chanbranch.length(); i++) {
             if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {
-
                 if (op.Chanbranch.at(i) == start) {
                     X << op.ChanDataX.at(i);
                     Y << op.ChanDataY.at(i);
+                    xend = op.ChanDataX.at(i);
+                    yend = op.ChanDataY.at(i);
                 } else {
                     start = op.Chanbranch.at(i);
 
                     // find connecting cell
-                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-                    int _dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+                    int _dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
                     double dx = op.channelMap->cellSize();
                     int nrRows = op.channelMap->nrRows();
                     double xx = X.at(X.length()-1);
                     double yy = Y.at(Y.length()-1);
 
                     int c = int((xx-0.5*dx)/dx);
-                    int r = nrRows-1-int((yy-0.5*dx)/dx);//
+                    int r = nrRows-1-int((yy-0.5*dx)/dx);
 
-                    double ldd = op.channelMap->Drc;
-              //        qDebug() << i<< dx << yy << xx << r << c << ldd;
+                    double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
+                      qDebug() << i<< dx << yy << xx << r << c << ldd;
                     Y << yy + _dy[(int)ldd]*dx;
                     X << xx + _dx[(int)ldd]*dx;
                     //
@@ -636,6 +639,22 @@ void lisemqt::showChannelVector()
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
+        {
+            int dx =(int) op.channelMap->cellSize()*0.4;
+            QwtPlotCurve *culvert = new QwtPlotCurve();
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::gray, QPen( Qt::black ), QSize( dx, dx) );
+            culvert->setSymbol(blackdot);
+            culvert->setStyle( QwtPlotCurve::NoCurve );
+            culvert->attach( MPlot );
+            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
+            X.clear();
+            Y.clear();
+            X << xend;
+            Y << yend;
+            culvert->setSamples(X, Y);
+        }
+
+        Y.clear();
         Xa.clear();
         Ya.clear();
         op.ChanDataX.clear();

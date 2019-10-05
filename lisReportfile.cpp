@@ -258,17 +258,14 @@ void TWorld::OutputUI(void)
     if(SwitchErosion)
     {
         fill(*COMBO_SS, 0.0);
-        if(SwitchChannelFlood)
-        {
-            calcMap(*COMBO_SS, *BLFlood, ADD);
-            calcMap(*COMBO_SS, *SSFlood, ADD);
-        }
+        calcMap(*COMBO_SS, *Sed, ADD);
+        calcMap(*COMBO_SS, *BLFlood, ADD);
+        calcMap(*COMBO_SS, *SSFlood, ADD);
         if(SwitchIncludeChannel)
         {
             calcMap(*COMBO_SS, *ChannelBLSed, ADD);
             calcMap(*COMBO_SS, *ChannelSSSed, ADD);
         }
-        calcMap(*COMBO_SS, *Sed, ADD);
 
         copy(*COMBO_TC, *TC);
         if(SwitchChannelFlood)
@@ -278,7 +275,7 @@ void TWorld::OutputUI(void)
         }
         if(SwitchIncludeChannel)
         {
-            calcMap(*COMBO_TC, *ChannelTC, ADD);
+            calcMap(*COMBO_TC, *ChannelTC, ADD);  // sum of bl and ss
         }
     }
 

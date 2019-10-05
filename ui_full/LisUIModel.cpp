@@ -49,8 +49,12 @@ void lisemqt::runmodel()
             pausemodel();
         return;
     }
-
-
+    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
+    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
+    op.ChanDataX.clear();
+    op.ChanDataY.clear();
+    op.Chanbranch.clear();
+    op.branches.clear();
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
     {
@@ -254,8 +258,8 @@ void lisemqt::worldDone(const QString &results)
     if (doBatchmode)
         close();
 
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
+//    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
+//    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world
