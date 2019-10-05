@@ -1169,6 +1169,10 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             // negative diff, becomes deposition
 
             deposition  = std::max(TransportFactor * minTC,-TSSFlood->Drc);
+            // exceptions
+            if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                   deposition = 0;
+            // VJ 190325 prevent any activity on the boundary!
 
             if(SwitchUseMaterialDepth)
             {
@@ -1180,16 +1184,16 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             }
 
             //erosion values based on discharge
-            TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
-            TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
+            TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc;//SoilWidthDX->Drc;
+        //    TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
 
-            TransportFactor = ssdischarge*DT->Drc;
+        //    TransportFactor = ssdischarge*DT->Drc;
 
             detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
 
             // exceptions
-            //    if (FlowBoundary->Drc > 0)
-            //       detachment = 0;
+            if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                   detachment = 0;
             // VJ 190325 prevent any activity on the boundary!
 
             if (GrassFraction->Drc > 0)
@@ -1255,10 +1259,10 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 //### detachment
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
-                TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * SoilWidthDX->Drc;
-                TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
+                TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc; //SoilWidthDX->Drc;
+                //TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
+                //TransportFactor = bldischarge*DT->Drc;
 
-                TransportFactor = bldischarge*DT->Drc;
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg
 

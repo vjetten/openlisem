@@ -356,7 +356,7 @@ public slots:
     void on_toolButton_RainfallName_clicked();
 //   void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
-    void on_toolButton_SnowmeltShow_clicked();
+//    void on_toolButton_SnowmeltShow_clicked();
     void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
     //void on_toolButton_fileOpen_clicked();

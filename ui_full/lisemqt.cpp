@@ -493,25 +493,25 @@ void lisemqt::setSedimentText(int i, int j, int k)
     // i = TC, j= river or surface, k = BL or SS
     if (j == 0) {
         if ( k == 0) {
-            if (i==1) label_RTBL->setText("Van Rijn (simplified), 1984");
-            if (i==2) label_RTBL->setText("Van Rijn (full), 1980");
-            if (i==3) label_RTBL->setText("Wu, Wang & Jia (multiclass)");
+            if (i==1) label_RTBL->setText("Bedload TC Van Rijn (simplified), 1984");
+            if (i==2) label_RTBL->setText("Bedload TC Van Rijn (full), 1980");
+            if (i==3) label_RTBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_RTSS->setText("Govers, 1980");
-            if (i==1) label_RTSS->setText("Van Rijn (simplified), 1984");
-            if (i==2) label_RTSS->setText("Van Rijn (full), 1980");
-            if (i==3) label_RTSS->setText("Wu, Wang & Jia (multiclass)");
+            if (i==0) label_RTSS->setText("Suspended TC Govers, 1980");
+            if (i==1) label_RTSS->setText("Suspended TC Van Rijn (simplified), 1984");
+            if (i==2) label_RTSS->setText("Suspended TC Van Rijn (full), 1980");
+            if (i==3) label_RTSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
         }
     } else {
         if ( k == 0) {
-            if (i==1) label_STBL->setText("Van Rijn (simplified), 1984");
-            if (i==2) label_STBL->setText("Van Rijn (full), 1980");
-            if (i==3) label_STBL->setText("Wu, Wang & Jia (multiclass)");
+            if (i==1) label_STBL->setText("Bedload TC Van Rijn (simplified), 1984");
+            if (i==2) label_STBL->setText("Bedload TC Van Rijn (full), 1980");
+            if (i==3) label_STBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_STSS->setText("Govers, 1980");
-            if (i==1) label_STSS->setText("Van Rijn (simplified), 1984");
-            if (i==2) label_STSS->setText("Van Rijn (full), 1980");
-            if (i==3) label_STSS->setText("Wu, Wang & Jia (multiclass)");
+            if (i==0) label_STSS->setText("Suspended TC Govers, 1980");
+            if (i==1) label_STSS->setText("Suspended TC Van Rijn (simplified), 1984");
+            if (i==2) label_STSS->setText("Suspended TC Van Rijn (full), 1980");
+            if (i==3) label_STSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
         }
     }
 }
@@ -1202,29 +1202,29 @@ void lisemqt::on_toolButton_satImageName_clicked()
 //    }
 //}
 //--------------------------------------------------------------------
-void lisemqt::on_toolButton_SnowmeltShow_clicked()
-{
-    QFile file(SnowmeltFileDir + SnowmeltFileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this,"openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(SnowmeltFileDir + SnowmeltFileName)
-                             .arg(file.errorString()));
-        return;
-    }
+//void lisemqt::on_toolButton_SnowmeltShow_clicked()
+//{
+//    QFile file(SnowmeltFileDir + SnowmeltFileName);
+//    if (!file.open(QFile::ReadOnly | QFile::Text))
+//    {
+//        QMessageBox::warning(this,"openLISEM",
+//                             QString("Cannot read file %1:\n%2.")
+//                             .arg(SnowmeltFileDir + SnowmeltFileName)
+//                             .arg(file.errorString()));
+//        return;
+//    }
 
-    QTextStream in(&file);
+//    QTextStream in(&file);
 
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->setWindowTitle(SnowmeltFileName);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-    view->show();
+//    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
+//    view->setWindowTitle(SnowmeltFileName);
+//    view->setMinimumWidth(400);
+//    view->setMinimumHeight(500);
+//    view->setAttribute(Qt::WA_DeleteOnClose);
+//    view->show();
 
-    file.close();
-}
+//    file.close();
+//}
 //--------------------------------------------------------------------
 
 void lisemqt::on_toolButton_RainfallShow_clicked()

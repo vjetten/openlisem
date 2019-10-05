@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>4</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7384,7 +7384,7 @@ p, li { white-space: pre-wrap; }
                            </font>
                           </property>
                           <property name="text">
-                           <string>No detachment/deposituon at domain boundary</string>
+                           <string>No detachment/deposition at domain boundary</string>
                           </property>
                          </widget>
                         </item>
