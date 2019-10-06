@@ -1073,10 +1073,9 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
 
         correctMassBalance(sumh, h);
 
-//        flood_flowcompute3 = std::bind((&TWorld::fullSWOF2Do2lightWrapperErosion),this,std::placeholders::_1,h,u,v,dt1);
-//        ThreadPool->RunDynamicCompute(flood_flowcompute3);
-//        ThreadPool->WaitForAll();
-
+        FOR_ROW_COL_MV {
+            SWOFSedimentSetConcentration(r,c,h);
+        }
     } // if floodstart
 
     iter_n = n;

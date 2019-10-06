@@ -135,10 +135,10 @@ void TWorld::DoModel()
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
         eout << "#water mass balance error (%)\n";
-        eout << "3\n";
+        eout << "2\n";
         eout << "run step\n";
         eout << "error\n";
-        eout << "runtime\n";
+      //  eout << "runtime\n";
         efout.flush();
         efout.close();
 
@@ -166,8 +166,7 @@ void TWorld::DoModel()
 
         //create a function object referring to the cellprocesses wrapper
         wrapCellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
-       // fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
-        // obsolete
+        fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
 
         DEBUG("Running...");
 
@@ -207,20 +206,15 @@ void TWorld::DoModel()
             ToChannel();           // water and sed flux going into channel in channel cells, goes to channeloverflow
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-            // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded)
-            // if 2Ddyn then also SWOFsediment!
-            OverlandFlow();
+            OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // flow detachment
-         //   ThreadPool->RunCellCompute(fcompute2);
+//            ThreadPool->RunCellCompute(fcompute2);
          //   ThreadPool->WaitForAll();
 
-            // flooding for 1D and 2Ddiff
             ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
-            //do ordered solutions such as channel LDD etc..
-            // non threaded
-            OrderedProcesses();
+            OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
             //wait for the report thread that was started in the previous timestep
             ThreadPool->WaitForReportThread();
@@ -233,7 +227,7 @@ void TWorld::DoModel()
             QFile efout(resultDir+errorFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
-            eout << " " << runstep << " " << MB << " " << op.t << "\n";
+            eout << " " << runstep << " " << MB << /*" " << op.t <<*/ "\n";
             efout.flush();
             efout.close();
 
@@ -311,7 +305,7 @@ void TWorld::CellProcesses(int thread)
 
     SplashDetachment(thread);    // splash detachment
 
-    FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
+   // FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
     //Pestmobilisation();         // experimental
 }

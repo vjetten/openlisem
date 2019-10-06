@@ -61,7 +61,8 @@ void TWorld::OverlandFlow(void)
             OverlandFlow2Ddyn();
 
     if(SwitchKinematic2D == K2D_METHOD_DYN
-       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) ) {
+       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
+    {
 
         copy(*hmxWH, *WH);
 
@@ -91,15 +92,12 @@ void TWorld::ToFlood()//int thread)
 {
     if (!SwitchIncludeChannel)
         return;
-//    if (!SwitchChannelFlood)
-//        return;
 
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
 
-  //  FOR_ROW_COL_2DMT {
     FOR_ROW_COL_MV {
-        if(WHrunoff->Drc > 0.001 && hmx->Drc > 0.001)
+        if(WHrunoff->Drc > 0.001 && hmx->Drc > 0.001 && ChannelFlowWidth->Drc == 0)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
             frac = std::max(std::min(frac, 1.0),0.0);
@@ -116,27 +114,26 @@ void TWorld::ToFlood()//int thread)
             if(SwitchErosion)
             {
                 double dsed = frac*Sed->Drc;
-
-                //better? distribute this by ratio suspended Tc and
                 SSFlood->Drc += dsed;
                 Sed->Drc -= dsed;
 
                 if(SwitchUseGrainSizeDistribution)
                 {
-                    FOR_GRAIN_CLASSES
-                    {
-                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
+//                    FOR_GRAIN_CLASSES
+//                    {
+//                        SS_D.Drcd +=  Sed_D.Drcd * frac;
+//                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
 
-                    }
+//                    }
                 }
 
                 //immediately check for maximum concentration
                 //if not done, too high concentration will show on display, before being deposited
-                double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-             //   SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
-            //    SWOFSedimentMaxC(r,c);
+                //double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+               // SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
+                SSDepthFlood->Drc += dwh;
                 SWOFSedimentSetConcentration(r,c,hmx);
+                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
 
             }
          }
@@ -158,15 +155,31 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    ChannelOverflow(WHrunoff, V);
-    return;
-
-/* OBSOLETE
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         ChannelOverflow(WHrunoff, V);
         return;
     }
 
+
+    fill(*tma, 0);
+    FOR_ROW_COL_MV_CH {
+        if (FloodDomain->Drc == 0)
+            tma->Drc = WH->Drc;
+        else
+            tma->Drc = hmx->Drc;
+    }
+
+    ChannelOverflow(tma, V);
+
+    FOR_ROW_COL_MV_CH {
+        if (FloodDomain->Drc == 0)
+            WHrunoff->Drc = tma->Drc;
+        else
+            hmx->Drc = tma->Drc;
+    }
+    return;
+
+     /* OBSOLETE
     FOR_ROW_COL_MV_CH
     {
         RunoffVolinToChannel->Drc  = 0;
@@ -244,7 +257,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-*/
+//   */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -307,7 +320,7 @@ void TWorld::CalcVelDisch(int thread)
 }
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(void)
+void TWorld::Boundary2Ddyn(cTMap* h)
 {
     fill(*tma, 0);
 
@@ -316,7 +329,7 @@ void TWorld::Boundary2Ddyn(void)
 
     // find which outlets on the boundary are directed to the outside based on sign U and V
     FOR_ROW_COL_MV {
-        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && WHrunoff->Drc > 1e-6)
+        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 1e-6)
         {
             if (c > 0 && MV(r,c-1))
                 if (VRO->Drc > 0)
@@ -337,17 +350,17 @@ void TWorld::Boundary2Ddyn(void)
     K2DQOut = 0;
     K2DQSOut = 0;
     FOR_ROW_COL_MV
-            if(tma->Drc == 1 && WHrunoff->Drc > MIN_HEIGHT)
+            if(tma->Drc == 1 && h->Drc > MIN_HEIGHT)
     {
         double dy = FlowWidth->Drc; //ChannelAdj->Drc; //
 
-        double _q = std::min(Qn->Drc, WHrunoff->Drc * DX->Drc*dy/_dt);
+        double _q = std::min(Qn->Drc, h->Drc * DX->Drc*dy/_dt);
 
         K2DQOut += _dt*_q;
 
-        WHrunoff->Drc -=  _dt*_q/(DX->Drc*dy);
-        WHrunoff->Drc = std::max(0.0, WHrunoff->Drc);
-        Qn->Drc = V->Drc*(WHrunoff->Drc*dy);
+        h->Drc -=  _dt*_q/(DX->Drc*dy);
+        h->Drc = std::max(0.0, h->Drc);
+        Qn->Drc = V->Drc*(h->Drc*dy);
         Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
@@ -380,6 +393,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
+
     dtOF = fullSWOF2Do2light(WHrunoff, URO, VRO, DEM, true);
     // this includes erosion
 
@@ -401,10 +415,10 @@ void TWorld::OverlandFlow2Ddyn(void)
         Qn->Drc = V->Drc*(WHrunoff->Drc*FlowWidth->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 
-        InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
+       // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
     }
 
-    Boundary2Ddyn();  // do the domain boundaries
+    Boundary2Ddyn(WHrunoff);  // do the domain boundaries
 
     FOR_ROW_COL_MV
     {
@@ -452,18 +466,6 @@ void TWorld::OverlandFlow2Ddyn(void)
             }
         }
     }
-
-//    FOR_ROW_COL_MV
-//    {
-//        WHroad->Drc = WHrunoff->Drc;
-//        // set road to average outflowing wh, no surface storage.
-
-//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//        // add new average waterlevel (A/dx) to stored water
-
-//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-//    }
 
     debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -851,6 +853,7 @@ void TWorld::OverlandFlow1D(void)
             // new volume
         }
 
+
         InfilKWact = -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc;
         InfilKWact = std::min(QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt, InfilKWact);
         // infiltration is the surplus infil (pot infil), or infil is all that was there
@@ -884,7 +887,6 @@ void TWorld::OverlandFlow1D(void)
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 
     }
-
     // new concentrations with new volume
     if (SwitchErosion)
     {

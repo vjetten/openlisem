@@ -1417,7 +1417,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
 
     setColor(3);
-    AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
+    AddComboMap(0,"Water Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
   //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);
@@ -1517,17 +1517,19 @@ void TWorld::GetComboMaps()
 
         setColor(9);
 
-        AddComboMap(1,"Sediment Load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"suspended sed",unit,SSFlood,Colormap,Colors,false,false,factor, step);
+        AddComboMap(1,"Combined Sed. load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
+        AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);
         if(SwitchUse2Layer)
-            AddComboMap(1,"bedload sed",unit,BLFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Bedload sed.",unit,BLFlood,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"TC suspended",unit,SSTCFlood,Colormap,Colors,false,false,factor, step);
         if(SwitchUse2Layer)
             AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Sed Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"SSdepth","kg/m3",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"BLdepth","kg/m3",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
 
         setColor(10);
         AddComboMap(1,"Deposition",unit,DEPCum,Colormap,Colors,false,false,-factor, step);

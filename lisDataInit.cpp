@@ -2077,7 +2077,7 @@ void TWorld::FindBaseFlow()
                 int ncells = 0;
                 double infiltration = 0;
                 double inflow = 0;
-                double baseflow = BaseFlowDischarges->data[ro][co];
+                double baseflow = 100;//BaseFlowDischarges->data[ro][co];
 
                 int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
                 int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

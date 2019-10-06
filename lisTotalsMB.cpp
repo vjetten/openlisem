@@ -303,9 +303,10 @@ void TWorld::Totals(void)
                 if (LDD->Drc == 5)
                     SoilLossTotT += Qsn->Drc * _dt;
             }
-        } else {
-            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
         }
+    //    } else {
+            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
+    //    }
         // sum all sed in all boundary (in kg), needed for mass balance
 
         if (SwitchIncludeChannel)
@@ -321,7 +322,6 @@ void TWorld::Totals(void)
             ChannelDepTot += mapTotal(*ChannelDep);
             ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
         }
-
         // used for mass balance and screen output
         FloodDetTot += mapTotal(*BLDetFlood) + mapTotal(*SSDetFlood);
         FloodDepTot += mapTotal(*DepFlood);
@@ -330,6 +330,8 @@ void TWorld::Totals(void)
         calcMap(*DETFlowCum, *BLDetFlood, ADD);
         calcMap(*DETFlowCum, *SSDetFlood, ADD);
         calcMap(*DEPCum, *DepFlood, ADD);
+
+
 
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
@@ -350,7 +352,6 @@ void TWorld::Totals(void)
             {
                 DETFlowCum->Drc += tma->Drc;
                 DEPCum->Drc += tmb->Drc;
-
                 TotalChanDetMap->Drc += ChannelDetFlow->Drc;
                 TotalChanDepMap->Drc += ChannelDep->Drc;
             }
@@ -451,13 +452,17 @@ void TWorld::MassBalance()
     {
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
-        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;//already in soiloss: + floodBoundarySedTot;
+        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
+        //already in soiloss: + floodBoundarySedTot;
 
     //    qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
     //    qDebug() << DepTot << ChannelDepTot << FloodDepTot;
-    //    qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+     //   qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+
+
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
+            //    qDebug() << MBs << detachment << deposition << sediment;
     }
     //VJ 121212 changed to mass balance relative to soil loss
 

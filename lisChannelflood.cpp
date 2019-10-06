@@ -274,7 +274,7 @@ void TWorld::FloodBoundary()
     FOR_ROW_COL_MV
     {
         // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
-        if (FlowBoundary->Drc > 0 && hmx->Drc > 0.01)
+        if (FlowBoundary->Drc > 0 && hmx->Drc > 0.001)
         {
             // qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
             double qf = Qflood->Drc;
@@ -285,14 +285,17 @@ void TWorld::FloodBoundary()
             }
             double hmx_old = hmx->Drc;
             hmx->Drc = std::max(0.0, hmx->Drc - qf*_dt/(DX->Drc*ChannelAdj->Drc));
-            floodBoundaryTot += (hmx_old - hmx->Drc)*(DX->Drc*ChannelAdj->Drc);
+            double dh = hmx_old - hmx->Drc;
+            floodBoundaryTot += dh*(DX->Drc*ChannelAdj->Drc);
 
             if (SwitchErosion)
             {
-                double frac = (hmx_old - hmx->Drc)/hmx->Drc;
-                floodBoundarySedTot += (BLFlood->Drc + SSFlood->Drc)*frac;
-                BLFlood->Drc *= (1-frac);
-                SSFlood->Drc *= (1-frac);
+                double sedss = std::min(SSFlood->Drc, SSCFlood->Drc * dh);
+                SSFlood->Drc -= sedss;
+                double sedbl = std::min(BLFlood->Drc, BLCFlood->Drc * dh);
+                SSFlood->Drc -= sedbl;
+                floodBoundarySedTot += sedss+sedbl;
+
             }
         }
     }
@@ -341,9 +344,7 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
-
-    FloodBoundary();
-    // boundary flow
+    double sed1=0, sed = 0;
 
     ChannelOverflow(hmx, UVflood);
     // mix overflow water and flood water in channel cells
@@ -358,10 +359,15 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-
+//    FOR_ROW_COL_MV {
+//        sed += SSFlood->Drc;
+//    }
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
-
+//    FOR_ROW_COL_MV {
+//        sed1 += SSFlood->Drc;
+//    }
+//    qDebug() << sed << sed1 << sed-sed1;
     //infilInWave(Iflood, hmx, _dt);
 
     FOR_ROW_COL_MV
@@ -372,11 +378,28 @@ void TWorld::ChannelFlood(void)
         // addvolume infiltrated during flood process with FSurplus
         //InfilVolFlood->Drc += Iflood->Drc;
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+
+        // for output on screen
+        hmxWH->Drc = WH->Drc + hmx->Drc;
+        V->Drc = std::max(UVflood->Drc, V->Drc);
+        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+
+//        if (SwitchErosion)
+//        {
+
+//            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
+//            Qsn->Drc = Conc->Drc*Qn->Drc;
+//        }
     }
+
+    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+
+   // FloodBoundary();
+    // boundary flow
+    Boundary2Ddyn(hmx);
 
     //new flood domain
     nrFloodedCells = 0;
-
     // used in infil and addRainfall
     FOR_CELL_IN_FLOODAREA
         if (hmx->Drc > 0)// && FloodZonePotential->Drc == 1)
@@ -387,6 +410,7 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
+
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;

@@ -192,10 +192,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Heun")==0)                           checkHeun->setChecked(check);
         if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
-
-
-      //  if (p1.compare("Flood method SWOF2D order 1")==0)    dummyFloodSWOF1 = check;
-      //  if (p1.compare("Flood method SWOF2D order 2")==0)    dummyFloodSWOF2 = check;
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
 
@@ -207,51 +203,27 @@ void lisemqt::ParseInputData()
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
-        // if (p1.compare("Flooding 1D2D coupling")==0)         E_1D2DCoupling->setValue(val);
     //    if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
-        //if (p1.compare("Flood sediment transport method")==0)checkFloodSedimentInterpolation->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(valc);
        // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
 
-        if (p1.compare("Advanced sediment")==0)              checkAdvancedSediment->setChecked(check);
-        if (p1.compare("Advanced sediment configuration")==0)
-        {
-            checkBox_Sed2Phase->setChecked(false);
-            checkBox_SedMultiGrain->setChecked(false);
-            tabWidgetOptions->setTabEnabled(5,true);
-            if(valc == 2)
-                checkBox_SedMultiGrain->setChecked(true);
-            else
-                if(valc == 1)
-                    checkBox_Sed2Phase->setChecked(true);
-                else
-                {
-                    checkAdvancedSediment->setChecked(false);
-                    tabWidgetOptions->setTabEnabled(5,false);
-                }
-        }
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(valc);
-        //  if (p1.compare("Detachment stoniness")==0)           checkStoninessDET->setChecked(check);
-
+        if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
+        if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
+        if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
+        if (p1.compare("Use 2 phase flow")==0)              checkBox_Sed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(valc);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(valc);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
-
         if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(valc);
-        //if (p1.compare("Grain size distribution type")==0)    E_GrainSizeDistributionType->setValue(val);
-
-        //        if (p1.compare("Number of grain size classes (maps)")==0)  E_NumberClassesMaps->setValue(val);
         if (p1.compare("Grain size class maps")==0)   {
             if (p.contains(","))
                 p.replace(",",";");
             E_GrainSizes->setText(p);
         }
-        if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
-        if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
 
-     //   if (p1.compare("Include Rainfall")==0)               dummyrain = check;
         if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
 
@@ -372,6 +344,25 @@ void lisemqt::ParseInputData()
         }
         if (p1.compare("KE time based")==0)      checkKETimebased->setChecked(check);
 
+        if (checkAdvancedSediment->isChecked())
+        {
+            checkBox_Sed2Phase->setChecked(true);
+            checkBox_SedMultiGrain->setChecked(false);
+            tabWidgetOptions->setTabEnabled(5,true);
+            if(valc == 2)
+                checkBox_SedMultiGrain->setChecked(true);
+            else
+                if(valc == 1)
+                    checkBox_Sed2Phase->setChecked(true);
+                else
+                {
+                    checkAdvancedSediment->setChecked(false);
+                    tabWidgetOptions->setTabEnabled(5,false);
+                }
+        }
+
+
+
         if (p1.compare("Ksat calibration")==0) E_CalibrateKsat->setValue(valc);
         if (p1.compare("Grain Size calibration")==0)   E_CalibrateGS->setValue(valc);
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
@@ -453,8 +444,13 @@ void lisemqt::ParseInputData()
         }
     }
 
+    // ###################################
+
     checkDoErosion->setChecked(dummyErosion);
     setErosionTab(dummyErosion);
+
+    checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
+    tabWidgetOptions->setTabEnabled(5,checkAdvancedSediment->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     checkOverlandFlow2D->setChecked(dummykinwave == 2);
@@ -759,8 +755,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
         //   if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
-        if (p1.compare("Flooding BL method")==0)             namelist[j].value = E_BLMethod->text();
-        if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
+
+
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
@@ -780,35 +776,25 @@ void lisemqt::updateModelData()
         if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
 
-        if (p1.compare("Advanced sediment")==0)               namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
-
-        if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
-        //     if (p1.compare("Detachment stoniness")==0)          namelist[j].value.setNum((int)checkStoninessDET->isChecked());
-
-        if (p1.compare("Advanced sediment configuration")==0)
-        {
-            if(checkBox_SedMultiGrain->isChecked())
-                namelist[j].value.setNum((int)2);
-            else
-                if(checkBox_Sed2Phase->isChecked())
-                    namelist[j].value.setNum((int)1);
-                else
-                    namelist[j].value.setNum((int)0);
+        if (p1.compare("Advanced sediment")==0)              namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+        if (p1.compare("Use 2 phase flow")==0)  {
+            namelist[j].value.setNum((int) checkBox_Sed2Phase->isChecked());
+            checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
         }
 
-        if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
-        if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
-
-        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
-
-        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
-        if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
-        // if (p1.compare("Grain size distribution type")==0)    namelist[j].value = E_GrainSizeDistributionType->text();
-
-        //if (p1.compare("Number of grain size classes (maps)")==0)  namelist[j].value = E_NumberClassesMaps->text();
-        if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
+        if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
         if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
+
+        if (p1.compare("Flooding BL method")==0)             namelist[j].value = E_BLMethod->text();
+        if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
+        if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
+        if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
+        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
+        if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
+        if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
+
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 
@@ -823,8 +809,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
         if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 
-                //if (p1.compare("Limit TC")==0)                       namelist[j].value.setNum((int)checkLimitTC->isChecked());
-        //       if (p1.compare("Limit Deposition TC")==0)            namelist[j].value.setNum((int)checkLimitDepTC->isChecked());
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
@@ -838,12 +822,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
         if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());
-        //if (p1.compare("Regular runoff output")==0)          namelist[j].value.setNum((int)checkOutputTimeStep->isChecked());
-        //if (p1.compare("User defined output")==0)            namelist[j].value.setNum((int)checkOutputTimeUser->isChecked());
-        //if (p1.compare("No erosion at outlet")==0)           namelist[j].value.setNum((int)checkNoErosionOutlet->isChecked());
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-        // if (p1.compare("Report point output for SOBEK")==0)  namelist[j].value.setNum((int)checkWriteSOBEK->isChecked());
-        //   if (p1.compare("SOBEK date string")==0)              namelist[j].value = SOBEKdatestring->text();
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
 
         if (p1.compare("Report format GTiff")==0)             namelist[j].value.setNum((int)checkFormatGtiff->isChecked());

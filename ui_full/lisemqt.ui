@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -4660,7 +4660,7 @@ p, li { white-space: pre-wrap; }
                            <number>1</number>
                           </property>
                           <property name="minimum">
-                           <double>0.100000000000000</double>
+                           <double>0.000000000000000</double>
                           </property>
                           <property name="maximum">
                            <double>10.000000000000000</double>

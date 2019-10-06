@@ -330,24 +330,31 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
     cTMap * _SSC = SSCFlood;
     double hh = SSDepthFlood->Drc;
     double hhb = BLDepthFlood->Drc;
+    double maxsed = 0;
             //h->Drc;
-    if((h->Drc > he_ca))
+
+
+    if(h->Drc > he_ca)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-            double maxsed = MAXCONCBL * ChannelAdj->Drc*DX->Drc*hhb;
-            if (_BL->Drc > maxsed){
-                DepFlood->Drc -= (_BL->Drc - maxsed);
-                _BL->Drc = maxsed;
+            if (hhb > he_ca) {
+                maxsed = MAXCONCBL * ChannelAdj->Drc*DX->Drc*hhb;
+                if (_BL->Drc > maxsed){
+                    DepFlood->Drc -= (_BL->Drc - maxsed);
+                    _BL->Drc = maxsed;
+                }
+                _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, _BL->Drc);
             }
-            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, _BL->Drc);
 
             maxsed = MAXCONC * ChannelAdj->Drc*DX->Drc*hh;
             if (_SS->Drc > maxsed){
                 DepFlood->Drc -= (_SS->Drc - maxsed);
                 _SS->Drc = maxsed;
             }
+
             _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, _SS->Drc);
+
         }else
         {
             FOR_GRAIN_CLASSES
@@ -1169,6 +1176,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             // negative diff, becomes deposition
 
             deposition  = std::max(TransportFactor * minTC,-TSSFlood->Drc);
+
             // exceptions
             if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                    deposition = 0;
@@ -1346,7 +1354,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             SSTCFlood->Drc += SSTC_D.Drcd;
         }
     }
-
+//    if (DepFlood->Drc > 0)
+//        qDebug() << "flood" << DepFlood->Drc;
 
 }
 //--------------------------------------------------------------------------------------------

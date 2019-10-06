@@ -1338,6 +1338,7 @@ void TWorld::FlowDetachment(int thread)
 
           //keep track of deposition
           DEP->Drc += deposition;
+
           // add to sediment in flow (IN KG/CELL)
           Sed->Drc += deposition;
           //if needed, add to sediment in flow for a certain grain class

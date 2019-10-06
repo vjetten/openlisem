@@ -540,7 +540,7 @@ public:
     void K2DDEMARO(void);
     //void Init2DOF(void);
     void OverlandFlow2Ddyn(void);
-    void Boundary2Ddyn(void);
+    void Boundary2Ddyn(cTMap *h);
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);
@@ -560,7 +560,7 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+    bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Layer,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
 
     int numgrainclasses;
     QString GrainMaps;
@@ -885,7 +885,7 @@ public:
     LisemThreadPool * ThreadPool;
     //std::function<void(int)> freport;      // reporting thread
     std::function<void(int)> wrapCellProcesses1D;    // 1D first part  = cellpropcesses
-   // std::function<void(int)> fcompute2;    // 1D second part = cellprocesses2
+    std::function<void(int)> fcompute2;    // 1D second part = cellprocesses2
     std::function<void(int)> flowcompute;  // k2d wave
 
     std::function<void(int)> flood_cellcompute;   //swof part 1

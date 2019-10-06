@@ -193,31 +193,20 @@ void TWorld::ParseRunfileData(void)
 
 //        if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
 //        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
-      //  if (p1.compare("Estimate d90")==0)                    SwithEstimated90     = iii == 1;
-        if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
-           if (p1.compare("No detachment boundary")==0)              SwitchNoBoundarySed  = iii == 1;
-
-        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
-
-        if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
-
-        if (p1.compare("Advanced sediment configuration")==0) dummyAdvancedSed = iii;
-        if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
-        if (p1.compare("Grain size class maps")==0)    GrainMaps  = p;
 
         if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
-    //    if (p1.compare("Detachment stoniness")==0)           SwitchStoninessDET   = iii == 1;
+        if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
+        if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
+        if (p1.compare("Advanced sediment configuration")==0) SwitchAdvancedSed = iii;
+        if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
+        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
+        if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
+        if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
+        if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
-     //   if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
-    //    if (p1.compare("Flood sediment transport method")==0)  SwitchFloodSedimentMethod     = iii == 1;
-        // not used, always on
-        //VJ 170225 always sediment interpolate
-
+        //   if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
-//        if (p1.compare("All water and sediment to outlet")==0) SwitchAllinChannel  =  iii == 1;
-//        SwitchAllinChannel = true;
-        //VJ 100526 always true in old LISEM
 
      //   if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
@@ -301,6 +290,8 @@ void TWorld::ParseRunfileData(void)
 
     }// first loop of runnamelist
 
+    //##########################
+
     SwitchUserCores = userCores > 0;
     //qDebug() << userCores;
 
@@ -322,23 +313,10 @@ void TWorld::ParseRunfileData(void)
 
     SwitchImpermeable = !SwitchPercolation;
     // cannot have both
+    SwitchUse2Layer = SwitchAdvancedSed;
+    SwitchUseGrainSizeDistribution = !SwitchUse2Layer;
+    SwitchUseGrainSizeDistribution = false; // FOR NOW
 
-    if (SwitchErosion) {
-        if(dummyAdvancedSed == 2) {
-            SwitchUse2Layer = true;
-            SwitchUseGrainSizeDistribution = true;
-    //        SwitchSimpleErosion = false;
-        } else if(dummyAdvancedSed == 1) {
-            SwitchUse2Layer = true;
-            SwitchUseGrainSizeDistribution = false;
-    //        SwitchSimpleErosion = false;
-        } else if(dummyAdvancedSed == 0) {
-            SwitchUse2Layer = false;
-            SwitchUseGrainSizeDistribution = false;
-    //        SwitchSimpleErosion = true;
-        }
-        qDebug() << "2layer" << SwitchUse2Layer << SwitchUseGrainSizeDistribution;
-    }
 
     // fill up outputcheck for older runfiles
     if (outputcheck.count() < 20)

@@ -443,8 +443,8 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Advanced sediment configuration");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use 2 phase flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("River BL method");
     namelist[i].value = QString("1");
@@ -467,19 +467,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Sigma diffusion");
     namelist[i].value = QString("1400");
     namelist[i++].name = QString("Sediment bulk density");
-  //  namelist[i].value = QString("1");
-  //  namelist[i++].name = QString("Flood sediment transport method");
-    // not active for user!!!
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Limit TC");
-//    namelist[i].name = QString("0");
-//    namelist[i++].name = QString("Limit Deposition TC");
-    // namelist[i].value = QString("1");
-    // namelist[i++].name = QString("All water and sediment to outlet");
-    //    namelist[i].value = QString("0");
-    //    namelist[i++].name = QString("No erosion at outlet");
-    //    namelist[i].value = QString("0");
-    //    namelist[i++].name = QString("Alternative flow detachment");
 
     //###
     namelist[i++].name = QString("");
