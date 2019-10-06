@@ -99,7 +99,7 @@ void TWorld::ToFlood()//int thread)
 
   //  FOR_ROW_COL_2DMT {
     FOR_ROW_COL_MV {
-        if((ChannelDepth->Drc > 0) && (WHrunoff->Drc > 0.001 && hmx->Drc > 0.001 && ChannelFlowWidth->Drc == 0))
+        if(WHrunoff->Drc > 0.001 && hmx->Drc > 0.001)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
             frac = std::max(std::min(frac, 1.0),0.0);
@@ -115,9 +115,11 @@ void TWorld::ToFlood()//int thread)
 
             if(SwitchErosion)
             {
+                double dsed = frac*Sed->Drc;
+
                 //better? distribute this by ratio suspended Tc and
-                SSFlood->Drc += Sed->Drc * frac;
-                Sed->Drc = Sed->Drc * (1-frac);
+                SSFlood->Drc += dsed;
+                Sed->Drc -= dsed;
 
                 if(SwitchUseGrainSizeDistribution)
                 {
@@ -132,8 +134,10 @@ void TWorld::ToFlood()//int thread)
                 //immediately check for maximum concentration
                 //if not done, too high concentration will show on display, before being deposited
                 double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-                SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
-                SWOFSedimentMaxC(r,c);
+             //   SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
+            //    SWOFSedimentMaxC(r,c);
+                SWOFSedimentSetConcentration(r,c,hmx);
+
             }
          }
     }

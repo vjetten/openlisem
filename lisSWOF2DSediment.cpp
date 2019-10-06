@@ -522,108 +522,108 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
  *
  * @see MAXCONC
  */
-void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
-{
+//void TWorld::SWOFSedimentMaxC(int r, int c)//, cTMap * h,cTMap * u,cTMap * v)
+//{
 
-    cTMap * _BL = BLFlood;
-    cTMap * _BLC = BLCFlood;
-    cTMap * _SS = SSFlood;
-    cTMap * _SSC = SSCFlood;
+//    cTMap * _BL = BLFlood;
+//    cTMap * _BLC = BLCFlood;
+//    cTMap * _SS = SSFlood;
+//    cTMap * _SSC = SSCFlood;
 
-    //maximum concentraion
-    if(!SwitchUseGrainSizeDistribution)
-    {
-        _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSDepthFlood->Drc, _SS->Drc);
-        // limit concentration to 850 and throw rest in deposition
+//    //maximum concentraion
+//    if(!SwitchUseGrainSizeDistribution)
+//    {
+//        _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSDepthFlood->Drc, _SS->Drc);
+//        // limit concentration to 850 and throw rest in deposition
 
-        double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSDepthFlood->Drc;
-        if(sssmax < _SS->Drc)
-        {
-            DepFlood->Drc += -(_SS->Drc - sssmax);
-            if(SwitchUseMaterialDepth)
-            {
-                StorageDep->Drc += (_SS->Drc - sssmax);
-            }
-            _SS->Drc = sssmax;
-        }
+//        double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSDepthFlood->Drc;
+//        if(sssmax < _SS->Drc)
+//        {
+//            DepFlood->Drc += -(_SS->Drc - sssmax);
+//            if(SwitchUseMaterialDepth)
+//            {
+//                StorageDep->Drc += (_SS->Drc - sssmax);
+//            }
+//            _SS->Drc = sssmax;
+//        }
 
-        //set concentration from present sediment
-        _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLDepthFlood->Drc, _BL->Drc);
+//        //set concentration from present sediment
+//        _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLDepthFlood->Drc, _BL->Drc);
 
-        double smax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLDepthFlood->Drc;
-        if(smax < _BL->Drc)
-        {
-            DepFlood->Drc += -(_BL->Drc - smax);
-            if(SwitchUseMaterialDepth)
-            {
-                StorageDep->Drc += (_BL->Drc - smax);
-            }
-            _BL->Drc = smax;
-        }
-    }else
-    {
+//        double smax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLDepthFlood->Drc;
+//        if(smax < _BL->Drc)
+//        {
+//            DepFlood->Drc += -(_BL->Drc - smax);
+//            if(SwitchUseMaterialDepth)
+//            {
+//                StorageDep->Drc += (_BL->Drc - smax);
+//            }
+//            _BL->Drc = smax;
+//        }
+//    }else
+//    {
 
-        BLFlood->Drc = 0;
-        SSFlood->Drc = 0;
+//        BLFlood->Drc = 0;
+//        SSFlood->Drc = 0;
 
-        FOR_GRAIN_CLASSES
-        {
-            BLFlood->Drc += BL_D.Drcd;
-            SSFlood->Drc += SS_D.Drcd;
-        }
+//        FOR_GRAIN_CLASSES
+//        {
+//            BLFlood->Drc += BL_D.Drcd;
+//            SSFlood->Drc += SS_D.Drcd;
+//        }
 
-        FOR_GRAIN_CLASSES
-        {
-            SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSD_D.Drcd, SS_D.Drcd);
-            // limit concentration to 850 and throw rest in deposition
+//        FOR_GRAIN_CLASSES
+//        {
+//            SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSD_D.Drcd, SS_D.Drcd);
+//            // limit concentration to 850 and throw rest in deposition
 
-            double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSD_D.Drcd;
-            if(sssmax < SS_D.Drcd)
-            {
-                DepFlood->Drc += -(SS_D.Drcd - sssmax);
-                SSFlood->Drc += -(SS_D.Drcd - sssmax);
-                if(SwitchUseMaterialDepth)
-                {
-                    StorageDep->Drc += (SS_D.Drcd - sssmax);
-                    StorageDep_D.Drcd += (SS_D.Drcd - sssmax);
-                }
-                SS_D.Drcd = sssmax;
-            }
+//            double sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*SSD_D.Drcd;
+//            if(sssmax < SS_D.Drcd)
+//            {
+//                DepFlood->Drc += -(SS_D.Drcd - sssmax);
+//                SSFlood->Drc += -(SS_D.Drcd - sssmax);
+//                if(SwitchUseMaterialDepth)
+//                {
+//                    StorageDep->Drc += (SS_D.Drcd - sssmax);
+//                    StorageDep_D.Drcd += (SS_D.Drcd - sssmax);
+//                }
+//                SS_D.Drcd = sssmax;
+//            }
 
-            BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLD_D.Drcd, BL_D.Drcd);
-            // limit concentration to 850 and throw rest in deposition
+//            BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLD_D.Drcd, BL_D.Drcd);
+//            // limit concentration to 850 and throw rest in deposition
 
-            sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLD_D.Drcd;
-            if(sssmax < BL_D.Drcd)
-            {
-                DepFlood->Drc += -(BL_D.Drcd - sssmax);
-                BLFlood->Drc += -(BL_D.Drcd - sssmax);
-                if(SwitchUseMaterialDepth)
-                {
-                    StorageDep->Drc += (BL_D.Drcd - sssmax);
-                    StorageDep_D.Drcd += (BL_D.Drcd - sssmax);
-                }
-                BL_D.Drcd = sssmax;
+//            sssmax = MAXCONC * DX->Drc *ChannelAdj->Drc*BLD_D.Drcd;
+//            if(sssmax < BL_D.Drcd)
+//            {
+//                DepFlood->Drc += -(BL_D.Drcd - sssmax);
+//                BLFlood->Drc += -(BL_D.Drcd - sssmax);
+//                if(SwitchUseMaterialDepth)
+//                {
+//                    StorageDep->Drc += (BL_D.Drcd - sssmax);
+//                    StorageDep_D.Drcd += (BL_D.Drcd - sssmax);
+//                }
+//                BL_D.Drcd = sssmax;
 
-            }
-        }
+//            }
+//        }
 
-        if(SwitchUseGrainSizeDistribution)
-        {
-            BLCFlood->Drc = 0;
-            SSCFlood->Drc = 0;
+//        if(SwitchUseGrainSizeDistribution)
+//        {
+//            BLCFlood->Drc = 0;
+//            SSCFlood->Drc = 0;
 
-            FOR_GRAIN_CLASSES
-            {
-                BLCFlood->Drc += BLC_D.Drcd;
-                SSCFlood->Drc += SSC_D.Drcd;
-            }
-        }
-    }
+//            FOR_GRAIN_CLASSES
+//            {
+//                BLCFlood->Drc += BLC_D.Drcd;
+//                SSCFlood->Drc += SSC_D.Drcd;
+//            }
+//        }
+//    }
 
-    BLFlood->Drc = std::max(0.0,BLFlood->Drc);
-    SSFlood->Drc = std::max(0.0,SSFlood->Drc);
-}
+//    BLFlood->Drc = std::max(0.0,BLFlood->Drc);
+//    SSFlood->Drc = std::max(0.0,SSFlood->Drc);
+//}
 //--------------------------------------------------------------------------------------------
 /**
  * @fn double TWorld::SWOFSedimentTCBL(int r, int c, int _d)

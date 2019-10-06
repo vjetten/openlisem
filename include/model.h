@@ -630,7 +630,7 @@ public:
     //sediment for SWOF flood model
     void SWOFSedimentBalance(int thread);
 
-    void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
+  //  void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
 

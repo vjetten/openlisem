@@ -1639,8 +1639,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>783</width>
-                <height>811</height>
+                <width>834</width>
+                <height>825</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -1714,7 +1714,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -20877,8 +20877,8 @@ p, li { white-space: pre-wrap; }
      <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1116</x>
-     <y>164</y>
+     <x>1432</x>
+     <y>185</y>
     </hint>
    </hints>
   </connection>
@@ -20889,12 +20889,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>581</y>
+     <x>225</x>
+     <y>518</y>
     </hint>
     <hint type="destinationlabel">
-     <x>426</x>
-     <y>582</y>
+     <x>380</x>
+     <y>520</y>
     </hint>
    </hints>
   </connection>
@@ -20905,12 +20905,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>581</y>
+     <x>187</x>
+     <y>518</y>
     </hint>
     <hint type="destinationlabel">
-     <x>338</x>
-     <y>582</y>
+     <x>302</x>
+     <y>520</y>
     </hint>
    </hints>
   </connection>
@@ -20921,12 +20921,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>180</x>
-     <y>613</y>
+     <x>195</x>
+     <y>551</y>
     </hint>
     <hint type="destinationlabel">
-     <x>304</x>
-     <y>614</y>
+     <x>272</x>
+     <y>553</y>
     </hint>
    </hints>
   </connection>
@@ -20937,12 +20937,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>613</y>
+     <x>156</x>
+     <y>551</y>
     </hint>
     <hint type="destinationlabel">
-     <x>392</x>
-     <y>614</y>
+     <x>350</x>
+     <y>553</y>
     </hint>
    </hints>
   </connection>
@@ -20953,12 +20953,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>242</x>
-     <y>549</y>
+     <x>247</x>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
-     <x>365</x>
-     <y>550</y>
+     <x>324</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -20973,8 +20973,8 @@ p, li { white-space: pre-wrap; }
      <y>557</y>
     </hint>
     <hint type="destinationlabel">
-     <x>453</x>
-     <y>550</y>
+     <x>402</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -20985,12 +20985,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>549</y>
+     <x>185</x>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
-     <x>540</x>
-     <y>550</y>
+     <x>479</x>
+     <y>487</y>
     </hint>
    </hints>
   </connection>
@@ -21001,12 +21001,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>549</y>
+     <x>235</x>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
-     <x>365</x>
-     <y>550</y>
+     <x>324</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkDoErosion</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkAdvancedSediment</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>498</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>514</y>
     </hint>
    </hints>
   </connection>
