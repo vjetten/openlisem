@@ -79,6 +79,7 @@ void TWorld::DoModel()
     //TODO: check grainsize classes
     //TODO: check grass strips, just inthe input maps or special characteristics
     //TODO: check sediment traps
+    //TODO: diffusive wave infiltrates almost everything?
     try
     {
         DEBUG("reading and initializing data");

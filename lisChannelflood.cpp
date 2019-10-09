@@ -344,7 +344,6 @@ void TWorld::ChannelFlood(void)
 
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
-    double sed1=0, sed = 0;
 
     ChannelOverflow(hmx, UVflood);
     // mix overflow water and flood water in channel cells
@@ -387,8 +386,8 @@ void TWorld::ChannelFlood(void)
         FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
         // for output on screen
-        hmxWH->Drc = WH->Drc + hmx->Drc;
-        V->Drc = FloodDomain->Drc  == 1 ? UVflood->Drc : V->Drc;
+        hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
+       // V->Drc = FloodDomain->Drc  == 1 ? UVflood->Drc : V->Drc;
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
 
         //        if (SwitchErosion)
@@ -403,10 +402,7 @@ void TWorld::ChannelFlood(void)
 
    // FloodBoundary();
     // boundary flow
-    Boundary2Ddyn(hmx);
-
-
-
+    Boundary2Ddyn(hmx, Uflood, Vflood);
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;

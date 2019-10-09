@@ -588,6 +588,8 @@ void lisemqt::showChannelVector()
         QVector <double> Y;
 
         double xend, yend;
+        double dx = op.channelMap->cellSize();
+        int nrRows = op.channelMap->nrRows();
 
         int start = 1;//op.Chanbranch.at(0); // debug gives an assert error here!
 
@@ -598,24 +600,21 @@ void lisemqt::showChannelVector()
                     Y << op.ChanDataY.at(i);
                     xend = op.ChanDataX.at(i);
                     yend = op.ChanDataY.at(i);
+
                 } else {
                     start = op.Chanbranch.at(i);
 
                     // find connecting cell
                     int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                    int _dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-                    double dx = op.channelMap->cellSize();
-                    int nrRows = op.channelMap->nrRows();
-                    double xx = X.at(X.length()-1);
-                    double yy = Y.at(Y.length()-1);
+                    int _dy[10] = {0,  -1, -1, -1,  0, 0, 0, 1, 1, 1};
 
-                    int c = int((xx-0.5*dx)/dx);
-                    int r = nrRows-1-int((yy-0.5*dx)/dx);
-
+                    int c = int(xend/dx);//-0.5*dx
+                    int r = nrRows-1-int(yend/dx);//-0.5*dx
                     double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
-                      qDebug() << i<< dx << yy << xx << r << c << ldd;
-                    Y << yy + _dy[(int)ldd]*dx;
-                    X << xx + _dx[(int)ldd]*dx;
+
+                 //     qDebug() << i<< dx << yend << xend << r << c << ldd;
+                    Y << yend + _dy[(int)ldd]*dx;
+                    X << xend + _dx[(int)ldd]*dx;
                     //
 
                     Xa.push_back(X);
@@ -640,9 +639,8 @@ void lisemqt::showChannelVector()
         }
 
         {
-            int dx =(int) op.channelMap->cellSize()*0.4;
             QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::gray, QPen( Qt::black ), QSize( dx, dx) );
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::lightGray, QPen( Qt::black ), QSize( (int)dx*.4, (int)dx*.4) );
             culvert->setSymbol(blackdot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );
@@ -696,10 +694,10 @@ void lisemqt::showChannelMap()
         channelMap->setData(RDc);
     }
 
-    if (checkMapChannels->isChecked())
-        channelMap->setAlpha(transparencyChannel->value());
-    else
-        channelMap->setAlpha(0);
+//    if (checkMapChannels->isChecked())
+//        channelMap->setAlpha(transparencyChannel->value());
+//    else
+//        channelMap->setAlpha(0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()

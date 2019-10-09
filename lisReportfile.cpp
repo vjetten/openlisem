@@ -1223,7 +1223,7 @@ void TWorld::setColor(int i)
 //        Colors.append("#6daaff");
 //        Colors.append("#4c76e8");
 //        Colors.append("#4c57c3");
-        Colors.append("#9ec1e1");//#bfdcf9");
+        Colors.append("#9eccee");//#bfdcf9");
         Colors.append("#427dc6");//#b1c0e9");
         Colors.append("#204ab5");//#7b94e7");
         Colors.append("#072a9c");//#2037b5");
@@ -1265,7 +1265,7 @@ void TWorld::setColor(int i)
         Colormap.append(1.0);
 
         Colors.clear();
-        Colors.append("#9ec1e1");//#bfdcf9");
+        Colors.append("#9eccee");//#bfdcf9");
         Colors.append("#427dc6");//#b1c0e9");
         Colors.append("#204ab5");//#7b94e7");
         Colors.append("#072a9c");//#2037b5");

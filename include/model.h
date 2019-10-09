@@ -540,7 +540,7 @@ public:
     void K2DDEMARO(void);
     //void Init2DOF(void);
     void OverlandFlow2Ddyn(void);
-    void Boundary2Ddyn(cTMap *h);
+    void Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V);
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);

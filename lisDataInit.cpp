@@ -889,8 +889,8 @@ void TWorld::InitFlood(void)
 
     prepareFlood = true;
 
-    URO = NewMap(0);
-    VRO = NewMap(0);
+//    URO = NewMap(0);
+//    VRO = NewMap(0);
     iro = NewMap(0);
     UVflood = NewMap(0);
     Qflood = NewMap(0);

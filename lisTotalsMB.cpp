@@ -173,7 +173,7 @@ void TWorld::Totals(void)
     {
         floodVolTot = mapTotal(*FloodWaterVol);
         floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
-//??????????????
+//
 //        if (SwitchFloodInitial && runstep == 1)
 //            floodVolTotInit = floodVolTot;
         // save initial flood level for mass balance if start with flood
@@ -432,12 +432,12 @@ void TWorld::MassBalance()
 {
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
-    if (RainTot + SnowTot > 0)
+  //  if (RainTot + SnowTot > 0)
     {
 
         double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlow + WHinitVolTot; //floodVolTotInit
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot + Qtot + floodBoundaryTot + StormDrainVolTot;//
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot ;//
 
         if(SwitchKinematic2D == K2D_METHOD_DYN
            || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) ) {}
@@ -445,9 +445,10 @@ void TWorld::MassBalance()
                 waterflow += floodVolTot;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
+      //  qDebug() << MB << waterin << waterstore << waterflow<< floodBoundaryTot;
+
     }
     //watervoltot includes channel and tile
-//    qDebug() << MB << RainTot << IntercTot << IntercHouseTot << InfilTot << WaterVolTot << floodVolTot << BufferVolin << Qtot<< InfilKWTot;
 
     // Mass Balance sediment, all in kg
 

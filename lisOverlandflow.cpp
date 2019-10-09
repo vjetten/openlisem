@@ -60,20 +60,20 @@ void TWorld::OverlandFlow(void)
         else
             OverlandFlow2Ddyn();
 
-//    if(SwitchKinematic2D == K2D_METHOD_DYN)
-////       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
-//    {
+    if(SwitchKinematic2D == K2D_METHOD_DYN
+       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
+    {
 
-//        copy(*hmxWH, *WH);
+        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
 
-//        FloodMaxandTiming(WH, V, minReportFloodHeight);
+        FloodMaxandTiming(WH, V, minReportFloodHeight);
 
-//        FOR_ROW_COL_MV {
-//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-//        }
-//    }
+        FOR_ROW_COL_MV {
+            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+        }
+    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -299,7 +299,7 @@ void TWorld::CalcVelDisch(int thread)
 }
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(cTMap* h)
+void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
 {
 
     fill(*tma, 0);
@@ -312,16 +312,16 @@ void TWorld::Boundary2Ddyn(cTMap* h)
         if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 1e-6)
         {
             if (c > 0 && MV(r,c-1))
-                if (VRO->Drc > 0)
+                if (V->Drc > 0)
                     tma->Drc = 1;
             if (c < _nrCols-1 && MV(r,c+1))
-                if (VRO->Drc < 0)
+                if (V->Drc < 0)
                     tma->Drc = 1;
             if (r > 0 && MV(r-1,c))
-                if (URO->Drc < 0)
+                if (U->Drc < 0)
                     tma->Drc = 1;
             if (r < _nrRows-1 && MV(r+1,c))
-                if (URO->Drc > 0)
+                if (U->Drc > 0)
                     tma->Drc = 1;
         }
     }
@@ -334,12 +334,14 @@ void TWorld::Boundary2Ddyn(cTMap* h)
     {
         double dy = ChannelAdj->Drc;
 
-        double _q = std::min(Qn->Drc, h->Drc * DX->Drc*dy/_dt);
+        double _q = std::min(Qn->Drc*_dt, h->Drc * DX->Drc*dy);
 
-        K2DQOutBoun += _dt*_q;
+        K2DQOutBoun += _q;
+double frac = _q/(DX->Drc*dy)/h->Drc;
+        h->Drc -=  _q/(DX->Drc*dy);
 
-        h->Drc -=  _dt*_q/(DX->Drc*dy);
         h->Drc = std::max(0.0, h->Drc);
+        V->Drc *= frac;
         Qn->Drc = V->Drc*(h->Drc*dy);
         Q->Drc = Qn->Drc;
 
@@ -357,7 +359,7 @@ void TWorld::Boundary2Ddyn(cTMap* h)
  //            SSCFlood->Drc = MaxConcentration(SSVolFlood->Drc, SSFlood->Drc);
         }
     }
-   // qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
+  //  qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
 }
 //---------------------------------------------------------------------------
 
@@ -373,12 +375,8 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-
-    dtOF = fullSWOF2Do2light(WHrunoff, URO, VRO, DEM, true);
+    dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
     // this includes erosion
-
-  //  report(*URO,"uro");
- //   report(*VRO,"vro");
 
     //VJ new average flux over lisem timestep, else last Qn is used
     // note iro is a volume!
@@ -386,10 +384,10 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     FOR_ROW_COL_MV
     {
-        WHrunoff->Drc = std::max(WHrunoff->Drc, 0.0);
-        V->Drc = qSqrt(URO->Drc*URO->Drc + VRO->Drc*VRO->Drc);
+      //  WHrunoff->Drc = std::max(WHrunoff->Drc, 0.0);
+        UVflood->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
 
-        UVflood->Drc = V->Drc;
+        V->Drc = UVflood->Drc;
         //copy V into UVflood, for report and MB stuff
 
         Qn->Drc = V->Drc*(WHrunoff->Drc*FlowWidth->Drc);
@@ -398,7 +396,7 @@ void TWorld::OverlandFlow2Ddyn(void)
        // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
     }
 
-    Boundary2Ddyn(WHrunoff);  // do the domain boundaries
+    Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
 
     FOR_ROW_COL_MV
     {
@@ -1002,10 +1000,12 @@ void TWorld::K2DDEMARO()
     }
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
-    if (FlowBoundaryType != 1)
-        copy(*K2DOutlets, *FlowBoundary);  //copy 1 is 2
-
-
+    if (FlowBoundaryType != 1) {
+        FOR_ROW_COL_MV {
+            K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
+        }
+    }
+/*
     FOR_ROW_COL_MV
     {
         K2DPits->Drc = 0;
@@ -1103,5 +1103,5 @@ void TWorld::K2DDEMARO()
 
         }
     }
-
+*/
 }
