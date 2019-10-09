@@ -60,20 +60,20 @@ void TWorld::OverlandFlow(void)
         else
             OverlandFlow2Ddyn();
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN
-       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
-    {
+//    if(SwitchKinematic2D == K2D_METHOD_DYN)
+////       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
+//    {
 
-        copy(*hmxWH, *WH);
+//        copy(*hmxWH, *WH);
 
-        FloodMaxandTiming(WH, V, minReportFloodHeight);
+//        FloodMaxandTiming(WH, V, minReportFloodHeight);
 
-        FOR_ROW_COL_MV {
-            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-        }
-    }
+//        FOR_ROW_COL_MV {
+//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+//        }
+//    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -131,9 +131,9 @@ void TWorld::ToFlood()//int thread)
                 //if not done, too high concentration will show on display, before being deposited
                 //double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
                // SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
-                SSDepthFlood->Drc += dwh;
-                SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
+//                SSDepthFlood->Drc += dwh;
+//                SWOFSedimentSetConcentration(r,c,hmx);
+//                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
 
             }
          }
@@ -160,30 +160,12 @@ void TWorld::ToChannel()//int thread)
         return;
     }
 
+//    ChannelOverflow(WHrunoff, V);
+//    return;
 
-    fill(*tma, 0);
-    FOR_ROW_COL_MV_CH {
-        if (FloodDomain->Drc == 0)
-            tma->Drc = WH->Drc;
-        else
-            tma->Drc = hmx->Drc;
-    }
 
-    ChannelOverflow(tma, V);
-
-    FOR_ROW_COL_MV_CH {
-        if (FloodDomain->Drc == 0)
-            WHrunoff->Drc = tma->Drc;
-        else
-            hmx->Drc = tma->Drc;
-    }
-    return;
-
-     /* OBSOLETE
-    FOR_ROW_COL_MV_CH
-    {
-        RunoffVolinToChannel->Drc  = 0;
-    }
+//     /* OBSOLETE
+    fill(*RunoffVolinToChannel, 0);
 
     FOR_ROW_COL_MV_CH
     {
@@ -206,20 +188,17 @@ void TWorld::ToChannel()//int thread)
                 fractiontochannel = std::min(1.0, _dt*V->Drcr/std::max(0.01*_dx,0.5*ChannelAdj->Drcr));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
-            // cannot flow into channel is water level in channel is higher than depth
-          //  if (SwitchChannelFlood)
-          //  {
-                if (WHrunoff->Drcr <= std::max(0.0 , ChannelWH->Drcr -ChannelDepthExtended->Drcr))
-                {
-                    fractiontochannel = 0;
-                }
-                // no inflow when flooded
-                if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
-                {
-                    fractiontochannel = 0;
-                }
-                // no surface inflow when culverts and bridges
-          //  }
+            // cannot flow into channel if water level in channel is higher than depth
+            if (WHrunoff->Drcr <= std::max(0.0 , ChannelWH->Drcr -ChannelDepthExtended->Drcr))
+            {
+                fractiontochannel = 0;
+            }
+            // no inflow when flooded
+            if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
+            {
+                fractiontochannel = 0;
+            }
+            // no surface inflow when culverts and bridges
 
             RunoffVolinToChannel->Drcr  += fractiontochannel*Volume;
             // water diverted to the channel
@@ -322,6 +301,7 @@ void TWorld::CalcVelDisch(int thread)
 //---------------------------------------------------------------------------
 void TWorld::Boundary2Ddyn(cTMap* h)
 {
+
     fill(*tma, 0);
 
     // find oulets based on DEM and WHrunoff
@@ -347,16 +327,16 @@ void TWorld::Boundary2Ddyn(cTMap* h)
     }
 
     // sum all the outflow of these points
-    K2DQOut = 0;
-    K2DQSOut = 0;
+    K2DQOutBoun = 0;
+    K2DQSOutBoun = 0;
     FOR_ROW_COL_MV
             if(tma->Drc == 1 && h->Drc > MIN_HEIGHT)
     {
-        double dy = FlowWidth->Drc; //ChannelAdj->Drc; //
+        double dy = ChannelAdj->Drc;
 
         double _q = std::min(Qn->Drc, h->Drc * DX->Drc*dy/_dt);
 
-        K2DQOut += _dt*_q;
+        K2DQOutBoun += _dt*_q;
 
         h->Drc -=  _dt*_q/(DX->Drc*dy);
         h->Drc = std::max(0.0, h->Drc);
@@ -365,11 +345,11 @@ void TWorld::Boundary2Ddyn(cTMap* h)
 
         if (SwitchErosion) {
             double sout = std::min(SSCFlood->Drc*_q*_dt, SSFlood->Drc);
-            K2DQSOut += sout;
+            K2DQSOutBoun += sout;
             SSFlood->Drc -= sout;
             if (SwitchUse2Layer) {
                 sout = std::min(BLCFlood->Drc*_q*_dt, BLFlood->Drc);
-                K2DQSOut += sout;
+                K2DQSOutBoun += sout;
                 BLFlood->Drc -= sout;
             }
  //            SWOFSedimentLayerDepth(r,c,WHrunoff->Drc,V->Drc);
@@ -377,7 +357,7 @@ void TWorld::Boundary2Ddyn(cTMap* h)
  //            SSCFlood->Drc = MaxConcentration(SSVolFlood->Drc, SSFlood->Drc);
         }
     }
-   // qDebug() << "K2DQOut" << K2DQOut << K2DQSOut;
+   // qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
 }
 //---------------------------------------------------------------------------
 

@@ -973,6 +973,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
                 SSCFlood->Drc = MaxConcentration(vol, SSFlood->Drc);
                 // recalc concentration
             }
+            // !!!!!!!!!!  Sed_D.Drcd += DETSplash->Drc * W_D.Drcd;
         }
 
         fill(*FloodT,0.0);

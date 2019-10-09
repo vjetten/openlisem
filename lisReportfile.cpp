@@ -1417,7 +1417,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
 
     setColor(3);
-    AddComboMap(0,"Water Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
+    AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
   //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);

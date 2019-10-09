@@ -991,6 +991,8 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
  * @see SWOFSedimentTCBL
  * @see DetachMaterial
  */
+
+//TODO: check multiclass for sed detachment
 void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap * v)
 {
     //first calculate layer depth
@@ -1182,6 +1184,24 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                    deposition = 0;
             // VJ 190325 prevent any activity on the boundary!
 
+
+            if (SwitchSedtrap && SedimentFilter->Drc > 0) // TODO: sediment traps and grass strips!
+            {
+//                if(!SwitchUseGrainSizeDistribution)
+//                {
+//                    if (Sed->Drc > 0) {
+//                        deposition += -Sed->Drc*SedimentFilter->Drc;
+//                        Sed->Drc *= (1.0-SedimentFilter->Drc);
+//                    }
+//                } else {
+//                    if (Sed_D.Drcd > 0) {
+//                        deposition = -Sed_D.Drcd*SedimentFilter->Drc;
+//                        Sed_D.Drcd *= (1.0-SedimentFilter->Drc);
+//                    }
+//                }
+            }
+
+
             if(SwitchUseMaterialDepth)
             {
                 StorageDep->Drc += -deposition;
@@ -1319,6 +1339,17 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                     deposition = 0;
                 // VJ 190325 prevent any activity on the boundary!
+
+                //force deposition on grass strips  ?????????????????
+//                if (SwitchGrassStrip) {
+//                    if(!SwitchUseGrainSizeDistribution)
+//                    {
+//                        deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+//                    } else {
+//                        deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+//                    }
+//                }
+
 
                 if(SwitchUseMaterialDepth)
                 {

@@ -269,6 +269,8 @@ void TWorld::Totals(void)
     // does NOT include flood water leaving domain (floodBoundaryTot)
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
+
+    floodBoundaryTot += K2DQOutBoun;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // flood boundary losses are done separately in MB
 
@@ -303,10 +305,9 @@ void TWorld::Totals(void)
                 if (LDD->Drc == 5)
                     SoilLossTotT += Qsn->Drc * _dt;
             }
-        }
-    //    } else {
+        } else {
             SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
-    //    }
+        }
         // sum all sed in all boundary (in kg), needed for mass balance
 
         if (SwitchIncludeChannel)
@@ -331,8 +332,6 @@ void TWorld::Totals(void)
         calcMap(*DETFlowCum, *SSDetFlood, ADD);
         calcMap(*DEPCum, *DepFlood, ADD);
 
-
-
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
         FOR_ROW_COL_MV
@@ -340,6 +339,11 @@ void TWorld::Totals(void)
             Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
             // for reporting sed discharge screen
         }
+
+        floodBoundarySedTot += K2DQSOutBoun;
+        SoilLossTotT += K2DQSOutBoun;
+        //FloodBoundarySedmm = floodBoundarySedTot*catchmentAreaFlatMM;
+        // flood boundary losses are done separately in MB
 
         // for reporting
         if (SwitchIncludeChannel)

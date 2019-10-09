@@ -803,8 +803,8 @@ public:
     void K2DCalcVelDisch(int thread);
     void K2DDEMA(int thread);
     void K2DDEMAInitial();
-    double K2DQOut;
-    double K2DQSOut;
+    double K2DQOut, K2DQOutBoun;
+    double K2DQSOut, K2DQSOutBoun;
     double K2DQPOut;
     double ConcentrateKin;
     double TimestepKinMin;

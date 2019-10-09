@@ -271,34 +271,34 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 //---------------------------------------------------------------------------
 void TWorld::FloodBoundary()
 {
-    FOR_ROW_COL_MV
-    {
-        // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
-        if (FlowBoundary->Drc > 0 && hmx->Drc > 0.001)
-        {
-            // qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
-            double qf = Qflood->Drc;
+//    FOR_ROW_COL_MV
+//    {
+//        // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
+//        if (FlowBoundary->Drc > 0 && hmx->Drc > 0.001)
+//        {
+//            // qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
+//            double qf = Qflood->Drc;
 
-            if( qf*_dt > hmx->Drc*DX->Drc*ChannelAdj->Drc)
-            {
-                qf = hmx->Drc*DX->Drc*ChannelAdj->Drc/_dt;
-            }
-            double hmx_old = hmx->Drc;
-            hmx->Drc = std::max(0.0, hmx->Drc - qf*_dt/(DX->Drc*ChannelAdj->Drc));
-            double dh = hmx_old - hmx->Drc;
-            floodBoundaryTot += dh*(DX->Drc*ChannelAdj->Drc);
+//            if( qf*_dt > hmx->Drc*DX->Drc*ChannelAdj->Drc)
+//            {
+//                qf = hmx->Drc*DX->Drc*ChannelAdj->Drc/_dt;
+//            }
+//            double hmx_old = hmx->Drc;
+//            hmx->Drc = std::max(0.0, hmx->Drc - qf*_dt/(DX->Drc*ChannelAdj->Drc));
+//            double dh = hmx_old - hmx->Drc;
+//            floodBoundaryTot += dh*(DX->Drc*ChannelAdj->Drc);
 
-            if (SwitchErosion)
-            {
-                double sedss = std::min(SSFlood->Drc, SSCFlood->Drc * dh);
-                SSFlood->Drc -= sedss;
-                double sedbl = std::min(BLFlood->Drc, BLCFlood->Drc * dh);
-                SSFlood->Drc -= sedbl;
-                floodBoundarySedTot += sedss+sedbl;
+//            if (SwitchErosion)
+//            {
+//                double sedss = std::min(SSFlood->Drc, SSCFlood->Drc * dh);
+//                SSFlood->Drc -= sedss;
+//                double sedbl = std::min(BLFlood->Drc, BLCFlood->Drc * dh);
+//                SSFlood->Drc -= sedbl;
+//                floodBoundarySedTot += sedss+sedbl;
 
-            }
-        }
-    }
+//            }
+//        }
+//    }
 }
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
@@ -359,44 +359,10 @@ void TWorld::ChannelFlood(void)
             break;
         }
     }
-//    FOR_ROW_COL_MV {
-//        sed += SSFlood->Drc;
-//    }
+
+
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
-//    FOR_ROW_COL_MV {
-//        sed1 += SSFlood->Drc;
-//    }
-//    qDebug() << sed << sed1 << sed-sed1;
-    //infilInWave(Iflood, hmx, _dt);
-
-    FOR_ROW_COL_MV
-    {
-        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-
-        // addvolume infiltrated during flood process with FSurplus
-        //InfilVolFlood->Drc += Iflood->Drc;
-        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-
-        // for output on screen
-        hmxWH->Drc = WH->Drc + hmx->Drc;
-        V->Drc = std::max(UVflood->Drc, V->Drc);
-        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-
-//        if (SwitchErosion)
-//        {
-
-//            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
-//            Qsn->Drc = Conc->Drc*Qn->Drc;
-//        }
-    }
-
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
-
-   // FloodBoundary();
-    // boundary flow
-    Boundary2Ddyn(hmx);
 
     //new flood domain
     nrFloodedCells = 0;
@@ -410,6 +376,36 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
+
+    FOR_ROW_COL_MV
+    {
+        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+
+        // addvolume infiltrated during flood process with FSurplus
+        //InfilVolFlood->Drc += Iflood->Drc;
+        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+
+        // for output on screen
+        hmxWH->Drc = WH->Drc + hmx->Drc;
+        V->Drc = FloodDomain->Drc  == 1 ? UVflood->Drc : V->Drc;
+        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+
+        //        if (SwitchErosion)
+        //        {
+
+        //            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
+        //            Qsn->Drc = Conc->Drc*Qn->Drc;
+        //        }
+    }
+
+    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+
+   // FloodBoundary();
+    // boundary flow
+    Boundary2Ddyn(hmx);
+
+
 
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
