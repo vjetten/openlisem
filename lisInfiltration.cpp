@@ -324,6 +324,7 @@ void TWorld::Infiltration(int thread)
                 tm->Drc = hmx->Drc;
         }
         InfilSwatre(tm);
+
         FOR_ROW_COL_MV
         {
             if (FloodDomain->Drc == 0)
@@ -381,6 +382,8 @@ void TWorld::InfilMethodsNew(int thread)
             fwh = WH->Drc; //runoff
         else
             fwh = hmx->Drc; // flood
+
+      //  fwh = hmxWH->Drc;
         // select the appropriate domain water height for overpressure
 
         //calculate potential insiltration rate fpot
@@ -417,8 +420,20 @@ void TWorld::InfilMethodsNew(int thread)
 
         fact->Drc = IncreaseInfiltrationDepthNew(r, c);//, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-
-
+//        if (hmxWH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
+//        {
+//            fact->Drc = hmxWH->Drc;
+//            hmxWH->Drc = 0;
+//        }
+//        else
+//           hmxWH->Drc -= fact->Drc;
+//        FOR_ROW_COL_MV
+//        {
+//            if (FloodDomain->Drc == 0)
+//                WH->Drc = hmxWH->Drc;
+//            else
+//                hmx->Drc = hmxWH->Drc;
+//        }
         // adjust the WH in the correct domain with new fact
         if(FloodDomain->Drc == 0)
         {

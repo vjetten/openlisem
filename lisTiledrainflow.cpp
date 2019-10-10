@@ -60,6 +60,8 @@ void TWorld::ToTiledrain()//int thread)
                 // adjust water height
 
                 WH->Drc = WHrunoff->Drc + WHstore->Drc;
+                WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
             }
         }
     }

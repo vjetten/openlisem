@@ -110,6 +110,8 @@ void TWorld::ToFlood()//int thread)
 
             WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
+            WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+            //qDebug() << MB << "tflood" << r << c << dwh;
 
             if(SwitchErosion)
             {
@@ -161,6 +163,13 @@ void TWorld::ToChannel()//int thread)
     }
 
 //    ChannelOverflow(WHrunoff, V);
+
+//    FOR_ROW_COL_MV {
+//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+//        WHroad->Drc = WHrunoff->Drc;
+//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+//    }
+
 //    return;
 
 
@@ -193,7 +202,7 @@ void TWorld::ToChannel()//int thread)
             {
                 fractiontochannel = 0;
             }
-            // no inflow when flooded
+            // no inflow on culverts
             if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
             {
                 fractiontochannel = 0;
@@ -203,8 +212,9 @@ void TWorld::ToChannel()//int thread)
             RunoffVolinToChannel->Drcr  += fractiontochannel*Volume;
             // water diverted to the channel
             WHrunoff->Drcr *= (1-fractiontochannel);
-
+            WHroad->Drcr = WHrunoff->Drcr;
             WH->Drcr = WHrunoff->Drcr + WHstore->Drcr;
+            WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
 
             ChannelWaterHeightFromVolumeNT();
             // add tochannel to volume and recalc channelwh
@@ -301,6 +311,8 @@ void TWorld::CalcVelDisch(int thread)
 //---------------------------------------------------------------------------
 void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
 {
+    if (FlowBoundaryType == 0)
+        return;
 
     fill(*tma, 0);
 

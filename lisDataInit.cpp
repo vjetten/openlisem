@@ -700,13 +700,13 @@ void TWorld::InitBoundary(void)
     }
 
     FlowBoundary = NewMap(0);
-    if (FlowBoundaryType == 0) // no outflow except user defined outlets
+    if (FlowBoundaryType == 0) // no outflow as flood or overland flow, only channel
     {
-        FOR_ROW_COL_MV
-        {
-            if(Outlet->Drc > 0)
-                FlowBoundary->Drc = 1;
-        }
+//        FOR_ROW_COL_MV
+//        {
+//            if(Outlet->Drc > 0)
+//                FlowBoundary->Drc = 1;
+//        }
     }
     else
         if(FlowBoundaryType == 1) // outflow everywhere
@@ -719,7 +719,6 @@ void TWorld::InitBoundary(void)
             if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
             {
                 FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-                //copy(*DomainEdge, *FlowBoundary);
                 // use flowboundary for domainedge
             }
 
@@ -2077,7 +2076,7 @@ void TWorld::FindBaseFlow()
                 int ncells = 0;
                 double infiltration = 0;
                 double inflow = 0;
-                double baseflow = 100;//BaseFlowDischarges->data[ro][co];
+                double baseflow = BaseFlowDischarges->data[ro][co];
 
                 int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
                 int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

@@ -349,6 +349,10 @@ void TWorld::ChannelFlood(void)
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
 
+    // FloodBoundary();
+     // boundary flow
+    Boundary2Ddyn(hmx, Uflood, Vflood);
+
     double dtflood = 0;
 
     startFlood = false;
@@ -399,10 +403,6 @@ void TWorld::ChannelFlood(void)
     }
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
-
-   // FloodBoundary();
-    // boundary flow
-    Boundary2Ddyn(hmx, Uflood, Vflood);
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;
