@@ -10,10 +10,10 @@ NOTE: only a 64bit version exists, 32 bit is no longer supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
 
 version 5.5-5.7
-- Fixed all sediment MB errors, both simple and two phase flow (suspended and bedload)
+- Fixed all sediment MB errors, both simple and two phase flow (suspended and bedload) for 2D flow
 - Channel displayed as vector and culverts as white dots
 - colours close to QGIS palettes
-Probably still buggy: sediment classes and sediment material depth (under advanced sediment)
+Still buggy: 1D kinematic coupled to 2D flow for both water and sediment, and sediment classes
 
 version 5.5
 - Added subsurface stormdrains: kinematic wave on a subsurface LDD network (lddtile.map) with inlets,  diameter (pipe), mannings n, gradient

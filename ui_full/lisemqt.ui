@@ -1114,13 +1114,13 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Include rainfall (needs rainfall file and additional maps)</string>
+                 <string>Read a snowmelt file instead of a rainfall file</string>
                 </property>
                 <property name="text">
                  <string/>
                 </property>
                 <property name="checked">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1639,8 +1639,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>834</width>
-                <height>825</height>
+                <width>837</width>
+                <height>771</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">

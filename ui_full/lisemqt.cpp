@@ -1030,9 +1030,8 @@ void lisemqt::setMapDir()
     pathin = findValidDir(E_MapDir->text(), false);
 
     path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
-                                             pathin,
-                                             QFileDialog::ShowDirsOnly
-                                             | QFileDialog::DontResolveSymlinks);
+                                             pathin);//,
+                                             // /*QFileDialog::ShowDirsOnly |*/ QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
