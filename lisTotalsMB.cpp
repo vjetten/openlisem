@@ -219,41 +219,43 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
     }
 
-  if(SwitchIncludeStormDrains) {
-    FOR_ROW_COL_MV_TILE
-        if (LDDTile->Drc == 5)
+//TODO: stormdrains versus tile agriculture
+    if(SwitchIncludeStormDrains) {
+        FOR_ROW_COL_MV_TILE
+                if (LDDTile->Drc == 5)
         {
             QtotT += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
-  }
-    if (SwitchIncludeTile)
-    {
-        WaterVolSoilTot = mapTotal(*TileWaterVolSoil);
-        // input for mass balance, is the water seeping from the soil, input
-        // this is the water before the kin wave
-        calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-        calcMap(*tm, *TileDX, MUL); //in m3
-        // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-        TileVolTot += mapTotal(*tm); // in m3
+    } else {
+        if (SwitchIncludeTile)
+        {
+            WaterVolSoilTot = mapTotal(*TileWaterVolSoil);
+            // input for mass balance, is the water seeping from the soil, input
+            // this is the water before the kin wave
+            calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
+            calcMap(*tm, *TileDX, MUL); //in m3
+            // tm->calcV(_dx, MUL); //in m3 ??? or DX?
+            TileVolTot += mapTotal(*tm); // in m3
 
-        // water after kin wave
-        //WaterVolTot += mapTotal(*TileWaterVol); //m3
-        // add tile vol to total
-        //WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-        // recalc in mm for screen output
+            // water after kin wave
+            //WaterVolTot += mapTotal(*TileWaterVol); //m3
+            // add tile vol to total
+            //WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+            // recalc in mm for screen output
 
-        FOR_ROW_COL_MV_TILE
-            if (LDDTile->Drc == 5)
+            FOR_ROW_COL_MV_TILE
+                    if (LDDTile->Drc == 5)
             {
                 QtotT += TileQn->Drc * _dt;
                 QTiletot += TileQn->Drc * _dt;
             }
 
-        // add tile outflow (in m3) to total for all pits
+            // add tile outflow (in m3) to total for all pits
 
-        //QtotOutlet += TileQn->DrcOutlet * _dt;  obsolete, now Qtot-
-        // add Tile outflow (in m3) to total for main outlet
+            //QtotOutlet += TileQn->DrcOutlet * _dt;  obsolete, now Qtot-
+            // add Tile outflow (in m3) to total for main outlet
+        }
     }
 
     // output fluxes for reporting to file and screen in l/s!
@@ -445,7 +447,8 @@ void TWorld::MassBalance()
                 waterflow += floodVolTot;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
-      //  qDebug() << MB << waterin << waterstore << waterflow<< floodBoundaryTot;
+     //   qDebug() << MB << waterin << waterstore << waterflow;
+        qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
 
     }
     //watervoltot includes channel and tile

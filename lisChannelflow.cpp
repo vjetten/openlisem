@@ -130,6 +130,14 @@ void TWorld::CalcVelDischChannel(int thread)
             double FW = ChannelWidth->Drc;
             double grad = sqrt(ChannelGrad->Drc);
 
+            if(ChannelWH->Drc < MIN_HEIGHT) {
+                ChannelAlpha->Drc = 0;
+                ChannelQ->Drc = 0;
+                ChannelV->Drc = 0;
+                continue;
+            }
+
+
             if (ChannelSide->Drc > 0)  //BUG, was (ChannelSide > 0) !!!
             {
                 double dw = ChannelSide->Drc * wh;

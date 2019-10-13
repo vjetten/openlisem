@@ -273,25 +273,31 @@ void TWorld::CalcVelDisch(int thread)
 
     FOR_ROW_COL_2DMT
     {
-        double Perim;
+        double Perim, R;
         const double beta = 0.6;
         const double _23 = 2.0/3.0;
         double beta1 = 1/beta;
         //double kinvisc = 1.1e-6; // 15 degrees celcius water
         double NN = N->Drc;
 
+        if (WHrunoff->Drc < MIN_HEIGHT) {
+            Alpha->Drc = 0;
+            Q->Drc = 0;
+            V->Drc = 0;
+            continue;
+        }
 
         if (SwitchChannelFlood)
             NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
         // slow down water in flood zone
 
         // avg WH from soil surface and roads, over width FlowWidth
-        Perim = /* 2*WHrunoff->Drc + */ FlowWidth->Drc;
+        Perim =  2*WHrunoff->Drc + FlowWidth->Drc;
 
         if (Perim > 0)
-            R->Drc = WHrunoff->Drc*FlowWidth->Drc/Perim;
+            R = WHrunoff->Drc*FlowWidth->Drc/Perim;
         else
-            R->Drc = 0;
+            R = 0;
 
         if (Grad->Drc > MIN_SLOPE)
             Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
@@ -303,7 +309,7 @@ void TWorld::CalcVelDisch(int thread)
         else
             Q->Drc = 0;
 
-        V->Drc = pow(R->Drc, _23)*sqrt(Grad->Drc)/NN;
+        V->Drc = pow(R, _23)*sqrt(Grad->Drc)/NN;
 
     }}}}
 }
@@ -827,6 +833,7 @@ void TWorld::OverlandFlow1D(void)
         bool K1Dexplicit = true;
         double WaterVolout = 0;
         double InfilKWact = 0;
+
         if( K1Dexplicit)
         {
             WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
@@ -843,29 +850,23 @@ void TWorld::OverlandFlow1D(void)
             // new volume
         }
 
+        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
+        InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
 
-        InfilKWact = -FSurplus->Drc*SoilWidthDX->Drc*DX->Drc;
-        InfilKWact = std::min(QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt, InfilKWact);
         // infiltration is the surplus infil (pot infil), or infil is all that was there
         if (FFull->Drc == 1)
             InfilKWact = 0;
-        //if profile full no more infil, surplus is 0
 
         InfilVolKinWave->Drc = InfilKWact;
     }
 
     FOR_ROW_COL_MV
     {
-
-        if (WHrunoff->Drc*ChannelAdj->Drc > 1e-6)
-            V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
-        else
-            V->Drc = 0;
-        if (V->Drc > 10.0) {
-            V->Drc = 10.0;
-            Qn->Drc = V->Drc * (WHrunoff->Drc*ChannelAdj->Drc);
-        }
-
+        double R = WHrunoff->Drc*FlowWidth->Drc;
+        double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
+        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
+        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+        Q->Drc = Qn->Drc;
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
