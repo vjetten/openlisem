@@ -1422,7 +1422,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
   //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);
 
-    AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
    if(SwitchIncludeChannel)
     {

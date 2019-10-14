@@ -172,7 +172,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
         itercount = -2;
         return(0);
     }
-
+if (Qmax ==0)
+    Qmax = 1e20;
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
     {

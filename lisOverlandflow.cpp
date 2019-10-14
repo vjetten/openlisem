@@ -277,15 +277,8 @@ void TWorld::CalcVelDisch(int thread)
         double Perim, R;
         double NN = N->Drc;
 
-        if (WHrunoff->Drc < MIN_HEIGHT) {
-            Alpha->Drc = 0;
-            Q->Drc = 0;
-            V->Drc = 0;
-            continue;
-        }
-
-        if (SwitchChannelFlood)
-            NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
+        if (SwitchIncludeChannel)
+            qExp(mixing_coefficient*hmx->Drc);
         // slow down water in flood zone
 
         // avg WH from soil surface and roads, over width FlowWidth
@@ -864,6 +857,7 @@ void TWorld::OverlandFlow1D(void)
         double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+       // V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
         V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
         Q->Drc = Qn->Drc;
 

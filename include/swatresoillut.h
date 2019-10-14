@@ -61,10 +61,10 @@ typedef int (*QSORT_CMP)(const void *e1, const void *e2);
 
 /// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
 typedef struct LUT {
-	const double **lut;
-   double *key;  // buffer for search key
-   int   nrRows, nrCols;
-	bool  gotoMinMax;
+    const  double **lut;
+    double *key;  // buffer for search key
+    int   nrRows, nrCols;
+    bool  gotoMinMax;
 } LUT;
 
 
