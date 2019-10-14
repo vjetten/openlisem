@@ -121,20 +121,20 @@ void TWorld::ToFlood()//int thread)
 
                 if(SwitchUseGrainSizeDistribution)
                 {
-//                    FOR_GRAIN_CLASSES
-//                    {
-//                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-//                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
+                    FOR_GRAIN_CLASSES
+                    {
+                        SS_D.Drcd +=  Sed_D.Drcd * frac;
+                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
 
-//                    }
+                    }
                 }
 
                 //immediately check for maximum concentration
                 //if not done, too high concentration will show on display, before being deposited
-                //double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-               // SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
-//                SSDepthFlood->Drc += dwh;
-//                SWOFSedimentSetConcentration(r,c,hmx);
+                double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+                SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
+                SSDepthFlood->Drc += dwh;
+                SWOFSedimentSetConcentration(r,c,hmx);
 //                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
 
             }
@@ -186,10 +186,11 @@ void TWorld::ToChannel()//int thread)
             double fractiontochannel;
             double Volume = WHrunoff->Drcr * FlowWidth->Drcr * DX->Drcr;
 
-            if (Volume == 0)
-            {
+            if (hmx->Drcr > MIN_HEIGHT)
                 continue;
-            }
+
+            if (Volume == 0)
+                continue;
 
             if (ChannelAdj->Drcr == 0)
                 fractiontochannel = 1.0;
@@ -274,10 +275,6 @@ void TWorld::CalcVelDisch(int thread)
     FOR_ROW_COL_2DMT
     {
         double Perim, R;
-        const double beta = 0.6;
-        const double _23 = 2.0/3.0;
-        double beta1 = 1/beta;
-        //double kinvisc = 1.1e-6; // 15 degrees celcius water
         double NN = N->Drc;
 
         if (WHrunoff->Drc < MIN_HEIGHT) {
@@ -300,16 +297,17 @@ void TWorld::CalcVelDisch(int thread)
             R = 0;
 
         if (Grad->Drc > MIN_SLOPE)
-            Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, _23),beta);
+            Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
         else
             Alpha->Drc = 0;
 
         if (Alpha->Drc > 0)
-            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, beta1);
+            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 1.66666666667);
         else
             Q->Drc = 0;
 
-        V->Drc = pow(R, _23)*sqrt(Grad->Drc)/NN;
+        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
+        V->Drc = std::min(Q->Drc/(WHrunoff->Drc*FlowWidth->Drc), V->Drc);
 
     }}}}
 }
@@ -761,7 +759,7 @@ void TWorld::OverlandFlow1D(void)
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);//, BufferVol, BufferSed);
+                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
                 }
             }
         }else
@@ -866,6 +864,7 @@ void TWorld::OverlandFlow1D(void)
         double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+        V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
         Q->Drc = Qn->Drc;
 
         WHroad->Drc = WHrunoff->Drc;

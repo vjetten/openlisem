@@ -394,12 +394,12 @@ void TWorld::ChannelFlood(void)
        // V->Drc = FloodDomain->Drc  == 1 ? UVflood->Drc : V->Drc;
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
 
-        //        if (SwitchErosion)
-        //        {
+        if (SwitchErosion)
+        {
 
-        //            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
-        //            Qsn->Drc = Conc->Drc*Qn->Drc;
-        //        }
+            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
+            Qsn->Drc = Conc->Drc*Qn->Drc;
+        }
     }
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);

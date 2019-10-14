@@ -162,20 +162,6 @@ void TWorld::CalcVelDischChannel(int thread)
             else
                 ChannelQ->Drc = 0;
 
-            //ChannelQ->Drc = pow(Area/Perim, 2.0/3.0)*sqrt(grad)/ChannelN->Drc * Area;
-
-//            if (SwitchChannelFlood)
-//            {
-//                if (ChannelMaxQ->Drc > 0)
-//                {
-//                    ChannelQ->Drc = std::min(ChannelQ->Drc, ChannelMaxQ->Drc);
-//                    Area = ChannelAlpha->Drc*std::pow(ChannelQ->Drc, beta);
-//                    Perim = FW + Area/FW*2;
-//                    ChannelWH->Drc = Area/FW;
-//                }
-
-//            }
-
             ChannelV->Drc = std::pow(Radius, _23)*grad/ChannelN->Drc;
 
             ChannelWaterVol->Drc = Area * ChannelDX->Drc;
@@ -480,7 +466,7 @@ void TWorld::ChannelFlow(void)
     FOR_ROW_COL_MV_CH
     {
         if (LDDChannel->Drc == 5)
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);            // kin wave on water
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
     }
     cover(*ChannelQn, *LDD, 0);
     // avoid missing values around channel for adding to Qn for output
@@ -588,7 +574,7 @@ void TWorld::ChannelFlow(void)
             FOR_ROW_COL_MV_CH
             {
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
-
+                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
             }

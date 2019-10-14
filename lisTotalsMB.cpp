@@ -448,7 +448,7 @@ void TWorld::MassBalance()
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;
-        qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
+     //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
 
     }
     //watervoltot includes channel and tile
@@ -463,14 +463,15 @@ void TWorld::MassBalance()
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
         //already in soiloss: + floodBoundarySedTot;
 
-    //    qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
-    //    qDebug() << DepTot << ChannelDepTot << FloodDepTot;
-     //   qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+//        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
+//        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
+//        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
 
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
-            //    qDebug() << MBs << detachment << deposition << sediment;
+                qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
+                // << detachment << deposition << sediment;
     }
     //VJ 121212 changed to mass balance relative to soil loss
 
