@@ -43,7 +43,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
-    DEFmaps.append("2;Barriers;barriers.map;Flood bariers and obstacles (taluts, dikes, in m);barriers");
+    DEFmaps.append("2;Buffers;buffers.map;Flood bariers and obstacles (taluts, dikes, in m);buffers");
     DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad");
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
@@ -248,6 +248,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood start time");
     namelist[i].value = QString("stormdrain.map");
     namelist[i++].name = QString("Storm Drain map");
+    namelist[i].value = QString("stormdrainvol.map");
+    namelist[i++].name = QString("Storm Drain Vol map");
     namelist[i].value = QString("eros.map");
     namelist[i++].name = QString("Erosion map");
     namelist[i].value = QString("depo.map");
@@ -414,6 +416,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("flowbarriers.txt");
     namelist[i++].name = QString("Flow barrier table filename");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include flow barriers");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Variable Timestep");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Use Heun");
@@ -516,10 +520,37 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Output interval");
     namelist[i++].name = QString("User defined output");
     namelist[i++].name = QString("Output times");
-    namelist[i++].name = QString("CheckOutputMaps");
-//    namelist[i++].name = QString("CheckOutputMapsNUT");
+//    namelist[i++].name = QString("CheckOutputMaps");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutRunoff");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutWH");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutV");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutInterception");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutSurfStor");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutInf");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutTileDrain");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutTileV");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutDet");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutDep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutTC");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutConc");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutSed");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutSL");
+
     namelist[i++].name = QString("CheckOutputMapsMC");
-//    namelist[i++].name = QString("CheckOutputMapsGUL");
 
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Texture classes]");

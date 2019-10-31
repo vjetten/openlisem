@@ -261,7 +261,7 @@ void TWorld::Totals(void)
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);// + TileQn->Drc); // in l/s
+        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);// in l/s
         //NOTE: for 2D flow Qn = K2DQ, already done
     }
 
@@ -470,7 +470,7 @@ void TWorld::MassBalance()
 
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
-                qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
+     //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
                 // << detachment << deposition << sediment;
     }
     //VJ 121212 changed to mass balance relative to soil loss

@@ -738,10 +738,10 @@ void lisemqt::showHouseMap()
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
-// NOTE HIGHJACKING barrier for image
+// NOT USED FOR NOW barrier for image
 void lisemqt::showFlowBarriersMap()
 {
-    /*
+
   if (startplot)
     {
 
@@ -759,8 +759,12 @@ void lisemqt::showFlowBarriersMap()
     flowbarriersMap->setAlpha(0);
 
   flowbarriersMap->setColorMap(new colorMapFlowBarrier());
-  */
 
+}
+//---------------------------------------------------------------------------
+// NOTE HIGHJACKING barrier for image
+void lisemqt::showImageMap()
+{
     if (startplot && checksatImage->isChecked())
     {
         // set intervals for rasterdata, x,y,z min and max

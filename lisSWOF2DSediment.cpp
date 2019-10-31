@@ -82,12 +82,12 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
             MSSNFlood->Drc = _SS->Drc;
 
             //set concentration from present sediment
-            MBLCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MBLNFlood->Drc);
+            MBLCFlood->Drc = _BLC->Drc; //MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MBLNFlood->Drc);
 
             //set concentration from present sediment
-            MSSCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSNFlood->Drc);
+            MSSCFlood->Drc = _SSC->Drc; //MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSNFlood->Drc);
 
-           //USING h HERE and NOT ssdepth bldepth
+           //USING h HERE and NOT ssdepth bldepth WHY?
 
         }
     }}}}
@@ -141,7 +141,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
             //weights to be saved
             double w[4] = {0.0,0.0,0.0,0.0};
 
-            //for each cell niegbhouring the advected location of the discharge, calculate interpolation weight
+            //for each cell neigbhouring the advected location of the discharge, calculate interpolation weight
             for (int i=0; i<4; i++)
             {
                 int r2, c2;
@@ -216,10 +216,12 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
             _SS->Drc = MSSNFlood->Drc;
 
             //set concentration from present sediment
-            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _BL->Drc);
+        //    _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _BL->Drc);
+            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLDepthFlood->Drc, _BL->Drc);
 
             //set concentration from present sediment
-            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _SS->Drc);
+      //      _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _SS->Drc);
+            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSDepthFlood->Drc, _SS->Drc);
 
             //USING h HERE and NOT ssdepth bldepth
 
@@ -1007,11 +1009,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
     if(!SwitchUseGrainSizeDistribution)
         iterator = 1;
 
-    //BLDetFlood->Drc = 0;
-    //SSDetFlood->Drc = 0;
-    //BLDepFlood->Drc = 0;
-
-    // get TCs
+   // get TCs
     for(int d = 0 ; d < iterator; d++)
     {
         cTMap * TBLTCFlood;

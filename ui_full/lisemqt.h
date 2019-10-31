@@ -162,6 +162,7 @@ public:
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();
+    void showImageMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD);//, double type);
     double fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD);//, double type);
 

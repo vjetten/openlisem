@@ -868,7 +868,8 @@ void lisemqt::SetStyleUI()
     dpiscale = 1.0;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
-
+            genfontsize = 12;
+/*
     // do a bit of size teaking for large displays becvause QT 5.5.0 does not have that yet
     tabWidget_out->setIconSize(QSize(16, 16));
     QSize iSize = QSize(16,16);
@@ -892,14 +893,14 @@ void lisemqt::SetStyleUI()
     }
 
     setfontSize();
+*/
 
-
-    this->setStyleSheet(QString("QLabel::pixmap {height: 16px; width: 16px}"));
+ //   this->setStyleSheet(QString("QLabel::pixmap {height: 16px; width: 16px}"));
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
-    toolBar->setIconSize(iSize);
-    toolBar_2->setIconSize(iSize);
+//    toolBar->setIconSize(iSize);
+//    toolBar_2->setIconSize(iSize);
 
     QString flat("QToolButton { background-color: white; border: none; }");
     toolButton_help1->setStyleSheet(flat);
@@ -912,9 +913,7 @@ void lisemqt::SetStyleUI()
 
 
     // interface elements that are not visible for now
-    //always MUSCL
-    //E_FloodScheme->setVisible(false);
-    //label_98->setVisible(false);
+
     frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(7);
     frameNumerical->setVisible(false);
@@ -960,8 +959,6 @@ void lisemqt::SetStyleUI()
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
 
-    //label_buffervol->setMinimumSize(w,h);
-    //label_buffersed->setMinimumSize(w,h);
     label_MBs->setMinimumSize(w,h);
     label_MB->setMinimumSize(w,h);
 
@@ -1909,6 +1906,7 @@ void lisemqt::fontIncrease()
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
 {
+    return;
     int fs = genfontsize;
     QFont font = qApp->font();
     font.setPixelSize((int)((double)fs*dpiscale));
@@ -1938,18 +1936,22 @@ void lisemqt::setfontSize()
    tabWidgetOptions->setStyleSheet(tabstyle);
                               */
 }
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_resetSediment_clicked()
 {
     resetTabSediment();
 }
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_resetCalibration_clicked()
 {
     resetTabCalibration();
 }
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_resetFlow_clicked()
 {
     resetTabFlow();
 }
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_resetErosion_clicked()
 {
     resetTabErosion();

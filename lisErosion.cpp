@@ -731,6 +731,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     {
         if(channel)
         {
+       //     qDebug() << "hoi";
             return detachment * ChannelY->Drc;
         }else
         {
@@ -1105,7 +1106,6 @@ void TWorld::FlowDetachment(int thread)
 
    if (SwitchKinematic2D == K2D_METHOD_DYN)
        return;
-// als alles flood dan is er helemaal geen flowdetachemnt door overland flow!
 
    //transport capacity
    FOR_ROW_COL_2DMT  {
@@ -1113,19 +1113,19 @@ void TWorld::FlowDetachment(int thread)
        DEP->Drc = 0;
        if(!SwitchUseGrainSizeDistribution) {
            //get the transport capacity for a single grain size
-           //  TC->Drc = OFTC(r,c,-1);
+             TC->Drc = OFTC(r,c,-1);
            //            if (SwitchKinematic2D == K2D_METHOD_DIFF)
            //                TC->Drc = calcTCSuspended(r,c,-1,OF_Method,V,V,WH,FlowWidth,WHrunoff,N,K2DSlope);
            //            else
            //                TC->Drc = calcTCSuspended(r,c,-1,OF_Method,V,V,WH,FlowWidth,WHrunoff,N,Grad);
-           if (SwitchKinematic2D == K2D_METHOD_DIFF) {
-               copy(*tma, *Grad);
-               copy(*Grad, *K2DSlope);
-           }
-           TC->Drc = SWOFSedimentTCSS(r,c,-1, WHrunoff,V->Drc);
-           if (SwitchKinematic2D == K2D_METHOD_DIFF) {
-               copy(*Grad, *tma);
-           }
+//           if (SwitchKinematic2D == K2D_METHOD_DIFF) {
+//               copy(*tma, *Grad);
+//               copy(*Grad, *K2DSlope);
+//           }
+//           TC->Drc = SWOFSedimentTCSS(r,c,-1, WHrunoff,V->Drc);
+//           if (SwitchKinematic2D == K2D_METHOD_DIFF) {
+//               copy(*Grad, *tma);
+//           }
 
        } else {
            //get the transport capacity for all induvidual grain sizes
@@ -1433,6 +1433,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
      //  if (SwitchUse2Layer)
        TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d);
        TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d);
+     //  qDebug() << r << c << TSSTCFlood->Drc;
     }
 
    //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
@@ -1594,7 +1595,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           TSSFlood->Drc += deposition;
           ChannelDep->Drc += deposition;
           ChannelDetFlow->Drc += detachment;
-
+//qDebug() << TransportFactor << detachment;
           if(SwitchUseMaterialDepth)
           {
               RStorageDep->Drc += -deposition;

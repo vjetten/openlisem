@@ -302,7 +302,7 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-  SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers,
+  SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK;
  /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
@@ -443,6 +443,8 @@ public:
     QString floodMaxVFileName;
     QString floodMaxVHFileName;
     QString floodWHmaxFileName;
+    QString tileWaterVolfilename;
+    QString tileQmaxfilename;
     QString timestamp;
 
     QString rainFileName;
@@ -451,11 +453,13 @@ public:
     QString snowmeltFileDir;
     QString resultFileName;
     QString temprunname;
-    QStringList outputcheck;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,
-    OutTiledrain, OutHmx, OutVf, OutQf, OutHmxWH;
+    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH;
+    bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
+    SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt,
+    SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH;
     QString errorFileName;
     QString errorSedFileName;
     QString satImageFileName;

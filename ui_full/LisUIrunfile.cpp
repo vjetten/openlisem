@@ -121,9 +121,8 @@ void lisemqt::ParseInputData()
     bool dummysnow = false;
     int dummykinwave = 1;
     bool dummy2layerinfil = false;
-    bool dummyErosion = false;
-
-    bool seterosionold = false;
+  //  bool dummyErosion = false;
+ //   bool seterosionold = false;
     // get all the options/checks
 
     resetAll();
@@ -149,29 +148,30 @@ void lisemqt::ParseInputData()
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
 
         //options in the main code, order is not important
-        if (p1.compare("No Erosion simulation")==0){
+//        if (p1.compare("No Erosion simulation")==0){
 
-            checkDoErosion->setChecked(!check);
-            dummyErosion = !check;
-            if(!check)
-            {
-                seterosionold = true;
-            }
+//            checkDoErosion->setChecked(!check);
+//            dummyErosion = !check;
+//            if(!check)
+//            {
+//                seterosionold = true;
+//            }
 
-        }
-        if (p1.compare("Include Erosion simulation")==0){
+//        }
+//        if (p1.compare("Include Erosion simulation")==0){
 
-            if(!seterosionold)
-            {
-                dummyErosion = check || seterosionold;
-                checkDoErosion->setChecked(check || seterosionold);
-            }
-        }
+//            if(!seterosionold)
+//            {
+//                dummyErosion = check || seterosionold;
+//                checkDoErosion->setChecked(check || seterosionold);
+//            }
+//        }
+
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
-
+        if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
         //if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)           checkStormDrains->setChecked(check);
@@ -237,6 +237,7 @@ void lisemqt::ParseInputData()
    //     if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
+        if (p1.compare("Include buffers")==0)          checkBuffers->setChecked(check);
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
 
@@ -361,8 +362,6 @@ void lisemqt::ParseInputData()
                 }
         }
 
-
-
         if (p1.compare("Ksat calibration")==0) E_CalibrateKsat->setValue(valc);
         if (p1.compare("Grain Size calibration")==0)   E_CalibrateGS->setValue(valc);
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
@@ -407,50 +406,31 @@ void lisemqt::ParseInputData()
         setSedimentText(E_RSSMethod->value(), 0, 1);
 
 
-        if (p1.compare("CheckOutputMaps")==0)
-        {
-            outputcheck = p.split(";");
+        if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
+        if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
+        if (p1.compare("OutWH")==0)             checkBox_OutWH->setChecked(check);
+        if (p1.compare("OutV")==0)              checkBox_OutV->setChecked(check);
+        if (p1.compare("OutInterception")==0)  checkBox_OutInterception->setChecked(check);
+        if (p1.compare("OutSurfStor")==0)       checkBox_OutSurfStor->setChecked(check);
+        if (p1.compare("OutInf")==0)            checkBox_OutInf->setChecked(check);
+        if (p1.compare("OutTileDrain")==0)      checkBox_OutTiledrain->setChecked(check);
+        if (p1.compare("OutTileVolume")==0)     checkBox_OutTileVol->setChecked(check);
+        if (p1.compare("OutDet")==0)     checkBox_OutDet->setChecked(check);
+        if (p1.compare("OutDep")==0)     checkBox_OutDep->setChecked(check);
+        if (p1.compare("OutTC")==0)      checkBox_OutTC->setChecked(check);
+        if (p1.compare("OutConc")==0)    checkBox_OutConc->setChecked(check);
+        if (p1.compare("OutSed")==0)     checkBox_OutSed->setChecked(check);
+        if (p1.compare("OutSL")==0)      checkBox_OutSL->setChecked(check);
 
-            if (outputcheck.count() < 20)
-                for (int k = outputcheck.count();k < 20; k++)
-                    outputcheck << "0";
-
-            checkBox_OutRunoff->setChecked(bool(outputcheck.at(0).toInt() == 1));
-            checkBox_OutWH->setChecked(bool(outputcheck.at(2).toInt() == 1));
-            checkBox_OutInterception->setChecked(bool(outputcheck.at(3).toInt() == 1));
-            checkBox_OutInf->setChecked(bool(outputcheck.at(8).toInt() == 1));
-            checkBox_OutV->setChecked(bool(outputcheck.at(7).toInt() == 1));
-            checkBox_OutDet->setChecked(bool(outputcheck.at(5).toInt() == 1));
-            checkBox_OutDep->setChecked(bool(outputcheck.at(6).toInt() == 1));
-            checkBox_OutConc->setChecked(bool(outputcheck.at(1).toInt() == 1));
-            checkBox_OutTC->setChecked(bool(outputcheck.at(4).toInt() == 1));
-            checkBox_OutSurfStor->setChecked(bool(outputcheck.at(9).toInt() == 1));
-            //checkBox_OutChanVol->setChecked(bool(outputcheck.at(10).toInt() == 1));
-            checkBox_OutTiledrain->setChecked(bool(outputcheck.at(11).toInt() == 1));
-            checkBox_OutHmx->setChecked(bool(outputcheck.at(12).toInt() == 1));
-            checkBox_OutQf->setChecked(bool(outputcheck.at(13).toInt() == 1));
-            checkBox_OutVf->setChecked(bool(outputcheck.at(14).toInt() == 1));
-         //   checkBox_OutHmxWH->setChecked(bool(outputcheck.at(15).toInt() == 1));
-            checkBox_OutSL->setChecked(bool(outputcheck.at(16).toInt() == 1));
-            checkBox_OutSed->setChecked(bool(outputcheck.at(17).toInt() == 1));
-
-
-            // TODO replace these numbers with defines for clarity in model.h and lisemqt.h
-
-            // checkboxes normal output map series, numbering according to original LISEM
-
-            if (p1.compare("WH max level map")==0) E_WHmaxMap->setText(p);
-
-        }
-    }
+   }
 
     // ###################################
 
-    checkDoErosion->setChecked(dummyErosion);
-    setErosionTab(dummyErosion);
+    //checkDoErosion->setChecked(dummyErosion);
+    setErosionTab(checkDoErosion->isChecked());
 
     checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
-    tabWidgetOptions->setTabEnabled(5,checkAdvancedSediment->isChecked());
+    tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     checkOverlandFlow2D->setChecked(dummykinwave == 2);
@@ -582,6 +562,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
 
         if (p1.compare("Storm Drain map")==0) E_stormDrainMap->setText(p);
+        if (p1.compare("Storm Drain Vol map")==0) E_stormDrainVolMap->setText(p);
 
 //        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
 //        if (p1.compare("Snowmelt file")==0)
@@ -717,6 +698,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
 
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
+        if (p1.compare("Include buffers")==0)          namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
         //flooding
@@ -776,7 +758,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
 
-        if (p1.compare("Advanced sediment")==0)              namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+        if (p1.compare("Advanced sediment")==0)  {
+            qDebug() << checkAdvancedSediment->isChecked();
+            namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+        }
         if (p1.compare("Use 2 phase flow")==0)  {
             namelist[j].value.setNum((int) checkBox_Sed2Phase->isChecked());
             checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
@@ -898,6 +883,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel Max WH")==0) namelist[j].value = E_ChannelMaxWH->text();
         if (p1.compare("Flood stats")==0) namelist[j].value = E_FloodStats->text();
         if (p1.compare("Storm Drain map")==0) namelist[j].value = E_stormDrainMap->text();
+        if (p1.compare("Storm Drain Vol map")==0) namelist[j].value = E_stormDrainVolMap->text();
 
         if (p1.compare("Erosion map")==0) namelist[j].value = E_DetachmentMap->text();
         if (p1.compare("Deposition map")==0) namelist[j].value = E_DepositionMap->text();
@@ -972,9 +958,26 @@ void lisemqt::updateModelData()
         //VJ 110110 added
 
         // make a string for all output maps
-        if (p1.compare("CheckOutputMaps")==0)
-        {
-            outputcheck.clear();
+//        if (p1.compare("CheckOutputMaps")==0)
+//        {
+//            outputcheck.clear();
+
+            if (p1.compare("OutRunoff")==0)         namelist[j].value.setNum((int)checkBox_OutRunoff->isChecked());
+            if (p1.compare("OutWH")==0)             namelist[j].value.setNum((int)checkBox_OutWH->isChecked());
+            if (p1.compare("OutV")==0)              namelist[j].value.setNum((int)checkBox_OutV->isChecked());
+            if (p1.compare("OutInterception")==0)  namelist[j].value.setNum((int)checkBox_OutInterception->isChecked());
+            if (p1.compare("OutSurfStor")==0)       namelist[j].value.setNum((int)checkBox_OutSurfStor->isChecked());
+            if (p1.compare("OutInf")==0)            namelist[j].value.setNum((int)checkBox_OutInf->isChecked());
+            if (p1.compare("OutTileDrain")==0)      namelist[j].value.setNum((int)checkBox_OutTiledrain->isChecked());
+            if (p1.compare("OutTileVolume")==0)     namelist[j].value.setNum((int)checkBox_OutTileVol->isChecked());
+
+            if (p1.compare("OutDet")==0)     namelist[j].value.setNum((int)checkBox_OutDet->isChecked());
+            if (p1.compare("OutDep")==0)     namelist[j].value.setNum((int)checkBox_OutDep->isChecked());
+            if (p1.compare("OutTC")==0)      namelist[j].value.setNum((int)checkBox_OutTC->isChecked());
+            if (p1.compare("OutConc")==0)    namelist[j].value.setNum((int)checkBox_OutConc->isChecked());
+            if (p1.compare("OutSed")==0)     namelist[j].value.setNum((int)checkBox_OutSed->isChecked());
+            if (p1.compare("OutSL")==0)      namelist[j].value.setNum((int)checkBox_OutSL->isChecked());
+  /*
             if (checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0"; //0
             if (checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0"; //1
             if (checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0"; //2
@@ -985,7 +988,7 @@ void lisemqt::updateModelData()
             if (checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0"; //7
             if (checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0"; //8
             if (checkBox_OutSurfStor->isChecked())   outputcheck << "1"; else outputcheck << "0"; //9
-           // if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0"; //10
+            if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0"; //10
             outputcheck << "0";
             if (checkBox_OutTiledrain->isChecked())  outputcheck << "1"; else outputcheck << "0"; //11
 
@@ -1000,7 +1003,8 @@ void lisemqt::updateModelData()
             outputcheck << "0";
             // twenty places for now
             namelist[j].value = outputcheck.join(";");
-        }
+            */
+      //  }
     }
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);

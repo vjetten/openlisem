@@ -98,8 +98,7 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-                        This is within the flow domain (the LDD or Channel LDD has a value here).\n \
-                        This iusually happens when you have maps of different origin";
+                        This is a cell on a flow network (either LDD, Channel LDD, tile drain LDD).";
                         throw 1;
             }
 
@@ -235,6 +234,7 @@ void TWorld::GetInputData(void)
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
 {
+    qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
     // THIS SHOULD BE THE FIRST MAP
@@ -328,9 +328,13 @@ void TWorld::InitStandardInput(void)
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
 
-    Barriers = ReadMap(LDD, getvaluename("barriers"));
-    cover(*Barriers, *LDD,0);
-    calcMap(*DEM, *Barriers, ADD);
+    if (SwitchBuffers)
+        Buffers = ReadMap(LDD, getvaluename("buffers"));
+    else
+        Buffers = NewMap(0);
+
+    cover(*Buffers, *LDD,0);
+    calcMap(*DEM, *Buffers, ADD);
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not TAN)");
@@ -1957,6 +1961,8 @@ void TWorld::IntializeOptions(void)
     floodMaxVHFileName = QString("VHmax.map");
     floodWHmaxFileName= QString("WHmax.map");
     floodStatsFileName = QString("floodstats.csv");
+    tileWaterVolfilename= QString("drainvol.map");
+    tileQmaxfilename= QString("drainqmax.map");
 
     rainFileName.clear();
     SwitchLimitTC = false;
@@ -2359,6 +2365,7 @@ void TWorld::InitTiledrains(void)
     TileV = NewMap(0);
     TileDX = NewMap(_dx);
     TileMaxQ = NewMap(0);
+    TileQmax = NewMap(0);
 
     // maybe needed later for erosion in tiledrain
     //TileSedTot = 0;

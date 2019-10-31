@@ -763,6 +763,7 @@ void TWorld::ReportMaps(void)
     // max velocity on land in m/s
     report(*floodVMax, floodMaxVFileName);  // BOTH overland flow and flood for all combinations
     report(*floodVHMax, floodMaxVHFileName);  // momentum of all flow
+
     if (SwitchIncludeChannel)
     {
         report(*ChannelQntot, channelDischargeMapFileName);
@@ -772,12 +773,14 @@ void TWorld::ReportMaps(void)
         report(*maxChannelWH, floodMaxChanWHFileName);
     }
 
-    if (SwitchChannelFlood)  // always true
+    if (SwitchIncludeStormDrains || SwitchIncludeTile)
     {
-     //   report(*floodHmxMax, floodLevelFileName);
-        report(*floodTime, floodTimeFileName);
-        report(*floodTimeStart, floodFEWFileName);
+        report(*TileWaterVol, tileWaterVolfilename);
+        report(*TileQmax, tileQmaxfilename);
     }
+
+    report(*floodTime, floodTimeFileName);
+    report(*floodTimeStart, floodFEWFileName);
 
     //===== SEDIMENT =====
     if(SwitchErosion)
@@ -795,7 +798,7 @@ void TWorld::ReportMaps(void)
             tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
         }
         report(*tm, totalErosionFileName);
-        if (outputcheck[5].toInt() == 1)
+        if (SwitchOutDet)
             report(*tm, Outeros); // in units
 
         // all deposition combined
@@ -803,7 +806,7 @@ void TWorld::ReportMaps(void)
             tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
         }
         report(*tm, totalDepositionFileName);
-        if (outputcheck[6].toInt() == 1)
+        if (SwitchOutDep)
             report(*tm, Outdepo); // in units
 
         // all channel depostion combined
@@ -824,86 +827,53 @@ void TWorld::ReportMaps(void)
         copy(*tm, *TotalSoillossMap);
         calcValue(*tm, factor, MUL);
         report(*tm, totalSoillossFileName);
-        if (outputcheck[16].toInt() == 1)
+        if (SwitchOutSL)
             report(*tm, OutSL);      // in user units
 
         // total sediment
         copy(*tm, *COMBO_SS); //kg/cell
         calcValue(*tm, factor, MUL);
-        if (outputcheck[17].toInt() == 1) report(*tm, OutSed);      // in user units
-        if (outputcheck[1].toInt() == 1) report(*TotalConc, Outconc);  // in g/l
-        if (outputcheck[4].toInt() == 1) report(*COMBO_TC, Outtc);      // in g/l
+        if (SwitchOutSed) report(*tm, OutSed);      // in user units
+        if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
+        if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
 
     }
 
-   // qDebug() << outputcheck;
     //discharge l/s
-    if (outputcheck[0].toInt() == 1)
+    if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
     // water height m
-    if (outputcheck[2].toInt() == 1)
-    {
-        if (SwitchChannelFlood)
-            report(*hmxWH, Outwh);//OutHmxWH);
-        else
-            report(*WH,Outwh);
-    }
+    if (SwitchOutwh)
+        report(*hmxWH, Outwh);
     // interception mmtile
-    if (outputcheck[3].toInt() == 1)
+    if (SwitchOutInt)
         report(*InterceptionmmCum, OutInt);
-
     // velovity m/s
-    if (outputcheck[7].toInt() == 1)
-    {
+    if (SwitchOutvelo)
         report(*COMBO_VOFCH, Outvelo);
-    }
 
     // infiltration mm
-    if (outputcheck[8].toInt() == 1)
+    if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
 
-    if (outputcheck[9].toInt() == 1)
+    if (SwitchOutss)
     {
         calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
         report(*tm, Outss);
-        /** TODO check this: surf store in volume m3 is multiplied by flowwidth? */
     }
 
- //   if (outputcheck[10].toInt() == 1) report(*ChannelWaterVol, Outchvol);
-
-
-    if ((SwitchIncludeTile|| SwitchIncludeStormDrains) && outputcheck.count() > 11)
+    if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {
-        if (outputcheck[11].toInt() == 1)
+        if (SwitchOutTiledrain)
         {
             calcMapValue(*tm, *TileQn, 1000, MUL);
             report(*tm, OutTiledrain); //in l/s
-            report(*TileV, "tilev"); //in m3/s
-            report(*TileWaterVol, "tilevol"); //in m3
-
         }
-    }
-    if (SwitchChannelFlood)
-    {
-//        if (outputcheck[12].toInt() == 1)
-//        {
-//            report(*hmx, OutHmx);
-//        }
-        if (outputcheck[13].toInt() == 1)
+        if (SwitchOutTileVol)
         {
-            report(*Qflood, OutQf);
+           // report(*TileV, "tilev"); //in m3/s
+            report(*TileWaterVol, OutTileVol); //in m3
         }
-//        if (outputcheck[14].toInt() == 1)
-//        {
-//         //   report(*UVflood, OutVf);
-//            report(*COMBO_VOFCH, OutVf);
-//        }
-
-//        if (outputcheck[15].toInt() == 1)
-//        {
-//            report(*hmxWH, OutHmxWH);
-//        }
-
     }
 
 }
@@ -1436,7 +1406,7 @@ void TWorld::GetComboMaps()
     }
    if(SwitchIncludeTile || SwitchIncludeStormDrains) {
        setColor(1);
-       AddComboMap(0,"Storm Drain V","m/s",TileV,Colormap,Colors,false,false,1.0,1.0);
+       AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,1.0);
        AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,Colormap,Colors,false,false,1000.0,1.0);
    }
     if(InfilMethod != INFIL_NONE)
@@ -1461,23 +1431,24 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,factor,0.1);
 
-    if(SwitchChannelFlood)
-    {
-        setColor(3);
-  //      QString txt = "Flood Height";
-  //      if (SwitchKinematic2D == K2D_METHOD_DYN)
-         QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
+    setColor(3);
 
-        AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
-        setColor(3);
-        AddComboMap(0,"Max Flood height","m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
-        setColor(6);
-        AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
-        setColor(7);
-        AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
+//    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
+//       AddComboMap(0,"Tile discharge","m3/s",TileQn,Colormap,Colors,false,false,1.0,0.01);
+//       AddComboMap(0,"Tile Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,0.01);
+//    }
 
 
-    }
+    QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
+
+    AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
+    setColor(3);
+    AddComboMap(0,"Max Flood height","m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
+    setColor(6);
+    AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
+    setColor(7);
+    AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
+
 
   //  if(SwitchKinematic2D != K2D_METHOD_KIN)
   //  {

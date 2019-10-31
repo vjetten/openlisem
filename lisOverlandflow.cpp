@@ -110,8 +110,10 @@ void TWorld::ToFlood()//int thread)
 
             WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
-            WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+//            WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
             //qDebug() << MB << "tflood" << r << c << dwh;
+            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+
 
             if(SwitchErosion)
             {
@@ -210,21 +212,26 @@ void TWorld::ToChannel()//int thread)
             }
             // no surface inflow when culverts and bridges
 
-            RunoffVolinToChannel->Drcr  += fractiontochannel*Volume;
+            double dvol = fractiontochannel*Volume;
+            double dwh = fractiontochannel*WHrunoff->Drcr;
+
+            RunoffVolinToChannel->Drcr  += dvol;
             // water diverted to the channel
-            WHrunoff->Drcr *= (1-fractiontochannel);
-            WHroad->Drcr = WHrunoff->Drcr;
-            WH->Drcr = WHrunoff->Drcr + WHstore->Drcr;
-            WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
+            WHrunoff->Drcr -= dwh ;
+            WHroad->Drcr -= dwh;
+            WH->Drcr -= dwh;
+            //WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
+            WaterVolall->Drcr = WHrunoff->Drcr*ChannelAdj->Drcr*DX->Drcr + DX->Drcr*WHstore->Drcr*SoilWidthDX->Drcr;
 
             ChannelWaterHeightFromVolumeNT();
             // add tochannel to volume and recalc channelwh
 
             if (SwitchErosion)
             {
-                ChannelSSSed->Drcr  += fractiontochannel*Sed->Drcr;
+                double dsed = fractiontochannel*Sed->Drcr;
+                ChannelSSSed->Drcr  += dsed;
                 //sediment diverted to the channel
-                Sed->Drcr = Sed->Drcr * (1 - fractiontochannel);
+                Sed->Drcr -= dsed;
 
                 Conc->Drcr = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, Sed->Drcr);
                 // adjust sediment in suspension
@@ -241,8 +248,8 @@ void TWorld::ToChannel()//int thread)
                     }
                 }
 
-                RiverSedimentLayerDepth(rr,cr);
-                RiverSedimentMaxC(rr,cr);
+               // RiverSedimentLayerDepth(rr,cr);
+                //RiverSedimentMaxC(rr,cr);
 
             }
         }

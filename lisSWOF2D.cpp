@@ -1111,8 +1111,8 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
 
     //sediment
     //only when sediment is modelled
-    if (SwitchErosion)
-        SWOFSediment(thread,FloodDT,dt1,h,u,v );
+  //  if (SwitchErosion)
+  //      SWOFSediment(thread,FloodDT,dt1,h,u,v );
 
     if (!SwitchHeun)
     {

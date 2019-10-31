@@ -207,7 +207,8 @@ void lisemqt::worldShow()
 
     showHouseMap(); // show building structures map
 
-    showFlowBarriersMap();
+    //showFlowBarriersMap();
+    showImageMap();
 
     startplot = false;
 

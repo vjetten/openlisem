@@ -339,7 +339,7 @@ cTMap
 *hmxInit,                    //!<
 *hmxflood,
 *FloodDomain,                //!<
-*Barriers,                    //!<
+*Buffers,                    //!<
 *ChannelMaxQ,                //!<
 //*ChannelLevee,                //!<
 *FloodWaterVol,                //!<
@@ -438,6 +438,7 @@ cTMap
 *TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
 *TileDX,                     //!< cell length in tile drain, dx/cos angle
 *TileV,                      //!< velocity in tile drain m/s
+*TileQmax,                   //!< max Q tile drain m3/s
 
 *TotalDetMap,                //!<
 *TotalDepMap,                //!<

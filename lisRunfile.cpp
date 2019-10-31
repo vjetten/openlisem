@@ -197,7 +197,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
-        if (p1.compare("Advanced sediment configuration")==0) SwitchAdvancedSed = iii;
+        if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
         if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
@@ -221,6 +221,7 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Include flow barriers")==0)          SwitchFlowBarriers = iii == 1;
         if (p1.compare("Flow barrier table filename")==0)    FlowBarriersFileName = p;
+        if (p1.compare("Include buffers")==0)          SwitchBuffers = iii == 1;
 
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
         if (p1.compare("Include compacted")==0)              SwitchInfilCompact =     iii == 1;
@@ -281,8 +282,23 @@ void TWorld::ParseRunfileData(void)
         }
         if (p1.compare("KE time based")==0)   SwitchKETimebased = iii == 1;
 
-        if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(";");
+  //      if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(";");
 //        // outputcheck is a string with 0,1,0,1,... etc
+
+        if (p1.compare("OutRunoff")==0)         SwitchOutrunoff = iii == 1;
+        if (p1.compare("OutWH")==0)             SwitchOutwh = iii == 1;
+        if (p1.compare("OutV")==0)              SwitchOutvelo = iii == 1;
+        if (p1.compare("OutInterception-")==0)  SwitchOutInt = iii == 1;
+        if (p1.compare("OutSurfStor")==0)       SwitchOutss = iii == 1;
+        if (p1.compare("OutInf")==0)            SwitchOutinf = iii == 1;
+        if (p1.compare("OutTileDrain")==0)      SwitchOutTiledrain = iii == 1;
+        if (p1.compare("OutTileVolume")==0)     SwitchOutTileVol = iii == 1;
+        if (p1.compare("OutDet")==0)      SwitchOutDet = iii == 1;
+        if (p1.compare("OutDep")==0)      SwitchOutDep = iii == 1;
+        if (p1.compare("OutTC")==0)        SwitchOutTC = iii == 1;
+        if (p1.compare("OutConc")==0)    SwitchOutConc = iii == 1;
+        if (p1.compare("OutSed")==0)      SwitchOutSed = iii == 1;
+        if (p1.compare("OutSL")==0)        SwitchOutSL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 
@@ -316,12 +332,7 @@ void TWorld::ParseRunfileData(void)
     SwitchUse2Layer = SwitchAdvancedSed;
     SwitchUseGrainSizeDistribution = !SwitchUse2Layer;
     SwitchUseGrainSizeDistribution = false; // FOR NOW
-
-
-    // fill up outputcheck for older runfiles
-    if (outputcheck.count() < 20)
-        for (int k = outputcheck.count(); k < 20; k++)
-            outputcheck << "0";
+    qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
 
     SwitchChannelFlood = true; // always true
     if (!SwitchIncludeChannel)
@@ -434,28 +445,7 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Flood start time")==0)
                 floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
         }
-        /*
-        // output map timeseries, standard names, to avoid unreadable pcraster names
-        if (p1.compare("OUTRUNOFF")==0)  Outrunoff = GetName(p);
-        if (p1.compare("OUTCONC"  )==0)  Outconc   = GetName(p);
-        if (p1.compare("OUTWH"    )==0)  Outwh     = GetName(p);
-        if (p1.compare("OUTRWH"   )==0)  Outrwh    = GetName(p);
-        if (p1.compare("OUTINT"   )==0)  OutInt  = GetName(p);
-        if (p1.compare("OUTTC"    )==0)  Outtc     = GetName(p);
-        if (p1.compare("OUTEROS"  )==0)  Outeros   = GetName(p);
-        if (p1.compare("OUTDEPO"  )==0)  Outdepo   = GetName(p);
-        if (p1.compare("OUTVELO"  )==0)  Outvelo   = GetName(p);
-        if (p1.compare("OUTINF"   )==0)  Outinf    = GetName(p);
-        if (p1.compare("OUTSS"    )==0)  Outss     = GetName(p);
-        if (p1.compare("OUTCHVOL" )==0)  Outchvol  = GetName(p);
-        if (p1.compare("OUTTILED" )==0)  OutTiledrain  = GetName(p);
-        if (p1.compare("OUTHMX"   )==0)  OutHmx  = GetName(p);
-        if (p1.compare("OUTQF"    )==0)  OutQf  = GetName(p);
-        if (p1.compare("OUTVF"    )==0)  OutVf  = GetName(p);
-        if (p1.compare("OUTHMXWH" )==0)  OutHmxWH  = GetName(p);
-        if (p1.compare("OUTSOILLOSS" )==0)  OutSL  = GetName(p);
-        if (p1.compare("OUTSED" )==0)    OutSed  = GetName(p);               
-        */
+
     }
 
     if(SwitchSnowmelt) {
@@ -476,6 +466,8 @@ void TWorld::ParseRunfileData(void)
     Outss     = "sstor";
     Outchvol  = "";
     OutTiledrain = "Qtile";
+    OutTileVol = "Voltile";
+    OutTileV = "Vtile";
     OutHmx  = "";
     OutQf  = "Qf";
     OutVf  = "";

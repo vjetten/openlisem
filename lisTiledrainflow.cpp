@@ -149,6 +149,7 @@ void TWorld::TileFlow(void)
 
 //      TileWaterVol->Drc = TileArea * TileDX->Drc;
       // total water vol after kin wave in m3, going to the next timestep
+       TileQmax->Drc = std::max(TileQn->Drc, TileQmax->Drc);
    }
 
 }
@@ -159,9 +160,7 @@ void TWorld::TileFlow(void)
 // Neweton iteration to derive drain water height
 void TWorld::CalcVelDischDrain()
 {
-
-    FOR_ROW_COL_MV_TILE
-    {
+    FOR_ROW_COL_MV_TILE {
 
         double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
         double rr = TileDiameter->Drc/2;
@@ -201,10 +200,9 @@ void TWorld::StormDrainFlow(void)
 {
    if (!SwitchIncludeStormDrains)
       return;
-   FOR_ROW_COL_MV_TILE
-   {
-      TileWaterVol->Drc += RunoffVolinToTile->Drc;
-      // add from the surface
+   FOR_ROW_COL_MV {
+         TileWaterVol->Drc += RunoffVolinToTile->Drc;
+      // add water from the surface
    }
 
    CalcVelDischDrain();
