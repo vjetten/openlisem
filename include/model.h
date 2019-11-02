@@ -673,24 +673,10 @@ public:
 //    void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
-    double RiverSedimentTCBL(int r,int c, int d);
-    double RiverSedimentTCSS(int r,int c, int d);
-    double calcTCSuspended(int r,int c, int _d, int method,
-                           cTMap *_u,
-                           cTMap *_v,
-                           cTMap *_h,
-                           cTMap *_w,
-                           cTMap *_hbl,
-                           cTMap *_n,
-                           cTMap *_grad);
-    double calcTCBedload(int r,int c, int _d, int method,
-                         cTMap *_u,
-                         cTMap *_v,
-                         cTMap *_h,
-                         cTMap *_w,
-                         cTMap *_hbl,
-                         cTMap *_n,
-                         cTMap *_grad);
+    double RiverSedimentTCBL(int r,int c, int d, double V, double WH, double WHb, double w);
+    double RiverSedimentTCSS(int r,int c, int d, double V, double WH, double WHs, double w);
+    double calcTCSuspended(int r,int c, int _d, int method, double U, int type);
+    double calcTCBedload(int r,int c, int _d, int method, double U, int type);
     void RiverSedimentMaxC(int r, int c);
 
 

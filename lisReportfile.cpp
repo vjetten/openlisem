@@ -276,6 +276,7 @@ void TWorld::OutputUI(void)
         if(SwitchIncludeChannel)
         {
             calcMap(*COMBO_TC, *ChannelTC, ADD);  // sum of bl and ss
+            copy(*COMBO_TC, *ChannelTC);
         }
     }
 

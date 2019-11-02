@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 //    QFont f("MS Shell Dlg 2", 8);
  //   qApp->setFont( f);
 //app.setStyle(QString("cleanlooks"));
-app.setStyle(QStyleFactory::create("Fusion"));
+    app.setStyle(QStyleFactory::create("Fusion"));
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file

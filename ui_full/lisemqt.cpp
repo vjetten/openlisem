@@ -493,24 +493,24 @@ void lisemqt::setSedimentText(int i, int j, int k)
     // i = TC, j= river or surface, k = BL or SS
     if (j == 0) {
         if ( k == 0) {
-            if (i==1) label_RTBL->setText("Bedload TC Van Rijn (simplified), 1984");
-            if (i==2) label_RTBL->setText("Bedload TC Van Rijn (full), 1980");
+            if (i==1) label_RTBL->setText("Bedload TC Van Rijn (simplified)");
+            if (i==2) label_RTBL->setText("Bedload TC Van Rijn (full)");
             if (i==3) label_RTBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_RTSS->setText("Suspended TC Govers, 1980");
-            if (i==1) label_RTSS->setText("Suspended TC Van Rijn (simplified), 1984");
-            if (i==2) label_RTSS->setText("Suspended TC Van Rijn (full), 1980");
+            if (i==0) label_RTSS->setText("Suspended TC Govers");
+            if (i==1) label_RTSS->setText("Suspended TC Van Rijn (simplified)");
+            if (i==2) label_RTSS->setText("Suspended TC Van Rijn (full)");
             if (i==3) label_RTSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
         }
     } else {
         if ( k == 0) {
-            if (i==1) label_STBL->setText("Bedload TC Van Rijn (simplified), 1984");
-            if (i==2) label_STBL->setText("Bedload TC Van Rijn (full), 1980");
+            if (i==1) label_STBL->setText("Bedload TC Van Rijn (simplified)");
+            if (i==2) label_STBL->setText("Bedload TC Van Rijn (full)");
             if (i==3) label_STBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
             if (i==0) label_STSS->setText("Suspended TC Govers, 1980");
-            if (i==1) label_STSS->setText("Suspended TC Van Rijn (simplified), 1984");
-            if (i==2) label_STSS->setText("Suspended TC Van Rijn (full), 1980");
+            if (i==1) label_STSS->setText("Suspended TC Van Rijn (simplified)");
+            if (i==2) label_STSS->setText("Suspended TC Van Rijn (full)");
             if (i==3) label_STSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
         }
     }

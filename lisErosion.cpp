@@ -336,8 +336,8 @@ double TWorld::OFTC(int r, int c, int d)
     //use Govers transport capacity equation
     if(OF_Method == OFGOVERS)
     {
-        CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-        DG->Drc = pow((D50->Drc+5)/300, 0.25);
+        //CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
+        //DG->Drc = pow((D50->Drc+5)/300, 0.25);
         //### Calc transport capacity
         double omega = 0;
 
@@ -538,10 +538,16 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
  */
 double TWorld::GetSV(double d)
 {
+    double dm = d / 1e6;
+    double ds = dm * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+    return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
+    // zhiyao et al, 2008
+
     //Stokes range settling velocity
+    //Stokes
     if(d < 100)
     {
-        return 2*(2650-1000)*9.80*pow(d/2000000.0, 2)/(9*0.001);
+        return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
 
     //Settling velocity by Zanke (1977)
     }else
@@ -731,12 +737,10 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     {
         if(channel)
         {
-       //     qDebug() << "hoi";
             return detachment * ChannelY->Drc;
         }else
         {
-            detachment *= Y->Drc;
-            return detachment;
+            return detachment *= Y->Drc;
         }
     }
 
@@ -1431,9 +1435,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        //get transport capacity for bed/suspended load for a specific cell and grain size class
      //  TBLTCFlood->Drc = 0;
      //  if (SwitchUse2Layer)
-       TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d);
-       TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d);
-     //  qDebug() << r << c << TSSTCFlood->Drc;
+      // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
+      // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
+       TBLTCFlood->Drc = calcTCBedload(r, c, d, FS_BL_Method, ChannelV->Drc, 0);
+       TSSTCFlood->Drc = calcTCSuspended(r, c, d, FS_SS_Method, ChannelV->Drc, 0);
     }
 
    //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
@@ -1595,7 +1600,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           TSSFlood->Drc += deposition;
           ChannelDep->Drc += deposition;
           ChannelDetFlow->Drc += detachment;
-//qDebug() << TransportFactor << detachment;
+
           if(SwitchUseMaterialDepth)
           {
               RStorageDep->Drc += -deposition;
@@ -1618,10 +1623,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
               minTC = std::min(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
 
               //### detachment
-              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc *ChannelFlowWidth->Drc;
+              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
               TransportFactor = std::min(TransportFactor, bldischarge*_dt);
               TransportFactor = bldischarge*_dt;
-              // detachment can only come from soil, not roads (so do not use flowwidth)
+
               // units s * m/s * m * m = m3
               detachment =  TW->Drc *  maxTC * TransportFactor;
               // unit = kg/m3 * m3 = kg
@@ -1635,8 +1640,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
               // limit detachment to what BLflood can carry
 
               //### deposition
-              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol;
-
+              if (TSSDepthFlood->Drc > MIN_HEIGHT)
+                  TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthFlood
+              else
+                  TransportFactor =  1.0 * blwatervol;
               // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
               deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
               // cannot have more depo than sediment present
@@ -1652,11 +1659,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
               TBLFlood->Drc += detachment; //ChannelBLSed
               TBLFlood->Drc += deposition;
-
               ChannelDep->Drc += deposition;
               ChannelDetFlow->Drc += detachment;
 
-              TBLCFlood->Drc = MaxConcentration(blwatervol, TBLFlood->Drc);
+            //  TBLCFlood->Drc = MaxConcentration(blwatervol, TBLFlood->Drc);
               // last recalc for diffusion
            }
        }
@@ -2033,281 +2039,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
 }
 //---------------------------------------------------------------------------
 /**
- * @fn void TWorld::RiverSedimentLayerDepth(int r , int c)
- * @brief Calculates River bed load transport capacity
- *
- * Calculates river bed load sediment transport capacity.
- * Based on either Govers (for single layer transport),
- * Van Rijn (simplifie or full) or Wu wang & Jia (for multiclass sediment).
- *
- * @param r : The row nr of the cell
- * @param c : The column nr of the cell
- * @param _d : The grain class (only needed when grain size distribution is used)
- * @see R_BL_Method
- */
-
-//#define FSGOVERS 0
-//#define FSRIJN 1
-//#define FSRIJNFULL 2
-//#define FSWUWANGJIA 3
-double TWorld::RiverSedimentTCBL(int r,int c,int _d)
-{
-    //when water height is insignificant, transport capacity is zero
-    //this is necessary since some of the used equations have strange behaviour
-    //for these water heights or velocities. (h and v outside of valid range)
-    if(ChannelWH->Drc < MIN_HEIGHT || ChannelBLDepth->Drc < MIN_HEIGHT) {
-        return 0;
-    }
-    double v = ChannelV->Drc;
-    if(v < MIN_FLUX) {
-        return 0;
-    }
-
-    if(R_BL_Method == FSRIJN)
-    {
-        //Van rijn simplified (1984)
-        double ps = 2400.0;
-        double pw = 1000.0;
-        double ucr;
-        double d50m = (D50->Drc/1000000.0);
-        double d90m = (D90->Drc/1000000.0);
-        if( d50m < 0.005)
-        {
-            ucr  = 0.19 * pow(d50m, 0.1) * log10(4.0* ChannelWH->Drc/d90m);
-        }else
-        {
-            ucr  = 0.19 * pow(d50m, 0.6) * log10(4.0* ChannelWH->Drc/d90m);
-        }
-        double me = std::max((v - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
-        double qs = 0.005 * ps*v *ChannelWH->Drc * pow(d50m/ChannelWH->Drc,1.2) * pow(me, 2.4);
-        double tc =  qs/ (v * ChannelBLDepth->Drc );
-
-        return std::max(std::min( tc, MAXCONCBL ),0.0);
-    } else
-        if(R_BL_Method == FSRIJNFULL)
-        {
-            //van Rijn full (1980)
-            double ps = 2400.0;
-            double pw = 1000.0;
-            double kinvis = 1.0;
-            double d50m = (D50->Drc/1000000.0);
-            double d90m = (D90->Drc/1000000.0);
-
-            double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
-            double dh = ChannelWH->Drc;
-            double chevey = 18 * log(4 * dh/d90m);
-            double us = sqrt(GRAV) * v/chevey;
-            double uscr = 0.055;
-
-            if(ds <150 && !(ds < 20))
-                uscr = 0.013*pow(ds,0.29);
-            if(ds < 20 && !(ds < 10))
-                uscr = 0.04*pow(ds,-0.10);
-            if(ds <10 && !(ds < 4))
-                uscr = 0.14*pow(ds,-0.64);
-            if(ds <4)
-                uscr = 0.24*pow(ds,-1);
-
-            uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
-            double T = std::max((us*us/(uscr*uscr)) - 1,0.0);
-            double qs = 0.053 * (pow(T,2.1)/pow(ds,0.3)) * sqrt((ps/pw -1)*GRAV)*d50m*sqrt(d50m);
-            double tc = 0.1 *  ps * ChannelWidth->Drc * qs/ (v * ChannelBLDepth->Drc*ChannelWidth->Drc);
-
-            return std::max(std::min(tc,MAXCONCBL ),0.0);
-        }else
-            if(R_BL_Method == FSWUWANGJIABL)
-            {
-                if(RBLD_D.at(_d)->Drc < 0.04)
-                {
-                    return 0;
-                }
-                double slope = ChannelGrad->Drc;
-                double ps = 2400.0;
-                double pw = 1000.0;
-                double h = ChannelWH->Drc;
-                double n = std::max(ChannelN->Drc,0.001);
-                double na = pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0;
-                double phk = 0;
-                double pek = 0;
-                FOR_GRAIN_CLASSES
-                {
-                    phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
-                    pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
-                }
-                double ppk = 1;
-                ppk = pow(phk/pek,0.6);
-                if(pek == 0 )
-                {
-                    return 0;
-                }
-
-                double dh = (ChannelWidth->Drc *h)/(ChannelWidth->Drc + 2* h);
-                double css = 0.03* (ps - pw) * (graindiameters.at(_d)/1000000.0) * ppk;
-
-                double qs = 0.0053 *pow(std::max(pow(na/n,1.5)*((pw * dh * 9.81 * 0.1 * slope/css)) - 1.0, 0.0),2.2);
-                qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(graindiameters.at(_d)/1000000.0,3.0));
-
-                double tc = ps * ChannelWidth->Drc * qs/ (v * ChannelBLDepth->Drc*ChannelWidth->Drc);
-
-                return std::max(std::min(tc,MAXCONCBL ),0.0);
-
-            }else
-            {
-                return 0;
-            }
-}
-//---------------------------------------------------------------------------
-/**
- * @fn double TWorld::RiverSedimentTCSS(int r,int c, int _d)
- * @brief Calculates River suspended layer transport capacity
- *
- * Calculates suspended load sediment transport capacity.
- * Based on either, Van Rijn (simplified or full)
- * or Wu wang & Jia (for multiclass sediment).
- *
- * @param r : The row nr
- * @param c : The column nr of the cell
- * @param _d : The grain class (only needed when grain size distribution is used)
- * @see R_BL_Method
- */
-double TWorld::RiverSedimentTCSS(int r, int c, int _d)
-{
-    //when water height is insignificant, transport capacity is zero
-    //this is necessary since some of the used equations have strange behaviour
-    //for these water heights or velocities. (h and v outside of valid range)
-    if(ChannelWH->Drc < MIN_HEIGHT || ChannelSSDepth->Drc < MIN_HEIGHT)
-        return 0;
-
-    if(ChannelV->Drc < MIN_FLUX)
-        return 0;
-
-    double v = ChannelV->Drc;
-    double d50m = (D50->Drc/1000000.0);
-    double d90m = (D90->Drc/1000000.0);
-    double ps = 2400.0;
-    double pw = 1000.0;
-    double tc = 0;
-
-    if(FS_SS_Method == FHAIRSINEROSE)
-    {
-        double om =  v*Grad->Drc;
-        double omcr = 0.004;
-        tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) *
-                ( std::max(0.0, (om - omcr))/ChannelWH->Drc) ;
-    } else
-
-    if(R_SS_Method == FSGOVERS)
-    {
-        //### Calc transport capacity
-        double omega = 100.0*v*ChannelGrad->Drc; //in cm/s
-        // V in cm/s in this formula assuming grad is SINE
-        double omegacrit = 0.4;
-        // critical unit streampower in cm/s
-        tc = 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc);
-       // qDebug() << tc << CG->Drc << DG->Drc;
-
-    }else
-        if(R_SS_Method == FSRIJN)
-    {
-        //Van rijn simplified (1984)
-        double ucr;
-        double mu = 1.0;
-        if( d50m < 0.0005)
-        {
-            ucr  = 0.19 * pow(d50m, 0.1) * log10(4.0* ChannelSSDepth->Drc/d90m);
-        }else
-        {
-            ucr  = 8.5 * pow(d50m, 0.6) * log10(4.0* ChannelSSDepth->Drc/d90m);
-        }
-        double me = std::max((v - ucr)/sqrt(GRAV * d50m * (ps/pw - 1.0)),0.0);
-        double ds = d50m * GRAV * ((ps/pw)-1)/(mu*mu);
-        double qs = 0.008 * ChannelWH->Drc * ps*v * d50m  * pow(ds, -0.6) * pow(me, 2.4);
-         tc =  qs/ (v * ChannelSSDepth->Drc);
-
-    }else if(R_SS_Method == FSRIJNFULL)
-    {
-        //van Rijn full (1980)
-        double kinvis = 1.0;
-        double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
-        double dh = ChannelWH->Drc;
-        double chevey = 18 * log10(4 * dh/d90m);
-        double a = 0.1;
-
-        double us = v* sqrt(GRAV)/chevey;
-        double uscr = 0.055;
-
-        if(ds <150 && !(ds < 20))
-            uscr = 0.013*pow(ds,0.29);
-        if(ds < 20 && !(ds < 10))
-            uscr = 0.04*pow(ds,-0.10);
-        if(ds <10 && !(ds < 4))
-            uscr = 0.14*pow(ds,-0.64);
-        if(ds <4)
-            uscr = 0.24*pow(ds,-1);
-
-        uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
-        double T = std::max((us*us/(uscr*uscr) - 1),0.0);
-
-        double bsv = sqrt(GRAV * ChannelWH->Drc *std::max(ChannelGrad->Drc,0.05));
-        //VJ??? 5% min slope, is dat nodig?
-        double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3);
-
-        //double dss = 1 + 0.011*(1.8 - 1)*(T - 25);
-        double sv = 10 * (kinvis/ds) *( sqrt(1 + (ps/pw - 1) * GRAV * d50m*d50m*d50m) - 1);
-
-        double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
-        double powcb = 0.1; // was 1.0
-//        if(ChannelSSConc->Drc > 0) //ChannelBLConc->Drc > 0 ??
-//        {
-//            powcb = 0.1;//pow(ca/BLCFlood->Drc,0.4);
-//        }
-        double phi = 2.5 * pow(sv/bsv,0.8) * powcb;
-        double Z = sv/(beta*bsv*0.40);
-        double Zs = Z + phi;
-        double ad = 0.1;
-        double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
-        double qs = F * v * ChannelWH->Drc * ca;
-        tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
-
-    }else if(R_SS_Method == FSWUWANGJIA)
-    {
-        if(RSSD_D.at(_d)->Drc < 0.04  )
-        {
-            return 0;
-        }
-        double slope = ChannelGrad->Drc;
-        double h = ChannelWH->Drc;
-        double phk = 0;
-        double pek = 0;
-        double sv = settlingvelocities.at(_d);
-        double gd = graindiameters.at(_d)/1000000.0;
-        FOR_GRAIN_CLASSES
-        {
-            phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
-            pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
-        }
-        double ppk = 1;
-        ppk = pow(phk/pek,0.6);
-        if(pek == 0 )
-        {
-            return 0;
-        }
-
-        //double dh = (ChannelWidth->Drc *h)/(ChannelWidth->Drc + 2.0* h);
-        double css = 0.03* (ps - pw) * (gd) * ppk;
-
-        double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h * 9.81 * slope /css) - 1.0, 0.0)* v/(sqrt(sv)),2.2);
-        qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
-
-        tc = ps * ChannelWidth->Drc * qs/ (v * ChannelSSDepth->Drc * ChannelWidth->Drc);
-
-    }
-
-    return std::max(std::min(tc,MAXCONC ),0.0);
-}
-//--------------------------------------------------------------------------
-/**
- * @fn double TWorld::calcTCSuspended(int r,int c, int _d, int method, cTMap *_h, cTMap *_w, cTMap *_grad, cTMap *_v)
+ * @fn double TWorld::calcTCSuspended(int r,int c, int _d, int method,double U, int type)
  * @brief Calculates suspended layer transport capacity
  *
  * Calculates suspended load sediment transport capacity.
@@ -2316,99 +2048,125 @@ double TWorld::RiverSedimentTCSS(int r, int c, int _d)
  *
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
- * @param cTMaps : flow parameters, can be channel of overland or flood
+ * @param U : velicty can be channel of overland or flood
+ * @param type : channel (0) or flood (1) or overland (2)
  */
-double TWorld::calcTCSuspended(int r,int c, int _d, int method,
-                               cTMap *_U,
-                               cTMap *_V,
-                               cTMap *_h,
-                               cTMap *_w,
-                               cTMap *_hss,
-                               cTMap *_n,
-                               cTMap *_grad)
+double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int type)
 {
+    double h, hs, n, S, w;
+
+    if (type == 0) {
+        h = ChannelWH->Drc;
+        hs = ChannelSSDepth->Drc;
+        S = ChannelGrad->Drc;
+    } else
+    if (type == 1) {
+        h = hmx->Drc;
+        hs = SSDepthFlood->Drc;
+        S = Grad->Drc;
+    } else
+        if (type == 2) {
+            h = WH->Drc;
+            S = Grad->Drc;
+        }
 
     //when water height is insignificant, transport capacity is zero
     //this is necessary since some of the used equations have strange behaviour
     //for these water heights or velocities. (h and v outside of valid range)
-    double _v = qSqrt(_U->Drc*_U->Drc + _V->Drc*_V->Drc);
-
-    if(_h->Drc < MIN_HEIGHT || _hss->Drc < MIN_HEIGHT)
+    if(h < MIN_HEIGHT || hs < MIN_HEIGHT)
         return 0;
-    if(_v < MIN_FLUX)
+    if(U < MIN_FLUX)
         return 0;
 
-    double tc = 0;
+    double ps = 2650.0; //2400.0;
+    double pw = 1000.0;
     double d50m = (D50->Drc/1000000.0);
     double d90m = (D90->Drc/1000000.0);
-    double ps = 2400.0;
-    double pw = 1000.0;
+    double tc = 0;
 
+    if(method == FHAIRSINEROSE)
+    {
+        double om =  U*S;
+        double omcr = 0.004;
+        tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) *
+                ( std::max(0.0, (om - omcr))/h) ;
+    } else
     if(method == FSGOVERS)
     {
         //### Calc transport capacity
-        double uc = 100.0*_v*_grad->Drc; //in cm/s
-        //BUG channelgrad missing!!!
+        double uc = 100.0*U*S; //in cm/s
         // V in cm/s in this formula assuming grad is SINE
         double ucr = 0.4;
         // critical unit streampower in cm/s
-        tc = 2650 * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc);
-        // qDebug() << tc << CG->Drc << DG->Drc;
+        tc = ps * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc);
     }else
         if(method == FSRIJN)
     {
-        //Van rijn simplified (1984)
+         //https://www.leovanrijn-sediment.com/papers/Formulaesandtransport.pdf
         double ucr;
-        double mu = 1.0;
+      //  double kinvis = 1e-6;
         if( d50m < 0.0005)
-            ucr = 0.19 * pow(d50m, 0.1) * log10(4.0* _hss->Drc/d90m);
+            ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
         else
-            ucr = 8.5  * pow(d50m, 0.6) * log10(4.0* _hss->Drc/d90m);
+            ucr = 8.5  * pow(d50m, 0.6) * log10(2.0* h/d50m);
 
-        double me = std::max((_v - ucr)/sqrt(GRAV * d50m * (ps/pw - 1)),0.0);
-        double ds = d50m * GRAV * ((ps/pw)-1)/(mu*mu);
-        double qs = _h->Drc * 0.008 * ps*_v * d50m * pow(me, 2.4) * pow(ds, -0.6);
+        double me = std::max((U - ucr)/sqrt(GRAV * d50m * (ps/pw - 1)),0.0); //p15
+        double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); // let op: D* = 25296*D50m! R2 = 1
 
-        tc =  qs/ (_v * _hss->Drc);
+//        double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
+        double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
+        // van rijn 2007?, p 17, eq 6.4
 
-        return std::max(std::min(tc,MAXCONC),0.0);
+        tc =  qs/ (U * h); // kg/m3   => WH or WHs
 
     }else
             if(R_SS_Method == FSRIJNFULL)
     {
-        //van Rijn full (1980)
-        double kinvis = 1.0;
-        double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
-        double chevey = 18 * log10(4 * _h->Drc/d90m);
-        double a = 0.1;
+                /*
+                 * D50		D*
+                10	0.00001	0.25
+                30	0.00003	0.76
+                50	0.00005	1.26
+                100	0.0001	2.53
+                300	0.0003	7.59
+                500	0.0005	12.65
+                1000	0.001	25.30
+                2000	0.002	50.59
+                dit is lineair bij kinvis = 1e-6
+                */
+        //van Rijn full (1984) following page 1632
+        double kinvis = 1e-6;
+        double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+        double chezy = 18 * log10(4 * h/d90m);
+        double uc = U * sqrt(GRAV)/chezy;
 
-        double uc = _v* sqrt(GRAV)/chevey;
+        //shields functions
         double uscr = 0.055;
-
-        if(ds <150 && !(ds < 20))
+        if(ds <150 && ds >= 20)
             uscr = 0.013*pow(ds,0.29);
-        if(ds < 20 && !(ds < 10))
+        if(ds < 20 && ds >= 10)
             uscr = 0.04*pow(ds,-0.10);
-        if(ds <10 && !(ds < 4))
+        if(ds < 10 && ds >= 4)
             uscr = 0.14*pow(ds,-0.64);
         if(ds <4)
             uscr = 0.24*pow(ds,-1);
-
         uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
 
-        double T = std::max(((uc*uc)/(uscr*uscr) - 1),0.0);
-        double bsv = sqrt(GRAV * _h->Drc *std::max(_grad->Drc,0.05));
-        double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3);
-        double sv = 10 * (kinvis/ds) *( sqrt(1 + (ps/pw - 1) * GRAV * d50m*d50m*d50m) - 1);
+        double T = std::max(((uc*uc)/(uscr*uscr) - 1),0.0);  //transport stage parameter
+        double bsv = sqrt(GRAV * h * S); // bed shear velocity
+        double a = 0.1;  // half of the bedform height in m
+        double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3); //eq 38 reference concentration
+        double sv = GetSV(D50->Drc); //fall velocity
+        
         double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
-        double powcb = 0.1; // was 1.0
+        double powcb = 0.75; // not clear, between 0.4 and 1
         double phi = 2.5 * pow(sv/bsv,0.8) * powcb;
-        double Z = sv/(beta*bsv*0.40);
+        double Z = sv/(beta*bsv*0.41); //suspension parameter, to do with upward turbulent versus gravity
         double Zs = Z + phi;
-        double ad = 0.1;
+        double ad = 0.1; // else F is not valid!
         double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
-        double qs = F * _v* _h->Drc * ca;
-        tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
+        double qs =  F * U * h * ca;
+        tc = ps * qs/ (U * h);
 
     }else if(R_SS_Method == FSWUWANGJIA)
     {
@@ -2430,17 +2188,17 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
 
         double css = 0.03* (ps - pw) * (gd) * ppk;
 
-        double qs = 0.0000262 *pow(std::max(( pw * 0.01 * _h->Drc * 9.81 * _grad->Drc /css) - 1.0, 0.0)* _v/(sqrt(sv)),2.2);
-        qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(gd,3.0));
+        double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h * GRAV * S /css) - 1.0, 0.0)* U/(sqrt(sv)),2.2);
+        qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(gd,3.0));
 
-        tc = ps * _w->Drc * qs/ (_v * _hss->Drc * _w->Drc);
+        tc = ps * qs/ (U * h);
 
     }
     return std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**
- * @fn double TWorld::calcTCBedload(int r,int c, int _d, int method, cTMap *_h, cTMap *_w, cTMap *_grad, cTMap *_v)
+ * @fn double TWorld::calcTCBedload(int r,int c, int _d, int method, bool river)
  * @brief Calculates suspended layer transport capacity
  *
  * Calculates suspended load sediment transport capacity.
@@ -2449,27 +2207,33 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method,
  *
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
- * @param cTMaps : flow parameters, can be channel of overland or flood
  */
-double TWorld::calcTCBedload(int r,int c, int _d, int method,
-                             cTMap *_U,
-                             cTMap *_V,
-                             cTMap *_h,
-                             cTMap *_w,
-                             cTMap *_hbl,
-                             cTMap *_n,
-                             cTMap *_grad)
+double TWorld::calcTCBedload(int r,int c, int _d, int method, double U, int type)
 {
+    double WH, WHb, n, S, w;
+
+    if (type == 0) {
+        WH = ChannelWH->Drc;
+        WHb = ChannelBLDepth->Drc;
+        n = std::max(0.001, ChannelN->Drc);
+        S = ChannelGrad->Drc;
+    } else
+    if (type == 1) {
+        WH = hmx->Drc;
+        WHb = BLDepthFlood->Drc;
+        n = std::max(0.001, N->Drc);
+        S = Grad->Drc;
+    }
+
     //when water height is insignificant, transport capacity is zero
     //this is necessary since some of the used equations have strange behaviour
     //for these water heights or velocities. (h and v outside of valid range)
-    double _v = qSqrt(_U->Drc*_U->Drc + _V->Drc*_V->Drc);
+    if(WH < MIN_HEIGHT || WHb < MIN_HEIGHT)
+        return 0;
+    if(U < MIN_FLUX)
+        return 0;
 
-    if(_h->Drc < MIN_HEIGHT || _hbl->Drc < MIN_HEIGHT)
-        return 0;
-    if(_v < MIN_FLUX)
-        return 0;
-    double ps = 2400.0;
+    double ps = 2650.0; //2400.0;
     double pw = 1000.0;
     double d50m = (D50->Drc/1000000.0);
     double d90m = (D90->Drc/1000000.0);
@@ -2477,47 +2241,49 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
 
     if(method == FSRIJN)
     {
-        //Van rijn simplified (1984)
+        //Van rijn simplified (2007?)
         double ucr;
+        if( d50m < 0.0005)
+            ucr  = 0.19 * pow(d50m, 0.1) * log10(4.0*WH/d90m);
+        else
+            ucr  = 8.5 * pow(d50m, 0.6) * log10(4.0*WH/d90m);
 
-        if( d50m < 0.005)
-        {
-            ucr  = 0.19 * pow(d50m, 0.1) * log10(4.0* _h->Drc/d90m);
-        }else
-        {
-            ucr  = 0.19 * pow(d50m, 0.6) * log10(4.0* _h->Drc/d90m);
-        }
-        double me = std::max((_v - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
-        double qs = 0.005 * ps * _v *_h->Drc * pow(d50m/_h->Drc,1.2) * pow(me, 2.4);
-        tc =  qs/ (_v * _hbl->Drc );
+        double me = std::max((U - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
+//        double qs = 0.005 * ps * U * WH * pow(d50m/WH,1.2) * pow(me, 2.4);
+        double qs = 0.015 * ps*U*WH * pow(d50m/WH,1.2) * pow(me, 1.5); //eq 6.2
+        // in kg/m/s /(m2/s) = kg/m3
+        tc =  qs/ (U * WHb);
 
     }else if(method == FSRIJNFULL)
     {
-        //van Rijn full (1980)
-        double kinvis = 1.0;
+        //van Rijn full (1984)  see page 1450 1984_JHE_VanRijn_a.pdf
+       // double kinvis = 1e-6;
 
-        double ds = D50->Drc * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
-        double chevey = 18 * log(4 * _h->Drc/d90m);
-        double us = sqrt(GRAV) * _v/chevey;
+        double _dm = d90m; //d50m; interpretation -> assume all bedload particles are d90? Van RIjn deals mostly with sand
+
+        double ds = _dm * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+        double chezy = 18 * log(4 * WH/d90m);  // WH or WHb or radius?
+        double us = sqrt(GRAV) * U/chezy;
+
+        // shield equations, full
         double uscr = 0.055;
-
-        if(ds <150 && !(ds < 20))
+        if(ds < 150 && ds >= 20)
             uscr = 0.013*pow(ds,0.29);
-        if(ds < 20 && !(ds < 10))
+        if(ds < 20 && ds >= 10)
             uscr = 0.04*pow(ds,-0.10);
-        if(ds <10 && !(ds < 4))
+        if(ds < 10 && ds >= 4)
             uscr = 0.14*pow(ds,-0.64);
         if(ds <4)
             uscr = 0.24*pow(ds,-1);
+        uscr = sqrt(uscr * (ps/pw - 1)*GRAV * _dm);  // effective bed shear velocity
 
-        uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
-        double T = std::max((us*us/(uscr*uscr)) - 1,0.0);
-        double qs = 0.053 * (pow(T,2.1)/pow(ds,0.3)) * sqrt((ps/pw -1)*GRAV)*d50m*sqrt(d50m);
-        tc = 0.1 *  ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
+        double T = std::max((us*us)/(uscr*uscr) - 1,0.0); // transport stage parameter
+        double qs = 0.053 * (pow(T,2.1)/pow(ds,0.3)) * sqrt((ps/pw -1)*GRAV)*_dm*sqrt(_dm); // eq 22
+        tc = ps * qs/ (U * WHb);
 
     }else if(method == FSWUWANGJIABL)
     {
-        double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/std::max(_n->Drc,0.001);
+        double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/n;
         double phk = 0;
         double pek = 0;
         FOR_GRAIN_CLASSES
@@ -2527,20 +2293,22 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method,
         }
         double ppk = 1;
         ppk = pow(phk/pek,0.6);
-        if(pek == 0 )
-        {
-            return 0;
-        }
 
-        double dh = (_w->Drc *_h->Drc)/(_w->Drc + 2* _h->Drc);
+        if(pek == 0 )
+            return 0;
+
+        double R = w*WH/(2*WH+w);
         double css = 0.03* (ps - pw) * (graindiameters.at(_d)/1000000.0) * ppk;
 
-        double qs = 0.0053 *pow(std::max(pow(na,1.5)*((pw * dh * 9.81 * 0.1 * _grad->Drc/css)) - 1.0, 0.0),2.2);
-        qs = qs * 1 * sqrt((ps/pw - 1)*9.81*pow(graindiameters.at(_d)/1000000.0,3.0));
+        double qs = 0.0053 *pow(std::max(pow(na,1.5)*((pw * R * GRAV * 0.1 * S/css)) - 1.0, 0.0),2.2);
+        qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(graindiameters.at(_d)/1000000.0,3.0));
 
-        tc = ps * _w->Drc * qs/ (_v * _hbl->Drc*_w->Drc);
+        tc = ps * qs/ (U * WHb);
 
     }
 
     return std::max(std::min(tc,MAXCONCBL),0.0);
 }
+
+
+

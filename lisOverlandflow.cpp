@@ -107,7 +107,6 @@ void TWorld::ToFlood()//int thread)
             hmx->Drc += dwh;// * FlowWidth->Drc/_dx;
             WH->Drc -= dwh;
             WHrunoff->Drc -= dwh;
-
             WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
 //            WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
@@ -133,11 +132,10 @@ void TWorld::ToFlood()//int thread)
 
                 //immediately check for maximum concentration
                 //if not done, too high concentration will show on display, before being deposited
-                double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-                SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
-                SSDepthFlood->Drc += dwh;
+                //double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+              //  SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
                 SWOFSedimentSetConcentration(r,c,hmx);
-//                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
+                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
 
             }
          }

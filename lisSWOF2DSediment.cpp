@@ -653,9 +653,10 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
  *
  * @see FS_BL_Method
  */
+
 double TWorld::SWOFSedimentTCBL(int r, int c, int _d, cTMap * hm, double v)
 {
-
+ /*
     if(hm->Drc < MIN_HEIGHT || BLDepthFlood->Drc < MIN_HEIGHT)
     {
         return 0;
@@ -752,8 +753,9 @@ double TWorld::SWOFSedimentTCBL(int r, int c, int _d, cTMap * hm, double v)
 
         return 0;
     }
-
+*/
 }
+
 //--------------------------------------------------------------------------------------------
 /**
  * @fn double TWorld::SWOFSedimentTCSS(int r, int c, int _d)
@@ -776,7 +778,7 @@ double TWorld::SWOFSedimentTCBL(int r, int c, int _d, cTMap * hm, double v)
  */
 double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
 {
-
+/*
     if(hm->Drc < MIN_HEIGHT || SSDepthFlood->Drc < MIN_HEIGHT)
         return 0;
     if(v < MIN_FLUX)
@@ -908,6 +910,7 @@ double TWorld::SWOFSedimentTCSS(int r, int c, int _d, cTMap * hm,double v)
 
         }
     return std::max(std::min(tc,MAXCONC ),0.0);
+    */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -997,9 +1000,7 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 //TODO: check multiclass for sed detachment
 void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap * v)
 {
-    //first calculate layer depth
     double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-    // gives BLDepthFlood->Drc and SSDepthFlood->Drc
 
     SWOFSedimentLayerDepth(r,c,h->Drc, velocity);
         //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
@@ -1023,8 +1024,10 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             TSSTCFlood = SSTC_D.at(d);
         }
         //calculate tranport capacity for bed load and suspended load
-        TBLTCFlood->Drc = SWOFSedimentTCBL(r,c,d,h,velocity);  // van Rijn etc
-        TSSTCFlood->Drc = SWOFSedimentTCSS(r,c,d,h,velocity);   // Govers, van Rijn etc
+        TBLTCFlood->Drc = calcTCBedload(r, c, d, FS_BL_Method, velocity, 1);
+                //SWOFSedimentTCBL(r,c,d,h,velocity);  // van Rijn etc
+        TSSTCFlood->Drc = calcTCSuspended(r, c, d, FS_SS_Method, velocity, 1);
+                //SWOFSedimentTCSS(r,c,d,h,velocity);   // Govers, van Rijn etc
     }
     //check for concentrations above MAXCONC
     if(SwitchUseGrainSizeDistribution)

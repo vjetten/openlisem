@@ -218,7 +218,7 @@ void TWorld::DoModel()
 //            ThreadPool->RunCellCompute(fcompute2);
 //            ThreadPool->WaitForAll();
 
-        //    ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
+            ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
