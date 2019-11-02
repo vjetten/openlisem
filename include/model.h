@@ -177,9 +177,9 @@ class LisemThreadPool;
 #define FSGOVERS 0
 #define FSRIJN 1
 #define FSRIJNFULL 2
-#define FHAIRSINEROSE 3
+#define FSHAIRSINEROSE 3
 #define FSWUWANGJIA 4
-#define FSWUWANGJIABL 3
+//#define FSWUWANGJIABL 3
 
 #define RGOVERS 0
 #define RRIJN 1
@@ -640,8 +640,8 @@ public:
 
     void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
 
-    double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
-    double SWOFSedimentTCSS(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
+ //   double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
+ //   double SWOFSedimentTCSS(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
 
     void SWOFSedimentFlowInterpolation(int thread,cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
@@ -670,14 +670,14 @@ public:
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachment(int r, int c);
 
-//    void RiverSedimentDiffusion(double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
-    double RiverSedimentTCBL(int r,int c, int d, double V, double WH, double WHb, double w);
-    double RiverSedimentTCSS(int r,int c, int d, double V, double WH, double WHs, double w);
+ //   double RiverSedimentTCBL(int r,int c, int d, double V, double WH, double WHb, double w);
+ //   double RiverSedimentTCSS(int r,int c, int d, double V, double WH, double WHs, double w);
+     void RiverSedimentMaxC(int r, int c);
+
     double calcTCSuspended(int r,int c, int _d, int method, double U, int type);
     double calcTCBedload(int r,int c, int _d, int method, double U, int type);
-    void RiverSedimentMaxC(int r, int c);
 
 
     void FindBaseFlow(); //search for channel inflow from groundwater
@@ -765,8 +765,6 @@ public:
     long nrFloodcells;
     void ChannelFlood(void);
     void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
-    void FloodBoundary(void);
-    void FloodSpuriousValues(void);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
 

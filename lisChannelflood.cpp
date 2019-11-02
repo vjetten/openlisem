@@ -200,7 +200,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     {
                        // ChannelSSDepth->Drc = ChannelWH->Drcr - ChannelBLDepth->Drcr;
                        // SSDepthFlood->Drcr = _h->Drcr - BLDepthFlood->Drcr;
-                        SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drcr);
+                        SWOFSedimentLayerDepth(r,c,_h->Drc, UVflood->Drcr);//V->Drcr);
                         RiverSedimentLayerDepth(rr,cr);
 
                         if (SSDepthFlood->Drcr < 0) {
@@ -268,38 +268,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
         }
     }
 }
-//---------------------------------------------------------------------------
-void TWorld::FloodBoundary()
-{
-//    FOR_ROW_COL_MV
-//    {
-//        // NOTE : DomainEdge is a copy of  && FlowBoundary if needed
-//        if (FlowBoundary->Drc > 0 && hmx->Drc > 0.001)
-//        {
-//            // qDebug() << Qflood->Drc*_dt/(DX->Drc*ChannelAdj->Drc);
-//            double qf = Qflood->Drc;
 
-//            if( qf*_dt > hmx->Drc*DX->Drc*ChannelAdj->Drc)
-//            {
-//                qf = hmx->Drc*DX->Drc*ChannelAdj->Drc/_dt;
-//            }
-//            double hmx_old = hmx->Drc;
-//            hmx->Drc = std::max(0.0, hmx->Drc - qf*_dt/(DX->Drc*ChannelAdj->Drc));
-//            double dh = hmx_old - hmx->Drc;
-//            floodBoundaryTot += dh*(DX->Drc*ChannelAdj->Drc);
-
-//            if (SwitchErosion)
-//            {
-//                double sedss = std::min(SSFlood->Drc, SSCFlood->Drc * dh);
-//                SSFlood->Drc -= sedss;
-//                double sedbl = std::min(BLFlood->Drc, BLCFlood->Drc * dh);
-//                SSFlood->Drc -= sedbl;
-//                floodBoundarySedTot += sedss+sedbl;
-
-//            }
-//        }
-//    }
-}
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
@@ -349,7 +318,6 @@ void TWorld::ChannelFlood(void)
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
 
-    // FloodBoundary();
      // boundary flow
     Boundary2Ddyn(hmx, Uflood, Vflood);
 
