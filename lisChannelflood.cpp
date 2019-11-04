@@ -332,10 +332,6 @@ void TWorld::ChannelFlood(void)
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
-    // boundary flow
-   Boundary2Ddyn(hmx, Uflood, Vflood);
-
-
     //new flood domain
     nrFloodedCells = 0;
     // used in infil and addRainfall
@@ -369,6 +365,13 @@ void TWorld::ChannelFlood(void)
 //            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
 //            Qsn->Drc = Conc->Drc*Qn->Drc;
 //        }
+    }
+
+    // boundary flow
+    Boundary2Ddyn(hmx, Uflood, Vflood);
+    FOR_ROW_COL_MV
+    {
+        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
     }
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);

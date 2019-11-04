@@ -891,8 +891,8 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
                 TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc; //SoilWidthDX->Drc;
-                //TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
-                TransportFactor = bldischarge*DT->Drc;
+                TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
+                //TransportFactor = bldischarge*DT->Drc;
 
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg
@@ -931,7 +931,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
                 //### deposition
                 TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/BLDepthFlood->Drc)) * blwatervol;
-
                 //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
                 // deposition can occur on roads and on soil (so use flowwidth)
 

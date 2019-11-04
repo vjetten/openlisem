@@ -283,7 +283,7 @@ void TWorld::CalcVelDisch(int thread)
         double NN = N->Drc;
 
         if (SwitchIncludeChannel)
-            qExp(mixing_coefficient*hmx->Drc);
+            NN = N->Drc * std::min(qExp(mixing_coefficient*hmx->Drc), 2.0);
         // slow down water in flood zone
 
         // avg WH from soil surface and roads, over width FlowWidth
@@ -358,8 +358,8 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
 
         K2DQOutBoun += _q;
         h->Drc -= dh;
-        Qn->Drc = UV*(h->Drc*dy);
-        Q->Drc = Qn->Drc;
+//        Qn->Drc = UV*(h->Drc*dy);
+//        Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -394,6 +394,9 @@ void TWorld::OverlandFlow2Ddyn(void)
     // note iro is a volume!
   //  infilInWave(iro, WHrunoff, _dt);
 
+    Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
+
+
     FOR_ROW_COL_MV
     {
       //  WHrunoff->Drc = std::max(WHrunoff->Drc, 0.0);
@@ -407,8 +410,6 @@ void TWorld::OverlandFlow2Ddyn(void)
 
        // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
     }
-
-    Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
 
 
     FOR_ROW_COL_MV

@@ -759,10 +759,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
 
-        if (p1.compare("Advanced sediment")==0)  {
-            qDebug() << "as"<< checkAdvancedSediment->isChecked();
-            namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
-        }
+        if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+
         if (p1.compare("Use 2 phase flow")==0)  {
             namelist[j].value.setNum((int) checkBox_Sed2Phase->isChecked());
             checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());

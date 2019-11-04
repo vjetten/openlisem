@@ -234,7 +234,6 @@ void TWorld::GetInputData(void)
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
 {
-    qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
     // THIS SHOULD BE THE FIRST MAP

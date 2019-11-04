@@ -1410,24 +1410,24 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    //find transport capacity for bed and suspended layer
    for(int d  = 0 ; d < iterator;d++)
    {
-       cTMap * TBLTCFlood;
-       cTMap * TSSTCFlood;
+       cTMap * TBLTCtemp;
+       cTMap * TSSTCtemp;
 
        if(!SwitchUseGrainSizeDistribution)
        {
-           TBLTCFlood = ChannelBLTC;
-           TSSTCFlood = ChannelSSTC;
+           TBLTCtemp = ChannelBLTC;
+           TSSTCtemp = ChannelSSTC;
        }else
        {
-           TBLTCFlood = RBLTC_D.at(d);
-           TSSTCFlood = RSSTC_D.at(d);
+           TBLTCtemp = RBLTC_D.at(d);
+           TSSTCtemp = RSSTC_D.at(d);
        }
 
        //get transport capacity for bed/suspended load for a specific cell and grain size class
       // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
       // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
-       TBLTCFlood->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
-       TSSTCFlood->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
+       TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
+       TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
     }
 
    //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
@@ -1563,15 +1563,11 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
           //deposition
           double TransportFactor;
-     //     if (TSSDepthtemp->Drc > MIN_HEIGHT)
-              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-                      //(1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
-       //   else
-       //       TransportFactor =  1.0 * sswatervol;
+          if (TSSDepthtemp->Drc > MIN_HEIGHT)
+              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
+          else
+              TransportFactor =  1.0 * sswatervol;
 
-          // if very deep dt*sv does not reach bottom only fraction: dt*sv/h
-
-         // TSSCtemp->Drc = MaxConcentration(sswatervol, TSStemp->Drc);
           double maxTC = std::max(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);  // TC in kg/m3
           double minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);
 
@@ -1580,13 +1576,14 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
           //  detachment
           TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-       //   TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
-       //   TransportFactor = ssdischarge*_dt;
+          TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+          //TransportFactor = ssdischarge*_dt;
+          // use discharge because standing water has no erosion
+
           //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
           detachment = TW->Drc * maxTC * TransportFactor;
-          //detachment = std::min(detachment, maxTC * ChannelQn->Drc*ssdepth/ChannelWH->Drc *_dt); // this line is new
           // cannot have more detachment than remaining capacity in flow
-          // use discharge because standing water has no erosion
+
           detachment = DetachMaterial(r,c,d,true,false,false, detachment);
           // multiply by Y
 
