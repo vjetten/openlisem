@@ -816,7 +816,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
             //erosion values based on discharge
             TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc;//SoilWidthDX->Drc;
-        //    TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
+            TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
 
         //    TransportFactor = ssdischarge*DT->Drc;
 

@@ -318,9 +318,6 @@ void TWorld::ChannelFlood(void)
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
 
-     // boundary flow
-    Boundary2Ddyn(hmx, Uflood, Vflood);
-
     double dtflood = 0;
 
     startFlood = false;
@@ -334,6 +331,10 @@ void TWorld::ChannelFlood(void)
 
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
+
+    // boundary flow
+   Boundary2Ddyn(hmx, Uflood, Vflood);
+
 
     //new flood domain
     nrFloodedCells = 0;

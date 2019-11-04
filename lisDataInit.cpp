@@ -678,6 +678,10 @@ void TWorld::InitStandardInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitBoundary(void)
 {
+
+    K2DQOutBoun = 0;
+    K2DQSOutBoun = 0;
+
     // make a 1 cell edge around the domain, used to determine flood at the edge
     DomainEdge = NewMap(0);
     for (int r = 1; r < _nrRows-1; r++)

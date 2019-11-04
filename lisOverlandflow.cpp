@@ -311,7 +311,7 @@ void TWorld::CalcVelDisch(int thread)
 }
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
+void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
 {
     if (FlowBoundaryType == 0)
         return;
@@ -320,23 +320,25 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
 
     // find oulets based on DEM and WHrunoff
     K2DDEMARO();
-
+    //direction of velocity is in the direction of + and -
+    // U is EW and V is NS
     // find which outlets on the boundary are directed to the outside based on sign U and V
+
+
     FOR_ROW_COL_MV {
         if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > MIN_HEIGHT)
         {
-        //    double v = qSqrt(U->Drc * U->Drc + V->Drc*V->Drc);
             if (c > 0 && MV(r,c-1))
-                if (V->Drc > 0)
+                if (_U->Drc < 0)
                     tma->Drc = 1;
             if (c < _nrCols-1 && MV(r,c+1))
-                if (V->Drc < 0)
+                if (_U->Drc > 0)
                     tma->Drc = 1;
             if (r > 0 && MV(r-1,c))
-                if (U->Drc < 0)
+                if (_V->Drc < 0)
                     tma->Drc = 1;
             if (r < _nrRows-1 && MV(r+1,c))
-                if (U->Drc > 0)
+                if (_V->Drc > 0)
                     tma->Drc = 1;
         }
     }
@@ -348,20 +350,25 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
             if(tma->Drc == 1 && h->Drc > MIN_HEIGHT)
     {
         double dy = ChannelAdj->Drc;
-        double UV = qSqrt(U->Drc * U->Drc + V->Drc*V->Drc);
+        double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
+        double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
 
-        double _q = std::min(UV*_dt*dy*DX->Drc, h->Drc*DX->Drc*dy*0.9);
+        double dh = std::max(0.0,frac*h->Drc);
+        double _q = dh*DX->Drc*dy;
 
         K2DQOutBoun += _q;
-        h->Drc -= _q/(DX->Drc*dy);;
-        Qn->Drc = V->Drc*(h->Drc*dy);
+        h->Drc -= dh;
+        Qn->Drc = UV*(h->Drc*dy);
         Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
-            double sout = std::min(SSCFlood->Drc*_q, SSFlood->Drc);
-            K2DQSOutBoun += sout;
-            SSFlood->Drc -= sout*SSDepthFlood->Drc/h->Drc;
-            BLFlood->Drc -= sout*BLDepthFlood->Drc/h->Drc;
+            double ds = frac * SSFlood->Drc;
+            K2DQSOutBoun += ds;
+            SSFlood->Drc -= ds;
+
+            ds = frac * BLFlood->Drc;
+            K2DQSOutBoun += ds;
+            BLFlood->Drc -= ds;
         }
     }
   //  qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
@@ -402,6 +409,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     }
 
     Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
+
 
     FOR_ROW_COL_MV
     {
