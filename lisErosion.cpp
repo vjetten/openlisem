@@ -528,6 +528,8 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return (*V).at(numgrainclasses-1);
 }
+
+
 /**
  * @fn double TWorld::GetSV(double d)
  * @brief get settling velocity of sediment with grain size d
@@ -538,16 +540,17 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
 double TWorld::GetSV(double d)
 {
     double dm = d / 1e6;
-    double ds = dm * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+    double ds = dm * pow((2650/1000 - 1)*GRAV/(1e-6*1e-6),(1.0/3.0));
     return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
-    // zhiyao et al, 2008
+//    // zhiyao et al, 2008
 
     //Stokes range settling velocity
     //Stokes
     if(d < 100)
     {
+   //     qDebug() << 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
+   //     return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
         return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
-
     //Settling velocity by Zanke (1977)
     }else
     {
@@ -561,7 +564,7 @@ double TWorld::GetSV(double d)
  * @brief Update grain size distribution of soil layers
  *
  * Update grain size distribution of both
- * original soil layer and deposited layer.
+ * original soil layer and deposited layer in river and on slope.
  * Step is skipped if the storage is negative,
  * which indicated infinite storage.
  *
@@ -1227,7 +1230,7 @@ void TWorld::FlowDetachment(int thread)
               {
                   //detachment =  W_D.at(d)->Drc * detachment;
               }
-              // unit = kg/m3 * m3 = kg
+              // unit = kg/m3 * m3 = kg (/cell)
               detachment = std::min(detachment, maxTC * erosionwv);
 
               // cannot have more detachment than remaining capacity in flow
@@ -1421,12 +1424,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
        }
 
        //get transport capacity for bed/suspended load for a specific cell and grain size class
-     //  TBLTCFlood->Drc = 0;
-     //  if (SwitchUse2Layer)
       // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
       // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
-       TBLTCFlood->Drc = calcTCBedload(r, c, d, FS_BL_Method, ChannelV->Drc, 0);
-       TSSTCFlood->Drc = calcTCSuspended(r, c, d, FS_SS_Method, ChannelV->Drc, 0);
+       TBLTCFlood->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
+       TSSTCFlood->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
     }
 
    //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
@@ -1471,40 +1472,40 @@ void TWorld::ChannelFlowDetachment(int r, int c)
    {
        //set all maps for this grain class
 
-       cTMap * TBLDepthFlood;
-       cTMap * TSSDepthFlood;
-       cTMap * TBLTCFlood;
-       cTMap * TSSTCFlood;
-       cTMap * TBLCFlood;
-       cTMap * TSSCFlood;
-       cTMap * TBLFlood;
-       cTMap * TSSFlood;
+       cTMap * TBLDepthtemp;
+       cTMap * TSSDepthtemp;
+       cTMap * TBLTCtemp;
+       cTMap * TSSTCtemp;
+       cTMap * TBLCtemp;
+       cTMap * TSSCtemp;
+       cTMap * TBLtemp;
+       cTMap * TSStemp;
        cTMap * TW;
 
        double TSettlingVelocity;
 
        if(!SwitchUseGrainSizeDistribution)
        {
-           TBLDepthFlood = ChannelBLDepth;
-           TSSDepthFlood = ChannelSSDepth;
-           TBLTCFlood = ChannelBLTC;
-           TSSTCFlood = ChannelSSTC;
-           TBLCFlood = ChannelBLConc;
-           TSSCFlood = ChannelSSConc;
-           TBLFlood = ChannelBLSed;
-           TSSFlood = ChannelSSSed;
+           TBLDepthtemp = ChannelBLDepth;
+           TSSDepthtemp = ChannelSSDepth;
+           TBLTCtemp = ChannelBLTC;
+           TSSTCtemp = ChannelSSTC;
+           TBLCtemp = ChannelBLConc;
+           TSSCtemp = ChannelSSConc;
+           TBLtemp = ChannelBLSed;
+           TSStemp = ChannelSSSed;
            TW = unity;
            TSettlingVelocity = SettlingVelocity->Drc;
        }else
        {
-           TBLDepthFlood = RBLD_D.at(d);
-           TSSDepthFlood = RSSD_D.at(d);
-           TBLTCFlood = RBLTC_D.at(d);
-           TSSTCFlood = RSSTC_D.at(d);
-           TBLCFlood = RBLC_D.at(d);
-           TSSCFlood = RSSC_D.at(d);
-           TBLFlood = RBL_D.at(d);
-           TSSFlood = RSS_D.at(d);
+           TBLDepthtemp = RBLD_D.at(d);
+           TSSDepthtemp = RSSD_D.at(d);
+           TBLTCtemp = RBLTC_D.at(d);
+           TSSTCtemp = RSSTC_D.at(d);
+           TBLCtemp = RBLC_D.at(d);
+           TSSCtemp = RSSC_D.at(d);
+           TBLtemp = RBL_D.at(d);
+           TSStemp = RSS_D.at(d);
            TW = RW_D.at(d);
            TSettlingVelocity = settlingvelocities.at(d);
        }
@@ -1515,8 +1516,14 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
        if(ChannelWH->Drc < MIN_HEIGHT)
        {
-           deposition = -TBLFlood->Drc;
-           deposition += -TSSFlood->Drc;
+           deposition = -TBLtemp->Drc;
+           deposition += -TSStemp->Drc;
+           TBLtemp->Drc = 0;
+           TSStemp->Drc = 0;
+           TBLTCtemp = 0;
+           TSSTCtemp = 0;
+           TBLCtemp = 0;
+           TSSCtemp = 0;
 
            ChannelDep->Drc += deposition;
 
@@ -1533,14 +1540,14 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                }
            }
 
-           TBLDepthFlood = 0;
-           TSSDepthFlood = 0;
-           TBLTCFlood = 0;
-           TSSTCFlood = 0;
-           TBLCFlood = 0;
-           TSSCFlood = 0;
-           TBLFlood = 0;
-           TSSFlood = 0;
+           TBLDepthtemp = 0;
+           TSSDepthtemp = 0;
+           TBLTCtemp = 0;
+           TSSTCtemp = 0;
+           TBLCtemp = 0;
+           TSSCtemp = 0;
+           TBLtemp = 0;
+           TSStemp = 0;
 
            if(SwitchUseGrainSizeDistribution)
            {
@@ -1556,22 +1563,25 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
           //deposition
           double TransportFactor;
-          if (TSSDepthFlood->Drc > MIN_HEIGHT)
-              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthFlood
-          else
-              TransportFactor =  1.0 * sswatervol;
+     //     if (TSSDepthtemp->Drc > MIN_HEIGHT)
+              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                      //(1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
+       //   else
+       //       TransportFactor =  1.0 * sswatervol;
 
-         // TSSCFlood->Drc = MaxConcentration(sswatervol, TSSFlood->Drc);
-          double maxTC = std::max(TSSTCFlood->Drc - TSSCFlood->Drc,0.0);
-          double minTC = std::min(TSSTCFlood->Drc - TSSCFlood->Drc,0.0);
+          // if very deep dt*sv does not reach bottom only fraction: dt*sv/h
 
-          deposition = std::max(TransportFactor * minTC,-TSSFlood->Drc);
+         // TSSCtemp->Drc = MaxConcentration(sswatervol, TSStemp->Drc);
+          double maxTC = std::max(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);  // TC in kg/m3
+          double minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);
+
+          deposition = std::max(TransportFactor * minTC,-TSStemp->Drc); // in kg
           // not more than SS present
 
           //  detachment
-          TransportFactor = _dt*TSettlingVelocity * DX->Drc * ChannelFlowWidth->Drc;
-          TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
-          TransportFactor = ssdischarge*_dt;
+          TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
+       //   TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+       //   TransportFactor = ssdischarge*_dt;
           //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
           detachment = TW->Drc * maxTC * TransportFactor;
           //detachment = std::min(detachment, maxTC * ChannelQn->Drc*ssdepth/ChannelWH->Drc *_dt); // this line is new
@@ -1580,12 +1590,12 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           detachment = DetachMaterial(r,c,d,true,false,false, detachment);
           // multiply by Y
 
-          if(MAXCONC * sswatervol < TSSFlood->Drc+detachment)
-              detachment = std::max(0.0, MAXCONC * sswatervol - TSSFlood->Drc);
+          if(MAXCONC * sswatervol < TSStemp->Drc+detachment)
+              detachment = std::max(0.0, MAXCONC * sswatervol - TSStemp->Drc);
 
           //### sediment balance
-          TSSFlood->Drc += detachment;
-          TSSFlood->Drc += deposition;
+          TSStemp->Drc += detachment;
+          TSStemp->Drc += deposition;
           ChannelDep->Drc += deposition;
           ChannelDetFlow->Drc += detachment;
 
@@ -1598,7 +1608,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
           //### do bedload
 
-          if(TBLDepthFlood->Drc < MIN_HEIGHT) {
+          if(TBLDepthtemp->Drc < MIN_HEIGHT) {
               ChannelDep->Drc += -ChannelBLSed->Drc;
               ChannelBLTC->Drc = 0;
               ChannelBLConc->Drc = 0;
@@ -1607,13 +1617,13 @@ void TWorld::ChannelFlowDetachment(int r, int c)
           } else {
               //there is BL
 
-              maxTC = std::max(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
-              minTC = std::min(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
+              maxTC = std::max(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
+              minTC = std::min(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
 
               //### detachment
               TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
-              TransportFactor = bldischarge*_dt;
+//              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
+//              TransportFactor = bldischarge*_dt;
 
               // units s * m/s * m * m = m3
               detachment =  TW->Drc *  maxTC * TransportFactor;
@@ -1623,17 +1633,17 @@ void TWorld::ChannelFlowDetachment(int r, int c)
               // mult by Y and mixingdepth
               // IN KG/CELL
 
-              if(MAXCONC * blwatervol < TBLFlood->Drc+detachment)
-                  detachment = std::max(0.0, MAXCONC * blwatervol - TBLFlood->Drc);
-              // limit detachment to what BLflood can carry
+              if(MAXCONC * blwatervol < TBLtemp->Drc+detachment)
+                  detachment = std::max(0.0, MAXCONC * blwatervol - TBLtemp->Drc);
+              // limit detachment to what BLtemp can carry
 
               //### deposition
-              if (TSSDepthFlood->Drc > MIN_HEIGHT)
-                  TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthFlood
-              else
-                  TransportFactor =  1.0 * blwatervol;
+//              if (TSSDepthtemp->Drc > MIN_HEIGHT)
+//                  TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthtemp
+//              else
+//                  TransportFactor =  1.0 * blwatervol;
               // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-              deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
+              deposition = std::max(minTC * TransportFactor, -TBLtemp->Drc);
               // cannot have more depo than sediment present
 
               if(SwitchUseMaterialDepth)
@@ -1645,12 +1655,12 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                   }
               }
 
-              TBLFlood->Drc += detachment; //ChannelBLSed
-              TBLFlood->Drc += deposition;
+              TBLtemp->Drc += detachment; //ChannelBLSed
+              TBLtemp->Drc += deposition;
               ChannelDep->Drc += deposition;
               ChannelDetFlow->Drc += detachment;
 
-            //  TBLCFlood->Drc = MaxConcentration(blwatervol, TBLFlood->Drc);
+            //  TBLCtemp->Drc = MaxConcentration(blwatervol, TBLtemp->Drc);
               // last recalc for diffusion
            }
        }
@@ -1729,7 +1739,7 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     //maximum concentraion
     if(!SwitchUseGrainSizeDistribution)
     {
-        double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*ChannelSSDepth->Drc;
+        double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*ChannelSSDepth->Drc;
         if(sssmax < _SS->Drc)
         {
             ChannelDep->Drc += (sssmax - _SS->Drc);// - sssmax);
@@ -2042,6 +2052,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int type)
 {
     double R, h, hs, n, S, w;
+    cTMap *Wd;
 
     if (type == 0) {
         h = ChannelWH->Drc;
@@ -2049,6 +2060,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
+        Wd = RW_D.at(_d);
     } else
     if (type == 1) {
         h = hmx->Drc;
@@ -2056,6 +2068,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         S = Grad->Drc;
         w = ChannelAdj->Drc;
         R = (w*h)/(2*h+w);
+        Wd = W_D.at(_d);
     } else
         if (type == 2) {
             h = WH->Drc;
@@ -2082,7 +2095,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
 //        tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) * ( std::max(0.0, (om - omcr))/h) ;
         double om =  U*S;
         double omcr = 0.004;
-        tc =  W_D.at(_d)->Drc * (1.0/settlingvelocities.at(_d))*(0.013/GRAV) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/h) ;
+        tc =  Wd->Drc * (1.0/settlingvelocities.at(_d))*(0.013/GRAV) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/h) ;
 
     } else
     if(method == FSGOVERS)
@@ -2092,7 +2105,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         // V in cm/s in this formula assuming grad is SINE
         double ucr = 0.4;
         // critical unit streampower in cm/s
-        tc = ps * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc);
+        tc = ps * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc); // kg/m3
 
     }else
         if(method == FSRIJN)
@@ -2118,7 +2131,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
             if(method == FSRIJNFULL)
     {
                 /*
-                 * D50		D*
+                 * D50	d50m	D*
                 10	0.00001	0.25
                 30	0.00003	0.76
                 50	0.00005	1.26
@@ -2127,11 +2140,10 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
                 500	0.0005	12.65
                 1000	0.001	25.30
                 2000	0.002	50.59
-                dit is lineair bij kinvis = 1e-6
                 */
         //van Rijn full (1984) following page 1632
         double kinvis = 1e-6;
-        double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+        double ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
         double chezy = 18 * log10(4 * R/d90m);
         double uc = U * sqrt(GRAV)/chezy;
 
@@ -2169,11 +2181,22 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         double pek = 0;
         double sv = settlingvelocities.at(_d);
         double gd = graindiameters.at(_d)/1000000.0;
-        FOR_GRAIN_CLASSES
-        {
-            phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
-            pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+        if (type == 0) {
+            FOR_GRAIN_CLASSES
+            {
+                //LET OP : RW_D and W_D !!!!
+                phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
+                pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+            }
+        } else {
+            FOR_GRAIN_CLASSES
+            {
+                //LET OP : RW_D and W_D !!!!
+                phk += W_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
+                pek += W_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+            }
         }
+
         double ppk = 1;
         ppk = pow(phk/pek,0.6);
         if(pek == 0 )
@@ -2256,11 +2279,11 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double U, int type
     }else if(method == FSRIJNFULL)
     {
         //van Rijn full (1984)  see page 1450 1984_JHE_VanRijn_a.pdf
-       // double kinvis = 1e-6;
+        double kinvis = 1e-6;
 
         double _dm = d90m; //d50m; interpretation -> assume all bedload particles are d90? Van RIjn deals mostly with sand
 
-        double ds = _dm * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+        double ds = _dm * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
         double chezy = 18 * log(4 * h/d90m);  // h or hb or radius?
         double us = sqrt(GRAV) * U/chezy;
 
@@ -2285,10 +2308,20 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double U, int type
         double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/n;
         double phk = 0;
         double pek = 0;
-        FOR_GRAIN_CLASSES
-        {
-            phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));   // why d and _d?
-            pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+        if (type == 0) {
+            FOR_GRAIN_CLASSES
+            {
+                //LET OP : RW_D and W_D !!!!
+                phk += RW_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
+                pek += RW_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+            }
+        } else {
+            FOR_GRAIN_CLASSES
+            {
+                //LET OP : RW_D and W_D !!!!
+                phk += W_D.Drcd * (graindiameters.at(d)/(graindiameters.at(_d) + graindiameters.at(d)));
+                pek += W_D.Drcd * (graindiameters.at(_d)/(graindiameters.at(d) + graindiameters.at(_d)));
+            }
         }
         double ppk = 1;
         ppk = pow(phk/pek,0.6);

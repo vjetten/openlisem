@@ -92,7 +92,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
         }
     }}}}
 
-    double courant = this->courant_factor;
+    double courant = 0.1*this->courant_factor;
     // flooding courant factor
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
@@ -892,7 +892,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 // units s * m/s * m * m = m3
                 TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc; //SoilWidthDX->Drc;
                 //TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
-                //TransportFactor = bldischarge*DT->Drc;
+                TransportFactor = bldischarge*DT->Drc;
 
                 detachment = TW->Drc * maxTC * TransportFactor;
                 // unit = kg/m3 * m3 = kg

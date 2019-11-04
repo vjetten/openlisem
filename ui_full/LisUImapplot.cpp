@@ -640,7 +640,7 @@ void lisemqt::showChannelVector()
 
         {
             QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::lightGray, QPen( Qt::black ), QSize( (int)dx*.4, (int)dx*.4) );
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( (int)dx*.4, (int)dx*.4) );
             culvert->setSymbol(blackdot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );

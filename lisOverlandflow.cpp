@@ -323,8 +323,9 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
 
     // find which outlets on the boundary are directed to the outside based on sign U and V
     FOR_ROW_COL_MV {
-        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 1e-6)
+        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > MIN_HEIGHT)
         {
+        //    double v = qSqrt(U->Drc * U->Drc + V->Drc*V->Drc);
             if (c > 0 && MV(r,c-1))
                 if (V->Drc > 0)
                     tma->Drc = 1;
@@ -347,30 +348,20 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V)
             if(tma->Drc == 1 && h->Drc > MIN_HEIGHT)
     {
         double dy = ChannelAdj->Drc;
+        double UV = qSqrt(U->Drc * U->Drc + V->Drc*V->Drc);
 
-        double _q = std::min(Qn->Drc*_dt, h->Drc * DX->Drc*dy);
+        double _q = std::min(UV*_dt*dy*DX->Drc, h->Drc*DX->Drc*dy*0.9);
 
         K2DQOutBoun += _q;
-double frac = _q/(DX->Drc*dy)/h->Drc;
-        h->Drc -=  _q/(DX->Drc*dy);
-
-        h->Drc = std::max(0.0, h->Drc);
-        V->Drc *= frac;
+        h->Drc -= _q/(DX->Drc*dy);;
         Qn->Drc = V->Drc*(h->Drc*dy);
         Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
-            double sout = std::min(SSCFlood->Drc*_q*_dt, SSFlood->Drc);
+            double sout = std::min(SSCFlood->Drc*_q, SSFlood->Drc);
             K2DQSOutBoun += sout;
-            SSFlood->Drc -= sout;
-            if (SwitchUse2Layer) {
-                sout = std::min(BLCFlood->Drc*_q*_dt, BLFlood->Drc);
-                K2DQSOutBoun += sout;
-                BLFlood->Drc -= sout;
-            }
- //            SWOFSedimentLayerDepth(r,c,WHrunoff->Drc,V->Drc);
- //            BLCFlood->Drc = MaxConcentration(BLVolFlood->Drc, BLFlood->Drc);
- //            SSCFlood->Drc = MaxConcentration(SSVolFlood->Drc, SSFlood->Drc);
+            SSFlood->Drc -= sout*SSDepthFlood->Drc/h->Drc;
+            BLFlood->Drc -= sout*BLDepthFlood->Drc/h->Drc;
         }
     }
   //  qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;

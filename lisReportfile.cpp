@@ -225,6 +225,7 @@ void TWorld::OutputUI(void)
         if (SwitchIncludeChannel)
             if (ChannelFlowWidth->Drc > 0)
                 COMBO_QOFCH->Drc = ChannelQn->Drc;
+        if(COMBO_QOFCH->Drc < 1e-6) COMBO_QOFCH->Drc = 0;
 
 //            if (ChannelWidthExtended->Drc > 0)
 //            {
@@ -789,10 +790,10 @@ void TWorld::ReportMaps(void)
         QString unit = "kg/cell";
         double factor = 1.0;
         if(ErosionUnits == 2)
-            factor = 1.0/(_dx*_dx);
+            factor = 1.0/(_dx*_dx);  //kg/m2
         else
             if (ErosionUnits == 0)
-            factor = 10.0/(_dx*_dx);
+            factor = 10.0/(_dx*_dx); //ton/ha
 
         // all detachment combined
         FOR_ROW_COL_MV {

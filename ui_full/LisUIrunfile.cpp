@@ -348,9 +348,9 @@ void lisemqt::ParseInputData()
         if (checkAdvancedSediment->isChecked())
         {
             checkBox_Sed2Phase->setChecked(true);
-            checkBox_SedMultiGrain->setChecked(false);
+       //     checkBox_SedMultiGrain->setChecked(false);
             tabWidgetOptions->setTabEnabled(5,true);
-            if(valc == 2)
+       /*     if(valc == 2)
                 checkBox_SedMultiGrain->setChecked(true);
             else
                 if(valc == 1)
@@ -360,6 +360,7 @@ void lisemqt::ParseInputData()
                     checkAdvancedSediment->setChecked(false);
                     tabWidgetOptions->setTabEnabled(5,false);
                 }
+                */
         }
 
         if (p1.compare("Ksat calibration")==0) E_CalibrateKsat->setValue(valc);
@@ -759,7 +760,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
 
         if (p1.compare("Advanced sediment")==0)  {
-            qDebug() << checkAdvancedSediment->isChecked();
+            qDebug() << "as"<< checkAdvancedSediment->isChecked();
             namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
         }
         if (p1.compare("Use 2 phase flow")==0)  {

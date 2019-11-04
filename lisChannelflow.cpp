@@ -515,9 +515,9 @@ void TWorld::ChannelFlow(void)
                     FOR_GRAIN_CLASSES
                     {
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d));
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d),
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));//, ChannelBufferVol, ChannelBufferSed);
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));
                     }
                 }
             }
